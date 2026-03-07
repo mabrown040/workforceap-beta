@@ -17,14 +17,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Handle dropdowns on mobile
+    // Handle dropdowns on mobile - only toggle when clicking the span
     dropdowns.forEach(dropdown => {
-        dropdown.addEventListener('click', function(e) {
-            if (window.innerWidth <= 900) {
-                e.preventDefault();
-                this.classList.toggle('active');
-            }
-        });
+        const dropdownSpan = dropdown.querySelector('span');
+        if (dropdownSpan) {
+            dropdownSpan.addEventListener('click', function(e) {
+                if (window.innerWidth <= 900) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropdown.classList.toggle('active');
+                }
+            });
+        }
     });
     
     // Close menu when clicking outside

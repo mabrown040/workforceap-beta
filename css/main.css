@@ -1731,3 +1731,13 @@ img.loaded {
 .wwd-cta h3{margin-bottom:1rem}
 .wwd-cta p{color:#666;margin-bottom:1.5rem}
 @media(max-width:768px){.wwd-mission-vision{grid-template-columns:1fr}.wwd-stats{grid-template-columns:1fr}}
+
+/* VISION MISSION SECTION */
+.vision-mission-section{padding:5rem 0;background:#fff}
+.vm-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+.vm-image img{width:100%;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.vm-content .section-label{display:block;margin-bottom:1rem;color:#ad2c4d;font-weight:600;text-transform:uppercase;font-size:.875rem;letter-spacing:.05em}
+.vm-content p{font-size:1.1rem;color:#444;line-height:1.7;margin-bottom:1.5rem}
+.link-arrow{color:#ad2c4d;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:.5rem}
+.link-arrow:hover{text-decoration:underline}
+@media(max-width:900px){.vm-grid{grid-template-columns:1fr;gap:2rem}}

@@ -1,6 +1,93 @@
 // WorkforceAP Static Site - Main JavaScript
 
 document.addEventListener('DOMContentLoaded', function() {
+    function normalizeProgramCategory(label) {
+        const value = label.toLowerCase().trim();
+        if (!value || value.includes('all program')) return 'all';
+        if (value.includes('digital literacy')) return 'digital-literacy';
+        if (value.includes('ai')) return 'ai-software';
+        if (value.includes('cloud') || value.includes('data')) return 'cloud-data';
+        if (value.includes('cyber') || value.includes('it')) return 'it-cyber';
+        if (value.includes('business')) return 'business';
+        if (value.includes('health')) return 'healthcare';
+        if (value.includes('manufacturing')) return 'manufacturing';
+        return value.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    }
+
+    function revealLazyImages() {
+        const lazyImages = document.querySelectorAll('img[loading="lazy"]');
+
+        lazyImages.forEach(function(img) {
+            const markLoaded = function() {
+                img.classList.add('loaded');
+            };
+
+            if (img.complete) {
+                markLoaded();
+                return;
+            }
+
+            img.addEventListener('load', markLoaded, { once: true });
+            img.addEventListener('error', markLoaded, { once: true });
+        });
+    }
+
+    function setupProgramFilters() {
+        const cards = Array.from(document.querySelectorAll('.program-card'));
+        if (!cards.length) return;
+
+        const filterBar = document.querySelector('.content-section .container > div');
+        if (!filterBar) return;
+
+        const filterChips = Array.from(filterBar.children).filter(function(child) {
+            return child.tagName === 'SPAN';
+        });
+
+        if (!filterChips.length) return;
+
+        filterBar.classList.add('program-filter-bar');
+
+        cards.forEach(function(card) {
+            const categoryBadge = card.querySelector('div span');
+            const categoryLabel = categoryBadge ? categoryBadge.textContent : '';
+            card.dataset.category = normalizeProgramCategory(categoryLabel);
+        });
+
+        function applyFilter(filterValue) {
+            filterChips.forEach(function(chip) {
+                const isActive = chip.dataset.filter === filterValue;
+                chip.classList.toggle('active', isActive);
+                chip.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
+
+            cards.forEach(function(card) {
+                const isVisible = filterValue === 'all' || card.dataset.category === filterValue;
+                card.classList.toggle('is-hidden', !isVisible);
+            });
+        }
+
+        filterChips.forEach(function(chip) {
+            const label = chip.textContent.replace(/\(\d+\)/, '').trim();
+            chip.classList.add('program-filter-chip');
+            chip.dataset.filter = normalizeProgramCategory(label);
+            chip.setAttribute('role', 'button');
+            chip.setAttribute('tabindex', '0');
+
+            chip.addEventListener('click', function() {
+                applyFilter(chip.dataset.filter);
+            });
+
+            chip.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    applyFilter(chip.dataset.filter);
+                }
+            });
+        });
+
+        applyFilter('all');
+    }
+
     // Mobile Navigation Toggle
     const mobileToggle = document.querySelector('.mobile-nav-toggle');
     const navMenu = document.querySelector('.nav-menu');
@@ -68,4 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    revealLazyImages();
+    setupProgramFilters();
 });

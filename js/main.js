@@ -218,3 +218,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }, { passive: true });
     }
 });
+
+// Scroll Reveal Animation
+document.addEventListener('DOMContentLoaded', function() {
+  const reveals = document.querySelectorAll('.reveal, .animate-on-scroll');
+  
+  const revealOnScroll = () => {
+    reveals.forEach(element => {
+      const windowHeight = window.innerHeight;
+      const elementTop = element.getBoundingClientRect().top;
+      const revealPoint = 150;
+      
+      if (elementTop < windowHeight - revealPoint) {
+        element.classList.add('visible');
+      }
+    });
+  };
+  
+  window.addEventListener('scroll', revealOnScroll);
+  revealOnScroll();
+});

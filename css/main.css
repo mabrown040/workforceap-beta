@@ -348,6 +348,19 @@ a.btn-white {
     max-width: 860px;
     padding: 4rem 1.5rem;
 }
+.hero-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 0.5rem 1.25rem;
+    border-radius: var(--radius-full);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    margin-bottom: 1.5rem;
+    color: var(--color-white);
+}
 .hero-title {
     font-size: clamp(2.25rem, 6vw, 3.75rem);
     font-weight: 800;
@@ -1554,10 +1567,16 @@ textarea:focus-visible {
 
 /* =============================================
    IMAGE LOADING
+   Native browser lazy loading handles timing;
+   we keep all images visible by default to avoid
+   broken displays, and use .img-fade for JS-driven fades.
    ============================================= */
-img { transition: opacity 0.4s ease; }
-img[loading="lazy"] { opacity: 0; }
-img.loaded, img:not([loading="lazy"]) { opacity: 1; }
+img { opacity: 1; }
+img.img-fade {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+img.img-fade.loaded { opacity: 1; }
 
 /* =============================================
    RESPONSIVE

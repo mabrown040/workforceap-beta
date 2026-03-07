@@ -4,19 +4,127 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Board &amp; Leadership - Workforce Advancement Project</title>
+<meta name="description" content="Meet the board and leadership team driving WorkforceAP's mission to break systemic barriers through workforce training in Austin, TX.">
 <link rel="stylesheet" href="/css/main.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    .leaders-photo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+    .leader-photo-card {
+        background: var(--color-white);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
+        text-align: center;
+    }
+    .leader-photo-card:hover,
+    .leader-photo-card.active {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(173,44,77,0.18);
+        border-color: var(--color-accent);
+    }
+    .leader-photo-card .photo-wrap {
+        width: 100%;
+        aspect-ratio: 1/1;
+        overflow: hidden;
+        background: var(--color-gray-100);
+    }
+    .leader-photo-card .photo-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center top;
+        transition: transform 0.35s ease;
+    }
+    .leader-photo-card:hover .photo-wrap img { transform: scale(1.04); }
+    .leader-photo-card .photo-info { padding: 1rem 0.75rem 1.25rem; }
+    .leader-photo-card .photo-name {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--color-primary);
+        margin-bottom: 0.2rem;
+    }
+    .leader-photo-card .photo-role {
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--color-accent);
+    }
+    .bio-panel {
+        display: none;
+        background: var(--color-white);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--color-gray-200);
+        padding: 2.5rem 3rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-md);
+        animation: bioFadeIn 0.3s ease;
+    }
+    .bio-panel.active { display: flex; gap: 2.5rem; align-items: flex-start; }
+    @keyframes bioFadeIn {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: none; }
+    }
+    .bio-photo {
+        width: 140px; height: 140px; min-width: 140px;
+        border-radius: 50%; overflow: hidden;
+        border: 4px solid var(--color-accent);
+        box-shadow: 0 4px 16px rgba(173,44,77,0.22);
+    }
+    .bio-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+    .bio-content { flex: 1; }
+    .bio-content h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.2rem; }
+    .bio-title {
+        color: var(--color-accent);
+        font-weight: 700; font-size: 0.82rem;
+        text-transform: uppercase; letter-spacing: 0.06em;
+        margin-bottom: 1.25rem; display: block;
+    }
+    .bio-text { color: var(--color-gray-600); line-height: 1.85; font-size: 0.95rem; }
+    .bio-credentials {
+        margin-top: 1.25rem;
+        display: flex; flex-wrap: wrap; gap: 0.5rem;
+    }
+    .bio-tag {
+        background: var(--color-gray-100);
+        color: var(--color-primary);
+        padding: 0.3rem 0.75rem;
+        border-radius: var(--radius-full);
+        font-size: 0.75rem; font-weight: 600;
+    }
+    .join-cta {
+        text-align: center; margin-top: 4rem;
+        padding: 3rem; background: var(--color-light);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--color-gray-200);
+    }
+    .join-cta h2 { margin-bottom: 0.5rem; }
+    .join-cta p { color: var(--color-gray-500); margin-bottom: 1.5rem; max-width: 600px; margin-left: auto; margin-right: auto; }
+    @media (max-width: 768px) {
+        .bio-panel.active { flex-direction: column; align-items: center; text-align: center; padding: 2rem 1.5rem; }
+        .bio-credentials { justify-content: center; }
+        .leaders-photo-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    }
+</style>
 </head>
 <body class="inner-page">
 <div class="top-banner"><div class="top-banner-inner"><span>Funded career training &amp; industry certifications.</span><a href="/apply.html" class="banner-link">Apply now &mdash; no cost to you.</a></div></div>
-<nav class="main-nav"><div class="nav-container"><a href="/" class="logo"><img src="/images/logo.png" alt="Workforce Advancement Project"></a><button class="mobile-nav-toggle" aria-label="Toggle navigation">&#9776;</button><ul class="nav-menu"><li><a href="/">Home</a></li><li class="dropdown"><span class="active">About Us</span><ul class="dropdown-menu"><li><a href="/what-we-do.html">What We Do</a></li><li><a href="/leadership.html" class="active">Leadership Team</a></li></ul></li><li class="dropdown"><span>Programs</span><ul class="dropdown-menu"><li><a href="/programs.html">All Programs</a></li><li><a href="/program-comparison.html">Program Comparison</a></li><li><a href="/salary-guide.html">Salary Guide</a></li></ul></li><li><a href="/how-it-works.html">How It Works</a></li><li><a href="/faq.html">FAQ</a></li><li><a href="/apply.html" class="nav-cta">Apply Now</a></li><li><a href="/contact.html">Contact Us</a></li></ul></div></nav>
+<nav class="main-nav" aria-label="Main navigation"><div class="nav-container"><a href="/" class="logo" aria-label="Home"><img src="/images/logo.png" alt="Workforce Advancement Project"></a><button class="mobile-nav-toggle" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button><ul class="nav-menu"><li><a href="/">Home</a></li><li class="dropdown"><span class="active">About Us</span><ul class="dropdown-menu"><li><a href="/what-we-do.html">What We Do</a></li><li><a href="/leadership.html" class="active">Leadership Team</a></li></ul></li><li class="dropdown"><span>Programs</span><ul class="dropdown-menu"><li><a href="/programs.html">All Programs</a></li><li><a href="/program-comparison.html">Program Comparison</a></li><li><a href="/salary-guide.html">Salary Guide</a></li></ul></li><li><a href="/how-it-works.html">How It Works</a></li><li><a href="/faq.html">FAQ</a></li><li><a href="/apply.html" class="nav-cta">Apply Now</a></li><li><a href="/contact.html">Contact Us</a></li></ul></div></nav>
 
 <section class="page-hero">
   <div class="page-hero-content">
     <h1>Board &amp; Leadership</h1>
-    <p>The people driving WorkforceAP's mission forward.</p>
+    <p>The dedicated people driving WorkforceAP's mission to break systemic barriers and advance futures.</p>
   </div>
 </section>
 
@@ -36,83 +144,147 @@
 <section class="content-section">
 <div class="container">
 
-<div style="display:flex;flex-wrap:wrap;gap:0.75rem;margin-bottom:3rem;padding:2rem;background:var(--color-light);border-radius:var(--radius-lg);border:1px solid var(--color-gray-200);" class="animate-on-scroll">
-  <div class="board-chip" style="padding:.6rem 1.2rem;border-radius:var(--radius-sm);background:var(--color-accent);color:white;border:1px solid var(--color-accent);cursor:pointer;"><strong style="display:block;font-size:.9rem;">Michael Brown</strong><span style="font-size:.75rem;opacity:.9;">Executive Director, CEO</span></div>
-  <div class="board-chip" style="padding:.6rem 1.2rem;border-radius:var(--radius-sm);background:white;border:1px solid var(--color-gray-200);cursor:pointer;"><strong style="display:block;font-size:.9rem;">Adriane Brown</strong><span style="font-size:.75rem;opacity:.7;">COO</span></div>
-  <div class="board-chip" style="padding:.6rem 1.2rem;border-radius:var(--radius-sm);background:white;border:1px solid var(--color-gray-200);cursor:pointer;"><strong style="display:block;font-size:.9rem;">Lakecia Gunter</strong><span style="font-size:.75rem;opacity:.7;">Board Member</span></div>
-  <div class="board-chip" style="padding:.6rem 1.2rem;border-radius:var(--radius-sm);background:white;border:1px solid var(--color-gray-200);cursor:pointer;"><strong style="display:block;font-size:.9rem;">Brandon Frye</strong><span style="font-size:.75rem;opacity:.7;">Board Member</span></div>
-  <div class="board-chip" style="padding:.6rem 1.2rem;border-radius:var(--radius-sm);background:white;border:1px solid var(--color-gray-200);cursor:pointer;"><strong style="display:block;font-size:.9rem;">Col. Derrick Fishback</strong><span style="font-size:.75rem;opacity:.7;">Board Member (Ret.)</span></div>
+<h2 style="margin-bottom:0.5rem;text-align:center;" class="animate-on-scroll">Our Team</h2>
+<p style="text-align:center;color:var(--color-gray-500);margin-bottom:2.5rem;font-size:1rem;" class="animate-on-scroll">Click a team member to learn more.</p>
+
+<div class="leaders-photo-grid animate-on-scroll">
+    <div class="leader-photo-card active" data-leader="michael" onclick="showBio('michael', this)">
+        <div class="photo-wrap"><img src="/images/michael-brown.jpg" alt="Michael Brown, PMP" loading="lazy"></div>
+        <div class="photo-info">
+            <div class="photo-name">Michael Brown, PMP</div>
+            <div class="photo-role">Executive Director, CEO</div>
+        </div>
+    </div>
+    <div class="leader-photo-card" data-leader="adriane" onclick="showBio('adriane', this)">
+        <div class="photo-wrap"><img src="/images/adriane-brown.jpg" alt="Adriane Brown" loading="lazy"></div>
+        <div class="photo-info">
+            <div class="photo-name">Adriane Brown</div>
+            <div class="photo-role">Chief Operating Officer</div>
+        </div>
+    </div>
+    <div class="leader-photo-card" data-leader="lakecia" onclick="showBio('lakecia', this)">
+        <div class="photo-wrap"><img src="/images/lakecia-gunter.jpg" alt="Lakecia Gunter" loading="lazy"></div>
+        <div class="photo-info">
+            <div class="photo-name">Lakecia Gunter</div>
+            <div class="photo-role">Board Member</div>
+        </div>
+    </div>
+    <div class="leader-photo-card" data-leader="brandon" onclick="showBio('brandon', this)">
+        <div class="photo-wrap"><img src="/images/brandon-frye.jpg" alt="Brandon Frye" loading="lazy"></div>
+        <div class="photo-info">
+            <div class="photo-name">Brandon Frye</div>
+            <div class="photo-role">Board Member</div>
+        </div>
+    </div>
+    <div class="leader-photo-card" data-leader="derrick" onclick="showBio('derrick', this)">
+        <div class="photo-wrap"><img src="/images/derrick-fishback.jpg" alt="Col. Derrick Fishback (Ret.)" loading="lazy"></div>
+        <div class="photo-info">
+            <div class="photo-name">Col. Derrick Fishback</div>
+            <div class="photo-role">Board Member (Ret.)</div>
+        </div>
+    </div>
 </div>
 
-<div id="michael-brown" class="animate-on-scroll" style="border:1px solid var(--color-gray-200);border-left:4px solid var(--color-accent);border-radius:0 var(--radius-md) var(--radius-md) 0;padding:1.5rem 2rem;margin-bottom:1.25rem;background:white;transition:box-shadow 0.25s ease;">
-  <div style="display:flex;align-items:center;gap:1.5rem;">
-    <div style="width:72px;height:72px;min-width:72px;border-radius:50%;background:var(--color-gray-200);overflow:hidden;"><img src="/images/michael-brown.jpg" alt="Michael Brown, PMP" style="width:100%;height:100%;object-fit:cover;"></div>
-    <div style="flex:1;"><h3 style="font-size:1.25rem;font-weight:700;margin-bottom:.2rem;">Michael Brown, PMP</h3><p style="color:var(--color-accent);font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:.05em;">Executive Director, CEO</p></div>
-    <button onclick="toggleBio('michael-brown')" style="background:var(--color-accent);color:white;border:none;padding:.55rem 1.1rem;border-radius:var(--radius-sm);cursor:pointer;font-weight:600;font-size:.85rem;white-space:nowrap;transition:all 0.2s;">View Bio &#9660;</button>
-  </div>
-  <div id="bio-michael-brown" style="display:none;margin-top:1.2rem;padding-top:1.2rem;border-top:1px solid var(--color-gray-200);color:var(--color-gray-600);line-height:1.8;"><p>Michael Brown, PMP, is a highly accomplished business executive with a distinguished career spanning several decades in business development, project management, and education. As former owner of Consulting Solutions.Net and key leader at State of Texas Career Schools, Goodwill Central Texas, and Austin Urban League, he has consistently driven organizational excellence across public and private sectors. A devoted community leader, Michael is an active member of 100 Black Men of Austin and Alpha Phi Alpha Fraternity.</p></div>
+<!-- Bio Panels -->
+<div id="bio-michael" class="bio-panel active">
+    <div class="bio-photo"><img src="/images/michael-brown.jpg" alt="Michael Brown, PMP"></div>
+    <div class="bio-content">
+        <h2>Michael Brown, PMP</h2>
+        <span class="bio-title">Executive Director &amp; Chief Executive Officer</span>
+        <p class="bio-text">Michael Brown, PMP, is a highly accomplished business executive with a distinguished career spanning several decades in business development, project management, and education. As former owner of Consulting Solutions.Net and key leader at State of Texas Career Schools, Goodwill Central Texas, and the Austin Urban League, he has consistently driven organizational excellence across public and private sectors. A devoted community leader, Michael is an active member of 100 Black Men of Austin and Alpha Phi Alpha Fraternity.</p>
+        <div class="bio-credentials">
+            <span class="bio-tag">PMP Certified</span>
+            <span class="bio-tag">25+ Years Workforce Development</span>
+            <span class="bio-tag">Goodwill Career &amp; Technical Academy</span>
+            <span class="bio-tag">Austin Urban League</span>
+            <span class="bio-tag">100 Black Men of Austin</span>
+        </div>
+    </div>
 </div>
 
-<div id="adriane-brown" class="animate-on-scroll" style="border:1px solid var(--color-gray-200);border-left:4px solid var(--color-accent);border-radius:0 var(--radius-md) var(--radius-md) 0;padding:1.5rem 2rem;margin-bottom:1.25rem;background:white;transition:box-shadow 0.25s ease;">
-  <div style="display:flex;align-items:center;gap:1.5rem;">
-    <div style="width:72px;height:72px;min-width:72px;border-radius:50%;background:var(--color-gray-200);overflow:hidden;"><img src="/images/adriane-brown.jpg" alt="Adriane Brown" style="width:100%;height:100%;object-fit:cover;"></div>
-    <div style="flex:1;"><h3 style="font-size:1.25rem;font-weight:700;margin-bottom:.2rem;">Adriane Brown</h3><p style="color:var(--color-accent);font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:.05em;">COO</p></div>
-    <button onclick="toggleBio('adriane-brown')" style="background:var(--color-accent);color:white;border:none;padding:.55rem 1.1rem;border-radius:var(--radius-sm);cursor:pointer;font-weight:600;font-size:.85rem;white-space:nowrap;transition:all 0.2s;">View Bio &#9660;</button>
-  </div>
-  <div id="bio-adriane-brown" style="display:none;margin-top:1.2rem;padding-top:1.2rem;border-top:1px solid var(--color-gray-200);color:var(--color-gray-600);line-height:1.8;"><p>Adriane Brown is a strategic business and operations leader with over 25 years of experience driving organizational growth and operational excellence. A Texas A&amp;M graduate, she has led enterprise operations to national reach and brings deep expertise in business development, compliance, and performance optimization. She completed Microsoft Project Management Certification in 2025 and serves as Women's Ministry Leader at Celebration Church.</p></div>
+<div id="bio-adriane" class="bio-panel">
+    <div class="bio-photo"><img src="/images/adriane-brown.jpg" alt="Adriane Brown"></div>
+    <div class="bio-content">
+        <h2>Adriane Brown</h2>
+        <span class="bio-title">Chief Operating Officer</span>
+        <p class="bio-text">Adriane Brown is a strategic business and operations leader with over 25 years of experience driving organizational growth and operational excellence. A Texas A&amp;M graduate, she has led enterprise operations to national reach and brings deep expertise in business development, compliance, and performance optimization. She completed Microsoft Project Management Certification in 2025 and serves as Women's Ministry Leader at Celebration Church.</p>
+        <div class="bio-credentials">
+            <span class="bio-tag">Texas A&amp;M University</span>
+            <span class="bio-tag">Microsoft PM Certified (2025)</span>
+            <span class="bio-tag">25+ Years Operations</span>
+            <span class="bio-tag">Business Development</span>
+        </div>
+    </div>
 </div>
 
-<div id="lakecia-gunter" class="animate-on-scroll" style="border:1px solid var(--color-gray-200);border-left:4px solid var(--color-accent);border-radius:0 var(--radius-md) var(--radius-md) 0;padding:1.5rem 2rem;margin-bottom:1.25rem;background:white;transition:box-shadow 0.25s ease;">
-  <div style="display:flex;align-items:center;gap:1.5rem;">
-    <div style="width:72px;height:72px;min-width:72px;border-radius:50%;background:var(--color-gray-200);overflow:hidden;"><img src="/images/lakecia-gunter.jpg" alt="Lakecia Gunter" style="width:100%;height:100%;object-fit:cover;"></div>
-    <div style="flex:1;"><h3 style="font-size:1.25rem;font-weight:700;margin-bottom:.2rem;">Lakecia Gunter</h3><p style="color:var(--color-accent);font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:.05em;">Board Member</p></div>
-    <button onclick="toggleBio('lakecia-gunter')" style="background:var(--color-accent);color:white;border:none;padding:.55rem 1.1rem;border-radius:var(--radius-sm);cursor:pointer;font-weight:600;font-size:.85rem;white-space:nowrap;transition:all 0.2s;">View Bio &#9660;</button>
-  </div>
-  <div id="bio-lakecia-gunter" style="display:none;margin-top:1.2rem;padding-top:1.2rem;border-top:1px solid var(--color-gray-200);color:var(--color-gray-600);line-height:1.8;"><p>Lakecia Gunter is a 25-year tech industry veteran serving as Chief Technology Officer, Global Partner Solutions at Microsoft. Honored as a Finalist in SUCCESS Magazine's 2023 Women of Influence, she is a nationally recognized engineer, speaker, and advocate for women in technology. She holds an MS in Electrical Engineering from Georgia Tech and currently serves on the Board of Directors at IDEX Corporation.</p></div>
+<div id="bio-lakecia" class="bio-panel">
+    <div class="bio-photo"><img src="/images/lakecia-gunter.jpg" alt="Lakecia Gunter"></div>
+    <div class="bio-content">
+        <h2>Lakecia Gunter</h2>
+        <span class="bio-title">Board Member</span>
+        <p class="bio-text">Lakecia Gunter is a 25-year tech industry veteran serving as Chief Technology Officer, Global Partner Solutions at Microsoft. Honored as a Finalist in SUCCESS Magazine's 2023 Women of Influence, she is a nationally recognized engineer, speaker, and advocate for women in technology. She holds an MS in Electrical Engineering from Georgia Tech and currently serves on the Board of Directors at IDEX Corporation.</p>
+        <div class="bio-credentials">
+            <span class="bio-tag">Microsoft CTO, Global Partner Solutions</span>
+            <span class="bio-tag">MS Electrical Engineering, Georgia Tech</span>
+            <span class="bio-tag">SUCCESS 2023 Women of Influence</span>
+            <span class="bio-tag">IDEX Corporation Board</span>
+        </div>
+    </div>
 </div>
 
-<div id="brandon-frye" class="animate-on-scroll" style="border:1px solid var(--color-gray-200);border-left:4px solid var(--color-accent);border-radius:0 var(--radius-md) var(--radius-md) 0;padding:1.5rem 2rem;margin-bottom:1.25rem;background:white;transition:box-shadow 0.25s ease;">
-  <div style="display:flex;align-items:center;gap:1.5rem;">
-    <div style="width:72px;height:72px;min-width:72px;border-radius:50%;background:var(--color-gray-200);overflow:hidden;"><img src="/images/brandon-frye.jpg" alt="Brandon Frye" style="width:100%;height:100%;object-fit:cover;"></div>
-    <div style="flex:1;"><h3 style="font-size:1.25rem;font-weight:700;margin-bottom:.2rem;">Brandon Frye</h3><p style="color:var(--color-accent);font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:.05em;">Board Member</p></div>
-    <button onclick="toggleBio('brandon-frye')" style="background:var(--color-accent);color:white;border:none;padding:.55rem 1.1rem;border-radius:var(--radius-sm);cursor:pointer;font-weight:600;font-size:.85rem;white-space:nowrap;transition:all 0.2s;">View Bio &#9660;</button>
-  </div>
-  <div id="bio-brandon-frye" style="display:none;margin-top:1.2rem;padding-top:1.2rem;border-top:1px solid var(--color-gray-200);color:var(--color-gray-600);line-height:1.8;"><p>Brandon Frye is a seasoned entrepreneur and business operator with extensive experience founding, investing in, and leading high-growth companies. He co-founded Interstate Connections (named "Fastest Growing Private Company" by Austin Business Journal) and currently serves as CFO of The Business Bible. Brandon is deeply involved in community leadership, serving on multiple boards including Texas Alliance for Life.</p></div>
+<div id="bio-brandon" class="bio-panel">
+    <div class="bio-photo"><img src="/images/brandon-frye.jpg" alt="Brandon Frye"></div>
+    <div class="bio-content">
+        <h2>Brandon Frye</h2>
+        <span class="bio-title">Board Member</span>
+        <p class="bio-text">Brandon Frye is a seasoned entrepreneur and business operator with extensive experience founding, investing in, and leading high-growth companies. He co-founded Interstate Connections (named "Fastest Growing Private Company" by Austin Business Journal) and currently serves as CFO of The Business Bible. Brandon is deeply involved in community leadership, serving on multiple boards including Texas Alliance for Life.</p>
+        <div class="bio-credentials">
+            <span class="bio-tag">Co-Founder, Interstate Connections</span>
+            <span class="bio-tag">CFO, The Business Bible</span>
+            <span class="bio-tag">Austin Business Journal Honoree</span>
+            <span class="bio-tag">Texas Alliance for Life Board</span>
+        </div>
+    </div>
 </div>
 
-<div id="derrick-fishback" class="animate-on-scroll" style="border:1px solid var(--color-gray-200);border-left:4px solid var(--color-accent);border-radius:0 var(--radius-md) var(--radius-md) 0;padding:1.5rem 2rem;margin-bottom:1.25rem;background:white;transition:box-shadow 0.25s ease;">
-  <div style="display:flex;align-items:center;gap:1.5rem;">
-    <div style="width:72px;height:72px;min-width:72px;border-radius:50%;background:var(--color-gray-200);overflow:hidden;"><img src="/images/derrick-fishback.jpg" alt="Colonel Derrick Fishback" style="width:100%;height:100%;object-fit:cover;"></div>
-    <div style="flex:1;"><h3 style="font-size:1.25rem;font-weight:700;margin-bottom:.2rem;">Colonel Derrick Fishback (Retired)</h3><p style="color:var(--color-accent);font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:.05em;">Board Member</p></div>
-    <button onclick="toggleBio('derrick-fishback')" style="background:var(--color-accent);color:white;border:none;padding:.55rem 1.1rem;border-radius:var(--radius-sm);cursor:pointer;font-weight:600;font-size:.85rem;white-space:nowrap;transition:all 0.2s;">View Bio &#9660;</button>
-  </div>
-  <div id="bio-derrick-fishback" style="display:none;margin-top:1.2rem;padding-top:1.2rem;border-top:1px solid var(--color-gray-200);color:var(--color-gray-600);line-height:1.8;"><p>Colonel Derrick Fishback (Retired) is a transformational leader with nearly three decades of U.S. Army service complemented by leadership roles at Fortune 500 companies. He has commanded 1,800+ personnel and led cloud transformation initiatives at Amazon Web Services, IBM, and Dell. Derrick holds two master's degrees and serves as Board President of the Jazz Society of Pensacola.</p></div>
+<div id="bio-derrick" class="bio-panel">
+    <div class="bio-photo"><img src="/images/derrick-fishback.jpg" alt="Colonel Derrick Fishback"></div>
+    <div class="bio-content">
+        <h2>Colonel Derrick Fishback (Ret.)</h2>
+        <span class="bio-title">Board Member</span>
+        <p class="bio-text">Colonel Derrick Fishback (Retired) is a transformational leader with nearly three decades of U.S. Army service complemented by leadership roles at Fortune 500 companies. He has commanded 1,800+ personnel and led cloud transformation initiatives at Amazon Web Services, IBM, and Dell. Derrick holds two master's degrees and serves as Board President of the Jazz Society of Pensacola.</p>
+        <div class="bio-credentials">
+            <span class="bio-tag">U.S. Army Colonel (Ret.) &mdash; 28 Years</span>
+            <span class="bio-tag">AWS Cloud Transformation</span>
+            <span class="bio-tag">IBM &amp; Dell Leadership</span>
+            <span class="bio-tag">Two Master's Degrees</span>
+        </div>
+    </div>
 </div>
 
-<div class="cta-section animate-on-scroll" style="margin-top:4rem;">
-  <h2>Join Our Mission</h2>
-  <p>Interested in partnering, volunteering, or joining the board?</p>
-  <div class="cta-buttons">
-    <a href="/contact.html" class="btn btn-primary">Get In Touch</a>
-  </div>
+<div class="join-cta animate-on-scroll">
+    <h2>Join Our Mission</h2>
+    <p>Interested in partnering with us, volunteering your expertise, or joining the board? We'd love to hear from you.</p>
+    <a href="/contact.html" class="btn btn-primary btn-large">Get In Touch</a>
 </div>
 
 </div>
 </section>
 
 <script>
-function toggleBio(id) {
-    var b = document.getElementById("bio-" + id);
-    var btn = document.querySelector("#" + id + " button");
-    var card = document.getElementById(id);
-    var isOpen = b.style.display === "none" || b.style.display === "";
-    b.style.display = isOpen ? "block" : "none";
-    btn.innerHTML = isOpen ? "View Bio &#9650;" : "View Bio &#9660;";
-    card.style.boxShadow = isOpen ? "0 4px 16px rgba(0,0,0,0.08)" : "none";
+function showBio(id, clickedCard) {
+    document.querySelectorAll('.bio-panel').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.leader-photo-card').forEach(function(c) { c.classList.remove('active'); });
+    var panel = document.getElementById('bio-' + id);
+    if (panel) {
+        panel.classList.add('active');
+        setTimeout(function() { panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 50);
+    }
+    if (clickedCard) clickedCard.classList.add('active');
 }
 </script>
 
-<footer class="main-footer">
+<footer class="main-footer" aria-label="Footer">
   <div class="footer-container">
     <div class="footer-col">
       <img src="/images/logo.png" alt="WorkforceAP" class="footer-logo">

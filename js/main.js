@@ -163,6 +163,46 @@ document.addEventListener('DOMContentLoaded', function() {
         counterObserver.observe(el);
     });
 
+    // Program filter chips (Programs page)
+    var filterChips = document.querySelectorAll('.filter-chip[data-filter]');
+    var programCards = document.querySelectorAll('.program-card[data-category]');
+    if (filterChips.length && programCards.length) {
+        filterChips.forEach(function(chip) {
+            chip.addEventListener('click', function() {
+                filterChips.forEach(function(c) { c.classList.remove('active'); });
+                chip.classList.add('active');
+                var filter = chip.getAttribute('data-filter');
+                programCards.forEach(function(card) {
+                    card.style.display = (filter === 'all' || card.getAttribute('data-category') === filter) ? '' : 'none';
+                });
+            });
+        });
+    }
+
+    // FAQ category filters
+    var faqFilters = document.querySelectorAll('.faq-filter[data-category]');
+    var faqItems = document.querySelectorAll('.faq-item[data-category]');
+    if (faqFilters.length && faqItems.length) {
+        faqFilters.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                faqFilters.forEach(function(b) { b.classList.remove('active'); });
+                btn.classList.add('active');
+                var cat = btn.getAttribute('data-category');
+                faqItems.forEach(function(item) {
+                    item.style.display = (cat === 'all' || item.getAttribute('data-category') === cat) ? '' : 'none';
+                });
+            });
+        });
+    }
+
+    // Also support .reveal class (for cross-branch compatibility)
+    document.querySelectorAll('.reveal').forEach(function(el) {
+        if (!el.classList.contains('animate-on-scroll')) {
+            el.classList.add('animate-on-scroll');
+            animateObserver.observe(el);
+        }
+    });
+
     // Parallax for photo highlight
     var photoHighlight = document.querySelector('.photo-highlight-bg');
     if (photoHighlight) {

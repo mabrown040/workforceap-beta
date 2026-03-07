@@ -1620,3 +1620,29 @@ img.loaded {
 .trust-logos img:hover { opacity: 1; }
 @media (max-width: 640px) { .hero-actions { flex-direction: column; align-items: stretch; } .hero-actions .btn { width: 100%; } .trust-logos { gap: 1rem; } .trust-logos img { height: 24px; } }
 
+.mission-vision-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem;margin-bottom:4rem}
+.mv-card{background:#fff;border-radius:12px;padding:2.5rem;box-shadow:0 2px 15px rgba(0,0,0,.06)}
+.mv-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.25rem;margin-bottom:1rem}
+.mv-icon.mission{background:#ad2c4d;color:white}
+.mv-icon.vision{background:#a47f38;color:white}
+.legacy-section{background:linear-gradient(135deg,#1a1a1a,#2d2d2d);border-radius:12px;padding:3rem 2rem;color:white;margin-bottom:4rem;text-align:center}
+.legacy-section h2{color:white}
+.legacy-subtitle{color:rgba(255,255,255,.8);max-width:700px;margin:0 auto 2.5rem}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2rem;margin-bottom:2rem}
+.stat-card .stat-number{font-size:3rem;font-weight:800;color:#a47f38}
+.stat-card .stat-label{font-weight:600;margin:.25rem 0}
+.stat-card p{font-size:.9rem;color:rgba(255,255,255,.7)}
+.section-title{text-align:center;margin-bottom:2.5rem}
+.values-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;margin-bottom:4rem}
+.value-card{background:#fff;border-radius:12px;padding:2rem;box-shadow:0 2px 15px rgba(0,0,0,.06);transition:transform .2s,box-shadow .2s}
+.value-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.1)}
+.value-icon{font-size:2rem;margin-bottom:.75rem}
+.value-card h3{font-size:1.15rem;margin-bottom:.75rem}
+.value-card p{color:#666;font-size:.95rem}
+.cta-section{text-align:center;padding:3rem;background:#f8f8f8;border-radius:12px}
+.cta-section h2{margin-bottom:.75rem}
+.cta-section>p{color:#666;margin-bottom:1.5rem}
+.cta-buttons{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center}
+.btn-outline{background:white;border:2px solid #ad2c4d;color:#ad2c4d}
+.btn-dark{background:#1a1a1a;color:white}
+@media(max-width:640px){.stats-row{grid-template-columns:1fr}.cta-buttons{flex-direction:column}.cta-buttons .btn{width:100%}}

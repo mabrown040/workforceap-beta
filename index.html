@@ -3,39 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Workforce Advancement Project - Empowering People. Advancing Futures.</title>
+    <title>Workforce Advancement Project — Empowering People. Advancing Futures.</title>
+    <meta name="description" content="Free career training and industry certifications for underserved individuals, veterans, and adult learners in Austin, TX. Funded by Google, AT&T, IBM, and the U.S. Department of Labor.">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body class="homepage">
+
     <!-- Top Banner -->
     <div class="top-banner">
         <div class="top-banner-inner">
-            <span>Funded career training & industry certifications.</span>
-            <a href="/apply.html" class="banner-link">Apply now — no cost to you.</a>
+            <span>Funded career training &amp; industry certifications — no cost to you when you qualify.</span>
+            <a href="/apply.html" class="banner-link">Apply now →</a>
         </div>
     </div>
 
     <!-- Navigation -->
-    <nav class="main-nav">
+    <nav class="main-nav" aria-label="Main navigation">
         <div class="nav-container">
-            <a href="/" class="logo">
-                <img src="/images/logo.png" alt="Workforce Advancement Project">
+            <a href="/" class="logo" aria-label="Workforce Advancement Project home">
+                <img src="/images/logo.png" alt="Workforce Advancement Project" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+                <span class="logo-text" style="display:none;">Workforce<span>AP</span></span>
             </a>
-            <button class="mobile-nav-toggle" aria-label="Toggle navigation">☰</button>
-            <ul class="nav-menu">
+            <button class="mobile-nav-toggle" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+            <ul class="nav-menu" role="list">
                 <li><a href="/" class="active">Home</a></li>
                 <li class="dropdown">
-                    <span>About Us</span>
-                    <ul class="dropdown-menu">
+                    <span tabindex="0" role="button" aria-haspopup="true">About Us ▾</span>
+                    <ul class="dropdown-menu" role="list">
                         <li><a href="/what-we-do.html">What We Do</a></li>
                         <li><a href="/leadership.html">Leadership Team</a></li>
                     </ul>
                 </li>
                 <li class="dropdown">
-                    <span>Programs</span>
-                    <ul class="dropdown-menu">
+                    <span tabindex="0" role="button" aria-haspopup="true">Programs ▾</span>
+                    <ul class="dropdown-menu" role="list">
                         <li><a href="/programs.html">All Programs</a></li>
                         <li><a href="/program-comparison.html">Program Comparison</a></li>
                         <li><a href="/salary-guide.html">Salary Guide</a></li>
@@ -44,122 +48,151 @@
                 <li><a href="/how-it-works.html">How It Works</a></li>
                 <li><a href="/faq.html">FAQ</a></li>
                 <li><a href="/apply.html" class="nav-cta">Apply Now</a></li>
-                <li><a href="/contact.html">Contact Us</a></li>
+                <li><a href="/contact.html">Contact</a></li>
             </ul>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
-      <div class="hero-overlay"></div>
-      <div class="hero-container">
-        <h1 class="hero-title">Empowering People.<br><span class="accent">Advancing Futures.</span></h1>
-        <p class="hero-subtitle">No-cost workforce training and industry certifications designed to launch careers in technology, data, AI, and skilled trades.</p>
-        <div class="hero-actions"><a href="/apply.html" class="btn btn-primary">Apply Now — No Cost</a><a href="/programs.html" class="btn btn-secondary">Explore Programs</a></div>
-        <div class="trust-strip"><span>Trusted by partners including</span><div class="trust-logos"><img src="/images/Google_2015_logo.svg.png" alt="Google" loading="lazy"><img src="/images/att-logo.png" alt="AT&T" loading="lazy"><img src="/images/DOL-logo.png" alt="US Dept of Labor" loading="lazy"><img src="/images/coursera.png" alt="Coursera" loading="lazy"></div></div>
-      </div>
+    <!-- ====================== HERO ====================== -->
+    <section class="hero" aria-label="Hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-container">
+            <div class="hero-badge">&#x2B50; WIOA-Funded Programs &bull; Austin, TX</div>
+            <h1 class="hero-title">
+                Empowering People.<br>
+                <span class="accent">Advancing Futures.</span>
+            </h1>
+            <p class="hero-subtitle">
+                No-cost workforce training and industry certifications in technology, AI, cloud computing, cybersecurity, and skilled trades — designed to launch real careers for real people.
+            </p>
+            <div class="hero-actions">
+                <a href="/apply.html" class="btn btn-gold btn-large">Apply Now — No Cost to You</a>
+                <a href="/programs.html" class="btn btn-outline-white btn-large">Explore 19 Programs</a>
+            </div>
+            <p class="trust-strip">Backed by industry leaders</p>
+            <div class="trust-logos">
+                <img src="/images/Google_2015_logo.svg.png" alt="Google" loading="lazy">
+                <img src="/images/att-logo.png" alt="AT&T" loading="lazy">
+                <img src="/images/DOL-logo.png" alt="U.S. Department of Labor" loading="lazy">
+                <img src="/images/coursera.png" alt="Coursera" loading="lazy">
+            </div>
+        </div>
     </section>
 
-    <!-- Stats Bar -->
-    <section class="stats-bar">
+    <!-- ====================== STATS BAR ====================== -->
+    <section class="stats-bar" aria-label="Key statistics">
         <div class="stats-container">
             <div class="stat">
-                <span class="stat-number">19</span>
-                <span class="stat-label">Programs</span>
+                <span class="stat-number" data-count="19" data-suffix="">19</span>
+                <span class="stat-label">Programs Available</span>
             </div>
             <div class="stat">
-                <span class="stat-number">12</span>
+                <span class="stat-number" data-count="12" data-suffix="">12</span>
                 <span class="stat-label">Weeks to Certification</span>
             </div>
             <div class="stat">
                 <span class="stat-number">No Cost</span>
-                <span class="stat-label">To Members</span>
+                <span class="stat-label">To Qualifying Members</span>
             </div>
             <div class="stat">
-                <span class="stat-number">100%</span>
+                <span class="stat-number" data-count="100" data-suffix="%">100%</span>
                 <span class="stat-label">Job Search Support</span>
             </div>
         </div>
     </section>
 
-    <!-- Breaking Barriers Section -->
-    <!-- Breaking Barriers -->
-    <section class="content-section light">
-        <div class="container">
-            <h2>Breaking Systemic Barriers</h2>
-            <p class="section-intro">Our mission is to break down systemic barriers by providing funded digital literacy, artificial intelligence, occupational, and professional certification training to underserved individuals, adult learners, and veteran populations.</p>
+    <!-- ====================== BREAKING BARRIERS ====================== -->
+    <section class="breaking-barriers">
+        <div class="container text-center">
+            <span class="overline reveal">Our Mission</span>
+            <h2 class="reveal reveal-delay-1">Breaking Systemic Barriers</h2>
+            <p class="section-intro reveal reveal-delay-2">
+                The Workforce Advancement Project exists to break down systemic barriers by providing no-cost funded digital literacy, artificial intelligence, occupational, and professional certification training to underserved individuals, adult learners, and veteran populations.
+            </p>
         </div>
     </section>
 
-    <!-- Vision & Mission -->
+    <!-- ====================== VISION & MISSION ====================== -->
     <section class="vision-mission-section">
         <div class="container">
             <div class="vm-grid">
-                <div class="vm-image">
-                    <img src="/images/hero-people.jpg" alt="WorkforceAP Training" loading="lazy">
+                <div class="vm-image reveal">
+                    <img src="/images/hero-people.jpg" alt="WorkforceAP Training in Action" loading="lazy"
+                         onerror="this.src='https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&q=80'">
+                    <div class="vm-image-badge">
+                        <span class="badge-number">25+</span>
+                        <span class="badge-text">Years of Impact</span>
+                    </div>
                 </div>
-                <div class="vm-content">
+                <div class="vm-content reveal reveal-delay-2">
                     <span class="section-label">Our Vision &amp; Mission</span>
-                    <p>To empower individuals by delivering wrap-around services and resources which includes assessment, workforce readiness, resume enhancement, occupational training, stackable career pathways, industry-recognized certificates, job placement assistance.</p>
-                    <a href="/what-we-do.html" class="link-arrow">Learn More →</a>
+                    <h2>Opportunity for Everyone Who Wants to Grow</h2>
+                    <p>
+                        We empower individuals by delivering wrap-around services and resources — including assessment, workforce readiness, resume enhancement, occupational training, stackable career pathways, industry-recognized certificates, and job placement assistance.
+                    </p>
+                    <p>
+                        Our vision is a world where every individual and family — regardless of background, income, or circumstance — has access to the skills and support necessary to thrive in the workforce today and lead the workforce of tomorrow.
+                    </p>
+                    <a href="/what-we-do.html" class="link-arrow">Learn more about our mission →</a>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Process Flow Section -->
-    <section class="process-flow-section" id="process-flow">
+    <!-- ====================== PROCESS FLOW ====================== -->
+    <section class="process-flow-section" id="how-it-works">
         <div class="process-flow-inner">
-            <div class="process-flow-header">
+            <div class="process-flow-header reveal">
                 <h2>Your Journey With Us</h2>
-                <p>From application to employment — see how it works</p>
+                <p>From application to employment — here's how it works</p>
             </div>
             <div class="process-steps">
-                <div class="process-step">
+                <div class="process-step reveal reveal-delay-1">
                     <div class="step-number">1</div>
                     <h4>Apply</h4>
-                    <p>Quick online application</p>
+                    <p>Quick online application, under 10 min</p>
                 </div>
                 <div class="step-arrow" aria-hidden="true"></div>
-                <div class="process-step">
+                <div class="process-step reveal reveal-delay-2">
                     <div class="step-number">2</div>
-                    <h4>Interview</h4>
-                    <p>Meet your counselor</p>
+                    <h4>Intake</h4>
+                    <p>Meet your counselor &amp; intake assessment</p>
                 </div>
                 <div class="step-arrow" aria-hidden="true"></div>
-                <div class="process-step">
+                <div class="process-step reveal reveal-delay-3">
                     <div class="step-number">3</div>
                     <h4>Train</h4>
-                    <p>Industry certifications</p>
+                    <p>Industry-certified curriculum</p>
                 </div>
                 <div class="step-arrow" aria-hidden="true"></div>
-                <div class="process-step">
+                <div class="process-step reveal reveal-delay-4">
                     <div class="step-number">4</div>
                     <h4>Certify</h4>
-                    <p>Earn credentials</p>
+                    <p>Earn recognized credentials</p>
                 </div>
                 <div class="step-arrow" aria-hidden="true"></div>
-                <div class="process-step">
+                <div class="process-step reveal">
                     <div class="step-number">5</div>
                     <h4>Get Hired</h4>
-                    <p>Job placement assistance</p>
+                    <p>Job placement &amp; career support</p>
                 </div>
             </div>
             <div class="process-cta">
-                <a href="/how-it-works.html" class="btn-secondary">See Full Process</a>
+                <a href="/how-it-works.html" class="btn btn-outline-white">See the Full 13-Step Process</a>
             </div>
         </div>
     </section>
 
-    <!-- Who We Are Section -->
+    <!-- ====================== WHO WE ARE ====================== -->
     <section class="about-section">
         <div class="container">
             <div class="about-grid">
-                <div class="about-content">
+                <div class="about-content reveal">
                     <span class="section-label">Who We Are</span>
                     <h2>25+ Years Breaking Barriers</h2>
-                    <p class="lead">Founded by Michael Brown, PMP — a veteran workforce leader who has trained thousands of Austinites through Consulting Solutions.Net, Goodwill Career & Technical Academy, and the Austin Area Urban League.</p>
-                    
+                    <p class="lead">
+                        Founded by Michael Brown, PMP — a veteran workforce leader who has trained thousands of Austinites through Consulting Solutions.Net, Goodwill Career &amp; Technical Academy, and the Austin Area Urban League.
+                    </p>
                     <div class="about-stats">
                         <div class="about-stat">
                             <span class="stat-num">25+</span>
@@ -174,79 +207,110 @@
                             <span class="stat-desc">Funded Pathways</span>
                         </div>
                     </div>
-                    
                     <div class="partner-logos-small">
-                        <img src="/images/Google_2015_logo.svg.png" alt="Google">
-                        <img src="/images/att-logo.png" alt="AT&T">
-                        <img src="/images/DOL-logo.png" alt="DOL">
-                        <img src="/images/coursera.png" alt="Coursera">
+                        <img src="/images/Google_2015_logo.svg.png" alt="Google" loading="lazy">
+                        <img src="/images/att-logo.png" alt="AT&T" loading="lazy">
+                        <img src="/images/DOL-logo.png" alt="U.S. Dept. of Labor" loading="lazy">
+                        <img src="/images/coursera.png" alt="Coursera" loading="lazy">
                     </div>
-                    
                     <a href="/what-we-do.html" class="btn btn-primary">Learn More About Us</a>
                 </div>
-                
-                <div class="programs-preview">
+                <div class="programs-preview reveal reveal-delay-2">
                     <span class="section-label">Our Programs</span>
                     <h3>Industry-Recognized Training</h3>
-                    <p>Bridging the gap between people, talent, skills, and opportunity through partnerships with leading organizations.</p>
-                    
+                    <p>Bridging the gap between talent, skills, and opportunity through partnerships with leading organizations.</p>
                     <ul class="program-categories">
                         <li><span class="cat-icon">&#x1F4BB;</span> Digital Literacy &amp; AI</li>
-                        <li><span class="cat-icon">&#x1F4E1;</span> Information Technology</li>
-                        <li><span class="cat-icon">&#x1F4CB;</span> Project Management</li>
-                        <li><span class="cat-icon">&#x1F3E5;</span> Medical Coding</li>
-                        <li><span class="cat-icon">&#x1F3ED;</span> Manufacturing &amp; Production</li>
-                        <li><span class="cat-icon">&#x1F3D7;</span> Core Construction</li>
+                        <li><span class="cat-icon">&#x2601;&#xFE0F;</span> Cloud Computing &amp; Data Science</li>
+                        <li><span class="cat-icon">&#x1F4E1;</span> IT Support &amp; Cybersecurity</li>
+                        <li><span class="cat-icon">&#x1F4CB;</span> Project Management &amp; Marketing</li>
+                        <li><span class="cat-icon">&#x1F3E5;</span> Medical Coding (MCHIT)</li>
+                        <li><span class="cat-icon">&#x1F3ED;</span> Manufacturing &amp; Construction</li>
                     </ul>
-                    
-                    <a href="/programs.html" class="btn btn-outline">View All Programs</a>
+                    <a href="/programs.html" class="btn btn-outline">View All 19 Programs</a>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Career Tracks Section -->
+    <!-- ====================== CAREER TRACKS ====================== -->
     <section class="career-tracks">
         <div class="container">
-            <p class="overline">What You'll Earn</p>
+            <span class="overline text-center">What You'll Learn</span>
+            <h2 class="text-center" style="margin-bottom:3rem;">Career Tracks Built for the Modern Economy</h2>
             <div class="tracks-grid">
-                <div class="track">
-                    <blockquote>
-                        <p>Build a foundation in digital skills, AI tools, prompt design, and data literacy — skills every modern employer wants.</p>
-                    </blockquote>
-                    <h4>Digital Literacy & AI</h4>
-                    <p class="certs">IBM AI Developer · Digital Literacy Empowerment</p>
+                <div class="track reveal">
+                    <blockquote>Build a foundation in digital skills, AI tools, prompt engineering, and data literacy — the skills every modern employer demands.</blockquote>
+                    <h4>Digital Literacy &amp; AI</h4>
+                    <p class="certs">IBM AI Developer &bull; Digital Literacy Empowerment</p>
                 </div>
-                <div class="track">
-                    <blockquote>
-                        <p>Start your tech career with industry-recognized certifications in IT support, networking, and cybersecurity.</p>
-                    </blockquote>
-                    <h4>IT Support & Cybersecurity</h4>
-                    <p class="certs">CompTIA A+ · Network+ · Security+ · Google Cybersecurity</p>
+                <div class="track reveal reveal-delay-1">
+                    <blockquote>Launch your tech career with industry-recognized certifications in IT support, networking, and cybersecurity operations.</blockquote>
+                    <h4>IT Support &amp; Cybersecurity</h4>
+                    <p class="certs">CompTIA A+ &bull; Network+ &bull; Security+ &bull; Google Cybersecurity</p>
                 </div>
-                <div class="track">
-                    <blockquote>
-                        <p>Learn cloud infrastructure, data analytics, and full-stack software development.</p>
-                    </blockquote>
-                    <h4>Cloud, Data & Software</h4>
-                    <p class="certs">AWS Cloud · Google Data Analytics · IBM Data Science</p>
+                <div class="track reveal reveal-delay-2">
+                    <blockquote>Master cloud infrastructure, data analytics, machine learning, and full-stack software development.</blockquote>
+                    <h4>Cloud, Data &amp; Software</h4>
+                    <p class="certs">AWS Cloud &bull; Google Data Analytics &bull; IBM Data Science</p>
                 </div>
-                <div class="track">
-                    <blockquote>
-                        <p>Hands-on career training in medical coding, production tech, logistics, and skilled trades.</p>
-                    </blockquote>
-                    <h4>Healthcare, Manufacturing & Trades</h4>
-                    <p class="certs">MCHIT · CPT · CLT · OSHA-10 · Construction Readiness</p>
+                <div class="track reveal reveal-delay-3">
+                    <blockquote>Hands-on career training in medical coding, advanced production technology, logistics, and skilled trades certification.</blockquote>
+                    <h4>Healthcare, Manufacturing &amp; Trades</h4>
+                    <p class="certs">MCHIT &bull; CPT &bull; CLT &bull; OSHA-10 &bull; Construction Readiness</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Partners Section -->
+    <!-- ====================== TESTIMONIALS ====================== -->
+    <section class="testimonials-section">
+        <div class="container text-center">
+            <span class="overline">Success Stories</span>
+            <h2>Real People. Real Results.</h2>
+            <div class="testimonials-grid" style="margin-top:0;">
+                <div class="testimonial-card reveal">
+                    <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p class="testimonial-quote">"I was unemployed for over a year before WorkforceAP. Six months after completing the Google Cybersecurity Certificate, I landed a Security Analyst role at $72K. This program changed my life."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar" style="background:#8b4a9b;">D</div>
+                        <div>
+                            <div class="testimonial-name">Deshawn T.</div>
+                            <div class="testimonial-role">Security Analyst, Austin, TX</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card reveal reveal-delay-1">
+                    <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p class="testimonial-quote">"As a veteran transitioning out of the Army, I didn't know where to start. The AWS Cloud program gave me confidence and credentials — I'm now working at a cloud consulting firm."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar" style="background:#2b7bb9;">M</div>
+                        <div>
+                            <div class="testimonial-name">Marcus R.</div>
+                            <div class="testimonial-role">Cloud Solutions Architect, Veteran</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card reveal reveal-delay-2">
+                    <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p class="testimonial-quote">"WorkforceAP provided everything — training, job coaching, and connections. I completed the IBM Data Science certificate and got hired within 3 weeks of finishing. No cost to me at all."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar" style="background:#4a9b4f;">L</div>
+                        <div>
+                            <div class="testimonial-name">Latasha M.</div>
+                            <div class="testimonial-role">Junior Data Analyst, Austin, TX</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================== PARTNERS ====================== -->
     <section class="partners-section">
         <div class="container">
-            <p class="overline">Backed by Industry Leaders</p>
-            <p>Partnering with government agencies and Fortune 500 companies</p>
+            <span class="overline">Our Partners</span>
+            <p>Backed by government agencies and Fortune 500 companies</p>
             <div class="partners-grid">
                 <img src="/images/Google_2015_logo.svg.png" alt="Google" loading="lazy">
                 <img src="/images/att-logo.png" alt="AT&T" loading="lazy">
@@ -256,22 +320,24 @@
         </div>
     </section>
 
-    <!-- Footer CTA -->
+    <!-- ====================== FOOTER CTA ====================== -->
     <section class="footer-cta">
         <div class="container">
             <h2>Ready to start? <span>Applications take under 10 minutes.</span></h2>
             <p>Funded training. Real certifications. Direct connections to local employers.</p>
-            <a href="/apply.html" class="btn-primary">Apply Now — No Cost to You</a>
+            <a href="/apply.html" class="btn btn-outline-white btn-large">Apply Now — No Cost to You</a>
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="main-footer">
+    <!-- ====================== FOOTER ====================== -->
+    <footer class="main-footer" aria-label="Footer">
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-brand">
-                    <h3>Workforce Advancement Project</h3>
-                    <p>Breaking systemic barriers through education, technology, and opportunity. Funded workforce training backed by Google, AT&T, IBM, Microsoft, and the U.S. Department of Labor.</p>
+                    <img src="/images/logo.png" alt="Workforce Advancement Project" class="footer-logo"
+                         onerror="this.style.display='none'">
+                    <h3 style="display:none;">Workforce Advancement Project</h3>
+                    <p>Breaking systemic barriers through education, technology, and opportunity. Funded workforce training backed by Google, AT&amp;T, IBM, Microsoft, and the U.S. Department of Labor.</p>
                     <a href="mailto:info@workforceap.org">info@workforceap.org</a>
                     <a href="tel:5127771808">(512) 777-1808</a>
                 </div>
@@ -289,18 +355,19 @@
                     <ul>
                         <li><a href="/what-we-do.html">What We Do</a></li>
                         <li><a href="/leadership.html">Leadership Team</a></li>
+                        <li><a href="/how-it-works.html">How It Works</a></li>
                         <li><a href="/faq.html">FAQ</a></li>
                         <li><a href="/contact.html">Contact Us</a></li>
                     </ul>
                 </div>
             </div>
-            <div class="footer-bottom">
-                <p>© 2026 Workforce Advancement Project. Empowering People. Advancing Futures.</p>
-                <div class="social-links">
-                    <a href="https://linkedin.com/company/workforceap">LinkedIn</a>
-                    <a href="mailto:info@workforceap.org">Email</a>
-                    <a href="/contact.html">Privacy Policy</a>
-                </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Workforce Advancement Project. Empowering People. Advancing Futures.</p>
+            <div class="social-links">
+                <a href="https://linkedin.com/company/workforceap" target="_blank" rel="noopener">LinkedIn</a>
+                <a href="mailto:info@workforceap.org">Email Us</a>
+                <a href="/contact.html">Privacy Policy</a>
             </div>
         </div>
     </footer>

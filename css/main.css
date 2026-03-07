@@ -177,9 +177,11 @@ a {
     text-align: center;
     color: var(--color-white);
     overflow: hidden;
+    background: linear-gradient(rgba(10,10,10,0.5), rgba(10,10,10,0.55)), url("/images/austin-skyline.jpg") center/cover no-repeat !important;
 }
 
-.hero-bg {
+.hero-bg { display: none !important; /* replaced by CSS bg */ 
+
     position: absolute;
     inset: 0;
     z-index: -1;

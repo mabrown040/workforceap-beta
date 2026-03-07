@@ -1,1 +1,118 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" href="/css/main.css"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><title>Leadership - Workforce Advancement Project</title></head><body class="inner-page"><div class="top-banner"><div class="top-banner-inner"><span>Funded career training &amp; industry certifications.</span><a href="/apply.html" class="banner-link">Apply now — no cost to you.</a></div></div><nav class="main-nav"><div class="nav-container"><a href="/" class="logo"><img src="/images/logo.png" alt="Workforce Advancement Project"></a><button class="mobile-nav-toggle">☰</button><ul class="nav-menu"><li><a href="/">Home</a></li><li class="dropdown"><span>About Us</span><ul class="dropdown-menu"><li><a href="/what-we-do.html">What We Do</a></li><li><a href="/leadership.html">Leadership Team</a></li></ul></li><li class="dropdown"><span>Programs</span><ul class="dropdown-menu"><li><a href="/programs.html">All Programs</a></li><li><a href="/program-comparison.html">Program Comparison</a></li><li><a href="/salary-guide.html">Salary Guide</a></li></ul></li><li><a href="/how-it-works.html">How It Works</a></li><li><a href="/faq.html">FAQ</a></li><li><a href="/apply.html" class="nav-cta">Apply Now</a></li><li><a href="/contact.html">Contact Us</a></li></ul></div></nav><section class="page-hero"><div class="page-hero-content"><h1>Leadership Team</h1><p>Experienced professionals committed to workforce transformation</p></div></section><section class="content-section"><div class="container"><div class="leadership-grid"><div class="leader-card"><div class="leader-info"><h3>Michael Brown, PMP</h3><p class="leader-title">Executive Director / CEO</p><p>A veteran workforce leader with 25+ years of experience training thousands of Austinites. Founded WorkforceAP to scale free, funded career training to underserved communities across Texas.</p><ul class="leader-credentials"><li>Project Management Professional (PMP)</li><li>Former Director, Consulting Solutions.Net</li><li>Goodwill Career &amp; Technical Education</li><li>Austin Area Urban League</li></ul></div></div></div><div style="text-align:center;margin-top:4rem;padding:3rem;background:#f8f8f8;border-radius:12px;"><h2>Join Our Mission</h2><p>Interested in partnering, volunteering, or joining the team?</p><a href="/contact.html" class="btn btn-primary" style="margin-top:1rem;">Get In Touch</a></div></div></section><footer class="main-footer"><div class="footer-container"><div class="footer-col"><img src="/images/logo.png" alt="WorkforceAP" class="footer-logo"><p>Breaking systemic barriers through education, technology, and opportunity.</p><p>(512) 777-1808 | info@workforceap.org</p></div><div class="footer-col"><h4>Programs</h4><ul><li><a href="/programs.html">All Programs</a></li><li><a href="/program-comparison.html">Compare Programs</a></li><li><a href="/salary-guide.html">Salary Guide</a></li><li><a href="/apply.html">Apply Now</a></li></ul></div><div class="footer-col"><h4>About</h4><ul><li><a href="/what-we-do.html">What We Do</a></li><li><a href="/leadership.html">Leadership Team</a></li><li><a href="/faq.html">FAQ</a></li><li><a href="/contact.html">Contact Us</a></li></ul></div></div><div class="footer-bottom"><p>&copy; 2026 Workforce Advancement Project. Empowering People. Advancing Futures.</p></div></footer><script src="/js/main.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Board & Leadership - Workforce Advancement Project</title>
+<link rel="stylesheet" href="/css/main.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+.board-overview{display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:3rem;padding:2rem;background:#f8f8f8;border-radius:12px;}
+.board-chip{padding:.6rem 1.2rem;border-radius:6px;background:white;border:1px solid #e0e0e0;cursor:pointer;transition:all .2s;}
+.board-chip:hover,.board-chip.active{background:#ad2c4d;color:white;border-color:#ad2c4d;}
+.board-chip strong{display:block;font-size:.9rem;}
+.board-chip span{font-size:.75rem;opacity:.8;}
+.leader-row{border:1px solid #e0e0e0;border-left:4px solid #ad2c4d;border-radius:0 8px 8px 0;padding:1.5rem 2rem;margin-bottom:1.2rem;background:white;}
+.leader-header{display:flex;align-items:center;gap:1.5rem;}
+.leader-avatar{width:72px;height:72px;min-width:72px;border-radius:50%;background:#ddd;overflow:hidden;}
+.leader-avatar img{width:100%;height:100%;object-fit:cover;}
+.leader-meta{flex:1;}
+.leader-meta h3{font-size:1.25rem;font-weight:700;margin-bottom:.2rem;color:#1a1a1a;}
+.leader-role{color:#ad2c4d;font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:.05em;}
+.view-bio-btn{background:#ad2c4d;color:white;border:none;padding:.55rem 1.1rem;border-radius:6px;cursor:pointer;font-weight:600;font-size:.85rem;white-space:nowrap;transition:background .2s;}
+.view-bio-btn:hover{background:#8b1f38;}
+.leader-bio{display:none;margin-top:1.2rem;padding-top:1.2rem;border-top:1px solid #e0e0e0;color:#555;line-height:1.8;}
+</style>
+</head>
+<body class="inner-page">
+<div class="top-banner"><div class="top-banner-inner"><span>Funded career training &amp; industry certifications.</span><a href="/apply.html" class="banner-link">Apply now — no cost to you.</a></div></div>
+<nav class="main-nav"><div class="nav-container"><a href="/" class="logo"><img src="/images/logo.png" alt="Workforce Advancement Project"></a><button class="mobile-nav-toggle">&#9776;</button><ul class="nav-menu"><li><a href="/">Home</a></li><li class="dropdown active"><span>About Us</span><ul class="dropdown-menu"><li><a href="/what-we-do.html">What We Do</a></li><li><a href="/leadership.html">Leadership Team</a></li></ul></li><li class="dropdown"><span>Programs</span><ul class="dropdown-menu"><li><a href="/programs.html">All Programs</a></li><li><a href="/program-comparison.html">Program Comparison</a></li><li><a href="/salary-guide.html">Salary Guide</a></li></ul></li><li><a href="/how-it-works.html">How It Works</a></li><li><a href="/faq.html">FAQ</a></li><li><a href="/apply.html" class="nav-cta">Apply Now</a></li><li><a href="/contact.html">Contact Us</a></li></ul></div></nav>
+<section class="page-hero"><div class="page-hero-content"><h1>Board &amp; Leadership</h1><p>Experienced professionals committed to workforce transformation in Central Texas</p></div></section>
+<section class="content-section"><div class="container">
+
+<div class="board-overview">
+  <div class="board-chip active"><strong>Michael Brown</strong><span>Executive Director, CEO</span></div>
+  <div class="board-chip"><strong>Adriane Brown</strong><span>COO</span></div>
+  <div class="board-chip"><strong>Lakecia Gunter</strong><span>Board Member</span></div>
+  <div class="board-chip"><strong>Brandon Frye</strong><span>Board Member</span></div>
+  <div class="board-chip"><strong>Col. Derrick Fishback</strong><span>Board Member (Ret.)</span></div>
+</div>
+
+<div id="michael-brown" class="leader-row">
+  <div class="leader-header">
+    <div class="leader-avatar"><img src="/images/headshot.jpg" alt="Michael Brown"></div>
+    <div class="leader-meta"><h3>Michael Brown, PMP</h3><p class="leader-role">Executive Director, CEO</p></div>
+    <button class="view-bio-btn" onclick="toggleBio('michael-brown')">View Bio &#9660;</button>
+  </div>
+  <div class="leader-bio" id="bio-michael-brown">
+    <p>Michael Brown, PMP, is a highly accomplished business executive with a distinguished career spanning several decades in business development, project management, and education. As former owner of Consulting Solutions.Net and key leader at State of Texas Career Schools, Goodwill Central Texas, and Austin Urban League, he has consistently driven organizational excellence across public and private sectors.</p>
+    <p>A devoted community leader, Michael is an active member of 100 Black Men of Austin and Alpha Phi Alpha Fraternity. His deep roots in Austin's workforce ecosystem and his PMP certification make him uniquely positioned to lead WorkforceAP's mission of expanding economic opportunity for all.</p>
+  </div>
+</div>
+
+<div id="adriane-brown" class="leader-row">
+  <div class="leader-header">
+    <div class="leader-avatar" style="background:#e8d5c4;"></div>
+    <div class="leader-meta"><h3>Adriane Brown</h3><p class="leader-role">COO</p></div>
+    <button class="view-bio-btn" onclick="toggleBio('adriane-brown')">View Bio &#9660;</button>
+  </div>
+  <div class="leader-bio" id="bio-adriane-brown">
+    <p>Adriane Brown serves as Chief Operating Officer of the Workforce Advancement Project, overseeing day-to-day operations, program delivery, and organizational strategy. She brings extensive experience in workforce development and organizational management to the team.</p>
+  </div>
+</div>
+
+<div id="lakecia-gunter" class="leader-row">
+  <div class="leader-header">
+    <div class="leader-avatar" style="background:#c4d5e8;"></div>
+    <div class="leader-meta"><h3>Lakecia Gunter</h3><p class="leader-role">Board Member</p></div>
+    <button class="view-bio-btn" onclick="toggleBio('lakecia-gunter')">View Bio &#9660;</button>
+  </div>
+  <div class="leader-bio" id="bio-lakecia-gunter">
+    <p>Lakecia Gunter serves on the WorkforceAP Board of Directors, bringing leadership expertise and community perspective to guide the organization's strategic direction and mission of workforce advancement across Central Texas.</p>
+  </div>
+</div>
+
+<div id="brandon-frye" class="leader-row">
+  <div class="leader-header">
+    <div class="leader-avatar" style="background:#d5e8c4;"></div>
+    <div class="leader-meta"><h3>Brandon Frye</h3><p class="leader-role">Board Member</p></div>
+    <button class="view-bio-btn" onclick="toggleBio('brandon-frye')">View Bio &#9660;</button>
+  </div>
+  <div class="leader-bio" id="bio-brandon-frye">
+    <p>Brandon Frye serves on the WorkforceAP Board of Directors, contributing expertise in career development and community engagement to support the organization's workforce training programs and strategic initiatives.</p>
+  </div>
+</div>
+
+<div id="derrick-fishback" class="leader-row">
+  <div class="leader-header">
+    <div class="leader-avatar" style="background:#e8e4c4;"></div>
+    <div class="leader-meta"><h3>Colonel Derrick Fishback (Retired)</h3><p class="leader-role">Board Member</p></div>
+    <button class="view-bio-btn" onclick="toggleBio('derrick-fishback')">View Bio &#9660;</button>
+  </div>
+  <div class="leader-bio" id="bio-derrick-fishback">
+    <p>Colonel Derrick Fishback (Retired) brings decades of military leadership and operational experience to the WorkforceAP Board. His background in veteran transition and workforce readiness programs makes him a vital advocate for veteran members of our community.</p>
+  </div>
+</div>
+
+<div style="text-align:center;margin-top:4rem;padding:3rem;background:#f8f8f8;border-radius:12px;">
+  <h2>Join Our Mission</h2>
+  <p style="max-width:600px;margin:.75rem auto 1.5rem;color:#555;">Interested in partnering, volunteering, or joining the board?</p>
+  <a href="/contact.html" class="btn btn-primary">Get In Touch</a>
+</div>
+
+</div></section>
+<footer class="main-footer"><div class="footer-container"><div class="footer-col"><img src="/images/logo.png" alt="WorkforceAP" class="footer-logo"><p>Breaking systemic barriers through education, technology, and opportunity.</p><p>(512) 777-1808 | info@workforceap.org</p></div><div class="footer-col"><h4>Programs</h4><ul><li><a href="/programs.html">All Programs</a></li><li><a href="/program-comparison.html">Compare Programs</a></li><li><a href="/salary-guide.html">Salary Guide</a></li><li><a href="/apply.html">Apply Now</a></li></ul></div><div class="footer-col"><h4>About</h4><ul><li><a href="/what-we-do.html">What We Do</a></li><li><a href="/leadership.html">Leadership Team</a></li><li><a href="/faq.html">FAQ</a></li><li><a href="/contact.html">Contact Us</a></li></ul></div></div><div class="footer-bottom"><p>&copy; 2026 Workforce Advancement Project. Empowering People. Advancing Futures.</p></div></footer>
+<script src="/js/main.js"></script>
+<script>
+function toggleBio(id) {
+  var bio = document.getElementById("bio-" + id);
+  var btn = document.querySelector("#" + id + " .view-bio-btn");
+  if (bio.style.display === "none" || bio.style.display === "") {
+    bio.style.display = "block";
+    btn.innerHTML = "View Bio &#9650;";
+  } else {
+    bio.style.display = "none";
+    btn.innerHTML = "View Bio &#9660;";
+  }
+}
+</script>
+</body></html>

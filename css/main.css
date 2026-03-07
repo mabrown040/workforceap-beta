@@ -1343,3 +1343,150 @@ img:not([loading="lazy"]) {
     padding: 8px;
     border-radius: 8px;
 }
+
+/* ============================================
+   COMPREHENSIVE UX FIXES
+   ============================================ */
+
+/* 1. Typography Hierarchy */
+h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.2; }
+h2 { font-size: clamp(1.5rem, 4vw, 2rem); line-height: 1.3; }
+h3 { font-size: clamp(1.25rem, 3vw, 1.5rem); line-height: 1.4; }
+p { font-size: 1rem; line-height: 1.7; }
+
+/* 2. Consistent Section Spacing */
+section { padding: 4rem 0; }
+.page-hero { padding: 6rem 0 4rem; }
+
+/* 3. Button Consistency */
+.btn, .btn-primary, .btn-secondary, .nav-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.875rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    min-height: 48px;
+}
+
+.btn-primary, .nav-cta {
+    background: var(--color-accent, #ad2c4d);
+    color: white;
+}
+
+.btn-primary:hover, .nav-cta:hover {
+    background: #8b1f38;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(173, 44, 77, 0.3);
+}
+
+/* 4. Form Styling */
+.form-group { margin-bottom: 1.5rem; }
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--color-accent, #ad2c4d);
+}
+
+/* 5. Checkbox Grid Fix */
+.checkbox-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+@media (max-width: 600px) {
+    .checkbox-grid { grid-template-columns: 1fr; }
+}
+
+/* 6. Footer Improvements */
+.main-footer {
+    background: #1a1a1a;
+    color: rgba(255,255,255,0.85);
+    padding: 4rem 0 2rem;
+}
+.footer-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem 3rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+@media (max-width: 768px) {
+    .footer-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        text-align: center;
+    }
+    .footer-logo {
+        margin: 0 auto 1rem;
+    }
+}
+
+/* 7. Container Consistency */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+@media (min-width: 768px) {
+    .container { padding: 0 2rem; }
+}
+
+/* 8. Hero Text Shadow for Readability */
+.hero-content h1,
+.page-hero-content h1 {
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+.hero-content p,
+.page-hero-content p {
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* 9. Card Hover Effects */
+.career-card,
+.track,
+.process-step {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.career-card:hover,
+.track:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+/* 10. Loading Animation for Images */
+img {
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+img[loading="lazy"] {
+    opacity: 0;
+}
+img.loaded {
+    opacity: 1;
+}

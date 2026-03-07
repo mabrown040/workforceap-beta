@@ -2,7 +2,7 @@
 
 ## Cursor Cloud specific instructions
 
-This is a **zero-dependency static website** (plain HTML/CSS/JS). There is no build step, no package manager, no linter, and no automated test suite.
+This is a **zero-dependency static website** (plain HTML/CSS/JS) — a beta replica of the live Squarespace-hosted site at [workforceap.org](https://workforceap.org), intended for self-hosting without Squarespace. There is no build step, no package manager, no linter, and no automated test suite. The live Squarespace site is the visual reference for how pages should look.
 
 ### Running the dev server
 

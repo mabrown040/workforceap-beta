@@ -667,3 +667,525 @@ a {
         text-align: center;
     }
 }
+
+/* =============================================
+   INNER PAGE STYLES
+   ============================================= */
+
+body.inner-page {
+    background: #fff;
+    color: #1a1a1a;
+}
+
+/* Page Hero */
+.page-hero {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    color: white;
+    padding: 80px 2rem 60px;
+    text-align: center;
+    margin-top: 80px;
+}
+.page-hero h1 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: white;
+}
+.page-hero p {
+    font-size: 1.2rem;
+    color: rgba(255,255,255,0.85);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Content Section */
+.content-section {
+    padding: 5rem 2rem;
+}
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+.two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+}
+.two-col .col h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    color: #1a1a1a;
+}
+.two-col .col p {
+    margin-bottom: 1rem;
+    color: #444;
+    line-height: 1.8;
+}
+.styled-list {
+    padding-left: 1.5rem;
+    margin-top: 1rem;
+}
+.styled-list li {
+    margin-bottom: 0.5rem;
+    color: #444;
+}
+
+/* Stat Cards */
+.stat-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+.stat-card {
+    background: #f8f8f8;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+}
+.stat-card .stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ad2c4d;
+}
+.stat-card .stat-label {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 0.3rem;
+}
+
+/* Career Grid */
+.career-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+.career-track {
+    background: #f8f8f8;
+    border-radius: 12px;
+    padding: 2rem;
+    border-top: 4px solid #ad2c4d;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.career-track:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+}
+.track-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+.career-track h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: #1a1a1a;
+}
+.career-track p {
+    color: #555;
+    margin-bottom: 1rem;
+    line-height: 1.7;
+}
+.career-track ul {
+    padding-left: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+.career-track ul li {
+    color: #555;
+    margin-bottom: 0.4rem;
+    font-size: 0.9rem;
+}
+
+/* Process Flow - How It Works */
+.workforceap-process-flow {
+    max-width: 800px;
+    margin: 0 auto;
+    position: relative;
+}
+.workforceap-process-flow::before {
+    content: '';
+    position: absolute;
+    left: 24px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e0e0e0;
+}
+.process-step {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+    align-items: flex-start;
+    position: relative;
+}
+.process-final {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+    align-items: flex-start;
+    background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+}
+.process-final .step-content h3,
+.process-final .step-content p {
+    color: white;
+}
+.step-number {
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    position: relative;
+    z-index: 1;
+}
+.step-content {
+    flex: 1;
+    padding-top: 0.5rem;
+}
+.step-content h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 0.5rem;
+}
+.step-content p {
+    color: #555;
+    line-height: 1.7;
+}
+
+/* FAQ */
+.faq-list {
+    max-width: 800px;
+    margin: 0 auto;
+}
+.faq-item {
+    border-bottom: 1px solid #e0e0e0;
+    padding: 1.5rem 0;
+}
+.faq-item summary {
+    font-weight: 600;
+    font-size: 1.05rem;
+    cursor: pointer;
+    color: #1a1a1a;
+    list-style: none;
+    position: relative;
+    padding-right: 2rem;
+}
+.faq-item summary::after {
+    content: '+';
+    position: absolute;
+    right: 0;
+    top: 0;
+    font-size: 1.3rem;
+    color: #ad2c4d;
+    transition: transform 0.2s;
+}
+.faq-item[open] summary::after {
+    transform: rotate(45deg);
+}
+.faq-item p {
+    margin-top: 1rem;
+    color: #555;
+    line-height: 1.8;
+}
+
+/* Contact Form */
+.contact-info {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.contact-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+.contact-icon {
+    font-size: 1.5rem;
+    min-width: 2rem;
+}
+.contact-form, .apply-form {
+    background: #f8f8f8;
+    padding: 2.5rem;
+    border-radius: 12px;
+}
+.form-group {
+    margin-bottom: 1.5rem;
+}
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #1a1a1a;
+    font-size: 0.9rem;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 1rem;
+    background: white;
+    transition: border-color 0.2s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #ad2c4d;
+    box-shadow: 0 0 0 3px rgba(173,44,77,0.1);
+}
+
+/* Salary Table */
+.salary-table-wrapper {
+    overflow-x: auto;
+    margin-top: 2rem;
+}
+.salary-table, .comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+.salary-table th, .comparison-table th {
+    background: #1a1a1a;
+    color: white;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+}
+.salary-table td, .comparison-table td {
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid #e0e0e0;
+    color: #444;
+}
+.salary-table tr:nth-child(even) td,
+.comparison-table tr:nth-child(even) td {
+    background: #f8f8f8;
+}
+.salary-table tr:hover td,
+.comparison-table tr:hover td {
+    background: #fff3f5;
+}
+
+/* Leadership */
+.leadership-grid {
+    display: grid;
+    gap: 3rem;
+}
+.leader-card {
+    background: #f8f8f8;
+    border-radius: 12px;
+    padding: 3rem;
+    display: flex;
+    gap: 3rem;
+    align-items: flex-start;
+}
+.leader-photo {
+    width: 150px;
+    height: 150px;
+    min-width: 150px;
+    border-radius: 50%;
+    background: #ddd;
+    overflow: hidden;
+}
+.leader-info h3 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 0.25rem;
+}
+.leader-title {
+    color: #ad2c4d;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+.leader-credentials {
+    padding-left: 1.2rem;
+    margin-top: 1rem;
+}
+.leader-credentials li {
+    color: #555;
+    margin-bottom: 0.4rem;
+}
+
+/* Partners */
+.partners-section {
+    background: #f8f8f8;
+    padding: 4rem 2rem;
+    text-align: center;
+}
+.partners-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2rem;
+}
+.partners-grid img {
+    height: 40px;
+    object-fit: contain;
+    filter: grayscale(100%);
+    opacity: 0.7;
+    transition: all 0.2s;
+}
+.partners-grid img:hover {
+    filter: none;
+    opacity: 1;
+}
+
+/* CTA Section */
+.cta-section {
+    background: linear-gradient(135deg, #ad2c4d, #8b1f38);
+    color: white;
+    padding: 5rem 2rem;
+    text-align: center;
+}
+.cta-section h2 {
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+    color: white;
+}
+.cta-section p {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+    color: white;
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.8rem;
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+.btn-primary {
+    background: #ad2c4d;
+    color: white;
+}
+.btn-primary:hover {
+    background: #8b1f38;
+    transform: translateY(-2px);
+}
+.btn-secondary {
+    background: #1a1a1a;
+    color: white;
+}
+.btn-secondary:hover {
+    background: #333;
+}
+.btn-outline {
+    background: transparent;
+    color: #1a1a1a;
+    border: 2px solid #1a1a1a;
+}
+.btn-outline:hover {
+    background: #1a1a1a;
+    color: white;
+}
+.btn-large {
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+}
+
+/* Footer */
+.main-footer {
+    background: #1a1a1a;
+    color: rgba(255,255,255,0.8);
+    padding: 4rem 2rem 2rem;
+}
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 3rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.footer-logo {
+    height: 50px;
+    margin-bottom: 1rem;
+    filter: brightness(0) invert(1);
+}
+.main-footer p {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    margin-bottom: 0.5rem;
+}
+.main-footer h4 {
+    color: white;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+.main-footer ul {
+    list-style: none;
+    padding: 0;
+}
+.main-footer ul li {
+    margin-bottom: 0.5rem;
+}
+.main-footer a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+}
+.main-footer a:hover {
+    color: #a47f38;
+}
+.footer-bottom {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 2rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.5);
+}
+
+/* Section titles */
+.section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    color: #1a1a1a;
+}
+.section-subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 3rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .page-hero h1 { font-size: 2rem; }
+    .two-col { grid-template-columns: 1fr; gap: 2rem; }
+    .career-grid { grid-template-columns: 1fr; }
+    .footer-container { grid-template-columns: 1fr; gap: 2rem; }
+    .leader-card { flex-direction: column; }
+    .stat-cards { grid-template-columns: 1fr 1fr; }
+    .workforceap-process-flow::before { display: none; }
+}

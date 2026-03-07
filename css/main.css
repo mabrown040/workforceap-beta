@@ -1592,3 +1592,31 @@ img.loaded {
     font-style: italic;
     color: #a47f38;
 }
+
+/* NEW HERO STYLES */
+.hero { position: relative; min-height: 580px; display: flex; align-items: center; justify-content: center; background: url("/images/austin-skyline.jpg") center/cover no-repeat; text-align: center; color: white; overflow: hidden; }
+.hero-overlay { position: absolute; inset: 0; background: linear-gradient(rgba(0,0,0,.6), rgba(0,0,0,.75)); }
+.hero-container { position: relative; z-index: 1; max-width: 900px; padding: 3rem 1.5rem; }
+.hero-title { font-size: clamp(2.2rem,6vw,3.8rem); font-weight: 800; margin-bottom: 1rem; line-height: 1.1; letter-spacing: -0.02em; }
+.hero-title .accent { color: #a47f38; }
+.hero-subtitle { font-size: clamp(1rem,2.5vw,1.25rem); opacity: .9; margin-bottom: 2rem; max-width: 700px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+.hero-actions { display: flex; gap: 1rem; justify-content: center; margin-bottom: 3rem; flex-wrap: wrap; }
+.trust-strip { opacity: .9; font-size: .85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.trust-logos { margin-top: .75rem; display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; align-items: center; }
+.trust-logos img { height: 32px; filter: brightness(0) invert(1); opacity: .85; transition: opacity 0.2s; }
+.trust-logos img:hover { opacity: 1; }
+@media (max-width: 640px) { .hero-actions { flex-direction: column; align-items: stretch; } .hero-actions .btn { width: 100
+/* NEW HERO STYLES */
+.hero { position: relative; min-height: 580px; display: flex; align-items: center; justify-content: center; background: url("/images/austin-skyline.jpg") center/cover no-repeat; text-align: center; color: white; overflow: hidden; }
+.hero-overlay { position: absolute; inset: 0; background: linear-gradient(rgba(0,0,0,.6), rgba(0,0,0,.75)); }
+.hero-container { position: relative; z-index: 1; max-width: 900px; padding: 3rem 1.5rem; }
+.hero-title { font-size: clamp(2.2rem,6vw,3.8rem); font-weight: 800; margin-bottom: 1rem; line-height: 1.1; letter-spacing: -0.02em; }
+.hero-title .accent { color: #a47f38; }
+.hero-subtitle { font-size: clamp(1rem,2.5vw,1.25rem); opacity: .9; margin-bottom: 2rem; max-width: 700px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+.hero-actions { display: flex; gap: 1rem; justify-content: center; margin-bottom: 3rem; flex-wrap: wrap; }
+.trust-strip { opacity: .9; font-size: .85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.trust-logos { margin-top: .75rem; display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; align-items: center; }
+.trust-logos img { height: 32px; filter: brightness(0) invert(1); opacity: .85; transition: opacity 0.2s; }
+.trust-logos img:hover { opacity: 1; }
+@media (max-width: 640px) { .hero-actions { flex-direction: column; align-items: stretch; } .hero-actions .btn { width: 100%; } .trust-logos { gap: 1rem; } .trust-logos img { height: 24px; } }
+

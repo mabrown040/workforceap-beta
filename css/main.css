@@ -288,6 +288,7 @@ a {
 
 /* Content Sections */
 .content-section {
+    background: #ffffff;
     padding: 80px 0;
 }
 
@@ -673,6 +674,8 @@ a {
    ============================================= */
 
 body.inner-page {
+    background: #ffffff !important;
+    color: #1a1a1a !important;
     background: #fff;
     color: #1a1a1a;
 }
@@ -700,6 +703,7 @@ body.inner-page {
 
 /* Content Section */
 .content-section {
+    background: #ffffff;
     padding: 5rem 2rem;
 }
 .container {

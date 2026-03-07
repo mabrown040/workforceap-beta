@@ -1559,3 +1559,36 @@ img[loading="lazy"] {
 img.loaded {
     opacity: 1;
 }
+
+
+/* Hero Mobile Fixes */
+@media (max-width: 768px) {
+    .hero {
+        height: auto;
+        min-height: 400px;
+        padding: 4rem 1rem;
+    }
+    .hero h1 {
+        font-size: clamp(1.75rem, 8vw, 2.5rem);
+    }
+    .hero-content {
+        padding: 0 1rem;
+    }
+}
+
+/* Stats Bar Mobile */
+@media (max-width: 768px) {
+    .stats-container {
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+    .stat {
+        flex: 1 1 40%;
+    }
+}
+
+/* Highlight styling improvement */
+.hero .highlight {
+    font-style: italic;
+    color: #a47f38;
+}

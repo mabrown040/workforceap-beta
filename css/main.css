@@ -1741,3 +1741,14 @@ img.loaded {
 .link-arrow{color:#ad2c4d;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:.5rem}
 .link-arrow:hover{text-decoration:underline}
 @media(max-width:900px){.vm-grid{grid-template-columns:1fr;gap:2rem}}
+
+/* CAREER TRACKS - Squarespace Match */
+.career-tracks{padding:5rem 0;background:#f8f8f8}
+.career-tracks .overline{display:block;text-align:center;margin-bottom:1rem;color:#888;font-size:.875rem;text-transform:uppercase;letter-spacing:.1em}
+.tracks-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2rem}
+.track{background:#fff;padding:2rem;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.track blockquote{margin:0 0 1rem;padding:0;border:none;font-style:italic;color:#555}
+.track blockquote::before{content:'"';font-size:2rem;color:#ad2c4d;line-height:1}
+.track h4{font-size:1.2rem;margin-bottom:.5rem;color:#1a1a1a}
+.track .certs{color:#666;font-size:.9rem}
+@media(max-width:768px){.tracks-grid{grid-template-columns:1fr}}

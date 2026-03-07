@@ -1134,7 +1134,9 @@ body.inner-page {
 .footer-logo {
     height: 50px;
     margin-bottom: 1rem;
-    filter: brightness(0) invert(1);
+    background: white;
+    padding: 8px;
+    border-radius: 8px;
 }
 .main-footer p {
     font-size: 0.9rem;
@@ -1290,4 +1292,54 @@ img[loading="lazy"] {
 img.loaded,
 img:not([loading="lazy"]) {
     opacity: 1;
+}
+
+
+/* Mobile Menu Fixes */
+@media (max-width: 900px) {
+    .mobile-nav-toggle {
+        display: block;
+        z-index: 101;
+    }
+    .nav-menu {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--color-primary);
+        flex-direction: column;
+        padding: 80px 2rem 2rem;
+        gap: 0;
+        z-index: 100;
+        overflow-y: auto;
+    }
+    .nav-menu.mobile-open {
+        display: flex;
+    }
+    .nav-menu li {
+        padding: 1rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .dropdown-menu {
+        position: static;
+        display: none;
+        background: rgba(255,255,255,0.05);
+        border: none;
+        padding: 0.5rem 0 0.5rem 1rem;
+        margin-top: 0.5rem;
+    }
+    .dropdown.active .dropdown-menu {
+        display: block;
+    }
+}
+
+/* Footer logo fix for visibility */
+.footer-logo {
+    height: 50px;
+    margin-bottom: 1rem;
+    background: white;
+    padding: 8px;
+    border-radius: 8px;
 }

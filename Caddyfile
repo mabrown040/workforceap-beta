@@ -1,0 +1,18 @@
+# Caddy Reverse Proxy Config
+# Add this to your Caddyfile on the Caddy container
+
+workforceap.mikeslabs.com {
+    # Replace 192.168.1.152 with actual CT 152 IP after creation
+    reverse_proxy 192.168.1.152:80
+    
+    # Auto HTTPS with Let's Encrypt
+    # Caddy handles SSL automatically
+}
+
+# If using Cloudflare for DNS (recommended to hide your IP):
+# workforceap.mikeslabs.com {
+#     reverse_proxy 192.168.1.152:80
+#     tls {
+#         dns cloudflare YOUR_CLOUDFLARE_API_TOKEN
+#     }
+# }

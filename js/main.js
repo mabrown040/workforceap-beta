@@ -3,14 +3,39 @@ document.addEventListener('DOMContentLoaded', function() {
     const mobileToggle = document.querySelector('.mobile-nav-toggle');
     const navMenu = document.querySelector('.nav-menu');
     const dropdowns = document.querySelectorAll('.dropdown');
+    const nav = document.querySelector('.main-nav');
+
+    function closeMobileNav() {
+        if (!navMenu || !mobileToggle) return;
+        navMenu.classList.remove('mobile-open');
+        mobileToggle.setAttribute('aria-expanded', 'false');
+        mobileToggle.setAttribute('aria-label', 'Open navigation');
+        mobileToggle.textContent = '\u2630';
+        document.body.classList.remove('mobile-nav-open');
+        dropdowns.forEach(function(dropdown) {
+            dropdown.classList.remove('active');
+        });
+    }
+
+    function openMobileNav() {
+        if (!navMenu || !mobileToggle) return;
+        navMenu.classList.add('mobile-open');
+        mobileToggle.setAttribute('aria-expanded', 'true');
+        mobileToggle.setAttribute('aria-label', 'Close navigation');
+        mobileToggle.textContent = '\u2715';
+        document.body.classList.add('mobile-nav-open');
+    }
     
     if (mobileToggle && navMenu) {
+        mobileToggle.setAttribute('aria-expanded', 'false');
+        mobileToggle.setAttribute('aria-label', 'Open navigation');
         mobileToggle.addEventListener('click', function(e) {
             e.stopPropagation();
-            const isOpen = navMenu.classList.toggle('mobile-open');
-            mobileToggle.setAttribute('aria-expanded', isOpen);
-            mobileToggle.textContent = isOpen ? '\u2715' : '\u2630';
-            document.body.style.overflow = isOpen ? 'hidden' : '';
+            if (navMenu.classList.contains('mobile-open')) {
+                closeMobileNav();
+            } else {
+                openMobileNav();
+            }
         });
     }
     
@@ -32,29 +57,31 @@ document.addEventListener('DOMContentLoaded', function() {
     
     document.addEventListener('click', function(e) {
         if (navMenu && navMenu.classList.contains('mobile-open')) {
-            if (!e.target.closest('.main-nav')) {
-                navMenu.classList.remove('mobile-open');
-                if (mobileToggle) {
-                    mobileToggle.setAttribute('aria-expanded', 'false');
-                    mobileToggle.textContent = '\u2630';
-                }
-                document.body.style.overflow = '';
+            if (!e.target.closest('.nav-menu') && !e.target.closest('.mobile-nav-toggle')) {
+                closeMobileNav();
             }
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && navMenu && navMenu.classList.contains('mobile-open')) {
+            closeMobileNav();
         }
     });
     
     const navLinks = document.querySelectorAll('.nav-menu a');
     navLinks.forEach(link => {
         link.addEventListener('click', function() {
-            if (navMenu) {
-                navMenu.classList.remove('mobile-open');
-                if (mobileToggle) {
-                    mobileToggle.setAttribute('aria-expanded', 'false');
-                    mobileToggle.textContent = '\u2630';
-                }
-                document.body.style.overflow = '';
+            if (navMenu && window.innerWidth <= 900) {
+                closeMobileNav();
             }
         });
+    });
+
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 900) {
+            closeMobileNav();
+        }
     });
     
     // Smooth scroll for anchor links
@@ -127,7 +154,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // --- GLASS NAV ON SCROLL ---
-    var nav = document.querySelector('.main-nav');
     if (nav) {
         var lastScroll = 0;
         var scrollThreshold = 60;
@@ -196,6 +222,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (filterChips.length && programCards.length) {
         filterChips.forEach(function(chip) {
             chip.addEventListener('click', function() {
+                document.querySelectorAll('.program-card details[open]').forEach(function(details) {
+                    details.open = false;
+                });
                 filterChips.forEach(function(c) { c.classList.remove('active'); });
                 chip.classList.add('active');
                 var filter = chip.getAttribute('data-filter');
@@ -220,6 +249,104 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    function normalizeCompactSalaryText(text) {
+        if (!text) return text;
+        var cleaned = text.replace(/\\\$/g, '$').replace(/\s+/g, ' ').trim();
+        var match = cleaned.match(/Starting:?\s*\$?(\d+)\s*[Kk]?\s*[–-]\s*\$?(\d+)\s*[Kk]?/i);
+        if (match) {
+            return 'Starting salary: $' + match[1] + 'K-$' + match[2] + 'K';
+        }
+        return cleaned;
+    }
+
+    function enhanceProgramCards() {
+        if (!programCards.length) return;
+
+        programCards.forEach(function(card) {
+            var directDivs = Array.from(card.children).filter(function(child) {
+                return child.tagName === 'DIV';
+            });
+            var title = card.querySelector(':scope > h3');
+            var details = card.querySelector('details');
+
+            if (directDivs[0]) {
+                directDivs[0].classList.add('program-card-top');
+                var badge = directDivs[0].querySelector('span');
+                var icon = directDivs[0].querySelectorAll('span')[1];
+                if (badge) badge.classList.add('program-card-category');
+                if (icon) icon.classList.add('program-card-icon');
+            }
+
+            if (title) {
+                title.classList.add('program-card-title');
+            }
+
+            if (directDivs[1]) {
+                directDivs[1].classList.add('program-card-meta');
+                var metaSpans = directDivs[1].querySelectorAll('span');
+                if (metaSpans[1]) {
+                    metaSpans[1].classList.add('program-card-salary');
+                    metaSpans[1].textContent = normalizeCompactSalaryText(metaSpans[1].textContent);
+                }
+            }
+
+            if (directDivs[2]) {
+                directDivs[2].classList.add('program-card-skills');
+            }
+
+            if (details) {
+                details.classList.add('program-card-details');
+                var summary = details.querySelector('summary');
+                var courseList = details.querySelector('ul');
+                var courseCount = '';
+
+                if (summary) {
+                    summary.classList.add('program-card-summary');
+                    var countMatch = summary.textContent.match(/(\d+)/);
+                    courseCount = countMatch ? countMatch[1] : '';
+
+                    function setSummaryCopy() {
+                        if (!courseCount) return;
+                        summary.textContent = (details.open ? 'Hide ' : 'View ') + courseCount + ' course' + (courseCount === '1' ? '' : 's');
+                    }
+
+                    setSummaryCopy();
+                    details.addEventListener('toggle', function() {
+                        if (details.open) {
+                            document.querySelectorAll('.program-card details[open]').forEach(function(openDetails) {
+                                if (openDetails !== details) {
+                                    openDetails.open = false;
+                                }
+                            });
+                        }
+                        setSummaryCopy();
+                    });
+                }
+
+                if (courseList) {
+                    courseList.classList.add('program-course-list');
+                }
+            }
+
+            if (directDivs[3]) {
+                directDivs[3].classList.add('program-card-footer');
+                var partner = directDivs[3].querySelector('span');
+                if (partner) partner.classList.add('program-card-partner');
+            }
+        });
+    }
+
+    function normalizeEscapedDollarAmounts() {
+        document.querySelectorAll('td, p, div, span').forEach(function(node) {
+            if (!node.children.length && /\\\$/.test(node.textContent)) {
+                node.textContent = node.textContent.replace(/\\\$/g, '$');
+            }
+        });
+    }
+
+    enhanceProgramCards();
+    normalizeEscapedDollarAmounts();
 
     // --- FAQ CATEGORY FILTERS ---
     var faqFilters = document.querySelectorAll('.faq-filter[data-category]');

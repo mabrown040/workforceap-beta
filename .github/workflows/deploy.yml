@@ -1,0 +1,16 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Pull latest changes
+        run: |
+          cd /var/www/workforceap
+          git pull origin master
+          echo "Deployed at $(date)"

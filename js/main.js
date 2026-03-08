@@ -43,18 +43,27 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    function closeMobileNav() {
+        if (navMenu) {
+            navMenu.classList.remove('mobile-open');
+            dropdowns.forEach(d => d.classList.remove('active'));
+            if (mobileToggle) {
+                mobileToggle.setAttribute('aria-expanded', 'false');
+                mobileToggle.textContent = '\u2630';
+            }
+            document.body.style.overflow = '';
+        }
+    }
+
     const navLinks = document.querySelectorAll('.nav-menu a');
     navLinks.forEach(link => {
-        link.addEventListener('click', function() {
-            if (navMenu) {
-                navMenu.classList.remove('mobile-open');
-                if (mobileToggle) {
-                    mobileToggle.setAttribute('aria-expanded', 'false');
-                    mobileToggle.textContent = '\u2630';
-                }
-                document.body.style.overflow = '';
-            }
-        });
+        link.addEventListener('click', closeMobileNav);
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && navMenu && navMenu.classList.contains('mobile-open')) {
+            closeMobileNav();
+        }
     });
     
     // Smooth scroll for anchor links

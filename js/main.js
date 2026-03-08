@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
             closeMobileNav();
         }
     });
-    
+
     const navLinks = document.querySelectorAll('.nav-menu a');
     navLinks.forEach(link => {
         link.addEventListener('click', function() {

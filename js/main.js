@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Mobile Navigation Toggle
     const mobileToggle = document.querySelector('.mobile-nav-toggle');
     const navMenu = document.querySelector('.nav-menu');
+    const mainNav = document.querySelector('.main-nav');
+    const body = document.body;
     const dropdowns = document.querySelectorAll('.dropdown');
     const nav = document.querySelector('.main-nav');
 
@@ -219,6 +221,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- PROGRAM FILTER CHIPS ---
     var filterChips = document.querySelectorAll('.filter-chip[data-filter]');
     var programCards = document.querySelectorAll('.program-card[data-category]');
+    if (programCards.length) {
+        programCards.forEach(function(card) {
+            var metaRow = card.querySelector('div[style*="gap:1rem;margin-bottom:.75rem"]');
+            var actionRow = card.querySelector('div[style*="justify-content:space-between;align-items:center"]');
+            if (metaRow) metaRow.classList.add('program-meta-row');
+            if (actionRow) actionRow.classList.add('program-action-row');
+        });
+    }
     if (filterChips.length && programCards.length) {
         filterChips.forEach(function(chip) {
             chip.addEventListener('click', function() {
@@ -229,6 +239,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 chip.classList.add('active');
                 var filter = chip.getAttribute('data-filter');
                 programCards.forEach(function(card) {
+                    if (card._hideTimer) {
+                        clearTimeout(card._hideTimer);
+                        card._hideTimer = null;
+                    }
                     if (filter === 'all' || card.getAttribute('data-category') === filter) {
                         card.style.display = '';
                         card.style.opacity = '0';
@@ -241,9 +255,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             });
                         });
                     } else {
+                        var openDetails = card.querySelector('details[open]');
+                        if (openDetails) openDetails.open = false;
                         card.style.opacity = '0';
                         card.style.transform = 'translateY(10px)';
-                        setTimeout(function() { card.style.display = 'none'; }, 300);
+                        card._hideTimer = setTimeout(function() {
+                            card.style.display = 'none';
+                        }, 300);
                     }
                 });
             });

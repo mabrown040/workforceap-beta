@@ -185,6 +185,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }, { threshold: 0.5 });
     
     document.querySelectorAll('.stat-number, .impact-number, .stat-num').forEach(function(el) {
+        var raw = el.textContent.trim();
+        if (/[–\-\/]/.test(raw.replace(/[^–\-\/]/g, '')) && /\d.*[–\-\/].*\d/.test(raw)) return;
         counterObserver.observe(el);
     });
 

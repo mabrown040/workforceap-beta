@@ -96,6 +96,11 @@ export default function MainNav() {
           {mobileOpen ? '\u2715' : '\u2630'}
         </button>
         <ul className={`nav-menu${mobileOpen ? ' mobile-open' : ''}`}>
+          {mobileOpen && (
+            <li className="mobile-nav-close">
+              <button onClick={closeMobile} aria-label="Close navigation">&times;</button>
+            </li>
+          )}
           {navItems.map((item) => {
             if ('children' in item && item.children) {
               const parentActive = isParentActive(item.children);

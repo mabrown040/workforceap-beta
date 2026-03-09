@@ -13,4 +13,19 @@ jobs:
         run: |
           cd /var/www/workforceap
           git pull origin master
+
+      - name: Install dependencies
+        run: |
+          cd /var/www/workforceap
+          npm ci --omit=dev
+
+      - name: Build Next.js
+        run: |
+          cd /var/www/workforceap
+          npm run build
+
+      - name: Restart app via pm2
+        run: |
+          pm2 restart workforceap
+          pm2 save
           echo "Deployed at $(date)"

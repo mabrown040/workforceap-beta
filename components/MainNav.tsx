@@ -77,7 +77,15 @@ export default function MainNav() {
     <nav className={`main-nav${scrolled ? ' scrolled' : ''}`} aria-label="Main navigation">
       <div className="nav-container">
         <Link href="/" className="logo" aria-label="Workforce Advancement Project home">
-          <Image src="/images/logo.png" alt="Workforce Advancement Project" width={180} height={40} priority />
+          <Image
+            src="/images/logo.png"
+            alt="Workforce Advancement Project"
+            width={500}
+            height={281}
+            className="nav-logo-image"
+            sizes="(max-width: 900px) 84px, 98px"
+            priority
+          />
         </Link>
         <button
           className="mobile-nav-toggle"

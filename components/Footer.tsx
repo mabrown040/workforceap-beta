@@ -32,7 +32,15 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
     <footer className="main-footer">
       <div className="footer-container">
         <div className="footer-col">
-          <Image src="/images/logo.png" alt="WorkforceAP" className="footer-logo" width={160} height={36} />
+          <Image
+            src="/images/logo.png"
+            alt="WorkforceAP"
+            className="footer-logo"
+            width={500}
+            height={281}
+            sizes="(max-width: 768px) 90px, 108px"
+            loading="lazy"
+          />
           <p>Breaking systemic barriers through education, technology, and opportunity. Employer-aligned career training, certifications, and personalized support.</p>
           <p>info@workforceap.org</p>
           <p>(512) 777-1808</p>

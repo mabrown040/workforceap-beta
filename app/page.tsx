@@ -4,6 +4,14 @@ import Footer from '@/components/Footer';
 import PhotoHighlight from '@/components/PhotoHighlight';
 
 export default function HomePage() {
+  const journeySteps = [
+    { num: 1, title: 'Apply', desc: 'Quick online application' },
+    { num: 2, title: 'Interview', desc: 'Meet your counselor' },
+    { num: 3, title: 'Train', desc: 'Industry certifications' },
+    { num: 4, title: 'Certify', desc: 'Earn credentials' },
+    { num: 5, title: 'Get Hired', desc: 'Job placement assistance' },
+  ];
+
   return (
     <div className="homepage">
       {/* Hero */}
@@ -67,29 +75,23 @@ export default function HomePage() {
       {/* Process Flow */}
       <section className="process-flow-section">
         <div className="process-flow-inner">
-          <div className="process-flow-header">
+          <div className="process-flow-header animate-on-scroll">
             <h2>Your Journey With Us</h2>
             <p>From application to employment &mdash; see how it works</p>
           </div>
           <div className="process-steps">
-            {[
-              { num: 1, title: 'Apply', desc: 'Quick online application' },
-              { num: 2, title: 'Interview', desc: 'Meet your counselor' },
-              { num: 3, title: 'Train', desc: 'Industry certifications' },
-              { num: 4, title: 'Certify', desc: 'Earn credentials' },
-              { num: 5, title: 'Get Hired', desc: 'Job placement assistance' },
-            ].map((step, i) => (
-              <div key={step.num}>
-                {i > 0 && <div className="step-arrow" aria-hidden="true" />}
-                <div className="process-step">
-                  <div className="step-number">{step.num}</div>
+            {journeySteps.map((step, index) => (
+              <div key={step.num} className="process-item">
+                <div className="process-step" data-delay={String(index * 80)}>
+                  <div className="step-number" aria-label={`Step ${step.num}`}>{step.num}</div>
                   <h4>{step.title}</h4>
                   <p>{step.desc}</p>
                 </div>
+                {index < journeySteps.length - 1 && <div className="step-arrow" aria-hidden="true" />}
               </div>
             ))}
           </div>
-          <div className="process-cta">
+          <div className="process-cta animate-on-scroll">
             <Link href="/how-it-works" className="btn btn-secondary">See Full Process</Link>
           </div>
         </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 const animatableSelectors = [
   '.animate-on-scroll',
@@ -40,6 +41,8 @@ function animateCounter(element: HTMLElement, target: number, suffix: string, du
 }
 
 export default function ScrollAnimations() {
+  const pathname = usePathname();
+
   useEffect(() => {
     const animateObserver = new IntersectionObserver(
       (entries) => {
@@ -54,14 +57,23 @@ export default function ScrollAnimations() {
       { root: null, rootMargin: '0px 0px -80px 0px', threshold: 0.08 }
     );
 
-    const allAnimatable = document.querySelectorAll(animatableSelectors.join(','));
-    allAnimatable.forEach((el, index) => {
+    const selectorList = animatableSelectors.join(',');
+
+    const observeAnimatable = (el: Element, index: number) => {
       if (!el.classList.contains('animate-on-scroll')) {
         el.classList.add('animate-on-scroll');
       }
-      (el as HTMLElement).dataset.delay = String(Math.min(index % 6, 5) * 80);
-      animateObserver.observe(el);
-    });
+      const htmlEl = el as HTMLElement;
+      if (!htmlEl.dataset.delay) {
+        htmlEl.dataset.delay = String(Math.min(index % 6, 5) * 80);
+      }
+      if (!el.classList.contains('visible')) {
+        animateObserver.observe(el);
+      }
+    };
+
+    const allAnimatable = document.querySelectorAll(selectorList);
+    allAnimatable.forEach((el, index) => observeAnimatable(el, index));
 
     document.querySelectorAll('.section-label, .section-title, .section-subtitle, .overline').forEach((el) => {
       if (!el.classList.contains('animate-on-scroll') && !el.closest('.animate-on-scroll')) {
@@ -122,12 +134,39 @@ export default function ScrollAnimations() {
       }
     });
 
+    const mutationObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (!(node instanceof Element)) return;
+
+          if (node.matches(selectorList)) {
+            observeAnimatable(node, 0);
+          }
+
+          node.querySelectorAll(selectorList).forEach((el, index) => {
+            observeAnimatable(el, index);
+          });
+
+          node.querySelectorAll('.section-label, .section-title, .section-subtitle, .overline').forEach((el) => {
+            if (!el.classList.contains('animate-on-scroll') && !el.closest('.animate-on-scroll')) {
+              el.classList.add('animate-on-scroll');
+              (el as HTMLElement).dataset.delay = '0';
+              animateObserver.observe(el);
+            }
+          });
+        });
+      });
+    });
+
+    mutationObserver.observe(document.body, { childList: true, subtree: true });
+
     return () => {
       animateObserver.disconnect();
       counterObserver.disconnect();
+      mutationObserver.disconnect();
       window.removeEventListener('scroll', onScroll);
     };
-  }, []);
+  }, [pathname]);
 
   return null;
 }

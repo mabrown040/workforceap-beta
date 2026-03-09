@@ -2,25 +2,39 @@
 
 ## Cursor Cloud specific instructions
 
-This is a **zero-dependency static website** (plain HTML/CSS/JS) — a beta replica of the live Squarespace-hosted site at [workforceap.org](https://workforceap.org), intended for self-hosting without Squarespace. There is no build step, no package manager, no linter, and no automated test suite. The live Squarespace site is the visual reference for how pages should look.
+This is a **Next.js 15 (App Router)** website — a replica of the live Squarespace-hosted site at [workforceap.org](https://workforceap.org), intended for self-hosting without Squarespace. The live Squarespace site is the visual reference for how pages should look.
 
 ### Running the dev server
 
 ```bash
-python3 -m http.server 8000
+npm run dev
 ```
 
-Open `http://localhost:8000` in a browser. All HTML pages use absolute paths (e.g. `/css/main.css`, `/images/logo.png`), so a proper HTTP server is required — opening files directly via `file://` will break asset loading.
+Or for production build + serve:
+
+```bash
+npm run build && npm start
+```
+
+Open `http://localhost:3000` in a browser.
 
 ### Project structure
 
-- 10 HTML pages in the repo root (`index.html`, `apply.html`, `programs.html`, etc.)
-- `css/main.css` — all styles
-- `js/main.js` — mobile nav toggle and smooth scrolling only
-- `images/` — static assets
-- `Caddyfile` — production reverse-proxy config (not needed for local dev)
-- `DEPLOY.md` — production deployment instructions (Proxmox/Nginx/Caddy)
+- `app/` — Next.js App Router pages (10 routes)
+  - `layout.tsx` — root layout with TopBanner, MainNav, ScrollAnimations, and global CSS
+  - `page.tsx` — homepage
+  - `apply/`, `programs/`, `what-we-do/`, `how-it-works/`, `faq/`, `contact/`, `leadership/`, `salary-guide/`, `program-comparison/` — inner pages
+- `components/` — shared React components (TopBanner, MainNav, Footer, PageHero, PhotoHighlight, ScrollAnimations)
+- `css/main.css` — all styles (imported globally via layout.tsx)
+- `public/images/` — static image assets
+- `next.config.ts` — Next.js configuration including redirects for old `.html` URLs
+- `Caddyfile` — production reverse-proxy config
+- `DEPLOY.md` — production deployment instructions
 
 ### Lint / Test / Build
 
-There are no configured linters, test frameworks, or build tools. For HTML validation, use an external tool like `html5validator` if needed (not pre-installed). CSS and JS are vanilla with no transpilation.
+```bash
+npm run build    # TypeScript type-checking + Next.js production build
+```
+
+There are no configured linters or test frameworks. For validation, run `npm run build` which will catch TypeScript and compilation errors.

@@ -14,10 +14,10 @@ jobs:
           cd /var/www/workforceap
           git pull origin master
 
-      - name: Install dependencies
+      - name: Install all dependencies (including devDeps for build)
         run: |
           cd /var/www/workforceap
-          npm ci --omit=dev
+          npm ci
 
       - name: Build Next.js
         run: |

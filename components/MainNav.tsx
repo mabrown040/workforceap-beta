@@ -76,7 +76,7 @@ export default function MainNav() {
   return (
     <nav className={`main-nav${scrolled ? ' scrolled' : ''}`} aria-label="Main navigation">
       <div className="nav-container">
-        <Link href="/" className="logo" aria-label="Workforce Advancement Project home">
+        <Link href="/" className="logo" aria-label="Workforce Advancement Project home" onClick={closeMobile}>
           <Image
             src="/images/logo.png"
             alt="Workforce Advancement Project"
@@ -118,6 +118,7 @@ export default function MainNav() {
                         <Link
                           href={child.href}
                           className={isActive(child.href) ? 'active' : undefined}
+                          onClick={closeMobile}
                         >
                           {child.label}
                         </Link>
@@ -132,6 +133,7 @@ export default function MainNav() {
                 <Link
                   href={item.href!}
                   className={`${item.cta ? 'nav-cta' : ''}${isActive(item.href!) ? ' active' : ''}`}
+                  onClick={closeMobile}
                 >
                   {item.label}
                 </Link>

@@ -88,6 +88,7 @@ export default function MainNav() {
           />
         </Link>
         <button
+          type="button"
           className="mobile-nav-toggle"
           aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'}
           aria-expanded={mobileOpen}
@@ -95,10 +96,18 @@ export default function MainNav() {
         >
           {mobileOpen ? '\u2715' : '\u2630'}
         </button>
+        <button
+          type="button"
+          className={`mobile-nav-backdrop${mobileOpen ? ' visible' : ''}`}
+          aria-label="Close navigation menu"
+          aria-hidden={!mobileOpen}
+          tabIndex={mobileOpen ? 0 : -1}
+          onClick={closeMobile}
+        />
         <ul className={`nav-menu${mobileOpen ? ' mobile-open' : ''}`}>
           {mobileOpen && (
             <li className="mobile-nav-close">
-              <button onClick={closeMobile} aria-label="Close navigation">&times;</button>
+              <button type="button" onClick={closeMobile} aria-label="Close navigation">&times;</button>
             </li>
           )}
           {navItems.map((item) => {

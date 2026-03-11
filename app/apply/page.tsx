@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
+import ApplyFormStatusBar from '@/components/ApplyFormStatusBar';
 
 export const metadata: Metadata = {
   title: 'Apply Now',
@@ -104,7 +105,9 @@ export default function ApplyPage() {
                 <h3 style={{ marginBottom: '1.5rem', fontSize: '1.2rem' }}>Reach Out to Get Started</h3>
                 <p style={{ color: '#666', fontSize: '.9rem', marginBottom: '1.5rem' }}>Fill out the form below and a counselor will contact you within 24–48 hours to walk you through next steps.</p>
 
-                <fieldset style={{ border: 'none', padding: 0, marginBottom: '1.5rem' }}>
+                <ApplyFormStatusBar />
+
+                <fieldset id="section-personal" style={{ border: 'none', padding: 0, marginBottom: '1.5rem' }}>
                   <legend style={{ fontWeight: 700, fontSize: '.9rem', textTransform: 'uppercase', letterSpacing: '.05em', color: '#ad2c4d', marginBottom: '1rem' }}>Personal Information</legend>
                   <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <div className="form-group"><label>First Name *</label><input type="text" name="first_name" required /></div>
@@ -116,7 +119,7 @@ export default function ApplyPage() {
                   </div>
                 </fieldset>
 
-                <fieldset style={{ border: 'none', padding: 0, marginBottom: '1.5rem' }}>
+                <fieldset id="section-location" style={{ border: 'none', padding: 0, marginBottom: '1.5rem' }}>
                   <legend style={{ fontWeight: 700, fontSize: '.9rem', textTransform: 'uppercase', letterSpacing: '.05em', color: '#ad2c4d', marginBottom: '1rem' }}>Location</legend>
                   <div className="form-group">
                     <label>Do you live in Travis County or Austin? *</label>
@@ -128,7 +131,7 @@ export default function ApplyPage() {
                   <div className="form-group"><label>If no — what city, state, and county do you live in?</label><input type="text" name="location_other" /></div>
                 </fieldset>
 
-                <fieldset style={{ border: 'none', padding: 0, marginBottom: '1.5rem' }}>
+                <fieldset id="section-employment" style={{ border: 'none', padding: 0, marginBottom: '1.5rem' }}>
                   <legend style={{ fontWeight: 700, fontSize: '.9rem', textTransform: 'uppercase', letterSpacing: '.05em', color: '#ad2c4d', marginBottom: '1rem' }}>Employment Status</legend>
                   <div className="form-group">
                     <label>Are you looking for training services to help with skills for a job? *</label>
@@ -151,7 +154,7 @@ export default function ApplyPage() {
                   <div className="form-group"><label>Company Laid Off From (if applicable)</label><input type="text" name="laid_off_from" /></div>
                 </fieldset>
 
-                <fieldset style={{ border: 'none', padding: 0, marginBottom: '1.5rem' }}>
+                <fieldset id="section-income" style={{ border: 'none', padding: 0, marginBottom: '1.5rem' }}>
                   <legend style={{ fontWeight: 700, fontSize: '.9rem', textTransform: 'uppercase', letterSpacing: '.05em', color: '#ad2c4d', marginBottom: '1rem' }}>Income &amp; Benefits</legend>
                   <div className="form-group">
                     <label>Are you eligible for TANF or Food Stamps? *</label>
@@ -185,7 +188,7 @@ export default function ApplyPage() {
                   <div className="form-group"><label>What is your yearly household income? *</label><input type="text" name="income" placeholder="e.g. $35,000" required /></div>
                 </fieldset>
 
-                <fieldset style={{ border: 'none', padding: 0, marginBottom: '1.5rem' }}>
+                <fieldset id="section-program" style={{ border: 'none', padding: 0, marginBottom: '1.5rem' }}>
                   <legend style={{ fontWeight: 700, fontSize: '.9rem', textTransform: 'uppercase', letterSpacing: '.05em', color: '#ad2c4d', marginBottom: '1rem' }}>Program Interest</legend>
                   <div className="form-group">
                     <label>What class are you most interested in? *</label>
@@ -205,7 +208,7 @@ export default function ApplyPage() {
                   </div>
                 </fieldset>
 
-                <fieldset style={{ border: 'none', padding: 0, marginBottom: '1.5rem' }}>
+                <fieldset id="section-support" style={{ border: 'none', padding: 0, marginBottom: '1.5rem' }}>
                   <legend style={{ fontWeight: 700, fontSize: '.9rem', textTransform: 'uppercase', letterSpacing: '.05em', color: '#ad2c4d', marginBottom: '1rem' }}>Additional Support (Check all that apply)</legend>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '.5rem' }}>
                     {supportOptions.map((opt) => (
@@ -216,7 +219,7 @@ export default function ApplyPage() {
                   </div>
                 </fieldset>
 
-                <div className="form-group"><label>Anything else you&rsquo;d like us to know?</label><textarea name="message" rows={4} /></div>
+                <div id="section-submit" className="form-group"><label>Anything else you&rsquo;d like us to know?</label><textarea name="message" rows={4} /></div>
                 <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '1rem', fontSize: '1.05rem' }}>Submit Application</button>
                 <p style={{ textAlign: 'center', marginTop: '1rem', color: '#888', fontSize: '.85rem' }}>We review every application and respond within 24–48 hours. Your information is kept private.</p>
               </form>

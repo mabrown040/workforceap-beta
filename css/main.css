@@ -2663,6 +2663,158 @@ body { animation: fadeIn 0.4s ease; }
     animation: gradientShift 5s ease infinite;
 }
 
+/* =============================================
+   APPLY PAGE STATUS BAR
+   ============================================= */
+.apply-status-bar {
+    position: sticky;
+    top: 96px;
+    z-index: 50;
+    background: var(--color-white);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-lg);
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.75rem;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition-base);
+}
+.apply-status-bar:hover {
+    box-shadow: var(--shadow-md);
+}
+.apply-status-track {
+    height: 4px;
+    background: var(--color-gray-200);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+}
+.apply-status-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-accent), var(--color-accent-dark));
+    border-radius: 4px;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.apply-status-steps {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.25rem;
+}
+.apply-status-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    background: none;
+    border: none;
+    padding: 0.25rem 0.35rem;
+    cursor: pointer;
+    flex: 1;
+    min-width: 0;
+    transition: all var(--transition-fast);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+}
+.apply-status-step:hover {
+    background: var(--color-gray-50);
+}
+.apply-status-dot {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    background: var(--color-gray-200);
+    color: var(--color-gray-500);
+    transition: all var(--transition-base);
+    flex-shrink: 0;
+}
+.apply-status-step.completed .apply-status-dot {
+    background: var(--color-green);
+    color: var(--color-white);
+}
+.apply-status-step.active .apply-status-dot {
+    background: var(--color-accent);
+    color: var(--color-white);
+    box-shadow: 0 0 0 3px rgba(173, 44, 77, 0.15);
+    transform: scale(1.1);
+}
+.apply-status-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--color-gray-400);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    transition: color var(--transition-fast);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+.apply-status-label-short {
+    display: none;
+}
+.apply-status-step.active .apply-status-label,
+.apply-status-step.active .apply-status-label-short {
+    color: var(--color-accent);
+}
+.apply-status-step.completed .apply-status-label,
+.apply-status-step.completed .apply-status-label-short {
+    color: var(--color-green);
+}
+
+@media (max-width: 768px) {
+    .apply-status-bar {
+        top: 76px;
+        padding: 0.6rem 0.5rem;
+        border-radius: var(--radius-md);
+        margin-bottom: 1.25rem;
+    }
+    .apply-status-track {
+        margin-bottom: 0.5rem;
+    }
+    .apply-status-steps {
+        gap: 0;
+    }
+    .apply-status-step {
+        padding: 0.2rem 0.15rem;
+    }
+    .apply-status-dot {
+        width: 22px;
+        height: 22px;
+        font-size: 0.6rem;
+    }
+    .apply-status-label {
+        display: none;
+    }
+    .apply-status-label-short {
+        display: block;
+        font-size: 0.6rem;
+        font-weight: 600;
+        color: var(--color-gray-400);
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .apply-status-bar {
+        top: 76px;
+        padding: 0.5rem 0.35rem;
+    }
+    .apply-status-dot {
+        width: 20px;
+        height: 20px;
+        font-size: 0.55rem;
+    }
+    .apply-status-label-short {
+        font-size: 0.5rem;
+    }
+}
+
 /* Apply page urgency banner */
 .apply-form .btn-primary,
 .contact-form .btn-primary {

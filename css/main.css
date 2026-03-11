@@ -217,10 +217,9 @@ body.mobile-nav-open .main-nav::after {
     background: #ececec;
     border-radius: 50%;
     padding: 6px 12px;
+    overflow: hidden;
     box-shadow: 0 1px 6px rgba(0,0,0,0.10), inset 0 0 0 1px rgba(0,0,0,0.04);
     transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-    position: relative;
-    z-index: 2;
 }
 .logo:hover {
     transform: scale(1.04);
@@ -231,8 +230,6 @@ body.mobile-nav-open .main-nav::after {
     width: auto;
     max-width: 150px;
     display: block;
-    position: relative;
-    z-index: 1;
 }
 .nav-menu {
     display: flex;

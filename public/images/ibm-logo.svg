@@ -1,23 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" fill="#1F70C1">
-  <rect x="0" y="0" width="50" height="8"/>
-  <rect x="0" y="12" width="50" height="8"/>
-  <rect x="15" y="24" width="20" height="8"/>
-  <rect x="15" y="36" width="20" height="8"/>
-  <rect x="15" y="48" width="20" height="8"/>
-  <rect x="0" y="60" width="50" height="8"/>
-  <rect x="0" y="72" width="50" height="8"/>
-  <rect x="60" y="0" width="50" height="8"/>
-  <rect x="60" y="12" width="55" height="8"/>
-  <rect x="60" y="24" width="40" height="8"/><rect x="55" y="24" width="5" height="8"/>
-  <rect x="60" y="36" width="40" height="8"/>
-  <rect x="60" y="48" width="40" height="8"/><rect x="55" y="48" width="5" height="8"/>
-  <rect x="60" y="60" width="55" height="8"/>
-  <rect x="60" y="72" width="50" height="8"/>
-  <rect x="125" y="0" width="60" height="8"/>
-  <rect x="125" y="12" width="65" height="8"/>
-  <rect x="125" y="24" width="20" height="8"/><rect x="155" y="24" width="10" height="8"/><rect x="170" y="24" width="20" height="8"/>
-  <rect x="125" y="36" width="20" height="8"/><rect x="152" y="36" width="16" height="8"/><rect x="170" y="36" width="20" height="8"/>
-  <rect x="125" y="48" width="20" height="8"/><rect x="155" y="48" width="10" height="8"/><rect x="170" y="48" width="20" height="8"/>
-  <rect x="125" y="60" width="65" height="8"/>
-  <rect x="125" y="72" width="60" height="8"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60" fill="none">
+  <!-- Updated IBM Logo: Horizontal bars with modern styling -->
+  <defs>
+    <linearGradient id="ibmGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#0F62FE;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0043CE;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Stylized IBM initials using modern geometric design -->
+  <g id="I">
+    <rect x="15" y="8" width="8" height="44" rx="2" fill="url(#ibmGradient)"/>
+  </g>
+  <g id="B">
+    <rect x="50" y="8" width="8" height="44" rx="2" fill="url(#ibmGradient)"/>
+    <path d="M 58 10 Q 72 10 72 20 Q 72 28 58 28 L 58 10" fill="url(#ibmGradient)"/>
+    <path d="M 58 30 Q 72 30 72 40 Q 72 48 58 48 L 58 30" fill="url(#ibmGradient)"/>
+  </g>
+  <g id="M">
+    <rect x="90" y="8" width="8" height="44" rx="2" fill="url(#ibmGradient)"/>
+    <polygon points="98,8 108,26 118,8 126,8 126,52 118,52 118,30 108,50 98,30 98,52 90,52 90,8" fill="url(#ibmGradient)"/>
+  </g>
+  <!-- IBM text mark alternative (simplified modern interpretation) -->
+  <text x="150" y="42" font-family="Arial, sans-serif" font-size="32" font-weight="700" fill="#0F62FE">IBM</text>
 </svg>

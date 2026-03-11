@@ -6,10 +6,15 @@ import PhotoHighlight from '@/components/PhotoHighlight';
 export default function HomePage() {
   const journeySteps = [
     { num: 1, title: 'Apply', desc: 'Quick online application' },
-    { num: 2, title: 'Interview', desc: 'Meet your counselor' },
-    { num: 3, title: 'Train', desc: 'Industry certifications' },
-    { num: 4, title: 'Certify', desc: 'Earn credentials' },
-    { num: 5, title: 'Get Hired', desc: 'Job placement assistance' },
+    { num: 2, title: 'Overview', desc: 'Learn about our programs' },
+    { num: 3, title: 'Interview', desc: 'Meet your counselor' },
+    { num: 4, title: 'Membership', desc: 'Join the community' },
+    { num: 5, title: 'Assessment', desc: 'Skills & goals evaluation' },
+    { num: 6, title: 'Workforce Readiness', desc: 'Build foundational skills' },
+    { num: 7, title: 'Resources', desc: 'Tools, network & loaner laptop' },
+    { num: 8, title: 'Training', desc: 'Industry certification courses' },
+    { num: 9, title: 'Certify', desc: 'Earn credentials' },
+    { num: 10, title: 'Job Placement Assistance', desc: 'Career launch support' },
   ];
 
   return (
@@ -18,9 +23,9 @@ export default function HomePage() {
       <section className="hero" aria-label="Hero">
         <div className="hero-overlay" />
         <div className="hero-container">
-          <div className="hero-badge">&#x2B50; Austin Career Programs &bull; WorkforceAP</div>
+          <div className="hero-badge">&#x2B50; Virtual and Hybrid Occupation and Career Programs &bull; Workforce Advancement Project</div>
           <h1 className="hero-title">Empowering People.<br /><span className="accent">Advancing Futures.</span></h1>
-          <p className="hero-subtitle">Career training and industry certifications designed to launch careers in technology, data, AI, and skilled trades.</p>
+          <p className="hero-subtitle">Career training and industry certifications designed to launch careers in Technology, Data, AI, Healthcare, Manufacturing and Skilled Trades.</p>
           <div className="hero-actions">
             <Link href="/apply" className="btn btn-primary">Apply Now</Link>
             <Link href="/programs" className="btn btn-ghost">Explore Programs</Link>
@@ -31,6 +36,8 @@ export default function HomePage() {
               <Image src="/images/Google_2015_logo.svg.png" alt="Google" width={80} height={27} loading="lazy" />
               <Image src="/images/att-logo.png" alt="AT&amp;T" width={60} height={24} loading="lazy" />
               <Image src="/images/coursera.png" alt="Coursera" width={100} height={24} loading="lazy" />
+              <Image src="/images/microsoft-logo.svg" alt="Microsoft" width={100} height={24} loading="lazy" />
+              <Image src="/images/ibm-logo.svg" alt="IBM" width={60} height={24} loading="lazy" />
             </div>
           </div>
         </div>
@@ -104,7 +111,7 @@ export default function HomePage() {
             <div className="about-content">
               <span className="section-label">Who We Are</span>
               <h2>25+ Years Breaking Barriers</h2>
-              <p>Founded by Michael Brown, PMP &mdash; a veteran workforce leader who has trained thousands of Austinites through Consulting Solutions.Net, Goodwill Career &amp; Technical Academy, and the Austin Area Urban League.</p>
+              <p>Founded by Michael Brown, PMP &mdash; a veteran and respected workforce leader who has trained thousands in the Austin Metro Area and Statewide through Consulting Solutions.Net, Goodwill Career &amp; Technical Academy, Austin Area Urban League, Universal Tech Movement, and African American Youth Harvest Foundation.</p>
               <div className="about-stats">
                 <div className="about-stat"><span className="stat-num">25+</span><span className="stat-desc">Years Experience</span></div>
                 <div className="about-stat"><span className="stat-num">Coursera</span><span className="stat-desc">Approved Partner</span></div>
@@ -114,6 +121,8 @@ export default function HomePage() {
                 <Image src="/images/Google_2015_logo.svg.png" alt="Google" width={80} height={27} />
                 <Image src="/images/att-logo.png" alt="AT&amp;T" width={60} height={24} />
                 <Image src="/images/coursera.png" alt="Coursera" width={100} height={24} />
+                <Image src="/images/microsoft-logo.svg" alt="Microsoft" width={100} height={24} />
+                <Image src="/images/ibm-logo.svg" alt="IBM" width={60} height={24} />
               </div>
               <Link href="/what-we-do" className="btn btn-primary">Learn More About Us</Link>
             </div>
@@ -131,6 +140,17 @@ export default function HomePage() {
               </ul>
               <Link href="/programs" className="btn btn-outline">View All Programs</Link>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Loaner Laptop */}
+      <section className="loaner-laptop-section">
+        <div className="container">
+          <div className="loaner-laptop-card animate-on-scroll">
+            <span className="loaner-icon">💻</span>
+            <h3>Loaner Laptop Program</h3>
+            <p>We offer used loaner laptops to be earned at the successful completion of the Workforce Advancement Program with a complete certificate.</p>
           </div>
         </div>
       </section>

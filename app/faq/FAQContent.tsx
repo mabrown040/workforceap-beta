@@ -6,14 +6,14 @@ import Link from 'next/link';
 const categories = [
   { key: 'Admissions', icon: '📋' },
   { key: 'Programs', icon: '🎓' },
-  { key: 'Job Placement', icon: '💼' },
+  { key: 'Job Placement Assistance', icon: '💼' },
   { key: 'Support & Scheduling', icon: '💰' },
   { key: 'Technical', icon: '💻' },
 ];
 
 const faqData: Record<string, { q: string; a: string }[]> = {
   Admissions: [
-    { q: 'What are the eligibility requirements?', a: 'To apply to WorkforceAP, you must be: (1) 18 years or older, (2) a U.S. citizen or permanent resident, (3) possess a high school diploma or GED, (4) committed to 100% program completion, (5) willing to participate in job placement assistance services, and (6) have access to a reliable internet connection and computer. We welcome applicants from all backgrounds, including those with no prior tech experience.' },
+    { q: 'What are the eligibility requirements?', a: 'To apply to Workforce Advancement Project, you must be: (1) 16 years or older, (2) a U.S. citizen or permanent resident, (3) possess a high school diploma or GED or in process, (4) committed to 100% program completion, (5) willing to participate in job placement assistance services, and (6) have access to a reliable internet connection and computer. We welcome applicants from all backgrounds, including those with no prior tech experience.' },
     { q: 'Do I need prior tech experience to apply?', a: "No! WorkforceAP programs are designed for beginners with no technical background. We start with fundamentals and build your skills progressively. We've successfully trained career-changers, unemployed workers, and students with zero tech experience. The most important thing is your commitment to learning and completing the program." },
     { q: 'What is the application process?', a: "Our application process is straightforward: (1) Complete our online application form with your personal info and program interest, (2) Our admissions team reviews your application within 48 hours, (3) If you're a good fit, we'll schedule a brief intake call to discuss your goals, (4) Upon approval, you'll receive your start date and onboarding materials. The entire process typically takes 5–7 business days." },
     { q: 'Is there an application fee?', a: 'There is no application fee. Once you apply, our admissions team reviews your goals, confirms program fit, and shares the next steps before your cohort begins.' },
@@ -26,7 +26,7 @@ const faqData: Record<string, { q: string; a: string }[]> = {
     { q: 'Are classes online or in-person?', a: 'Both! Most training is available online for flexibility. We also offer in-person cohorts in the Austin area. When you apply, indicate your preference and we will match you with the format that works best for your situation.' },
     { q: 'What technology do I need?', a: "A computer (at least 4GB RAM), reliable internet (25+ Mbps for video), webcam and microphone for live sessions. We provide all course materials and cloud-based labs, so you won't need expensive software." },
   ],
-  'Job Placement': [
+  'Job Placement Assistance': [
     { q: 'Is job placement assistance guaranteed?', a: "While we can't guarantee employment, we have a 90% job placement assistance rate for graduates who actively participate in our placement services. We provide resume coaching, interview prep, LinkedIn optimization, and direct introductions to 200+ hiring partners. Those who complete the program and actively interview typically land roles within 30–60 days." },
     { q: 'What is the average salary after graduation?', a: 'Average starting salaries range from $55,000–$95,000 depending on the program. IT Support roles start around $55,000–$72,000, while Cloud/AI roles average $88,000–$145,000. After 2 years, many graduates earn $85,000–$135,000+.' },
     { q: 'How does job placement assistance work?', a: 'Our support includes: (1) Resume optimization for ATS systems, (2) Interview coaching (behavioral & technical), (3) LinkedIn profile optimization, (4) Professional networking events, (5) Direct introductions to hiring partners, (6) Salary negotiation guidance, (7) Post-placement support for the first 90 days. Your dedicated job coach works with you 1-on-1 starting in week 4.' },

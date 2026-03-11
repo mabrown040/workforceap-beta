@@ -7,12 +7,12 @@ export const metadata: Metadata = {
 };
 
 const eligibility = [
-  '18 years or older',
+  '16 years or older',
   'U.S. Citizen or Permanent Resident',
-  'High school diploma or GED',
-  'Committed to 100% completion',
-  'Willing to participate in job placement assistance',
-  'Access to reliable internet & computer',
+  'High school diploma or GED (or in process)',
+  'Committed to 100% program completion',
+  'Willing to participate in job placement assistance services',
+  'Access to reliable internet connection & computer',
 ];
 
 const programs = [

@@ -19,7 +19,7 @@ export default function ProgramsPage() {
         imageUrl="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1400&q=80"
         label="19 Career Programs"
         title="Industry-Recognized Certifications"
-        description="From AI and cybersecurity to healthcare and skilled trades, our programs are designed with employers to ensure you graduate job-ready."
+        description="From IT Support, AI, Project Manager, Cybersecurity, Healthcare and Skilled Trades, our programs are designed with employers to ensure you graduate job-ready."
       />
       <ProgramsContent />
       <Footer />

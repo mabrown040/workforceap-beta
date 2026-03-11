@@ -202,30 +202,43 @@ body.mobile-nav-open .main-nav::after {
 .nav-container {
     max-width: var(--max-width);
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 1.5rem;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    height: 72px;
+    gap: 2rem;
+    height: 96px;
     position: relative;
 }
 .logo {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     line-height: 0;
+    background: #ececec;
+    border-radius: 50%;
+    padding: 6px 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.10), inset 0 0 0 1px rgba(0,0,0,0.04);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    margin-left: -0.5rem;
+    flex-shrink: 0;
+}
+.logo:hover {
+    transform: scale(1.04);
+    box-shadow: 0 3px 14px rgba(0,0,0,0.16), inset 0 0 0 1px rgba(0,0,0,0.04);
 }
 .nav-logo-image {
-    height: 52px;
+    height: 80px;
     width: auto;
-    max-width: 100px;
-    transition: transform var(--transition-fast);
+    max-width: 150px;
+    display: block;
 }
-.logo:hover .nav-logo-image { transform: scale(1.03); }
 .nav-menu {
     display: flex;
     align-items: center;
-    gap: 2rem;
+    gap: 1.75rem;
     margin: 0;
+    margin-left: auto;
     padding: 0;
 }
 .nav-menu a {
@@ -798,7 +811,7 @@ a.btn-white {
 .process-steps {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 1rem;
+    gap: 0.75rem;
     align-items: stretch;
 }
 .process-item {
@@ -812,8 +825,8 @@ a.btn-white {
     background: rgba(255,255,255,0.03);
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 20px;
-    padding: 1.35rem 1rem 1.15rem;
-    min-height: 184px;
+    padding: 1.1rem 0.75rem 1rem;
+    min-height: 160px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -827,17 +840,17 @@ a.btn-white {
     border-color: rgba(255,255,255,0.18);
 }
 .step-number {
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     background: var(--color-accent);
     color: var(--color-white);
-    font-size: 1.125rem;
+    font-size: 1rem;
     font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 1rem;
+    margin: 0 auto 0.75rem;
     box-shadow: 0 4px 20px rgba(173, 44, 77, 0.35), inset 0 1px 0 rgba(255,255,255,0.2);
     transition: transform var(--transition-spring), box-shadow var(--transition-base);
     position: relative;
@@ -860,6 +873,11 @@ a.btn-white {
 .process-item:nth-child(3) .step-number { background: var(--color-green); box-shadow: 0 4px 16px rgba(74, 155, 79, 0.4); }
 .process-item:nth-child(4) .step-number { background: var(--color-blue); box-shadow: 0 4px 16px rgba(43, 123, 185, 0.4); }
 .process-item:nth-child(5) .step-number { background: var(--color-purple); box-shadow: 0 4px 16px rgba(139, 74, 155, 0.4); }
+.process-item:nth-child(6) .step-number { background: var(--color-accent); box-shadow: 0 4px 16px rgba(173, 44, 77, 0.4); }
+.process-item:nth-child(7) .step-number { background: var(--color-gold); box-shadow: 0 4px 16px rgba(164, 127, 56, 0.4); }
+.process-item:nth-child(8) .step-number { background: var(--color-green); box-shadow: 0 4px 16px rgba(74, 155, 79, 0.4); }
+.process-item:nth-child(9) .step-number { background: var(--color-blue); box-shadow: 0 4px 16px rgba(43, 123, 185, 0.4); }
+.process-item:nth-child(10) .step-number { background: var(--color-purple); box-shadow: 0 4px 16px rgba(139, 74, 155, 0.4); }
 .process-step h4 { font-size: 0.9375rem; margin-bottom: 4px; font-weight: 600; }
 .process-step p { font-size: 0.8125rem; opacity: 0.75; }
 .step-arrow {
@@ -1043,6 +1061,39 @@ a.btn-white {
     transition: all var(--transition-base);
 }
 .partners-grid img:hover { filter: none; opacity: 1; }
+
+/* =============================================
+   LOANER LAPTOP SECTION
+   ============================================= */
+.loaner-laptop-section {
+    padding: 3rem 0;
+    background: var(--color-light);
+}
+.loaner-laptop-card {
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: center;
+    background: var(--color-white);
+    border: 2px solid var(--color-gold);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem 2rem;
+    box-shadow: var(--shadow-md);
+}
+.loaner-icon {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 0.75rem;
+}
+.loaner-laptop-card h3 {
+    font-size: 1.35rem;
+    color: var(--color-primary);
+    margin-bottom: 0.75rem;
+}
+.loaner-laptop-card p {
+    color: var(--color-gray-600);
+    line-height: 1.7;
+    font-size: 1rem;
+}
 
 /* =============================================
    FOOTER CTA
@@ -1320,13 +1371,14 @@ a.btn-white {
 .footer-links a:hover,
 .footer-col ul a:hover { opacity: 1; color: var(--color-gold); }
 .footer-logo {
-    height: 60px;
+    height: 72px;
     width: auto;
     margin-bottom: 1.25rem;
-    background: var(--color-white);
-    padding: 6px 10px;
-    border-radius: var(--radius-sm);
+    background: #ececec;
+    padding: 6px 12px;
+    border-radius: 50%;
     display: inline-block;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.10), inset 0 0 0 1px rgba(0,0,0,0.04);
 }
 .footer-bottom {
     max-width: var(--max-width);
@@ -1942,13 +1994,7 @@ body.inner-page {
     position: relative;
 }
 .workforceap-process-flow::before {
-    content: '';
-    position: absolute;
-    left: 25px;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: linear-gradient(to bottom, var(--color-accent), var(--color-gold), var(--color-green), var(--color-blue), var(--color-purple));
+    display: none;
 }
 .workforceap-process-flow .process-step {
     display: flex;
@@ -2366,11 +2412,12 @@ img.img-fade.loaded { opacity: 1; }
     }
 
     .nav-container {
-        height: 60px;
+        height: 76px;
         padding: 0 1rem;
     }
-    .nav-logo-image { height: 44px; max-width: 86px; }
-    .footer-logo { height: 52px; }
+    .nav-logo-image { height: 58px; max-width: 110px; }
+    .logo { padding: 5px 10px; }
+    .footer-logo { height: 56px; padding: 6px 12px; }
 }
 
 @media (max-width: 480px) {
@@ -2604,17 +2651,7 @@ button:focus-visible {
     background: linear-gradient(90deg, var(--color-gold), var(--color-gold-light));
 }
 
-/* Process flow timeline glow */
-.workforceap-process-flow::before {
-    width: 3px;
-    background: linear-gradient(to bottom,
-        var(--color-accent),
-        var(--color-gold),
-        var(--color-green),
-        var(--color-blue),
-        var(--color-purple));
-    box-shadow: 0 0 12px rgba(164,127,56,0.2);
-}
+/* Process flow timeline — vertical line removed per request */
 
 /* Smooth page-level entrance */
 body { animation: fadeIn 0.4s ease; }

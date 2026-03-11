@@ -9,19 +9,16 @@ export const metadata: Metadata = {
 };
 
 const steps = [
-  { num: 1, title: 'Inquire', desc: 'Reach out via phone, email, or apply online', color: 'var(--color-accent)' },
+  { num: 1, title: 'Apply', desc: 'Quick online application', color: 'var(--color-accent)' },
   { num: 2, title: 'Overview', desc: 'Learn about our programs and mission', color: 'var(--color-gold)' },
-  { num: 3, title: 'Membership', desc: 'Join the WorkforceAP community', color: 'var(--color-green)' },
-  { num: 4, title: 'Assessment', desc: 'Skills and goals evaluation', color: 'var(--color-blue)' },
-  { num: 5, title: 'Interview', desc: 'One-on-one with a counselor', color: 'var(--color-purple)' },
-  { num: 6, title: 'Resources', desc: 'Connect with tools and network', color: 'var(--color-accent)' },
-  { num: 7, title: 'Readiness', desc: 'Build foundational skills', color: 'var(--color-gold)' },
-  { num: 8, title: 'Direction', desc: 'Personalized career path', color: 'var(--color-green)' },
-  { num: 9, title: 'Resume', desc: 'Professional resume creation', color: 'var(--color-blue)' },
-  { num: 10, title: 'Training', desc: 'Industry certification courses', color: 'var(--color-purple)' },
-  { num: 11, title: 'Certificate', desc: 'Earn credentials', color: 'var(--color-accent)' },
-  { num: 12, title: 'Enhancement', desc: 'Update with new skills', color: 'var(--color-gold)' },
-  { num: 13, title: 'Placement', desc: 'Job placement assistance & assessment', color: 'var(--color-green)' },
+  { num: 3, title: 'Interview', desc: 'One-on-one with a counselor', color: 'var(--color-green)' },
+  { num: 4, title: 'Membership', desc: 'Join the WorkforceAP community', color: 'var(--color-blue)' },
+  { num: 5, title: 'Assessment', desc: 'Skills and goals evaluation', color: 'var(--color-purple)' },
+  { num: 6, title: 'Workforce Readiness', desc: 'Build foundational skills', color: 'var(--color-accent)' },
+  { num: 7, title: 'Resources', desc: 'Connect with tools, network & support. We offer used loaner laptops to be earned at the successful completion of the Workforce Advancement Program with a complete certificate.', color: 'var(--color-gold)' },
+  { num: 8, title: 'Training', desc: 'Industry certification courses', color: 'var(--color-green)' },
+  { num: 9, title: 'Certify', desc: 'Earn credentials', color: 'var(--color-blue)' },
+  { num: 10, title: 'Job Placement Assistance', desc: 'Career launch support & assessment', color: 'var(--color-purple)' },
 ];
 
 export default function HowItWorksPage() {
@@ -34,7 +31,7 @@ export default function HowItWorksPage() {
 
       <PhotoHighlight
         imageUrl="https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=1400&q=80"
-        label="13-Step Process"
+        label="10-Step Process"
         title="From Application to Career"
         description="Our comprehensive process ensures you receive the support, training, and placement assistance needed to transform your career."
       />

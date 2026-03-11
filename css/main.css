@@ -215,7 +215,7 @@ body.mobile-nav-open .main-nav::after {
     justify-content: center;
     line-height: 0;
     background: #ececec;
-    border-radius: 50%;
+    border-radius: var(--radius-lg);
     padding: 10px;
     overflow: hidden;
     box-shadow: 0 1px 6px rgba(0,0,0,0.10);
@@ -380,8 +380,8 @@ body.mobile-nav-open {
 body.mobile-nav-open .nav-menu {
     position: fixed;
     top: 12px;
-    left: clamp(16px, 16vw, 72px);
-    right: 12px;
+    right: clamp(16px, 16vw, 72px);
+    left: auto;
     bottom: auto;
     height: calc(100dvh - 24px);
     max-height: calc(100vh - 24px);
@@ -1376,7 +1376,7 @@ a.btn-white {
     margin-bottom: 1.25rem;
     background: #ececec;
     padding: 10px;
-    border-radius: 50%;
+    border-radius: var(--radius-lg);
     display: inline-block;
     box-shadow: 0 1px 6px rgba(0,0,0,0.10);
 }

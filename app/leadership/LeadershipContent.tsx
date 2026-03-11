@@ -12,8 +12,8 @@ const leaders = [
     role: 'Executive Director, CEO',
     title: 'Executive Director & Chief Executive Officer',
     image: '/images/michael-brown.jpg',
-    bio: "Michael A. Brown, PMP, ChE, is a highly accomplished business executive with a distinguished career spanning several decades in business development, project management, and education. He holds a Chemical Engineering degree from Texas A&M University. As former owner of Consulting Solutions.Net and key leader at State of Texas Career Schools, Goodwill Central Texas, and the Austin Urban League, he has consistently driven organizational excellence across public and private sectors. A devoted community leader, Michael is an active member of 100 Black Men of Austin and Alpha Phi Alpha Fraternity.",
-    tags: ['PMP Certified', 'Chemical Engineering — Texas A&M University', '25+ Years Workforce Development', 'Goodwill Career & Technical Academy', 'Austin Urban League', '100 Black Men of Austin'],
+    bio: "Michael A. Brown, PMP, ChE, is a highly accomplished business executive with a distinguished career spanning several decades in business development, project management, and education. Michael holds a Chemical Engineering degree from Texas A&M University and as a former owner of Consulting Solutions.Net and key leader at State of Texas Career Schools, Goodwill Central Texas, Austin Urban League, Universal Tech Movement, African American Youth Harvest Foundation he has consistently driven organizational excellence across public and private sectors. A devoted community leader, Michael is an elder at Celebration Church and an active board member of Concordia High School and also member of 100 Black Men of Austin and Alpha Phi Alpha Fraternity.",
+    tags: ['PMP Certified', 'Chemical Engineering — Texas A&M University', '25+ Years Workforce Development', 'Goodwill Central Texas', 'Austin Urban League', 'Universal Tech Movement', 'Elder at Celebration Church', 'Concordia High School Board', '100 Black Men of Austin'],
   },
   {
     id: 'adriane',

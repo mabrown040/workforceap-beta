@@ -216,16 +216,16 @@ body.mobile-nav-open .main-nav::after {
     line-height: 0;
     background: #ececec;
     border-radius: 50%;
-    padding: 6px 12px;
+    padding: 10px;
     overflow: hidden;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.10), inset 0 0 0 1px rgba(0,0,0,0.04);
+    box-shadow: 0 1px 6px rgba(0,0,0,0.10);
     transition: transform var(--transition-fast), box-shadow var(--transition-fast);
     margin-left: -0.5rem;
     flex-shrink: 0;
 }
 .logo:hover {
     transform: scale(1.04);
-    box-shadow: 0 3px 14px rgba(0,0,0,0.16), inset 0 0 0 1px rgba(0,0,0,0.04);
+    box-shadow: 0 3px 14px rgba(0,0,0,0.16);
 }
 .nav-logo-image {
     height: 80px;
@@ -1375,10 +1375,10 @@ a.btn-white {
     width: auto;
     margin-bottom: 1.25rem;
     background: #ececec;
-    padding: 6px 12px;
+    padding: 10px;
     border-radius: 50%;
     display: inline-block;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.10), inset 0 0 0 1px rgba(0,0,0,0.04);
+    box-shadow: 0 1px 6px rgba(0,0,0,0.10);
 }
 .footer-bottom {
     max-width: var(--max-width);
@@ -2416,8 +2416,8 @@ img.img-fade.loaded { opacity: 1; }
         padding: 0 1rem;
     }
     .nav-logo-image { height: 58px; max-width: 110px; }
-    .logo { padding: 5px 10px; }
-    .footer-logo { height: 56px; padding: 6px 12px; }
+    .logo { padding: 8px; }
+    .footer-logo { height: 56px; padding: 8px; }
 }
 
 @media (max-width: 480px) {

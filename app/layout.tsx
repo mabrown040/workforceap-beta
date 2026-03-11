@@ -25,12 +25,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={inter.variable}>
       <body>
-        <div className="site-football-wrapper">
-          <TopBanner />
-          <MainNav />
-          {children}
-          <ScrollAnimations />
-        </div>
+        <TopBanner />
+        <MainNav />
+        {children}
+        <ScrollAnimations />
       </body>
     </html>
   );

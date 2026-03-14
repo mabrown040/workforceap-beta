@@ -34,6 +34,7 @@ export default function MainNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
+  const [memberPortalHref, setMemberPortalHref] = useState('/login');
 
   const closeMobile = useCallback(() => {
     setMobileOpen(false);
@@ -56,6 +57,20 @@ export default function MainNav() {
       document.removeEventListener('keydown', onKey);
     };
   }, [closeMobile]);
+
+  useEffect(() => {
+    const updateMemberPortalHref = () => {
+      const hasSupabaseAuthCookie = /(?:^|;\s*)sb-[^=]*-auth-token=/.test(document.cookie);
+      setMemberPortalHref(hasSupabaseAuthCookie ? '/dashboard' : '/login');
+    };
+
+    updateMemberPortalHref();
+    window.addEventListener('focus', updateMemberPortalHref);
+
+    return () => {
+      window.removeEventListener('focus', updateMemberPortalHref);
+    };
+  }, []);
 
   useEffect(() => {
     closeMobile();
@@ -144,11 +159,14 @@ export default function MainNav() {
                 </li>
               );
             }
+            const href = item.href === '/login' ? memberPortalHref : item.href!;
+            const memberPortalActive = item.href === '/login' && (pathname === '/login' || pathname === '/dashboard');
+
             return (
               <li key={item.href}>
                 <Link
-                  href={item.href!}
-                  className={`${item.cta ? 'nav-cta' : ''}${isActive(item.href!) ? ' active' : ''}`}
+                  href={href}
+                  className={`${item.cta ? 'nav-cta' : ''}${isActive(href) || memberPortalActive ? ' active' : ''}`}
                   onClick={closeMobile}
                 >
                   {item.label}

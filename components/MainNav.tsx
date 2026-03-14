@@ -25,6 +25,7 @@ const navItems = [
   { href: '/how-it-works', label: 'How It Works' },
   { href: '/faq', label: 'FAQ' },
   { href: '/apply', label: 'Apply Now', cta: true },
+  { href: '/login', label: 'Member Portal' },
   { href: '/contact', label: 'Contact Us' },
 ];
 

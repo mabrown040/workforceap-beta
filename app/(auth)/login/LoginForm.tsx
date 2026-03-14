@@ -44,6 +44,18 @@ export default function LoginForm() {
         <div className="page-hero-content">
           <h1>Log in to your account</h1>
           <p>Access your member dashboard, application status, and resources.</p>
+          <div
+            style={{
+              marginTop: '1.5rem',
+              padding: '1rem 1.25rem',
+              background: 'rgba(255,255,255,0.12)',
+              borderRadius: 'var(--radius-md)',
+              fontSize: '0.95rem',
+              lineHeight: 1.5,
+            }}
+          >
+            <strong>Excited to have you!</strong> We&apos;re building out the member portal with more features. Your feedback helps us improve.
+          </div>
         </div>
       </section>
 

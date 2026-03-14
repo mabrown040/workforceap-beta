@@ -12,6 +12,11 @@ export async function createSupabaseServerClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      cookieOptions: {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7, // 7 days persistent
+        sameSite: 'lax',
+      },
       cookies: {
         getAll() {
           return cookieStore.getAll();

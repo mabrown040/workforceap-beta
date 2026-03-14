@@ -36,6 +36,11 @@ export async function middleware(request: NextRequest) {
   }
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookieOptions: {
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7, // 7 days persistent
+      sameSite: 'lax',
+    },
     cookies: {
       getAll() {
         return request.cookies.getAll();

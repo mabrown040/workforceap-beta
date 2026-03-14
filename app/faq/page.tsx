@@ -1,12 +1,16 @@
 import type { Metadata } from 'next';
+import { buildPageMetadata } from '@/app/seo';
 import PageHero from '@/components/PageHero';
 import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
 import FAQContent from './FAQContent';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: 'FAQ',
-};
+  description:
+    'Find answers about admissions, eligibility, certifications, schedule, and job placement support.',
+  path: '/faq',
+});
 
 export default function FAQPage() {
   return (

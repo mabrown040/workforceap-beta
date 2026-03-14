@@ -15,12 +15,25 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.workforceap.org'),
   title: {
     default: '⭐ Virtual and Hybrid Occupation and Career Programs • Workforce Advancement Project',
     template: '%s - Workforce Advancement Project',
   },
   description:
     'Occupational and career training, industry certifications, and support in Technology, Data, AI, Healthcare, Manufacturing, and Skilled Trades.',
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: 'Workforce Advancement Project',
+    description:
+      'Career training and industry certifications in Technology, Data, AI, Healthcare, Manufacturing, and Skilled Trades.',
+    url: '/',
+    siteName: 'Workforce Advancement Project',
+    locale: 'en_US',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

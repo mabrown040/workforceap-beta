@@ -1,12 +1,16 @@
 import type { Metadata } from 'next';
+import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import PageHero from '@/components/PageHero';
 import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: 'Contact Us',
-};
+  description:
+    'Contact Workforce Advancement Project for program questions, enrollment support, and partnership opportunities.',
+  path: '/contact',
+});
 
 export default function ContactPage() {
   return (

@@ -1,12 +1,16 @@
 import type { Metadata } from 'next';
+import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import PageHero from '@/components/PageHero';
 import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: 'Salary Guide',
-};
+  description:
+    'Review salary ranges and career outlook for WorkforceAP training pathways and certifications.',
+  path: '/salary-guide',
+});
 
 const salaryData = [
   { program: 'AWS Cloud Technology (Amazon)', duration: '3-5 Mo', salary: '$144,345', level: 'High', color: '#4a9b4f' },

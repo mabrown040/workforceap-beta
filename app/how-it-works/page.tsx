@@ -1,12 +1,16 @@
 import type { Metadata } from 'next';
+import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import PageHero from '@/components/PageHero';
 import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: 'How It Works',
-};
+  description:
+    'See the 10-step WorkforceAP process from application through certification and job placement assistance.',
+  path: '/how-it-works',
+});
 
 const steps = [
   { num: 1, title: 'Apply', desc: 'Quick online application', color: 'var(--color-accent)' },

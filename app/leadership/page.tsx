@@ -1,13 +1,16 @@
 import type { Metadata } from 'next';
+import { buildPageMetadata } from '@/app/seo';
 import PageHero from '@/components/PageHero';
 import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
 import LeadershipContent from './LeadershipContent';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: 'Board & Leadership',
-  description: "Meet the board and leadership team driving WorkforceAP's mission to break systemic barriers through workforce training in Austin, TX.",
-};
+  description:
+    "Meet the board and leadership team driving WorkforceAP's mission to break systemic barriers through workforce training.",
+  path: '/leadership',
+});
 
 export default function LeadershipPage() {
   return (

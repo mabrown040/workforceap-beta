@@ -1,7 +1,16 @@
+import type { Metadata } from 'next';
+import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import Image from 'next/image';
 import Footer from '@/components/Footer';
 import PhotoHighlight from '@/components/PhotoHighlight';
+
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Home',
+  description:
+    'Career training and industry certifications designed to launch careers in Technology, Data, AI, Healthcare, Manufacturing, and Skilled Trades.',
+  path: '/',
+});
 
 export default function HomePage() {
   const journeySteps = [

@@ -1,12 +1,16 @@
 import type { Metadata } from 'next';
+import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import PageHero from '@/components/PageHero';
 import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: 'Compare Programs',
-};
+  description:
+    'Compare WorkforceAP career tracks by duration, salary potential, certifications, and difficulty to find your best fit.',
+  path: '/program-comparison',
+});
 
 const tracks = [
   { name: 'IT Support', duration: '16–20 wks', difficulty: '⭐⭐', salary: '$55,000', demand: '🔥 High', certs: 'CompTIA A+, Google IT' },

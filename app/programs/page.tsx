@@ -1,12 +1,16 @@
 import type { Metadata } from 'next';
+import { buildPageMetadata } from '@/app/seo';
 import PageHero from '@/components/PageHero';
 import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
 import ProgramsContent from './ProgramsContent';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: 'Our Programs',
-};
+  description:
+    'Explore 19 WorkforceAP career programs across technology, healthcare, business, AI, and skilled trades.',
+  path: '/programs',
+});
 
 export default function ProgramsPage() {
   return (

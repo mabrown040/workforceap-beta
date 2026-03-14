@@ -1,11 +1,15 @@
 import type { Metadata } from 'next';
+import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 import ApplyFormStatusBar from '@/components/ApplyFormStatusBar';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: 'Apply Now',
-};
+  description:
+    'Start your Workforce Advancement Project application and begin your path to industry-recognized certifications and career placement support.',
+  path: '/apply',
+});
 
 const eligibility = [
   '16 years or older',

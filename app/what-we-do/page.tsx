@@ -1,12 +1,16 @@
 import type { Metadata } from 'next';
+import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import PageHero from '@/components/PageHero';
 import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: 'What We Do',
-};
+  description:
+    'Learn how WorkforceAP breaks systemic barriers through digital literacy, AI, occupational training, and wrap-around support.',
+  path: '/what-we-do',
+});
 
 export default function WhatWeDoPage() {
   return (

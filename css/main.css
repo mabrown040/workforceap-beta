@@ -172,7 +172,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.2; font-weight: 700; }
    NAVIGATION
    ============================================= */
 .main-nav {
-    background: rgba(26,26,26,0.92);
+    background: rgba(17,17,17,0.98);
     border-bottom: 1px solid rgba(255,255,255,0.06);
     position: sticky;
     top: 0;
@@ -195,7 +195,7 @@ body.mobile-nav-open .main-nav::after {
     opacity: 1;
 }
 .main-nav.scrolled {
-    background: rgba(26,26,26,0.97);
+    background: rgba(12,12,12,0.99);
     box-shadow: 0 4px 30px rgba(0,0,0,0.3);
     border-bottom-color: rgba(255,255,255,0.03);
 }
@@ -261,7 +261,7 @@ body.mobile-nav-open .main-nav::after {
 }
 .nav-menu a:hover { color: var(--color-white); }
 .nav-menu a:hover::after { width: 100%; }
-.nav-menu a.active { color: var(--color-gold); }
+.nav-menu a.active { color: #f0cd83; }
 .nav-menu a.active::after { width: 100%; }
 .nav-menu .dropdown { position: relative; padding: 0.5rem 0; }
 .nav-menu .dropdown span {
@@ -283,7 +283,7 @@ body.mobile-nav-open .main-nav::after {
     transition: transform var(--transition-fast), opacity var(--transition-fast);
 }
 .nav-menu .dropdown:hover span::after { transform: rotate(180deg); opacity: 0.8; }
-.nav-menu .dropdown span.active { color: var(--color-gold); }
+.nav-menu .dropdown span.active { color: #f0cd83; }
 .nav-menu .dropdown:hover span { color: var(--color-white); }
 .dropdown-menu {
     visibility: hidden;
@@ -326,8 +326,8 @@ body.mobile-nav-open .main-nav::after {
 .dropdown-menu a:hover { background: rgba(255,255,255,0.06); color: var(--color-white); padding-left: 22px; }
 .nav-cta,
 a.nav-cta {
-    background: var(--color-gold) !important;
-    color: var(--color-white) !important;
+    background: #d4af61 !important;
+    color: #1a1a1a !important;
     padding: 8px 20px !important;
     border-radius: var(--radius-full) !important;
     font-weight: 600 !important;
@@ -336,7 +336,7 @@ a.nav-cta {
 }
 .nav-cta:hover,
 a.nav-cta:hover {
-    background: var(--color-gold-light) !important;
+    background: #e1bc73 !important;
     transform: translateY(-1px);
 }
 .nav-cta::after,

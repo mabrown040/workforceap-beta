@@ -232,6 +232,8 @@ body.mobile-nav-open .main-nav::after {
     width: auto;
     max-width: 150px;
     display: block;
+    object-fit: contain;
+    object-position: center;
 }
 .nav-menu {
     display: flex;
@@ -1352,11 +1354,11 @@ a.btn-white {
     height: 72px;
     width: auto;
     margin-bottom: 1.25rem;
-    background: #ececec;
-    padding: 10px;
-    border-radius: var(--radius-lg);
+    background: transparent;
+    padding: 0;
     display: inline-block;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.10);
+    object-fit: contain;
+    object-position: center;
 }
 .footer-bottom {
     max-width: var(--max-width);
@@ -2419,7 +2421,7 @@ img.img-fade.loaded { opacity: 1; }
     }
     .nav-logo-image { height: 58px; max-width: 110px; }
     .logo { padding: 8px; }
-    .footer-logo { height: 56px; padding: 8px; }
+    .footer-logo { height: 56px; }
 }
 
 @media (max-width: 480px) {

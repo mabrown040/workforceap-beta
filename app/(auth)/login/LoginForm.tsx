@@ -54,7 +54,7 @@ export default function LoginForm() {
               lineHeight: 1.5,
             }}
           >
-            <strong>Excited to have you!</strong> We&apos;re building out the member portal with more features. Your feedback helps us improve.
+            <strong>Thanks for signing up!</strong> We&apos;re building this page out soon. Check back for updates.
           </div>
         </div>
       </section>

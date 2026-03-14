@@ -6,6 +6,9 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// Run with: npm run db:seed
+// To promote a user to admin: INSERT INTO user_roles (user_id, role_id) SELECT '<user_id>', id FROM roles WHERE name = 'admin';
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")

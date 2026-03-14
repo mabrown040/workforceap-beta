@@ -100,7 +100,7 @@ export default function HomePage() {
               <div key={step.num} className="process-item">
                 <div className="process-step" data-delay={String(index * 80)}>
                   <div className="step-number" aria-label={`Step ${step.num}`}>{step.num}</div>
-                  <h4>{step.title}</h4>
+                  <h3>{step.title}</h3>
                   <p>{step.desc}</p>
                 </div>
                 {index < journeySteps.length - 1 && <div className="step-arrow" aria-hidden="true" />}

@@ -61,7 +61,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         </noscript>
         <TopBanner />
         <MainNav />
-        {children}
+        <main id="main-content">{children}</main>
         <ScrollAnimations />
       </body>
     </html>

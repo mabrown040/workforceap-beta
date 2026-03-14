@@ -857,7 +857,7 @@ a.btn-white {
 .process-item:nth-child(8) .step-number { background: var(--color-green); box-shadow: 0 4px 16px rgba(74, 155, 79, 0.4); }
 .process-item:nth-child(9) .step-number { background: var(--color-blue); box-shadow: 0 4px 16px rgba(43, 123, 185, 0.4); }
 .process-item:nth-child(10) .step-number { background: var(--color-purple); box-shadow: 0 4px 16px rgba(139, 74, 155, 0.4); }
-.process-step h4 { font-size: 0.9375rem; margin-bottom: 4px; font-weight: 600; }
+.process-step h3 { font-size: 0.9375rem; margin-bottom: 4px; font-weight: 600; }
 .process-step p { font-size: 0.8125rem; opacity: 0.75; }
 .step-arrow {
     width: 22px;

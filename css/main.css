@@ -214,23 +214,23 @@ body.mobile-nav-open .main-nav::after {
     align-items: center;
     justify-content: center;
     line-height: 0;
-    background: #2a2a2a;
-    border-radius: 50% / 35%;
-    padding: 8px 18px;
+    background: #242424;
+    border-radius: 50% / 36%;
+    padding: 4px 10px;
     overflow: hidden;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.22);
+    box-shadow: 0 1px 6px rgba(0,0,0,0.2);
     transition: transform var(--transition-fast), box-shadow var(--transition-fast);
     margin-left: -0.5rem;
     flex-shrink: 0;
 }
 .logo:hover {
-    transform: scale(1.04);
-    box-shadow: 0 3px 14px rgba(0,0,0,0.16);
+    transform: scale(1.03);
+    box-shadow: 0 3px 14px rgba(0,0,0,0.18);
 }
 .nav-logo-image {
-    height: 80px;
+    height: 92px;
     width: auto;
-    max-width: 150px;
+    max-width: 172px;
     display: block;
     object-fit: contain;
     object-position: center;
@@ -1351,14 +1351,20 @@ a.btn-white {
 .footer-links a:hover,
 .footer-col ul a:hover { opacity: 1; color: var(--color-gold); }
 .footer-logo {
-    height: 72px;
+    height: 82px;
     width: auto;
     margin-bottom: 1.25rem;
-    background: transparent;
-    padding: 0;
-    display: inline-block;
-    object-fit: contain;
-    object-position: center;
+    display: block;
+}
+.footer-logo-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+    background: #242424;
+    border-radius: 50% / 36%;
+    padding: 6px 14px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.2);
 }
 .footer-bottom {
     max-width: var(--max-width);
@@ -2419,9 +2425,10 @@ img.img-fade.loaded { opacity: 1; }
         height: 76px;
         padding: 0 1rem;
     }
-    .nav-logo-image { height: 58px; max-width: 110px; }
-    .logo { padding: 8px; }
-    .footer-logo { height: 56px; }
+    .nav-logo-image { height: 64px; max-width: 120px; }
+    .logo { padding: 3px 8px; }
+    .footer-logo { height: 62px; }
+    .footer-logo-badge { padding: 4px 10px; }
 }
 
 @media (max-width: 480px) {
@@ -2858,4 +2865,3 @@ body { animation: fadeIn 0.4s ease; }
         grid-template-columns: 1fr !important;
     }
 }
-

@@ -1,0 +1,132 @@
+// WorkforceAP Members Portal - Prisma Schema
+// Database: Supabase Postgres (DATABASE_URL)
+// Auth: Supabase Auth (auth.users) - our users.id matches auth.users.id
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --- Core tables ---
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  fullName  String   @map("full_name")
+  phone     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  profile     Profile?
+  applications Application[]
+  userRoles   UserRole[]
+  auditLogs   AuditLog[] @relation("ActorAuditLogs")
+
+  @@map("users")
+}
+
+model Profile {
+  id                   String    @id @default(uuid())
+  userId               String    @unique @map("user_id")
+  address              String?
+  city                 String?
+  state                String?
+  zip                  String?
+  dob                  DateTime? @db.Date
+  veteranStatus        String?   @map("veteran_status")
+  employmentStatus     String?   @map("employment_status")
+  consentTerms         Boolean   @default(false) @map("consent_terms")
+  consentCommunications Boolean  @default(false) @map("consent_communications")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model Application {
+  id             String   @id @default(uuid())
+  userId         String   @map("user_id")
+  status         ApplicationStatus @default(PENDING)
+  programInterest String  @map("program_interest")
+  notes          String?  @db.Text
+  submittedAt    DateTime? @map("submitted_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("applications")
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  DENIED
+  NEEDS_INFO
+}
+
+model Role {
+  id        String   @id @default(uuid())
+  name      String   @unique // member, admin, case_manager
+  createdAt DateTime @default(now()) @map("created_at")
+
+  userRoles UserRole[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  userId    String   @map("user_id")
+  roleId    String   @map("role_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+model Resource {
+  id             String   @id @default(uuid())
+  title          String
+  type           ResourceType
+  url            String?
+  path           String?
+  visibilityRule String?  @map("visibility_rule") // e.g. "member", "admin", "case_manager"
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("resources")
+}
+
+enum ResourceType {
+  DOCUMENT
+  VIDEO
+  LINK
+}
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  actorUserId  String?  @map("actor_user_id")
+  action       String
+  targetType   String   @map("target_type")
+  targetId     String?  @map("target_id")
+  metadata     Json?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  actor User? @relation("ActorAuditLogs", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([actorUserId])
+  @@index([targetType, targetId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/prisma-env.js prisma generate && next build",
+    "build": "node scripts/prisma-env.js prisma migrate deploy && node scripts/prisma-env.js prisma generate && node scripts/prisma-env.js npx tsx prisma/seed.ts && next build",
     "postinstall": "node scripts/prisma-env.js prisma generate",
     "start": "next start",
     "db:generate": "node scripts/prisma-env.js prisma generate",
@@ -12,7 +12,7 @@
     "db:migrate:deploy": "node scripts/prisma-env.js prisma migrate deploy",
     "db:push": "node scripts/prisma-env.js prisma db push",
     "db:studio": "node scripts/prisma-env.js prisma studio",
-    "db:seed": "npx tsx prisma/seed.ts",
+    "db:seed": "node scripts/prisma-env.js npx tsx prisma/seed.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
   },

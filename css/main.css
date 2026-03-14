@@ -1450,7 +1450,7 @@ body.inner-page {
 /* =============================================
    FORMS
    ============================================= */
-.contact-form, .apply-form {
+.contact-form, .apply-form, .member-signup-form {
     background: var(--color-light);
     padding: 2.5rem;
     border-radius: var(--radius-lg);
@@ -1491,6 +1491,9 @@ body.inner-page {
     background: #fffbfc;
 }
 .form-group textarea { min-height: 120px; resize: vertical; }
+.form-error { display: block; color: var(--color-accent); font-size: 0.8125rem; margin-top: 0.35rem; }
+.form-hint { font-size: 0.8125rem; color: var(--color-gray-500); margin-top: 0.35rem; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
 /* Apply form: radio button groups */
 .form-radio-group {

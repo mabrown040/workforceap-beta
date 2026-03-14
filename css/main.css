@@ -214,11 +214,11 @@ body.mobile-nav-open .main-nav::after {
     align-items: center;
     justify-content: center;
     line-height: 0;
-    background: #ffffff;
+    background: #2a2a2a;
     border-radius: 50% / 35%;
     padding: 8px 18px;
     overflow: hidden;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.10);
+    box-shadow: 0 1px 6px rgba(0,0,0,0.22);
     transition: transform var(--transition-fast), box-shadow var(--transition-fast);
     margin-left: -0.5rem;
     flex-shrink: 0;

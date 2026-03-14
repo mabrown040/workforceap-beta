@@ -520,7 +520,7 @@ a.btn-white {
     letter-spacing: 0.04em;
     margin-bottom: 1.75rem;
     color: var(--color-white);
-    animation: borderGlow 3s ease-in-out infinite, fadeInUp 0.8s ease both;
+    animation: fadeInUp 0.8s ease both;
 }
 .hero-title {
     font-size: clamp(2.5rem, 6vw, 4rem);
@@ -536,7 +536,7 @@ a.btn-white {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: gradientShift 4s ease infinite;
+    animation: none;
     display: block;
 }
 .hero-subtitle {
@@ -1083,7 +1083,7 @@ a.btn-white {
 .footer-cta {
     background: linear-gradient(135deg, var(--color-accent) 0%, #c0355a 50%, var(--color-accent-dark) 100%);
     background-size: 200% 200%;
-    animation: gradientShift 6s ease infinite;
+    animation: none;
     color: var(--color-white);
     padding: 6rem 0;
     text-align: center;
@@ -2663,7 +2663,7 @@ body { animation: fadeIn 0.4s ease; }
 .top-banner {
     background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-light) 50%, #d4a84d 100%);
     background-size: 200% auto;
-    animation: gradientShift 5s ease infinite;
+    animation: none;
 }
 
 /* =============================================

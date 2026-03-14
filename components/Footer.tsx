@@ -39,7 +39,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
             width={1600}
             height={900}
             sizes="(max-width: 768px) 140px, 210px"
-            quality={100}
+            quality={85}
             loading="lazy"
           />
           <p>Breaking systemic barriers through education, technology, and opportunity. Employer-aligned career training, certifications, and personalized support.</p>

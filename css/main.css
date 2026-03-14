@@ -488,7 +488,10 @@ a.btn-white {
     text-align: center;
     color: var(--color-white);
     overflow: hidden;
-    background: url("/images/austin-skyline.jpg") center/cover no-repeat;
+}
+.hero-bg-image {
+    object-fit: cover;
+    z-index: 0;
 }
 .hero-overlay {
     position: absolute;
@@ -1242,8 +1245,8 @@ a.btn-white {
 .photo-highlight-bg {
     position: absolute;
     inset: 0;
-    background-size: cover;
-    background-position: center;
+    object-fit: cover;
+    z-index: 0;
 }
 .photo-highlight-overlay {
     position: absolute;

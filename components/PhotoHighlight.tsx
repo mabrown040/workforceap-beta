@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface PhotoHighlightProps {
   imageUrl: string;
@@ -19,7 +20,15 @@ export default function PhotoHighlight({
 }: PhotoHighlightProps) {
   return (
     <section className="photo-highlight">
-      <div className="photo-highlight-bg" style={{ backgroundImage: `url('${imageUrl}')` }} />
+      <Image
+        src={imageUrl}
+        alt={title}
+        fill
+        loading="lazy"
+        sizes="100vw"
+        quality={70}
+        className="photo-highlight-bg"
+      />
       <div className="photo-highlight-overlay" />
       <div className="container">
         <div className="photo-highlight-content animate-on-scroll">

@@ -84,7 +84,7 @@ export default function MainNav() {
             height={985}
             className="nav-logo-image"
             sizes="(max-width: 900px) 130px, 210px"
-            quality={100}
+            quality={85}
             priority
           />
         </Link>

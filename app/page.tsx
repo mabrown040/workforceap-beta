@@ -30,6 +30,15 @@ export default function HomePage() {
     <div className="homepage">
       {/* Hero */}
       <section className="hero" aria-label="Hero">
+        <Image
+          src="/images/austin-skyline.jpg"
+          alt="Austin skyline at sunset"
+          fill
+          priority
+          fetchPriority="high"
+          sizes="100vw"
+          className="hero-bg-image"
+        />
         <div className="hero-overlay" />
         <div className="hero-container">
           <div className="hero-badge">&#x2B50; Virtual and Hybrid Occupation and Career Programs &bull; Workforce Advancement Project</div>

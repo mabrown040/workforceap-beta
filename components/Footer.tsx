@@ -32,18 +32,16 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
     <footer className="main-footer">
       <div className="footer-container">
         <div className="footer-col">
-          <div className="footer-logo-badge">
-            <Image
-              src="/images/logo.png"
-              alt="WorkforceAP"
-              className="footer-logo"
-              width={500}
-              height={281}
-              sizes="(max-width: 768px) 100px, 154px"
-              quality={95}
-              loading="lazy"
-            />
-          </div>
+          <Image
+            src="/images/logo-tight.png"
+            alt="WorkforceAP"
+            className="footer-logo"
+            width={1930}
+            height={985}
+            sizes="(max-width: 768px) 120px, 190px"
+            quality={100}
+            loading="lazy"
+          />
           <p>Breaking systemic barriers through education, technology, and opportunity. Employer-aligned career training, certifications, and personalized support.</p>
           <p>info@workforceap.org</p>
           <p>(512) 777-1808</p>

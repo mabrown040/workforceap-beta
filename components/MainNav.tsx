@@ -78,13 +78,13 @@ export default function MainNav() {
       <div className="nav-container">
         <Link href="/" className="logo" aria-label="Workforce Advancement Project home" onClick={closeMobile}>
           <Image
-            src="/images/logo.png"
+            src="/images/logo-tight.png"
             alt="Workforce Advancement Project"
-            width={500}
-            height={281}
+            width={1930}
+            height={985}
             className="nav-logo-image"
-            sizes="(max-width: 900px) 120px, 172px"
-            quality={95}
+            sizes="(max-width: 900px) 130px, 210px"
+            quality={100}
             priority
           />
         </Link>

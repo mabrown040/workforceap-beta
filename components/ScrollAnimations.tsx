@@ -23,18 +23,24 @@ const animatableSelectors = [
   '.photo-highlight-content',
 ];
 
-function animateCounter(element: HTMLElement, target: number, suffix: string, duration: number) {
+function animateCounter(
+  element: HTMLElement,
+  target: number,
+  prefix: string,
+  suffix: string,
+  duration: number
+) {
   let startTime: number | null = null;
   function step(timestamp: number) {
     if (!startTime) startTime = timestamp;
     const progress = Math.min((timestamp - startTime) / duration, 1);
     const eased = 1 - Math.pow(1 - progress, 4);
     const current = Math.round(eased * target);
-    element.textContent = current + (suffix || '');
+    element.textContent = `${prefix}${current}${suffix}`;
     if (progress < 1) {
       requestAnimationFrame(step);
     } else {
-      element.textContent = target + (suffix || '');
+      element.textContent = `${prefix}${target}${suffix}`;
     }
   }
   requestAnimationFrame(step);
@@ -89,11 +95,13 @@ export default function ScrollAnimations() {
           if (entry.isIntersecting) {
             const el = entry.target as HTMLElement;
             const text = el.textContent?.trim() || '';
-            const suffix = text.replace(/[0-9,]/g, '');
-            const num = parseInt(text.replace(/[^0-9]/g, ''));
+            const parts = text.match(/^([^0-9]*)([0-9,]+)([^0-9]*)$/);
+            const prefix = parts?.[1] || '';
+            const suffix = parts?.[3] || '';
+            const num = parts?.[2] ? parseInt(parts[2].replace(/,/g, ''), 10) : NaN;
             if (!isNaN(num) && num > 0 && num < 10000) {
-              el.textContent = '0' + suffix;
-              setTimeout(() => animateCounter(el, num, suffix, 1800), 200);
+              el.textContent = `${prefix}0${suffix}`;
+              setTimeout(() => animateCounter(el, num, prefix, suffix, 1800), 200);
             }
             counterObserver.unobserve(el);
           }

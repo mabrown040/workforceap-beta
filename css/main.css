@@ -1350,7 +1350,7 @@ a.btn-white {
 .footer-links a:hover,
 .footer-col ul a:hover { opacity: 1; color: var(--color-gold); }
 .footer-logo {
-    height: 96px;
+    height: 118px;
     width: auto;
     margin-bottom: 1.25rem;
     display: block;
@@ -2417,7 +2417,7 @@ img.img-fade.loaded { opacity: 1; }
     }
     .nav-logo-image { height: 76px; max-width: 142px; }
     .logo { padding: 0; }
-    .footer-logo { height: 74px; }
+    .footer-logo { height: 91px; }
 }
 
 @media (max-width: 480px) {

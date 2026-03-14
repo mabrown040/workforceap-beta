@@ -33,12 +33,12 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
       <div className="footer-container">
         <div className="footer-col">
           <Image
-            src="/images/logo-tight.png"
+            src="/images/logo.png"
             alt="WorkforceAP"
             className="footer-logo"
-            width={1930}
-            height={985}
-            sizes="(max-width: 768px) 120px, 190px"
+            width={1600}
+            height={900}
+            sizes="(max-width: 768px) 140px, 210px"
             quality={100}
             loading="lazy"
           />

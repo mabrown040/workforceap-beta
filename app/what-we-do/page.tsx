@@ -53,12 +53,12 @@ export default function WhatWeDoPage() {
                 <p>Individuals empowered with the skills, certifications, and support to advance their careers.</p>
               </div>
               <div className="stat-card">
-                <div className="stat-number gold">$700K</div>
+                <div className="stat-number gold">$700k</div>
                 <div className="stat-label">Revenue Turnaround</div>
                 <p>Revitalized Goodwill Career &amp; Technical Academy operations in a single year.</p>
               </div>
               <div className="stat-card">
-                <div className="stat-number gold">$500K</div>
+                <div className="stat-number gold">$500k</div>
                 <div className="stat-label">First-Year Revenue</div>
                 <p>Established thriving workforce unit for Austin Area Urban League.</p>
               </div>

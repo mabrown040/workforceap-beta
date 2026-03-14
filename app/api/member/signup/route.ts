@@ -99,6 +99,19 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+    if (
+      authError.message.toLowerCase().includes('rate limit') ||
+      authError.message.toLowerCase().includes('email rate limit') ||
+      authError.code === 'over_email_send_limit'
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            'Too many signup emails sent. Please try again in an hour, or use a different email. For testing, you can disable "Confirm email" in Supabase Dashboard → Auth → Providers → Email.',
+        },
+        { status: 429 }
+      );
+    }
     return NextResponse.json(
       { error: authError.message },
       { status: 400 }

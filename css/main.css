@@ -214,9 +214,9 @@ body.mobile-nav-open .main-nav::after {
     align-items: center;
     justify-content: center;
     line-height: 0;
-    background: #ececec;
-    border-radius: var(--radius-lg);
-    padding: 10px;
+    background: #ffffff;
+    border-radius: 50% / 35%;
+    padding: 8px 18px;
     overflow: hidden;
     box-shadow: 0 1px 6px rgba(0,0,0,0.10);
     transition: transform var(--transition-fast), box-shadow var(--transition-fast);
@@ -1490,6 +1490,29 @@ body.inner-page {
     background: #fffbfc;
 }
 .form-group textarea { min-height: 120px; resize: vertical; }
+
+/* Apply form: radio button groups */
+.form-radio-group {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+}
+.form-radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 400;
+    cursor: pointer;
+    min-width: 80px;
+}
+.form-radio-group input[type="radio"] {
+    width: 1.1rem;
+    height: 1.1rem;
+    flex-shrink: 0;
+    cursor: pointer;
+    accent-color: #ad2c4d;
+}
 
 /* =============================================
    TABLES

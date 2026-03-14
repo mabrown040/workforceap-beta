@@ -48,6 +48,11 @@ export default function WhatWeDoPage() {
                 <p>Leading successful workforce development initiatives and career training programs.</p>
               </div>
               <div className="stat-card">
+                <div className="stat-number gold">2,000+</div>
+                <div className="stat-label">Clients Trained &amp; Career Enhanced</div>
+                <p>Individuals empowered with the skills, certifications, and support to advance their careers.</p>
+              </div>
+              <div className="stat-card">
                 <div className="stat-number gold">$700K</div>
                 <div className="stat-label">Revenue Turnaround</div>
                 <p>Revitalized Goodwill Career &amp; Technical Academy operations in a single year.</p>

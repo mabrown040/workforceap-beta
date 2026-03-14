@@ -123,9 +123,9 @@ export default function ApplyPage() {
                   <legend style={{ fontWeight: 700, fontSize: '.9rem', textTransform: 'uppercase', letterSpacing: '.05em', color: '#ad2c4d', marginBottom: '1rem' }}>Location</legend>
                   <div className="form-group">
                     <label>Do you live in Travis County or Austin? *</label>
-                    <div style={{ display: 'flex', gap: '2rem', marginTop: '.5rem' }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '.5rem', fontWeight: 400 }}><input type="radio" name="travis_county" value="yes" required /> Yes</label>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '.5rem', fontWeight: 400 }}><input type="radio" name="travis_county" value="no" /> No</label>
+                    <div className="form-radio-group">
+                      <label ><input type="radio" name="travis_county" value="yes" required /> Yes</label>
+                      <label ><input type="radio" name="travis_county" value="no" /> No</label>
                     </div>
                   </div>
                   <div className="form-group"><label>If no — what city, state, and county do you live in?</label><input type="text" name="location_other" /></div>
@@ -135,16 +135,16 @@ export default function ApplyPage() {
                   <legend style={{ fontWeight: 700, fontSize: '.9rem', textTransform: 'uppercase', letterSpacing: '.05em', color: '#ad2c4d', marginBottom: '1rem' }}>Employment Status</legend>
                   <div className="form-group">
                     <label>Are you looking for training services to help with skills for a job? *</label>
-                    <div style={{ display: 'flex', gap: '2rem', marginTop: '.5rem' }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '.5rem', fontWeight: 400 }}><input type="radio" name="seeking_training" value="yes" required /> Yes</label>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '.5rem', fontWeight: 400 }}><input type="radio" name="seeking_training" value="no" /> No</label>
+                    <div className="form-radio-group">
+                      <label ><input type="radio" name="seeking_training" value="yes" required /> Yes</label>
+                      <label ><input type="radio" name="seeking_training" value="no" /> No</label>
                     </div>
                   </div>
                   <div className="form-group">
                     <label>Are you currently unemployed (terminated, laid off, or received notice of layoff)? *</label>
-                    <div style={{ display: 'flex', gap: '2rem', marginTop: '.5rem' }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '.5rem', fontWeight: 400 }}><input type="radio" name="unemployed" value="yes" required /> Yes</label>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '.5rem', fontWeight: 400 }}><input type="radio" name="unemployed" value="no" /> No</label>
+                    <div className="form-radio-group">
+                      <label ><input type="radio" name="unemployed" value="yes" required /> Yes</label>
+                      <label ><input type="radio" name="unemployed" value="no" /> No</label>
                     </div>
                   </div>
                   <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -158,16 +158,16 @@ export default function ApplyPage() {
                   <legend style={{ fontWeight: 700, fontSize: '.9rem', textTransform: 'uppercase', letterSpacing: '.05em', color: '#ad2c4d', marginBottom: '1rem' }}>Income &amp; Benefits</legend>
                   <div className="form-group">
                     <label>Are you eligible for TANF or Food Stamps? *</label>
-                    <div style={{ display: 'flex', gap: '2rem', marginTop: '.5rem' }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '.5rem', fontWeight: 400 }}><input type="radio" name="tanf" value="yes" required /> Yes</label>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '.5rem', fontWeight: 400 }}><input type="radio" name="tanf" value="no" /> No</label>
+                    <div className="form-radio-group">
+                      <label ><input type="radio" name="tanf" value="yes" required /> Yes</label>
+                      <label ><input type="radio" name="tanf" value="no" /> No</label>
                     </div>
                   </div>
                   <div className="form-group">
                     <label>Are you single or married? *</label>
-                    <div style={{ display: 'flex', gap: '2rem', marginTop: '.5rem' }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '.5rem', fontWeight: 400 }}><input type="radio" name="marital" value="single" required /> Single</label>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '.5rem', fontWeight: 400 }}><input type="radio" name="marital" value="married" /> Married</label>
+                    <div className="form-radio-group">
+                      <label ><input type="radio" name="marital" value="single" required /> Single</label>
+                      <label ><input type="radio" name="marital" value="married" /> Married</label>
                     </div>
                   </div>
                   <div className="form-group">

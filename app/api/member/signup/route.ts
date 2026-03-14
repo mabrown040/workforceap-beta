@@ -45,10 +45,25 @@ export async function POST(request: NextRequest) {
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const databaseUrl =
+    process.env.POSTGRES_PRISMA_URL || process.env.DATABASE_URL;
 
   if (!supabaseUrl || !supabaseAnonKey) {
     return NextResponse.json(
-      { error: 'Server configuration error' },
+      {
+        error:
+          'Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your Vercel project settings (from Supabase Dashboard → Project Settings → API).',
+      },
+      { status: 500 }
+    );
+  }
+
+  if (!databaseUrl) {
+    return NextResponse.json(
+      {
+        error:
+          'Database is not configured. The Supabase integration should add POSTGRES_PRISMA_URL. If missing, add it in Vercel (from Supabase Dashboard → Project Settings → Database).',
+      },
       { status: 500 }
     );
   }

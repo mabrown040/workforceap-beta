@@ -1,5 +1,5 @@
 // WorkforceAP Members Portal - Prisma Schema
-// Database: Supabase Postgres (DATABASE_URL)
+// Database: Supabase Postgres (POSTGRES_PRISMA_URL from Vercel integration, or DATABASE_URL for local)
 // Auth: Supabase Auth (auth.users) - our users.id matches auth.users.id
 
 generator client {
@@ -10,8 +10,9 @@ generator client {
 // To promote a user to admin: INSERT INTO user_roles (user_id, role_id) SELECT '<user_id>', id FROM roles WHERE name = 'admin';
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 // --- Core tables ---

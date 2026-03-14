@@ -4,7 +4,16 @@ import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { auditLog } from '@/lib/audit';
+import { checkAuthRateLimit } from '@/lib/rate-limit';
 import { ApplicationStatus } from '@prisma/client';
+
+function getClientIp(request: NextRequest): string {
+  return (
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown'
+  );
+}
 
 const statusSchema = z.object({
   status: z.enum(['PENDING', 'APPROVED', 'DENIED', 'NEEDS_INFO']),
@@ -15,6 +24,12 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const ip = getClientIp(request);
+  const { success: rateOk } = await checkAuthRateLimit(`admin:${ip}`);
+  if (!rateOk) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
+
   const user = await getUser();
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

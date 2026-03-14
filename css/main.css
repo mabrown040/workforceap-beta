@@ -206,7 +206,7 @@ body.mobile-nav-open .main-nav::after {
     display: flex;
     align-items: center;
     gap: 2rem;
-    height: 96px;
+    height: 116px;
     position: relative;
 }
 .logo {

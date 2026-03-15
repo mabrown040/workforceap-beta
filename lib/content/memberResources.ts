@@ -19,6 +19,7 @@ export type MemberResource = {
   tags: string[];
   url: string;
   type: 'document' | 'video' | 'link';
+  file?: string;
 };
 
 let cachedResources: MemberResource[] | null = null;

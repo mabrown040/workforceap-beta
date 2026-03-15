@@ -3228,3 +3228,34 @@ body { animation: fadeIn 0.4s ease; }
     margin-left: auto;
     margin-right: auto;
 }
+
+.resource-back-link {
+    display: inline-block;
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 0.5rem;
+    text-decoration: none;
+}
+.resource-back-link:hover {
+    color: var(--color-white);
+    text-decoration: underline;
+}
+
+.markdown-body {
+    max-width: 720px;
+    line-height: 1.7;
+}
+.markdown-body h1 { font-size: 1.75rem; margin: 1.5rem 0 0.75rem; }
+.markdown-body h2 { font-size: 1.35rem; margin: 1.25rem 0 0.5rem; }
+.markdown-body h3 { font-size: 1.1rem; margin: 1rem 0 0.5rem; }
+.markdown-body p { margin-bottom: 1rem; }
+.markdown-body ul, .markdown-body ol { margin: 0 0 1rem 1.5rem; }
+.markdown-body li { margin-bottom: 0.35rem; }
+.markdown-body table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+.markdown-body th, .markdown-body td { border: 1px solid var(--color-gray-200); padding: 0.5rem 0.75rem; text-align: left; }
+.markdown-body th { background: var(--color-light); font-weight: 600; }
+.markdown-body code { background: var(--color-gray-100); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
+.markdown-body pre { background: var(--color-gray-100); padding: 1rem; border-radius: var(--radius-md); overflow-x: auto; margin: 1rem 0; }
+.markdown-body pre code { background: none; padding: 0; }
+.markdown-body blockquote { border-left: 4px solid var(--color-accent); padding-left: 1rem; margin: 1rem 0; color: var(--color-gray-600); }
+.markdown-body input[type="checkbox"] { margin-right: 0.5rem; }

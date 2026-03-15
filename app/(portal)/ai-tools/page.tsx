@@ -35,14 +35,16 @@ const TOOLS = [
     title: 'Cover Letter Builder',
     description: 'Create a tailored cover letter that connects your experience to the job requirements.',
     timeToComplete: '5–10 min',
-    status: 'coming_soon' as const,
+    status: 'available' as const,
+    href: '/ai-tools/cover-letter',
   },
   {
     id: 'linkedin-headline',
     title: 'LinkedIn Headline Generator',
     description: 'Craft a compelling LinkedIn headline that gets you noticed by recruiters.',
     timeToComplete: '2–3 min',
-    status: 'coming_soon' as const,
+    status: 'available' as const,
+    href: '/ai-tools/linkedin-headline',
   },
 ];
 

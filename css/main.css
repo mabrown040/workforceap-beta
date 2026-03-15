@@ -3277,6 +3277,9 @@ body { animation: fadeIn 0.4s ease; }
 }
 
 .resume-rewriter-form { margin-top: 1rem; }
+.resume-upload-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
+.resume-file-input { font-size: 0.9rem; }
+.resume-upload-status { font-size: 0.85rem; color: var(--color-gray-500); }
 .resume-rewriter-output {
     margin-top: 2rem;
     padding: 1.5rem;
@@ -3292,6 +3295,20 @@ body { animation: fadeIn 0.4s ease; }
 }
 .resume-rewriter-output-header h3 { font-size: 1.1rem; margin: 0; }
 .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+.headline-list { list-style: none; padding: 0; margin: 0; }
+.headline-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  margin-bottom: 0.5rem;
+}
+.headline-item span { flex: 1; font-size: 0.95rem; }
+
 .resume-rewriter-output-content {
     white-space: pre-wrap;
     font-family: inherit;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { trackToolLaunch } from '@/lib/analytics/events';
 
 export default function ResumeRewriterForm() {
@@ -8,7 +8,9 @@ export default function ResumeRewriterForm() {
   const [jobTarget, setJobTarget] = useState('');
   const [output, setOutput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [extracting, setExtracting] = useState(false);
   const [error, setError] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,8 +42,32 @@ export default function ResumeRewriterForm() {
   };
 
   const handleCopy = () => {
-    if (output) {
-      navigator.clipboard.writeText(output);
+    if (output) navigator.clipboard.writeText(output);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setError('');
+    setExtracting(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/ai/extract-resume-text', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok && data.text) {
+        setResume(data.text);
+      } else {
+        setError(data.error ?? 'Could not extract text');
+      }
+    } catch {
+      setError('Upload failed. Try pasting instead.');
+    } finally {
+      setExtracting(false);
+      e.target.value = '';
     }
   };
 
@@ -60,7 +86,18 @@ export default function ResumeRewriterForm() {
         />
       </div>
       <div className="form-group">
-        <label htmlFor="resume">Your resume (paste full text)</label>
+        <label htmlFor="resume">Your resume (paste or upload PDF/DOCX)</label>
+        <div className="resume-upload-row">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,.docx,.doc,.txt"
+            onChange={handleFileUpload}
+            disabled={extracting || loading}
+            className="resume-file-input"
+          />
+          {extracting && <span className="resume-upload-status">Extracting text...</span>}
+        </div>
         <textarea
           id="resume"
           value={resume}

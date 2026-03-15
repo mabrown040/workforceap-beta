@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { resumeRewriterSchema } from '@/lib/validation/resumeRewriter';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
+import { saveAIToolResult } from '@/lib/ai/saveResult';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -68,6 +69,8 @@ Rewrite and improve the resume to better align with this job target. Return the 
     if (!output) {
       return NextResponse.json({ error: 'No response from AI' }, { status: 500 });
     }
+
+    await saveAIToolResult(user.id, 'resume_rewriter', jobTarget, output);
 
     return NextResponse.json({ output });
   } catch (err) {

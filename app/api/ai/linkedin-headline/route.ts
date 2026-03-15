@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { linkedinHeadlineSchema } from '@/lib/validation/linkedinHeadline';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
+import { saveAIToolResult } from '@/lib/ai/saveResult';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -55,6 +56,10 @@ Generate 3 LinkedIn headline options.`;
     if (!Array.isArray(headlines) || headlines.length === 0) {
       return NextResponse.json({ error: 'Invalid response format' }, { status: 500 });
     }
+
+    const output = JSON.stringify(headlines.slice(0, 5));
+    const summary = `${role} — ${keySkills.slice(0, 40)}${keySkills.length > 40 ? '...' : ''}`;
+    await saveAIToolResult(user.id, 'linkedin_headline', summary, output);
 
     return NextResponse.json({ headlines: headlines.slice(0, 5) });
   } catch (err) {

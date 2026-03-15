@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { interviewPracticeSchema } from '@/lib/validation/interviewPractice';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
+import { saveAIToolResult } from '@/lib/ai/saveResult';
 
 const LEVEL_PROMPTS = {
   entry: 'entry-level / junior (0-2 years experience)',
@@ -78,6 +79,10 @@ Include a mix of behavioral (STAR method) and technical questions. Make them spe
     if (!Array.isArray(questions) || questions.length === 0) {
       return NextResponse.json({ error: 'Invalid response format' }, { status: 500 });
     }
+
+    const output = JSON.stringify(questions);
+    const summary = `${role} (${experienceLevel})`;
+    await saveAIToolResult(user.id, 'interview_practice', summary, output);
 
     return NextResponse.json({ questions });
   } catch (err) {

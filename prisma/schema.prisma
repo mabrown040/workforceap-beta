@@ -26,12 +26,13 @@ model User {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   profile            Profile?
-  applications       Application[]
-  jobApplications    JobApplication[]
-  benefitRequests    BenefitRequest[]
-  learningProgress   LearningProgress[]
-  userRoles          UserRole[]
-  auditLogs          AuditLog[] @relation("ActorAuditLogs")
+  applications        Application[]
+  jobApplications     JobApplication[]
+  benefitRequests     BenefitRequest[]
+  learningProgress    LearningProgress[]
+  aiToolResults       AIToolResult[]
+  userRoles           UserRole[]
+  auditLogs           AuditLog[] @relation("ActorAuditLogs")
 
   @@map("users")
 }
@@ -184,6 +185,28 @@ model LearningProgress {
   @@unique([userId, pathwayId])
   @@index([userId])
   @@map("learning_progress")
+}
+
+model AIToolResult {
+  id           String       @id @default(uuid())
+  userId       String       @map("user_id")
+  toolType     AIToolType   @map("tool_type")
+  inputSummary String       @map("input_summary")
+  output       String       @db.Text
+  createdAt    DateTime     @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, toolType])
+  @@map("ai_tool_results")
+}
+
+enum AIToolType {
+  resume_rewriter
+  cover_letter
+  interview_practice
+  linkedin_headline
 }
 
 model AuditLog {

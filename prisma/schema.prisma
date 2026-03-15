@@ -25,10 +25,13 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  profile     Profile?
-  applications Application[]
-  userRoles   UserRole[]
-  auditLogs   AuditLog[] @relation("ActorAuditLogs")
+  profile            Profile?
+  applications       Application[]
+  jobApplications    JobApplication[]
+  benefitRequests    BenefitRequest[]
+  learningProgress   LearningProgress[]
+  userRoles          UserRole[]
+  auditLogs          AuditLog[] @relation("ActorAuditLogs")
 
   @@map("users")
 }
@@ -116,6 +119,71 @@ enum ResourceType {
   DOCUMENT
   VIDEO
   LINK
+}
+
+model JobApplication {
+  id          String              @id @default(uuid())
+  userId      String              @map("user_id")
+  company     String
+  role        String
+  status      JobApplicationStatus @default(SAVED)
+  appliedAt   DateTime?           @map("applied_at")
+  notes       String?             @db.Text
+  url         String?
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime            @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("job_applications")
+}
+
+enum JobApplicationStatus {
+  SAVED
+  APPLIED
+  INTERVIEWING
+  OFFER
+  REJECTED
+}
+
+model BenefitRequest {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  benefit   String   // linkedin_premium, coursera
+  status    BenefitRequestStatus @default(PENDING)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, benefit])
+  @@index([userId])
+  @@index([status])
+  @@map("benefit_requests")
+}
+
+enum BenefitRequestStatus {
+  PENDING
+  APPROVED
+  DENIED
+}
+
+model LearningProgress {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  pathwayId  String   @map("pathway_id")
+  completed  Boolean  @default(false)
+  progress   Int      @default(0) // 0-100
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, pathwayId])
+  @@index([userId])
+  @@map("learning_progress")
 }
 
 model AuditLog {

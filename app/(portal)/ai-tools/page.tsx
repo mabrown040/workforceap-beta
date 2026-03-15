@@ -19,14 +19,16 @@ const TOOLS = [
     title: 'Resume Rewriter',
     description: 'Paste your resume and job target. Get AI-improved bullets and phrasing tailored to pass ATS and impress recruiters.',
     timeToComplete: '5–10 min',
-    status: 'coming_soon' as const,
+    status: 'available' as const,
+    href: '/ai-tools/resume-rewriter',
   },
   {
     id: 'interview-practice',
     title: 'Interview Practice Generator',
     description: 'Generate role-specific interview questions with answer frameworks. Practice behavioral and technical questions.',
     timeToComplete: '10–15 min',
-    status: 'coming_soon' as const,
+    status: 'available' as const,
+    href: '/ai-tools/interview-practice',
   },
   {
     id: 'cover-letter',
@@ -76,6 +78,7 @@ export default async function AIToolsPage() {
                 description={tool.description}
                 timeToComplete={tool.timeToComplete}
                 status={tool.status}
+                href={'href' in tool ? tool.href : undefined}
               />
             ))}
           </div>

@@ -17,6 +17,17 @@ export const metadata: Metadata = buildPageMetadata({
   path: '/dashboard',
 });
 
+function getBenefitStatus(
+  requests: Array<{ benefit: string; status: string }>,
+  benefitId: string
+): 'not_requested' | 'pending' | 'active' {
+  const req = requests.find((r) => r.benefit === benefitId);
+  if (!req) return 'not_requested';
+  if (req.status === 'APPROVED') return 'active';
+  if (req.status === 'PENDING') return 'pending';
+  return 'not_requested';
+}
+
 export default async function DashboardPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard');
@@ -26,6 +37,8 @@ export default async function DashboardPage() {
     include: {
       profile: true,
       applications: { orderBy: { createdAt: 'desc' } },
+      jobApplications: true,
+      benefitRequests: true,
     },
   });
 
@@ -51,7 +64,7 @@ export default async function DashboardPage() {
             <ReadinessProgress
               profileComplete={!!profile?.address || !!profile?.zip}
               toolsUsed={0}
-              applicationsSubmitted={dbUser?.applications?.length ?? 0}
+              applicationsSubmitted={dbUser?.jobApplications?.length ?? dbUser?.applications?.length ?? 0}
             />
             {application && (
               <StatusCard
@@ -63,13 +76,15 @@ export default async function DashboardPage() {
 
             <div className="benefit-cards">
               <BenefitAccessCard
+                benefitId="linkedin_premium"
                 name="LinkedIn Premium"
-                status="not_requested"
+                status={getBenefitStatus(dbUser?.benefitRequests ?? [], 'linkedin_premium')}
                 description="Access premium features to stand out to recruiters."
               />
               <BenefitAccessCard
+                benefitId="coursera"
                 name="Coursera"
-                status="not_requested"
+                status={getBenefitStatus(dbUser?.benefitRequests ?? [], 'coursera')}
                 description="Industry certifications and courses at no cost."
               />
             </div>
@@ -83,6 +98,12 @@ export default async function DashboardPage() {
               </Link>
               <Link href="/career-brief" className="btn btn-primary" style={{ padding: '1rem', textAlign: 'center' }}>
                 Weekly Career Brief
+              </Link>
+              <Link href="/applications" className="btn btn-primary" style={{ padding: '1rem', textAlign: 'center' }}>
+                Job Applications
+              </Link>
+              <Link href="/learning" className="btn btn-primary" style={{ padding: '1rem', textAlign: 'center' }}>
+                Learning Pathways
               </Link>
               {profile && (
                 <div style={{ background: 'var(--color-light)', padding: '1.5rem', borderRadius: 'var(--radius-md)' }}>

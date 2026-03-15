@@ -1,0 +1,112 @@
+[
+  {
+    "id": "ats-resume-template",
+    "title": "ATS-Friendly Resume Template",
+    "summary": "A template designed to pass applicant tracking systems.",
+    "category": "Resume",
+    "stage": "New to workforce",
+    "tags": ["resume", "ATS", "template"],
+    "url": "/resources/ats-resume-template",
+    "type": "document",
+    "file": "ats-resume-template.md"
+  },
+  {
+    "id": "ai-resume-prompts",
+    "title": "AI Prompt Pack for Resume Rewriting",
+    "summary": "Ready-to-use prompts for AI tools to improve your resume.",
+    "category": "AI Skills",
+    "stage": "Mid-career pivot",
+    "tags": ["AI", "resume", "prompts"],
+    "url": "/resources/ai-resume-prompts",
+    "type": "document",
+    "file": "ai-resume-prompts.md"
+  },
+  {
+    "id": "interview-question-bank",
+    "title": "Interview Question Bank",
+    "summary": "Behavioral and technical questions for common roles.",
+    "category": "Interviewing",
+    "stage": "Recent graduate",
+    "tags": ["interview", "questions", "behavioral"],
+    "url": "/resources/interview-question-bank",
+    "type": "document",
+    "file": "interview-question-bank.md"
+  },
+  {
+    "id": "star-story-worksheet",
+    "title": "STAR Story Worksheet",
+    "summary": "Structure your interview answers with Situation, Task, Action, Result.",
+    "category": "Interviewing",
+    "stage": "New to workforce",
+    "tags": ["STAR", "interview", "worksheet"],
+    "url": "/resources/star-story-worksheet",
+    "type": "document",
+    "file": "star-story-worksheet.md"
+  },
+  {
+    "id": "linkedin-optimization-checklist",
+    "title": "LinkedIn Profile Optimization Checklist",
+    "summary": "Make your profile visible to recruiters and hiring managers.",
+    "category": "Job Search",
+    "stage": "Mid-career pivot",
+    "tags": ["LinkedIn", "profile", "optimization"],
+    "url": "/resources/linkedin-optimization-checklist",
+    "type": "document",
+    "file": "linkedin-optimization-checklist.md"
+  },
+  {
+    "id": "job-search-weekly-planner",
+    "title": "Job Search Weekly Planner",
+    "summary": "Structure your job search for consistency and momentum.",
+    "category": "Job Search",
+    "stage": "New to workforce",
+    "tags": ["planner", "organization", "job search"],
+    "url": "/resources/job-search-weekly-planner",
+    "type": "document",
+    "file": "job-search-weekly-planner.md"
+  },
+  {
+    "id": "career-pivot-roadmap",
+    "title": "Career Pivot Roadmap (30/60/90)",
+    "summary": "A structured approach to transitioning into a new field.",
+    "category": "Career Planning",
+    "stage": "Mid-career pivot",
+    "tags": ["pivot", "roadmap", "planning"],
+    "url": "/resources/career-pivot-roadmap",
+    "type": "document",
+    "file": "career-pivot-roadmap.md"
+  },
+  {
+    "id": "email-templates",
+    "title": "Email Templates (Follow-up, Thank-you, Networking)",
+    "summary": "Templates for follow-ups, thank-yous, and networking outreach.",
+    "category": "Job Search",
+    "stage": "Recent graduate",
+    "tags": ["email", "templates", "networking"],
+    "url": "/resources/email-templates",
+    "type": "document",
+    "file": "email-templates.md"
+  },
+  {
+    "id": "digital-professionalism-checklist",
+    "title": "Digital Professionalism & Workplace Readiness Checklist",
+    "summary": "Prepare for a professional environment.",
+    "category": "Career Planning",
+    "stage": "New to workforce",
+    "tags": ["professionalism", "readiness", "checklist"],
+    "url": "/resources/digital-professionalism-checklist",
+    "type": "document",
+    "file": "digital-professionalism-checklist.md"
+  },
+  {
+    "id": "ai-ethical-job-search",
+    "title": "Using AI Ethically in Your Job Search",
+    "summary": "Guidelines for using AI tools responsibly.",
+    "category": "AI Skills",
+    "stage": "Recent graduate",
+    "tags": ["AI", "ethics", "job search"],
+    "url": "/resources/ai-ethical-job-search",
+    "type": "document",
+    "file": "ai-ethical-job-search.md"
+  }
+]

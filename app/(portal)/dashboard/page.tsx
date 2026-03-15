@@ -7,6 +7,9 @@ import { prisma } from '@/lib/db/prisma';
 import Footer from '@/components/Footer';
 import { StatusCard } from '@/components/portal/StatusCard';
 import { SignOutButton } from '@/components/portal/SignOutButton';
+import StartHereCard from '@/components/portal/StartHereCard';
+import ReadinessProgress from '@/components/portal/ReadinessProgress';
+import BenefitAccessCard from '@/components/portal/BenefitAccessCard';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Member dashboard',
@@ -22,11 +25,11 @@ export default async function DashboardPage() {
     where: { id: user.id },
     include: {
       profile: true,
-      applications: { orderBy: { createdAt: 'desc' }, take: 1 },
+      applications: { orderBy: { createdAt: 'desc' } },
     },
   });
 
-  const application = dbUser?.applications[0];
+  const application = dbUser?.applications?.[0];
   const profile = dbUser?.profile;
 
   return (
@@ -44,6 +47,12 @@ export default async function DashboardPage() {
       <section className="content-section">
         <div className="container">
           <div className="dashboard-grid" style={{ display: 'grid', gap: '2rem', maxWidth: '900px' }}>
+            <StartHereCard />
+            <ReadinessProgress
+              profileComplete={!!profile?.address || !!profile?.zip}
+              toolsUsed={0}
+              applicationsSubmitted={dbUser?.applications?.length ?? 0}
+            />
             {application && (
               <StatusCard
                 status={application.status}
@@ -52,9 +61,28 @@ export default async function DashboardPage() {
               />
             )}
 
+            <div className="benefit-cards">
+              <BenefitAccessCard
+                name="LinkedIn Premium"
+                status="not_requested"
+                description="Access premium features to stand out to recruiters."
+              />
+              <BenefitAccessCard
+                name="Coursera"
+                status="not_requested"
+                description="Industry certifications and courses at no cost."
+              />
+            </div>
+
             <div className="dashboard-actions" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+              <Link href="/ai-tools" className="btn btn-primary" style={{ padding: '1rem', textAlign: 'center' }}>
+                AI Career Tools
+              </Link>
               <Link href="/resources" className="btn btn-primary" style={{ padding: '1rem', textAlign: 'center' }}>
                 View resources
+              </Link>
+              <Link href="/career-brief" className="btn btn-primary" style={{ padding: '1rem', textAlign: 'center' }}>
+                Weekly Career Brief
               </Link>
               {profile && (
                 <div style={{ background: 'var(--color-light)', padding: '1.5rem', borderRadius: 'var(--radius-md)' }}>

@@ -3,30 +3,30 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { getMemberResources } from '@/lib/content/memberResources';
+import { getCareerBriefs } from '@/lib/content/careerBriefs';
 import Footer from '@/components/Footer';
 import { SignOutButton } from '@/components/portal/SignOutButton';
-import ResourcesClient from './ResourcesClient';
+import CareerBriefList from '@/components/portal/CareerBriefList';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Career Resources',
-  description: 'Practical job-seeker resources by career stage. Resume, interviewing, career planning, AI skills, and job search.',
-  path: '/resources',
+  title: 'Weekly Career Brief',
+  description: 'Weekly guidance and opportunity updates for WorkforceAP members.',
+  path: '/career-brief',
 });
 
-export default async function ResourcesPage() {
+export default async function CareerBriefPage() {
   const user = await getUser();
-  if (!user) redirect('/login?redirectTo=/resources');
+  if (!user) redirect('/login?redirectTo=/career-brief');
 
-  const resources = await getMemberResources();
+  const briefs = getCareerBriefs();
 
   return (
     <div className="inner-page">
       <section className="page-hero">
         <div className="page-hero-content" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <h1>Career Resources</h1>
-            <p>Practical job-seeker resources by career stage. Filter by category or stage to find what you need.</p>
+            <h1>Weekly Career Brief</h1>
+            <p>Guidance, tips, and opportunity updates to keep your job search on track.</p>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <Link href="/dashboard" className="btn" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.4)' }}>
@@ -39,7 +39,7 @@ export default async function ResourcesPage() {
 
       <section className="content-section">
         <div className="container">
-          <ResourcesClient resources={resources} />
+          <CareerBriefList briefs={briefs} />
         </div>
       </section>
 

@@ -2,11 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { createSupabaseBrowserClient } from '@/lib/auth/client';
+import { useSearchParams } from 'next/navigation';
 
 export default function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirectTo') ?? '/dashboard';
 
@@ -21,17 +19,23 @@ export default function LoginForm() {
     setLoading(true);
 
     try {
-      const supabase = createSupabaseBrowserClient();
-      const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+        credentials: 'same-origin',
+      });
 
-      if (authError) {
-        setError(authError.message);
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error ?? 'Something went wrong. Please try again.');
         setLoading(false);
         return;
       }
 
-      router.push(redirectTo);
-      router.refresh();
+      // Hard navigation ensures middleware sees new cookies (fixes mobile/cross-tab)
+      window.location.href = redirectTo.startsWith('/') ? redirectTo : `/${redirectTo}`;
     } catch {
       setError('Something went wrong. Please try again.');
       setLoading(false);

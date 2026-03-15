@@ -3276,6 +3276,77 @@ body { animation: fadeIn 0.4s ease; }
     opacity: 0.8;
 }
 
+/* Benefit cards */
+.benefit-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+}
+.benefit-card {
+    background: var(--color-light);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+}
+.benefit-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+.benefit-card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+.benefit-card-status {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-full);
+}
+.benefit-card-status.status-not_requested {
+    background: var(--color-gray-200);
+    color: var(--color-gray-600);
+}
+.benefit-card-status.status-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+.benefit-card-status.status-active {
+    background: #d1fae5;
+    color: #065f46;
+}
+.benefit-card-desc {
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+    margin-bottom: 1rem;
+}
+.benefit-card-cta {
+    display: inline-block;
+    font-size: 0.9rem;
+}
+
+.help-request-card {
+    background: var(--color-light);
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-gray-200);
+    max-width: 600px;
+}
+.help-request-card h2 {
+    margin-bottom: 0.75rem;
+    font-size: 1.25rem;
+}
+.help-request-card p {
+    margin-bottom: 1rem;
+    color: var(--color-gray-600);
+}
+.help-request-card a {
+    color: var(--color-accent);
+    font-weight: 600;
+}
+
 .resource-back-link {
     display: inline-block;
     font-size: 0.9rem;

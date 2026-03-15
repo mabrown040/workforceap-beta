@@ -9,6 +9,7 @@ import { StatusCard } from '@/components/portal/StatusCard';
 import { SignOutButton } from '@/components/portal/SignOutButton';
 import StartHereCard from '@/components/portal/StartHereCard';
 import ReadinessProgress from '@/components/portal/ReadinessProgress';
+import BenefitAccessCard from '@/components/portal/BenefitAccessCard';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Member dashboard',
@@ -59,6 +60,19 @@ export default async function DashboardPage() {
                 submittedAt={application.submittedAt}
               />
             )}
+
+            <div className="benefit-cards">
+              <BenefitAccessCard
+                name="LinkedIn Premium"
+                status="not_requested"
+                description="Access premium features to stand out to recruiters."
+              />
+              <BenefitAccessCard
+                name="Coursera"
+                status="not_requested"
+                description="Industry certifications and courses at no cost."
+              />
+            </div>
 
             <div className="dashboard-actions" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
               <Link href="/ai-tools" className="btn btn-primary" style={{ padding: '1rem', textAlign: 'center' }}>

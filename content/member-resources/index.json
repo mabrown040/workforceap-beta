@@ -1,0 +1,22 @@
+[
+  {
+    "id": "ats-resume-template",
+    "title": "ATS-Friendly Resume Template",
+    "summary": "A template designed to pass applicant tracking systems.",
+    "category": "Resume",
+    "stage": "New to workforce",
+    "tags": ["resume", "ATS", "template"],
+    "url": "/resources/ats-resume-template",
+    "type": "document"
+  },
+  {
+    "id": "interview-question-bank",
+    "title": "Interview Question Bank",
+    "summary": "Behavioral and technical questions for common roles.",
+    "category": "Interviewing",
+    "stage": "Recent graduate",
+    "tags": ["interview", "questions", "behavioral"],
+    "url": "/resources/interview-question-bank",
+    "type": "document"
+  }
+]

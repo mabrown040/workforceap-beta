@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { coverLetterSchema } from '@/lib/validation/coverLetter';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
+import { saveAIToolResult } from '@/lib/ai/saveResult';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -55,6 +56,10 @@ Write a tailored cover letter.`;
     );
 
     if (!output) return NextResponse.json({ error: 'No response from AI' }, { status: 500 });
+
+    const summary = `${companyName} — ${jobDescription.slice(0, 60)}${jobDescription.length > 60 ? '...' : ''}`;
+    await saveAIToolResult(user.id, 'cover_letter', summary, output);
+
     return NextResponse.json({ output });
   } catch (err) {
     console.error('Cover letter error:', err);

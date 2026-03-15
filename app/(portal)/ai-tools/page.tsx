@@ -71,6 +71,11 @@ export default async function AIToolsPage() {
 
       <section className="content-section">
         <div className="container">
+          <div style={{ marginBottom: '1.5rem' }}>
+            <Link href="/ai-tools/history" className="btn btn-outline">
+              View my past results
+            </Link>
+          </div>
           <div className="ai-tools-grid">
             {TOOLS.map((tool) => (
               <AIToolCard

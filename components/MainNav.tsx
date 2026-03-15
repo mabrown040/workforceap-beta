@@ -136,10 +136,20 @@ export default function MainNav() {
                   className={`dropdown${activeDropdown === item.label ? ' active' : ''}`}
                 >
                   <span
+                    role="button"
+                    tabIndex={0}
+                    aria-expanded={activeDropdown === item.label}
+                    aria-haspopup="true"
                     className={parentActive ? 'active' : undefined}
                     onClick={() =>
                       setActiveDropdown(activeDropdown === item.label ? null : item.label)
                     }
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setActiveDropdown(activeDropdown === item.label ? null : item.label);
+                      }
+                    }}
                   >
                     {item.label}
                   </span>

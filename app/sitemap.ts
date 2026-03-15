@@ -13,6 +13,8 @@ const routes = [
   '/programs',
   '/salary-guide',
   '/what-we-do',
+  '/signup',
+  '/login',
 ] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {

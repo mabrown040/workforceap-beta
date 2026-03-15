@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { interviewPracticeSchema } from '@/lib/validation/interviewPractice';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
@@ -83,6 +84,7 @@ Include a mix of behavioral (STAR method) and technical questions. Make them spe
     const output = JSON.stringify(questions);
     const summary = `${role} (${experienceLevel})`;
     try {
+      await ensureUserInDb(user);
       await saveAIToolResult(user.id, 'interview_practice', summary, output);
     } catch (saveErr) {
       console.error('Interview practice: failed to save result', saveErr);

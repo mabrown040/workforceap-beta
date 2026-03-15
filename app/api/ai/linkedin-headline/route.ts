@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { linkedinHeadlineSchema } from '@/lib/validation/linkedinHeadline';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
@@ -60,6 +61,7 @@ Generate 3 LinkedIn headline options.`;
     const output = JSON.stringify(headlines.slice(0, 5));
     const summary = `${role} — ${keySkills.slice(0, 40)}${keySkills.length > 40 ? '...' : ''}`;
     try {
+      await ensureUserInDb(user);
       await saveAIToolResult(user.id, 'linkedin_headline', summary, output);
     } catch (saveErr) {
       console.error('LinkedIn headline: failed to save result', saveErr);

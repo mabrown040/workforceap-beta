@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { coverLetterSchema } from '@/lib/validation/coverLetter';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
@@ -59,6 +60,7 @@ Write a tailored cover letter.`;
 
     const summary = `${companyName} — ${jobDescription.slice(0, 60)}${jobDescription.length > 60 ? '...' : ''}`;
     try {
+      await ensureUserInDb(user);
       await saveAIToolResult(user.id, 'cover_letter', summary, output);
     } catch (saveErr) {
       console.error('Cover letter: failed to save result', saveErr);

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { resumeRewriterSchema } from '@/lib/validation/resumeRewriter';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
@@ -71,6 +72,7 @@ Rewrite and improve the resume to better align with this job target. Return the 
     }
 
     try {
+      await ensureUserInDb(user);
       await saveAIToolResult(user.id, 'resume_rewriter', jobTarget, output);
     } catch (saveErr) {
       console.error('Resume rewriter: failed to save result', saveErr);

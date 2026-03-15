@@ -3368,6 +3368,13 @@ body { animation: fadeIn 0.4s ease; }
     max-height: 400px;
     overflow-y: auto;
 }
+.ai-result-saved {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+}
+.ai-result-saved a { color: var(--color-accent); font-weight: 500; }
+.ai-result-saved a:hover { text-decoration: underline; }
 
 .interview-practice-form { margin-top: 1rem; }
 .interview-practice-output {

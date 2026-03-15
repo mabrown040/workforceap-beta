@@ -3276,6 +3276,32 @@ body { animation: fadeIn 0.4s ease; }
     opacity: 0.8;
 }
 
+.resume-rewriter-form { margin-top: 1rem; }
+.resume-rewriter-output {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: var(--color-light);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-gray-200);
+}
+.resume-rewriter-output-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.resume-rewriter-output-header h3 { font-size: 1.1rem; margin: 0; }
+.btn-sm { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+.resume-rewriter-output-content {
+    white-space: pre-wrap;
+    font-family: inherit;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin: 0;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
 /* Benefit cards */
 .benefit-cards {
     display: grid;

@@ -19,7 +19,8 @@ const TOOLS = [
     title: 'Resume Rewriter',
     description: 'Paste your resume and job target. Get AI-improved bullets and phrasing tailored to pass ATS and impress recruiters.',
     timeToComplete: '5–10 min',
-    status: 'coming_soon' as const,
+    status: 'available' as const,
+    href: '/ai-tools/resume-rewriter',
   },
   {
     id: 'interview-practice',
@@ -76,6 +77,7 @@ export default async function AIToolsPage() {
                 description={tool.description}
                 timeToComplete={tool.timeToComplete}
                 status={tool.status}
+                href={'href' in tool ? tool.href : undefined}
               />
             ))}
           </div>

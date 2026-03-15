@@ -58,7 +58,11 @@ Write a tailored cover letter.`;
     if (!output) return NextResponse.json({ error: 'No response from AI' }, { status: 500 });
 
     const summary = `${companyName} — ${jobDescription.slice(0, 60)}${jobDescription.length > 60 ? '...' : ''}`;
-    await saveAIToolResult(user.id, 'cover_letter', summary, output);
+    try {
+      await saveAIToolResult(user.id, 'cover_letter', summary, output);
+    } catch (saveErr) {
+      console.error('Cover letter: failed to save result', saveErr);
+    }
 
     return NextResponse.json({ output });
   } catch (err) {

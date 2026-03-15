@@ -70,7 +70,11 @@ Rewrite and improve the resume to better align with this job target. Return the 
       return NextResponse.json({ error: 'No response from AI' }, { status: 500 });
     }
 
-    await saveAIToolResult(user.id, 'resume_rewriter', jobTarget, output);
+    try {
+      await saveAIToolResult(user.id, 'resume_rewriter', jobTarget, output);
+    } catch (saveErr) {
+      console.error('Resume rewriter: failed to save result', saveErr);
+    }
 
     return NextResponse.json({ output });
   } catch (err) {

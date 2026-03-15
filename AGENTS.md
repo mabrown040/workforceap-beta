@@ -38,3 +38,25 @@ npm run build    # TypeScript type-checking + Next.js production build
 ```
 
 There are no configured linters or test frameworks. For validation, run `npm run build` which will catch TypeScript and compilation errors.
+
+### Local PostgreSQL requirement
+
+The `npm run build` script runs Prisma migrations, generates the client, and seeds the database before building. A running PostgreSQL instance is required. The update script handles starting PostgreSQL and running migrations automatically.
+
+If PostgreSQL is not yet installed, install it via `sudo apt-get install -y postgresql postgresql-client`, start with `sudo pg_ctlcluster 16 main start`, and create the dev database:
+
+```bash
+sudo -u postgres psql -c "CREATE USER workforceap WITH PASSWORD 'devpassword' CREATEDB;"
+sudo -u postgres psql -c "CREATE DATABASE workforceap OWNER workforceap;"
+```
+
+The `.env` file should contain:
+```
+DATABASE_URL=postgresql://workforceap:devpassword@localhost:5432/workforceap
+POSTGRES_PRISMA_URL=postgresql://workforceap:devpassword@localhost:5432/workforceap
+POSTGRES_URL_NON_POOLING=postgresql://workforceap:devpassword@localhost:5432/workforceap
+```
+
+### Members portal (optional external services)
+
+Public marketing pages (/, /apply, /programs, etc.) work without any external services. The members portal (/dashboard, /admin, /ai-tools, etc.) requires Supabase Auth credentials (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`). Without them, the middleware gracefully redirects protected routes to `/login`. Groq, Upstash Redis, and Resend are optional and degrade gracefully.

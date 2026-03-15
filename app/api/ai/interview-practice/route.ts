@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server';
-import OpenAI from 'openai';
 import { getUser } from '@/lib/auth/server';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { interviewPracticeSchema } from '@/lib/validation/interviewPractice';
-
-const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
+import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 
 const LEVEL_PROMPTS = {
   entry: 'entry-level / junior (0-2 years experience)',
@@ -18,7 +16,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  if (!openai) {
+  if (!isAIConfigured()) {
     return NextResponse.json({ error: 'AI service not configured' }, { status: 503 });
   }
 
@@ -60,17 +58,13 @@ Return ONLY the JSON array, no other text.`;
 Include a mix of behavioral (STAR method) and technical questions. Make them specific to this role.`;
 
   try {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
+    const raw = await chatCompletion(
+      [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
-      max_tokens: 2500,
-      temperature: 0.8,
-    });
-
-    const raw = completion.choices[0]?.message?.content?.trim();
+      { maxTokens: 2500, temperature: 0.8 }
+    );
     if (!raw) {
       return NextResponse.json({ error: 'No response from AI' }, { status: 500 });
     }

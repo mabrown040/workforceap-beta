@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server';
-import OpenAI from 'openai';
 import { getUser } from '@/lib/auth/server';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { resumeRewriterSchema } from '@/lib/validation/resumeRewriter';
-
-const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
+import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -12,7 +10,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  if (!openai) {
+  if (!isAIConfigured()) {
     return NextResponse.json({ error: 'AI service not configured' }, { status: 503 });
   }
 
@@ -59,17 +57,14 @@ ${resume}
 Rewrite and improve the resume to better align with this job target. Return the full improved resume.`;
 
   try {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
+    const output = await chatCompletion(
+      [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
-      max_tokens: 4000,
-      temperature: 0.7,
-    });
+      { maxTokens: 4000, temperature: 0.7 }
+    );
 
-    const output = completion.choices[0]?.message?.content?.trim();
     if (!output) {
       return NextResponse.json({ error: 'No response from AI' }, { status: 500 });
     }

@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { createSupabaseBrowserClient } from '@/lib/auth/client';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -15,21 +14,31 @@ export default function ForgotPasswordPage() {
     setStatus('loading');
 
     try {
-      const supabase = createSupabaseBrowserClient();
-      const { error: authError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/login?reset=success`,
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
       });
 
-      if (authError) {
+      const data = await res.json();
+
+      if (!res.ok) {
         setStatus('error');
-        setError(authError.message);
+        setError(data.error ?? 'Something went wrong. Please try again.');
         return;
       }
 
       setStatus('success');
-    } catch {
+    } catch (err) {
       setStatus('error');
-      setError('Something went wrong. Please try again.');
+      const msg = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+      if (msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('network')) {
+        setError(
+          'Network error. Check your connection and try again. If this persists, ensure your site URL is in Supabase Auth → URL Configuration → Redirect URLs.'
+        );
+      } else {
+        setError(msg);
+      }
     }
   };
 

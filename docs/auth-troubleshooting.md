@@ -1,10 +1,24 @@
 # Auth Troubleshooting
 
+## Can't sign in (phone or web)
+
+Login and logout now use **server-side API routes** so cookies are set consistently:
+
+- **Login** – `POST /api/auth/login` (email, password) – sets session cookies in the response
+- **Logout** – `POST /api/auth/logout` – clears session cookies
+
+If sign-in still fails:
+
+1. **Stale session** – Try signing out first (or open an incognito/private window), then sign in again.
+2. **Email confirmation** – If Supabase has "Confirm email" enabled, users must click the verification link before they can sign in.
+3. **Wrong credentials** – Check the error message; "Invalid login credentials" means email or password is incorrect.
+4. **Redirect URLs** – In Supabase → Authentication → URL Configuration, add your site URLs to **Redirect URLs**.
+
 ## Password reset: "Failed to fetch"
 
-Password reset now uses a server-side API route (`/api/auth/forgot-password`) to avoid client-side fetch issues. If you still see errors:
+Password reset uses `/api/auth/forgot-password`. If you still see errors:
 
-1. **Redirect URLs** – In Supabase Dashboard → Authentication → URL Configuration, add your site URLs to **Redirect URLs** (e.g. `https://yoursite.com/login`, `https://yoursite.vercel.app/login`).
+1. **Redirect URLs** – Add your site URLs to Supabase Auth → URL Configuration → Redirect URLs.
 2. **Email provider** – Ensure Supabase Auth email is configured (SMTP or built-in).
 
 ## User in Prisma `users` but not in Supabase Auth
@@ -21,3 +35,13 @@ Users created via the member signup flow are added to **both**. If a user exists
 1. **Create in Supabase Auth** – In Supabase Dashboard → Authentication → Users, add the user with the same email. The `id` will differ unless you use the Admin API to create with a specific UUID matching Prisma.
 2. **Have them sign up again** – Use the normal signup flow at `/signup`; this creates the user in both systems.
 3. **Admin sync** – For bulk sync, use Supabase Admin API `createUser()` and ensure the returned `id` matches the Prisma `users.id` if you need to link them.
+
+## QA checklist
+
+- [ ] Sign up (new user) → verify email → sign in
+- [ ] Sign in with correct credentials (desktop)
+- [ ] Sign in with correct credentials (mobile)
+- [ ] Sign out → verify redirect to home, protected routes redirect to login
+- [ ] Forgot password → receive email → reset → sign in
+- [ ] Stale session: sign out first, then sign in
+- [ ] Incognito/private: sign in works

@@ -81,6 +81,9 @@ export default async function DashboardPage() {
               <Link href="/resources" className="btn btn-primary" style={{ padding: '1rem', textAlign: 'center' }}>
                 View resources
               </Link>
+              <Link href="/career-brief" className="btn btn-primary" style={{ padding: '1rem', textAlign: 'center' }}>
+                Weekly Career Brief
+              </Link>
               {profile && (
                 <div style={{ background: 'var(--color-light)', padding: '1.5rem', borderRadius: 'var(--radius-md)' }}>
                   <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>Profile</h3>

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
 import TopBanner from '@/components/TopBanner';
 import MainNav from '@/components/MainNav';
 import ScrollAnimations from '@/components/ScrollAnimations';
@@ -63,6 +64,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <MainNav />
         <main id="main-content">{children}</main>
         <ScrollAnimations />
+        <Analytics />
       </body>
     </html>
   );

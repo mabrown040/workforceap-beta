@@ -71,60 +71,60 @@ export default function ApplyPage() {
         <div className="page-hero-content">
           <h1>Start Your Career Today</h1>
           <p>Start with a WorkforceAP counselor to explore upcoming cohorts and career pathways.</p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', marginTop: '1.5rem' }}>
+          <div className="hero-badges">
             {['No experience required', 'Flexible learning options', 'We respond within 24 hours', 'Full job placement assistance'].map((t) => (
-              <span key={t} style={{ background: 'rgba(255,255,255,.15)', padding: '.5rem 1rem', borderRadius: '50px', fontSize: '.9rem' }}>&#10003; {t}</span>
+              <span key={t} className="hero-badge-item">&#10003; {t}</span>
             ))}
           </div>
-          <p style={{ marginTop: '1.5rem', fontSize: '.95rem', opacity: .9 }}>
-            Questions? Call us: <a href="tel:5127771808" style={{ color: '#a47f38', fontWeight: 700 }}>(512) 777-1808</a>
+          <p className="hero-cta-note">
+            Questions? Call us: <a href="tel:5127771808">(512) 777-1808</a>
           </p>
         </div>
       </section>
 
       <section className="content-section">
         <div className="container">
-          <div style={{ background: '#a47f38', color: 'white', padding: '1rem 1.5rem', borderRadius: '8px', textAlign: 'center', marginBottom: '2.5rem', fontWeight: 600 }}>
+          <div className="apply-alert">
             🔥 First Cohort Now Forming &mdash; Seats are limited. Apply today to hold your spot.
           </div>
 
           <div className="two-col">
             <div className="col">
               <h2>Who Can Apply?</h2>
-              <ul style={{ listStyle: 'none', padding: 0, marginTop: '1rem' }}>
+              <ul className="eligibility-list">
                 {eligibility.map((item, i) => (
-                  <li key={i} style={{ padding: '.75rem 0', borderBottom: i < eligibility.length - 1 ? '1px solid #f0f0f0' : 'none', display: 'flex', gap: '.75rem' }}>
-                    <span style={{ color: '#4a9b4f', fontWeight: 700, fontSize: '1.1rem' }}>&#10003;</span> {item}
+                  <li key={i} className="eligibility-item">
+                    <span className="check">&#10003;</span> {item}
                   </li>
                 ))}
               </ul>
-              <div style={{ background: '#fff3f5', borderLeft: '4px solid #ad2c4d', padding: '1.25rem', borderRadius: '0 8px 8px 0', marginTop: '2rem' }}>
+              <div className="form-note-box">
                 <strong>What happens next</strong>
-                <p style={{ color: '#555', fontSize: '.9rem', marginTop: '.5rem' }}>After you apply, a counselor will review your goals, walk through the best-fit program options, and help you prepare for the next available cohort.</p>
+                <p>After you apply, a counselor will review your goals, walk through the best-fit program options, and help you prepare for the next available cohort.</p>
               </div>
             </div>
 
             <div className="col">
               <form className="apply-form" action="https://formspree.io/f/xpwzkyjo" method="POST">
-                <h3 style={{ marginBottom: '1.5rem', fontSize: '1.2rem' }}>Reach Out to Get Started</h3>
-                <p style={{ color: '#666', fontSize: '.9rem', marginBottom: '1.5rem' }}>Fill out the form below and a counselor will contact you within 24–48 hours to walk you through next steps.</p>
+                <h3 className="form-section-title">Reach Out to Get Started</h3>
+                <p className="form-section-desc">Fill out the form below and a counselor will contact you within 24–48 hours to walk you through next steps.</p>
 
                 <ApplyFormStatusBar />
 
-                <fieldset id="section-personal" style={{ border: 'none', padding: 0, marginBottom: '1.5rem' }}>
-                  <legend style={{ fontWeight: 700, fontSize: '.9rem', textTransform: 'uppercase', letterSpacing: '.05em', color: '#ad2c4d', marginBottom: '1rem' }}>Personal Information</legend>
-                  <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <fieldset id="section-personal" className="apply-fieldset">
+                  <legend className="form-legend">Personal Information</legend>
+                  <div className="form-row">
                     <div className="form-group"><label>First Name *</label><input type="text" name="first_name" required /></div>
                     <div className="form-group"><label>Last Name *</label><input type="text" name="last_name" required /></div>
                   </div>
-                  <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div className="form-row">
                     <div className="form-group"><label>Phone Number *</label><input type="tel" name="phone" required /></div>
                     <div className="form-group"><label>Email Address *</label><input type="email" name="email" required /></div>
                   </div>
                 </fieldset>
 
-                <fieldset id="section-location" style={{ border: 'none', padding: 0, marginBottom: '1.5rem' }}>
-                  <legend style={{ fontWeight: 700, fontSize: '.9rem', textTransform: 'uppercase', letterSpacing: '.05em', color: '#ad2c4d', marginBottom: '1rem' }}>Location</legend>
+                <fieldset id="section-location" className="apply-fieldset">
+                  <legend className="form-legend">Location</legend>
                   <div className="form-group">
                     <label>Do you live in Travis County or Austin? *</label>
                     <div className="form-radio-group">
@@ -135,8 +135,8 @@ export default function ApplyPage() {
                   <div className="form-group"><label>If no — what city, state, and county do you live in?</label><input type="text" name="location_other" /></div>
                 </fieldset>
 
-                <fieldset id="section-employment" style={{ border: 'none', padding: 0, marginBottom: '1.5rem' }}>
-                  <legend style={{ fontWeight: 700, fontSize: '.9rem', textTransform: 'uppercase', letterSpacing: '.05em', color: '#ad2c4d', marginBottom: '1rem' }}>Employment Status</legend>
+                <fieldset id="section-employment" className="apply-fieldset">
+                  <legend className="form-legend">Employment Status</legend>
                   <div className="form-group">
                     <label>Are you looking for training services to help with skills for a job? *</label>
                     <div className="form-radio-group">
@@ -151,15 +151,15 @@ export default function ApplyPage() {
                       <label ><input type="radio" name="unemployed" value="no" /> No</label>
                     </div>
                   </div>
-                  <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div className="form-row">
                     <div className="form-group"><label>Current Occupation</label><input type="text" name="occupation" /></div>
                     <div className="form-group"><label>Years of Experience</label><input type="text" name="experience" /></div>
                   </div>
                   <div className="form-group"><label>Company Laid Off From (if applicable)</label><input type="text" name="laid_off_from" /></div>
                 </fieldset>
 
-                <fieldset id="section-income" style={{ border: 'none', padding: 0, marginBottom: '1.5rem' }}>
-                  <legend style={{ fontWeight: 700, fontSize: '.9rem', textTransform: 'uppercase', letterSpacing: '.05em', color: '#ad2c4d', marginBottom: '1rem' }}>Income &amp; Benefits</legend>
+                <fieldset id="section-income" className="apply-fieldset">
+                  <legend className="form-legend">Income &amp; Benefits</legend>
                   <div className="form-group">
                     <label>Are you eligible for TANF or Food Stamps? *</label>
                     <div className="form-radio-group">
@@ -192,8 +192,8 @@ export default function ApplyPage() {
                   <div className="form-group"><label>What is your yearly household income? *</label><input type="text" name="income" placeholder="e.g. $35,000" required /></div>
                 </fieldset>
 
-                <fieldset id="section-program" style={{ border: 'none', padding: 0, marginBottom: '1.5rem' }}>
-                  <legend style={{ fontWeight: 700, fontSize: '.9rem', textTransform: 'uppercase', letterSpacing: '.05em', color: '#ad2c4d', marginBottom: '1rem' }}>Program Interest</legend>
+                <fieldset id="section-program" className="apply-fieldset">
+                  <legend className="form-legend">Program Interest</legend>
                   <div className="form-group">
                     <label>What class are you most interested in? *</label>
                     <select name="program" required>
@@ -212,11 +212,11 @@ export default function ApplyPage() {
                   </div>
                 </fieldset>
 
-                <fieldset id="section-support" style={{ border: 'none', padding: 0, marginBottom: '1.5rem' }}>
-                  <legend style={{ fontWeight: 700, fontSize: '.9rem', textTransform: 'uppercase', letterSpacing: '.05em', color: '#ad2c4d', marginBottom: '1rem' }}>Additional Support (Check all that apply)</legend>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '.5rem' }}>
+                <fieldset id="section-support" className="apply-fieldset">
+                  <legend className="form-legend">Additional Support (Check all that apply)</legend>
+                  <div className="support-checkboxes">
                     {supportOptions.map((opt) => (
-                      <label key={opt.value} style={{ display: 'flex', alignItems: 'center', gap: '.5rem', fontWeight: 400, fontSize: '.9rem' }}>
+                      <label key={opt.value}>
                         <input type="checkbox" name="support" value={opt.value} /> {opt.label}
                       </label>
                     ))}
@@ -224,8 +224,8 @@ export default function ApplyPage() {
                 </fieldset>
 
                 <div id="section-submit" className="form-group"><label>Anything else you&rsquo;d like us to know?</label><textarea name="message" rows={4} /></div>
-                <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '1rem', fontSize: '1.05rem' }}>Submit Application</button>
-                <p style={{ textAlign: 'center', marginTop: '1rem', color: '#888', fontSize: '.85rem' }}>We review every application and respond within 24–48 hours. Your information is kept private.</p>
+                <button type="submit" className="btn btn-primary btn-submit-full">Submit Application</button>
+                <p className="form-disclaimer">We review every application and respond within 24–48 hours. Your information is kept private.</p>
               </form>
             </div>
           </div>

@@ -239,11 +239,11 @@ export default function MemberSignupForm() {
             />
             <span>
               I agree to the{' '}
-              <Link href="/" target="_blank" rel="noopener noreferrer">
+              <Link href="/contact" target="_blank" rel="noopener noreferrer">
                 Terms of Service
               </Link>{' '}
               and{' '}
-              <Link href="/" target="_blank" rel="noopener noreferrer">
+              <Link href="/contact" target="_blank" rel="noopener noreferrer">
                 Privacy Policy
               </Link>{' '}
               *

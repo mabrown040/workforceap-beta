@@ -2,7 +2,12 @@ import Groq from 'groq-sdk';
 
 const groq = process.env.GROQ_API_KEY ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null;
 
-const MODELS = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'] as const;
+const MODELS = [
+  'llama-3.3-70b-versatile',
+  'meta-llama/llama-4-scout-17b-16e-instruct',
+  'qwen/qwen3-32b',
+  'llama-3.1-8b-instant',
+] as const;
 
 export async function chatCompletion(
   messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,

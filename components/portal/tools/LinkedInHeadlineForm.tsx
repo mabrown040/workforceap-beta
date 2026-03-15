@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { trackToolLaunch } from '@/lib/analytics/events';
 
 export default function LinkedInHeadlineForm() {
@@ -100,6 +101,9 @@ export default function LinkedInHeadlineForm() {
               </li>
             ))}
           </ul>
+          <p className="ai-result-saved">
+            Saved to your history. <Link href="/ai-tools/history">View all results</Link>
+          </p>
         </div>
       )}
     </form>

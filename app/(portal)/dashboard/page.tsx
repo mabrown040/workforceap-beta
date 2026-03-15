@@ -7,6 +7,8 @@ import { prisma } from '@/lib/db/prisma';
 import Footer from '@/components/Footer';
 import { StatusCard } from '@/components/portal/StatusCard';
 import { SignOutButton } from '@/components/portal/SignOutButton';
+import StartHereCard from '@/components/portal/StartHereCard';
+import ReadinessProgress from '@/components/portal/ReadinessProgress';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Member dashboard',
@@ -22,11 +24,11 @@ export default async function DashboardPage() {
     where: { id: user.id },
     include: {
       profile: true,
-      applications: { orderBy: { createdAt: 'desc' }, take: 1 },
+      applications: { orderBy: { createdAt: 'desc' } },
     },
   });
 
-  const application = dbUser?.applications[0];
+  const application = dbUser?.applications?.[0];
   const profile = dbUser?.profile;
 
   return (
@@ -44,6 +46,12 @@ export default async function DashboardPage() {
       <section className="content-section">
         <div className="container">
           <div className="dashboard-grid" style={{ display: 'grid', gap: '2rem', maxWidth: '900px' }}>
+            <StartHereCard />
+            <ReadinessProgress
+              profileComplete={!!profile?.address || !!profile?.zip}
+              toolsUsed={0}
+              applicationsSubmitted={dbUser?.applications?.length ?? 0}
+            />
             {application && (
               <StatusCard
                 status={application.status}

@@ -25,11 +25,12 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  profile          Profile?
-  applications     Application[]
-  jobApplications  JobApplication[]
-  userRoles        UserRole[]
-  auditLogs        AuditLog[] @relation("ActorAuditLogs")
+  profile           Profile?
+  applications      Application[]
+  jobApplications   JobApplication[]
+  benefitRequests   BenefitRequest[]
+  userRoles         UserRole[]
+  auditLogs         AuditLog[] @relation("ActorAuditLogs")
 
   @@map("users")
 }
@@ -144,6 +145,28 @@ enum JobApplicationStatus {
   INTERVIEWING
   OFFER
   REJECTED
+}
+
+model BenefitRequest {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  benefit   String   // linkedin_premium, coursera
+  status    BenefitRequestStatus @default(PENDING)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, benefit])
+  @@index([userId])
+  @@index([status])
+  @@map("benefit_requests")
+}
+
+enum BenefitRequestStatus {
+  PENDING
+  APPROVED
+  DENIED
 }
 
 model AuditLog {

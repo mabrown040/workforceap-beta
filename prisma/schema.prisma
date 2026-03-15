@@ -25,12 +25,13 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  profile           Profile?
-  applications      Application[]
-  jobApplications   JobApplication[]
-  benefitRequests   BenefitRequest[]
-  userRoles         UserRole[]
-  auditLogs         AuditLog[] @relation("ActorAuditLogs")
+  profile            Profile?
+  applications       Application[]
+  jobApplications    JobApplication[]
+  benefitRequests    BenefitRequest[]
+  learningProgress   LearningProgress[]
+  userRoles          UserRole[]
+  auditLogs          AuditLog[] @relation("ActorAuditLogs")
 
   @@map("users")
 }
@@ -167,6 +168,22 @@ enum BenefitRequestStatus {
   PENDING
   APPROVED
   DENIED
+}
+
+model LearningProgress {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  pathwayId  String   @map("pathway_id")
+  completed  Boolean  @default(false)
+  progress   Int      @default(0) // 0-100
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, pathwayId])
+  @@index([userId])
+  @@map("learning_progress")
 }
 
 model AuditLog {

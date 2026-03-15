@@ -14,7 +14,7 @@ const CTAS = [
     icon: '🎤',
   },
   {
-    href: '/resources',
+    href: '/learning',
     label: 'Start Learning Path',
     description: 'Explore courses and certifications',
     icon: '📚',

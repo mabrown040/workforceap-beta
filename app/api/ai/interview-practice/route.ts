@@ -82,7 +82,11 @@ Include a mix of behavioral (STAR method) and technical questions. Make them spe
 
     const output = JSON.stringify(questions);
     const summary = `${role} (${experienceLevel})`;
-    await saveAIToolResult(user.id, 'interview_practice', summary, output);
+    try {
+      await saveAIToolResult(user.id, 'interview_practice', summary, output);
+    } catch (saveErr) {
+      console.error('Interview practice: failed to save result', saveErr);
+    }
 
     return NextResponse.json({ questions });
   } catch (err) {

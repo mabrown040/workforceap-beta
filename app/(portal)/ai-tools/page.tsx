@@ -27,7 +27,8 @@ const TOOLS = [
     title: 'Interview Practice Generator',
     description: 'Generate role-specific interview questions with answer frameworks. Practice behavioral and technical questions.',
     timeToComplete: '10–15 min',
-    status: 'coming_soon' as const,
+    status: 'available' as const,
+    href: '/ai-tools/interview-practice',
   },
   {
     id: 'cover-letter',

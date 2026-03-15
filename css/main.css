@@ -3302,6 +3302,57 @@ body { animation: fadeIn 0.4s ease; }
     overflow-y: auto;
 }
 
+.interview-practice-form { margin-top: 1rem; }
+.interview-practice-output {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: var(--color-light);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-gray-200);
+}
+.interview-practice-output-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.interview-practice-output-header h3 { font-size: 1.1rem; margin: 0; }
+.interview-practice-list {
+    list-style: decimal;
+    padding-left: 1.5rem;
+    margin: 0;
+}
+.interview-practice-item {
+    margin-bottom: 1.25rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--color-gray-200);
+}
+.interview-practice-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.interview-practice-question {
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+}
+.interview-practice-type {
+    font-size: 0.75rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-full);
+    margin-bottom: 0.5rem;
+    display: inline-block;
+}
+.interview-practice-type.type-behavioral { background: #dbeafe; color: #1e40af; }
+.interview-practice-type.type-technical { background: #d1fae5; color: #065f46; }
+.interview-practice-tip {
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+    margin: 0.5rem 0 0;
+}
+.interview-practice-star {
+    font-size: 0.85rem;
+    color: var(--color-accent);
+    margin: 0.35rem 0 0;
+    font-style: italic;
+}
+
 /* Benefit cards */
 .benefit-cards {
     display: grid;

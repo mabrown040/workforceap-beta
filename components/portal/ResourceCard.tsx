@@ -1,6 +1,7 @@
 'use client';
 
 import type { MemberResource } from '@/lib/content/memberResources';
+import { trackResourceOpen } from '@/lib/analytics/events';
 
 type ResourceCardProps = {
   resource: MemberResource;
@@ -12,6 +13,7 @@ export default function ResourceCard({ resource, onOpen }: ResourceCardProps) {
   const href = resource.url;
 
   const handleClick = () => {
+    trackResourceOpen(resource.id, resource.title);
     onOpen?.(resource);
   };
 

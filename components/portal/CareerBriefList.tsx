@@ -1,5 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import type { CareerBriefMeta } from '@/lib/content/careerBriefs';
+import { trackBriefOpen } from '@/lib/analytics/events';
 
 type CareerBriefListProps = {
   briefs: CareerBriefMeta[];
@@ -18,7 +21,11 @@ export default function CareerBriefList({ briefs }: CareerBriefListProps) {
     <ul className="career-brief-list">
       {briefs.map((brief) => (
         <li key={brief.id}>
-          <Link href={`/career-brief/${brief.slug}`} className="career-brief-item">
+          <Link
+            href={`/career-brief/${brief.slug}`}
+            className="career-brief-item"
+            onClick={() => trackBriefOpen(brief.id, brief.title)}
+          >
             <span className="career-brief-date">{brief.date}</span>
             <span className="career-brief-title">{brief.title}</span>
             <span className="career-brief-arrow" aria-hidden>→</span>

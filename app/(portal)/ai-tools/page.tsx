@@ -71,6 +71,7 @@ export default async function AIToolsPage() {
             {TOOLS.map((tool) => (
               <AIToolCard
                 key={tool.id}
+                id={tool.id}
                 title={tool.title}
                 description={tool.description}
                 timeToComplete={tool.timeToComplete}

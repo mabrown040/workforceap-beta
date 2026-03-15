@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import { trackLicenseRequest } from '@/lib/analytics/events';
 
 type BenefitStatus = 'not_requested' | 'pending' | 'active';
 
@@ -25,6 +28,10 @@ export default function BenefitAccessCard({ name, status, description }: Benefit
       : 'https://coursera.org'
     : '/help?request=' + encodeURIComponent(name);
 
+  const handleRequestClick = () => {
+    if (!isActive) trackLicenseRequest(name);
+  };
+
   return (
     <div className="benefit-card">
       <div className="benefit-card-header">
@@ -37,6 +44,7 @@ export default function BenefitAccessCard({ name, status, description }: Benefit
         className={`btn ${isActive ? 'btn-primary' : 'btn-outline'} benefit-card-cta`}
         target={isActive ? '_blank' : undefined}
         rel={isActive ? 'noopener noreferrer' : undefined}
+        onClick={handleRequestClick}
       >
         {ctaLabel}
       </Link>

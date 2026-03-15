@@ -26,6 +26,7 @@ export default async function DashboardPage() {
     include: {
       profile: true,
       applications: { orderBy: { createdAt: 'desc' } },
+      jobApplications: true,
     },
   });
 
@@ -51,7 +52,7 @@ export default async function DashboardPage() {
             <ReadinessProgress
               profileComplete={!!profile?.address || !!profile?.zip}
               toolsUsed={0}
-              applicationsSubmitted={dbUser?.applications?.length ?? 0}
+              applicationsSubmitted={dbUser?.jobApplications?.length ?? dbUser?.applications?.length ?? 0}
             />
             {application && (
               <StatusCard
@@ -83,6 +84,9 @@ export default async function DashboardPage() {
               </Link>
               <Link href="/career-brief" className="btn btn-primary" style={{ padding: '1rem', textAlign: 'center' }}>
                 Weekly Career Brief
+              </Link>
+              <Link href="/applications" className="btn btn-primary" style={{ padding: '1rem', textAlign: 'center' }}>
+                Job Applications
               </Link>
               {profile && (
                 <div style={{ background: 'var(--color-light)', padding: '1.5rem', borderRadius: 'var(--radius-md)' }}>

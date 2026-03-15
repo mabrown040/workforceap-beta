@@ -3353,6 +3353,53 @@ body { animation: fadeIn 0.4s ease; }
     font-style: italic;
 }
 
+/* Application Tracker */
+.application-tracker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+.application-tracker-form {
+    background: var(--color-light);
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+}
+.application-tracker-empty {
+    padding: 2rem;
+    text-align: center;
+    background: var(--color-light);
+    border-radius: var(--radius-md);
+    color: var(--color-gray-600);
+}
+.application-tracker-table-wrap { overflow-x: auto; margin-bottom: 1rem; }
+.application-tracker-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.application-tracker-table th,
+.application-tracker-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-gray-200);
+}
+.application-tracker-table th {
+    font-weight: 600;
+    color: var(--color-gray-600);
+    font-size: 0.85rem;
+}
+.application-status-select {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.85rem;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-sm);
+}
+.application-tracker-summary {
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+}
+
 /* Benefit cards */
 .benefit-cards {
     display: grid;

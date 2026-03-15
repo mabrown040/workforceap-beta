@@ -2,7 +2,7 @@ import Groq from 'groq-sdk';
 
 const groq = process.env.GROQ_API_KEY ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null;
 
-const DEFAULT_MODEL = 'llama-3.1-70b-versatile';
+const MODELS = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'] as const;
 
 export async function chatCompletion(
   messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
@@ -10,14 +10,30 @@ export async function chatCompletion(
 ) {
   if (!groq) return null;
 
-  const completion = await groq.chat.completions.create({
-    model: process.env.GROQ_MODEL ?? DEFAULT_MODEL,
-    messages,
-    max_tokens: options?.maxTokens ?? 4000,
-    temperature: options?.temperature ?? 0.7,
-  });
+  const maxTokens = Math.min(options?.maxTokens ?? 4000, 8192);
+  const temperature = options?.temperature ?? 0.7;
+  const modelOverride = process.env.GROQ_MODEL;
+  const modelsToTry = modelOverride ? [modelOverride, ...MODELS] : MODELS;
+  let lastError: Error | null = null;
 
-  return completion.choices[0]?.message?.content?.trim() ?? null;
+  for (const model of modelsToTry) {
+    try {
+      const completion = await groq.chat.completions.create({
+        model,
+        messages,
+        max_tokens: maxTokens,
+        temperature,
+      });
+      const output = completion.choices[0]?.message?.content?.trim();
+      if (output) return output;
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+      continue;
+    }
+  }
+
+  if (lastError) throw lastError;
+  return null;
 }
 
 export function isAIConfigured() {

@@ -3229,6 +3229,53 @@ body { animation: fadeIn 0.4s ease; }
     margin-right: auto;
 }
 
+/* AI Tools */
+.ai-tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+.ai-tool-card {
+    background: var(--color-light);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    transition: all var(--transition-fast);
+}
+.ai-tool-card:hover {
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-md);
+}
+.ai-tool-title {
+    font-size: 1.15rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+.ai-tool-desc {
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+}
+.ai-tool-time {
+    font-size: 0.8rem;
+    color: var(--color-gray-500);
+    margin-bottom: 1rem;
+}
+.ai-tool-time-label {
+    font-weight: 600;
+}
+.ai-tool-cta {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    text-align: center;
+}
+.ai-tool-cta[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
 .resource-back-link {
     display: inline-block;
     font-size: 0.9rem;

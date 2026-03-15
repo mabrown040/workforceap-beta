@@ -61,6 +61,9 @@ export default async function DashboardPage() {
             )}
 
             <div className="dashboard-actions" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+              <Link href="/ai-tools" className="btn btn-primary" style={{ padding: '1rem', textAlign: 'center' }}>
+                AI Career Tools
+              </Link>
               <Link href="/resources" className="btn btn-primary" style={{ padding: '1rem', textAlign: 'center' }}>
                 View resources
               </Link>

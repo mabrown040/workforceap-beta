@@ -47,7 +47,21 @@ Guidelines:
 - Keep the member's actual experience accurate—do not invent roles or achievements
 - Use clear, professional language
 - Format as plain text with clear section headers
-- Output the improved resume in full, not just bullet points`;
+- Output the improved resume in full, not just bullet points
+
+Your response must have two parts, in this exact order:
+1. IMPROVED RESUME: The full improved resume with section headers (Experience, Education, etc.)
+2. WHAT CHANGED AND WHY: A brief section (3–6 bullet points) explaining the key improvements and why each helps—e.g. "Added 'reduced costs by 15%' to quantify impact—recruiters look for measurable results." This helps members learn, not just copy.
+
+Use this format:
+---
+[Improved resume content]
+
+---
+WHAT CHANGED AND WHY
+• [bullet 1]
+• [bullet 2]
+...`;
 
   const userPrompt = `Job target: ${jobTarget}
 
@@ -56,7 +70,7 @@ Current resume content:
 ${resume}
 ---
 
-Rewrite and improve the resume to better align with this job target. Return the full improved resume.`;
+Rewrite and improve the resume to better align with this job target. Include both the improved resume and the "What changed and why" section.`;
 
   try {
     const output = await chatCompletion(

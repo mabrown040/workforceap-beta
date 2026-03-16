@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { trackToolLaunch } from '@/lib/analytics/events';
 
 type AIToolCardProps = {
@@ -17,7 +18,7 @@ export default function AIToolCard({
   description,
   timeToComplete,
   status,
-  href = '#',
+  href = '/ai-tools',
 }: AIToolCardProps) {
   const isAvailable = status === 'available';
 
@@ -27,6 +28,20 @@ export default function AIToolCard({
     }
   };
 
+  const cta = isAvailable ? (
+    <Link
+      href={href}
+      className="ai-tool-cta btn btn-primary"
+      onClick={handleClick}
+    >
+      Launch tool
+    </Link>
+  ) : (
+    <span className="ai-tool-cta btn btn-outline" aria-disabled>
+      Coming soon
+    </span>
+  );
+
   return (
     <div className="ai-tool-card">
       <h3 className="ai-tool-title">{title}</h3>
@@ -34,17 +49,7 @@ export default function AIToolCard({
       <p className="ai-tool-time">
         <span className="ai-tool-time-label">Time to complete:</span> {timeToComplete}
       </p>
-      <a
-        href={isAvailable ? href : '#'}
-        className={`ai-tool-cta btn ${isAvailable ? 'btn-primary' : 'btn-outline'}`}
-        aria-disabled={!isAvailable}
-        onClick={(e) => {
-          if (!isAvailable) e.preventDefault();
-          else handleClick();
-        }}
-      >
-        {isAvailable ? 'Launch tool' : 'Coming soon'}
-      </a>
+      {cta}
     </div>
   );
 }

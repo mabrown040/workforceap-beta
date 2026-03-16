@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { trackApplicationTrackerOpen } from '@/lib/analytics/events';
 
 type JobApplication = {
@@ -33,6 +33,7 @@ export default function ApplicationTrackerTable() {
   const [status, setStatus] = useState('SAVED');
   const [submitting, setSubmitting] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     trackApplicationTrackerOpen();
@@ -98,14 +99,20 @@ export default function ApplicationTrackerTable() {
         <button
           type="button"
           className="btn btn-primary"
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            const next = !showForm;
+            setShowForm(next);
+            if (next) {
+              setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+            }
+          }}
         >
           {showForm ? 'Cancel' : '+ Add application'}
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleAdd} className="application-tracker-form">
+        <form ref={formRef} onSubmit={handleAdd} className="application-tracker-form">
           <div className="form-row">
             <div className="form-group">
               <label>Company</label>

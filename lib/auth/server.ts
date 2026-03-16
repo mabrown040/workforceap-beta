@@ -23,11 +23,12 @@ export async function createSupabaseServerClient() {
         },
         setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
-          } catch {
-            // Called from Server Component - ignore (middleware handles refresh)
+            cookiesToSet.forEach(({ name, value, options }) => {
+              const opts = options as { path?: string; maxAge?: number; secure?: boolean; sameSite?: 'lax' | 'strict' | 'none'; httpOnly?: boolean } | undefined;
+              cookieStore.set(name, value, opts ?? {});
+            });
+          } catch (err) {
+            console.error('Supabase setAll cookies error:', err);
           }
         },
       },

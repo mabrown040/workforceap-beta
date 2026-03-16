@@ -4,12 +4,17 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import { getScoreBreakdown } from '@/lib/readiness/score';
+import { trackEvent } from '@/lib/events/track';
 import Footer from '@/components/Footer';
 import { StatusCard } from '@/components/portal/StatusCard';
 import { SignOutButton } from '@/components/portal/SignOutButton';
 import StartHereCard from '@/components/portal/StartHereCard';
 import JobReadinessScore from '@/components/portal/JobReadinessScore';
 import BenefitAccessCard from '@/components/portal/BenefitAccessCard';
+import GoalsModule from '@/components/portal/GoalsModule';
+import ResourceProgressSummary from '@/components/portal/ResourceProgressSummary';
+import WeeklyRecapPreview from '@/components/portal/WeeklyRecapPreview';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Member dashboard',
@@ -51,30 +56,28 @@ export default async function DashboardPage() {
     dbUser?.applications?.length ??
     0;
 
-  const toolTypes = new Set(dbUser?.aiToolResults?.map((r) => r.toolType) ?? []);
-  const appCount = applicationsSubmitted;
+  const [scoreBreakdown, resourceProgress] = await Promise.all([
+    getScoreBreakdown(user.id),
+    prisma.resourceProgress.findMany({ where: { userId: user.id } }),
+  ]);
+
   const readinessScore = Math.min(100,
-    (toolTypes.has('resume_rewriter') ? 25 : 0) +
-    (toolTypes.has('job_match_scorer') ? 20 : 0) +
-    (toolTypes.has('interview_practice') ? 20 : 0) +
-    (toolTypes.has('cover_letter') ? 15 : 0) +
-    (toolTypes.has('linkedin_headline') ? 10 : 0) +
-    Math.min(appCount * 10, 10)
+    Object.values(scoreBreakdown).reduce((sum, b) => sum + b.earned, 0)
   );
 
-  const nextAction = !toolTypes.has('resume_rewriter')
+  const nextAction = !scoreBreakdown.buildResume.done
     ? { label: 'Build your resume with the Resume Rewriter', href: '/ai-tools/resume-rewriter' }
-    : !toolTypes.has('job_match_scorer')
-    ? { label: 'Score your resume against a job', href: '/ai-tools/job-match-scorer' }
-    : !toolTypes.has('interview_practice')
+    : !scoreBreakdown.practiceInterview.done
     ? { label: 'Practice interview questions', href: '/ai-tools/interview-practice' }
-    : !toolTypes.has('cover_letter')
-    ? { label: 'Create a cover letter', href: '/ai-tools/cover-letter' }
-    : !toolTypes.has('linkedin_headline')
-    ? { label: 'Optimize your LinkedIn headline', href: '/ai-tools/linkedin-headline' }
-    : appCount === 0
+    : !scoreBreakdown.complete2Resources.done
+    ? { label: 'Complete 2 resources', href: '/resources' }
+    : applicationsSubmitted === 0
     ? { label: 'Log your first application', href: '/ai-tools/application-tracker' }
+    : !scoreBreakdown.setGoals.done
+    ? { label: 'Set your goals', href: '/dashboard' }
     : undefined;
+
+  await trackEvent({ userId: user.id, eventName: 'dashboard_viewed', sourcePage: '/dashboard' });
 
   return (
     <div className="inner-page">
@@ -91,8 +94,11 @@ export default async function DashboardPage() {
       <section className="content-section">
         <div className="container">
           <div className="dashboard-grid" style={{ display: 'grid', gap: '2rem', maxWidth: '900px' }}>
+            <GoalsModule />
             <StartHereCard />
-            <JobReadinessScore score={readinessScore} nextAction={nextAction} />
+            <JobReadinessScore score={readinessScore} nextAction={nextAction} breakdown={scoreBreakdown} />
+            <ResourceProgressSummary progress={resourceProgress} />
+            <WeeklyRecapPreview userId={user.id} />
             {application && (
               <StatusCard
                 status={application.status}

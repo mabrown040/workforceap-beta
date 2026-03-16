@@ -9,6 +9,8 @@ import { getUser } from '@/lib/auth/server';
 import { getMemberResources } from '@/lib/content/memberResources';
 import Footer from '@/components/Footer';
 import { SignOutButton } from '@/components/portal/SignOutButton';
+import ResourceViewTracker from '@/components/portal/ResourceViewTracker';
+import ResourceProgressActions from '@/components/portal/ResourceProgressActions';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -33,6 +35,11 @@ export default async function ResourceDetailPage({ params }: Props) {
   const resource = resources.find((r) => r.id === id);
   if (!resource) notFound();
 
+  const { prisma } = await import('@/lib/db/prisma');
+  const progress = await prisma.resourceProgress.findUnique({
+    where: { userId_resourceId: { userId: user.id, resourceId: id } },
+  });
+
   let content = '';
   if (resource.file) {
     try {
@@ -45,6 +52,7 @@ export default async function ResourceDetailPage({ params }: Props) {
 
   return (
     <div className="inner-page">
+      <ResourceViewTracker resourceId={id} />
       <section className="page-hero">
         <div className="page-hero-content" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
@@ -65,6 +73,10 @@ export default async function ResourceDetailPage({ params }: Props) {
 
       <section className="content-section">
         <div className="container">
+          <ResourceProgressActions
+            resourceId={id}
+            progress={progress ? { completedAt: progress.completedAt, savedAt: progress.savedAt } : null}
+          />
           <article className="resource-content markdown-body">
             <ReactMarkdown>{content}</ReactMarkdown>
           </article>

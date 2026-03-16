@@ -11,6 +11,7 @@ const PORTAL_LINKS = [
   { href: '/learning', label: 'Learning' },
   { href: '/certifications', label: 'Certifications' },
   { href: '/career-brief', label: 'Career Brief' },
+  { href: '/weekly-recap', label: 'Weekly Recap' },
   { href: '/ai-tools/application-tracker', label: 'Applications' },
   { href: '/profile', label: 'Profile' },
 ];

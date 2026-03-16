@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { prisma } from '@/lib/db/prisma';
+import { trackEvent } from '@/lib/events/track';
 import { z } from 'zod';
 
 const createSchema = z.object({
@@ -62,6 +63,7 @@ export async function POST(request: Request) {
         url: url || null,
       },
     });
+    await trackEvent({ userId: user.id, eventName: 'application_added', entityType: 'job_application', entityId: app.id });
     return NextResponse.json({ application: app });
   } catch (err) {
     console.error('[POST /api/member/applications]', err);

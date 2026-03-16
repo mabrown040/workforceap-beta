@@ -1,34 +1,35 @@
 'use client';
 
+import Link from 'next/link';
 import type { MemberResource } from '@/lib/content/memberResources';
 import { trackResourceOpen } from '@/lib/analytics/events';
 
 type ResourceCardProps = {
   resource: MemberResource;
-  onOpen?: (resource: MemberResource) => void;
+  progress?: { completedAt: string | Date | null; savedAt: string | Date | null } | null;
 };
 
-export default function ResourceCard({ resource, onOpen }: ResourceCardProps) {
+export default function ResourceCard({ resource, progress }: ResourceCardProps) {
   const isExternal = resource.url.startsWith('http');
   const href = resource.url;
+  const isCompleted = !!progress?.completedAt;
+  const isSaved = !!progress?.savedAt;
 
   const handleClick = () => {
     trackResourceOpen(resource.id, resource.title);
-    onOpen?.(resource);
   };
 
-  return (
-    <a
-      href={href}
-      target={isExternal ? '_blank' : undefined}
-      rel={isExternal ? 'noopener noreferrer' : undefined}
-      className="resource-card"
-      onClick={handleClick}
-      aria-label={`Open ${resource.title}: ${resource.summary}`}
-    >
+  const content = (
+    <>
       <div className="resource-card-header">
         <span className="resource-card-category">{resource.category}</span>
         <span className="resource-card-type">{resource.type}</span>
+        {(isCompleted || isSaved) && (
+          <span className="resource-card-badges">
+            {isCompleted && <span className="resource-badge completed">Completed</span>}
+            {isSaved && <span className="resource-badge saved">Saved</span>}
+          </span>
+        )}
       </div>
       <h3 className="resource-card-title">{resource.title}</h3>
       <p className="resource-card-summary">{resource.summary}</p>
@@ -44,6 +45,32 @@ export default function ResourceCard({ resource, onOpen }: ResourceCardProps) {
       <span className="resource-card-arrow" aria-hidden>
         →
       </span>
-    </a>
+    </>
+  );
+
+  if (isExternal) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="resource-card"
+        onClick={handleClick}
+        aria-label={`Open ${resource.title}: ${resource.summary}`}
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <Link
+      href={href}
+      className="resource-card"
+      onClick={handleClick}
+      aria-label={`Open ${resource.title}: ${resource.summary}`}
+    >
+      {content}
+    </Link>
   );
 }

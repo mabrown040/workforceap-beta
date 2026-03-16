@@ -5,11 +5,14 @@ import type { MemberResource, ResourceCategory, ResourceStage } from '@/lib/cont
 import ResourceCard from '@/components/portal/ResourceCard';
 import ResourceFilters from '@/components/portal/ResourceFilters';
 
+type ProgressRecord = { completedAt: string | Date | null; savedAt: string | Date | null };
+
 type ResourcesClientProps = {
   resources: MemberResource[];
+  progressByResource?: Record<string, ProgressRecord>;
 };
 
-export default function ResourcesClient({ resources }: ResourcesClientProps) {
+export default function ResourcesClient({ resources, progressByResource = {} }: ResourcesClientProps) {
   const [category, setCategory] = useState<ResourceCategory | ''>('');
   const [stage, setStage] = useState<ResourceStage | ''>('');
 
@@ -40,7 +43,7 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
         <ul className="resource-grid">
           {filtered.map((r) => (
             <li key={r.id}>
-              <ResourceCard resource={r} />
+              <ResourceCard resource={r} progress={progressByResource[r.id]} />
             </li>
           ))}
         </ul>

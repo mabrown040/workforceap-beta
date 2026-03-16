@@ -16,9 +16,9 @@ const createSchema = z.object({
 export async function GET() {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  await ensureUserInDb(user);
 
   try {
+    await ensureUserInDb(user);
     const applications = await prisma.jobApplication.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
@@ -34,7 +34,6 @@ export async function GET() {
 export async function POST(request: Request) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  await ensureUserInDb(user);
 
   let body: unknown;
   try {
@@ -51,6 +50,7 @@ export async function POST(request: Request) {
   const { company, role, status, appliedAt, notes, url } = parsed.data;
 
   try {
+    await ensureUserInDb(user);
     const app = await prisma.jobApplication.create({
       data: {
         userId: user.id,

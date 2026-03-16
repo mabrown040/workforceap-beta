@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
@@ -18,6 +19,7 @@ export async function PATCH(
 ) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  await ensureUserInDb(user);
 
   const { id } = await params;
 
@@ -60,6 +62,7 @@ export async function DELETE(
 ) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  await ensureUserInDb(user);
 
   const { id } = await params;
 

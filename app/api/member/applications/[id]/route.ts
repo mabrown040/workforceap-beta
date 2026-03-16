@@ -8,7 +8,7 @@ const updateSchema = z.object({
   company: z.string().min(1).max(200).optional(),
   role: z.string().min(1).max(200).optional(),
   status: z.enum(['SAVED', 'APPLIED', 'PHONE_SCREEN', 'INTERVIEWING', 'OFFER', 'REJECTED']).optional(),
-  appliedAt: z.string().datetime().optional().nullable(),
+  appliedAt: z.string().optional().nullable(),
   notes: z.string().max(2000).optional().nullable(),
   url: z.string().url().optional().nullable().or(z.literal('')),
 });
@@ -46,7 +46,7 @@ export async function PATCH(
     if (parsed.data.company !== undefined) data.company = parsed.data.company;
     if (parsed.data.role !== undefined) data.role = parsed.data.role;
     if (parsed.data.status !== undefined) data.status = parsed.data.status;
-    if (parsed.data.appliedAt !== undefined) data.appliedAt = parsed.data.appliedAt ? new Date(parsed.data.appliedAt) : null;
+    if (parsed.data.appliedAt !== undefined) data.appliedAt = parsed.data.appliedAt?.trim() ? new Date(parsed.data.appliedAt) : null;
     if (parsed.data.notes !== undefined) data.notes = parsed.data.notes || null;
     if (parsed.data.url !== undefined) data.url = parsed.data.url || null;
 

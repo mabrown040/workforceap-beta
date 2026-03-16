@@ -15,6 +15,7 @@ const routes = [
   '/what-we-do',
   '/signup',
   '/login',
+  '/privacy',
 ] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {

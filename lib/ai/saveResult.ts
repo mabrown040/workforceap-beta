@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db/prisma';
+import { trackEvent } from '@/lib/events/track';
 import type { AIToolType } from '@prisma/client';
 
 export async function saveAIToolResult(
@@ -7,7 +8,7 @@ export async function saveAIToolResult(
   inputSummary: string,
   output: string
 ) {
-  await prisma.aIToolResult.create({
+  const result = await prisma.aIToolResult.create({
     data: {
       userId,
       toolType,
@@ -15,4 +16,11 @@ export async function saveAIToolResult(
       output,
     },
   });
+  trackEvent({
+    userId,
+    eventName: 'ai_tool_submitted',
+    entityType: 'ai_tool_result',
+    entityId: result.id,
+    metadata: { toolType },
+  }).catch(() => {});
 }

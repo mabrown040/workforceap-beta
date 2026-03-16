@@ -25,15 +25,21 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  profile            Profile?
-  applications        Application[]
-  jobApplications     JobApplication[]
-  benefitRequests     BenefitRequest[]
-  learningProgress    LearningProgress[]
-  aiToolResults       AIToolResult[]
-  userCertifications  UserCertification[]
-  userRoles           UserRole[]
-  auditLogs           AuditLog[] @relation("ActorAuditLogs")
+  profile              Profile?
+  applications         Application[]
+  jobApplications      JobApplication[]
+  benefitRequests      BenefitRequest[]
+  learningProgress     LearningProgress[]
+  aiToolResults        AIToolResult[]
+  userCertifications   UserCertification[]
+  userRoles            UserRole[]
+  auditLogs            AuditLog[] @relation("ActorAuditLogs")
+  goals                Goal[]
+  resourceProgress     ResourceProgress[]
+  memberEvents         MemberEvent[]
+  weeklyRecaps         WeeklyRecap[]
+  pathwayStepProgress  PathwayStepProgress[]
+  trainingAccessRequests TrainingAccessRequest[]
 
   @@map("users")
 }
@@ -187,6 +193,158 @@ model LearningProgress {
   @@unique([userId, pathwayId])
   @@index([userId])
   @@map("learning_progress")
+}
+
+model Goal {
+  id               String    @id @default(uuid())
+  userId           String    @map("user_id")
+  goalType         String    @map("goal_type") // build_resume, practice_interviews, apply_to_jobs, etc.
+  title            String
+  description      String?   @db.Text
+  targetMetricType String?   @map("target_metric_type")
+  targetMetricValue Int?     @map("target_metric_value")
+  currentMetricValue Int     @default(0) @map("current_metric_value")
+  status           GoalStatus @default(ACTIVE)
+  targetDate       DateTime? @map("target_date")
+  completedAt      DateTime? @map("completed_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("goals")
+}
+
+enum GoalStatus {
+  ACTIVE
+  COMPLETED
+  PAUSED
+}
+
+model ResourceProgress {
+  id             String    @id @default(uuid())
+  userId         String    @map("user_id")
+  resourceId     String    @map("resource_id") // matches content id e.g. ats-resume-template
+  viewedAt       DateTime? @map("viewed_at")
+  completedAt    DateTime? @map("completed_at")
+  downloadedAt   DateTime? @map("downloaded_at")
+  savedAt       DateTime?  @map("saved_at")
+  viewCount      Int       @default(0) @map("view_count")
+  completionStatus String  @default("not_started") @map("completion_status") // not_started, in_progress, completed
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, resourceId])
+  @@index([userId])
+  @@index([resourceId])
+  @@map("resource_progress")
+}
+
+model MemberEvent {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  eventName  String   @map("event_name")
+  entityType String?  @map("entity_type")
+  entityId   String?  @map("entity_id")
+  metadata   Json?
+  sourcePage String?  @map("source_page")
+  sessionId  String?  @map("session_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([eventName])
+  @@index([createdAt])
+  @@map("member_events")
+}
+
+model WeeklyRecap {
+  id                    String   @id @default(uuid())
+  userId                String   @map("user_id")
+  weekStartDate         DateTime @map("week_start_date")
+  weekEndDate           DateTime @map("week_end_date")
+  recapJson             Json     @map("recap_json")
+  readinessScoreSnapshot Int?    @map("readiness_score_snapshot")
+  goalsSnapshotJson     Json?    @map("goals_snapshot_json")
+  generatedAt           DateTime @default(now()) @map("generated_at")
+  openedAt              DateTime? @map("opened_at")
+  emailedAt             DateTime? @map("emailed_at")
+  createdAt             DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, weekStartDate])
+  @@index([userId])
+  @@map("weekly_recaps")
+}
+
+model PathwayStepProgress {
+  id         String    @id @default(uuid())
+  userId     String    @map("user_id")
+  pathwayId  String    @map("pathway_id")
+  stepIndex  Int       @map("step_index") // 0-based index into pathway steps
+  stepTitle  String    @map("step_title")
+  status     String    @default("pending") // pending, in_progress, completed
+  completedAt DateTime? @map("completed_at")
+  notes      String?   @db.Text
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, pathwayId, stepIndex])
+  @@index([userId])
+  @@map("pathway_step_progress")
+}
+
+model TrainingAccessRequest {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  providerKey String   @map("provider_key") // coursera, linkedin_premium
+  status      TrainingAccessStatus @default(PENDING)
+  requestedAt DateTime @default(now()) @map("requested_at")
+  approvedAt  DateTime? @map("approved_at")
+  activatedAt DateTime? @map("activated_at")
+  rejectedAt  DateTime? @map("rejected_at")
+  notes       String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, providerKey])
+  @@index([userId])
+  @@index([status])
+  @@map("training_access_requests")
+}
+
+enum TrainingAccessStatus {
+  PENDING
+  APPROVED
+  ACTIVE
+  IN_PROGRESS
+  COMPLETED
+  NEEDS_ATTENTION
+  REJECTED
+}
+
+model AutomationRule {
+  id                String   @id @default(uuid())
+  ruleKey           String   @unique @map("rule_key")
+  triggerEvent      String   @map("trigger_event")
+  triggerConditions Json?    @map("trigger_conditions_json")
+  actionType        String   @map("action_type")
+  actionPayload     Json?    @map("action_payload_json")
+  active            Boolean  @default(true)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@map("automation_rules")
 }
 
 model AIToolResult {

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
+import { prisma } from '@/lib/db/prisma';
 import { getMemberResources } from '@/lib/content/memberResources';
 import Footer from '@/components/Footer';
 import { SignOutButton } from '@/components/portal/SignOutButton';
@@ -18,7 +19,13 @@ export default async function ResourcesPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/resources');
 
-  const resources = await getMemberResources();
+  const [resources, resourcesProgress] = await Promise.all([
+    getMemberResources(),
+    prisma.resourceProgress.findMany({ where: { userId: user.id } }),
+  ]);
+  const progressByResource = Object.fromEntries(
+    resourcesProgress.map((p) => [p.resourceId, { completedAt: p.completedAt, savedAt: p.savedAt }])
+  );
 
   return (
     <div className="inner-page">
@@ -39,7 +46,7 @@ export default async function ResourcesPage() {
 
       <section className="content-section">
         <div className="container">
-          <ResourcesClient resources={resources} />
+          <ResourcesClient resources={resources} progressByResource={progressByResource} />
         </div>
       </section>
 

@@ -1,21 +1,31 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { PATHWAYS, type LearningPathway } from '@/lib/content/learningPathways';
+import type { LearningPathway } from '@/lib/content/learningPathways';
 
-type ProgressRecord = { pathwayId: string; progress: number; completed: boolean };
+type StepProgress = { pathwayId: string; stepIndex: number; stepTitle: string; status: string; completedAt: string | null };
+type PathwayProgress = { pathwayId: string; progress: number; completed: boolean };
 
 export default function LearningPathCard({ pathway }: { pathway: LearningPathway }) {
-  const [progress, setProgress] = useState<ProgressRecord | null>(null);
+  const [pathwayProgress, setPathwayProgress] = useState<PathwayProgress | null>(null);
+  const [stepProgress, setStepProgress] = useState<Record<number, StepProgress>>({});
   const [updating, setUpdating] = useState(false);
 
+  const fetchProgress = () => {
+    Promise.all([
+      fetch('/api/member/learning-progress').then((r) => r.json()),
+      fetch('/api/member/pathway-steps/progress').then((r) => r.json()),
+    ]).then(([lpData, spData]) => {
+      const p = lpData.progress?.find((x: { pathwayId: string }) => x.pathwayId === pathway.id);
+      if (p) setPathwayProgress({ pathwayId: p.pathwayId, progress: p.progress, completed: p.completed });
+      const steps = spData.progress?.[pathway.id] ?? [];
+      const byIndex = Object.fromEntries(steps.map((s: StepProgress) => [s.stepIndex, s]));
+      setStepProgress(byIndex);
+    });
+  };
+
   useEffect(() => {
-    fetch('/api/member/learning-progress')
-      .then((r) => r.json())
-      .then((data) => {
-        const p = data.progress?.find((x: ProgressRecord) => x.pathwayId === pathway.id);
-        if (p) setProgress(p);
-      });
+    fetchProgress();
   }, [pathway.id]);
 
   const handleStart = async () => {
@@ -28,38 +38,32 @@ export default function LearningPathCard({ pathway }: { pathway: LearningPathway
       });
       if (res.ok) {
         const data = await res.json();
-        setProgress(data.progress);
+        setPathwayProgress(data.progress);
       }
     } finally {
       setUpdating(false);
     }
   };
 
-  const handleProgress = async (delta: number) => {
-    if (!progress) return;
-    const newProgress = Math.min(100, Math.max(0, progress.progress + delta));
+  const handleStepComplete = async (stepIndex: number) => {
+    const step = stepProgress[stepIndex];
+    if (step?.status === 'completed') return;
     setUpdating(true);
     try {
-      const res = await fetch('/api/member/learning-progress', {
+      const res = await fetch(`/api/member/pathway-steps/${pathway.id}/${stepIndex}/complete`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          pathwayId: pathway.id,
-          progress: newProgress,
-          completed: newProgress >= 100,
-        }),
       });
-      if (res.ok) {
-        const data = await res.json();
-        setProgress(data.progress);
-      }
+      if (res.ok) fetchProgress();
     } finally {
       setUpdating(false);
     }
   };
 
-  const pct = progress?.progress ?? 0;
-  const isCompleted = progress?.completed ?? false;
+  const completedSteps = Object.values(stepProgress).filter((s) => s.status === 'completed').length;
+  const pct = pathwayProgress
+    ? Math.round((completedSteps / pathway.steps.length) * 100)
+    : 0;
+  const isCompleted = pct >= 100;
 
   return (
     <div className="learning-path-card">
@@ -69,22 +73,27 @@ export default function LearningPathCard({ pathway }: { pathway: LearningPathway
       </div>
       <p className="learning-path-desc">{pathway.description}</p>
       <ul className="learning-path-steps">
-        {pathway.steps.map((step, i) => (
-          <li key={i}>{step}</li>
-        ))}
+        {pathway.steps.map((step, i) => {
+          const sp = stepProgress[i];
+          const done = sp?.status === 'completed';
+          return (
+            <li key={i} className={done ? 'step-completed' : ''}>
+              <label className="learning-step-label">
+                <input
+                  type="checkbox"
+                  checked={done}
+                  onChange={() => handleStepComplete(i)}
+                  disabled={updating}
+                />
+                <span>{step}</span>
+              </label>
+            </li>
+          );
+        })}
       </ul>
       <p className="learning-path-meta">~{pathway.estimatedWeeks} weeks</p>
 
-      {!progress ? (
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={handleStart}
-          disabled={updating}
-        >
-          Start pathway
-        </button>
-      ) : (
+      {pathwayProgress || completedSteps > 0 ? (
         <div className="learning-path-progress">
           <div className="learning-path-progress-bar">
             <div
@@ -93,30 +102,19 @@ export default function LearningPathCard({ pathway }: { pathway: LearningPathway
             />
           </div>
           <div className="learning-path-progress-actions">
-            <span>{pct}%</span>
-            {!isCompleted && (
-              <>
-                <button
-                  type="button"
-                  className="btn btn-outline btn-sm"
-                  onClick={() => handleProgress(-25)}
-                  disabled={updating || pct <= 0}
-                >
-                  -25%
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-outline btn-sm"
-                  onClick={() => handleProgress(25)}
-                  disabled={updating || pct >= 100}
-                >
-                  +25%
-                </button>
-              </>
-            )}
+            <span>{pct}% complete</span>
             {isCompleted && <span className="learning-path-done">Complete</span>}
           </div>
         </div>
+      ) : (
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={handleStart}
+          disabled={updating}
+        >
+          Start pathway
+        </button>
       )}
     </div>
   );

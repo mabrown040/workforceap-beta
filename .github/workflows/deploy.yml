@@ -12,7 +12,8 @@ jobs:
       - name: Pull latest changes
         run: |
           cd /var/www/workforceap
-          git pull origin master
+          git fetch origin master
+          git reset --hard origin/master
 
       - name: Install all dependencies (including devDeps for build)
         run: |

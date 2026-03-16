@@ -31,6 +31,7 @@ model User {
   benefitRequests     BenefitRequest[]
   learningProgress    LearningProgress[]
   aiToolResults       AIToolResult[]
+  userCertifications  UserCertification[]
   userRoles           UserRole[]
   auditLogs           AuditLog[] @relation("ActorAuditLogs")
 
@@ -144,6 +145,7 @@ model JobApplication {
 enum JobApplicationStatus {
   SAVED
   APPLIED
+  PHONE_SCREEN
   INTERVIEWING
   OFFER
   REJECTED
@@ -207,7 +209,24 @@ enum AIToolType {
   cover_letter
   interview_practice
   linkedin_headline
+  linkedin_about
   job_match_scorer
+  salary_negotiation
+  gap_analyzer
+}
+
+model UserCertification {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  certName   String   @map("cert_name")
+  earnedAt   DateTime @map("earned_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, certName])
+  @@index([userId])
+  @@map("user_certifications")
 }
 
 model AuditLog {

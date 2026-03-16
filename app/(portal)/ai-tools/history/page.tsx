@@ -20,6 +20,9 @@ const TOOL_LABELS: Record<string, string> = {
   cover_letter: 'Cover Letter',
   interview_practice: 'Interview Practice',
   linkedin_headline: 'LinkedIn Headline',
+  linkedin_about: 'LinkedIn About',
+  salary_negotiation: 'Salary Negotiation',
+  gap_analyzer: 'Gap Analyzer',
 };
 
 export default async function AIHistoryPage() {

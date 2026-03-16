@@ -13,7 +13,7 @@ type JobApplication = {
   url: string | null;
 };
 
-const STATUS_OPTIONS = ['SAVED', 'APPLIED', 'INTERVIEWING', 'OFFER', 'REJECTED'];
+const STATUS_OPTIONS = ['SAVED', 'APPLIED', 'PHONE_SCREEN', 'INTERVIEWING', 'OFFER', 'REJECTED'];
 
 export default function ApplicationTrackerTable() {
   const [applications, setApplications] = useState<JobApplication[]>([]);
@@ -21,6 +21,7 @@ export default function ApplicationTrackerTable() {
   const [showForm, setShowForm] = useState(false);
   const [company, setCompany] = useState('');
   const [role, setRole] = useState('');
+  const [jobUrl, setJobUrl] = useState('');
   const [status, setStatus] = useState('SAVED');
   const [submitting, setSubmitting] = useState(false);
 
@@ -43,11 +44,12 @@ export default function ApplicationTrackerTable() {
       const res = await fetch('/api/member/applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ company, role, status }),
+        body: JSON.stringify({ company, role, url: jobUrl || null, status }),
       });
       if (res.ok) {
         setCompany('');
         setRole('');
+        setJobUrl('');
         setStatus('SAVED');
         setShowForm(false);
         fetchApplications();
@@ -112,6 +114,16 @@ export default function ApplicationTrackerTable() {
             </div>
           </div>
           <div className="form-group">
+            <label>Job URL (optional)</label>
+            <input
+              type="url"
+              value={jobUrl}
+              onChange={(e) => setJobUrl(e.target.value)}
+              placeholder="https://..."
+              disabled={submitting}
+            />
+          </div>
+          <div className="form-group">
             <label>Status</label>
             <select value={status} onChange={(e) => setStatus(e.target.value)} disabled={submitting}>
               {STATUS_OPTIONS.map((s) => (
@@ -138,6 +150,7 @@ export default function ApplicationTrackerTable() {
                 <th>Role</th>
                 <th>Status</th>
                 <th>Applied</th>
+                <th>Link</th>
                 <th></th>
               </tr>
             </thead>
@@ -158,6 +171,15 @@ export default function ApplicationTrackerTable() {
                     </select>
                   </td>
                   <td>{app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : '—'}</td>
+                  <td>
+                    {app.url ? (
+                      <a href={app.url} target="_blank" rel="noopener noreferrer" className="btn btn-outline btn-sm">
+                        View
+                      </a>
+                    ) : (
+                      '—'
+                    )}
+                  </td>
                   <td>
                     <button
                       type="button"

@@ -2789,6 +2789,57 @@ body { animation: fadeIn 0.4s ease; }
 }
 
 /* =============================================
+   APPLY FLOW - Funding pre-check & progress
+   ============================================= */
+.apply-flow { margin-top: 1rem; }
+.apply-progress-bar {
+    background: var(--color-gray-200);
+    border-radius: var(--radius-full);
+    height: 8px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+.apply-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-accent), var(--color-accent-dark));
+    border-radius: var(--radius-full);
+    transition: width 0.3s ease;
+}
+.apply-progress-label {
+    font-size: 0.85rem;
+    color: var(--color-gray-600);
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+}
+.apply-step-content { max-width: 720px; }
+.apply-step-title { font-size: 1.25rem; margin-bottom: 0.5rem; }
+.apply-step-desc { color: var(--color-gray-600); margin-bottom: 1.5rem; }
+.funding-questions {
+    background: var(--color-light);
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+}
+.funding-questions .form-group { margin-bottom: 1rem; }
+.funding-questions .form-group:last-child { margin-bottom: 0; }
+.funding-banner {
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+    border-left: 4px solid;
+}
+.funding-banner-qualify {
+    background: #ecfdf5;
+    border-color: var(--color-green);
+    color: #065f46;
+}
+.funding-banner-neutral {
+    background: var(--color-gray-50);
+    border-color: var(--color-gray-400);
+    color: var(--color-gray-700);
+}
+
+/* =============================================
    APPLY PAGE STATUS BAR
    ============================================= */
 .apply-status-bar {
@@ -3048,6 +3099,40 @@ body { animation: fadeIn 0.4s ease; }
     opacity: 0.6;
 }
 
+.job-readiness-score {
+  background: var(--color-light);
+  padding: 1.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-gray-200);
+}
+.job-readiness-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+.job-readiness-title { font-size: 1rem; margin: 0; font-weight: 600; }
+.job-readiness-value { font-size: 1.25rem; font-weight: 700; color: var(--color-accent); }
+.job-readiness-track {
+  height: 10px;
+  background: var(--color-gray-200);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+.job-readiness-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-dark));
+  border-radius: var(--radius-full);
+  transition: width 0.4s ease;
+}
+.job-readiness-next {
+  font-size: 0.9rem;
+  margin: 0;
+  color: var(--color-gray-600);
+}
+.job-readiness-next a { color: var(--color-accent); font-weight: 500; }
+
 .readiness-progress {
     background: var(--color-light);
     padding: 1rem 1.25rem;
@@ -3098,6 +3183,31 @@ body { animation: fadeIn 0.4s ease; }
         gap: 0.5rem;
     }
 }
+
+/* Certification Roadmap */
+.certification-tracks { display: grid; gap: 1.5rem; }
+.cert-track-card {
+  background: var(--color-light);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+}
+.cert-track-title { font-size: 1.1rem; margin: 0 0 1rem; }
+.cert-track-list { list-style: none; padding: 0; margin: 0; }
+.cert-item {
+  padding: 1rem;
+  background: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.5rem;
+}
+.cert-item:last-child { margin-bottom: 0; }
+.cert-item-earned { border-color: var(--color-green); background: #f0fdf4; }
+.cert-item-row { display: flex; align-items: center; gap: 0.75rem; cursor: pointer; }
+.cert-checkbox { width: 1.1rem; height: 1.1rem; }
+.cert-name { font-weight: 600; }
+.cert-meta { font-size: 0.85rem; color: var(--color-gray-500); margin: 0.35rem 0 0.25rem 1.85rem; }
+.cert-link { font-size: 0.85rem; margin-left: 1.85rem; display: inline-block; color: var(--color-accent); }
 
 /* Resource Hub */
 .resource-filters {

@@ -65,6 +65,56 @@ export default function ApplyFlowClient() {
   const [q1, setQ1] = useState<'yes' | 'no' | null>(null);
   const [q2, setQ2] = useState<'yes' | 'no' | null>(null);
   const [q3, setQ3] = useState<'yes' | 'no' | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    // Read fields for tracker
+    const firstName = (formData.get('first_name') as string) ?? '';
+    const lastName = (formData.get('last_name') as string) ?? '';
+    const program = (formData.get('program_interest') as string) ?? 'WorkforceAP Program';
+    const fullName = [firstName, lastName].filter(Boolean).join(' ') || 'Applicant';
+
+    try {
+      // Submit to Formspree
+      const fsRes = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+        method: 'POST',
+        body: formData,
+        headers: { Accept: 'application/json' },
+      });
+
+      if (!fsRes.ok) {
+        throw new Error('Form submission failed');
+      }
+
+      // Best-effort: save to Application Tracker (don't block redirect if it fails)
+      try {
+        await fetch('/api/member/applications', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            company: 'WorkforceAP',
+            role: program || 'Program Application',
+            status: 'APPLIED',
+          }),
+        });
+      } catch {
+        // Non-fatal: tracker write failing shouldn't block the applicant
+      }
+
+      // Redirect to confirmation
+      window.location.href = `${SITE_URL}/apply/confirmation`;
+    } catch {
+      setSubmitting(false);
+      alert('Something went wrong submitting your application. Please try again.');
+    }
+  };
 
   const yesCount = [q1, q2, q3].filter((a) => a === 'yes').length;
   const qualifies = yesCount >= 2;
@@ -151,8 +201,7 @@ export default function ApplyFlowClient() {
             </div>
 
             <div className="col">
-              <form className="apply-form" action={`https://formspree.io/f/${FORMSPREE_ID}`} method="POST">
-                <input type="hidden" name="_next" value={`${SITE_URL}/apply/confirmation`} />
+              <form className="apply-form" onSubmit={handleFormSubmit}>
                 <input type="hidden" name="_subject" value="New WorkforceAP Application" />
                 <input type="hidden" name="funding_assistance_qualify" value={qualifies ? 'yes' : 'no'} />
 
@@ -271,7 +320,9 @@ export default function ApplyFlowClient() {
                 </fieldset>
 
                 <div id="section-submit" className="form-group"><label>Anything else you&rsquo;d like us to know?</label><textarea name="message" rows={4} /></div>
-                <button type="submit" className="btn btn-primary btn-submit-full">Submit Application</button>
+                <button type="submit" className="btn btn-primary btn-submit-full" disabled={submitting}>
+                  {submitting ? 'Submitting...' : 'Submit Application'}
+                </button>
                 <p className="form-disclaimer">We review every application and respond within 24–48 hours. Your information is kept private.</p>
               </form>
             </div>

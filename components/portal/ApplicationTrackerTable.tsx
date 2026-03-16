@@ -14,6 +14,14 @@ type JobApplication = {
 };
 
 const STATUS_OPTIONS = ['SAVED', 'APPLIED', 'PHONE_SCREEN', 'INTERVIEWING', 'OFFER', 'REJECTED'];
+const STATUS_LABELS: Record<string, string> = {
+  SAVED: 'Saved',
+  APPLIED: 'Applied',
+  PHONE_SCREEN: 'Phone Screen',
+  INTERVIEWING: 'Interviewing',
+  OFFER: 'Offer',
+  REJECTED: 'Rejected',
+};
 
 export default function ApplicationTrackerTable() {
   const [applications, setApplications] = useState<JobApplication[]>([]);
@@ -24,6 +32,7 @@ export default function ApplicationTrackerTable() {
   const [jobUrl, setJobUrl] = useState('');
   const [status, setStatus] = useState('SAVED');
   const [submitting, setSubmitting] = useState(false);
+  const [addError, setAddError] = useState<string | null>(null);
 
   useEffect(() => {
     trackApplicationTrackerOpen();
@@ -39,6 +48,7 @@ export default function ApplicationTrackerTable() {
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
+    setAddError(null);
     setSubmitting(true);
     try {
       const res = await fetch('/api/member/applications', {
@@ -53,7 +63,12 @@ export default function ApplicationTrackerTable() {
         setStatus('SAVED');
         setShowForm(false);
         fetchApplications();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setAddError(data.error ?? 'Failed to add application. Please try again.');
       }
+    } catch {
+      setAddError('Network error. Please check your connection and try again.');
     } finally {
       setSubmitting(false);
     }
@@ -127,10 +142,13 @@ export default function ApplicationTrackerTable() {
             <label>Status</label>
             <select value={status} onChange={(e) => setStatus(e.target.value)} disabled={submitting}>
               {STATUS_OPTIONS.map((s) => (
-                <option key={s} value={s}>{s}</option>
+                <option key={s} value={s}>{STATUS_LABELS[s] ?? s}</option>
               ))}
             </select>
           </div>
+          {addError && (
+            <p className="form-error" role="alert">{addError}</p>
+          )}
           <button type="submit" className="btn btn-primary" disabled={submitting}>
             Add
           </button>
@@ -166,7 +184,7 @@ export default function ApplicationTrackerTable() {
                       className="application-status-select"
                     >
                       {STATUS_OPTIONS.map((s) => (
-                        <option key={s} value={s}>{s}</option>
+                        <option key={s} value={s}>{STATUS_LABELS[s] ?? s}</option>
                       ))}
                     </select>
                   </td>

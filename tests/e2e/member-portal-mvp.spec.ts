@@ -69,7 +69,7 @@ test.describe('Member Portal MVP', () => {
     await page.goto('/dashboard');
     await expect(page.getByText(/linkedin premium/i)).toBeVisible({ timeout: 10000 });
     await expect(page.getByText(/coursera/i)).toBeVisible();
-    await expect(page.getByRole('link', { name: /request access/i }).first()).toBeVisible();
+    await expect(page.getByRole('button', { name: /request access/i }).first()).toBeVisible();
   });
 
   test('signed-in member sees Career Brief with first post', async ({ context, page, baseURL }) => {

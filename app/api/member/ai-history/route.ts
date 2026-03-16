@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
+import type { AIToolType } from '@prisma/client';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
 const TOOL_LABELS: Record<string, string> = {
+  job_match_scorer: 'Job Match Scorer',
   resume_rewriter: 'Resume Rewriter',
   cover_letter: 'Cover Letter',
   interview_practice: 'Interview Practice',
@@ -20,7 +22,7 @@ export async function GET(request: Request) {
   const results = await prisma.aIToolResult.findMany({
     where: {
       userId: user.id,
-      ...(toolType && toolType in TOOL_LABELS ? { toolType: toolType as 'resume_rewriter' | 'cover_letter' | 'interview_practice' | 'linkedin_headline' } : {}),
+      ...(toolType && toolType in TOOL_LABELS ? { toolType: toolType as AIToolType } : {}),
     },
     orderBy: { createdAt: 'desc' },
     take: limit,

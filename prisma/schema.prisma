@@ -207,6 +207,7 @@ enum AIToolType {
   cover_letter
   interview_practice
   linkedin_headline
+  job_match_scorer
 }
 
 model AuditLog {

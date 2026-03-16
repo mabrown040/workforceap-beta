@@ -15,6 +15,7 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 const TOOL_LABELS: Record<string, string> = {
+  job_match_scorer: 'Job Match Scorer',
   resume_rewriter: 'Resume Rewriter',
   cover_letter: 'Cover Letter',
   interview_practice: 'Interview Practice',

@@ -15,6 +15,14 @@ export const metadata: Metadata = buildPageMetadata({
 
 const TOOLS = [
   {
+    id: 'job-match-scorer',
+    title: 'Job Match Scorer',
+    description: 'Paste a job description and your resume. Get a match score and specific gaps to address—so you know why you\'re not getting callbacks.',
+    timeToComplete: '3–5 min',
+    status: 'available' as const,
+    href: '/ai-tools/job-match-scorer',
+  },
+  {
     id: 'resume-rewriter',
     title: 'Resume Rewriter',
     description: 'Paste your resume and job target. Get AI-improved bullets and phrasing tailored to pass ATS and impress recruiters.',

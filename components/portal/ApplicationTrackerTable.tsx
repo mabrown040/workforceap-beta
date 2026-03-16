@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { trackApplicationTrackerOpen } from '@/lib/analytics/events';
 
 type JobApplication = {
@@ -14,6 +14,14 @@ type JobApplication = {
 };
 
 const STATUS_OPTIONS = ['SAVED', 'APPLIED', 'PHONE_SCREEN', 'INTERVIEWING', 'OFFER', 'REJECTED'];
+const STATUS_LABELS: Record<string, string> = {
+  SAVED: 'Saved',
+  APPLIED: 'Applied',
+  PHONE_SCREEN: 'Phone Screen',
+  INTERVIEWING: 'Interviewing',
+  OFFER: 'Offer',
+  REJECTED: 'Rejected',
+};
 
 function toDateInputValue(iso: string | null): string {
   if (!iso) return '';
@@ -38,6 +46,8 @@ export default function ApplicationTrackerTable() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editAppliedAt, setEditAppliedAt] = useState('');
   const [editUrl, setEditUrl] = useState('');
+  const [addError, setAddError] = useState<string | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     trackApplicationTrackerOpen();
@@ -53,6 +63,7 @@ export default function ApplicationTrackerTable() {
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
+    setAddError(null);
     setSubmitting(true);
     try {
       const payload: Record<string, unknown> = { company, role, url: jobUrl || null, status };
@@ -70,7 +81,12 @@ export default function ApplicationTrackerTable() {
         setStatus('SAVED');
         setShowForm(false);
         fetchApplications();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setAddError(data.error ?? 'Failed to add application. Please try again.');
       }
+    } catch {
+      setAddError('Network error. Please check your connection and try again.');
     } finally {
       setSubmitting(false);
     }
@@ -127,14 +143,20 @@ export default function ApplicationTrackerTable() {
         <button
           type="button"
           className="btn btn-primary"
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            const next = !showForm;
+            setShowForm(next);
+            if (next) {
+              setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+            }
+          }}
         >
           {showForm ? 'Cancel' : '+ Add application'}
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleAdd} className="application-tracker-form">
+        <form ref={formRef} onSubmit={handleAdd} className="application-tracker-form">
           <div className="form-row">
             <div className="form-group">
               <label>Company</label>
@@ -182,10 +204,13 @@ export default function ApplicationTrackerTable() {
             <label>Status</label>
             <select value={status} onChange={(e) => setStatus(e.target.value)} disabled={submitting}>
               {STATUS_OPTIONS.map((s) => (
-                <option key={s} value={s}>{s}</option>
+                <option key={s} value={s}>{STATUS_LABELS[s] ?? s}</option>
               ))}
             </select>
           </div>
+          {addError && (
+            <p className="form-error" role="alert">{addError}</p>
+          )}
           <button type="submit" className="btn btn-primary" disabled={submitting}>
             Add
           </button>
@@ -221,7 +246,7 @@ export default function ApplicationTrackerTable() {
                       className="application-status-select"
                     >
                       {STATUS_OPTIONS.map((s) => (
-                        <option key={s} value={s}>{s}</option>
+                        <option key={s} value={s}>{STATUS_LABELS[s] ?? s}</option>
                       ))}
                     </select>
                   </td>

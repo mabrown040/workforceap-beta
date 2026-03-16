@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
@@ -16,11 +17,18 @@ export async function GET() {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const applications = await prisma.jobApplication.findMany({
-    where: { userId: user.id },
-    orderBy: { createdAt: 'desc' },
-  });
-  return NextResponse.json({ applications });
+  try {
+    await ensureUserInDb(user);
+    const applications = await prisma.jobApplication.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: 'desc' },
+    });
+    return NextResponse.json({ applications });
+  } catch (err) {
+    console.error('[GET /api/member/applications]', err);
+    const message = err instanceof Error ? err.message : 'Database error';
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {
@@ -41,17 +49,23 @@ export async function POST(request: Request) {
 
   const { company, role, status, appliedAt, notes, url } = parsed.data;
 
-  const app = await prisma.jobApplication.create({
-    data: {
-      userId: user.id,
-      company,
-      role,
-      status,
-      appliedAt: appliedAt?.trim() ? new Date(appliedAt) : null,
-      notes: notes || null,
-      url: url || null,
-    },
-  });
-
-  return NextResponse.json({ application: app });
+  try {
+    await ensureUserInDb(user);
+    const app = await prisma.jobApplication.create({
+      data: {
+        userId: user.id,
+        company,
+        role,
+        status,
+        appliedAt: appliedAt?.trim() ? new Date(appliedAt) : null,
+        notes: notes || null,
+        url: url || null,
+      },
+    });
+    return NextResponse.json({ application: app });
+  } catch (err) {
+    console.error('[POST /api/member/applications]', err);
+    const message = err instanceof Error ? err.message : 'Database error';
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }

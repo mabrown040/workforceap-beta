@@ -4,11 +4,9 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { trackToolLaunch } from '@/lib/analytics/events';
 
-export default function CoverLetterForm() {
-  const [resume, setResume] = useState('');
-  const [jobDescription, setJobDescription] = useState('');
-  const [companyName, setCompanyName] = useState('');
-  const [tone, setTone] = useState<'formal' | 'confident' | 'conversational'>('formal');
+export default function LinkedInAboutForm() {
+  const [role, setRole] = useState('');
+  const [bullets, setBullets] = useState('');
   const [output, setOutput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -18,18 +16,13 @@ export default function CoverLetterForm() {
     setError('');
     setOutput('');
     setLoading(true);
-    trackToolLaunch('cover-letter', 'Cover Letter Builder');
+    trackToolLaunch('linkedin-about', 'LinkedIn About Section Generator');
 
     try {
-      const res = await fetch('/api/ai/cover-letter', {
+      const res = await fetch('/api/ai/linkedin-about', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          resume,
-          jobDescription,
-          companyName: companyName || 'the company',
-          tone,
-        }),
+        body: JSON.stringify({ role, bullets }),
       });
 
       const data = await res.json();
@@ -52,48 +45,24 @@ export default function CoverLetterForm() {
   return (
     <form onSubmit={handleSubmit} className="resume-rewriter-form">
       <div className="form-group">
-        <label htmlFor="company">Company name</label>
+        <label htmlFor="role">Target role / job title</label>
         <input
-          id="company"
+          id="role"
           type="text"
-          value={companyName}
-          onChange={(e) => setCompanyName(e.target.value)}
-          placeholder="e.g. Acme Corp"
-          disabled={loading}
-        />
-      </div>
-      <div className="form-group">
-        <label htmlFor="tone">Tone</label>
-        <select
-          id="tone"
-          value={tone}
-          onChange={(e) => setTone(e.target.value as 'formal' | 'confident' | 'conversational')}
-          disabled={loading}
-        >
-          <option value="formal">Formal</option>
-          <option value="confident">Confident</option>
-          <option value="conversational">Conversational</option>
-        </select>
-      </div>
-      <div className="form-group">
-        <label htmlFor="job-desc">Job description</label>
-        <textarea
-          id="job-desc"
-          value={jobDescription}
-          onChange={(e) => setJobDescription(e.target.value)}
-          placeholder="Paste the job posting here..."
-          rows={6}
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+          placeholder="e.g. Software Developer, Project Manager"
           required
           disabled={loading}
         />
       </div>
       <div className="form-group">
-        <label htmlFor="resume">Your resume / experience</label>
+        <label htmlFor="bullets">3-5 bullet points about yourself</label>
         <textarea
-          id="resume"
-          value={resume}
-          onChange={(e) => setResume(e.target.value)}
-          placeholder="Paste your resume or key experience..."
+          id="bullets"
+          value={bullets}
+          onChange={(e) => setBullets(e.target.value)}
+          placeholder={'• 5 years in IT support\n• Led migration to cloud\n• CompTIA A+ certified\n• Passionate about helping teams succeed'}
           rows={8}
           required
           disabled={loading}
@@ -101,12 +70,12 @@ export default function CoverLetterForm() {
       </div>
       {error && <div className="form-error" role="alert">{error}</div>}
       <button type="submit" className="btn btn-primary" disabled={loading}>
-        {loading ? 'Generating...' : 'Generate cover letter'}
+        {loading ? 'Generating...' : 'Generate About section'}
       </button>
       {output && (
         <div className="resume-rewriter-output">
           <div className="resume-rewriter-output-header">
-            <h3>Cover letter</h3>
+            <h3>LinkedIn About section</h3>
             <button type="button" className="btn btn-outline btn-sm" onClick={handleCopy}>
               Copy to clipboard
             </button>

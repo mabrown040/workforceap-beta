@@ -51,6 +51,9 @@ export default function AIHistoryList({ results }: { results: Result[] }) {
             <option value="cover_letter">Cover Letter</option>
             <option value="interview_practice">Interview Practice</option>
             <option value="linkedin_headline">LinkedIn Headline</option>
+            <option value="linkedin_about">LinkedIn About</option>
+            <option value="salary_negotiation">Salary Negotiation</option>
+            <option value="gap_analyzer">Gap Analyzer</option>
           </select>
         </label>
       </div>

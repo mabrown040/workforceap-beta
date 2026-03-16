@@ -54,6 +54,38 @@ const TOOLS = [
     status: 'available' as const,
     href: '/ai-tools/linkedin-headline',
   },
+  {
+    id: 'linkedin-about',
+    title: 'LinkedIn About Section Generator',
+    description: 'Give us your role and a few bullets about yourself. We\'ll write a polished 3-paragraph About section.',
+    timeToComplete: '3–5 min',
+    status: 'available' as const,
+    href: '/ai-tools/linkedin-about',
+  },
+  {
+    id: 'salary-negotiation',
+    title: 'Salary Negotiation Script',
+    description: 'Got an offer? Get a word-for-word script for a phone call or email to negotiate.',
+    timeToComplete: '2–3 min',
+    status: 'available' as const,
+    href: '/ai-tools/salary-negotiation',
+  },
+  {
+    id: 'gap-analyzer',
+    title: 'Resume Gap Analyzer',
+    description: 'Detect employment gaps and get suggested framing for cover letters and interviews.',
+    timeToComplete: '3–5 min',
+    status: 'available' as const,
+    href: '/ai-tools/gap-analyzer',
+  },
+  {
+    id: 'application-tracker',
+    title: 'Application Tracker',
+    description: 'Track your job applications. Add applications, update status, and see your progress.',
+    timeToComplete: 'Ongoing',
+    status: 'available' as const,
+    href: '/ai-tools/application-tracker',
+  },
 ];
 
 export default async function AIToolsPage() {

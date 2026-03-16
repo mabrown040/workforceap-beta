@@ -8,7 +8,7 @@ import Footer from '@/components/Footer';
 import { StatusCard } from '@/components/portal/StatusCard';
 import { SignOutButton } from '@/components/portal/SignOutButton';
 import StartHereCard from '@/components/portal/StartHereCard';
-import ReadinessProgress from '@/components/portal/ReadinessProgress';
+import JobReadinessScore from '@/components/portal/JobReadinessScore';
 import BenefitAccessCard from '@/components/portal/BenefitAccessCard';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -39,11 +39,42 @@ export default async function DashboardPage() {
       applications: { orderBy: { createdAt: 'desc' } },
       jobApplications: true,
       benefitRequests: true,
+      aiToolResults: { select: { toolType: true } },
     },
   });
 
   const application = dbUser?.applications?.[0];
   const profile = dbUser?.profile;
+
+  const applicationsSubmitted =
+    dbUser?.jobApplications?.filter((a) => a.status !== 'SAVED').length ??
+    dbUser?.applications?.length ??
+    0;
+
+  const toolTypes = new Set(dbUser?.aiToolResults?.map((r) => r.toolType) ?? []);
+  const appCount = applicationsSubmitted;
+  const readinessScore = Math.min(100,
+    (toolTypes.has('resume_rewriter') ? 25 : 0) +
+    (toolTypes.has('job_match_scorer') ? 20 : 0) +
+    (toolTypes.has('interview_practice') ? 20 : 0) +
+    (toolTypes.has('cover_letter') ? 15 : 0) +
+    (toolTypes.has('linkedin_headline') ? 10 : 0) +
+    Math.min(appCount * 10, 10)
+  );
+
+  const nextAction = !toolTypes.has('resume_rewriter')
+    ? { label: 'Build your resume with the Resume Rewriter', href: '/ai-tools/resume-rewriter' }
+    : !toolTypes.has('job_match_scorer')
+    ? { label: 'Score your resume against a job', href: '/ai-tools/job-match-scorer' }
+    : !toolTypes.has('interview_practice')
+    ? { label: 'Practice interview questions', href: '/ai-tools/interview-practice' }
+    : !toolTypes.has('cover_letter')
+    ? { label: 'Create a cover letter', href: '/ai-tools/cover-letter' }
+    : !toolTypes.has('linkedin_headline')
+    ? { label: 'Optimize your LinkedIn headline', href: '/ai-tools/linkedin-headline' }
+    : appCount === 0
+    ? { label: 'Log your first application', href: '/ai-tools/application-tracker' }
+    : undefined;
 
   return (
     <div className="inner-page">
@@ -61,11 +92,7 @@ export default async function DashboardPage() {
         <div className="container">
           <div className="dashboard-grid" style={{ display: 'grid', gap: '2rem', maxWidth: '900px' }}>
             <StartHereCard />
-            <ReadinessProgress
-              profileComplete={!!profile?.address || !!profile?.zip}
-              toolsUsed={0}
-              applicationsSubmitted={dbUser?.jobApplications?.length ?? dbUser?.applications?.length ?? 0}
-            />
+            <JobReadinessScore score={readinessScore} nextAction={nextAction} />
             {application && (
               <StatusCard
                 status={application.status}
@@ -99,11 +126,14 @@ export default async function DashboardPage() {
               <Link href="/career-brief" className="btn btn-primary" style={{ padding: '1rem', textAlign: 'center' }}>
                 Weekly Career Brief
               </Link>
-              <Link href="/applications" className="btn btn-primary" style={{ padding: '1rem', textAlign: 'center' }}>
-                Job Applications
+              <Link href="/ai-tools/application-tracker" className="btn btn-primary" style={{ padding: '1rem', textAlign: 'center' }}>
+                Application Tracker
               </Link>
               <Link href="/learning" className="btn btn-primary" style={{ padding: '1rem', textAlign: 'center' }}>
                 Learning Pathways
+              </Link>
+              <Link href="/certifications" className="btn btn-primary" style={{ padding: '1rem', textAlign: 'center' }}>
+                Certification Roadmap
               </Link>
               {profile && (
                 <div style={{ background: 'var(--color-light)', padding: '1.5rem', borderRadius: 'var(--radius-md)' }}>

@@ -6,7 +6,7 @@ import { z } from 'zod';
 const updateSchema = z.object({
   company: z.string().min(1).max(200).optional(),
   role: z.string().min(1).max(200).optional(),
-  status: z.enum(['SAVED', 'APPLIED', 'INTERVIEWING', 'OFFER', 'REJECTED']).optional(),
+  status: z.enum(['SAVED', 'APPLIED', 'PHONE_SCREEN', 'INTERVIEWING', 'OFFER', 'REJECTED']).optional(),
   appliedAt: z.string().datetime().optional().nullable(),
   notes: z.string().max(2000).optional().nullable(),
   url: z.string().url().optional().nullable().or(z.literal('')),

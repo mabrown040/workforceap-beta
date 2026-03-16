@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
-import Link from 'next/link';
 import Footer from '@/components/Footer';
-import ApplyFormStatusBar from '@/components/ApplyFormStatusBar';
+import ApplyFlowClient from './ApplyFlowClient';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Apply Now',
@@ -10,59 +9,6 @@ export const metadata: Metadata = buildPageMetadata({
     'Start your Workforce Advancement Project application and begin your path to industry-recognized certifications and career placement support.',
   path: '/apply',
 });
-
-const eligibility = [
-  '16 years or older',
-  'U.S. Citizen or Permanent Resident',
-  'High school diploma or GED (or in process)',
-  'Committed to 100% program completion',
-  'Willing to participate in job placement assistance services',
-  'Access to reliable internet connection & computer',
-];
-
-const programs = [
-  'Digital Literacy Empowerment Class (6-7 Weeks)',
-  'AI Professional Developer Certificate (IBM)',
-  'Software & Applications Developer (IBM)',
-  'CompTIA A+ Professional Certificate',
-  'CompTIA Network+ Professional Certificate',
-  'CompTIA Security+ Professional Certificate',
-  'Cybersecurity Professional Certificate (Google)',
-  'IT Automation with Python (Google)',
-  'IT Support Professional Certificate (IBM)',
-  'AWS Cloud Technology (Amazon)',
-  'Data Analytics Professional Certificate (Google)',
-  'Data Science Professional Certificate (IBM)',
-  'Digital Marketing & E-Commerce (Google)',
-  'Project Management Professional Certificate (Microsoft)',
-  'UX Design Professional Certificate (Google)',
-  'Medical Coding & Health Information Technician (MCHIT)',
-  'Certified Production Technician (CPT)',
-  'Certified Logistics Technician (CLT)',
-  'Core Construction Skilled Trades Readiness',
-  'Not sure — help me choose',
-];
-
-const supportOptions = [
-  { value: 'math_reading', label: 'Basic Math / Reading Skills' },
-  { value: 'ged', label: 'Getting my GED' },
-  { value: 'financial', label: 'Budgeting & Financial Counseling' },
-  { value: 'housing', label: 'Housing Assistance' },
-  { value: 'tanf', label: 'Applying for TANF / Food Stamps or SSI' },
-  { value: 'childcare', label: 'Child Care Services' },
-  { value: 'mental_health', label: 'Mental Health Services' },
-];
-
-const referralSources = [
-  'Google / Web Search',
-  'Social Media (Facebook, Instagram, LinkedIn)',
-  'Friend or Family',
-  'Workforce Solutions',
-  'Texas Workforce Commission (TWC)',
-  'Community Organization',
-  'Flyer or Brochure',
-  'Other',
-];
 
 export default function ApplyPage() {
   return (
@@ -88,147 +34,7 @@ export default function ApplyPage() {
             🔥 First Cohort Now Forming &mdash; Seats are limited. Apply today to hold your spot.
           </div>
 
-          <div className="two-col">
-            <div className="col">
-              <h2>Who Can Apply?</h2>
-              <ul className="eligibility-list">
-                {eligibility.map((item, i) => (
-                  <li key={i} className="eligibility-item">
-                    <span className="check">&#10003;</span> {item}
-                  </li>
-                ))}
-              </ul>
-              <div className="form-note-box">
-                <strong>What happens next</strong>
-                <p>After you apply, a counselor will review your goals, walk through the best-fit program options, and help you prepare for the next available cohort.</p>
-              </div>
-            </div>
-
-            <div className="col">
-              <form className="apply-form" action="https://formspree.io/f/xpwzkyjo" method="POST">
-                <h3 className="form-section-title">Reach Out to Get Started</h3>
-                <p className="form-section-desc">Fill out the form below and a counselor will contact you within 24–48 hours to walk you through next steps.</p>
-
-                <ApplyFormStatusBar />
-
-                <fieldset id="section-personal" className="apply-fieldset">
-                  <legend className="form-legend">Personal Information</legend>
-                  <div className="form-row">
-                    <div className="form-group"><label>First Name *</label><input type="text" name="first_name" required /></div>
-                    <div className="form-group"><label>Last Name *</label><input type="text" name="last_name" required /></div>
-                  </div>
-                  <div className="form-row">
-                    <div className="form-group"><label>Phone Number *</label><input type="tel" name="phone" required /></div>
-                    <div className="form-group"><label>Email Address *</label><input type="email" name="email" required /></div>
-                  </div>
-                </fieldset>
-
-                <fieldset id="section-location" className="apply-fieldset">
-                  <legend className="form-legend">Location</legend>
-                  <div className="form-group">
-                    <label>Do you live in Travis County or Austin? *</label>
-                    <div className="form-radio-group">
-                      <label ><input type="radio" name="travis_county" value="yes" required /> Yes</label>
-                      <label ><input type="radio" name="travis_county" value="no" /> No</label>
-                    </div>
-                  </div>
-                  <div className="form-group"><label>If no — what city, state, and county do you live in?</label><input type="text" name="location_other" /></div>
-                </fieldset>
-
-                <fieldset id="section-employment" className="apply-fieldset">
-                  <legend className="form-legend">Employment Status</legend>
-                  <div className="form-group">
-                    <label>Are you looking for training services to help with skills for a job? *</label>
-                    <div className="form-radio-group">
-                      <label ><input type="radio" name="seeking_training" value="yes" required /> Yes</label>
-                      <label ><input type="radio" name="seeking_training" value="no" /> No</label>
-                    </div>
-                  </div>
-                  <div className="form-group">
-                    <label>Are you currently unemployed (terminated, laid off, or received notice of layoff)? *</label>
-                    <div className="form-radio-group">
-                      <label ><input type="radio" name="unemployed" value="yes" required /> Yes</label>
-                      <label ><input type="radio" name="unemployed" value="no" /> No</label>
-                    </div>
-                  </div>
-                  <div className="form-row">
-                    <div className="form-group"><label>Current Occupation</label><input type="text" name="occupation" /></div>
-                    <div className="form-group"><label>Years of Experience</label><input type="text" name="experience" /></div>
-                  </div>
-                  <div className="form-group"><label>Company Laid Off From (if applicable)</label><input type="text" name="laid_off_from" /></div>
-                </fieldset>
-
-                <fieldset id="section-income" className="apply-fieldset">
-                  <legend className="form-legend">Income &amp; Benefits</legend>
-                  <div className="form-group">
-                    <label>Are you eligible for TANF or Food Stamps? *</label>
-                    <div className="form-radio-group">
-                      <label ><input type="radio" name="tanf" value="yes" required /> Yes</label>
-                      <label ><input type="radio" name="tanf" value="no" /> No</label>
-                    </div>
-                  </div>
-                  <div className="form-group">
-                    <label>Are you single or married? *</label>
-                    <div className="form-radio-group">
-                      <label ><input type="radio" name="marital" value="single" required /> Single</label>
-                      <label ><input type="radio" name="marital" value="married" /> Married</label>
-                    </div>
-                  </div>
-                  <div className="form-group">
-                    <label>How many people in your household? *</label>
-                    <select name="household_size" required>
-                      <option value="">Select&hellip;</option>
-                      <option value="1">1 — max $12,880/yr</option>
-                      <option value="2">2 — max $17,420/yr</option>
-                      <option value="3">3 — max $22,258/yr</option>
-                      <option value="4">4 — max $27,479/yr</option>
-                      <option value="5">5 — max $32,432/yr</option>
-                      <option value="6">6 — max $37,931/yr</option>
-                      <option value="7">7 — max $43,430/yr</option>
-                      <option value="8">8 — max $48,929/yr</option>
-                      <option value="9+">9+ — max $54,428/yr</option>
-                    </select>
-                  </div>
-                  <div className="form-group"><label>What is your yearly household income? *</label><input type="text" name="income" placeholder="e.g. $35,000" required /></div>
-                </fieldset>
-
-                <fieldset id="section-program" className="apply-fieldset">
-                  <legend className="form-legend">Program Interest</legend>
-                  <div className="form-group">
-                    <label>What class are you most interested in? *</label>
-                    <select name="program" required>
-                      <option value="">Select a program&hellip;</option>
-                      {programs.map((p) => <option key={p}>{p}</option>)}
-                    </select>
-                  </div>
-                  <div className="form-group"><label>Best times to contact you by phone?</label><input type="text" name="best_time" placeholder="e.g. Weekday mornings" /></div>
-                  <div className="form-group"><label>Best time for a tour?</label><input type="text" name="tour_time" /></div>
-                  <div className="form-group">
-                    <label>How did you hear about us?</label>
-                    <select name="referral">
-                      <option value="">Select&hellip;</option>
-                      {referralSources.map((s) => <option key={s}>{s}</option>)}
-                    </select>
-                  </div>
-                </fieldset>
-
-                <fieldset id="section-support" className="apply-fieldset">
-                  <legend className="form-legend">Additional Support (Check all that apply)</legend>
-                  <div className="support-checkboxes">
-                    {supportOptions.map((opt) => (
-                      <label key={opt.value}>
-                        <input type="checkbox" name="support" value={opt.value} /> {opt.label}
-                      </label>
-                    ))}
-                  </div>
-                </fieldset>
-
-                <div id="section-submit" className="form-group"><label>Anything else you&rsquo;d like us to know?</label><textarea name="message" rows={4} /></div>
-                <button type="submit" className="btn btn-primary btn-submit-full">Submit Application</button>
-                <p className="form-disclaimer">We review every application and respond within 24–48 hours. Your information is kept private.</p>
-              </form>
-            </div>
-          </div>
+          <ApplyFlowClient />
         </div>
       </section>
 

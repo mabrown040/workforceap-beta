@@ -32,6 +32,13 @@ export default function AIHistoryList({ results }: { results: Result[] }) {
     return output;
   };
 
+  const getPreview = (output: string, toolType: string, maxLen = 100) => {
+    const formatted = formatOutput(output, toolType);
+    const text = formatted.replace(/\s+/g, ' ').trim();
+    if (text.length <= maxLen) return text;
+    return text.slice(0, maxLen) + '…';
+  };
+
   return (
     <div className="ai-history">
       <div className="ai-history-filters">
@@ -61,6 +68,7 @@ export default function AIHistoryList({ results }: { results: Result[] }) {
               </span>
               <span className="ai-history-chevron">{expandedId === r.id ? '▼' : '▶'}</span>
             </button>
+            <p className="ai-history-preview">{getPreview(r.output, r.toolType)}</p>
             {expandedId === r.id && (
               <div className="ai-history-output">
                 <pre>{formatOutput(r.output, r.toolType)}</pre>

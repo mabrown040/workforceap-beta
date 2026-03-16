@@ -9,6 +9,7 @@ type Question = {
   type: string;
   tip: string;
   starHint?: string;
+  exampleAnswer?: string;
 };
 
 export default function InterviewPracticeForm() {
@@ -51,7 +52,7 @@ export default function InterviewPracticeForm() {
     const text = questions
       .map(
         (q) =>
-          `${q.question}\nType: ${q.type}\nTip: ${q.tip}${q.starHint ? `\nSTAR hint: ${q.starHint}` : ''}\n`
+          `${q.question}\nType: ${q.type}\nTip: ${q.tip}${q.starHint ? `\nSTAR hint: ${q.starHint}` : ''}${q.exampleAnswer ? `\nExample answer: ${q.exampleAnswer}` : ''}\n`
       )
       .join('\n');
     navigator.clipboard.writeText(text);
@@ -109,6 +110,11 @@ export default function InterviewPracticeForm() {
                 <p className="interview-practice-tip">{q.tip}</p>
                 {q.starHint && (
                   <p className="interview-practice-star">STAR hint: {q.starHint}</p>
+                )}
+                {q.exampleAnswer && (
+                  <div className="interview-practice-example">
+                    <strong>Example answer:</strong> {q.exampleAnswer}
+                  </div>
                 )}
               </li>
             ))}

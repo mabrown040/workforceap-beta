@@ -52,12 +52,13 @@ Format your response as a JSON array of objects. Each object must have:
 - "type": "behavioral" or "technical" (string)
 - "tip": brief answer tip or framework (string, 1-2 sentences)
 - "starHint": optional hint for STAR method if behavioral (string)
+- "exampleAnswer": a 2-3 sentence example answer showing how to respond. For behavioral questions, use STAR (Situation, Task, Action, Result). For technical questions, show a concise, structured response. This helps members see what a strong answer looks like.
 
 Return ONLY the JSON array, no other text.`;
 
   const userPrompt = `Generate ${count} interview questions for a ${role} role at ${levelDesc} level.
 
-Include a mix of behavioral (STAR method) and technical questions. Make them specific to this role.`;
+Include a mix of behavioral (STAR method) and technical questions. Make them specific to this role. For each question, provide an exampleAnswer that demonstrates a strong 2-3 sentence response.`;
 
   try {
     const raw = await chatCompletion(
@@ -76,7 +77,7 @@ Include a mix of behavioral (STAR method) and technical questions. Make them spe
     const match = raw.match(/\[[\s\S]*\]/);
     if (match) jsonStr = match[0];
 
-    const questions = JSON.parse(jsonStr) as Array<{ question: string; type: string; tip: string; starHint?: string }>;
+    const questions = JSON.parse(jsonStr) as Array<{ question: string; type: string; tip: string; starHint?: string; exampleAnswer?: string }>;
     if (!Array.isArray(questions) || questions.length === 0) {
       return NextResponse.json({ error: 'Invalid response format' }, { status: 500 });
     }

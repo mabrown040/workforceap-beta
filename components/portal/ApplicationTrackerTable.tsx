@@ -15,6 +15,16 @@ type JobApplication = {
 
 const STATUS_OPTIONS = ['SAVED', 'APPLIED', 'PHONE_SCREEN', 'INTERVIEWING', 'OFFER', 'REJECTED'];
 
+function toDateInputValue(iso: string | null): string {
+  if (!iso) return '';
+  try {
+    const d = new Date(iso);
+    return d.toISOString().slice(0, 10);
+  } catch {
+    return '';
+  }
+}
+
 export default function ApplicationTrackerTable() {
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,8 +32,12 @@ export default function ApplicationTrackerTable() {
   const [company, setCompany] = useState('');
   const [role, setRole] = useState('');
   const [jobUrl, setJobUrl] = useState('');
+  const [appliedAt, setAppliedAt] = useState('');
   const [status, setStatus] = useState('SAVED');
   const [submitting, setSubmitting] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editAppliedAt, setEditAppliedAt] = useState('');
+  const [editUrl, setEditUrl] = useState('');
 
   useEffect(() => {
     trackApplicationTrackerOpen();
@@ -41,15 +55,18 @@ export default function ApplicationTrackerTable() {
     e.preventDefault();
     setSubmitting(true);
     try {
+      const payload: Record<string, unknown> = { company, role, url: jobUrl || null, status };
+      if (appliedAt.trim()) payload.appliedAt = `${appliedAt}T12:00:00.000Z`;
       const res = await fetch('/api/member/applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ company, role, url: jobUrl || null, status }),
+        body: JSON.stringify(payload),
       });
       if (res.ok) {
         setCompany('');
         setRole('');
         setJobUrl('');
+        setAppliedAt('');
         setStatus('SAVED');
         setShowForm(false);
         fetchApplications();
@@ -71,6 +88,33 @@ export default function ApplicationTrackerTable() {
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this application?')) return;
     await fetch(`/api/member/applications/${id}`, { method: 'DELETE' });
+    fetchApplications();
+  };
+
+  const startEdit = (app: JobApplication) => {
+    setEditingId(app.id);
+    setEditAppliedAt(toDateInputValue(app.appliedAt));
+    setEditUrl(app.url ?? '');
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditAppliedAt('');
+    setEditUrl('');
+  };
+
+  const saveEdit = async () => {
+    if (!editingId) return;
+    const payload: Record<string, unknown> = {};
+    if (editAppliedAt.trim()) payload.appliedAt = `${editAppliedAt}T12:00:00.000Z`;
+    else payload.appliedAt = null;
+    payload.url = editUrl.trim() || null;
+    await fetch(`/api/member/applications/${editingId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    setEditingId(null);
     fetchApplications();
   };
 
@@ -113,15 +157,26 @@ export default function ApplicationTrackerTable() {
               />
             </div>
           </div>
-          <div className="form-group">
-            <label>Job URL (optional)</label>
-            <input
-              type="url"
-              value={jobUrl}
-              onChange={(e) => setJobUrl(e.target.value)}
-              placeholder="https://..."
-              disabled={submitting}
-            />
+          <div className="form-row">
+            <div className="form-group">
+              <label>Applied date (optional)</label>
+              <input
+                type="date"
+                value={appliedAt}
+                onChange={(e) => setAppliedAt(e.target.value)}
+                disabled={submitting}
+              />
+            </div>
+            <div className="form-group">
+              <label>Job URL (optional)</label>
+              <input
+                type="url"
+                value={jobUrl}
+                onChange={(e) => setJobUrl(e.target.value)}
+                placeholder="https://..."
+                disabled={submitting}
+              />
+            </div>
           </div>
           <div className="form-group">
             <label>Status</label>
@@ -170,9 +225,28 @@ export default function ApplicationTrackerTable() {
                       ))}
                     </select>
                   </td>
-                  <td>{app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : '—'}</td>
                   <td>
-                    {app.url ? (
+                    {editingId === app.id ? (
+                      <input
+                        type="date"
+                        value={editAppliedAt}
+                        onChange={(e) => setEditAppliedAt(e.target.value)}
+                        className="application-tracker-edit-input"
+                      />
+                    ) : (
+                      <span>{app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : '—'}</span>
+                    )}
+                  </td>
+                  <td>
+                    {editingId === app.id ? (
+                      <input
+                        type="url"
+                        value={editUrl}
+                        onChange={(e) => setEditUrl(e.target.value)}
+                        placeholder="https://..."
+                        className="application-tracker-edit-input"
+                      />
+                    ) : app.url ? (
                       <a href={app.url} target="_blank" rel="noopener noreferrer" className="btn btn-outline btn-sm">
                         View
                       </a>
@@ -181,14 +255,35 @@ export default function ApplicationTrackerTable() {
                     )}
                   </td>
                   <td>
-                    <button
-                      type="button"
-                      className="btn btn-outline btn-sm"
-                      onClick={() => handleDelete(app.id)}
-                      aria-label="Delete"
-                    >
-                      Delete
-                    </button>
+                    {editingId === app.id ? (
+                      <span style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button type="button" className="btn btn-primary btn-sm" onClick={saveEdit}>
+                          Save
+                        </button>
+                        <button type="button" className="btn btn-outline btn-sm" onClick={cancelEdit}>
+                          Cancel
+                        </button>
+                      </span>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          className="btn btn-outline btn-sm"
+                          onClick={() => startEdit(app)}
+                          aria-label="Edit date and link"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-outline btn-sm"
+                          onClick={() => handleDelete(app.id)}
+                          aria-label="Delete"
+                        >
+                          Delete
+                        </button>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))}

@@ -7,7 +7,7 @@ const createSchema = z.object({
   company: z.string().min(1).max(200),
   role: z.string().min(1).max(200),
   status: z.enum(['SAVED', 'APPLIED', 'PHONE_SCREEN', 'INTERVIEWING', 'OFFER', 'REJECTED']).optional().default('SAVED'),
-  appliedAt: z.string().datetime().optional().nullable(),
+  appliedAt: z.string().optional().nullable(),
   notes: z.string().max(2000).optional().nullable(),
   url: z.string().url().optional().nullable().or(z.literal('')),
 });
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
       company,
       role,
       status,
-      appliedAt: appliedAt ? new Date(appliedAt) : null,
+      appliedAt: appliedAt?.trim() ? new Date(appliedAt) : null,
       notes: notes || null,
       url: url || null,
     },

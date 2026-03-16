@@ -22,9 +22,14 @@ export default function LoginForm() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-        credentials: 'same-origin',
+        body: JSON.stringify({ email, password, redirectTo }),
+        credentials: 'include',
       });
+
+      if (res.redirected && res.url) {
+        window.location.href = res.url;
+        return;
+      }
 
       const data = await res.json();
 
@@ -34,7 +39,6 @@ export default function LoginForm() {
         return;
       }
 
-      // Hard navigation ensures middleware sees new cookies (fixes mobile/cross-tab)
       window.location.href = redirectTo.startsWith('/') ? redirectTo : `/${redirectTo}`;
     } catch {
       setError('Something went wrong. Please try again.');

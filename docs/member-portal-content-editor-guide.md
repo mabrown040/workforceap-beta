@@ -74,6 +74,8 @@ Edit `content/member-resources/index.json` and add a new entry:
 
 ## Adding a Career Brief
 
+The Career Brief page shows a personalized **For You** section (location, program interest, recommended actions, job search link) above the list of weekly briefs. Brief content is static Markdown; personalization is driven by member profile and activity.
+
 ### 1. Create the brief file
 
 Create a new file in `content/career-brief/`:

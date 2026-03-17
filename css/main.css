@@ -4028,6 +4028,62 @@ body { animation: fadeIn 0.4s ease; }
 .career-brief-arrow {
     opacity: 0.5;
 }
+.career-brief-for-you {
+    background: linear-gradient(135deg, var(--color-primary) 0%, #1a3a4a 100%);
+    color: var(--color-white);
+    padding: 1.5rem 1.75rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 2rem;
+}
+.career-brief-for-you-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.75rem 0;
+    opacity: 0.9;
+}
+.career-brief-for-you-content {
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+.career-brief-for-you-line {
+    margin: 0 0 0.5rem 0;
+}
+.career-brief-for-you-line:last-of-type {
+    margin-bottom: 0;
+}
+.career-brief-for-you-link {
+    color: rgba(255,255,255,0.95);
+    text-decoration: underline;
+}
+.career-brief-for-you-link:hover {
+    color: var(--color-white);
+}
+.career-brief-for-you-subtitle {
+    margin: 1rem 0 0.5rem 0;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+.career-brief-for-you-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.career-brief-for-you-action-link {
+    display: inline-block;
+    color: var(--color-white);
+    padding: 0.35rem 0;
+    text-decoration: none;
+    font-weight: 500;
+}
+.career-brief-for-you-action-link:hover {
+    text-decoration: underline;
+}
+.career-brief-section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    color: var(--color-gray-800);
+}
 .career-brief-empty {
     background: var(--color-light);
     padding: 2rem;

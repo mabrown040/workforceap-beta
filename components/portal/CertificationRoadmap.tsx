@@ -22,16 +22,22 @@ export default function CertificationRoadmap() {
 
   const handleToggle = async (certName: string, currentlyEarned: boolean) => {
     const newEarned = !currentlyEarned;
+    setEarned((prev) => {
+      const next = new Set(prev);
+      if (newEarned) next.add(certName);
+      else next.delete(certName);
+      return next;
+    });
     const res = await fetch('/api/member/certifications', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ certName, earned: newEarned }),
     });
-    if (res.ok) {
+    if (!res.ok) {
       setEarned((prev) => {
         const next = new Set(prev);
-        if (newEarned) next.add(certName);
-        else next.delete(certName);
+        if (newEarned) next.delete(certName);
+        else next.add(certName);
         return next;
       });
     }

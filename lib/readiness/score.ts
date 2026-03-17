@@ -3,7 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 /* Setup tasks weighted lower; high-value outcomes weighted higher */
 const WEIGHTS = {
   completeProfile: 5,
-  setGoals: 5,
+  setGoals: 10,
   buildResume: 20,
   complete2Resources: 10,
   practiceInterview: 15,
@@ -97,14 +97,14 @@ export async function getScoreBreakdown(userId: string): Promise<ScoreBreakdown>
       done: hasPathway,
     },
     completePathwaySteps: {
-      earned: Math.min(pathwayStepsCompleted * 2, WEIGHTS.completePathwaySteps),
+      earned: Math.min(pathwayStepsCompleted * 3, WEIGHTS.completePathwaySteps),
       max: WEIGHTS.completePathwaySteps,
-      done: pathwayStepsCompleted >= 5,
+      done: pathwayStepsCompleted >= 3,
     },
     addApplications: {
-      earned: Math.min(appCount * 2, WEIGHTS.addApplications),
+      earned: Math.min(appCount * 5, WEIGHTS.addApplications),
       max: WEIGHTS.addApplications,
-      done: appCount >= 5,
+      done: appCount >= 3,
     },
     trackCertifications: {
       earned: hasCerts ? WEIGHTS.trackCertifications : 0,

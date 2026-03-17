@@ -28,14 +28,9 @@ export default async function WeeklyRecapPage() {
   if (!user) redirect('/login?redirectTo=/weekly-recap');
 
   const weekStart = getWeekStart(new Date());
-  let recap = await prisma.weeklyRecap.findUnique({
-    where: { userId_weekStartDate: { userId: user.id, weekStartDate: weekStart } },
-  });
-
-  if (!recap) {
-    const { generateWeeklyRecap } = await import('@/lib/recap/generate');
-    recap = await generateWeeklyRecap(user.id, weekStart);
-  }
+  const { generateWeeklyRecap } = await import('@/lib/recap/generate');
+  // Always regenerate so activity counts stay fresh
+  const recap = await generateWeeklyRecap(user.id, weekStart);
 
   if (recap && !recap.openedAt) {
     await prisma.weeklyRecap.update({

@@ -32,16 +32,20 @@ export async function generateWeeklyRecap(userId: string, weekStart: Date, weekE
     prisma.userCertification.findMany({ where: { userId } }),
   ]);
 
-  const events = await prisma.memberEvent.findMany({
-    where: { userId, createdAt: { gte: weekStart, lte: end } },
-    orderBy: { createdAt: 'desc' },
-    take: 50,
-  });
-
-  const applicationsAdded = events.filter((e) => e.eventName === 'application_added').length;
-  const resourcesCompleted = events.filter((e) => e.eventName === 'resource_completed').length;
-  const aiToolsUsed = new Set(events.filter((e) => e.eventName === 'ai_tool_submitted').map((e) => e.entityId)).size;
-  const pathwayStepsCompleted = events.filter((e) => e.eventName === 'pathway_step_completed').length;
+  // Use direct counts from source tables (reliable; works even without event tracking)
+  const applicationsAdded = jobApps.filter(
+    (a) => a.status !== 'SAVED' && a.createdAt >= weekStart && a.createdAt <= end
+  ).length;
+  const resourcesCompleted = resourceProgress.filter(
+    (r) => r.completedAt && r.completedAt >= weekStart && r.completedAt <= end
+  ).length;
+  const aiToolsUsedThisWeek = aiResults.filter(
+    (r) => r.createdAt >= weekStart && r.createdAt <= end
+  );
+  const aiToolsUsed = new Set(aiToolsUsedThisWeek.map((r) => r.toolType)).size;
+  const pathwayStepsCompleted = pathwayProgress.filter(
+    (p) => p.status === 'completed' && p.completedAt && p.completedAt >= weekStart && p.completedAt <= end
+  ).length;
 
   const score = await computeReadinessScore(userId);
 

@@ -2,9 +2,12 @@ import type { Metadata } from 'next';
 import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getCareerBriefs, getCareerBriefContent } from '@/lib/content/careerBriefs';
+import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
+import { generatePersonalizedBriefSection } from '@/lib/ai/careerBriefAI';
 import Footer from '@/components/Footer';
 import { SignOutButton } from '@/components/portal/SignOutButton';
 
@@ -33,6 +36,12 @@ export default async function CareerBriefDetailPage({ params }: Props) {
   const briefs = getCareerBriefs();
   const brief = briefs.find((b) => b.slug === slug);
 
+  const context = await getCareerBriefContext(user.id);
+  const aiSection = await generatePersonalizedBriefSection(
+    context,
+    brief?.title ?? 'Weekly Career Brief'
+  );
+
   return (
     <div className="inner-page">
       <section className="page-hero">
@@ -54,8 +63,19 @@ export default async function CareerBriefDetailPage({ params }: Props) {
 
       <section className="content-section">
         <div className="container">
+          {aiSection && (
+            <div className="career-brief-ai-section">
+              <h2 className="career-brief-ai-title">This Week for You</h2>
+              <div className="career-brief-ai-content">
+                {aiSection.split('\n\n').map((p, i) => (
+                  <p key={i}>{p.trim()}</p>
+                ))}
+              </div>
+            </div>
+          )}
           <article className="resource-content markdown-body">
             <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
               components={{
                 a: ({ href, children }) => {
                   const isInternal = href?.startsWith('/');

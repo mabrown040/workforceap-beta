@@ -24,14 +24,17 @@ export default function LoginForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, redirectTo }),
         credentials: 'include',
+        redirect: 'manual',
       });
 
-      if (res.redirected && res.url) {
-        window.location.href = res.url;
+      // 302 redirect = success; browser applies Set-Cookie, then we navigate
+      if (res.type === 'opaqueredirect' || (res.status >= 300 && res.status < 400)) {
+        const location = res.headers.get('Location');
+        window.location.href = location && location.startsWith('/') ? new URL(location, window.location.origin).href : (redirectTo.startsWith('/') ? redirectTo : `/${redirectTo}`);
         return;
       }
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
         setError(data.error ?? 'Something went wrong. Please try again.');

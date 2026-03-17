@@ -12,16 +12,29 @@ type Result = {
   createdAt: Date;
 };
 
-export default function AIHistoryList({ results }: { results: Result[] }) {
+export default function AIHistoryList({ results, initialFilter = '' }: { results: Result[]; initialFilter?: string }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [filter, setFilter] = useState<string>('');
+  const [filter, setFilter] = useState<string>(initialFilter);
 
   const filtered = filter
     ? results.filter((r) => r.toolType === filter || r.toolLabel.toLowerCase().includes(filter.toLowerCase()))
     : results;
 
   const formatOutput = (output: string, toolType: string) => {
-    if (toolType === 'interview_practice' || toolType === 'linkedin_headline') {
+    if (toolType === 'interview_practice') {
+      try {
+        const arr = JSON.parse(output);
+        if (!Array.isArray(arr)) return output;
+        return arr
+          .map((q: { question?: string; type?: string; tip?: string }) =>
+            [q.question, q.type ? `Type: ${q.type}` : '', q.tip].filter(Boolean).join('\n')
+          )
+          .join('\n\n');
+      } catch {
+        return output;
+      }
+    }
+    if (toolType === 'linkedin_headline') {
       try {
         const arr = JSON.parse(output);
         return Array.isArray(arr) ? arr.join('\n\n') : output;

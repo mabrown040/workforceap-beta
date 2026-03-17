@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import type { MemberResource } from '@/lib/content/memberResources';
 import { trackResourceOpen } from '@/lib/analytics/events';
@@ -10,13 +11,45 @@ type ResourceCardProps = {
 };
 
 export default function ResourceCard({ resource, progress }: ResourceCardProps) {
+  const [downloading, setDownloading] = useState(false);
   const isExternal = resource.url.startsWith('http');
   const href = resource.url;
   const isCompleted = !!progress?.completedAt;
   const isSaved = !!progress?.savedAt;
+  const hasFile = !!resource.file;
 
   const handleClick = () => {
     trackResourceOpen(resource.id, resource.title);
+  };
+
+  const handleDownload = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (downloading || !hasFile) return;
+    setDownloading(true);
+    try {
+      const res = await fetch(`/api/member/resources/${resource.id}/download`, { credentials: 'include' });
+      if (!res.ok) throw new Error();
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${resource.title.replace(/[^a-z0-9-]/gi, '-')}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      fetch(`/api/member/resources/${resource.id}/progress`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'download' }),
+        credentials: 'include',
+      }).catch(() => {});
+    } catch {
+      // ignore
+    } finally {
+      setDownloading(false);
+    }
   };
 
   const content = (
@@ -42,9 +75,22 @@ export default function ResourceCard({ resource, progress }: ResourceCardProps) 
           ))}
         </div>
       ) : null}
-      <span className="resource-card-arrow" aria-hidden>
-        →
-      </span>
+      <div className="resource-card-footer">
+        {hasFile && (
+          <button
+            type="button"
+            className="resource-card-download"
+            onClick={handleDownload}
+            disabled={downloading}
+            aria-label={`Download ${resource.title}`}
+          >
+            {downloading ? '…' : '↓ Download'}
+          </button>
+        )}
+        <span className="resource-card-arrow" aria-hidden>
+          →
+        </span>
+      </div>
     </>
   );
 

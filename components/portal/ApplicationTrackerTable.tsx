@@ -47,7 +47,45 @@ export default function ApplicationTrackerTable() {
   const [editAppliedAt, setEditAppliedAt] = useState('');
   const [editUrl, setEditUrl] = useState('');
   const [addError, setAddError] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const formRef = useRef<HTMLFormElement>(null);
+
+  const filteredApplications = applications.filter((app) => {
+    if (statusFilter !== 'all') {
+      if (statusFilter === 'interview') {
+        if (app.status !== 'PHONE_SCREEN' && app.status !== 'INTERVIEWING') return false;
+      } else {
+        const statusMap: Record<string, string> = { applied: 'APPLIED', offer: 'OFFER', rejected: 'REJECTED', saved: 'SAVED' };
+        if (app.status !== statusMap[statusFilter]) return false;
+      }
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      return (
+        app.company.toLowerCase().includes(q) ||
+        app.role.toLowerCase().includes(q)
+      );
+    }
+    return true;
+  });
+
+  const countByStatus = (status: string) => {
+    if (status === 'interview') {
+      return applications.filter((a) => a.status === 'PHONE_SCREEN' || a.status === 'INTERVIEWING').length;
+    }
+    if (status === 'all') return applications.length;
+    return applications.filter((a) => a.status === status).length;
+  };
+
+  const FILTER_OPTIONS = [
+    { value: 'all', label: 'All', count: () => applications.length },
+    { value: 'applied', label: 'Applied', count: () => countByStatus('APPLIED') },
+    { value: 'interview', label: 'Interview', count: () => countByStatus('interview') },
+    { value: 'offer', label: 'Offer', count: () => countByStatus('OFFER') },
+    { value: 'rejected', label: 'Rejected', count: () => countByStatus('REJECTED') },
+    { value: 'saved', label: 'Saved', count: () => countByStatus('SAVED') },
+  ];
 
   useEffect(() => {
     trackApplicationTrackerOpen();
@@ -222,7 +260,30 @@ export default function ApplicationTrackerTable() {
           <p>No applications yet. Add one to start tracking.</p>
         </div>
       ) : (
-        <div className="application-tracker-table-wrap">
+        <>
+          <div className="application-tracker-filters">
+            <div className="application-tracker-filter-chips">
+              {FILTER_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  className={`application-tracker-filter-chip ${statusFilter === opt.value ? 'active' : ''}`}
+                  onClick={() => setStatusFilter(opt.value)}
+                >
+                  {opt.label} ({opt.count()})
+                </button>
+              ))}
+            </div>
+            <input
+              type="search"
+              placeholder="Search company or role..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="application-tracker-search"
+              aria-label="Search applications"
+            />
+          </div>
+          <div className="application-tracker-table-wrap">
           <table className="application-tracker-table">
             <thead>
               <tr>
@@ -235,7 +296,7 @@ export default function ApplicationTrackerTable() {
               </tr>
             </thead>
             <tbody>
-              {applications.map((app) => (
+              {filteredApplications.map((app) => (
                 <tr key={app.id}>
                   <td>{app.company}</td>
                   <td>{app.role}</td>
@@ -315,10 +376,15 @@ export default function ApplicationTrackerTable() {
             </tbody>
           </table>
         </div>
+        {filteredApplications.length === 0 && applications.length > 0 && (
+          <p className="application-tracker-no-results">No applications match your filters.</p>
+        )}
+        </>
       )}
 
       <p className="application-tracker-summary">
         <strong>{applications.length}</strong> application{applications.length !== 1 ? 's' : ''} tracked
+        {statusFilter !== 'all' || searchQuery.trim() ? ` (${filteredApplications.length} shown)` : ''}
       </p>
     </div>
   );

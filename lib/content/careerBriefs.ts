@@ -9,6 +9,7 @@ export type CareerBriefMeta = {
 };
 
 const BRIEFS: CareerBriefMeta[] = [
+  { id: '2026-03-21', title: 'Weekly Career Brief — March 21, 2026', date: '2026-03-21', slug: '2026-03-21-weekly-brief' },
   { id: '2026-03-14', title: 'Weekly Career Brief — March 14, 2026', date: '2026-03-14', slug: '2026-03-14-weekly-brief' },
 ];
 

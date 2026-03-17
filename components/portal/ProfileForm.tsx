@@ -21,6 +21,27 @@ export default function ProfileForm({ initialUser, initialProfile }: ProfileForm
   const [zip, setZip] = useState(initialProfile?.zip ?? '');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [zipLookupLoading, setZipLookupLoading] = useState(false);
+
+  const handleZipBlur = async () => {
+    const trimmed = zip.trim();
+    if (trimmed.length < 5 || (city.trim() && state.trim())) return;
+    setZipLookupLoading(true);
+    try {
+      const res = await fetch(`https://api.zippopotam.us/us/${trimmed.slice(0, 5)}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const place = data.places?.[0];
+      if (place) {
+        if (!city.trim()) setCity(place['place name'] ?? '');
+        if (!state.trim()) setState(place['state abbreviation'] ?? '');
+      }
+    } catch {
+      // ignore
+    } finally {
+      setZipLookupLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,8 +140,13 @@ export default function ProfileForm({ initialUser, initialProfile }: ProfileForm
             type="text"
             value={zip}
             onChange={(e) => setZip(e.target.value)}
+            onBlur={handleZipBlur}
             disabled={saving}
+            placeholder="e.g. 78701"
           />
+          {zip.trim().length >= 5 && !city.trim() && (
+            <p className="form-hint">City and state will auto-fill from ZIP when you leave this field.</p>
+          )}
         </div>
       </div>
       {message && (

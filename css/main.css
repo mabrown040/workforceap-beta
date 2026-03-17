@@ -124,13 +124,13 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.2; font-weight: 700; }
     50% { border-color: rgba(164,127,56,0.7); }
 }
 
+/* Visible by default; animation is progressive enhancement. No opacity: 0 so content is readable without JS. */
 .animate-on-scroll {
-    opacity: 0;
-    transform: translateY(40px);
+    opacity: 1;
+    transform: translateY(12px);
     transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .animate-on-scroll.visible {
-    opacity: 1;
     transform: translateY(0);
 }
 .animate-on-scroll:nth-child(2) { transition-delay: 0.1s; }
@@ -3193,7 +3193,8 @@ body { animation: fadeIn 0.4s ease; }
     border: 1px solid var(--color-gray-200);
 }
 .resource-progress-summary h3, .weekly-recap-preview h3 { font-size: 1rem; margin: 0 0 0.5rem; font-weight: 600; }
-.resource-progress-actions { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.resource-detail-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; }
+.resource-progress-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 .resource-progress-actions .saved { color: var(--color-green); }
 .resource-card-badges { margin-left: auto; display: flex; gap: 0.35rem; }
 .resource-badge {
@@ -3428,6 +3429,28 @@ body { animation: fadeIn 0.4s ease; }
     border-radius: var(--radius-full);
     color: var(--color-gray-600);
 }
+.resource-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+.resource-card-download {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.6rem;
+    background: var(--color-light);
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--color-primary);
+    transition: all var(--transition-fast);
+}
+.resource-card-download:hover:not(:disabled) {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+.resource-card-download:disabled { opacity: 0.6; cursor: not-allowed; }
 .resource-card-arrow {
     position: absolute;
     top: 1.25rem;
@@ -3681,6 +3704,49 @@ body { animation: fadeIn 0.4s ease; }
     padding: 1.5rem;
     border-radius: var(--radius-md);
     margin-bottom: 1.5rem;
+}
+.application-tracker-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.application-tracker-filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.application-tracker-filter-chip {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.75rem;
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-full);
+    background: var(--color-white);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+.application-tracker-filter-chip:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+.application-tracker-filter-chip.active {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-white);
+}
+.application-tracker-search {
+    flex: 1;
+    min-width: 180px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+}
+.application-tracker-no-results {
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--color-gray-600);
 }
 .application-tracker-empty {
     padding: 2rem;
@@ -3961,6 +4027,62 @@ body { animation: fadeIn 0.4s ease; }
 }
 .career-brief-arrow {
     opacity: 0.5;
+}
+.career-brief-for-you {
+    background: linear-gradient(135deg, var(--color-primary) 0%, #1a3a4a 100%);
+    color: var(--color-white);
+    padding: 1.5rem 1.75rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 2rem;
+}
+.career-brief-for-you-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.75rem 0;
+    opacity: 0.9;
+}
+.career-brief-for-you-content {
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+.career-brief-for-you-line {
+    margin: 0 0 0.5rem 0;
+}
+.career-brief-for-you-line:last-of-type {
+    margin-bottom: 0;
+}
+.career-brief-for-you-link {
+    color: rgba(255,255,255,0.95);
+    text-decoration: underline;
+}
+.career-brief-for-you-link:hover {
+    color: var(--color-white);
+}
+.career-brief-for-you-subtitle {
+    margin: 1rem 0 0.5rem 0;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+.career-brief-for-you-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.career-brief-for-you-action-link {
+    display: inline-block;
+    color: var(--color-white);
+    padding: 0.35rem 0;
+    text-decoration: none;
+    font-weight: 500;
+}
+.career-brief-for-you-action-link:hover {
+    text-decoration: underline;
+}
+.career-brief-section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    color: var(--color-gray-800);
 }
 .career-brief-empty {
     background: var(--color-light);

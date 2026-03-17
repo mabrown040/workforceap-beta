@@ -11,6 +11,7 @@ import Footer from '@/components/Footer';
 import { SignOutButton } from '@/components/portal/SignOutButton';
 import ResourceViewTracker from '@/components/portal/ResourceViewTracker';
 import ResourceProgressActions from '@/components/portal/ResourceProgressActions';
+import ResourceDownloadButton from '@/components/portal/ResourceDownloadButton';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -73,10 +74,15 @@ export default async function ResourceDetailPage({ params }: Props) {
 
       <section className="content-section">
         <div className="container">
-          <ResourceProgressActions
-            resourceId={id}
-            progress={progress ? { completedAt: progress.completedAt, savedAt: progress.savedAt } : null}
-          />
+          <div className="resource-detail-actions">
+            <ResourceProgressActions
+              resourceId={id}
+              progress={progress ? { completedAt: progress.completedAt, savedAt: progress.savedAt } : null}
+            />
+            {resource.file && (
+              <ResourceDownloadButton resourceId={id} resourceTitle={resource.title} />
+            )}
+          </div>
           <article className="resource-content markdown-body">
             <ReactMarkdown>{content}</ReactMarkdown>
           </article>

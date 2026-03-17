@@ -1,16 +1,17 @@
 import { prisma } from '@/lib/db/prisma';
 
+/* Setup tasks weighted lower; high-value outcomes weighted higher */
 const WEIGHTS = {
-  completeProfile: 10,
-  setGoals: 10,
-  buildResume: 15,
+  completeProfile: 5,
+  setGoals: 5,
+  buildResume: 20,
   complete2Resources: 10,
-  practiceInterview: 10,
-  startPathway: 10,
-  completePathwaySteps: 10,
-  addApplications: 10,
+  practiceInterview: 15,
+  startPathway: 5,
+  completePathwaySteps: 15,
+  addApplications: 15,
   trackCertifications: 5,
-  weeklyConsistency: 10,
+  weeklyConsistency: 5,
 };
 
 export type ScoreBreakdown = {

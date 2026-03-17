@@ -4,9 +4,11 @@ import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getCareerBriefs } from '@/lib/content/careerBriefs';
+import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
 import Footer from '@/components/Footer';
 import { SignOutButton } from '@/components/portal/SignOutButton';
 import CareerBriefList from '@/components/portal/CareerBriefList';
+import CareerBriefForYou from '@/components/portal/CareerBriefForYou';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Weekly Career Brief',
@@ -18,7 +20,10 @@ export default async function CareerBriefPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/career-brief');
 
-  const briefs = getCareerBriefs();
+  const [briefs, context] = await Promise.all([
+    Promise.resolve(getCareerBriefs()),
+    getCareerBriefContext(user.id),
+  ]);
 
   return (
     <div className="inner-page">
@@ -39,6 +44,8 @@ export default async function CareerBriefPage() {
 
       <section className="content-section">
         <div className="container">
+          <CareerBriefForYou context={context} />
+          <h2 className="career-brief-section-title">Weekly Briefs</h2>
           <CareerBriefList briefs={briefs} />
         </div>
       </section>

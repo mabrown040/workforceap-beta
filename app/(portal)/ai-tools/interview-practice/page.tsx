@@ -3,9 +3,11 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
+import { prisma } from '@/lib/db/prisma';
 import Footer from '@/components/Footer';
 import { SignOutButton } from '@/components/portal/SignOutButton';
 import InterviewPracticeForm from '@/components/portal/tools/InterviewPracticeForm';
+import InterviewPracticeSaved from '@/components/portal/tools/InterviewPracticeSaved';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Interview Practice Generator',
@@ -16,6 +18,13 @@ export const metadata: Metadata = buildPageMetadata({
 export default async function InterviewPracticePage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/ai-tools/interview-practice');
+
+  const savedResults = await prisma.aIToolResult.findMany({
+    where: { userId: user.id, toolType: 'interview_practice' },
+    orderBy: { createdAt: 'desc' },
+    take: 10,
+    select: { id: true, inputSummary: true, output: true, createdAt: true },
+  });
 
   return (
     <div className="inner-page">
@@ -41,6 +50,7 @@ export default async function InterviewPracticePage() {
         <div className="container">
           <div className="ai-tool-page" style={{ maxWidth: '720px' }}>
             <InterviewPracticeForm />
+            <InterviewPracticeSaved results={savedResults} />
           </div>
         </div>
       </section>

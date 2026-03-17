@@ -25,9 +25,13 @@ const TOOL_LABELS: Record<string, string> = {
   gap_analyzer: 'Gap Analyzer',
 };
 
-export default async function AIHistoryPage() {
+type Props = { searchParams: Promise<{ tool?: string }> };
+
+export default async function AIHistoryPage({ searchParams }: Props) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/ai-tools/history');
+
+  const { tool } = await searchParams;
 
   const results = await prisma.aIToolResult.findMany({
     where: { userId: user.id },
@@ -68,7 +72,7 @@ export default async function AIHistoryPage() {
                 </Link>
               </div>
             ) : (
-              <AIHistoryList results={withLabels} />
+              <AIHistoryList results={withLabels} initialFilter={tool ?? ''} />
             )}
           </div>
         </div>

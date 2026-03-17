@@ -12,24 +12,47 @@ type Result = {
   createdAt: Date;
 };
 
-export default function AIHistoryList({ results }: { results: Result[] }) {
+export default function AIHistoryList({ results, initialFilter = '' }: { results: Result[]; initialFilter?: string }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [filter, setFilter] = useState<string>('');
+  const [filter, setFilter] = useState<string>(initialFilter);
 
   const filtered = filter
     ? results.filter((r) => r.toolType === filter || r.toolLabel.toLowerCase().includes(filter.toLowerCase()))
     : results;
 
-  const formatOutput = (output: string, toolType: string) => {
-    if (toolType === 'interview_practice' || toolType === 'linkedin_headline') {
+  const formatOutput = (output: string, toolType: string): string => {
+    if (toolType === 'interview_practice') {
       try {
-        const arr = JSON.parse(output);
-        return Array.isArray(arr) ? arr.join('\n\n') : output;
+        const raw = typeof output === 'string' ? output : JSON.stringify(output);
+        const jsonMatch = raw.match(/\[[\s\S]*\]/);
+        const jsonStr = jsonMatch ? jsonMatch[0] : raw;
+        const parsed = JSON.parse(jsonStr);
+        const arr = Array.isArray(parsed) ? parsed : (parsed?.questions ? parsed.questions : []);
+        if (!Array.isArray(arr) || arr.length === 0) return output || 'No questions available.';
+        return arr
+          .map((item: unknown, i: number) => {
+            const q = item && typeof item === 'object' ? (item as Record<string, unknown>) : {};
+            const question = (q.question ?? q.Question ?? '') as string;
+            const type = (q.type ?? q.Type ?? '') as string;
+            const tip = (q.tip ?? q.Tip ?? '') as string;
+            const parts = [question ? `${i + 1}. ${question}` : '', type ? `Type: ${type}` : '', tip].filter(Boolean);
+            return parts.join('\n');
+          })
+          .filter(Boolean)
+          .join('\n\n');
       } catch {
-        return output;
+        return typeof output === 'string' ? output : 'Unable to display format.';
       }
     }
-    return output;
+    if (toolType === 'linkedin_headline') {
+      try {
+        const arr = JSON.parse(typeof output === 'string' ? output : JSON.stringify(output));
+        return Array.isArray(arr) ? arr.map((x: unknown) => (typeof x === 'string' ? x : String(x))).join('\n\n') : String(output);
+      } catch {
+        return typeof output === 'string' ? output : '';
+      }
+    }
+    return typeof output === 'string' ? output : 'Unable to display.';
   };
 
   const getPreview = (output: string, toolType: string, maxLen = 100) => {

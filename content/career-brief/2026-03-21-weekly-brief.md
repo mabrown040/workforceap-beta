@@ -1,30 +1,28 @@
 # Weekly Career Brief — March 21, 2026
 
-Your personalized Career Brief surfaces guidance based on your profile and activity. Use the **For You** section above to see recommended actions and job search links for your area.
+Your personalized Career Brief combines curated guidance with recommendations tailored to your profile. The **For You** section above highlights actions and job search links for your area.
 
 ---
 
 ## This Week's Focus: Apply Strategically
 
 ### 1. Use the Job Match Scorer
-Before applying, paste the job description and your resume into our [Job Match Scorer](/ai-tools/job-match-scorer). See your match percentage and specific gaps—then tailor your materials before you hit submit.
+Before submitting applications, use our [Job Match Scorer](/ai-tools/job-match-scorer) to compare your resume against job descriptions. Identify match percentages and specific gaps, then refine your materials accordingly.
 
 ### 2. Track Every Application
-Log each application in the [Application Tracker](/ai-tools/application-tracker). Tracking helps you follow up, spot patterns, and stay organized. Aim for 3–5 quality applications per day.
+Log each application in the [Application Tracker](/ai-tools/application-tracker). Consistent tracking supports follow-ups, pattern recognition, and organization. Aim for 3–5 quality applications per day.
 
 ### 3. Prepare for Interviews
-Use [Interview Practice](/ai-tools/interview-practice) to rehearse common questions. Practice out loud—it builds confidence and helps you articulate your experience clearly.
+Use [Interview Practice](/ai-tools/interview-practice) to rehearse common questions. Practicing out loud builds confidence and improves how you articulate your experience.
 
 ---
 
-## Tools to Try This Week
+## Recommended Tools
 
-| Tool | Best for |
-|------|----------|
-| [Resume Rewriter](/ai-tools/resume-rewriter) | ATS-friendly bullets and formatting |
-| [Cover Letter Builder](/ai-tools/cover-letter) | Tailored cover letters with tone options |
-| [LinkedIn About Generator](/ai-tools/linkedin-about) | Polished LinkedIn summary section |
-| [Salary Negotiation Script](/ai-tools/salary-negotiation) | Word-for-word scripts for offers |
+- **[Resume Rewriter](/ai-tools/resume-rewriter)** — ATS-friendly bullets and formatting
+- **[Cover Letter Builder](/ai-tools/cover-letter)** — Tailored cover letters with tone options
+- **[LinkedIn About Generator](/ai-tools/linkedin-about)** — Polished LinkedIn summary section
+- **[Salary Negotiation Script](/ai-tools/salary-negotiation)** — Word-for-word scripts for offers
 
 ---
 
@@ -37,7 +35,7 @@ Use [Interview Practice](/ai-tools/interview-practice) to rehearse common questi
 
 ## Local Opportunities
 
-We're working on surfacing local job openings in future updates. For now, use the **Search jobs in your area** link in your personalized section above—or visit [Indeed](https://www.indeed.com) and filter by your city.
+We are developing local job surfacing. For now, use the **Search jobs in your area** link in your personalized section above, or visit [Indeed](https://www.indeed.com) and filter by your city.
 
 ---
 

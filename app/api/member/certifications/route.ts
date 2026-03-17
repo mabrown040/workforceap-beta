@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
@@ -11,6 +12,8 @@ const toggleSchema = z.object({
 export async function GET() {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  await ensureUserInDb(user);
 
   const certs = await prisma.userCertification.findMany({
     where: { userId: user.id },
@@ -25,6 +28,8 @@ export async function GET() {
 export async function POST(request: Request) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  await ensureUserInDb(user);
 
   let body: unknown;
   try {

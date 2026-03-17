@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 type ProfileFormProps = {
   initialUser: { email: string; fullName: string; phone: string | null };
@@ -23,9 +23,9 @@ export default function ProfileForm({ initialUser, initialProfile }: ProfileForm
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [zipLookupLoading, setZipLookupLoading] = useState(false);
 
-  const handleZipBlur = async () => {
-    const trimmed = zip.trim();
-    if (trimmed.length < 5 || (city.trim() && state.trim())) return;
+  const lookupCityFromZip = async (zipVal: string) => {
+    const trimmed = zipVal.trim();
+    if (trimmed.length < 5) return;
     setZipLookupLoading(true);
     try {
       const res = await fetch(`https://api.zippopotam.us/us/${trimmed.slice(0, 5)}`);
@@ -33,8 +33,8 @@ export default function ProfileForm({ initialUser, initialProfile }: ProfileForm
       const data = await res.json();
       const place = data.places?.[0];
       if (place) {
-        if (!city.trim()) setCity(place['place name'] ?? '');
-        if (!state.trim()) setState(place['state abbreviation'] ?? '');
+        setCity((c) => (c.trim() ? c : place['place name'] ?? ''));
+        setState((s) => (s.trim() ? s : place['state abbreviation'] ?? ''));
       }
     } catch {
       // ignore
@@ -42,6 +42,17 @@ export default function ProfileForm({ initialUser, initialProfile }: ProfileForm
       setZipLookupLoading(false);
     }
   };
+
+  const handleZipBlur = () => void lookupCityFromZip(zip);
+
+  // Auto-fill city/state on mount when ZIP exists but city is empty (e.g. profile saved with ZIP before lookup)
+  useEffect(() => {
+    const zipVal = initialProfile?.zip?.trim() ?? '';
+    const cityVal = initialProfile?.city?.trim() ?? '';
+    if (zipVal.length >= 5 && !cityVal) {
+      void lookupCityFromZip(zipVal);
+    }
+  }, [initialProfile?.zip, initialProfile?.city]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

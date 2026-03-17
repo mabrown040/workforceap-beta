@@ -320,7 +320,7 @@ export default function ApplicationTrackerTable() {
                         className="application-tracker-edit-input"
                       />
                     ) : (
-                      <span>{app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : '—'}</span>
+                      <span>{app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : '— (add date)'}</span>
                     )}
                   </td>
                   <td>

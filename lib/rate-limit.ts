@@ -5,6 +5,7 @@ const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
 const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
 
 let signupRateLimiter: Ratelimit | null = null;
+let applySignupRateLimiter: Ratelimit | null = null;
 let authRateLimiter: Ratelimit | null = null;
 let aiToolRateLimiter: Ratelimit | null = null;
 let contactRateLimiter: Ratelimit | null = null;
@@ -15,6 +16,11 @@ if (redisUrl && redisToken) {
     redis,
     limiter: Ratelimit.slidingWindow(5, '1 h'),
     prefix: 'ratelimit:signup',
+  });
+  applySignupRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(5, '1 h'),
+    prefix: 'ratelimit:apply-signup',
   });
   authRateLimiter = new Ratelimit({
     redis,
@@ -36,6 +42,12 @@ if (redisUrl && redisToken) {
 export async function checkSignupRateLimit(identifier: string): Promise<{ success: boolean; remaining?: number }> {
   if (!signupRateLimiter) return { success: true };
   const result = await signupRateLimiter.limit(identifier);
+  return { success: result.success, remaining: result.remaining };
+}
+
+export async function checkApplySignupRateLimit(identifier: string): Promise<{ success: boolean; remaining?: number }> {
+  if (!applySignupRateLimiter) return { success: true };
+  const result = await applySignupRateLimiter.limit(identifier);
   return { success: result.success, remaining: result.remaining };
 }
 

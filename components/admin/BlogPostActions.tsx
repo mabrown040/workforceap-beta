@@ -49,13 +49,10 @@ export default function BlogPostActions({ id, slug, published }: Props) {
         Edit
       </Link>
       <Link
-        href={published ? `/blog/${slug}` : '#'}
-        target={published ? '_blank' : undefined}
-        rel={published ? 'noopener noreferrer' : undefined}
-        style={{
-          color: published ? 'var(--color-accent)' : '#999',
-          pointerEvents: published ? 'auto' : 'none',
-        }}
+        href={`/admin/blog/preview/${slug}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ color: 'var(--color-accent)' }}
       >
         Preview
       </Link>

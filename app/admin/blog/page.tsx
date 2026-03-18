@@ -17,7 +17,7 @@ export default async function AdminBlogPage() {
   });
 
   return (
-    <div>
+    <div style={{ paddingTop: '1.5rem' }}>
       <div
         style={{
           display: 'flex',
@@ -27,19 +27,35 @@ export default async function AdminBlogPage() {
         }}
       >
         <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Blog Posts</h1>
-        <Link
-          href="/admin/blog/new"
-          style={{
-            padding: '0.5rem 1rem',
-            background: 'var(--color-accent)',
-            color: 'white',
-            borderRadius: '6px',
-            textDecoration: 'none',
-            fontWeight: 600,
-          }}
-        >
-          New Post
-        </Link>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <Link
+            href="/admin/blog/ai"
+            style={{
+              padding: '0.5rem 1rem',
+              background: '#f0f0f0',
+              color: '#333',
+              borderRadius: '6px',
+              textDecoration: 'none',
+              fontWeight: 600,
+              border: '1px solid #ccc',
+            }}
+          >
+            AI Tools
+          </Link>
+          <Link
+            href="/admin/blog/new"
+            style={{
+              padding: '0.5rem 1rem',
+              background: 'var(--color-accent)',
+              color: 'white',
+              borderRadius: '6px',
+              textDecoration: 'none',
+              fontWeight: 600,
+            }}
+          >
+            New Post
+          </Link>
+        </div>
       </div>
       <table
         style={{
@@ -53,7 +69,7 @@ export default async function AdminBlogPage() {
             <th style={{ padding: '0.75rem' }}>Title</th>
             <th style={{ padding: '0.75rem' }}>Category</th>
             <th style={{ padding: '0.75rem' }}>Status</th>
-            <th style={{ padding: '0.75rem' }}>Date</th>
+            <th style={{ padding: '0.75rem' }}>Go live</th>
             <th style={{ padding: '0.75rem' }}>Actions</th>
           </tr>
         </thead>
@@ -77,8 +93,12 @@ export default async function AdminBlogPage() {
               </td>
               <td style={{ padding: '0.75rem', color: '#666' }}>
                 {post.publishedAt
-                  ? new Date(post.publishedAt).toLocaleDateString()
-                  : new Date(post.updatedAt).toLocaleDateString()}
+                  ? new Date(post.publishedAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                    })
+                  : '—'}
               </td>
               <td style={{ padding: '0.75rem' }}>
                 <BlogPostActions

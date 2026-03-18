@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 type BlogPost = {
   id: string;
@@ -41,10 +43,39 @@ export default function BlogPostEditor({
   const [published, setPublished] = useState(post?.published ?? false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [review, setReview] = useState<{
+    overallScore?: number;
+    summary?: string;
+    strengths?: string[];
+    improvements?: string[];
+    seoSuggestions?: string[];
+    toneNote?: string;
+  } | null>(null);
+  const [reviewLoading, setReviewLoading] = useState(false);
 
   const handleTitleChange = (v: string) => {
     setTitle(v);
     if (mode === 'create' && !slug) setSlug(slugify(v));
+  };
+
+  const handleReview = async () => {
+    setReviewLoading(true);
+    setReview(null);
+    setError(null);
+    try {
+      const res = await fetch('/api/admin/blog/ai/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content, excerpt }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'Failed');
+      setReview(data);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Something went wrong');
+    } finally {
+      setReviewLoading(false);
+    }
   };
 
   const handleSave = async (publish: boolean) => {
@@ -188,16 +219,57 @@ export default function BlogPostEditor({
       </div>
       <div style={{ marginBottom: '1rem' }}>
         <label style={labelStyle}>Content (Markdown)</label>
-        <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          required
-          rows={16}
-          style={{ ...inputStyle, maxWidth: '100%', resize: 'vertical', fontFamily: 'monospace' }}
-          placeholder="Write your post in Markdown. Use **bold**, ## headings, etc."
-        />
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '1rem',
+            alignItems: 'stretch',
+          }}
+          className="live-editor-split"
+        >
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            required
+            rows={18}
+            style={{
+              ...inputStyle,
+              maxWidth: '100%',
+              resize: 'vertical',
+              fontFamily: 'monospace',
+              fontSize: '0.9rem',
+              minHeight: '400px',
+            }}
+            placeholder="Write your post in Markdown. Use **bold**, ## headings, etc."
+          />
+          <div
+            style={{
+              border: '1px solid #ccc',
+              borderRadius: '6px',
+              padding: '1rem',
+              background: '#fafafa',
+              minHeight: '400px',
+              overflow: 'auto',
+            }}
+            className="markdown-body"
+          >
+            <div style={{ fontSize: '0.95rem', lineHeight: 1.6 }}>
+              {content ? (
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+              ) : (
+                <span style={{ color: '#999' }}>Live preview appears here…</span>
+              )}
+            </div>
+          </div>
+        </div>
+        <style>{`
+          @media (max-width: 900px) {
+            .live-editor-split { grid-template-columns: 1fr !important; }
+          }
+        `}</style>
       </div>
-      <div style={{ marginBottom: '1.5rem' }}>
+      <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
         <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
           <input
             type="checkbox"
@@ -206,7 +278,75 @@ export default function BlogPostEditor({
           />
           Published
         </label>
+        <button
+          type="button"
+          onClick={handleReview}
+          disabled={reviewLoading || !content.trim()}
+          style={{
+            padding: '0.4rem 0.9rem',
+            background: '#f0f0f0',
+            color: '#333',
+            border: '1px solid #ccc',
+            borderRadius: '6px',
+            fontWeight: 500,
+            cursor: reviewLoading || !content.trim() ? 'not-allowed' : 'pointer',
+            fontSize: '0.9rem',
+          }}
+        >
+          {reviewLoading ? 'Reviewing…' : 'Review with AI'}
+        </button>
       </div>
+      {review && (
+        <div
+          style={{
+            marginBottom: '1.5rem',
+            padding: '1rem',
+            border: '1px solid #e5e5e5',
+            borderRadius: '8px',
+            background: '#fafafa',
+          }}
+        >
+          <h4 style={{ margin: '0 0 0.75rem', fontSize: '1rem' }}>
+            AI review {review.overallScore != null && `— ${review.overallScore}/10`}
+          </h4>
+          {review.summary && <p style={{ margin: '0 0 0.75rem', fontSize: '0.95rem' }}>{review.summary}</p>}
+          {review.strengths && review.strengths.length > 0 && (
+            <div style={{ marginBottom: '0.5rem' }}>
+              <strong style={{ fontSize: '0.85rem' }}>Strengths:</strong>
+              <ul style={{ margin: '0.25rem 0 0 1.25rem', fontSize: '0.9rem' }}>
+                {review.strengths.map((s, i) => (
+                  <li key={i}>{s}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {review.improvements && review.improvements.length > 0 && (
+            <div style={{ marginBottom: '0.5rem' }}>
+              <strong style={{ fontSize: '0.85rem' }}>Improvements:</strong>
+              <ul style={{ margin: '0.25rem 0 0 1.25rem', fontSize: '0.9rem' }}>
+                {review.improvements.map((s, i) => (
+                  <li key={i}>{s}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {review.seoSuggestions && review.seoSuggestions.length > 0 && (
+            <div style={{ marginBottom: '0.5rem' }}>
+              <strong style={{ fontSize: '0.85rem' }}>SEO:</strong>
+              <ul style={{ margin: '0.25rem 0 0 1.25rem', fontSize: '0.9rem' }}>
+                {review.seoSuggestions.map((s, i) => (
+                  <li key={i}>{s}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {review.toneNote && (
+            <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', color: '#666' }}>
+              <strong>Tone:</strong> {review.toneNote}
+            </p>
+          )}
+        </div>
+      )}
       <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
         <button
           type="button"
@@ -239,9 +379,9 @@ export default function BlogPostEditor({
         >
           {saving ? 'Saving…' : 'Save Draft'}
         </button>
-        {mode === 'edit' && post?.published && (
+        {mode === 'edit' && post && (
           <Link
-            href={`/blog/${post.slug}`}
+            href={`/admin/blog/preview/${post.slug}`}
             target="_blank"
             rel="noopener noreferrer"
             style={{

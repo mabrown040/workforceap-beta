@@ -18,12 +18,25 @@ const filters = [
   { key: 'manufacturing', label: 'Manufacturing (3)' },
 ];
 
+const CATEGORY_BORDER: Record<string, string> = {
+  'it-cyber': '#2b7bb9',
+  'ai-software': '#8b4a9b',
+  'cloud-data': '#0d9488',
+  'business': '#4a9b4f',
+  'healthcare': '#e11d48',
+  'manufacturing': '#ea580c',
+  'digital-literacy': '#6b7280',
+};
+
 function ProgramCard({ program }: { program: Program }) {
   const [open, setOpen] = useState(false);
   const count = program.courses.length;
+  const skills = program.skills.slice(0, 3);
+  const moreSkills = program.skills.length - 3;
+  const borderColor = CATEGORY_BORDER[program.category] ?? program.borderColor;
 
   return (
-    <div className="program-card category-it" data-category={program.category} style={{ borderTopColor: program.borderColor }}>
+    <div className="program-card" data-category={program.category} style={{ borderLeft: `4px solid ${borderColor}` }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
         <span style={{ background: program.categoryColor, color: 'white', padding: '.3rem .75rem', borderRadius: '50px', fontSize: '.75rem', fontWeight: 600 }}>{program.categoryLabel}</span>
         <span style={{ fontSize: '1.8rem' }}>{program.icon}</span>
@@ -31,12 +44,15 @@ function ProgramCard({ program }: { program: Program }) {
       <h3 style={{ fontSize: '1.1rem', marginBottom: '.5rem' }}>{program.title}</h3>
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '.75rem', fontSize: '.85rem', color: '#666' }}>
         <span>⏱ {program.duration}</span>
-        <span style={{ color: '#4a9b4f', fontWeight: 600 }}>{program.salary}</span>
+        <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{program.salary}</span>
       </div>
-      <div style={{ marginBottom: '1rem' }}>
-        {program.skills.map((s) => (
-          <span key={s} style={{ background: '#f0f0f0', padding: '.25rem .6rem', borderRadius: '4px', fontSize: '.8rem', margin: '.15rem .15rem 0 0', display: 'inline-block' }}>{s}</span>
+      <div style={{ marginBottom: '1rem', display: 'flex', flexWrap: 'wrap', gap: '.35rem' }}>
+        {skills.map((s) => (
+          <span key={s} style={{ background: '#f0f0f0', padding: '.25rem .6rem', borderRadius: '4px', fontSize: '.8rem', display: 'inline-block' }}>{s}</span>
         ))}
+        {moreSkills > 0 && (
+          <span style={{ background: '#e5e5e5', color: '#737373', padding: '.25rem .6rem', borderRadius: '4px', fontSize: '.8rem', display: 'inline-block' }}>+{moreSkills} more</span>
+        )}
       </div>
       <details style={{ marginBottom: '1rem' }} open={open} onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
         <summary style={{ cursor: 'pointer', fontWeight: 600, fontSize: '.9rem', color: '#1a1a1a' }}>
@@ -50,7 +66,7 @@ function ProgramCard({ program }: { program: Program }) {
       </details>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ fontSize: '.8rem', color: '#888' }}>Partner: {program.partner}</span>
-        <Link href={`/programs/${program.slug}`} className="btn btn-secondary" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>View Program</Link>
+        <Link href={`/programs/${program.slug}`} className="btn btn-primary" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>View Program</Link>
       </div>
     </div>
   );

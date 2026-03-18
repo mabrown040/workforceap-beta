@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { BLOG_TOPIC_SUGGESTIONS } from '@/lib/content/blogTopicSuggestions';
 
 type BlogPost = {
   id: string;
@@ -60,6 +61,15 @@ export default function BlogPostEditor({
   const [aiTone, setAiTone] = useState('Informative');
   const [generateLoading, setGenerateLoading] = useState(false);
   const [generateToast, setGenerateToast] = useState<string | null>(null);
+  const generatorRef = useRef<HTMLDivElement>(null);
+
+  const handleUseSuggestion = (title: string, topic: string, cat?: string) => {
+    setAiTitle(title);
+    setAiTopic(topic);
+    if (cat && !category) setCategory(cat);
+    setGenerateExpanded(true);
+    setTimeout(() => generatorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+  };
 
   const handleTitleChange = (v: string) => {
     setTitle(v);
@@ -258,6 +268,60 @@ export default function BlogPostEditor({
       </div>
       {aiEnabled && (
         <div style={{ marginBottom: '1.5rem' }}>
+          <h3 style={{ fontSize: '0.95rem', marginBottom: '0.75rem', fontWeight: 600 }}>Suggested topics</h3>
+          <div
+            style={{
+              display: 'flex',
+              gap: '0.75rem',
+              overflowX: 'auto',
+              paddingBottom: '0.5rem',
+              marginBottom: '1rem',
+              scrollbarWidth: 'thin',
+            }}
+          >
+            {BLOG_TOPIC_SUGGESTIONS.map((s, i) => (
+              <div
+                key={i}
+                style={{
+                  flexShrink: 0,
+                  width: '220px',
+                  padding: '0.75rem',
+                  border: '1px solid #e5e5e5',
+                  borderRadius: '8px',
+                  background: 'white',
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: '0.7rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    color: 'var(--color-accent)',
+                    fontWeight: 600,
+                  }}
+                >
+                  {s.category}
+                </span>
+                <h4 style={{ margin: '0.5rem 0', fontSize: '0.9rem', lineHeight: 1.3 }}>{s.title}</h4>
+                <button
+                  type="button"
+                  onClick={() => handleUseSuggestion(s.title, s.topic, s.category)}
+                  style={{
+                    padding: '0.35rem 0.75rem',
+                    background: 'var(--color-accent)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Use This →
+                </button>
+              </div>
+            ))}
+          </div>
           <button
             type="button"
             onClick={() => setGenerateExpanded(!generateExpanded)}
@@ -278,6 +342,7 @@ export default function BlogPostEditor({
           </button>
           {generateExpanded && (
             <div
+              ref={generatorRef}
               style={{
                 marginTop: '0.75rem',
                 padding: '1rem',

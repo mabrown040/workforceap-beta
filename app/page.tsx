@@ -131,7 +131,8 @@ export default function HomePage() {
             <div className="about-content">
               <span className="section-label">Who We Are</span>
               <h2>25+ Years Breaking Barriers</h2>
-              <p>Founded by Michael Brown, PMP &mdash; a distinguished and respected workforce leader who has trained thousands in the Austin Metro Area and Statewide through Consulting Solutions.Net, Goodwill Career &amp; Technical Academy, Austin Area Urban League, Universal Tech Movement, and African American Youth Harvest Foundation.</p>
+              <p>Founded by Michael Brown, PMP &mdash; a distinguished and respected workforce leader who has trained thousands in the Austin Metro Area and Statewide.</p>
+              <p>Through Consulting Solutions.Net, Goodwill Career &amp; Technical Academy, Austin Area Urban League, Universal Tech Movement, and African American Youth Harvest Foundation, we deliver the wrap-around services that launch careers.</p>
               <div className="about-stats">
                 <div className="about-stat"><span className="stat-num">25+</span><span className="stat-desc">Years Experience</span></div>
                 <div className="about-stat"><span className="stat-num">Coursera</span><span className="stat-desc">Approved Partner</span></div>

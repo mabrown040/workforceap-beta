@@ -36,8 +36,15 @@ export default async function AdminMembersPage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Members</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>View and manage member accounts.</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
+        <div>
+          <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Members</h1>
+          <p style={{ color: 'var(--color-gray-600)' }}>View and manage member accounts.</p>
+        </div>
+        <a href="/admin/members/new" className="btn btn-primary">
+          ➕ Add Member
+        </a>
+      </div>
 
       <MembersTable members={membersWithProgram} />
 

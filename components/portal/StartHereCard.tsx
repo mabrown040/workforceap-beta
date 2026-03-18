@@ -2,13 +2,13 @@ import Link from 'next/link';
 
 const CTAS = [
   {
-    href: '/ai-tools',
+    href: '/ai-tools/resume-rewriter',
     label: 'Build Resume',
     description: 'Use AI to strengthen your resume',
     icon: '📄',
   },
   {
-    href: '/ai-tools',
+    href: '/ai-tools/interview-practice',
     label: 'Practice Interview',
     description: 'Prepare with role-specific questions',
     icon: '🎤',

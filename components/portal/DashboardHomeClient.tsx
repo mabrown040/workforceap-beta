@@ -20,6 +20,7 @@ type DashboardHomeClientProps = {
     completeFirstCourse: boolean;
   };
   checklistAllDone: boolean;
+  suggestedActions: Array<{ label: string; href: string }>;
 };
 
 export default function DashboardHomeClient({
@@ -34,6 +35,7 @@ export default function DashboardHomeClient({
   recentActivity,
   checklist,
   checklistAllDone,
+  suggestedActions,
 }: DashboardHomeClientProps) {
   return (
     <div>
@@ -159,6 +161,35 @@ export default function DashboardHomeClient({
             </button>
           </div>
         </>
+      )}
+
+      {suggestedActions.length > 0 && (
+        <div
+          style={{
+            marginTop: '2rem',
+            padding: '1.25rem',
+            background: 'rgba(74, 155, 79, 0.08)',
+            border: '1px solid rgba(74, 155, 79, 0.3)',
+            borderRadius: 'var(--radius-md)',
+          }}
+        >
+          <h3 style={{ fontSize: '1rem', marginBottom: '0.75rem', fontWeight: 600 }}>Suggested for you</h3>
+          <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '1rem' }}>
+            Based on your progress — try these AI tools next:
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+            {suggestedActions.map((a) => (
+              <Link
+                key={a.href + a.label}
+                href={a.href}
+                className="btn btn-primary"
+                style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+              >
+                {a.label} →
+              </Link>
+            ))}
+          </div>
+        </div>
       )}
 
       {!checklistAllDone && (

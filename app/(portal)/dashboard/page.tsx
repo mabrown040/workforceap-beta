@@ -5,6 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
 import Footer from '@/components/Footer';
 import DashboardHomeClient from '@/components/portal/DashboardHomeClient';
 
@@ -60,9 +61,24 @@ export default async function DashboardPage() {
     ? program.courses.find((c) => !coursesCompleted.includes(c.slug))
     : null;
 
+  let suggestedActions: Array<{ label: string; href: string }> = [];
+  try {
+    const briefContext = await getCareerBriefContext(user.id);
+    suggestedActions = briefContext.recommendedActions
+      .filter((a) => a.href.startsWith('/ai-tools'))
+      .slice(0, 3);
+  } catch {
+    suggestedActions = [
+      { label: 'Build your resume', href: '/ai-tools/resume-rewriter' },
+      { label: 'Practice interview questions', href: '/ai-tools/interview-practice' },
+      { label: 'Log your first application', href: '/ai-tools/application-tracker' },
+    ];
+  }
+
   return (
     <>
       <DashboardHomeClient
+        suggestedActions={suggestedActions}
         firstName={firstName}
         state={
           !enrolledProgram

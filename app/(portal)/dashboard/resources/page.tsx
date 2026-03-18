@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getResourcesForCategory } from '@/lib/content/programResources';
+import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -42,6 +43,22 @@ export default async function DashboardResourcesPage() {
   const program = dbUser?.enrolledProgram ? getProgramBySlug(dbUser.enrolledProgram) : null;
   const category = program?.category ?? 'ai-software';
 
+  let suggestedActions: Array<{ label: string; href: string }> = [];
+  try {
+    const briefContext = await getCareerBriefContext(user.id);
+    suggestedActions = briefContext.recommendedActions.filter((a) => a.href.startsWith('/ai-tools'));
+  } catch {
+    suggestedActions = [
+      { label: 'Build your resume', href: '/ai-tools/resume-rewriter' },
+      { label: 'Practice interview questions', href: '/ai-tools/interview-practice' },
+      { label: 'Log your first application', href: '/ai-tools/application-tracker' },
+    ];
+  }
+
+  const suggestedAiTools = suggestedActions
+    .filter((a) => a.href.startsWith('/ai-tools'))
+    .slice(0, 4);
+
   return (
     <>
       <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Resources</h1>
@@ -49,8 +66,38 @@ export default async function DashboardResourcesPage() {
         Career tools and program-specific resources.
       </p>
 
+      {suggestedAiTools.length > 0 && (
+        <section style={{ marginBottom: '2rem' }}>
+          <h2 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Suggested for you</h2>
+          <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '1rem' }}>
+            Based on your progress — try these AI tools next:
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+            {suggestedAiTools.map((a) => (
+              <Link
+                key={a.href + a.label}
+                href={a.href}
+                style={{
+                  display: 'inline-block',
+                  padding: '0.6rem 1rem',
+                  background: 'rgba(74, 155, 79, 0.1)',
+                  border: '1px solid var(--color-accent)',
+                  borderRadius: '6px',
+                  textDecoration: 'none',
+                  color: 'var(--color-accent)',
+                  fontWeight: 600,
+                  fontSize: '0.9rem',
+                }}
+              >
+                {a.label} →
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>AI-Powered Career Tools</h2>
+        <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>All AI Career Tools</h2>
         <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '1rem' }}>
           Resume builder, LinkedIn headline, cover letter, interview practice, and more — powered by AI.
         </p>

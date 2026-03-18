@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { ApplicationStatus } from '@prisma/client';
+import { formatPhone } from '@/lib/formatPhone';
 
 type ApplicationWithUser = {
   id: string;
@@ -85,7 +86,7 @@ export function MemberReviewTable({ applications }: MemberReviewTableProps) {
                 <div style={{ fontWeight: 600 }}>{app.user.fullName}</div>
                 <div style={{ fontSize: '.875rem', color: 'var(--color-gray-600)' }}>{app.user.email}</div>
                 {app.user.phone && (
-                  <div style={{ fontSize: '.875rem', color: 'var(--color-gray-500)' }}>{app.user.phone}</div>
+                  <div style={{ fontSize: '.875rem', color: 'var(--color-gray-500)' }}>{formatPhone(app.user.phone)}</div>
                 )}
               </td>
               <td style={{ padding: '0.75rem', fontSize: '.9rem' }}>{app.programInterest}</td>

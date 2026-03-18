@@ -9,6 +9,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
 import Footer from '@/components/Footer';
 import MemberDetailActions from '@/components/admin/MemberDetailActions';
+import { formatPhone } from '@/lib/formatPhone';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Member Detail',
@@ -48,13 +49,18 @@ export default async function AdminMemberDetailPage({
           <h1 style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>{member.fullName}</h1>
           <p style={{ color: 'var(--color-gray-600)' }}>{member.email}</p>
         </div>
-        <Link href="/admin/members" className="btn btn-outline">← Back to Members</Link>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <Link href={`/admin/members/${id}/readiness`} className="btn btn-outline">
+            ✅ Readiness
+          </Link>
+          <Link href="/admin/members" className="btn btn-outline">← Back to Members</Link>
+        </div>
       </div>
 
       <div style={{ display: 'grid', gap: '1.5rem', maxWidth: '800px' }}>
         <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
           <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Profile</h2>
-          <p><strong>Phone:</strong> {member.phone ?? member.profile?.profilePhone ?? '—'}</p>
+          <p><strong>Phone:</strong> {formatPhone(member.phone ?? member.profile?.profilePhone)}</p>
           <p><strong>Address:</strong> {member.profile?.profileAddress ?? member.profile?.address ?? '—'}</p>
           <p><strong>LinkedIn:</strong> {member.profile?.profileLinkedin ? <a href={member.profile.profileLinkedin} target="_blank" rel="noopener noreferrer">{member.profile.profileLinkedin}</a> : '—'}</p>
           <p><strong>Bio:</strong> {member.profile?.profileBio ?? '—'}</p>

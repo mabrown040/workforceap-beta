@@ -27,19 +27,35 @@ export default async function AdminBlogPage() {
         }}
       >
         <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Blog Posts</h1>
-        <Link
-          href="/admin/blog/new"
-          style={{
-            padding: '0.5rem 1rem',
-            background: 'var(--color-accent)',
-            color: 'white',
-            borderRadius: '6px',
-            textDecoration: 'none',
-            fontWeight: 600,
-          }}
-        >
-          New Post
-        </Link>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <Link
+            href="/admin/blog/ai"
+            style={{
+              padding: '0.5rem 1rem',
+              background: '#f0f0f0',
+              color: '#333',
+              borderRadius: '6px',
+              textDecoration: 'none',
+              fontWeight: 600,
+              border: '1px solid #ccc',
+            }}
+          >
+            AI Tools
+          </Link>
+          <Link
+            href="/admin/blog/new"
+            style={{
+              padding: '0.5rem 1rem',
+              background: 'var(--color-accent)',
+              color: 'white',
+              borderRadius: '6px',
+              textDecoration: 'none',
+              fontWeight: 600,
+            }}
+          >
+            New Post
+          </Link>
+        </div>
       </div>
       <table
         style={{

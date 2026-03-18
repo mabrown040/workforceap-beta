@@ -39,6 +39,7 @@ model User {
   updatedAt              DateTime  @updatedAt @map("updated_at")
 
   profile              Profile?
+  readinessChecklist   ReadinessChecklist[]
   applications         Application[]
   jobApplications      JobApplication[]
   benefitRequests      BenefitRequest[]
@@ -71,6 +72,15 @@ model Profile {
   dob                   DateTime? @db.Date
   veteranStatus         String?   @map("veteran_status")
   employmentStatus      String?   @map("employment_status")
+  householdIncome       String?   @map("household_income")
+  referralSource        String?   @map("referral_source")
+  usCitizen             Boolean?  @map("us_citizen")
+  authorizedToWork      Boolean?  @map("authorized_to_work")
+  hasDisability         Boolean?  @map("has_disability")
+  ethnicity             String?   @map("ethnicity")
+  counselorNotes        String?   @map("counselor_notes") @db.Text
+  resumeOriginalPath    String?   @map("resume_original_path")
+  resumeEnhancedPath    String?   @map("resume_enhanced_path")
   consentTerms          Boolean   @default(false) @map("consent_terms")
   consentCommunications Boolean   @default(false) @map("consent_communications")
   role                  String    @default("member")
@@ -80,6 +90,26 @@ model Profile {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("profiles")
+}
+
+model ReadinessChecklist {
+  id           String    @id @default(uuid())
+  userId       String    @map("user_id")
+  section      Int       // 1–13
+  itemKey      String    @map("item_key")
+  completed    Boolean   @default(false)
+  completedAt  DateTime? @map("completed_at")
+  completedBy  String?   @map("completed_by") // counselor user_id
+  notes        String?   @db.Text
+  valueText    String?   @map("value_text") @db.Text // for free-text fields (job titles, elevator pitch, etc.)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, itemKey])
+  @@index([userId])
+  @@map("readiness_checklist")
 }
 
 model Application {

@@ -48,7 +48,12 @@ export default async function AdminMemberDetailPage({
           <h1 style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>{member.fullName}</h1>
           <p style={{ color: 'var(--color-gray-600)' }}>{member.email}</p>
         </div>
-        <Link href="/admin/members" className="btn btn-outline">← Back to Members</Link>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <Link href={`/admin/members/${id}/readiness`} className="btn btn-outline">
+            ✅ Readiness
+          </Link>
+          <Link href="/admin/members" className="btn btn-outline">← Back to Members</Link>
+        </div>
       </div>
 
       <div style={{ display: 'grid', gap: '1.5rem', maxWidth: '800px' }}>

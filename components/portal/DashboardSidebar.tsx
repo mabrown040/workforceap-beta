@@ -12,6 +12,7 @@ const SIDEBAR_LINKS = [
   { href: '/career-brief', label: 'Career Brief', icon: '📋' },
   { href: '/learning', label: 'Learning', icon: '📖' },
   { href: '/weekly-recap', label: 'Weekly Recap', icon: '📊' },
+  { href: '/dashboard/readiness', label: 'Career Readiness', icon: '✅' },
   { href: '/dashboard/profile', label: 'My Profile', icon: '👤' },
   { href: '/dashboard/settings', label: 'Settings', icon: '⚙️' },
 ];

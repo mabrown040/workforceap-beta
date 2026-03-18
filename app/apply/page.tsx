@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
-import ApplyFlowClient from './ApplyFlowClient';
+import ApplyEligibilityClient from './ApplyEligibilityClient';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Apply Now',
@@ -34,7 +34,7 @@ export default function ApplyPage() {
             🔥 First Cohort Now Forming &mdash; Seats are limited. Apply today to hold your spot.
           </div>
 
-          <ApplyFlowClient />
+          <ApplyEligibilityClient />
         </div>
       </section>
 

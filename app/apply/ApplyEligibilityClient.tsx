@@ -1,0 +1,73 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+const APPLY_STORAGE_KEY = 'apply_eligibility';
+
+export default function ApplyEligibilityClient() {
+  const router = useRouter();
+  const [q1, setQ1] = useState<'yes' | 'no' | null>(null);
+  const [q2, setQ2] = useState<'yes' | 'no' | null>(null);
+  const [q3, setQ3] = useState<'yes' | 'no' | null>(null);
+
+  const canContinue = q1 !== null && q2 !== null && q3 !== null;
+  const qualifies = q1 === 'yes' && q2 === 'yes' && q3 === 'yes';
+
+  const handleContinue = () => {
+    if (!canContinue) return;
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem(APPLY_STORAGE_KEY, JSON.stringify({ q1, q2, q3, qualifies }));
+    }
+    router.push('/apply/results');
+  };
+
+  return (
+    <div className="apply-flow">
+      <div className="apply-progress-bar">
+        <div className="apply-progress-fill" style={{ width: '33%' }} />
+        <p className="apply-progress-label">Step 1 of 3</p>
+      </div>
+
+      <div className="apply-step-content">
+        <h2 className="apply-step-title">See if you qualify for funding assistance</h2>
+        <p className="apply-step-desc">Answer these quick questions to see what options may be available.</p>
+
+        <div className="funding-questions">
+          <div className="form-group">
+            <label>Are you currently unemployed or underemployed?</label>
+            <div className="form-radio-group">
+              <label><input type="radio" name="q1" value="yes" checked={q1 === 'yes'} onChange={() => setQ1('yes')} /> Yes</label>
+              <label><input type="radio" name="q1" value="no" checked={q1 === 'no'} onChange={() => setQ1('no')} /> No</label>
+            </div>
+          </div>
+          <div className="form-group">
+            <label>Is your household income below $60,000/year?</label>
+            <div className="form-radio-group">
+              <label><input type="radio" name="q2" value="yes" checked={q2 === 'yes'} onChange={() => setQ2('yes')} /> Yes</label>
+              <label><input type="radio" name="q2" value="no" checked={q2 === 'no'} onChange={() => setQ2('no')} /> No</label>
+            </div>
+          </div>
+          <div className="form-group">
+            <label>Are you a US resident?</label>
+            <div className="form-radio-group">
+              <label><input type="radio" name="q3" value="yes" checked={q3 === 'yes'} onChange={() => setQ3('yes')} /> Yes</label>
+              <label><input type="radio" name="q3" value="no" checked={q3 === 'no'} onChange={() => setQ3('no')} /> No</label>
+            </div>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          className="btn btn-primary"
+          disabled={!canContinue}
+          onClick={handleContinue}
+        >
+          Continue →
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export { APPLY_STORAGE_KEY };

@@ -3,11 +3,14 @@ import { Suspense } from 'react';
 import { buildPageMetadata } from '@/app/seo';
 import LoginForm from './LoginForm';
 
-export const metadata: Metadata = buildPageMetadata({
-  title: 'Log in',
-  description: 'Log in to your WorkforceAP member account.',
-  path: '/login',
-});
+export const metadata: Metadata = {
+  ...buildPageMetadata({
+    title: 'Log in',
+    description: 'Log in to your WorkforceAP member account.',
+    path: '/login',
+  }),
+  robots: { index: false, follow: false },
+};
 
 export default function LoginPage() {
   return (

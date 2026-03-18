@@ -8,7 +8,17 @@ export async function getUserRoles(userId: string): Promise<string[]> {
   return userRoles.map((ur) => ur.role.name);
 }
 
+export async function getProfileRole(userId: string): Promise<string> {
+  const profile = await prisma.profile.findUnique({
+    where: { userId },
+    select: { role: true },
+  });
+  return profile?.role ?? 'member';
+}
+
 export async function isAdmin(userId: string): Promise<boolean> {
+  const profileRole = await getProfileRole(userId);
+  if (profileRole === 'admin') return true;
   const roles = await getUserRoles(userId);
   return roles.includes('admin') || roles.includes('case_manager');
 }

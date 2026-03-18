@@ -12,6 +12,16 @@ async function main() {
     });
   }
   console.log('Seeded roles:', roles);
+
+  const adminEmail = 'mabrown040@gmail.com';
+  const adminUser = await prisma.user.findUnique({ where: { email: adminEmail }, include: { profile: true } });
+  if (adminUser?.profile) {
+    await prisma.profile.update({
+      where: { userId: adminUser.id },
+      data: { role: 'admin' },
+    });
+    console.log('Set role=admin for', adminEmail);
+  }
 }
 
 main()

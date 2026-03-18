@@ -1,0 +1,80 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+
+const STORAGE_KEY = 'dev_view_mode';
+
+export default function DevViewToggle() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [mode, setMode] = useState<'student' | 'admin'>('student');
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then((r) => r.json())
+      .then((d) => {
+        setIsAdmin(d.role === 'admin');
+        const stored = localStorage.getItem(STORAGE_KEY) as 'student' | 'admin' | null;
+        if (stored) setMode(stored);
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    const onStorage = () => {
+      const stored = localStorage.getItem(STORAGE_KEY) as 'student' | 'admin' | null;
+      if (stored) setMode(stored);
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, [isAdmin]);
+
+  const handleToggle = (newMode: 'student' | 'admin') => {
+    if (!isAdmin) return;
+    localStorage.setItem(STORAGE_KEY, newMode);
+    setMode(newMode);
+    if (newMode === 'admin' && pathname?.startsWith('/dashboard')) {
+      router.push('/admin');
+    } else if (newMode === 'student' && pathname?.startsWith('/admin')) {
+      router.push('/dashboard');
+    }
+  };
+
+  if (!isAdmin) return null;
+
+  return (
+    <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+      <button
+        type="button"
+        onClick={() => handleToggle('student')}
+        style={{
+          padding: '0.35rem 0.6rem',
+          fontSize: '0.8rem',
+          border: mode === 'student' ? '2px solid var(--color-accent)' : '1px solid #ccc',
+          borderRadius: '4px',
+          background: mode === 'student' ? 'rgba(74, 155, 79, 0.1)' : 'transparent',
+          cursor: 'pointer',
+        }}
+      >
+        🎓 Student View
+      </button>
+      <button
+        type="button"
+        onClick={() => handleToggle('admin')}
+        style={{
+          padding: '0.35rem 0.6rem',
+          fontSize: '0.8rem',
+          border: mode === 'admin' ? '2px solid var(--color-accent)' : '1px solid #ccc',
+          borderRadius: '4px',
+          background: mode === 'admin' ? 'rgba(74, 155, 79, 0.1)' : 'transparent',
+          cursor: 'pointer',
+        }}
+      >
+        🛠 Admin View
+      </button>
+    </div>
+  );
+}

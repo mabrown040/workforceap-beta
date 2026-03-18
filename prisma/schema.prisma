@@ -30,6 +30,7 @@ model User {
   assessmentAnswers      Json?     @map("assessment_answers")
   enrolledProgram        String?   @map("enrolled_program")
   enrolledAt             DateTime? @map("enrolled_at")
+  programChangedAt       DateTime? @map("program_changed_at")
   coursesCompleted       Json?     @map("courses_completed") // array of course slugs
   notificationsUpdates   Boolean   @default(true) @map("notifications_updates")
   notificationsReminders Boolean   @default(true) @map("notifications_reminders")
@@ -72,6 +73,7 @@ model Profile {
   employmentStatus      String?   @map("employment_status")
   consentTerms          Boolean   @default(false) @map("consent_terms")
   consentCommunications Boolean   @default(false) @map("consent_communications")
+  role                  String    @default("member")
   createdAt             DateTime  @default(now()) @map("created_at")
   updatedAt             DateTime  @updatedAt @map("updated_at")
 

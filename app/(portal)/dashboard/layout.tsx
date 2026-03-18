@@ -6,6 +6,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import DashboardSidebar from '@/components/portal/DashboardSidebar';
 import ProgressBanner from '@/components/portal/ProgressBanner';
 import { SignOutButton } from '@/components/portal/SignOutButton';
+import DevViewToggle from '@/components/portal/DevViewToggle';
 
 export default async function DashboardLayout({
   children,
@@ -57,7 +58,10 @@ export default async function DashboardLayout({
         <Link href="/dashboard" style={{ fontWeight: 700, fontSize: '1.1rem', textDecoration: 'none', color: 'inherit' }}>
           WorkforceAP
         </Link>
-        <SignOutButton />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <DevViewToggle />
+          <SignOutButton />
+        </div>
       </header>
 
       <div style={{ display: 'flex', flex: 1 }}>

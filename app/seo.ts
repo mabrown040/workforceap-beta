@@ -1,28 +1,31 @@
 import type { Metadata } from 'next';
 
 export const SITE_URL = 'https://www.workforceap.org';
+export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
 
-const DEFAULT_OG_IMAGE = `${SITE_URL}/images/hero-people.jpg`;
+const FALLBACK_OG_IMAGE = `${SITE_URL}/images/hero-people.jpg`;
 
 type PageSeoInput = {
   title: string;
   description: string;
   path: string;
   image?: string;
+  robots?: { index?: boolean; follow?: boolean };
 };
 
-export function buildPageMetadata({ title, description, path, image }: PageSeoInput): Metadata {
-  const ogImage = image ?? DEFAULT_OG_IMAGE;
-  return {
+export function buildPageMetadata({ title, description, path, image, robots }: PageSeoInput): Metadata {
+  const ogImage = image ?? (path === '/' ? FALLBACK_OG_IMAGE : DEFAULT_OG_IMAGE);
+  const fullUrl = path.startsWith('http') ? path : `${SITE_URL}${path.startsWith('/') ? path : `/${path}`}`;
+  const meta: Metadata = {
     title,
     description,
     alternates: {
-      canonical: path,
+      canonical: fullUrl,
     },
     openGraph: {
-      title,
+      title: `${title} — Workforce Advancement Project`,
       description,
-      url: path,
+      url: fullUrl,
       siteName: 'Workforce Advancement Project',
       locale: 'en_US',
       type: 'website',
@@ -30,9 +33,13 @@ export function buildPageMetadata({ title, description, path, image }: PageSeoIn
     },
     twitter: {
       card: 'summary_large_image',
-      title,
+      title: `${title} — Workforce Advancement Project`,
       description,
       images: [ogImage],
     },
   };
+  if (robots) {
+    meta.robots = robots;
+  }
+  return meta;
 }

@@ -14,14 +14,17 @@ async function main() {
   }
   console.log('Seeded roles:', roles);
 
-  const adminEmail = 'mabrown040@gmail.com';
-  const adminUser = await prisma.user.findUnique({ where: { email: adminEmail }, include: { profile: true } });
-  if (adminUser?.profile) {
-    await prisma.profile.update({
-      where: { userId: adminUser.id },
-      data: { role: 'admin' },
-    });
-    console.log('Set role=admin for', adminEmail);
+  // Seed admin users
+  const adminEmails = ['mabrown040@gmail.com', 'michael.brown@workforceap.org'];
+  for (const email of adminEmails) {
+    const user = await prisma.user.findUnique({ where: { email }, include: { profile: true } });
+    if (user?.profile) {
+      await prisma.profile.update({
+        where: { userId: user.id },
+        data: { role: 'admin' },
+      });
+      console.log('Set role=admin for', email);
+    }
   }
 
   await seedBlogPosts();

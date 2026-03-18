@@ -104,10 +104,11 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
       if (typeof window !== 'undefined') sessionStorage.removeItem(ASSESSMENT_REDIRECT_KEY);
 
       setTimeout(() => {
-        if (intended && intended.startsWith('http')) {
-          window.location.href = intended;
+        // Only allow relative paths (same origin) - prevents open redirect via sessionStorage
+        if (intended && intended.startsWith('/') && !intended.startsWith('//')) {
+          router.push(intended);
         } else {
-          router.push(intended || '/dashboard');
+          router.push('/dashboard');
         }
       }, 3000);
     } catch {

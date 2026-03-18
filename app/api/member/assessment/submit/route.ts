@@ -4,6 +4,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { scoreAssessment, TOTAL_POINTS } from '@/lib/assessment/answer-key';
 import type { QuestionChoice } from '@/lib/assessment/answer-key';
+import { brandedEmailLayout } from '@/lib/email/template';
 
 const ASSESSMENT_EMAIL_TO = 'info@workforceap.org';
 
@@ -64,10 +65,13 @@ export async function POST(request: Request) {
 
   const resendKey = process.env.RESEND_API_KEY;
   const emailFrom = process.env.EMAIL_FROM || 'noreply@workforceap.org';
+  const dashboardUrl = `${siteUrl}/dashboard`;
 
   if (resendKey) {
     try {
       const resend = new Resend(resendKey);
+
+      // Admin notification (plain text)
       await resend.emails.send({
         from: emailFrom,
         to: ASSESSMENT_EMAIL_TO,
@@ -82,6 +86,24 @@ export async function POST(request: Request) {
           '',
           `View full results: ${adminLink}`,
         ].join('\n'),
+      });
+
+      // Member: branded assessment complete notification
+      const memberHtml = brandedEmailLayout({
+        title: 'Assessment Complete',
+        bodyHtml: `
+          <p>Hi ${firstName},</p>
+          <p>You've completed your readiness assessment. Your score: <strong>${raw}/${TOTAL_POINTS} (${pct}%)</strong>.</p>
+          <p>You're all set to continue to your training. Log in to your dashboard to access your Coursera courses.</p>
+        `,
+        ctaText: 'Go to Dashboard',
+        ctaUrl: dashboardUrl,
+      });
+      await resend.emails.send({
+        from: emailFrom,
+        to: dbUser.email,
+        subject: 'Assessment Complete — Workforce Advancement Project',
+        html: memberHtml,
       });
     } catch (err) {
       console.error('Assessment email failed:', err);

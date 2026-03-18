@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
@@ -36,19 +37,28 @@ export default async function AdminProgramsPage() {
     byProgram.set(slug, prog);
   }
 
+  const totalEnrollments = enrollments.length;
+
   return (
     <div>
       <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Program Overview</h1>
       <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>Read-only enrollment and progress stats.</p>
 
+      {totalEnrollments === 0 ? (
+        <div className="admin-empty-state">
+          <h3>No enrollments yet</h3>
+          <p>When members choose programs, their enrollment and progress will appear here.</p>
+          <Link href="/admin/members" className="btn btn-primary">View Members</Link>
+        </div>
+      ) : (
       <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <table className="admin-table">
           <thead>
             <tr>
-              <th style={{ textAlign: 'left', padding: '0.5rem', borderBottom: '1px solid #ddd' }}>Program</th>
-              <th style={{ textAlign: 'left', padding: '0.5rem', borderBottom: '1px solid #ddd' }}>Enrolled</th>
-              <th style={{ textAlign: 'left', padding: '0.5rem', borderBottom: '1px solid #ddd' }}>Avg Score %</th>
-              <th style={{ textAlign: 'left', padding: '0.5rem', borderBottom: '1px solid #ddd' }}>Courses Completed</th>
+              <th>Program</th>
+              <th>Enrolled</th>
+              <th>Avg Score %</th>
+              <th>Courses Completed</th>
             </tr>
           </thead>
           <tbody>
@@ -59,16 +69,17 @@ export default async function AdminProgramsPage() {
                 : '—';
               return (
                 <tr key={p.slug}>
-                  <td style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>{p.title}</td>
-                  <td style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>{stats.count}</td>
-                  <td style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>{avgScore}</td>
-                  <td style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>{stats.completed}</td>
+                  <td>{p.title}</td>
+                  <td>{stats.count}</td>
+                  <td>{avgScore}</td>
+                  <td>{stats.completed}</td>
                 </tr>
               );
             })}
           </tbody>
         </table>
       </div>
+      )}
 
       <Footer />
     </div>

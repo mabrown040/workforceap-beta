@@ -62,51 +62,59 @@ export default async function AdminPage() {
       <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Admin Overview</h1>
       <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>Manage members and view metrics.</p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-        <div style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
-          <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-600)', marginBottom: '0.25rem' }}>Total Members</div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{totalMembers}</div>
+      <div className="admin-stat-cards">
+        <div className="admin-stat-card">
+          <div className="admin-stat-card-icon">👥</div>
+          <div className="admin-stat-card-label">Total Members</div>
+          <div className="admin-stat-card-value">{totalMembers}</div>
         </div>
-        <div style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
-          <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-600)', marginBottom: '0.25rem' }}>Assessments Completed</div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{assessmentsCompleted}</div>
+        <div className="admin-stat-card">
+          <div className="admin-stat-card-icon">📋</div>
+          <div className="admin-stat-card-label">Assessments Completed</div>
+          <div className="admin-stat-card-value">{assessmentsCompleted}</div>
         </div>
-        <div style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
-          <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-600)', marginBottom: '0.25rem' }}>Active in Training</div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{activeInTraining}</div>
+        <div className="admin-stat-card">
+          <div className="admin-stat-card-icon">🎓</div>
+          <div className="admin-stat-card-label">Active in Training</div>
+          <div className="admin-stat-card-value">{activeInTraining}</div>
         </div>
-        <div style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
-          <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-600)', marginBottom: '0.25rem' }}>Programs Enrolled</div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{programsCompleted}</div>
+        <div className="admin-stat-card">
+          <div className="admin-stat-card-icon">📚</div>
+          <div className="admin-stat-card-label">Programs Enrolled</div>
+          <div className="admin-stat-card-value">{programsCompleted}</div>
         </div>
       </div>
 
       <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Recent signups</h2>
       <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <table className="admin-table">
           <thead>
             <tr>
-              <th style={{ textAlign: 'left', padding: '0.5rem', borderBottom: '1px solid #ddd' }}>Name</th>
-              <th style={{ textAlign: 'left', padding: '0.5rem', borderBottom: '1px solid #ddd' }}>Email</th>
-              <th style={{ textAlign: 'left', padding: '0.5rem', borderBottom: '1px solid #ddd' }}>Program</th>
-              <th style={{ textAlign: 'left', padding: '0.5rem', borderBottom: '1px solid #ddd' }}>Enrolled</th>
-              <th style={{ textAlign: 'left', padding: '0.5rem', borderBottom: '1px solid #ddd' }}>Score %</th>
-              <th style={{ textAlign: 'left', padding: '0.5rem', borderBottom: '1px solid #ddd' }}>Status</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Program</th>
+              <th>Enrolled</th>
+              <th>Score %</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
             {recentUsers.map((u) => (
-              <tr key={u.id}>
-                <td style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>
-                  <Link href={`/admin/members/${u.id}`}>{u.fullName}</Link>
+              <tr key={u.id} data-clickable onClick={() => window.location.assign(`/admin/members/${u.id}`)}>
+                <td>
+                  <Link href={`/admin/members/${u.id}`} onClick={(e) => e.stopPropagation()}>{u.fullName}</Link>
                 </td>
-                <td style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>{u.email}</td>
-                <td style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>
+                <td>{u.email}</td>
+                <td>
                   {u.enrolledProgram ? getProgramBySlug(u.enrolledProgram)?.title ?? u.enrolledProgram : '—'}
                 </td>
-                <td style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>{u.enrolledAt?.toLocaleDateString() ?? '—'}</td>
-                <td style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>{u.assessmentScorePct ?? '—'}%</td>
-                <td style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>{u.assessmentCompleted ? 'Assessment done' : 'Pending'}</td>
+                <td>{u.enrolledAt?.toLocaleDateString() ?? '—'}</td>
+                <td>
+                  <span className={u.assessmentScorePct != null ? (u.assessmentScorePct >= 70 ? 'admin-score-high' : u.assessmentScorePct >= 50 ? 'admin-score-mid' : 'admin-score-low') : ''}>
+                    {u.assessmentScorePct ?? '—'}%
+                  </span>
+                </td>
+                <td>{u.assessmentCompleted ? 'Assessment done' : 'Pending'}</td>
               </tr>
             ))}
           </tbody>

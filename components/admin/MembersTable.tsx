@@ -61,32 +61,48 @@ export default function MembersTable({ members }: MembersTableProps) {
       </div>
 
       <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <table className="admin-table">
           <thead>
             <tr>
-              <th style={{ textAlign: 'left', padding: '0.5rem', borderBottom: '1px solid #ddd' }}>Name</th>
-              <th style={{ textAlign: 'left', padding: '0.5rem', borderBottom: '1px solid #ddd' }}>Email</th>
-              <th style={{ textAlign: 'left', padding: '0.5rem', borderBottom: '1px solid #ddd' }}>Phone</th>
-              <th style={{ textAlign: 'left', padding: '0.5rem', borderBottom: '1px solid #ddd' }}>Program</th>
-              <th style={{ textAlign: 'left', padding: '0.5rem', borderBottom: '1px solid #ddd' }}>Enrolled</th>
-              <th style={{ textAlign: 'left', padding: '0.5rem', borderBottom: '1px solid #ddd' }}>Score %</th>
-              <th style={{ textAlign: 'left', padding: '0.5rem', borderBottom: '1px solid #ddd' }}>Training</th>
-              <th style={{ textAlign: 'left', padding: '0.5rem', borderBottom: '1px solid #ddd' }}>Last Active</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Program</th>
+              <th>Enrolled</th>
+              <th>Score %</th>
+              <th>Training</th>
+              <th>Last Active</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((m) => (
-              <tr key={m.id} style={{ cursor: 'pointer' }} onClick={() => window.location.href = `/admin/members/${m.id}`}>
-                <td style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>
+              <tr
+                key={m.id}
+                data-clickable
+                onClick={() => window.location.assign(`/admin/members/${m.id}`)}
+              >
+                <td>
                   <Link href={`/admin/members/${m.id}`} onClick={(e) => e.stopPropagation()}>{m.fullName}</Link>
                 </td>
-                <td style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>{m.email}</td>
-                <td style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>{formatPhone(m.profile?.profilePhone ?? m.phone)}</td>
-                <td style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>{m.programTitle ?? '—'}</td>
-                <td style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>{m.enrolledAt?.toLocaleDateString() ?? '—'}</td>
-                <td style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>{m.assessmentScorePct ?? '—'}%</td>
-                <td style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>{m.assessmentCompleted ? `${m.coursesCompleted.length}/${m.totalCourses}` : '—'}</td>
-                <td style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>{m.updatedAt.toLocaleDateString()}</td>
+                <td>{m.email}</td>
+                <td>{formatPhone(m.profile?.profilePhone ?? m.phone)}</td>
+                <td>{m.programTitle ?? '—'}</td>
+                <td>{m.enrolledAt?.toLocaleDateString() ?? '—'}</td>
+                <td>
+                  <span className={
+                    m.assessmentScorePct != null
+                      ? m.assessmentScorePct >= 70
+                        ? 'admin-score-high'
+                        : m.assessmentScorePct >= 50
+                          ? 'admin-score-mid'
+                          : 'admin-score-low'
+                      : ''
+                  }>
+                    {m.assessmentScorePct != null ? `${m.assessmentScorePct}%` : '—'}
+                  </span>
+                </td>
+                <td>{m.assessmentCompleted ? `${m.coursesCompleted.length}/${m.totalCourses}` : '—'}</td>
+                <td>{m.updatedAt.toLocaleDateString()}</td>
               </tr>
             ))}
           </tbody>

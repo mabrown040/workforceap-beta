@@ -50,17 +50,9 @@ export default async function ProgramPage() {
         Enrolled {dbUser?.enrolledAt?.toLocaleDateString() ?? ''}
       </p>
 
-      <div
-        style={{
-          background: 'var(--color-light)',
-          borderRadius: 'var(--radius-md)',
-          padding: '1.5rem',
-          marginBottom: '1.5rem',
-          border: `3px solid ${program.borderColor}`,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1rem' }}>
-          <span style={{ fontSize: '2rem' }}>{program.icon}</span>
+      <div className="dashboard-program-detail" style={{ borderLeft: `4px solid ${program.borderColor}` }}>
+        <div className="dashboard-program-detail-header">
+          <span className="dashboard-program-detail-icon">{program.icon}</span>
           <div>
             <h2 style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>{program.title}</h2>
             <span
@@ -77,7 +69,7 @@ export default async function ProgramPage() {
             </span>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '1rem', fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>
+        <div className="dashboard-program-detail-meta">
           <span>⏱ {program.duration}</span>
           <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{program.salary}</span>
         </div>
@@ -95,30 +87,13 @@ export default async function ProgramPage() {
           />
         </div>
         <h3 style={{ fontSize: '1rem', marginBottom: '0.75rem' }}>Course list</h3>
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+        <ul className="dashboard-program-course-list">
           {program.courses.map((c) => {
             const done = completedSet.has(c.slug);
             return (
-              <li
-                key={c.slug}
-                style={{
-                  padding: '0.6rem 0',
-                  borderBottom: '1px solid #eee',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
+              <li key={c.slug}>
                 <span>{c.name}</span>
-                <span
-                  style={{
-                    fontSize: '0.8rem',
-                    padding: '0.2rem 0.5rem',
-                    borderRadius: '4px',
-                    background: done ? 'rgba(74, 155, 79, 0.15)' : '#f0f0f0',
-                    color: done ? 'var(--color-accent)' : 'var(--color-gray-600)',
-                  }}
-                >
+                <span className={`dashboard-program-badge ${done ? 'complete' : 'pending'}`}>
                   {done ? 'Complete' : 'Not Started'}
                 </span>
               </li>

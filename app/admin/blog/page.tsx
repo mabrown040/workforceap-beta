@@ -57,41 +57,35 @@ export default async function AdminBlogPage() {
           </Link>
         </div>
       </div>
-      <table
-        style={{
-          width: '100%',
-          borderCollapse: 'collapse',
-          fontSize: '0.95rem',
-        }}
-      >
+      <table className="admin-table">
         <thead>
-          <tr style={{ borderBottom: '2px solid #eee', textAlign: 'left' }}>
-            <th style={{ padding: '0.75rem' }}>Title</th>
-            <th style={{ padding: '0.75rem' }}>Category</th>
-            <th style={{ padding: '0.75rem' }}>Status</th>
-            <th style={{ padding: '0.75rem' }}>Go live</th>
-            <th style={{ padding: '0.75rem' }}>Actions</th>
+          <tr>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>Go live</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {posts.map((post) => (
-            <tr key={post.id} style={{ borderBottom: '1px solid #eee' }}>
-              <td style={{ padding: '0.75rem' }}>{post.title}</td>
-              <td style={{ padding: '0.75rem' }}>{post.category ?? '—'}</td>
-              <td style={{ padding: '0.75rem' }}>
+            <tr key={post.id}>
+              <td>{post.title}</td>
+              <td>{post.category ?? '—'}</td>
+              <td>
                 <span
                   style={{
                     padding: '0.2rem 0.5rem',
                     borderRadius: '4px',
                     fontSize: '0.8rem',
-                    background: post.published ? 'rgba(74, 155, 79, 0.15)' : '#f0f0f0',
-                    color: post.published ? 'var(--color-accent)' : '#666',
+                    background: post.published ? 'rgba(173, 44, 77, 0.12)' : 'var(--color-gray-100)',
+                    color: post.published ? 'var(--color-accent)' : 'var(--color-gray-600)',
                   }}
                 >
                   {post.published ? 'Published' : 'Draft'}
                 </span>
               </td>
-              <td style={{ padding: '0.75rem', color: '#666' }}>
+              <td style={{ color: 'var(--color-gray-600)' }}>
                 {post.publishedAt
                   ? new Date(post.publishedAt).toLocaleDateString('en-US', {
                       year: 'numeric',
@@ -100,7 +94,7 @@ export default async function AdminBlogPage() {
                     })
                   : '—'}
               </td>
-              <td style={{ padding: '0.75rem' }}>
+              <td>
                 <BlogPostActions
                   id={post.id}
                   slug={post.slug}

@@ -1,0 +1,3 @@
+TODO: Replace with branded OG image (1200×630px).
+Add WorkforceAP logo on dark background as public/og-image.png.
+Current og-image.png is a minimal placeholder.

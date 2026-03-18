@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState('');
+function ForgotPasswordForm() {
+  const searchParams = useSearchParams();
+  const [email, setEmail] = useState(searchParams.get('email') ?? '');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
 
@@ -105,5 +107,13 @@ export default function ForgotPasswordPage() {
         </div>
       </section>
     </div>
+  );
+}
+
+export default function ForgotPasswordPage() {
+  return (
+    <Suspense fallback={<div className="inner-page" style={{ padding: '4rem 2rem', textAlign: 'center' }}>Loading…</div>}>
+      <ForgotPasswordForm />
+    </Suspense>
   );
 }

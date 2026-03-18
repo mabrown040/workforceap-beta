@@ -18,12 +18,25 @@ datasource db {
 // --- Core tables ---
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  fullName  String   @map("full_name")
-  phone     String?
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id                     String    @id @default(uuid())
+  email                  String    @unique
+  fullName               String    @map("full_name")
+  phone                  String?
+  assessmentCompleted    Boolean   @default(false) @map("assessment_completed")
+  assessmentCompletedAt  DateTime? @map("assessment_completed_at")
+  assessmentScore        Int?      @map("assessment_score")
+  assessmentScorePct     Int?      @map("assessment_score_pct")
+  programInterest        String?   @map("program_interest")
+  assessmentAnswers      Json?     @map("assessment_answers")
+  enrolledProgram        String?   @map("enrolled_program")
+  enrolledAt             DateTime? @map("enrolled_at")
+  programChangedAt       DateTime? @map("program_changed_at")
+  coursesCompleted       Json?     @map("courses_completed") // array of course slugs
+  notificationsUpdates   Boolean   @default(true) @map("notifications_updates")
+  notificationsReminders Boolean   @default(true) @map("notifications_reminders")
+  deletedAt              DateTime? @map("deleted_at")
+  createdAt              DateTime  @default(now()) @map("created_at")
+  updatedAt              DateTime  @updatedAt @map("updated_at")
 
   profile              Profile?
   applications         Application[]
@@ -45,19 +58,24 @@ model User {
 }
 
 model Profile {
-  id                   String    @id @default(uuid())
-  userId               String    @unique @map("user_id")
-  address              String?
-  city                 String?
-  state                String?
-  zip                  String?
-  dob                  DateTime? @db.Date
-  veteranStatus        String?   @map("veteran_status")
-  employmentStatus     String?   @map("employment_status")
-  consentTerms         Boolean   @default(false) @map("consent_terms")
-  consentCommunications Boolean  @default(false) @map("consent_communications")
-  createdAt            DateTime  @default(now()) @map("created_at")
-  updatedAt            DateTime  @updatedAt @map("updated_at")
+  id                    String    @id @default(uuid())
+  userId                String    @unique @map("user_id")
+  address               String?
+  city                  String?
+  state                 String?
+  zip                   String?
+  profilePhone          String?   @map("profile_phone")
+  profileAddress        String?   @map("profile_address")
+  profileLinkedin       String?   @map("profile_linkedin")
+  profileBio            String?   @map("profile_bio")
+  dob                   DateTime? @db.Date
+  veteranStatus         String?   @map("veteran_status")
+  employmentStatus      String?   @map("employment_status")
+  consentTerms          Boolean   @default(false) @map("consent_terms")
+  consentCommunications Boolean   @default(false) @map("consent_communications")
+  role                  String    @default("member")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -385,6 +403,25 @@ model UserCertification {
   @@unique([userId, certName])
   @@index([userId])
   @@map("user_certifications")
+}
+
+model BlogPost {
+  id          String    @id @default(uuid())
+  slug        String    @unique
+  title       String
+  excerpt     String?
+  content     String    @db.Text
+  coverImage  String?   @map("cover_image")
+  authorName  String    @default("WorkforceAP Team") @map("author_name")
+  published   Boolean   @default(false)
+  publishedAt DateTime? @map("published_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  category    String?
+
+  @@index([published])
+  @@index([category])
+  @@map("blog_posts")
 }
 
 model AuditLog {

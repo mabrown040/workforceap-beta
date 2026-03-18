@@ -1,10 +1,5 @@
-import PortalNav from '@/components/portal/PortalNav';
+import PortalShell from '@/components/portal/PortalShell';
 
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <>
-      <PortalNav />
-      {children}
-    </>
-  );
+  return <PortalShell>{children}</PortalShell>;
 }

@@ -4,13 +4,19 @@ import { prisma } from '@/lib/db/prisma';
 import Footer from '@/components/Footer';
 import AssessmentForm from '@/components/portal/AssessmentForm';
 
-export default async function AssessmentPage() {
+export default async function AssessmentPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ redirect?: string }>;
+}) {
+  const params = await searchParams;
+  const redirectTo = params.redirect?.trim();
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/assessment');
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
-    select: { assessmentCompleted: true, fullName: true, phone: true },
+    include: { profile: true },
   });
 
   if (dbUser?.assessmentCompleted) {
@@ -38,7 +44,8 @@ export default async function AssessmentPage() {
           <AssessmentForm
             defaultFirstName={firstName}
             defaultLastName={lastName}
-            defaultPhone={dbUser?.phone ?? ''}
+            defaultPhone={dbUser?.profile?.profilePhone ?? dbUser?.phone ?? ''}
+            defaultRedirectTo={redirectTo || undefined}
           />
         </div>
       </section>

@@ -11,9 +11,10 @@ type AssessmentFormProps = {
   defaultFirstName: string;
   defaultLastName: string;
   defaultPhone: string;
+  defaultRedirectTo?: string;
 };
 
-export default function AssessmentForm({ defaultFirstName, defaultLastName, defaultPhone }: AssessmentFormProps) {
+export default function AssessmentForm({ defaultFirstName, defaultLastName, defaultPhone, defaultRedirectTo }: AssessmentFormProps) {
   const router = useRouter();
   const [step, setStep] = useState<'form' | 'confirm'>('form');
   const [loading, setLoading] = useState(false);
@@ -97,8 +98,10 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
       setOutcome({ message, pct });
       setStep('confirm');
 
-      const intended = typeof window !== 'undefined' ? sessionStorage.getItem(ASSESSMENT_REDIRECT_KEY) : null;
-      sessionStorage.removeItem(ASSESSMENT_REDIRECT_KEY);
+      const intended = (typeof window !== 'undefined' ? sessionStorage.getItem(ASSESSMENT_REDIRECT_KEY) : null)
+        || defaultRedirectTo
+        || null;
+      if (typeof window !== 'undefined') sessionStorage.removeItem(ASSESSMENT_REDIRECT_KEY);
 
       setTimeout(() => {
         if (intended && intended.startsWith('http')) {

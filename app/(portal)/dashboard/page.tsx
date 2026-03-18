@@ -43,7 +43,7 @@ export default async function DashboardPage() {
     chooseProgram: !!enrolledProgram,
     completeAssessment: assessmentCompleted,
     startFirstCourse: completedCount > 0,
-    completeFirstCourse: completedCount >= 1 && totalCourses > 0 && completedCount >= totalCourses,
+    completeFirstCourse: completedCount >= 1, // true after completing any single course
   };
   const checklistAllDone = Object.values(checklist).every(Boolean);
 

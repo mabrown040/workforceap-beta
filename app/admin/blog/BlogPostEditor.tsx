@@ -17,6 +17,7 @@ type BlogPost = {
   authorName: string;
   category: string | null;
   published: boolean;
+  scheduledAt: string | null;
 };
 
 function slugify(text: string): string {
@@ -44,6 +45,9 @@ export default function BlogPostEditor({
   const [authorName, setAuthorName] = useState(post?.authorName ?? 'WorkforceAP Team');
   const [category, setCategory] = useState(post?.category ?? '');
   const [published, setPublished] = useState(post?.published ?? false);
+  const [scheduledAt, setScheduledAt] = useState<string>(
+    post?.scheduledAt ? new Date(post.scheduledAt).toISOString().slice(0, 16) : ''
+  );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [review, setReview] = useState<{
@@ -140,6 +144,7 @@ export default function BlogPostEditor({
         authorName: authorName.trim() || 'WorkforceAP Team',
         category: category.trim() || null,
         published: publish,
+        scheduledAt: scheduledAt || null,
       };
 
       if (mode === 'create') {
@@ -480,6 +485,23 @@ export default function BlogPostEditor({
           />
           Published
         </label>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <label style={{ fontSize: '0.9rem', fontWeight: 500, color: '#444' }}>Schedule for later (optional)</label>
+          <input
+            type="datetime-local"
+            value={scheduledAt}
+            onChange={(e) => {
+              setScheduledAt(e.target.value);
+              if (e.target.value) setPublished(false);
+            }}
+            style={{ padding: '0.4rem 0.6rem', border: '1px solid #ccc', borderRadius: '6px', fontSize: '0.9rem', maxWidth: '240px' }}
+          />
+          {scheduledAt && (
+            <small style={{ color: '#2563eb', fontSize: '0.8rem' }}>
+              Will auto-publish on {new Date(scheduledAt).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+            </small>
+          )}
+        </div>
         <button
           type="button"
           onClick={handleReview}

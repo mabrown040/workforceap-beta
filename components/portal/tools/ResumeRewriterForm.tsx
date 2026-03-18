@@ -4,9 +4,20 @@ import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { trackToolLaunch } from '@/lib/analytics/events';
 
+const SALARY_RANGES = [
+  '',
+  '$40,000 - $60,000',
+  '$60,000 - $80,000',
+  '$80,000 - $100,000',
+  '$100,000 - $130,000',
+  '$130,000+',
+];
+
 export default function ResumeRewriterForm() {
   const [resume, setResume] = useState('');
   const [jobTarget, setJobTarget] = useState('');
+  const [targetSalary, setTargetSalary] = useState('');
+  const [targetLocation, setTargetLocation] = useState('');
   const [output, setOutput] = useState('');
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
@@ -24,7 +35,7 @@ export default function ResumeRewriterForm() {
       const res = await fetch('/api/ai/resume-rewriter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resume, jobTarget }),
+        body: JSON.stringify({ resume, jobTarget, targetSalary: targetSalary || undefined, targetLocation: targetLocation.trim() || undefined }),
       });
 
       const data = await res.json();
@@ -74,20 +85,60 @@ export default function ResumeRewriterForm() {
 
   return (
     <form onSubmit={handleSubmit} className="resume-rewriter-form">
-      <div className="form-group">
-        <label htmlFor="job-target">Target job or role</label>
-        <input
-          id="job-target"
-          type="text"
-          value={jobTarget}
-          onChange={(e) => setJobTarget(e.target.value)}
-          placeholder="e.g. Software Developer at Tech Company"
-          required
-          disabled={loading}
-        />
+      <div style={{ background: 'rgba(74,155,79,0.06)', border: '1px solid rgba(74,155,79,0.2)', borderRadius: '8px', padding: '1rem 1.25rem', marginBottom: '1.5rem' }}>
+        <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-gray-700)', lineHeight: 1.5 }}>
+          <strong>How this works:</strong> Tell us your career goal — we&rsquo;ll reposition your existing experience to match. We don&rsquo;t invent anything. Every bullet in the output comes from what you&rsquo;ve actually done.
+        </p>
       </div>
+
+      <fieldset style={{ border: 'none', padding: 0, margin: '0 0 1.5rem' }}>
+        <legend style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '1rem', display: 'block' }}>Your Career Goal</legend>
+        <div style={{ display: 'grid', gap: '1rem' }}>
+          <div className="form-group">
+            <label htmlFor="job-target">Target job title *</label>
+            <input
+              id="job-target"
+              type="text"
+              value={jobTarget}
+              onChange={(e) => setJobTarget(e.target.value)}
+              placeholder="e.g. IT Support Specialist, Cybersecurity Analyst, Data Analyst"
+              required
+              disabled={loading}
+            />
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-group">
+              <label htmlFor="target-salary">Target salary range</label>
+              <select
+                id="target-salary"
+                value={targetSalary}
+                onChange={(e) => setTargetSalary(e.target.value)}
+                disabled={loading}
+              >
+                {SALARY_RANGES.map((s) => (
+                  <option key={s} value={s}>{s || 'Select a range (optional)'}</option>
+                ))}
+              </select>
+              <small style={{ color: 'var(--color-gray-500)', fontSize: '0.8rem' }}>Helps calibrate language and seniority level</small>
+            </div>
+            <div className="form-group">
+              <label htmlFor="target-location">Target city / location</label>
+              <input
+                id="target-location"
+                type="text"
+                value={targetLocation}
+                onChange={(e) => setTargetLocation(e.target.value)}
+                placeholder="e.g. Austin, TX"
+                disabled={loading}
+              />
+              <small style={{ color: 'var(--color-gray-500)', fontSize: '0.8rem' }}>Tailors language to your local job market</small>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+
       <div className="form-group">
-        <label htmlFor="resume">Your resume (paste or upload PDF/DOCX)</label>
+        <label htmlFor="resume">Your resume (paste or upload PDF/DOCX) *</label>
         <div className="resume-upload-row">
           <input
             ref={fileInputRef}
@@ -115,13 +166,13 @@ export default function ResumeRewriterForm() {
         </div>
       )}
       <button type="submit" className="btn btn-primary" disabled={loading}>
-        {loading ? 'Improving your resume...' : 'Improve resume'}
+        {loading ? 'Positioning your resume...' : 'Position my resume'}
       </button>
 
       {output && (
         <div className="resume-rewriter-output">
           <div className="resume-rewriter-output-header">
-            <h3>Improved resume</h3>
+            <h3>Your repositioned resume</h3>
             <button type="button" className="btn btn-outline btn-sm" onClick={handleCopy}>
               Copy to clipboard
             </button>

@@ -16,9 +16,9 @@ export default function ApplyPage() {
       <section className="page-hero">
         <div className="page-hero-content">
           <h1>Start Your Career Today</h1>
-          <p>Start with a WorkforceAP counselor to explore upcoming cohorts and career pathways.</p>
+          <p>Find out if you qualify for no-cost career training. We&rsquo;ll follow up within 24–48 hours.</p>
           <div className="hero-badges">
-            {['No experience required', 'Flexible learning options', 'We respond within 24 hours', 'Full job placement assistance'].map((t) => (
+            {['No experience required', 'Flexible learning options', 'We respond within 24–48 hours', 'Full job placement assistance'].map((t) => (
               <span key={t} className="hero-badge-item">&#10003; {t}</span>
             ))}
           </div>
@@ -31,7 +31,7 @@ export default function ApplyPage() {
       <section className="content-section">
         <div className="container">
           <div className="apply-alert">
-            🔥 First Cohort Now Forming &mdash; Seats are limited. Apply today to hold your spot.
+            🔥 First Program Now Forming &mdash; Seats are limited. Apply today to hold your spot.
           </div>
 
           <ApplyEligibilityClient />

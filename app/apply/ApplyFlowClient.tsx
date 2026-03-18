@@ -196,7 +196,7 @@ export default function ApplyFlowClient() {
               </ul>
               <div className="form-note-box">
                 <strong>What happens next</strong>
-                <p>After you apply, a counselor will review your goals, walk through the best-fit program options, and help you prepare for the next available cohort.</p>
+                <p>After you apply, a counselor will review your goals, walk through the best-fit program options, and help you prepare for the next available program.</p>
               </div>
             </div>
 

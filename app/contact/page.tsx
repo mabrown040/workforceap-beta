@@ -18,7 +18,7 @@ export default function ContactPage() {
     <div className="inner-page">
       <PageHero
         title="Contact Us"
-        subtitle="Questions about programs? Ready to apply? We respond within 24 hours."
+        subtitle="Questions about programs? Ready to apply? We respond within 24–48 hours."
       />
 
       <PhotoHighlight
@@ -33,7 +33,7 @@ export default function ContactPage() {
           <div className="two-col">
             <div className="col animate-on-scroll">
               <h2>Let&rsquo;s Connect</h2>
-              <p>We&rsquo;d love to hear from you. Have questions about our programs? Send us a message and we&rsquo;ll get back to you within 24 hours.</p>
+              <p>We&rsquo;d love to hear from you. Have questions about our programs? Send us a message and we&rsquo;ll get back to you within 24–48 hours.</p>
               <div className="contact-info">
                 <div className="contact-item">
                   <span className="contact-icon">&#128231;</span>
@@ -45,7 +45,7 @@ export default function ContactPage() {
                 </div>
                 <div className="contact-item">
                   <span className="contact-icon">&#128336;</span>
-                  <div><strong>Response Time</strong><br />Within 24 hours</div>
+                  <div><strong>Response Time</strong><br />Within 24–48 hours</div>
                 </div>
               </div>
               <div style={{ marginTop: '2rem', padding: '1.5rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-gray-200)' }}>

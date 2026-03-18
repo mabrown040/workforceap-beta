@@ -5,6 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { getResourcesForCategory } from '@/lib/content/programResources';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -21,7 +22,7 @@ const CAREER_TOOLS = [
 
 const CATEGORY_LABELS: Record<string, string> = {
   'digital-literacy': 'Digital Literacy',
-  'ai-software': 'AI & Software',
+  'ai-software': 'AI & Software Dev',
   'cloud-data': 'Cloud & Data',
   'it-cyber': 'IT & Cybersecurity',
   'business': 'Business',
@@ -39,7 +40,7 @@ export default async function DashboardResourcesPage() {
   });
 
   const program = dbUser?.enrolledProgram ? getProgramBySlug(dbUser.enrolledProgram) : null;
-  const category = program?.category ?? 'it-cyber';
+  const category = program?.category ?? 'ai-software';
 
   return (
     <>
@@ -49,7 +50,29 @@ export default async function DashboardResourcesPage() {
       </p>
 
       <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>Career Tools</h2>
+        <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>AI-Powered Career Tools</h2>
+        <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '1rem' }}>
+          Resume builder, LinkedIn headline, cover letter, interview practice, and more — powered by AI.
+        </p>
+        <Link
+          href="/ai-tools"
+          style={{
+            display: 'inline-block',
+            padding: '0.75rem 1.25rem',
+            background: 'var(--color-accent)',
+            color: 'white',
+            borderRadius: '6px',
+            textDecoration: 'none',
+            fontWeight: 600,
+            marginBottom: '1.5rem',
+          }}
+        >
+          Open AI Tools →
+        </Link>
+      </section>
+
+      <section style={{ marginBottom: '2rem' }}>
+        <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>Career Tips</h2>
         <div style={{ display: 'grid', gap: '1rem' }}>
           {CAREER_TOOLS.map((t) => (
             <a
@@ -78,15 +101,28 @@ export default async function DashboardResourcesPage() {
         <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '1rem' }}>
           Filtered for your program category: {CATEGORY_LABELS[category] ?? category}
         </p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
-          <div style={{ padding: '1rem', border: '1px solid #e5e5e5', borderRadius: 'var(--radius-md)', background: 'var(--color-light)' }}>
-            <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Placeholder</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>Content coming soon</div>
-          </div>
-          <div style={{ padding: '1rem', border: '1px solid #e5e5e5', borderRadius: 'var(--radius-md)', background: 'var(--color-light)' }}>
-            <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Placeholder</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>Content coming soon</div>
-          </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+          {getResourcesForCategory(category).map((r) => (
+            <a
+              key={r.url}
+              href={r.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'block',
+                padding: '1rem',
+                border: '1px solid var(--color-border, #e5e5e5)',
+                borderRadius: 'var(--radius-md)',
+                background: 'var(--color-light)',
+                textDecoration: 'none',
+                color: 'inherit',
+              }}
+            >
+              <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{r.title}</div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)', marginBottom: '0.5rem' }}>{r.description}</div>
+              <span style={{ fontSize: '0.85rem', color: 'var(--color-accent)', fontWeight: 500 }}>Visit Resource →</span>
+            </a>
+          ))}
         </div>
       </section>
 
@@ -138,7 +174,7 @@ export default async function DashboardResourcesPage() {
           </div>
           <div>
             <p style={{ marginBottom: '0.5rem' }}>
-              Your counselor will be assigned when your cohort begins.
+              Your counselor will be assigned when your program begins.
             </p>
             <button type="button" className="btn btn-outline" disabled style={{ opacity: 0.6, cursor: 'not-allowed' }}>
               Schedule Meeting

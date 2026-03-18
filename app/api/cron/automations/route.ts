@@ -4,12 +4,13 @@ import { prisma } from '@/lib/db/prisma';
 /**
  * Cron endpoint to run automation checks.
  * Call from Vercel Cron or external scheduler.
- * In production, protect with CRON_SECRET header.
+ * Protected with CRON_SECRET header (required - rejects if env var not set).
  */
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization');
   const cronSecret = process.env.CRON_SECRET;
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  // Fail closed: if CRON_SECRET not set, reject all requests
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -38,11 +39,14 @@ export async function GET(request: Request) {
 
   const allInactive = [...new Set([...inactiveUserIds, ...usersWithNoEvents])];
 
+  // TODO: Implement nudge emails using Resend
+  // for (const userId of allInactive) { await sendNudgeEmail(userId); }
+
   return NextResponse.json({
     ok: true,
     checkedAt: new Date().toISOString(),
     inactive7DaysCount: allInactive.length,
-    inactiveUserIds: allInactive.slice(0, 20),
-    message: 'Automation check complete. Nudge emails would be sent in production.',
+    // Note: user IDs intentionally omitted for security
+    message: 'Automation check complete.',
   });
 }

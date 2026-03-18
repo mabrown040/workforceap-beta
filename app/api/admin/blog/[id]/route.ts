@@ -38,6 +38,7 @@ export async function PATCH(
     authorName,
     category,
     published,
+    scheduledAt,
   } = body;
 
   const existing = await prisma.blogPost.findUnique({ where: { id } });
@@ -62,6 +63,7 @@ export async function PATCH(
     update.published = !!published;
     update.publishedAt = published ? (existing.publishedAt ?? new Date()) : null;
   }
+  if (scheduledAt !== undefined) update.scheduledAt = scheduledAt ? new Date(scheduledAt) : null;
 
   const post = await prisma.blogPost.update({
     where: { id },

@@ -336,7 +336,7 @@ export async function seedBlogPosts() {
   for (const post of posts) {
     await prisma.blogPost.upsert({
       where: { slug: post.slug },
-      update: post,
+      update: {}, // never overwrite existing posts - preserves manual edits
       create: post,
     });
     console.log(`✓ ${post.title}`);

@@ -2,9 +2,8 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import TopBanner from '@/components/TopBanner';
-import MainNav from '@/components/MainNav';
 import JsonLd from '@/components/JsonLd';
+import ConditionalMarketingNav from '@/components/ConditionalMarketingNav';
 import ScrollAnimationsWrapper from '@/components/ScrollAnimationsWrapper';
 import '@/css/main.css';
 

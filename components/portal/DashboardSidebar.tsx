@@ -7,6 +7,7 @@ const SIDEBAR_LINKS = [
   { href: '/dashboard', label: 'Home', icon: '🏠' },
   { href: '/dashboard/program', label: 'My Program', icon: '📚' },
   { href: '/dashboard/training', label: 'Training', icon: '🎓' },
+  { href: '/ai-tools', label: 'AI Tools', icon: '✨' },
   { href: '/dashboard/resources', label: 'Resources', icon: '📄' },
   { href: '/dashboard/profile', label: 'My Profile', icon: '👤' },
   { href: '/dashboard/settings', label: 'Settings', icon: '⚙️' },

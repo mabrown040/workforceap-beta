@@ -50,7 +50,29 @@ export default async function DashboardResourcesPage() {
       </p>
 
       <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>Career Tools</h2>
+        <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>AI-Powered Career Tools</h2>
+        <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '1rem' }}>
+          Resume builder, LinkedIn headline, cover letter, interview practice, and more — powered by AI.
+        </p>
+        <Link
+          href="/ai-tools"
+          style={{
+            display: 'inline-block',
+            padding: '0.75rem 1.25rem',
+            background: 'var(--color-accent)',
+            color: 'white',
+            borderRadius: '6px',
+            textDecoration: 'none',
+            fontWeight: 600,
+            marginBottom: '1.5rem',
+          }}
+        >
+          Open AI Tools →
+        </Link>
+      </section>
+
+      <section style={{ marginBottom: '2rem' }}>
+        <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>Career Tips</h2>
         <div style={{ display: 'grid', gap: '1rem' }}>
           {CAREER_TOOLS.map((t) => (
             <a

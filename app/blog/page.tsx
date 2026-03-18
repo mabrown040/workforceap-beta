@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = buildPageMetadata({
   title: 'Blog',
   description:
-    'Career tips, program spotlights, success stories, and local insights from the Workforce Advancement Project.',
+    'Career tips, program spotlights, success stories, and Austin workforce insights from Workforce Advancement Project. Free tech and career training advice for Austin, TX residents.',
   path: '/blog',
 });
 

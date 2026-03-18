@@ -18,12 +18,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const program = getProgramBySlug(slug);
   if (!program) return { title: 'Program' };
 
-  const description = `${program.duration}. Earn ${program.salary}. ${program.partner} certified. Career training for Austin-area residents.`;
+  const salaryRange = program.salary.replace('Starting salary: ', '');
+  const description = `Free ${program.title} training in Austin, TX. ${program.duration} to earn your ${program.partner} certification. Starting salary ${salaryRange}. No cost for qualifying Austin-area residents. Apply today.`;
   return buildPageMetadata({
-    title: program.title,
+    title: `Free ${program.title} Training in Austin, TX`,
     description,
     path: `/programs/${slug}`,
-    image: `https://www.workforceap.org/og-image.png`,
   });
 }
 

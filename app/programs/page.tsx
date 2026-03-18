@@ -6,9 +6,9 @@ import Footer from '@/components/Footer';
 import ProgramsContent from './ProgramsContent';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Our Programs',
+  title: 'Free Career Training Programs in Austin, TX',
   description:
-    'Explore 19 WorkforceAP career programs across technology, healthcare, business, AI, and skilled trades.',
+    'Explore 19 free career training programs in Austin, TX. CompTIA, Google Cybersecurity, AWS Cloud, IBM Data Science, medical coding, manufacturing — no-cost certifications for qualifying Austin-area residents.',
   path: '/programs',
 });
 
@@ -17,7 +17,7 @@ export default function ProgramsPage() {
     <div className="inner-page">
       <PageHero
         title="Our Programs"
-        subtitle="Explore 19 career programs across tech, healthcare, business, and skilled trades."
+        subtitle="19 no-cost career programs for Austin-area residents. Industry certifications from Google, IBM, AWS, Microsoft, and CompTIA."
       />
       <PhotoHighlight
         imageUrl="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1400&q=80"

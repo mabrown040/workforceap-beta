@@ -8,7 +8,7 @@ import Footer from '@/components/Footer';
 export const metadata: Metadata = buildPageMetadata({
   title: 'What We Do',
   description:
-    'Learn how WorkforceAP breaks systemic barriers through digital literacy, AI, occupational training, and wrap-around support.',
+    'Learn how WorkforceAP breaks systemic barriers for Austin-area residents through digital literacy, AI, occupational training, and wrap-around support in Austin, TX.',
   path: '/what-we-do',
 });
 

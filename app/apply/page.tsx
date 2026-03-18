@@ -4,9 +4,9 @@ import Footer from '@/components/Footer';
 import ApplyEligibilityClient from './ApplyEligibilityClient';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Apply Now',
+  title: 'Apply for Free Career Training in Austin, TX',
   description:
-    'Start your Workforce Advancement Project application and begin your path to industry-recognized certifications and career placement support.',
+    'Apply now for free career certification training in Austin, TX. No-cost CompTIA, Google, IBM, and AWS programs for qualifying Austin-area residents. We respond within 24-48 hours.',
   path: '/apply',
 });
 

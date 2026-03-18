@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 type BlogPost = {
   id: string;
@@ -188,14 +190,55 @@ export default function BlogPostEditor({
       </div>
       <div style={{ marginBottom: '1rem' }}>
         <label style={labelStyle}>Content (Markdown)</label>
-        <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          required
-          rows={16}
-          style={{ ...inputStyle, maxWidth: '100%', resize: 'vertical', fontFamily: 'monospace' }}
-          placeholder="Write your post in Markdown. Use **bold**, ## headings, etc."
-        />
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '1rem',
+            alignItems: 'stretch',
+          }}
+          className="live-editor-split"
+        >
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            required
+            rows={18}
+            style={{
+              ...inputStyle,
+              maxWidth: '100%',
+              resize: 'vertical',
+              fontFamily: 'monospace',
+              fontSize: '0.9rem',
+              minHeight: '400px',
+            }}
+            placeholder="Write your post in Markdown. Use **bold**, ## headings, etc."
+          />
+          <div
+            style={{
+              border: '1px solid #ccc',
+              borderRadius: '6px',
+              padding: '1rem',
+              background: '#fafafa',
+              minHeight: '400px',
+              overflow: 'auto',
+            }}
+            className="markdown-body"
+          >
+            <div style={{ fontSize: '0.95rem', lineHeight: 1.6 }}>
+              {content ? (
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+              ) : (
+                <span style={{ color: '#999' }}>Live preview appears here…</span>
+              )}
+            </div>
+          </div>
+        </div>
+        <style>{`
+          @media (max-width: 900px) {
+            .live-editor-split { grid-template-columns: 1fr !important; }
+          }
+        `}</style>
       </div>
       <div style={{ marginBottom: '1.5rem' }}>
         <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>

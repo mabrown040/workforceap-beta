@@ -110,7 +110,17 @@ export default function MembersTable({ members }: MembersTableProps) {
       </div>
 
       {filtered.length === 0 && (
-        <p style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-gray-600)' }}>No members match your filters.</p>
+        <div className="admin-empty-state">
+          <h3>{members.length === 0 ? 'No members yet' : 'No matches'}</h3>
+          <p>
+            {members.length === 0
+              ? 'Add your first member to get started.'
+              : 'Try adjusting your search or program filter.'}
+          </p>
+          {members.length === 0 && (
+            <a href="/admin/members/new" className="btn btn-primary">Add Member</a>
+          )}
+        </div>
       )}
     </div>
   );

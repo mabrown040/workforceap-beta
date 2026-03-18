@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
 import { APPLY_STORAGE_KEY } from '../ApplyEligibilityClient';
+import { CardSkeleton } from '@/components/ui/Skeleton';
 
 const PROGRAM_STORAGE_KEY = 'apply_program_slug';
 
@@ -42,7 +43,16 @@ export default function ApplyResultsClient() {
   };
 
   if (qualifies === null) {
-    return <p>Loading...</p>;
+    return (
+      <div className="apply-flow">
+        <div className="apply-progress-bar">
+          <div className="skeleton" style={{ height: 6, borderRadius: 3, width: '66%' }} />
+        </div>
+        <div className="apply-step-content" style={{ marginTop: '1.5rem' }}>
+          <CardSkeleton />
+        </div>
+      </div>
+    );
   }
 
   return (

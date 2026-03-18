@@ -106,7 +106,11 @@ export default async function AdminBlogPage() {
         </tbody>
       </table>
       {posts.length === 0 && (
-        <p style={{ color: '#666', padding: '2rem' }}>No blog posts yet.</p>
+        <div className="admin-empty-state">
+          <h3>No blog posts yet</h3>
+          <p>Create your first post to start publishing content.</p>
+          <Link href="/admin/blog/new" className="btn btn-primary">New Post</Link>
+        </div>
       )}
     </div>
   );

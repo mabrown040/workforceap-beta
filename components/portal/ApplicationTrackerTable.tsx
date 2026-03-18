@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { trackApplicationTrackerOpen } from '@/lib/analytics/events';
+import { TableSkeleton } from '@/components/ui/Skeleton';
 
 type JobApplication = {
   id: string;
@@ -172,7 +173,7 @@ export default function ApplicationTrackerTable() {
     fetchApplications();
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <TableSkeleton rows={6} cols={5} />;
 
   return (
     <div className="application-tracker">

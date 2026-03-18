@@ -17,11 +17,16 @@ const SIDEBAR_LINKS = [
   { href: '/dashboard/settings', label: 'Settings', icon: '⚙️' },
 ];
 
-export default function DashboardSidebar() {
+type DashboardSidebarProps = {
+  open?: boolean;
+  onClose?: () => void;
+};
+
+export default function DashboardSidebar({ open = false, onClose }: DashboardSidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="dashboard-sidebar">
+    <aside className={`dashboard-sidebar ${open ? 'open' : ''}`}>
       <nav aria-label="Dashboard navigation">
         <ul className="dashboard-sidebar-list">
           {SIDEBAR_LINKS.map(({ href, label, icon }) => {
@@ -31,6 +36,7 @@ export default function DashboardSidebar() {
                 <Link
                   href={href}
                   className={`dashboard-sidebar-link ${isActive ? 'active' : ''}`}
+                  onClick={onClose}
                 >
                   <span className="dashboard-sidebar-icon">{icon}</span>
                   {label}

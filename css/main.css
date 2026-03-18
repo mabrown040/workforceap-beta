@@ -3179,19 +3179,69 @@ body { animation: fadeIn 0.4s ease; }
     background: linear-gradient(135deg, #111 0%, #1a1a1a 50%, #222 100%);
 }
 
-/* Card skeleton loading effect */
-@keyframes cardShine {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
+/* Skeleton loading */
+.skeleton {
+    display: inline-block;
+    background: linear-gradient(
+        90deg,
+        var(--color-gray-200) 25%,
+        var(--color-gray-100) 50%,
+        var(--color-gray-200) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.2s ease-in-out infinite;
+    border-radius: 4px;
+}
+.skeleton-text { border-radius: 4px; }
+.skeleton-circular { border-radius: 50%; }
+.skeleton-rounded { border-radius: var(--radius-md); }
+.skeleton-rectangular { border-radius: 0; }
+@keyframes skeleton-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+.skeleton-table {
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+.skeleton-table-header,
+.skeleton-table-row {
+    display: flex;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--color-gray-200);
+}
+.skeleton-table-header { background: var(--color-light); }
+.skeleton-table-row:last-child { border-bottom: none; }
+.skeleton-card {
+    padding: 1.5rem;
+    background: var(--color-white);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+}
+.skeleton-readiness { display: flex; flex-direction: column; gap: 1rem; }
+.skeleton-readiness-header {
+    padding: 1rem;
+    background: var(--color-light);
+    border-radius: var(--radius-md);
+}
+.skeleton-readiness-section {
+    padding: 1rem;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
 }
 
 /* Responsive touch targets */
 @media (hover: none) {
-    .btn { min-height: 52px; }
-    .filter-chip { min-height: 44px; }
-    .nav-menu a { min-height: 44px; display: flex; align-items: center; }
+    .btn { min-height: 44px; min-width: 44px; padding: 0.6rem 1rem; }
+    .btn.btn-large { min-height: 48px; }
+    .filter-chip { min-height: 44px; padding: 0.5rem 1rem; }
+    .nav-menu a { min-height: 44px; display: flex; align-items: center; padding: 0.5rem 0.75rem; }
     .program-card details summary { min-height: 44px; padding: 0.5rem 0; }
     .program-card:hover { transform: none; }
+    input, select, textarea { min-height: 44px; font-size: 16px; }
+    .dashboard-sidebar-link, .admin-sidebar-link { min-height: 44px; }
 }
 
 /* Salary guide responsive stat boxes */
@@ -4594,6 +4644,136 @@ body { animation: fadeIn 0.4s ease; }
 }
 .dashboard-sidebar-icon {
     font-size: 1.1rem;
+}
+
+/* Mobile: sidebar drawer */
+.dashboard-drawer-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 40;
+    opacity: 0;
+    transition: opacity var(--transition-base);
+}
+.dashboard-drawer-overlay.open {
+    opacity: 1;
+}
+@media (max-width: 768px) {
+    .dashboard-drawer-overlay { display: block; pointer-events: none; }
+    .dashboard-drawer-overlay.open { pointer-events: auto; }
+    .dashboard-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 50;
+        width: 260px;
+        transform: translateX(-100%);
+        transition: transform var(--transition-base);
+        box-shadow: var(--shadow-xl);
+    }
+    .dashboard-sidebar.open {
+        transform: translateX(0);
+    }
+    .dashboard-sidebar-link {
+        min-height: 44px;
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+    }
+}
+.dashboard-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--color-primary);
+    border-radius: var(--radius-sm);
+}
+@media (max-width: 768px) {
+    .dashboard-menu-btn { display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
+}
+
+/* Admin sidebar mobile */
+.admin-drawer-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 40;
+    opacity: 0;
+    transition: opacity var(--transition-base);
+}
+.admin-drawer-overlay.open {
+    opacity: 1;
+}
+@media (max-width: 768px) {
+    .admin-drawer-overlay { display: block; pointer-events: none; }
+    .admin-drawer-overlay.open { pointer-events: auto; }
+    .admin-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 50;
+        width: 240px;
+        transform: translateX(-100%);
+        transition: transform var(--transition-base);
+        box-shadow: var(--shadow-xl);
+    }
+    .admin-sidebar.open {
+        transform: translateX(0);
+    }
+    .admin-sidebar-link {
+        min-height: 44px;
+        padding: 0.75rem 1rem;
+    }
+}
+.admin-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--color-primary);
+    border-radius: var(--radius-sm);
+}
+@media (max-width: 768px) {
+    .admin-menu-btn { display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
+}
+.admin-sidebar {
+    width: 200px;
+    min-width: 200px;
+    padding: 1rem 0;
+    border-right: 1px solid var(--color-gray-200);
+    background: var(--color-light);
+}
+.admin-sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: var(--color-gray-800);
+    font-weight: 400;
+    background: transparent;
+    transition: color var(--transition-fast), background var(--transition-fast);
+}
+.admin-sidebar-link:hover {
+    background: rgba(173, 44, 77, 0.06);
+    color: var(--color-primary);
+}
+.admin-sidebar-link.active {
+    color: var(--color-accent);
+    font-weight: 600;
+    background: rgba(173, 44, 77, 0.08);
 }
 
 /* Dashboard home — quick stats */

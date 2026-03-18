@@ -1,12 +1,8 @@
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
-import DashboardSidebar from '@/components/portal/DashboardSidebar';
-import ProgressBanner from '@/components/portal/ProgressBanner';
-import { SignOutButton } from '@/components/portal/SignOutButton';
-import DevViewToggle from '@/components/portal/DevViewToggle';
+import DashboardShell from '@/components/portal/DashboardShell';
 
 export default async function DashboardLayout({
   children,
@@ -38,53 +34,12 @@ export default async function DashboardLayout({
     : 0;
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        minHeight: '100vh',
-        flexDirection: 'column',
-      }}
+    <DashboardShell
+      programTitle={program?.title}
+      completedCount={completedCount}
+      totalCount={totalCourses}
     >
-      <header
-        style={{
-          borderBottom: '1px solid var(--color-border, #e5e5e5)',
-          padding: '0.75rem 1.5rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          background: 'white',
-        }}
-      >
-        <Link href="/dashboard" style={{ fontWeight: 700, fontSize: '1.1rem', textDecoration: 'none', color: 'inherit' }}>
-          WorkforceAP
-        </Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <DevViewToggle />
-          <SignOutButton />
-        </div>
-      </header>
-
-      <div style={{ display: 'flex', flex: 1 }}>
-        <DashboardSidebar />
-
-        <main
-          style={{
-            flex: 1,
-            minWidth: 0,
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          {enrolledProgram && program && (
-            <ProgressBanner
-              programTitle={program.title}
-              completedCount={completedCount}
-              totalCount={totalCourses}
-            />
-          )}
-          <div style={{ padding: '1.5rem 2rem', flex: 1 }}>{children}</div>
-        </main>
-      </div>
-    </div>
+      {children}
+    </DashboardShell>
   );
 }

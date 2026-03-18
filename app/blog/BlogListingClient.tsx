@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getBlogGradient } from '@/lib/content/blogGradients';
+
+const BLOG_FALLBACK_BG = '#0f172a';
 
 type Post = {
   id: string;
@@ -119,15 +120,20 @@ export default function BlogListingClient({
                     style={{
                       width: '100%',
                       height: '100%',
-                      background: getBlogGradient(post.category),
+                      background: BLOG_FALLBACK_BG,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: '2rem',
-                      color: 'rgba(255,255,255,0.9)',
+                      padding: '1.5rem',
                     }}
                   >
-                    📝
+                    <Image
+                      src="/images/logo-tight.png"
+                      alt=""
+                      width={160}
+                      height={90}
+                      style={{ width: '40%', height: 'auto', opacity: 0.9, objectFit: 'contain' }}
+                    />
                   </div>
                 )}
               </div>

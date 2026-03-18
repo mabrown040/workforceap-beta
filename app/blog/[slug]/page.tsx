@@ -4,7 +4,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { buildPageMetadata } from '@/app/seo';
 import { prisma } from '@/lib/db/prisma';
-import { getBlogGradient } from '@/lib/content/blogGradients';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import PageHero from '@/components/PageHero';
@@ -94,15 +93,20 @@ export default async function BlogPostPage({ params }: Props) {
               borderRadius: '8px',
               overflow: 'hidden',
               aspectRatio: '16/9',
-              background: getBlogGradient(post.category),
+              background: '#0f172a',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '3rem',
-              color: 'rgba(255,255,255,0.9)',
+              padding: '2rem',
             }}
           >
-            📝
+            <Image
+              src="/images/logo-tight.png"
+              alt=""
+              width={272}
+              height={153}
+              style={{ width: '40%', height: 'auto', opacity: 0.9, objectFit: 'contain' }}
+            />
           </div>
         )}
         <div className="blog-post-prose markdown-body">

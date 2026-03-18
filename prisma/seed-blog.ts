@@ -228,6 +228,107 @@ The reshoring wave is here. The factories are being built. The question is wheth
 
 We're making sure ours are.`,
   },
+  {
+    slug: 'what-reshoring-means-for-workers',
+    title: "What 'Reshoring' Means for Workers Like You",
+    category: 'Career Tips',
+    excerpt:
+      "Supply chains are coming home. Factories are being built on American soil. The workers who get certified now are the ones who get hired first.",
+    authorName: 'WorkforceAP Team',
+    published: true,
+    publishedAt: new Date('2026-03-19'),
+    content: `You may have heard the word "reshoring" in the news lately. But what does it actually mean for someone trying to build a career?
+
+Here's the short version: for decades, American companies outsourced manufacturing overseas — to China, Mexico, Vietnam — chasing lower costs. Then COVID hit. Global supply chains collapsed. Companies couldn't get the parts, goods, and materials they needed. The lesson was brutal and clear: depending on the other side of the world is a fragile strategy.
+
+So now the factories are coming back.
+
+**What reshoring means in practice:**
+Semiconductor plants in Arizona. EV battery factories in Georgia and Tennessee. Steel mills in Pennsylvania. Pharmaceutical manufacturing returning to the Midwest. The federal government is investing billions to accelerate this shift through the CHIPS Act, the Inflation Reduction Act, and infrastructure bills. These aren't political promises — the construction permits are filed, the ground is being broken.
+
+**What reshoring needs: workers.**
+Every one of these facilities needs a workforce. Production technicians. Quality control specialists. Logistics coordinators. Supply chain analysts. Construction crews. IT support staff. The jobs are not going to experienced workers from other countries — they're going to trained Americans who are ready when the doors open.
+
+That's the opportunity.
+
+**The certification path:**
+You don't need a four-year degree to walk through that door. The Certified Production Technician (CPT), OSHA-10, Certified Logistics Technician (CLT), and CompTIA certifications are exactly what these employers hire against. They're recognized, they're attainable in 3–5 months, and they signal to an employer that you know the fundamentals.
+
+WorkforceAP offers training in Production Technology, Logistics & Supply Chain, and Construction Readiness — all designed for people entering these industries for the first time. Qualifying participants complete training at no cost.
+
+The reshoring wave is not coming. It's here. The question is whether you'll be ready when the hiring starts.
+
+We're making sure our members are.`,
+  },
+  {
+    slug: 'supply-chain-disruption-best-job-market-manufacturing',
+    title: "Supply Chain Disruption Created the Best Job Market in Manufacturing History — Are You Ready?",
+    category: 'Career Tips',
+    excerpt:
+      "COVID broke global supply chains. Companies are rebuilding domestically at a pace not seen in generations. Here's how to position yourself to benefit.",
+    authorName: 'WorkforceAP Team',
+    published: true,
+    publishedAt: new Date('2026-03-20'),
+    content: `Something unprecedented happened during the pandemic: the global supply chain broke.
+
+Factories shut down. Container ships sat at anchor. Semiconductors ran out. Car lots emptied. Baby formula disappeared from shelves. The entire global manufacturing system — built on the assumption that cheap overseas production plus just-in-time delivery always works — revealed its fatal flaw.
+
+And out of that crisis, something remarkable is emerging: the most significant reshoring of American manufacturing in modern history.
+
+**The numbers are staggering.**
+According to the Reshoring Initiative, the U.S. brought back more manufacturing jobs in 2022 and 2023 than in the previous decade combined. Companies that once thought "Made in America" was a premium they couldn't afford are now realizing it's a risk management strategy they can't afford to skip.
+
+**What this means for the workforce:**
+The Manufacturing Institute estimates a shortage of 2.1 million manufacturing workers by 2030. Companies are building the factories. They can't find the workers. That gap is an opportunity — but only for people who are trained and credentialed.
+
+**The certifications that open the door:**
+- **Certified Production Technician (CPT)** — the entry point for advanced manufacturing roles, covering CNC operations, quality control, and lean manufacturing
+- **Certified Logistics Technician (CLT)** — covers the supply chain, inventory, transportation, and warehouse systems that keep these facilities running
+- **OSHA-10 Construction** — required baseline credential for construction and facility work
+- **CompTIA A+ / Network+** — manufacturing facilities run on technology; IT support is needed at every site
+
+All completable in 3–5 months. All recognized by employers nationwide.
+
+**The equity dimension:**
+Here's what doesn't get talked about enough: reshoring creates jobs in the communities where factories are built. If those communities don't have a trained local workforce, the jobs go to workers from elsewhere. Workforce development isn't charity — it's how communities capture the economic benefit of the manufacturing comeback.
+
+WorkforceAP exists to make sure Austin-area residents, adult learners, and veterans are ready when that opportunity arrives.
+
+Qualifying participants complete training at no cost. The window is open right now.`,
+  },
+  {
+    slug: 'equity-reshore-movement-workforce-development',
+    title: "Equity and the Reshore Movement: Why Workforce Development Has Never Mattered More",
+    category: 'Career Tips',
+    excerpt:
+      "Reshoring creates jobs — but only communities with trained workers benefit. That's the gap workforce development is built to close.",
+    authorName: 'WorkforceAP Team',
+    published: true,
+    publishedAt: new Date('2026-03-21'),
+    content: `The reshoring movement is one of the most significant economic shifts in a generation. Factories are coming back to American soil. Supply chains are being rebuilt domestically. Billions in federal investment are flowing into manufacturing, construction, and technology infrastructure.
+
+But here's the uncomfortable truth: economic opportunity doesn't distribute itself equally.
+
+When a semiconductor plant opens in a new city, it needs thousands of workers. The company will hire from wherever the trained talent exists. If the local community doesn't have it, the jobs go elsewhere — to workers who relocate, or to contractors who bring their own crews. The community gets the factory but not the economic benefit.
+This is exactly why workforce development is not a social service. It's an economic infrastructure investment.
+
+**The equity gap in workforce training:**
+For decades, career training in America has been unequally distributed. Four-year university pathways — expensive, time-consuming, and inaccessible to many — have been treated as the default. Vocational and certification programs have been underfunded and stigmatized.
+
+The result: underserved communities, adult learners without degrees, veterans transitioning out of service, and low-income workers have been systematically excluded from the economic mainstream — not because of lack of ability or drive, but because of lack of access to training.
+
+**The WorkforceAP mission:**
+WorkforceAP was founded on a simple premise: access to quality career training should not depend on your zip code, your income, or your background.
+
+Our programs — spanning technology, healthcare, manufacturing, and skilled trades — are specifically designed for people who have been left out of traditional pathways. We provide industry-recognized certifications, wrap-around support, resume assistance, job placement help, and access to the tools you need to compete.
+
+The reshoring wave is creating a once-in-a-generation opportunity to close workforce equity gaps. New factories need workers. New supply chains need logistics specialists. New construction projects need certified tradespeople.
+
+The question is not whether the jobs will be there. They will. The question is whether the people who have historically been locked out of opportunity will be trained and ready to take them.
+That's the work. And it has never mattered more than it does right now.
+
+Qualifying participants complete training at no cost. Apply today.`,
+  },
 ];
 
 export async function seedBlogPosts() {

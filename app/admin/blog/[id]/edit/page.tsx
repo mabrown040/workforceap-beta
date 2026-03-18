@@ -27,7 +27,7 @@ export default async function AdminBlogEditPage({ params }: Props) {
         ← Back to Blog
       </Link>
       <h1 style={{ marginBottom: '1.5rem' }}>Edit: {post.title}</h1>
-      <BlogPostEditor mode="edit" post={post} aiEnabled={isAIConfigured()} />
+      <BlogPostEditor mode="edit" post={{ ...post, scheduledAt: post.scheduledAt ? post.scheduledAt.toISOString() : null }} aiEnabled={isAIConfigured()} />
     </div>
   );
 }

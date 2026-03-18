@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { seedBlogPosts } from './seed-blog';
 
 const prisma = new PrismaClient();
 
@@ -22,6 +23,8 @@ async function main() {
     });
     console.log('Set role=admin for', adminEmail);
   }
+
+  await seedBlogPosts();
 }
 
 main()

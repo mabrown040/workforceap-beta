@@ -12,6 +12,7 @@ export default async function AdminBlogPage() {
       category: true,
       published: true,
       publishedAt: true,
+      scheduledAt: true,
       updatedAt: true,
     },
   });
@@ -78,11 +79,19 @@ export default async function AdminBlogPage() {
                     padding: '0.2rem 0.5rem',
                     borderRadius: '4px',
                     fontSize: '0.8rem',
-                    background: post.published ? 'rgba(173, 44, 77, 0.12)' : 'var(--color-gray-100)',
-                    color: post.published ? 'var(--color-accent)' : 'var(--color-gray-600)',
+                    background: post.published
+                      ? 'rgba(173, 44, 77, 0.12)'
+                      : post.scheduledAt
+                      ? 'rgba(37, 99, 235, 0.1)'
+                      : 'var(--color-gray-100)',
+                    color: post.published
+                      ? 'var(--color-accent)'
+                      : post.scheduledAt
+                      ? '#2563eb'
+                      : 'var(--color-gray-600)',
                   }}
                 >
-                  {post.published ? 'Published' : 'Draft'}
+                  {post.published ? 'Published' : post.scheduledAt ? '🕐 Scheduled' : 'Draft'}
                 </span>
               </td>
               <td style={{ color: 'var(--color-gray-600)' }}>

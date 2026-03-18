@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { trackLicenseRequest } from '@/lib/analytics/events';
+
+const ASSESSMENT_REDIRECT_KEY = 'assessment_intended_destination';
 
 type BenefitStatus = 'not_requested' | 'pending' | 'active';
 
@@ -11,6 +13,8 @@ type BenefitAccessCardProps = {
   name: string;
   status: BenefitStatus;
   description?: string;
+  /** For Coursera: must complete assessment before access. If false, redirects to /dashboard/assessment */
+  assessmentCompleted?: boolean;
 };
 
 const STATUS_LABELS: Record<BenefitStatus, string> = {
@@ -19,16 +23,30 @@ const STATUS_LABELS: Record<BenefitStatus, string> = {
   active: 'Active',
 };
 
-export default function BenefitAccessCard({ benefitId, name, status: initialStatus, description }: BenefitAccessCardProps) {
+export default function BenefitAccessCard({ benefitId, name, status: initialStatus, description, assessmentCompleted = true }: BenefitAccessCardProps) {
   const [status, setStatus] = useState(initialStatus);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const router = useRouter();
 
   const isActive = status === 'active';
   const isPending = status === 'pending';
+  const isCoursera = benefitId === 'coursera';
+  const needsAssessment = isCoursera && assessmentCompleted === false;
+
+  const redirectToAssessment = (intendedDestination: string) => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem(ASSESSMENT_REDIRECT_KEY, intendedDestination);
+      router.push('/dashboard/assessment');
+    }
+  };
 
   const handleRequest = async () => {
     if (isActive || isPending) return;
+    if (needsAssessment) {
+      redirectToAssessment('/dashboard');
+      return;
+    }
     setLoading(true);
     setError('');
     trackLicenseRequest(name);
@@ -53,6 +71,14 @@ export default function BenefitAccessCard({ benefitId, name, status: initialStat
     }
   };
 
+  const handleOpenPlatform = () => {
+    if (needsAssessment) {
+      redirectToAssessment('https://coursera.org');
+      return;
+    }
+    window.open(benefitId === 'linkedin_premium' ? 'https://linkedin.com' : 'https://coursera.org', '_blank', 'noopener,noreferrer');
+  };
+
   if (isActive) {
     return (
       <div className="benefit-card">
@@ -61,14 +87,13 @@ export default function BenefitAccessCard({ benefitId, name, status: initialStat
           <span className="benefit-card-status status-active">{STATUS_LABELS.active}</span>
         </div>
         {description && <p className="benefit-card-desc">{description}</p>}
-        <Link
-          href={benefitId === 'linkedin_premium' ? 'https://linkedin.com' : 'https://coursera.org'}
+        <button
+          type="button"
           className="btn btn-primary benefit-card-cta"
-          target="_blank"
-          rel="noopener noreferrer"
+          onClick={handleOpenPlatform}
         >
           Open Platform
-        </Link>
+        </button>
       </div>
     );
   }

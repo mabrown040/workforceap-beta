@@ -34,6 +34,9 @@ export default async function AdminPage() {
             <Link href="/admin/members" className="btn btn-primary" style={{ padding: '1rem', textAlign: 'center' }}>
               Member applications
             </Link>
+            <Link href="/admin/assessments" className="btn btn-primary" style={{ padding: '1rem', textAlign: 'center' }}>
+              Skills assessments
+            </Link>
             <Link href="/admin/metrics" className="btn btn-outline" style={{ padding: '1rem', textAlign: 'center' }}>
               Engagement metrics
             </Link>

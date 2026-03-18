@@ -23,6 +23,19 @@ export async function POST(request: Request) {
 
   const { benefit } = parsed.data;
 
+  if (benefit === 'coursera') {
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { assessmentCompleted: true },
+    });
+    if (!dbUser?.assessmentCompleted) {
+      return NextResponse.json(
+        { error: 'Please complete the skills assessment before requesting Coursera access.', code: 'ASSESSMENT_REQUIRED' },
+        { status: 403 }
+      );
+    }
+  }
+
   const existing = await prisma.benefitRequest.findUnique({
     where: {
       userId_benefit: { userId: user.id, benefit },

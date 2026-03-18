@@ -119,6 +119,7 @@ export default async function DashboardPage() {
                 name="Coursera"
                 status={getBenefitStatus(dbUser?.benefitRequests ?? [], 'coursera')}
                 description="Industry certifications and courses at no cost."
+                assessmentCompleted={dbUser?.assessmentCompleted ?? false}
               />
             </div>
 

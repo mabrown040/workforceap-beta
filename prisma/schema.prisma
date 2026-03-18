@@ -18,12 +18,18 @@ datasource db {
 // --- Core tables ---
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  fullName  String   @map("full_name")
-  phone     String?
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id                    String    @id @default(uuid())
+  email                 String    @unique
+  fullName              String    @map("full_name")
+  phone                 String?
+  assessmentCompleted   Boolean   @default(false) @map("assessment_completed")
+  assessmentCompletedAt DateTime? @map("assessment_completed_at")
+  assessmentScore       Int?      @map("assessment_score")
+  assessmentScorePct    Int?      @map("assessment_score_pct")
+  programInterest       String?   @map("program_interest")
+  assessmentAnswers     Json?     @map("assessment_answers")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
 
   profile              Profile?
   applications         Application[]

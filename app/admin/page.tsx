@@ -5,8 +5,8 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { getProgramBySlug } from '@/lib/content/programs';
 import Footer from '@/components/Footer';
+import RecentSignupsTable from '@/components/admin/RecentSignupsTable';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin',
@@ -86,40 +86,7 @@ export default async function AdminPage() {
       </div>
 
       <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Recent signups</h2>
-      <div style={{ overflowX: 'auto' }}>
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Program</th>
-              <th>Enrolled</th>
-              <th>Score %</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {recentUsers.map((u) => (
-              <tr key={u.id} data-clickable onClick={() => window.location.assign(`/admin/members/${u.id}`)}>
-                <td>
-                  <Link href={`/admin/members/${u.id}`} onClick={(e) => e.stopPropagation()}>{u.fullName}</Link>
-                </td>
-                <td>{u.email}</td>
-                <td>
-                  {u.enrolledProgram ? getProgramBySlug(u.enrolledProgram)?.title ?? u.enrolledProgram : '—'}
-                </td>
-                <td>{u.enrolledAt?.toLocaleDateString() ?? '—'}</td>
-                <td>
-                  <span className={u.assessmentScorePct != null ? (u.assessmentScorePct >= 70 ? 'admin-score-high' : u.assessmentScorePct >= 50 ? 'admin-score-mid' : 'admin-score-low') : ''}>
-                    {u.assessmentScorePct ?? '—'}%
-                  </span>
-                </td>
-                <td>{u.assessmentCompleted ? 'Assessment done' : 'Pending'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <RecentSignupsTable users={recentUsers} />
 
       <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
         <Link href="/admin/members" className="btn btn-primary">View Members</Link>

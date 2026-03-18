@@ -14,7 +14,7 @@ type Props = { params: Promise<{ slug: string }> };
 export async function generateStaticParams() {
   try {
     const posts = await prisma.blogPost.findMany({
-      where: { published: true },
+      where: { OR: [{ published: true }, { scheduledAt: { lte: new Date() } }] },
       select: { slug: true },
     });
     return posts.map((p) => ({ slug: p.slug }));
@@ -40,10 +40,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
+  const now = new Date();
   const post = await prisma.blogPost.findUnique({
-    where: { slug, published: true },
+    where: { slug },
   });
-  if (!post) notFound();
+  // Only show if published OR scheduledAt has passed
+  if (!post || (!post.published && (!post.scheduledAt || post.scheduledAt > now))) notFound();
 
   const related = await prisma.blogPost.findMany({
     where: {

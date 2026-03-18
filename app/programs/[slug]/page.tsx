@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const description = `${program.duration}. Earn ${program.salary}. ${program.partner} certified. Career training for Austin-area residents.`;
   return buildPageMetadata({
-    title: `${program.title} Certification`,
+    title: program.title,
     description,
     path: `/programs/${slug}`,
     image: `https://www.workforceap.org/og-image.png`,

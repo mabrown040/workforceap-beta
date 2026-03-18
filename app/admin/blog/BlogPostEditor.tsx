@@ -28,9 +28,11 @@ function slugify(text: string): string {
 export default function BlogPostEditor({
   mode,
   post,
+  aiEnabled = false,
 }: {
   mode: 'create' | 'edit';
   post?: BlogPost;
+  aiEnabled?: boolean;
 }) {
   const router = useRouter();
   const [slug, setSlug] = useState(post?.slug ?? '');
@@ -52,10 +54,47 @@ export default function BlogPostEditor({
     toneNote?: string;
   } | null>(null);
   const [reviewLoading, setReviewLoading] = useState(false);
+  const [generateExpanded, setGenerateExpanded] = useState(false);
+  const [aiTitle, setAiTitle] = useState('');
+  const [aiTopic, setAiTopic] = useState('');
+  const [aiTone, setAiTone] = useState('Informative');
+  const [generateLoading, setGenerateLoading] = useState(false);
+  const [generateToast, setGenerateToast] = useState<string | null>(null);
 
   const handleTitleChange = (v: string) => {
     setTitle(v);
     if (mode === 'create' && !slug) setSlug(slugify(v));
+  };
+
+  const handleGenerate = async () => {
+    if (!aiTopic.trim()) return;
+    setGenerateLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/admin/blog/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: aiTitle.trim() || undefined,
+          topic: aiTopic.trim(),
+          tone: aiTone,
+          category: category.trim() || 'Career Tips',
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'Failed');
+      if (data.title && !title) setTitle(data.title);
+      if (data.excerpt && !excerpt) setExcerpt(data.excerpt);
+      if (data.content) {
+        setContent((prev) => (prev ? `${prev}\n\n---\n\n${data.content}` : data.content));
+      }
+      setGenerateToast('Draft generated — review and edit before publishing');
+      setTimeout(() => setGenerateToast(null), 4000);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Generation failed — check your API key or try again');
+    } finally {
+      setGenerateLoading(false);
+    }
   };
 
   const handleReview = async () => {
@@ -217,6 +256,104 @@ export default function BlogPostEditor({
           placeholder="WorkforceAP Team"
         />
       </div>
+      {aiEnabled && (
+        <div style={{ marginBottom: '1.5rem' }}>
+          <button
+            type="button"
+            onClick={() => setGenerateExpanded(!generateExpanded)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              background: 'none',
+              border: '1px solid #ccc',
+              borderRadius: '6px',
+              padding: '0.5rem 1rem',
+              cursor: 'pointer',
+              fontSize: '0.95rem',
+            }}
+          >
+            ✨ Generate with AI
+            <span style={{ fontSize: '0.8rem', color: '#666' }}>{generateExpanded ? '▼' : '▶'}</span>
+          </button>
+          {generateExpanded && (
+            <div
+              style={{
+                marginTop: '0.75rem',
+                padding: '1rem',
+                border: '1px solid #e5e5e5',
+                borderRadius: '6px',
+                background: '#fafafa',
+              }}
+            >
+              <div style={{ marginBottom: '0.75rem' }}>
+                <label style={labelStyle}>Title (optional)</label>
+                <input
+                  type="text"
+                  value={aiTitle}
+                  onChange={(e) => setAiTitle(e.target.value)}
+                  style={inputStyle}
+                  placeholder="e.g. Why Veterans Are Built for Tech Careers"
+                />
+              </div>
+              <div style={{ marginBottom: '0.75rem' }}>
+                <label style={labelStyle}>Topic / angle *</label>
+                <input
+                  type="text"
+                  value={aiTopic}
+                  onChange={(e) => setAiTopic(e.target.value)}
+                  style={inputStyle}
+                  placeholder="e.g. Military discipline translates to IT certifications, highlight CompTIA Security+"
+                />
+              </div>
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+                <div>
+                  <label style={labelStyle}>Tone</label>
+                  <select
+                    value={aiTone}
+                    onChange={(e) => setAiTone(e.target.value)}
+                    style={inputStyle}
+                  >
+                    <option>Informative</option>
+                    <option>Inspiring</option>
+                    <option>Practical</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={labelStyle}>Category</label>
+                  <input
+                    type="text"
+                    value={category || 'Career Tips'}
+                    readOnly
+                    style={{ ...inputStyle, background: '#eee', maxWidth: '200px' }}
+                  />
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleGenerate}
+                disabled={generateLoading || !aiTopic.trim()}
+                style={{
+                  padding: '0.5rem 1rem',
+                  background: 'var(--color-accent)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontWeight: 600,
+                  cursor: generateLoading || !aiTopic.trim() ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {generateLoading ? 'Generating…' : 'Generate Draft →'}
+              </button>
+              {generateToast && (
+                <span style={{ marginLeft: '1rem', fontSize: '0.9rem', color: 'var(--color-accent)' }}>
+                  {generateToast}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      )}
       <div style={{ marginBottom: '1rem' }}>
         <label style={labelStyle}>Content (Markdown)</label>
         <div

@@ -487,7 +487,7 @@ a.btn-white {
     justify-content: center;
     text-align: center;
     color: var(--color-white);
-    overflow: hidden;
+    overflow-x: hidden;
 }
 .hero-bg-image {
     object-fit: cover;
@@ -506,6 +506,7 @@ a.btn-white {
     z-index: 1;
     max-width: 860px;
     padding: 4rem 1.5rem;
+    overflow: visible;
 }
 .hero-badge {
     display: inline-block;
@@ -525,10 +526,24 @@ a.btn-white {
 .hero-title {
     font-size: clamp(2.5rem, 6vw, 4rem);
     font-weight: 800;
-    margin-bottom: 1.25rem;
-    line-height: 1.05;
+    margin-bottom: 1rem;
+    line-height: 1.2;
     letter-spacing: -0.035em;
+    padding-bottom: 0.25em;
+    overflow: visible;
     animation: fadeInUp 0.8s ease 0.2s both;
+}
+.hero-no-cost-badge {
+    display: inline-block;
+    background: rgba(74, 155, 79, 0.25);
+    border: 1px solid rgba(74, 155, 79, 0.5);
+    padding: 0.4rem 1rem;
+    border-radius: var(--radius-full);
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+    color: var(--color-white);
+    animation: fadeInUp 0.8s ease 0.25s both;
 }
 .hero-title .accent {
     background: linear-gradient(135deg, var(--color-gold), var(--color-gold-light), #dbb85c);

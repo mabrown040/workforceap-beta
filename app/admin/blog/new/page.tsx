@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { isAIConfigured } from '@/lib/ai/groq';
 import BlogPostEditor from '../BlogPostEditor';
 
 export default function AdminBlogNewPage() {
@@ -11,7 +12,7 @@ export default function AdminBlogNewPage() {
         ← Back to Blog
       </Link>
       <h1 style={{ marginBottom: '1.5rem' }}>New Blog Post</h1>
-      <BlogPostEditor mode="create" />
+      <BlogPostEditor mode="create" aiEnabled={isAIConfigured()} />
     </div>
   );
 }

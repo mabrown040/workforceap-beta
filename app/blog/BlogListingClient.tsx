@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { getBlogGradient } from '@/lib/content/blogGradients';
 
 type Post = {
   id: string;
@@ -118,11 +119,12 @@ export default function BlogListingClient({
                     style={{
                       width: '100%',
                       height: '100%',
-                      background: 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)',
+                      background: getBlogGradient(post.category),
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontSize: '2rem',
+                      color: 'rgba(255,255,255,0.9)',
                     }}
                   >
                     📝

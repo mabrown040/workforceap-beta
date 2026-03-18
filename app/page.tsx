@@ -42,7 +42,8 @@ export default function HomePage() {
         <div className="hero-overlay" />
         <div className="hero-container">
           <div className="hero-badge">&#x2B50; Virtual and Hybrid Occupation and Career Programs &bull; Workforce Advancement Project</div>
-          <h1 className="hero-title">Empowering People.<br /><span className="accent">Advancing Futures.</span></h1>
+          <h1 className="hero-title">Empowering People. <br /><span className="accent">Advancing Futures.</span></h1>
+          <div className="hero-no-cost-badge">✦ No-cost training for qualifying participants</div>
           <p className="hero-subtitle">Career training and industry certifications designed to launch careers in Technology, Data, AI, Healthcare, Manufacturing and Skilled Trades.</p>
           <div className="hero-actions">
             <Link href="/apply" className="btn btn-primary">Apply Now</Link>
@@ -65,8 +66,9 @@ export default function HomePage() {
       <section className="stats-bar">
         <div className="stats-container">
           <div className="stat"><span className="stat-number">19</span><span className="stat-label">Programs</span></div>
+          <div className="stat"><span className="stat-number">$0</span><span className="stat-label">Cost to Qualifying Participants</span></div>
           <div className="stat"><span className="stat-number">16–20</span><span className="stat-label">Weeks to Certification</span></div>
-          <div className="stat"><span className="stat-number">24h</span><span className="stat-label">Response Time</span></div>
+          <div className="stat"><span className="stat-number">24–48h</span><span className="stat-label">Response Time</span></div>
           <div className="stat"><span className="stat-number">100%</span><span className="stat-label">Job Search Support</span></div>
         </div>
       </section>

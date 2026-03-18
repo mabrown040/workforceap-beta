@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { prisma } from '@/lib/db/prisma';
+import { getBlogGradient } from '@/lib/content/blogGradients';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import PageHero from '@/components/PageHero';
@@ -56,7 +57,7 @@ export default async function AdminBlogPreviewPage({ params }: Props) {
           .join(' · ')}
       />
       <article className="blog-post-article">
-        {post.coverImage && (
+        {post.coverImage ? (
           <div
             style={{
               marginBottom: '2rem',
@@ -72,6 +73,23 @@ export default async function AdminBlogPreviewPage({ params }: Props) {
               height={383}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
+          </div>
+        ) : (
+          <div
+            style={{
+              marginBottom: '2rem',
+              borderRadius: '8px',
+              overflow: 'hidden',
+              aspectRatio: '16/9',
+              background: getBlogGradient(post.category),
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '3rem',
+              color: 'rgba(255,255,255,0.9)',
+            }}
+          >
+            📝
           </div>
         )}
         <div className="blog-post-prose markdown-body">

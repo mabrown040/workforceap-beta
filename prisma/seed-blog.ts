@@ -120,6 +120,114 @@ The demand is here. The jobs are here. The only thing standing between you and a
 
 We're ready when you are.`,
   },
+  {
+    slug: 'michael-brown-workforce-leader-austin',
+    title: "Michael Brown: The Man Behind Austin's Workforce Development Movement",
+    category: 'Success Stories',
+    excerpt: "For over 25 years, Michael Brown has been quietly transforming careers across Austin. Here's the story behind WorkforceAP.",
+    authorName: 'WorkforceAP Team',
+    published: true,
+    publishedAt: new Date('2026-03-16'),
+    content: `Michael Brown, PMP, has spent more than 25 years doing work that most cities don't notice until it's gone — building pipelines from poverty to prosperity, one certification at a time.
+
+A recognized workforce development leader in the Austin metro area, Brown has led career training programs at some of the city's most impactful organizations: Goodwill Career & Technical Academy, Austin Area Urban League, Universal Tech Movement, and the African American Youth Harvest Foundation. In his first year leading Goodwill's Career & Technical Academy, he engineered a $700,000 revenue turnaround. At Austin Area Urban League, he built a workforce unit that generated $500,000 in first-year revenue.
+His approach has always been the same: meet people where they are, give them the skills the market actually needs, and stay with them through the finish line.
+
+"The credential is just the beginning," Brown has said. "What we're really doing is changing someone's relationship with possibility."
+
+WorkforceAP is the culmination of that philosophy — a program that combines industry-recognized certifications from Google, IBM, Microsoft, and Amazon with the wrap-around services that Brown has spent decades refining: assessment, workforce readiness, loaner laptops, and job placement assistance.
+
+With 19 programs spanning technology, healthcare, manufacturing, and skilled trades, WorkforceAP is designed for Austin's underserved communities, adult learners, and veterans — the people who have historically been left out of the city's economic boom.
+
+The work continues. And if Brown's track record is any indication, the results will speak for themselves.`,
+  },
+  {
+    slug: 'top-20-cities-launch-tech-career',
+    title: 'The 20 Best Cities to Launch a Tech Career in 2026',
+    category: 'Career Tips',
+    excerpt: 'From Austin to Atlanta, these are the metros where certified tech workers are in highest demand — and where you can build a career from the ground up.',
+    authorName: 'WorkforceAP Team',
+    published: true,
+    publishedAt: new Date('2026-03-17'),
+    content: `The tech job market isn't just in Silicon Valley anymore. As remote work reshapes hiring and companies expand into secondary markets, certified tech workers have more geographic opportunity than ever before.
+
+Here are 20 cities where the demand for entry-level certified professionals is growing fastest:
+
+**1. Austin, TX** — Dell, Tesla, Apple, and a booming startup scene make Austin one of the top tech markets in the country. Strong demand for IT support, cybersecurity, and data roles.
+
+**2. Dallas-Fort Worth, TX** — Corporate headquarters, financial services, and healthcare systems drive massive demand for IT and data professionals.
+**3. Atlanta, GA** — A rising tech hub with strong fintech, cybersecurity, and logistics sectors.
+
+**4. Nashville, TN** — Healthcare tech is booming. Health IT professionals are in short supply.
+
+**5. Phoenix, AZ** — Rapid corporate relocation has created a surge in IT and cybersecurity hiring.
+
+**6. Charlotte, NC** — Financial services and logistics drive strong demand for data and IT roles.
+
+**7. Raleigh-Durham, NC** — Research Triangle is a magnet for biotech, pharma, and tech companies needing data talent.
+
+**8. Denver, CO** — Strong in cybersecurity, cloud, and aerospace tech.
+
+**9. Columbus, OH** — Finance, insurance, and retail tech create steady IT and data analyst demand.
+
+**10. Indianapolis, IN** — Manufacturing tech and healthcare IT are growing rapidly.
+**11. San Antonio, TX** — Military and government cybersecurity contracts drive consistent demand.
+
+**12. Tampa, FL** — Financial services and healthcare create strong IT support and cybersecurity pipelines.
+
+**13. Jacksonville, FL** — Logistics, finance, and healthcare fuel steady IT hiring.
+
+**14. Kansas City, MO** — Agriculture tech and financial services create niche demand for data and IT.
+
+**15. Louisville, KY** — Healthcare and logistics IT are growing faster than local talent supply.
+
+**16. Memphis, TN** — Supply chain and logistics technology is a standout opportunity.
+
+**17. Birmingham, AL** — Healthcare systems and manufacturing create underserved IT demand.
+**18. Oklahoma City, OK** — Energy sector digital transformation is driving cybersecurity and data hiring.
+
+**19. El Paso, TX** — Manufacturing, military, and cross-border trade fuel strong IT support demand.
+
+**20. Detroit, MI** — Automotive tech transformation is creating massive demand for manufacturing IT and data professionals.
+
+The common thread: industry certifications from Google, IBM, CompTIA, Amazon, and Microsoft are recognized by employers in every one of these markets. You don't need a four-year degree — you need the right credential and the confidence to apply.
+
+WorkforceAP trains and supports members for careers in these markets and beyond. Qualifying participants complete training at no cost.`,
+  },
+  {
+    slug: 'bringing-manufacturing-back-america',
+    title: "Bringing Manufacturing Back: Why Skilled Trades Are America's Next Big Opportunity",
+    category: 'Career Tips',
+    excerpt: "Reshoring is real. Billions in new factories are coming online — and they need certified workers who aren't here yet.",
+    authorName: 'WorkforceAP Team',
+    published: true,
+    publishedAt: new Date('2026-03-18'),
+    content: `Something is shifting in American manufacturing — and it's creating one of the biggest workforce opportunities in decades.
+
+Driven by federal investment, supply chain restructuring, and national security concerns, companies are bringing production back to American soil at a pace not seen in a generation. Semiconductor fabrication plants, EV battery factories, steel mills, and advanced manufacturing facilities are being built from Texas to Michigan — and they all need one thing: skilled workers.
+
+The problem? There aren't enough of them.
+
+According to the Manufacturing Institute, the U.S. faces a shortage of 2.1 million manufacturing workers by 2030. The average age of a skilled tradesperson is over 44. Retirement is accelerating the gap. And traditional vocational pipelines have been underfunded for years.
+This is where the opportunity lives.
+
+**What the jobs actually pay:**
+- Production Technician: $48K–$70K starting
+- CNC Machinist: $52K–$78K
+- Quality Control Technician: $50K–$72K
+- Logistics & Supply Chain Specialist: $55K–$78K
+- Construction Safety Specialist (OSHA-10): $48K–$68K
+
+These aren't dead-end jobs. They're the foundation of careers in advanced manufacturing, industrial management, and operations technology — industries that are growing, not shrinking.
+
+**The certification path:**
+You don't need four years of college to get in the door. Programs like the Certified Production Technician (CPT) certificate, OSHA-10, and Certified Logistics Technician (CLT) are industry-recognized credentials that employers hire directly against. Most can be completed in 3–5 months.
+
+WorkforceAP offers training in Production Technology, Logistics & Supply Chain, and Construction Readiness — all designed for people entering manufacturing for the first time. Qualifying participants complete training at no cost.
+The reshoring wave is here. The factories are being built. The question is whether American workers will be trained and ready when the doors open.
+
+We're making sure ours are.`,
+  },
 ];
 
 export async function seedBlogPosts() {

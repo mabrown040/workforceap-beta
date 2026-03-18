@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
     authorName,
     category,
     published,
+    scheduledAt,
   } = body;
 
   if (!slug?.trim() || !title?.trim() || !content?.trim()) {
@@ -44,6 +45,7 @@ export async function POST(request: NextRequest) {
       category: category?.trim() || null,
       published: !!published,
       publishedAt: published ? new Date() : null,
+      scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
     },
   });
 

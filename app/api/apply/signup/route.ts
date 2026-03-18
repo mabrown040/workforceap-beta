@@ -1,9 +1,18 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { z } from 'zod';
+import { checkSignupRateLimit } from '@/lib/rate-limit';
+
+function getClientIp(request: NextRequest): string {
+  return (
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown'
+  );
+}
 
 const applySignupSchema = z.object({
   firstName: z.string().min(1).max(100),
@@ -14,7 +23,16 @@ const applySignupSchema = z.object({
   programSlug: z.string().min(1),
 });
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  const ip = getClientIp(request);
+  const { success: rateOk } = await checkSignupRateLimit(ip);
+  if (!rateOk) {
+    return NextResponse.json(
+      { error: 'Too many signup attempts. Please try again later.' },
+      { status: 429 }
+    );
+  }
+
   let body: unknown;
   try {
     body = await request.json();
@@ -118,3 +136,4 @@ export async function POST(request: Request) {
     redirectTo: '/login',
   });
 }
+

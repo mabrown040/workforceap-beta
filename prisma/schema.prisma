@@ -405,6 +405,25 @@ model UserCertification {
   @@map("user_certifications")
 }
 
+model BlogPost {
+  id          String    @id @default(uuid())
+  slug        String    @unique
+  title       String
+  excerpt     String?
+  content     String    @db.Text
+  coverImage  String?   @map("cover_image")
+  authorName  String    @default("WorkforceAP Team") @map("author_name")
+  published   Boolean   @default(false)
+  publishedAt DateTime? @map("published_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  category    String?
+
+  @@index([published])
+  @@index([category])
+  @@map("blog_posts")
+}
+
 model AuditLog {
   id           String   @id @default(uuid())
   actorUserId  String?  @map("actor_user_id")

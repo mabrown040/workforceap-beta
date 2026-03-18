@@ -8,6 +8,7 @@ const LINKS = [
   { href: '/admin/members', label: 'Members', icon: '👥' },
   { href: '/admin/assessments', label: 'Assessments', icon: '📋' },
   { href: '/admin/programs', label: 'Programs', icon: '📚' },
+  { href: '/admin/blog', label: 'Blog', icon: '📝' },
   // COUNSELOR_DEFERRED: { href: '/admin/counselors', label: 'Counselors', icon: '👤' },
 ];
 

@@ -1,11 +1,15 @@
 import type { MetadataRoute } from 'next';
 import { PROGRAMS } from '@/lib/content/programs';
+import { prisma } from '@/lib/db/prisma';
 
 const SITE_URL = 'https://www.workforceap.org';
+
+export const dynamic = 'force-dynamic';
 
 const routes = [
   '/',
   '/apply',
+  '/blog',
   '/contact',
   '/faq',
   '/how-it-works',
@@ -17,7 +21,7 @@ const routes = [
   '/privacy',
 ] as const;
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
   const mainPages = routes.map((path) => ({
@@ -34,5 +38,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  return [...mainPages, ...programPages];
+  let blogPages: MetadataRoute.Sitemap = [];
+  try {
+    const blogPosts = await prisma.blogPost.findMany({
+      where: { published: true },
+      select: { slug: true, updatedAt: true },
+    });
+    blogPages = blogPosts.map((p) => ({
+      url: `${SITE_URL}/blog/${p.slug}`,
+      lastModified: p.updatedAt,
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    }));
+  } catch {
+    // DB unavailable at build time (e.g. CI)
+  }
+
+  return [...mainPages, ...programPages, ...blogPages];
 }

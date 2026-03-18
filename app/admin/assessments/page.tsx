@@ -7,6 +7,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import Footer from '@/components/Footer';
 import AssessmentsTable from '@/components/admin/AssessmentsTable';
+import { TableSkeleton } from '@/components/ui/Skeleton';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin – Skills assessments',
@@ -68,7 +69,7 @@ export default async function AdminAssessmentsPage({
       <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>View member assessment results and export for counselor review.</p>
 
       <div>
-          <Suspense fallback={<p>Loading...</p>}>
+          <Suspense fallback={<TableSkeleton rows={8} cols={6} />}>
             <AssessmentsTable
               users={users}
               highlightUserId={highlightUserId}

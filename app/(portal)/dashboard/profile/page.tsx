@@ -40,24 +40,29 @@ export default async function DashboardProfilePage() {
         Manage your contact information and career goals.
       </p>
 
-      <DashboardProfileForm
-        defaultFirstName={firstName}
-        defaultLastName={lastName}
-        defaultPhone={dbUser.profile?.profilePhone ?? dbUser.phone ?? ''}
-        defaultAddress={dbUser.profile?.profileAddress ?? ''}
-        defaultLinkedin={dbUser.profile?.profileLinkedin ?? ''}
-        defaultBio={dbUser.profile?.profileBio ?? ''}
-      />
+      <div className="dashboard-profile-section">
+        <h3>Contact info</h3>
+        <DashboardProfileForm
+          defaultFirstName={firstName}
+          defaultLastName={lastName}
+          defaultPhone={dbUser.profile?.profilePhone ?? dbUser.phone ?? ''}
+          defaultAddress={dbUser.profile?.profileAddress ?? ''}
+          defaultLinkedin={dbUser.profile?.profileLinkedin ?? ''}
+          defaultBio={dbUser.profile?.profileBio ?? ''}
+        />
+      </div>
 
-      <div style={{ marginTop: '2rem' }}>
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>
+      <div className="dashboard-profile-section">
+        <h3>Account</h3>
+        <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', margin: 0 }}>
           <strong>Email:</strong> {dbUser.email} (tied to account, cannot be changed here)
         </p>
       </div>
 
       {dbUser.assessmentCompleted && (
-        <div style={{ marginTop: '1.5rem' }}>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>
+        <div className="dashboard-profile-section">
+          <h3>Assessment</h3>
+          <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '0.75rem' }}>
             <strong>Assessment Score:</strong> {dbUser.assessmentScore ?? 0}/90 ({dbUser.assessmentScorePct ?? 0}%) — completed{' '}
             {dbUser.assessmentCompletedAt?.toLocaleDateString() ?? ''}
           </p>
@@ -77,8 +82,9 @@ export default async function DashboardProfilePage() {
       )}
 
       {program && (
-        <div style={{ marginTop: '1.5rem' }}>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>
+        <div className="dashboard-profile-section">
+          <h3>Program</h3>
+          <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', margin: 0 }}>
             <strong>Current Program:</strong>{' '}
             <Link href="/dashboard/program">{program.title}</Link>
             {dbUser.enrolledAt && ` — Enrolled ${dbUser.enrolledAt.toLocaleDateString()}`}

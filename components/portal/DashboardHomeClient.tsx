@@ -42,16 +42,22 @@ export default function DashboardHomeClient({
       {state === 'A' && (
         <>
           <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Welcome, {firstName} 👋</h1>
-          <p style={{ color: 'var(--color-gray-600)', marginBottom: '2rem' }}>
+          <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
             You&apos;re in. Let&apos;s build your career path.
           </p>
-          <div style={{ display: 'grid', gap: '1rem', maxWidth: '400px' }}>
-            <Link href="/dashboard/program" className="btn btn-primary" style={{ padding: '1rem', textAlign: 'center' }}>
-              Choose Your Program
-            </Link>
-            <Link href="/how-it-works" className="btn btn-outline" style={{ padding: '1rem', textAlign: 'center' }}>
-              How It Works
-            </Link>
+          <div className="dashboard-next-step">
+            <h3>Next step: Choose your program</h3>
+            <p>
+              Select one of our 19 no-cost career programs. This is a one-time choice — funding is tied to a single program enrollment.
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+              <Link href="/dashboard/program" className="btn btn-primary" style={{ padding: '0.75rem 1.25rem' }}>
+                Choose Your Program
+              </Link>
+              <Link href="/how-it-works" className="btn btn-outline" style={{ padding: '0.75rem 1.25rem' }}>
+                How It Works
+              </Link>
+            </div>
           </div>
         </>
       )}
@@ -59,21 +65,26 @@ export default function DashboardHomeClient({
       {state === 'B' && (
         <>
           <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Welcome back, {firstName}</h1>
-          <div
-            style={{
-              background: 'rgba(74, 155, 79, 0.1)',
-              border: '1px solid var(--color-accent)',
-              borderRadius: 'var(--radius-md)',
-              padding: '1.25rem',
-              marginBottom: '1.5rem',
-            }}
-          >
-            <p style={{ margin: 0, fontWeight: 600, marginBottom: '0.5rem' }}>
-              Start your {programTitle} training — complete a quick skills assessment first
+          <div className="dashboard-next-step">
+            <h3>Next step: Complete your skills assessment</h3>
+            <p>
+              Start your {programTitle} training — complete a quick skills assessment first so we can tailor your learning path.
             </p>
-            <Link href="/dashboard/assessment" className="btn btn-primary" style={{ marginTop: '0.5rem' }}>
+            <Link href="/dashboard/assessment" className="btn btn-primary">
               Take Assessment
             </Link>
+          </div>
+          <div className="dashboard-stats-row">
+            <div className="dashboard-stat-card">
+              <div className="dashboard-stat-icon">📚</div>
+              <div className="dashboard-stat-label">Program</div>
+              <div className="dashboard-stat-value" style={{ fontSize: '0.95rem' }}>{programTitle ?? '—'}</div>
+            </div>
+            <div className="dashboard-stat-card">
+              <div className="dashboard-stat-icon">📅</div>
+              <div className="dashboard-stat-label">Enrolled</div>
+              <div className="dashboard-stat-value">{enrolledAt?.toLocaleDateString() ?? '—'}</div>
+            </div>
           </div>
         </>
       )}
@@ -81,15 +92,16 @@ export default function DashboardHomeClient({
       {state === 'C' && (
         <>
           <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Welcome back, {firstName}</h1>
-          <div
-            style={{
-              background: 'var(--color-light)',
-              borderRadius: 'var(--radius-md)',
-              padding: '1.5rem',
-              marginBottom: '1.5rem',
-              border: '1px solid var(--color-border, #e5e5e5)',
-            }}
-          >
+          <div className="dashboard-next-step">
+            <h3>Next step: {nextMilestone ?? 'Continue training'}</h3>
+            <p>
+              You&apos;ve completed {completedCount} of {totalCourses} courses. Keep the momentum going.
+            </p>
+            <Link href="/dashboard/training" className="btn btn-primary">
+              Continue Training
+            </Link>
+          </div>
+          <div className="dashboard-program-card">
             <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>My Program: {programTitle}</h2>
             <p style={{ marginBottom: '1rem', fontSize: '0.95rem' }}>
               Progress: {completedCount} of {totalCourses} courses complete
@@ -104,22 +116,25 @@ export default function DashboardHomeClient({
                 }}
               />
             </div>
-            <Link href="/dashboard/training" className="btn btn-primary">
-              Continue Training
+            <Link href="/dashboard/training" className="btn btn-secondary">
+              Go to Training
             </Link>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-            <div style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
-              <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-600)', marginBottom: '0.25rem' }}>Enrolled</div>
-              <div style={{ fontWeight: 600 }}>{enrolledAt?.toLocaleDateString() ?? '—'}</div>
+          <div className="dashboard-stats-row">
+            <div className="dashboard-stat-card">
+              <div className="dashboard-stat-icon">📅</div>
+              <div className="dashboard-stat-label">Enrolled</div>
+              <div className="dashboard-stat-value">{enrolledAt?.toLocaleDateString() ?? '—'}</div>
             </div>
-            <div style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
-              <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-600)', marginBottom: '0.25rem' }}>Assessment Score</div>
-              <div style={{ fontWeight: 600 }}>{assessmentScorePct ?? '—'}%</div>
+            <div className="dashboard-stat-card">
+              <div className="dashboard-stat-icon">📊</div>
+              <div className="dashboard-stat-label">Assessment Score</div>
+              <div className="dashboard-stat-value">{assessmentScorePct ?? '—'}%</div>
             </div>
-            <div style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
-              <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-600)', marginBottom: '0.25rem' }}>Next Milestone</div>
-              <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{nextMilestone ?? '—'}</div>
+            <div className="dashboard-stat-card">
+              <div className="dashboard-stat-icon">🎯</div>
+              <div className="dashboard-stat-label">Next Milestone</div>
+              <div className="dashboard-stat-value" style={{ fontSize: '0.95rem' }}>{nextMilestone ?? '—'}</div>
             </div>
           </div>
           {recentActivity.length > 0 && (
@@ -142,13 +157,12 @@ export default function DashboardHomeClient({
         <>
           <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Welcome back, {firstName}</h1>
           <div
+            className="dashboard-next-step"
             style={{
-              background: 'linear-gradient(135deg, rgba(74, 155, 79, 0.15), rgba(74, 155, 79, 0.05))',
+              background: 'linear-gradient(135deg, rgba(173, 44, 77, 0.1), rgba(173, 44, 77, 0.04))',
               border: '2px solid var(--color-accent)',
-              borderRadius: 'var(--radius-md)',
               padding: '2rem',
               textAlign: 'center',
-              marginBottom: '1.5rem',
             }}
           >
             <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🎉</div>
@@ -164,20 +178,12 @@ export default function DashboardHomeClient({
       )}
 
       {suggestedActions.length > 0 && (
-        <div
-          style={{
-            marginTop: '2rem',
-            padding: '1.25rem',
-            background: 'rgba(74, 155, 79, 0.08)',
-            border: '1px solid rgba(74, 155, 79, 0.3)',
-            borderRadius: 'var(--radius-md)',
-          }}
-        >
-          <h3 style={{ fontSize: '1rem', marginBottom: '0.75rem', fontWeight: 600 }}>Suggested for you</h3>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '1rem' }}>
+        <div className="dashboard-suggested">
+          <h3>Suggested for you</h3>
+          <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: 0 }}>
             Based on your progress — try these AI tools next:
           </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div className="dashboard-suggested-actions">
             {suggestedActions.map((a) => (
               <Link
                 key={a.href + a.label}

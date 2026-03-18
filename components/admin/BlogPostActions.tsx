@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -12,10 +12,23 @@ type Props = {
 
 export default function BlogPostActions({ id, slug, published }: Props) {
   const router = useRouter();
+  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   const togglePublish = async () => {
+    setOpen(false);
     setLoading('publish');
     try {
       const res = await fetch(`/api/admin/blog/${id}`, {
@@ -31,6 +44,8 @@ export default function BlogPostActions({ id, slug, published }: Props) {
   };
 
   const handleDelete = async () => {
+    setOpen(false);
+    setConfirmDelete(false);
     setLoading('delete');
     try {
       const res = await fetch(`/api/admin/blog/${id}`, { method: 'DELETE' });
@@ -39,87 +54,59 @@ export default function BlogPostActions({ id, slug, published }: Props) {
       router.refresh();
     } finally {
       setLoading(null);
-      setConfirmDelete(false);
     }
   };
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-      <Link href={`/admin/blog/${id}/edit`} style={{ color: 'var(--color-accent)' }}>
-        Edit
-      </Link>
-      <Link
-        href={`/admin/blog/preview/${slug}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{ color: 'var(--color-accent)' }}
-      >
-        Preview
-      </Link>
+    <div className="admin-blog-actions-menu" ref={menuRef}>
       <button
         type="button"
-        onClick={togglePublish}
-        disabled={!!loading}
-        style={{
-          background: 'none',
-          border: 'none',
-          color: 'var(--color-accent)',
-          cursor: loading ? 'not-allowed' : 'pointer',
-          padding: 0,
-          fontSize: 'inherit',
-        }}
+        className="admin-blog-actions-trigger"
+        onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
+        aria-haspopup="true"
+        aria-expanded={open}
+        aria-label="Actions"
       >
-        {loading === 'publish' ? '…' : published ? 'Unpublish' : 'Publish'}
+        ⋮
       </button>
-      {confirmDelete ? (
-        <>
-          <span style={{ color: '#666' }}>Delete?</span>
+      {open && (
+        <div className="admin-blog-actions-dropdown">
+          <Link href={`/admin/blog/${id}/edit`} onClick={() => setOpen(false)}>
+            Edit
+          </Link>
+          <Link
+            href={`/admin/blog/preview/${slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setOpen(false)}
+          >
+            Preview
+          </Link>
           <button
             type="button"
-            onClick={handleDelete}
+            onClick={togglePublish}
             disabled={!!loading}
-            style={{
-              background: '#c00',
-              color: 'white',
-              border: 'none',
-              padding: '0.2rem 0.5rem',
-              borderRadius: '4px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              fontSize: '0.85rem',
-            }}
           >
-            Yes
+            {loading === 'publish' ? '…' : published ? 'Unpublish' : 'Publish'}
           </button>
-          <button
-            type="button"
-            onClick={() => setConfirmDelete(false)}
-            style={{
-              background: '#eee',
-              border: 'none',
-              padding: '0.2rem 0.5rem',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '0.85rem',
-            }}
-          >
-            No
-          </button>
-        </>
-      ) : (
-        <button
-          type="button"
-          onClick={() => setConfirmDelete(true)}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: '#c00',
-            cursor: 'pointer',
-            padding: 0,
-            fontSize: 'inherit',
-          }}
-        >
-          Delete
-        </button>
+          {confirmDelete ? (
+            <>
+              <span style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>
+                Delete this post?
+              </span>
+              <button type="button" onClick={handleDelete} disabled={!!loading} data-danger>
+                Yes, delete
+              </button>
+              <button type="button" onClick={() => setConfirmDelete(false)}>
+                Cancel
+              </button>
+            </>
+          ) : (
+            <button type="button" onClick={() => setConfirmDelete(true)} data-danger>
+              Delete
+            </button>
+          )}
+        </div>
       )}
     </div>
   );

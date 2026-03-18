@@ -9,22 +9,18 @@ const LINKS = [
   { href: '/admin/assessments', label: 'Assessments', icon: '📋' },
   { href: '/admin/programs', label: 'Programs', icon: '📚' },
   { href: '/admin/blog', label: 'Blog', icon: '📝' },
-  // COUNSELOR_DEFERRED: { href: '/admin/counselors', label: 'Counselors', icon: '👤' },
 ];
 
-export default function AdminSidebar() {
+type AdminSidebarProps = {
+  open?: boolean;
+  onClose?: () => void;
+};
+
+export default function AdminSidebar({ open = false, onClose }: AdminSidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside
-      style={{
-        width: '200px',
-        minWidth: '200px',
-        padding: '1rem 0',
-        borderRight: '1px solid var(--color-border, #e5e5e5)',
-        background: 'var(--color-light, #fafafa)',
-      }}
-    >
+    <aside className={`admin-sidebar ${open ? 'open' : ''}`}>
       <nav>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {LINKS.map(({ href, label, icon }) => {
@@ -33,17 +29,8 @@ export default function AdminSidebar() {
               <li key={href} style={{ marginBottom: '0.25rem' }}>
                 <Link
                   href={href}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    padding: '0.5rem 1rem',
-                    borderRadius: '6px',
-                    textDecoration: 'none',
-                    color: isActive ? 'var(--color-accent)' : 'inherit',
-                    fontWeight: isActive ? 600 : 400,
-                    background: isActive ? 'rgba(74, 155, 79, 0.08)' : 'transparent',
-                  }}
+                  className={`admin-sidebar-link ${isActive ? 'active' : ''}`}
+                  onClick={onClose}
                 >
                   <span>{icon}</span>
                   {label}

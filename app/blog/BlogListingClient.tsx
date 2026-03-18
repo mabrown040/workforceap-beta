@@ -4,8 +4,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
-const BLOG_FALLBACK_BG = '#0f172a';
-
 type Post = {
   id: string;
   slug: string;
@@ -81,32 +79,11 @@ export default function BlogListingClient({
           ))}
         </div>
       )}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-          gap: '2rem',
-        }}
-      >
+      <div className="blog-listing-grid">
         {filtered.map((post) => (
-          <article key={post.id}>
-            <Link
-              href={`/blog/${post.slug}`}
-              style={{
-                display: 'block',
-                textDecoration: 'none',
-                color: 'inherit',
-              }}
-            >
-              <div
-                style={{
-                  aspectRatio: '16/10',
-                  borderRadius: '8px',
-                  overflow: 'hidden',
-                  background: '#eee',
-                  marginBottom: '1rem',
-                }}
-              >
+          <article key={post.id} className="blog-card">
+            <Link href={`/blog/${post.slug}`} className="blog-card-link">
+              <div className="blog-card-cover">
                 {post.coverImage ? (
                   <Image
                     src={post.coverImage}
@@ -116,17 +93,7 @@ export default function BlogListingClient({
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                 ) : (
-                  <div
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      background: BLOG_FALLBACK_BG,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      padding: '1.5rem',
-                    }}
-                  >
+                  <div className="blog-card-fallback">
                     <Image
                       src="/images/logo-tight.png"
                       alt=""
@@ -136,53 +103,21 @@ export default function BlogListingClient({
                     />
                   </div>
                 )}
+                {post.category && (
+                  <span className="blog-card-category">{post.category}</span>
+                )}
               </div>
-              {post.category && (
-                <span
-                  style={{
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    color: 'var(--color-accent)',
-                    fontWeight: 600,
-                  }}
-                >
-                  {post.category}
-                </span>
-              )}
-              <h2
-                style={{
-                  marginTop: '0.5rem',
-                  marginBottom: '0.5rem',
-                  fontSize: '1.25rem',
-                  lineHeight: 1.3,
-                }}
-              >
-                {post.title}
-              </h2>
+              <h2 className="blog-card-title">{post.title}</h2>
               {post.excerpt && (
-                <p
-                  style={{
-                    fontSize: '0.95rem',
-                    color: '#555',
-                    lineHeight: 1.5,
-                  }}
-                >
-                  {post.excerpt}
-                </p>
+                <p className="blog-card-excerpt">{post.excerpt}</p>
               )}
-              <div
-                style={{
-                  marginTop: '0.75rem',
-                  fontSize: '0.85rem',
-                  color: '#888',
-                }}
-              >
+              <div className="blog-card-meta">
                 {post.authorName}
                 {post.publishedAt && (
                   <> · {new Date(post.publishedAt).toLocaleDateString('en-US')}</>
                 )}
               </div>
+              <span className="blog-card-cta">Read More →</span>
             </Link>
           </article>
         ))}

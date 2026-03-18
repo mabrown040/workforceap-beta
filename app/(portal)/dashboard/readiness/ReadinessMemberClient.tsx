@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { ReadinessSkeleton } from '@/components/ui/Skeleton';
 
 type Section = {
   section: number;
@@ -33,7 +34,7 @@ export default function ReadinessMemberClient() {
   const completedItems = sections.reduce((acc, s) => acc + s.items.filter((i) => i.completed).length, 0);
   const pct = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
-  if (loading) return <p>Loading…</p>;
+  if (loading) return <ReadinessSkeleton />;
 
   return (
     <div>

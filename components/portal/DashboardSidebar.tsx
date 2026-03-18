@@ -17,41 +17,28 @@ const SIDEBAR_LINKS = [
   { href: '/dashboard/settings', label: 'Settings', icon: '⚙️' },
 ];
 
-export default function DashboardSidebar() {
+type DashboardSidebarProps = {
+  open?: boolean;
+  onClose?: () => void;
+};
+
+export default function DashboardSidebar({ open = false, onClose }: DashboardSidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside
-      className="dashboard-sidebar"
-      style={{
-        width: '220px',
-        minWidth: '220px',
-        padding: '1.5rem 0',
-        borderRight: '1px solid var(--color-border, #e5e5e5)',
-        background: 'var(--color-light, #fafafa)',
-      }}
-    >
+    <aside className={`dashboard-sidebar ${open ? 'open' : ''}`}>
       <nav aria-label="Dashboard navigation">
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+        <ul className="dashboard-sidebar-list">
           {SIDEBAR_LINKS.map(({ href, label, icon }) => {
             const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
             return (
-              <li key={href} style={{ marginBottom: '0.25rem' }}>
+              <li key={href}>
                 <Link
                   href={href}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    padding: '0.6rem 1rem',
-                    borderRadius: 'var(--radius-sm, 6px)',
-                    textDecoration: 'none',
-                    color: isActive ? 'var(--color-accent)' : 'var(--color-gray-800)',
-                    fontWeight: isActive ? 600 : 400,
-                    background: isActive ? 'rgba(74, 155, 79, 0.08)' : 'transparent',
-                  }}
+                  className={`dashboard-sidebar-link ${isActive ? 'active' : ''}`}
+                  onClick={onClose}
                 >
-                  <span style={{ fontSize: '1.1rem' }}>{icon}</span>
+                  <span className="dashboard-sidebar-icon">{icon}</span>
                   {label}
                 </Link>
               </li>

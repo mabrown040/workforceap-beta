@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
+import { getProgramDescription } from '@/lib/content/programDescriptions';
 import Footer from '@/components/Footer';
 import ProgramDetailClient from './ProgramDetailClient';
 
@@ -60,13 +61,24 @@ export default async function ProgramPage({ params }: Props) {
       </section>
 
       <section className="content-section">
-        <div className="container" style={{ maxWidth: '800px' }}>
-          <ProgramDetailClient program={program} />
-          <div style={{ marginTop: '2rem', textAlign: 'center' }}>
-            <Link href={`/apply/results?program=${program.slug}`} className="btn btn-primary" style={{ padding: '1rem 2rem' }}>
-              Apply for This Program
-            </Link>
+        <div className="container program-detail-grid">
+          <div className="program-detail-main">
+            <p className="program-detail-description">{getProgramDescription(program.category)}</p>
+            <ProgramDetailClient program={program} />
           </div>
+          <aside className="program-detail-sidebar">
+            <div className="program-sidebar-card">
+              <div className="program-sidebar-meta">
+                <span>⏱ {program.duration}</span>
+                <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{program.salary}</span>
+              </div>
+              <span className="program-sidebar-partner">{program.partner} certified</span>
+              <Link href={`/apply/results?program=${program.slug}`} className="btn btn-primary" style={{ width: '100%', padding: '1rem', marginTop: '1rem', textAlign: 'center' }}>
+                Apply for This Program
+              </Link>
+              <p className="program-sidebar-note">No-cost training for qualifying participants.</p>
+            </div>
+          </aside>
         </div>
       </section>
 

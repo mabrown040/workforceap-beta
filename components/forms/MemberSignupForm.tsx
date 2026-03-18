@@ -239,11 +239,11 @@ export default function MemberSignupForm() {
             />
             <span>
               I agree to the{' '}
-              <Link href="/contact" target="_blank" rel="noopener noreferrer">
+              <Link href="/terms" target="_blank" rel="noopener noreferrer">
                 Terms of Service
               </Link>{' '}
               and{' '}
-              <Link href="/contact" target="_blank" rel="noopener noreferrer">
+              <Link href="/privacy" target="_blank" rel="noopener noreferrer">
                 Privacy Policy
               </Link>{' '}
               *
@@ -275,7 +275,7 @@ export default function MemberSignupForm() {
         style={{ width: '100%', padding: '1rem', fontSize: '1.05rem' }}
         disabled={submitStatus === 'loading'}
       >
-        {submitStatus === 'loading' ? 'Creating account…' : 'Create account'}
+        {submitStatus === 'loading' ? 'Creating account�' : 'Create account'}
       </button>
 
       <p style={{ textAlign: 'center', marginTop: '1rem', color: 'var(--color-gray-500)', fontSize: '.9rem' }}>
@@ -284,3 +284,4 @@ export default function MemberSignupForm() {
     </form>
   );
 }
+

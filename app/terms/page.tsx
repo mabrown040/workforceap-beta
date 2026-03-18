@@ -18,7 +18,7 @@ export default function TermsPage() {
       />
       <section className="content-section">
         <div className="container" style={{ maxWidth: '800px' }}>
-          <div className="prose" style={{ lineHeight: 1.7 }}>
+          <div className="markdown-body" style={{ lineHeight: 1.7 }}>
             <h2>1. Acceptance of Terms</h2>
             <p>By creating an account or using the Workforce Advancement Project (&ldquo;WorkforceAP&rdquo;) member portal and services, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services.</p>
 

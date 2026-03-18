@@ -19,7 +19,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!program) return { title: 'Program' };
 
   const salaryRange = program.salary.replace('Starting salary: ', '');
-  const description = `Free ${program.title} training in Austin, TX. ${program.duration} to earn your ${program.partner} certification. Starting salary ${salaryRange}. No cost for qualifying Austin-area residents. Apply today.`;
+    // Only name the certifying body if it's an external partner (not WorkforceAP/CPT/CLT internal certs)
+  const externalPartners = ['Google', 'IBM', 'Amazon Web Services', 'Microsoft', 'CompTIA', 'MCHIT'];
+  const certClause = externalPartners.includes(program.partner)
+    ? ` Earn your ${program.partner}-recognized certification.`
+    : '';
+  const description = `Free ${program.title} training in Austin, TX. ${program.duration}.${certClause} Starting salary ${salaryRange}. No cost for qualifying Austin-area residents. Apply today.`;
   return buildPageMetadata({
     title: `Free ${program.title} Training in Austin, TX`,
     description,

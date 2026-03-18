@@ -68,13 +68,7 @@ export default async function BlogPostPage({ params }: Props) {
           .filter(Boolean)
           .join(' · ')}
       />
-      <article
-        style={{
-          maxWidth: '720px',
-          margin: '0 auto',
-          padding: '0 1.5rem 3rem',
-        }}
-      >
+      <article className="blog-post-article">
         {post.coverImage && (
           <div
             style={{
@@ -87,13 +81,13 @@ export default async function BlogPostPage({ params }: Props) {
             <Image
               src={post.coverImage}
               alt=""
-              width={720}
-              height={405}
+              width={680}
+              height={383}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           </div>
         )}
-        <div className="markdown-body" style={{ fontSize: '1.1rem', lineHeight: 1.7 }}>
+        <div className="blog-post-prose markdown-body">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content}</ReactMarkdown>
         </div>
         <div

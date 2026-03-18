@@ -11,7 +11,7 @@ export default async function AdminBlogEditPage({ params }: Props) {
   if (!post) notFound();
 
   return (
-    <div>
+    <div style={{ paddingTop: '1.5rem' }}>
       <Link
         href="/admin/blog"
         style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'inline-block' }}

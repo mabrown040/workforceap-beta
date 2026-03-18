@@ -3,7 +3,7 @@ import BlogPostEditor from '../BlogPostEditor';
 
 export default function AdminBlogNewPage() {
   return (
-    <div>
+    <div style={{ paddingTop: '1.5rem' }}>
       <Link
         href="/admin/blog"
         style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'inline-block' }}

@@ -17,7 +17,7 @@ export default async function AdminBlogPage() {
   });
 
   return (
-    <div>
+    <div style={{ paddingTop: '1.5rem' }}>
       <div
         style={{
           display: 'flex',
@@ -53,7 +53,7 @@ export default async function AdminBlogPage() {
             <th style={{ padding: '0.75rem' }}>Title</th>
             <th style={{ padding: '0.75rem' }}>Category</th>
             <th style={{ padding: '0.75rem' }}>Status</th>
-            <th style={{ padding: '0.75rem' }}>Date</th>
+            <th style={{ padding: '0.75rem' }}>Go live</th>
             <th style={{ padding: '0.75rem' }}>Actions</th>
           </tr>
         </thead>
@@ -77,8 +77,12 @@ export default async function AdminBlogPage() {
               </td>
               <td style={{ padding: '0.75rem', color: '#666' }}>
                 {post.publishedAt
-                  ? new Date(post.publishedAt).toLocaleDateString()
-                  : new Date(post.updatedAt).toLocaleDateString()}
+                  ? new Date(post.publishedAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                    })
+                  : '—'}
               </td>
               <td style={{ padding: '0.75rem' }}>
                 <BlogPostActions

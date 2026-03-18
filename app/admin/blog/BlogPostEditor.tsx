@@ -239,9 +239,9 @@ export default function BlogPostEditor({
         >
           {saving ? 'Saving…' : 'Save Draft'}
         </button>
-        {mode === 'edit' && post?.published && (
+        {mode === 'edit' && post && (
           <Link
-            href={`/blog/${post.slug}`}
+            href={`/admin/blog/preview/${post.slug}`}
             target="_blank"
             rel="noopener noreferrer"
             style={{

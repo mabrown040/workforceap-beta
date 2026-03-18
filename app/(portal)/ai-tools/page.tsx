@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
+import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
 import Footer from '@/components/Footer';
 import { SignOutButton } from '@/components/portal/SignOutButton';
 import AIToolCard from '@/components/portal/AIToolCard';
@@ -92,6 +93,18 @@ export default async function AIToolsPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/ai-tools');
 
+  let suggestedActions: Array<{ label: string; href: string }> = [];
+  try {
+    const briefContext = await getCareerBriefContext(user.id);
+    suggestedActions = briefContext.recommendedActions.filter((a) => a.href.startsWith('/ai-tools')).slice(0, 3);
+  } catch {
+    suggestedActions = [
+      { label: 'Build your resume', href: '/ai-tools/resume-rewriter' },
+      { label: 'Practice interview questions', href: '/ai-tools/interview-practice' },
+      { label: 'Log your first application', href: '/ai-tools/application-tracker' },
+    ];
+  }
+
   return (
     <div className="inner-page">
       <section className="page-hero">
@@ -111,6 +124,31 @@ export default async function AIToolsPage() {
 
       <section className="content-section">
         <div className="container">
+          {suggestedActions.length > 0 && (
+            <div
+              style={{
+                marginBottom: '1.5rem',
+                padding: '1rem 1.25rem',
+                background: 'rgba(74, 155, 79, 0.08)',
+                border: '1px solid rgba(74, 155, 79, 0.3)',
+                borderRadius: '8px',
+              }}
+            >
+              <p style={{ margin: '0 0 0.75rem', fontWeight: 600, fontSize: '0.95rem' }}>Suggested for you</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                {suggestedActions.map((a) => (
+                  <Link
+                    key={a.href + a.label}
+                    href={a.href}
+                    className="btn btn-primary"
+                    style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+                  >
+                    {a.label} →
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
           <div style={{ marginBottom: '1.5rem' }}>
             <Link href="/ai-tools/history" className="btn btn-outline">
               View my past results

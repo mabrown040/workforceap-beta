@@ -68,7 +68,8 @@ export default async function BlogPostPage({ params }: Props) {
           .filter(Boolean)
           .join(' · ')}
       />
-      <article className="blog-post-article">
+      <div className="blog-post-layout">
+        <article className="blog-post-article">
         {post.coverImage ? (
           <div
             style={{
@@ -112,54 +113,27 @@ export default async function BlogPostPage({ params }: Props) {
         <div className="blog-post-prose markdown-body">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content}</ReactMarkdown>
         </div>
-        <div
-          style={{
-            marginTop: '3rem',
-            paddingTop: '2rem',
-            borderTop: '1px solid #eee',
-          }}
-        >
-          <Link
-            href="/apply"
-            style={{
-              display: 'inline-block',
-              padding: '0.75rem 1.5rem',
-              background: 'var(--color-accent)',
-              color: 'white',
-              borderRadius: '6px',
-              textDecoration: 'none',
-              fontWeight: 600,
-            }}
-          >
+        <section className="blog-post-cta-section">
+          <h3>Ready to start your career?</h3>
+          <p>No-cost training for qualifying participants.</p>
+          <Link href="/apply" className="btn btn-primary">
             Apply for a Program
           </Link>
-        </div>
+        </section>
+        </article>
         {related.length > 0 && (
-          <aside
-            style={{
-              marginTop: '3rem',
-              paddingTop: '2rem',
-              borderTop: '1px solid #eee',
-            }}
-          >
-            <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>
-              Related Posts
-            </h3>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          <aside className="blog-post-related">
+            <h3>Related Posts</h3>
+            <ul>
               {related.map((r) => (
-                <li key={r.slug} style={{ marginBottom: '0.5rem' }}>
-                  <Link
-                    href={`/blog/${r.slug}`}
-                    style={{ color: 'var(--color-accent)', textDecoration: 'none' }}
-                  >
-                    {r.title}
-                  </Link>
+                <li key={r.slug}>
+                  <Link href={`/blog/${r.slug}`}>{r.title}</Link>
                 </li>
               ))}
             </ul>
           </aside>
         )}
-      </article>
+      </div>
       <Footer />
     </div>
   );

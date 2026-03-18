@@ -8,7 +8,14 @@ type Props = { params: Promise<{ id: string }> };
 
 export default async function AdminBlogEditPage({ params }: Props) {
   const { id } = await params;
-  const post = await prisma.blogPost.findUnique({ where: { id } });
+  const post = await prisma.blogPost.findUnique({
+    where: { id },
+    select: {
+      id: true, slug: true, title: true, excerpt: true, content: true,
+      coverImage: true, authorName: true, category: true, published: true,
+      scheduledAt: true,
+    },
+  });
   if (!post) notFound();
 
   return (

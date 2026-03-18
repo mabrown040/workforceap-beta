@@ -18,7 +18,7 @@ export default function PrivacyPage() {
       />
       <section className="content-section">
         <div className="container" style={{ maxWidth: '800px' }}>
-          <div className="prose" style={{ lineHeight: 1.7 }}>
+          <div className="markdown-body" style={{ lineHeight: 1.7 }}>
             <h2>1. Information We Collect</h2>
             <p>WorkforceAP collects information you provide directly to us, including:</p>
             <ul>

@@ -26,7 +26,7 @@ export function buildPageMetadata({ title, description, path, image, robots }: P
       title: `${title} — Workforce Advancement Project`,
       description,
       url: fullUrl,
-      siteName: 'Workforce Advancement Project',
+      siteName: 'Workforce Advancement Project | Austin, TX',
       locale: 'en_US',
       type: 'website',
       images: [{ url: ogImage, width: 1200, height: 630, alt: 'Workforce Advancement Project' }],

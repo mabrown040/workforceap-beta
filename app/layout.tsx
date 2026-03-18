@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
-import TopBanner from '@/components/TopBanner';
-import MainNav from '@/components/MainNav';
+import ConditionalMarketingNav from '@/components/ConditionalMarketingNav';
 import JsonLd from '@/components/JsonLd';
 import ScrollAnimationsWrapper from '@/components/ScrollAnimationsWrapper';
 import '@/css/main.css';
@@ -62,8 +61,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           }}
         />
         <JsonLd />
-        <TopBanner />
-        <MainNav />
+        <ConditionalMarketingNav />
         <main id="main-content">{children}</main>
         <ScrollAnimationsWrapper />
         <Analytics />

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { formatPhone } from '@/lib/formatPhone';
 
 type Member = {
   id: string;
@@ -80,7 +81,7 @@ export default function MembersTable({ members }: MembersTableProps) {
                   <Link href={`/admin/members/${m.id}`} onClick={(e) => e.stopPropagation()}>{m.fullName}</Link>
                 </td>
                 <td style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>{m.email}</td>
-                <td style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>{m.profile?.profilePhone ?? m.phone ?? '—'}</td>
+                <td style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>{formatPhone(m.profile?.profilePhone ?? m.phone)}</td>
                 <td style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>{m.programTitle ?? '—'}</td>
                 <td style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>{m.enrolledAt?.toLocaleDateString() ?? '—'}</td>
                 <td style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>{m.assessmentScorePct ?? '—'}%</td>

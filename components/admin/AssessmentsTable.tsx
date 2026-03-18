@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
+import { formatPhone } from '@/lib/formatPhone';
 
 type AssessmentUser = {
   id: string;
@@ -169,7 +170,7 @@ export default function AssessmentsTable({
               >
                 <td style={{ padding: '0.5rem' }}>{u.fullName}</td>
                 <td style={{ padding: '0.5rem' }}>{u.email}</td>
-                <td style={{ padding: '0.5rem' }}>{u.phone ?? '—'}</td>
+                <td style={{ padding: '0.5rem' }}>{formatPhone(u.phone)}</td>
                 <td style={{ padding: '0.5rem' }}>{u.programInterest ?? '—'}</td>
                 <td style={{ padding: '0.5rem' }}>{u.assessmentScorePct ?? '—'}%</td>
                 <td style={{ padding: '0.5rem' }}>{u.assessmentCompletedAt?.toLocaleDateString() ?? '—'}</td>

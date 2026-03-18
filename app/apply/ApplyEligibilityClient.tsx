@@ -30,29 +30,53 @@ export default function ApplyEligibilityClient() {
       </div>
 
       <div className="apply-step-content">
-        <h2 className="apply-step-title">See if you qualify for funding assistance</h2>
+        <h2 className="apply-step-title">Let&rsquo;s see what you qualify for</h2>
         <p className="apply-step-desc">Answer these quick questions to see what options may be available.</p>
 
         <div className="funding-questions">
           <div className="form-group">
             <label>Are you currently unemployed or underemployed?</label>
-            <div className="form-radio-group">
-              <label><input type="radio" name="q1" value="yes" checked={q1 === 'yes'} onChange={() => setQ1('yes')} /> Yes</label>
-              <label><input type="radio" name="q1" value="no" checked={q1 === 'no'} onChange={() => setQ1('no')} /> No</label>
+            <div className="form-radio-cards">
+              <label className={`form-radio-card ${q1 === 'yes' ? 'selected' : ''}`}>
+                <input type="radio" name="q1" value="yes" checked={q1 === 'yes'} onChange={() => setQ1('yes')} />
+                <span className="radio-dot" />
+                <span>Yes</span>
+              </label>
+              <label className={`form-radio-card ${q1 === 'no' ? 'selected' : ''}`}>
+                <input type="radio" name="q1" value="no" checked={q1 === 'no'} onChange={() => setQ1('no')} />
+                <span className="radio-dot" />
+                <span>No</span>
+              </label>
             </div>
           </div>
           <div className="form-group">
             <label>Is your household income below $60,000/year?</label>
-            <div className="form-radio-group">
-              <label><input type="radio" name="q2" value="yes" checked={q2 === 'yes'} onChange={() => setQ2('yes')} /> Yes</label>
-              <label><input type="radio" name="q2" value="no" checked={q2 === 'no'} onChange={() => setQ2('no')} /> No</label>
+            <div className="form-radio-cards">
+              <label className={`form-radio-card ${q2 === 'yes' ? 'selected' : ''}`}>
+                <input type="radio" name="q2" value="yes" checked={q2 === 'yes'} onChange={() => setQ2('yes')} />
+                <span className="radio-dot" />
+                <span>Yes</span>
+              </label>
+              <label className={`form-radio-card ${q2 === 'no' ? 'selected' : ''}`}>
+                <input type="radio" name="q2" value="no" checked={q2 === 'no'} onChange={() => setQ2('no')} />
+                <span className="radio-dot" />
+                <span>No</span>
+              </label>
             </div>
           </div>
           <div className="form-group">
             <label>Are you a US resident?</label>
-            <div className="form-radio-group">
-              <label><input type="radio" name="q3" value="yes" checked={q3 === 'yes'} onChange={() => setQ3('yes')} /> Yes</label>
-              <label><input type="radio" name="q3" value="no" checked={q3 === 'no'} onChange={() => setQ3('no')} /> No</label>
+            <div className="form-radio-cards">
+              <label className={`form-radio-card ${q3 === 'yes' ? 'selected' : ''}`}>
+                <input type="radio" name="q3" value="yes" checked={q3 === 'yes'} onChange={() => setQ3('yes')} />
+                <span className="radio-dot" />
+                <span>Yes</span>
+              </label>
+              <label className={`form-radio-card ${q3 === 'no' ? 'selected' : ''}`}>
+                <input type="radio" name="q3" value="no" checked={q3 === 'no'} onChange={() => setQ3('no')} />
+                <span className="radio-dot" />
+                <span>No</span>
+              </label>
             </div>
           </div>
         </div>

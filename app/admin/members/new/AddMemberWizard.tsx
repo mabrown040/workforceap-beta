@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Program } from '@/lib/content/programs';
+import { formatPhone } from '@/lib/formatPhone';
 
 const EMPLOYMENT = ['Unemployed', 'Underemployed', 'Employed', 'Self-Employed'];
 const VETERAN = ['Not a Veteran', 'Veteran', 'Disabled Veteran'];
@@ -397,7 +398,7 @@ export default function AddMemberWizard({ programs }: Props) {
           <div style={{ padding: '1rem', background: 'white', borderRadius: '8px', marginBottom: '1rem' }}>
             <p><strong>Name:</strong> {form.firstName} {form.lastName}</p>
             <p><strong>Email:</strong> {form.email}</p>
-            <p><strong>Phone:</strong> {form.phone || '—'}</p>
+            <p><strong>Phone:</strong> {formatPhone(form.phone)}</p>
             <p><strong>Program:</strong> {programs.find((p) => p.slug === form.programSlug)?.title ?? form.programSlug}</p>
             <p><strong>WIOA:</strong> Citizen {form.usCitizen ? '✓' : '✗'}, Authorized {form.authorizedToWork ? '✓' : '✗'}, Disability {form.hasDisability ? 'Yes' : 'No'}, Ethnicity: {form.ethnicity || '—'}</p>
             <p><strong>Resume:</strong> {resumeFile ? 'Original uploaded' : 'Not uploaded'} {enhancedResume ? '+ Enhanced' : ''}</p>

@@ -5,7 +5,9 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { getProgramBySlug } from '@/lib/content/programs';
 import ReadinessCounselorClient from './ReadinessCounselorClient';
+import '@/css/counselor.css';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Readiness Checklist',
@@ -32,18 +34,24 @@ export default async function AdminMemberReadinessPage({
 
   if (!member || member.deletedAt) notFound();
 
+  const program = member.enrolledProgram ? getProgramBySlug(member.enrolledProgram) : null;
+
   return (
-    <div style={{ paddingTop: '1.5rem' }}>
-      <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+    <div className="readiness-counselor-page">
+      <div className="readiness-counselor-header">
         <div>
-          <Link href={`/admin/members/${id}`} style={{ color: 'var(--color-accent)', marginBottom: '0.5rem', display: 'inline-block' }}>
-            ← Back to {member.fullName}
+          <Link href={`/admin/members/${id}`} className="readiness-back-link">
+            Back to {member.fullName}
           </Link>
-          <h1 style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>Job Readiness Checklist</h1>
-          <p style={{ color: 'var(--color-gray-600)' }}>{member.email}</p>
+          <h1 className="readiness-title">Career Readiness Checklist — {member.fullName}</h1>
+          <p className="readiness-meta">Program: {program?.title ?? member.enrolledProgram ?? '—'}</p>
         </div>
       </div>
-      <ReadinessCounselorClient memberId={id} />
+      <ReadinessCounselorClient
+        memberId={id}
+        memberName={member.fullName}
+        programName={program?.title ?? member.enrolledProgram ?? '—'}
+      />
     </div>
   );
 }

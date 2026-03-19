@@ -2957,10 +2957,19 @@ img.img-fade.loaded { opacity: 1; }
     }
 
     .nav-container {
-        height: 76px;
+        height: var(--nav-height-default);
         padding: 0 1rem;
     }
-    .nav-logo-image { height: 76px; max-width: 142px; }
+    .main-nav.scrolled .nav-container {
+        height: var(--nav-height-scrolled);
+    }
+    .nav-logo-image { 
+        height: 60px; 
+        max-width: 142px; 
+    }
+    .main-nav.scrolled .nav-logo-image {
+        height: 48px;
+    }
     .logo { padding: 0; }
     .footer-logo { height: 91px; }
 }

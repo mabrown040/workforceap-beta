@@ -115,12 +115,15 @@ export default async function BlogPostPage({ params }: Props) {
         <div className="blog-post-prose markdown-body">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content}</ReactMarkdown>
         </div>
-        <section className="blog-post-cta-section">
-          <h3>Ready to start your career?</h3>
-          <p>No-cost training for qualifying participants.</p>
-          <Link href="/apply" className="btn btn-primary">
-            Apply for a Program
-          </Link>
+        <section className="blog-cta-section">
+          <div className="blog-cta-card">
+            <h3>Ready to start your career?</h3>
+            <p>No-cost training for qualifying participants. Industry certifications from Google, IBM, Microsoft, and more.</p>
+            <div className="blog-cta-buttons">
+              <Link href="/find-your-path" className="btn btn-accent">Find Your Path</Link>
+              <Link href="/apply" className="btn btn-ghost">Apply Now</Link>
+            </div>
+          </div>
         </section>
         </article>
         {related.length > 0 && (

@@ -12,6 +12,7 @@ const routes = [
   '/blog',
   '/contact',
   '/faq',
+  '/find-your-path',
   '/how-it-works',
   '/leadership',
   '/program-comparison',

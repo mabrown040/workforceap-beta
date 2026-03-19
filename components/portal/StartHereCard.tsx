@@ -1,23 +1,24 @@
 import Link from 'next/link';
+import { FileText, Mic, BookOpen } from 'lucide-react';
 
 const CTAS = [
   {
     href: '/ai-tools/resume-rewriter',
     label: 'Build Resume',
     description: 'Use AI to strengthen your resume',
-    icon: '📄',
+    Icon: FileText,
   },
   {
     href: '/ai-tools/interview-practice',
     label: 'Practice Interview',
     description: 'Prepare with role-specific questions',
-    icon: '🎤',
+    Icon: Mic,
   },
   {
     href: '/learning',
     label: 'Start Learning Path',
     description: 'Explore courses and certifications',
-    icon: '📚',
+    Icon: BookOpen,
   },
 ] as const;
 
@@ -37,7 +38,7 @@ export default function StartHereCard() {
             aria-label={`${cta.label}: ${cta.description}`}
           >
             <span className="start-here-cta-icon" aria-hidden>
-              {cta.icon}
+              <cta.Icon size={20} className="text-current" />
             </span>
             <div className="start-here-cta-content">
               <span className="start-here-cta-label">{cta.label}</span>

@@ -2,8 +2,19 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Monitor, Cpu, Cloud, Shield, Briefcase, HeartPulse, Factory } from 'lucide-react';
 import { PROGRAMS } from '@/lib/content/programs';
 import type { Program } from '@/lib/content/programs';
+
+const CATEGORY_ICONS: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+  'digital-literacy': Monitor,
+  'ai-software': Cpu,
+  'cloud-data': Cloud,
+  'it-cyber': Shield,
+  'business': Briefcase,
+  'healthcare': HeartPulse,
+  'manufacturing': Factory,
+};
 
 const programs = PROGRAMS;
 
@@ -39,7 +50,12 @@ function ProgramCard({ program }: { program: Program }) {
     <div className="program-card" data-category={program.category} style={{ borderLeft: `4px solid ${borderColor}` }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
         <span style={{ background: program.categoryColor, color: 'white', padding: '.3rem .75rem', borderRadius: '50px', fontSize: '.75rem', fontWeight: 600 }}>{program.categoryLabel}</span>
-        <span style={{ fontSize: '1.8rem' }}>{program.icon}</span>
+        <span style={{ display: 'flex', alignItems: 'center' }}>
+          {(() => {
+            const Icon = CATEGORY_ICONS[program.category] ?? Monitor;
+            return <Icon size={28} className="text-current" />;
+          })()}
+        </span>
       </div>
       <h3 style={{ fontSize: '1.1rem', marginBottom: '.5rem' }}>{program.title}</h3>
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '.75rem', fontSize: '.85rem', color: '#666' }}>
@@ -64,9 +80,12 @@ function ProgramCard({ program }: { program: Program }) {
           ))}
         </ul>
       </details>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.5rem', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ fontSize: '.8rem', color: '#888' }}>Partner: {program.partner}</span>
-        <Link href={`/programs/${program.slug}`} className="btn btn-primary" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>View Program</Link>
+        <div style={{ display: 'flex', gap: '.5rem' }}>
+          <Link href={`/programs/${program.slug}`} className="btn btn-outline" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>View Program</Link>
+          <Link href={`/apply?program=${program.slug}`} className="btn btn-primary" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>Apply →</Link>
+        </div>
       </div>
     </div>
   );

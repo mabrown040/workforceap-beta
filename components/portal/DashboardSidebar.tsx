@@ -2,19 +2,20 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Home, BookOpen, GraduationCap, Sparkles, FileText, ClipboardList, BookMarked, BarChart3, CheckCircle, User, Settings } from 'lucide-react';
 
 const SIDEBAR_LINKS = [
-  { href: '/dashboard', label: 'Home', icon: '🏠' },
-  { href: '/dashboard/program', label: 'My Program', icon: '📚' },
-  { href: '/dashboard/training', label: 'Training', icon: '🎓' },
-  { href: '/ai-tools', label: 'AI Tools', icon: '✨' },
-  { href: '/dashboard/resources', label: 'Resources', icon: '📄' },
-  { href: '/career-brief', label: 'Career Brief', icon: '📋' },
-  { href: '/learning', label: 'Learning', icon: '📖' },
-  { href: '/weekly-recap', label: 'Weekly Recap', icon: '📊' },
-  { href: '/dashboard/readiness', label: 'Career Readiness', icon: '✅' },
-  { href: '/dashboard/profile', label: 'My Profile', icon: '👤' },
-  { href: '/dashboard/settings', label: 'Settings', icon: '⚙️' },
+  { href: '/dashboard', label: 'Home', Icon: Home },
+  { href: '/dashboard/program', label: 'My Program', Icon: BookOpen },
+  { href: '/dashboard/training', label: 'Training', Icon: GraduationCap },
+  { href: '/ai-tools', label: 'AI Tools', Icon: Sparkles },
+  { href: '/dashboard/resources', label: 'Resources', Icon: FileText },
+  { href: '/career-brief', label: 'Career Brief', Icon: ClipboardList },
+  { href: '/learning', label: 'Learning', Icon: BookMarked },
+  { href: '/weekly-recap', label: 'Weekly Recap', Icon: BarChart3 },
+  { href: '/dashboard/readiness', label: 'Career Readiness', Icon: CheckCircle },
+  { href: '/dashboard/profile', label: 'My Profile', Icon: User },
+  { href: '/dashboard/settings', label: 'Settings', Icon: Settings },
 ];
 
 type DashboardSidebarProps = {
@@ -29,7 +30,7 @@ export default function DashboardSidebar({ open = false, onClose }: DashboardSid
     <aside className={`dashboard-sidebar ${open ? 'open' : ''}`}>
       <nav aria-label="Dashboard navigation">
         <ul className="dashboard-sidebar-list">
-          {SIDEBAR_LINKS.map(({ href, label, icon }) => {
+          {SIDEBAR_LINKS.map(({ href, label, Icon }) => {
             const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
             return (
               <li key={href}>
@@ -38,7 +39,7 @@ export default function DashboardSidebar({ open = false, onClose }: DashboardSid
                   className={`dashboard-sidebar-link ${isActive ? 'active' : ''}`}
                   onClick={onClose}
                 >
-                  <span className="dashboard-sidebar-icon">{icon}</span>
+                  <span className="dashboard-sidebar-icon"><Icon size={20} className="text-current" /></span>
                   {label}
                 </Link>
               </li>

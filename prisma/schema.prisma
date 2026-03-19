@@ -91,6 +91,7 @@ model Profile {
   resumeEnhancedPath    String?   @map("resume_enhanced_path")
   consentTerms          Boolean   @default(false) @map("consent_terms")
   consentCommunications Boolean   @default(false) @map("consent_communications")
+  smsOptIn              Boolean   @default(false) @map("sms_opt_in")
   role                  String    @default("member")
   createdAt             DateTime  @default(now()) @map("created_at")
   updatedAt             DateTime  @updatedAt @map("updated_at")

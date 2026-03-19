@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import PageHero from '@/components/PageHero';
 import PhotoHighlight from '@/components/PhotoHighlight';
@@ -19,6 +20,11 @@ export default function ProgramsPage() {
         title="Our Programs"
         subtitle="19 no-cost career programs for Austin-area residents. Industry certifications from Google, IBM, AWS, Microsoft, and CompTIA."
       />
+      <div className="container" style={{ marginTop: '-1rem', marginBottom: '1.5rem', textAlign: 'center' }}>
+        <Link href="/find-your-path" className="programs-quiz-cta">
+          Not sure which program is right for you? Take our 2-minute quiz →
+        </Link>
+      </div>
       <PhotoHighlight
         imageUrl="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1400&q=80"
         label="19 Career Programs"

@@ -2,9 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { Monitor, Cpu, Cloud, Shield, Briefcase, HeartPulse, Factory } from 'lucide-react';
 import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
 import { APPLY_STORAGE_KEY } from '../ApplyEligibilityClient';
 import { CardSkeleton } from '@/components/ui/Skeleton';
+
+const CATEGORY_ICONS: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+  'digital-literacy': Monitor,
+  'ai-software': Cpu,
+  'cloud-data': Cloud,
+  'it-cyber': Shield,
+  'business': Briefcase,
+  'healthcare': HeartPulse,
+  'manufacturing': Factory,
+};
 
 const PROGRAM_STORAGE_KEY = 'apply_program_slug';
 
@@ -111,7 +122,12 @@ export default function ApplyResultsClient() {
                 >
                   {p.categoryLabel}
                 </span>
-                <span style={{ fontSize: '1.5rem' }}>{p.icon}</span>
+                <span style={{ display: 'flex', alignItems: 'center' }}>
+                  {(() => {
+                    const Icon = CATEGORY_ICONS[p.category] ?? Monitor;
+                    return <Icon size={24} className="text-current" />;
+                  })()}
+                </span>
               </div>
               <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>{p.title}</h3>
               <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>

@@ -251,13 +251,12 @@ h4 { font-size: var(--font-size-h4); font-weight: var(--font-weight-medium); }
    NAVIGATION
    ============================================= */
 .main-nav {
+    /* backdrop-filter on this ancestor breaks viewport-fixed mobile overlay/panel hit targets */
     background: rgba(17,17,17,0.98);
     border-bottom: 1px solid rgba(255,255,255,0.06);
     position: sticky;
     top: 0;
     z-index: 1000;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     transition: background var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
 }
 .main-nav::after {
@@ -458,6 +457,9 @@ a.nav-cta::after { display: none !important; }
     pointer-events: none;
     transition: opacity var(--transition-base);
     z-index: 999;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 }
 .mobile-nav-backdrop.visible {
     opacity: 1;

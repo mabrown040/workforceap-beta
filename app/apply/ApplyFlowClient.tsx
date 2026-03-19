@@ -49,14 +49,19 @@ const supportOptions = [
   { value: 'mental_health', label: 'Mental Health Services' },
 ];
 
+// These are seeded partner slugs + generic sources. Admin can add partners in /admin/partners.
 const referralSources = [
   'Google / Web Search',
   'Social Media (Facebook, Instagram, LinkedIn)',
   'Friend or Family',
-  'Workforce Solutions',
+  'Workforce Solutions Capital Area',
   'Texas Workforce Commission (TWC)',
+  'Austin Area Urban League',
+  'African American Youth Harvest Foundation',
+  '211 Texas',
   'Community Organization',
   'Flyer or Brochure',
+  'WorkforceAP Counselor',
   'Other',
 ];
 
@@ -332,3 +337,5 @@ export default function ApplyFlowClient() {
     </div>
   );
 }
+
+

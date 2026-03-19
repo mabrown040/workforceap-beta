@@ -1,4 +1,9 @@
+import { createRequire } from 'module';
 import type { NextConfig } from 'next';
+
+// Same POSTGRES_* defaults as scripts/prisma-env.js so `next build` can run Prisma without errors
+const require = createRequire(import.meta.url);
+require('./scripts/ensure-prisma-env.cjs');
 
 const nextConfig: NextConfig = {
   async headers() {

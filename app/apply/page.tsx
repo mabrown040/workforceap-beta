@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
 import ApplyEligibilityClient from './ApplyEligibilityClient';
@@ -34,7 +35,9 @@ export default function ApplyPage() {
             🔥 First Program Now Forming &mdash; Seats are limited. Apply today to hold your spot.
           </div>
 
-          <ApplyEligibilityClient />
+          <Suspense fallback={<div className="apply-flow"><div className="apply-progress-bar"><div className="apply-progress-fill" style={{ width: '33%' }} /><p className="apply-progress-label">Step 1 of 3</p></div><div className="apply-step-content"><p>Loading...</p></div></div>}>
+            <ApplyEligibilityClient />
+          </Suspense>
         </div>
       </section>
 

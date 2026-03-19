@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
+import { getProgramIcon } from '@/lib/content/programIcons';
 import { APPLY_STORAGE_KEY } from '../ApplyEligibilityClient';
 import { CardSkeleton } from '@/components/ui/Skeleton';
 
@@ -86,7 +87,9 @@ export default function ApplyResultsClient() {
             marginBottom: '1.5rem',
           }}
         >
-          {PROGRAMS.map((p) => (
+          {PROGRAMS.map((p) => {
+            const ProgramIcon = getProgramIcon(p.category);
+            return (
             <div
               key={p.slug}
               onClick={() => setSelectedSlug(p.slug)}
@@ -111,7 +114,7 @@ export default function ApplyResultsClient() {
                 >
                   {p.categoryLabel}
                 </span>
-                <span style={{ fontSize: '1.5rem' }}>{p.icon}</span>
+                <span style={{ display: 'flex', alignItems: 'center' }}><ProgramIcon size={28} className="text-current" /></span>
               </div>
               <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>{p.title}</h3>
               <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>
@@ -119,7 +122,8 @@ export default function ApplyResultsClient() {
                 <div style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{p.salary}</div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
 
         <button

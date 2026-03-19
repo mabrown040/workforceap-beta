@@ -18,6 +18,7 @@ export default function ProgramsPage() {
       <PageHero
         title="Our Programs"
         subtitle="19 no-cost career programs for Austin-area residents. Industry certifications from Google, IBM, AWS, Microsoft, and CompTIA."
+        cta={{ text: 'Not sure which program is right for you? Take our 2-minute quiz →', href: '/find-your-path' }}
       />
       <PhotoHighlight
         imageUrl="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1400&q=80"

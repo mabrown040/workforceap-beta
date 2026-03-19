@@ -76,14 +76,12 @@ export default function DashboardHomeClient({
           </div>
           <div className="dashboard-stats-row">
             <div className="dashboard-stat-card">
-              <div className="dashboard-stat-icon">📚</div>
-              <div className="dashboard-stat-label">Program</div>
               <div className="dashboard-stat-value" style={{ fontSize: '0.95rem' }}>{programTitle ?? '—'}</div>
+              <div className="dashboard-stat-label">Program</div>
             </div>
             <div className="dashboard-stat-card">
-              <div className="dashboard-stat-icon">📅</div>
-              <div className="dashboard-stat-label">Enrolled</div>
               <div className="dashboard-stat-value">{enrolledAt?.toLocaleDateString() ?? '—'}</div>
+              <div className="dashboard-stat-label">Enrolled</div>
             </div>
           </div>
         </>

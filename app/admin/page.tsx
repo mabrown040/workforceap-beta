@@ -64,24 +64,20 @@ export default async function AdminPage() {
 
       <div className="admin-stat-cards">
         <div className="admin-stat-card">
-          <div className="admin-stat-card-icon">👥</div>
-          <div className="admin-stat-card-label">Total Members</div>
           <div className="admin-stat-card-value">{totalMembers}</div>
+          <div className="admin-stat-card-label">Total Members</div>
         </div>
         <div className="admin-stat-card">
-          <div className="admin-stat-card-icon">📋</div>
-          <div className="admin-stat-card-label">Assessments Completed</div>
           <div className="admin-stat-card-value">{assessmentsCompleted}</div>
+          <div className="admin-stat-card-label">Assessments Completed</div>
         </div>
         <div className="admin-stat-card">
-          <div className="admin-stat-card-icon">🎓</div>
-          <div className="admin-stat-card-label">Active in Training</div>
           <div className="admin-stat-card-value">{activeInTraining}</div>
+          <div className="admin-stat-card-label">Active in Training</div>
         </div>
         <div className="admin-stat-card">
-          <div className="admin-stat-card-icon">📚</div>
-          <div className="admin-stat-card-label">Programs Enrolled</div>
           <div className="admin-stat-card-value">{programsCompleted}</div>
+          <div className="admin-stat-card-label">Programs Enrolled</div>
         </div>
       </div>
 

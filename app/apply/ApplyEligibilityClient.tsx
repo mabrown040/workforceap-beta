@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const APPLY_STORAGE_KEY = 'apply_eligibility';
 
 export default function ApplyEligibilityClient() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const programParam = searchParams.get('program') ?? '';
   const [q1, setQ1] = useState<'yes' | 'no' | null>(null);
   const [q2, setQ2] = useState<'yes' | 'no' | null>(null);
   const [q3, setQ3] = useState<'yes' | 'no' | null>(null);
@@ -19,7 +21,8 @@ export default function ApplyEligibilityClient() {
     if (typeof window !== 'undefined') {
       sessionStorage.setItem(APPLY_STORAGE_KEY, JSON.stringify({ q1, q2, q3, qualifies }));
     }
-    router.push('/apply/results');
+    const resultsUrl = programParam ? `/apply/results?program=${encodeURIComponent(programParam)}` : '/apply/results';
+    router.push(resultsUrl);
   };
 
   return (

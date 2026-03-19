@@ -641,13 +641,13 @@ a.btn-white {
     height: 28px;
     width: auto;
     object-fit: contain;
-    filter: grayscale(100%) brightness(0.7);
-    opacity: 0.6;
+    filter: brightness(0.95);
+    opacity: 0.92;
     transition: opacity var(--transition-fast), filter var(--transition-fast);
 }
 .trust-logos img:hover {
     opacity: 1;
-    filter: grayscale(100%) brightness(0.85);
+    filter: brightness(1);
 }
 
 /* =============================================
@@ -1006,13 +1006,13 @@ a.btn-white {
 .partner-logos-small img {
     height: 28px;
     object-fit: contain;
-    filter: grayscale(100%) brightness(0.7);
-    opacity: 0.6;
+    filter: brightness(0.95);
+    opacity: 0.92;
     transition: opacity var(--transition-fast), filter var(--transition-fast);
 }
 .partner-logos-small img:hover {
     opacity: 1;
-    filter: grayscale(100%) brightness(0.85);
+    filter: brightness(1);
 }
 .programs-preview {
     background: var(--color-white);
@@ -1112,11 +1112,11 @@ a.btn-white {
 .partners-grid img {
     height: 36px;
     object-fit: contain;
-    filter: grayscale(100%);
-    opacity: 0.5;
+    filter: brightness(0.95);
+    opacity: 0.92;
     transition: all var(--transition-base);
 }
-.partners-grid img:hover { filter: none; opacity: 1; }
+.partners-grid img:hover { filter: brightness(1); opacity: 1; }
 
 /* =============================================
    LOANER LAPTOP SECTION
@@ -1302,8 +1302,8 @@ a.btn-white {
     position: absolute;
     inset: 0;
     background:
-        linear-gradient(135deg, rgba(26,26,26,0.92) 0%, rgba(26,26,26,0.7) 50%, rgba(173,44,77,0.5) 100%),
-        radial-gradient(ellipse at 80% 50%, rgba(164,127,56,0.1), transparent 60%);
+        linear-gradient(135deg, rgba(26,26,26,0.72) 0%, rgba(26,26,26,0.45) 50%, rgba(173,44,77,0.3) 100%),
+        radial-gradient(ellipse at 80% 50%, rgba(164,127,56,0.08), transparent 60%);
 }
 .photo-highlight-content {
     position: relative;

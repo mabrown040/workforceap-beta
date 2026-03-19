@@ -19,6 +19,7 @@ const applySignupSchema = z.object({
   lastName: z.string().max(100),
   email: z.string().email(),
   phone: z.string().min(10).max(50),
+  smsOptIn: z.boolean().optional().default(false),
   password: z.string().min(8),
   programSlug: z.string().min(1),
 });
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
   }
 
-  const { firstName, lastName, email, phone, password, programSlug } = parsed.data;
+  const { firstName, lastName, email, phone, smsOptIn = false, password, programSlug } = parsed.data;
 
   const program = getProgramBySlug(programSlug);
   if (!program) {
@@ -117,8 +118,9 @@ export async function POST(request: NextRequest) {
         create: {
           userId: user.id,
           profilePhone: phone,
+          smsOptIn,
         },
-        update: {},
+        update: { smsOptIn },
       });
     });
   } catch (dbError) {

@@ -26,7 +26,7 @@ const PHASES = [
     id: 2,
     title: 'Build Your Future',
     steps: [
-      { num: 4, title: 'Membership', desc: 'Join the WorkforceAP community' },
+      { num: 4, title: 'Membership', desc: 'Join the WorkforceAP community — free for all accepted members' },
       { num: 5, title: 'Assessment', desc: 'Skills and goals evaluation' },
       { num: 6, title: 'Workforce Readiness', desc: 'Build foundational skills' },
       { num: 7, title: 'Resources', desc: 'Tools, network, loaner laptop & support' },

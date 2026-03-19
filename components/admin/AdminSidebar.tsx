@@ -2,15 +2,16 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { ADMIN_SIDEBAR_ICONS } from '@/lib/content/programIcons';
 
 const LINKS = [
-  { href: '/admin', label: 'Overview', icon: '📊' },
-  { href: '/admin/members', label: 'Members', icon: '👥' },
-  { href: '/admin/assessments', label: 'Assessments', icon: '📋' },
-  { href: '/admin/programs', label: 'Programs', icon: '📚' },
-  { href: '/admin/blog', label: 'Blog', icon: '📝' },
-  { href: '/admin/partners', label: 'Partners', icon: '🤝' },
-  { href: '/admin/pipeline', label: 'Pipeline', icon: '📊' },
+  { href: '/admin', label: 'Overview' },
+  { href: '/admin/members', label: 'Members' },
+  { href: '/admin/assessments', label: 'Assessments' },
+  { href: '/admin/programs', label: 'Programs' },
+  { href: '/admin/blog', label: 'Blog' },
+  { href: '/admin/partners', label: 'Partners' },
+  { href: '/admin/pipeline', label: 'Pipeline' },
 ];
 
 type AdminSidebarProps = {
@@ -25,8 +26,9 @@ export default function AdminSidebar({ open = false, onClose }: AdminSidebarProp
     <aside className={`admin-sidebar ${open ? 'open' : ''}`}>
       <nav>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {LINKS.map(({ href, label, icon }) => {
+          {LINKS.map(({ href, label }) => {
             const isActive = pathname === href || (href !== '/admin' && pathname?.startsWith(href));
+            const Icon = ADMIN_SIDEBAR_ICONS[label];
             return (
               <li key={href} style={{ marginBottom: '0.25rem' }}>
                 <Link
@@ -34,7 +36,7 @@ export default function AdminSidebar({ open = false, onClose }: AdminSidebarProp
                   className={`admin-sidebar-link ${isActive ? 'active' : ''}`}
                   onClick={onClose}
                 >
-                  <span>{icon}</span>
+                  <span>{Icon ? <Icon size={18} className="text-current" /> : null}</span>
                   {label}
                 </Link>
               </li>

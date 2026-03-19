@@ -7,6 +7,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import Footer from '@/components/Footer';
 import RecentSignupsTable from '@/components/admin/RecentSignupsTable';
+import { UI_ICONS } from '@/lib/content/programIcons';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin',
@@ -64,22 +65,22 @@ export default async function AdminPage() {
 
       <div className="admin-stat-cards">
         <div className="admin-stat-card">
-          <div className="admin-stat-card-icon">👥</div>
+          <div className="admin-stat-card-icon"><UI_ICONS.users size={24} className="text-current" /></div>
           <div className="admin-stat-card-label">Total Members</div>
           <div className="admin-stat-card-value">{totalMembers}</div>
         </div>
         <div className="admin-stat-card">
-          <div className="admin-stat-card-icon">📋</div>
+          <div className="admin-stat-card-icon"><UI_ICONS.clipboard size={24} className="text-current" /></div>
           <div className="admin-stat-card-label">Assessments Completed</div>
           <div className="admin-stat-card-value">{assessmentsCompleted}</div>
         </div>
         <div className="admin-stat-card">
-          <div className="admin-stat-card-icon">🎓</div>
+          <div className="admin-stat-card-icon"><UI_ICONS.graduationCap size={24} className="text-current" /></div>
           <div className="admin-stat-card-label">Active in Training</div>
           <div className="admin-stat-card-value">{activeInTraining}</div>
         </div>
         <div className="admin-stat-card">
-          <div className="admin-stat-card-icon">📚</div>
+          <div className="admin-stat-card-icon"><UI_ICONS.bookOpen size={24} className="text-current" /></div>
           <div className="admin-stat-card-label">Programs Enrolled</div>
           <div className="admin-stat-card-value">{programsCompleted}</div>
         </div>

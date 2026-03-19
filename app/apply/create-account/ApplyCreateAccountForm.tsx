@@ -15,6 +15,7 @@ export default function ApplyCreateAccountForm() {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [smsOptIn, setSmsOptIn] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -55,6 +56,7 @@ export default function ApplyCreateAccountForm() {
           lastName: lastName.trim(),
           email: email.trim().toLowerCase(),
           phone: phone.trim(),
+          smsOptIn,
           password,
           programSlug,
         }),
@@ -97,6 +99,16 @@ export default function ApplyCreateAccountForm() {
       <div className="form-group">
         <label htmlFor="phone">Phone *</label>
         <input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+      </div>
+      <div className="form-group">
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+          <input
+            type="checkbox"
+            checked={smsOptIn}
+            onChange={(e) => setSmsOptIn(e.target.checked)}
+          />
+          Text me updates about my application (optional)
+        </label>
       </div>
       <div className="form-group">
         <label htmlFor="password">Password *</label>

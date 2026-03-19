@@ -5,6 +5,7 @@ import { useState } from 'react';
 export default function ContactFormClient() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [preferSms, setPreferSms] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -17,6 +18,7 @@ export default function ContactFormClient() {
       phone: formData.get('phone') || '',
       topic: formData.get('topic'),
       message: formData.get('message'),
+      prefer_sms: preferSms,
     };
 
     setStatus('sending');
@@ -98,6 +100,16 @@ export default function ContactFormClient() {
       <div className="form-group">
         <label>Phone Number</label>
         <input type="tel" name="phone" disabled={status === 'sending'} />
+      </div>
+      <div className="form-group">
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+          <input
+            type="checkbox"
+            checked={preferSms}
+            onChange={(e) => setPreferSms(e.target.checked)}
+          />
+          I&apos;d prefer to be contacted by text message
+        </label>
       </div>
       <div className="form-group">
         <label>What can we help with? *</label>

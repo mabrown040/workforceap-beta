@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { BookOpen, Calendar } from 'lucide-react';
 
 type State = 'A' | 'B' | 'C' | 'D';
 
@@ -76,12 +77,12 @@ export default function DashboardHomeClient({
           </div>
           <div className="dashboard-stats-row">
             <div className="dashboard-stat-card">
-              <div className="dashboard-stat-icon">📚</div>
+              <div className="dashboard-stat-icon"><BookOpen size={20} className="text-current" /></div>
               <div className="dashboard-stat-label">Program</div>
               <div className="dashboard-stat-value" style={{ fontSize: '0.95rem' }}>{programTitle ?? '—'}</div>
             </div>
             <div className="dashboard-stat-card">
-              <div className="dashboard-stat-icon">📅</div>
+              <div className="dashboard-stat-icon"><Calendar size={20} className="text-current" /></div>
               <div className="dashboard-stat-label">Enrolled</div>
               <div className="dashboard-stat-value">{enrolledAt?.toLocaleDateString() ?? '—'}</div>
             </div>

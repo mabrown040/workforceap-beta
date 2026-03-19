@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Footer from '@/components/Footer';
 import PhotoHighlight from '@/components/PhotoHighlight';
+import { HOMEPAGE_CATEGORY_ICONS, WYG_ICONS } from '@/lib/content/programIcons';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Home',
@@ -17,7 +18,7 @@ export default function HomePage() {
     { num: 1, title: 'Apply', desc: 'Quick online application' },
     { num: 2, title: 'Overview', desc: 'Learn about our programs' },
     { num: 3, title: 'Interview', desc: 'Meet your counselor' },
-    { num: 4, title: 'Membership', desc: 'Join the community' },
+    { num: 4, title: 'Membership', desc: 'Join the WorkforceAP community — free for all accepted members' },
     { num: 5, title: 'Assessment', desc: 'Skills & goals evaluation' },
     { num: 6, title: 'Workforce Readiness', desc: 'Build foundational skills' },
     { num: 7, title: 'Resources', desc: 'Tools, network & loaner laptop' },
@@ -45,8 +46,8 @@ export default function HomePage() {
           <div className="hero-no-cost-badge">✦ No-cost training for qualifying participants</div>
           <p className="hero-subtitle">Career training and industry certifications designed to launch careers in Technology, Data, AI, Healthcare, Manufacturing and Skilled Trades.</p>
           <div className="hero-actions">
-            <Link href="/apply" className="btn btn-primary">Apply Now</Link>
-            <Link href="/programs" className="btn btn-ghost">Explore Programs</Link>
+            <Link href="/apply" className="btn btn-primary btn-large hero-cta-primary">Apply Now — It Takes 5 Minutes</Link>
+            <Link href="/find-your-path" className="btn btn-ghost">Find Your Path →</Link>
           </div>
           <div className="trust-strip">
             <span>Trusted by partners including</span>
@@ -151,12 +152,24 @@ export default function HomePage() {
               <h3>Industry-Recognized Training</h3>
               <p>Bridging the gap between people, talent, skills, and opportunity through partnerships with leading organizations.</p>
               <ul className="program-categories">
-                <li><span className="cat-icon">&#x1F4BB;</span> Digital Literacy &amp; AI</li>
-                <li><span className="cat-icon">&#x1F4E1;</span> Information Technology</li>
-                <li><span className="cat-icon">&#x1F4CB;</span> Project Management</li>
-                <li><span className="cat-icon">&#x1F3E5;</span> Medical Coding</li>
-                <li><span className="cat-icon">&#x1F3ED;</span> Manufacturing &amp; Production</li>
-                <li><span className="cat-icon">&#x1F3D7;</span> Core Construction</li>
+                {[
+                  'Digital Literacy & AI',
+                  'Information Technology',
+                  'Project Management',
+                  'Medical Coding',
+                  'Manufacturing & Production',
+                  'Core Construction',
+                ].map((label) => {
+                  const Icon = HOMEPAGE_CATEGORY_ICONS[label];
+                  return (
+                    <li key={label}>
+                      <span className="cat-icon">
+                        {Icon ? <Icon size={20} className="text-current" /> : null}
+                      </span>
+                      {label}
+                    </li>
+                  );
+                })}
               </ul>
               <Link href="/programs" className="btn btn-outline">View All Programs</Link>
             </div>
@@ -173,17 +186,17 @@ export default function HomePage() {
           </div>
           <div className="wyg-grid">
             <div className="wyg-card animate-on-scroll">
-              <span className="wyg-icon">🎓</span>
+              <span className="wyg-icon"><WYG_ICONS.certifications size={28} className="text-current" /></span>
               <h3>Industry Certifications</h3>
               <p>Credentials from Google, IBM, Microsoft, Amazon, and CompTIA that employers hire against directly.</p>
             </div>
             <div className="wyg-card animate-on-scroll">
-              <span className="wyg-icon">💻</span>
+              <span className="wyg-icon"><WYG_ICONS.laptop size={28} className="text-current" /></span>
               <h3>Loaner Laptop Program</h3>
               <p>Earn a refurbished laptop upon successful program completion — so hardware is never a barrier to your future.</p>
             </div>
             <div className="wyg-card animate-on-scroll">
-              <span className="wyg-icon">🤝</span>
+              <span className="wyg-icon"><WYG_ICONS.jobPlacement size={28} className="text-current" /></span>
               <h3>Job Placement Assistance</h3>
               <p>Resume support, interview prep, and employer connections from your first day of training through your first hire.</p>
             </div>

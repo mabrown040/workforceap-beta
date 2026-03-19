@@ -22,6 +22,7 @@ const navItems = [
       { href: '/salary-guide', label: 'Salary Guide' },
     ],
   },
+  { href: '/find-your-path', label: 'Find Your Path ✨' },
   { href: '/how-it-works', label: 'How It Works' },
   { href: '/blog', label: 'Blog' },
   { href: '/faq', label: 'FAQ' },

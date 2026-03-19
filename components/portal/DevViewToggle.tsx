@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { GraduationCap, Wrench } from 'lucide-react';
 
 const STORAGE_KEY = 'dev_view_mode';
 
@@ -59,7 +60,8 @@ export default function DevViewToggle() {
           cursor: 'pointer',
         }}
       >
-        🎓 Student View
+        <GraduationCap size={14} style={{ verticalAlign: 'middle', marginRight: '0.25rem' }} />
+        Student View
       </button>
       <button
         type="button"
@@ -73,7 +75,8 @@ export default function DevViewToggle() {
           cursor: 'pointer',
         }}
       >
-        🛠 Admin View
+        <Wrench size={14} style={{ verticalAlign: 'middle', marginRight: '0.25rem' }} />
+        Admin View
       </button>
     </div>
   );

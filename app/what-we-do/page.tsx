@@ -4,6 +4,7 @@ import Link from 'next/link';
 import PageHero from '@/components/PageHero';
 import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
+import { UI_ICONS } from '@/lib/content/programIcons';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'What We Do',
@@ -31,12 +32,12 @@ export default function WhatWeDoPage() {
         <div className="container">
           <div className="mission-vision-grid">
             <div className="mv-card animate-on-scroll">
-              <div className="mv-icon mission">&#x1F3AF;</div>
+              <div className="mv-icon mission"><UI_ICONS.target size={28} className="text-current" /></div>
               <h2>Mission</h2>
               <p>The Workforce Advancement Project exists to break down systemic barriers by providing digital literacy, artificial intelligence, occupational, and professional certification training to underserved individuals, adult learners, and veteran populations.</p>
             </div>
             <div className="mv-card animate-on-scroll">
-              <div className="mv-icon vision">&#x1F30D;</div>
+              <div className="mv-icon vision"><UI_ICONS.globe size={28} className="text-current" /></div>
               <h2>Vision</h2>
               <p>We are working to create a world where every individual and family — regardless of background, income, opportunity, or circumstance — has access to the skills, opportunity, and support necessary to thrive in the workforce today and lead the workforce of tomorrow.</p>
             </div>
@@ -72,18 +73,21 @@ export default function WhatWeDoPage() {
           <h2 className="section-title animate-on-scroll">Our Core Values</h2>
           <div className="values-grid">
             {[
-              { icon: '⚔', name: 'Equity', desc: 'Ensuring fair access to opportunity, training, and economic mobility for all individuals.' },
-              { icon: '🚀', name: 'Opportunity', desc: 'Opening pathways to meaningful, life-changing careers in high-demand industries.' },
-              { icon: '💡', name: 'Innovation', desc: 'Preparing communities for the AI-powered future of work with cutting-edge training.' },
-              { icon: '🤝', name: 'Partnership', desc: 'Leveraging collective strength across government, education, and industry sectors.' },
-              { icon: '📈', name: 'Impact', desc: 'Delivering measurable outcomes that strengthen both individuals and local economies.' },
-            ].map((v) => (
-              <div key={v.name} className="value-card animate-on-scroll">
-                <div className="value-icon">{v.icon}</div>
-                <h3>{v.name}</h3>
-                <p>{v.desc}</p>
-              </div>
-            ))}
+              { Icon: UI_ICONS.scale, name: 'Equity', desc: 'Ensuring fair access to opportunity, training, and economic mobility for all individuals.' },
+              { Icon: UI_ICONS.rocket, name: 'Opportunity', desc: 'Opening pathways to meaningful, life-changing careers in high-demand industries.' },
+              { Icon: UI_ICONS.lightbulb, name: 'Innovation', desc: 'Preparing communities for the AI-powered future of work with cutting-edge training.' },
+              { Icon: UI_ICONS.handshake, name: 'Partnership', desc: 'Leveraging collective strength across government, education, and industry sectors.' },
+              { Icon: UI_ICONS.trendingUp, name: 'Impact', desc: 'Delivering measurable outcomes that strengthen both individuals and local economies.' },
+            ].map((v) => {
+              const Icon = v.Icon;
+              return (
+                <div key={v.name} className="value-card animate-on-scroll">
+                  <div className="value-icon"><Icon size={28} className="text-current" /></div>
+                  <h3>{v.name}</h3>
+                  <p>{v.desc}</p>
+                </div>
+              );
+            })}
           </div>
 
           <div className="cta-section animate-on-scroll">

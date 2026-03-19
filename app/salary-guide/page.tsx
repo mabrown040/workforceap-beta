@@ -4,6 +4,7 @@ import Link from 'next/link';
 import PageHero from '@/components/PageHero';
 import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
+import { UI_ICONS } from '@/lib/content/programIcons';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Salary Guide',
@@ -30,12 +31,12 @@ const salaryData = [
 ];
 
 const insights = [
-  { icon: '💡', title: 'Highest Paying Programs', desc: 'AWS Cloud Technology and AI Developer programs lead with $134K–$144K starting salaries.' },
-  { icon: '📈', title: 'Career Growth Potential', desc: 'Most graduates see 20–40% salary increases within 2–3 years.' },
-  { icon: '🎯', title: 'Location Matters', desc: 'These are U.S. national averages. Austin tech salaries are 5–10% above national average.' },
-  { icon: '✅', title: 'Accessible Career Launch', desc: 'Programs are designed to help learners move into entry-level roles quickly with coaching and support.' },
-  { icon: '🤝', title: 'Job Placement Support', desc: 'Our 90% job placement assistance rate means most graduates land roles quickly.' },
-  { icon: '💰', title: 'Total Compensation', desc: 'Beyond salary: signing bonuses, stock options, health/dental, and performance bonuses.' },
+  { Icon: UI_ICONS.lightbulb, title: 'Highest Paying Programs', desc: 'AWS Cloud Technology and AI Developer programs lead with $134K–$144K starting salaries.' },
+  { Icon: UI_ICONS.trendingUp, title: 'Career Growth Potential', desc: 'Most graduates see 20–40% salary increases within 2–3 years.' },
+  { Icon: UI_ICONS.target, title: 'Location Matters', desc: 'These are U.S. national averages. Austin tech salaries are 5–10% above national average.' },
+  { Icon: UI_ICONS.check, title: 'Accessible Career Launch', desc: 'Programs are designed to help learners move into entry-level roles quickly with coaching and support.' },
+  { Icon: UI_ICONS.handshake, title: 'Job Placement Support', desc: 'Our 90% job placement assistance rate means most graduates land roles quickly.' },
+  { Icon: UI_ICONS.dollarSign, title: 'Total Compensation', desc: 'Beyond salary: signing bonuses, stock options, health/dental, and performance bonuses.' },
 ];
 
 export default function SalaryGuidePage() {
@@ -91,13 +92,16 @@ export default function SalaryGuidePage() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '2.5rem' }}>
-            {insights.map((item) => (
-              <div key={item.title} style={{ background: '#f8f8f8', borderRadius: '8px', padding: '1.5rem' }}>
-                <div style={{ fontSize: '1.5rem', marginBottom: '.5rem' }}>{item.icon}</div>
-                <strong>{item.title}</strong>
-                <p style={{ color: '#555', fontSize: '.9rem', marginTop: '.4rem' }}>{item.desc}</p>
-              </div>
-            ))}
+            {insights.map((item) => {
+              const Icon = item.Icon;
+              return (
+                <div key={item.title} style={{ background: '#f8f8f8', borderRadius: '8px', padding: '1.5rem' }}>
+                  <div style={{ marginBottom: '.5rem' }}><Icon size={28} className="text-current" /></div>
+                  <strong>{item.title}</strong>
+                  <p style={{ color: '#555', fontSize: '.9rem', marginTop: '.4rem' }}>{item.desc}</p>
+                </div>
+              );
+            })}
           </div>
 
           <p style={{ color: '#888', fontSize: '.8rem', marginTop: '2rem' }}>

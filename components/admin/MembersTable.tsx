@@ -61,50 +61,60 @@ export default function MembersTable({ members }: MembersTableProps) {
       </div>
 
       <div style={{ overflowX: 'auto' }}>
-        <table className="admin-table">
+        <table className="admin-table members-table">
           <thead>
             <tr>
               <th>Name</th>
               <th>Email</th>
-              <th>Phone</th>
+              <th className="members-table-col--hide-narrow">Phone</th>
               <th>Program</th>
               <th>Enrolled</th>
               <th>Score %</th>
               <th>Training</th>
-              <th>Last Active</th>
+              <th className="members-table-col--hide-narrow">Last Active</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map((m) => (
-              <tr
-                key={m.id}
-                data-clickable
-                onClick={() => window.location.assign(`/admin/members/${m.id}`)}
-              >
-                <td>
-                  <Link href={`/admin/members/${m.id}`} onClick={(e) => e.stopPropagation()}>{m.fullName}</Link>
-                </td>
-                <td>{m.email}</td>
-                <td>{formatPhone(m.profile?.profilePhone ?? m.phone)}</td>
-                <td>{m.programTitle ?? '—'}</td>
-                <td>{m.enrolledAt?.toLocaleDateString() ?? '—'}</td>
-                <td>
-                  <span className={
-                    m.assessmentScorePct != null
-                      ? m.assessmentScorePct >= 70
-                        ? 'admin-score-high'
-                        : m.assessmentScorePct >= 50
-                          ? 'admin-score-mid'
-                          : 'admin-score-low'
-                      : ''
-                  }>
-                    {m.assessmentScorePct != null ? `${m.assessmentScorePct}%` : '—'}
-                  </span>
-                </td>
-                <td>{m.assessmentCompleted ? `${m.coursesCompleted.length}/${m.totalCourses}` : '—'}</td>
-                <td>{m.updatedAt.toLocaleDateString()}</td>
-              </tr>
-            ))}
+            {filtered.map((m) => {
+              const phoneStr = formatPhone(m.profile?.profilePhone ?? m.phone);
+              const narrowMeta =
+                phoneStr !== '—'
+                  ? `Phone ${phoneStr} · Last active ${m.updatedAt.toLocaleDateString()}`
+                  : `Last active ${m.updatedAt.toLocaleDateString()}`;
+              return (
+                <tr
+                  key={m.id}
+                  data-clickable
+                  onClick={() => window.location.assign(`/admin/members/${m.id}`)}
+                >
+                  <td>
+                    <Link href={`/admin/members/${m.id}`} onClick={(e) => e.stopPropagation()}>{m.fullName}</Link>
+                    <div className="members-table-narrow-meta">
+                      {narrowMeta}
+                    </div>
+                  </td>
+                  <td>{m.email}</td>
+                  <td className="members-table-col--hide-narrow">{phoneStr}</td>
+                  <td>{m.programTitle ?? '—'}</td>
+                  <td>{m.enrolledAt?.toLocaleDateString() ?? '—'}</td>
+                  <td>
+                    <span className={
+                      m.assessmentScorePct != null
+                        ? m.assessmentScorePct >= 70
+                          ? 'admin-score-high'
+                          : m.assessmentScorePct >= 50
+                            ? 'admin-score-mid'
+                            : 'admin-score-low'
+                        : ''
+                    }>
+                      {m.assessmentScorePct != null ? `${m.assessmentScorePct}%` : '—'}
+                    </span>
+                  </td>
+                  <td>{m.assessmentCompleted ? `${m.coursesCompleted.length}/${m.totalCourses}` : '—'}</td>
+                  <td className="members-table-col--hide-narrow">{m.updatedAt.toLocaleDateString()}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

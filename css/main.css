@@ -5459,6 +5459,33 @@ body { animation: fadeIn 0.4s ease; }
 .admin-table tbody tr[data-clickable] {
     cursor: pointer;
 }
+
+/* Members table: hide Phone + Last Active below 1200px; show in name cell on row hover */
+.members-table-narrow-meta {
+    display: none;
+}
+@media (max-width: 1199px) {
+    .members-table .members-table-col--hide-narrow {
+        display: none;
+    }
+    .members-table-narrow-meta {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--color-gray-500);
+        line-height: 1.35;
+        margin-top: 0;
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: max-height 0.2s ease, opacity 0.15s ease, margin-top 0.2s ease;
+    }
+    .members-table tbody tr:hover .members-table-narrow-meta {
+        max-height: 3rem;
+        opacity: 1;
+        margin-top: 0.35rem;
+    }
+}
+
 .admin-score-high {
     color: var(--color-green);
     font-weight: 600;

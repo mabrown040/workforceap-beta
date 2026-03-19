@@ -1121,6 +1121,63 @@ a.btn-white {
 /* =============================================
    LOANER LAPTOP SECTION
    ============================================= */
+/* What You Get section replaces standalone loaner laptop card */
+.what-you-get-section {
+    padding: 5rem 0;
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+.what-you-get-section .section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+.what-you-get-section .section-header h2 {
+    font-size: 2rem;
+    color: var(--color-white);
+    margin-bottom: 0.5rem;
+}
+.what-you-get-section .section-header p {
+    color: rgba(255,255,255,0.75);
+    font-size: 1.0625rem;
+}
+.wyg-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+.wyg-card {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    text-align: center;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+.wyg-card:hover {
+    background: rgba(255,255,255,0.12);
+    transform: translateY(-2px);
+}
+.wyg-icon {
+    font-size: 2.25rem;
+    display: block;
+    margin-bottom: 1rem;
+}
+.wyg-card h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-white);
+    margin-bottom: 0.75rem;
+}
+.wyg-card p {
+    color: rgba(255,255,255,0.75);
+    font-size: 0.9375rem;
+    line-height: 1.65;
+}
+@media (max-width: 768px) {
+    .wyg-grid { grid-template-columns: 1fr; }
+}
+
+/* Keep class for backward compat */
 .loaner-laptop-section {
     padding: 3rem 0;
     background: var(--color-light);
@@ -1194,6 +1251,22 @@ a.btn-white {
     grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
     margin-top: 3rem;
+}
+.quote-mark {
+    display: block;
+    font-size: 3.5rem;
+    line-height: 1;
+    color: var(--color-accent);
+    font-family: Georgia, serif;
+    margin-bottom: 0.5rem;
+    opacity: 0.6;
+}
+.testimonial-text {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+    font-style: italic;
 }
 .testimonial-card {
     background: var(--color-light);

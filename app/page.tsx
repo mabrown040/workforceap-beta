@@ -41,7 +41,6 @@ export default function HomePage() {
         />
         <div className="hero-overlay" />
         <div className="hero-container">
-          <div className="hero-badge">&#x2B50; Virtual and Hybrid Occupation and Career Programs &bull; Workforce Advancement Project</div>
           <h1 className="hero-title">Empowering People. <br /><span className="accent">Advancing Futures.</span></h1>
           <div className="hero-no-cost-badge">✦ No-cost training for qualifying participants</div>
           <p className="hero-subtitle">Career training and industry certifications designed to launch careers in Technology, Data, AI, Healthcare, Manufacturing and Skilled Trades.</p>
@@ -165,14 +164,52 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Loaner Laptop */}
-      <section className="loaner-laptop-section">
+      {/* What You Get */}
+      <section className="what-you-get-section">
         <div className="container">
-          <div className="loaner-laptop-card animate-on-scroll">
-            <span className="loaner-icon">💻</span>
-            <h3>Loaner Laptop Program</h3>
-            <p>We offer used loaner laptops to be earned at the successful completion of the Workforce Advancement Program with a complete certificate.</p>
+          <div className="section-header animate-on-scroll">
+            <h2>Everything You Need to Succeed</h2>
+            <p>WorkforceAP wraps real support around every step of your journey.</p>
           </div>
+          <div className="wyg-grid">
+            <div className="wyg-card animate-on-scroll">
+              <span className="wyg-icon">🎓</span>
+              <h3>Industry Certifications</h3>
+              <p>Credentials from Google, IBM, Microsoft, Amazon, and CompTIA that employers hire against directly.</p>
+            </div>
+            <div className="wyg-card animate-on-scroll">
+              <span className="wyg-icon">💻</span>
+              <h3>Loaner Laptop Program</h3>
+              <p>Earn a refurbished laptop upon successful program completion — so hardware is never a barrier to your future.</p>
+            </div>
+            <div className="wyg-card animate-on-scroll">
+              <span className="wyg-icon">🤝</span>
+              <h3>Job Placement Assistance</h3>
+              <p>Resume support, interview prep, and employer connections from your first day of training through your first hire.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="testimonials-section">
+        <div className="container">
+          <div className="section-header animate-on-scroll">
+            <h2>What Our Members Say</h2>
+          </div>
+          <div className="testimonials-grid">
+            <div className="testimonial-card animate-on-scroll">
+              <span className="quote-mark">&ldquo;</span>
+              <p className="testimonial-text">WorkforceAP changed the direction of my life. I went from unemployed to IT certified in 5 months. I never thought a career in tech was possible for me.</p>
+              <div className="testimonial-author">— Marcus T., CompTIA A+ Graduate &bull; Austin, TX</div>
+            </div>
+            <div className="testimonial-card animate-on-scroll">
+              <span className="quote-mark">&ldquo;</span>
+              <p className="testimonial-text">I had no tech background at all. Now I have a Google Cybersecurity Certificate and a job offer. The support made all the difference.</p>
+              <div className="testimonial-author">— D. Williams, Google Cybersecurity Graduate</div>
+            </div>
+          </div>
+          {/* PLACEHOLDER — replace with real member testimonials */}
         </div>
       </section>
 

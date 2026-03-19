@@ -58,6 +58,10 @@ model User {
   counselorProfile     Counselor?
   counselorAssignments CounselorAssignment[] @relation("MemberAssignments")
   partnerReferrals     PartnerReferral[]     @relation("MemberReferrals")
+  placementRecord    PlacementRecord?
+  counselorNotes     CounselorNote[]  @relation("MemberNotes")
+  notesAuthored      CounselorNote[]  @relation("NoteAuthor")
+
 
   @@map("users")
 }
@@ -527,6 +531,43 @@ model PartnerReferral {
   @@index([partnerId])
   @@map("partner_referrals")
 }
+
+// --- Pipeline & Placement Tracking ---
+
+model PlacementRecord {
+  id            String    @id @default(uuid())
+  userId        String    @unique @map("user_id")
+  employerName  String    @map("employer_name")
+  jobTitle      String    @map("job_title")
+  startDate     DateTime? @db.Date @map("start_date")
+  salaryOffered Int?      @map("salary_offered") // annual, in whole dollars
+  placedAt      DateTime  @default(now()) @map("placed_at")
+  placedBy      String?   @map("placed_by") // counselor or admin userId
+  notes         String?   @db.Text
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([placedAt])
+  @@map("placement_records")
+}
+
+model CounselorNote {
+  id        String   @id @default(uuid())
+  memberId  String   @map("member_id")
+  authorId  String   @map("author_id")
+  content   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  member User @relation("MemberNotes", fields: [memberId], references: [id], onDelete: Cascade)
+  author User @relation("NoteAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([memberId])
+  @@index([authorId])
+  @@map("counselor_notes")
+}
 model AuditLog {
   id           String   @id @default(uuid())
   actorUserId  String?  @map("actor_user_id")
@@ -543,5 +584,7 @@ model AuditLog {
   @@index([createdAt])
   @@map("audit_logs")
 }
+
+
 
 

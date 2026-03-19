@@ -37,7 +37,7 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
         <div>
           <h1 style={{ margin: '0 0 0.25rem' }}>{partner.name}</h1>
           <p style={{ margin: 0, color: 'var(--color-gray-500)', fontSize: '0.9rem' }}>
-            {partner._count.counselors} counselor{partner._count.counselors !== 1 ? 's' : ''} &middot; {partner._count.referrals} referral{partner._count.referrals !== 1 ? 's' : ''}
+            {partner._count.counselors} counselor{partner._count.counselors !== 1 ? 's' : ''} &middot; {partner.referrals.length} referral{partner.referrals.length !== 1 ? 's' : ''}
           </p>
         </div>
         <span style={{

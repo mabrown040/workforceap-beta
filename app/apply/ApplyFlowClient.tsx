@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import ApplyFormStatusBar from '@/components/ApplyFormStatusBar';
 
@@ -49,8 +49,9 @@ const supportOptions = [
   { value: 'mental_health', label: 'Mental Health Services' },
 ];
 
-// These are seeded partner slugs + generic sources. Admin can add partners in /admin/partners.
-const referralSources = [
+// Referral sources are loaded dynamically from /api/referral-sources (includes active partners from DB)
+// Fallback includes known partners so referral capture works even if /api/referral-sources is unavailable
+const FALLBACK_REFERRAL_SOURCES = [
   'Google / Web Search',
   'Social Media (Facebook, Instagram, LinkedIn)',
   'Friend or Family',
@@ -66,7 +67,15 @@ const referralSources = [
 ];
 
 export default function ApplyFlowClient() {
+  const [referralSources, setReferralSources] = useState<string[]>(FALLBACK_REFERRAL_SOURCES);
   const [step, setStep] = useState<1 | 2>(1);
+
+  useEffect(() => {
+    fetch('/api/referral-sources')
+      .then((r) => r.json())
+      .then((data) => { if (Array.isArray(data) && data.length > 0) setReferralSources(data); })
+      .catch(() => {}); // silently fall back to static list
+  }, []);
   const [q1, setQ1] = useState<'yes' | 'no' | null>(null);
   const [q2, setQ2] = useState<'yes' | 'no' | null>(null);
   const [q3, setQ3] = useState<'yes' | 'no' | null>(null);

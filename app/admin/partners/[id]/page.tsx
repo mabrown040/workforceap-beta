@@ -15,13 +15,14 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
         where: { active: true },
       },
       referrals: {
+        where: { member: { deletedAt: null } },
         include: {
           member: { select: { id: true, fullName: true, email: true, enrolledProgram: true, createdAt: true } },
         },
         orderBy: { referredAt: 'desc' },
         take: 50,
       },
-      _count: { select: { counselors: true, referrals: true } },
+      _count: { select: { counselors: true } }, // referral count derived from filtered referrals array below
     },
   });
 
@@ -36,7 +37,7 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
         <div>
           <h1 style={{ margin: '0 0 0.25rem' }}>{partner.name}</h1>
           <p style={{ margin: 0, color: 'var(--color-gray-500)', fontSize: '0.9rem' }}>
-            {partner._count.counselors} counselor{partner._count.counselors !== 1 ? 's' : ''} &middot; {partner._count.referrals} referral{partner._count.referrals !== 1 ? 's' : ''}
+            {partner._count.counselors} counselor{partner._count.counselors !== 1 ? 's' : ''} &middot; {partner.referrals.length} referral{partner.referrals.length !== 1 ? 's' : ''}
           </p>
         </div>
         <span style={{
@@ -69,7 +70,7 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
         </section>
 
         <section>
-          <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Recent Referrals ({partner._count.referrals})</h2>
+          <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Recent Referrals ({partner.referrals.length})</h2>
           {partner.referrals.length === 0 ? (
             <p style={{ color: 'var(--color-gray-500)', fontSize: '0.9rem' }}>No referrals recorded yet.</p>
           ) : (

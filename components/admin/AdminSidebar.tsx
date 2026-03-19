@@ -9,6 +9,7 @@ const LINKS = [
   { href: '/admin/assessments', label: 'Assessments', icon: '📋' },
   { href: '/admin/programs', label: 'Programs', icon: '📚' },
   { href: '/admin/blog', label: 'Blog', icon: '📝' },
+  { href: '/admin/partners', label: 'Partners', icon: '🤝' },
 ];
 
 type AdminSidebarProps = {
@@ -43,3 +44,5 @@ export default function AdminSidebar({ open = false, onClose }: AdminSidebarProp
     </aside>
   );
 }
+
+

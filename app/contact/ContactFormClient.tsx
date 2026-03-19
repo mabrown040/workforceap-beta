@@ -17,6 +17,7 @@ export default function ContactFormClient() {
       phone: formData.get('phone') || '',
       topic: formData.get('topic'),
       message: formData.get('message'),
+      sms_preferred: formData.get('sms_preferred') === 'true',
     };
 
     setStatus('sending');
@@ -98,6 +99,12 @@ export default function ContactFormClient() {
       <div className="form-group">
         <label>Phone Number</label>
         <input type="tel" name="phone" disabled={status === 'sending'} />
+      </div>
+      <div className="form-group">
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+          <input type="checkbox" name="sms_preferred" value="true" disabled={status === 'sending'} />
+          I&apos;d prefer to be contacted by text message
+        </label>
       </div>
       <div className="form-group">
         <label>What can we help with? *</label>

@@ -2,15 +2,16 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { BarChart3, Users, ClipboardList, BookOpen, FileText, Handshake } from 'lucide-react';
 
 const LINKS = [
-  { href: '/admin', label: 'Overview', icon: '📊' },
-  { href: '/admin/members', label: 'Members', icon: '👥' },
-  { href: '/admin/assessments', label: 'Assessments', icon: '📋' },
-  { href: '/admin/programs', label: 'Programs', icon: '📚' },
-  { href: '/admin/blog', label: 'Blog', icon: '📝' },
-  { href: '/admin/partners', label: 'Partners', icon: '🤝' },
-  { href: '/admin/pipeline', label: 'Pipeline', icon: '📊' },
+  { href: '/admin', label: 'Overview', Icon: BarChart3 },
+  { href: '/admin/members', label: 'Members', Icon: Users },
+  { href: '/admin/assessments', label: 'Assessments', Icon: ClipboardList },
+  { href: '/admin/programs', label: 'Programs', Icon: BookOpen },
+  { href: '/admin/blog', label: 'Blog', Icon: FileText },
+  { href: '/admin/partners', label: 'Partners', Icon: Handshake },
+  { href: '/admin/pipeline', label: 'Pipeline', Icon: BarChart3 },
 ];
 
 type AdminSidebarProps = {
@@ -25,7 +26,7 @@ export default function AdminSidebar({ open = false, onClose }: AdminSidebarProp
     <aside className={`admin-sidebar ${open ? 'open' : ''}`}>
       <nav>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {LINKS.map(({ href, label, icon }) => {
+          {LINKS.map(({ href, label, Icon }) => {
             const isActive = pathname === href || (href !== '/admin' && pathname?.startsWith(href));
             return (
               <li key={href} style={{ marginBottom: '0.25rem' }}>
@@ -34,7 +35,7 @@ export default function AdminSidebar({ open = false, onClose }: AdminSidebarProp
                   className={`admin-sidebar-link ${isActive ? 'active' : ''}`}
                   onClick={onClose}
                 >
-                  <span>{icon}</span>
+                  <span><Icon size={18} className="text-current" /></span>
                   {label}
                 </Link>
               </li>

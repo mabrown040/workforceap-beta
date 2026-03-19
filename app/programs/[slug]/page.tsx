@@ -78,7 +78,7 @@ export default async function ProgramPage({ params }: Props) {
                 <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{program.salary}</span>
               </div>
               <span className="program-sidebar-partner">{program.partner} certified</span>
-              <Link href={`/apply/results?program=${program.slug}`} className="btn btn-primary" style={{ width: '100%', padding: '1rem', marginTop: '1rem', textAlign: 'center' }}>
+              <Link href={`/apply?program=${program.slug}`} className="btn btn-primary" style={{ width: '100%', padding: '1rem', marginTop: '1rem', textAlign: 'center' }}>
                 Apply for This Program
               </Link>
               <p className="program-sidebar-note">No-cost training for qualifying participants.</p>

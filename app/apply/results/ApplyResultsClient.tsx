@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
 import { APPLY_STORAGE_KEY } from '../ApplyEligibilityClient';
 import { CardSkeleton } from '@/components/ui/Skeleton';
+import { ProgramIcon } from '@/components/ProgramIcon';
 
 const PROGRAM_STORAGE_KEY = 'apply_program_slug';
 
@@ -111,7 +112,7 @@ export default function ApplyResultsClient() {
                 >
                   {p.categoryLabel}
                 </span>
-                <span style={{ fontSize: '1.5rem' }}>{p.icon}</span>
+                <span style={{ display: 'flex', alignItems: 'center' }}><ProgramIcon program={p} size={24} /></span>
               </div>
               <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>{p.title}</h3>
               <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>

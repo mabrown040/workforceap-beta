@@ -59,7 +59,7 @@ export default function DevViewToggle() {
           cursor: 'pointer',
         }}
       >
-        🎓 Student View
+        Student View
       </button>
       <button
         type="button"
@@ -73,7 +73,7 @@ export default function DevViewToggle() {
           cursor: 'pointer',
         }}
       >
-        🛠 Admin View
+        Admin View
       </button>
     </div>
   );

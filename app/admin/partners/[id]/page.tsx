@@ -22,7 +22,7 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
         orderBy: { referredAt: 'desc' },
         take: 50,
       },
-      _count: { select: { counselors: true, referrals: true } },
+      _count: { select: { counselors: true } }, // referral count derived from filtered referrals array below
     },
   });
 
@@ -70,7 +70,7 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
         </section>
 
         <section>
-          <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Recent Referrals ({partner._count.referrals})</h2>
+          <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Recent Referrals ({partner.referrals.length})</h2>
           {partner.referrals.length === 0 ? (
             <p style={{ color: 'var(--color-gray-500)', fontSize: '0.9rem' }}>No referrals recorded yet.</p>
           ) : (

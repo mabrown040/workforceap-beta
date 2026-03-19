@@ -29,13 +29,34 @@ export async function POST(request: Request) {
 
   try {
     if (ext === 'pdf') {
-      // pdf-parse has a known issue on Vercel — it tries to load a test PDF on import
-      // Use dynamic require with the direct module path to avoid the test file check
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const pdfParse = require('pdf-parse/lib/pdf-parse.js');
       const buffer = Buffer.from(await file.arrayBuffer());
-      const data = await pdfParse(buffer);
-      return NextResponse.json({ text: data.text?.trim() || '' });
+      let text = '';
+
+      // Try pdf-parse first (best quality extraction)
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const pdfParse = require('pdf-parse/lib/pdf-parse.js');
+        const data = await pdfParse(buffer);
+        text = data.text?.trim() || '';
+      } catch {
+        // Fallback: raw text extraction from PDF binary
+        // Extracts readable text by stripping non-printable characters
+        const raw = buffer.toString('utf-8');
+        text = raw
+          .replace(/[^\x20-\x7E\n\r\t]/g, ' ')
+          .replace(/\s{3,}/g, '\n')
+          .replace(/\n{3,}/g, '\n\n')
+          .trim();
+      }
+
+      if (!text) {
+        return NextResponse.json(
+          { error: 'Could not extract text from this PDF. It may be a scanned image. Try pasting your resume text instead.' },
+          { status: 400 }
+        );
+      }
+
+      return NextResponse.json({ text });
     }
 
     if (ext === 'docx' || ext === 'doc') {

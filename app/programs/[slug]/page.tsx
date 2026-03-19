@@ -6,6 +6,7 @@ import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
 import { getProgramDescription } from '@/lib/content/programDescriptions';
 import Footer from '@/components/Footer';
 import ProgramDetailClient from './ProgramDetailClient';
+import { HelpCircle, BookOpen, ArrowRight, Clock, DollarSign, Briefcase } from 'lucide-react';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -94,6 +95,80 @@ export default async function ProgramPage({ params }: Props) {
               >
                 Apply for This Program
               </Link>
+            </div>
+
+            {/* Related Resources */}
+            <div style={{ 
+              marginTop: '2.5rem', 
+              padding: '1.5rem',
+              background: 'white',
+              borderRadius: '12px',
+              border: '1px solid #e5e5e5'
+            }}>
+              <h3 style={{ fontSize: '1.125rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <HelpCircle size={20} style={{ color: '#ad2c4d' }} />
+                Have Questions?
+              </h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
+                <Link href="/faq" style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  padding: '1rem',
+                  background: '#f8f9fa',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  color: '#1a1a1a',
+                }}>
+                  <BookOpen size={18} style={{ color: '#ad2c4d' }} />
+                  <span>Read FAQ</span>
+                  <ArrowRight size={16} style={{ marginLeft: 'auto', opacity: 0.5 }} />
+                </Link>
+                <Link href="/how-it-works" style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  padding: '1rem',
+                  background: '#f8f9fa',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  color: '#1a1a1a',
+                }}>
+                  <Clock size={18} style={{ color: '#ad2c4d' }} />
+                  <span>How It Works</span>
+                  <ArrowRight size={16} style={{ marginLeft: 'auto', opacity: 0.5 }} />
+                </Link>
+                
+                <Link href="/salary-guide" style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  padding: '1rem',
+                  background: '#f8f9fa',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  color: '#1a1a1a',
+                }}>
+                  <DollarSign size={18} style={{ color: '#ad2c4d' }} />
+                  <span>Salary Guide</span>
+                  <ArrowRight size={16} style={{ marginLeft: 'auto', opacity: 0.5 }} />
+                </Link>
+                
+                <Link href="/blog" style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  padding: '1rem',
+                  background: '#f8f9fa',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  color: '#1a1a1a',
+                }}>
+                  <Briefcase size={18} style={{ color: '#ad2c4d' }} />
+                  <span>Career Tips</span>
+                  <ArrowRight size={16} style={{ marginLeft: 'auto', opacity: 0.5 }} />
+                </Link>
+              </div>
             </div>
           </div>
           <aside className="program-detail-sidebar">

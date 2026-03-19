@@ -55,6 +55,10 @@ model User {
   pathwayStepProgress  PathwayStepProgress[]
   trainingAccessRequests TrainingAccessRequest[]
 
+  counselorProfile     Counselor?
+  counselorAssignments CounselorAssignment[] @relation("MemberAssignments")
+  partnerReferrals     PartnerReferral[]     @relation("MemberReferrals")
+
   @@map("users")
 }
 
@@ -455,6 +459,74 @@ model BlogPost {
   @@map("blog_posts")
 }
 
+
+// --- Partner Portal ---
+
+model Partner {
+  id           String    @id @default(uuid())
+  name         String
+  slug         String    @unique  // e.g. "workforce-solutions-austin"
+  logoUrl      String?   @map("logo_url")
+  contactName  String?   @map("contact_name")
+  contactEmail String?   @map("contact_email")
+  contactPhone String?   @map("contact_phone")
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  counselors Counselor[]
+  referrals  PartnerReferral[]
+
+  @@map("partners")
+}
+
+model Counselor {
+  id        String   @id @default(uuid())
+  partnerId String   @map("partner_id")
+  userId    String   @unique @map("user_id")  // links to User (must have role = counselor)
+  title     String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  partner     Partner               @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignments CounselorAssignment[]
+
+  @@index([partnerId])
+  @@map("counselors")
+}
+
+model CounselorAssignment {
+  id          String   @id @default(uuid())
+  counselorId String   @map("counselor_id")
+  memberId    String   @map("member_id")  // User.id of the student
+  assignedAt  DateTime @default(now()) @map("assigned_at")
+  active      Boolean  @default(true)
+  notes       String?  @db.Text
+
+  counselor Counselor @relation(fields: [counselorId], references: [id], onDelete: Cascade)
+  member    User      @relation("MemberAssignments", fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([counselorId, memberId])
+  @@index([counselorId])
+  @@index([memberId])
+  @@map("counselor_assignments")
+}
+
+model PartnerReferral {
+  id         String   @id @default(uuid())
+  partnerId  String   @map("partner_id")
+  memberId   String   @map("member_id")
+  referredAt DateTime @default(now()) @map("referred_at")
+
+  partner Partner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  member  User    @relation("MemberReferrals", fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([partnerId, memberId])
+  @@index([partnerId])
+  @@map("partner_referrals")
+}
 model AuditLog {
   id           String   @id @default(uuid())
   actorUserId  String?  @map("actor_user_id")
@@ -471,3 +543,5 @@ model AuditLog {
   @@index([createdAt])
   @@map("audit_logs")
 }
+
+

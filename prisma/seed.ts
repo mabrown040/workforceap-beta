@@ -4,7 +4,7 @@ import { seedBlogPosts } from './seed-blog';
 const prisma = new PrismaClient();
 
 async function main() {
-  const roles = ['member', 'admin', 'case_manager'];
+  const roles = ['member', 'admin', 'case_manager', 'counselor'];
   for (const name of roles) {
     await prisma.role.upsert({
       where: { name },
@@ -28,6 +28,22 @@ async function main() {
   }
 
   await seedBlogPosts();
+  // Seed initial partners
+  const partnerSeeds = [
+    { name: 'Workforce Solutions Capital Area', slug: 'workforce-solutions-austin', contactEmail: null },
+    { name: 'Texas Workforce Commission', slug: 'twc', contactEmail: null },
+    { name: 'Austin Area Urban League', slug: 'austin-urban-league', contactEmail: null },
+    { name: 'African American Youth Harvest Foundation', slug: 'aayh-foundation', contactEmail: null },
+    { name: '211 Texas', slug: '211-texas', contactEmail: null },
+  ];
+  for (const p of partnerSeeds) {
+    await prisma.partner.upsert({
+      where: { slug: p.slug },
+      update: {},
+      create: p,
+    });
+  }
+  console.log('Seeded partners:', partnerSeeds.length);
 }
 
 main()
@@ -36,3 +52,5 @@ main()
     process.exit(1);
   })
   .finally(() => prisma.$disconnect());
+
+

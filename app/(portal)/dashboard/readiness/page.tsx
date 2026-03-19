@@ -4,6 +4,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import Footer from '@/components/Footer';
 import ReadinessMemberClient from './ReadinessMemberClient';
+import '@/css/counselor.css';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Career Readiness',
@@ -17,9 +18,9 @@ export default async function DashboardReadinessPage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Career Readiness</h1>
+      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Your Career Readiness</h1>
       <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
-        This checklist tracks your journey from training to career. Your counselor will update it as you hit milestones.
+        Track your progress from training to career. Your counselor updates this checklist as you hit milestones.
       </p>
       <ReadinessMemberClient />
       <Footer />

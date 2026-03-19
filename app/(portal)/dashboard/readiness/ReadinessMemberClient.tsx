@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { ChevronDown, ChevronRight, CheckCircle } from 'lucide-react';
 import { ReadinessSkeleton } from '@/components/ui/Skeleton';
 
 type Section = {
@@ -37,44 +38,39 @@ export default function ReadinessMemberClient() {
   if (loading) return <ReadinessSkeleton />;
 
   return (
-    <div>
-      <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(74, 155, 79, 0.1)', borderRadius: '8px', border: '1px solid rgba(74, 155, 79, 0.3)' }}>
-        <strong>Your career readiness: {pct}%</strong>
-        <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>
+    <div className="readiness-member-content">
+      <div className="readiness-member-progress">
+        <div className="readiness-progress-track">
+          <div className="readiness-progress-fill" style={{ width: `${pct}%` }} />
+        </div>
+        <p className="readiness-progress-text">Progress: {pct}%</p>
+        <p className="readiness-progress-desc">
           {completedItems} of {totalItems} items complete. Your counselor updates this as you progress.
         </p>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div className="readiness-sections">
         {sections.map((sec) => (
-          <div key={sec.section} style={{ border: '1px solid #eee', borderRadius: '8px', overflow: 'hidden' }}>
+          <div key={sec.section} className="readiness-section-card">
             <button
               type="button"
+              className="readiness-section-header"
               onClick={() => setExpanded((e) => ({ ...e, [sec.section]: !e[sec.section] }))}
-              style={{
-                width: '100%',
-                padding: '1rem',
-                background: '#f5f5f5',
-                border: 'none',
-                textAlign: 'left',
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                justifyContent: 'space-between',
-              }}
             >
-              <span>Section {sec.section}: {sec.title}</span>
-              <span>{expanded[sec.section] !== false ? '▼' : '▶'}</span>
+              <span>{expanded[sec.section] !== false ? <ChevronDown size={20} /> : <ChevronRight size={20} />}</span>
+              <span>Section {sec.section} — {sec.title}</span>
             </button>
             {expanded[sec.section] !== false && (
-              <div style={{ padding: '1rem', background: 'white' }}>
+              <div className="readiness-section-body">
                 {sec.items.map((item) => (
-                  <div key={item.key} style={{ marginBottom: '0.75rem', display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
-                    <span style={{ flexShrink: 0 }}>{item.completed ? '✅' : '⬜'}</span>
+                  <div key={item.key} className="readiness-member-item">
+                    <span className="readiness-member-icon">
+                      {item.completed ? <CheckCircle size={20} className="readiness-icon-done" /> : <span className="readiness-icon-empty" />}
+                    </span>
                     <div>
                       <span>{item.label}</span>
                       {item.valueText && (
-                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.9rem', color: '#666' }}>{item.valueText}</p>
+                        <p className="readiness-member-value">{item.valueText}</p>
                       )}
                     </div>
                   </div>

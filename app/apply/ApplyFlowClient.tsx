@@ -50,10 +50,17 @@ const supportOptions = [
 ];
 
 // Referral sources are loaded dynamically from /api/referral-sources (includes active partners from DB)
+// Fallback includes known partners so referral capture works even if /api/referral-sources is unavailable
 const FALLBACK_REFERRAL_SOURCES = [
   'Google / Web Search',
   'Social Media (Facebook, Instagram, LinkedIn)',
   'Friend or Family',
+  'Workforce Solutions Capital Area',
+  'Texas Workforce Commission (TWC)',
+  'Austin Area Urban League',
+  'African American Youth Harvest Foundation',
+  '211 Texas',
+  'Community Organization',
   'Flyer or Brochure',
   'WorkforceAP Counselor',
   'Other',

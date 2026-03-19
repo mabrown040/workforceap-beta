@@ -134,6 +134,7 @@ export async function POST(request: Request) {
           dob: dob ? new Date(dob) : null,
           veteranStatus: veteranStatus || null,
           employmentStatus: employmentStatus || null,
+          educationLevel: educationLevel || null,
           householdIncome: householdIncome || null,
           referralSource: referralSource || null,
           usCitizen,

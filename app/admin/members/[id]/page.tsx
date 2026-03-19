@@ -9,7 +9,6 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
-import Footer from '@/components/Footer';
 import MemberDetailActions from '@/components/admin/MemberDetailActions';
 import CreateSuccessToast from './CreateSuccessToast';
 import { formatPhone } from '@/lib/formatPhone';
@@ -156,8 +155,6 @@ export default async function AdminMemberDetailPage({
           </section>
         )}
       </div>
-
-      <Footer />
     </div>
   );
 }

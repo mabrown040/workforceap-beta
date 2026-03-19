@@ -5236,16 +5236,32 @@ body { animation: fadeIn 0.4s ease; }
     color: var(--color-gray-800);
     font-weight: 400;
     background: transparent;
-    transition: color var(--transition-fast), background var(--transition-fast);
+    transition: color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+}
+.admin-sidebar-icon-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.admin-sidebar-icon {
+    color: var(--color-gray-600);
 }
 .admin-sidebar-link:hover {
     background: rgba(173, 44, 77, 0.06);
     color: var(--color-primary);
 }
+.admin-sidebar-link:hover .admin-sidebar-icon {
+    color: var(--color-accent);
+}
 .admin-sidebar-link.active {
     color: var(--color-accent);
     font-weight: 600;
-    background: rgba(173, 44, 77, 0.08);
+    background: rgba(173, 44, 77, 0.12);
+    box-shadow: inset 3px 0 0 0 var(--color-accent);
+}
+.admin-sidebar-link.active .admin-sidebar-icon {
+    color: var(--color-accent);
 }
 
 /* Dashboard home — quick stats */

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import AdminSidebar from './AdminSidebar';
+import AdminFooter from './AdminFooter';
 import { SignOutButton } from '@/components/portal/SignOutButton';
 import DevViewToggle from '@/components/portal/DevViewToggle';
 
@@ -58,6 +59,8 @@ export default function AdminShell({ children }: AdminShellProps) {
         <AdminSidebar open={drawerOpen} onClose={closeDrawer} />
         <main style={{ flex: 1, padding: '1.5rem 2rem', minWidth: 0 }}>{children}</main>
       </div>
+
+      <AdminFooter />
     </div>
   );
 }

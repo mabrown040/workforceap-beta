@@ -59,7 +59,14 @@ export default async function AdminPipelinePage() {
         <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Student Pipeline</h1>
         <Link
           href="/admin/placements/new"
-          style={{ padding: '0.5rem 1rem', background: 'var(--color-accent)', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 600 }}
+          style={{
+            padding: '0.5rem 1rem',
+            background: 'var(--color-blue)',
+            color: 'white',
+            borderRadius: '6px',
+            textDecoration: 'none',
+            fontWeight: 600,
+          }}
         >
           Record Placement
         </Link>
@@ -73,9 +80,19 @@ export default async function AdminPipelinePage() {
           { label: 'Placement Rate', value: totalActive > 0 ? `${Math.round((totalPlaced / totalActive) * 100)}%` : '—' },
           { label: 'Avg Salary', value: avgSalary ? `$${avgSalary.toLocaleString()}` : '—' },
         ].map((stat) => (
-          <div key={stat.label} style={{ padding: '1rem 1.5rem', background: 'var(--color-gray-50)', border: '1px solid var(--color-border)', borderRadius: '8px', minWidth: '120px' }}>
-            <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{stat.value}</div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)', marginTop: '0.25rem' }}>{stat.label}</div>
+          <div
+            key={stat.label}
+            style={{
+              padding: '1.5rem',
+              background: 'var(--color-gray-50)',
+              border: '1px solid var(--color-border)',
+              borderRadius: '8px',
+              minWidth: '120px',
+              textAlign: 'center',
+            }}
+          >
+            <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1.2 }}>{stat.value}</div>
+            <div style={{ fontSize: '0.875rem', color: 'var(--color-gray-500)', marginTop: '0.25rem' }}>{stat.label}</div>
           </div>
         ))}
       </div>

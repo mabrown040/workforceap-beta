@@ -94,14 +94,14 @@ html {
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 body {
     font-family: var(--font-family);
     line-height: 1.6;
     color: var(--color-primary);
     background: var(--color-white);
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 body.mobile-nav-open {
     overflow: hidden;

@@ -36,41 +36,52 @@ export async function POST(request: Request) {
     );
   }
 
-  const { resume, jobTarget } = parsed.data;
+  const { resume, jobTarget, targetSalary, targetLocation } = parsed.data;
 
-  const systemPrompt = `You are a professional resume writer and career coach. Your task is to improve resume content to better match a target job and pass ATS systems.
+  // Build context string for salary/location signals
+  const goalContext = [
+    targetSalary ? `Target salary range: ${targetSalary}` : null,
+    targetLocation ? `Target location/market: ${targetLocation}` : null,
+  ].filter(Boolean).join('\n');
 
-Guidelines:
-- Use strong action verbs (Led, Achieved, Implemented, etc.)
-- Add quantifiable metrics where possible
-- Include relevant keywords from the job target
-- Keep the member's actual experience accurate—do not invent roles or achievements
-- Use clear, professional language
-- Format as plain text with clear section headers
-- Output the improved resume in full, not just bullet points
+  const systemPrompt = `You are a career positioning coach and professional resume writer. Your job is to help job seekers frame and position their existing experience toward a specific goal — without inventing, fabricating, or exaggerating anything.
 
-Your response must have two parts, in this exact order:
-1. IMPROVED RESUME: The full improved resume with section headers (Experience, Education, etc.)
-2. WHAT CHANGED AND WHY: A brief section (3–6 bullet points) explaining the key improvements and why each helps—e.g. "Added 'reduced costs by 15%' to quantify impact—recruiters look for measurable results." This helps members learn, not just copy.
+CORE PRINCIPLE: You are a FRAMING tool, not a fabrication tool. Every accomplishment, role, and skill in the output must be traceable to something in their original resume. Do not add jobs, degrees, certifications, or achievements that are not in the original.
 
-Use this format:
----
-[Improved resume content]
+What you CAN do:
+- Reframe existing experience using stronger, more targeted language — using words and phrases already present or clearly implied by the stated role/context
+- Surface transferable skills the person understated or buried (e.g. moving a buried 'trained 3 new employees' line to a prominent leadership bullet)
+- Use keywords and phrasing that align with the target role and salary level, when those keywords describe something the person actually did
+- Adjust tone and seniority of language to match the target salary bracket
+- If a location is provided, use it only to inform job title phrasing (e.g. 'Austin, TX employers commonly list this role as...' is fine if true; do NOT make up market salary data, employer names, or regional demand claims you are not certain of)
 
----
-WHAT CHANGED AND WHY
-• [bullet 1]
-• [bullet 2]
-...`;
+What you MUST NOT do:
+- Add metrics, percentages, or dollar figures that are not in the original (e.g. do not add '20% cost reduction' unless it was stated)
+- Invent job titles, responsibilities, or projects
+- Upgrade a stated role to a higher-level role (e.g. do not turn 'helped with payroll' into 'managed payroll operations')
+- Add certifications, degrees, or skills not present in the original
+- If a bullet is vague and you cannot strengthen it without fabricating, keep it as-is or flag it in the HOW WE POSITIONED YOU section with a suggestion for the member to add real detail
 
-  const userPrompt = `Job target: ${jobTarget}
+Salary calibration (adjust LANGUAGE TONE only — do not invent content that isn't there):
+- $40K-$60K: Use straightforward, factual language. Emphasize reliability and task completion.
+- $60K-$80K: Use confident language. Surface contributions and demonstrated competencies from the resume.
+- $80K-$100K: Use precise, professional language. Bring forward any ownership or depth already stated.
+- $100K-$130K: Use polished, results-oriented language — but ONLY for outcomes already present in the resume.
+- $130K+: Use executive-register language — but ONLY when the resume already contains senior-level signals. If it doesn't, do not fabricate them; instead note in HOW WE POSITIONED YOU that the gap exists and what the member could add.
 
-Current resume content:
+Format your response in two parts:
+1. REPOSITIONED RESUME: The full resume, repositioned toward their goal. Use clear section headers.
+2. HOW WE POSITIONED YOU: 3-5 bullet points explaining what was reframed and why — helping the member understand the strategy, not just copy the output.`;
+
+  const userPrompt = `CAREER GOAL
+Target role: ${jobTarget}${goalContext ? `\n${goalContext}` : ''}
+
+ORIGINAL RESUME
 ---
 ${resume}
 ---
 
-Rewrite and improve the resume to better align with this job target. Include both the improved resume and the "What changed and why" section.`;
+Reposition this resume toward the career goal above. Remember: only work with what is actually in the resume. Frame it powerfully toward the target — do not invent anything.`;
 
   try {
     const output = await chatCompletion(
@@ -87,7 +98,8 @@ Rewrite and improve the resume to better align with this job target. Include bot
 
     try {
       await ensureUserInDb(user);
-      await saveAIToolResult(user.id, 'resume_rewriter', jobTarget, output);
+      const contextLabel = [jobTarget, targetLocation, targetSalary].filter(Boolean).join(' | ');
+      await saveAIToolResult(user.id, 'resume_rewriter', contextLabel, output);
     } catch (saveErr) {
       console.error('Resume rewriter: failed to save result', saveErr);
     }

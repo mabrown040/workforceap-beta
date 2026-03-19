@@ -80,6 +80,7 @@ model Profile {
   dob                   DateTime? @db.Date
   veteranStatus         String?   @map("veteran_status")
   employmentStatus      String?   @map("employment_status")
+  educationLevel        String?   @map("education_level")
   householdIncome       String?   @map("household_income")
   referralSource        String?   @map("referral_source")
   usCitizen             Boolean?  @map("us_citizen")

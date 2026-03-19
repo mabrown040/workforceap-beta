@@ -6,10 +6,29 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
 import Footer from '@/components/Footer';
 import MemberDetailActions from '@/components/admin/MemberDetailActions';
 import { formatPhone } from '@/lib/formatPhone';
+
+const BUCKET = 'member-resumes';
+
+async function getResumeUrls(originalPath: string | null, enhancedPath: string | null) {
+  if (!originalPath && !enhancedPath) return { originalUrl: null, enhancedUrl: null };
+  const supabase = getSupabaseAdmin();
+  let originalUrl: string | null = null;
+  let enhancedUrl: string | null = null;
+  if (originalPath) {
+    const { data } = await supabase.storage.from(BUCKET).createSignedUrl(originalPath, 3600);
+    originalUrl = data?.signedUrl ?? null;
+  }
+  if (enhancedPath) {
+    const { data } = await supabase.storage.from(BUCKET).createSignedUrl(enhancedPath, 3600);
+    enhancedUrl = data?.signedUrl ?? null;
+  }
+  return { originalUrl, enhancedUrl };
+}
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Member Detail',
@@ -41,6 +60,10 @@ export default async function AdminMemberDetailPage({
   const coursesCompleted = (member.coursesCompleted as string[] | null) ?? [];
   const completedCount = program ? coursesCompleted.filter((s) => program.courses.some((c) => c.slug === s)).length : 0;
   const assessmentAnswers = member.assessmentAnswers as Record<number, string> | null;
+  const { originalUrl, enhancedUrl } = await getResumeUrls(
+    member.profile?.resumeOriginalPath ?? null,
+    member.profile?.resumeEnhancedPath ?? null
+  );
 
   return (
     <div>
@@ -82,6 +105,26 @@ export default async function AdminMemberDetailPage({
             assessmentCompleted={member.assessmentCompleted}
           />
         </section>
+
+        {(member.profile?.resumeOriginalPath || member.profile?.resumeEnhancedPath) && (
+          <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
+            <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Resumes</h2>
+            {member.profile?.resumeOriginalPath && (
+              <p style={{ marginBottom: '0.5rem' }}>
+                <strong>Original:</strong>{' '}
+                {originalUrl ? <a href={originalUrl} target="_blank" rel="noopener noreferrer">View</a> : '—'}{' '}
+                {originalUrl ? <a href={originalUrl} download>Download</a> : ''}
+              </p>
+            )}
+            {member.profile?.resumeEnhancedPath && (
+              <p>
+                <strong>Enhanced:</strong>{' '}
+                {enhancedUrl ? <a href={enhancedUrl} target="_blank" rel="noopener noreferrer">View</a> : '—'}{' '}
+                {enhancedUrl ? <a href={enhancedUrl} download>Download</a> : ''}
+              </p>
+            )}
+          </section>
+        )}
 
         {member.assessmentCompleted && (
           <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>

@@ -1,0 +1,58 @@
+/* Counselor sprint — resume & readiness (import only in allowed layouts) */
+.counselor-resume-upload {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  background: #fafafa;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.counselor-resume-upload:hover,
+.counselor-resume-upload.dragover {
+  border-color: var(--color-accent);
+  background: rgba(173, 44, 77, 0.05);
+}
+.counselor-resume-preview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .counselor-resume-preview { grid-template-columns: 1fr; }
+}
+.counselor-resume-card {
+  padding: 1rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  background: #fff;
+}
+.counselor-resume-card h3 { font-size: 1rem; margin-bottom: 0.5rem; }
+.counselor-resume-card pre {
+  font-size: 0.8rem;
+  max-height: 200px;
+  overflow: auto;
+  white-space: pre-wrap;
+  margin: 0 0 0.75rem;
+}
+.counselor-wit-guide {
+  padding: 1.5rem;
+  background: #f7f8fa;
+  border-radius: 8px;
+  border: 1px solid #e5e5e5;
+}
+.counselor-wit-guide ol { padding-left: 1.25rem; margin: 0.5rem 0; }
+.counselor-wit-guide li { margin-bottom: 0.5rem; }
+.counselor-profile-bar {
+  height: 8px;
+  background: #e5e5e5;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 0.25rem;
+}
+.counselor-profile-bar-fill {
+  height: 100%;
+  background: var(--color-accent);
+  border-radius: 4px;
+  transition: width 0.2s;
+}

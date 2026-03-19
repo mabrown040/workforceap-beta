@@ -15,7 +15,7 @@ export interface AssessmentQuestion {
 }
 
 export const ASSESSMENT_QUESTIONS: AssessmentQuestion[] = [
-  { id: 1, question: '"itinerary" means', choices: [{ value: 'A', label: 'A type of document' }, { value: 'B', label: 'A cruise schedule' }, { value: 'C', label: 'A place to check status of a flight' }, { value: 'D', label: 'A travel booking' }], correct: 'C', points: 3 },
+  { id: 1, question: '"itinerary" means', choices: [{ value: 'A', label: 'A planned travel route or schedule' }, { value: 'B', label: 'A cruise ship' }, { value: 'C', label: 'A place to check flight status' }, { value: 'D', label: 'A travel booking confirmation' }], correct: 'A', points: 3 },
   { id: 2, question: '"verify" means', choices: [{ value: 'A', label: 'To delete' }, { value: 'B', label: 'To ignore' }, { value: 'C', label: 'To confirm something' }, { value: 'D', label: 'To postpone' }], correct: 'C', points: 3 },
   { id: 3, question: '"evoke" means', choices: [{ value: 'A', label: 'To avoid' }, { value: 'B', label: 'To erase' }, { value: 'C', label: 'Call forth' }, { value: 'D', label: 'To delay' }], correct: 'C', points: 3 },
   { id: 4, question: '"instill" means', choices: [{ value: 'A', label: 'Establish' }, { value: 'B', label: 'Remove' }, { value: 'C', label: 'Question' }, { value: 'D', label: 'Forget' }], correct: 'A', points: 3 },
@@ -25,7 +25,7 @@ export const ASSESSMENT_QUESTIONS: AssessmentQuestion[] = [
   { id: 8, question: 'Opposite of "numerous"', choices: [{ value: 'A', label: 'Lacking' }, { value: 'B', label: 'Many' }, { value: 'C', label: 'Plenty' }, { value: 'D', label: 'Abundant' }], correct: 'A', points: 3 },
   { id: 9, question: 'Victoria ___ the whole experience (planning to execution)', choices: [{ value: 'A', label: 'Ignored' }, { value: 'B', label: 'Choreographed' }, { value: 'C', label: 'Forgot' }, { value: 'D', label: 'Abandoned' }], correct: 'B', points: 3 },
   { id: 10, question: 'Teacher ___ students to study', choices: [{ value: 'A', label: 'Discouraged' }, { value: 'B', label: 'Encouraged' }, { value: 'C', label: 'Prevented' }, { value: 'D', label: 'Blocked' }], correct: 'B', points: 3 },
-  { id: 11, question: 'Texas students use email to', choices: [{ value: 'A', label: 'Play games' }, { value: 'B', label: 'Communicate with pen pals in another county' }, { value: 'C', label: 'Watch videos' }, { value: 'D', label: 'Shop online' }], correct: 'B', points: 3 },
+  { id: 11, question: 'Texas students use email to', choices: [{ value: 'A', label: 'Play games' }, { value: 'B', label: 'Communicate with pen pals in another country' }, { value: 'C', label: 'Watch videos' }, { value: 'D', label: 'Shop online' }], correct: 'B', points: 3 },
   { id: 12, question: 'Computer monitor is', choices: [{ value: 'A', label: 'Software' }, { value: 'B', label: 'An application' }, { value: 'C', label: 'A program' }, { value: 'D', label: 'Hardware' }], correct: 'D', points: 2 },
   { id: 13, question: 'Best for financial calculations', choices: [{ value: 'A', label: 'Microsoft Excel' }, { value: 'B', label: 'Microsoft Word' }, { value: 'C', label: 'Notepad' }, { value: 'D', label: 'Paint' }], correct: 'A', points: 3 },
   { id: 14, question: 'Indicates location on monitor', choices: [{ value: 'A', label: 'A cursor' }, { value: 'B', label: 'A font' }, { value: 'C', label: 'A margin' }, { value: 'D', label: 'A header' }], correct: 'A', points: 2 },

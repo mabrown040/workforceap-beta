@@ -1,20 +1,39 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 const APPLY_STORAGE_KEY = 'apply_eligibility';
 
 export default function ApplyEligibilityClient() {
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const programParam = searchParams.get('program');
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const [q1, setQ1] = useState<'yes' | 'no' | null>(null);
   const [q2, setQ2] = useState<'yes' | 'no' | null>(null);
   const [q3, setQ3] = useState<'yes' | 'no' | null>(null);
 
   const canContinue = q1 !== null && q2 !== null && q3 !== null;
   const qualifies = q1 === 'yes' && q2 === 'yes' && q3 === 'yes';
+
+  if (!mounted) {
+    return (
+      <div className="apply-flow">
+        <div className="apply-progress-bar">
+          <div className="apply-progress-fill" style={{ width: '33%' }} />
+          <p className="apply-progress-label">Step 1 of 3</p>
+        </div>
+        <div className="apply-step-content">
+          <p style={{ color: 'var(--color-gray-500)' }}>Loading…</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleContinue = () => {
     if (!canContinue) return;

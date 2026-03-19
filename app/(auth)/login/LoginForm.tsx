@@ -1,12 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
 export default function LoginForm() {
+  const [mounted, setMounted] = useState(false);
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirectTo') ?? '/dashboard';
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -48,6 +53,19 @@ export default function LoginForm() {
       setLoading(false);
     }
   };
+
+  if (!mounted) {
+    return (
+      <div className="inner-page">
+        <section className="page-hero">
+          <div className="page-hero-content">
+            <h1>Log in to your account</h1>
+            <p>Loading…</p>
+          </div>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className="inner-page">

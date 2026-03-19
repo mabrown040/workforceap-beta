@@ -789,6 +789,26 @@ a.btn-accent:hover {
     max-width: 1100px !important;
 }
 .program-detail-main { min-width: 0; }
+.program-cta-section { margin-top: 2.5rem; }
+.program-cta-card {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    color: var(--color-white);
+    border-radius: var(--radius-lg);
+}
+.program-cta-badge {
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-green);
+    margin-bottom: 0.75rem;
+}
+.program-cta-card h3 { font-size: 1.25rem; margin-bottom: 0.5rem; color: white; }
+.program-cta-card p { opacity: 0.9; margin-bottom: 1rem; font-size: 0.95rem; }
+.program-cta-buttons { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.program-cta-buttons .btn-primary { background: var(--color-accent); color: white; }
+.program-cta-buttons .btn-outline { border-color: rgba(255,255,255,0.5); color: white; }
+.program-cta-buttons .btn-outline:hover { background: rgba(255,255,255,0.1); }
 .program-detail-description {
     font-size: 1.125rem;
     line-height: 1.7;

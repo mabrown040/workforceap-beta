@@ -317,6 +317,7 @@ export default function FindYourPathClient() {
             <label
               key={a.value}
               className={`quiz-answer-card ${currentAnswer === a.value ? 'selected' : ''}`}
+              onClick={() => handleSelect(a.value)}
             >
               <input
                 type="radio"

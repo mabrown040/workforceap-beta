@@ -6,6 +6,7 @@ import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
 import { getProgramDescription } from '@/lib/content/programDescriptions';
 import Footer from '@/components/Footer';
 import ProgramDetailClient from './ProgramDetailClient';
+import ProgramCTA from '@/components/ProgramCTA';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -70,6 +71,7 @@ export default async function ProgramPage({ params }: Props) {
           <div className="program-detail-main">
             <p className="program-detail-description">{getProgramDescription(program.category)}</p>
             <ProgramDetailClient program={program} />
+            <ProgramCTA programSlug={program.slug} programTitle={program.title} />
           </div>
           <aside className="program-detail-sidebar">
             <div className="program-sidebar-card">

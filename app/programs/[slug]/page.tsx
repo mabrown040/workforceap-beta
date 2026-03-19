@@ -7,6 +7,7 @@ import { getProgramDescription } from '@/lib/content/programDescriptions';
 import Footer from '@/components/Footer';
 import ProgramDetailClient from './ProgramDetailClient';
 import ProgramCTA from '@/components/ProgramCTA';
+import ProgramCourseSchema from '@/components/ProgramCourseSchema';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -40,6 +41,7 @@ export default async function ProgramPage({ params }: Props) {
 
   return (
     <div className="inner-page">
+      <ProgramCourseSchema program={program} />
       <section className="page-hero">
         <div className="page-hero-content">
           <span

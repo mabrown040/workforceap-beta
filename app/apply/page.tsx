@@ -32,7 +32,7 @@ export default function ApplyPage() {
       <section className="content-section">
         <div className="container">
           <div className="apply-alert">
-            🔥 First Program Now Forming &mdash; Seats are limited. Apply today to hold your spot.
+            First Program Now Forming — Seats are limited. Apply today to hold your spot.
           </div>
 
           <Suspense fallback={<p>Loading...</p>}>

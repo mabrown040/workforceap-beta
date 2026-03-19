@@ -5,6 +5,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import JsonLd from '@/components/JsonLd';
 import ConditionalMarketingNav from '@/components/ConditionalMarketingNav';
 import ScrollAnimationsWrapper from '@/components/ScrollAnimationsWrapper';
+import BackToTop from '@/components/BackToTop';
 import '@/css/main.css';
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID ?? 'GTM-53JCT6WN';
@@ -19,7 +20,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.workforceap.org'),
   title: {
-    default: '⭐ Virtual and Hybrid Occupation and Career Programs • Workforce Advancement Project',
+    default: 'Virtual and Hybrid Occupation and Career Programs • Workforce Advancement Project',
     template: '%s - Workforce Advancement Project',
   },
   description:
@@ -67,6 +68,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <ConditionalMarketingNav />
         <main id="main-content">{children}</main>
         <ScrollAnimationsWrapper />
+        <BackToTop />
         <Analytics />
         <SpeedInsights />
       </body>

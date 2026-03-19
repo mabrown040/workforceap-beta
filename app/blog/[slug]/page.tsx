@@ -8,6 +8,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
+import BlogRelatedPrograms from '@/components/BlogRelatedPrograms';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -83,7 +84,7 @@ export default async function BlogPostPage({ params }: Props) {
           >
             <Image
               src={post.coverImage}
-              alt=""
+              alt={post.title}
               width={680}
               height={383}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
@@ -105,7 +106,7 @@ export default async function BlogPostPage({ params }: Props) {
           >
             <Image
               src="/images/logo-tight.png"
-              alt=""
+              alt="WorkforceAP"
               width={272}
               height={153}
               style={{ width: '40%', height: 'auto', opacity: 0.9, objectFit: 'contain' }}
@@ -126,18 +127,21 @@ export default async function BlogPostPage({ params }: Props) {
           </div>
         </section>
         </article>
-        {related.length > 0 && (
-          <aside className="blog-post-related">
-            <h3>Related Posts</h3>
-            <ul>
-              {related.map((r) => (
-                <li key={r.slug}>
-                  <Link href={`/blog/${r.slug}`}>{r.title}</Link>
-                </li>
-              ))}
-            </ul>
-          </aside>
-        )}
+        <aside className="blog-post-related">
+          <BlogRelatedPrograms />
+          {related.length > 0 && (
+            <>
+              <h3>Related Posts</h3>
+              <ul>
+                {related.map((r) => (
+                  <li key={r.slug}>
+                    <Link href={`/blog/${r.slug}`}>{r.title}</Link>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </aside>
       </div>
       <Footer />
     </div>

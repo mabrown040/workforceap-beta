@@ -18,6 +18,7 @@ const routes = [
   '/program-comparison',
   '/programs',
   '/salary-guide',
+  '/terms',
   '/what-we-do',
   '/privacy',
 ] as const;

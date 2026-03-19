@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
+import { Mail, Phone, Clock } from 'lucide-react';
 import PageHero from '@/components/PageHero';
 import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
@@ -36,15 +37,15 @@ export default function ContactPage() {
               <p>We&rsquo;d love to hear from you. Have questions about our programs? Send us a message and we&rsquo;ll get back to you within 24–48 hours.</p>
               <div className="contact-info">
                 <div className="contact-item">
-                  <span className="contact-icon">&#128231;</span>
+                  <span className="contact-icon"><Mail size={20} /></span>
                   <div><strong>Email</strong><br /><a href="mailto:info@workforceap.org" style={{ color: 'var(--color-accent)' }}>info@workforceap.org</a></div>
                 </div>
                 <div className="contact-item">
-                  <span className="contact-icon">&#128222;</span>
+                  <span className="contact-icon"><Phone size={20} /></span>
                   <div><strong>Phone</strong><br /><a href="tel:5127771808" style={{ color: 'var(--color-accent)' }}>(512) 777-1808</a></div>
                 </div>
                 <div className="contact-item">
-                  <span className="contact-icon">&#128336;</span>
+                  <span className="contact-icon"><Clock size={20} /></span>
                   <div><strong>Response Time</strong><br />Within 24–48 hours</div>
                 </div>
               </div>

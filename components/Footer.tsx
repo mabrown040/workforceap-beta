@@ -21,6 +21,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
               <a href="https://linkedin.com/company/workforceap" target="_blank" rel="noopener noreferrer">LinkedIn</a>
               <a href="mailto:info@workforceap.org">Email</a>
               <Link href="/privacy">Privacy Policy</Link>
+              <Link href="/terms">Terms of Use</Link>
             </div>
           </div>
         </div>
@@ -74,6 +75,13 @@ function FooterLinks() {
           <li><Link href="/leadership">Leadership Team</Link></li>
           <li><Link href="/faq">FAQ</Link></li>
           <li><Link href="/contact">Contact Us</Link></li>
+        </ul>
+      </div>
+      <div className="footer-links footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><Link href="/privacy">Privacy Policy</Link></li>
+          <li><Link href="/terms">Terms of Use</Link></li>
         </ul>
       </div>
     </>

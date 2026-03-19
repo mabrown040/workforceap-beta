@@ -191,7 +191,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* TESTIMONIALS — uncomment when real graduate stories are available from Dad
       <section className="testimonials-section">
         <div className="container">
           <div className="section-header animate-on-scroll">
@@ -200,18 +200,13 @@ export default function HomePage() {
           <div className="testimonials-grid">
             <div className="testimonial-card animate-on-scroll">
               <span className="quote-mark">&ldquo;</span>
-              <p className="testimonial-text">WorkforceAP changed the direction of my life. I went from unemployed to IT certified in 5 months. I never thought a career in tech was possible for me.</p>
-              <div className="testimonial-author">— Marcus T., CompTIA A+ Graduate &bull; Austin, TX</div>
-            </div>
-            <div className="testimonial-card animate-on-scroll">
-              <span className="quote-mark">&ldquo;</span>
-              <p className="testimonial-text">I had no tech background at all. Now I have a Google Cybersecurity Certificate and a job offer. The support made all the difference.</p>
-              <div className="testimonial-author">— D. Williams, Google Cybersecurity Graduate</div>
+              <p className="testimonial-text">[Real quote here]</p>
+              <div className="testimonial-author">— [Real Name], [Program] Graduate</div>
             </div>
           </div>
-          {/* PLACEHOLDER — replace with real member testimonials */}
         </div>
       </section>
+      */}
 
       {/* Footer CTA */}
       <section className="footer-cta">

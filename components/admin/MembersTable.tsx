@@ -66,26 +66,48 @@ export default function MembersTable({ members }: MembersTableProps) {
             <tr>
               <th>Name</th>
               <th>Email</th>
-              <th>Phone</th>
+              <th className="members-col-md">Phone</th>
               <th>Program</th>
               <th>Enrolled</th>
               <th>Score %</th>
               <th>Training</th>
-              <th>Last Active</th>
+              <th className="members-col-md">Last Active</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map((m) => (
+            {filtered.map((m) => {
+              const rawPhone = m.profile?.profilePhone ?? m.phone;
+              const phoneDisplay = formatPhone(rawPhone);
+              const lastActive = m.updatedAt.toLocaleDateString();
+              const narrowDetails = [rawPhone ? `Phone: ${phoneDisplay}` : null, `Last active: ${lastActive}`]
+                .filter(Boolean)
+                .join(' · ');
+              return (
               <tr
                 key={m.id}
                 data-clickable
                 onClick={() => window.location.assign(`/admin/members/${m.id}`)}
               >
                 <td>
-                  <Link href={`/admin/members/${m.id}`} onClick={(e) => e.stopPropagation()}>{m.fullName}</Link>
+                  <Link
+                    href={`/admin/members/${m.id}`}
+                    onClick={(e) => e.stopPropagation()}
+                    title={narrowDetails}
+                  >
+                    {m.fullName}
+                  </Link>
+                  <div className="members-name-details">
+                    {rawPhone ? (
+                      <>
+                        <span>{phoneDisplay}</span>
+                        <span className="members-name-details-sep"> · </span>
+                      </>
+                    ) : null}
+                    <span>Last active {lastActive}</span>
+                  </div>
                 </td>
                 <td>{m.email}</td>
-                <td>{formatPhone(m.profile?.profilePhone ?? m.phone)}</td>
+                <td className="members-col-md">{phoneDisplay}</td>
                 <td>{m.programTitle ?? '—'}</td>
                 <td>{m.enrolledAt?.toLocaleDateString() ?? '—'}</td>
                 <td>
@@ -102,9 +124,10 @@ export default function MembersTable({ members }: MembersTableProps) {
                   </span>
                 </td>
                 <td>{m.assessmentCompleted ? `${m.coursesCompleted.length}/${m.totalCourses}` : '—'}</td>
-                <td>{m.updatedAt.toLocaleDateString()}</td>
+                <td className="members-col-md">{lastActive}</td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>

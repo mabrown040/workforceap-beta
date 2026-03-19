@@ -29,7 +29,10 @@ export default async function AdminPartnersPage() {
       {partners.length === 0 ? (
         <div className="admin-empty-state">
           <h3>No partner organizations yet</h3>
-          <p>Add your first partner organization to start tracking referrals and assigning counselors.</p>
+          <p>
+            Partners are employers, workforce boards, and training providers who refer candidates to your programs.{' '}
+            Add your first partner to start tracking referrals and assigning counselors.
+          </p>
           <Link href="/admin/partners/new" className="btn btn-primary">Add Partner</Link>
         </div>
       ) : (

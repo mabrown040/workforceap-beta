@@ -15,6 +15,7 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
         where: { active: true },
       },
       referrals: {
+        where: { member: { deletedAt: null } },
         include: {
           member: { select: { id: true, fullName: true, email: true, enrolledProgram: true, createdAt: true } },
         },

@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import type { Program } from '@/lib/content/programs';
 import { ProgramIcon } from '@/components/ProgramIcon';
 import { formatPhone } from '@/lib/formatPhone';
+import { User, BookOpen, FileText, CheckCircle } from 'lucide-react';
+import '@/css/counselor.css';
 
 const EMPLOYMENT = ['Unemployed', 'Underemployed', 'Employed', 'Self-Employed'];
 const VETERAN = ['Not a Veteran', 'Veteran', 'Disabled Veteran'];
@@ -162,7 +164,8 @@ export default function AddMemberWizard({ programs }: Props) {
         if (enhancedResume) fd.append('resumeEnhanced', enhancedResume);
         await fetch(`/api/admin/members/${userId}/upload-resume`, { method: 'POST', body: fd });
       }
-      router.push(`/admin/members/${userId}`);
+      const email = data.email ?? form.email;
+      router.push(`/admin/members/${userId}?toast=created&email=${encodeURIComponent(email)}`);
       router.refresh();
     } catch {
       setError('Failed to create member');
@@ -176,26 +179,25 @@ export default function AddMemberWizard({ programs }: Props) {
   const canProceedStep2 = !!form.programSlug;
   const maxStep = 4;
 
+  const stepLabels = ['Basic Info', 'Program Selection', 'Resume Upload', 'Review & Create'];
+
   return (
-    <div style={{ maxWidth: '720px' }}>
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
-        {[1, 2, 3, 4].map((s) => (
-          <button
-            key={s}
-            type="button"
-            onClick={() => setStep(s)}
-            style={{
-              padding: '0.5rem 1rem',
-              border: step === s ? '2px solid var(--color-accent)' : '1px solid #ccc',
-              borderRadius: '6px',
-              background: step === s ? 'rgba(74,155,79,0.1)' : 'white',
-              cursor: 'pointer',
-              fontWeight: step === s ? 600 : 400,
-            }}
-          >
-            Step {s}
-          </button>
-        ))}
+    <div className="wizard-container">
+      <div className="wizard-step-indicator">
+        <span className="wizard-step-label">Step {step} of 4 — {stepLabels[step - 1]}</span>
+        <div className="wizard-step-dots">
+          {[1, 2, 3, 4].map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setStep(s)}
+              className={`wizard-step-dot ${step === s ? 'active' : ''}`}
+              aria-current={step === s ? 'step' : undefined}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
       </div>
 
       {error && (
@@ -206,98 +208,109 @@ export default function AddMemberWizard({ programs }: Props) {
 
       {/* Step 1: Basic Info */}
       {step === 1 && (
-        <section style={{ padding: '1.5rem', border: '1px solid #eee', borderRadius: '8px', background: '#fafafa' }}>
-          <h2 style={{ marginBottom: '1rem' }}>Basic Info</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <div>
+        <section className="wizard-step wizard-step-1">
+          <h2 className="wizard-section-title"><User size={22} className="wizard-icon" /> Basic Info</h2>
+          <div className="wizard-form-grid">
+            <div className="wizard-field">
               <label>First Name *</label>
               <input type="text" value={form.firstName} onChange={(e) => update('firstName', e.target.value)} required />
             </div>
-            <div>
+            <div className="wizard-field">
               <label>Last Name *</label>
               <input type="text" value={form.lastName} onChange={(e) => update('lastName', e.target.value)} />
             </div>
-            <div>
+            <div className="wizard-field">
               <label>Email *</label>
               <input type="email" value={form.email} onChange={(e) => update('email', e.target.value)} required />
             </div>
-            <div>
+            <div className="wizard-field">
               <label>Phone *</label>
               <input type="tel" value={form.phone} onChange={(e) => update('phone', e.target.value)} />
             </div>
-            <div style={{ gridColumn: '1 / -1' }}>
+            <div className="wizard-field wizard-field-full">
               <label>Address (optional)</label>
               <input type="text" value={form.address} onChange={(e) => update('address', e.target.value)} />
             </div>
-            <div>
+            <div className="wizard-field">
               <label>Date of Birth (optional)</label>
               <input type="date" value={form.dob} onChange={(e) => update('dob', e.target.value)} />
             </div>
-            <div>
+            <div className="wizard-field">
               <label>Employment Status *</label>
               <select value={form.employmentStatus} onChange={(e) => update('employmentStatus', e.target.value)} required>
                 <option value="">Select…</option>
                 {EMPLOYMENT.map((o) => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
-            <div>
+            <div className="wizard-field">
               <label>Veteran Status</label>
               <select value={form.veteranStatus} onChange={(e) => update('veteranStatus', e.target.value)}>
                 <option value="">Select…</option>
                 {VETERAN.map((o) => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
-            <div>
+            <div className="wizard-field">
               <label>Household Income</label>
               <select value={form.householdIncome} onChange={(e) => update('householdIncome', e.target.value)}>
                 <option value="">Select…</option>
                 {INCOME.map((o) => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
-            <div>
+            <div className="wizard-field">
               <label>Education Level *</label>
               <select value={form.educationLevel} onChange={(e) => update('educationLevel', e.target.value)} required>
                 <option value="">Select…</option>
                 {EDUCATION.map((o) => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
-            <div style={{ gridColumn: '1 / -1' }}>
-              <label>How did they hear about WorkforceAP?</label>
+            <div className="wizard-field wizard-field-full">
+              <label>Referral Source</label>
               <select value={form.referralSource} onChange={(e) => update('referralSource', e.target.value)}>
                 <option value="">Select…</option>
                 {REFERRAL.map((o) => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
-            <div style={{ gridColumn: '1 / -1' }}>
-              <label>Notes (internal)</label>
-              <textarea value={form.notes} onChange={(e) => update('notes', e.target.value)} rows={3} />
+          </div>
+          <div className="wizard-wioa-card">
+            <h3 className="wizard-wioa-title">Workforce Reporting</h3>
+            <div className="wizard-wioa-toggles">
+              <div className="wizard-toggle-row">
+                <label>US Citizen or Permanent Resident? *</label>
+                <div className="wizard-toggle">
+                  <button type="button" className={form.usCitizen ? 'active' : ''} onClick={() => update('usCitizen', true)}>Yes</button>
+                  <button type="button" className={!form.usCitizen ? 'active' : ''} onClick={() => update('usCitizen', false)}>No</button>
+                </div>
+              </div>
+              <div className="wizard-toggle-row">
+                <label>Authorized to work in US? *</label>
+                <div className="wizard-toggle">
+                  <button type="button" className={form.authorizedToWork ? 'active' : ''} onClick={() => update('authorizedToWork', true)}>Yes</button>
+                  <button type="button" className={!form.authorizedToWork ? 'active' : ''} onClick={() => update('authorizedToWork', false)}>No</button>
+                </div>
+              </div>
+              <div className="wizard-toggle-row">
+                <label>Has a disability?</label>
+                <div className="wizard-toggle">
+                  <button type="button" className={form.hasDisability ? 'active' : ''} onClick={() => update('hasDisability', true)}>Yes</button>
+                  <button type="button" className={!form.hasDisability ? 'active' : ''} onClick={() => update('hasDisability', false)}>No</button>
+                </div>
+              </div>
+            </div>
+            <div className="wizard-field">
+              <label>Ethnicity</label>
+              <select value={form.ethnicity} onChange={(e) => update('ethnicity', e.target.value)}>
+                <option value="">Select…</option>
+                {ETHNICITY.map((o) => <option key={o} value={o}>{o}</option>)}
+              </select>
             </div>
           </div>
-          <h3 style={{ marginTop: '1.5rem', marginBottom: '0.75rem' }}>WIOA / State of Texas</h3>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <input type="checkbox" checked={form.usCitizen} onChange={(e) => update('usCitizen', e.target.checked)} />
-              US Citizen or Permanent Resident? *
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <input type="checkbox" checked={form.authorizedToWork} onChange={(e) => update('authorizedToWork', e.target.checked)} />
-              Authorized to work in the US? *
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <input type="checkbox" checked={form.hasDisability} onChange={(e) => update('hasDisability', e.target.checked)} />
-              Has a disability?
-            </label>
+          <div className="wizard-field wizard-field-full wizard-counselor-notes">
+            <label>Counselor Notes</label>
+            <textarea value={form.notes} onChange={(e) => update('notes', e.target.value)} rows={3} placeholder="Internal notes — not visible to the member" />
           </div>
-          <div style={{ marginTop: '1rem' }}>
-            <label>Ethnicity</label>
-            <select value={form.ethnicity} onChange={(e) => update('ethnicity', e.target.value)}>
-              <option value="">Select…</option>
-              {ETHNICITY.map((o) => <option key={o} value={o}>{o}</option>)}
-            </select>
-          </div>
-          <div style={{ marginTop: '1.5rem' }}>
+          <div className="wizard-actions">
             <button type="button" className="btn btn-primary" onClick={() => setStep(2)} disabled={!canProceedStep1}>
-              Next: Program Selection →
+              Continue to Step 2
             </button>
           </div>
         </section>
@@ -305,21 +318,15 @@ export default function AddMemberWizard({ programs }: Props) {
 
       {/* Step 2: Program Selection */}
       {step === 2 && (
-        <section style={{ padding: '1.5rem', border: '1px solid #eee', borderRadius: '8px', background: '#fafafa' }}>
-          <h2 style={{ marginBottom: '1rem' }}>Program Selection</h2>
-          <p style={{ marginBottom: '1rem', color: '#666' }}>Select the program for this member.</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
+        <section className="wizard-step wizard-step-2">
+          <h2 className="wizard-section-title"><BookOpen size={22} className="wizard-icon" /> Program Selection</h2>
+          <p className="wizard-desc">Select the program for this member.</p>
+          <div className="wizard-program-grid">
             {programs.map((p) => (
               <div
                 key={p.slug}
                 onClick={() => update('programSlug', p.slug)}
-                style={{
-                  padding: '1rem',
-                  border: `2px solid ${form.programSlug === p.slug ? 'var(--color-accent)' : '#ddd'}`,
-                  borderRadius: '8px',
-                  background: 'white',
-                  cursor: 'pointer',
-                }}
+                className={`wizard-program-card ${form.programSlug === p.slug ? 'selected' : ''}`}
               >
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.25rem' }}><ProgramIcon program={p} size={24} /></div>
                 <h3 style={{ fontSize: '1rem', marginBottom: '0.25rem' }}>{p.title}</h3>
@@ -328,14 +335,14 @@ export default function AddMemberWizard({ programs }: Props) {
               </div>
             ))}
           </div>
-          <div style={{ marginTop: '1rem' }}>
-            <label>Why this program? (optional, internal)</label>
+          <div className="wizard-field wizard-field-full">
+            <label>Why this program? (optional, counselor note)</label>
             <textarea value={form.programNotes} onChange={(e) => update('programNotes', e.target.value)} rows={2} />
           </div>
-          <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.5rem' }}>
-            <button type="button" className="btn btn-outline" onClick={() => setStep(1)}>← Back</button>
+          <div className="wizard-actions wizard-actions-between">
+            <button type="button" className="btn btn-outline" onClick={() => setStep(1)}>Back</button>
             <button type="button" className="btn btn-primary" onClick={() => setStep(3)} disabled={!canProceedStep2}>
-              Next: Resume →
+              Continue to Step 3
             </button>
           </div>
         </section>
@@ -343,29 +350,52 @@ export default function AddMemberWizard({ programs }: Props) {
 
       {/* Step 3: Resume Upload */}
       {step === 3 && (
-        <section style={{ padding: '1.5rem', border: '1px solid #eee', borderRadius: '8px', background: '#fafafa' }}>
-          <h2 style={{ marginBottom: '1rem' }}>Resume Upload + AI Enhancement (optional)</h2>
-          <div style={{ marginBottom: '1rem' }}>
-            <label>Upload resume (PDF, DOC, DOCX, max 5MB)</label>
-            <input type="file" accept=".pdf,.doc,.docx" onChange={handleFileUpload} disabled={!!loading} />
-            {loading === 'parse' && <span style={{ marginLeft: '0.5rem' }}>Parsing…</span>}
-            {resumeFile && <span style={{ marginLeft: '0.5rem', color: '#666' }}>✓ {resumeFile.name}</span>}
+        <section className="wizard-step wizard-step-3">
+          <h2 className="wizard-section-title"><FileText size={22} className="wizard-icon" /> Resume Upload + AI Enhancement</h2>
+          <p className="wizard-desc">Optional. You can upload a resume later.</p>
+          <div
+            className={`counselor-resume-upload ${loading === 'parse' ? 'loading' : ''}`}
+            onClick={() => document.getElementById('wizard-resume-input')?.click()}
+            onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('dragover'); }}
+            onDragLeave={(e) => e.currentTarget.classList.remove('dragover')}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.currentTarget.classList.remove('dragover');
+              const file = e.dataTransfer.files?.[0];
+              if (file && ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.type)) {
+                const input = document.getElementById('wizard-resume-input') as HTMLInputElement;
+                if (input) {
+                  const dt = new DataTransfer();
+                  dt.items.add(file);
+                  input.files = dt.files;
+                  input.dispatchEvent(new Event('change'));
+                }
+              }
+            }}
+          >
+            <input id="wizard-resume-input" type="file" accept=".pdf,.doc,.docx" onChange={handleFileUpload} disabled={!!loading} style={{ display: 'none' }} />
+            {loading === 'parse' ? <span>Parsing…</span> : resumeFile ? <span>{resumeFile.name}</span> : <span>Drag and drop PDF, DOC, or DOCX here (max 5MB)<br />or click to browse</span>}
           </div>
+          {!resumeFile && (
+            <button type="button" className="wizard-skip-link" onClick={() => setStep(4)}>
+              Skip — you can upload a resume later
+            </button>
+          )}
           {resumeText && (
             <>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                <div>
-                  <h3 style={{ fontSize: '0.95rem', marginBottom: '0.5rem' }}>Original</h3>
-                  <pre style={{ padding: '0.75rem', background: '#fff', border: '1px solid #ddd', borderRadius: '6px', fontSize: '0.8rem', maxHeight: '200px', overflow: 'auto' }}>
-                    {resumeText.slice(0, 1500)}{resumeText.length > 1500 ? '…' : ''}
-                  </pre>
+              <div className="counselor-resume-preview">
+                <div className="counselor-resume-card">
+                  <h3>Original Resume</h3>
+                  <pre>{resumeText.slice(0, 1500)}{resumeText.length > 1500 ? '…' : ''}</pre>
+                  {resumeFile && <a href="#" onClick={(e) => { e.preventDefault(); }} className="btn btn-outline btn-sm">Download</a>}
                 </div>
-                <div>
-                  <h3 style={{ fontSize: '0.95rem', marginBottom: '0.5rem' }}>AI-Enhanced</h3>
+                <div className="counselor-resume-card">
+                  <h3>AI-Enhanced Resume</h3>
                   {enhancedResume ? (
-                    <pre style={{ padding: '0.75rem', background: '#fff', border: '1px solid #ddd', borderRadius: '6px', fontSize: '0.8rem', maxHeight: '200px', overflow: 'auto' }}>
-                      {enhancedResume.slice(0, 1500)}{enhancedResume.length > 1500 ? '…' : ''}
-                    </pre>
+                    <>
+                      <pre>{enhancedResume.slice(0, 1500)}{enhancedResume.length > 1500 ? '…' : ''}</pre>
+                      <a href="#" onClick={(e) => { e.preventDefault(); }} className="btn btn-outline btn-sm">Download</a>
+                    </>
                   ) : (
                     <button type="button" className="btn btn-primary" onClick={handleEnhance} disabled={!!loading || !form.programSlug}>
                       {loading === 'enhance' ? 'Generating…' : 'Generate Enhanced Resume'}
@@ -374,19 +404,19 @@ export default function AddMemberWizard({ programs }: Props) {
                 </div>
               </div>
               {improvementSummary.length > 0 && (
-                <div style={{ marginBottom: '1rem', padding: '0.75rem', background: '#e8f5e9', borderRadius: '6px' }}>
-                  <strong>Improvement summary:</strong>
-                  <ul style={{ margin: '0.5rem 0 0 1rem', padding: 0 }}>
+                <div className="wizard-improvement-summary">
+                  <strong>Improvements applied:</strong>
+                  <ul>
                     {improvementSummary.map((s, i) => <li key={i}>{s.replace(/^[•\-]\s*/, '')}</li>)}
                   </ul>
                 </div>
               )}
             </>
           )}
-          <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.5rem' }}>
-            <button type="button" className="btn btn-outline" onClick={() => setStep(2)}>← Back</button>
+          <div className="wizard-actions wizard-actions-between">
+            <button type="button" className="btn btn-outline" onClick={() => setStep(2)}>Back</button>
             <button type="button" className="btn btn-primary" onClick={() => setStep(4)}>
-              Next: Review →
+              Continue to Step 4
             </button>
           </div>
         </section>
@@ -394,21 +424,19 @@ export default function AddMemberWizard({ programs }: Props) {
 
       {/* Step 4: Review & Create */}
       {step === 4 && (
-        <section style={{ padding: '1.5rem', border: '1px solid #eee', borderRadius: '8px', background: '#fafafa' }}>
-          <h2 style={{ marginBottom: '1rem' }}>Review & Create</h2>
-          <div style={{ padding: '1rem', background: 'white', borderRadius: '8px', marginBottom: '1rem' }}>
-            <p><strong>Name:</strong> {form.firstName} {form.lastName}</p>
-            <p><strong>Email:</strong> {form.email}</p>
-            <p><strong>Phone:</strong> {formatPhone(form.phone)}</p>
+        <section className="wizard-step wizard-step-4">
+          <h2 className="wizard-section-title"><CheckCircle size={22} className="wizard-icon" /> Review & Create</h2>
+          <div className="wizard-summary-card">
+            <p><strong>Personal:</strong> {form.firstName} {form.lastName}, {form.email}, {formatPhone(form.phone)}</p>
+            <p><strong>WIOA:</strong> Citizen {form.usCitizen ? 'Yes' : 'No'}, Authorized {form.authorizedToWork ? 'Yes' : 'No'}, Disability {form.hasDisability ? 'Yes' : 'No'}, Ethnicity: {form.ethnicity || '—'}</p>
             <p><strong>Program:</strong> {programs.find((p) => p.slug === form.programSlug)?.title ?? form.programSlug}</p>
-            <p><strong>WIOA:</strong> Citizen {form.usCitizen ? '✓' : '✗'}, Authorized {form.authorizedToWork ? '✓' : '✗'}, Disability {form.hasDisability ? 'Yes' : 'No'}, Ethnicity: {form.ethnicity || '—'}</p>
-            <p><strong>Resume:</strong> {resumeFile ? 'Original uploaded' : 'Not uploaded'} {enhancedResume ? '+ Enhanced' : ''}</p>
-            {form.notes && <p><strong>Notes:</strong> {form.notes}</p>}
+            <p><strong>Resume:</strong> {resumeFile ? 'Original uploaded' : 'Not uploaded'}{enhancedResume ? ' + Enhanced' : ''}</p>
+            {form.notes && <p><strong>Counselor notes:</strong> {form.notes}</p>}
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button type="button" className="btn btn-outline" onClick={() => setStep(3)}>← Back</button>
+          <div className="wizard-actions wizard-actions-between">
+            <button type="button" className="btn btn-outline" onClick={() => setStep(3)}>Back</button>
             <button type="button" className="btn btn-primary" onClick={handleSubmit} disabled={!!loading}>
-              {loading === 'create' ? 'Creating…' : 'Create Member Account →'}
+              {loading === 'create' ? 'Creating…' : 'Create Member Account'}
             </button>
           </div>
         </section>

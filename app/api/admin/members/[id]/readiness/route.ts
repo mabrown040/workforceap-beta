@@ -17,9 +17,24 @@ export async function GET(
 
   const items = await prisma.readinessChecklist.findMany({
     where: { userId },
+    orderBy: { updatedAt: 'desc' },
   });
 
   const map = new Map(items.map((i) => [i.itemKey, i]));
+
+  const lastItem = items[0];
+  let lastUpdatedBy: string | null = null;
+  let lastUpdatedAt: Date | null = null;
+  if (lastItem?.updatedAt) {
+    lastUpdatedAt = lastItem.updatedAt;
+    if (lastItem.completedBy) {
+      const counselor = await prisma.user.findUnique({
+        where: { id: lastItem.completedBy },
+        select: { fullName: true },
+      });
+      lastUpdatedBy = counselor?.fullName ?? null;
+    }
+  }
 
   type ItemOut = {
     key: string;
@@ -68,7 +83,7 @@ export async function GET(
     }),
   }));
 
-  return NextResponse.json({ sections, memberId: userId });
+  return NextResponse.json({ sections, memberId: userId, lastUpdatedBy, lastUpdatedAt: lastUpdatedAt?.toISOString() ?? null });
 }
 
 export async function PATCH(
@@ -141,5 +156,9 @@ export async function PATCH(
     update: updateData,
   });
 
-  return NextResponse.json({ ok: true });
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { fullName: true },
+  });
+  return NextResponse.json({ ok: true, counselorName: dbUser?.fullName ?? (user.user_metadata?.full_name as string) ?? user.email });
 }

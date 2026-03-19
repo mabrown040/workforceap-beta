@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { notFound, redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
@@ -10,7 +11,10 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
 import Footer from '@/components/Footer';
 import MemberDetailActions from '@/components/admin/MemberDetailActions';
+import CreateSuccessToast from './CreateSuccessToast';
 import { formatPhone } from '@/lib/formatPhone';
+import { ClipboardList, CheckCircle } from 'lucide-react';
+import '@/css/counselor.css';
 
 const BUCKET = 'member-resumes';
 
@@ -67,6 +71,9 @@ export default async function AdminMemberDetailPage({
 
   return (
     <div>
+      <Suspense fallback={null}>
+        <CreateSuccessToast />
+      </Suspense>
       <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h1 style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>{member.fullName}</h1>
@@ -74,7 +81,8 @@ export default async function AdminMemberDetailPage({
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <Link href={`/admin/members/${id}/readiness`} className="btn btn-outline">
-            ✅ Readiness
+            <ClipboardList size={18} style={{ marginRight: '0.35rem', verticalAlign: 'middle' }} />
+            Readiness
           </Link>
           <Link href="/admin/members" className="btn btn-outline">← Back to Members</Link>
         </div>
@@ -94,9 +102,12 @@ export default async function AdminMemberDetailPage({
           <p><strong>Enrolled:</strong> {program?.title ?? member.enrolledProgram ?? '—'}</p>
           <p><strong>Enrolled date:</strong> {member.enrolledAt?.toLocaleDateString() ?? '—'}</p>
           <p><strong>Course progress:</strong> {completedCount} of {program?.courses.length ?? 0} complete</p>
-          <ul style={{ marginTop: '0.5rem', paddingLeft: '1.25rem' }}>
+          <ul style={{ marginTop: '0.5rem', paddingLeft: '1.25rem', listStyle: 'none' }}>
             {program?.courses.map((c) => (
-              <li key={c.slug}>{coursesCompleted.includes(c.slug) ? '✅' : '⬜'} {c.name}</li>
+              <li key={c.slug} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                {coursesCompleted.includes(c.slug) ? <CheckCircle size={18} style={{ color: 'var(--color-green)', flexShrink: 0 }} /> : <span style={{ display: 'inline-block', width: 18, height: 18, border: '2px solid #ccc', borderRadius: 4, flexShrink: 0 }} />}
+                {c.name}
+              </li>
             ))}
           </ul>
           <MemberDetailActions

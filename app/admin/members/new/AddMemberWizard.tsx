@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Program } from '@/lib/content/programs';
+import { ProgramIcon } from '@/components/ProgramIcon';
 import { formatPhone } from '@/lib/formatPhone';
 
 const EMPLOYMENT = ['Unemployed', 'Underemployed', 'Employed', 'Self-Employed'];
@@ -320,7 +321,7 @@ export default function AddMemberWizard({ programs }: Props) {
                   cursor: 'pointer',
                 }}
               >
-                <div style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>{p.icon}</div>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.25rem' }}><ProgramIcon program={p} size={24} /></div>
                 <h3 style={{ fontSize: '1rem', marginBottom: '0.25rem' }}>{p.title}</h3>
                 <div style={{ fontSize: '0.85rem', color: '#666' }}>{p.duration}</div>
                 <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-accent)' }}>{p.salary}</div>

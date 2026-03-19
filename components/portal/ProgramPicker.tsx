@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Program } from '@/lib/content/programs';
+import { ProgramIcon } from '@/components/ProgramIcon';
 
 type ProgramPickerProps = {
   programs: Program[];
@@ -70,7 +71,7 @@ export default function ProgramPicker({ programs }: ProgramPickerProps) {
               >
                 {p.categoryLabel}
               </span>
-              <span style={{ fontSize: '1.5rem' }}>{p.icon}</span>
+              <span style={{ display: 'flex', alignItems: 'center' }}><ProgramIcon program={p} size={24} /></span>
             </div>
             <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>{p.title}</h3>
             <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)', marginBottom: '0.75rem' }}>

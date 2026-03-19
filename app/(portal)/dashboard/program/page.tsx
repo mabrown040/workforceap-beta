@@ -7,6 +7,7 @@ import { prisma } from '@/lib/db/prisma';
 import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
 import Footer from '@/components/Footer';
 import ProgramPicker from '@/components/portal/ProgramPicker';
+import { ProgramIcon } from '@/components/ProgramIcon';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'My Program',
@@ -52,7 +53,7 @@ export default async function ProgramPage() {
 
       <div className="dashboard-program-detail" style={{ borderLeft: `4px solid ${program.borderColor}` }}>
         <div className="dashboard-program-detail-header">
-          <span className="dashboard-program-detail-icon">{program.icon}</span>
+          <span className="dashboard-program-detail-icon"><ProgramIcon program={program} size={28} /></span>
           <div>
             <h2 style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>{program.title}</h2>
             <span

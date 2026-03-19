@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { BookOpen, Calendar, BarChart3, Target, PartyPopper } from 'lucide-react';
 
 type State = 'A' | 'B' | 'C' | 'D';
 
@@ -76,12 +77,12 @@ export default function DashboardHomeClient({
           </div>
           <div className="dashboard-stats-row">
             <div className="dashboard-stat-card">
-              <div className="dashboard-stat-icon">📚</div>
+              <div className="dashboard-stat-icon"><BookOpen size={20} className="text-current" /></div>
               <div className="dashboard-stat-label">Program</div>
               <div className="dashboard-stat-value" style={{ fontSize: '0.95rem' }}>{programTitle ?? '—'}</div>
             </div>
             <div className="dashboard-stat-card">
-              <div className="dashboard-stat-icon">📅</div>
+              <div className="dashboard-stat-icon"><Calendar size={20} className="text-current" /></div>
               <div className="dashboard-stat-label">Enrolled</div>
               <div className="dashboard-stat-value">{enrolledAt?.toLocaleDateString() ?? '—'}</div>
             </div>
@@ -122,17 +123,17 @@ export default function DashboardHomeClient({
           </div>
           <div className="dashboard-stats-row">
             <div className="dashboard-stat-card">
-              <div className="dashboard-stat-icon">📅</div>
+              <div className="dashboard-stat-icon"><Calendar size={20} className="text-current" /></div>
               <div className="dashboard-stat-label">Enrolled</div>
               <div className="dashboard-stat-value">{enrolledAt?.toLocaleDateString() ?? '—'}</div>
             </div>
             <div className="dashboard-stat-card">
-              <div className="dashboard-stat-icon">📊</div>
+              <div className="dashboard-stat-icon"><BarChart3 size={20} className="text-current" /></div>
               <div className="dashboard-stat-label">Assessment Score</div>
               <div className="dashboard-stat-value">{assessmentScorePct ?? '—'}%</div>
             </div>
             <div className="dashboard-stat-card">
-              <div className="dashboard-stat-icon">🎯</div>
+              <div className="dashboard-stat-icon"><Target size={20} className="text-current" /></div>
               <div className="dashboard-stat-label">Next Milestone</div>
               <div className="dashboard-stat-value" style={{ fontSize: '0.95rem' }}>{nextMilestone ?? '—'}</div>
             </div>
@@ -165,7 +166,7 @@ export default function DashboardHomeClient({
               textAlign: 'center',
             }}
           >
-            <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🎉</div>
+            <div style={{ marginBottom: '0.5rem' }}><PartyPopper size={40} className="text-current" style={{ color: 'var(--color-accent)' }} /></div>
             <h2 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>All courses complete!</h2>
             <p style={{ color: 'var(--color-gray-600)', marginBottom: '1rem' }}>
               Congratulations on finishing {programTitle}.

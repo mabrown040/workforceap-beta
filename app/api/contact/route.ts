@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
-  const { firstName, lastName, email, phone, topic, message } = parsed;
+  const { firstName, lastName, email, phone, topic, message, smsPreferred } = parsed;
 
   const resendKey = process.env.RESEND_API_KEY;
   const emailFrom = process.env.EMAIL_FROM || 'noreply@workforceap.org';
@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
     `From: ${firstName} ${lastName}`,
     `Email: ${email}`,
     `Phone: ${phone || 'Not provided'}`,
+    `Prefer SMS: ${smsPreferred ? 'Yes' : 'No'}`,
     `Topic: ${topic}`,
     '',
     'Message:',
@@ -87,6 +88,7 @@ function parseBody(body: unknown): {
   phone?: string;
   topic: string;
   message: string;
+  smsPreferred?: boolean;
 } | null {
   if (!body || typeof body !== 'object') return null;
   const o = body as Record<string, unknown>;
@@ -96,6 +98,7 @@ function parseBody(body: unknown): {
   const phone = typeof o.phone === 'string' ? o.phone.trim() || undefined : undefined;
   const topic = typeof o.topic === 'string' ? o.topic.trim() : null;
   const message = typeof o.message === 'string' ? o.message.trim() : null;
+  const smsPreferred = o.sms_preferred === true || o.sms_preferred === 'true';
   if (!firstName || !lastName || !email || !topic || !message) return null;
-  return { firstName, lastName, email, phone, topic, message };
+  return { firstName, lastName, email, phone, topic, message, smsPreferred };
 }

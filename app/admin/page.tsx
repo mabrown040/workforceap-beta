@@ -5,6 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { Users, ClipboardList, GraduationCap, BookOpen } from 'lucide-react';
 import Footer from '@/components/Footer';
 import RecentSignupsTable from '@/components/admin/RecentSignupsTable';
 
@@ -64,22 +65,22 @@ export default async function AdminPage() {
 
       <div className="admin-stat-cards">
         <div className="admin-stat-card">
-          <div className="admin-stat-card-icon">👥</div>
+          <div className="admin-stat-card-icon"><Users size={24} className="text-current" /></div>
           <div className="admin-stat-card-label">Total Members</div>
           <div className="admin-stat-card-value">{totalMembers}</div>
         </div>
         <div className="admin-stat-card">
-          <div className="admin-stat-card-icon">📋</div>
+          <div className="admin-stat-card-icon"><ClipboardList size={24} className="text-current" /></div>
           <div className="admin-stat-card-label">Assessments Completed</div>
           <div className="admin-stat-card-value">{assessmentsCompleted}</div>
         </div>
         <div className="admin-stat-card">
-          <div className="admin-stat-card-icon">🎓</div>
+          <div className="admin-stat-card-icon"><GraduationCap size={24} className="text-current" /></div>
           <div className="admin-stat-card-label">Active in Training</div>
           <div className="admin-stat-card-value">{activeInTraining}</div>
         </div>
         <div className="admin-stat-card">
-          <div className="admin-stat-card-icon">📚</div>
+          <div className="admin-stat-card-icon"><BookOpen size={24} className="text-current" /></div>
           <div className="admin-stat-card-label">Programs Enrolled</div>
           <div className="admin-stat-card-value">{programsCompleted}</div>
         </div>

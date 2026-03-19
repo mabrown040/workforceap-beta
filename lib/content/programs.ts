@@ -1,6 +1,7 @@
 /**
  * Shared 19-program list with slugs for enrollment and course tracking.
  * Single source of truth — used by /programs, dashboard program picker, training.
+ * Icons are Lucide icon names — rendered by components that import from lucide-react.
  */
 
 function slugify(s: string): string {

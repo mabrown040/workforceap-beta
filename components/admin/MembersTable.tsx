@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { formatPhone } from '@/lib/formatPhone';
 
@@ -27,6 +27,15 @@ type MembersTableProps = {
 export default function MembersTable({ members }: MembersTableProps) {
   const [search, setSearch] = useState('');
   const [programFilter, setProgramFilter] = useState('');
+  const [isNarrowViewport, setIsNarrowViewport] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1199px)');
+    const sync = () => setIsNarrowViewport(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
 
   const filtered = members.filter((m) => {
     const matchSearch = !search || 
@@ -60,32 +69,40 @@ export default function MembersTable({ members }: MembersTableProps) {
         </select>
       </div>
 
-      <div style={{ overflowX: 'auto' }}>
-        <table className="admin-table">
+      <div className="admin-members-table-wrap" style={{ overflowX: 'auto' }}>
+        <table className="admin-table admin-members-table">
           <thead>
             <tr>
               <th>Name</th>
               <th>Email</th>
-              <th>Phone</th>
+              <th className="admin-members-col-phone">Phone</th>
               <th>Program</th>
               <th>Enrolled</th>
               <th>Score %</th>
               <th>Training</th>
-              <th>Last Active</th>
+              <th className="admin-members-col-last-active">Last Active</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map((m) => (
+            {filtered.map((m) => {
+              const phoneDisplay = formatPhone(m.profile?.profilePhone ?? m.phone);
+              const lastActiveDisplay = m.updatedAt.toLocaleDateString();
+              const narrowHint =
+                isNarrowViewport
+                  ? `Phone: ${phoneDisplay} · Last active: ${lastActiveDisplay}`
+                  : undefined;
+              return (
               <tr
                 key={m.id}
                 data-clickable
+                title={narrowHint}
                 onClick={() => window.location.assign(`/admin/members/${m.id}`)}
               >
                 <td>
                   <Link href={`/admin/members/${m.id}`} onClick={(e) => e.stopPropagation()}>{m.fullName}</Link>
                 </td>
                 <td>{m.email}</td>
-                <td>{formatPhone(m.profile?.profilePhone ?? m.phone)}</td>
+                <td className="admin-members-col-phone">{phoneDisplay}</td>
                 <td>{m.programTitle ?? '—'}</td>
                 <td>{m.enrolledAt?.toLocaleDateString() ?? '—'}</td>
                 <td>
@@ -102,9 +119,10 @@ export default function MembersTable({ members }: MembersTableProps) {
                   </span>
                 </td>
                 <td>{m.assessmentCompleted ? `${m.coursesCompleted.length}/${m.totalCourses}` : '—'}</td>
-                <td>{m.updatedAt.toLocaleDateString()}</td>
+                <td className="admin-members-col-last-active">{lastActiveDisplay}</td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>

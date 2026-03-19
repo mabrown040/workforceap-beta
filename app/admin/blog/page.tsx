@@ -41,7 +41,7 @@ export default async function AdminBlogPage() {
               border: '1px solid #ccc',
             }}
           >
-            AI Tools
+            AI Writing Assistant
           </Link>
           <Link
             href="/admin/blog/new"

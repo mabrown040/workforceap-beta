@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db/prisma';
+import { formatPhone } from '@/lib/formatPhone';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, PIPELINE_STAGE_COLORS, PIPELINE_STAGES_ORDERED, type PipelineStage } from '@/lib/pipeline/stage';
 import Link from 'next/link';
 
@@ -10,6 +11,8 @@ export default async function AdminPipelinePage() {
       id: true,
       fullName: true,
       email: true,
+      phone: true,
+      profile: { select: { profilePhone: true } },
       enrolledProgram: true,
       enrolledAt: true,
       assessmentCompleted: true,
@@ -101,6 +104,9 @@ export default async function AdminPipelinePage() {
                     style={{ display: 'block', padding: '0.6rem 0.75rem', border: `1px solid ${color}22`, borderLeft: `3px solid ${color}`, borderRadius: '6px', textDecoration: 'none', color: 'inherit', background: 'white' }}
                   >
                     <div style={{ fontWeight: 500, fontSize: '0.85rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.fullName}</div>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--color-gray-500)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '0.1rem' }}>
+                      {s.email || formatPhone(s.profile?.profilePhone ?? s.phone)}
+                    </div>
                     {s.enrolledProgram && (
                       <div style={{ fontSize: '0.75rem', color: 'var(--color-gray-500)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '0.15rem' }}>
                         {s.enrolledProgram.replace(/-/g, ' ')}

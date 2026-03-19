@@ -5470,6 +5470,14 @@ body { animation: fadeIn 0.4s ease; }
     color: var(--color-gray-500);
 }
 
+/* Members table: hide Phone + Last Active below 1200px (see row title for values) */
+@media (max-width: 1199px) {
+    .admin-members-table .admin-members-col-phone,
+    .admin-members-table .admin-members-col-last-active {
+        display: none;
+    }
+}
+
 /* Blog overflow menu */
 .admin-blog-actions-menu {
     position: relative;

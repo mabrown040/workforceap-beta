@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
 import { formatPhone } from '@/lib/formatPhone';
 
@@ -25,6 +26,26 @@ type AssessmentsTableProps = {
   maxScore?: number;
 };
 
+function exportAssessmentsCsv(rows: AssessmentUser[]) {
+  const headers = ['Name', 'Email', 'Phone', 'Program Interest', 'Score %', 'Date Completed'];
+  const csvRows = rows.map((u) => [
+    u.fullName,
+    u.email,
+    u.phone ?? '',
+    u.programInterest ?? '',
+    String(u.assessmentScorePct ?? ''),
+    u.assessmentCompletedAt?.toISOString() ?? '',
+  ]);
+  const csv = [headers.join(','), ...csvRows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(','))].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `assessments-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function AssessmentsTable({
   users,
   highlightUserId,
@@ -37,6 +58,8 @@ export default function AssessmentsTable({
   const [expandedId, setExpandedId] = useState<string | null>(highlightUserId ?? null);
   const [sortBy, setSortBy] = useState<'date' | 'score' | 'name'>('date');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkAction, setBulkAction] = useState('');
 
   const sorted = [...users].sort((a, b) => {
     let cmp = 0;
@@ -52,6 +75,38 @@ export default function AssessmentsTable({
     return sortDir === 'asc' ? cmp : -cmp;
   });
 
+  useEffect(() => {
+    setSelected((prev) => {
+      const next = new Set<string>();
+      for (const id of prev) {
+        if (sorted.some((u) => u.id === id)) next.add(id);
+      }
+      return next;
+    });
+  }, [sorted]);
+
+  const selectedUsers = useMemo(() => sorted.filter((u) => selected.has(u.id)), [sorted, selected]);
+
+  const allSelected = sorted.length > 0 && sorted.every((u) => selected.has(u.id));
+  const someSelected = selected.size > 0;
+
+  const toggleRow = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (allSelected) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(sorted.map((u) => u.id)));
+    }
+  };
+
   const updateFilters = (updates: Record<string, string | undefined>) => {
     const params = new URLSearchParams(searchParams.toString());
     for (const [k, v] of Object.entries(updates)) {
@@ -62,23 +117,20 @@ export default function AssessmentsTable({
   };
 
   const exportCsv = () => {
-    const headers = ['Name', 'Email', 'Phone', 'Program Interest', 'Score %', 'Date Completed'];
-    const rows = sorted.map((u) => [
-      u.fullName,
-      u.email,
-      u.phone ?? '',
-      u.programInterest ?? '',
-      String(u.assessmentScorePct ?? ''),
-      u.assessmentCompletedAt?.toISOString() ?? '',
-    ]);
-    const csv = [headers.join(','), ...rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(','))].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `assessments-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    exportAssessmentsCsv(sorted);
+  };
+
+  const runBulkAction = (action: string) => {
+    if (selected.size === 0 || !action) return;
+    if (action === 'export') {
+      exportAssessmentsCsv(selectedUsers);
+    } else if (action === 'status') {
+      const first = selectedUsers[0];
+      if (first) window.location.assign(`/admin/members/${first.id}`);
+    } else if (action === 'message') {
+      const emails = selectedUsers.map((u) => u.email).filter(Boolean);
+      if (emails.length) window.location.href = `mailto:${emails.map((e) => encodeURIComponent(e)).join(',')}`;
+    }
   };
 
   const answers = (u: AssessmentUser): Record<number, string> => {
@@ -98,10 +150,12 @@ export default function AssessmentsTable({
           const max = (form.querySelector('#max-score') as HTMLInputElement)?.value;
           updateFilters({ program: program || undefined, minScore: min || undefined, maxScore: max || undefined });
         }}
-        style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem', alignItems: 'center' }}
+        style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem', alignItems: 'center' }}
       >
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-          <label htmlFor="program-filter" style={{ fontSize: '0.9rem' }}>Program:</label>
+          <label htmlFor="program-filter" style={{ fontSize: '0.9rem' }}>
+            Program:
+          </label>
           <input
             id="program-filter"
             type="text"
@@ -110,25 +164,27 @@ export default function AssessmentsTable({
             style={{ padding: '0.4rem 0.6rem', width: '200px' }}
           />
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-          <label htmlFor="min-score" style={{ fontSize: '0.9rem' }}>Score %:</label>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '0.9rem' }}>Score from:</span>
           <input
             id="min-score"
             type="number"
             min={0}
             max={100}
-            placeholder="Min"
+            placeholder="0"
             defaultValue={minScore ?? ''}
+            aria-label="Minimum score percent"
             style={{ padding: '0.4rem 0.6rem', width: '70px' }}
           />
-          <span>–</span>
+          <span style={{ fontSize: '0.9rem' }}>to:</span>
           <input
             id="max-score"
             type="number"
             min={0}
             max={100}
-            placeholder="Max"
+            placeholder="100"
             defaultValue={maxScore ?? ''}
+            aria-label="Maximum score percent"
             style={{ padding: '0.4rem 0.6rem', width: '70px' }}
           />
         </div>
@@ -140,20 +196,82 @@ export default function AssessmentsTable({
         </button>
       </form>
 
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          gap: '0.75rem',
+          marginBottom: '0.75rem',
+        }}
+      >
+        <span style={{ fontSize: '0.9rem', color: 'var(--color-gray-700)', minWidth: '7rem' }}>
+          {someSelected ? `${selected.size} selected` : '0 selected'}
+        </span>
+        <label htmlFor="assessments-bulk-actions" className="sr-only">
+          Bulk actions
+        </label>
+        <select
+          id="assessments-bulk-actions"
+          value={bulkAction}
+          disabled={!someSelected}
+          onChange={(e) => {
+            const v = e.target.value;
+            setBulkAction('');
+            if (v) runBulkAction(v);
+          }}
+          style={{ padding: '0.45rem 0.6rem', minWidth: '180px', opacity: someSelected ? 1 : 0.6 }}
+        >
+          <option value="">Bulk actions</option>
+          <option value="export">Export selected</option>
+          <option value="status">Change status</option>
+          <option value="message">Send message</option>
+        </select>
+      </div>
+
       <div style={{ overflowX: 'auto' }}>
         <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
-              <th style={{ textAlign: 'left', padding: '0.5rem', cursor: 'pointer' }} onClick={() => { setSortBy('name'); setSortDir(sortBy === 'name' && sortDir === 'desc' ? 'asc' : 'desc'); }}>
+              <th style={{ width: '2.5rem', padding: '0.5rem' }}>
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  ref={(el) => {
+                    if (el) el.indeterminate = someSelected && !allSelected;
+                  }}
+                  onChange={toggleSelectAll}
+                  aria-label="Select all assessments in this list"
+                />
+              </th>
+              <th
+                style={{ textAlign: 'left', padding: '0.5rem', cursor: 'pointer' }}
+                onClick={() => {
+                  setSortBy('name');
+                  setSortDir(sortBy === 'name' && sortDir === 'desc' ? 'asc' : 'desc');
+                }}
+              >
                 Name {sortBy === 'name' && (sortDir === 'asc' ? '↑' : '↓')}
               </th>
               <th style={{ textAlign: 'left', padding: '0.5rem' }}>Email</th>
               <th style={{ textAlign: 'left', padding: '0.5rem' }}>Phone</th>
               <th style={{ textAlign: 'left', padding: '0.5rem' }}>Program Interest</th>
-              <th style={{ textAlign: 'left', padding: '0.5rem', cursor: 'pointer' }} onClick={() => { setSortBy('score'); setSortDir(sortBy === 'score' && sortDir === 'desc' ? 'asc' : 'desc'); }}>
+              <th
+                style={{ textAlign: 'left', padding: '0.5rem', cursor: 'pointer' }}
+                onClick={() => {
+                  setSortBy('score');
+                  setSortDir(sortBy === 'score' && sortDir === 'desc' ? 'asc' : 'desc');
+                }}
+              >
                 Score % {sortBy === 'score' && (sortDir === 'asc' ? '↑' : '↓')}
               </th>
-              <th style={{ textAlign: 'left', padding: '0.5rem', cursor: 'pointer' }} onClick={() => { setSortBy('date'); setSortDir(sortBy === 'date' && sortDir === 'desc' ? 'asc' : 'desc'); }}>
+              <th
+                style={{ textAlign: 'left', padding: '0.5rem', cursor: 'pointer' }}
+                onClick={() => {
+                  setSortBy('date');
+                  setSortDir(sortBy === 'date' && sortDir === 'desc' ? 'asc' : 'desc');
+                }}
+              >
                 Date Completed {sortBy === 'date' && (sortDir === 'asc' ? '↑' : '↓')}
               </th>
             </tr>
@@ -165,9 +283,25 @@ export default function AssessmentsTable({
                 onClick={() => setExpandedId(expandedId === u.id ? null : u.id)}
                 style={{
                   cursor: 'pointer',
-                  background: highlightUserId === u.id ? 'rgba(74, 155, 79, 0.1)' : expandedId === u.id ? 'var(--color-light)' : undefined,
+                  background:
+                    highlightUserId === u.id
+                      ? 'rgba(74, 155, 79, 0.1)'
+                      : expandedId === u.id
+                        ? 'var(--color-light)'
+                        : undefined,
                 }}
               >
+                <td
+                  style={{ padding: '0.5rem' }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selected.has(u.id)}
+                    onChange={() => toggleRow(u.id)}
+                    aria-label={`Select ${u.fullName}`}
+                  />
+                </td>
                 <td style={{ padding: '0.5rem' }}>{u.fullName}</td>
                 <td style={{ padding: '0.5rem' }}>{u.email}</td>
                 <td style={{ padding: '0.5rem' }}>{formatPhone(u.phone)}</td>
@@ -178,8 +312,13 @@ export default function AssessmentsTable({
               ...(expandedId === u.id
                 ? [
                     <tr key={`${u.id}-exp`}>
-                      <td colSpan={6} style={{ padding: '1rem', background: 'var(--color-light)', borderBottom: '1px solid #ddd' }}>
+                      <td colSpan={7} style={{ padding: '1rem', background: 'var(--color-light)', borderBottom: '1px solid #ddd' }}>
                         <h4 style={{ marginBottom: '0.75rem', fontSize: '1rem' }}>Answer breakdown</h4>
+                        <p style={{ marginBottom: '0.75rem', fontSize: '0.9rem' }}>
+                          <Link href={`/admin/members/${u.id}`} onClick={(e) => e.stopPropagation()}>
+                            Open member profile
+                          </Link>
+                        </p>
                         <div style={{ display: 'grid', gap: '0.5rem', fontSize: '0.9rem' }}>
                           {ASSESSMENT_QUESTIONS.map((q) => {
                             const ans = answers(u)[q.id];

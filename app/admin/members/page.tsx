@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
@@ -7,6 +8,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import Footer from '@/components/Footer';
 import MembersTable from '@/components/admin/MembersTable';
+import { TableSkeleton } from '@/components/ui/Skeleton';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin – Members',
@@ -46,7 +48,9 @@ export default async function AdminMembersPage() {
         </a>
       </div>
 
-      <MembersTable members={membersWithProgram} />
+      <Suspense fallback={<TableSkeleton rows={10} cols={9} />}>
+        <MembersTable members={membersWithProgram} />
+      </Suspense>
 
       <Footer />
     </div>

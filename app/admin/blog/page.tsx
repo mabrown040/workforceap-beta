@@ -2,6 +2,27 @@ import Link from 'next/link';
 import { prisma } from '@/lib/db/prisma';
 import BlogPostActions from '@/components/admin/BlogPostActions';
 
+function formatPostDate(d: Date) {
+  return d.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
+function goLiveDisplay(post: {
+  published: boolean;
+  publishedAt: Date | null;
+  scheduledAt: Date | null;
+}) {
+  if (post.published) {
+    if (post.publishedAt) return `Published ${formatPostDate(post.publishedAt)}`;
+    return 'Immediate';
+  }
+  if (post.scheduledAt) return formatPostDate(post.scheduledAt);
+  return 'Not scheduled';
+}
+
 export default async function AdminBlogPage() {
   const posts = await prisma.blogPost.findMany({
     orderBy: { updatedAt: 'desc' },
@@ -69,56 +90,76 @@ export default async function AdminBlogPage() {
           </tr>
         </thead>
         <tbody>
-          {posts.map((post) => (
-            <tr key={post.id}>
-              <td>{post.title}</td>
-              <td>{post.category ?? '—'}</td>
-              <td>
+          {posts.map((post) => {
+            const statusBadge =
+              post.published ? (
                 <span
+                  className="admin-blog-badge admin-blog-badge--published"
                   style={{
-                    padding: '0.2rem 0.5rem',
+                    display: 'inline-block',
+                    padding: '0.2rem 0.55rem',
                     borderRadius: '4px',
                     fontSize: '0.8rem',
-                    background: post.published
-                      ? 'rgba(173, 44, 77, 0.12)'
-                      : post.scheduledAt
-                      ? 'rgba(37, 99, 235, 0.1)'
-                      : 'var(--color-gray-100)',
-                    color: post.published
-                      ? 'var(--color-accent)'
-                      : post.scheduledAt
-                      ? '#2563eb'
-                      : 'var(--color-gray-600)',
+                    fontWeight: 600,
+                    background: '#d1fae5',
+                    color: '#065f46',
                   }}
                 >
-                  {post.published ? 'Published' : post.scheduledAt ? '🕐 Scheduled' : 'Draft'}
+                  Published
                 </span>
-              </td>
-              <td style={{ color: 'var(--color-gray-600)' }}>
-                {post.publishedAt
-                  ? new Date(post.publishedAt).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
-                    })
-                  : '—'}
-              </td>
-              <td>
-                <BlogPostActions
-                  id={post.id}
-                  slug={post.slug}
-                  published={post.published}
-                />
-              </td>
-            </tr>
-          ))}
+              ) : post.scheduledAt ? (
+                <span
+                  className="admin-blog-badge admin-blog-badge--scheduled"
+                  style={{
+                    display: 'inline-block',
+                    padding: '0.2rem 0.55rem',
+                    borderRadius: '4px',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    background: 'rgba(37, 99, 235, 0.12)',
+                    color: '#1d4ed8',
+                  }}
+                >
+                  Scheduled
+                </span>
+              ) : (
+                <span
+                  className="admin-blog-badge admin-blog-badge--draft"
+                  style={{
+                    display: 'inline-block',
+                    padding: '0.2rem 0.55rem',
+                    borderRadius: '4px',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    background: 'var(--color-gray-100)',
+                    color: 'var(--color-gray-700)',
+                  }}
+                >
+                  Draft
+                </span>
+              );
+
+            return (
+              <tr key={post.id}>
+                <td>{post.title}</td>
+                <td>{post.category ?? '—'}</td>
+                <td>{statusBadge}</td>
+                <td style={{ color: 'var(--color-gray-700)' }}>{goLiveDisplay(post)}</td>
+                <td>
+                  <BlogPostActions id={post.id} slug={post.slug} published={post.published} />
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
       {posts.length === 0 && (
         <div className="admin-empty-state">
           <h3>No blog posts yet</h3>
           <p>Create your first post to start publishing content.</p>
-          <Link href="/admin/blog/new" className="btn btn-primary">New Post</Link>
+          <Link href="/admin/blog/new" className="btn btn-primary">
+            New Post
+          </Link>
         </div>
       )}
     </div>

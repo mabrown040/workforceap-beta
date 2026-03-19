@@ -59,6 +59,7 @@ export default async function AdminProgramsPage() {
               <th>Enrolled</th>
               <th>Avg Score %</th>
               <th>Courses Completed</th>
+              <th>Members</th>
             </tr>
           </thead>
           <tbody>
@@ -73,6 +74,11 @@ export default async function AdminProgramsPage() {
                   <td>{stats.count}</td>
                   <td>{avgScore}</td>
                   <td>{stats.completed}</td>
+                  <td>
+                    <Link href={`/admin/members?program=${encodeURIComponent(p.slug)}`}>
+                      {stats.count > 0 ? `View ${stats.count} enrolled` : 'View members'}
+                    </Link>
+                  </td>
                 </tr>
               );
             })}

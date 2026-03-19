@@ -70,6 +70,31 @@ export default async function ProgramPage({ params }: Props) {
           <div className="program-detail-main">
             <p className="program-detail-description">{getProgramDescription(program.category)}</p>
             <ProgramDetailClient program={program} />
+            
+            {/* Bottom CTA Banner */}
+            <div className="program-bottom-cta" style={{ 
+              marginTop: '3rem', 
+              padding: '2rem', 
+              background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+              borderRadius: '12px',
+              textAlign: 'center',
+              border: '1px solid #dee2e6'
+            }}>
+              <h3 style={{ fontSize: '1.5rem', marginBottom: '0.75rem', color: '#1a1a1a' }}>
+                Ready to start your career in {program.categoryLabel}?
+              </h3>
+              <p style={{ fontSize: '1rem', color: '#555', marginBottom: '1.5rem', maxWidth: '500px', margin: '0 auto 1.5rem' }}>
+                Applications take under 10 minutes. No cost for qualifying Austin-area residents. 
+                We respond within 24–48 hours.
+              </p>
+              <Link 
+                href={`/apply?program=${program.slug}`} 
+                className="btn btn-primary btn-large"
+                style={{ display: 'inline-block' }}
+              >
+                Apply for This Program
+              </Link>
+            </div>
           </div>
           <aside className="program-detail-sidebar">
             <div className="program-sidebar-card">

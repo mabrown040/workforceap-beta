@@ -32,6 +32,34 @@ export async function POST(request: Request) {
   const program = dbUser.enrolledProgram ? getProgramBySlug(dbUser.enrolledProgram) : null;
   const profile = dbUser.profile;
 
+  // Try to extract text from the uploaded original resume
+  let resumeText = body.resumeBase?.trim() || '';
+  if (!resumeText && profile?.resumeOriginalPath) {
+    try {
+      const supabaseRead = getSupabaseAdmin();
+      const { data: fileData } = await supabaseRead.storage.from(BUCKET).download(profile.resumeOriginalPath);
+      if (fileData) {
+        const ext = profile.resumeOriginalPath.split('.').pop()?.toLowerCase();
+        if (ext === 'pdf') {
+          // Extract text from PDF — read as text (works for text-based PDFs)
+          const rawText = await fileData.text();
+          // Clean up PDF binary artifacts — keep only printable text
+          resumeText = rawText
+            .replace(/[^\x20-\x7E\n\r\t]/g, ' ')
+            .replace(/\s{3,}/g, '\n')
+            .trim()
+            .slice(0, 6000);
+        } else {
+          // DOC/DOCX — extract as text
+          resumeText = (await fileData.text()).slice(0, 6000);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to read original resume from storage:', err);
+      // Continue without resume text — will generate from profile
+    }
+  }
+
   const context = [
     `Name: ${dbUser.fullName ?? 'N/A'}`,
     `Email: ${dbUser.email}`,
@@ -45,10 +73,10 @@ export async function POST(request: Request) {
     `Program category: ${program?.categoryLabel ?? 'N/A'}`,
   ].join('\n');
 
-  const systemPrompt = `You are a professional resume writer for career changers. Write an ATS-friendly resume based on the following profile. Add a professional summary, use action verbs, include a certification objective. Keep to 1 page. Return the resume as markdown.`;
+  const systemPrompt = `You are a professional resume writer for career changers. Write an ATS-friendly resume based on the following profile and any existing resume provided. Add a professional summary, use action verbs, include a certification objective. Keep to 1 page. Return the resume as markdown.`;
 
-  const userContent = body.resumeBase?.trim()
-    ? `Base resume to improve:\n\n${body.resumeBase.slice(0, 6000)}\n\n---\nProfile context:\n${context}`
+  const userContent = resumeText
+    ? `Base resume to improve:\n\n${resumeText}\n\n---\nProfile context:\n${context}`
     : `Create a resume from this profile:\n\n${context}`;
 
   try {

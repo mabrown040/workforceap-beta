@@ -5,7 +5,6 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
-import Footer from '@/components/Footer';
 import MembersTable from '@/components/admin/MembersTable';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -47,8 +46,6 @@ export default async function AdminMembersPage() {
       </div>
 
       <MembersTable members={membersWithProgram} />
-
-      <Footer />
     </div>
   );
 }

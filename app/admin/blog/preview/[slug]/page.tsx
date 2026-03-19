@@ -5,7 +5,6 @@ import { prisma } from '@/lib/db/prisma';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import PageHero from '@/components/PageHero';
-import Footer from '@/components/Footer';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -164,7 +163,6 @@ export default async function AdminBlogPreviewPage({ params }: Props) {
           </aside>
         )}
       </article>
-      <Footer />
     </div>
   );
 }

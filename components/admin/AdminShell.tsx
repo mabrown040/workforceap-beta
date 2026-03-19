@@ -58,6 +58,17 @@ export default function AdminShell({ children }: AdminShellProps) {
         <AdminSidebar open={drawerOpen} onClose={closeDrawer} />
         <main style={{ flex: 1, padding: '1.5rem 2rem', minWidth: 0 }}>{children}</main>
       </div>
+
+      <footer className="admin-footer">
+        <p className="admin-footer-inner">
+          © 2026 Workforce Advancement Project{' '}
+          <span className="admin-footer-sep" aria-hidden>
+            |
+          </span>{' '}
+          Support:{' '}
+          <a href="mailto:info@workforceap.org">info@workforceap.org</a>
+        </p>
+      </footer>
     </div>
   );
 }

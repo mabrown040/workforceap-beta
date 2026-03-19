@@ -5233,19 +5233,76 @@ body { animation: fadeIn 0.4s ease; }
     padding: 0.5rem 1rem;
     border-radius: var(--radius-sm);
     text-decoration: none;
-    color: var(--color-gray-800);
+    color: var(--color-gray-600);
     font-weight: 400;
     background: transparent;
-    transition: color var(--transition-fast), background var(--transition-fast);
+    transition: color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
 }
 .admin-sidebar-link:hover {
     background: rgba(173, 44, 77, 0.06);
     color: var(--color-primary);
 }
 .admin-sidebar-link.active {
-    color: var(--color-accent);
+    color: var(--color-accent-dark);
     font-weight: 600;
-    background: rgba(173, 44, 77, 0.08);
+    background: rgba(173, 44, 77, 0.12);
+    box-shadow: inset 3px 0 0 0 var(--color-accent);
+}
+.admin-sidebar-link:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+.admin-footer {
+    flex-shrink: 0;
+    border-top: 1px solid var(--color-gray-200);
+    background: var(--color-white);
+    padding: 0.75rem 1.5rem;
+}
+.admin-footer-inner {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: var(--color-gray-600);
+    text-align: center;
+    line-height: 1.5;
+}
+.admin-footer-inner a {
+    color: var(--color-accent-dark);
+    font-weight: 500;
+    text-decoration: none;
+}
+.admin-footer-inner a:hover {
+    text-decoration: underline;
+}
+@media (min-width: 640px) {
+    .admin-footer-inner {
+        text-align: left;
+    }
+}
+.admin-footer-sep {
+    color: var(--color-gray-400);
+    font-weight: 300;
+    margin: 0 0.25rem;
+}
+
+.admin-pipeline-stat-card {
+    padding: 24px;
+    background: var(--color-gray-50);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    min-width: 120px;
+    text-align: center;
+}
+.admin-pipeline-stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+.admin-pipeline-stat-label {
+    font-size: 14px;
+    color: var(--color-gray-600);
+    margin-top: 0.25rem;
+    line-height: 1.35;
 }
 
 /* Dashboard home — quick stats */

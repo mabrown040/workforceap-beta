@@ -57,10 +57,7 @@ export default async function AdminPipelinePage() {
     <div style={{ paddingTop: '1.5rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Student Pipeline</h1>
-        <Link
-          href="/admin/placements/new"
-          style={{ padding: '0.5rem 1rem', background: 'var(--color-accent)', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 600 }}
-        >
+        <Link href="/admin/placements/new" className="btn btn-primary">
           Record Placement
         </Link>
       </div>
@@ -73,9 +70,9 @@ export default async function AdminPipelinePage() {
           { label: 'Placement Rate', value: totalActive > 0 ? `${Math.round((totalPlaced / totalActive) * 100)}%` : '—' },
           { label: 'Avg Salary', value: avgSalary ? `$${avgSalary.toLocaleString()}` : '—' },
         ].map((stat) => (
-          <div key={stat.label} style={{ padding: '1rem 1.5rem', background: 'var(--color-gray-50)', border: '1px solid var(--color-border)', borderRadius: '8px', minWidth: '120px' }}>
-            <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{stat.value}</div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)', marginTop: '0.25rem' }}>{stat.label}</div>
+          <div key={stat.label} className="admin-pipeline-stat-card">
+            <div className="admin-pipeline-stat-value">{stat.value}</div>
+            <div className="admin-pipeline-stat-label">{stat.label}</div>
           </div>
         ))}
       </div>

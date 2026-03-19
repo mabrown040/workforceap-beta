@@ -51,12 +51,12 @@ export default function MainNav() {
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
-    document.addEventListener('keydown', onKey);
+    document.addEventListener('keydown', onKey, { capture: true });
     onScroll();
     return () => {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
-      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('keydown', onKey, { capture: true });
     };
   }, [closeMobile]);
 

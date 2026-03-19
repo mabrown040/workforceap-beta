@@ -29,8 +29,10 @@ export async function POST(request: Request) {
 
   try {
     if (ext === 'pdf') {
+      // pdf-parse has a known issue on Vercel — it tries to load a test PDF on import
+      // Use dynamic require with the direct module path to avoid the test file check
       // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const pdfParse = require('pdf-parse');
+      const pdfParse = require('pdf-parse/lib/pdf-parse.js');
       const buffer = Buffer.from(await file.arrayBuffer());
       const data = await pdfParse(buffer);
       return NextResponse.json({ text: data.text?.trim() || '' });

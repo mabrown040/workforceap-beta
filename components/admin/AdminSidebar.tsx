@@ -10,6 +10,7 @@ const LINKS = [
   { href: '/admin/programs', label: 'Programs', icon: '📚' },
   { href: '/admin/blog', label: 'Blog', icon: '📝' },
   { href: '/admin/partners', label: 'Partners', icon: '🤝' },
+  { href: '/admin/pipeline', label: 'Pipeline', icon: '📊' },
 ];
 
 type AdminSidebarProps = {

@@ -9,16 +9,19 @@ const NAV_LINKS = [
   { href: '/employer', label: 'Dashboard' },
   { href: '/employer/jobs', label: 'My Jobs' },
   { href: '/employer/jobs/new', label: 'Post Job' },
-  { href: '/employer/jobs/import', label: 'Import Job' },
+  { href: '/employer/jobs/import', label: 'Import jobs' },
   { href: '/employer/applications', label: 'Applications' },
   { href: '/employer/messages', label: 'Messages' },
 ];
 
 export default function EmployerPortalShell({
   companyName,
+  superAdmin,
   children,
 }: {
   companyName: string;
+  /** When true, show a short note linking to Admin → Employers to pick which company portal to help. */
+  superAdmin?: boolean;
   children: React.ReactNode;
 }) {
   const pathname = usePathname() ?? '';
@@ -55,6 +58,31 @@ export default function EmployerPortalShell({
           </div>
         </div>
       </nav>
+      {superAdmin && (
+        <div
+          style={{
+            maxWidth: 1200,
+            margin: '0 auto',
+            padding: '0.75rem 1.5rem 0',
+          }}
+        >
+          <div
+            style={{
+              padding: '0.6rem 0.85rem',
+              fontSize: '0.85rem',
+              borderRadius: 8,
+              background: 'rgba(59, 130, 246, 0.08)',
+              border: '1px solid rgba(59, 130, 246, 0.25)',
+              color: 'var(--color-gray-700)',
+            }}
+          >
+            <strong>Super admin</strong> — viewing employer portal as <strong>{companyName}</strong>.{' '}
+            <Link href="/admin/employers" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>
+              Choose company / open portal
+            </Link>
+          </div>
+        </div>
+      )}
       <div style={{ padding: '1.5rem', maxWidth: 1200, margin: '0 auto' }}>{children}</div>
     </div>
   );

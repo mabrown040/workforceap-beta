@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { sendPartnerNewMemberAssignedEmail } from '@/lib/notifications/partner-notify';
 import { z } from 'zod';
 
 const patchSchema = z.object({
@@ -56,6 +57,8 @@ export async function PATCH(
       data: { partnerId, memberId },
     });
   });
+
+  await sendPartnerNewMemberAssignedEmail(memberId, partnerId);
 
   return NextResponse.json({ ok: true });
 }

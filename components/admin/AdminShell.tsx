@@ -44,7 +44,7 @@ export default function AdminShell({ children }: AdminShellProps) {
 
       <div style={{ display: 'flex', flex: 1 }}>
         <AdminSidebar open={drawerOpen} onClose={closeDrawer} />
-        <main style={{ flex: 1, padding: '1.5rem 2rem', minWidth: 0 }}>{children}</main>
+        <main className="admin-main-content" style={{ flex: 1, minWidth: 0 }}>{children}</main>
       </div>
 
       <AdminFooter />

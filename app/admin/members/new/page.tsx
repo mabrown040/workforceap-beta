@@ -28,7 +28,7 @@ export default async function AddMemberPage() {
   });
 
   return (
-    <div style={{ paddingTop: '1.5rem' }}>
+    <div className="add-member-page">
       <Link
         href="/admin/members"
         style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'inline-block' }}

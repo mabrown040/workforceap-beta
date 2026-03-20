@@ -18,7 +18,7 @@ export default function AIToolCard({
   description,
   timeToComplete,
   status,
-  href = '/ai-tools',
+  href = '/dashboard/ai-tools',
 }: AIToolCardProps) {
   const isAvailable = status === 'available';
 

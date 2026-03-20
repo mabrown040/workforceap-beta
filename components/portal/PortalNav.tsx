@@ -6,13 +6,13 @@ import { SignOutButton } from './SignOutButton';
 
 const PORTAL_LINKS = [
   { href: '/dashboard', label: 'Dashboard' },
-  { href: '/ai-tools', label: 'AI Tools' },
+  { href: '/dashboard/ai-tools', label: 'AI Tools' },
   { href: '/resources', label: 'Resources' },
-  { href: '/learning', label: 'Learning' },
+  { href: '/dashboard/learning', label: 'Learning' },
   { href: '/certifications', label: 'Certifications' },
-  { href: '/career-brief', label: 'Career Brief' },
-  { href: '/weekly-recap', label: 'Weekly Recap' },
-  { href: '/ai-tools/application-tracker', label: 'Applications' },
+  { href: '/dashboard/career-brief', label: 'Career Brief' },
+  { href: '/dashboard/weekly-recap', label: 'Weekly Recap' },
+  { href: '/dashboard/ai-tools/application-tracker', label: 'Applications' },
   { href: '/profile', label: 'Profile' },
 ];
 

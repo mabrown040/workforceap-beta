@@ -3,19 +3,19 @@ import { FileText, Mic, BookOpen } from 'lucide-react';
 
 const CTAS = [
   {
-    href: '/ai-tools/resume-rewriter',
+    href: '/dashboard/ai-tools/resume-rewriter',
     label: 'Build Resume',
     description: 'Use AI to strengthen your resume',
     Icon: FileText,
   },
   {
-    href: '/ai-tools/interview-practice',
+    href: '/dashboard/ai-tools/interview-practice',
     label: 'Practice Interview',
     description: 'Prepare with role-specific questions',
     Icon: Mic,
   },
   {
-    href: '/learning',
+    href: '/dashboard/learning',
     label: 'Start Learning Path',
     description: 'Explore courses and certifications',
     Icon: BookOpen,

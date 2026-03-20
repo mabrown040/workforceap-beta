@@ -65,13 +65,13 @@ export default async function DashboardPage() {
   try {
     const briefContext = await getCareerBriefContext(user.id);
     suggestedActions = briefContext.recommendedActions
-      .filter((a) => a.href.startsWith('/ai-tools'))
+      .filter((a) => a.href.startsWith('/dashboard/ai-tools'))
       .slice(0, 3);
   } catch {
     suggestedActions = [
-      { label: 'Build your resume', href: '/ai-tools/resume-rewriter' },
-      { label: 'Practice interview questions', href: '/ai-tools/interview-practice' },
-      { label: 'Log your first application', href: '/ai-tools/application-tracker' },
+      { label: 'Build your resume', href: '/dashboard/ai-tools/resume-rewriter' },
+      { label: 'Practice interview questions', href: '/dashboard/ai-tools/interview-practice' },
+      { label: 'Log your first application', href: '/dashboard/ai-tools/application-tracker' },
     ];
   }
 

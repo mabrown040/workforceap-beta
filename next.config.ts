@@ -78,6 +78,14 @@ const nextConfig: NextConfig = {
       { source: '/programs/comptia-aplus', destination: '/programs/comptia-a-professional-certificate', permanent: true },
       { source: '/programs/comptia-network-plus', destination: '/programs/comptia-network-professional-certificate', permanent: true },
       { source: '/programs/comptia-security-plus', destination: '/programs/comptia-security-professional-certificate', permanent: true },
+
+      // Member portal: AI Tools, Career Brief, Learning, Weekly Recap live under /dashboard/*
+      { source: '/ai-tools', destination: '/dashboard/ai-tools', permanent: true },
+      { source: '/ai-tools/:path*', destination: '/dashboard/ai-tools/:path*', permanent: true },
+      { source: '/career-brief', destination: '/dashboard/career-brief', permanent: true },
+      { source: '/career-brief/:path*', destination: '/dashboard/career-brief/:path*', permanent: true },
+      { source: '/learning', destination: '/dashboard/learning', permanent: true },
+      { source: '/weekly-recap', destination: '/dashboard/weekly-recap', permanent: true },
     ];
   },
 };

@@ -192,8 +192,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Success Stories */}
-      <section className="testimonials-section">
+      {/* Success Stories - commented out until real graduate stories are available */}
+      {/* <section className="testimonials-section">
         <div className="container">
           <div className="section-header animate-on-scroll">
             <h2>Success Stories</h2>
@@ -217,7 +217,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Footer CTA */}
       <section className="footer-cta">

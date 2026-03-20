@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
     where,
     orderBy,
     include: {
-      employer: { select: { companyName: true } },
+      employer: { select: { companyName: true, logoUrl: true } },
     },
   });
 

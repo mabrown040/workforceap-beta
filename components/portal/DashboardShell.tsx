@@ -69,7 +69,7 @@ export default function DashboardShell({
               totalCount={totalCount}
             />
           )}
-          <div style={{ padding: '1.5rem 2rem', flex: 1 }}>{children}</div>
+          <div className="dashboard-main-content" style={{ padding: '1.5rem 2rem', flex: 1 }}>{children}</div>
         </main>
       </div>
       <DashboardFooter />

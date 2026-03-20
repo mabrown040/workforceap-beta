@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { buildPageMetadata } from '@/app/seo';
+import { Flame } from 'lucide-react';
 import Footer from '@/components/Footer';
 import ApplyEligibilityClient from './ApplyEligibilityClient';
 
@@ -31,8 +32,9 @@ export default function ApplyPage() {
 
       <section className="content-section">
         <div className="container">
-          <div className="apply-alert">
-            🔥 First Program Now Forming &mdash; Seats are limited. Apply today to hold your spot.
+          <div className="apply-alert" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Flame size={18} className="flex-shrink-0" aria-hidden />
+            <span>First Program Now Forming — Seats are limited. Apply today to hold your spot.</span>
           </div>
 
           <Suspense fallback={<p>Loading...</p>}>

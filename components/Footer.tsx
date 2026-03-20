@@ -73,6 +73,7 @@ function FooterLinks() {
           <li><Link href="/what-we-do">What We Do</Link></li>
           <li><Link href="/partners">Partners</Link></li>
           <li><Link href="/leadership">Leadership Team</Link></li>
+          <li><Link href="/employers">For Employers</Link></li>
           <li><Link href="/faq">FAQ</Link></li>
           <li><Link href="/contact">Contact Us</Link></li>
         </ul>

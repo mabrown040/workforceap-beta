@@ -5976,3 +5976,289 @@ body { animation: fadeIn 0.4s ease; }
     margin-bottom: 1rem;
     font-size: 0.95rem;
 }
+
+/* =============================================
+   EMPLOYERS PAGE
+   ============================================= */
+.employers-hero .hero-actions .btn-ghost {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: var(--color-white);
+}
+.employers-hero .hero-actions .btn-ghost:hover {
+    background: rgba(255,255,255,0.2);
+    color: var(--color-white);
+}
+
+.employers-three-col {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+.employers-why-card {
+    background: var(--color-white);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition-base), transform var(--transition-base);
+}
+.employers-why-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+.employers-why-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    background: rgba(43, 123, 185, 0.1);
+    color: var(--color-blue);
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+}
+.employers-why-card h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-primary);
+}
+.employers-why-card p {
+    color: var(--color-gray-600);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.employers-program-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+.employers-program-card {
+    background: var(--color-white);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition-base), transform var(--transition-base);
+}
+.employers-program-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+.employers-program-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: var(--color-light);
+    color: var(--color-blue);
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+}
+.employers-program-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+    color: var(--color-primary);
+}
+.employers-program-cert {
+    font-size: 0.875rem;
+    color: var(--color-gray-600);
+    margin-bottom: 0.75rem;
+}
+.employers-program-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8125rem;
+    color: var(--color-gray-500);
+}
+.employers-program-salary {
+    font-weight: 600;
+    color: var(--color-accent);
+}
+
+.employers-how-steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+}
+.employers-how-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+}
+.employers-how-num {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: var(--color-accent);
+    color: var(--color-white);
+    font-weight: 700;
+    font-size: 1.125rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+.employers-how-content h3 {
+    font-size: 1rem;
+    margin-bottom: 0.35rem;
+    color: var(--color-primary);
+}
+.employers-how-content p {
+    font-size: 0.875rem;
+    color: var(--color-gray-600);
+    line-height: 1.5;
+    margin: 0;
+}
+.employers-how-arrow {
+    position: absolute;
+    top: 1.25rem;
+    right: -1rem;
+    font-size: 1.5rem;
+    color: var(--color-gray-300);
+    pointer-events: none;
+}
+@media (max-width: 900px) {
+    .employers-how-arrow { display: none; }
+    .employers-how-steps {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+}
+
+.employers-testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+.employers-testimonial-card {
+    background: var(--color-light);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    position: relative;
+}
+.employers-quote-mark {
+    font-size: 2.5rem;
+    color: var(--color-accent);
+    opacity: 0.4;
+    line-height: 1;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+.employers-testimonial-text {
+    font-size: 0.95rem;
+    color: var(--color-gray-700);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    font-style: italic;
+}
+.employers-testimonial-author {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+.employers-testimonial-author strong {
+    font-size: 0.95rem;
+    color: var(--color-primary);
+}
+.employers-testimonial-author span {
+    font-size: 0.8125rem;
+    color: var(--color-gray-500);
+}
+
+.employers-partnership-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+.employers-partnership-card {
+    background: var(--color-white);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow var(--transition-base), transform var(--transition-base);
+}
+.employers-partnership-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+.employers-partnership-card.featured {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 1px var(--color-accent), var(--shadow-sm);
+}
+.employers-partnership-badge {
+    position: absolute;
+    top: -0.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--color-accent);
+    color: var(--color-white);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+}
+.employers-partnership-card h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    color: var(--color-primary);
+}
+.employers-partnership-card ul {
+    list-style: none;
+    margin: 0 0 1.5rem;
+    padding: 0;
+    flex: 1;
+}
+.employers-partnership-card li {
+    padding: 0.35rem 0;
+    padding-left: 1.25rem;
+    position: relative;
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+}
+.employers-partnership-card li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--color-green);
+    font-weight: 700;
+}
+.employers-partnership-card .btn {
+    width: 100%;
+    justify-content: center;
+}
+
+.employers-contact-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+}
+.employers-contact-content h2 {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+}
+.employers-contact-content p {
+    color: var(--color-gray-600);
+    line-height: 1.7;
+}
+
+@media (max-width: 768px) {
+    .employers-three-col { grid-template-columns: 1fr; }
+    .employers-program-cards { grid-template-columns: 1fr; }
+    .employers-testimonials-grid { grid-template-columns: 1fr; }
+    .employers-partnership-cards { grid-template-columns: 1fr; }
+    .employers-contact-inner { grid-template-columns: 1fr; }
+}

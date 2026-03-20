@@ -11,6 +11,7 @@ import {
   ClipboardList,
   BarChart3,
   CheckCircle,
+  ClipboardCheck,
   User,
   Settings,
   LogOut,
@@ -27,6 +28,7 @@ const SIDEBAR_LINKS = [
   { href: '/dashboard/learning', label: 'Learning', Icon: BookOpen },
   { href: '/dashboard/weekly-recap', label: 'Weekly Recap', Icon: BarChart3 },
   { href: '/dashboard/readiness', label: 'Career Readiness', Icon: CheckCircle },
+  { href: '/dashboard/assessments', label: 'Skills Assessment', Icon: ClipboardCheck },
   { href: '/dashboard/profile', label: 'My Profile', Icon: User },
   { href: '/dashboard/settings', label: 'Settings', Icon: Settings },
 ];

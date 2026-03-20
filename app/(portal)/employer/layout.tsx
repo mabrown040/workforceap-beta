@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
-import { getEmployerForUser } from '@/lib/auth/roles';
+import { getEmployerForUser, isSuperAdmin } from '@/lib/auth/roles';
 import EmployerPortalShell from '@/components/portal/EmployerPortalShell';
 
 export default async function EmployerPortalLayout({
@@ -14,8 +14,10 @@ export default async function EmployerPortalLayout({
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect('/employers');
 
+  const superAdmin = await isSuperAdmin(user.id);
+
   return (
-    <EmployerPortalShell companyName={ctx.employer.companyName}>
+    <EmployerPortalShell companyName={ctx.employer.companyName} superAdmin={superAdmin}>
       {children}
     </EmployerPortalShell>
   );

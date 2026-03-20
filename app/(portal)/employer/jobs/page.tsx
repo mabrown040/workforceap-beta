@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import JobsTable from '@/components/employer/JobsTable';
+import DraftJobCards from '@/components/employer/DraftJobCards';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'My Jobs',
@@ -35,7 +36,21 @@ export default async function EmployerJobsPage() {
     include: { _count: { select: { applications: true } } },
   });
 
-  const items = jobs.map((j) => ({
+  const draftJobs = jobs.filter((j) => j.status === 'draft');
+  const tableJobs = jobs.filter((j) => j.status !== 'draft');
+
+  const draftCards = draftJobs.map((j) => {
+    const desc = j.description?.trim() ?? '';
+    return {
+      id: j.id,
+      title: j.title,
+      location: j.location?.trim() || '—',
+      descriptionPreview: desc.length > 220 ? `${desc.slice(0, 220).trim()}…` : desc || '—',
+      updatedAt: j.updatedAt,
+    };
+  });
+
+  const items = tableJobs.map((j) => ({
     id: j.id,
     title: j.title,
     location: j.location ?? '—',
@@ -50,10 +65,16 @@ export default async function EmployerJobsPage() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <h1 style={{ fontSize: '1.75rem', margin: 0 }}>My Jobs</h1>
-        <Link href="/employer/jobs/new" className="btn btn-primary">
-          Post New Job
-        </Link>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <Link href="/employer/jobs/import" className="btn btn-secondary">
+            Import jobs
+          </Link>
+          <Link href="/employer/jobs/new" className="btn btn-primary">
+            Post New Job
+          </Link>
+        </div>
       </div>
+      <DraftJobCards drafts={draftCards} />
       <JobsTable jobs={items} />
     </div>
   );

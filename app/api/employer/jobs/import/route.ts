@@ -8,6 +8,7 @@ import { parseJobFromText } from '@/lib/ai/parseJob';
 const importSchema = z.object({
   url: z.string().url().optional(),
   rawText: z.string().min(1).optional(),
+  createDraft: z.boolean().optional(),
 }).refine((d) => d.url || d.rawText, { message: 'Provide url or rawText' });
 
 export async function POST(request: NextRequest) {
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Could not extract job details. Please edit the form manually.' }, { status: 400 });
   }
 
-  const createDraft = body.createDraft === true;
+  const createDraft = parsed.data.createDraft === true;
   if (createDraft) {
     const job = await prisma.job.create({
       data: {

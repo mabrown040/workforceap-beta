@@ -1,4 +1,7 @@
+import { cookies } from 'next/headers';
 import { prisma } from '@/lib/db/prisma';
+
+export const SUPER_ADMIN_EMPLOYER_COOKIE = 'wa_super_admin_employer_id';
 
 export async function getUserRoles(userId: string): Promise<string[]> {
   const userRoles = await prisma.userRole.findMany({
@@ -121,15 +124,11 @@ export async function isEmployer(userId: string): Promise<boolean> {
   return !!row;
 }
 
-/** Get employer context for a user. Returns null if not an employer. */
-export async function getEmployerForUser(
-  userId: string
-): Promise<{ employerId: string; employer: { id: string; companyName: string; contactEmail: string } } | null> {
-  const row = await prisma.employer.findUnique({
-    where: { userId },
-    include: { user: { select: { id: true } } },
-  });
-  if (!row || row.status !== 'active') return null;
+function mapEmployerRow(row: {
+  id: string;
+  companyName: string;
+  contactEmail: string;
+}): { employerId: string; employer: { id: string; companyName: string; contactEmail: string } } {
   return {
     employerId: row.id,
     employer: {
@@ -138,4 +137,45 @@ export async function getEmployerForUser(
       contactEmail: row.contactEmail,
     },
   };
+}
+
+/**
+ * Employer portal context. Super-admins can open a specific employer via Admin → Employers ("Open portal"),
+ * stored in a cookie; otherwise they fall back to their own employer row (if any) or the first active company.
+ */
+export async function getEmployerForUser(
+  userId: string
+): Promise<{ employerId: string; employer: { id: string; companyName: string; contactEmail: string } } | null> {
+  const superUser = await isSuperAdmin(userId);
+
+  if (superUser) {
+    const cookieStore = await cookies();
+    const fromCookie = cookieStore.get(SUPER_ADMIN_EMPLOYER_COOKIE)?.value;
+    if (fromCookie) {
+      const byCookie = await prisma.employer.findFirst({
+        where: { id: fromCookie, status: 'active' },
+        select: { id: true, companyName: true, contactEmail: true },
+      });
+      if (byCookie) return mapEmployerRow(byCookie);
+    }
+  }
+
+  const row = await prisma.employer.findUnique({
+    where: { userId },
+    select: { id: true, companyName: true, contactEmail: true, status: true },
+  });
+  if (row && row.status === 'active') {
+    return mapEmployerRow(row);
+  }
+
+  if (superUser) {
+    const first = await prisma.employer.findFirst({
+      where: { status: 'active' },
+      orderBy: { companyName: 'asc' },
+      select: { id: true, companyName: true, contactEmail: true },
+    });
+    if (first) return mapEmployerRow(first);
+  }
+
+  return null;
 }

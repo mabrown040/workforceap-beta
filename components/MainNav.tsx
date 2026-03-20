@@ -25,6 +25,7 @@ const navItems = [
       { href: '/salary-guide', label: 'Salary Guide' },
     ],
   },
+  { href: '/jobs', label: 'Jobs' },
   { href: '/how-it-works', label: 'How It Works' },
   { href: '/blog', label: 'Blog' },
   { href: '/faq', label: 'FAQ' },

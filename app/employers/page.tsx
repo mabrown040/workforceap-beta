@@ -120,8 +120,11 @@ export default function EmployersPage() {
             contribute from day one.
           </p>
           <div className="hero-actions" style={{ marginTop: '1.5rem', marginBottom: 0 }}>
-            <Link href="#employer-contact" className="btn btn-accent btn-large">
-              Post a Job
+            <Link href="/employer" className="btn btn-accent btn-large">
+              Employer Portal
+            </Link>
+            <Link href="#employer-contact" className="btn btn-ghost btn-large">
+              Contact Us
             </Link>
             <a href="tel:5127771808" className="btn btn-ghost btn-large">
               Schedule a Call

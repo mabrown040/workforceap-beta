@@ -111,3 +111,31 @@ export async function requireSubgroupLeader(userId: string): Promise<{ subgroupI
   }
   return subgroups;
 }
+
+/** Employer: user has an Employer record */
+export async function isEmployer(userId: string): Promise<boolean> {
+  const row = await prisma.employer.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
+  return !!row;
+}
+
+/** Get employer context for a user. Returns null if not an employer. */
+export async function getEmployerForUser(
+  userId: string
+): Promise<{ employerId: string; employer: { id: string; companyName: string; contactEmail: string } } | null> {
+  const row = await prisma.employer.findUnique({
+    where: { userId },
+    include: { user: { select: { id: true } } },
+  });
+  if (!row || row.status !== 'active') return null;
+  return {
+    employerId: row.id,
+    employer: {
+      id: row.id,
+      companyName: row.companyName,
+      contactEmail: row.contactEmail,
+    },
+  };
+}

@@ -485,6 +485,7 @@ model Partner {
   contactEmail String?   @map("contact_email")
   contactPhone String?   @map("contact_phone")
   active       Boolean   @default(true)
+  notes        String?   @db.Text  // internal admin notes
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
 

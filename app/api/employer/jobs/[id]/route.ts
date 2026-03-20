@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { sendJobSubmittedEmail } from '@/lib/email';
 import { z } from 'zod';
 
 const jobUpdateSchema = z.object({
@@ -93,6 +94,22 @@ export async function PATCH(
       ...(parsed.data.status && { status: parsed.data.status }),
     },
   });
+
+  // Notify admin when job is submitted for review (draft/closed → pending)
+  if (parsed.data.status === 'pending' && (existing.status === 'draft' || existing.status === 'closed')) {
+    const employer = await prisma.employer.findUnique({
+      where: { id: ctx.employerId },
+      select: { companyName: true, contactEmail: true },
+    });
+    if (employer) {
+      await sendJobSubmittedEmail({
+        jobTitle: job.title,
+        companyName: employer.companyName,
+        employerEmail: employer.contactEmail,
+        jobId: job.id,
+      });
+    }
+  }
 
   return NextResponse.json(job);
 }

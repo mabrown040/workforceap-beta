@@ -35,7 +35,9 @@ export default function AdminSidebar({ open = false, onClose }: AdminSidebarProp
                   className={`admin-sidebar-link ${isActive ? 'active' : ''}`}
                   onClick={onClose}
                 >
-                  <span><Icon size={18} className="text-current" /></span>
+                  <span className="admin-sidebar-icon-wrap" aria-hidden>
+                    <Icon size={18} className="admin-sidebar-icon" strokeWidth={2} />
+                  </span>
                   {label}
                 </Link>
               </li>

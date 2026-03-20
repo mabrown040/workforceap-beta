@@ -6,7 +6,6 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { Users, ClipboardList, GraduationCap, BookOpen } from 'lucide-react';
-import Footer from '@/components/Footer';
 import RecentSignupsTable from '@/components/admin/RecentSignupsTable';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -94,8 +93,6 @@ export default async function AdminPage() {
         <Link href="/admin/assessments" className="btn btn-outline">View Assessments</Link>
         <Link href="/admin/programs" className="btn btn-outline">View Programs</Link>
       </div>
-
-      <Footer />
     </div>
   );
 }

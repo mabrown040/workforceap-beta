@@ -5,7 +5,6 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getAdminMetrics } from '@/lib/admin/metrics';
-import Footer from '@/components/Footer';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin metrics',
@@ -88,8 +87,6 @@ export default async function AdminMetricsPage() {
           </p>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 }

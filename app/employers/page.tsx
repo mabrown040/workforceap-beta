@@ -304,8 +304,8 @@ export default function EmployersPage() {
                   <strong>Michael Brown</strong>
                 </p>
                 <p style={{ marginBottom: '0.25rem' }}>
-                  <a href="mailto:michael.brown@techvera.com" style={{ color: 'var(--color-accent)' }}>
-                    michael.brown@techvera.com
+                  <a href="mailto:michael.brown@workforceap.org" style={{ color: 'var(--color-accent)' }}>
+                    michael.brown@workforceap.org
                   </a>
                 </p>
                 <p>

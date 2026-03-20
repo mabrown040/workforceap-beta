@@ -15,6 +15,52 @@ export interface ParsedJob {
   suggestedPrograms?: string[];
 }
 
+export interface ParsedJobListing {
+  title: string;
+  /** Enough text to edit later; can be a summary if the page only had snippets */
+  description: string;
+  /** Job detail URL if found in the page */
+  sourceUrl?: string;
+}
+
+/**
+ * Extract multiple job postings from careers-page HTML (plain text) or pasted listings.
+ * Used for bulk draft creation in the employer portal.
+ */
+export async function parseJobListingsFromPageText(rawText: string): Promise<ParsedJobListing[] | null> {
+  if (!isAIConfigured()) return null;
+
+  const systemPrompt = `You extract individual job openings from a careers page or job board index (plain text).
+Output valid JSON only, no markdown. Schema:
+{ "jobs": [ { "title": "string", "description": "string (full posting text if present; otherwise a clear summary + key requirements)", "sourceUrl": "string or null (absolute URL to this job if visible in the text)" } ] }
+Rules:
+- Each array item must be a distinct role (not duplicate titles).
+- If the page only lists titles with links and no body text, use title + "Details to be added — imported from careers page." as description.
+- Cap at 25 jobs; prefer the most recently listed or most prominent if there are more.
+- Omit non-job content (navigation, footers).`;
+
+  const userPrompt = `Extract job listings from this text:\n\n${rawText.slice(0, 24000)}`;
+
+  try {
+    const output = await chatCompletion(
+      [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      { maxTokens: 8000, temperature: 0.15 }
+    );
+    if (!output) return null;
+
+    const cleaned = output.replace(/^```json?\s*/i, '').replace(/\s*```\s*$/i, '').trim();
+    const parsed = JSON.parse(cleaned) as { jobs?: ParsedJobListing[] };
+    const jobs = parsed.jobs?.filter((j) => j.title?.trim() && j.description?.trim()) ?? [];
+    if (jobs.length === 0) return null;
+    return jobs.slice(0, 25);
+  } catch {
+    return null;
+  }
+}
+
 export async function parseJobFromText(rawText: string): Promise<ParsedJob | null> {
   if (!isAIConfigured()) return null;
 

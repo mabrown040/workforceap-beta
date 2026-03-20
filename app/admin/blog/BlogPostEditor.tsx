@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { Sparkles, ChevronDown, ChevronRight } from 'lucide-react';
 import { BLOG_TOPIC_SUGGESTIONS } from '@/lib/content/blogTopicSuggestions';
 
 type BlogPost = {
@@ -342,8 +343,8 @@ export default function BlogPostEditor({
               fontSize: '0.95rem',
             }}
           >
-            ✨ Generate with AI
-            <span style={{ fontSize: '0.8rem', color: '#666' }}>{generateExpanded ? '▼' : '▶'}</span>
+            <Sparkles size={16} /> Generate with AI
+            {generateExpanded ? <ChevronDown size={14} style={{ color: '#666' }} /> : <ChevronRight size={14} style={{ color: '#666' }} />}
           </button>
           {generateExpanded && (
             <div

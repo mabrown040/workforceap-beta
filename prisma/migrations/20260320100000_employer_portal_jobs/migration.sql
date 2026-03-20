@@ -1,12 +1,14 @@
 -- Employer Portal & Job Management
+-- Uses TEXT for user references to match users.id (TEXT in this schema)
+-- If migration previously failed, run: prisma migrate resolve --rolled-back 20260320100000_employer_portal_jobs
 -- employers: company profiles linked to users
 -- jobs: employer job postings with status workflow
 -- job_posting_applications: students applying to posted jobs
 -- ai_job_matches: cached AI student match suggestions
 
 CREATE TABLE employers (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+  id TEXT NOT NULL PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  user_id TEXT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
   company_name TEXT NOT NULL,
   company_website TEXT,
   company_description TEXT,
@@ -27,8 +29,8 @@ CREATE TYPE job_type_enum AS ENUM ('fulltime', 'parttime', 'contract');
 CREATE TYPE job_status_enum AS ENUM ('draft', 'pending', 'approved', 'live', 'filled', 'closed');
 
 CREATE TABLE jobs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  employer_id UUID NOT NULL REFERENCES employers(id) ON DELETE CASCADE,
+  id TEXT NOT NULL PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  employer_id TEXT NOT NULL REFERENCES employers(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   location TEXT,
   location_type job_location_type NOT NULL DEFAULT 'onsite',
@@ -44,7 +46,7 @@ CREATE TABLE jobs (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   approved_at TIMESTAMPTZ,
-  approved_by UUID REFERENCES users(id) ON DELETE SET NULL
+  approved_by TEXT REFERENCES users(id) ON DELETE SET NULL
 );
 
 CREATE INDEX idx_jobs_employer_id ON jobs(employer_id);
@@ -54,9 +56,9 @@ CREATE INDEX idx_jobs_created_at ON jobs(created_at);
 CREATE TYPE job_posting_application_status AS ENUM ('pending', 'reviewing', 'interview', 'offered', 'hired', 'rejected');
 
 CREATE TABLE job_posting_applications (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  job_id UUID NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
-  student_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  id TEXT NOT NULL PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  job_id TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+  student_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   status job_posting_application_status NOT NULL DEFAULT 'pending',
   cover_letter TEXT,
   resume_url TEXT,
@@ -70,9 +72,9 @@ CREATE INDEX idx_job_posting_applications_student_id ON job_posting_applications
 CREATE TYPE ai_job_match_status AS ENUM ('suggested', 'employer_notified', 'student_notified', 'rejected');
 
 CREATE TABLE ai_job_matches (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  job_id UUID NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
-  student_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  id TEXT NOT NULL PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  job_id TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+  student_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   match_score INTEGER NOT NULL CHECK (match_score >= 0 AND match_score <= 100),
   match_reasons TEXT[] DEFAULT '{}',
   status ai_job_match_status NOT NULL DEFAULT 'suggested',

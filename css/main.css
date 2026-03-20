@@ -5374,6 +5374,20 @@ body { animation: fadeIn 0.4s ease; }
     flex: 0 0 auto;
     min-width: 0;
 }
+/* Prevent dashboard header button overlap on mobile */
+@media (max-width: 640px) {
+    .portal-shell-header {
+        padding: 0.75rem 1rem;
+        gap: 1rem;
+    }
+    .portal-shell-header__actions {
+        flex-basis: 100%;
+        justify-content: flex-start;
+        padding-top: 0.25rem;
+        margin-top: 0.25rem;
+        border-top: 1px solid var(--color-gray-200, #e5e5e5);
+    }
+}
 @media (max-width: 480px) {
     .portal-shell-header__actions {
         flex-basis: 100%;

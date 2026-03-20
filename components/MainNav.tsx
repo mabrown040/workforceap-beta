@@ -13,6 +13,7 @@ const navItems = [
       { href: '/what-we-do', label: 'What We Do' },
       { href: '/partners', label: 'Partners' },
       { href: '/leadership', label: 'Leadership Team' },
+      { href: '/employers', label: 'Employers' },
     ],
   },
   {

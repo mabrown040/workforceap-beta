@@ -3,10 +3,10 @@ import { prisma } from '@/lib/db/prisma';
 import { sendInactiveNudgeEmail } from '@/lib/email';
 
 /**
- * Cron endpoint to run automation checks (inactive nudge).
- * For weekly recap, use /api/cron/weekly-recap instead.
- * Call from Vercel Cron or external scheduler.
- * Protected with CRON_SECRET header (required - rejects if env var not set).
+ * Cron endpoint to send inactive member nudge emails.
+ * Run daily (e.g. via Vercel Cron: "0 10 * * *" for 10 AM).
+ * Sends to members inactive for 7+ days who have notificationsReminders enabled.
+ * Protected with CRON_SECRET header.
  */
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization');

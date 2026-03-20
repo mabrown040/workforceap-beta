@@ -5,15 +5,17 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
 import InvitePartnerUserButton from '@/components/admin/InvitePartnerUserButton';
+import PartnerDetailActions from '@/components/admin/PartnerDetailActions';
 
 type Props = { params: Promise<{ id: string }> };
 
 export default async function AdminPartnerDetailPage({ params }: Props) {
   const { id } = await params;
 
-  const partner = await prisma.partner.findUnique({
-    where: { id },
-    include: {
+  const [partner, subgroups, allPartners] = await Promise.all([
+    prisma.partner.findUnique({
+      where: { id },
+      include: {
       counselors: {
         include: { user: { select: { id: true, fullName: true, email: true } } },
         where: { active: true },
@@ -43,7 +45,16 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
       },
       _count: { select: { counselors: true, referrals: true } },
     },
-  });
+  }),
+    prisma.subgroup.findMany({
+      orderBy: { name: 'asc' },
+      select: { id: true, name: true, type: true, partnerId: true },
+    }),
+    prisma.partner.findMany({
+      orderBy: { name: 'asc' },
+      select: { id: true, name: true, active: true },
+    }),
+  ]);
 
   if (!partner) notFound();
 
@@ -74,17 +85,20 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
             {partner._count.referrals !== 1 ? 's' : ''}
           </p>
         </div>
-        <span
-          style={{
-            padding: '0.3rem 0.75rem',
-            borderRadius: '6px',
-            fontSize: '0.85rem',
-            background: partner.active ? 'rgba(74, 155, 79, 0.12)' : 'var(--color-gray-100)',
-            color: partner.active ? '#2d7a32' : 'var(--color-gray-600)',
-          }}
-        >
-          {partner.active ? 'Active' : 'Inactive'}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <span
+            style={{
+              padding: '0.3rem 0.75rem',
+              borderRadius: '6px',
+              fontSize: '0.85rem',
+              background: partner.active ? 'rgba(74, 155, 79, 0.12)' : 'var(--color-gray-100)',
+              color: partner.active ? '#2d7a32' : 'var(--color-gray-600)',
+            }}
+          >
+            {partner.active ? 'Active' : 'Inactive'}
+          </span>
+          <PartnerDetailActions partner={partner} subgroups={subgroups} allPartners={allPartners} />
+        </div>
       </div>
 
       <section style={{ marginBottom: '2rem', padding: '1rem', border: '1px solid var(--color-border)', borderRadius: '8px' }}>

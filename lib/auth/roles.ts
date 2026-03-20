@@ -49,9 +49,13 @@ export async function getPartnerForUser(
 ): Promise<{ partnerId: string; partner: { id: string; name: string; slug: string } } | null> {
   const row = await prisma.partnerUser.findUnique({
     where: { userId },
-    include: { partner: { select: { id: true, name: true, slug: true } } },
+    include: { partner: { select: { id: true, name: true, slug: true, active: true } } },
   });
-  if (row) return { partnerId: row.partnerId, partner: row.partner };
+  if (row) {
+    if (!row.partner.active) return null;
+    const { active: _a, ...partner } = row.partner;
+    return { partnerId: row.partnerId, partner };
+  }
   if (await isSuperAdmin(userId)) {
     const first = await prisma.partner.findFirst({
       where: { active: true },

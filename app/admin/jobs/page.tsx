@@ -59,6 +59,7 @@ export default async function AdminJobsPage({
 
   const countByStatus: Record<string, number> = {};
   for (const r of allCounts) {
+    if (r.status == null) continue;
     if (r.status === 'filled' || r.status === 'closed') {
       countByStatus['filled'] = (countByStatus['filled'] ?? 0) + r._count.id;
     } else {
@@ -102,7 +103,7 @@ export default async function AdminJobsPage({
                     {j.title}
                   </Link>
                 </td>
-                <td>{j.employer.companyName}</td>
+                <td>{j.employer?.companyName ?? 'Unknown'}</td>
                 <td>
                   <span
                     style={{
@@ -120,7 +121,7 @@ export default async function AdminJobsPage({
                     {STATUS_LABELS[j.status] ?? j.status}
                   </span>
                 </td>
-                <td>{j._count.applications}</td>
+                <td>{j._count?.applications ?? 0}</td>
                 <td>
                   <Link href={`/admin/jobs/${j.id}`} style={{ marginRight: '0.5rem', fontSize: '0.9rem' }}>
                     Review

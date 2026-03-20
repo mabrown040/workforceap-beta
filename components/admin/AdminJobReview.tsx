@@ -17,8 +17,8 @@ type Job = {
   suggestedPrograms: string[];
   status: string;
   applicationsCount: number;
-  employer: { companyName: string; contactEmail: string; contactName: string | null };
-  applications: { id: string; student: { fullName: string; email: string } }[];
+  employer?: { companyName: string; contactEmail: string; contactName: string | null } | null;
+  applications?: { id: string; student: { fullName: string; email: string } }[];
 };
 
 export default function AdminJobReview({ job }: { job: Job }) {
@@ -99,7 +99,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
     <div>
       <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>{job.title}</h1>
       <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
-        {job.employer.companyName} · {job.employer.contactName ?? job.employer.contactEmail} · Status: {job.status}
+        {job.employer?.companyName ?? 'Unknown'} · {job.employer?.contactName ?? job.employer?.contactEmail ?? '—'} · Status: {job.status}
       </p>
 
       {(canApprove || canReject) && (
@@ -164,7 +164,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
           <strong>Description</strong>
           <div style={{ whiteSpace: 'pre-wrap', marginTop: '0.5rem', fontSize: '0.95rem' }}>{job.description}</div>
         </div>
-        {job.requirements.length > 0 && (
+        {(job.requirements?.length ?? 0) > 0 && (
           <div style={{ marginTop: '1rem' }}>
             <strong>Requirements</strong>
             <ul style={{ marginTop: '0.5rem', paddingLeft: '1.25rem' }}>
@@ -177,12 +177,12 @@ export default function AdminJobReview({ job }: { job: Job }) {
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.15rem', marginBottom: '0.75rem' }}>Applications ({job.applications.length})</h2>
-        {job.applications.length === 0 ? (
+        <h2 style={{ fontSize: '1.15rem', marginBottom: '0.75rem' }}>Applications ({job.applications?.length ?? 0})</h2>
+        {(job.applications?.length ?? 0) === 0 ? (
           <p style={{ color: 'var(--color-gray-500)' }}>No applications yet.</p>
         ) : (
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {job.applications.map((app) => (
+            {(job.applications ?? []).map((app) => (
               <li
                 key={app.id}
                 style={{
@@ -193,7 +193,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
                 }}
               >
                 <span>
-                  <strong>{app.student.fullName}</strong> · {app.student.email}
+                  <strong>{app.student?.fullName ?? 'Unknown'}</strong> · {app.student?.email ?? '—'}
                 </span>
               </li>
             ))}

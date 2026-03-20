@@ -29,7 +29,8 @@ export async function GET(request: NextRequest) {
 
   const items = jobs.map((j) => ({
     ...j,
-    applicationsCount: j._count.applications,
+    employer: j.employer ?? { id: '', companyName: 'Unknown', contactEmail: '' },
+    applicationsCount: j._count?.applications ?? 0,
   }));
 
   return NextResponse.json(items);

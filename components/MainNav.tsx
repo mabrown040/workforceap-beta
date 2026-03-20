@@ -11,6 +11,7 @@ const navItems = [
     label: 'About Us',
     children: [
       { href: '/what-we-do', label: 'What We Do' },
+      { href: '/partners', label: 'Partners' },
       { href: '/leadership', label: 'Leadership Team' },
     ],
   },

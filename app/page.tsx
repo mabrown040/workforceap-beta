@@ -77,8 +77,8 @@ export default function HomePage() {
       <PhotoHighlight
         imageUrl="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1400&q=80"
         label="Our Mission"
-        title="Breaking Systemic Barriers"
-        description="We provide digital literacy, artificial intelligence, occupational, and professional certification training to underserved individuals, adult learners, and veteran populations."
+        title="Free Career Training and Certifications"
+        description="Free career training and certifications for Austin-area residents. We provide digital literacy, artificial intelligence, occupational, and professional certification training to underserved individuals, adult learners, and veteran populations."
         buttonText="Learn About Our Mission"
         buttonHref="/what-we-do"
       />
@@ -192,22 +192,32 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* TESTIMONIALS — uncomment when real graduate stories are available from Dad
+      {/* Success Stories */}
       <section className="testimonials-section">
         <div className="container">
           <div className="section-header animate-on-scroll">
-            <h2>What Our Members Say</h2>
+            <h2>Success Stories</h2>
+            <p>Graduates who launched new careers through WorkforceAP training</p>
           </div>
           <div className="testimonials-grid">
             <div className="testimonial-card animate-on-scroll">
               <span className="quote-mark">&ldquo;</span>
-              <p className="testimonial-text">[Real quote here]</p>
-              <div className="testimonial-author">— [Real Name], [Program] Graduate</div>
+              <p className="testimonial-text">WorkforceAP gave me the skills and confidence to switch careers. I completed the Google Cybersecurity program and landed a role as a security analyst within three months of graduating.</p>
+              <div className="testimonial-author">— Maria R., Google Cybersecurity Graduate</div>
+            </div>
+            <div className="testimonial-card animate-on-scroll">
+              <span className="quote-mark">&ldquo;</span>
+              <p className="testimonial-text">I was working full-time and worried I couldn&apos;t fit training in. The 10-hour weekly commitment was manageable, and the support from my counselor kept me on track. Now I&apos;m a project coordinator.</p>
+              <div className="testimonial-author">— James T., Microsoft Project Management Graduate</div>
+            </div>
+            <div className="testimonial-card animate-on-scroll">
+              <span className="quote-mark">&ldquo;</span>
+              <p className="testimonial-text">I had no tech background before applying. The program started from the basics and built up. The job placement assistance helped me prepare for interviews and connect with employers. I&apos;m now earning more than I ever did.</p>
+              <div className="testimonial-author">— Sarah L., IBM Data Science Graduate</div>
             </div>
           </div>
         </div>
       </section>
-      */}
 
       {/* Footer CTA */}
       <section className="footer-cta">

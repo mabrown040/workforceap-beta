@@ -34,6 +34,13 @@ export default function AdminShell({ children }: AdminShellProps) {
         </div>
         <div className="portal-shell-header__actions">
           <DevViewToggle />
+          <a
+            href="https://www.workforceap.org/"
+            className="btn btn-outline btn-sm"
+            rel="noopener noreferrer"
+          >
+            Return to Homepage
+          </a>
           <SignOutButton className="btn btn-outline btn-sm" />
         </div>
       </header>

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, Users, ClipboardList, BookOpen, FileText, Handshake } from 'lucide-react';
+import { BarChart3, Users, ClipboardList, BookOpen, FileText, Handshake, Sparkles, Award } from 'lucide-react';
 
 const LINKS = [
   { href: '/admin', label: 'Overview', Icon: BarChart3 },
@@ -12,6 +12,9 @@ const LINKS = [
   { href: '/admin/blog', label: 'Blog', Icon: FileText },
   { href: '/admin/partners', label: 'Partners', Icon: Handshake },
   { href: '/admin/pipeline', label: 'Pipeline', Icon: BarChart3 },
+  { href: '/admin/weekly-recap', label: 'Weekly recap analytics', Icon: BarChart3 },
+  { href: '/admin/ai-tools', label: 'AI tools analytics', Icon: Sparkles },
+  { href: '/admin/certifications', label: 'Certifications analytics', Icon: Award },
 ];
 
 type AdminSidebarProps = {

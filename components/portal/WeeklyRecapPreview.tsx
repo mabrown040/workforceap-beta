@@ -11,7 +11,7 @@ export default function WeeklyRecapPreview({ userId }: Props) {
     <div className="weekly-recap-preview">
       <h3>Weekly recap</h3>
       <p>Your personalized summary of the week and recommended next actions.</p>
-      <Link href="/weekly-recap" className="btn btn-outline btn-sm">
+      <Link href="/dashboard/weekly-recap" className="btn btn-outline btn-sm">
         View this week&apos;s recap
       </Link>
     </div>

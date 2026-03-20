@@ -70,13 +70,13 @@ export async function getCareerBriefContext(userId: string): Promise<CareerBrief
   const recommendedActions: Array<{ label: string; href: string }> = [];
 
   if (!scoreBreakdown.buildResume.done) {
-    recommendedActions.push({ label: 'Build your resume', href: '/ai-tools/resume-rewriter' });
+    recommendedActions.push({ label: 'Build your resume', href: '/dashboard/ai-tools/resume-rewriter' });
   }
   if (!scoreBreakdown.practiceInterview.done) {
-    recommendedActions.push({ label: 'Practice interview questions', href: '/ai-tools/interview-practice' });
+    recommendedActions.push({ label: 'Practice interview questions', href: '/dashboard/ai-tools/interview-practice' });
   }
   if (applicationsCount === 0) {
-    recommendedActions.push({ label: 'Log your first application', href: '/ai-tools/application-tracker' });
+    recommendedActions.push({ label: 'Log your first application', href: '/dashboard/ai-tools/application-tracker' });
   }
   if (!scoreBreakdown.complete2Resources.done) {
     recommendedActions.push({ label: 'Complete 2 resources', href: '/resources' });
@@ -85,7 +85,7 @@ export async function getCareerBriefContext(userId: string): Promise<CareerBrief
     recommendedActions.push({ label: 'Set your goals', href: '/dashboard' });
   }
   if (recommendedActions.length === 0) {
-    recommendedActions.push({ label: 'Add another application', href: '/ai-tools/application-tracker' });
+    recommendedActions.push({ label: 'Add another application', href: '/dashboard/ai-tools/application-tracker' });
   }
 
   const jobSearchUrl = buildJobSearchUrl(programShortLabel, city, state);

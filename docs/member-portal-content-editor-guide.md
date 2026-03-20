@@ -9,7 +9,7 @@ This guide helps non-developers add and update content for the WorkforceAP Membe
 The portal has two main content areas:
 
 1. **Member Resources** (`/resources`) — Job-seeker guides, templates, and checklists
-2. **Career Brief** (`/career-brief`) — Weekly guidance and opportunity updates
+2. **Career Brief** (`/dashboard/career-brief`) — Weekly guidance and opportunity updates
 
 ---
 
@@ -116,7 +116,7 @@ Edit `lib/content/careerBriefs.ts` and add to the `BRIEFS` array:
 ### 3. Commit and deploy
 
 - Commit the new `.md` file and the updated `careerBriefs.ts`
-- The brief will appear on `/career-brief`
+- The brief will appear on `/dashboard/career-brief`
 
 ---
 
@@ -126,7 +126,7 @@ Before submitting, verify:
 
 - [ ] **Member resources:** `id` is unique, `category` and `stage` use allowed values, `file` matches the `.md` filename
 - [ ] **Career briefs:** `slug` matches the filename (without `.md`), `date` is correct
-- [ ] **Links:** Internal links use `/resources/...` or `/career-brief/...`; external links use `https://`
+- [ ] **Links:** Internal links use `/resources/...` or `/dashboard/career-brief/...`; external links use `https://`
 - [ ] **No broken links:** All linked pages exist
 
 ---

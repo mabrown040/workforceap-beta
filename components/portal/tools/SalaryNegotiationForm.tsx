@@ -134,7 +134,7 @@ export default function SalaryNegotiationForm() {
           </div>
           <pre className="resume-rewriter-output-content">{output}</pre>
           <p className="ai-result-saved">
-            Saved to your history. <Link href="/ai-tools/history">View all results</Link>
+            Saved to your history. <Link href="/dashboard/ai-tools/history">View all results</Link>
           </p>
         </div>
       )}

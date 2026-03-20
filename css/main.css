@@ -5191,6 +5191,46 @@ body { animation: fadeIn 0.4s ease; }
     padding: 1.5rem 0;
     border-right: 1px solid var(--color-gray-200);
     background: var(--color-light);
+    display: flex;
+    flex-direction: column;
+}
+.dashboard-sidebar-inner {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+.dashboard-sidebar-nav {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+.dashboard-sidebar-footer {
+    flex-shrink: 0;
+    padding: 1rem 1rem 0;
+    margin-top: 0.75rem;
+    border-top: 1px solid var(--color-gray-200);
+}
+.dashboard-sidebar-signout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.65rem 1rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(185, 28, 28, 0.28);
+    background: rgba(185, 28, 28, 0.06);
+    color: #b91c1c;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+.dashboard-sidebar-signout:hover {
+    background: rgba(185, 28, 28, 0.11);
+    border-color: rgba(185, 28, 28, 0.4);
+    color: #991b1b;
 }
 .dashboard-sidebar-list {
     list-style: none;

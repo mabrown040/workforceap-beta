@@ -33,12 +33,12 @@ test.describe('Member Portal MVP', () => {
   });
 
   test('unauthenticated user cannot access ai-tools', async ({ page }) => {
-    await page.goto('/ai-tools');
+    await page.goto('/dashboard/ai-tools');
     await expect(page).toHaveURL(/\/login/);
   });
 
   test('unauthenticated user cannot access career-brief', async ({ page }) => {
-    await page.goto('/career-brief');
+    await page.goto('/dashboard/career-brief');
     await expect(page).toHaveURL(/\/login/);
   });
 
@@ -59,7 +59,7 @@ test.describe('Member Portal MVP', () => {
 
   test('signed-in member sees AI Tools route', async ({ context, page, baseURL }) => {
     await addAuthCookie(context, baseURL || 'http://localhost:3000');
-    await page.goto('/ai-tools');
+    await page.goto('/dashboard/ai-tools');
     await expect(page.getByRole('heading', { name: /ai career toolkit/i })).toBeVisible({ timeout: 10000 });
     await expect(page.getByText(/resume rewriter/i)).toBeVisible();
   });
@@ -74,7 +74,7 @@ test.describe('Member Portal MVP', () => {
 
   test('signed-in member sees Career Brief with first post', async ({ context, page, baseURL }) => {
     await addAuthCookie(context, baseURL || 'http://localhost:3000');
-    await page.goto('/career-brief');
+    await page.goto('/dashboard/career-brief');
     await expect(page.getByRole('heading', { name: /weekly career brief/i })).toBeVisible({ timeout: 10000 });
     await expect(page.getByText(/2026-03-14/)).toBeVisible();
   });

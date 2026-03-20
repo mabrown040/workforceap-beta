@@ -7,22 +7,22 @@ Your personalized Career Brief combines curated guidance with recommendations ta
 ## This Week's Focus: Apply Strategically
 
 ### 1. Use the Job Match Scorer
-Before submitting applications, use our [Job Match Scorer](/ai-tools/job-match-scorer) to compare your resume against job descriptions. Identify match percentages and specific gaps, then refine your materials accordingly.
+Before submitting applications, use our [Job Match Scorer](/dashboard/ai-tools/job-match-scorer) to compare your resume against job descriptions. Identify match percentages and specific gaps, then refine your materials accordingly.
 
 ### 2. Track Every Application
-Log each application in the [Application Tracker](/ai-tools/application-tracker). Consistent tracking supports follow-ups, pattern recognition, and organization. Aim for 3–5 quality applications per day.
+Log each application in the [Application Tracker](/dashboard/ai-tools/application-tracker). Consistent tracking supports follow-ups, pattern recognition, and organization. Aim for 3–5 quality applications per day.
 
 ### 3. Prepare for Interviews
-Use [Interview Practice](/ai-tools/interview-practice) to rehearse common questions. Practicing out loud builds confidence and improves how you articulate your experience.
+Use [Interview Practice](/dashboard/ai-tools/interview-practice) to rehearse common questions. Practicing out loud builds confidence and improves how you articulate your experience.
 
 ---
 
 ## Recommended Tools
 
-- **[Resume Rewriter](/ai-tools/resume-rewriter)** — ATS-friendly bullets and formatting
-- **[Cover Letter Builder](/ai-tools/cover-letter)** — Tailored cover letters with tone options
-- **[LinkedIn About Generator](/ai-tools/linkedin-about)** — Polished LinkedIn summary section
-- **[Salary Negotiation Script](/ai-tools/salary-negotiation)** — Word-for-word scripts for offers
+- **[Resume Rewriter](/dashboard/ai-tools/resume-rewriter)** — ATS-friendly bullets and formatting
+- **[Cover Letter Builder](/dashboard/ai-tools/cover-letter)** — Tailored cover letters with tone options
+- **[LinkedIn About Generator](/dashboard/ai-tools/linkedin-about)** — Polished LinkedIn summary section
+- **[Salary Negotiation Script](/dashboard/ai-tools/salary-negotiation)** — Word-for-word scripts for offers
 
 ---
 

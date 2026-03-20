@@ -22,7 +22,7 @@ export default function CareerBriefList({ briefs }: CareerBriefListProps) {
       {briefs.map((brief) => (
         <li key={brief.id}>
           <Link
-            href={`/career-brief/${brief.slug}`}
+            href={`/dashboard/career-brief/${brief.slug}`}
             className="career-brief-item"
             onClick={() => trackBriefOpen(brief.id, brief.title)}
           >

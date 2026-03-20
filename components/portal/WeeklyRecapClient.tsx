@@ -77,9 +77,9 @@ export default function WeeklyRecapClient({ recap, recapData, weekStart }: Props
           {(recapData.recommendedActions ?? []).map((action, i) => (
             <li key={i}>
               <Link href={
-                action.includes('Resume') ? '/ai-tools/resume-rewriter' :
-                action.includes('interview') ? '/ai-tools/interview-practice' :
-                action.includes('application') ? '/ai-tools/application-tracker' :
+                action.includes('Resume') ? '/dashboard/ai-tools/resume-rewriter' :
+                action.includes('interview') ? '/dashboard/ai-tools/interview-practice' :
+                action.includes('application') ? '/dashboard/ai-tools/application-tracker' :
                 '/dashboard'
               }>
                 {action}

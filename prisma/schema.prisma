@@ -54,6 +54,8 @@ model User {
   weeklyRecaps         WeeklyRecap[]
   pathwayStepProgress  PathwayStepProgress[]
   trainingAccessRequests TrainingAccessRequest[]
+  invitationsSent      Invitation[] @relation("InvitationInviter")
+  invitationsAccepted  Invitation[] @relation("InvitationAccepter")
 
   counselorProfile     Counselor?
   counselorAssignments CounselorAssignment[] @relation("MemberAssignments")
@@ -584,6 +586,7 @@ model Subgroup {
   partner  Partner?          @relation(fields: [partnerId], references: [id], onDelete: SetNull)
   members  MemberSubgroup[]
   leaders  SubgroupLeader[]
+  invitations Invitation[]
 
   @@index([type])
   @@index([leaderId])
@@ -678,6 +681,47 @@ model AuditLog {
   @@map("audit_logs")
 }
 
+// --- Admin Invitations ---
+
+enum InvitationRole {
+  admin
+  partner
+  member
+}
+
+enum InvitationStatus {
+  pending
+  accepted
+  expired
+  revoked
+}
+
+model Invitation {
+  id              String           @id @default(uuid())
+  email           String           @db.Text
+  role            InvitationRole
+  subgroupId      String?          @map("subgroup_id")
+  programSlug     String?          @map("program_slug")
+  invitedById     String           @map("invited_by")
+  token           String           @unique
+  status          InvitationStatus @default(pending)
+  personalMessage String?         @map("personal_message") @db.Text
+  expiresAt      DateTime         @map("expires_at")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  acceptedAt      DateTime?        @map("accepted_at")
+  acceptedById    String?          @map("accepted_by")
+
+  invitedBy  User  @relation("InvitationInviter", fields: [invitedById], references: [id], onDelete: Cascade)
+  acceptedBy User? @relation("InvitationAccepter", fields: [acceptedById], references: [id], onDelete: SetNull)
+  subgroup   Subgroup? @relation(fields: [subgroupId], references: [id], onDelete: SetNull)
+
+  @@index([email])
+  @@index([token])
+  @@index([status])
+  @@index([invitedById])
+  @@index([expiresAt])
+  @@map("invitations")
+}
 
 
 

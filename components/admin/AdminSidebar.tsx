@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, Users, ClipboardList, BookOpen, FileText, Handshake, Sparkles, Award, UsersRound } from 'lucide-react';
+import { BarChart3, Users, ClipboardList, BookOpen, FileText, Handshake, Sparkles, Award, UsersRound, Mail } from 'lucide-react';
 
 const LINKS = [
   { href: '/admin', label: 'Overview', Icon: BarChart3 },
   { href: '/admin/members', label: 'Members', Icon: Users },
+  { href: '/admin/invites', label: 'Invites', Icon: Mail },
   { href: '/admin/assessments', label: 'Assessments', Icon: ClipboardList },
   { href: '/admin/programs', label: 'Programs', Icon: BookOpen },
   { href: '/admin/blog', label: 'Blog', Icon: FileText },

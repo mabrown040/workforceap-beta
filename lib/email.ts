@@ -15,6 +15,11 @@ import {
   inactiveNudgeHtml,
   invitationHtml,
   invitationAcceptedHtml,
+  jobSubmittedHtml,
+  jobApprovedHtml,
+  jobRejectedHtml,
+  newJobApplicationHtml,
+  aiMatchSuggestionHtml,
 } from '@/emails';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
@@ -320,6 +325,166 @@ export async function sendInactiveNudgeEmail(params: {
     return { ok: true };
   } catch (err) {
     console.error('sendInactiveNudgeEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Send job submitted admin alert */
+export async function sendJobSubmittedEmail(params: {
+  jobTitle: string;
+  companyName: string;
+  employerEmail: string;
+  jobId: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendJobSubmittedEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: `New Job Submitted: ${params.jobTitle}`,
+    bodyHtml: jobSubmittedHtml(params),
+    ctaText: 'Review Job',
+    ctaUrl: `${SITE_URL}/admin/jobs/${params.jobId}`,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: ADMIN_EMAIL,
+      subject: `New Job Submitted: ${params.jobTitle} - ${params.companyName}`,
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendJobSubmittedEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Send job approved to employer */
+export async function sendJobApprovedEmail(params: {
+  to: string;
+  jobTitle: string;
+  companyName: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendJobApprovedEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: 'Your Job Posting is Live',
+    bodyHtml: jobApprovedHtml(params),
+    ctaText: 'View Employer Portal',
+    ctaUrl: `${SITE_URL}/employer/jobs`,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject: `Your job "${params.jobTitle}" is now live on WorkforceAP`,
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendJobApprovedEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Send job rejected to employer */
+export async function sendJobRejectedEmail(params: {
+  to: string;
+  jobTitle: string;
+  companyName: string;
+  reason: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendJobRejectedEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: 'Job Posting Update',
+    bodyHtml: jobRejectedHtml(params),
+    ctaText: 'Edit Job',
+    ctaUrl: `${SITE_URL}/employer/jobs`,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject: `Job posting "${params.jobTitle}" - Update`,
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendJobRejectedEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Send new job application to employer */
+export async function sendNewJobApplicationEmail(params: {
+  to: string;
+  jobTitle: string;
+  applicantName: string;
+  applicantEmail: string;
+  applicationId: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendNewJobApplicationEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: `New Applicant: ${params.applicantName}`,
+    bodyHtml: newJobApplicationHtml(params),
+    ctaText: 'View Applications',
+    ctaUrl: `${SITE_URL}/employer/applications`,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject: `New applicant for "${params.jobTitle}"`,
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendNewJobApplicationEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Send AI match suggestion to employer */
+export async function sendAIMatchSuggestionEmail(params: {
+  to: string;
+  jobTitle: string;
+  companyName: string;
+  matches: { name: string; program: string; score: number }[];
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendAIMatchSuggestionEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: `Top Matches for "${params.jobTitle}"`,
+    bodyHtml: aiMatchSuggestionHtml(params),
+    ctaText: 'View Matches',
+    ctaUrl: `${SITE_URL}/employer/jobs`,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject: `Top candidate matches for "${params.jobTitle}"`,
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendAIMatchSuggestionEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
 }

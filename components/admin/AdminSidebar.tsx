@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, Users, ClipboardList, BookOpen, FileText, Handshake, Sparkles, Award, UsersRound, Mail } from 'lucide-react';
+import { BarChart3, Users, ClipboardList, BookOpen, FileText, Handshake, Sparkles, Award, UsersRound, Mail, Briefcase, Building2 } from 'lucide-react';
 
 const LINKS = [
   { href: '/admin', label: 'Overview', Icon: BarChart3 },
@@ -11,6 +11,8 @@ const LINKS = [
   { href: '/admin/assessments', label: 'Assessments', Icon: ClipboardList },
   { href: '/admin/programs', label: 'Programs', Icon: BookOpen },
   { href: '/admin/blog', label: 'Blog', Icon: FileText },
+  { href: '/admin/jobs', label: 'Jobs', Icon: Briefcase },
+  { href: '/admin/employers', label: 'Employers', Icon: Building2 },
   { href: '/admin/partners', label: 'Partners', Icon: Handshake },
   { href: '/admin/subgroups', label: 'Subgroups', Icon: UsersRound },
   { href: '/admin/pipeline', label: 'Pipeline', Icon: BarChart3 },

@@ -24,6 +24,18 @@ async function main() {
         data: { role: 'super_admin' },
       });
       console.log('Set role=super_admin for', email);
+      // Also create employer record so super_admin can test employer portal
+      await prisma.employer.upsert({
+        where: { userId: user.id },
+        update: {},
+        create: {
+          userId: user.id,
+          companyName: 'Demo Employer',
+          contactName: user.fullName ?? 'Admin',
+          contactEmail: email,
+        },
+      });
+      console.log('Created employer for', email);
     }
   }
   const adminEmails = ['michael.brown@workforceap.org'];

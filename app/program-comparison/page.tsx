@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
+import { Flame } from 'lucide-react';
 import PageHero from '@/components/PageHero';
 import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
@@ -18,7 +19,7 @@ type ComparisonTrack = {
   duration: string;
   difficulty: string;
   salary: string;
-  demand: string;
+  demand: 'High' | 'Very High';
   certs: string;
 };
 
@@ -29,7 +30,7 @@ const tracks: ComparisonTrack[] = [
     duration: '16–20 wks',
     difficulty: '⭐⭐',
     salary: '$55,000',
-    demand: '🔥 High',
+    demand: 'High',
     certs: 'CompTIA A+, Google IT',
   },
   {
@@ -38,7 +39,7 @@ const tracks: ComparisonTrack[] = [
     duration: '16–20 wks',
     difficulty: '⭐⭐⭐',
     salary: '$75,000',
-    demand: '🔥🔥 Very High',
+    demand: 'Very High',
     certs: 'Security+, IBM Cyber',
   },
   {
@@ -47,7 +48,7 @@ const tracks: ComparisonTrack[] = [
     duration: '16–20 wks',
     difficulty: '⭐⭐⭐',
     salary: '$95,000',
-    demand: '🔥🔥 Very High',
+    demand: 'Very High',
     certs: 'AWS CCP, Azure',
   },
   {
@@ -56,7 +57,7 @@ const tracks: ComparisonTrack[] = [
     duration: '16–20 wks',
     difficulty: '⭐⭐⭐',
     salary: '$72,000',
-    demand: '🔥🔥 Very High',
+    demand: 'Very High',
     certs: 'Google Data, IBM DS',
   },
   {
@@ -65,7 +66,7 @@ const tracks: ComparisonTrack[] = [
     duration: '16–20 wks',
     difficulty: '⭐⭐⭐',
     salary: '$82,000',
-    demand: '🔥 High',
+    demand: 'High',
     certs: 'PMP, CAPM',
   },
   {
@@ -74,7 +75,7 @@ const tracks: ComparisonTrack[] = [
     duration: '6–8 wks',
     difficulty: '⭐',
     salary: '$48,000',
-    demand: '🔥 High',
+    demand: 'High',
     certs: 'IBM SkillsBuild',
   },
   {
@@ -83,7 +84,7 @@ const tracks: ComparisonTrack[] = [
     duration: '16–20 wks',
     difficulty: '⭐⭐',
     salary: '$52,000',
-    demand: '🔥 High',
+    demand: 'High',
     certs: 'CPC (AAPC)',
   },
   {
@@ -92,7 +93,7 @@ const tracks: ComparisonTrack[] = [
     duration: '16–20 wks',
     difficulty: '⭐⭐',
     salary: '$55,000',
-    demand: '🔥 High',
+    demand: 'High',
     certs: 'OSHA 10, NCCER',
   },
 ];
@@ -138,7 +139,13 @@ export default function ProgramComparisonPage() {
                     <td>{t.duration}</td>
                     <td>{t.difficulty}</td>
                     <td>{t.salary}</td>
-                    <td>{t.demand}</td>
+                    <td>
+                      <span className="demand-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                        {t.demand === 'Very High' && <Flame size={14} className="text-current" aria-hidden />}
+                        <Flame size={14} className="text-current" aria-hidden />
+                        {t.demand}
+                      </span>
+                    </td>
                     <td>{t.certs}</td>
                     <td>
                       <Link
@@ -191,7 +198,11 @@ export default function ProgramComparisonPage() {
                   </div>
                   <div className="program-comparison-card__demand">
                     <span className="program-comparison-card__demand-label">Job demand</span>
-                    <span>{t.demand}</span>
+                    <span className="demand-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                      {t.demand === 'Very High' && <Flame size={14} className="text-current" aria-hidden />}
+                      <Flame size={14} className="text-current" aria-hidden />
+                      {t.demand}
+                    </span>
                   </div>
                   <p className="program-comparison-card__certs">
                     <span className="program-comparison-card__certs-label">Certifications</span>

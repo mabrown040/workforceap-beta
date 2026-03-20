@@ -98,7 +98,7 @@ export default function DashboardHomeClient({
             <p>
               You&apos;ve completed {completedCount} of {totalCourses} courses. Keep the momentum going.
             </p>
-            <Link href="/dashboard/training" className="btn btn-primary">
+            <Link href="/dashboard/training" className="btn btn-primary dashboard-cta-continue">
               Continue Training
             </Link>
           </div>
@@ -117,7 +117,7 @@ export default function DashboardHomeClient({
                 }}
               />
             </div>
-            <Link href="/dashboard/training" className="btn btn-secondary">
+            <Link href="/dashboard/training" className="btn btn-secondary dashboard-cta-training">
               Go to Training
             </Link>
           </div>

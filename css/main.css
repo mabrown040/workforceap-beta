@@ -2061,6 +2061,12 @@ fieldset.apply-fieldset {
     }
     .program-cards {
         display: flex !important;
+        padding-bottom: 1.5rem;
+        gap: 1rem;
+    }
+    .program-comparison-card {
+        flex-shrink: 0;
+        min-width: 0;
     }
 }
 @media (min-width: 768px) {
@@ -3507,6 +3513,47 @@ body { animation: fadeIn 0.4s ease; }
     background: var(--color-accent);
     box-shadow: inset 0 0 0 3px var(--color-white);
 }
+/* Assessment wizard: 8-step flow (matches Find Your Path quiz pattern) */
+.assessment-wizard {
+    max-width: 640px;
+    margin: 0 auto;
+}
+.assessment-wizard-progress {
+    margin-bottom: 1rem;
+}
+.assessment-wizard-steps {
+    display: flex;
+    gap: 0.35rem;
+    margin-top: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.assessment-wizard-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-gray-200);
+    transition: background var(--transition-fast);
+}
+.assessment-wizard-dot.active {
+    background: var(--color-gray-400);
+}
+.assessment-wizard-dot.current {
+    background: var(--color-accent);
+    transform: scale(1.2);
+}
+.assessment-wizard-content .form-group {
+    margin-bottom: 1rem;
+}
+.assessment-wizard-actions .btn {
+    min-height: var(--touch-target-min, 44px);
+}
+@media (max-width: 639px) {
+    .assessment-wizard-actions .btn {
+        width: 100%;
+    }
+}
+
 .quiz-results { max-width: 900px; margin: 0 auto; }
 .quiz-results-title { font-size: 1.5rem; margin-bottom: 0.5rem; }
 .quiz-results-subtitle { color: var(--color-gray-600); margin-bottom: 2rem; }
@@ -5608,6 +5655,56 @@ body { animation: fadeIn 0.4s ease; }
     font-size: 0.95rem;
     color: var(--color-gray-600);
     margin-bottom: 1rem;
+}
+/* Continue Training / CTA buttons: mobile-safe (min 44px touch, no overflow) */
+.dashboard-next-step .dashboard-cta-continue,
+.dashboard-program-card .dashboard-cta-training {
+    min-height: var(--touch-target-min, 44px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+@media (max-width: 639px) {
+    .dashboard-next-step,
+    .dashboard-program-card {
+        padding-bottom: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .dashboard-next-step .dashboard-cta-continue,
+    .dashboard-program-card .dashboard-cta-training {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+/* ProgressBanner Continue Training CTA: mobile-safe */
+.progress-banner-cta {
+    min-height: var(--touch-target-min, 44px) !important;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+.progress-banner-cta-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+@media (max-width: 639px) {
+    .progress-banner-cta {
+        min-width: 0;
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+        font-size: 0.85rem !important;
+    }
+}
+
+/* Dashboard main content: safe bottom padding on mobile to avoid footer overlap */
+@media (max-width: 639px) {
+    .dashboard-main-content {
+        padding-bottom: 2rem !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
 }
 
 /* Dashboard program card */

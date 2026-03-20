@@ -10,6 +10,7 @@ const PORTAL_PATHS = [
   '/profile',
   '/account',
   '/partner',
+  '/my-group',
 ];
 const ADMIN_PATHS = ['/admin'];
 

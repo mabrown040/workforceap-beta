@@ -11,6 +11,7 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
 import MemberDetailActions from '@/components/admin/MemberDetailActions';
 import MemberPartnerSection from '@/components/admin/MemberPartnerSection';
+import MemberSubgroupSection from '@/components/admin/MemberSubgroupSection';
 import CreateSuccessToast from './CreateSuccessToast';
 import { formatPhone } from '@/lib/formatPhone';
 import { ClipboardList, CheckCircle } from 'lucide-react';
@@ -53,7 +54,7 @@ export default async function AdminMemberDetailPage({
 
   const { id } = await params;
 
-  const [member, partners, partnerReferral] = await Promise.all([
+  const [member, partners, partnerReferral, subgroups, memberSubgroups] = await Promise.all([
     prisma.user.findUnique({
       where: { id },
       include: { profile: true },
@@ -66,6 +67,14 @@ export default async function AdminMemberDetailPage({
     prisma.partnerReferral.findFirst({
       where: { memberId: id },
       select: { partnerId: true },
+    }),
+    prisma.subgroup.findMany({
+      orderBy: { name: 'asc' },
+      select: { id: true, name: true, type: true },
+    }),
+    prisma.memberSubgroup.findMany({
+      where: { memberId: id },
+      select: { subgroupId: true },
     }),
   ]);
 
@@ -132,6 +141,12 @@ export default async function AdminMemberDetailPage({
           memberId={member.id}
           partners={partners}
           currentPartnerId={partnerReferral?.partnerId ?? null}
+        />
+
+        <MemberSubgroupSection
+          memberId={member.id}
+          subgroups={subgroups}
+          currentSubgroupIds={memberSubgroups.map((ms) => ms.subgroupId)}
         />
 
         {(member.profile?.resumeOriginalPath || member.profile?.resumeEnhancedPath) && (

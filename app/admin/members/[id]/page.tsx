@@ -10,6 +10,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
 import MemberDetailActions from '@/components/admin/MemberDetailActions';
+import MemberPartnerSection from '@/components/admin/MemberPartnerSection';
 import CreateSuccessToast from './CreateSuccessToast';
 import { formatPhone } from '@/lib/formatPhone';
 import { ClipboardList, CheckCircle } from 'lucide-react';
@@ -52,10 +53,21 @@ export default async function AdminMemberDetailPage({
 
   const { id } = await params;
 
-  const member = await prisma.user.findUnique({
-    where: { id },
-    include: { profile: true },
-  });
+  const [member, partners, partnerReferral] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id },
+      include: { profile: true },
+    }),
+    prisma.partner.findMany({
+      where: { active: true },
+      orderBy: { name: 'asc' },
+      select: { id: true, name: true },
+    }),
+    prisma.partnerReferral.findFirst({
+      where: { memberId: id },
+      select: { partnerId: true },
+    }),
+  ]);
 
   if (!member || member.deletedAt) notFound();
 
@@ -115,6 +127,12 @@ export default async function AdminMemberDetailPage({
             assessmentCompleted={member.assessmentCompleted}
           />
         </section>
+
+        <MemberPartnerSection
+          memberId={member.id}
+          partners={partners}
+          currentPartnerId={partnerReferral?.partnerId ?? null}
+        />
 
         {(member.profile?.resumeOriginalPath || member.profile?.resumeEnhancedPath) && (
           <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>

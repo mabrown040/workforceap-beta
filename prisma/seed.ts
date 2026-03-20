@@ -4,7 +4,7 @@ import { seedBlogPosts } from './seed-blog';
 const prisma = new PrismaClient();
 
 async function main() {
-  const roles = ['member', 'admin', 'case_manager', 'counselor'];
+  const roles = ['member', 'admin', 'case_manager', 'counselor', 'partner'];
   for (const name of roles) {
     await prisma.role.upsert({
       where: { name },

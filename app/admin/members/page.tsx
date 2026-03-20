@@ -23,7 +23,14 @@ export default async function AdminMembersPage() {
   const members = await prisma.user.findMany({
     where: { deletedAt: null },
     orderBy: { createdAt: 'desc' },
-    include: { profile: true },
+    include: {
+      profile: true,
+      partnerReferrals: {
+        take: 1,
+        orderBy: { referredAt: 'desc' },
+        include: { partner: { select: { id: true, name: true } } },
+      },
+    },
   });
 
   const membersWithProgram = members.map((m) => ({
@@ -31,6 +38,8 @@ export default async function AdminMembersPage() {
     programTitle: m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.title : null,
     coursesCompleted: (m.coursesCompleted as string[] | null) ?? [],
     totalCourses: m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.courses.length ?? 0 : 0,
+    partnerName: m.partnerReferrals[0]?.partner.name ?? null,
+    partnerId: m.partnerReferrals[0]?.partner.id ?? null,
   }));
 
   return (

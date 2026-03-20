@@ -61,7 +61,7 @@ model User {
   placementRecord    PlacementRecord?
   counselorNotes     CounselorNote[]  @relation("MemberNotes")
   notesAuthored      CounselorNote[]  @relation("NoteAuthor")
-
+  partnerUser        PartnerUser?
 
   @@map("users")
 }
@@ -480,10 +480,24 @@ model Partner {
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
 
-  counselors Counselor[]
-  referrals  PartnerReferral[]
+  counselors   Counselor[]
+  referrals    PartnerReferral[]
+  partnerUsers PartnerUser[]
 
   @@map("partners")
+}
+
+model PartnerUser {
+  id        String   @id @default(uuid())
+  partnerId String   @map("partner_id")
+  userId    String   @unique @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  partner Partner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([partnerId])
+  @@map("partner_users")
 }
 
 model Counselor {

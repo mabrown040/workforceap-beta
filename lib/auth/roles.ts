@@ -29,3 +29,22 @@ export async function requireAdmin(userId: string): Promise<void> {
     throw new Error('Forbidden: admin access required');
   }
 }
+
+export async function isPartner(userId: string): Promise<boolean> {
+  const row = await prisma.partnerUser.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
+  return !!row;
+}
+
+export async function getPartnerForUser(
+  userId: string
+): Promise<{ partnerId: string; partner: { id: string; name: string; slug: string } } | null> {
+  const row = await prisma.partnerUser.findUnique({
+    where: { userId },
+    include: { partner: { select: { id: true, name: true, slug: true } } },
+  });
+  if (!row) return null;
+  return { partnerId: row.partnerId, partner: row.partner };
+}

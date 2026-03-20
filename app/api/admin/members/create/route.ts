@@ -4,12 +4,14 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { ADMIN_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
+import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 
 const EMPLOYMENT_OPTIONS = ['Unemployed', 'Underemployed', 'Employed', 'Self-Employed'];
 const VETERAN_OPTIONS = ['Not a Veteran', 'Veteran', 'Disabled Veteran'];
 const INCOME_OPTIONS = ['Under $20K', '$20K–$40K', '$40K–$60K', 'Over $60K'];
 const EDUCATION_OPTIONS = ['Less than HS', 'HS Diploma or GED', 'Some College', "Associate's", "Bachelor's", 'Graduate'];
-const REFERRAL_OPTIONS = ['Referral', 'Community Event', 'Social Media', 'Workforce Solutions', 'TWC', 'Church', 'Other'];
+const REFERRAL_OPTIONS: string[] = [...ADMIN_REFERRAL_SOURCE_OPTIONS];
 const ETHNICITY_OPTIONS = [
   'Hispanic/Latino',
   'White',
@@ -55,6 +57,8 @@ export async function POST(request: Request) {
   const programNotes = typeof o.programNotes === 'string' ? o.programNotes.trim() : undefined;
   const resumeOriginalPath = typeof o.resumeOriginalPath === 'string' ? o.resumeOriginalPath : undefined;
   const resumeEnhancedPath = typeof o.resumeEnhancedPath === 'string' ? o.resumeEnhancedPath : undefined;
+  const partnerId =
+    typeof o.partnerId === 'string' && /^[0-9a-f-]{36}$/i.test(o.partnerId.trim()) ? o.partnerId.trim() : undefined;
 
   if (!firstName || !email) {
     return NextResponse.json({ error: 'First name and email are required' }, { status: 400 });
@@ -69,6 +73,13 @@ export async function POST(request: Request) {
   const program = getProgramBySlug(programSlug);
   if (!program) {
     return NextResponse.json({ error: 'Invalid program' }, { status: 400 });
+  }
+
+  if (partnerId) {
+    const partner = await prisma.partner.findFirst({ where: { id: partnerId, active: true } });
+    if (!partner) {
+      return NextResponse.json({ error: 'Invalid or inactive partner' }, { status: 400 });
+    }
   }
 
   const fullName = `${firstName} ${lastName}`.trim() || firstName;
@@ -147,11 +158,21 @@ export async function POST(request: Request) {
           role: 'member',
         },
       });
+
+      if (partnerId) {
+        await tx.partnerReferral.create({
+          data: { partnerId, memberId: authUser.id },
+        });
+      }
     });
   } catch (dbError) {
     console.error('Admin create member DB error:', dbError);
     return NextResponse.json({ error: 'Failed to create member. Please try again.' }, { status: 500 });
   }
+
+  await sendPartnerMilestoneEmail(authUser.id, 'Program enrollment', {
+    Program: program.title,
+  });
 
   return NextResponse.json({
     ok: true,

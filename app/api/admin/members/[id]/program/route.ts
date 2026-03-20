@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 
 export async function PATCH(
   request: Request,
@@ -39,6 +40,10 @@ export async function PATCH(
       programChangedAt: new Date(),
       coursesCompleted: [],
     },
+  });
+
+  await sendPartnerMilestoneEmail(id, 'Program enrollment', {
+    Program: program.title,
   });
 
   return NextResponse.json({ ok: true });

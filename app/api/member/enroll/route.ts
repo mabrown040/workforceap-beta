@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -41,6 +42,10 @@ export async function POST(request: Request) {
       enrolledProgram: slug,
       enrolledAt: new Date(),
     },
+  });
+
+  await sendPartnerMilestoneEmail(user.id, 'Program enrollment', {
+    Program: program.title,
   });
 
   return NextResponse.json({ ok: true, programSlug: slug });

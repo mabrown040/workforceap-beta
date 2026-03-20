@@ -2541,6 +2541,32 @@ fieldset.apply-fieldset {
     line-height: 1;
     pointer-events: none;
 }
+@media (max-width: 767px) {
+    .phase-bg-number {
+        font-size: 6rem;
+        opacity: 0.06;
+    }
+}
+.how-it-works-phase-label {
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    color: var(--color-accent);
+    margin: 0 0 0.35rem;
+    position: relative;
+}
+.how-it-works-cta {
+    padding: 3.5rem 0 4rem;
+    text-align: center;
+    background: var(--color-light);
+    border-top: 1px solid var(--color-gray-200);
+}
+.how-it-works-cta-title {
+    font-size: 1.75rem;
+    margin: 0 0 1.25rem;
+    color: var(--color-primary);
+}
 .phase-title {
     font-size: 1.5rem;
     font-weight: 700;

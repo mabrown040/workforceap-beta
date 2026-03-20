@@ -5470,6 +5470,23 @@ body { animation: fadeIn 0.4s ease; }
     color: var(--color-gray-500);
 }
 
+/* Members table: hide Phone + Last Active below 1200px; show under Name instead */
+.members-name-details {
+    display: none;
+    font-size: 0.8rem;
+    color: var(--color-gray-500);
+    margin-top: 0.25rem;
+    line-height: 1.35;
+}
+@media (max-width: 1199px) {
+    .admin-table .members-col-md {
+        display: none;
+    }
+    .members-name-details {
+        display: block;
+    }
+}
+
 /* Blog overflow menu */
 .admin-blog-actions-menu {
     position: relative;

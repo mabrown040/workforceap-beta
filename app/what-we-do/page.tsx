@@ -9,7 +9,7 @@ import Footer from '@/components/Footer';
 export const metadata: Metadata = buildPageMetadata({
   title: 'What We Do',
   description:
-    'Learn how WorkforceAP breaks systemic barriers for Austin-area residents through digital literacy, AI, occupational training, and wrap-around support in Austin, TX.',
+    'Learn how WorkforceAP provides free career training and certifications for Austin-area residents through digital literacy, AI, occupational training, and wrap-around support in Austin, TX.',
   path: '/what-we-do',
 });
 
@@ -18,7 +18,7 @@ export default function WhatWeDoPage() {
     <div className="inner-page">
       <PageHero
         title="What We Do"
-        subtitle="Breaking down systemic barriers through education, technology, and opportunity."
+        subtitle="Free career training and certifications for Austin-area residents."
       />
 
       <PhotoHighlight

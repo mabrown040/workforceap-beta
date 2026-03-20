@@ -8,8 +8,6 @@ import { getUser } from '@/lib/auth/server';
 import { getCareerBriefs, getCareerBriefContent } from '@/lib/content/careerBriefs';
 import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
 import { generatePersonalizedBriefSection } from '@/lib/ai/careerBriefAI';
-import Footer from '@/components/Footer';
-import { SignOutButton } from '@/components/portal/SignOutButton';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -45,19 +43,11 @@ export default async function CareerBriefDetailPage({ params }: Props) {
   return (
     <div className="inner-page">
       <section className="page-hero">
-        <div className="page-hero-content" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>
-            <Link href="/dashboard/career-brief" className="resource-back-link">
-              ← Back to Career Brief
-            </Link>
-            <h1>{brief?.title ?? 'Career Brief'}</h1>
-          </div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <Link href="/dashboard" className="btn" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.4)' }}>
-              Dashboard
-            </Link>
-            <SignOutButton />
-          </div>
+        <div className="page-hero-content">
+          <Link href="/dashboard/career-brief" className="resource-back-link">
+            ← Back to Career Brief
+          </Link>
+          <h1>{brief?.title ?? 'Career Brief'}</h1>
         </div>
       </section>
 
@@ -95,7 +85,6 @@ export default async function CareerBriefDetailPage({ params }: Props) {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }

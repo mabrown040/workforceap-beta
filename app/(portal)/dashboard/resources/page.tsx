@@ -7,7 +7,6 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getResourcesForCategory } from '@/lib/content/programResources';
 import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
-import Footer from '@/components/Footer';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Resources',
@@ -230,7 +229,6 @@ export default async function DashboardResourcesPage() {
         </div>
       </section>
 
-      <Footer />
     </>
   );
 }

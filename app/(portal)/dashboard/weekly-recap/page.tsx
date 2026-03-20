@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import Footer from '@/components/Footer';
 import WeeklyRecapClient from '@/components/portal/WeeklyRecapClient';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -69,7 +68,6 @@ export default async function WeeklyRecapPage() {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }

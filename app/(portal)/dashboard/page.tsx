@@ -6,7 +6,6 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
-import Footer from '@/components/Footer';
 import DashboardHomeClient from '@/components/portal/DashboardHomeClient';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -99,7 +98,6 @@ export default async function DashboardPage() {
         checklist={checklist}
         checklistAllDone={checklistAllDone}
       />
-      <Footer />
     </>
   );
 }

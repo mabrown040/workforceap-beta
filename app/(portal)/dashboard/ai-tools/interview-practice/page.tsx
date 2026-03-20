@@ -4,8 +4,6 @@ import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import Footer from '@/components/Footer';
-import { SignOutButton } from '@/components/portal/SignOutButton';
 import InterviewPracticeForm from '@/components/portal/tools/InterviewPracticeForm';
 import InterviewPracticeSaved from '@/components/portal/tools/InterviewPracticeSaved';
 
@@ -29,20 +27,12 @@ export default async function InterviewPracticePage() {
   return (
     <div className="inner-page">
       <section className="page-hero">
-        <div className="page-hero-content" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>
+        <div className="page-hero-content">
             <Link href="/dashboard/ai-tools" className="resource-back-link">
               ← Back to AI Tools
             </Link>
             <h1>Interview Practice Generator</h1>
             <p>Generate role-specific interview questions with answer frameworks. Practice behavioral and technical questions.</p>
-          </div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <Link href="/dashboard" className="btn" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.4)' }}>
-              Dashboard
-            </Link>
-            <SignOutButton />
-          </div>
         </div>
       </section>
 
@@ -55,7 +45,6 @@ export default async function InterviewPracticePage() {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }

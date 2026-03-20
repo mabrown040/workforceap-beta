@@ -4,8 +4,6 @@ import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
-import Footer from '@/components/Footer';
-import { SignOutButton } from '@/components/portal/SignOutButton';
 import AIToolCard from '@/components/portal/AIToolCard';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -108,17 +106,9 @@ export default async function AIToolsPage() {
   return (
     <div className="inner-page">
       <section className="page-hero">
-        <div className="page-hero-content" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>
-            <h1>AI Career Toolkit</h1>
-            <p>AI-powered tools to strengthen your resume, practice interviews, and stand out to employers.</p>
-          </div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <Link href="/dashboard" className="btn" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.4)' }}>
-              Dashboard
-            </Link>
-            <SignOutButton />
-          </div>
+        <div className="page-hero-content">
+          <h1>AI Career Toolkit</h1>
+          <p>AI-powered tools to strengthen your resume, practice interviews, and stand out to employers.</p>
         </div>
       </section>
 
@@ -170,7 +160,6 @@ export default async function AIToolsPage() {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }

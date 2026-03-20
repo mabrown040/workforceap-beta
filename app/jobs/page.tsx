@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { Suspense } from 'react';
 import { buildPageMetadata } from '@/app/seo';
 import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
@@ -20,7 +20,9 @@ export default function JobsPage() {
       />
       <section className="content-section" style={{ paddingTop: '1rem' }}>
         <div className="container">
-          <JobsListingClient />
+          <Suspense fallback={<p className="job-loading">Loading jobs…</p>}>
+            <JobsListingClient />
+          </Suspense>
         </div>
       </section>
       <Footer />

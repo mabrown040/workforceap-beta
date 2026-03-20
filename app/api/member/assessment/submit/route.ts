@@ -67,6 +67,7 @@ export async function POST(request: Request) {
   const emailFrom = process.env.EMAIL_FROM || 'noreply@workforceap.org';
   const dashboardUrl = `${siteUrl}/dashboard`;
 
+  let memberEmailSent = false;
   if (resendKey) {
     try {
       const resend = new Resend(resendKey);
@@ -105,12 +106,18 @@ export async function POST(request: Request) {
         subject: 'Assessment Complete — Workforce Advancement Project',
         html: memberHtml,
       });
+      memberEmailSent = true;
     } catch (err) {
       console.error('Assessment email failed:', err);
     }
   }
 
-  return NextResponse.json({ ok: true, rawScore: raw, scorePct: pct });
+  return NextResponse.json({
+    ok: true,
+    rawScore: raw,
+    scorePct: pct,
+    emailsSent: memberEmailSent,
+  });
 }
 
 function parseBody(body: unknown): {

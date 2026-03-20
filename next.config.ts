@@ -79,6 +79,9 @@ const nextConfig: NextConfig = {
       { source: '/programs/comptia-network-plus', destination: '/programs/comptia-network-professional-certificate', permanent: true },
       { source: '/programs/comptia-security-plus', destination: '/programs/comptia-security-professional-certificate', permanent: true },
 
+      // Employer dashboard canonical redirect
+      { source: '/employer/dashboard', destination: '/employer', permanent: true },
+
       // Member portal: AI Tools, Career Brief, Learning, Weekly Recap live under /dashboard/*
       { source: '/ai-tools', destination: '/dashboard/ai-tools', permanent: true },
       { source: '/ai-tools/:path*', destination: '/dashboard/ai-tools/:path*', permanent: true },

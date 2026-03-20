@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import SuperAdminViewSwitcher from '@/components/super-admin-view-switcher';
 import { SignOutButton } from './SignOutButton';
 
 const NAV_LINKS = [
@@ -43,6 +44,7 @@ export default function EmployerPortalShell({
             ))}
           </ul>
           <div className="portal-nav-actions">
+            <SuperAdminViewSwitcher />
             <span style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', marginRight: '0.5rem' }}>
               {companyName}
             </span>

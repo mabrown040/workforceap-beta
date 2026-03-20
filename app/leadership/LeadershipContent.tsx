@@ -3,77 +3,43 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Linkedin } from 'lucide-react';
+import { LEADERS } from '@/lib/content/leadership';
 import './leadership.css';
-
-const leaders = [
-  {
-    id: 'michael',
-    name: 'Michael A. Brown, PMP, ChE',
-    role: 'Executive Director, CEO',
-    title: 'Executive Director & Chief Executive Officer',
-    image: '/images/michael-brown.jpg',
-    founder: true,
-    bio: "Michael A. Brown, PMP, ChE, is a highly accomplished business executive with a distinguished career spanning several decades in business development, project management, and education. Michael holds a Chemical Engineering degree from Texas A&M University and as a former owner of Consulting Solutions.Net and key leader at State of Texas Career Schools, Goodwill Central Texas, Austin Urban League, Universal Tech Movement, African American Youth Harvest Foundation he has consistently driven organizational excellence across public and private sectors. A devoted community leader, Michael is an elder at Celebration Church and an active board member of Concordia High School and also member of 100 Black Men of Austin and Alpha Phi Alpha Fraternity.",
-    tags: ['PMP Certified', 'Chemical Engineering — Texas A&M University', '25+ Years Workforce Development', 'Goodwill Central Texas', 'Austin Urban League', 'Universal Tech Movement', 'Elder at Celebration Church', 'Concordia High School Board', '100 Black Men of Austin'],
-  },
-  {
-    id: 'adriane',
-    name: 'Adriane Brown',
-    role: 'Chief Operating Officer',
-    title: 'Chief Operating Officer',
-    image: '/images/adriane-brown.jpg',
-    founder: false,
-    bio: "Adriane Brown is a strategic business and operations leader with over 25 years of experience driving organizational growth and operational excellence. A Texas A&M graduate, she has led enterprise operations to national reach and brings deep expertise in business development, compliance, and performance optimization. She completed Microsoft Project Management Certification in 2025 and serves as Women's Ministry Leader at Celebration Church.",
-    tags: ['Texas A&M University', 'Microsoft PM Certified (2025)', '25+ Years Operations', 'Business Development'],
-  },
-  {
-    id: 'lakecia',
-    name: 'Lakecia Gunter',
-    role: 'Board Member',
-    title: 'Board Member',
-    image: '/images/lakecia-gunter.jpg',
-    founder: false,
-    bio: 'Lakecia Gunter is a 25-year tech industry veteran serving as Chief Technology Officer, Global Partner Solutions at Microsoft. Honored as a Finalist in SUCCESS Magazine\'s 2023 Women of Influence, she is a nationally recognized engineer, speaker, and advocate for women in technology. She holds an MS in Electrical Engineering from Georgia Tech and currently serves on the Board of Directors at IDEX Corporation.',
-    tags: ['Microsoft CTO, Global Partner Solutions', 'MS Electrical Engineering, Georgia Tech', 'SUCCESS 2023 Women of Influence', 'IDEX Corporation Board'],
-  },
-  {
-    id: 'brandon',
-    name: 'Brandon Frye',
-    role: 'Board Member',
-    title: 'Board Member',
-    image: '/images/brandon-frye.jpg',
-    founder: false,
-    bio: 'Brandon Frye is a seasoned entrepreneur and business operator with extensive experience founding, investing in, and leading high-growth companies. He co-founded Interstate Connections (named "Fastest Growing Private Company" by Austin Business Journal) and currently serves as CFO of The Business Bible. Brandon is deeply involved in community leadership, serving on multiple boards including Texas Alliance for Life.',
-    tags: ['Co-Founder, Interstate Connections', 'CFO, The Business Bible', 'Austin Business Journal Honoree', 'Texas Alliance for Life Board'],
-  },
-  {
-    id: 'derrick',
-    name: 'Col. Derrick Fishback',
-    role: 'Board Member (Ret.)',
-    title: 'Board Member',
-    image: '/images/derrick-fishback.jpg',
-    founder: false,
-    bio: 'Colonel Derrick Fishback (Retired) is a transformational leader with nearly three decades of U.S. Army service complemented by leadership roles at Fortune 500 companies. He has commanded 1,800+ personnel and led cloud transformation initiatives at Amazon Web Services, IBM, and Dell. Derrick holds two master\'s degrees and serves as Board President of the Jazz Society of Pensacola.',
-    tags: ['U.S. Army Colonel (Ret.) — 28 Years', 'AWS Cloud Transformation', 'IBM & Dell Leadership', "Two Master's Degrees"],
-  },
-];
 
 export default function LeadershipContent() {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
-  const toggleBio = (id: string) => {
-    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+  const toggleBio = (e: React.MouseEvent, slug: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setExpanded((prev) => ({ ...prev, [slug]: !prev[slug] }));
   };
 
   return (
     <section className="content-section">
       <div className="container">
-        <h2 style={{ marginBottom: '0.5rem', textAlign: 'center' }} className="animate-on-scroll">Our Team</h2>
-        <p style={{ textAlign: 'center', color: 'var(--color-gray-500)', marginBottom: '2.5rem', fontSize: '1rem' }} className="animate-on-scroll">Click &quot;Read more&quot; to expand each bio.</p>
+        <h2 style={{ marginBottom: '0.5rem', textAlign: 'center' }} className="animate-on-scroll">
+          Our Team
+        </h2>
+        <p
+          style={{
+            textAlign: 'center',
+            color: 'var(--color-gray-500)',
+            marginBottom: '2.5rem',
+            fontSize: '1rem',
+          }}
+          className="animate-on-scroll"
+        >
+          Click a card to read the full bio, or use &quot;Read more&quot; to expand here.
+        </p>
 
         <div className="leaders-card-grid animate-on-scroll">
-          {leaders.map((leader) => (
-            <div key={leader.id} className="leader-card">
+          {LEADERS.map((leader) => (
+            <article key={leader.slug} className="leader-card">
+              <Link href={`/leadership/${leader.slug}`} className="leader-card-overlay-link">
+                <span className="sr-only">View full profile: {leader.name}</span>
+              </Link>
               <div className="leader-card-photo">
                 <Image src={leader.image} alt={leader.name} width={240} height={240} loading="lazy" />
                 {leader.founder && <span className="leader-card-badge">Founder</span>}
@@ -81,25 +47,42 @@ export default function LeadershipContent() {
               <div className="leader-card-body">
                 <div className="leader-card-name">{leader.name}</div>
                 <div className="leader-card-role">{leader.role}</div>
-                <p className={`leader-card-bio ${expanded[leader.id] ? 'expanded' : ''}`}>
-                  {leader.bio}
+                <p className={`leader-card-bio ${expanded[leader.slug] ? 'expanded' : ''}`}>
+                  {leader.cardBio}
                 </p>
-                <button
-                  type="button"
-                  className="leader-card-read-more"
-                  onClick={() => toggleBio(leader.id)}
-                >
-                  {expanded[leader.id] ? 'Show less' : 'Read more'}
-                </button>
+                <div className="leader-card-actions">
+                  <button
+                    type="button"
+                    className="leader-card-read-more"
+                    onClick={(e) => toggleBio(e, leader.slug)}
+                  >
+                    {expanded[leader.slug] ? 'Show less' : 'Read more'}
+                  </button>
+                  <a
+                    href={leader.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="leader-card-linkedin"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Linkedin size={18} strokeWidth={2} aria-hidden />
+                    LinkedIn
+                  </a>
+                </div>
               </div>
-            </div>
+            </article>
           ))}
         </div>
 
         <div className="join-cta animate-on-scroll">
           <h2>Join Our Mission</h2>
-          <p>Interested in partnering with us, volunteering your expertise, or joining the board? We&apos;d love to hear from you.</p>
-          <Link href="/contact" className="btn btn-primary btn-large">Get In Touch</Link>
+          <p>
+            Interested in partnering with us, volunteering your expertise, or joining the board? We&apos;d love
+            to hear from you.
+          </p>
+          <Link href="/contact" className="btn btn-primary btn-large">
+            Get In Touch
+          </Link>
         </div>
       </div>
     </section>

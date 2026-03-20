@@ -7,6 +7,7 @@
 }
 
 .leader-card {
+    position: relative;
     background: var(--color-white);
     border-radius: var(--radius-lg);
     overflow: hidden;
@@ -20,7 +21,13 @@
 
 .leader-card:hover {
     transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 12px 40px rgba(26, 26, 46, 0.12);
+}
+
+.leader-card-overlay-link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
 }
 
 .leader-card-photo {
@@ -53,6 +60,8 @@
 }
 
 .leader-card-body {
+    position: relative;
+    z-index: 2;
     padding: 1.25rem 1.25rem 1.5rem;
     flex: 1;
     display: flex;
@@ -76,7 +85,7 @@
 }
 
 .leader-card-bio {
-    font-size: 0.9rem;
+    font-size: 14px;
     line-height: 1.6;
     color: var(--color-gray-600);
     margin-bottom: 0.5rem;
@@ -94,6 +103,17 @@
     overflow: visible;
 }
 
+.leader-card-actions {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.65rem;
+    margin-top: auto;
+    padding-top: 0.35rem;
+}
+
 .leader-card-read-more {
     align-self: flex-start;
     background: none;
@@ -103,7 +123,6 @@
     font-weight: 600;
     cursor: pointer;
     padding: 0.25rem 0;
-    margin-top: 0.25rem;
     transition: color var(--transition-fast);
 }
 
@@ -114,6 +133,32 @@
 .leader-card-read-more:focus-visible {
     outline: none;
     box-shadow: 0 0 0 2px var(--color-white), 0 0 0 4px var(--color-accent);
+}
+
+.leader-card-linkedin {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.85rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #0077b5;
+    background: transparent;
+    border: 1px solid #0077b5;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.leader-card-linkedin:hover {
+    background: rgba(0, 119, 181, 0.08);
+    color: #006097;
+    border-color: #006097;
+}
+
+.leader-card-linkedin:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-white), 0 0 0 4px #0077b5;
 }
 
 /* Join CTA */

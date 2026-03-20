@@ -5510,6 +5510,65 @@ body { animation: fadeIn 0.4s ease; }
     white-space: nowrap;
 }
 
+/* Super Admin View Switcher - visible only to super admins */
+.super-admin-view-switcher {
+    position: relative;
+    flex-shrink: 0;
+}
+.super-admin-view-switcher__trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.6rem;
+    font-size: 0.8rem;
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-sm);
+    background: var(--color-white);
+    color: var(--color-primary);
+    cursor: pointer;
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+.super-admin-view-switcher__trigger:hover {
+    border-color: var(--color-accent);
+    background: rgba(173, 44, 77, 0.05);
+}
+.super-admin-view-switcher__label {
+    white-space: nowrap;
+}
+.super-admin-view-switcher__dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    min-width: 180px;
+    padding: 0.25rem;
+    background: var(--color-white);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    z-index: 100;
+}
+.super-admin-view-switcher__option {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    text-align: left;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--color-primary);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+.super-admin-view-switcher__option:hover {
+    background: var(--color-gray-100);
+}
+.super-admin-view-switcher__option.active {
+    background: rgba(74, 155, 79, 0.12);
+    color: var(--color-green);
+    font-weight: var(--font-weight-medium);
+}
+
 /* Admin main content - responsive padding */
 .admin-main-content {
     padding: 1.5rem 1rem;

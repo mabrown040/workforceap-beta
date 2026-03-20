@@ -3,11 +3,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Menu, X } from 'lucide-react';
 import DevViewToggle from './DevViewToggle';
+import SuperAdminViewSwitcher from '@/components/super-admin-view-switcher';
 import { SignOutButton } from './SignOutButton';
 
 function ActionItems({ onItemClick }: { onItemClick?: () => void }) {
   return (
     <>
+      <SuperAdminViewSwitcher />
       <DevViewToggle />
       <a
         href="https://www.workforceap.org/"

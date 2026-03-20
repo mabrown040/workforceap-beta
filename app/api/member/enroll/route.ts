@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
+import { sendCourseEnrolledEmail } from '@/lib/email';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -27,26 +28,33 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid program' }, { status: 400 });
   }
 
-  const dbUser = await prisma.user.findUnique({
+  const existing = await prisma.user.findUnique({
     where: { id: user.id },
     select: { enrolledProgram: true },
   });
 
-  if (dbUser?.enrolledProgram) {
+  if (existing?.enrolledProgram) {
     return NextResponse.json({ error: 'Already enrolled in a program. Changes require admin.' }, { status: 400 });
   }
 
-  await prisma.user.update({
+  const updatedUser = await prisma.user.update({
     where: { id: user.id },
     data: {
       enrolledProgram: slug,
       enrolledAt: new Date(),
     },
+    select: { email: true, fullName: true },
   });
 
   await sendPartnerMilestoneEmail(user.id, 'Program enrollment', {
     Program: program.title,
   });
+
+  sendCourseEnrolledEmail({
+    to: updatedUser.email,
+    fullName: updatedUser.fullName,
+    programName: program.title,
+  }).catch((err) => console.error('Course enrolled email failed:', err));
 
   return NextResponse.json({ ok: true, programSlug: slug });
 }

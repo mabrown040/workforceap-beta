@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 import { auditLog } from '@/lib/audit';
 import { checkAuthRateLimit } from '@/lib/rate-limit';
 import { ApplicationStatus } from '@prisma/client';
+import { sendApplicationAcceptedEmail, sendApplicationRejectedEmail } from '@/lib/email';
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -72,6 +73,19 @@ export async function PATCH(
     where: { id },
     data: { status, notes: notes ?? application.notes },
   });
+
+  // Best-effort: send accept/reject emails to applicant
+  if (status === 'APPROVED') {
+    sendApplicationAcceptedEmail({
+      to: application.user.email,
+      fullName: application.user.fullName,
+    }).catch((err) => console.error('Application accepted email failed:', err));
+  } else if (status === 'DENIED') {
+    sendApplicationRejectedEmail({
+      to: application.user.email,
+      fullName: application.user.fullName,
+    }).catch((err) => console.error('Application rejected email failed:', err));
+  }
 
   await auditLog({
     actorUserId: user.id,

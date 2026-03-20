@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -50,6 +51,11 @@ export async function POST(request: Request) {
   await prisma.user.update({
     where: { id: user.id },
     data: { coursesCompleted: updated },
+  });
+
+  const courseMeta = program.courses.find((c) => c.slug === courseSlug);
+  await sendPartnerMilestoneEmail(user.id, 'Course completed', {
+    Course: courseMeta?.name ?? courseSlug,
   });
 
   return NextResponse.json({ ok: true });

@@ -18,6 +18,8 @@ type Member = {
   programTitle: string | null | undefined;
   coursesCompleted: string[];
   totalCourses: number;
+  partnerName: string | null;
+  partnerId: string | null;
 };
 
 type MembersTableProps = {
@@ -27,16 +29,23 @@ type MembersTableProps = {
 export default function MembersTable({ members }: MembersTableProps) {
   const [search, setSearch] = useState('');
   const [programFilter, setProgramFilter] = useState('');
+  const [partnerFilter, setPartnerFilter] = useState('');
 
   const filtered = members.filter((m) => {
     const matchSearch = !search || 
       m.fullName?.toLowerCase().includes(search.toLowerCase()) ||
       m.email?.toLowerCase().includes(search.toLowerCase());
     const matchProgram = !programFilter || m.enrolledProgram === programFilter;
-    return matchSearch && matchProgram;
+    const matchPartner =
+      !partnerFilter ||
+      (partnerFilter === '__none' ? !m.partnerId : m.partnerId === partnerFilter);
+    return matchSearch && matchProgram && matchPartner;
   });
 
   const programs = [...new Set(members.map((m) => m.enrolledProgram).filter(Boolean))] as string[];
+  const partnerOptions = [...new Map(members.filter((m) => m.partnerId).map((m) => [m.partnerId!, m.partnerName!])).entries()].sort(
+    (a, b) => a[1].localeCompare(b[1])
+  );
 
   return (
     <div>
@@ -58,6 +67,17 @@ export default function MembersTable({ members }: MembersTableProps) {
             <option key={p} value={p}>{p}</option>
           ))}
         </select>
+        <select
+          value={partnerFilter}
+          onChange={(e) => setPartnerFilter(e.target.value)}
+          style={{ padding: '0.5rem', width: '220px' }}
+        >
+          <option value="">All partners</option>
+          <option value="__none">No partner</option>
+          {partnerOptions.map(([pid, pname]) => (
+            <option key={pid} value={pid}>{pname}</option>
+          ))}
+        </select>
       </div>
 
       <div style={{ overflowX: 'auto' }}>
@@ -68,6 +88,7 @@ export default function MembersTable({ members }: MembersTableProps) {
               <th>Email</th>
               <th className="members-col-md">Phone</th>
               <th>Program</th>
+              <th>Partner</th>
               <th>Enrolled</th>
               <th>Score %</th>
               <th>Training</th>
@@ -109,6 +130,7 @@ export default function MembersTable({ members }: MembersTableProps) {
                 <td>{m.email}</td>
                 <td className="members-col-md">{phoneDisplay}</td>
                 <td>{m.programTitle ?? '—'}</td>
+                <td>{m.partnerName ?? '—'}</td>
                 <td>{m.enrolledAt?.toLocaleDateString() ?? '—'}</td>
                 <td>
                   <span className={

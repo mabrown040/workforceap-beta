@@ -1,7 +1,16 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-const PORTAL_PATHS = ['/dashboard', '/resources', '/help', '/applications', '/certifications', '/profile', '/account'];
+const PORTAL_PATHS = [
+  '/dashboard',
+  '/resources',
+  '/help',
+  '/applications',
+  '/certifications',
+  '/profile',
+  '/account',
+  '/partner',
+];
 const ADMIN_PATHS = ['/admin'];
 
 function isPortalPath(pathname: string) {

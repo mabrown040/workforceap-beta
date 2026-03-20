@@ -5,6 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { PROGRAMS } from '@/lib/content/programs';
+import { prisma } from '@/lib/db/prisma';
 import AddMemberWizard from './AddMemberWizard';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -20,6 +21,12 @@ export default async function AddMemberPage() {
   const hasAdmin = await isAdmin(user.id);
   if (!hasAdmin) redirect('/dashboard');
 
+  const partners = await prisma.partner.findMany({
+    where: { active: true },
+    orderBy: { name: 'asc' },
+    select: { id: true, name: true },
+  });
+
   return (
     <div style={{ paddingTop: '1.5rem' }}>
       <Link
@@ -32,7 +39,7 @@ export default async function AddMemberPage() {
       <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
         Multi-step onboarding. All WIOA fields required for grant reporting.
       </p>
-      <AddMemberWizard programs={PROGRAMS} />
+      <AddMemberWizard programs={PROGRAMS} partners={partners} />
     </div>
   );
 }

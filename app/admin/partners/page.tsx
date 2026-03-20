@@ -30,8 +30,7 @@ export default async function AdminPartnersPage() {
         <div className="admin-empty-state">
           <h3>No partner organizations yet</h3>
           <p>
-            Partners are employers, workforce boards, and training providers who refer candidates to your programs.{' '}
-            Add your first partner to start tracking referrals and assigning counselors.
+            Partner organizations refer candidates to WorkforceAP. Each partner gets their own portal login, referral tracking, and milestone notifications for their members.
           </p>
           <Link href="/admin/partners/new" className="btn btn-primary">Add Partner</Link>
         </div>

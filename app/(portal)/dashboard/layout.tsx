@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
+import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import DashboardShell from '@/components/portal/DashboardShell';
@@ -11,6 +12,9 @@ export default async function DashboardLayout({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard');
+
+  const partnerCtx = await getPartnerForUser(user.id);
+  if (partnerCtx) redirect('/partner');
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },

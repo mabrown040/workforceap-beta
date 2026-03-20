@@ -18,17 +18,8 @@ export default function AdminShell({ children }: AdminShellProps) {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', flexDirection: 'column' }}>
-      <header
-        style={{
-          borderBottom: '1px solid var(--color-border, #e5e5e5)',
-          padding: '0.75rem 1.5rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          background: 'white',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+      <header className="portal-shell-header">
+        <div className="portal-shell-header__brand">
           <button
             type="button"
             className="admin-menu-btn"
@@ -41,9 +32,9 @@ export default function AdminShell({ children }: AdminShellProps) {
             WorkforceAP Admin
           </Link>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div className="portal-shell-header__actions">
           <DevViewToggle />
-          <SignOutButton />
+          <SignOutButton className="btn btn-outline btn-sm" />
         </div>
       </header>
 

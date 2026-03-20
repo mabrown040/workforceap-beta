@@ -4,8 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import AdminSidebar from './AdminSidebar';
 import AdminFooter from './AdminFooter';
-import { SignOutButton } from '@/components/portal/SignOutButton';
-import DevViewToggle from '@/components/portal/DevViewToggle';
+import PortalHeaderActions from '@/components/portal/PortalHeaderActions';
 
 type AdminShellProps = {
   children: React.ReactNode;
@@ -32,17 +31,7 @@ export default function AdminShell({ children }: AdminShellProps) {
             WorkforceAP Admin
           </Link>
         </div>
-        <div className="portal-shell-header__actions">
-          <DevViewToggle />
-          <a
-            href="https://www.workforceap.org/"
-            className="btn btn-outline btn-sm"
-            rel="noopener noreferrer"
-          >
-            Return to Homepage
-          </a>
-          <SignOutButton className="btn btn-outline btn-sm" />
-        </div>
+        <PortalHeaderActions />
       </header>
 
       <div

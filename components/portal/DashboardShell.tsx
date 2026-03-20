@@ -5,8 +5,7 @@ import Link from 'next/link';
 import DashboardSidebar from './DashboardSidebar';
 import DashboardFooter from './DashboardFooter';
 import ProgressBanner from './ProgressBanner';
-import { SignOutButton } from './SignOutButton';
-import DevViewToggle from './DevViewToggle';
+import PortalHeaderActions from './PortalHeaderActions';
 
 type DashboardShellProps = {
   children: React.ReactNode;
@@ -41,17 +40,7 @@ export default function DashboardShell({
             WorkforceAP
           </Link>
         </div>
-        <div className="portal-shell-header__actions">
-          <DevViewToggle />
-          <a
-            href="https://www.workforceap.org/"
-            className="btn btn-outline btn-sm"
-            rel="noopener noreferrer"
-          >
-            Return to Homepage
-          </a>
-          <SignOutButton className="btn btn-outline btn-sm" />
-        </div>
+        <PortalHeaderActions />
       </header>
 
       <div

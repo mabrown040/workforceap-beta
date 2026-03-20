@@ -5317,6 +5317,53 @@ body { animation: fadeIn 0.4s ease; }
     .dashboard-menu-btn { display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
 }
 
+/* Portal / admin dashboard shell header (logo, view toggle, sign out) */
+.portal-shell-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
+    border-bottom: 1px solid var(--color-border, #e5e5e5);
+    padding: 0.75rem 1.5rem;
+    background: #fff;
+    min-width: 0;
+}
+.portal-shell-header__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+    flex: 0 1 auto;
+}
+.portal-shell-header__brand > a {
+    min-width: 0;
+}
+.portal-shell-header__actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 1rem 1.25rem;
+    flex: 0 0 auto;
+    min-width: 0;
+}
+@media (max-width: 480px) {
+    .portal-shell-header__actions {
+        flex-basis: 100%;
+    }
+}
+.dev-view-toggle {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-shrink: 0;
+}
+.dev-view-toggle button {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
 /* Admin sidebar mobile */
 .admin-drawer-overlay {
     display: none;

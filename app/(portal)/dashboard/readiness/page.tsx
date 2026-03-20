@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import Footer from '@/components/Footer';
 import ReadinessMemberClient from './ReadinessMemberClient';
 import '@/css/counselor.css';
 
@@ -23,7 +22,6 @@ export default async function DashboardReadinessPage() {
         Track your progress from training to career. Your counselor updates this checklist as you hit milestones.
       </p>
       <ReadinessMemberClient />
-      <Footer />
     </div>
   );
 }

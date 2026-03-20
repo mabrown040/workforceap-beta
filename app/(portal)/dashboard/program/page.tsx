@@ -5,7 +5,6 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
-import Footer from '@/components/Footer';
 import ProgramPicker from '@/components/portal/ProgramPicker';
 import { ProgramIcon } from '@/components/ProgramIcon';
 
@@ -36,7 +35,6 @@ export default async function ProgramPage() {
           Select one program. This is a one-time choice — funding is tied to a single program enrollment.
         </p>
         <ProgramPicker programs={PROGRAMS} />
-        <Footer />
       </>
     );
   }
@@ -105,7 +103,6 @@ export default async function ProgramPage() {
           Go to Training
         </Link>
       </div>
-      <Footer />
     </>
   );
 }

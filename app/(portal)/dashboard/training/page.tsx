@@ -4,7 +4,6 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
-import Footer from '@/components/Footer';
 import TrainingCourseList from '@/components/portal/TrainingCourseList';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -64,7 +63,6 @@ export default async function TrainingPage() {
         courses={program.courses}
         completedSlugs={coursesCompleted}
       />
-      <Footer />
     </>
   );
 }

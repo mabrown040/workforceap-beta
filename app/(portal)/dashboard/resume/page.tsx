@@ -5,7 +5,6 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getProfileCompleteness } from '@/lib/resume/profileCompleteness';
-import Footer from '@/components/Footer';
 import ResumeClient from './ResumeClient';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -49,7 +48,6 @@ export default async function DashboardResumePage() {
         hasOriginal={!!dbUser.profile?.resumeOriginalPath}
         hasEnhanced={!!dbUser.profile?.resumeEnhancedPath}
       />
-      <Footer />
     </div>
   );
 }

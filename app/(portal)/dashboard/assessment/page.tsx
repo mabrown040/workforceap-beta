@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import Footer from '@/components/Footer';
 import AssessmentForm from '@/components/portal/AssessmentForm';
 
 export default async function AssessmentPage({
@@ -50,7 +49,6 @@ export default async function AssessmentPage({
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }

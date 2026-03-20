@@ -6,7 +6,6 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
-import Footer from '@/components/Footer';
 import DashboardProfileForm from '@/components/portal/DashboardProfileForm';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -92,7 +91,6 @@ export default async function DashboardProfilePage() {
         </div>
       )}
 
-      <Footer />
     </>
   );
 }

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import DashboardSidebar from './DashboardSidebar';
+import DashboardFooter from './DashboardFooter';
 import ProgressBanner from './ProgressBanner';
 import { SignOutButton } from './SignOutButton';
 import DevViewToggle from './DevViewToggle';
@@ -64,7 +65,7 @@ export default function DashboardShell({
         aria-hidden
       />
 
-      <div style={{ display: 'flex', flex: 1 }}>
+      <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
         <DashboardSidebar open={drawerOpen} onClose={closeDrawer} />
         <main
           style={{
@@ -84,6 +85,7 @@ export default function DashboardShell({
           <div style={{ padding: '1.5rem 2rem', flex: 1 }}>{children}</div>
         </main>
       </div>
+      <DashboardFooter />
     </div>
   );
 }

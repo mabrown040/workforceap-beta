@@ -16,9 +16,14 @@ export async function getProfileRole(userId: string): Promise<string> {
   return profile?.role ?? 'member';
 }
 
+export async function isSuperAdmin(userId: string): Promise<boolean> {
+  const profileRole = await getProfileRole(userId);
+  return profileRole === 'super_admin';
+}
+
 export async function isAdmin(userId: string): Promise<boolean> {
   const profileRole = await getProfileRole(userId);
-  if (profileRole === 'admin') return true;
+  if (profileRole === 'admin' || profileRole === 'super_admin') return true;
   const roles = await getUserRoles(userId);
   return roles.includes('admin') || roles.includes('case_manager');
 }
@@ -35,7 +40,8 @@ export async function isPartner(userId: string): Promise<boolean> {
     where: { userId },
     select: { id: true },
   });
-  return !!row;
+  if (row) return true;
+  return isSuperAdmin(userId);
 }
 
 export async function getPartnerForUser(
@@ -45,8 +51,15 @@ export async function getPartnerForUser(
     where: { userId },
     include: { partner: { select: { id: true, name: true, slug: true } } },
   });
-  if (!row) return null;
-  return { partnerId: row.partnerId, partner: row.partner };
+  if (row) return { partnerId: row.partnerId, partner: row.partner };
+  if (await isSuperAdmin(userId)) {
+    const first = await prisma.partner.findFirst({
+      where: { active: true },
+      select: { id: true, name: true, slug: true },
+    });
+    if (first) return { partnerId: first.id, partner: first };
+  }
+  return null;
 }
 
 /** Subgroup leader: user is leader_id of a subgroup or in subgroup_leaders */

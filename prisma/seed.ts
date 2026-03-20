@@ -14,8 +14,19 @@ async function main() {
   }
   console.log('Seeded roles:', roles);
 
-  // Seed admin users
-  const adminEmails = ['mabrown040@gmail.com', 'michael.brown@workforceap.org'];
+  // Seed admin users (mabrown040 is super_admin for testing all portal views)
+  const superAdminEmails = ['mabrown040@gmail.com'];
+  for (const email of superAdminEmails) {
+    const user = await prisma.user.findUnique({ where: { email }, include: { profile: true } });
+    if (user?.profile) {
+      await prisma.profile.update({
+        where: { userId: user.id },
+        data: { role: 'super_admin' },
+      });
+      console.log('Set role=super_admin for', email);
+    }
+  }
+  const adminEmails = ['michael.brown@workforceap.org'];
   for (const email of adminEmails) {
     const user = await prisma.user.findUnique({ where: { email }, include: { profile: true } });
     if (user?.profile) {

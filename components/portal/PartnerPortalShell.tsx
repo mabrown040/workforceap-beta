@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import SuperAdminViewSwitcher from '@/components/super-admin-view-switcher';
 import { SignOutButton } from './SignOutButton';
 
 export default function PartnerPortalShell({
@@ -25,6 +26,7 @@ export default function PartnerPortalShell({
             </li>
           </ul>
           <div className="portal-nav-actions">
+            <SuperAdminViewSwitcher />
             <span style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', marginRight: '0.5rem' }}>{partnerName}</span>
             <Link href="/" className="portal-nav-home">
               WorkforceAP

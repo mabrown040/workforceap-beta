@@ -28,8 +28,9 @@ export default function PortalShell({ children }: { children: React.ReactNode })
     (async () => {
       try {
         const res = await fetch('/api/auth/me');
-        const data = (await res.json()) as { partner?: { partnerId: string } | null };
+        const data = (await res.json()) as { partner?: { partnerId: string } | null; superAdmin?: boolean };
         if (cancelled || !data.partner) return;
+        if (data.superAdmin) return;
         if (pathname.startsWith('/partner')) return;
         if (isMemberPortalPath(pathname)) {
           window.location.replace('/partner');

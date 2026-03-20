@@ -121,7 +121,7 @@ export async function isEmployer(userId: string): Promise<boolean> {
   return !!row;
 }
 
-/** Get employer context for a user. Returns null if not an employer. */
+/** Get employer context for a user. Returns null if not an employer. Super admins get first active employer for portal hopping. */
 export async function getEmployerForUser(
   userId: string
 ): Promise<{ employerId: string; employer: { id: string; companyName: string; contactEmail: string } } | null> {
@@ -129,13 +129,27 @@ export async function getEmployerForUser(
     where: { userId },
     include: { user: { select: { id: true } } },
   });
-  if (!row || row.status !== 'active') return null;
-  return {
-    employerId: row.id,
-    employer: {
-      id: row.id,
-      companyName: row.companyName,
-      contactEmail: row.contactEmail,
-    },
-  };
+  if (row && row.status === 'active') {
+    return {
+      employerId: row.id,
+      employer: {
+        id: row.id,
+        companyName: row.companyName,
+        contactEmail: row.contactEmail,
+      },
+    };
+  }
+  if (await isSuperAdmin(userId)) {
+    const first = await prisma.employer.findFirst({
+      where: { status: 'active' },
+      select: { id: true, companyName: true, contactEmail: true },
+    });
+    if (first) {
+      return {
+        employerId: first.id,
+        employer: first,
+      };
+    }
+  }
+  return null;
 }

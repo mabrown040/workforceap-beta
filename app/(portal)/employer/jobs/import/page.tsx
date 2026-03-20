@@ -8,8 +8,8 @@ import { PROGRAMS } from '@/lib/content/programs';
 import ImportJobClient from './ImportJobClient';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Import Job',
-  description: 'Import a job from URL or paste description.',
+  title: 'Import jobs',
+  description: 'Import job postings from URLs, LinkedIn, or careers pages as editable drafts.',
   path: '/employer/jobs/import',
 });
 

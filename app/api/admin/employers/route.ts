@@ -65,5 +65,14 @@ export async function POST(request: NextRequest) {
     },
   });
 
+  const employerRole = await prisma.role.findUnique({ where: { name: 'employer' } });
+  if (employerRole) {
+    await prisma.userRole.upsert({
+      where: { userId_roleId: { userId: parsed.data.userId, roleId: employerRole.id } },
+      create: { userId: parsed.data.userId, roleId: employerRole.id },
+      update: {},
+    });
+  }
+
   return NextResponse.json(employer, { status: 201 });
 }

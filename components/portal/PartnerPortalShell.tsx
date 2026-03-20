@@ -5,6 +5,12 @@ import { usePathname } from 'next/navigation';
 import SuperAdminViewSwitcher from '@/components/super-admin-view-switcher';
 import { SignOutButton } from './SignOutButton';
 
+const NAV_LINKS = [
+  { href: '/partner', label: 'Dashboard' },
+  { href: '/partner/guide', label: 'Referral guide' },
+  { href: '/partner/resources', label: 'Resources' },
+];
+
 export default function PartnerPortalShell({
   partnerName,
   children,
@@ -19,11 +25,18 @@ export default function PartnerPortalShell({
       <nav className="portal-nav" aria-label="Partner portal navigation">
         <div className="portal-nav-inner">
           <ul className="portal-nav-links">
-            <li>
-              <Link href="/partner" className={pathname === '/partner' ? 'active' : undefined}>
-                Dashboard
-              </Link>
-            </li>
+            {NAV_LINKS.map(({ href, label }) => (
+              <li key={href}>
+                <Link
+                  href={href}
+                  className={
+                    pathname === href || (href !== '/partner' && pathname.startsWith(href)) ? 'active' : undefined
+                  }
+                >
+                  {label}
+                </Link>
+              </li>
+            ))}
           </ul>
           <div className="portal-nav-actions">
             <SuperAdminViewSwitcher />

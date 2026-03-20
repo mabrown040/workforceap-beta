@@ -3,8 +3,11 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import CreateEmployerAccountClient from './CreateEmployerAccountClient';
+import OpenEmployerPortalButton from './OpenEmployerPortalButton';
+import ClearEmployerPortalContext from './ClearEmployerPortalContext';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin - Employers',
@@ -16,6 +19,8 @@ export default async function AdminEmployersPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/employers');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
+
+  const superAdmin = await isSuperAdmin(user.id);
 
   const employers = await prisma.employer.findMany({
     orderBy: { companyName: 'asc' },
@@ -29,8 +34,18 @@ export default async function AdminEmployersPage() {
     <div>
       <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Employers</h1>
       <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
-        Employers with portal access. Create employer records by linking a user (e.g. from Members).
+        Employers with portal access. Create accounts below, or open a company&apos;s portal as a super-admin to help
+        them post jobs.
       </p>
+
+      {superAdmin && (
+        <p style={{ fontSize: '0.9rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <ClearEmployerPortalContext />
+          <span style={{ color: 'var(--color-gray-500)' }}>
+            Stops pinning the employer portal to a specific company (falls back to default).
+          </span>
+        </p>
+      )}
 
       <div style={{ overflowX: 'auto' }}>
         <table className="admin-table">
@@ -40,6 +55,7 @@ export default async function AdminEmployersPage() {
               <th>Contact</th>
               <th>User</th>
               <th>Jobs</th>
+              {superAdmin && <th>Help</th>}
             </tr>
           </thead>
           <tbody>
@@ -55,6 +71,11 @@ export default async function AdminEmployersPage() {
                   {e.user.fullName} · {e.user.email}
                 </td>
                 <td>{e._count.jobs}</td>
+                {superAdmin && (
+                  <td>
+                    <OpenEmployerPortalButton employerId={e.id} />
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
@@ -63,9 +84,11 @@ export default async function AdminEmployersPage() {
 
       {employers.length === 0 && (
         <p style={{ color: 'var(--color-gray-500)', marginTop: '1rem' }}>
-          No employers yet. Use the API or add employer records via database/seed for users who need employer access.
+          No employers yet. Create the first account using the form below.
         </p>
       )}
+
+      <CreateEmployerAccountClient />
     </div>
   );
 }

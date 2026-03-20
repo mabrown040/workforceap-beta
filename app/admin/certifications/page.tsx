@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { prisma } from '@/lib/db/prisma';
 import { getCertificationsCohortStats } from '@/lib/admin/cohortAnalytics';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -15,14 +14,6 @@ export const metadata: Metadata = buildPageMetadata({
 export default async function AdminCertificationsAnalyticsPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/certifications');
-
-  const adminRole = await prisma.userRole.findFirst({
-    where: { userId: user.id },
-    include: { role: true },
-  });
-  if (adminRole?.role?.name !== 'admin') {
-    redirect('/dashboard');
-  }
 
   const rows = await getCertificationsCohortStats();
 

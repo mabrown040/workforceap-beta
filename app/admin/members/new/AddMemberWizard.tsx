@@ -39,6 +39,7 @@ type FormData = {
   programSlug: string;
   programNotes: string;
   partnerId: string;
+  subgroupId: string;
 };
 
 const initialForm: FormData = {
@@ -61,12 +62,14 @@ const initialForm: FormData = {
   programSlug: '',
   programNotes: '',
   partnerId: '',
+  subgroupId: '',
 };
 
 type PartnerOption = { id: string; name: string };
-type Props = { programs: Program[]; partners: PartnerOption[] };
+type SubgroupOption = { id: string; name: string; type: string };
+type Props = { programs: Program[]; partners: PartnerOption[]; subgroups: SubgroupOption[] };
 
-export default function AddMemberWizard({ programs, partners }: Props) {
+export default function AddMemberWizard({ programs, partners, subgroups }: Props) {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<FormData>(initialForm);
@@ -150,6 +153,7 @@ export default function AddMemberWizard({ programs, partners }: Props) {
         authorizedToWork: form.authorizedToWork,
         hasDisability: form.hasDisability,
         partnerId: form.partnerId || undefined,
+        subgroupId: form.subgroupId || undefined,
       };
       const res = await fetch('/api/admin/members/create', {
         method: 'POST',
@@ -379,6 +383,18 @@ export default function AddMemberWizard({ programs, partners }: Props) {
               ))}
             </select>
           </div>
+          <div className="wizard-field wizard-field-full">
+            <label>Subgroup (optional)</label>
+            <select value={form.subgroupId} onChange={(e) => update('subgroupId', e.target.value)}>
+              <option value="">None</option>
+              {subgroups.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name} ({s.type})
+                </option>
+              ))}
+            </select>
+            <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', marginTop: '0.25rem' }}>Assign to a subgroup for partner/manager/church visibility. Auto-assigned if partner is linked to a subgroup.</p>
+          </div>
           <div className="wizard-actions wizard-actions-between">
             <button type="button" className="btn btn-outline" onClick={() => setStep(2)}>
               Back
@@ -475,6 +491,10 @@ export default function AddMemberWizard({ programs, partners }: Props) {
             <p>
               <strong>Partner referral:</strong>{' '}
               {form.partnerId ? partners.find((p) => p.id === form.partnerId)?.name ?? form.partnerId : 'None'}
+            </p>
+            <p>
+              <strong>Subgroup:</strong>{' '}
+              {form.subgroupId ? subgroups.find((s) => s.id === form.subgroupId)?.name ?? form.subgroupId : 'None'}
             </p>
             <p><strong>Resume:</strong> {resumeFile ? 'Original uploaded' : 'Not uploaded'}{enhancedResume ? ' + Enhanced' : ''}</p>
             {form.notes && <p><strong>Counselor notes:</strong> {form.notes}</p>}

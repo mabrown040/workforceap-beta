@@ -48,3 +48,49 @@ export async function getPartnerForUser(
   if (!row) return null;
   return { partnerId: row.partnerId, partner: row.partner };
 }
+
+/** Subgroup leader: user is leader_id of a subgroup or in subgroup_leaders */
+export async function isSubgroupLeader(userId: string): Promise<boolean> {
+  const [led, inLeaders] = await Promise.all([
+    prisma.subgroup.findFirst({ where: { leaderId: userId }, select: { id: true } }),
+    prisma.subgroupLeader.findFirst({ where: { userId }, select: { id: true } }),
+  ]);
+  return !!led || !!inLeaders;
+}
+
+/** Get subgroups this user can view (as leader or secondary leader) */
+export async function getSubgroupsForUser(
+  userId: string
+): Promise<{ subgroupId: string; subgroup: { id: string; name: string; type: string } }[]> {
+  const led = await prisma.subgroup.findMany({
+    where: { leaderId: userId },
+    select: { id: true, name: true, type: true },
+  });
+  const viaLeaders = await prisma.subgroupLeader.findMany({
+    where: { userId },
+    include: { subgroup: { select: { id: true, name: true, type: true } } },
+  });
+  const seen = new Set<string>();
+  const result: { subgroupId: string; subgroup: { id: string; name: string; type: string } }[] = [];
+  for (const s of led) {
+    if (!seen.has(s.id)) {
+      seen.add(s.id);
+      result.push({ subgroupId: s.id, subgroup: s });
+    }
+  }
+  for (const sl of viaLeaders) {
+    if (!seen.has(sl.subgroup.id)) {
+      seen.add(sl.subgroup.id);
+      result.push({ subgroupId: sl.subgroup.id, subgroup: sl.subgroup });
+    }
+  }
+  return result;
+}
+
+export async function requireSubgroupLeader(userId: string): Promise<{ subgroupId: string; subgroup: { id: string; name: string; type: string } }[]> {
+  const subgroups = await getSubgroupsForUser(userId);
+  if (subgroups.length === 0) {
+    throw new Error('Forbidden: subgroup leader access required');
+  }
+  return subgroups;
+}

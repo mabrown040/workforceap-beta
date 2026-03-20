@@ -59,6 +59,8 @@ export async function POST(request: Request) {
   const resumeEnhancedPath = typeof o.resumeEnhancedPath === 'string' ? o.resumeEnhancedPath : undefined;
   const partnerId =
     typeof o.partnerId === 'string' && /^[0-9a-f-]{36}$/i.test(o.partnerId.trim()) ? o.partnerId.trim() : undefined;
+  const subgroupId =
+    typeof o.subgroupId === 'string' && /^[0-9a-f-]{36}$/i.test(o.subgroupId.trim()) ? o.subgroupId.trim() : undefined;
 
   if (!firstName || !email) {
     return NextResponse.json({ error: 'First name and email are required' }, { status: 400 });
@@ -79,6 +81,12 @@ export async function POST(request: Request) {
     const partner = await prisma.partner.findFirst({ where: { id: partnerId, active: true } });
     if (!partner) {
       return NextResponse.json({ error: 'Invalid or inactive partner' }, { status: 400 });
+    }
+  }
+  if (subgroupId) {
+    const subgroup = await prisma.subgroup.findUnique({ where: { id: subgroupId } });
+    if (!subgroup) {
+      return NextResponse.json({ error: 'Invalid subgroup' }, { status: 400 });
     }
   }
 
@@ -163,6 +171,37 @@ export async function POST(request: Request) {
         await tx.partnerReferral.create({
           data: { partnerId, memberId: authUser.id },
         });
+        // Auto-assign to subgroup if one exists for this partner
+        const subgroup = await tx.subgroup.findFirst({
+          where: { type: 'partner', partnerId },
+          select: { id: true },
+        });
+        if (subgroup) {
+          await tx.memberSubgroup.create({
+            data: {
+              memberId: authUser.id,
+              subgroupId: subgroup.id,
+              assignedBy: user.id,
+              assignmentType: 'auto_referral',
+            },
+          });
+        }
+      }
+      // Manual subgroup assignment if provided (and not already auto-assigned)
+      if (subgroupId) {
+        const existing = await tx.memberSubgroup.findUnique({
+          where: { memberId_subgroupId: { memberId: authUser.id, subgroupId } },
+        });
+        if (!existing) {
+          await tx.memberSubgroup.create({
+            data: {
+              memberId: authUser.id,
+              subgroupId,
+              assignedBy: user.id,
+              assignmentType: 'manual_admin',
+            },
+          });
+        }
       }
     });
   } catch (dbError) {

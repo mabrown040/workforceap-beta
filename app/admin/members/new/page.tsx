@@ -21,11 +21,17 @@ export default async function AddMemberPage() {
   const hasAdmin = await isAdmin(user.id);
   if (!hasAdmin) redirect('/dashboard');
 
-  const partners = await prisma.partner.findMany({
-    where: { active: true },
-    orderBy: { name: 'asc' },
-    select: { id: true, name: true },
-  });
+  const [partners, subgroups] = await Promise.all([
+    prisma.partner.findMany({
+      where: { active: true },
+      orderBy: { name: 'asc' },
+      select: { id: true, name: true },
+    }),
+    prisma.subgroup.findMany({
+      orderBy: { name: 'asc' },
+      select: { id: true, name: true, type: true },
+    }),
+  ]);
 
   return (
     <div className="add-member-page">
@@ -39,7 +45,7 @@ export default async function AddMemberPage() {
       <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
         Multi-step onboarding. All WIOA fields required for grant reporting.
       </p>
-      <AddMemberWizard programs={PROGRAMS} partners={partners} />
+      <AddMemberWizard programs={PROGRAMS} partners={partners} subgroups={subgroups} />
     </div>
   );
 }

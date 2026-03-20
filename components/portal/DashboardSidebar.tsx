@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   Home,
   BookOpen,
@@ -38,6 +38,7 @@ type DashboardSidebarProps = {
 
 export default function DashboardSidebar({ open = false, onClose }: DashboardSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <aside className={`dashboard-sidebar ${open ? 'open' : ''}`}>
@@ -51,7 +52,14 @@ export default function DashboardSidebar({ open = false, onClose }: DashboardSid
                   <Link
                     href={href}
                     className={`dashboard-sidebar-link ${isActive ? 'active' : ''}`}
-                    onClick={onClose}
+                    onClick={(e) => {
+                      // Primary-click: explicit router.push + deferred onClose so drawer setState
+                      // cannot race App Router and leave the URL one step behind the segment.
+                      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+                      e.preventDefault();
+                      void router.push(href);
+                      queueMicrotask(() => onClose?.());
+                    }}
                   >
                     <span className="dashboard-sidebar-icon">
                       <Icon size={20} className="text-current" />

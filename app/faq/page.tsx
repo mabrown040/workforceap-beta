@@ -23,7 +23,7 @@ export default function FAQPage() {
         imageUrl="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1400&q=80"
         label="Quick Answers"
         title="Everything You Need to Know"
-        description="Find answers to the most common questions about eligibility, programs, support, and job placement."
+        description="Quick answers about applying, programs, and what happens after."
       />
       <FAQContent />
       <Footer />

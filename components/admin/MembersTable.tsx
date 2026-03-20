@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Plus } from 'lucide-react';
 import { formatPhone } from '@/lib/formatPhone';
 
 type Member = {
@@ -163,7 +164,9 @@ export default function MembersTable({ members }: MembersTableProps) {
               : 'Try adjusting your search or program filter.'}
           </p>
           {members.length === 0 && (
-            <a href="/admin/members/new" className="btn btn-primary">Add Member</a>
+            <a href="/admin/members/new" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+              <Plus size={16} /> Add Member
+            </a>
           )}
         </div>
       )}

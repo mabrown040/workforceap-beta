@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
+import { Plus } from 'lucide-react';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
@@ -49,9 +51,9 @@ export default async function AdminMembersPage() {
           <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Members</h1>
           <p style={{ color: 'var(--color-gray-600)' }}>View and manage member accounts.</p>
         </div>
-        <a href="/admin/members/new" className="btn btn-primary">
-          ➕ Add Member
-        </a>
+        <Link href="/admin/members/new" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+          <Plus size={16} /> Add Member
+        </Link>
       </div>
 
       <MembersTable members={membersWithProgram} />

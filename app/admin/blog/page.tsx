@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Clock } from 'lucide-react';
 import { prisma } from '@/lib/db/prisma';
 import BlogPostActions from '@/components/admin/BlogPostActions';
 
@@ -91,7 +92,11 @@ export default async function AdminBlogPage() {
                       : 'var(--color-gray-600)',
                   }}
                 >
-                  {post.published ? 'Published' : post.scheduledAt ? '🕐 Scheduled' : 'Draft'}
+                  {post.published ? 'Published' : post.scheduledAt ? (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                      <Clock size={12} /> Scheduled
+                    </span>
+                  ) : 'Draft'}
                 </span>
               </td>
               <td style={{ color: 'var(--color-gray-600)' }}>

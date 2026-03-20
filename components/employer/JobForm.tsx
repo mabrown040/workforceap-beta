@@ -58,6 +58,7 @@ export default function JobForm({ job, initialData, companyName, programSlugs }:
       .filter(Boolean);
     const programs = Array.from(formData.getAll('suggestedPrograms') as string[]);
 
+    const submitForReview = !!formData.get('submitForReview') || !!formData.get('resubmitForReview');
     const payload = {
       title: String(formData.get('title') || '').trim(),
       location: String(formData.get('location') || '').trim() || undefined,
@@ -69,7 +70,7 @@ export default function JobForm({ job, initialData, companyName, programSlugs }:
       requirements,
       preferredCertifications: certs,
       suggestedPrograms: programs,
-      status: formData.get('submitForReview') ? 'pending' : 'draft',
+      status: submitForReview ? 'pending' : 'draft',
     };
 
     if (!payload.title || !payload.description) {
@@ -254,6 +255,17 @@ export default function JobForm({ job, initialData, companyName, programSlugs }:
             disabled={status === 'saving'}
           >
             Submit for Review
+          </button>
+        )}
+        {job && job.status === 'closed' && (
+          <button
+            type="submit"
+            name="resubmitForReview"
+            value="1"
+            className="btn btn-accent"
+            disabled={status === 'saving'}
+          >
+            Resubmit for Review
           </button>
         )}
       </div>

@@ -10,3 +10,5 @@ export { courseEnrolledHtml } from './course-enrolled';
 export { courseCompletedHtml } from './course-completed';
 export { weeklyRecapHtml } from './weekly-recap';
 export { inactiveNudgeHtml } from './inactive-nudge';
+export { invitationHtml } from './invitation';
+export { invitationAcceptedHtml } from './invitation-accepted';

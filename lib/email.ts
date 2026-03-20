@@ -13,6 +13,8 @@ import {
   courseCompletedHtml,
   weeklyRecapHtml,
   inactiveNudgeHtml,
+  invitationHtml,
+  invitationAcceptedHtml,
 } from '@/emails';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
@@ -214,6 +216,79 @@ export async function sendWeeklyRecapEmail(params: {
     return { ok: true };
   } catch (err) {
     console.error('sendWeeklyRecapEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Send invitation email to invitee */
+export async function sendInvitationEmail(params: {
+  to: string;
+  inviterName: string;
+  role: string;
+  personalMessage?: string | null;
+  inviteUrl: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendInvitationEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: `${params.inviterName} invited you to join WorkforceAP`,
+    bodyHtml: invitationHtml({
+      inviterName: params.inviterName,
+      role: params.role,
+      personalMessage: params.personalMessage,
+    }),
+    ctaText: 'Accept Invitation',
+    ctaUrl: params.inviteUrl,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject: `${params.inviterName} invited you to join WorkforceAP`,
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendInvitationEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Send invitation accepted notification to inviter */
+export async function sendInvitationAcceptedEmail(params: {
+  to: string;
+  accepterName: string;
+  accepterEmail: string;
+  role: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendInvitationAcceptedEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: `${params.accepterName} accepted your WorkforceAP invitation`,
+    bodyHtml: invitationAcceptedHtml({
+      accepterName: params.accepterName,
+      accepterEmail: params.accepterEmail,
+      role: params.role,
+    }),
+    ctaText: 'View in Admin',
+    ctaUrl: `${SITE_URL}/admin/invites`,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject: `${params.accepterName} accepted your WorkforceAP invitation`,
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendInvitationAcceptedEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
 }

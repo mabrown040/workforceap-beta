@@ -18,7 +18,7 @@ export default function ApplyCreateAccountPage() {
       <section className="page-hero">
         <div className="page-hero-content">
           <h1>You&apos;re almost in</h1>
-          <p>Create your account to save your spot.</p>
+          <p>Create your account — we&rsquo;ll reach out within 24–48 hours to confirm your spot and next steps.</p>
         </div>
       </section>
 

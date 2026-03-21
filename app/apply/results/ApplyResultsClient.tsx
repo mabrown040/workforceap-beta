@@ -67,14 +67,16 @@ export default function ApplyResultsClient() {
         {qualifies ? (
           <>
             <div className={`funding-banner funding-banner-qualify`} style={{ marginBottom: '1.5rem' }}>
-              <p><strong>Great news — you may qualify for our program!</strong></p>
+              <p><strong>Looks like a good fit.</strong> We&rsquo;ll connect within 24–48 hours to walk through next steps. First, pick the program that interests you most:</p>
             </div>
             <h2 className="apply-step-title">Choose the program you&apos;re most interested in:</h2>
           </>
         ) : (
           <>
-            <p style={{ marginBottom: '1rem' }}>Thank you for your interest in WorkforceAP.</p>
-            <h2 className="apply-step-title">Tell us which program you&apos;d like to explore:</h2>
+            <div className="apply-results-anyway" style={{ marginBottom: '1rem', padding: '1rem 1.25rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+              <p style={{ margin: 0 }}>We&rsquo;d still love to connect. Choose a program below — we&rsquo;ll review your application and help identify the best path for you, including other resources if our current funding doesn&rsquo;t fit.</p>
+            </div>
+            <h2 className="apply-step-title">Which program interests you most?</h2>
           </>
         )}
 

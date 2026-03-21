@@ -2184,6 +2184,15 @@ body.inner-page {
     border-radius: 50px;
     font-size: .9rem;
 }
+.apply-eligibility-note {
+    margin-top: 1.25rem;
+    padding: 1rem 1.25rem;
+    background: rgba(255,255,255,0.12);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+.apply-eligibility-note strong { display: block; margin-bottom: 0.25rem; }
 .hero-cta-note {
     margin-top: 1.5rem;
     font-size: .95rem;
@@ -3062,6 +3071,12 @@ fieldset.apply-fieldset {
     color: var(--color-gray-600);
     line-height: 1.4;
     margin: 0;
+}
+.phase-step-why {
+    margin-top: 0.5rem !important;
+    font-size: 0.8125rem !important;
+    color: var(--color-gray-500) !important;
+    font-style: italic;
 }
 .phase-connector {
     height: 2px;

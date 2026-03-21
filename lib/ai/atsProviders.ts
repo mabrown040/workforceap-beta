@@ -286,28 +286,46 @@ function getJSRenderedGuidance(provider: string): string {
 // Tier 3: Firecrawl (JS-rendered page scraping)
 // ────────────────────────────────────────────────────────────
 
-async function fetchWithFirecrawl(url: string): Promise<{ text: string } | null> {
+async function fetchWithFirecrawl(url: string, options?: { waitFor?: number }): Promise<{ text: string } | null> {
   const apiKey = process.env.FIRECRAWL_API_KEY;
-  if (!apiKey) return null;
+  if (!apiKey) {
+    console.warn('[Firecrawl] FIRECRAWL_API_KEY not set');
+    return null;
+  }
 
   try {
-    // Use Firecrawl REST API directly to avoid SDK compatibility issues
+    const body: Record<string, unknown> = { url, formats: ['markdown'] };
+    if (options?.waitFor && options.waitFor > 0) {
+      body.waitFor = options.waitFor;
+    }
+
     const res = await fetch('https://api.firecrawl.dev/v2/scrape', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ url, formats: ['markdown'] }),
+      body: JSON.stringify(body),
     });
-    if (!res.ok) return null;
-    const json = await res.json() as { success?: boolean; data?: { markdown?: string } };
+
+    const json = (await res.json()) as { success?: boolean; data?: { markdown?: string }; error?: string; code?: string };
     const markdown = json.data?.markdown;
+
+    if (!res.ok) {
+      console.warn('[Firecrawl] Scrape failed', url, res.status, json.error ?? json.code ?? 'unknown');
+      return null;
+    }
+
     if (json.success && markdown && markdown.length > 100) {
       return { text: markdown.slice(0, 28000) };
     }
+
+    if (!markdown || markdown.length <= 100) {
+      console.warn('[Firecrawl] Scrape returned insufficient content', url, markdown?.length ?? 0);
+    }
     return null;
-  } catch {
+  } catch (e) {
+    console.error('[Firecrawl] Scrape error', url, e instanceof Error ? e.message : e);
     return null;
   }
 }
@@ -319,9 +337,9 @@ async function fetchWithFirecrawl(url: string): Promise<{ text: string } | null>
 // Simple in-memory cache to avoid double Firecrawl calls within same request
 const firecrawlCache = new Map<string, { text: string } | null>();
 
-async function fetchWithFirecrawlCached(url: string): Promise<{ text: string } | null> {
+async function fetchWithFirecrawlCached(url: string, options?: { waitFor?: number }): Promise<{ text: string } | null> {
   if (firecrawlCache.has(url)) return firecrawlCache.get(url) ?? null;
-  const result = await fetchWithFirecrawl(url);
+  const result = await fetchWithFirecrawl(url, options);
   firecrawlCache.set(url, result);
   return result;
 }
@@ -355,8 +373,8 @@ export async function importJobsFromUrl(url: string): Promise<ATSParseResult> {
         }
       }
 
-      // Try Firecrawl for JS-rendered pages
-      const firecrawlResult = await fetchWithFirecrawlCached(url);
+      // Try Firecrawl for JS-rendered pages (waitFor helps Rippling/Workday load)
+      const firecrawlResult = await fetchWithFirecrawlCached(url, { waitFor: 3000 });
       if (firecrawlResult && firecrawlResult.text.length > 200) {
         return {
           provider: `${detected.provider}+firecrawl`,
@@ -366,10 +384,12 @@ export async function importJobsFromUrl(url: string): Promise<ATSParseResult> {
         };
       }
 
+      const guidance = getJSRenderedGuidance(detected.provider);
+      const hint = !process.env.FIRECRAWL_API_KEY ? ' Add FIRECRAWL_API_KEY to enable automated scraping.' : '';
       return {
         provider: detected.provider,
         jobs: [],
-        errors: [getJSRenderedGuidance(detected.provider)],
+        errors: [guidance + hint],
       };
     }
   }
@@ -386,7 +406,7 @@ export async function importJobsFromUrl(url: string): Promise<ATSParseResult> {
   }
 
   // Tier 3 fallback: Try Firecrawl for any JS-rendered or failed page
-  const firecrawlResult = await fetchWithFirecrawlCached(url);
+  const firecrawlResult = await fetchWithFirecrawlCached(url, { waitFor: 2000 });
   if (firecrawlResult && firecrawlResult.text.length > 200) {
     return {
       provider: 'firecrawl',

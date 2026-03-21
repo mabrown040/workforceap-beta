@@ -23,6 +23,8 @@ export interface ATSParseResult {
   provider: string;
   jobs: ATSJob[];
   errors: string[];
+  /** Raw page text when available (for AI parsing by caller) */
+  rawText?: string;
 }
 
 // ────────────────────────────────────────────────────────────
@@ -346,8 +348,9 @@ export async function importJobsFromUrl(url: string): Promise<ATSParseResult> {
         if (page && !page.isJSRendered && page.text.length > 200) {
           return {
             provider: detected.provider,
-            jobs: [], // Will be AI-parsed by caller
+            jobs: [],
             errors: [],
+            rawText: page.text,
           };
         }
       }
@@ -357,8 +360,9 @@ export async function importJobsFromUrl(url: string): Promise<ATSParseResult> {
       if (firecrawlResult && firecrawlResult.text.length > 200) {
         return {
           provider: `${detected.provider}+firecrawl`,
-          jobs: [], // Will be AI-parsed by caller with the markdown text
+          jobs: [],
           errors: [],
+          rawText: firecrawlResult.text,
         };
       }
 
@@ -377,6 +381,7 @@ export async function importJobsFromUrl(url: string): Promise<ATSParseResult> {
       provider: 'generic',
       jobs: [],
       errors: [],
+      rawText: page.text,
     };
   }
 
@@ -385,8 +390,9 @@ export async function importJobsFromUrl(url: string): Promise<ATSParseResult> {
   if (firecrawlResult && firecrawlResult.text.length > 200) {
     return {
       provider: 'firecrawl',
-      jobs: [], // Will be AI-parsed by caller
+      jobs: [],
       errors: [],
+      rawText: firecrawlResult.text,
     };
   }
 

@@ -4,7 +4,7 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { parseJobFromText } from '@/lib/ai/parseJob';
-import { smartImportJobs, detectProvider, fetchPageText } from '@/lib/ai/atsProviders';
+import { smartImportJobs, detectProvider } from '@/lib/ai/atsProviders';
 
 const importSchema = z.object({
   url: z.string().url().optional(),
@@ -87,9 +87,9 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Tier 2/3: Generic HTML or Firecrawl — fall through to AI parsing
+    // Use text already fetched by smartImportJobs (no double-fetch)
     try {
-      const textToParse = await fetchPageText(parsed.data.url);
+      const textToParse = atsResult.rawText;
       if (textToParse && textToParse.length >= 50) {
           const extracted = await parseJobFromText(textToParse);
           if (extracted) {

@@ -4,7 +4,7 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { parseJobFromText, parseJobListingsFromPageText } from '@/lib/ai/parseJob';
-import { smartImportJobs, detectProvider, fetchPageText } from '@/lib/ai/atsProviders';
+import { smartImportJobs, detectProvider } from '@/lib/ai/atsProviders';
 
 const bulkSchema = z
   .object({
@@ -157,20 +157,11 @@ export async function POST(request: NextRequest) {
       }
     } else if (atsResult.errors.length > 0) {
       errors.push({ source: careersPageUrl, error: atsResult.errors[0] });
+    } else if (atsResult.rawText && atsResult.rawText.length >= 80) {
+      // Use the text already fetched by smartImportJobs (no double-fetch)
+      listingsText = atsResult.rawText;
     } else {
-      // Generic or Firecrawl: fetch page text for AI parsing
-      const fetched = await fetchPageText(careersPageUrl);
-      if (!fetched || fetched.length < 80) {
-        const detected = detectProvider(careersPageUrl);
-        errors.push({
-          source: careersPageUrl,
-          error: detected
-            ? `Detected ${detected.provider} ATS. This page requires JavaScript. Paste individual job URLs or text.`
-            : 'Could not fetch careers page. Paste the page text instead.',
-        });
-      } else {
-        listingsText = fetched;
-      }
+      errors.push({ source: careersPageUrl, error: 'Could not fetch careers page content. Paste the page text instead.' });
     }
   }
 

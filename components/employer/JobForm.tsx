@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { getProgramBySlug } from '@/lib/content/programs';
 
 type JobFormProps = {
   job?: {
@@ -106,17 +107,9 @@ export default function JobForm({ job, initialData, companyName, programSlugs }:
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ maxWidth: 600 }}>
+    <form className="employer-job-form" onSubmit={handleSubmit}>
       {status === 'error' && errorMsg && (
-        <div
-          style={{
-            padding: '0.75rem',
-            marginBottom: '1rem',
-            background: '#fee',
-            borderRadius: 'var(--radius-sm)',
-            color: '#c00',
-          }}
-        >
+        <div className="employer-job-form-error" role="alert">
           {errorMsg}
         </div>
       )}
@@ -134,7 +127,7 @@ export default function JobForm({ job, initialData, companyName, programSlugs }:
 
       <div className="form-group">
         <label>Company Name</label>
-        <input type="text" value={companyName} readOnly disabled style={{ background: 'var(--color-gray-100)' }} />
+        <input type="text" value={companyName} readOnly disabled className="employer-job-form-readonly" />
       </div>
 
       <div className="form-group">
@@ -166,7 +159,7 @@ export default function JobForm({ job, initialData, companyName, programSlugs }:
         </select>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+      <div className="employer-job-form-salary-grid">
         <div className="form-group">
           <label>Salary Min (optional)</label>
           <input
@@ -223,26 +216,33 @@ export default function JobForm({ job, initialData, companyName, programSlugs }:
       </div>
 
       {programSlugs.length > 0 && (
-        <div className="form-group">
-          <label>Suggested Programs (match to our training)</label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-            {programSlugs.map((slug) => (
-              <label key={slug} style={{ display: 'flex', alignItems: 'center', marginRight: '1rem' }}>
-                <input
-                  type="checkbox"
-                  name="suggestedPrograms"
-                  value={slug}
-                  defaultChecked={prefill?.suggestedPrograms?.includes(slug)}
-                  disabled={status === 'saving'}
-                />
-                <span style={{ marginLeft: '0.35rem', fontSize: '0.9rem' }}>{slug}</span>
-              </label>
-            ))}
+        <fieldset className="employer-job-form-fieldset employer-job-form-programs">
+          <legend>Which training tracks fit this role?</legend>
+          <p className="employer-job-form-hint">
+            We use this to line up candidates who are certifying in the skills you hire for. Check every track that is a
+            realistic match — it does not limit who applies, it helps us prioritize fit.
+          </p>
+          <div className="employer-job-form-program-grid" role="group" aria-label="Matching training programs">
+            {programSlugs.map((slug) => {
+              const title = getProgramBySlug(slug)?.title ?? slug;
+              return (
+                <label key={slug} className="employer-job-form-program-chip">
+                  <input
+                    type="checkbox"
+                    name="suggestedPrograms"
+                    value={slug}
+                    defaultChecked={prefill?.suggestedPrograms?.includes(slug)}
+                    disabled={status === 'saving'}
+                  />
+                  <span className="employer-job-form-program-title">{title}</span>
+                </label>
+              );
+            })}
           </div>
-        </div>
+        </fieldset>
       )}
 
-      <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+      <div className="employer-job-form-actions">
         <button type="submit" className="btn btn-primary" disabled={status === 'saving'}>
           {status === 'saving' ? 'Saving…' : 'Save as Draft'}
         </button>

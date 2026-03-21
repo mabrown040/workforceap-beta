@@ -6,10 +6,8 @@ import SuperAdminViewSwitcher from '@/components/super-admin-view-switcher';
 import { SignOutButton } from './SignOutButton';
 
 const NAV_LINKS = [
-  { href: '/employer', label: 'Home' },
-  { href: '/employer/jobs', label: 'My Jobs' },
-  { href: '/employer/jobs/import', label: 'Import' },
-  { href: '/employer/jobs/new', label: 'Post Job' },
+  { href: '/employer', label: 'Dashboard' },
+  { href: '/employer/jobs', label: 'Job postings' },
   { href: '/employer/applications', label: 'Applications' },
 ];
 
@@ -28,9 +26,17 @@ export default function EmployerPortalShell({
     <div className="employer-portal-shell">
       <header className="employer-portal-header">
         <div className="employer-portal-header-inner">
-          <Link href="/employer" className="employer-portal-brand">
-            WorkforceAP
-          </Link>
+          <div className="employer-portal-brand-row">
+            <div className="employer-portal-brand-block">
+              <Link href="/employer" className="employer-portal-brand">
+                WorkforceAP
+              </Link>
+              <span className="employer-portal-tagline">Employer hiring partner · Austin-first launch</span>
+            </div>
+            <Link href="/" className="employer-portal-home-link">
+              Site home
+            </Link>
+          </div>
           <nav className="employer-portal-nav" aria-label="Employer navigation">
             {NAV_LINKS.map(({ href, label }) => (
               <Link

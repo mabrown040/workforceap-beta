@@ -52,18 +52,21 @@ export default async function EmployerJobsPage() {
   return (
     <div className="employer-jobs-page">
       <header className="employer-jobs-header">
-        <h1>My Jobs</h1>
+        <div className="employer-jobs-header-text">
+          <h1>Job postings</h1>
+          <p className="employer-jobs-kicker">Drafts, review, and live roles candidates see on the Austin-area board.</p>
+        </div>
         <div className="employer-jobs-actions">
           <Link href="/employer/jobs/import" className="btn btn-primary btn-sm">
-            Import
+            Import from careers page
           </Link>
           <Link href="/employer/jobs/new" className="btn btn-secondary btn-sm">
-            Post Job
+            Post a job
           </Link>
         </div>
       </header>
       <p className="employer-jobs-lead">
-        Edit postings as cards below. Drafts can be submitted for review; live jobs can be marked filled when you hire.
+        Use filters and bulk select to clean up drafts. Anything live or already approved for the board is protected from bulk delete — mark it filled first.
       </p>
       <EmployerJobsBoard jobs={boardItems} />
     </div>

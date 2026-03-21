@@ -69,16 +69,16 @@ export default function SalaryGuidePage() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1.5rem', marginBottom: '3rem' }} className="salary-guide-stats-row">
+          <div className="salary-guide-stats-row">
             {[
               { value: '$144K', label: 'Highest Starting Salary', sub: 'AWS Cloud Technology' },
               { value: '$72K', label: 'Avg. Starting Salary', sub: 'Across all programs' },
               { value: '7', label: 'Programs Over $100K', sub: 'High-earning tracks' },
             ].map((s) => (
-              <div key={s.label} style={{ background: '#f8f8f8', borderRadius: '12px', padding: '2rem', textAlign: 'center' }}>
-                <div style={{ fontSize: '2.5rem', fontWeight: 800, color: '#ad2c4d' }}>{s.value}</div>
-                <div style={{ fontWeight: 600, margin: '.5rem 0 .25rem' }}>{s.label}</div>
-                <div style={{ color: '#666', fontSize: '.9rem' }}>{s.sub}</div>
+              <div key={s.label} className="salary-guide-stat-card">
+                <div className="salary-guide-stat-value">{s.value}</div>
+                <div className="salary-guide-stat-label">{s.label}</div>
+                <div className="salary-guide-stat-sub">{s.sub}</div>
               </div>
             ))}
           </div>
@@ -87,6 +87,7 @@ export default function SalaryGuidePage() {
           <p style={{ color: '#666', marginBottom: '0.5rem' }}>Entry-level (0–1 year experience). Sources: ZipRecruiter, Glassdoor, PayScale — February 2026 U.S. benchmarks. Austin-area tech salaries typically 5–10% above national. We&rsquo;re launching in Austin; these numbers hold across markets we expand to.</p>
           <p style={{ color: '#888', fontSize: '0.85rem', marginBottom: '1.5rem' }}><strong>Ramp</strong> = commitment/difficulty: Easier = quicker to complete, good for first credential. Steeper = more technical depth, higher payoff if you can invest.</p>
 
+          {/* Desktop: table */}
           <div className="salary-table-wrapper">
             <table className="salary-table">
               <thead>
@@ -106,7 +107,24 @@ export default function SalaryGuidePage() {
             </table>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '2.5rem' }}>
+          {/* Mobile: card layout — scannable, no horizontal scroll */}
+          <div className="salary-guide-cards">
+            {salaryData.map((row) => (
+              <article key={row.program} className="salary-guide-card">
+                <div className="salary-guide-card__main">
+                  <h3 className="salary-guide-card__program">{row.program}</h3>
+                  <div className="salary-guide-card__salary">{row.salary}</div>
+                </div>
+                <div className="salary-guide-card__meta">
+                  <span>{row.duration}</span>
+                  <span style={{ background: row.color, color: 'white', padding: '0.2rem 0.5rem', borderRadius: '50px', fontSize: '0.75rem', fontWeight: 600 }}>{row.level}</span>
+                  <span className="salary-ramp-badge">{row.ramp}</span>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div className="salary-guide-insights" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '2.5rem' }}>
             {insights.map((item) => {
               const Icon = item.Icon;
               return (
@@ -127,9 +145,9 @@ export default function SalaryGuidePage() {
             <h3 className="salary-guide-cta-title">Your Next Step</h3>
             <p className="salary-guide-cta-desc">You now have the numbers. Use the pathfinder to find your fit, or compare programs. When you&rsquo;re ready — apply.</p>
             <div className="salary-guide-cta-buttons">
-              <Link href="/find-your-path" className="btn btn-outline">Find your fit (2-min quiz)</Link>
-              <Link href="/program-comparison" className="btn btn-outline">Compare programs</Link>
-              <Link href="/apply" className="btn btn-primary btn-large">Apply Now</Link>
+              <Link href="/find-your-path" className="btn btn-outline salary-guide-cta-btn">Find your fit (2-min quiz)</Link>
+              <Link href="/program-comparison" className="btn btn-outline salary-guide-cta-btn">Compare programs</Link>
+              <Link href="/apply" className="btn btn-primary btn-large salary-guide-cta-btn">Apply Now</Link>
             </div>
           </div>
         </div>

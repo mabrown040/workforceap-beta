@@ -16,6 +16,7 @@
     "db:seed:blog": "node scripts/prisma-env.js npx tsx prisma/seed-blog.ts",
     "db:create-employer-michael-brown": "node scripts/prisma-env.js npx tsx scripts/create-employer-michael-brown.ts",
     "test:firecrawl-rippling": "node scripts/prisma-env.js npx tsx scripts/test-firecrawl-rippling.ts",
+    "test:import-e2e": "node scripts/prisma-env.js npx tsx scripts/test-import-e2e.ts",
     "db:migrate:resolve-failed": "node scripts/resolve-failed-migration.cjs",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"

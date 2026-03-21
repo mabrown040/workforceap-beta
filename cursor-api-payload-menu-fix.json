@@ -1,0 +1,15 @@
+{
+  "prompt": {
+    "text": "CRITICAL BUG FIX (P0): Mobile navigation menu is broken. When users scroll down and open the hamburger menu, it locks and cannot be closed. Users are trapped.\n\nREQUIRED FIX:\n1. Debug mobile menu component - find why it locks after scroll\n2. Ensure close button/X works in all scroll positions\n3. Ensure tapping outside menu closes it\n4. Ensure escape key closes it (accessibility)\n5. Test on mobile viewport (375px width)\n6. Verify body scroll lock doesn't prevent menu interaction\n\nLIKELY CAUSES TO CHECK:\n- z-index issues after scroll (menu behind other elements)\n- Event listener detached on scroll\n- Body overflow: hidden interfering with menu positioning\n- Transform/translate issues with fixed positioning\n- Touch event conflicts\n\nFILES TO CHECK:\n- components/layout/Header.tsx or MobileNav.tsx\n- components/ui/Menu.tsx or Navigation.tsx\n- Any useLockBodyScroll or useScrollLock hooks\n- CSS for mobile menu positioning (fixed, absolute, z-index)\n\nANTI-SLOP GUARDRAILS:\n- NO unnecessary refactors\n- NO changing unrelated code\n- NO adding new features\n- Focus: Fix the bug, minimal changes only\n- Verify fix works before submitting\n\nACCEPTANCE CRITERIA:\n- [ ] Menu opens/closes reliably on mobile\n- [ ] Works after scrolling any amount\n- [ ] Close button always clickable\n- [ ] Tap outside closes menu\n- [ ] Escape key closes menu\n- [ ] No console errors\n- [ ] Lighthouse mobile score maintained"
+  },
+  "source": {
+    "repository": "https://github.com/mabrown040/workforceap-beta",
+    "ref": "master"
+  },
+  "target": {
+    "autoCreatePr": true,
+    "branchName": "fix/mobile-menu-lock-bug",
+    "openAsCursorGithubApp": false
+  },
+  "model": "composer-2"
+}

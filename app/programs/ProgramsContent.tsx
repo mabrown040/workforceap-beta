@@ -105,7 +105,10 @@ export default function ProgramsContent() {
             <ProgramCard key={p.title} program={p} />
           ))}
         </div>
-        <div style={{ textAlign: 'center', marginTop: '3rem' }}>
+        <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '.85rem', color: '#666', maxWidth: '640px', marginLeft: 'auto', marginRight: 'auto' }}>
+          Salary range is Austin market estimate (Lightcast/BLS, Jan 2026). Actual pay depends on experience and employer.
+        </p>
+        <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
           <Link href="/salary-guide" className="btn btn-outline">View Salary Guide</Link>
           &nbsp;&nbsp;
           <Link href="/program-comparison" className="btn btn-outline">Compare Programs</Link>

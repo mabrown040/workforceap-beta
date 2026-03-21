@@ -23,10 +23,57 @@ export interface ParsedJobListing {
   sourceUrl?: string;
 }
 
+/** Markdown [Title](url) - capture groups: 1=title, 2=url */
+const MARKDOWN_LINK = /\[([^\]]{3,100})\]\((https?:\/\/[^\s)]+\/jobs\/[^\s)]+)\)/g;
+/** Plain job URLs (single group) */
+const PLAIN_JOB_URLS = [
+  /(https?:\/\/[^\s]+ats\.rippling\.com[^\s]*\/jobs\/[a-zA-Z0-9_-]+)/g,
+  /(https?:\/\/[^\s]+\.greenhouse\.io[^\s]*\/jobs\/\d+)/g,
+  /(https?:\/\/[^\s]+jobs\.lever\.co[^\s]*\/[a-f0-9-]+)/g,
+  /(https?:\/\/[^\s]+jobs\.ashbyhq\.com[^\s]*\/[a-f0-9-]+)/g,
+  /(https?:\/\/[^\s]+\/jobs\/[a-zA-Z0-9_-]+)/g,
+];
+
 /**
- * Extract multiple job postings from careers-page HTML (plain text) or pasted listings.
- * Used for bulk draft creation in the employer portal.
+ * Extract sub-job URLs from careers page text. Used to follow each URL and parse
+ * the actual job posting for clean draft cards (no raw URL text in body).
  */
+export function extractSubJobUrlsFromPageText(rawText: string): { url: string; title?: string }[] {
+  const seen = new Set<string>();
+  const results: { url: string; title?: string }[] = [];
+
+  let match;
+  while ((match = MARKDOWN_LINK.exec(rawText)) !== null) {
+    const title = match[1].trim();
+    const url = match[2].trim();
+    if (seen.has(url)) continue;
+    if (/^(view|apply|see|terms|privacy|cookie|powered)/i.test(title)) continue;
+    seen.add(url);
+    results.push({ url, title });
+  }
+
+  for (const regex of PLAIN_JOB_URLS) {
+    regex.lastIndex = 0;
+    while ((match = regex.exec(rawText)) !== null) {
+      const url = match[1].trim();
+      if (!seen.has(url)) {
+        seen.add(url);
+        results.push({ url });
+      }
+    }
+  }
+
+  return results.slice(0, 12);
+}
+
+/** Remove raw URL strings from text to avoid leaking into card body */
+export function stripUrlsFromDescription(text: string): string {
+  return text
+    .replace(/\bhttps?:\/\/[^\s]+/g, '')
+    .replace(/\n\s*\n\s*\n/g, '\n\n')
+    .trim();
+}
+
 /**
  * Try to extract jobs from structured markdown (ATS career pages typically have
  * [Title](url) patterns). Falls back to AI parsing if no structured data found.
@@ -81,9 +128,10 @@ Output valid JSON only, no markdown. Schema:
 { "jobs": [ { "title": "string", "description": "string (full posting text if present; otherwise a clear summary + key requirements)", "sourceUrl": "string or null (absolute URL to this job if visible in the text)" } ] }
 Rules:
 - Each array item must be a distinct role (not duplicate titles).
+- NEVER include raw URLs, link URLs, or placeholder URLs in the description. Use clean prose only.
 - If the page only lists titles with links and no body text, use title + "Details to be added — imported from careers page." as description.
 - Cap at 25 jobs; prefer the most recently listed or most prominent if there are more.
-- Omit non-job content (navigation, footers).`;
+- Omit non-job content (navigation, footers). Put the URL in sourceUrl only, not in description.`;
 
   const userPrompt = `Extract job listings from this text:\n\n${rawText.slice(0, 24000)}`;
 

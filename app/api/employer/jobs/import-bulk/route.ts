@@ -3,8 +3,8 @@ import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
-import { parseJobFromText, parseJobListingsFromPageText } from '@/lib/ai/parseJob';
-import { smartImportJobs, detectProvider } from '@/lib/ai/atsProviders';
+import { parseJobFromText, parseJobListingsFromPageText, extractSubJobUrlsFromPageText, stripUrlsFromDescription } from '@/lib/ai/parseJob';
+import { smartImportJobs, fetchPageText } from '@/lib/ai/atsProviders';
 import { buildEmployerJobCreateData, getRouteErrorDetails } from '@/lib/employer/jobCreate';
 
 const bulkSchema = z
@@ -136,6 +136,7 @@ export async function POST(request: NextRequest) {
 
   // ── Process careers page URL (smart ATS first) ──
   let listingsText = careersPageRawText?.trim() ?? '';
+  let careersPageProcessed = false;
 
   if (careersPageUrl && !listingsText) {
     // Try smart ATS import for careers page
@@ -162,29 +163,71 @@ export async function POST(request: NextRequest) {
         });
         created.push({ id: job.id, title: job.title, provider: atsResult.provider });
       }
+      careersPageProcessed = true;
     } else if (atsResult.errors.length > 0) {
       errors.push({ source: careersPageUrl, error: atsResult.errors[0] });
+      careersPageProcessed = true;
     } else if (atsResult.rawText && atsResult.rawText.length >= 80) {
-      // Use the text already fetched by smartImportJobs (no double-fetch)
       listingsText = atsResult.rawText;
     } else {
       errors.push({ source: careersPageUrl, error: 'Could not fetch careers page content. Paste the page text instead.' });
+      careersPageProcessed = true;
     }
   }
 
-  // ── AI-parse listings text ──
-  if (listingsText.length >= 80) {
+  // ── Follow sub-job URLs for cleaner drafts (parse each job page, not raw list text) ──
+  if (listingsText.length >= 80 && !careersPageProcessed) {
+    const subUrls = extractSubJobUrlsFromPageText(listingsText);
+    const isJsRenderedAts = careersPageUrl && /rippling|workday|icims/i.test(careersPageUrl);
+
+    if (subUrls.length > 0) {
+      for (const { url, title: linkTitle } of subUrls) {
+        const pageText = await fetchPageText(url, { waitFor: isJsRenderedAts ? 3000 : 2000 });
+        if (!pageText || pageText.length < 80) {
+          errors.push({ source: url, error: 'Could not fetch job page.' });
+          continue;
+        }
+        const extracted = await parseJobFromText(pageText);
+        if (!extracted) {
+          errors.push({ source: url, error: 'Could not parse job posting.' });
+          continue;
+        }
+        const suffix = `\n\n---\nImported from: ${url}`;
+        const job = await prisma.job.create({
+          data: buildEmployerJobCreateData(ctx.employerId, {
+            title: extracted.title,
+            location: extracted.location,
+            locationType: extracted.locationType ?? 'onsite',
+            jobType: extracted.jobType ?? 'fulltime',
+            salaryMin: extracted.salaryMin,
+            salaryMax: extracted.salaryMax,
+            description: `${extracted.description}${suffix}`,
+            requirements: extracted.requirements ?? [],
+            preferredCertifications: extracted.preferredCertifications ?? [],
+            suggestedPrograms: extracted.suggestedPrograms ?? [],
+            status: 'draft',
+          }),
+        });
+        created.push({ id: job.id, title: job.title, provider: 'ai+per-job' });
+      }
+      careersPageProcessed = true; // Tried sub-URLs, skip raw list AI parse
+    }
+  }
+
+  // ── Fallback: AI-parse listings text (when no sub-URLs or sub-URL fetch failed) ──
+  if (listingsText.length >= 80 && !careersPageProcessed) {
     const listings = await parseJobListingsFromPageText(listingsText);
     if (!listings?.length) {
       errors.push({ source: 'careers page', error: 'AI did not find separate job listings in that text.' });
     } else {
       const baseNote = careersPageUrl ? `\n\n---\nImported from careers page: ${careersPageUrl}` : '';
       for (const L of listings) {
-        const urlNote = L.sourceUrl ? `\nJob link: ${L.sourceUrl}` : '';
+        const cleanDesc = stripUrlsFromDescription(L.description.trim());
+        const urlNote = L.sourceUrl ? `\n\n---\nImported from: ${L.sourceUrl}` : baseNote;
         const job = await prisma.job.create({
           data: buildEmployerJobCreateData(ctx.employerId, {
             title: L.title.trim(),
-            description: `${L.description.trim()}${urlNote}${baseNote}`,
+            description: cleanDesc ? `${cleanDesc}${urlNote}` : `Imported listing.${urlNote}`,
             requirements: [],
             preferredCertifications: [],
             suggestedPrograms: [],

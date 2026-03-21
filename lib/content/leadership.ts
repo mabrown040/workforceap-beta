@@ -84,7 +84,7 @@ export const LEADERS: Leader[] = [
     founder: false,
     linkedin: 'https://www.linkedin.com/in/adriane-brown/',
     cardBio:
-      'Texas A&M grad. IBM, Accenture — built statewide tech systems for Texas. Co-led Brown & Associates to national reach. Microsoft Project Management cert. Women\'s Ministry Leader, Celebration Church.',
+      'Texas A&M grad. IBM, Accenture — built statewide tech systems for Texas. Co-led Brown & Associates to national reach. Microsoft Project Management certificate. Women\'s Ministry Leader, Celebration Church.',
     missionRelevance:
       "Operations leader who scales workforce programs. Brings systems rigor so every member gets the support they need — from intake through placement.",
     bioBlocks: [
@@ -101,7 +101,7 @@ export const LEADERS: Leader[] = [
       {
         type: 'paragraph',
         text:
-          'As Business/Client Relations Manager for a State of Texas TWC Career School, Adriane played a key role in strategic planning, audit preparation, intake process redesign, and student performance tracking—ensuring operational efficiency and measurable results. In 2025, she completed the Microsoft Project Management Certification, further strengthening her ability to lead complex initiatives using structured methodologies and best practices.',
+          'As Business/Client Relations Manager for a State of Texas TWC Career School, Adriane played a key role in strategic planning, audit preparation, intake process redesign, and student performance tracking—ensuring operational efficiency and measurable results. In 2025, she completed the Microsoft Project Management Certificate, further strengthening her ability to lead complex initiatives using structured methodologies and best practices.',
       },
       {
         type: 'paragraph',
@@ -112,7 +112,7 @@ export const LEADERS: Leader[] = [
     stats: [
       { label: 'Experience', value: '25+ years' },
       { label: 'Education', value: 'Texas A&M Graduate' },
-      { label: 'Certification', value: 'Microsoft Project Management (2025)' },
+      { label: 'Certificate', value: 'Microsoft Project Management (2025)' },
       { label: 'Faith', value: "Women's Ministry Leader" },
     ],
   },
@@ -160,52 +160,6 @@ export const LEADERS: Leader[] = [
       { label: 'Role', value: 'CTO at Microsoft' },
       { label: 'Recognition', value: 'SUCCESS Magazine Women of Influence 2023' },
       { label: 'Governance', value: 'Board Director, IDEX Corporation' },
-    ],
-  },
-  {
-    slug: 'derrick-fishback',
-    name: 'Col. Derrick Fishback',
-    role: 'Board Member (Ret.)',
-    title: 'Board Member',
-    image: '/images/derrick-fishback.jpg',
-    founder: false,
-    linkedin: 'https://www.linkedin.com/in/derrick-fishback/',
-    cardBio:
-      "Col. U.S. Army (Ret.). Commanded 1,800+ personnel. Led cloud transformation at AWS, IBM, Dell. Two master's degrees; Harvard, Geneva, London, Erasmus. Board President, Jazz Society of Pensacola.",
-    missionRelevance:
-      "30 years Army + Fortune 500 tech. The employer trust that opens doors — AWS, IBM, Dell — plus the discipline that turns training into outcomes.",
-    bioBlocks: [
-      {
-        type: 'paragraph',
-        text:
-          'Derrick Fishback is a transformational leader with nearly three decades of U.S. Army service complemented by leadership and consulting roles in Fortune 500 companies.',
-      },
-      {
-        type: 'paragraph',
-        text:
-          'He has commanded organizations of 1,800 personnel, managed multimillion-dollar budgets, and driven complex, globally coordinated initiatives. His military career includes pivotal leadership and advisory assignments with Joint U.S. Military and NATO forces during the Ukrainian crisis, Ebola pandemic, and Syrian refugee crisis—developing civil-military frameworks that remain operational standards today. Notably his civil engagement programs have impacted over 24 countries globally.',
-      },
-      {
-        type: 'paragraph',
-        text:
-          'He also served in Afghanistan during Operation Enduring Freedom, contributing to mission-critical operations in challenging environments. Derrick holds two master\'s degrees—one from the University of Maryland and another from the U.S. Army War College—along with graduate certificates from Harvard University, the University of Geneva (Switzerland), the University of London, and Erasmus University (Netherlands), all reflecting a deep commitment to strategic thinking and global perspectives.',
-      },
-      {
-        type: 'paragraph',
-        text:
-          'In the technology sector, Derrick led cloud transformation and AI/ML initiatives as Engagement Manager at Amazon Web Services and delivered enterprise solutions at IBM and Dell. He excels at bridging technical innovation with strategic vision, translating complex capabilities into measurable business outcomes and organizational growth.',
-      },
-      {
-        type: 'paragraph',
-        text:
-          'Beyond his military and corporate achievements, Derrick brings nonprofit governance experience as Board President of the Jazz Society of Pensacola and Board Member of the Pensacola Symphony Orchestra. His leadership advances organizational sustainability, stakeholder engagement, and cultural impact.',
-      },
-    ],
-    stats: [
-      { label: 'Military', value: '30 years U.S. Army service' },
-      { label: 'Command', value: 'Commanded 1,800+ personnel' },
-      { label: 'Education', value: "2 Master's degrees" },
-      { label: 'Nonprofit', value: 'Board President, Jazz Society of Pensacola' },
     ],
   },
   {
@@ -261,6 +215,52 @@ export const LEADERS: Leader[] = [
       { label: 'Leadership', value: 'CFO of The Business Bible' },
       { label: 'Athletics', value: '20+ triathlons completed' },
       { label: 'Endurance', value: 'Ironman Arizona & Florida finisher' },
+    ],
+  },
+  {
+    slug: 'derrick-fishback',
+    name: 'Col. Derrick Fishback',
+    role: 'Board Member (Ret.)',
+    title: 'Board Member',
+    image: '/images/derrick-fishback.jpg',
+    founder: false,
+    linkedin: 'https://www.linkedin.com/in/derrick-fishback/',
+    cardBio:
+      "Col. U.S. Army (Ret.). Commanded 1,800+ personnel. Led cloud transformation at AWS, IBM, Dell. Two master's degrees; Harvard, Geneva, London, Erasmus. Board President, Jazz Society of Pensacola.",
+    missionRelevance:
+      "30 years Army + Fortune 500 tech. The employer trust that opens doors — AWS, IBM, Dell — plus the discipline that turns training into outcomes.",
+    bioBlocks: [
+      {
+        type: 'paragraph',
+        text:
+          'Derrick Fishback is a transformational leader with nearly three decades of U.S. Army service complemented by leadership and consulting roles in Fortune 500 companies.',
+      },
+      {
+        type: 'paragraph',
+        text:
+          'He has commanded organizations of 1,800 personnel, managed multimillion-dollar budgets, and driven complex, globally coordinated initiatives. His military career includes pivotal leadership and advisory assignments with Joint U.S. Military and NATO forces during the Ukrainian crisis, Ebola pandemic, and Syrian refugee crisis—developing civil-military frameworks that remain operational standards today. Notably his civil engagement programs have impacted over 24 countries globally.',
+      },
+      {
+        type: 'paragraph',
+        text:
+          'He also served in Afghanistan during Operation Enduring Freedom, contributing to mission-critical operations in challenging environments. Derrick holds two master\'s degrees—one from the University of Maryland and another from the U.S. Army War College—along with graduate certificates from Harvard University, the University of Geneva (Switzerland), the University of London, and Erasmus University (Netherlands), all reflecting a deep commitment to strategic thinking and global perspectives.',
+      },
+      {
+        type: 'paragraph',
+        text:
+          'In the technology sector, Derrick led cloud transformation and AI/ML initiatives as Engagement Manager at Amazon Web Services and delivered enterprise solutions at IBM and Dell. He excels at bridging technical innovation with strategic vision, translating complex capabilities into measurable business outcomes and organizational growth.',
+      },
+      {
+        type: 'paragraph',
+        text:
+          'Beyond his military and corporate achievements, Derrick brings nonprofit governance experience as Board President of the Jazz Society of Pensacola and Board Member of the Pensacola Symphony Orchestra. His leadership advances organizational sustainability, stakeholder engagement, and cultural impact.',
+      },
+    ],
+    stats: [
+      { label: 'Military', value: '30 years U.S. Army service' },
+      { label: 'Command', value: 'Commanded 1,800+ personnel' },
+      { label: 'Education', value: "2 Master's degrees" },
+      { label: 'Nonprofit', value: 'Board President, Jazz Society of Pensacola' },
     ],
   },
 ];

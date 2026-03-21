@@ -2,7 +2,19 @@ import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Monitor, Wifi, ClipboardList, HeartPulse, Factory, HardHat, Award, Laptop, Handshake } from 'lucide-react';
+import {
+  Monitor,
+  Wifi,
+  ClipboardList,
+  HeartPulse,
+  Factory,
+  HardHat,
+  Award,
+  Laptop,
+  Handshake,
+  Users,
+  Building2,
+} from 'lucide-react';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -80,6 +92,71 @@ export default function HomePage() {
             <div className="stat"><span className="stat-number">16–20</span><span className="stat-label">Weeks to Certification</span></div>
             <div className="stat"><span className="stat-number">24–48h</span><span className="stat-label">Response Time</span></div>
             <div className="stat"><span className="stat-number">100%</span><span className="stat-label">Job Search Support</span></div>
+          </div>
+        </div>
+      </section>
+
+      {/* Who we serve — members, employers, partners */}
+      <section className="home-audiences" aria-labelledby="home-audiences-heading">
+        <div className="container">
+          <h2 id="home-audiences-heading" className="home-section-title">
+            Who WorkforceAP is for
+          </h2>
+          <p className="home-audiences-lead">
+            One training-and-placement operating model with clear front doors. Austin is where we are proving it first.
+          </p>
+          <div className="home-audiences-grid">
+            <div className="home-audience-card animate-on-scroll">
+              <span className="home-audience-icon" aria-hidden>
+                <Users size={28} />
+              </span>
+              <h3>Members &amp; job seekers</h3>
+              <p>
+                No-cost industry certifications and counselor support for qualifying participants — from intake through job search.
+              </p>
+              <div className="home-audience-links">
+                <Link href="/apply" className="btn btn-primary btn-sm">
+                  Apply
+                </Link>
+                <Link href="/find-your-path" className="btn btn-outline btn-sm">
+                  2-min quiz
+                </Link>
+              </div>
+            </div>
+            <div className="home-audience-card animate-on-scroll">
+              <span className="home-audience-icon" aria-hidden>
+                <Building2 size={28} />
+              </span>
+              <h3>Employers</h3>
+              <p>
+                Post roles, review certify-ready candidates, and hire from a pipeline trained on the credentials you already recognize.
+              </p>
+              <div className="home-audience-links">
+                <Link href="/employers" className="btn btn-primary btn-sm">
+                  Employer overview
+                </Link>
+                <Link href="/jobs" className="btn btn-outline btn-sm">
+                  Public job board
+                </Link>
+              </div>
+            </div>
+            <div className="home-audience-card animate-on-scroll">
+              <span className="home-audience-icon" aria-hidden>
+                <Handshake size={28} />
+              </span>
+              <h3>Community partners</h3>
+              <p>
+                Churches, nonprofits, and referral organizations: track referrals, stay in the loop on milestones, and send people to a single apply path.
+              </p>
+              <div className="home-audience-links">
+                <Link href="/partners" className="btn btn-primary btn-sm">
+                  Partner with us
+                </Link>
+                <Link href="/contact" className="btn btn-outline btn-sm">
+                  Contact
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>

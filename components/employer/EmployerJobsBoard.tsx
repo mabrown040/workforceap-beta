@@ -493,7 +493,7 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
                         className="btn btn-ghost btn-sm"
                         onClick={() => trackEmployerJobAction('view_applications', j.id, { status: j.status })}
                       >
-                        Applicants
+                        Workforce AP applicants
                       </Link>
                     )}
                   </div>

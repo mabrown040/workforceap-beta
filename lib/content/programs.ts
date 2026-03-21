@@ -43,9 +43,11 @@ function mkProgram(
   skills: string[],
   courseNames: string[],
   partner: string,
-  defaultHours = 10
+  defaultHours = 10,
+  /** Preserve slug when display title changes (URLs, enrollments). */
+  slugOverride?: string
 ): Program {
-  const slug = slugify(title);
+  const slug = slugOverride ?? slugify(title);
   const courses: ProgramCourse[] = courseNames.map((name, i) => ({
     slug: `${slug}-course-${i + 1}`,
     name,
@@ -82,7 +84,29 @@ export const PROGRAMS: Program[] = [
   mkProgram('UX Design Professional Certificate (Google)', 'business', 'Business', '#a47f38', '💼', '3-5 months, 10 hrs/week', 'Starting salary: $88K-$120K', ['User research', 'Wireframing', 'Figma', 'Prototyping'], ['Foundations of User Experience (UX) Design', 'Start the UX Design Process: Empathize, Define, and Ideate', 'Build Wireframes and Low-Fidelity Prototypes', 'Conduct UX Research and Test Early Concepts', 'Create High-Fidelity Designs and Prototypes in Figma', 'Responsive Web Design in Adobe XD', 'Design a User Experience for Social Good & Prepare for Jobs'], 'Google'),
   mkProgram('IT Support Professional Certificate (IBM)', 'it-cyber', 'IT & Cybersecurity', '#ad2c4d', '💻', '3-5 months, 10 hrs/week', 'Starting salary: $55K-$72K', ['Help desk', 'Hardware', 'Software', 'Customer service'], ['Introduction to Technical Support', 'Introduction to Hardware and Operating Systems', 'Introduction to Software, Programming, and Databases', 'Introduction to Networking and Storage', 'Introduction to Cybersecurity Essentials', 'Introduction to Cloud Computing', 'Technical Support Case Studies and Capstone Project'], 'IBM'),
   mkProgram('IT Automation with Python (Google)', 'it-cyber', 'IT & Cybersecurity', '#ad2c4d', '💻', '3-5 months, 10 hrs/week', 'Starting salary: $78K-$98K', ['Python', 'Git', 'Bash', 'APIs', 'IT automation'], ['Crash Course on Python', 'Using Python to Interact with the Operating System', 'Introduction to Git and GitHub', 'Troubleshooting and Debugging Techniques', 'Configuration Management and the Cloud', 'Automating Real-World Tasks with Python'], 'Google'),
-  mkProgram('Health Information Technology (MCHIT)', 'healthcare', 'Healthcare', '#4a9b4f', '❤️', '3-5 months, 10 hrs/week', 'Starting salary: $52K-$72K', ['Medical coding', 'EHR', 'HIPAA', 'ICD-10'], ['Introduction to Health Information Technology', 'Medical Terminology and Anatomy', 'Health Information Management', 'Electronic Health Records (EHR)', 'Healthcare Law, Ethics & HIPAA', 'Medical Coding: ICD-10 and CPT', 'Revenue Cycle Management', 'Capstone: HIT Practice Simulation'], 'MCHIT'),
+  mkProgram(
+    'Medical Coding & Health Information Technology (MCHIT)',
+    'healthcare',
+    'Healthcare',
+    '#4a9b4f',
+    '❤️',
+    '3-5 months, 10 hrs/week',
+    'Starting salary: $52K-$72K',
+    ['Medical coding', 'EHR', 'HIPAA', 'ICD-10'],
+    [
+      'Introduction to Health Information Technology',
+      'Medical Terminology and Anatomy',
+      'Health Information Management',
+      'Electronic Health Records (EHR)',
+      'Healthcare Law, Ethics & HIPAA',
+      'Medical Coding: ICD-10 and CPT',
+      'Revenue Cycle Management',
+      'Capstone: HIT Practice Simulation',
+    ],
+    'MCHIT',
+    10,
+    'health-information-technology-mchit'
+  ),
   mkProgram('Production Technology Certificate (CPT)', 'manufacturing', 'Manufacturing', '#1a1a1a', '🏭', '3-5 months, 10 hrs/week', 'Starting salary: $48K-$70K', ['CNC', 'Manufacturing processes', 'Quality control'], ['Introduction to Manufacturing', 'Blueprint Reading and Technical Drawing', 'Machining and CNC Operations', 'Welding Fundamentals', 'Quality Control and Inspection', 'Safety and OSHA Compliance', 'Lean Manufacturing Principles', 'Production Technology Capstone'], 'CPT'),
   mkProgram('Logistics and Supply Chain Certificate (CLT)', 'manufacturing', 'Manufacturing', '#1a1a1a', '🏭', '3-5 months, 10 hrs/week', 'Starting salary: $55K-$78K', ['Supply chain', 'Inventory', 'Transportation', 'SAP'], ['Introduction to Supply Chain Management', 'Inventory Management and Control', 'Transportation and Distribution', 'Warehouse Operations', 'Procurement and Vendor Management', 'Supply Chain Technology and SAP', 'Global Supply Chain and Trade', 'CLT Certification Preparation'], 'CLT'),
   mkProgram('Construction Readiness Certificate (OSHA-10)', 'manufacturing', 'Manufacturing', '#1a1a1a', '🏗️', '3-5 months, 10 hrs/week', 'Starting salary: $48K-$68K', ['OSHA-10', 'Blueprint reading', 'Construction fundamentals'], ['Introduction to Construction Industry', 'Blueprint Reading and Construction Math', 'Construction Safety and OSHA-10', 'Hand and Power Tools', 'Concrete and Masonry Fundamentals', 'Carpentry and Framing Basics', 'Electrical and Plumbing Basics', 'Construction Readiness Capstone'], 'OSHA-10 / WorkforceAP'),

@@ -1609,6 +1609,63 @@ a.btn-accent:hover {
    LOANER LAPTOP SECTION
    ============================================= */
 /* Home: For You — who it's for + what you get (collapsed from mission/vision) */
+.home-audiences {
+    padding: 3.5rem 0;
+    background: var(--color-light, #f8f9fa);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+}
+.home-audiences-lead {
+    text-align: center;
+    max-width: 640px;
+    margin: 0 auto 2rem;
+    font-size: 1.05rem;
+    color: var(--color-gray-600);
+    line-height: 1.6;
+}
+.home-audiences-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+    align-items: stretch;
+}
+.home-audience-card {
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 1.5rem 1.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.home-audience-card h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--color-primary);
+}
+.home-audience-card p {
+    margin: 0;
+    flex: 1;
+    font-size: 0.95rem;
+    color: var(--color-gray-600);
+    line-height: 1.55;
+}
+.home-audience-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 10px;
+    background: rgba(74, 155, 79, 0.12);
+    color: var(--color-accent);
+}
+.home-audience-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+}
 .home-for-you {
     padding: 4rem 0;
 }

@@ -14,9 +14,10 @@ const navItems = [
       { href: '/what-we-do', label: 'What We Do' },
       { href: '/partners', label: 'Partners' },
       { href: '/leadership', label: 'Leadership Team' },
-      { href: '/employers', label: 'Employers' },
+      { href: '/employers', label: 'For Employers' },
     ],
   },
+  { href: '/how-it-works', label: 'How It Works' },
   {
     label: 'Programs',
     children: [
@@ -27,7 +28,6 @@ const navItems = [
     ],
   },
   { href: '/jobs', label: 'Jobs' },
-  { href: '/how-it-works', label: 'How It Works' },
   { href: '/blog', label: 'Blog' },
   { href: '/faq', label: 'FAQ' },
   { href: '/apply', label: 'Apply Now', cta: true },

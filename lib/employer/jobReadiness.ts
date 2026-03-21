@@ -34,7 +34,7 @@ export function assessJobPostingReadiness(input: {
     issues.push('Add a few requirement lines — even rough bullets from HR.');
   }
   if (input.suggestedProgramsCount === 0) {
-    issues.push('Match training tracks so we can prioritize certify-ready applicants.');
+    issues.push('Match training tracks so we can surface certification-ready candidates.');
   }
 
   let level: JobReadinessLevel = 'solid';

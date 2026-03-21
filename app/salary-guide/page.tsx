@@ -54,7 +54,7 @@ export default function SalaryGuidePage() {
         description="Real numbers from real market data. The right program fits your timeline, tech comfort, and goals — salary is one factor, not the only one."
       />
 
-      <section className="content-section">
+      <section className="content-section salary-guide-page">
         <div className="container">
           <div className="salary-guide-fit-context">
             <p className="salary-guide-fit-lead">
@@ -87,7 +87,7 @@ export default function SalaryGuidePage() {
           <p className="salary-guide-table-intro">Entry-level (0–1 year). Sources: ZipRecruiter, Glassdoor, PayScale — Feb 2026 U.S. benchmarks. Austin runs 5–10% above. Launching in Austin; numbers hold as we expand.</p>
           <p className="salary-guide-ramp-legend"><strong>Ramp:</strong> Easier = quicker, good first credential. Steeper = more depth, higher payoff.</p>
 
-          {/* Desktop: table | Mobile: hidden (cards only) */}
+          {/* Desktop: table | Mobile: hidden (cards shown instead) */}
           <div className="salary-guide-table-wrap">
             <div className="salary-table-wrapper">
               <table className="salary-table">
@@ -109,7 +109,7 @@ export default function SalaryGuidePage() {
             </div>
           </div>
 
-          {/* Mobile: cards only — no horizontal scroll */}
+          {/* Mobile only: card layout — no horizontal scroll */}
           <div className="salary-guide-cards">
             {salaryData.map((row) => (
               <article key={row.program} className="salary-guide-card">

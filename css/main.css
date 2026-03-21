@@ -2440,15 +2440,15 @@ fieldset.apply-fieldset {
     font-size: 0.9rem;
 }
 
-/* Mobile: card layout (hidden on desktop) */
-.salary-guide-cards {
-    display: none;
-}
+/* Desktop: table visible, cards hidden */
+.salary-guide-table-wrap { display: block; }
+.salary-guide-cards { display: none; }
 
 .salary-guide-table-intro { color: #666; margin-bottom: 0.5rem; }
 .salary-guide-ramp-legend { color: #888; font-size: 0.85rem; margin-bottom: 1.5rem; }
 
 @media (max-width: 639px) {
+    /* Hide table entirely — cards are the only salary data on mobile */
     .salary-guide-page .salary-guide-table-wrap,
     .salary-guide-page .salary-table-wrapper {
         display: none !important;
@@ -8116,7 +8116,10 @@ body { animation: fadeIn 0.4s ease; }
     margin: 0;
 }
 
-/* Salary guide mobile — guarantee table hidden, cards only */
+/* =============================================
+   SALARY GUIDE MOBILE — must override all table styles
+   Table hidden; cards only. No horizontal scroll.
+   ============================================= */
 @media (max-width: 639px) {
     .salary-guide-page .salary-guide-table-wrap,
     .salary-guide-page .salary-table-wrapper {

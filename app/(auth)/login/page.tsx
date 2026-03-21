@@ -5,8 +5,9 @@ import LoginForm from './LoginForm';
 
 export const metadata: Metadata = {
   ...buildPageMetadata({
-    title: 'Log in',
-    description: 'Log in to your WorkforceAP member account.',
+    title: 'Sign in',
+    description:
+      'Sign in to WorkforceAP — member, partner, or employer portal. Same account; choose your destination before you log in.',
     path: '/login',
   }),
   robots: { index: false, follow: false },

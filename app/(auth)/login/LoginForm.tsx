@@ -5,9 +5,41 @@ import Link from 'next/link';
 import { Eye, EyeOff } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 
+const PORTAL_DESTINATIONS: { redirectTo: string; title: string; desc: string }[] = [
+  {
+    redirectTo: '/dashboard',
+    title: 'Member (student) portal',
+    desc: 'Training progress, learning hub, applications, and career tools after you enroll or apply.',
+  },
+  {
+    redirectTo: '/partner',
+    title: 'Partner portal',
+    desc: 'Referrals you sent us, member progress, and accountability views for your organization.',
+  },
+  {
+    redirectTo: '/employer',
+    title: 'Employer portal',
+    desc: 'Job postings, Workforce AP applicants, and hiring workflows for your company.',
+  },
+];
+
 export default function LoginForm() {
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get('redirectTo') ?? '/dashboard';
+  const redirectParam = searchParams.get('redirectTo');
+  const redirectTo =
+    redirectParam && redirectParam.startsWith('/') && !redirectParam.startsWith('//') ? redirectParam : '/dashboard';
+
+  const destinationActive = (target: string) => {
+    if (target === '/dashboard') {
+      return (
+        redirectParam == null ||
+        redirectParam === '' ||
+        redirectParam === '/dashboard' ||
+        !(redirectParam.startsWith('/') && !redirectParam.startsWith('//'))
+      );
+    }
+    return redirectParam === target;
+  };
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -59,13 +91,40 @@ export default function LoginForm() {
     <div className="inner-page">
       <section className="page-hero">
         <div className="page-hero-content">
-          <h1>Log in to your account</h1>
-          <p>Access your member dashboard, application status, and resources.</p>
+          <h1>Sign in to WorkforceAP</h1>
+          <p>
+            One email and password for every portal. Choose where you want to land below, then enter your credentials.
+          </p>
         </div>
       </section>
 
       <section className="content-section">
         <div className="container">
+          <nav className="login-portal-routing" aria-label="Choose portal destination after sign-in">
+            <h2 className="login-portal-routing__title">Where are you signing in?</h2>
+            <p className="login-portal-routing__lead">
+              Pick the experience that matches your role. If your account has more than one portal, you can switch after
+              you are logged in.
+            </p>
+            <ul className="login-portal-routing__grid">
+              {PORTAL_DESTINATIONS.map((o) => {
+                const href = `/login?redirectTo=${encodeURIComponent(o.redirectTo)}`;
+                return (
+                  <li key={o.redirectTo} className="login-portal-routing__item">
+                    <Link
+                      href={href}
+                      className={`login-portal-routing__link${destinationActive(o.redirectTo) ? ' login-portal-routing__link--active' : ''}`}
+                      aria-current={destinationActive(o.redirectTo) || undefined}
+                    >
+                      <span className="login-portal-routing__item-title">{o.title}</span>
+                      <span className="login-portal-routing__item-desc">{o.desc}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+
           <div style={{ maxWidth: '420px', margin: '0 auto' }}>
             <div className="apply-form">
               <form onSubmit={handleSubmit} noValidate>

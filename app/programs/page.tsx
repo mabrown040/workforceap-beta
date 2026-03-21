@@ -14,7 +14,7 @@ export const metadata: Metadata = buildPageMetadata({
 
 export default function ProgramsPage() {
   return (
-    <div className="inner-page">
+    <div className="inner-page programs-page">
       <PageHero
         title="Our Programs"
         subtitle="19 no-cost career programs with industry certifications from Google, IBM, AWS, Microsoft, and CompTIA. Use fit, timeline, and readiness — not just the title — to choose your track."

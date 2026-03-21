@@ -1266,6 +1266,42 @@ a.btn-accent:hover {
     align-items: flex-start;
     gap: 0.5rem;
 }
+/* /programs hero — center CTAs under the headline (premium, symmetric) */
+.programs-page .page-hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.programs-page .page-hero h1,
+.programs-page .page-hero > .page-hero-content > p {
+    width: 100%;
+}
+.programs-page .programs-decision-cta {
+    align-items: center;
+    width: 100%;
+    max-width: 22.5rem;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 1.25rem;
+    gap: 0.65rem;
+}
+.programs-page .programs-decision-lead {
+    text-align: center;
+    width: 100%;
+}
+.programs-page .programs-decision-cta .btn {
+    width: 100%;
+    max-width: 20rem;
+    justify-content: center;
+    text-align: center;
+    min-height: 2.75rem;
+}
+.programs-page .programs-compare-link {
+    display: block;
+    text-align: center;
+    width: 100%;
+    line-height: 1.4;
+}
 .programs-decision-lead {
     margin: 0;
     font-size: 0.95rem;
@@ -5834,11 +5870,11 @@ body { animation: fadeIn 0.4s ease; }
 .employer-portal-header-inner {
     max-width: var(--max-width);
     margin: 0 auto;
-    padding: 0.5rem 1rem;
+    padding: 0.65rem 1rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
+    gap: 0.75rem 1.25rem;
     flex-wrap: wrap;
 }
 .employer-portal-brand-row {
@@ -5896,8 +5932,15 @@ body { animation: fadeIn 0.4s ease; }
 .employer-portal-actions {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem 0.75rem;
     flex-shrink: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+.employer-portal-actions .btn {
+    min-height: 2.5rem;
+    padding-inline: 1rem;
+    font-weight: 600;
 }
 .employer-portal-company {
     font-size: 0.8rem;
@@ -5912,6 +5955,9 @@ body { animation: fadeIn 0.4s ease; }
     font-weight: 500;
     color: var(--color-gray-500);
     text-decoration: none;
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: 0.2rem 0;
 }
 .employer-portal-home-link:hover {
     color: var(--color-accent);
@@ -5934,27 +5980,51 @@ body { animation: fadeIn 0.4s ease; }
 .employer-portal-main {
     max-width: var(--max-width);
     margin: 0 auto;
-    padding: 1.25rem 1rem;
+    padding: 1.5rem 1.15rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 @media (max-width: 768px) {
     .employer-portal-header-inner {
-        padding: 0.5rem 0.75rem;
+        padding: 0.55rem 0.75rem;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 0.45rem 0.65rem;
+    }
+    .employer-portal-brand-row {
+        grid-column: 1;
+        grid-row: 1;
+        min-width: 0;
+    }
+    .employer-portal-actions {
+        grid-column: 2;
+        grid-row: 1;
+        justify-self: end;
+        gap: 0.35rem 0.5rem;
     }
     .employer-portal-nav {
-        order: 3;
-        flex: 1 1 100%;
+        grid-column: 1 / -1;
+        grid-row: 2;
+        display: flex;
+        flex-wrap: nowrap;
         overflow-x: auto;
-        padding-bottom: 0.25rem;
+        gap: 0.25rem 0.35rem;
+        padding: 0.3rem 0.2rem 0.45rem;
+        margin: 0 -0.1rem;
         -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        border-top: 1px solid var(--color-gray-100);
     }
     .employer-portal-nav a {
         flex-shrink: 0;
+        padding: 0.45rem 0.65rem;
     }
     .employer-portal-company {
         display: none;
     }
     .employer-portal-main {
-        padding: 1rem 0.75rem;
+        padding: 1.1rem 0.75rem 1.5rem;
     }
 }
 
@@ -8653,6 +8723,11 @@ body { animation: fadeIn 0.4s ease; }
     padding: 1.5rem 2rem;
     flex: 1;
 }
+@media (max-width: 639px) {
+    .portal-shell-main__inner {
+        padding: 1.15rem 1rem 1.5rem;
+    }
+}
 .portal-shell-header__title-link {
     font-weight: 700;
     font-size: 1.1rem;
@@ -8987,6 +9062,19 @@ body { animation: fadeIn 0.4s ease; }
 .employer-jobs-flash-banner__dismiss {
     flex-shrink: 0;
 }
+@media (max-width: 639px) {
+    .employer-jobs-flash-banner {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 0.65rem;
+    }
+    .employer-jobs-flash-banner__dismiss {
+        width: 100%;
+        max-width: 12rem;
+        justify-content: center;
+    }
+}
 .employer-jobs-board__summary {
     display: flex;
     flex-wrap: wrap;
@@ -9024,6 +9112,14 @@ body { animation: fadeIn 0.4s ease; }
     flex-wrap: wrap;
     gap: 0.5rem;
     align-items: center;
+}
+.employer-jobs-board__bulk-actions .btn {
+    min-height: 2.5rem;
+}
+@media (max-width: 639px) {
+    .employer-jobs-board__bulk-actions {
+        justify-content: center;
+    }
 }
 .employer-jobs-board__bulk-delete {
     border-color: rgba(173, 44, 77, 0.45);
@@ -9240,6 +9336,12 @@ body { animation: fadeIn 0.4s ease; }
     flex-wrap: wrap;
     gap: 0.5rem;
     margin-top: auto;
+}
+.employer-job-card__actions .btn {
+    min-height: 2.45rem;
+}
+.employer-bulk-modal__actions .btn {
+    min-height: 2.5rem;
 }
 .employer-job-card__actions .btn-accent {
     font-weight: 600;

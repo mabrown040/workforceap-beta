@@ -1,6 +1,5 @@
 /**
- * Member portal analytics events.
- * Pushes to GTM dataLayer for Google Analytics.
+ * Analytics events — pushes to GTM dataLayer for GA4 / tags.
  */
 
 declare global {
@@ -15,9 +14,42 @@ type EventPayload = {
 };
 
 function pushEvent(payload: EventPayload) {
-  if (typeof window !== 'undefined' && window.dataLayer) {
-    window.dataLayer.push(payload);
-  }
+  if (typeof window === 'undefined') return;
+  window.dataLayer = window.dataLayer ?? [];
+  window.dataLayer.push(payload);
+}
+
+export function trackApplyFunnel(
+  step: number,
+  stepName: string,
+  extra?: Record<string, unknown>
+) {
+  pushEvent({
+    event: 'apply_funnel',
+    apply_step: step,
+    apply_step_name: stepName,
+    ...extra,
+  });
+}
+
+export function trackLearningHubNavigate(destination: 'career_library' | 'program_resources') {
+  pushEvent({
+    event: 'learning_hub_navigate',
+    learning_hub_destination: destination,
+  });
+}
+
+export function trackEmployerJobAction(
+  action: 'edit' | 'submit_review' | 'close_job' | 'view_applications',
+  jobId: string,
+  extra?: { status?: string }
+) {
+  pushEvent({
+    event: 'employer_job_action',
+    employer_job_action: action,
+    job_id: jobId,
+    ...extra,
+  });
 }
 
 export function trackResourceOpen(resourceId: string, resourceTitle: string) {

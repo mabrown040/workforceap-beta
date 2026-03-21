@@ -11,6 +11,10 @@ const NAV_LINKS = [
   { href: '/partner/resources', label: 'Resources' },
 ];
 
+/**
+ * Same light “tool portal” chrome as the employer portal (white header, gray page bg),
+ * not the dark marketing-style `portal-nav` strip used for legacy member routes.
+ */
 export default function PartnerPortalShell({
   partnerName,
   children,
@@ -21,34 +25,38 @@ export default function PartnerPortalShell({
   const pathname = usePathname() ?? '';
 
   return (
-    <div>
-      <nav className="portal-nav" aria-label="Partner portal navigation">
-        <div className="portal-nav-inner">
-          <ul className="portal-nav-links">
+    <div className="employer-portal-shell">
+      <header className="employer-portal-header">
+        <div className="employer-portal-header-inner">
+          <Link href="/partner" className="employer-portal-brand">
+            WorkforceAP
+          </Link>
+          <nav className="employer-portal-nav" aria-label="Partner portal navigation">
             {NAV_LINKS.map(({ href, label }) => (
-              <li key={href}>
-                <Link
-                  href={href}
-                  className={
-                    pathname === href || (href !== '/partner' && pathname.startsWith(href)) ? 'active' : undefined
-                  }
-                >
-                  {label}
-                </Link>
-              </li>
+              <Link
+                key={href}
+                href={href}
+                className={
+                  pathname === href || (href !== '/partner' && pathname.startsWith(href)) ? 'active' : undefined
+                }
+              >
+                {label}
+              </Link>
             ))}
-          </ul>
-          <div className="portal-nav-actions">
+          </nav>
+          <div className="employer-portal-actions">
             <SuperAdminViewSwitcher />
-            <span style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', marginRight: '0.5rem' }}>{partnerName}</span>
-            <Link href="/" className="portal-nav-home">
-              WorkforceAP
+            <span className="employer-portal-company" title={partnerName}>
+              {partnerName}
+            </span>
+            <Link href="/" className="employer-portal-home-link">
+              Site home
             </Link>
-            <SignOutButton />
+            <SignOutButton className="btn btn-outline btn-sm">Sign out</SignOutButton>
           </div>
         </div>
-      </nav>
-      <div style={{ padding: '1.5rem', maxWidth: 1200, margin: '0 auto' }}>{children}</div>
+      </header>
+      <main className="employer-portal-main">{children}</main>
     </div>
   );
 }

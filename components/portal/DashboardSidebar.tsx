@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useCallback } from 'react';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 import {
   Home,
   BookOpen,
@@ -46,6 +48,8 @@ type DashboardSidebarProps = {
 export default function DashboardSidebar({ open = false, onClose }: DashboardSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const onEscape = useCallback(() => onClose?.(), [onClose]);
+  const trapRef = useFocusTrap(open, onEscape);
 
   const renderLink = (href: string, label: string, Icon: React.ComponentType<{ size?: number; className?: string }>) => {
     let isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
@@ -77,7 +81,7 @@ export default function DashboardSidebar({ open = false, onClose }: DashboardSid
   };
 
   return (
-    <aside className={`dashboard-sidebar ${open ? 'open' : ''}`}>
+    <aside ref={trapRef} className={`dashboard-sidebar ${open ? 'open' : ''}`}>
       <div className="dashboard-sidebar-inner">
         <nav aria-label="Dashboard navigation" className="dashboard-sidebar-nav">
           <ul className="dashboard-sidebar-list">

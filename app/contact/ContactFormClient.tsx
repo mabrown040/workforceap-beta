@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useId, useState } from 'react';
 
 export default function ContactFormClient() {
+  const formId = useId();
+  const errorId = `${formId}-error`;
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -48,6 +50,8 @@ export default function ContactFormClient() {
   if (status === 'success') {
     return (
       <div
+        role="status"
+        aria-live="polite"
         style={{
           padding: '2rem',
           background: 'rgba(74, 155, 79, 0.1)',
@@ -66,10 +70,16 @@ export default function ContactFormClient() {
     );
   }
 
+  const showError = status === 'error' && errorMsg;
+  const invalid = status === 'error';
+
   return (
-    <form className="contact-form" onSubmit={handleSubmit}>
-      {status === 'error' && errorMsg && (
+    <form className="contact-form" onSubmit={handleSubmit} noValidate>
+      {showError && (
         <div
+          id={errorId}
+          role="alert"
+          aria-live="assertive"
           style={{
             padding: '0.75rem',
             marginBottom: '1rem',
@@ -84,31 +94,71 @@ export default function ContactFormClient() {
       )}
       <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
         <div className="form-group">
-          <label>First Name *</label>
-          <input type="text" name="first_name" required disabled={status === 'sending'} />
+          <label htmlFor={`${formId}-first_name`}>First Name *</label>
+          <input
+            id={`${formId}-first_name`}
+            type="text"
+            name="first_name"
+            required
+            disabled={status === 'sending'}
+            aria-invalid={invalid}
+            aria-describedby={showError ? errorId : undefined}
+            autoComplete="given-name"
+          />
         </div>
         <div className="form-group">
-          <label>Last Name *</label>
-          <input type="text" name="last_name" required disabled={status === 'sending'} />
+          <label htmlFor={`${formId}-last_name`}>Last Name *</label>
+          <input
+            id={`${formId}-last_name`}
+            type="text"
+            name="last_name"
+            required
+            disabled={status === 'sending'}
+            aria-invalid={invalid}
+            aria-describedby={showError ? errorId : undefined}
+            autoComplete="family-name"
+          />
         </div>
       </div>
       <div className="form-group">
-        <label>Email Address *</label>
-        <input type="email" name="email" required disabled={status === 'sending'} />
+        <label htmlFor={`${formId}-email`}>Email Address *</label>
+        <input
+          id={`${formId}-email`}
+          type="email"
+          name="email"
+          required
+          disabled={status === 'sending'}
+          aria-invalid={invalid}
+          aria-describedby={showError ? errorId : undefined}
+          autoComplete="email"
+        />
       </div>
       <div className="form-group">
-        <label>Phone Number</label>
-        <input type="tel" name="phone" disabled={status === 'sending'} />
+        <label htmlFor={`${formId}-phone`}>Phone Number</label>
+        <input
+          id={`${formId}-phone`}
+          type="tel"
+          name="phone"
+          disabled={status === 'sending'}
+          autoComplete="tel"
+        />
       </div>
       <div className="form-group">
-        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-          <input type="checkbox" name="sms_preferred" value="true" disabled={status === 'sending'} />
+        <label htmlFor={`${formId}-sms`} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+          <input id={`${formId}-sms`} type="checkbox" name="sms_preferred" value="true" disabled={status === 'sending'} />
           I&apos;d prefer to be contacted by text message
         </label>
       </div>
       <div className="form-group">
-        <label>What can we help with? *</label>
-        <select name="topic" required disabled={status === 'sending'}>
+        <label htmlFor={`${formId}-topic`}>What can we help with? *</label>
+        <select
+          id={`${formId}-topic`}
+          name="topic"
+          required
+          disabled={status === 'sending'}
+          aria-invalid={invalid}
+          aria-describedby={showError ? errorId : undefined}
+        >
           <option value="">Select a topic&hellip;</option>
           <option>Program information</option>
           <option>Eligibility questions</option>
@@ -120,8 +170,16 @@ export default function ContactFormClient() {
         </select>
       </div>
       <div className="form-group">
-        <label>Your Message *</label>
-        <textarea name="message" rows={5} required disabled={status === 'sending'} />
+        <label htmlFor={`${formId}-message`}>Your Message *</label>
+        <textarea
+          id={`${formId}-message`}
+          name="message"
+          rows={5}
+          required
+          disabled={status === 'sending'}
+          aria-invalid={invalid}
+          aria-describedby={showError ? errorId : undefined}
+        />
       </div>
       <button
         type="submit"

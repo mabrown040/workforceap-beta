@@ -6,6 +6,7 @@ import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
 import { APPLY_STORAGE_KEY } from '../ApplyEligibilityClient';
 import { CardSkeleton } from '@/components/ui/Skeleton';
 import { ProgramIcon } from '@/components/ProgramIcon';
+import { trackApplyFunnel } from '@/lib/analytics/events';
 
 const PROGRAM_STORAGE_KEY = 'apply_program_slug';
 
@@ -35,8 +36,14 @@ export default function ApplyResultsClient() {
     }
   }, [programParam]);
 
+  useEffect(() => {
+    if (qualifies === null) return;
+    trackApplyFunnel(2, 'results_view', { qualifies });
+  }, [qualifies]);
+
   const handleContinue = () => {
     if (!selectedSlug) return;
+    trackApplyFunnel(2, 'program_selected', { program_slug: selectedSlug });
     if (typeof window !== 'undefined') {
       sessionStorage.setItem(PROGRAM_STORAGE_KEY, selectedSlug);
     }

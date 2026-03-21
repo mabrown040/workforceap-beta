@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef, useId } from 'react';
 
 const navItems = [
   { href: '/', label: 'Home' },
@@ -35,15 +35,21 @@ const navItems = [
   { href: '/contact', label: 'Contact Us' },
 ];
 
+function dropdownMenuId(baseId: string, label: string) {
+  return `${baseId}-${label.replace(/\s+/g, '-').toLowerCase()}`;
+}
+
 export default function MainNav() {
   const pathname = usePathname();
+  const navMenuId = useId();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
-  const [portalEntry, setPortalEntry] = useState<{ href: string; label: string }>({
-    href: '/login',
-    label: 'Member Portal',
-  });
+  const [portalLinks, setPortalLinks] = useState<{ href: string; label: string }[]>([
+    { href: '/login', label: 'Member Portal' },
+  ]);
+  const menuRef = useRef<HTMLUListElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
   const closeMobile = useCallback(() => {
     setMobileOpen(false);
@@ -53,24 +59,22 @@ export default function MainNav() {
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.pageYOffset > 60);
-    const onResize = () => { if (window.innerWidth > 900) closeMobile(); };
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeMobile(); };
-
+    const onResize = () => {
+      if (window.innerWidth > 900) closeMobile();
+    };
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
-    document.addEventListener('keydown', onKey, { capture: true });
     onScroll();
     return () => {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
-      document.removeEventListener('keydown', onKey, { capture: true });
     };
   }, [closeMobile]);
 
   useEffect(() => {
     let cancelled = false;
 
-    const refreshPortalHref = () => {
+    const refreshPortalLinks = () => {
       void (async () => {
         try {
           const res = await fetch('/api/auth/me', { credentials: 'include' });
@@ -79,38 +83,103 @@ export default function MainNav() {
             partner: { partnerId: string } | null;
             employer: { employerId: string; companyName: string } | null;
             superAdmin: boolean;
+            canAccessMemberDashboard: boolean;
           };
           if (cancelled) return;
           if (!data.role) {
-            setPortalEntry({ href: '/login', label: 'Member Portal' });
+            setPortalLinks([{ href: '/login', label: 'Member Portal' }]);
             return;
+          }
+          const partnerExclusive = !!data.partner && !data.superAdmin;
+          if (partnerExclusive) {
+            setPortalLinks([{ href: '/partner', label: 'Partner Portal' }]);
+            return;
+          }
+          const links: { href: string; label: string }[] = [];
+          if (data.canAccessMemberDashboard) {
+            links.push({ href: '/dashboard', label: 'Member Portal' });
           }
           if (data.employer) {
-            setPortalEntry({ href: '/employer', label: 'Employer Portal' });
-            return;
+            links.push({ href: '/employer', label: 'Employer Portal' });
           }
-          if (data.partner && !data.superAdmin) {
-            setPortalEntry({ href: '/partner', label: 'Partner Portal' });
-            return;
+          if (links.length === 0) {
+            links.push({ href: '/dashboard', label: 'Member Portal' });
           }
-          setPortalEntry({ href: '/dashboard', label: 'Member Portal' });
+          setPortalLinks(links);
         } catch {
-          if (!cancelled) setPortalEntry({ href: '/login', label: 'Member Portal' });
+          if (!cancelled) setPortalLinks([{ href: '/login', label: 'Member Portal' }]);
         }
       })();
     };
 
-    refreshPortalHref();
-    window.addEventListener('focus', refreshPortalHref);
+    refreshPortalLinks();
+    window.addEventListener('focus', refreshPortalLinks);
     return () => {
       cancelled = true;
-      window.removeEventListener('focus', refreshPortalHref);
+      window.removeEventListener('focus', refreshPortalLinks);
     };
   }, []);
 
   useEffect(() => {
     closeMobile();
   }, [pathname, closeMobile]);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const menu = menuRef.current;
+    if (!menu) return;
+
+    const getFocusable = () =>
+      Array.from(
+        menu.querySelectorAll<HTMLElement>(
+          'a[href]:not([tabindex="-1"]), button:not([disabled]):not([aria-hidden="true"])'
+        )
+      ).filter((el) => !el.hasAttribute('disabled'));
+
+    const t = window.setTimeout(() => getFocusable()[0]?.focus(), 0);
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeMobile();
+        toggleRef.current?.focus();
+        return;
+      }
+      if (e.key !== 'Tab' || !menu) return;
+      const focusables = getFocusable();
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+      if (e.shiftKey) {
+        if (active === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else if (active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.clearTimeout(t);
+      document.removeEventListener('keydown', onKeyDown);
+      previouslyFocused?.focus?.();
+    };
+  }, [mobileOpen, closeMobile]);
+
+  useEffect(() => {
+    if (!activeDropdown) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setActiveDropdown(null);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [activeDropdown]);
 
   const toggleMobile = () => {
     if (mobileOpen) {
@@ -122,8 +191,14 @@ export default function MainNav() {
   };
 
   const isActive = (href: string) => pathname === href;
-  const isParentActive = (children: { href: string }[]) =>
-    children.some((c) => pathname === c.href);
+  const isParentActive = (children: { href: string }[]) => children.some((c) => pathname === c.href);
+
+  const portalHrefActive = (href: string) =>
+    pathname === href ||
+    (href === '/dashboard' && pathname.startsWith('/dashboard')) ||
+    (href === '/employer' && pathname.startsWith('/employer')) ||
+    (href === '/partner' && pathname.startsWith('/partner')) ||
+    (href === '/login' && pathname === '/login');
 
   return (
     <nav className={`main-nav${scrolled ? ' scrolled' : ''}`} aria-label="Main navigation">
@@ -141,10 +216,12 @@ export default function MainNav() {
           />
         </Link>
         <button
+          ref={toggleRef}
           type="button"
           className="mobile-nav-toggle"
           aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'}
           aria-expanded={mobileOpen}
+          aria-controls={navMenuId}
           onClick={toggleMobile}
         >
           {mobileOpen ? <X size={26} strokeWidth={2} aria-hidden /> : <Menu size={26} strokeWidth={2} aria-hidden />}
@@ -157,39 +234,40 @@ export default function MainNav() {
           tabIndex={mobileOpen ? 0 : -1}
           onClick={closeMobile}
         />
-        <ul className={`nav-menu${mobileOpen ? ' mobile-open' : ''}`}>
+        <ul ref={menuRef} id={navMenuId} className={`nav-menu${mobileOpen ? ' mobile-open' : ''}`}>
           {mobileOpen && (
             <li className="mobile-nav-close">
-              <button type="button" onClick={closeMobile} aria-label="Close navigation">&times;</button>
+              <button type="button" onClick={closeMobile} aria-label="Close navigation">
+                &times;
+              </button>
             </li>
           )}
-          {navItems.map((item) => {
+          {navItems.flatMap((item) => {
             if ('children' in item && item.children) {
               const parentActive = isParentActive(item.children);
-              return (
-                <li
-                  key={item.label}
-                  className={`dropdown${activeDropdown === item.label ? ' active' : ''}`}
-                >
+              const subMenuId = dropdownMenuId(navMenuId, item.label);
+              const isOpen = activeDropdown === item.label;
+              return [
+                <li key={item.label} className={`dropdown${isOpen ? ' active' : ''}`}>
                   <span
+                    id={`${subMenuId}-trigger`}
                     role="button"
                     tabIndex={0}
-                    aria-expanded={activeDropdown === item.label}
+                    aria-expanded={isOpen}
                     aria-haspopup="true"
+                    aria-controls={subMenuId}
                     className={parentActive ? 'active' : undefined}
-                    onClick={() =>
-                      setActiveDropdown(activeDropdown === item.label ? null : item.label)
-                    }
+                    onClick={() => setActiveDropdown(isOpen ? null : item.label)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
-                        setActiveDropdown(activeDropdown === item.label ? null : item.label);
+                        setActiveDropdown(isOpen ? null : item.label);
                       }
                     }}
                   >
                     {item.label}
                   </span>
-                  <ul className="dropdown-menu">
+                  <ul className="dropdown-menu" id={subMenuId} aria-labelledby={`${subMenuId}-trigger`}>
                     {item.children.map((child) => (
                       <li key={child.href}>
                         <Link
@@ -202,30 +280,34 @@ export default function MainNav() {
                       </li>
                     ))}
                   </ul>
-                </li>
-              );
+                </li>,
+              ];
             }
             const isPortalEntry = 'portalEntry' in item && item.portalEntry;
-            const href = isPortalEntry ? portalEntry.href : item.href!;
-            const portalEntryActive =
-              isPortalEntry &&
-              (pathname === '/login' ||
-                pathname.startsWith('/dashboard') ||
-                pathname.startsWith('/partner') ||
-                pathname.startsWith('/employer'));
-            const linkLabel = isPortalEntry ? portalEntry.label : item.label;
-
-            return (
+            if (isPortalEntry) {
+              return portalLinks.map((pl) => (
+                <li key={`portal-${pl.href}-${pl.label}`}>
+                  <Link
+                    href={pl.href}
+                    className={portalHrefActive(pl.href) ? 'active' : ''}
+                    onClick={closeMobile}
+                  >
+                    {pl.label}
+                  </Link>
+                </li>
+              ));
+            }
+            return [
               <li key={item.href}>
                 <Link
-                  href={href}
-                  className={`${item.cta ? 'nav-cta' : ''}${isActive(href) || portalEntryActive ? ' active' : ''}`}
+                  href={item.href!}
+                  className={`${item.cta ? 'nav-cta' : ''}${isActive(item.href!) ? ' active' : ''}`}
                   onClick={closeMobile}
                 >
-                  {linkLabel}
+                  {item.label}
                 </Link>
-              </li>
-            );
+              </li>,
+            ];
           })}
         </ul>
       </div>

@@ -10,14 +10,14 @@ const { spawnSync } = require('child_process');
 // Load prisma env vars
 require('./ensure-prisma-env.cjs');
 
-// Migrations to mark as APPLIED (tables already exist in prod, migration was partially applied)
+// Migrations to mark as APPLIED (tables already exist in prod DB)
 const MARK_APPLIED = [
   '20260319100000_add_partner_users',
+  '20260320100001_employer_portal_jobs',
 ];
 
-// Migrations to mark as ROLLED BACK (never fully applied, safe to skip)
+// Migrations to mark as ROLLED BACK (never applied, safe to skip)
 const MARK_ROLLED_BACK = [
-  '20260320100001_employer_portal_jobs',
 ];
 
 function run(args, ignoreError = false) {

@@ -760,12 +760,16 @@ enum JobLocationType {
   remote
   hybrid
   onsite
+
+  @@map("job_location_type")
 }
 
 enum JobTypeEnum {
   fulltime
   parttime
   contract
+
+  @@map("job_type_enum")
 }
 
 enum JobStatusEnum {
@@ -775,6 +779,8 @@ enum JobStatusEnum {
   live
   filled
   closed
+
+  @@map("job_status_enum")
 }
 
 model Job {
@@ -814,6 +820,8 @@ enum JobPostingApplicationStatus {
   offered
   hired
   rejected
+
+  @@map("job_posting_application_status")
 }
 
 model JobPostingApplication {
@@ -839,6 +847,8 @@ enum AIJobMatchStatus {
   employer_notified
   student_notified
   rejected
+
+  @@map("ai_job_match_status")
 }
 
 model AIJobMatch {

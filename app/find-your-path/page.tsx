@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
+import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
 import FindYourPathClient from './FindYourPathClient';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -25,6 +26,7 @@ export default function FindYourPathPage() {
 
       <section className="content-section">
         <div className="container">
+          <ProgramsDecisionJourneyNav current="quiz" />
           <FindYourPathClient />
         </div>
       </section>

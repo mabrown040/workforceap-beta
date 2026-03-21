@@ -3,11 +3,13 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
+import { PROGRAM_COMPARISON_FEATURED } from '@/lib/content/programComparisonTracks';
 import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
 import { getProgramDescription } from '@/lib/content/programDescriptions';
 import { getProgramExtra } from '@/lib/content/programExtras';
 import Footer from '@/components/Footer';
 import ProgramDetailClient from './ProgramDetailClient';
+import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
 import { HelpCircle, BookOpen, ArrowRight, Clock, DollarSign, Briefcase } from 'lucide-react';
 
 type Props = { params: Promise<{ slug: string }> };
@@ -41,6 +43,11 @@ export default async function ProgramPage({ params }: Props) {
   if (!program) notFound();
 
   const extra = getProgramExtra(slug);
+  const compareBaselineSlug =
+    program.slug === 'digital-literacy-empowerment-class'
+      ? 'it-support-professional-certificate-ibm'
+      : 'digital-literacy-empowerment-class';
+  const slugInFeaturedCompare = PROGRAM_COMPARISON_FEATURED.some((f) => f.slug === program.slug);
 
   return (
     <div className="inner-page">
@@ -80,6 +87,9 @@ export default async function ProgramPage({ params }: Props) {
       </section>
 
       <section className="content-section">
+        <div className="container">
+          <ProgramsDecisionJourneyNav current="detail" />
+        </div>
         <div className="container program-detail-grid">
           <div className="program-detail-main">
             <p className="program-detail-description">{getProgramDescription(program.category)}</p>
@@ -198,8 +208,20 @@ export default async function ProgramPage({ params }: Props) {
               <Link href="/find-your-path" className="program-sidebar-quiz-link">
                 Not sure? Take the pathfinder quiz →
               </Link>
-              <Link href="/program-comparison" className="program-sidebar-compare-link">
-                Compare all programs
+              {slugInFeaturedCompare ? (
+                <Link
+                  href={`/program-comparison?compare=${program.slug},${compareBaselineSlug}`}
+                  className="program-sidebar-compare-link"
+                >
+                  Compare side-by-side (with a common on-ramp track)
+                </Link>
+              ) : null}
+              <Link
+                href="/program-comparison"
+                className="program-sidebar-compare-link"
+                style={{ marginTop: slugInFeaturedCompare ? '0.35rem' : 0 }}
+              >
+                Open comparison tool (featured tracks)
               </Link>
             </div>
           </aside>

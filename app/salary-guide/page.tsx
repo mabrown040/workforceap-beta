@@ -5,6 +5,7 @@ import { Lightbulb, TrendingUp, MapPin, CheckCircle, Handshake, DollarSign } fro
 import PageHero from '@/components/PageHero';
 import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
+import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
 import { buildSalaryGuideRows, salaryGuideSummaryStats } from '@/lib/content/programSalaryOutcomes';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -67,6 +68,7 @@ export default function SalaryGuidePage() {
 
       <section className="content-section salary-guide-page">
         <div className="container">
+          <ProgramsDecisionJourneyNav current="salary" />
           <div className="salary-guide-fit-context">
             <p className="salary-guide-fit-lead">
               Salary is one factor. The right program fits your timeline, readiness, and tech comfort — not just the top of the range. Higher bands usually mean a steeper ramp. Faster, lower-band credentials still move hiring conversations forward; a finished program beats a stalled one.

@@ -46,7 +46,9 @@ export default function MainNav() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [portalLinks, setPortalLinks] = useState<{ href: string; label: string }[]>([
-    { href: '/login', label: 'Member Portal' },
+    { href: '/login?redirectTo=/dashboard', label: 'Member Portal' },
+    { href: '/login?redirectTo=/partner', label: 'Partner Portal' },
+    { href: '/login?redirectTo=/employer', label: 'Employer Portal' },
   ]);
   const menuRef = useRef<HTMLUListElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -87,7 +89,11 @@ export default function MainNav() {
           };
           if (cancelled) return;
           if (!data.role) {
-            setPortalLinks([{ href: '/login', label: 'Member Portal' }]);
+            setPortalLinks([
+              { href: '/login?redirectTo=/dashboard', label: 'Member Portal' },
+              { href: '/login?redirectTo=/partner', label: 'Partner Portal' },
+              { href: '/login?redirectTo=/employer', label: 'Employer Portal' },
+            ]);
             return;
           }
           const partnerExclusive = !!data.partner && !data.superAdmin;
@@ -107,7 +113,12 @@ export default function MainNav() {
           }
           setPortalLinks(links);
         } catch {
-          if (!cancelled) setPortalLinks([{ href: '/login', label: 'Member Portal' }]);
+          if (!cancelled)
+            setPortalLinks([
+              { href: '/login?redirectTo=/dashboard', label: 'Member Portal' },
+              { href: '/login?redirectTo=/partner', label: 'Partner Portal' },
+              { href: '/login?redirectTo=/employer', label: 'Employer Portal' },
+            ]);
         }
       })();
     };
@@ -193,12 +204,15 @@ export default function MainNav() {
   const isActive = (href: string) => pathname === href;
   const isParentActive = (children: { href: string }[]) => children.some((c) => pathname === c.href);
 
-  const portalHrefActive = (href: string) =>
-    pathname === href ||
-    (href === '/dashboard' && pathname.startsWith('/dashboard')) ||
-    (href === '/employer' && pathname.startsWith('/employer')) ||
-    (href === '/partner' && pathname.startsWith('/partner')) ||
-    (href === '/login' && pathname === '/login');
+  const portalHrefActive = (href: string) => {
+    if (href.startsWith('/login')) return false;
+    return (
+      pathname === href ||
+      (href === '/dashboard' && pathname.startsWith('/dashboard')) ||
+      (href === '/employer' && pathname.startsWith('/employer')) ||
+      (href === '/partner' && pathname.startsWith('/partner'))
+    );
+  };
 
   return (
     <nav className={`main-nav${scrolled ? ' scrolled' : ''}`} aria-label="Main navigation">
@@ -285,17 +299,23 @@ export default function MainNav() {
             }
             const isPortalEntry = 'portalEntry' in item && item.portalEntry;
             if (isPortalEntry) {
-              return portalLinks.map((pl) => (
-                <li key={`portal-${pl.href}-${pl.label}`}>
-                  <Link
-                    href={pl.href}
-                    className={portalHrefActive(pl.href) ? 'active' : ''}
-                    onClick={closeMobile}
-                  >
-                    {pl.label}
-                  </Link>
-                </li>
-              ));
+              return [
+                <li key="portal-entries" className="nav-portal-entries">
+                  <span className="nav-portal-entries-label">Portals</span>
+                  <div className="nav-portal-entries-inner" role="group" aria-label="Sign in to a portal">
+                    {portalLinks.map((pl) => (
+                      <Link
+                        key={`portal-${pl.href}-${pl.label}`}
+                        href={pl.href}
+                        className={`nav-portal-entry${portalHrefActive(pl.href) ? ' active' : ''}`}
+                        onClick={closeMobile}
+                      >
+                        {pl.label}
+                      </Link>
+                    ))}
+                  </div>
+                </li>,
+              ];
             }
             return [
               <li key={item.href}>

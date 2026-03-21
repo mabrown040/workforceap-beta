@@ -191,7 +191,12 @@ export default function ApplyFlowClient() {
               {qualifies ? (
                 <p><strong>You may qualify for funding assistance.</strong> Complete your application and we&apos;ll connect you with available resources.</p>
               ) : (
-                <p><strong>Apply now</strong> — our team will help identify the best options for you.</p>
+                <p>
+                  <strong>Your answers do not match our typical funding profile — you can still apply.</strong> A counselor
+                  will review your situation. If you want a gentler first step while you wait, explore{' '}
+                  <Link href="/programs/digital-literacy-empowerment-class">Digital Literacy</Link> or the{' '}
+                  <Link href="/find-your-path">pathfinder quiz</Link> — same programs you will see after you submit.
+                </p>
               )}
             </div>
           )}

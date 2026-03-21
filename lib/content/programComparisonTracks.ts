@@ -19,7 +19,7 @@ export type ComparisonTrack = {
   certs: string;
 };
 
-const FEATURED: { slug: string; shortName: string; demand: 'High' | 'Very High'; certs: string }[] = [
+export const PROGRAM_COMPARISON_FEATURED: { slug: string; shortName: string; demand: 'High' | 'Very High'; certs: string }[] = [
   {
     slug: 'it-support-professional-certificate-ibm',
     shortName: 'IT Support',
@@ -82,7 +82,7 @@ function difficultyStars(program: Program): string {
 }
 
 export function getProgramComparisonTracks(): ComparisonTrack[] {
-  return FEATURED.map(({ slug, shortName, demand, certs }) => {
+  return PROGRAM_COMPARISON_FEATURED.map(({ slug, shortName, demand, certs }) => {
     const program = getProgramBySlug(slug);
     if (!program) {
       throw new Error(`programComparisonTracks: missing program for slug "${slug}"`);

@@ -116,6 +116,65 @@ function extractJobsFromMarkdown(rawText: string): ParsedJobListing[] | null {
   return jobs.length > 0 ? jobs.slice(0, 25) : null;
 }
 
+/** Keep prompts within model context: for noisy ATS pages, include start + end so the real JD isn't only in the tail. */
+export function clipJobSourceTextForLLM(rawText: string, maxChars = 26000): string {
+  const t = rawText.trim();
+  if (t.length <= maxChars) return t;
+  const budget = maxChars - 120;
+  const head = Math.floor(budget / 2);
+  const tail = budget - head;
+  return `${t.slice(0, head)}\n\n[... middle of page omitted ...]\n\n${t.slice(-tail)}`;
+}
+
+/**
+ * When AI parse fails, try the first markdown H1/H2 that looks like a role title (not nav chrome).
+ */
+export function extractLikelyJobTitleFromScrape(rawText: string): string | null {
+  const lines = rawText.split('\n').map((l) => l.trim());
+  const skip = /^(rippling|careers|jobs at|open positions|home|menu|skip to|cookie|privacy|apply|log ?in|sign ?in)/i;
+  for (let i = 0; i < Math.min(lines.length, 100); i++) {
+    const line = lines[i];
+    if (!line) continue;
+    const hm = line.match(/^#{1,2}\s+(.+)$/);
+    if (hm) {
+      const title = hm[1].replace(/\*+/g, '').trim();
+      if (title.length < 3 || title.length > 140) continue;
+      if (skip.test(title)) continue;
+      return title;
+    }
+  }
+  return null;
+}
+
+const FALLBACK_NOTE =
+  '\n\n---\nNote: Structured AI parse did not return a clean result — this draft was built from the scraped page text. Please edit title, location, and description before submitting.';
+
+/** Last-resort draft when Groq JSON parse fails but we have a title hint and enough body text. */
+export function buildFallbackParsedJobFromScrape(
+  listingTitle: string | undefined,
+  pageText: string
+): ParsedJob | null {
+  const title =
+    listingTitle && listingTitle.trim().length >= 3
+      ? listingTitle.trim()
+      : extractLikelyJobTitleFromScrape(pageText);
+  if (!title) return null;
+  let body = stripUrlsFromDescription(pageText).trim();
+  if (body.length < 50) return null;
+  const maxBody = 85_000;
+  if (body.length > maxBody) {
+    const half = Math.floor(maxBody / 2) - 80;
+    body = `${body.slice(0, half)}\n\n[... trimmed for length ...]\n\n${body.slice(-half)}`;
+  }
+  return {
+    title,
+    description: `${body}${FALLBACK_NOTE}`,
+    requirements: [],
+    preferredCertifications: [],
+    suggestedPrograms: [],
+  };
+}
+
 export async function parseJobListingsFromPageText(rawText: string): Promise<ParsedJobListing[] | null> {
   // Try structured markdown extraction first (fast, no AI credits)
   const markdownJobs = extractJobsFromMarkdown(rawText);
@@ -163,8 +222,8 @@ export async function parseJobFromText(rawText: string): Promise<ParsedJob | nul
 
   const programSlugs = PROGRAMS.map((p) => p.slug).join(', ');
 
-  const systemPrompt = `You are a job posting parser. Extract structured job data from unstructured text (e.g. LinkedIn, Indeed, company career pages).
-Output valid JSON only, no markdown. Use this exact schema:
+  const systemPrompt = `You are a job posting parser. Extract structured job data from unstructured text (e.g. LinkedIn, Indeed, company career pages, ATS markdown).
+Output valid JSON only, no markdown fences. Use this exact schema:
 {
   "title": "string (job title)",
   "company": "string or null",
@@ -178,9 +237,11 @@ Output valid JSON only, no markdown. Use this exact schema:
   "preferredCertifications": ["string"] (cert names if mentioned),
   "suggestedPrograms": ["slug"] (from: ${programSlugs} - pick slugs that best match job requirements)
 }
-Infer locationType from words like "remote", "hybrid", "on-site". Infer jobType from "full-time", "part-time", "contract".`;
+Long pages often begin with navigation, cookie banners, or repeated site chrome — find the real role title and the responsibilities/qualifications sections.
+Infer locationType from words like "remote", "hybrid", "on-site". Infer jobType from "full-time", "part-time", "contract".
+Keep "description" complete but concise if the source is huge (under ~6000 characters of prose is OK).`;
 
-  const userPrompt = `Parse this job posting:\n\n${rawText.slice(0, 12000)}`;
+  const userPrompt = `Parse this job posting:\n\n${clipJobSourceTextForLLM(rawText, 26000)}`;
 
   try {
     const output = await chatCompletion(
@@ -188,7 +249,7 @@ Infer locationType from words like "remote", "hybrid", "on-site". Infer jobType 
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
-      { maxTokens: 2000, temperature: 0.2 }
+      { maxTokens: 8192, temperature: 0.15 }
     );
     if (!output) {
       console.warn('[parseJobFromText] empty model output (all models returned no content)');

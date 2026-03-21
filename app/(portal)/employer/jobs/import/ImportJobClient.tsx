@@ -82,7 +82,7 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
     const cUrl = careersUrl.trim();
 
     if (urls.length === 0 && !cUrl && paste.length < 80) {
-      setError('Add at least one job URL, a careers page URL, or paste careers page text (80+ characters).');
+      setError('Add a careers link, at least one job link, or paste enough page text for us to read (about a paragraph).');
       return;
     }
 
@@ -123,9 +123,10 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
             ← Back
           </button>
         </div>
-        <h1 style={{ fontSize: '1.35rem', marginBottom: '0.5rem' }}>Review extracted job</h1>
+        <h1 style={{ fontSize: '1.35rem', marginBottom: '0.5rem' }}>Review before saving</h1>
         <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-          Edit if needed, then create the draft.
+          This is still private. Adjust anything that does not sound like your team, then save as a draft or send for
+          WorkforceAP review.
         </p>
         <JobForm
           initialData={{
@@ -152,19 +153,19 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
   return (
     <div className="import-job-page">
       <div className="import-job-back">
-        <Link href="/employer/jobs">← My Jobs</Link>
+        <Link href="/employer/jobs">← Back to jobs</Link>
       </div>
 
       <header className="import-job-header">
-        <h1>Import jobs</h1>
+        <h1>Add roles from your site</h1>
         <p className="import-job-tagline">
-          Paste your public careers page. We pull what we can from the listings, build editable drafts, and you tighten
-          the details before anything goes live. Nothing publishes until you submit for review.
+          We turn what is already on your public careers page into private drafts. You edit, then choose when to send a
+          posting for WorkforceAP review. Candidates never see anything until after that review — and your approval.
         </p>
         <ul className="import-job-confidence">
-          <li>You review every draft — titles, pay, and requirements are yours to fix.</li>
-          <li>Bulk import tops out at 15 URLs per run so quality stays high.</li>
-          <li>If a page blocks us, use paste or single-job import below.</li>
+          <li>Every draft is yours to polish: pay, location, and must-haves should match how you actually hire.</li>
+          <li>We cap bulk pulls so each posting stays accurate — quality over speed.</li>
+          <li>If a page does not open for us, paste the text or add a single job below — same outcome.</li>
         </ul>
       </header>
 
@@ -175,13 +176,14 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
           </div>
           <div>
             <h2 className="import-job-success-title">
-              {bulkResult.created.length} draft{bulkResult.created.length !== 1 ? 's' : ''} ready for review
+              {bulkResult.created.length} private draft{bulkResult.created.length !== 1 ? 's' : ''} ready
             </h2>
             <p className="import-job-success-desc">
-              Open any card to polish wording, then submit for WorkforceAP review when it reflects how you actually hire.
+              Nothing is visible to candidates yet. Open each one, tighten the details, then send for review when it matches
+              how you hire.
             </p>
             <Link href="/employer/jobs" className="btn btn-primary import-job-success-cta">
-              View drafts on My Jobs
+              Go to your jobs
               <ExternalLink size={16} style={{ marginLeft: '0.35rem', verticalAlign: 'middle' }} />
             </Link>
           </div>
@@ -199,10 +201,9 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
       )}
 
       <section className="import-job-primary">
-        <h2>Start with your careers page</h2>
+        <h2>Paste your public careers link</h2>
         <p className="import-job-hint">
-          Works best with common ATS pages (Greenhouse, Lever, Rippling, Ashby, and similar). Paste the main careers URL
-          — the one that lists open roles — not an internal HR login.
+          Use the same URL a candidate would use — the page that lists open roles. Internal HR logins will not work here.
         </p>
         {error && (
           <div className="import-job-error">
@@ -212,7 +213,7 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
         <div className="form-group">
           <input
             type="url"
-            placeholder="https://ats.rippling.com/company/jobs or https://jobs.lever.co/company"
+            placeholder="https://yourcompany.com/careers"
             value={careersUrl}
             onChange={(e) => setCareersUrl(e.target.value)}
             disabled={bulkLoading || loading}
@@ -225,16 +226,16 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
           onClick={handleBulkImport}
           disabled={bulkLoading || loading || !careersUrl.trim()}
         >
-          {bulkLoading ? 'Pulling roles into drafts…' : 'Create drafts from this page'}
+          {bulkLoading ? 'Building your drafts…' : 'Create private drafts from this page'}
         </button>
       </section>
 
       <details className="import-job-more">
-        <summary>Other import options</summary>
+        <summary>Other ways to add a role</summary>
         <div className="import-job-more-content">
-          <h3>Single job</h3>
+          <h3>One role at a time</h3>
           <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '0.75rem' }}>
-            One public posting URL or pasted description — best when you are hiring for a single role right now.
+            Paste a public job link or the full description — fastest when you are only filling one opening.
           </p>
           <div className="form-group">
             <label>Job URL</label>
@@ -245,17 +246,17 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
             <textarea rows={6} placeholder="Paste full job description..." value={rawText} onChange={(e) => setRawText(e.target.value)} disabled={loading || bulkLoading} />
           </div>
           <button type="button" className="btn btn-secondary btn-sm" onClick={handleParse} disabled={loading || bulkLoading}>
-            {loading ? 'Parsing…' : 'Parse & extract'}
+            {loading ? 'Reading…' : 'Build draft from this job'}
           </button>
 
-          <h3 style={{ marginTop: '1.5rem' }}>Multiple job links</h3>
+          <h3 style={{ marginTop: '1.5rem' }}>Several direct job links</h3>
           <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '0.75rem' }}>
-            Up to 15 public job URLs, one per line — handy when you already have direct links.
+            Up to fifteen public URLs, one per line — we turn each into its own draft you can edit separately.
           </p>
           <textarea rows={4} placeholder="https://...&#10;https://..." value={bulkUrls} onChange={(e) => setBulkUrls(e.target.value)} disabled={bulkLoading || loading} />
           <div className="form-group">
-            <label>Or paste careers page text (80+ chars)</label>
-            <textarea rows={4} placeholder="Paste if the site blocks fetching..." value={careersPaste} onChange={(e) => setCareersPaste(e.target.value)} disabled={bulkLoading || loading} />
+            <label>Or paste careers page text (about a paragraph)</label>
+            <textarea rows={4} placeholder="Paste the visible text from your careers page if links do not work..." value={careersPaste} onChange={(e) => setCareersPaste(e.target.value)} disabled={bulkLoading || loading} />
           </div>
           <button
             type="button"
@@ -269,7 +270,7 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
                 !careersUrl.trim())
             }
           >
-            Import from URLs / paste
+            Create drafts from links or paste
           </button>
         </div>
       </details>

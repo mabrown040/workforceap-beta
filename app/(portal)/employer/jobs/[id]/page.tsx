@@ -7,6 +7,7 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { PROGRAMS } from '@/lib/content/programs';
 import JobForm from '@/components/employer/JobForm';
+import { assessJobPostingReadiness, readinessLabel } from '@/lib/employer/jobReadiness';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -42,10 +43,19 @@ export default async function EmployerJobDetailPage({ params }: Props) {
     select: { companyName: true },
   });
 
+  const editReadiness = assessJobPostingReadiness({
+    location: job.location?.trim() || '—',
+    salaryMin: job.salaryMin,
+    salaryMax: job.salaryMax,
+    description: job.description?.trim() ?? '',
+    requirementsCount: job.requirements?.length ?? 0,
+    suggestedProgramsCount: job.suggestedPrograms?.length ?? 0,
+  });
+
   return (
     <article className="employer-job-edit">
       <div className="employer-job-edit__back">
-        <Link href="/employer/jobs">← My Jobs</Link>
+        <Link href="/employer/jobs">← Back to jobs</Link>
       </div>
       <header className="employer-job-edit__header">
         <h1>{job.title}</h1>
@@ -54,6 +64,21 @@ export default async function EmployerJobDetailPage({ params }: Props) {
           {job.applicationsCount > 0 && ` · ${job.applicationsCount} application${job.applicationsCount === 1 ? '' : 's'}`}
         </span>
       </header>
+      {(job.status === 'draft' || job.status === 'pending') && editReadiness.issues.length > 0 && (
+        <div className={`employer-job-edit-readiness employer-job-edit-readiness--${editReadiness.level}`}>
+          <p className="employer-job-edit-readiness__label">{readinessLabel(editReadiness.level)}</p>
+          <p className="employer-job-edit-readiness__intro">
+            {job.status === 'pending'
+              ? 'You can still edit while WorkforceAP reviews — tightening these items helps candidates self-select.'
+              : 'Strong postings get faster review and better matches. Here is what is still light:'}
+          </p>
+          <ul className="employer-job-edit-readiness__list">
+            {editReadiness.issues.map((issue) => (
+              <li key={issue}>{issue}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       <JobForm
         job={{
           id: job.id,

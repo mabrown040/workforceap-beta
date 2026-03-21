@@ -6,9 +6,9 @@ import SuperAdminViewSwitcher from '@/components/super-admin-view-switcher';
 import { SignOutButton } from './SignOutButton';
 
 const NAV_LINKS = [
-  { href: '/employer', label: 'Dashboard' },
-  { href: '/employer/jobs', label: 'Job postings' },
-  { href: '/employer/applications', label: 'Applications' },
+  { href: '/employer', label: 'Home' },
+  { href: '/employer/jobs', label: 'Jobs' },
+  { href: '/employer/applications', label: 'Applicants' },
 ];
 
 export default function EmployerPortalShell({

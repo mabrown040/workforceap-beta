@@ -3,7 +3,13 @@ import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
-import { parseJobFromText, parseJobListingsFromPageText, extractSubJobUrlsFromPageText, stripUrlsFromDescription } from '@/lib/ai/parseJob';
+import {
+  parseJobFromText,
+  parseJobListingsFromPageText,
+  extractSubJobUrlsFromPageText,
+  stripUrlsFromDescription,
+  buildFallbackParsedJobFromScrape,
+} from '@/lib/ai/parseJob';
 import { smartImportJobs, fetchSubJobPageText } from '@/lib/ai/atsProviders';
 import { isAIConfigured } from '@/lib/ai/groq';
 import { buildEmployerJobCreateData, getRouteErrorDetails } from '@/lib/employer/jobCreate';
@@ -121,7 +127,8 @@ export async function POST(request: NextRequest) {
         continue;
       }
 
-      const extracted = await parseJobFromText(textForParse);
+      const parsed = await parseJobFromText(textForParse);
+      const extracted = parsed ?? buildFallbackParsedJobFromScrape(undefined, textForParse);
       if (!extracted) {
         errors.push({
           source: url,
@@ -147,7 +154,7 @@ export async function POST(request: NextRequest) {
           status: 'draft',
         }),
       });
-      created.push({ id: job.id, title: job.title, provider: 'ai' });
+      created.push({ id: job.id, title: job.title, provider: parsed ? 'ai' : 'scrape+fallback' });
     }
   }
 
@@ -200,13 +207,14 @@ export async function POST(request: NextRequest) {
     const isJsRenderedAts = careersPageUrl && /rippling|workday|icims/i.test(careersPageUrl);
 
     if (subUrls.length > 0) {
-      for (const { url } of subUrls) {
-        const pageText = await fetchSubJobPageText(url, { waitFor: isJsRenderedAts ? 3000 : 2000 });
+      for (const { url, title: listingTitle } of subUrls) {
+        const pageText = await fetchSubJobPageText(url, { waitFor: isJsRenderedAts ? 4500 : 2000 });
         if (!pageText || pageText.length < 80) {
           errors.push({ source: url, error: 'Could not fetch job page.' });
           continue;
         }
-        const extracted = await parseJobFromText(pageText);
+        const parsed = await parseJobFromText(pageText);
+        const extracted = parsed ?? buildFallbackParsedJobFromScrape(listingTitle, pageText);
         if (!extracted) {
           errors.push({
             source: url,
@@ -232,7 +240,11 @@ export async function POST(request: NextRequest) {
             status: 'draft',
           }),
         });
-        created.push({ id: job.id, title: job.title, provider: 'ai+per-job' });
+        created.push({
+          id: job.id,
+          title: job.title,
+          provider: parsed ? 'ai+per-job' : 'scrape+fallback',
+        });
       }
       careersPageProcessed = true; // Tried sub-URLs, skip raw list AI parse
     }

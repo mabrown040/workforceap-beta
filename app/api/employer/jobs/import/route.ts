@@ -3,7 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
-import { parseJobFromText } from '@/lib/ai/parseJob';
+import { parseJobFromText, buildFallbackParsedJobFromScrape } from '@/lib/ai/parseJob';
 import { smartImportJobs, detectProvider } from '@/lib/ai/atsProviders';
 import { buildEmployerJobCreateData, getRouteErrorDetails } from '@/lib/employer/jobCreate';
 
@@ -100,8 +100,11 @@ export async function POST(request: NextRequest) {
       try {
         const textToParse = atsResult.rawText;
         if (textToParse && textToParse.length >= 50) {
-          const extracted = await parseJobFromText(textToParse);
+          const parsedJob = await parseJobFromText(textToParse);
+          const extracted =
+            parsedJob ?? buildFallbackParsedJobFromScrape(undefined, textToParse);
           if (extracted) {
+            const provider = parsedJob ? 'ai' : 'scrape+fallback';
             if (parsed.data.createDraft) {
               const job = await prisma.job.create({
                 data: buildEmployerJobCreateData(ctx.employerId, {
@@ -118,11 +121,11 @@ export async function POST(request: NextRequest) {
                   status: 'draft',
                 }),
               });
-              return NextResponse.json({ job, created: true, provider: 'ai' }, { status: 201 });
+              return NextResponse.json({ job, created: true, provider }, { status: 201 });
             }
             return NextResponse.json({
               extracted: { ...extracted, sourceUrl: parsed.data.url },
-              provider: 'ai',
+              provider,
             });
           }
         }
@@ -148,11 +151,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Not enough text to parse. Paste the full job description.' }, { status: 400 });
     }
 
-    const extracted = await parseJobFromText(textToParse);
+    const parsedJob = await parseJobFromText(textToParse);
+    const extracted = parsedJob ?? buildFallbackParsedJobFromScrape(undefined, textToParse);
     if (!extracted) {
       return NextResponse.json({ error: 'Could not extract job details. Please edit the form manually.' }, { status: 400 });
     }
 
+    const provider = parsedJob ? 'ai' : 'scrape+fallback';
     const createDraft = parsed.data.createDraft === true;
     if (createDraft) {
       const job = await prisma.job.create({
@@ -170,12 +175,12 @@ export async function POST(request: NextRequest) {
           status: 'draft',
         }),
       });
-      return NextResponse.json({ job, created: true, provider: 'ai' }, { status: 201 });
+      return NextResponse.json({ job, created: true, provider }, { status: 201 });
     }
 
     return NextResponse.json({
       extracted: parsed.data.url ? { ...extracted, sourceUrl: parsed.data.url } : extracted,
-      provider: 'ai',
+      provider,
     });
   } catch (error) {
     const detail = getRouteErrorDetails(error);

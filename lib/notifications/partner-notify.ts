@@ -82,51 +82,55 @@ export async function sendPartnerNewMemberAssignedEmail(
   memberId: string,
   partnerId: string
 ): Promise<void> {
-  const [member, partner] = await Promise.all([
-    prisma.user.findUnique({
-      where: { id: memberId },
-      select: { fullName: true },
-    }),
-    prisma.partner.findUnique({
-      where: { id: partnerId },
-      select: { contactEmail: true, name: true },
-    }),
-  ]);
-
-  if (!member || !partner?.contactEmail?.trim()) return;
-
-  const resendKey = process.env.RESEND_API_KEY;
-  const emailFrom = process.env.EMAIL_FROM || 'noreply@workforceap.org';
-  if (!resendKey) {
-    console.warn('sendPartnerNewMemberAssignedEmail: RESEND_API_KEY not set');
-    return;
-  }
-
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
-  const partnerPortalUrl = `${siteUrl}/partner`;
-
-  const subject = `[WorkforceAP] New member assigned — ${member.fullName || 'Member'}`;
-  const text = [
-    `Hello,`,
-    '',
-    `A new member, ${member.fullName || 'Member'}, has been assigned to ${partner.name}.`,
-    '',
-    `View their profile and progress in the partner portal.`,
-    '',
-    partnerPortalUrl,
-    '',
-    '— WorkforceAP',
-  ].join('\n');
-
   try {
-    const resend = new Resend(resendKey);
-    await resend.emails.send({
-      from: emailFrom,
-      to: partner.contactEmail.trim(),
-      subject,
-      text,
-    });
+    const [member, partner] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: memberId },
+        select: { fullName: true },
+      }),
+      prisma.partner.findUnique({
+        where: { id: partnerId },
+        select: { contactEmail: true, name: true },
+      }),
+    ]);
+
+    if (!member || !partner?.contactEmail?.trim()) return;
+
+    const resendKey = process.env.RESEND_API_KEY;
+    const emailFrom = process.env.EMAIL_FROM || 'noreply@workforceap.org';
+    if (!resendKey) {
+      console.warn('sendPartnerNewMemberAssignedEmail: RESEND_API_KEY not set');
+      return;
+    }
+
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
+    const partnerPortalUrl = `${siteUrl}/partner`;
+
+    const subject = `[WorkforceAP] New member assigned — ${member.fullName || 'Member'}`;
+    const text = [
+      `Hello,`,
+      '',
+      `A new member, ${member.fullName || 'Member'}, has been assigned to ${partner.name}.`,
+      '',
+      `View their profile and progress in the partner portal.`,
+      '',
+      partnerPortalUrl,
+      '',
+      '— WorkforceAP',
+    ].join('\n');
+
+    try {
+      const resend = new Resend(resendKey);
+      await resend.emails.send({
+        from: emailFrom,
+        to: partner.contactEmail.trim(),
+        subject,
+        text,
+      });
+    } catch (err) {
+      console.error('sendPartnerNewMemberAssignedEmail failed:', err);
+    }
   } catch (err) {
-    console.error('sendPartnerNewMemberAssignedEmail failed:', err);
+    console.error('sendPartnerNewMemberAssignedEmail: load or send failed:', err);
   }
 }

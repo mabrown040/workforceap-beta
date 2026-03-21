@@ -6,7 +6,11 @@ import { sendPartnerNewMemberAssignedEmail } from '@/lib/notifications/partner-n
 import { z } from 'zod';
 
 const patchSchema = z.object({
-  partnerId: z.string().uuid().nullable(),
+  /** Clear with null; empty string from forms coerces to null */
+  partnerId: z.preprocess(
+    (v) => (v === '' || v === undefined ? null : v),
+    z.string().uuid().nullable()
+  ),
 });
 
 export async function PATCH(
@@ -41,24 +45,40 @@ export async function PATCH(
 
   const { partnerId } = parsed.data;
 
-  if (!partnerId) {
-    await prisma.partnerReferral.deleteMany({ where: { memberId } });
-    return NextResponse.json({ ok: true });
-  }
+  try {
+    if (!partnerId) {
+      await prisma.partnerReferral.deleteMany({ where: { memberId } });
+      return NextResponse.json({ ok: true });
+    }
 
-  const partner = await prisma.partner.findFirst({ where: { id: partnerId, active: true } });
-  if (!partner) {
-    return NextResponse.json({ error: 'Invalid or inactive partner' }, { status: 400 });
-  }
+    const partner = await prisma.partner.findFirst({ where: { id: partnerId, active: true } });
+    if (!partner) {
+      return NextResponse.json({ error: 'Invalid or inactive partner' }, { status: 400 });
+    }
 
-  await prisma.$transaction(async (tx) => {
-    await tx.partnerReferral.deleteMany({ where: { memberId } });
-    await tx.partnerReferral.create({
-      data: { partnerId, memberId },
+    await prisma.$transaction(async (tx) => {
+      await tx.partnerReferral.deleteMany({ where: { memberId } });
+      await tx.partnerReferral.create({
+        data: { partnerId, memberId },
+      });
     });
-  });
 
-  await sendPartnerNewMemberAssignedEmail(memberId, partnerId);
+    try {
+      await sendPartnerNewMemberAssignedEmail(memberId, partnerId);
+    } catch (notifyErr) {
+      console.error('[admin] Partner assignment saved; notification failed:', notifyErr);
+    }
 
-  return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    console.error('[admin] PATCH member partner:', e);
+    const detail = e instanceof Error ? e.message : 'Unknown error';
+    return NextResponse.json(
+      {
+        error: 'Could not update partner assignment.',
+        detail,
+      },
+      { status: 500 }
+    );
+  }
 }

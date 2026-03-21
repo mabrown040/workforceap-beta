@@ -34,7 +34,11 @@ export default function MemberPartnerSection({
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setMessage(typeof data.error === 'string' ? data.error : 'Update failed');
+        const parts = [
+          typeof data.error === 'string' ? data.error : null,
+          typeof data.detail === 'string' ? data.detail : null,
+        ].filter(Boolean) as string[];
+        setMessage(parts.length > 0 ? parts.join(' — ') : `Update failed (${res.status})`);
         return;
       }
       setMessage('Saved.');

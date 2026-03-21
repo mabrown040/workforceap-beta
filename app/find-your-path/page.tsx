@@ -16,7 +16,10 @@ export default function FindYourPathPage() {
       <section className="page-hero find-your-path-hero">
         <div className="page-hero-content">
           <h1>Find Your Path</h1>
-          <p>Answer 5 quick questions — we’ll recommend the 3 programs that fit you best, with clear reasoning and next steps.</p>
+          <p>
+            Five questions, three ranked matches, plain-English why — tied to the same salary bands and program pages you will see
+            elsewhere. Austin is where we are proving this first.
+          </p>
         </div>
       </section>
 

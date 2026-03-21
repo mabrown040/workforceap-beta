@@ -158,9 +158,14 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
       <header className="import-job-header">
         <h1>Import jobs</h1>
         <p className="import-job-tagline">
-          Paste your company careers page URL. We discover listings, parse each job, and create editable drafts —
-          approval-ready in minutes.
+          Paste your public careers page. We pull what we can from the listings, build editable drafts, and you tighten
+          the details before anything goes live. Nothing publishes until you submit for review.
         </p>
+        <ul className="import-job-confidence">
+          <li>You review every draft — titles, pay, and requirements are yours to fix.</li>
+          <li>Bulk import tops out at 15 URLs per run so quality stays high.</li>
+          <li>If a page blocks us, use paste or single-job import below.</li>
+        </ul>
       </header>
 
       {hasSuccess && (
@@ -173,7 +178,7 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
               {bulkResult.created.length} draft{bulkResult.created.length !== 1 ? 's' : ''} ready for review
             </h2>
             <p className="import-job-success-desc">
-              Each is editable and can be submitted for WorkforceAP approval when ready.
+              Open any card to polish wording, then submit for WorkforceAP review when it reflects how you actually hire.
             </p>
             <Link href="/employer/jobs" className="btn btn-primary import-job-success-cta">
               View drafts on My Jobs
@@ -194,10 +199,10 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
       )}
 
       <section className="import-job-primary">
-        <h2>Careers page URL</h2>
+        <h2>Start with your careers page</h2>
         <p className="import-job-hint">
-          Rippling, Greenhouse, Lever, Ashby — paste the careers index URL. We use Firecrawl only for discovery; per-job
-          pages use direct fetch when possible.
+          Works best with common ATS pages (Greenhouse, Lever, Rippling, Ashby, and similar). Paste the main careers URL
+          — the one that lists open roles — not an internal HR login.
         </p>
         {error && (
           <div className="import-job-error">
@@ -220,7 +225,7 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
           onClick={handleBulkImport}
           disabled={bulkLoading || loading || !careersUrl.trim()}
         >
-          {bulkLoading ? 'Discovering & parsing…' : 'Import from careers page'}
+          {bulkLoading ? 'Pulling roles into drafts…' : 'Create drafts from this page'}
         </button>
       </section>
 
@@ -229,7 +234,7 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
         <div className="import-job-more-content">
           <h3>Single job</h3>
           <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '0.75rem' }}>
-            Paste a job URL or description for one posting. Review before saving.
+            One public posting URL or pasted description — best when you are hiring for a single role right now.
           </p>
           <div className="form-group">
             <label>Job URL</label>
@@ -243,9 +248,9 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
             {loading ? 'Parsing…' : 'Parse & extract'}
           </button>
 
-          <h3 style={{ marginTop: '1.5rem' }}>Multiple URLs</h3>
+          <h3 style={{ marginTop: '1.5rem' }}>Multiple job links</h3>
           <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '0.75rem' }}>
-            Up to 15 job URLs (one per line).
+            Up to 15 public job URLs, one per line — handy when you already have direct links.
           </p>
           <textarea rows={4} placeholder="https://...&#10;https://..." value={bulkUrls} onChange={(e) => setBulkUrls(e.target.value)} disabled={bulkLoading || loading} />
           <div className="form-group">

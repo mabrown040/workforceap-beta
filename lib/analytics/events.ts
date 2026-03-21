@@ -52,6 +52,14 @@ export function trackEmployerJobAction(
   });
 }
 
+export function trackEmployerBulkDelete(deletedCount: number, extra?: Record<string, unknown>) {
+  pushEvent({
+    event: 'employer_bulk_delete',
+    deleted_count: deletedCount,
+    ...extra,
+  });
+}
+
 export function trackResourceOpen(resourceId: string, resourceTitle: string) {
   pushEvent({
     event: 'resource_open',

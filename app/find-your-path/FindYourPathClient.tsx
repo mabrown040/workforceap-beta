@@ -8,6 +8,7 @@ import { ProgramIcon } from '@/components/ProgramIcon';
 import { scoreQuiz, type QuizAnswers, type CategoryWeights } from '@/lib/content/quizScoring';
 import { getFitReasoning, getTopFitSummary } from '@/lib/content/quizReasoning';
 import { getProgramExtra } from '@/lib/content/programExtras';
+import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
 
 const QUIZ_STORAGE_KEY = 'find_your_path_results';
 
@@ -91,12 +92,6 @@ function getTopPrograms(weights: CategoryWeights): Program[] {
   return scored.slice(0, 3).map((s) => s.program);
 }
 
-// Salary stat extracted from program.salary string (e.g. "Starting salary: $85K-$135K" → "$85K-$135K")
-function extractSalaryRange(salary: string): string {
-  const match = salary.match(/\$[\d,]+K?\s*[-–]\s*\$[\d,]+K?/i);
-  return match ? match[0] : salary.replace(/^Starting salary:\s*/i, '');
-}
-
 function QuizResultsView({
   programs,
   answers,
@@ -126,6 +121,7 @@ function QuizResultsView({
           const borderColor = CATEGORY_BORDER[program.category] ?? program.categoryColor;
           const reasoning = answers ? getFitReasoning(program, answers) : null;
           const extra = getProgramExtra(program.slug);
+          const salaryBand = salaryRangeDisplay(program);
           return (
             <div
               key={program.slug}
@@ -154,11 +150,14 @@ function QuizResultsView({
               {reasoning && (
                 <p className="quiz-result-reasoning">{reasoning}</p>
               )}
+              {extra?.rampNote && (
+                <p className="quiz-result-ramp-note">{extra.rampNote}</p>
+              )}
               <div style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '0.5rem' }}>
                 ⏱ {program.duration}
               </div>
               <div style={{ fontSize: '0.9rem', color: 'var(--color-accent)', fontWeight: 600, marginBottom: '0.5rem' }}>
-                {program.salary}
+                Starting range: {salaryBand} <span style={{ fontWeight: 500, color: 'var(--color-gray-600)' }}>(Austin-area framing)</span>
               </div>
               {extra?.jobOutcomes && extra.jobOutcomes.length > 0 && (
                 <p className="quiz-result-roles">
@@ -190,7 +189,7 @@ function QuizResultsView({
       {topProgram && (
         <div className="quiz-results-cta">
           <p className="quiz-results-cta-lead">
-            Your top match: <strong>{topProgram.title}</strong>. Graduates average {extractSalaryRange(topProgram.salary)} in year one.
+            Your top match: <strong>{topProgram.title}</strong>. Published starting band is {salaryRangeDisplay(topProgram)} — your offer still depends on employer and proof.
           </p>
           <p className="quiz-results-cta-sub">
             Applications take about 10 minutes. We respond within 24–48 hours.

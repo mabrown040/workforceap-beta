@@ -6,24 +6,36 @@
 export type ProgramExtra = {
   bestFor: string;
   jobOutcomes: string[];
+  /** Difficulty: 1–3 stars. Affects comparison and salary-guide framing. */
+  difficulty?: 1 | 2 | 3;
+  /** Short note on ramp/effort. E.g. "Assumes basic computer comfort." */
+  rampNote?: string;
 };
 
 export const PROGRAM_EXTRAS: Record<string, ProgramExtra> = {
   'digital-literacy-empowerment-class': {
     bestFor: 'Anyone building foundational digital skills — no tech background needed.',
     jobOutcomes: ['Office roles', 'Customer service', 'Administrative support'],
+    difficulty: 1,
+    rampNote: 'No tech background required. Our shortest program.',
   },
   'ai-professional-developer-certificate-ibm': {
     bestFor: 'Career changers with some coding interest. Best if you can invest 4–6 months.',
     jobOutcomes: ['AI / ML Engineer', 'Software Developer', 'Applications Engineer'],
+    difficulty: 3,
+    rampNote: 'Longer program. Best if you enjoy problem-solving and tech.',
   },
   'aws-cloud-technology-amazon': {
     bestFor: 'Tech-curious learners ready for cloud. Strong demand, higher salary ceiling.',
     jobOutcomes: ['Cloud Engineer', 'Solutions Architect', 'DevOps Engineer'],
+    difficulty: 3,
+    rampNote: 'Assumes comfort with computers. Higher ceiling, steeper ramp.',
   },
   'comptia-a-professional-certificate': {
     bestFor: 'First certification in IT. Entry point to help desk, support, and networking.',
     jobOutcomes: ['IT Support Specialist', 'Help Desk Technician', 'Desktop Support'],
+    difficulty: 2,
+    rampNote: 'Good first IT credential. Builds from basics.',
   },
   'comptia-network-professional-certificate': {
     bestFor: 'Building on A+ or networking interest. Next step after IT fundamentals.',
@@ -36,6 +48,8 @@ export const PROGRAM_EXTRAS: Record<string, ProgramExtra> = {
   'cybersecurity-professional-certificate-google': {
     bestFor: 'Career changers into security. No prior cyber experience required.',
     jobOutcomes: ['Cybersecurity Analyst', 'SOC Analyst', 'Security Operations'],
+    difficulty: 3,
+    rampNote: 'Moderate ramp. Strong demand and salary.',
   },
   'data-analytics-professional-certificate-google': {
     bestFor: 'Data-minded learners. Spreadsheets to SQL to visualization.',

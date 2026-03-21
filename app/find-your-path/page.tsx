@@ -16,7 +16,7 @@ export default function FindYourPathPage() {
       <section className="page-hero find-your-path-hero">
         <div className="page-hero-content">
           <h1>Find Your Path</h1>
-          <p>Answer 5 quick questions to discover which program fits you best.</p>
+          <p>Answer 5 quick questions — we’ll recommend the 3 programs that fit you best, with clear reasoning and next steps.</p>
         </div>
       </section>
 

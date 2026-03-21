@@ -18,18 +18,24 @@ import {
 } from 'lucide-react';
 import { SignOutButton } from '@/components/portal/SignOutButton';
 
-const SIDEBAR_LINKS = [
+const SIDEBAR_CORE = [
   { href: '/dashboard', label: 'Home', Icon: Home },
   { href: '/dashboard/program', label: 'My Program', Icon: BookOpen },
   { href: '/dashboard/training', label: 'Training', Icon: GraduationCap },
+];
+
+const SIDEBAR_TOOLS = [
   { href: '/dashboard/ai-tools', label: 'AI Tools', Icon: Sparkles },
-  { href: '/dashboard/resources', label: 'Resources', Icon: FileText },
+  { href: '/dashboard/readiness', label: 'Career Readiness', Icon: CheckCircle },
   { href: '/dashboard/career-brief', label: 'Career Brief', Icon: ClipboardList },
+  { href: '/dashboard/resources', label: 'Resources', Icon: FileText },
+  { href: '/dashboard/assessments', label: 'Skills Assessment', Icon: ClipboardCheck },
+];
+
+const SIDEBAR_MORE = [
   { href: '/dashboard/learning', label: 'Learning', Icon: BookOpen },
   { href: '/dashboard/weekly-recap', label: 'Weekly Recap', Icon: BarChart3 },
-  { href: '/dashboard/readiness', label: 'Career Readiness', Icon: CheckCircle },
-  { href: '/dashboard/assessments', label: 'Skills Assessment', Icon: ClipboardCheck },
-  { href: '/dashboard/profile', label: 'My Profile', Icon: User },
+  { href: '/dashboard/profile', label: 'Profile', Icon: User },
   { href: '/dashboard/settings', label: 'Settings', Icon: Settings },
 ];
 
@@ -42,35 +48,39 @@ export default function DashboardSidebar({ open = false, onClose }: DashboardSid
   const pathname = usePathname();
   const router = useRouter();
 
+  const renderLink = (href: string, label: string, Icon: React.ComponentType<{ size?: number; className?: string }>) => {
+    const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
+    return (
+      <li key={href}>
+        <Link
+          href={href}
+          className={`dashboard-sidebar-link ${isActive ? 'active' : ''}`}
+          onClick={(e) => {
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+            e.preventDefault();
+            void router.push(href);
+            queueMicrotask(() => onClose?.());
+          }}
+        >
+          <span className="dashboard-sidebar-icon">
+            <Icon size={20} className="text-current" />
+          </span>
+          {label}
+        </Link>
+      </li>
+    );
+  };
+
   return (
     <aside className={`dashboard-sidebar ${open ? 'open' : ''}`}>
       <div className="dashboard-sidebar-inner">
         <nav aria-label="Dashboard navigation" className="dashboard-sidebar-nav">
           <ul className="dashboard-sidebar-list">
-            {SIDEBAR_LINKS.map(({ href, label, Icon }) => {
-              const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
-              return (
-                <li key={href}>
-                  <Link
-                    href={href}
-                    className={`dashboard-sidebar-link ${isActive ? 'active' : ''}`}
-                    onClick={(e) => {
-                      // Primary-click: explicit router.push + deferred onClose so drawer setState
-                      // cannot race App Router and leave the URL one step behind the segment.
-                      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-                      e.preventDefault();
-                      void router.push(href);
-                      queueMicrotask(() => onClose?.());
-                    }}
-                  >
-                    <span className="dashboard-sidebar-icon">
-                      <Icon size={20} className="text-current" />
-                    </span>
-                    {label}
-                  </Link>
-                </li>
-              );
-            })}
+            {SIDEBAR_CORE.map(({ href, label, Icon }) => renderLink(href, label, Icon))}
+            <li className="dashboard-sidebar-group-label">Tools</li>
+            {SIDEBAR_TOOLS.map(({ href, label, Icon }) => renderLink(href, label, Icon))}
+            <li className="dashboard-sidebar-group-label">More</li>
+            {SIDEBAR_MORE.map(({ href, label, Icon }) => renderLink(href, label, Icon))}
           </ul>
         </nav>
         <div className="dashboard-sidebar-footer">

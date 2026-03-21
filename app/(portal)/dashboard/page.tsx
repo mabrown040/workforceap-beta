@@ -61,16 +61,15 @@ export default async function DashboardPage() {
     ? program.courses.find((c) => !coursesCompleted.includes(c.slug))
     : null;
 
-  let suggestedActions: Array<{ label: string; href: string }> = [];
+  let recommendedActions: Array<{ label: string; href: string }> = [];
+  let jobSearchUrl: string | null = null;
   try {
     const briefContext = await getCareerBriefContext(user.id);
-    suggestedActions = briefContext.recommendedActions
-      .filter((a) => a.href.startsWith('/dashboard/ai-tools'))
-      .slice(0, 3);
+    recommendedActions = briefContext.recommendedActions;
+    jobSearchUrl = briefContext.jobSearchUrl;
   } catch {
-    suggestedActions = [
+    recommendedActions = [
       { label: 'Build your resume', href: '/dashboard/ai-tools/resume-rewriter' },
-      { label: 'Practice interview questions', href: '/dashboard/ai-tools/interview-practice' },
       { label: 'Log your first application', href: '/dashboard/ai-tools/application-tracker' },
     ];
   }
@@ -80,7 +79,8 @@ export default async function DashboardPage() {
   return (
     <>
       <DashboardHomeClient
-        suggestedActions={suggestedActions}
+        recommendedActions={recommendedActions}
+        jobSearchUrl={jobSearchUrl}
         firstName={firstName}
         state={
           !enrolledProgram

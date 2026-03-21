@@ -10,9 +10,13 @@ const { spawnSync } = require('child_process');
 // Load prisma env vars
 require('./ensure-prisma-env.cjs');
 
-// Migrations known to have failed in production — mark as rolled-back so deploy can proceed
-const FAILED_MIGRATIONS = [
+// Migrations to mark as APPLIED (tables already exist in prod, migration was partially applied)
+const MARK_APPLIED = [
   '20260319100000_add_partner_users',
+];
+
+// Migrations to mark as ROLLED BACK (never fully applied, safe to skip)
+const MARK_ROLLED_BACK = [
   '20260320100001_employer_portal_jobs',
 ];
 
@@ -33,9 +37,15 @@ if (process.env.__PRISMA_PLACEHOLDER_DB === '1') {
   process.exit(0);
 }
 
-// Attempt to resolve each failed migration (silently ignore if already resolved)
-for (const migration of FAILED_MIGRATIONS) {
-  console.log(`Attempting to resolve failed migration: ${migration}`);
+// Mark migrations as applied (tables already exist in prod DB)
+for (const migration of MARK_APPLIED) {
+  console.log(`Marking migration as applied: ${migration}`);
+  run(['prisma', 'migrate', 'resolve', '--applied', migration], true);
+}
+
+// Mark migrations as rolled back (never fully applied)
+for (const migration of MARK_ROLLED_BACK) {
+  console.log(`Marking migration as rolled back: ${migration}`);
   run(['prisma', 'migrate', 'resolve', '--rolled-back', migration], true);
 }
 

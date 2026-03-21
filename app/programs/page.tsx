@@ -4,6 +4,7 @@ import { buildPageMetadata } from '@/app/seo';
 import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
 import ProgramsContent from './ProgramsContent';
+import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Free Career Training Programs in Austin, TX',
@@ -27,6 +28,11 @@ export default function ProgramsPage() {
           <Link href="/program-comparison" className="programs-compare-link">Or compare programs side-by-side</Link>
         </div>
       </PageHero>
+      <section className="content-section" style={{ paddingTop: '0.5rem', paddingBottom: 0 }}>
+        <div className="container">
+          <ProgramsDecisionJourneyNav current="programs" />
+        </div>
+      </section>
       <ProgramsContent />
       <Footer />
     </div>

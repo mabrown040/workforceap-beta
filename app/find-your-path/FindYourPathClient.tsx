@@ -210,7 +210,10 @@ function QuizResultsView({
       )}
 
       <div className="quiz-results-next-steps">
-        <p>Compare programs side-by-side or see full salary ranges:</p>
+        <p>
+          On the comparison page, check up to four tracks to see them side-by-side — time, difficulty, salary band, and best-for
+          notes. Then use the salary guide for the same published ranges.
+        </p>
         <div className="quiz-results-next-links">
           <Link href="/program-comparison">Compare programs</Link>
           <Link href="/salary-guide">Salary guide</Link>

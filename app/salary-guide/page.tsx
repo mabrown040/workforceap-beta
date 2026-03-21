@@ -54,7 +54,7 @@ export default function SalaryGuidePage() {
         description="Real numbers from real market data. The right program fits your timeline, tech comfort, and goals — salary is one factor, not the only one."
       />
 
-      <section className="content-section">
+      <section className="content-section salary-guide-page">
         <div className="container">
           <div className="salary-guide-fit-context">
             <p className="salary-guide-fit-lead">
@@ -87,9 +87,10 @@ export default function SalaryGuidePage() {
           <p style={{ color: '#666', marginBottom: '0.5rem' }}>Entry-level (0–1 year experience). Sources: ZipRecruiter, Glassdoor, PayScale — February 2026 U.S. benchmarks. Austin-area tech salaries typically 5–10% above national. We&rsquo;re launching in Austin; these numbers hold across markets we expand to.</p>
           <p style={{ color: '#888', fontSize: '0.85rem', marginBottom: '1.5rem' }}><strong>Ramp</strong> = commitment/difficulty: Easier = quicker to complete, good for first credential. Steeper = more technical depth, higher payoff if you can invest.</p>
 
-          {/* Desktop: table */}
-          <div className="salary-table-wrapper">
-            <table className="salary-table">
+          {/* Desktop: table | Mobile: hidden (cards shown instead) */}
+          <div className="salary-guide-table-wrap">
+            <div className="salary-table-wrapper">
+              <table className="salary-table">
               <thead>
                 <tr><th>Program</th><th>Duration</th><th>Starting Salary</th><th>Level</th><th>Ramp</th></tr>
               </thead>
@@ -105,9 +106,10 @@ export default function SalaryGuidePage() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
 
-          {/* Mobile: card layout — scannable, no horizontal scroll */}
+          {/* Mobile only: card layout — no horizontal scroll */}
           <div className="salary-guide-cards">
             {salaryData.map((row) => (
               <article key={row.program} className="salary-guide-card">

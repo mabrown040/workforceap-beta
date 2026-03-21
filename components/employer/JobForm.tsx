@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { getProgramBySlug } from '@/lib/content/programs';
+import SuggestedProgramsRanked from '@/components/employer/SuggestedProgramsRanked';
 
 type JobFormProps = {
   job?: {
@@ -38,11 +38,22 @@ type JobFormProps = {
 
 export default function JobForm({ job, initialData, companyName, programSlugs }: JobFormProps) {
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
   const [status, setStatus] = useState<'idle' | 'saving' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const isEdit = !!job && !!job.id;
   const prefill = job ?? initialData;
+
+  const initialHaystack = [
+    prefill?.title,
+    prefill?.description,
+    ...(prefill?.requirements ?? []),
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  const defaultPrograms = prefill?.suggestedPrograms ?? [];
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -107,7 +118,7 @@ export default function JobForm({ job, initialData, companyName, programSlugs }:
   }
 
   return (
-    <form className="employer-job-form" onSubmit={handleSubmit}>
+    <form ref={formRef} className="employer-job-form" onSubmit={handleSubmit}>
       {status === 'error' && errorMsg && (
         <div className="employer-job-form-error" role="alert">
           {errorMsg}
@@ -216,30 +227,13 @@ export default function JobForm({ job, initialData, companyName, programSlugs }:
       </div>
 
       {programSlugs.length > 0 && (
-        <fieldset className="employer-job-form-fieldset employer-job-form-programs">
-          <legend>Which training tracks fit this role?</legend>
-          <p className="employer-job-form-hint">
-            We use this to line up candidates who are certifying in the skills you hire for. Check every track that is a
-            realistic match — it does not limit who applies, it helps us prioritize fit.
-          </p>
-          <div className="employer-job-form-program-grid" role="group" aria-label="Matching training programs">
-            {programSlugs.map((slug) => {
-              const title = getProgramBySlug(slug)?.title ?? slug;
-              return (
-                <label key={slug} className="employer-job-form-program-chip">
-                  <input
-                    type="checkbox"
-                    name="suggestedPrograms"
-                    value={slug}
-                    defaultChecked={prefill?.suggestedPrograms?.includes(slug)}
-                    disabled={status === 'saving'}
-                  />
-                  <span className="employer-job-form-program-title">{title}</span>
-                </label>
-              );
-            })}
-          </div>
-        </fieldset>
+        <SuggestedProgramsRanked
+          formRef={formRef}
+          programSlugs={programSlugs}
+          defaultSelected={defaultPrograms}
+          initialHaystack={initialHaystack}
+          disabled={status === 'saving'}
+        />
       )}
 
       <div className="employer-job-form-actions">

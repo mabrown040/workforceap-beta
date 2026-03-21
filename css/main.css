@@ -1263,8 +1263,13 @@ a.btn-accent:hover {
     margin-top: 1rem;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 0.5rem;
+    text-align: center;
+    width: 100%;
+    max-width: 36rem;
+    margin-left: auto;
+    margin-right: auto;
 }
 /* /programs hero — center CTAs under the headline (premium, symmetric) */
 .programs-page .page-hero-content {
@@ -1305,7 +1310,7 @@ a.btn-accent:hover {
 .programs-decision-lead {
     margin: 0;
     font-size: 0.95rem;
-    color: var(--color-gray-600);
+    color: rgba(255, 255, 255, 0.88);
 }
 .programs-compare-link {
     font-size: 0.9rem;

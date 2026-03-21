@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { PROGRAMS } from '@/lib/content/programs';
 import type { Program } from '@/lib/content/programs';
+import { getProgramExtra } from '@/lib/content/programExtras';
 import { ProgramIcon } from '@/components/ProgramIcon';
 
 const programs = PROGRAMS;
@@ -31,6 +32,7 @@ const CATEGORY_BORDER: Record<string, string> = {
 
 function ProgramCard({ program }: { program: Program }) {
   const [open, setOpen] = useState(false);
+  const extra = getProgramExtra(program.slug);
   const count = program.courses.length;
   const skills = program.skills.slice(0, 3);
   const moreSkills = program.skills.length - 3;
@@ -43,11 +45,21 @@ function ProgramCard({ program }: { program: Program }) {
         <span style={{ display: 'flex', alignItems: 'center' }}><ProgramIcon program={program} size={28} /></span>
       </div>
       <h3 style={{ fontSize: '1.1rem', marginBottom: '.5rem' }}>{program.title}</h3>
+      {extra?.bestFor && (
+        <p className="program-card-best-for">
+          <strong>Best for:</strong> {extra.bestFor}
+        </p>
+      )}
       <div style={{ marginBottom: '.75rem' }}>
         <div style={{ display: 'flex', gap: '1rem', fontSize: '.85rem', color: '#666' }}>
           <span>⏱ {program.duration}</span>
           <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{program.salary}</span>
         </div>
+        {extra?.jobOutcomes && extra.jobOutcomes.length > 0 && (
+          <p className="program-card-outcomes">
+            <strong>Roles:</strong> {extra.jobOutcomes.join(' · ')}
+          </p>
+        )}
         <small style={{ display: 'block', fontSize: '.75rem', color: '#888', marginTop: '.25rem' }}>*Austin-area median based on industry data</small>
       </div>
       <div style={{ marginBottom: '1rem', display: 'flex', flexWrap: 'wrap', gap: '.35rem' }}>
@@ -108,10 +120,10 @@ export default function ProgramsContent() {
         <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '.85rem', color: '#666', maxWidth: '640px', marginLeft: 'auto', marginRight: 'auto' }}>
           Salary range is Austin market estimate (Lightcast/BLS, Jan 2026). Actual pay depends on experience and employer.
         </p>
-        <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
-          <Link href="/salary-guide" className="btn btn-outline">View Salary Guide</Link>
-          &nbsp;&nbsp;
-          <Link href="/program-comparison" className="btn btn-outline">Compare Programs</Link>
+        <div className="programs-bottom-actions">
+          <Link href="/find-your-path" className="btn btn-primary">Not sure? Take the pathfinder quiz</Link>
+          <Link href="/program-comparison" className="btn btn-outline">Compare programs</Link>
+          <Link href="/salary-guide" className="btn btn-ghost">Salary guide</Link>
         </div>
       </div>
     </section>

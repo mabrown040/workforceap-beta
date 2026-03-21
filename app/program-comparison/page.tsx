@@ -3,8 +3,8 @@ import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import { Flame } from 'lucide-react';
 import PageHero from '@/components/PageHero';
-import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
+import { getProgramExtra } from '@/lib/content/programExtras';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Compare Programs',
@@ -103,15 +103,14 @@ export default function ProgramComparisonPage() {
     <div className="inner-page">
       <PageHero
         title="Compare Programs"
-        subtitle="Find the right career track for your goals and timeline"
-      />
-
-      <PhotoHighlight
-        imageUrl="https://images.unsplash.com/photo-1551434678-e076c223a692?w=1400&q=80"
-        label="Side by Side"
-        title="Find Your Perfect Program"
-        description="Compare duration, difficulty, salary potential, and certifications across all our career tracks."
-      />
+        subtitle="Side-by-side: duration, salary, demand, and fit. Find the right career track for your goals."
+      >
+        <div className="programs-decision-cta" style={{ marginTop: '1rem' }}>
+          <Link href="/find-your-path" className="btn btn-primary">
+            Not sure? Take the 2-minute pathfinder quiz →
+          </Link>
+        </div>
+      </PageHero>
 
       <section className="content-section">
         <div className="container">
@@ -149,7 +148,7 @@ export default function ProgramComparisonPage() {
                     <td>{t.certs}</td>
                     <td>
                       <Link
-                        href="/apply"
+                        href={`/apply?program=${t.slug}`}
                         className="btn btn-secondary"
                         style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
                       >
@@ -163,54 +162,62 @@ export default function ProgramComparisonPage() {
           </div>
 
           <ul className="program-cards" role="list" aria-label="Program comparison cards">
-            {tracks.map((t) => (
-              <li key={t.name}>
-                <article
-                  className="program-comparison-card"
-                  aria-labelledby={`program-card-title-${t.slug}`}
-                >
-                  <div className="program-comparison-card__header">
+            {tracks.map((t) => {
+              const extra = getProgramExtra(t.slug);
+              return (
+                <li key={t.name}>
+                  <article
+                    className="program-comparison-card"
+                    aria-labelledby={`program-card-title-${t.slug}`}
+                  >
+                    <div className="program-comparison-card__header">
+                      <Link
+                        id={`program-card-title-${t.slug}`}
+                        href={`/programs/${t.slug}`}
+                        className="program-comparison-card__title"
+                      >
+                        {t.name}
+                      </Link>
                     <Link
-                      id={`program-card-title-${t.slug}`}
-                      href={`/programs/${t.slug}`}
-                      className="program-comparison-card__title"
-                    >
-                      {t.name}
-                    </Link>
-                    <Link
-                      href="/apply"
+                      href={`/apply?program=${t.slug}`}
                       className="btn btn-secondary program-comparison-card__apply"
                       aria-label={`Apply to ${t.name}`}
                     >
                       Apply
                     </Link>
-                  </div>
-                  <div className="program-comparison-card__stats">
-                    <span>{t.duration}</span>
-                    <span className="program-comparison-card__stats-sep" aria-hidden="true">
-                      |
-                    </span>
-                    <span aria-label={`Difficulty rating ${t.difficulty}`}>{t.difficulty}</span>
-                    <span className="program-comparison-card__stats-sep" aria-hidden="true">
-                      |
-                    </span>
-                    <span>{t.salary}</span>
-                  </div>
-                  <div className="program-comparison-card__demand">
-                    <span className="program-comparison-card__demand-label">Job demand</span>
-                    <span className="demand-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                      {t.demand === 'Very High' && <Flame size={14} className="text-current" aria-hidden />}
-                      <Flame size={14} className="text-current" aria-hidden />
-                      {t.demand}
-                    </span>
-                  </div>
-                  <p className="program-comparison-card__certs">
-                    <span className="program-comparison-card__certs-label">Certifications</span>
-                    {t.certs}
-                  </p>
-                </article>
-              </li>
-            ))}
+                    </div>
+                    {extra?.bestFor && (
+                      <p className="program-comparison-card__best-for">
+                        <strong>Best for:</strong> {extra.bestFor}
+                      </p>
+                    )}
+                    <div className="program-comparison-card__stats">
+                      <span>{t.duration}</span>
+                      <span className="program-comparison-card__stats-sep" aria-hidden="true">
+                        |
+                      </span>
+                      <span aria-label={`Difficulty rating ${t.difficulty}`}>{t.difficulty}</span>
+                      <span className="program-comparison-card__stats-sep" aria-hidden="true">
+                        |
+                      </span>
+                      <span>{t.salary}</span>
+                    </div>
+                    <div className="program-comparison-card__demand">
+                      <span className="program-comparison-card__demand-label">Job demand</span>
+                      <span className="demand-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                        {t.demand === 'Very High' && <Flame size={14} className="text-current" aria-hidden />}
+                        <Flame size={14} className="text-current" aria-hidden />
+                        {t.demand}
+                      </span>
+                    </div>
+                    <p className="program-comparison-card__certs">
+                      <span className="program-comparison-card__certs-label">Certifications</span>
+                      {t.certs}
+                    </p>
+                  </article>
+                </li>
+              );
+            })}
           </ul>
 
           <div style={{ textAlign: 'center', marginTop: '3rem' }}>

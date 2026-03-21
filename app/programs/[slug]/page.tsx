@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
 import { getProgramDescription } from '@/lib/content/programDescriptions';
+import { getProgramExtra } from '@/lib/content/programExtras';
 import Footer from '@/components/Footer';
 import ProgramDetailClient from './ProgramDetailClient';
 import { HelpCircle, BookOpen, ArrowRight, Clock, DollarSign, Briefcase } from 'lucide-react';
@@ -38,6 +39,8 @@ export default async function ProgramPage({ params }: Props) {
   const program = getProgramBySlug(slug);
   if (!program) notFound();
 
+  const extra = getProgramExtra(slug);
+
   return (
     <div className="inner-page">
       <section className="page-hero">
@@ -63,6 +66,12 @@ export default async function ProgramPage({ params }: Props) {
           <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>
             {program.partner} certified
           </p>
+          {extra && (
+            <div className="program-detail-fit">
+              <p className="program-detail-best-for"><strong>Best for:</strong> {extra.bestFor}</p>
+              <p className="program-detail-outcomes"><strong>Job outcomes:</strong> {extra.jobOutcomes.join(' · ')}</p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -182,6 +191,12 @@ export default async function ProgramPage({ params }: Props) {
                 Apply for This Program
               </Link>
               <p className="program-sidebar-note">No-cost training for qualifying participants.</p>
+              <Link href="/find-your-path" className="program-sidebar-quiz-link">
+                Not sure? Take the pathfinder quiz →
+              </Link>
+              <Link href="/program-comparison" className="program-sidebar-compare-link">
+                Compare all programs
+              </Link>
             </div>
           </aside>
         </div>

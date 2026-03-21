@@ -148,6 +148,24 @@ export default function DashboardHomeClient({
         )}
       </section>
 
+      <section className="dashboard-weekly-nudge" aria-label="This week">
+        <h2 className="dashboard-today-label">This week</h2>
+        <ul className="dashboard-weekly-links">
+          <li>
+            <Link href="/dashboard/weekly-recap">Weekly recap</Link>
+            <span className="dashboard-weekly-links-desc"> — milestones and reminders</span>
+          </li>
+          <li>
+            <Link href="/dashboard/learning">Learning hub</Link>
+            <span className="dashboard-weekly-links-desc"> — resources and your paths</span>
+          </li>
+          <li>
+            <Link href="/dashboard/ai-tools">Career tools</Link>
+            <span className="dashboard-weekly-links-desc"> — resume, interview practice, job match</span>
+          </li>
+        </ul>
+      </section>
+
       {/* Compact progress — preserve what works */}
       {(state === 'B' || state === 'C') && programTitle && (
         <section className="dashboard-progress-compact">

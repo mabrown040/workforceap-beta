@@ -7,7 +7,7 @@ import { ChevronDown } from 'lucide-react';
 const VIEWS = [
   { id: 'admin', label: 'Admin Portal', path: '/admin' },
   { id: 'partner', label: 'Partner Portal', path: '/partner' },
-  { id: 'student', label: 'Student Portal', path: '/dashboard' },
+  { id: 'student', label: 'Member Portal', path: '/dashboard' },
   { id: 'employer', label: 'Employer Portal', path: '/employer' },
   { id: 'my-group', label: 'My Group Portal', path: '/my-group' },
 ] as const;
@@ -57,8 +57,8 @@ export default function SuperAdminViewSwitcher() {
 
   if (!isSuperAdmin) return null;
 
-  const currentLabel = VIEWS.find((v) => v.id === currentView)?.label ?? 'Student Portal';
-  const shortLabel = { admin: 'Admin', partner: 'Partner', student: 'Student', employer: 'Employer', 'my-group': 'My Group' }[currentView] ?? currentLabel;
+  const currentLabel = VIEWS.find((v) => v.id === currentView)?.label ?? 'Member Portal';
+  const shortLabel = { admin: 'Admin', partner: 'Partner', student: 'Member', employer: 'Employer', 'my-group': 'My Group' }[currentView] ?? currentLabel;
 
   return (
     <div className="super-admin-view-switcher" onClick={(e) => e.stopPropagation()}>

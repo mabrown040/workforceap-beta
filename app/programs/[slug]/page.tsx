@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
+import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
 import { getProgramDescription } from '@/lib/content/programDescriptions';
 import { getProgramExtra } from '@/lib/content/programExtras';
 import Footer from '@/components/Footer';
@@ -20,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const program = getProgramBySlug(slug);
   if (!program) return { title: 'Program' };
 
-  const salaryRange = program.salary.replace('Starting salary: ', '');
+  const salaryRange = salaryRangeDisplay(program);
     // Only name the certifying body if it's an external partner (not WorkforceAP/CPT/CLT internal certs)
   const externalPartners = ['Google', 'IBM', 'Amazon Web Services', 'Microsoft', 'CompTIA', 'MCHIT'];
   const certClause = externalPartners.includes(program.partner)
@@ -61,7 +62,7 @@ export default async function ProgramPage({ params }: Props) {
           </span>
           <h1>{program.title}</h1>
           <p style={{ marginTop: '0.5rem' }}>
-            {program.duration} • {program.salary}
+            {program.duration} • Starting range {salaryRangeDisplay(program)} (early-career, Austin-area framing)
           </p>
           <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>
             {program.partner} certified

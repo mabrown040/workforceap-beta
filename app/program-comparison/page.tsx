@@ -5,6 +5,7 @@ import { Flame } from 'lucide-react';
 import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
 import { getProgramExtra } from '@/lib/content/programExtras';
+import { getProgramComparisonTracks } from '@/lib/content/programComparisonTracks';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Compare Programs',
@@ -13,90 +14,7 @@ export const metadata: Metadata = buildPageMetadata({
   path: '/program-comparison',
 });
 
-type ComparisonTrack = {
-  name: string;
-  slug: string;
-  duration: string;
-  difficulty: string;
-  salary: string;
-  demand: 'High' | 'Very High';
-  certs: string;
-};
-
-const tracks: ComparisonTrack[] = [
-  {
-    name: 'IT Support',
-    slug: 'it-support-professional-certificate-ibm',
-    duration: '16–20 wks',
-    difficulty: '⭐⭐',
-    salary: '$55,000',
-    demand: 'High',
-    certs: 'CompTIA A+, Google IT',
-  },
-  {
-    name: 'Cybersecurity',
-    slug: 'cybersecurity-professional-certificate-google',
-    duration: '16–20 wks',
-    difficulty: '⭐⭐⭐',
-    salary: '$75,000',
-    demand: 'Very High',
-    certs: 'Security+, IBM Cyber',
-  },
-  {
-    name: 'Cloud Computing',
-    slug: 'aws-cloud-technology-amazon',
-    duration: '16–20 wks',
-    difficulty: '⭐⭐⭐',
-    salary: '$95,000',
-    demand: 'Very High',
-    certs: 'AWS CCP, Azure',
-  },
-  {
-    name: 'Data Analytics',
-    slug: 'data-analytics-professional-certificate-google',
-    duration: '16–20 wks',
-    difficulty: '⭐⭐⭐',
-    salary: '$72,000',
-    demand: 'Very High',
-    certs: 'Google Data, IBM DS',
-  },
-  {
-    name: 'Project Management',
-    slug: 'project-management-professional-certificate-microsoft',
-    duration: '16–20 wks',
-    difficulty: '⭐⭐⭐',
-    salary: '$82,000',
-    demand: 'High',
-    certs: 'PMP, CAPM',
-  },
-  {
-    name: 'Digital Literacy / AI',
-    slug: 'digital-literacy-empowerment-class',
-    duration: '6–8 wks',
-    difficulty: '⭐',
-    salary: '$48,000',
-    demand: 'High',
-    certs: 'IBM SkillsBuild',
-  },
-  {
-    name: 'Medical Coding',
-    slug: 'health-information-technology-mchit',
-    duration: '16–20 wks',
-    difficulty: '⭐⭐',
-    salary: '$52,000',
-    demand: 'High',
-    certs: 'CPC (AAPC)',
-  },
-  {
-    name: 'Trades / Manufacturing',
-    slug: 'construction-readiness-certificate-osha-10',
-    duration: '16–20 wks',
-    difficulty: '⭐⭐',
-    salary: '$55,000',
-    demand: 'High',
-    certs: 'OSHA 10, NCCER',
-  },
-];
+const tracks = getProgramComparisonTracks();
 
 export default function ProgramComparisonPage() {
   return (
@@ -118,10 +36,22 @@ export default function ProgramComparisonPage() {
             <h2 className="program-comparison-guide-title">How to Choose</h2>
             <p className="program-comparison-guide-lead">Pick based on what matters most to you:</p>
             <ul className="program-comparison-guide-list">
-              <li><strong>Time:</strong> Digital Literacy is 6–8 weeks; most tech tracks are 16–20 weeks.</li>
-              <li><strong>Difficulty (⭐–⭐⭐⭐):</strong> ⭐ = beginner-friendly. ⭐⭐⭐ = steeper learning curve, higher payoff.</li>
-              <li><strong>Tech comfort:</strong> Starting from basics? Digital Literacy or IT Support. Already comfortable? Cloud, Cybersecurity, or Data.</li>
-              <li><strong>Salary vs. ramp:</strong> Higher salaries often mean more demanding programs. Choose a path you can commit to.</li>
+              <li>
+                <strong>Time:</strong> Digital Literacy is the fastest on-ramp; most tracks run about 3–5 months at ~10 hours
+                a week (your pace may vary).
+              </li>
+              <li>
+                <strong>Difficulty (⭐–⭐⭐⭐):</strong> ⭐ = beginner-friendly. ⭐⭐⭐ = steeper curve, usually higher Austin-area
+                earning potential.
+              </li>
+              <li>
+                <strong>Tech comfort:</strong> Starting from basics? Digital Literacy or IT Support. Already comfortable?
+                Cloud, Cybersecurity, or Data Analytics are strong Austin bets.
+              </li>
+              <li>
+                <strong>Salary vs. ramp:</strong> Higher ranges usually mean more depth. Pick the track you can finish —
+                that beats chasing the biggest number and stalling out.
+              </li>
             </ul>
           </div>
 
@@ -140,10 +70,10 @@ export default function ProgramComparisonPage() {
               </thead>
               <tbody>
                 {tracks.map((t) => (
-                  <tr key={t.name}>
+                  <tr key={t.slug}>
                     <td>
                       <Link href={`/programs/${t.slug}`}>
-                        <strong>{t.name}</strong>
+                        <strong>{t.shortName}</strong>
                       </Link>
                     </td>
                     <td>{t.duration}</td>
@@ -151,7 +81,6 @@ export default function ProgramComparisonPage() {
                     <td>{t.salary}</td>
                     <td>
                       <span className="demand-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                        {t.demand === 'Very High' && <Flame size={14} className="text-current" aria-hidden />}
                         <Flame size={14} className="text-current" aria-hidden />
                         {t.demand}
                       </span>
@@ -176,7 +105,7 @@ export default function ProgramComparisonPage() {
             {tracks.map((t) => {
               const extra = getProgramExtra(t.slug);
               return (
-                <li key={t.name}>
+                <li key={t.slug}>
                   <article
                     className="program-comparison-card"
                     aria-labelledby={`program-card-title-${t.slug}`}
@@ -187,12 +116,12 @@ export default function ProgramComparisonPage() {
                         href={`/programs/${t.slug}`}
                         className="program-comparison-card__title"
                       >
-                        {t.name}
+                        {t.shortName}
                       </Link>
                     <Link
                       href={`/apply?program=${t.slug}`}
                       className="btn btn-secondary program-comparison-card__apply"
-                      aria-label={`Apply to ${t.name}`}
+                      aria-label={`Apply to ${t.shortName}`}
                     >
                       Apply
                     </Link>
@@ -221,7 +150,6 @@ export default function ProgramComparisonPage() {
                     <div className="program-comparison-card__demand">
                       <span className="program-comparison-card__demand-label">Job demand</span>
                       <span className="demand-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                        {t.demand === 'Very High' && <Flame size={14} className="text-current" aria-hidden />}
                         <Flame size={14} className="text-current" aria-hidden />
                         {t.demand}
                       </span>

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { PROGRAMS } from '@/lib/content/programs';
 import type { Program } from '@/lib/content/programs';
 import { getProgramExtra } from '@/lib/content/programExtras';
+import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
 import { ProgramIcon } from '@/components/ProgramIcon';
 
 const programs = PROGRAMS;
@@ -53,7 +54,7 @@ function ProgramCard({ program }: { program: Program }) {
       <div style={{ marginBottom: '.75rem' }}>
         <div style={{ display: 'flex', gap: '1rem', fontSize: '.85rem', color: '#666' }}>
           <span>⏱ {program.duration}</span>
-          <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{program.salary}</span>
+          <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Starting range: {salaryRangeDisplay(program)}</span>
         </div>
         {extra?.jobOutcomes && extra.jobOutcomes.length > 0 && (
           <p className="program-card-outcomes">
@@ -118,7 +119,7 @@ export default function ProgramsContent() {
           ))}
         </div>
         <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '.85rem', color: '#666', maxWidth: '640px', marginLeft: 'auto', marginRight: 'auto' }}>
-          Salary range is Austin market estimate (Lightcast/BLS, Jan 2026). Actual pay depends on experience and employer.
+          Bands are Austin-first, grounded in Lightcast/BLS-style data (Jan 2026). Your offer still depends on proof, role, and employer.
         </p>
         <div className="programs-bottom-actions">
           <Link href="/find-your-path" className="btn btn-primary">Not sure? Take the pathfinder quiz</Link>

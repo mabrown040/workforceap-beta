@@ -30,10 +30,10 @@ export default function MatchedRoles() {
   if (jobs.length === 0) return null;
 
   return (
-    <div style={{ marginTop: '2rem' }}>
-      <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Based on your assessment, you match these roles:</h3>
+    <section className="dashboard-matched-roles" style={{ marginTop: '1.5rem' }}>
+      <h2 className="dashboard-today-label">Roles that match you</h2>
       <p style={{ color: 'var(--color-gray-600)', fontSize: '0.9rem', marginBottom: '1rem' }}>
-        These jobs are ranked by how well they fit your skills and program.
+        Ranked by fit to your skills and program. Apply when you're ready.
       </p>
       <div style={{ display: 'grid', gap: '0.75rem' }}>
         {jobs.map((job) => {
@@ -79,6 +79,6 @@ export default function MatchedRoles() {
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }

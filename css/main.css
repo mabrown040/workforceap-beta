@@ -5867,6 +5867,19 @@ body { animation: fadeIn 0.4s ease; }
 .dashboard-sidebar-list li {
     margin-bottom: 0.25rem;
 }
+.dashboard-sidebar-group-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-gray-500);
+    padding: 0.75rem 1rem 0.25rem;
+    margin-top: 0.5rem;
+    list-style: none;
+}
+.dashboard-sidebar-group-label:first-of-type {
+    margin-top: 0;
+}
 .dashboard-sidebar-link {
     display: flex;
     align-items: center;
@@ -6298,7 +6311,181 @@ body { animation: fadeIn 0.4s ease; }
     margin-bottom: 0.35rem;
 }
 
-/* Dashboard next step card */
+/* Student dashboard — Today / Next Step (student-success coach) */
+.dashboard-home-coach {
+    max-width: 640px;
+}
+.dashboard-home-header h1 {
+    font-size: 1.5rem;
+    margin: 0 0 0.25rem;
+    font-weight: 600;
+}
+.dashboard-home-subtitle {
+    color: var(--color-gray-600);
+    font-size: 0.95rem;
+    margin: 0 0 1.5rem;
+}
+.dashboard-today {
+    margin-bottom: 1.5rem;
+}
+.dashboard-today-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-gray-500);
+    margin: 0 0 0.5rem;
+}
+.dashboard-today-card {
+    background: linear-gradient(135deg, rgba(173, 44, 77, 0.06), rgba(173, 44, 77, 0.02));
+    border: 1px solid rgba(173, 44, 77, 0.2);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1.5rem;
+}
+.dashboard-today-card h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+}
+.dashboard-today-card p {
+    font-size: 0.95rem;
+    color: var(--color-gray-600);
+    margin: 0 0 1rem;
+    line-height: 1.5;
+}
+.dashboard-today-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.75rem;
+}
+.dashboard-today-primary {
+    min-height: 44px;
+    padding: 0.6rem 1.25rem;
+    font-weight: 600;
+}
+.dashboard-today-secondary {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+}
+.dashboard-today-secondary:hover {
+    color: var(--color-primary);
+}
+.dashboard-today-card-highlight {
+    background: linear-gradient(135deg, rgba(173, 44, 77, 0.1), rgba(173, 44, 77, 0.04));
+    border-color: rgba(173, 44, 77, 0.35);
+}
+.dashboard-today-celebrate {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    margin-bottom: 0.5rem;
+}
+.dashboard-progress-compact {
+    margin-bottom: 1.25rem;
+}
+.dashboard-progress-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+.dashboard-progress-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.dashboard-progress-bar {
+    flex: 1;
+    min-width: 100px;
+    max-width: 200px;
+    height: 6px;
+    background: #e5e5e5;
+    border-radius: 3px;
+    overflow: hidden;
+}
+.dashboard-progress-fill {
+    height: 100%;
+    background: var(--color-accent);
+    border-radius: 3px;
+}
+.dashboard-progress-meta {
+    font-size: 0.85rem;
+    color: var(--color-gray-500);
+}
+.dashboard-also {
+    padding: 1rem 1.25rem;
+    background: var(--color-light);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 1rem;
+}
+.dashboard-also p {
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+    margin: 0 0 0.5rem;
+}
+.dashboard-also-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-accent);
+}
+.dashboard-also-link:hover {
+    text-decoration: underline;
+}
+.dashboard-stats-minimal .dashboard-stat-card {
+    padding: 0.75rem 1rem;
+}
+.dashboard-stats-minimal .dashboard-stat-value {
+    font-size: 1rem;
+}
+.dashboard-recent-collapsed,
+.dashboard-checklist-collapsed {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--color-light);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+}
+.dashboard-recent-collapsed summary,
+.dashboard-checklist-collapsed summary {
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+.dashboard-recent-collapsed ul,
+.dashboard-checklist-collapsed ul {
+    margin: 0.5rem 0 0;
+    padding-left: 1.25rem;
+    font-size: 0.9rem;
+}
+.dashboard-recent-collapsed li,
+.dashboard-checklist-collapsed li {
+    margin-bottom: 0.35rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+@media (max-width: 639px) {
+    .dashboard-today-actions {
+        flex-direction: column;
+    }
+    .dashboard-today-primary,
+    .dashboard-today-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Dashboard next step card (legacy) */
 .dashboard-next-step {
     background: linear-gradient(135deg, rgba(173, 44, 77, 0.08), rgba(173, 44, 77, 0.03));
     border: 1px solid rgba(173, 44, 77, 0.25);

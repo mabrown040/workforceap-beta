@@ -8210,6 +8210,116 @@ body { animation: fadeIn 0.4s ease; }
 .jobs-empty-state .btn {
     margin: 0;
 }
+.jobs-empty-state__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: 0.5rem;
+}
+.contact-page .photo-highlight-content {
+    padding-top: 5.25rem;
+}
+@media (max-width: 900px) {
+    .contact-page .photo-highlight-content {
+        padding-top: 4.5rem;
+    }
+}
+.contact-form-checkbox-row .contact-checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    cursor: pointer;
+    font-weight: 400;
+    line-height: 1.45;
+}
+.contact-form-checkbox-row .contact-checkbox-input {
+    width: 1.1rem;
+    height: 1.1rem;
+    margin-top: 0.2rem;
+    flex-shrink: 0;
+    accent-color: var(--color-accent);
+}
+.login-password-field {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-sm);
+    background: var(--color-white);
+    overflow: hidden;
+}
+.login-password-field:focus-within {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 1px rgba(173, 44, 77, 0.2);
+}
+.login-password-field input {
+    flex: 1;
+    min-width: 0;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0.65rem 0.75rem !important;
+}
+.login-password-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    flex-shrink: 0;
+    border: none;
+    background: var(--color-gray-50);
+    color: var(--color-gray-600);
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+.login-password-toggle:hover {
+    background: var(--color-gray-100);
+    color: var(--color-primary);
+}
+.login-form-footer-links {
+    text-align: center;
+    margin-top: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+.login-form-footer-links a {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    text-decoration: none;
+}
+.login-form-footer-links a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.login-form-footer-links-muted {
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+    font-weight: 400;
+}
+.login-form-footer-links-muted a {
+    font-weight: 600;
+}
+.apply-continue-hint {
+    font-size: 0.875rem;
+    color: var(--color-gray-500);
+    margin: 0.65rem 0 0;
+    line-height: 1.4;
+}
+.job-filter-hint {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--color-gray-500);
+    margin-top: 0.25rem;
+    font-weight: 400;
+}
+.contact-form-footnote {
+    text-align: center;
+    margin-top: 1rem;
+    color: var(--color-gray-500);
+    font-size: 0.85rem;
+}
 
 /* =============================================
    SALARY GUIDE MOBILE — must override all table styles

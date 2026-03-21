@@ -91,9 +91,15 @@ export default function ApplyEligibilityClient() {
           className="btn btn-primary"
           disabled={!canContinue}
           onClick={handleContinue}
+          aria-describedby={!canContinue ? 'apply-eligibility-continue-hint' : undefined}
         >
           Continue →
         </button>
+        {!canContinue && (
+          <p id="apply-eligibility-continue-hint" className="apply-continue-hint">
+            Select an answer for each question above to continue to program selection.
+          </p>
+        )}
       </div>
     </div>
   );

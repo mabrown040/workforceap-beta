@@ -143,19 +143,29 @@ export default function ContactFormClient() {
           autoComplete="tel"
         />
       </div>
-      <div className="form-group">
-        <label htmlFor={`${formId}-sms`} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-          <input id={`${formId}-sms`} type="checkbox" name="sms_preferred" value="true" disabled={status === 'sending'} />
-          I&apos;d prefer to be contacted by text message
+      <div className="form-group contact-form-checkbox-row">
+        <label htmlFor={`${formId}-sms`} className="contact-checkbox-label">
+          <input
+            id={`${formId}-sms`}
+            className="contact-checkbox-input"
+            type="checkbox"
+            name="sms_preferred"
+            value="true"
+            disabled={status === 'sending'}
+          />
+          <span>I&apos;d prefer to be contacted by text message</span>
         </label>
       </div>
       <div className="form-group">
-        <label htmlFor={`${formId}-topic`}>What can we help with? *</label>
+        <label htmlFor={`${formId}-topic`}>
+          What can we help with? <span aria-hidden="true">*</span>
+        </label>
         <select
           id={`${formId}-topic`}
           name="topic"
           required
           disabled={status === 'sending'}
+          aria-required="true"
           aria-invalid={invalid}
           aria-describedby={showError ? errorId : undefined}
         >
@@ -189,7 +199,7 @@ export default function ContactFormClient() {
       >
         {status === 'sending' ? 'Sending…' : 'Send Message'}
       </button>
-      <p style={{ textAlign: 'center', marginTop: '1rem', color: 'var(--color-gray-400)', fontSize: '.85rem' }}>
+        <p className="contact-form-footnote">
         We respond within 24–48 hours.
       </p>
     </form>

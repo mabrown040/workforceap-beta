@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Eye, EyeOff } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 
 export default function LoginForm() {
@@ -10,6 +11,7 @@ export default function LoginForm() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -27,10 +29,14 @@ export default function LoginForm() {
         redirect: 'manual',
       });
 
-      // 302 redirect = success; browser applies Set-Cookie, then we navigate
       if (res.type === 'opaqueredirect' || (res.status >= 300 && res.status < 400)) {
         const location = res.headers.get('Location');
-        window.location.href = location && location.startsWith('/') ? new URL(location, window.location.origin).href : (redirectTo.startsWith('/') ? redirectTo : `/${redirectTo}`);
+        window.location.href =
+          location && location.startsWith('/')
+            ? new URL(location, window.location.origin).href
+            : redirectTo.startsWith('/')
+              ? redirectTo
+              : `/${redirectTo}`;
         return;
       }
 
@@ -72,21 +78,47 @@ export default function LoginForm() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    aria-invalid={!!error}
+                    aria-describedby={error ? 'login-error' : undefined}
                   />
                 </div>
                 <div className="form-group">
                   <label htmlFor="password">Password *</label>
-                  <input
-                    id="password"
-                    type="password"
-                    autoComplete="current-password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
+                  <div className="login-password-field">
+                    <input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete="current-password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      aria-invalid={!!error}
+                      aria-describedby={error ? 'login-error' : undefined}
+                    />
+                    <button
+                      type="button"
+                      className="login-password-toggle"
+                      onClick={() => setShowPassword((v) => !v)}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      aria-pressed={showPassword}
+                    >
+                      {showPassword ? <EyeOff size={20} aria-hidden /> : <Eye size={20} aria-hidden />}
+                    </button>
+                  </div>
                 </div>
                 {error && (
-                  <div className="form-error-banner" role="alert" style={{ background: '#fff3f5', borderLeft: '4px solid var(--color-accent)', padding: '1rem', marginBottom: '1rem', borderRadius: '0 8px 8px 0' }}>
+                  <div
+                    id="login-error"
+                    className="form-error-banner"
+                    role="alert"
+                    style={{
+                      background: '#fff3f5',
+                      borderLeft: '4px solid var(--color-accent)',
+                      padding: '1rem',
+                      marginBottom: '1rem',
+                      borderRadius: '0 8px 8px 0',
+                    }}
+                  >
                     {error}
                   </div>
                 )}
@@ -98,12 +130,12 @@ export default function LoginForm() {
                 >
                   {loading ? 'Signing in…' : 'Log in'}
                 </button>
-                <p style={{ textAlign: 'center', marginTop: '1rem' }}>
+                <div className="login-form-footer-links">
                   <Link href="/forgot-password">Forgot password?</Link>
-                </p>
-                <p style={{ textAlign: 'center', marginTop: '0.5rem', color: 'var(--color-gray-500)', fontSize: '.9rem' }}>
-                  Don&apos;t have an account? <Link href="/signup">Sign up</Link>
-                </p>
+                  <p className="login-form-footer-links-muted">
+                    Don&apos;t have an account? <Link href="/signup">Sign up</Link>
+                  </p>
+                </div>
               </form>
             </div>
           </div>

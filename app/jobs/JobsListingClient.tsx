@@ -133,8 +133,20 @@ function JobsNoResultsState() {
       </div>
       <h3 className="jobs-empty-state__title">No jobs available at the moment</h3>
       <p className="jobs-empty-state__text">
-        Check back soon for new openings from WorkforceAP employer partners.
+        New roles appear as employer partners post them. In the meantime, explore programs or start your application—we
+        will help you get job-ready.
       </p>
+      <div className="jobs-empty-state__actions">
+        <Link href="/programs" className="btn btn-primary">
+          Browse programs
+        </Link>
+        <Link href="/apply" className="btn btn-outline">
+          Apply for training
+        </Link>
+        <Link href="/employers" className="btn btn-ghost">
+          For employers
+        </Link>
+      </div>
     </div>
   );
 }
@@ -302,11 +314,15 @@ export default function JobsListingClient() {
             type="number"
             min={0}
             step={5000}
-            placeholder="e.g. 50000"
+            placeholder="50000"
+            aria-describedby="job-filter-salary-min-hint"
             value={salaryMin}
             onChange={(e) => updateUrl({ salaryMin: e.target.value || undefined })}
             className="job-filter-input"
           />
+          <span id="job-filter-salary-min-hint" className="job-filter-hint">
+            Annual USD, no commas (e.g. 50000 ≈ $50k).
+          </span>
         </div>
         <div className="job-filter-group">
           <label htmlFor="job-filter-salary-max" className="job-filter-label">
@@ -317,11 +333,15 @@ export default function JobsListingClient() {
             type="number"
             min={0}
             step={5000}
-            placeholder="e.g. 120000"
+            placeholder="120000"
+            aria-describedby="job-filter-salary-max-hint"
             value={salaryMax}
             onChange={(e) => updateUrl({ salaryMax: e.target.value || undefined })}
             className="job-filter-input"
           />
+          <span id="job-filter-salary-max-hint" className="job-filter-hint">
+            Leave blank for no upper limit.
+          </span>
         </div>
       </div>
 

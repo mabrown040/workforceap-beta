@@ -2344,11 +2344,40 @@ fieldset.apply-fieldset {
     margin: 0 0 1rem;
     line-height: 1.5;
 }
+.salary-guide-decision-steps {
+    margin: 0 0 1rem;
+    padding: 0.75rem 1rem;
+    background: rgba(0,0,0,0.03);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+}
+.salary-guide-decision-steps p { margin: 0; }
 .salary-guide-fit-links {
     display: flex;
     gap: 0.75rem;
     flex-wrap: wrap;
 }
+.salary-ramp-badge {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-gray-600);
+}
+.salary-guide-methodology {
+    color: #888;
+    font-size: 0.8rem;
+    margin-top: 2rem;
+    max-width: 640px;
+}
+.salary-guide-cta-title { font-size: 1.25rem; margin-bottom: 0.5rem; }
+.salary-guide-cta-desc { color: var(--color-gray-600); margin-bottom: 1.25rem; }
+.salary-guide-cta-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+}
+.salary-guide-cta-buttons .btn { flex-shrink: 0; }
 .salary-guide-ctas {
     text-align: center;
     margin-top: 3rem;

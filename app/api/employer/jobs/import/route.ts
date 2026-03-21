@@ -47,59 +47,59 @@ export async function POST(request: NextRequest) {
 
     // ── URL-based import (smart ATS detection) ──
     if (parsed.data.url && !parsed.data.rawText) {
-    const atsResult = await smartImportJobs(parsed.data.url);
+      const atsResult = await smartImportJobs(parsed.data.url);
 
-    // If ATS API returned structured jobs, use them directly
-    if (atsResult.jobs.length > 0) {
-      if (parsed.data.createDraft) {
-        const created = [];
-        for (const atsJob of atsResult.jobs) {
-          const suffix = atsJob.sourceUrl ? `\n\n---\nImported from: ${atsJob.sourceUrl}` : '';
-          const job = await prisma.job.create({
-            data: buildEmployerJobCreateData(ctx.employerId, {
-              title: atsJob.title,
-              location: atsJob.location,
-              locationType: atsJob.locationType ?? 'onsite',
-              jobType: atsJob.jobType ?? 'fulltime',
-              salaryMin: atsJob.salaryMin,
-              salaryMax: atsJob.salaryMax,
-              description: `${atsJob.description}${suffix}`,
-              requirements: atsJob.requirements ?? [],
-              preferredCertifications: [],
-              suggestedPrograms: [],
-              status: 'draft',
-            }),
-          });
-          created.push({ id: job.id, title: job.title });
+      // If ATS API returned structured jobs, use them directly
+      if (atsResult.jobs.length > 0) {
+        if (parsed.data.createDraft) {
+          const created = [];
+          for (const atsJob of atsResult.jobs) {
+            const suffix = atsJob.sourceUrl ? `\n\n---\nImported from: ${atsJob.sourceUrl}` : '';
+            const job = await prisma.job.create({
+              data: buildEmployerJobCreateData(ctx.employerId, {
+                title: atsJob.title,
+                location: atsJob.location,
+                locationType: atsJob.locationType ?? 'onsite',
+                jobType: atsJob.jobType ?? 'fulltime',
+                salaryMin: atsJob.salaryMin,
+                salaryMax: atsJob.salaryMax,
+                description: `${atsJob.description}${suffix}`,
+                requirements: atsJob.requirements ?? [],
+                preferredCertifications: [],
+                suggestedPrograms: [],
+                status: 'draft',
+              }),
+            });
+            created.push({ id: job.id, title: job.title });
+          }
+          return NextResponse.json({
+            provider: atsResult.provider,
+            created,
+            total: atsResult.jobs.length,
+          }, { status: 201 });
         }
+
         return NextResponse.json({
           provider: atsResult.provider,
-          created,
+          extracted: atsResult.jobs.length === 1 ? atsResult.jobs[0] : undefined,
+          jobs: atsResult.jobs.length > 1 ? atsResult.jobs : undefined,
           total: atsResult.jobs.length,
-        }, { status: 201 });
+        });
       }
 
-      return NextResponse.json({
-        provider: atsResult.provider,
-        extracted: atsResult.jobs.length === 1 ? atsResult.jobs[0] : undefined,
-        jobs: atsResult.jobs.length > 1 ? atsResult.jobs : undefined,
-        total: atsResult.jobs.length,
-      });
-    }
+      // ATS errors (JS-rendered, etc)
+      if (atsResult.errors.length > 0) {
+        return NextResponse.json({
+          error: atsResult.errors[0],
+          provider: atsResult.provider,
+          tip: 'Try pasting the job description text instead, or use a direct link to a specific job posting.',
+        }, { status: 400 });
+      }
 
-    // ATS errors (JS-rendered, etc)
-    if (atsResult.errors.length > 0) {
-      return NextResponse.json({
-        error: atsResult.errors[0],
-        provider: atsResult.provider,
-        tip: 'Try pasting the job description text instead, or use a direct link to a specific job posting.',
-      }, { status: 400 });
-    }
-
-    // Use text already fetched by smartImportJobs (no double-fetch)
-    try {
-      const textToParse = atsResult.rawText;
-      if (textToParse && textToParse.length >= 50) {
+      // Use text already fetched by smartImportJobs (no double-fetch)
+      try {
+        const textToParse = atsResult.rawText;
+        if (textToParse && textToParse.length >= 50) {
           const extracted = await parseJobFromText(textToParse);
           if (extracted) {
             if (parsed.data.createDraft) {
@@ -125,53 +125,53 @@ export async function POST(request: NextRequest) {
               provider: 'ai',
             });
           }
+        }
+      } catch {
+        // Fall through to error
       }
-    } catch {
-      // Fall through to error
+
+      return NextResponse.json({
+        error: 'Could not extract job details from this URL. Try pasting the job description text.',
+        tip: detectProvider(parsed.data.url)
+          ? `Detected ATS: ${detectProvider(parsed.data.url)!.provider}. Try a direct link to a specific job posting.`
+          : undefined,
+      }, { status: 400 });
     }
 
-    return NextResponse.json({
-      error: 'Could not extract job details from this URL. Try pasting the job description text.',
-      tip: detectProvider(parsed.data.url)
-        ? `Detected ATS: ${detectProvider(parsed.data.url)!.provider}. Try a direct link to a specific job posting.`
-        : undefined,
-    }, { status: 400 });
-  }
+    // ── Raw text import (AI parsing) ──
+    let textToParse = parsed.data.rawText;
+    if (parsed.data.url && textToParse) {
+      // Both provided — use text, note the URL
+    }
 
-  // ── Raw text import (AI parsing) ──
-  let textToParse = parsed.data.rawText;
-  if (parsed.data.url && textToParse) {
-    // Both provided — use text, note the URL
-  }
+    if (!textToParse || textToParse.length < 50) {
+      return NextResponse.json({ error: 'Not enough text to parse. Paste the full job description.' }, { status: 400 });
+    }
 
-  if (!textToParse || textToParse.length < 50) {
-    return NextResponse.json({ error: 'Not enough text to parse. Paste the full job description.' }, { status: 400 });
-  }
+    const extracted = await parseJobFromText(textToParse);
+    if (!extracted) {
+      return NextResponse.json({ error: 'Could not extract job details. Please edit the form manually.' }, { status: 400 });
+    }
 
-  const extracted = await parseJobFromText(textToParse);
-  if (!extracted) {
-    return NextResponse.json({ error: 'Could not extract job details. Please edit the form manually.' }, { status: 400 });
-  }
-
-  const createDraft = parsed.data.createDraft === true;
-  if (createDraft) {
-    const job = await prisma.job.create({
-      data: buildEmployerJobCreateData(ctx.employerId, {
-        title: extracted.title,
-        location: extracted.location,
-        locationType: extracted.locationType ?? 'onsite',
-        jobType: extracted.jobType ?? 'fulltime',
-        salaryMin: extracted.salaryMin,
-        salaryMax: extracted.salaryMax,
-        description: extracted.description,
-        requirements: extracted.requirements ?? [],
-        preferredCertifications: extracted.preferredCertifications ?? [],
-        suggestedPrograms: extracted.suggestedPrograms ?? [],
-        status: 'draft',
-      }),
-    });
-    return NextResponse.json({ job, created: true, provider: 'ai' }, { status: 201 });
-  }
+    const createDraft = parsed.data.createDraft === true;
+    if (createDraft) {
+      const job = await prisma.job.create({
+        data: buildEmployerJobCreateData(ctx.employerId, {
+          title: extracted.title,
+          location: extracted.location,
+          locationType: extracted.locationType ?? 'onsite',
+          jobType: extracted.jobType ?? 'fulltime',
+          salaryMin: extracted.salaryMin,
+          salaryMax: extracted.salaryMax,
+          description: extracted.description,
+          requirements: extracted.requirements ?? [],
+          preferredCertifications: extracted.preferredCertifications ?? [],
+          suggestedPrograms: extracted.suggestedPrograms ?? [],
+          status: 'draft',
+        }),
+      });
+      return NextResponse.json({ job, created: true, provider: 'ai' }, { status: 201 });
+    }
 
     return NextResponse.json({
       extracted: parsed.data.url ? { ...extracted, sourceUrl: parsed.data.url } : extracted,

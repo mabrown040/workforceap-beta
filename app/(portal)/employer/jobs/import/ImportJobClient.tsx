@@ -237,11 +237,14 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
         <label>Company careers page URL (optional)</label>
         <input
           type="url"
-          placeholder="https://careers.example.com"
+          placeholder="https://ats.rippling.com/company/jobs or https://careers.example.com"
           value={careersUrl}
           onChange={(e) => setCareersUrl(e.target.value)}
           disabled={bulkLoading || loading}
         />
+        <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', marginTop: '0.25rem' }}>
+          Rippling ATS, Greenhouse, Lever, and similar sites work when FIRECRAWL_API_KEY is configured.
+        </p>
       </div>
 
       <div className="form-group" style={{ marginBottom: '1rem' }}>

@@ -25,7 +25,13 @@ export async function POST(request: Request) {
   const rateLimitKey = `login:${ip}:${email.toLowerCase()}`;
   const { success: withinLimit } = await checkAuthRateLimit(rateLimitKey);
   if (!withinLimit) {
-    return NextResponse.json({ error: 'Too many login attempts. Please try again later.' }, { status: 429 });
+    return NextResponse.json(
+      {
+        error:
+          'Too many login attempts from this network. Please wait a minute before trying again, or reset your password if you are locked out.',
+      },
+      { status: 429, headers: { 'Retry-After': '60' } }
+    );
   }
 
   const supabase = await createSupabaseServerClient();

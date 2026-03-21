@@ -8,7 +8,7 @@ import { SignOutButton } from './SignOutButton';
 const NAV_LINKS = [
   { href: '/employer', label: 'Home' },
   { href: '/employer/jobs', label: 'Jobs' },
-  { href: '/employer/applications', label: 'Applicants' },
+  { href: '/employer/applications', label: 'Workforce AP Applicants' },
 ];
 
 export default function EmployerPortalShell({

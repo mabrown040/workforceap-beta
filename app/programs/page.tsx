@@ -17,7 +17,7 @@ export default function ProgramsPage() {
     <div className="inner-page">
       <PageHero
         title="Our Programs"
-        subtitle="19 no-cost career programs. Industry certifications from Google, IBM, AWS, Microsoft, and CompTIA — employer-aligned, job-ready."
+        subtitle="19 no-cost career programs with industry certifications from Google, IBM, AWS, Microsoft, and CompTIA. Use fit, timeline, and readiness — not just the title — to choose your track."
       >
         <div className="programs-decision-cta">
           <p className="programs-decision-lead">Not sure which program fits you?</p>

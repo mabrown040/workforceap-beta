@@ -11,7 +11,7 @@ export const PROGRAM_CATEGORY_DESCRIPTIONS: Record<string, string> = {
   'business':
     'Develop project management, digital marketing, and UX design skills. These credentials transfer across industries and open doors to roles in tech, healthcare, and beyond.',
   'healthcare':
-    'Enter the growing field of health information technology. Learn medical coding, EHR systems, and HIPAA compliance for roles in healthcare administration and health IT.',
+    'Prepare for medical coding and health information roles. Learn EHR systems, HIPAA compliance, and coding fundamentals employers use in healthcare administration.',
   'manufacturing':
     'Gain hands-on skills in production technology, logistics, and construction readiness. These certifications prepare you for roles in advanced manufacturing and skilled trades.',
   'digital-literacy':

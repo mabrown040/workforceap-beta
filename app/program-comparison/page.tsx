@@ -45,8 +45,11 @@ export default function ProgramComparisonPage() {
                 earning potential.
               </li>
               <li>
-                <strong>Tech comfort:</strong> Starting from basics? Digital Literacy or IT Support. Already comfortable?
+                <strong>Tech comfort:</strong> Uncomfortable with computers? Start with Digital Literacy, then stack into IT Support or another track. Already comfortable?
                 Cloud, Cybersecurity, or Data Analytics are strong Austin bets.
+              </li>
+              <li>
+                <strong>Healthcare admin:</strong> Interested in coding and records (not bedside care)? Medical coding &amp; health information technology is the fit — see the MCHIT program page for scope.
               </li>
               <li>
                 <strong>Salary vs. ramp:</strong> Higher ranges usually mean more depth. Pick the track you can finish —

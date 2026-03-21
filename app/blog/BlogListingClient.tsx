@@ -133,13 +133,13 @@ export default function BlogListingClient({
                 {post.coverImage ? (
                   <Image
                     src={post.coverImage}
-                    alt=""
+                    alt={post.title ? `Cover image for ${post.title}` : 'Blog post cover image'}
                     width={400}
                     height={250}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                 ) : (
-                  <div className="blog-card-fallback">
+                  <div className="blog-card-fallback" aria-hidden>
                     <Image
                       src="/images/logo-tight.png"
                       alt=""

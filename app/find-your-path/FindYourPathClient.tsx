@@ -78,7 +78,7 @@ const CATEGORY_BORDER: Record<string, string> = {
   'digital-literacy': '#6b7280',
 };
 
-function getTopPrograms(weights: CategoryWeights): Program[] {
+function getTopPrograms(weights: CategoryWeights, answers?: QuizAnswers): Program[] {
   const scored = PROGRAMS.map((p) => {
     const score = weights[p.category as keyof CategoryWeights] ?? 0;
     const salaryMatch = p.salary.match(/\$(\d+)K/);
@@ -89,7 +89,13 @@ function getTopPrograms(weights: CategoryWeights): Program[] {
     if (b.score !== a.score) return b.score - a.score;
     return b.salaryNum - a.salaryNum;
   });
-  return scored.slice(0, 3).map((s) => s.program);
+  const top3 = scored.slice(0, 3).map((s) => s.program);
+  const digital = getProgramBySlug('digital-literacy-empowerment-class');
+  const prioritizeDigital =
+    answers && (answers.q5 === 'basics' || answers.q5 === 'basic_apps') && digital;
+  if (!prioritizeDigital || !digital) return top3;
+  if (top3.some((p) => p.slug === digital.slug)) return top3;
+  return [digital, top3[0], top3[1]];
 }
 
 function QuizResultsView({
@@ -278,7 +284,7 @@ export default function FindYourPathClient() {
     } else {
       const fullAnswers = newAnswers as QuizAnswers;
       const weights = scoreQuiz(fullAnswers);
-      const top3 = getTopPrograms(weights);
+      const top3 = getTopPrograms(weights, fullAnswers);
       setStoredResults(top3);
       try {
         localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(top3.map((p) => p.slug)));

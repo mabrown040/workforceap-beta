@@ -7,8 +7,8 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Applications',
-  description: 'View applications to your jobs.',
+  title: 'Workforce AP Applicants',
+  description: 'View applications from WorkforceAP members to your job postings.',
   path: '/employer/applications',
 });
 
@@ -30,9 +30,9 @@ export default async function EmployerApplicationsPage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Applications</h1>
+      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Workforce AP applicants</h1>
       <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
-        Applications to your job postings.
+        Members who applied through WorkforceAP to your open roles. Review and follow up here.
       </p>
 
       {applications.length === 0 ? (

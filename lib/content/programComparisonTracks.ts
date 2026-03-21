@@ -58,7 +58,7 @@ const FEATURED: { slug: string; shortName: string; demand: 'High' | 'Very High';
   },
   {
     slug: 'health-information-technology-mchit',
-    shortName: 'Medical Coding / HIT',
+    shortName: 'Medical coding & HIT',
     demand: 'High',
     certs: 'ICD-10 / CPT, EHR fundamentals',
   },

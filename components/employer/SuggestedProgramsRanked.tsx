@@ -51,8 +51,9 @@ export default function SuggestedProgramsRanked({
     <fieldset className="employer-job-form-fieldset employer-job-form-programs employer-suggested-programs">
       <legend>Training matches for this role</legend>
       <p className="employer-job-form-hint">
-        We rank tracks by how your title and description read — not checkboxes for the sake of it. Select any that
-        represent real hiring paths; we use this to surface certify-ready candidates, not to block applicants.
+        Rankings reflect keywords in your title, description, and requirements — a practical map to our training
+        tracks, not a guarantee. Select tracks that match real roles you hire for; we use them to surface
+        certification-aligned candidates for your review.
       </p>
       <div className="employer-suggested-programs__toolbar">
         <button type="button" className="btn btn-ghost btn-sm" onClick={rerankFromForm} disabled={disabled}>

@@ -32,7 +32,7 @@ const programs = [
   'Digital Marketing & E-Commerce (Google)',
   'Project Management Professional Certificate (Microsoft)',
   'UX Design Professional Certificate (Google)',
-  'Medical Coding & Health Information Technician (MCHIT)',
+  'Medical Coding & Health Information Technology (MCHIT)',
   'Certified Production Technician (CPT)',
   'Certified Logistics Technician (CLT)',
   'Core Construction Skilled Trades Readiness',

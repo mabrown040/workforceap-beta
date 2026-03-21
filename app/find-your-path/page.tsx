@@ -18,7 +18,7 @@ export default function FindYourPathPage() {
           <h1>Find Your Path</h1>
           <p>
             Five questions, three ranked matches, plain-English why — tied to the same salary bands and program pages you will see
-            elsewhere. Austin is where we are proving this first.
+            elsewhere. If computers feel intimidating, we prioritize the Digital Literacy track first so you build confidence before heavier tech programs. Austin is where we are proving this first.
           </p>
         </div>
       </section>

@@ -69,7 +69,7 @@ export default function SalaryGuidePage() {
         <div className="container">
           <div className="salary-guide-fit-context">
             <p className="salary-guide-fit-lead">
-              Salary is one factor. The right program fits your timeline and tech comfort. Higher ranges usually mean a steeper ramp. Lower ranges are often faster to complete — and a strong first credential beats a “dream” program you never finish.
+              Salary is one factor. The right program fits your timeline, readiness, and tech comfort — not just the top of the range. Higher bands usually mean a steeper ramp. Faster, lower-band credentials still move hiring conversations forward; a finished program beats a stalled one.
             </p>
             <div className="salary-guide-decision-steps">
               <p><strong>How to use this guide:</strong> Take the pathfinder quiz to narrow your fit → compare programs side-by-side → apply when ready.</p>

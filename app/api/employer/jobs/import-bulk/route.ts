@@ -13,12 +13,13 @@ import {
 import { smartImportJobs, fetchSubJobPageText } from '@/lib/ai/atsProviders';
 import { isAIConfigured } from '@/lib/ai/groq';
 import { buildEmployerJobCreateData, getRouteErrorDetails } from '@/lib/employer/jobCreate';
+import { checkEmployerJobImportRateLimit } from '@/lib/rate-limit';
 
 const bulkSchema = z
   .object({
     jobUrls: z.array(z.string().url()).max(15).optional(),
     careersPageUrl: z.string().url().optional(),
-    careersPageRawText: z.string().min(80).optional(),
+    careersPageRawText: z.string().min(80).max(200_000).optional(),
   })
   .refine((d) => (d.jobUrls?.length ?? 0) > 0 || d.careersPageUrl || d.careersPageRawText, {
     message: 'Provide jobUrls, careersPageUrl, or careersPageRawText',
@@ -62,6 +63,14 @@ export async function POST(request: NextRequest) {
     });
     if (!employerExists) {
       return NextResponse.json({ error: 'Selected employer record was not found.' }, { status: 400 });
+    }
+
+    const { success: importAllowed, remaining: importRemaining } = await checkEmployerJobImportRateLimit(user.id);
+    if (!importAllowed) {
+      return NextResponse.json(
+        { error: 'Too many job import requests. Please wait up to an hour and try again.', remaining: importRemaining },
+        { status: 429, headers: { 'Retry-After': '3600' } }
+      );
     }
 
     const body = await request.json().catch(() => null);

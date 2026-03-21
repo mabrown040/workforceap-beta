@@ -14,6 +14,7 @@ let authRateLimiter: Ratelimit | null = null;
 let aiToolRateLimiter: Ratelimit | null = null;
 let contactRateLimiter: Ratelimit | null = null;
 let adminInviteRateLimiter: Ratelimit | null = null;
+let employerJobImportRateLimiter: Ratelimit | null = null;
 
 if (redisUrl && redisToken) {
   const redis = new Redis({ url: redisUrl, token: redisToken });
@@ -46,6 +47,12 @@ if (redisUrl && redisToken) {
     redis,
     limiter: Ratelimit.slidingWindow(10, '1 h'),
     prefix: 'ratelimit:admin-invite',
+  });
+  employerJobImportRateLimiter = new Ratelimit({
+    redis,
+    // Bulk import can trigger many AI/scrape calls per request; keep this tighter than generic AI-tool limits.
+    limiter: Ratelimit.slidingWindow(8, '1 h'),
+    prefix: 'ratelimit:employer-job-import',
   });
 }
 
@@ -82,5 +89,12 @@ export async function checkContactRateLimit(ip: string): Promise<{ success: bool
 export async function checkAdminInviteRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
   if (!adminInviteRateLimiter) return { success: true };
   const result = await adminInviteRateLimiter.limit(userId);
+  return { success: result.success, remaining: result.remaining };
+}
+
+/** Per-user cap on employer job import POSTs (single + bulk share one bucket). Fail-open without Redis. */
+export async function checkEmployerJobImportRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
+  if (!employerJobImportRateLimiter) return { success: true };
+  const result = await employerJobImportRateLimiter.limit(userId);
   return { success: result.success, remaining: result.remaining };
 }

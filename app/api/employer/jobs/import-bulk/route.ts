@@ -158,9 +158,9 @@ export async function POST(request: NextRequest) {
     } else if (atsResult.errors.length > 0) {
       errors.push({ source: careersPageUrl, error: atsResult.errors[0] });
     } else {
-      // Generic: fetch HTML for AI parsing
-      const fetched = await fetchTextFromUrl(careersPageUrl);
-      if (!fetched) {
+      // Generic or Firecrawl: fetch page text for AI parsing
+      const fetched = await fetchPageText(careersPageUrl);
+      if (!fetched || fetched.length < 80) {
         const detected = detectProvider(careersPageUrl);
         errors.push({
           source: careersPageUrl,

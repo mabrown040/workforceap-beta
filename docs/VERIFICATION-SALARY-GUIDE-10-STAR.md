@@ -44,9 +44,10 @@ Salary guide upgraded as decision-support and conversion page, not just a salary
 - No generic slop
 - Stats row (Highest, Avg, Programs Over $100K)
 
-## Mobile (<640px)
+## Mobile (<640px) — Defect fix
 
-- **Table → cards:** Desktop table hidden; mobile shows card layout. Each program as a card: program name, salary (prominent), duration, level badge, ramp. No horizontal scroll.
+- **Table fully hidden:** `.salary-guide-table-wrap` and `.salary-table-wrapper` use display:none, visibility:hidden, height:0, position:absolute off-screen to guarantee no horizontal scroll or clipped table. Scoped to `.salary-guide-page`.
+- **Cards only:** Mobile shows card layout exclusively. Each program as a card: program name, salary (prominent), duration, level badge, ramp. No horizontal scroll.
 - **Fit context:** Reduced padding; fit links stack full-width; 44px min tap targets.
 - **Stats row:** Single column; compact padding.
 - **Insights:** Single column.

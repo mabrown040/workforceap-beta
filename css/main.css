@@ -2408,15 +2408,22 @@ fieldset.apply-fieldset {
     font-size: 0.9rem;
 }
 
-/* Mobile: card layout (hidden on desktop) */
-.salary-guide-cards {
-    display: none;
-}
+/* Desktop: table visible, cards hidden */
+.salary-guide-table-wrap { display: block; }
+.salary-guide-cards { display: none; }
 
 @media (max-width: 639px) {
-    .salary-table-wrapper { display: none !important; }
-    .salary-guide-cards {
-        display: block;
+    /* Hide table entirely — cards are the only salary data on mobile */
+    .salary-guide-page .salary-guide-table-wrap {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .salary-guide-page .salary-guide-cards {
+        display: block !important;
         margin-top: 1.5rem;
     }
     .salary-guide-card {
@@ -8058,4 +8065,25 @@ body { animation: fadeIn 0.4s ease; }
 }
 .jobs-empty-state .btn {
     margin: 0;
+}
+
+/* =============================================
+   SALARY GUIDE MOBILE — must override all table styles
+   Table hidden; cards only. No horizontal scroll.
+   ============================================= */
+@media (max-width: 639px) {
+    .salary-guide-page .salary-guide-table-wrap,
+    .salary-guide-page .salary-table-wrapper {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        position: absolute !important;
+        left: -9999px !important;
+        pointer-events: none !important;
+    }
+    .salary-guide-page .salary-guide-cards {
+        display: block !important;
+        visibility: visible !important;
+    }
 }

@@ -4297,6 +4297,47 @@ body { animation: fadeIn 0.4s ease; }
 }
 .apply-step-content { max-width: 720px; }
 .apply-step-title { font-size: 1.25rem; margin-bottom: 0.5rem; }
+.apply-results-program-hint {
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+    margin: -0.25rem 0 1rem;
+    line-height: 1.5;
+}
+.apply-foundational-support {
+    margin-bottom: 1.25rem;
+    padding: 1rem 1.15rem 1.1rem;
+    background: rgba(74, 155, 79, 0.07);
+    border: 1px solid rgba(74, 155, 79, 0.28);
+    border-radius: var(--radius-md);
+}
+.apply-foundational-support__title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 0.65rem;
+    color: var(--color-primary);
+}
+.apply-foundational-support__list {
+    margin: 0;
+    padding-left: 1.15rem;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: var(--color-gray-700);
+}
+.apply-foundational-support__list li {
+    margin-bottom: 0.5rem;
+}
+.apply-foundational-support__list li:last-child {
+    margin-bottom: 0;
+}
+.apply-foundational-support__list a {
+    font-weight: 600;
+    color: var(--color-accent);
+    text-decoration: none;
+}
+.apply-foundational-support__list a:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
 .apply-step-desc { color: var(--color-gray-600); margin-bottom: 1.5rem; }
 .funding-questions {
     background: var(--color-light);
@@ -7293,6 +7334,39 @@ body { animation: fadeIn 0.4s ease; }
     font-weight: 600;
     color: var(--color-accent);
     margin-bottom: 0.5rem;
+}
+.dashboard-weekly-nudge {
+    margin-bottom: 1.5rem;
+    padding: 1rem 1.15rem;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+.dashboard-weekly-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 0.9rem;
+    line-height: 1.55;
+}
+.dashboard-weekly-links li {
+    margin-bottom: 0.45rem;
+}
+.dashboard-weekly-links li:last-child {
+    margin-bottom: 0;
+}
+.dashboard-weekly-links a {
+    font-weight: 600;
+    color: var(--color-accent);
+    text-decoration: none;
+}
+.dashboard-weekly-links a:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+.dashboard-weekly-links-desc {
+    color: var(--color-gray-600);
+    font-weight: 400;
 }
 .dashboard-progress-compact {
     margin-bottom: 1.25rem;

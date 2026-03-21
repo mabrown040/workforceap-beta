@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
 import { APPLY_STORAGE_KEY } from '../ApplyEligibilityClient';
 import { CardSkeleton } from '@/components/ui/Skeleton';
@@ -50,6 +51,18 @@ export default function ApplyResultsClient() {
     window.location.href = '/apply/create-account';
   };
 
+  const programsOrdered =
+    qualifies === null
+      ? PROGRAMS
+      : qualifies
+        ? PROGRAMS
+        : [...PROGRAMS].sort((a, b) => {
+            const dig = 'digital-literacy-empowerment-class';
+            if (a.slug === dig) return -1;
+            if (b.slug === dig) return 1;
+            return 0;
+          });
+
   if (qualifies === null) {
     return (
       <div className="apply-flow">
@@ -81,9 +94,37 @@ export default function ApplyResultsClient() {
         ) : (
           <>
             <div className="apply-results-anyway" style={{ marginBottom: '1rem', padding: '1rem 1.25rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
-              <p style={{ margin: 0 }}>We&rsquo;d still love to connect. Choose a program below — we&rsquo;ll review your application and help identify the best path for you, including other resources if our current funding doesn&rsquo;t fit.</p>
+              <p style={{ margin: 0 }}>
+                <strong>Your answers don&apos;t match our standard funding profile right now.</strong> That is not a
+                &quot;no&quot; to you — it means we may need a different path or timing. We still review every application
+                and help people move toward job-ready skills.
+              </p>
             </div>
+            <section className="apply-foundational-support" aria-labelledby="apply-foundational-heading">
+              <h2 id="apply-foundational-heading" className="apply-foundational-support__title">
+                Start with support, not a dead end
+              </h2>
+              <ul className="apply-foundational-support__list">
+                <li>
+                  <strong>Digital foundations:</strong> Uncomfortable with computers or online forms? Our{' '}
+                  <Link href="/programs/digital-literacy-empowerment-class">Digital Literacy Empowerment Class</Link> is
+                  listed first below — it builds confidence before heavier tech tracks.
+                </li>
+                <li>
+                  <strong>Not sure what fits?</strong> Take the{' '}
+                  <Link href="/find-your-path">2-minute pathfinder</Link> for ranked program ideas.
+                </li>
+                <li>
+                  <strong>Want to talk to a person?</strong>{' '}
+                  <Link href="/contact">Contact us</Link> or call{' '}
+                  <a href="tel:+15127771808">(512) 777-1808</a> — we respond within 24–48 hours.
+                </li>
+              </ul>
+            </section>
             <h2 className="apply-step-title">Which program interests you most?</h2>
+            <p className="apply-results-program-hint">
+              Pick one to continue — a counselor will review your situation and next steps with you.
+            </p>
           </>
         )}
 
@@ -96,7 +137,7 @@ export default function ApplyResultsClient() {
             marginBottom: '1.5rem',
           }}
         >
-          {PROGRAMS.map((p) => (
+          {programsOrdered.map((p) => (
             <div
               key={p.slug}
               onClick={() => setSelectedSlug(p.slug)}

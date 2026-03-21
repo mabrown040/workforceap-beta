@@ -6,6 +6,8 @@ import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
 import type { Program } from '@/lib/content/programs';
 import { ProgramIcon } from '@/components/ProgramIcon';
 import { scoreQuiz, type QuizAnswers, type CategoryWeights } from '@/lib/content/quizScoring';
+import { getFitReasoning, getTopFitSummary } from '@/lib/content/quizReasoning';
+import { getProgramExtra } from '@/lib/content/programExtras';
 
 const QUIZ_STORAGE_KEY = 'find_your_path_results';
 
@@ -97,10 +99,12 @@ function extractSalaryRange(salary: string): string {
 
 function QuizResultsView({
   programs,
+  answers,
   isPrevious,
   onRetake,
 }: {
   programs: Program[];
+  answers?: QuizAnswers;
   isPrevious?: boolean;
   onRetake?: () => void;
 }) {
@@ -113,13 +117,15 @@ function QuizResultsView({
       <p className="quiz-results-subtitle">
         {isPrevious
           ? 'Here are the programs we recommended last time:'
-          : 'Based on your answers, here are the programs we recommend:'}
+          : (answers ? getTopFitSummary(answers) : 'Based on your answers, here are the programs we recommend:')}
       </p>
 
       <div className="quiz-results-grid">
         {programs.map((program, idx) => {
           const rank = idx === 0 ? 'Best Match' : idx === 1 ? 'Strong Fit' : 'Also Consider';
           const borderColor = CATEGORY_BORDER[program.category] ?? program.categoryColor;
+          const reasoning = answers ? getFitReasoning(program, answers) : null;
+          const extra = getProgramExtra(program.slug);
           return (
             <div
               key={program.slug}
@@ -145,12 +151,20 @@ function QuizResultsView({
                 </span>
               </div>
               <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>{program.title}</h3>
+              {reasoning && (
+                <p className="quiz-result-reasoning">{reasoning}</p>
+              )}
               <div style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '0.5rem' }}>
                 ⏱ {program.duration}
               </div>
               <div style={{ fontSize: '0.9rem', color: 'var(--color-accent)', fontWeight: 600, marginBottom: '0.5rem' }}>
                 {program.salary}
               </div>
+              {extra?.jobOutcomes && extra.jobOutcomes.length > 0 && (
+                <p className="quiz-result-roles">
+                  <strong>Roles:</strong> {extra.jobOutcomes.join(' · ')}
+                </p>
+              )}
               <div style={{ fontSize: '0.85rem', color: '#888', marginBottom: '1rem' }}>
                 Partner: {program.partner}
               </div>
@@ -161,60 +175,41 @@ function QuizResultsView({
               >
                 Apply for This Program →
               </Link>
+              <Link
+                href={`/programs/${program.slug}`}
+                className="quiz-result-detail-link"
+              >
+                View full program details →
+              </Link>
             </div>
           );
         })}
       </div>
 
-      {/* Conversion section */}
+      {/* Conversion section — confidence + clear next step */}
       {topProgram && (
-        <div style={{
-          background: 'linear-gradient(135deg, #f0fdf4, #ecfdf5)',
-          border: '2px solid #4a9b4f',
-          borderRadius: '12px',
-          padding: '2rem',
-          textAlign: 'center',
-          marginTop: '2rem',
-        }}>
-          <p style={{ fontSize: '1.1rem', fontWeight: 600, color: '#1a1a1a', marginBottom: '0.5rem' }}>
-            Graduates in {topProgram.title} average {extractSalaryRange(topProgram.salary)} in year one
+        <div className="quiz-results-cta">
+          <p className="quiz-results-cta-lead">
+            Your top match: <strong>{topProgram.title}</strong>. Graduates average {extractSalaryRange(topProgram.salary)} in year one.
           </p>
-          <Link
-            href="/apply"
-            className="btn btn-primary"
-            style={{
-              padding: '1rem 2rem',
-              fontSize: '1.1rem',
-              fontWeight: 700,
-              display: 'inline-block',
-              marginTop: '1rem',
-              marginBottom: '0.75rem',
-            }}
-          >
-            Start Your Application — Takes 10 Minutes
+          <p className="quiz-results-cta-sub">
+            Applications take about 10 minutes. We respond within 24–48 hours.
+          </p>
+          <Link href={`/apply?program=${topProgram.slug}`} className="btn btn-primary btn-large">
+            Apply for {topProgram.title}
           </Link>
-          <p style={{ marginBottom: '0', marginTop: '0.5rem' }}>
-            <a
-              href="tel:+15127771808"
-              style={{ color: '#2563eb', fontWeight: 600, fontSize: '0.95rem' }}
-            >
-              Talk to Someone First → (512) 777-1808
-            </a>
+          <p className="quiz-results-cta-phone">
+            <a href="tel:+15127771808">Talk to someone first → (512) 777-1808</a>
           </p>
         </div>
       )}
 
-      <div style={{
-        background: '#f8fafc',
-        border: '1px solid #e2e8f0',
-        borderRadius: '8px',
-        padding: '1.25rem',
-        marginTop: '1.5rem',
-        textAlign: 'center',
-      }}>
-        <p style={{ fontStyle: 'italic', color: 'var(--color-gray-600)', margin: 0, fontSize: '0.95rem' }}>
-          Real graduate stories coming soon
-        </p>
+      <div className="quiz-results-next-steps">
+        <p>Compare programs side-by-side or see full salary ranges:</p>
+        <div className="quiz-results-next-links">
+          <Link href="/program-comparison">Compare programs</Link>
+          <Link href="/salary-guide">Salary guide</Link>
+        </div>
       </div>
 
       <div className="quiz-results-footer">
@@ -302,7 +297,7 @@ export default function FindYourPathClient() {
   };
 
   if (storedResults && step === QUESTIONS.length - 1 && currentAnswer) {
-    return <QuizResultsView programs={storedResults} />;
+    return <QuizResultsView programs={storedResults} answers={answers as QuizAnswers} />;
   }
 
   if (storedResults && step === 0 && Object.keys(answers).length === 0) {

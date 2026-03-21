@@ -1222,13 +1222,17 @@ a.btn-accent:hover {
     border-radius: 0 8px 8px 0;
 }
 .program-detail-best-for,
-.program-detail-outcomes {
+.program-detail-outcomes,
+.program-detail-ramp {
     margin: 0 0 0.5rem;
     font-size: 0.95rem;
     line-height: 1.5;
 }
 .program-detail-outcomes {
     margin-bottom: 0;
+}
+.program-detail-ramp {
+    color: var(--color-gray-600);
 }
 .program-card-best-for {
     font-size: 0.85rem;
@@ -2318,6 +2322,34 @@ fieldset.apply-fieldset {
 /* =============================================
    TABLES
    ============================================= */
+.salary-guide-fit-context {
+    margin-bottom: 2.5rem;
+    padding: 1.5rem 1.75rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+.salary-guide-fit-lead {
+    font-size: 1rem;
+    color: var(--color-gray-700);
+    margin: 0 0 1rem;
+    line-height: 1.5;
+}
+.salary-guide-fit-links {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+.salary-guide-ctas {
+    text-align: center;
+    margin-top: 3rem;
+}
+.salary-guide-cta-note {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+}
+.salary-guide-cta-note a { color: var(--color-primary); font-weight: 600; }
 .salary-table-wrapper { overflow-x: auto; margin-top: 2rem; }
 .salary-table, .comparison-table {
     width: 100%;
@@ -2356,6 +2388,23 @@ fieldset.apply-fieldset {
 }
 
 /* Program comparison: desktop table vs mobile cards */
+.program-comparison-decision-guide {
+    margin-bottom: 2.5rem;
+    padding: 1.5rem 1.75rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+.program-comparison-guide-title { font-size: 1.125rem; margin-bottom: 0.5rem; color: #1a1a1a; }
+.program-comparison-guide-lead { font-size: 0.95rem; color: var(--color-gray-600); margin-bottom: 0.75rem; }
+.program-comparison-guide-list {
+    margin: 0;
+    padding-left: 1.25rem;
+    font-size: 0.9rem;
+    color: var(--color-gray-700);
+    line-height: 1.6;
+}
+.program-comparison-guide-list li { margin-bottom: 0.4rem; }
 .program-comparison-table-wrap {
     overflow-x: auto;
 }
@@ -2396,6 +2445,11 @@ fieldset.apply-fieldset {
     color: var(--color-gray-600);
     margin: 0.5rem 0 0.75rem;
     line-height: 1.45;
+}
+.program-comparison-card__outcomes {
+    font-size: 0.8rem;
+    color: var(--color-gray-600);
+    margin: 0 0 0.5rem;
 }
 .program-comparison-card__apply.btn {
     flex-shrink: 0;
@@ -3963,6 +4017,49 @@ body { animation: fadeIn 0.4s ease; }
     color: var(--color-accent);
     margin-bottom: 0.75rem;
 }
+.quiz-result-reasoning {
+    font-size: 0.875rem;
+    color: var(--color-gray-600);
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+}
+.quiz-result-roles {
+    font-size: 0.8rem;
+    color: var(--color-gray-600);
+    margin-bottom: 0.5rem;
+}
+.quiz-result-detail-link {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--color-primary);
+    text-decoration: none;
+}
+.quiz-result-detail-link:hover { text-decoration: underline; }
+.quiz-results-cta {
+    background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+    border: 2px solid #4a9b4f;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    margin-top: 2rem;
+}
+.quiz-results-cta-lead { font-size: 1.1rem; font-weight: 600; color: #1a1a1a; margin-bottom: 0.5rem; }
+.quiz-results-cta-sub { font-size: 0.95rem; color: #555; margin-bottom: 1rem; }
+.quiz-results-cta-phone { margin-top: 0.75rem; }
+.quiz-results-cta-phone a { color: #2563eb; font-weight: 600; }
+.quiz-results-next-steps {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-top: 1.5rem;
+    text-align: center;
+}
+.quiz-results-next-steps p { margin: 0 0 0.75rem; color: var(--color-gray-600); font-size: 0.95rem; }
+.quiz-results-next-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+.quiz-results-next-links a { color: var(--color-primary); font-weight: 600; text-decoration: none; }
+.quiz-results-next-links a:hover { text-decoration: underline; }
 .quiz-results-footer {
     text-align: center;
     margin-bottom: 1rem;

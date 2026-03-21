@@ -114,6 +114,17 @@ export default function ProgramComparisonPage() {
 
       <section className="content-section">
         <div className="container">
+          <div className="program-comparison-decision-guide">
+            <h2 className="program-comparison-guide-title">How to Choose</h2>
+            <p className="program-comparison-guide-lead">Pick based on what matters most to you:</p>
+            <ul className="program-comparison-guide-list">
+              <li><strong>Time:</strong> Digital Literacy is 6–8 weeks; most tech tracks are 16–20 weeks.</li>
+              <li><strong>Difficulty (⭐–⭐⭐⭐):</strong> ⭐ = beginner-friendly. ⭐⭐⭐ = steeper learning curve, higher payoff.</li>
+              <li><strong>Tech comfort:</strong> Starting from basics? Digital Literacy or IT Support. Already comfortable? Cloud, Cybersecurity, or Data.</li>
+              <li><strong>Salary vs. ramp:</strong> Higher salaries often mean more demanding programs. Choose a path you can commit to.</li>
+            </ul>
+          </div>
+
           <div className="program-comparison-table-wrap">
             <table className="comparison-table program-table">
               <thead>
@@ -189,6 +200,11 @@ export default function ProgramComparisonPage() {
                     {extra?.bestFor && (
                       <p className="program-comparison-card__best-for">
                         <strong>Best for:</strong> {extra.bestFor}
+                      </p>
+                    )}
+                    {extra?.jobOutcomes && extra.jobOutcomes.length > 0 && (
+                      <p className="program-comparison-card__outcomes">
+                        <strong>Roles:</strong> {extra.jobOutcomes.join(' · ')}
                       </p>
                     )}
                     <div className="program-comparison-card__stats">

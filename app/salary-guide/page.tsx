@@ -31,10 +31,10 @@ const salaryData = [
 ];
 
 const insights = [
-  { Icon: Lightbulb, title: 'Highest Paying Programs', desc: 'AWS Cloud Technology and AI Developer programs lead with $134K–$144K starting salaries.' },
-  { Icon: TrendingUp, title: 'Career Growth Potential', desc: 'Most graduates see 20–40% salary increases within 2–3 years.' },
+  { Icon: Lightbulb, title: 'Highest Paying Programs', desc: 'AWS and AI Developer lead with $134K–$144K. Best if you can invest 4–6 months and enjoy technical problem-solving. Not every path fits everyone — match salary goals to your timeline and comfort.' },
+  { Icon: TrendingUp, title: 'Career Growth Potential', desc: 'Most graduates see 20–40% salary increases within 2–3 years. Ramp difficulty varies by program; we help you pick one you can finish.' },
   { Icon: MapPin, title: 'Location Matters', desc: 'These are U.S. national averages. Austin tech salaries are 5–10% above national average.' },
-  { Icon: CheckCircle, title: 'Accessible Career Launch', desc: 'Programs are designed to help learners move into entry-level roles quickly with coaching and support.' },
+  { Icon: CheckCircle, title: 'Accessible Career Launch', desc: 'Programs are designed to help learners move into entry-level roles quickly with coaching and support. We have options from 6 weeks to 6 months.' },
   { Icon: Handshake, title: 'Job Placement Support', desc: 'Our 90% job placement assistance rate means most graduates land roles quickly.' },
   { Icon: DollarSign, title: 'Total Compensation', desc: 'Beyond salary: signing bonuses, stock options, health/dental, and performance bonuses.' },
 ];
@@ -56,6 +56,16 @@ export default function SalaryGuidePage() {
 
       <section className="content-section">
         <div className="container">
+          <div className="salary-guide-fit-context">
+            <p className="salary-guide-fit-lead">
+              Salary is one factor. The right program also fits your timeline, tech comfort, and goals. Higher pay often means a steeper learning curve — choose a path you can commit to.
+            </p>
+            <div className="salary-guide-fit-links">
+              <Link href="/find-your-path" className="btn btn-primary btn-sm">Find your best-fit programs</Link>
+              <Link href="/program-comparison" className="btn btn-outline btn-sm">Compare programs</Link>
+            </div>
+          </div>
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
             {[
               { value: '$144K', label: 'Highest Starting Salary', sub: 'AWS Cloud Technology' },
@@ -108,8 +118,9 @@ export default function SalaryGuidePage() {
             Salary figures based on February 2026 U.S. market data from ZipRecruiter, Glassdoor, and PayScale. Entry-level positions (0–1 year experience). Actual salaries vary by location, company size, and individual skills.
           </p>
 
-          <div style={{ textAlign: 'center', marginTop: '3rem' }}>
+          <div className="salary-guide-ctas">
             <Link href="/apply" className="btn btn-primary btn-large">Apply Now</Link>
+            <p className="salary-guide-cta-note">Not sure which program fits you? <Link href="/find-your-path">Take the 2-minute pathfinder quiz</Link>.</p>
           </div>
         </div>
       </section>

@@ -70,6 +70,9 @@ export default async function ProgramPage({ params }: Props) {
             <div className="program-detail-fit">
               <p className="program-detail-best-for"><strong>Best for:</strong> {extra.bestFor}</p>
               <p className="program-detail-outcomes"><strong>Job outcomes:</strong> {extra.jobOutcomes.join(' · ')}</p>
+              {extra.rampNote && (
+                <p className="program-detail-ramp"><strong>Ramp:</strong> {extra.rampNote}</p>
+              )}
             </div>
           )}
         </div>

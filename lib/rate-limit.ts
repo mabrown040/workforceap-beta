@@ -4,7 +4,8 @@ import { Redis } from '@upstash/redis';
 const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
 const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-// FAIL CLOSED: if Upstash env vars are missing, all rate-limit checks deny requests
+// When Upstash is not configured, most checks fail closed (deny). Login/auth uses fail-open
+// so users are not locked out of the app — configure UPSTASH_* in production for brute-force protection.
 const FAIL_CLOSED = !redisUrl || !redisToken;
 
 let signupRateLimiter: Ratelimit | null = null;
@@ -28,7 +29,7 @@ if (redisUrl && redisToken) {
   });
   authRateLimiter = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(10, '1 m'),
+    limiter: Ratelimit.slidingWindow(20, '1 m'),
     prefix: 'ratelimit:auth',
   });
   aiToolRateLimiter = new Ratelimit({
@@ -61,8 +62,8 @@ export async function checkApplySignupRateLimit(identifier: string): Promise<{ s
 }
 
 export async function checkAuthRateLimit(identifier: string): Promise<{ success: boolean; remaining?: number }> {
-  if (FAIL_CLOSED) return { success: false };
-  const result = await authRateLimiter!.limit(identifier);
+  if (!authRateLimiter) return { success: true };
+  const result = await authRateLimiter.limit(identifier);
   return { success: result.success, remaining: result.remaining };
 }
 

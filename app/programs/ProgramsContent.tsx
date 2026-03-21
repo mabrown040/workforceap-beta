@@ -81,11 +81,18 @@ function ProgramCard({ program }: { program: Program }) {
           ))}
         </ul>
       </details>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.5rem', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div
+        className="program-card-footer"
+        style={{ display: 'flex', flexWrap: 'wrap', gap: '.5rem', justifyContent: 'space-between', alignItems: 'center' }}
+      >
         <span style={{ fontSize: '.8rem', color: '#888' }}>Partner: {program.partner}</span>
-        <div style={{ display: 'flex', gap: '.5rem' }}>
-          <Link href={`/programs/${program.slug}`} className="btn btn-outline" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>View Program</Link>
-          <Link href={`/apply?program=${program.slug}`} className="btn btn-primary" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>Apply →</Link>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.5rem' }}>
+          <Link href={`/programs/${program.slug}`} className="btn btn-outline" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>
+            View Program
+          </Link>
+          <Link href={`/apply?program=${program.slug}`} className="btn btn-primary" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>
+            Apply →
+          </Link>
         </div>
       </div>
     </div>

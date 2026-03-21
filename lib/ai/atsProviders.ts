@@ -314,6 +314,16 @@ async function fetchWithFirecrawl(url: string): Promise<{ text: string } | null>
 // Main Entry Point
 // ────────────────────────────────────────────────────────────
 
+// Simple in-memory cache to avoid double Firecrawl calls within same request
+const firecrawlCache = new Map<string, { text: string } | null>();
+
+async function fetchWithFirecrawlCached(url: string): Promise<{ text: string } | null> {
+  if (firecrawlCache.has(url)) return firecrawlCache.get(url) ?? null;
+  const result = await fetchWithFirecrawl(url);
+  firecrawlCache.set(url, result);
+  return result;
+}
+
 export async function importJobsFromUrl(url: string): Promise<ATSParseResult> {
   const detected = detectProvider(url);
 
@@ -343,7 +353,7 @@ export async function importJobsFromUrl(url: string): Promise<ATSParseResult> {
       }
 
       // Try Firecrawl for JS-rendered pages
-      const firecrawlResult = await fetchWithFirecrawl(url);
+      const firecrawlResult = await fetchWithFirecrawlCached(url);
       if (firecrawlResult && firecrawlResult.text.length > 200) {
         return {
           provider: `${detected.provider}+firecrawl`,
@@ -371,7 +381,7 @@ export async function importJobsFromUrl(url: string): Promise<ATSParseResult> {
   }
 
   // Tier 3 fallback: Try Firecrawl for any JS-rendered or failed page
-  const firecrawlResult = await fetchWithFirecrawl(url);
+  const firecrawlResult = await fetchWithFirecrawlCached(url);
   if (firecrawlResult && firecrawlResult.text.length > 200) {
     return {
       provider: 'firecrawl',
@@ -407,7 +417,7 @@ export async function fetchPageText(url: string): Promise<string | null> {
   }
 
   // Try Firecrawl for JS-rendered pages
-  const firecrawlResult = await fetchWithFirecrawl(url);
+  const firecrawlResult = await fetchWithFirecrawlCached(url);
   if (firecrawlResult && firecrawlResult.text.length > 200) {
     return firecrawlResult.text;
   }

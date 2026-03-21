@@ -6622,6 +6622,281 @@ body { animation: fadeIn 0.4s ease; }
     margin-top: 0.75rem;
 }
 
+/* Partner portal — impact console */
+.partner-impact-console {
+    max-width: 720px;
+}
+.partner-impact-header h1 {
+    font-size: 1.5rem;
+    margin: 0 0 0.25rem;
+    font-weight: 600;
+}
+.partner-impact-subtitle {
+    color: var(--color-gray-600);
+    font-size: 0.95rem;
+    margin: 0 0 1.5rem;
+}
+.partner-empty-state {
+    text-align: center;
+    padding: 2.5rem 2rem;
+    background: var(--color-light);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+.partner-empty-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+.partner-empty-state h2 {
+    font-size: 1.2rem;
+    margin: 0 0 0.75rem;
+}
+.partner-empty-state p {
+    color: var(--color-gray-600);
+    margin: 0 0 1.5rem;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.partner-impact-summary {
+    margin-bottom: 1.5rem;
+}
+.partner-impact-hero {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem 2rem;
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, rgba(74, 155, 79, 0.08), rgba(74, 155, 79, 0.03));
+    border: 1px solid rgba(74, 155, 79, 0.25);
+    border-radius: var(--radius-md);
+}
+.partner-impact-hero-main {
+    display: flex;
+    flex-direction: column;
+}
+.partner-impact-hero-main .partner-impact-hero-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--color-green);
+}
+.partner-impact-hero-secondary .partner-impact-hero-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+.partner-impact-hero-label {
+    font-size: 0.85rem;
+    color: var(--color-gray-600);
+}
+.partner-journey-strip {
+    margin-top: 1rem;
+}
+.partner-journey-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-gray-500);
+}
+.partner-journey-stages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin-top: 0.5rem;
+}
+.partner-journey-stage {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.65rem;
+    background: var(--color-gray-100);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+}
+.partner-journey-stage.has-count {
+    background: var(--color-primary);
+    color: white;
+}
+.partner-journey-stage-count {
+    font-weight: 700;
+}
+.partner-next-action {
+    margin-bottom: 1.5rem;
+}
+.partner-next-action h2 {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-gray-500);
+    margin: 0 0 0.5rem;
+}
+.partner-next-action-card {
+    padding: 1rem 1.25rem;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+.partner-next-action-label {
+    font-weight: 600;
+    margin: 0 0 0.35rem;
+}
+.partner-next-action-tip {
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+    margin: 0 0 0.75rem;
+}
+.partner-momentum {
+    margin-bottom: 1.5rem;
+}
+.partner-momentum h2 {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-gray-500);
+    margin: 0 0 0.5rem;
+}
+.partner-momentum-desc {
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+    margin: 0 0 0.75rem;
+}
+.partner-momentum-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.partner-momentum-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.75rem 1rem;
+    background: var(--color-light);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: inherit;
+    text-decoration: none;
+}
+.partner-momentum-item:hover {
+    border-color: var(--color-accent);
+}
+.partner-momentum-name {
+    font-weight: 600;
+}
+.partner-momentum-progress {
+    font-size: 0.85rem;
+    color: var(--color-gray-600);
+}
+.partner-members h2 {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-gray-500);
+    margin: 0 0 0.75rem;
+}
+.partner-members-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.partner-member-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 1rem 1.25rem;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+}
+.partner-member-card:hover {
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-sm);
+}
+.partner-member-main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+.partner-member-name {
+    font-weight: 600;
+}
+.partner-member-story {
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+}
+.partner-member-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.partner-member-stage {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 500;
+}
+.partner-member-stage.stage-placed {
+    background: rgba(22, 163, 74, 0.15);
+    color: #16a34a;
+}
+.partner-member-stage.stage-in_training,
+.partner-member-stage.stage-certified {
+    background: rgba(124, 58, 237, 0.12);
+    color: #7c3aed;
+}
+.partner-member-stage.stage-enrolled {
+    background: rgba(37, 99, 235, 0.12);
+    color: #2563eb;
+}
+.partner-member-stage.stage-applied,
+.partner-member-stage.stage-closed {
+    background: var(--color-gray-100);
+    color: var(--color-gray-600);
+}
+.partner-member-stage.stage-job_searching {
+    background: rgba(217, 119, 6, 0.12);
+    color: #d97706;
+}
+.partner-member-date {
+    font-size: 0.85rem;
+    color: var(--color-gray-500);
+}
+.partner-activity-collapsed {
+    margin-top: 1.5rem;
+    padding: 0.75rem 1rem;
+    background: var(--color-light);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+}
+.partner-activity-collapsed summary {
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+.partner-activity-collapsed ul {
+    margin: 0.5rem 0 0;
+    padding-left: 1.25rem;
+    font-size: 0.9rem;
+}
+.partner-activity-collapsed li {
+    margin-bottom: 0.5rem;
+}
+.partner-activity-date {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--color-gray-500);
+}
+.partner-activity-empty {
+    color: var(--color-gray-500);
+    margin: 0.5rem 0 0;
+    font-size: 0.9rem;
+}
+
 /* Dashboard program page */
 .dashboard-program-detail {
     background: var(--color-white);

@@ -15,7 +15,7 @@ export const metadata: Metadata = buildPageMetadata({
 
 export default function ContactPage() {
   return (
-    <div className="inner-page">
+    <div className="inner-page contact-page">
       <PageHero
         title="Contact Us"
         subtitle="Questions about programs? Ready to apply? We respond within 24–48 hours."

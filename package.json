@@ -24,7 +24,6 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
-    "@mendable/firecrawl-js": "^4.16.0",
     "@prisma/client": "^5.22.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.10",
@@ -43,7 +42,6 @@
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
     "resend": "^4.0.1",
-    "undici": "^7.24.5",
     "zod": "^3.24.1"
   },
   "devDependencies": {

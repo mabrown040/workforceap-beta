@@ -289,12 +289,20 @@ async function fetchWithFirecrawl(url: string): Promise<{ text: string } | null>
   if (!apiKey) return null;
 
   try {
-    const FirecrawlModule = await import('@mendable/firecrawl-js');
-    const Firecrawl = FirecrawlModule.default;
-    const app = new Firecrawl({ apiKey });
-    const result = await app.scrape(url, { formats: ['markdown'] }) as { success?: boolean; markdown?: string };
-    if (result.success && result.markdown && result.markdown.length > 100) {
-      return { text: result.markdown.slice(0, 28000) };
+    // Use Firecrawl REST API directly to avoid SDK compatibility issues
+    const res = await fetch('https://api.firecrawl.dev/v1/scrape', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ url, formats: ['markdown'] }),
+    });
+    if (!res.ok) return null;
+    const json = await res.json() as { success?: boolean; data?: { markdown?: string } };
+    const markdown = json.data?.markdown;
+    if (json.success && markdown && markdown.length > 100) {
+      return { text: markdown.slice(0, 28000) };
     }
     return null;
   } catch {

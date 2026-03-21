@@ -51,7 +51,7 @@ export default function EmployerPortalShell({
             <span className="employer-portal-company" title={companyName}>
               {companyName}
             </span>
-            <SignOutButton />
+            <SignOutButton className="btn btn-outline btn-sm">Sign out</SignOutButton>
           </div>
         </div>
       </header>

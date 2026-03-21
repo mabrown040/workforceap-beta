@@ -156,7 +156,10 @@ Rules:
 }
 
 export async function parseJobFromText(rawText: string): Promise<ParsedJob | null> {
-  if (!isAIConfigured()) return null;
+  if (!isAIConfigured()) {
+    console.warn('[parseJobFromText] skipped: GROQ_API_KEY is not set');
+    return null;
+  }
 
   const programSlugs = PROGRAMS.map((p) => p.slug).join(', ');
 
@@ -187,13 +190,30 @@ Infer locationType from words like "remote", "hybrid", "on-site". Infer jobType 
       ],
       { maxTokens: 2000, temperature: 0.2 }
     );
-    if (!output) return null;
+    if (!output) {
+      console.warn('[parseJobFromText] empty model output (all models returned no content)');
+      return null;
+    }
 
     const cleaned = output.replace(/^```json?\s*/i, '').replace(/\s*```\s*$/i, '').trim();
-    const parsed = JSON.parse(cleaned) as ParsedJob;
-    if (!parsed.title || !parsed.description) return null;
+    let parsed: ParsedJob;
+    try {
+      parsed = JSON.parse(cleaned) as ParsedJob;
+    } catch (parseErr) {
+      console.error(
+        '[parseJobFromText] JSON.parse failed:',
+        parseErr instanceof Error ? parseErr.message : parseErr
+      );
+      console.error('[parseJobFromText] model output (first 600 chars):', cleaned.slice(0, 600));
+      return null;
+    }
+    if (!parsed.title || !parsed.description) {
+      console.warn('[parseJobFromText] parsed object missing title or description');
+      return null;
+    }
     return parsed;
-  } catch {
+  } catch (err) {
+    console.error('[parseJobFromText] failed:', err instanceof Error ? err.message : err);
     return null;
   }
 }

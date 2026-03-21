@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { parseJobFromText, parseJobListingsFromPageText, extractSubJobUrlsFromPageText, stripUrlsFromDescription } from '@/lib/ai/parseJob';
 import { smartImportJobs, fetchSubJobPageText } from '@/lib/ai/atsProviders';
+import { isAIConfigured } from '@/lib/ai/groq';
 import { buildEmployerJobCreateData, getRouteErrorDetails } from '@/lib/employer/jobCreate';
 
 const bulkSchema = z
@@ -103,15 +104,31 @@ export async function POST(request: NextRequest) {
         continue;
       }
 
-      // Fallback: generic fetch + AI parse
-      const text = await fetchTextFromUrl(url);
-      if (!text || text.length < 50) {
-        errors.push({ source: url, error: 'Could not fetch or not enough text (try pasting the description).' });
+      // Same path as single-job import: prefer text already fetched by smartImportJobs
+      let textForParse: string | null =
+        atsResult.rawText && atsResult.rawText.length >= 50 ? atsResult.rawText : null;
+      if (!textForParse) {
+        textForParse = await fetchTextFromUrl(url);
+      }
+      if (!textForParse || textForParse.length < 50) {
+        errors.push({
+          source: url,
+          error:
+            atsResult.rawText != null && atsResult.rawText.length > 0 && atsResult.rawText.length < 50
+              ? 'Fetched page text was too short to parse. Try pasting the full job description.'
+              : 'Could not fetch or not enough text (try pasting the description).',
+        });
         continue;
       }
-      const extracted = await parseJobFromText(text);
+
+      const extracted = await parseJobFromText(textForParse);
       if (!extracted) {
-        errors.push({ source: url, error: 'AI could not parse this posting.' });
+        errors.push({
+          source: url,
+          error: !isAIConfigured()
+            ? 'Job parse requires GROQ_API_KEY to be configured on the server.'
+            : 'AI could not parse this posting. Check server logs for [parseJobFromText] details.',
+        });
         continue;
       }
       const suffix = `\n\n---\nImported from: ${url}`;
@@ -191,7 +208,12 @@ export async function POST(request: NextRequest) {
         }
         const extracted = await parseJobFromText(pageText);
         if (!extracted) {
-          errors.push({ source: url, error: 'Could not parse job posting.' });
+          errors.push({
+            source: url,
+            error: !isAIConfigured()
+              ? 'Job parse requires GROQ_API_KEY to be configured on the server.'
+              : 'Could not parse job posting. Check server logs for [parseJobFromText].',
+          });
           continue;
         }
         const suffix = `\n\n---\nImported from: ${url}`;

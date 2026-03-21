@@ -2445,10 +2445,22 @@ fieldset.apply-fieldset {
     display: none;
 }
 
+.salary-guide-table-intro { color: #666; margin-bottom: 0.5rem; }
+.salary-guide-ramp-legend { color: #888; font-size: 0.85rem; margin-bottom: 1.5rem; }
+
 @media (max-width: 639px) {
-    .salary-table-wrapper { display: none !important; }
-    .salary-guide-cards {
-        display: block;
+    .salary-guide-page .salary-guide-table-wrap,
+    .salary-guide-page .salary-table-wrapper {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        position: absolute !important;
+        left: -9999px !important;
+        pointer-events: none !important;
+    }
+    .salary-guide-page .salary-guide-cards {
+        display: block !important;
         margin-top: 1.5rem;
     }
     .salary-guide-card {
@@ -2463,11 +2475,13 @@ fieldset.apply-fieldset {
         margin-bottom: 0.75rem;
     }
     .salary-guide-card__program {
-        font-size: 1rem;
+        font-size: 0.9375rem;
         font-weight: 600;
         color: #1a1a1a;
         margin: 0 0 0.35rem;
         line-height: 1.35;
+        word-wrap: break-word;
+        hyphens: auto;
     }
     .salary-guide-card__salary {
         font-size: 1.25rem;
@@ -2477,9 +2491,13 @@ fieldset.apply-fieldset {
     .salary-guide-card__meta {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.5rem 1rem;
+        gap: 0.5rem 0.75rem;
+        align-items: center;
         font-size: 0.8125rem;
         color: var(--color-gray-600);
+    }
+    .salary-guide-card__meta span {
+        white-space: nowrap;
     }
     .salary-guide-card__meta .salary-ramp-badge {
         font-weight: 600;
@@ -2559,6 +2577,12 @@ fieldset.apply-fieldset {
         min-height: 44px;
         padding: 0.75rem 1rem !important;
     }
+    /* Reduce top chrome on salary guide mobile */
+    .salary-guide-page .page-hero { padding: 3rem 1rem 2rem !important; }
+    .salary-guide-page .page-hero h1 { font-size: 1.5rem !important; }
+    .salary-guide-page .photo-highlight { min-height: 140px !important; padding: 2rem 1rem !important; }
+    .salary-guide-page .photo-highlight h2 { font-size: 1.1rem !important; }
+    .salary-guide-page .photo-highlight p { font-size: 0.85rem !important; }
 }
 .salary-guide-cta-note {
     margin-top: 1rem;
@@ -8090,4 +8114,22 @@ body { animation: fadeIn 0.4s ease; }
 }
 .jobs-empty-state .btn {
     margin: 0;
+}
+
+/* Salary guide mobile — guarantee table hidden, cards only */
+@media (max-width: 639px) {
+    .salary-guide-page .salary-guide-table-wrap,
+    .salary-guide-page .salary-table-wrapper {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        position: absolute !important;
+        left: -9999px !important;
+        pointer-events: none !important;
+    }
+    .salary-guide-page .salary-guide-cards {
+        display: block !important;
+        visibility: visible !important;
+    }
 }

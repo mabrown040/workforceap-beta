@@ -9,12 +9,14 @@ const VIEWS = [
   { id: 'partner', label: 'Partner Portal', path: '/partner' },
   { id: 'student', label: 'Student Portal', path: '/dashboard' },
   { id: 'employer', label: 'Employer Portal', path: '/employer' },
+  { id: 'my-group', label: 'My Group Portal', path: '/my-group' },
 ] as const;
 
 function getCurrentView(pathname: string): (typeof VIEWS)[number]['id'] {
   if (pathname?.startsWith('/admin')) return 'admin';
   if (pathname?.startsWith('/partner')) return 'partner';
   if (pathname?.startsWith('/employer')) return 'employer';
+  if (pathname?.startsWith('/my-group')) return 'my-group';
   return 'student';
 }
 

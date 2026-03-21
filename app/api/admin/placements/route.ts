@@ -64,6 +64,33 @@ export async function POST(request: NextRequest) {
     },
   });
 
+  // Calculate days from enrollment to placement for tracking
+  const memberDetails = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { enrolledProgram: true, enrolledAt: true },
+  });
+  const daysToPlacement = memberDetails?.enrolledAt
+    ? Math.floor((placement.placedAt.getTime() - memberDetails.enrolledAt.getTime()) / (1000 * 60 * 60 * 24))
+    : null;
+
+  // Log placement for billing/invoice follow-up
+  await prisma.auditLog.create({
+    data: {
+      actorUserId: user.id,
+      action: 'placement_recorded',
+      targetType: 'placement_record',
+      targetId: placement.id,
+      metadata: {
+        employerName,
+        jobTitle,
+        programCompleted: memberDetails?.enrolledProgram ?? null,
+        daysToPlacement,
+        salaryOffered: salaryOffered ?? null,
+        invoiceFollowUp: true,
+      },
+    },
+  });
+
   if (!prior) {
     await sendPartnerMilestoneEmail(userId, 'Job placement', {
       Employer: employerName,
@@ -71,5 +98,5 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  return NextResponse.json(placement, { status: 201 });
+  return NextResponse.json({ ...placement, daysToPlacement }, { status: 201 });
 }

@@ -7,6 +7,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
 import DashboardHomeClient from '@/components/portal/DashboardHomeClient';
+import MatchedRoles from '@/components/portal/MatchedRoles';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Dashboard',
@@ -74,6 +75,8 @@ export default async function DashboardPage() {
     ];
   }
 
+  const showMatchedRoles = assessmentCompleted;
+
   return (
     <>
       <DashboardHomeClient
@@ -98,6 +101,7 @@ export default async function DashboardPage() {
         checklist={checklist}
         checklistAllDone={checklistAllDone}
       />
+      {showMatchedRoles && <MatchedRoles />}
     </>
   );
 }

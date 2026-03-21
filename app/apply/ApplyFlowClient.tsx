@@ -122,6 +122,20 @@ export default function ApplyFlowClient() {
         // Non-fatal: tracker write failing shouldn't block the applicant
       }
 
+      // Best-effort: send confirmation email
+      const email = (formData.get('email') as string) ?? '';
+      if (email) {
+        try {
+          await fetch('/api/apply/confirmation-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, fullName }),
+          });
+        } catch {
+          // Non-fatal
+        }
+      }
+
       // Redirect to confirmation
       window.location.href = `${SITE_URL}/apply/confirmation`;
     } catch {

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { trackApplyFunnel } from '@/lib/analytics/events';
 
 const PROGRAM_STORAGE_KEY = 'apply_program_slug';
 
@@ -71,6 +72,7 @@ export default function ApplyCreateAccountForm() {
 
       sessionStorage.removeItem(PROGRAM_STORAGE_KEY);
       sessionStorage.removeItem('apply_eligibility');
+      trackApplyFunnel(3, 'account_created', { program_slug: programSlug });
       window.location.href = data.redirectTo ?? '/dashboard';
     } catch {
       setError('Something went wrong. Please try again.');

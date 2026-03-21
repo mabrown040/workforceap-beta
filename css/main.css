@@ -8532,3 +8532,171 @@ body { animation: fadeIn 0.4s ease; }
 .learning-hub-card:hover .learning-hub-card-chevron {
     color: var(--color-accent);
 }
+
+/* Portal route fallbacks (error / not-found inside member shell) */
+.portal-route-fallback {
+    max-width: 32rem;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 3rem;
+    text-align: center;
+}
+.portal-route-fallback__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.75rem;
+    color: var(--color-primary);
+}
+.portal-route-fallback__desc {
+    color: var(--color-gray-600);
+    line-height: 1.6;
+    margin: 0 0 1.5rem;
+}
+.portal-route-fallback__nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+.portal-route-fallback__actions {
+    margin-top: 0.5rem;
+}
+.portal-route-fallback__hint {
+    font-size: 0.9rem;
+    color: var(--color-gray-500);
+    margin: 1rem 0 0;
+}
+.portal-route-fallback__inline-link {
+    color: var(--color-blue);
+    font-weight: 600;
+}
+
+/* Employer jobs — unified card board */
+.employer-jobs-lead {
+    font-size: 0.95rem;
+    color: var(--color-gray-600);
+    margin: -0.5rem 0 0;
+    line-height: 1.5;
+}
+.employer-jobs-board__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+.employer-jobs-board__filter {
+    padding: 0.4rem 0.85rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-gray-300);
+    background: var(--color-white);
+    color: var(--color-gray-700);
+    cursor: pointer;
+    transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+.employer-jobs-board__filter:hover {
+    border-color: var(--color-gray-400);
+}
+.employer-jobs-board__filter.is-active {
+    background: rgba(173, 44, 77, 0.1);
+    border-color: var(--color-accent);
+    color: var(--color-accent-dark);
+}
+.employer-jobs-board__empty {
+    color: var(--color-gray-500);
+    font-size: 0.95rem;
+}
+.employer-jobs-board__grid {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+    gap: 1.25rem;
+}
+.employer-job-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 1.25rem 1.35rem;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-lg);
+    background: var(--color-white);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition-base), border-color var(--transition-base);
+}
+.employer-job-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-gray-300);
+}
+.employer-job-card__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.65rem;
+}
+.employer-job-card__status {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-sm);
+}
+.employer-job-card__status--live {
+    background: rgba(74, 155, 79, 0.15);
+    color: #2d6a32;
+}
+.employer-job-card__status--pending {
+    background: rgba(234, 179, 8, 0.2);
+    color: #92400e;
+}
+.employer-job-card__status--draft {
+    background: var(--color-gray-200);
+    color: var(--color-gray-700);
+}
+.employer-job-card__status--neutral {
+    background: var(--color-gray-100);
+    color: var(--color-gray-600);
+}
+.employer-job-card__time {
+    font-size: 0.75rem;
+    color: var(--color-gray-500);
+    white-space: nowrap;
+}
+.employer-job-card__title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 0.35rem;
+    line-height: 1.3;
+    color: var(--color-primary);
+}
+.employer-job-card__meta {
+    font-size: 0.85rem;
+    color: var(--color-gray-600);
+    margin: 0 0 0.75rem;
+}
+.employer-job-card__preview {
+    font-size: 0.88rem;
+    color: var(--color-gray-700);
+    line-height: 1.45;
+    margin: 0 0 0.75rem;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.employer-job-card__apps {
+    font-size: 0.85rem;
+    color: var(--color-gray-600);
+    margin: 0 0 1rem;
+}
+.employer-job-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: auto;
+}

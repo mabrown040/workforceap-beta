@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import PortalRouteFallback from '@/components/portal/PortalRouteFallback';
 
-export default function AdminError({
+export default function PortalError({
   error,
   reset,
 }: {
@@ -18,11 +18,11 @@ export default function AdminError({
 
   return (
     <PortalRouteFallback
-      title="Admin — something went wrong"
+      title="Something went wrong"
       description={
         error.digest
-          ? `Try again, or contact your technical lead with reference ${error.digest}.`
-          : 'Try again, or contact your technical lead if this continues.'
+          ? `This page hit an unexpected error. You can try again, or contact info@workforceap.org with reference ${error.digest}.`
+          : 'This page hit an unexpected error. You can try again, or contact info@workforceap.org if it keeps happening.'
       }
     >
       <div className="portal-route-fallback__actions">

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { trackApplyFunnel } from '@/lib/analytics/events';
 
 const APPLY_STORAGE_KEY = 'apply_eligibility';
 
@@ -18,6 +19,7 @@ export default function ApplyEligibilityClient() {
 
   const handleContinue = () => {
     if (!canContinue) return;
+    trackApplyFunnel(1, 'eligibility_complete', { qualifies });
     if (typeof window !== 'undefined') {
       sessionStorage.setItem(APPLY_STORAGE_KEY, JSON.stringify({ q1, q2, q3, qualifies }));
     }

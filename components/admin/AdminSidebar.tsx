@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useCallback } from 'react';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { BarChart3, Users, ClipboardList, BookOpen, FileText, Handshake, Sparkles, Award, UsersRound, Mail, Briefcase, Building2 } from 'lucide-react';
 
 const LINKS = [
@@ -28,9 +30,11 @@ type AdminSidebarProps = {
 
 export default function AdminSidebar({ open = false, onClose }: AdminSidebarProps) {
   const pathname = usePathname();
+  const onEscape = useCallback(() => onClose?.(), [onClose]);
+  const trapRef = useFocusTrap(open, onEscape);
 
   return (
-    <aside className={`admin-sidebar ${open ? 'open' : ''}`}>
+    <aside ref={trapRef} className={`admin-sidebar ${open ? 'open' : ''}`}>
       <nav>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {LINKS.map(({ href, label, Icon }) => {

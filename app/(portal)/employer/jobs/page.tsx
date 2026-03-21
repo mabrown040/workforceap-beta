@@ -5,8 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import JobsTable from '@/components/employer/JobsTable';
-import DraftJobCards from '@/components/employer/DraftJobCards';
+import EmployerJobsBoard from '@/components/employer/EmployerJobsBoard';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'My Jobs',
@@ -36,30 +35,19 @@ export default async function EmployerJobsPage() {
     include: { _count: { select: { applications: true } } },
   });
 
-  const draftJobs = jobs.filter((j) => j.status === 'draft');
-  const tableJobs = jobs.filter((j) => j.status !== 'draft');
-
-  const draftCards = draftJobs.map((j) => {
+  const boardItems = jobs.map((j) => {
     const desc = j.description?.trim() ?? '';
     return {
       id: j.id,
       title: j.title,
       location: j.location?.trim() || '—',
       descriptionPreview: desc.length > 220 ? `${desc.slice(0, 220).trim()}…` : desc || '—',
+      status: j.status,
+      statusLabel: STATUS_LABELS[j.status] ?? j.status,
+      applicationsCount: j._count.applications,
       updatedAt: j.updatedAt,
     };
   });
-
-  const items = tableJobs.map((j) => ({
-    id: j.id,
-    title: j.title,
-    location: j.location ?? '—',
-    locationType: j.locationType,
-    status: j.status,
-    statusLabel: STATUS_LABELS[j.status] ?? j.status,
-    applicationsCount: j._count.applications,
-    updatedAt: j.updatedAt,
-  }));
 
   return (
     <div className="employer-jobs-page">
@@ -74,8 +62,10 @@ export default async function EmployerJobsPage() {
           </Link>
         </div>
       </header>
-      <DraftJobCards drafts={draftCards} />
-      <JobsTable jobs={items} />
+      <p className="employer-jobs-lead">
+        Edit postings as cards below. Drafts can be submitted for review; live jobs can be marked filled when you hire.
+      </p>
+      <EmployerJobsBoard jobs={boardItems} />
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { parseJobFromText, parseJobListingsFromPageText, extractSubJobUrlsFromPageText, stripUrlsFromDescription } from '@/lib/ai/parseJob';
-import { smartImportJobs, fetchPageText } from '@/lib/ai/atsProviders';
+import { smartImportJobs, fetchSubJobPageText } from '@/lib/ai/atsProviders';
 import { buildEmployerJobCreateData, getRouteErrorDetails } from '@/lib/employer/jobCreate';
 
 const bulkSchema = z
@@ -175,14 +175,16 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // ── Follow sub-job URLs for cleaner drafts (parse each job page, not raw list text) ──
+  // ── Follow sub-job URLs (direct fetch first, Firecrawl only when blocked) ──
+  // Top-level careers page already used Firecrawl for discovery. Sub-pages: prefer
+  // regular fetch to save credits; Firecrawl fallback only if direct fetch fails.
   if (listingsText.length >= 80 && !careersPageProcessed) {
     const subUrls = extractSubJobUrlsFromPageText(listingsText);
     const isJsRenderedAts = careersPageUrl && /rippling|workday|icims/i.test(careersPageUrl);
 
     if (subUrls.length > 0) {
-      for (const { url, title: linkTitle } of subUrls) {
-        const pageText = await fetchPageText(url, { waitFor: isJsRenderedAts ? 3000 : 2000 });
+      for (const { url } of subUrls) {
+        const pageText = await fetchSubJobPageText(url, { waitFor: isJsRenderedAts ? 3000 : 2000 });
         if (!pageText || pageText.length < 80) {
           errors.push({ source: url, error: 'Could not fetch job page.' });
           continue;

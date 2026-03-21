@@ -4,6 +4,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { Flame } from 'lucide-react';
 import Footer from '@/components/Footer';
 import ApplyEligibilityClient from './ApplyEligibilityClient';
+import ApplyPageSkeleton from './ApplyPageSkeleton';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Apply for Free Career Training',
@@ -40,7 +41,7 @@ export default function ApplyPage() {
             <span>Seats are limited. Apply today to hold your spot.</span>
           </div>
 
-          <Suspense fallback={<p>Loading...</p>}>
+          <Suspense fallback={<ApplyPageSkeleton />}>
             <ApplyEligibilityClient />
           </Suspense>
         </div>

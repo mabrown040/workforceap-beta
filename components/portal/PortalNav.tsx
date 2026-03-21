@@ -4,17 +4,15 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { SignOutButton } from './SignOutButton';
 
-const PORTAL_LINKS = [
+const PORTAL_LINKS: { href: string; label: string }[] = [
   { href: '/dashboard', label: 'Dashboard' },
+  { href: '/dashboard/learning', label: 'Learning hub' },
   { href: '/dashboard/ai-tools', label: 'AI Tools' },
-  { href: '/resources', label: 'Resources' },
-  { href: '/dashboard/learning', label: 'Learning' },
   { href: '/certifications', label: 'Certifications' },
   { href: '/dashboard/career-brief', label: 'Career Brief' },
   { href: '/dashboard/weekly-recap', label: 'Weekly Recap' },
   { href: '/dashboard/ai-tools/application-tracker', label: 'Applications' },
   { href: '/profile', label: 'Profile' },
-  { href: '/partner', label: 'Partner Portal', partnerOnly: true },
 ];
 
 export default function PortalNav() {
@@ -26,13 +24,16 @@ export default function PortalNav() {
       <div className="portal-nav-inner">
         <ul className="portal-nav-links">
           {PORTAL_LINKS.map(({ href, label }) => {
-            const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
+            let isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
+            if (href === '/dashboard/learning') {
+              isActive =
+                isActive ||
+                pathname.startsWith('/resources') ||
+                pathname.startsWith('/dashboard/resources');
+            }
             return (
               <li key={href}>
-                <Link
-                  href={href}
-                  className={isActive ? 'active' : undefined}
-                >
+                <Link href={href} className={isActive ? 'active' : undefined}>
                   {label}
                 </Link>
               </li>
@@ -41,7 +42,18 @@ export default function PortalNav() {
         </ul>
         <div className="portal-nav-actions">
           {isPartnerRoute && (
-            <span style={{ fontSize: '0.75rem', background: 'var(--color-accent)', color: 'white', padding: '0.15rem 0.5rem', borderRadius: '4px', fontWeight: 600 }}>Partner View</span>
+            <span
+              style={{
+                fontSize: '0.75rem',
+                background: 'var(--color-accent)',
+                color: 'white',
+                padding: '0.15rem 0.5rem',
+                borderRadius: '4px',
+                fontWeight: 600,
+              }}
+            >
+              Partner View
+            </span>
           )}
           <Link href="/" className="portal-nav-home">
             WorkforceAP

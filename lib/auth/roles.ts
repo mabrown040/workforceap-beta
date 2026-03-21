@@ -179,3 +179,33 @@ export async function getEmployerForUser(
 
   return null;
 }
+
+/**
+ * Employer context for marketing nav / portal entry link.
+ * Super-admins only get a company when impersonating via cookie — never the global DB fallback
+ * (see getEmployerForUser), so the public nav does not send them to a random employer portal.
+ */
+export async function getEmployerAccountForNav(
+  userId: string
+): Promise<{ employerId: string; companyName: string } | null> {
+  const superUser = await isSuperAdmin(userId);
+  if (superUser) {
+    const cookieStore = await cookies();
+    const fromCookie = cookieStore.get(SUPER_ADMIN_EMPLOYER_COOKIE)?.value;
+    if (!fromCookie) return null;
+    const byCookie = await prisma.employer.findFirst({
+      where: { id: fromCookie, status: 'active' },
+      select: { id: true, companyName: true },
+    });
+    return byCookie ? { employerId: byCookie.id, companyName: byCookie.companyName } : null;
+  }
+
+  const row = await prisma.employer.findUnique({
+    where: { userId },
+    select: { id: true, companyName: true, status: true },
+  });
+  if (row?.status === 'active') {
+    return { employerId: row.id, companyName: row.companyName };
+  }
+  return null;
+}

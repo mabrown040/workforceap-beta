@@ -16,8 +16,8 @@ const CTAS = [
   },
   {
     href: '/dashboard/learning',
-    label: 'Start Learning Path',
-    description: 'Explore courses and certifications',
+    label: 'Learning hub',
+    description: 'Pathways, resource library, and program tools',
     Icon: BookOpen,
   },
 ] as const;

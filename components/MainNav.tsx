@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { Menu, X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect, useCallback } from 'react';
 
@@ -30,7 +31,7 @@ const navItems = [
   { href: '/blog', label: 'Blog' },
   { href: '/faq', label: 'FAQ' },
   { href: '/apply', label: 'Apply Now', cta: true },
-  { href: '/login', label: 'Member Portal' },
+  { href: '/login', label: 'Member Portal', portalEntry: true },
   { href: '/contact', label: 'Contact Us' },
 ];
 
@@ -39,7 +40,10 @@ export default function MainNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
-  const [memberPortalHref, setMemberPortalHref] = useState('/login');
+  const [portalEntry, setPortalEntry] = useState<{ href: string; label: string }>({
+    href: '/login',
+    label: 'Member Portal',
+  });
 
   const closeMobile = useCallback(() => {
     setMobileOpen(false);
@@ -64,16 +68,43 @@ export default function MainNav() {
   }, [closeMobile]);
 
   useEffect(() => {
-    const updateMemberPortalHref = () => {
-      const hasSupabaseAuthCookie = /(?:^|;\s*)sb-[^=]*-auth-token=/.test(document.cookie);
-      setMemberPortalHref(hasSupabaseAuthCookie ? '/dashboard' : '/login');
+    let cancelled = false;
+
+    const refreshPortalHref = () => {
+      void (async () => {
+        try {
+          const res = await fetch('/api/auth/me', { credentials: 'include' });
+          const data = (await res.json()) as {
+            role: string | null;
+            partner: { partnerId: string } | null;
+            employer: { employerId: string; companyName: string } | null;
+            superAdmin: boolean;
+          };
+          if (cancelled) return;
+          if (!data.role) {
+            setPortalEntry({ href: '/login', label: 'Member Portal' });
+            return;
+          }
+          if (data.employer) {
+            setPortalEntry({ href: '/employer', label: 'Employer Portal' });
+            return;
+          }
+          if (data.partner && !data.superAdmin) {
+            setPortalEntry({ href: '/partner', label: 'Partner Portal' });
+            return;
+          }
+          setPortalEntry({ href: '/dashboard', label: 'Member Portal' });
+        } catch {
+          if (!cancelled) setPortalEntry({ href: '/login', label: 'Member Portal' });
+        }
+      })();
     };
 
-    updateMemberPortalHref();
-    window.addEventListener('focus', updateMemberPortalHref);
-
+    refreshPortalHref();
+    window.addEventListener('focus', refreshPortalHref);
     return () => {
-      window.removeEventListener('focus', updateMemberPortalHref);
+      cancelled = true;
+      window.removeEventListener('focus', refreshPortalHref);
     };
   }, []);
 
@@ -116,7 +147,7 @@ export default function MainNav() {
           aria-expanded={mobileOpen}
           onClick={toggleMobile}
         >
-          {mobileOpen ? '\u2715' : '\u2630'}
+          {mobileOpen ? <X size={26} strokeWidth={2} aria-hidden /> : <Menu size={26} strokeWidth={2} aria-hidden />}
         </button>
         <button
           type="button"
@@ -174,17 +205,24 @@ export default function MainNav() {
                 </li>
               );
             }
-            const href = item.href === '/login' ? memberPortalHref : item.href!;
-            const memberPortalActive = item.href === '/login' && (pathname === '/login' || pathname === '/dashboard');
+            const isPortalEntry = 'portalEntry' in item && item.portalEntry;
+            const href = isPortalEntry ? portalEntry.href : item.href!;
+            const portalEntryActive =
+              isPortalEntry &&
+              (pathname === '/login' ||
+                pathname.startsWith('/dashboard') ||
+                pathname.startsWith('/partner') ||
+                pathname.startsWith('/employer'));
+            const linkLabel = isPortalEntry ? portalEntry.label : item.label;
 
             return (
               <li key={item.href}>
                 <Link
                   href={href}
-                  className={`${item.cta ? 'nav-cta' : ''}${isActive(href) || memberPortalActive ? ' active' : ''}`}
+                  className={`${item.cta ? 'nav-cta' : ''}${isActive(href) || portalEntryActive ? ' active' : ''}`}
                   onClick={closeMobile}
                 >
-                  {item.label}
+                  {linkLabel}
                 </Link>
               </li>
             );

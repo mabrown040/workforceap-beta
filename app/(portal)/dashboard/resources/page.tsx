@@ -9,8 +9,8 @@ import { getResourcesForCategory } from '@/lib/content/programResources';
 import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Resources',
-  description: 'Career tools and program resources.',
+  title: 'Program resources',
+  description: 'AI career tools, external guides, and program-specific resources for your track.',
   path: '/dashboard/resources',
 });
 
@@ -60,9 +60,16 @@ export default async function DashboardResourcesPage() {
 
   return (
     <>
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Resources</h1>
+      <nav className="learning-hub-breadcrumb" aria-label="Learning hub">
+        <Link href="/dashboard/learning">Learning hub</Link>
+        <span className="learning-hub-breadcrumb-sep" aria-hidden>
+          /
+        </span>
+        <span className="learning-hub-breadcrumb-current">Program resources</span>
+      </nav>
+      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Program resources &amp; tools</h1>
       <p style={{ color: 'var(--color-gray-600)', marginBottom: '2rem' }}>
-        Career tools and program-specific resources.
+        AI tools, career tips, and links matched to your program category — plus ways to reach the team.
       </p>
 
       {suggestedAiTools.length > 0 && (

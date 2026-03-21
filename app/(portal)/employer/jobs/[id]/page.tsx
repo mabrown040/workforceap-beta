@@ -43,16 +43,17 @@ export default async function EmployerJobDetailPage({ params }: Props) {
   });
 
   return (
-    <div>
-      <div style={{ marginBottom: '1.5rem' }}>
-        <Link href="/employer/jobs" style={{ color: 'var(--color-gray-600)', fontSize: '0.9rem' }}>
-          ← Back to My Jobs
-        </Link>
+    <article className="employer-job-edit">
+      <div className="employer-job-edit__back">
+        <Link href="/employer/jobs">← My Jobs</Link>
       </div>
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Edit: {job.title}</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
-        Status: {job.status}. {job.applicationsCount} application(s).
-      </p>
+      <header className="employer-job-edit__header">
+        <h1>{job.title}</h1>
+        <span className="employer-job-edit__meta">
+          {job.status}
+          {job.applicationsCount > 0 && ` · ${job.applicationsCount} application${job.applicationsCount === 1 ? '' : 's'}`}
+        </span>
+      </header>
       <JobForm
         job={{
           id: job.id,
@@ -71,6 +72,6 @@ export default async function EmployerJobDetailPage({ params }: Props) {
         companyName={employer?.companyName ?? ''}
         programSlugs={PROGRAMS.map((p) => p.slug)}
       />
-    </div>
+    </article>
   );
 }

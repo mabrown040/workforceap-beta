@@ -6,12 +6,11 @@ import SuperAdminViewSwitcher from '@/components/super-admin-view-switcher';
 import { SignOutButton } from './SignOutButton';
 
 const NAV_LINKS = [
-  { href: '/employer', label: 'Dashboard' },
+  { href: '/employer', label: 'Home' },
   { href: '/employer/jobs', label: 'My Jobs' },
+  { href: '/employer/jobs/import', label: 'Import' },
   { href: '/employer/jobs/new', label: 'Post Job' },
-  { href: '/employer/jobs/import', label: 'Import jobs' },
   { href: '/employer/applications', label: 'Applications' },
-  { href: '/employer/messages', label: 'Messages' },
 ];
 
 export default function EmployerPortalShell({
@@ -20,70 +19,49 @@ export default function EmployerPortalShell({
   children,
 }: {
   companyName: string;
-  /** When true, show a short note linking to Admin → Employers to pick which company portal to help. */
   superAdmin?: boolean;
   children: React.ReactNode;
 }) {
   const pathname = usePathname() ?? '';
 
   return (
-    <div>
-      <nav className="portal-nav" aria-label="Employer portal navigation">
-        <div className="portal-nav-inner">
-          <ul className="portal-nav-links">
+    <div className="employer-portal-shell">
+      <header className="employer-portal-header">
+        <div className="employer-portal-header-inner">
+          <Link href="/employer" className="employer-portal-brand">
+            WorkforceAP
+          </Link>
+          <nav className="employer-portal-nav" aria-label="Employer navigation">
             {NAV_LINKS.map(({ href, label }) => (
-              <li key={href}>
-                <Link
-                  href={href}
-                  className={
-                    pathname === href || (href !== '/employer' && pathname.startsWith(href))
-                      ? 'active'
-                      : undefined
-                  }
-                >
-                  {label}
-                </Link>
-              </li>
+              <Link
+                key={href}
+                href={href}
+                className={
+                  pathname === href || (href !== '/employer' && pathname.startsWith(href))
+                    ? 'active'
+                    : undefined
+                }
+              >
+                {label}
+              </Link>
             ))}
-          </ul>
-          <div className="portal-nav-actions">
+          </nav>
+          <div className="employer-portal-actions">
             <SuperAdminViewSwitcher />
-            <span style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', marginRight: '0.5rem' }}>
+            <span className="employer-portal-company" title={companyName}>
               {companyName}
             </span>
-            <Link href="/" className="portal-nav-home">
-              WorkforceAP
-            </Link>
             <SignOutButton />
           </div>
         </div>
-      </nav>
+      </header>
       {superAdmin && (
-        <div
-          style={{
-            maxWidth: 1200,
-            margin: '0 auto',
-            padding: '0.75rem 1.5rem 0',
-          }}
-        >
-          <div
-            style={{
-              padding: '0.6rem 0.85rem',
-              fontSize: '0.85rem',
-              borderRadius: 8,
-              background: 'rgba(59, 130, 246, 0.08)',
-              border: '1px solid rgba(59, 130, 246, 0.25)',
-              color: 'var(--color-gray-700)',
-            }}
-          >
-            <strong>Super admin</strong> — viewing employer portal as <strong>{companyName}</strong>.{' '}
-            <Link href="/admin/employers" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>
-              Choose company / open portal
-            </Link>
-          </div>
+        <div className="employer-super-admin-banner">
+          Viewing as <strong>{companyName}</strong>.{' '}
+          <Link href="/admin/employers">Switch company</Link>
         </div>
       )}
-      <div style={{ padding: '1.5rem', maxWidth: 1200, margin: '0 auto' }}>{children}</div>
+      <main className="employer-portal-main">{children}</main>
     </div>
   );
 }

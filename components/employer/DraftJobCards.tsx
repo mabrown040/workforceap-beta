@@ -39,9 +39,9 @@ export default function DraftJobCards({ drafts }: { drafts: DraftJobCardItem[] }
 
   return (
     <section style={{ marginBottom: '2rem' }}>
-      <h2 style={{ fontSize: '1.15rem', marginBottom: '0.75rem' }}>Draft jobs</h2>
-      <p style={{ color: 'var(--color-gray-600)', fontSize: '0.9rem', marginBottom: '1rem' }}>
-        New and imported postings start as drafts. Submit for WorkforceAP review when ready, or edit details first.
+      <h2 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Drafts</h2>
+      <p style={{ color: 'var(--color-gray-600)', fontSize: '0.85rem', marginBottom: '0.75rem' }}>
+        Edit these postings, then submit for review when ready.
       </p>
       <div
         style={{
@@ -71,17 +71,17 @@ export default function DraftJobCards({ drafts }: { drafts: DraftJobCardItem[] }
               {d.descriptionPreview}
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.25rem' }}>
+              <Link href={`/employer/jobs/${d.id}`} className="btn btn-primary btn-sm">
+                Edit draft
+              </Link>
               <button
                 type="button"
-                className="btn btn-primary btn-sm"
+                className="btn btn-ghost btn-sm"
                 disabled={busyId === d.id}
                 onClick={() => submitForReview(d.id)}
               >
                 {busyId === d.id ? 'Submitting…' : 'Submit for review'}
               </button>
-              <Link href={`/employer/jobs/${d.id}`} className="btn btn-ghost btn-sm">
-                Edit
-              </Link>
             </div>
           </article>
         ))}

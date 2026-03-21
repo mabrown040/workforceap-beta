@@ -6,10 +6,11 @@ import { z } from 'zod';
 import { parseJobFromText, buildFallbackParsedJobFromScrape } from '@/lib/ai/parseJob';
 import { smartImportJobs, detectProvider } from '@/lib/ai/atsProviders';
 import { buildEmployerJobCreateData, getRouteErrorDetails } from '@/lib/employer/jobCreate';
+import { checkEmployerJobImportRateLimit } from '@/lib/rate-limit';
 
 const importSchema = z.object({
   url: z.string().url().optional(),
-  rawText: z.string().min(1).optional(),
+  rawText: z.string().min(1).max(60_000).optional(),
   createDraft: z.boolean().optional(),
 }).refine((d) => d.url || d.rawText, { message: 'Provide url or rawText' });
 
@@ -37,6 +38,14 @@ export async function POST(request: NextRequest) {
     });
     if (!employerExists) {
       return NextResponse.json({ error: 'Selected employer record was not found.' }, { status: 400 });
+    }
+
+    const { success: importAllowed, remaining: importRemaining } = await checkEmployerJobImportRateLimit(user.id);
+    if (!importAllowed) {
+      return NextResponse.json(
+        { error: 'Too many job import requests. Please wait up to an hour and try again.', remaining: importRemaining },
+        { status: 429, headers: { 'Retry-After': '3600' } }
+      );
     }
 
     const body = await request.json().catch(() => null);

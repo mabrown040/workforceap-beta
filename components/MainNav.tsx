@@ -238,13 +238,6 @@ export default function MainNav() {
           onClick={closeMobile}
         />
         <ul ref={menuRef} id={navMenuId} className={`nav-menu${mobileOpen ? ' mobile-open' : ''}`}>
-          {mobileOpen && (
-            <li className="mobile-nav-close">
-              <button type="button" onClick={closeMobile} aria-label="Close navigation">
-                &times;
-              </button>
-            </li>
-          )}
           {navItems.flatMap((item) => {
             if ('children' in item && item.children) {
               const parentActive = isParentActive(item.children);

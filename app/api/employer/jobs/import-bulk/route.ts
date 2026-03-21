@@ -4,6 +4,7 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { parseJobFromText, parseJobListingsFromPageText } from '@/lib/ai/parseJob';
+import { smartImportJobs, detectProvider } from '@/lib/ai/atsProviders';
 
 const bulkSchema = z
   .object({
@@ -52,13 +53,48 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Invalid body' }, { status: 400 });
   }
 
-  const created: { id: string; title: string }[] = [];
+  const created: { id: string; title: string; provider?: string }[] = [];
   const errors: { source: string; error: string }[] = [];
 
   const { jobUrls, careersPageUrl, careersPageRawText } = parsed.data;
 
+  // ── Process individual job URLs ──
   if (jobUrls?.length) {
     for (const url of jobUrls) {
+      // Try smart ATS import first
+      const atsResult = await smartImportJobs(url);
+
+      if (atsResult.jobs.length > 0) {
+        // ATS API returned structured jobs
+        for (const atsJob of atsResult.jobs) {
+          const suffix = atsJob.sourceUrl ? `\n\n---\nImported from: ${atsJob.sourceUrl}` : '';
+          const job = await prisma.job.create({
+            data: {
+              employerId: ctx.employerId,
+              title: atsJob.title,
+              location: atsJob.location ?? undefined,
+              locationType: atsJob.locationType ?? 'onsite',
+              jobType: atsJob.jobType ?? 'fulltime',
+              salaryMin: atsJob.salaryMin ?? undefined,
+              salaryMax: atsJob.salaryMax ?? undefined,
+              description: `${atsJob.description}${suffix}`,
+              requirements: atsJob.requirements ?? [],
+              preferredCertifications: [],
+              suggestedPrograms: [],
+              status: 'draft',
+            },
+          });
+          created.push({ id: job.id, title: job.title, provider: atsResult.provider });
+        }
+        continue;
+      }
+
+      if (atsResult.errors.length > 0) {
+        errors.push({ source: url, error: atsResult.errors[0] });
+        continue;
+      }
+
+      // Fallback: generic fetch + AI parse
       const text = await fetchTextFromUrl(url);
       if (!text || text.length < 50) {
         errors.push({ source: url, error: 'Could not fetch or not enough text (try pasting the description).' });
@@ -86,20 +122,59 @@ export async function POST(request: NextRequest) {
           status: 'draft',
         },
       });
-      created.push({ id: job.id, title: job.title });
+      created.push({ id: job.id, title: job.title, provider: 'ai' });
     }
   }
 
+  // ── Process careers page URL (smart ATS first) ──
   let listingsText = careersPageRawText?.trim() ?? '';
+
   if (careersPageUrl && !listingsText) {
-    const fetched = await fetchTextFromUrl(careersPageUrl);
-    if (!fetched) {
-      errors.push({ source: careersPageUrl, error: 'Could not fetch careers page. Paste the page text instead.' });
+    // Try smart ATS import for careers page
+    const atsResult = await smartImportJobs(careersPageUrl);
+
+    if (atsResult.jobs.length > 0) {
+      // ATS API returned all jobs from careers page
+      for (const atsJob of atsResult.jobs) {
+        const suffix = atsJob.sourceUrl ? `\n\n---\nImported from: ${atsJob.sourceUrl}` : '';
+        const job = await prisma.job.create({
+          data: {
+            employerId: ctx.employerId,
+            title: atsJob.title,
+            location: atsJob.location ?? undefined,
+            locationType: atsJob.locationType ?? 'onsite',
+            jobType: atsJob.jobType ?? 'fulltime',
+            salaryMin: atsJob.salaryMin ?? undefined,
+            salaryMax: atsJob.salaryMax ?? undefined,
+            description: `${atsJob.description}${suffix}`,
+            requirements: atsJob.requirements ?? [],
+            preferredCertifications: [],
+            suggestedPrograms: [],
+            status: 'draft',
+          },
+        });
+        created.push({ id: job.id, title: job.title, provider: atsResult.provider });
+      }
+    } else if (atsResult.errors.length > 0) {
+      errors.push({ source: careersPageUrl, error: atsResult.errors[0] });
     } else {
-      listingsText = fetched;
+      // Generic: fetch HTML for AI parsing
+      const fetched = await fetchTextFromUrl(careersPageUrl);
+      if (!fetched) {
+        const detected = detectProvider(careersPageUrl);
+        errors.push({
+          source: careersPageUrl,
+          error: detected
+            ? `Detected ${detected.provider} ATS. This page requires JavaScript. Paste individual job URLs or text.`
+            : 'Could not fetch careers page. Paste the page text instead.',
+        });
+      } else {
+        listingsText = fetched;
+      }
     }
   }
 
+  // ── AI-parse listings text ──
   if (listingsText.length >= 80) {
     const listings = await parseJobListingsFromPageText(listingsText);
     if (!listings?.length) {
@@ -119,7 +194,7 @@ export async function POST(request: NextRequest) {
             status: 'draft',
           },
         });
-        created.push({ id: job.id, title: job.title });
+        created.push({ id: job.id, title: job.title, provider: 'ai' });
       }
     }
   }

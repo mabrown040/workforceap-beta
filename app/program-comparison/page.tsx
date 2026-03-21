@@ -81,7 +81,7 @@ export default function ProgramComparisonPage() {
                     <td>{t.salary}</td>
                     <td>
                       <span className="demand-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                        <Flame size={14} className="text-current" aria-hidden />
+                        {t.demand === 'Very High' && <Flame size={14} className="text-current" aria-hidden />}
                         {t.demand}
                       </span>
                     </td>
@@ -150,7 +150,7 @@ export default function ProgramComparisonPage() {
                     <div className="program-comparison-card__demand">
                       <span className="program-comparison-card__demand-label">Job demand</span>
                       <span className="demand-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                        <Flame size={14} className="text-current" aria-hidden />
+                        {t.demand === 'Very High' && <Flame size={14} className="text-current" aria-hidden />}
                         {t.demand}
                       </span>
                     </div>

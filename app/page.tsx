@@ -8,22 +8,22 @@ import Footer from '@/components/Footer';
 export const metadata: Metadata = buildPageMetadata({
   title: 'Home',
   description:
-    'Career training and industry certifications designed to launch careers in Technology, Data, AI, Healthcare, Manufacturing, and Skilled Trades.',
+    'Career training and industry certifications. Employer-aligned. No cost to qualifying participants. Launching in Austin, building toward more. Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades.',
   path: '/',
 });
 
 export default function HomePage() {
   const journeySteps = [
-    { num: 1, title: 'Apply', desc: 'Quick online application' },
-    { num: 2, title: 'Overview', desc: 'Learn about our programs' },
-    { num: 3, title: 'Interview', desc: 'Meet your counselor' },
-    { num: 4, title: 'Membership', desc: 'Join free — no cost to qualifying participants' },
-    { num: 5, title: 'Assessment', desc: 'Skills & goals evaluation' },
-    { num: 6, title: 'Readiness', desc: 'Build foundational skills' },
-    { num: 7, title: 'Resources', desc: 'Tools, network & loaner laptop' },
-    { num: 8, title: 'Training', desc: 'Industry certification courses' },
-    { num: 9, title: 'Certify', desc: 'Earn credentials' },
-    { num: 10, title: 'Placement', desc: 'Career launch support' },
+    { num: 1, title: 'Apply', desc: '5-minute form. We respond within 24–48 hours.' },
+    { num: 2, title: 'Overview', desc: 'Meet a counselor. Learn which program fits you — no exam, no gatekeeping.' },
+    { num: 3, title: 'Interview', desc: '30 minutes. We confirm mutual fit and answer your questions.' },
+    { num: 4, title: 'Membership', desc: 'Join free — no cost to qualifying participants.' },
+    { num: 5, title: 'Assessment', desc: 'Skills and goals. We match you to the right path.' },
+    { num: 6, title: 'Readiness', desc: 'Soft skills and job-search basics — what employers expect.' },
+    { num: 7, title: 'Resources', desc: 'Tools, network, loaner laptop on completion.' },
+    { num: 8, title: 'Training', desc: 'Industry certification courses. Same credentials employers hire for.' },
+    { num: 9, title: 'Certify', desc: 'Earn credentials. Proof that sticks on your resume.' },
+    { num: 10, title: 'Placement', desc: 'We support you until you land. Resume, interviews, employer intros.' },
   ];
 
   return (
@@ -47,7 +47,7 @@ export default function HomePage() {
           </h1>
           <div className="hero-no-cost-badge">✦ No-cost training for qualifying participants</div>
           <p className="hero-subtitle">
-            Career training and certifications in Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Austin-area focus. Employer-aligned.
+            Career training and certifications in Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Launching in Austin. Employer-aligned. Building toward more.
           </p>
           <div className="hero-actions hero-actions-prominent">
             <Link href="/apply" className="btn btn-accent btn-large">
@@ -70,29 +70,32 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Stats */}
+      {/* Stats — trust-bearing, category-defining */}
       <section className="stats-bar">
         <div className="stats-container">
-          <div className="stat"><span className="stat-number">19</span><span className="stat-label">Programs</span></div>
-          <div className="stat"><span className="stat-number">$0</span><span className="stat-label">Cost to Qualifying Participants</span></div>
-          <div className="stat"><span className="stat-number">16–20</span><span className="stat-label">Weeks to Certification</span></div>
-          <div className="stat"><span className="stat-number">24–48h</span><span className="stat-label">Response Time</span></div>
-          <div className="stat"><span className="stat-number">100%</span><span className="stat-label">Job Search Support</span></div>
+          <p className="stats-trust-line">Employer-aligned. No participant debt. Success = you get hired.</p>
+          <div className="stats-row">
+            <div className="stat"><span className="stat-number">19</span><span className="stat-label">Programs</span></div>
+            <div className="stat"><span className="stat-number">$0</span><span className="stat-label">Cost to Qualifying Participants</span></div>
+            <div className="stat"><span className="stat-number">16–20</span><span className="stat-label">Weeks to Certification</span></div>
+            <div className="stat"><span className="stat-number">24–48h</span><span className="stat-label">Response Time</span></div>
+            <div className="stat"><span className="stat-number">100%</span><span className="stat-label">Job Search Support</span></div>
+          </div>
         </div>
       </section>
 
-      {/* For You: who it's for + what you get — collapsed from mission/vision/what-you-get */}
+      {/* For You: fit + what you get — orchestrated persuasion */}
       <section className="home-for-you">
         <div className="container">
-          <h2 className="home-section-title">For Austin-area residents ready to launch</h2>
+          <h2 className="home-section-title">For you, if you&rsquo;re ready to launch</h2>
           <p className="home-for-you-lead">
-            We break down barriers with employer-aligned training and wrap-around support. Underserved individuals, adult learners, and veterans — we're here for you.
+            Underserved individuals, adult learners, veterans. No prior tech required. We&rsquo;re currently serving the Austin area — our launch community — and building toward more. If that&rsquo;s you, here&rsquo;s what you get:
           </p>
           <div className="wyg-grid">
             <div className="wyg-card animate-on-scroll">
               <span className="wyg-icon"><Award size={28} className="text-current" /></span>
               <h3>Industry Certifications</h3>
-              <p>Google, IBM, Microsoft, Amazon, CompTIA — credentials employers hire against.</p>
+              <p>Google, IBM, Microsoft, Amazon, CompTIA — the same credentials employers hire against. Real credentials, not completion certificates.</p>
             </div>
             <div className="wyg-card animate-on-scroll">
               <span className="wyg-icon"><Laptop size={28} className="text-current" /></span>
@@ -102,18 +105,21 @@ export default function HomePage() {
             <div className="wyg-card animate-on-scroll">
               <span className="wyg-icon"><Handshake size={28} className="text-current" /></span>
               <h3>Job Placement</h3>
-              <p>Resume support, interview prep, employer connections from day one through hire.</p>
+              <p>Resume support, interview prep, employer connections from day one through hire. We don&rsquo;t disappear after you certify.</p>
             </div>
+          </div>
+          <div className="home-for-you-cta">
+            <Link href="/find-your-path" className="btn btn-outline">Not sure which program fits? Take the 2-min quiz →</Link>
           </div>
         </div>
       </section>
 
-      {/* How it works */}
+      {/* How it works — applicant-benefit-driven, confidence-building */}
       <section className="process-flow-section">
         <div className="process-flow-inner">
           <div className="process-flow-header animate-on-scroll">
             <h2>Your Journey With Us</h2>
-            <p>From application to employment</p>
+            <p>Clear steps. No surprises. We tell you what happens at each stage so you can move forward with confidence.</p>
           </div>
           <div className="process-steps">
             {journeySteps.map((step, index) => (
@@ -133,7 +139,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Why trust: 25+ years, leadership, community roots — protect this */}
+      {/* Why trust: leadership depth, local roots, broader ambition */}
       <section className="about-section home-trust-anchor">
         <div className="container">
           <div className="about-grid">
@@ -141,12 +147,12 @@ export default function HomePage() {
               <span className="section-label">Who We Are</span>
               <h2>25+ Years Breaking Barriers</h2>
               <p>
-                Founded by Michael Brown, PMP — a workforce leader who has trained thousands across the Austin Metro and Statewide. Through Consulting Solutions.Net, Goodwill Career &amp; Technical Academy, Austin Area Urban League, Universal Tech Movement, and African American Youth Harvest Foundation, we deliver the wrap-around services that launch careers.
+                Founded by Michael Brown, PMP — a workforce leader who has trained thousands across the Austin Metro and statewide. Through Consulting Solutions.Net, Goodwill Career &amp; Technical Academy, Austin Area Urban League, Universal Tech Movement, and African American Youth Harvest Foundation, we deliver the wrap-around services that launch careers. Austin is our launch community; we&rsquo;re building toward national scale.
               </p>
               <div className="about-stats">
                 <div className="about-stat"><span className="stat-num">25+</span><span className="stat-desc">Years Experience</span></div>
                 <div className="about-stat"><span className="stat-num">2,000+</span><span className="stat-desc">Trained</span></div>
-                <div className="about-stat"><span className="stat-num">Austin</span><span className="stat-desc">Community Roots</span></div>
+                <div className="about-stat"><span className="stat-num">Austin</span><span className="stat-desc">Launch Community</span></div>
               </div>
               <div className="partner-logos-small">
                 <Image src="/images/Google_2015_logo.svg.png" alt="Google" width={80} height={27} />
@@ -162,8 +168,8 @@ export default function HomePage() {
             </div>
             <div className="programs-preview">
               <span className="section-label">Programs</span>
-              <h3>Industry-Recognized Training</h3>
-              <p>19 programs across Tech, Healthcare, Manufacturing, and Skilled Trades.</p>
+              <h3>Careers That Pay — From $48K to $145K</h3>
+              <p>19 programs across Tech, Healthcare, Manufacturing, and Skilled Trades. Each path leads to real roles: IT support, cybersecurity, data analytics, project management, medical coding, and more.</p>
               <ul className="program-categories">
                 <li><span className="cat-icon"><Monitor size={20} className="text-current" /></span> Digital Literacy &amp; AI</li>
                 <li><span className="cat-icon"><Wifi size={20} className="text-current" /></span> Information Technology</li>
@@ -172,18 +178,22 @@ export default function HomePage() {
                 <li><span className="cat-icon"><Factory size={20} className="text-current" /></span> Manufacturing</li>
                 <li><span className="cat-icon"><HardHat size={20} className="text-current" /></span> Core Construction</li>
               </ul>
-              <Link href="/programs" className="btn btn-outline">View All Programs</Link>
+              <div className="programs-preview-actions">
+                <Link href="/find-your-path" className="btn btn-primary btn-sm">Find Your Fit (2-min quiz)</Link>
+                <Link href="/programs" className="btn btn-outline btn-sm">View All 19 Programs</Link>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* What to do next */}
+      {/* What to do next — decisive, intentional */}
       <section className="footer-cta">
         <div className="container">
-          <h2>Ready to start?</h2>
-          <p>Applications take under 10 minutes. Real certifications. Direct connections to local employers.</p>
+          <h2>Your Next Step</h2>
+          <p>Apply now — under 10 minutes. We respond within 24–48 hours. Real certifications. Employer connections. No cost to qualifying participants.</p>
           <Link href="/apply" className="btn btn-primary btn-large">Start Your Application</Link>
+          <p className="footer-cta-sub"><Link href="/find-your-path">Not sure yet? Take the pathfinder quiz first.</Link></p>
         </div>
       </section>
 

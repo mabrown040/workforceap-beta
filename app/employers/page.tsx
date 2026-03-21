@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
-import Image from 'next/image';
 import PageHero from '@/components/PageHero';
 import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
@@ -25,7 +24,7 @@ import {
 export const metadata: Metadata = buildPageMetadata({
   title: 'Hire WorkforceAP Graduates | Pre-Screened Tech Talent',
   description:
-    "Access Austin's top emerging tech talent. WorkforceAP graduates are certified, job-ready, and supported. Post jobs free or become a hiring partner.",
+    'Access pre-screened, certified tech talent. WorkforceAP graduates hold industry credentials from Google, IBM, AWS, CompTIA. Post jobs free or become a hiring partner. Currently serving Austin with plans to expand.',
   path: '/employers',
 });
 
@@ -57,30 +56,27 @@ const PROGRAMS = [
 ];
 
 const HOW_IT_WORKS = [
-  { num: 1, title: 'Post Your Opening', desc: 'Share job description and requirements', icon: FileText },
-  { num: 2, title: 'Review Candidates', desc: 'We send pre-screened applicants who match', icon: Search },
-  { num: 3, title: 'Interview & Hire', desc: 'You interview and select the best fit', icon: UserCheck },
-  { num: 4, title: 'Ongoing Partnership', desc: "We support the new hire's first 90 days", icon: Handshake },
+  { num: 1, title: 'Post Your Opening', desc: 'Add your job to our employer portal. Free. We match it to our pipeline.', icon: FileText },
+  { num: 2, title: 'Review Matched Candidates', desc: 'Receive pre-screened applicants who hold relevant certifications and fit your requirements.', icon: Search },
+  { num: 3, title: 'Interview & Hire', desc: 'You conduct interviews and make the hire. No placement fees.', icon: UserCheck },
+  { num: 4, title: '90-Day Support', desc: 'We support your new hire’s onboarding. You get a team member who’s set up to succeed.', icon: Handshake },
 ];
 
-const TESTIMONIALS = [
+const EMPLOYER_COMMITMENTS = [
   {
-    quote: 'WorkforceAP graduates came prepared with real certifications and soft skills. The 90-day support made onboarding seamless.',
-    name: 'Sarah Chen',
-    company: 'Tech Solutions Inc.',
-    logo: null,
+    icon: ShieldCheck,
+    title: 'Pre-Screened Pipeline',
+    desc: 'Every candidate completes skills assessment and workforce readiness before we refer them. You get vetted talent, not cold resumes.',
   },
   {
-    quote: 'We hired three graduates for our IT support team. They hit the ground running and have become valuable team members.',
-    name: 'Marcus Johnson',
-    company: 'Austin Digital Services',
-    logo: null,
+    icon: Award,
+    title: 'Industry Credentials',
+    desc: 'Google, IBM, AWS, Microsoft, CompTIA — the same certifications you hire against. No generic certificates.',
   },
   {
-    quote: 'Partnering with WorkforceAP gave us access to motivated, diverse talent we wouldn\'t have found otherwise.',
-    name: 'Jennifer Martinez',
-    company: 'CloudFirst Technologies',
-    logo: null,
+    icon: Handshake,
+    title: '90-Day Post-Hire Support',
+    desc: 'We stay involved after the hire. Onboarding, check-ins, and support so your new team member succeeds.',
   },
 ];
 
@@ -114,20 +110,19 @@ export default function EmployersPage() {
       {/* Hero */}
       <section className="page-hero employers-hero">
         <div className="page-hero-content">
-          <h1>Hire Pre-Screened, Job-Ready Talent</h1>
+          <h1>Hire Certified, Job-Ready Tech Talent</h1>
           <p>
-            WorkforceAP graduates complete rigorous training and earn industry-recognized certifications. Ready to
-            contribute from day one.
+            Pre-screened graduates with industry credentials — Google, IBM, AWS, CompTIA. Workforce readiness built in. 90-day post-hire support so your hire succeeds.
           </p>
           <div className="hero-actions" style={{ marginTop: '1.5rem', marginBottom: 0 }}>
             <Link href="/employer" className="btn btn-accent btn-large">
-              Employer Portal
+              Post a Job (Free)
             </Link>
             <Link href="#employer-contact" className="btn btn-ghost btn-large">
-              Contact Us
+              Become a Hiring Partner
             </Link>
             <a href="tel:5127771808" className="btn btn-ghost btn-large">
-              Schedule a Call
+              Call (512) 777-1808
             </a>
           </div>
         </div>
@@ -160,8 +155,8 @@ export default function EmployersPage() {
       <PhotoHighlight
         imageUrl="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1400&q=80"
         label="Employer Partnerships"
-        title="Austin&rsquo;s Emerging Tech Talent"
-        description="Our graduates bring industry certifications, workforce readiness training, and the drive to succeed. Partner with us to build your team."
+        title="Job-Ready Tech Talent"
+        description="Our graduates hold industry certifications, complete workforce readiness training, and are backed by 90-day post-hire support. We're currently serving the Austin area and building toward expansion."
       />
 
       {/* Available Talent - Program Cards */}
@@ -219,29 +214,23 @@ export default function EmployersPage() {
         </div>
       </section>
 
-      {/* Employer Testimonials */}
+      {/* Why Partner With Us — commitments, not placeholders */}
       <section className="content-section employers-testimonials-section">
         <div className="container">
           <div className="section-header animate-on-scroll" style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h2>What Employers Say</h2>
+            <h2>Why Employers Partner With Us</h2>
             <p className="section-subtitle" style={{ marginBottom: 0 }}>
-              Placeholder testimonials — real stories coming soon
+              Pre-screened, certified, and supported — we deliver talent that fits
             </p>
           </div>
-          <div className="employers-testimonials-grid">
-            {TESTIMONIALS.map((t) => (
-              <div key={t.name} className="employers-testimonial-card animate-on-scroll">
-                <span className="employers-quote-mark">&ldquo;</span>
-                <p className="employers-testimonial-text">{t.quote}</p>
-                <div className="employers-testimonial-author">
-                  <strong>{t.name}</strong>
-                  <span>{t.company}</span>
-                </div>
-                {t.logo && (
-                  <div className="employers-testimonial-logo">
-                    <Image src={t.logo} alt="" width={80} height={32} />
-                  </div>
-                )}
+          <div className="employers-three-col">
+            {EMPLOYER_COMMITMENTS.map((item) => (
+              <div key={item.title} className="employers-why-card animate-on-scroll">
+                <span className="employers-why-icon">
+                  <item.icon size={32} className="text-current" />
+                </span>
+                <h3>{item.title}</h3>
+                <p>{item.desc}</p>
               </div>
             ))}
           </div>

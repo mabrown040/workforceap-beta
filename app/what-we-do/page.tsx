@@ -9,7 +9,7 @@ import Footer from '@/components/Footer';
 export const metadata: Metadata = buildPageMetadata({
   title: 'What We Do',
   description:
-    'Learn how WorkforceAP provides free career training and certifications for Austin-area residents through digital literacy, AI, occupational training, and wrap-around support in Austin, TX.',
+    'How WorkforceAP works: employer-aligned training, no-cost to participants, job placement support. Operating model that scales beyond one market.',
   path: '/what-we-do',
 });
 
@@ -18,14 +18,14 @@ export default function WhatWeDoPage() {
     <div className="inner-page">
       <PageHero
         title="What We Do"
-        subtitle="Free career training and certifications for Austin-area residents."
+        subtitle="Employer-aligned training. No cost to participants. Job placement built in. A model that works — and scales."
       />
 
       <PhotoHighlight
         imageUrl="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1400&q=80"
         label="Our Approach"
-        title="Empowering Through Education"
-        description="We deliver comprehensive workforce development programs that combine industry-recognized certifications with wrap-around support services to ensure every member succeeds."
+        title="How Our Model Works"
+        description="We train people for jobs employers are hiring for. Funding comes from grants and employer partnerships — not from participants. Success means graduates get hired. We're launching in Austin and building toward expansion."
       />
 
       <section className="content-section">
@@ -34,18 +34,18 @@ export default function WhatWeDoPage() {
             <div className="mv-card animate-on-scroll">
               <div className="mv-icon mission"><Target size={32} className="text-current" /></div>
               <h2>Mission</h2>
-              <p>The Workforce Advancement Project exists to break down systemic barriers by providing digital literacy, artificial intelligence, occupational, and professional certification training to underserved individuals, adult learners, and veteran populations.</p>
+              <p>Break down systemic barriers by providing digital literacy, AI, occupational, and professional certification training to underserved individuals, adult learners, and veterans — at no cost.</p>
             </div>
             <div className="mv-card animate-on-scroll">
               <div className="mv-icon vision"><Globe size={32} className="text-current" /></div>
-              <h2>Vision</h2>
-              <p>We are working to create a world where every individual and family — regardless of background, income, opportunity, or circumstance — has access to the skills, opportunity, and support necessary to thrive in the workforce today and lead the workforce of tomorrow.</p>
+              <h2>Why This Model Works</h2>
+              <p>Employers fund talent pipelines. Grants fund access. We don&rsquo;t charge participants. Our success metric is your hire — when you land a job, we&rsquo;ve done our job. That alignment is why this scales beyond one local market.</p>
             </div>
           </div>
 
           <div className="legacy-section animate-on-scroll">
             <h2>Our Leadership &amp; Legacy</h2>
-            <p className="legacy-subtitle">Built on a foundation of over 25 years of experience in developing, managing, and training for successful workforce initiatives.</p>
+            <p className="legacy-subtitle">Built on 25+ years of workforce development — Goodwill, Austin Area Urban League, state and local initiatives. We know what works.</p>
             <div className="stats-row">
               <div className="stat-card">
                 <div className="stat-number gold">25+</div>
@@ -70,14 +70,14 @@ export default function WhatWeDoPage() {
             </div>
           </div>
 
-          <h2 className="section-title animate-on-scroll">Our Core Values</h2>
+          <h2 className="section-title animate-on-scroll">What We Stand For</h2>
           <div className="values-grid">
             {[
-              { Icon: Target, name: 'Equity', desc: 'Ensuring fair access to opportunity, training, and economic mobility for all individuals.' },
-              { Icon: Globe, name: 'Opportunity', desc: 'Opening pathways to meaningful, life-changing careers in high-demand industries.' },
-              { Icon: Lightbulb, name: 'Innovation', desc: 'We teach the skills employers want: digital literacy, AI tools, and industry certifications.' },
-              { Icon: Handshake, name: 'Partnership', desc: 'Leveraging collective strength across government, education, and industry sectors.' },
-              { Icon: TrendingUp, name: 'Impact', desc: 'Delivering measurable outcomes that strengthen both individuals and local economies.' },
+              { Icon: Target, name: 'Equity', desc: 'Fair access to opportunity — no one should pay for the training that gets them hired.' },
+              { Icon: Globe, name: 'Employer-Aligned', desc: 'We teach what employers hire for. Google, IBM, AWS, CompTIA — credentials that open doors.' },
+              { Icon: Lightbulb, name: 'Outcomes Matter', desc: 'Our success is your hire. We measure what matters: jobs landed, careers launched.' },
+              { Icon: Handshake, name: 'Partnership', desc: 'Government, employers, community orgs — we leverage collective strength so participants don\'t carry the load alone.' },
+              { Icon: TrendingUp, name: 'Scale Where It Works', desc: 'We launch where we can deliver, then expand. Austin first; more communities as we grow.' },
             ].map((v) => {
               const Icon = v.Icon;
               return (

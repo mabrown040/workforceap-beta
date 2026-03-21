@@ -10,8 +10,8 @@ import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Partner Dashboard',
-  description: 'Referral outcomes and member progress for your organization.',
+  title: 'Partner Portal',
+  description: 'Referral outcomes, training progress, and placements for your organization.',
   path: '/partner',
 });
 
@@ -118,9 +118,10 @@ export default async function PartnerDashboardPage() {
   return (
     <div className="partner-impact-console">
       <header className="partner-impact-header">
-        <h1>Partnership impact</h1>
+        <h1>Partner accountability</h1>
         <p className="partner-impact-subtitle">
-          {ctx.partner.name} — referral outcomes and member journey.
+          <strong>{ctx.partner.name}</strong> — who you referred, where they are in the journey, and placement outcomes.
+          Use this view for check-ins and impact conversations with WorkforceAP.
         </p>
       </header>
 

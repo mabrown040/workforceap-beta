@@ -27,6 +27,12 @@ function run(args, ignoreError = false) {
   return result.status ?? 0;
 }
 
+// Skip migrations entirely if no real DB is configured
+if (process.env.__PRISMA_PLACEHOLDER_DB === '1') {
+  console.log('safe-migrate: no DATABASE_URL / POSTGRES_* configured — skipping migrations');
+  process.exit(0);
+}
+
 // Attempt to resolve each failed migration (silently ignore if already resolved)
 for (const migration of FAILED_MIGRATIONS) {
   console.log(`Attempting to resolve failed migration: ${migration}`);

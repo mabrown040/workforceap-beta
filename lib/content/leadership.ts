@@ -20,8 +20,10 @@ export type Leader = {
   image: string;
   founder: boolean;
   linkedin: string;
-  /** Short excerpt for the card grid */
+  /** Short scannable excerpt for the card */
   cardBio: string;
+  /** One line: why this leader makes WorkforceAP credible (mission, employer trust, community, outcomes) */
+  missionRelevance?: string;
   bioBlocks: LeaderBioBlock[];
   stats: LeaderStat[];
 };
@@ -36,7 +38,9 @@ export const LEADERS: Leader[] = [
     founder: true,
     linkedin: 'https://www.linkedin.com/in/michaelabrownpmp/',
     cardBio:
-      "Michael A. Brown, PMP, ChE, is a highly accomplished business executive with a distinguished career spanning several decades in business development, project management, and education. Michael holds a Chemical Engineering degree from Texas A&M University and as a former owner of Consulting Solutions.Net and key leader at State of Texas Career Schools, Goodwill Central Texas, Austin Urban League, Universal Tech Movement, African American Youth Harvest Foundation he has consistently driven organizational excellence across public and private sectors. A devoted community leader, Michael is an elder at Celebration Church and an active board member of Concordia High School and also member of 100 Black Men of Austin and Alpha Phi Alpha Fraternity.",
+      "Texas A&M Chemical Engineer. Former owner of Consulting Solutions.Net; key leader at Goodwill Career & Technical Academy, Austin Area Urban League, Universal Tech Movement, African American Youth Harvest Foundation. 100 Black Men of Austin, Alpha Phi Alpha, Elder at Celebration Church.",
+    missionRelevance:
+      "25+ years delivering workforce training in Austin. Thousands trained through Goodwill, Urban League, and community orgs — the barrier-breaking experience that built WorkforceAP.",
     bioBlocks: [
       {
         type: 'paragraph',
@@ -80,7 +84,9 @@ export const LEADERS: Leader[] = [
     founder: false,
     linkedin: 'https://www.linkedin.com/in/adriane-brown/',
     cardBio:
-      'Adriane Brown is a strategic business and operations leader with over 25 years of experience driving organizational growth and operational excellence. A Texas A&M graduate, she has led enterprise operations to national reach and brings deep expertise in business development, compliance, and performance optimization. She completed Microsoft Project Management Certification in 2025 and serves as Women\'s Ministry Leader at Celebration Church.',
+      'Texas A&M grad. IBM, Accenture — built statewide tech systems for Texas. Co-led Brown & Associates to national reach. Microsoft Project Management cert. Women\'s Ministry Leader, Celebration Church.',
+    missionRelevance:
+      "Operations leader who scales workforce programs. Brings systems rigor so every member gets the support they need — from intake through placement.",
     bioBlocks: [
       {
         type: 'paragraph',
@@ -119,7 +125,9 @@ export const LEADERS: Leader[] = [
     founder: false,
     linkedin: 'https://www.linkedin.com/in/lakecia-gunter/',
     cardBio:
-      "Lakecia Gunter is a 25-year tech industry veteran serving as Chief Technology Officer, Global Partner Solutions at Microsoft. Honored as a Finalist in SUCCESS Magazine's 2023 Women of Influence, she is a nationally recognized engineer, speaker, and advocate for women in technology. She holds an MS in Electrical Engineering from Georgia Tech and currently serves on the Board of Directors at IDEX Corporation.",
+      "CTO, Global Partner Solutions at Microsoft. 25 years in tech. SUCCESS Magazine Women of Influence 2023. MS Electrical Engineering, Georgia Tech. Board Director, IDEX Corporation.",
+    missionRelevance:
+      "Employer-side credibility. The tech pathways our graduates walk into — Microsoft, enterprise partners — are the same rooms she helps shape.",
     bioBlocks: [
       {
         type: 'paragraph',
@@ -163,7 +171,9 @@ export const LEADERS: Leader[] = [
     founder: false,
     linkedin: 'https://www.linkedin.com/in/derrick-fishback/',
     cardBio:
-      "Colonel Derrick Fishback (Retired) is a transformational leader with nearly three decades of U.S. Army service complemented by leadership roles at Fortune 500 companies. He has commanded 1,800+ personnel and led cloud transformation initiatives at Amazon Web Services, IBM, and Dell. Derrick holds two master's degrees and serves as Board President of the Jazz Society of Pensacola.",
+      "Col. U.S. Army (Ret.). Commanded 1,800+ personnel. Led cloud transformation at AWS, IBM, Dell. Two master's degrees; Harvard, Geneva, London, Erasmus. Board President, Jazz Society of Pensacola.",
+    missionRelevance:
+      "30 years Army + Fortune 500 tech. The employer trust that opens doors — AWS, IBM, Dell — plus the discipline that turns training into outcomes.",
     bioBlocks: [
       {
         type: 'paragraph',
@@ -207,7 +217,9 @@ export const LEADERS: Leader[] = [
     founder: false,
     linkedin: 'https://www.linkedin.com/in/brandon-frye-3238871/',
     cardBio:
-      'Brandon Frye is a seasoned entrepreneur and business operator with extensive experience founding, investing in, and leading high-growth companies. He co-founded Interstate Connections (named "Fastest Growing Private Company" by Austin Business Journal) and currently serves as CFO of The Business Bible. Brandon is deeply involved in community leadership, serving on multiple boards including Texas Alliance for Life.',
+      'Co-founded Interstate Connections — Austin Business Journal "Fastest Growing Private Company." CFO, The Business Bible. Texas Alliance for Life board. Former Chairman, Concordia High School.',
+    missionRelevance:
+      "Austin entrepreneur who built a Fastest Growing Company locally. Board leadership that strengthens community pipelines and employer connections.",
     bioBlocks: [
       {
         type: 'paragraph',

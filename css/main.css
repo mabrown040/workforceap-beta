@@ -3922,7 +3922,7 @@ img.img-fade.loaded { opacity: 1; }
         background:
             linear-gradient(180deg, rgba(35,35,35,0.98) 0%, rgba(22,22,22,0.98) 100%);
         flex-direction: column;
-        padding: 5.25rem 1.25rem 1.5rem;
+        padding: 4.5rem 1.25rem 1.5rem;
         gap: 0;
         z-index: 1001;
         overflow-y: auto;
@@ -3959,24 +3959,6 @@ img.img-fade.loaded { opacity: 1; }
         pointer-events: auto;
         transition-delay: 0s;
     }
-    .mobile-nav-close {
-        display: flex !important;
-        justify-content: flex-end;
-        padding: 0.5rem 1rem 0 !important;
-        border-bottom: none !important;
-        margin-right: 0.5rem;
-    }
-    .mobile-nav-close button {
-        background: none;
-        border: none;
-        color: var(--color-white);
-        font-size: 1.75rem;
-        line-height: 1;
-        cursor: pointer;
-        padding: 0.25rem 0.5rem;
-        opacity: 0.8;
-    }
-    .mobile-nav-close button:hover { opacity: 1; }
     .nav-menu li {
         padding: 0;
         border-bottom: 1px solid rgba(255,255,255,0.08);

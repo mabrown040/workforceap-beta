@@ -5,31 +5,72 @@ import { useRouter } from 'next/navigation';
 import { useState, useMemo, useEffect, useId, useCallback, type RefObject } from 'react';
 import { trackEmployerJobAction, trackEmployerBulkDelete } from '@/lib/analytics/events';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { readinessLabel, type JobReadinessLevel } from '@/lib/employer/jobReadiness';
 
 export type EmployerJobBoardItem = {
   id: string;
   title: string;
   location: string;
+  salaryMin: number | null;
+  salaryMax: number | null;
+  locationType: string;
+  jobType: string;
   descriptionPreview: string;
+  descriptionLength: number;
+  requirementsCount: number;
+  suggestedProgramsCount: number;
   status: string;
   statusLabel: string;
   applicationsCount: number;
   updatedAt: Date;
+  readinessLevel: JobReadinessLevel;
+  readinessIssues: string[];
 };
 
 const FILTERS = [
   { value: 'all', label: 'All' },
-  { value: 'draft', label: 'Draft' },
-  { value: 'pending', label: 'Pending' },
+  { value: 'draft', label: 'Drafts' },
+  { value: 'review', label: 'In review' },
   { value: 'live', label: 'Live' },
   { value: 'filled', label: 'Filled' },
 ] as const;
 
+function formatCompensation(min: number | null, max: number | null): string {
+  if (min != null && max != null) {
+    return `$${Math.round(min / 1000)}K–$${Math.round(max / 1000)}K`;
+  }
+  if (min != null) return `From $${Math.round(min / 1000)}K`;
+  if (max != null) return `Up to $${Math.round(max / 1000)}K`;
+  return 'Compensation not set';
+}
+
+function formatWorkStyle(locationType: string, jobType: string): string {
+  const loc =
+    locationType === 'remote' ? 'Remote' : locationType === 'hybrid' ? 'Hybrid' : 'On-site';
+  const jt =
+    jobType === 'fulltime' ? 'Full-time' : jobType === 'parttime' ? 'Part-time' : 'Contract';
+  return `${jt} · ${loc}`;
+}
+
 function statusModifier(status: string): string {
   if (status === 'live') return 'employer-job-card__status--live';
-  if (status === 'pending' || status === 'approved') return 'employer-job-card__status--pending';
+  if (status === 'pending') return 'employer-job-card__status--pending';
+  if (status === 'approved') return 'employer-job-card__status--approved';
   if (status === 'draft') return 'employer-job-card__status--draft';
   return 'employer-job-card__status--neutral';
+}
+
+function nextStepHint(j: EmployerJobBoardItem): string {
+  if (j.status === 'draft') {
+    if (j.readinessLevel === 'thin') return 'Next: fill gaps, then send for review';
+    if (j.readinessLevel === 'usable') return 'Next: submit for WorkforceAP review';
+    return 'Next: submit for WorkforceAP review';
+  }
+  if (j.status === 'pending') return 'Next: we review — listing stays private';
+  if (j.status === 'approved') return 'Next: goes live on the job board';
+  if (j.status === 'live') return 'Next: mark filled when someone starts';
+  if (j.status === 'filled' || j.status === 'closed') return 'Role closed — duplicate if hiring again';
+  return '';
 }
 
 function canBulkDelete(status: string): boolean {
@@ -55,6 +96,7 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
   const filtered = useMemo(() => {
     if (filter === 'all') return jobs;
     if (filter === 'filled') return jobs.filter((j) => j.status === 'filled' || j.status === 'closed');
+    if (filter === 'review') return jobs.filter((j) => j.status === 'pending' || j.status === 'approved');
     return jobs.filter((j) => j.status === filter);
   }, [jobs, filter]);
 
@@ -212,22 +254,44 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
     deletableFiltered.length > 0 && deletableFiltered.every((j) => selected.has(j.id));
 
   const counts = useMemo(() => {
-    const c = { draft: 0, pending: 0, live: 0, filled: 0 };
+    const c = { draft: 0, inReview: 0, live: 0, filled: 0 };
     for (const j of jobs) {
       if (j.status === 'draft') c.draft += 1;
-      else if (j.status === 'pending' || j.status === 'approved') c.pending += 1;
+      else if (j.status === 'pending' || j.status === 'approved') c.inReview += 1;
       else if (j.status === 'live') c.live += 1;
       else if (j.status === 'filled' || j.status === 'closed') c.filled += 1;
     }
     return c;
   }, [jobs]);
 
+  if (jobs.length === 0) {
+    return (
+      <div className="employer-jobs-board">
+        <div className="employer-jobs-board__empty-state" role="status">
+          <h2 className="employer-jobs-board__empty-title">No postings yet</h2>
+          <p className="employer-jobs-board__empty-desc">
+            Start from a careers page or add a single role. Everything stays private until you submit for WorkforceAP
+            review — nothing goes live by surprise.
+          </p>
+          <div className="employer-jobs-board__empty-actions">
+            <Link href="/employer/jobs/import" className="btn btn-primary">
+              Add roles from your careers page
+            </Link>
+            <Link href="/employer/jobs/new" className="btn btn-secondary">
+              Create one posting
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="employer-jobs-board">
       {flashBanner && (
         <div className="employer-jobs-flash-banner" role="status">
           <p className="employer-jobs-flash-banner__text">
-            Deleted <strong>{flashBanner.count}</strong> posting{flashBanner.count === 1 ? '' : 's'}.
+            Removed <strong>{flashBanner.count}</strong> posting{flashBanner.count === 1 ? '' : 's'}.
           </p>
           <button
             type="button"
@@ -239,7 +303,7 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
           </button>
         </div>
       )}
-      <div className="employer-jobs-board__summary" aria-label="Posting counts">
+      <div className="employer-jobs-board__summary" aria-label="Posting counts by stage">
         <span>
           <strong>{counts.draft}</strong> draft{counts.draft === 1 ? '' : 's'}
         </span>
@@ -247,7 +311,7 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
           ·
         </span>
         <span>
-          <strong>{counts.pending}</strong> in review
+          <strong>{counts.inReview}</strong> in review
         </span>
         <span className="employer-jobs-board__summary-sep" aria-hidden="true">
           ·
@@ -263,7 +327,7 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
         </span>
       </div>
 
-      <div className="employer-jobs-board__filters" role="toolbar" aria-label="Filter job postings">
+      <div className="employer-jobs-board__filters" role="toolbar" aria-label="Filter by hiring stage">
         {FILTERS.map((f) => (
           <button
             key={f.value}
@@ -281,14 +345,14 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
         <div
           className="employer-jobs-board__bulk-bar"
           role="region"
-          aria-label="Bulk actions for drafts, items in review, and closed postings"
+          aria-label="Bulk actions for drafts, in review, and closed postings"
         >
           <p className="employer-jobs-board__bulk-count" aria-live="polite">
             {selectedDeletable.length === 0 ? (
-              <>No postings selected.</>
+              <>Select postings below to remove several at once.</>
             ) : (
               <>
-                <strong>{selectedDeletable.length}</strong> posting{selectedDeletable.length === 1 ? '' : 's'} selected
+                <strong>{selectedDeletable.length}</strong> selected
               </>
             )}
           </p>
@@ -305,19 +369,30 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
               disabled={selectedDeletable.length === 0 || bulkBusy}
               onClick={openConfirm}
             >
-              Delete selected
+              Remove selected
             </button>
           </div>
         </div>
       )}
 
       {filtered.length === 0 ? (
-        <p className="employer-jobs-board__empty">No jobs match this filter.</p>
+        <div className="employer-jobs-board__filtered-empty">
+          <p className="employer-jobs-board__empty">Nothing in this stage right now.</p>
+          <button type="button" className="btn btn-secondary btn-sm" onClick={() => setFilter('all')}>
+            Show all postings
+          </button>
+        </div>
       ) : (
         <ul className="employer-jobs-board__grid" role="list">
           {filtered.map((j) => {
             const deletable = canBulkDelete(j.status);
             const checked = selected.has(j.id);
+            const pay = formatCompensation(j.salaryMin, j.salaryMax);
+            const workStyle = formatWorkStyle(j.locationType, j.jobType);
+            const next = nextStepHint(j);
+            const showReadiness = j.status === 'draft' && j.readinessIssues.length > 0;
+            const showPendingNote = j.status === 'pending';
+
             return (
               <li key={j.id}>
                 <article className="employer-job-card">
@@ -327,40 +402,79 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
                         type="checkbox"
                         checked={checked}
                         onChange={(e) => toggleOne(j.id, e.target.checked)}
-                        aria-label={`Select ${j.title} for bulk delete`}
+                        aria-label={`Select ${j.title} for bulk remove`}
                       />
                     </label>
                   )}
-                  <div className="employer-job-card__top">
+                  <div className="employer-job-card__lane">
                     <span className={`employer-job-card__status ${statusModifier(j.status)}`}>{j.statusLabel}</span>
-                    <time className="employer-job-card__time" dateTime={j.updatedAt.toISOString()}>
-                      Updated {j.updatedAt.toLocaleDateString()}
-                    </time>
+                    {next && <span className="employer-job-card__next">{next}</span>}
                   </div>
+                  <time className="employer-job-card__time" dateTime={j.updatedAt.toISOString()}>
+                    Updated {j.updatedAt.toLocaleDateString()}
+                  </time>
+
+                  {showPendingNote && (
+                    <p className="employer-job-card__safety">
+                      With WorkforceAP for review — candidates do not see this posting yet.
+                    </p>
+                  )}
+
+                  {showReadiness && (
+                    <div
+                      className={`employer-job-card__readiness employer-job-card__readiness--${j.readinessLevel}`}
+                      role="note"
+                    >
+                      <span className="employer-job-card__readiness-label">{readinessLabel(j.readinessLevel)}</span>
+                      <ul className="employer-job-card__readiness-list">
+                        {j.readinessIssues.map((issue) => (
+                          <li key={issue}>{issue}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
                   <h2 className="employer-job-card__title">{j.title}</h2>
-                  <p className="employer-job-card__meta">{j.location}</p>
+
+                  <dl className="employer-job-card__facts">
+                    <div className="employer-job-card__fact">
+                      <dt>Where</dt>
+                      <dd>{j.location}</dd>
+                    </div>
+                    <div className="employer-job-card__fact">
+                      <dt>Pay</dt>
+                      <dd>{pay}</dd>
+                    </div>
+                    <div className="employer-job-card__fact">
+                      <dt>How</dt>
+                      <dd>{workStyle}</dd>
+                    </div>
+                  </dl>
+
                   <p className="employer-job-card__preview">{j.descriptionPreview}</p>
+
                   {j.status !== 'draft' && (
                     <p className="employer-job-card__apps">
                       <strong>{j.applicationsCount}</strong> application{j.applicationsCount === 1 ? '' : 's'}
                     </p>
                   )}
+
                   <div className="employer-job-card__actions">
                     <Link
                       href={`/employer/jobs/${j.id}`}
-                      className="btn btn-primary btn-sm"
+                      className="btn btn-primary btn-sm employer-job-card__action-primary"
                       onClick={() => trackEmployerJobAction('edit', j.id, { status: j.status })}
                     >
-                      {j.status === 'draft' ? 'Edit draft' : 'Edit posting'}
+                      {j.status === 'draft' ? 'Edit draft' : 'View & edit'}
                     </Link>
                     {j.status === 'draft' && (
                       <button
                         type="button"
-                        className="btn btn-secondary btn-sm"
+                        className="btn btn-accent btn-sm"
                         disabled={busyId === j.id}
                         onClick={() => submitForReview(j.id, j.status)}
                       >
-                        {busyId === j.id ? 'Submitting…' : 'Submit for review'}
+                        {busyId === j.id ? 'Sending…' : 'Send for review'}
                       </button>
                     )}
                     {(j.status === 'live' || j.status === 'approved') && (
@@ -379,7 +493,7 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
                         className="btn btn-ghost btn-sm"
                         onClick={() => trackEmployerJobAction('view_applications', j.id, { status: j.status })}
                       >
-                        View applications
+                        Applicants
                       </Link>
                     )}
                   </div>
@@ -404,11 +518,11 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
             onClick={(e) => e.stopPropagation()}
           >
             <h2 id={modalTitleId} className="employer-bulk-modal__title">
-              Delete {selectedDeletable.length} posting{selectedDeletable.length === 1 ? '' : 's'}?
+              Remove {selectedDeletable.length} posting{selectedDeletable.length === 1 ? '' : 's'}?
             </h2>
             <p id={modalDescId} className="employer-bulk-modal__desc">
-              This removes the postings from WorkforceAP. Applicant records tied to these postings are removed too.
-              Postings that are live or approved for the public board cannot be selected here — mark filled first.
+              These postings leave WorkforceAP. Applicant records tied to them are removed too. Live and board-approved
+              roles cannot be bulk-removed — mark filled first.
             </p>
             <ul className="employer-bulk-modal__list">
               {selectedDeletable.slice(0, 6).map((id) => {
@@ -421,8 +535,8 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
             </ul>
             {bulkDeleteIncludesPendingReview && (
               <p id={modalPendingNoteId} className="employer-bulk-modal__pending-callout" role="note">
-                <strong>In review:</strong> at least one selected posting is pending WorkforceAP review. Deleting it removes
-                it from the admin review queue. You can still proceed.
+                <strong>In review:</strong> at least one selected posting is waiting on WorkforceAP. Removing it pulls it
+                from our review queue. You can still continue.
               </p>
             )}
             {bulkError && <p className="employer-bulk-modal__error">{bulkError}</p>}
@@ -431,7 +545,7 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
                 Cancel
               </button>
               <button type="button" className="btn btn-primary employer-bulk-modal__confirm" disabled={bulkBusy} onClick={runBulkDelete}>
-                {bulkBusy ? 'Deleting…' : 'Yes, delete'}
+                {bulkBusy ? 'Removing…' : 'Yes, remove'}
               </button>
             </div>
           </div>

@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import EmployerJobsBoard from '@/components/employer/EmployerJobsBoard';
+import { assessJobPostingReadiness } from '@/lib/employer/jobReadiness';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'My Jobs',
@@ -15,7 +16,7 @@ export const metadata: Metadata = buildPageMetadata({
 
 const STATUS_LABELS: Record<string, string> = {
   draft: 'Draft',
-  pending: 'Pending Review',
+  pending: 'In review',
   approved: 'Approved',
   live: 'Live',
   filled: 'Filled',
@@ -37,15 +38,33 @@ export default async function EmployerJobsPage() {
 
   const boardItems = jobs.map((j) => {
     const desc = j.description?.trim() ?? '';
+    const location = j.location?.trim() || '';
+    const readiness = assessJobPostingReadiness({
+      location: location || '—',
+      salaryMin: j.salaryMin,
+      salaryMax: j.salaryMax,
+      description: desc,
+      requirementsCount: j.requirements?.length ?? 0,
+      suggestedProgramsCount: j.suggestedPrograms?.length ?? 0,
+    });
     return {
       id: j.id,
       title: j.title,
-      location: j.location?.trim() || '—',
-      descriptionPreview: desc.length > 220 ? `${desc.slice(0, 220).trim()}…` : desc || '—',
+      location: location || '—',
+      salaryMin: j.salaryMin,
+      salaryMax: j.salaryMax,
+      locationType: j.locationType,
+      jobType: j.jobType,
+      descriptionPreview: desc.length > 180 ? `${desc.slice(0, 180).trim()}…` : desc || '—',
+      descriptionLength: desc.length,
+      requirementsCount: j.requirements?.length ?? 0,
+      suggestedProgramsCount: j.suggestedPrograms?.length ?? 0,
       status: j.status,
       statusLabel: STATUS_LABELS[j.status] ?? j.status,
       applicationsCount: j._count.applications,
       updatedAt: j.updatedAt,
+      readinessLevel: readiness.level,
+      readinessIssues: readiness.issues,
     };
   });
 
@@ -58,15 +77,16 @@ export default async function EmployerJobsPage() {
         </div>
         <div className="employer-jobs-actions">
           <Link href="/employer/jobs/import" className="btn btn-primary btn-sm">
-            Import from careers page
+            Add from careers page
           </Link>
           <Link href="/employer/jobs/new" className="btn btn-secondary btn-sm">
-            Post a job
+            New posting
           </Link>
         </div>
       </header>
       <p className="employer-jobs-lead">
-        Use filters and bulk select to clean up drafts. Anything live or already approved for the board is protected from bulk delete — mark it filled first.
+        Scan by stage, tighten drafts before you send them, and bulk-clean what you do not need. Live and board-approved
+        postings stay protected until you mark a role filled.
       </p>
       <EmployerJobsBoard jobs={boardItems} />
     </div>

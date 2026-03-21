@@ -14,14 +14,21 @@ const MEMBER_PORTAL_PREFIXES = [
   '/account',
 ];
 
+const DEDICATED_SHELL_PREFIXES = ['/employer', '/partner', '/my-group'];
+
 function isMemberPortalPath(path: string) {
   return MEMBER_PORTAL_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`));
+}
+
+function hasDedicatedShell(path: string) {
+  return DEDICATED_SHELL_PREFIXES.some((p) => path.startsWith(p));
 }
 
 export default function PortalShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() ?? '';
   const isDashboard = pathname.startsWith('/dashboard');
   const isPartnerPortal = pathname.startsWith('/partner');
+  const isDedicatedShell = hasDedicatedShell(pathname);
 
   useEffect(() => {
     let cancelled = false;
@@ -46,7 +53,7 @@ export default function PortalShell({ children }: { children: React.ReactNode })
 
   return (
     <>
-      {!isDashboard && !isPartnerPortal && <PortalNav />}
+      {!isDashboard && !isPartnerPortal && !isDedicatedShell && <PortalNav />}
       {children}
     </>
   );

@@ -41,7 +41,7 @@ const insights = [
 
 export default function SalaryGuidePage() {
   return (
-    <div className="inner-page">
+    <div className="inner-page salary-guide-page">
       <PageHero
         title="WorkforceAP Salary Guide"
         subtitle="Entry-level salaries: $48K to $145K. Use this with fit, timeline, and ramp — not just the biggest number."
@@ -58,7 +58,7 @@ export default function SalaryGuidePage() {
         <div className="container">
           <div className="salary-guide-fit-context">
             <p className="salary-guide-fit-lead">
-              Salary is one factor. The right program fits your timeline, tech comfort, and goals. Higher pay usually means a steeper ramp — 4–6 months, more technical depth. Entry paths ($48K–$72K) are often smarter first steps: faster to complete, strong foundation, room to grow.
+              Salary is one factor. The right program fits your timeline and tech comfort. Higher pay often means a steeper ramp. Entry paths ($48K–$72K) can be smarter first steps — faster to complete, strong foundation.
             </p>
             <div className="salary-guide-decision-steps">
               <p><strong>How to use this guide:</strong> Take the pathfinder quiz to narrow your fit → compare programs side-by-side → apply when ready.</p>
@@ -84,8 +84,8 @@ export default function SalaryGuidePage() {
           </div>
 
           <h2 style={{ marginBottom: '.5rem' }}>Program Starting Salaries</h2>
-          <p style={{ color: '#666', marginBottom: '0.5rem' }}>Entry-level (0–1 year experience). Sources: ZipRecruiter, Glassdoor, PayScale — February 2026 U.S. benchmarks. Austin-area tech salaries typically 5–10% above national. We&rsquo;re launching in Austin; these numbers hold across markets we expand to.</p>
-          <p style={{ color: '#888', fontSize: '0.85rem', marginBottom: '1.5rem' }}><strong>Ramp</strong> = commitment/difficulty: Easier = quicker to complete, good for first credential. Steeper = more technical depth, higher payoff if you can invest.</p>
+          <p className="salary-guide-table-intro">Entry-level (0–1 year). Sources: ZipRecruiter, Glassdoor, PayScale — Feb 2026 U.S. benchmarks. Austin runs 5–10% above. Launching in Austin; numbers hold as we expand.</p>
+          <p className="salary-guide-ramp-legend"><strong>Ramp:</strong> Easier = quicker, good first credential. Steeper = more depth, higher payoff.</p>
 
           {/* Desktop: table | Mobile: hidden (cards shown instead) */}
           <div className="salary-guide-table-wrap">

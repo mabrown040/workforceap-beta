@@ -807,6 +807,20 @@ a.btn-accent:hover {
     margin: 0 auto;
     padding: 0 2rem;
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+.stats-trust-line {
+    text-align: center;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.95);
+    margin: 0;
+    letter-spacing: 0.02em;
+}
+.stats-bar .stats-row {
+    display: flex;
     justify-content: center;
     gap: 4rem;
     flex-wrap: wrap;
@@ -1629,6 +1643,24 @@ a.btn-accent:hover {
     background: var(--color-light);
     border-color: var(--color-accent);
 }
+.home-for-you-cta {
+    text-align: center;
+    margin-top: 2rem;
+}
+.programs-preview-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+.programs-preview-actions .btn { flex: 1 1 auto; min-width: 140px; }
+.footer-cta-sub {
+    margin-top: 1.25rem;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+.footer-cta-sub a { color: var(--color-white); text-decoration: underline; text-underline-offset: 3px; }
+.footer-cta-sub a:hover { opacity: 1; }
 .about-actions {
     display: flex;
     flex-wrap: wrap;

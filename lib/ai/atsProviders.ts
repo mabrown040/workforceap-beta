@@ -434,8 +434,9 @@ export async function importJobsFromUrl(url: string): Promise<ATSParseResult> {
 /**
  * Fetch page text using best available method (generic fetch → Firecrawl fallback).
  * Returns cleaned text for AI parsing.
+ * @param waitFor - ms to wait for JS rendering (Rippling, Workday, etc.)
  */
-export async function fetchPageText(url: string): Promise<string | null> {
+export async function fetchPageText(url: string, options?: { waitFor?: number }): Promise<string | null> {
   // Try generic fetch first
   const page = await fetchGenericPage(url);
   if (page && !page.isJSRendered && page.text.length > 200) {
@@ -443,7 +444,7 @@ export async function fetchPageText(url: string): Promise<string | null> {
   }
 
   // Try Firecrawl for JS-rendered pages
-  const firecrawlResult = await fetchWithFirecrawlCached(url);
+  const firecrawlResult = await fetchWithFirecrawlCached(url, { waitFor: options?.waitFor ?? 2000 });
   if (firecrawlResult && firecrawlResult.text.length > 200) {
     return firecrawlResult.text;
   }

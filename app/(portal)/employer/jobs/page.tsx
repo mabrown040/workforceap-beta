@@ -62,18 +62,18 @@ export default async function EmployerJobsPage() {
   }));
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <h1 style={{ fontSize: '1.75rem', margin: 0 }}>My Jobs</h1>
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <Link href="/employer/jobs/import" className="btn btn-secondary">
-            Import jobs
+    <div className="employer-jobs-page">
+      <header className="employer-jobs-header">
+        <h1>My Jobs</h1>
+        <div className="employer-jobs-actions">
+          <Link href="/employer/jobs/import" className="btn btn-secondary btn-sm">
+            Import
           </Link>
-          <Link href="/employer/jobs/new" className="btn btn-primary">
-            Post New Job
+          <Link href="/employer/jobs/new" className="btn btn-primary btn-sm">
+            Post Job
           </Link>
         </div>
-      </div>
+      </header>
       <DraftJobCards drafts={draftCards} />
       <JobsTable jobs={items} />
     </div>

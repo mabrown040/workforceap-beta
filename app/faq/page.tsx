@@ -8,7 +8,7 @@ import FAQContent from './FAQContent';
 export const metadata: Metadata = buildPageMetadata({
   title: 'FAQ',
   description:
-    'Find answers about admissions, eligibility, certifications, schedule, and job placement support.',
+    'Answers about admissions, eligibility, certifications, and job placement. For applicants, parents, partners, and anyone with questions.',
   path: '/faq',
 });
 
@@ -17,13 +17,13 @@ export default function FAQPage() {
     <div className="inner-page">
       <PageHero
         title="Frequently Asked Questions"
-        subtitle="Answers about our programs, admissions, job placement assistance, and more."
+        subtitle="Answers that address your concerns — whether you&rsquo;re applying, supporting someone who is, or deciding if WorkforceAP is right for you."
       />
       <PhotoHighlight
         imageUrl="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1400&q=80"
         label="Quick Answers"
         title="Everything You Need to Know"
-        description="Quick answers about applying, programs, and what happens after."
+        description="Honest answers about how we work, what we expect, and what you can expect from us."
       />
       <FAQContent />
       <Footer />

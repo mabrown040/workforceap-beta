@@ -26,15 +26,15 @@ export default function ApplyEligibilityClient() {
   };
 
   return (
-    <div className="apply-flow">
+      <div className="apply-flow">
       <div className="apply-progress-bar">
         <div className="apply-progress-fill" style={{ width: '33%' }} />
         <p className="apply-progress-label">Step 1 of 3</p>
       </div>
 
       <div className="apply-step-content">
-        <h2 className="apply-step-title">Let&rsquo;s see what you qualify for</h2>
-        <p className="apply-step-desc">Answer these quick questions to see what options may be available.</p>
+        <h2 className="apply-step-title">Quick check — we want to help you find the right fit</h2>
+        <p className="apply-step-desc">These answers help us point you to the right program and funding options. Everyone who applies gets a personal response.</p>
 
         <div className="funding-questions">
           <div className="form-group">

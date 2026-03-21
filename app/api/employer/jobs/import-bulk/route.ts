@@ -4,7 +4,7 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { parseJobFromText, parseJobListingsFromPageText } from '@/lib/ai/parseJob';
-import { smartImportJobs, detectProvider } from '@/lib/ai/atsProviders';
+import { smartImportJobs, detectProvider, fetchPageText } from '@/lib/ai/atsProviders';
 
 const bulkSchema = z
   .object({

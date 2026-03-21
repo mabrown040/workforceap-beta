@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
-import { Handshake, Users, Award, ArrowRight, HelpCircle } from 'lucide-react';
+import { Handshake, Users, Award, ArrowRight, HelpCircle, Briefcase, Building2, Landmark, Heart } from 'lucide-react';
 import PageHero from '@/components/PageHero';
 import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
@@ -9,67 +9,89 @@ import Footer from '@/components/Footer';
 export const metadata: Metadata = buildPageMetadata({
   title: 'Partners',
   description:
-    'Partner with WorkforceAP to refer talent, support Austin-area career training, and connect with certified graduates ready for hire.',
+    'Partner with WorkforceAP: employers hire talent, referral orgs send candidates, workforce boards align, funders support scale. Clear next steps for each.',
   path: '/partners',
 });
+
+const PARTNER_TYPES = [
+  {
+    icon: Briefcase,
+    type: 'Employers',
+    who: 'Companies hiring for IT, cyber, data, project management, healthcare, trades.',
+    why: 'Access pre-screened, certified talent. Post jobs free or become a hiring partner for first access to cohorts.',
+    nextStep: { text: 'Visit Employer Page', href: '/employers' },
+  },
+  {
+    icon: Users,
+    type: 'Referral & Community Orgs',
+    who: 'Nonprofits, social services, churches, reentry programs, community centers.',
+    why: 'Refer clients who need career training. We follow up within 24–48 hours. No cost to refer. You get updates when referred individuals complete programs.',
+    nextStep: { text: 'Contact to Refer', href: '/contact?topic=partnership' },
+  },
+  {
+    icon: Landmark,
+    type: 'Workforce Boards & Agencies',
+    who: 'Workforce Solutions, TWC, WIOA providers, government workforce programs.',
+    why: 'Align your participants with employer-recognized certifications. We handle training and placement; you strengthen outcomes for your population.',
+    nextStep: { text: 'Discuss Alignment', href: '/contact?topic=partnership' },
+  },
+  {
+    icon: Heart,
+    type: 'Supporters & Funders',
+    who: 'Foundations, corporate giving, impact investors, individual donors.',
+    why: 'Fund a model that works. Employer-aligned training, no participant debt, measurable job outcomes. We\'re launching in Austin and building toward expansion.',
+    nextStep: { text: 'Learn How to Support', href: '/contact?topic=partnership' },
+  },
+];
 
 export default function PartnersPage() {
   return (
     <div className="inner-page">
       <PageHero
         title="Partner With Us"
-        subtitle="Refer talent, support career training, and connect with certified graduates ready for hire."
+        subtitle="Different partners, different roles. Find yours and take the next step."
       />
 
       <PhotoHighlight
         imageUrl="https://images.unsplash.com/photo-1552664730-d307ca884978?w=1400&q=80"
         label="Partnership"
         title="Building a Skilled Workforce Together"
-        description="WorkforceAP partners with employers, community organizations, and service providers to deliver free career training and certifications to Austin-area residents."
+        description="We partner with employers who hire, orgs who refer, workforce boards who align, and funders who scale. Each partnership type has a clear path."
       />
 
       <section className="content-section">
         <div className="container">
-          <h2 className="section-title animate-on-scroll">Partner Benefits</h2>
-          <div className="values-grid" style={{ marginBottom: '3rem' }}>
-            {[
-              { Icon: Users, name: 'Access to Talent', desc: 'Connect with job-ready graduates who hold industry certifications from Google, IBM, AWS, Microsoft, and CompTIA.' },
-              { Icon: Award, name: 'Quality Assurance', desc: 'Every graduate completes workforce readiness training, resume support, and interview prep before entering the job market.' },
-              { Icon: Handshake, name: 'Community Impact', desc: 'Strengthen the Austin workforce and support economic mobility for underserved residents and adult learners.' },
-            ].map(({ Icon, name, desc }) => (
-              <div key={name} className="value-card animate-on-scroll">
-                <div className="value-icon"><Icon size={28} className="text-current" /></div>
-                <h3>{name}</h3>
-                <p>{desc}</p>
+          <h2 className="section-title animate-on-scroll">What Kind of Partner Are You?</h2>
+          <div className="partners-type-grid">
+            {PARTNER_TYPES.map(({ icon: Icon, type, who, why, nextStep }) => (
+              <div key={type} className="partners-type-card animate-on-scroll">
+                <div className="partners-type-icon"><Icon size={28} className="text-current" /></div>
+                <h3>{type}</h3>
+                <p className="partners-type-who"><strong>You are:</strong> {who}</p>
+                <p className="partners-type-why"><strong>Why partner:</strong> {why}</p>
+                <Link href={nextStep.href} className="btn btn-outline btn-sm">
+                  {nextStep.text} <ArrowRight size={16} style={{ marginLeft: '0.25rem' }} />
+                </Link>
               </div>
             ))}
           </div>
 
-          <h2 className="section-title animate-on-scroll">How Referrals Work</h2>
+          <h2 className="section-title animate-on-scroll" style={{ marginTop: '3rem' }}>How Referrals Work</h2>
           <div className="two-col" style={{ marginBottom: '3rem' }}>
             <div>
-              <p>Partners can refer individuals who may benefit from our free career training programs. Our team reviews each referral and reaches out to the candidate within 24–48 hours.</p>
+              <p>Referral partners send us candidates who may benefit from free career training. We reach out within 24–48 hours and walk them through the process.</p>
               <ul style={{ marginTop: '1rem', paddingLeft: '1.25rem' }}>
-                <li style={{ marginBottom: '0.5rem' }}>Submit a referral through our partner portal or contact form</li>
-                <li style={{ marginBottom: '0.5rem' }}>We contact the candidate and walk them through the application process</li>
-                <li style={{ marginBottom: '0.5rem' }}>Accepted members receive full support: training, certifications, and job placement assistance</li>
-                <li>Partners receive updates on referred candidates who complete programs</li>
+                <li style={{ marginBottom: '0.5rem' }}>Submit a referral via our contact form or partner portal</li>
+                <li style={{ marginBottom: '0.5rem' }}>We contact the candidate within 24–48 hours</li>
+                <li style={{ marginBottom: '0.5rem' }}>Accepted members receive training, certifications, and job placement support</li>
+                <li>You receive updates when referred individuals complete programs</li>
               </ul>
             </div>
             <div>
-              <p>Referrals work best when the candidate is motivated to complete training and is interested in careers in technology, healthcare, manufacturing, or skilled trades.</p>
-              <Link href="/contact" className="link-arrow" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginTop: '1rem' }}>
-                Contact us to discuss referrals <ArrowRight size={18} />
+              <p>Best referrals: motivated to finish training, interested in tech, healthcare, manufacturing, or trades. Currently serving Austin area; expanding over time.</p>
+              <Link href="/contact?topic=partnership" className="link-arrow" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginTop: '1rem' }}>
+                Contact us to refer <ArrowRight size={18} />
               </Link>
-            </div>
-          </div>
-
-          <h2 className="section-title animate-on-scroll">Become a Partner</h2>
-          <div className="cta-section animate-on-scroll" style={{ background: 'var(--color-light)', padding: '2rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-gray-200)' }}>
-            <p style={{ marginBottom: '1.5rem' }}>We welcome partnerships with employers, workforce boards, community organizations, and service providers. Whether you want to refer candidates, hire graduates, or support our mission, we&apos;d love to connect.</p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-              <Link href="/contact?topic=partnership" className="btn btn-primary">Get in Touch</Link>
-              <Link href="/programs" className="btn btn-outline">View Our Programs</Link>
             </div>
           </div>
 

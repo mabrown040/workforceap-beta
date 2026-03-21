@@ -292,7 +292,7 @@ async function fetchWithFirecrawl(url: string): Promise<{ text: string } | null>
     const FirecrawlModule = await import('@mendable/firecrawl-js');
     const Firecrawl = FirecrawlModule.default;
     const app = new Firecrawl({ apiKey });
-    const result = await app.scrapeUrl(url, { formats: ['markdown'] });
+    const result = await app.scrape(url, { formats: ['markdown'] }) as { success?: boolean; markdown?: string };
     if (result.success && result.markdown && result.markdown.length > 100) {
       return { text: result.markdown.slice(0, 28000) };
     }

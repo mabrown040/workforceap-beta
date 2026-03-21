@@ -286,10 +286,29 @@ function getJSRenderedGuidance(provider: string): string {
 // Tier 3: Firecrawl (JS-rendered page scraping)
 // ────────────────────────────────────────────────────────────
 
+/** True when Firecrawl API calls can be attempted (optional in dev). */
+export function isFirecrawlConfigured(): boolean {
+  return Boolean(process.env.FIRECRAWL_API_KEY?.trim());
+}
+
+/** After 429 / quota errors, skip Firecrawl for a short window (bulk import, serverless warm). */
+let firecrawlCooldownUntil = 0;
+const FIRECRAWL_COOLDOWN_MS = 90_000;
+
+function triggerFirecrawlCooldown(reason: string) {
+  firecrawlCooldownUntil = Date.now() + FIRECRAWL_COOLDOWN_MS;
+  console.warn(`[Firecrawl] Cooldown ${FIRECRAWL_COOLDOWN_MS}ms — ${reason}`);
+}
+
 async function fetchWithFirecrawl(url: string, options?: { waitFor?: number }): Promise<{ text: string } | null> {
   const apiKey = process.env.FIRECRAWL_API_KEY;
   if (!apiKey) {
-    console.warn('[Firecrawl] FIRECRAWL_API_KEY not set');
+    console.warn('[Firecrawl] FIRECRAWL_API_KEY not set — skipping scrape (use paste or direct job URLs)');
+    return null;
+  }
+
+  if (Date.now() < firecrawlCooldownUntil) {
+    console.warn('[Firecrawl] Skipping scrape during cooldown after rate limit or quota');
     return null;
   }
 
@@ -308,8 +327,30 @@ async function fetchWithFirecrawl(url: string, options?: { waitFor?: number }): 
       body: JSON.stringify(body),
     });
 
-    const json = (await res.json()) as { success?: boolean; data?: { markdown?: string }; error?: string; code?: string };
+    const json = (await res.json()) as {
+      success?: boolean;
+      data?: { markdown?: string };
+      error?: string;
+      code?: string;
+    };
     const markdown = json.data?.markdown;
+    const errLower = (json.error ?? json.code ?? '').toString().toLowerCase();
+
+    if (res.status === 429 || res.status === 402) {
+      triggerFirecrawlCooldown(`HTTP ${res.status}`);
+      return null;
+    }
+
+    if (
+      errLower.includes('rate limit') ||
+      errLower.includes('quota') ||
+      errLower.includes('billing') ||
+      errLower.includes('exceeded') ||
+      errLower.includes('too many requests')
+    ) {
+      triggerFirecrawlCooldown(json.error ?? json.code ?? 'quota');
+      return null;
+    }
 
     if (!res.ok) {
       console.warn('[Firecrawl] Scrape failed', url, res.status, json.error ?? json.code ?? 'unknown');
@@ -385,7 +426,9 @@ export async function importJobsFromUrl(url: string): Promise<ATSParseResult> {
       }
 
       const guidance = getJSRenderedGuidance(detected.provider);
-      const hint = !process.env.FIRECRAWL_API_KEY ? ' Add FIRECRAWL_API_KEY to enable automated scraping.' : '';
+      const hint = !isFirecrawlConfigured()
+        ? ' Automatic page reading is not enabled here — paste job text or use direct job links.'
+        : '';
       return {
         provider: detected.provider,
         jobs: [],
@@ -420,7 +463,11 @@ export async function importJobsFromUrl(url: string): Promise<ATSParseResult> {
     return {
       provider: 'generic',
       jobs: [],
-      errors: ['This career page uses JavaScript rendering. Firecrawl is not configured — add FIRECRAWL_API_KEY to enable JS page scraping, or paste individual job URLs.'],
+      errors: [
+        isFirecrawlConfigured()
+          ? 'This careers page needs our page reader, and it did not return usable text (try again in a minute, paste the listings, or use direct job URLs).'
+          : 'This careers page loads heavily in the browser. Paste the job text or individual job links — or ask your admin to enable automatic page reading for imports.',
+      ],
     };
   }
 

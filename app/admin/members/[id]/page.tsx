@@ -11,6 +11,7 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
 import Footer from '@/components/Footer';
 import MemberDetailActions from '@/components/admin/MemberDetailActions';
+
 import CreateSuccessToast from './CreateSuccessToast';
 import { formatPhone } from '@/lib/formatPhone';
 import { ClipboardList, CheckCircle } from 'lucide-react';
@@ -55,7 +56,10 @@ export default async function AdminMemberDetailPage({
 
   const member = await prisma.user.findUnique({
     where: { id },
-    include: { profile: true },
+    include: {
+      profile: true,
+      partnerReferrals: { include: { partner: { select: { id: true, name: true } } }, take: 1 },
+    },
   });
 
   if (!member || member.deletedAt) notFound();

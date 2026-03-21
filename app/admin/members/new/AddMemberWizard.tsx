@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Program } from '@/lib/content/programs';
 import { ProgramIcon } from '@/components/ProgramIcon';
@@ -37,6 +37,7 @@ type FormData = {
   ethnicity: string;
   programSlug: string;
   programNotes: string;
+  partnerId: string;
 };
 
 const initialForm: FormData = {
@@ -58,6 +59,7 @@ const initialForm: FormData = {
   ethnicity: '',
   programSlug: '',
   programNotes: '',
+  partnerId: '',
 };
 
 type Props = { programs: Program[] };
@@ -72,6 +74,14 @@ export default function AddMemberWizard({ programs }: Props) {
   const [improvementSummary, setImprovementSummary] = useState<string[]>([]);
   const [loading, setLoading] = useState<'parse' | 'enhance' | 'create' | null>(null);
   const [error, setError] = useState('');
+  const [partners, setPartners] = useState<{ id: string; name: string }[]>([]);
+
+  useEffect(() => {
+    fetch('/api/admin/partners')
+      .then((r) => r.json())
+      .then((data) => { if (Array.isArray(data)) setPartners(data.map((p: { id: string; name: string }) => ({ id: p.id, name: p.name }))); })
+      .catch(() => {});
+  }, []);
 
   const update = (k: keyof FormData, v: FormData[keyof FormData]) => {
     setForm((f) => ({ ...f, [k]: v }));
@@ -163,6 +173,13 @@ export default function AddMemberWizard({ programs }: Props) {
         if (resumeFile) fd.append('resumeOriginal', resumeFile);
         if (enhancedResume) fd.append('resumeEnhanced', enhancedResume);
         await fetch(`/api/admin/members/${userId}/upload-resume`, { method: 'POST', body: fd });
+      }
+      if (userId && form.partnerId) {
+        await fetch(`/api/admin/members/${userId}/partner`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ partnerId: form.partnerId }),
+        });
       }
       const email = data.email ?? form.email;
       router.push(`/admin/members/${userId}?toast=created&email=${encodeURIComponent(email)}`);
@@ -263,11 +280,18 @@ export default function AddMemberWizard({ programs }: Props) {
                 {EDUCATION.map((o) => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
-            <div className="wizard-field wizard-field-full">
+            <div className="wizard-field">
               <label>Referral Source</label>
               <select value={form.referralSource} onChange={(e) => update('referralSource', e.target.value)}>
                 <option value="">Select…</option>
                 {REFERRAL.map((o) => <option key={o} value={o}>{o}</option>)}
+              </select>
+            </div>
+            <div className="wizard-field">
+              <label>Partner Referral</label>
+              <select value={form.partnerId} onChange={(e) => update('partnerId', e.target.value)}>
+                <option value="">No partner</option>
+                {partners.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
             </div>
           </div>
@@ -430,6 +454,7 @@ export default function AddMemberWizard({ programs }: Props) {
             <p><strong>Personal:</strong> {form.firstName} {form.lastName}, {form.email}, {formatPhone(form.phone)}</p>
             <p><strong>WIOA:</strong> Citizen {form.usCitizen ? 'Yes' : 'No'}, Authorized {form.authorizedToWork ? 'Yes' : 'No'}, Disability {form.hasDisability ? 'Yes' : 'No'}, Ethnicity: {form.ethnicity || '—'}</p>
             <p><strong>Program:</strong> {programs.find((p) => p.slug === form.programSlug)?.title ?? form.programSlug}</p>
+            <p><strong>Partner:</strong> {form.partnerId ? partners.find((p) => p.id === form.partnerId)?.name ?? form.partnerId : 'None'}</p>
             <p><strong>Resume:</strong> {resumeFile ? 'Original uploaded' : 'Not uploaded'}{enhancedResume ? ' + Enhanced' : ''}</p>
             {form.notes && <p><strong>Counselor notes:</strong> {form.notes}</p>}
           </div>

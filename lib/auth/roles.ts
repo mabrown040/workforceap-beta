@@ -29,3 +29,17 @@ export async function requireAdmin(userId: string): Promise<void> {
     throw new Error('Forbidden: admin access required');
   }
 }
+
+export async function isPartner(userId: string): Promise<boolean> {
+  const partnerUser = await prisma.partnerUser.findUnique({
+    where: { userId },
+  });
+  return !!partnerUser;
+}
+
+export async function getPartnerForUser(userId: string) {
+  return prisma.partnerUser.findUnique({
+    where: { userId },
+    include: { partner: true },
+  });
+}

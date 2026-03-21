@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Linkedin } from 'lucide-react';
@@ -8,31 +7,20 @@ import { LEADERS } from '@/lib/content/leadership';
 import './leadership.css';
 
 export default function LeadershipContent() {
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
-
-  const toggleBio = (e: React.MouseEvent, slug: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setExpanded((prev) => ({ ...prev, [slug]: !prev[slug] }));
-  };
-
   return (
-    <section className="content-section">
+    <section className="content-section leadership-trust-page">
       <div className="container">
-        <h2 style={{ marginBottom: '0.5rem', textAlign: 'center' }} className="animate-on-scroll">
-          Our Team
-        </h2>
-        <p
-          style={{
-            textAlign: 'center',
-            color: 'var(--color-gray-500)',
-            marginBottom: '2.5rem',
-            fontSize: '1rem',
-          }}
-          className="animate-on-scroll"
-        >
-          Click a card to read the full bio, or use &quot;Read more&quot; to expand here.
-        </p>
+        <div className="leadership-trust-intro animate-on-scroll">
+          <p className="leadership-trust-lead">
+            Our board and leadership bring the combination that makes WorkforceAP work:
+            <strong> decades of Austin workforce experience</strong>, <strong>employer-side tech credibility</strong>, <strong>military and operations discipline</strong>, and <strong>community roots</strong> that connect training to real outcomes.
+          </p>
+          <p className="leadership-trust-sub">
+            This isn&apos;t a generic nonprofit team. These are people who&apos;ve run programs at scale, led at Goodwill and Urban League, built systems at IBM and Microsoft, commanded in the Army and at AWS — and who show up for Austin.
+          </p>
+        </div>
+
+        <h2 className="leadership-grid-title animate-on-scroll">Meet the Team</h2>
 
         <div className="leaders-card-grid animate-on-scroll">
           {LEADERS.map((leader) => (
@@ -47,17 +35,18 @@ export default function LeadershipContent() {
               <div className="leader-card-body">
                 <div className="leader-card-name">{leader.name}</div>
                 <div className="leader-card-role">{leader.role}</div>
-                <p className={`leader-card-bio ${expanded[leader.slug] ? 'expanded' : ''}`}>
+                {leader.missionRelevance && (
+                  <p className="leader-card-relevance">
+                    {leader.missionRelevance}
+                  </p>
+                )}
+                <p className="leader-card-bio">
                   {leader.cardBio}
                 </p>
                 <div className="leader-card-actions">
-                  <button
-                    type="button"
-                    className="leader-card-read-more"
-                    onClick={(e) => toggleBio(e, leader.slug)}
-                  >
-                    {expanded[leader.slug] ? 'Show less' : 'Read more'}
-                  </button>
+                  <Link href={`/leadership/${leader.slug}`} className="leader-card-profile-link">
+                    Full profile →
+                  </Link>
                   <a
                     href={leader.linkedin}
                     target="_blank"
@@ -77,8 +66,7 @@ export default function LeadershipContent() {
         <div className="join-cta animate-on-scroll">
           <h2>Join Our Mission</h2>
           <p>
-            Interested in partnering with us, volunteering your expertise, or joining the board? We&apos;d love
-            to hear from you.
+            Interested in partnering, volunteering, or joining the board? We&apos;d love to hear from you.
           </p>
           <Link href="/contact" className="btn btn-primary btn-large">
             Get In Touch

@@ -1,14 +1,13 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import PageHero from '@/components/PageHero';
-import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
 import LeadershipContent from './LeadershipContent';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Board & Leadership',
   description:
-    "Meet the board and leadership team driving WorkforceAP's mission to break systemic barriers through workforce training.",
+    "Why WorkforceAP's leadership team makes us unusually credible: 25+ years Austin workforce experience, employer-side tech leaders, military discipline, and community roots.",
   path: '/leadership',
 });
 
@@ -17,13 +16,7 @@ export default function LeadershipPage() {
     <div className="inner-page">
       <PageHero
         title="Board & Leadership"
-        subtitle="The dedicated people driving WorkforceAP's mission to break systemic barriers and advance futures."
-      />
-      <PhotoHighlight
-        imageUrl="https://images.unsplash.com/photo-1552664730-d307ca884978?w=1400&q=80"
-        label="Our Team"
-        title="Experienced Leaders, Proven Results"
-        description="Our board brings together decades of experience in technology, workforce development, military leadership, and business operations."
+        subtitle="Why this team makes WorkforceAP unusually credible and capable."
       />
       <LeadershipContent />
       <Footer />

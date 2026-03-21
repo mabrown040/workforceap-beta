@@ -1,3 +1,52 @@
+/* Leadership — mission-led trust page */
+.leadership-trust-intro {
+    max-width: 720px;
+    margin: 0 auto 2.5rem;
+    text-align: center;
+}
+.leadership-trust-lead {
+    font-size: 1.15rem;
+    line-height: 1.7;
+    color: var(--color-gray-700);
+    margin-bottom: 1rem;
+}
+.leadership-trust-lead strong {
+    color: var(--color-primary);
+    font-weight: 600;
+}
+.leadership-trust-sub {
+    font-size: 0.95rem;
+    color: var(--color-gray-600);
+    line-height: 1.65;
+}
+.leadership-grid-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--color-gray-700);
+}
+
+.leader-card-relevance {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--color-accent);
+    font-weight: 500;
+    margin-bottom: 0.6rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(173, 44, 77, 0.06);
+    border-left: 3px solid var(--color-accent);
+    border-radius: 0 4px 4px 0;
+}
+.leader-card-profile-link {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-accent);
+}
+.leader-card-profile-link:hover {
+    text-decoration: underline;
+}
+
 /* Leadership — card grid layout */
 .leaders-card-grid {
     display: grid;
@@ -85,54 +134,22 @@
 }
 
 .leader-card-bio {
-    font-size: 14px;
-    line-height: 1.6;
+    font-size: 0.9rem;
+    line-height: 1.55;
     color: var(--color-gray-600);
-    margin-bottom: 0.5rem;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    margin-bottom: 0.75rem;
     flex: 1;
-}
-
-.leader-card-bio.expanded {
-    display: block;
-    -webkit-line-clamp: unset;
-    -webkit-box-orient: unset;
-    overflow: visible;
 }
 
 .leader-card-actions {
     position: relative;
     z-index: 2;
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.65rem;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
     margin-top: auto;
-    padding-top: 0.35rem;
-}
-
-.leader-card-read-more {
-    align-self: flex-start;
-    background: none;
-    border: none;
-    color: var(--color-accent);
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 0.25rem 0;
-    transition: color var(--transition-fast);
-}
-
-.leader-card-read-more:hover {
-    color: var(--color-accent-dark);
-}
-
-.leader-card-read-more:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 2px var(--color-white), 0 0 0 4px var(--color-accent);
+    padding-top: 0.5rem;
 }
 
 .leader-card-linkedin {

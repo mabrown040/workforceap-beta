@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { parseJobFromText, parseJobListingsFromPageText } from '@/lib/ai/parseJob';
 import { smartImportJobs, detectProvider } from '@/lib/ai/atsProviders';
+import { buildEmployerJobCreateData, getRouteErrorDetails } from '@/lib/employer/jobCreate';
 
 const bulkSchema = z
   .object({
@@ -41,22 +42,31 @@ async function fetchTextFromUrl(url: string): Promise<string | null> {
 }
 
 export async function POST(request: NextRequest) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const ctx = await getEmployerForUser(user.id);
-  if (!ctx) return NextResponse.json({ error: 'Forbidden: employer access required' }, { status: 403 });
+    const ctx = await getEmployerForUser(user.id);
+    if (!ctx) return NextResponse.json({ error: 'Forbidden: employer access required' }, { status: 403 });
 
-  const body = await request.json().catch(() => null);
-  const parsed = bulkSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Invalid body' }, { status: 400 });
-  }
+    const employerExists = await prisma.employer.findUnique({
+      where: { id: ctx.employerId },
+      select: { id: true },
+    });
+    if (!employerExists) {
+      return NextResponse.json({ error: 'Selected employer record was not found.' }, { status: 400 });
+    }
 
-  const created: { id: string; title: string; provider?: string }[] = [];
-  const errors: { source: string; error: string }[] = [];
+    const body = await request.json().catch(() => null);
+    const parsed = bulkSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Invalid body' }, { status: 400 });
+    }
 
-  const { jobUrls, careersPageUrl, careersPageRawText } = parsed.data;
+    const created: { id: string; title: string; provider?: string }[] = [];
+    const errors: { source: string; error: string }[] = [];
+
+    const { jobUrls, careersPageUrl, careersPageRawText } = parsed.data;
 
   // ── Process individual job URLs ──
   if (jobUrls?.length) {
@@ -69,20 +79,19 @@ export async function POST(request: NextRequest) {
         for (const atsJob of atsResult.jobs) {
           const suffix = atsJob.sourceUrl ? `\n\n---\nImported from: ${atsJob.sourceUrl}` : '';
           const job = await prisma.job.create({
-            data: {
-              employerId: ctx.employerId,
+            data: buildEmployerJobCreateData(ctx.employerId, {
               title: atsJob.title,
-              location: atsJob.location ?? undefined,
+              location: atsJob.location,
               locationType: atsJob.locationType ?? 'onsite',
               jobType: atsJob.jobType ?? 'fulltime',
-              salaryMin: atsJob.salaryMin ?? undefined,
-              salaryMax: atsJob.salaryMax ?? undefined,
+              salaryMin: atsJob.salaryMin,
+              salaryMax: atsJob.salaryMax,
               description: `${atsJob.description}${suffix}`,
               requirements: atsJob.requirements ?? [],
               preferredCertifications: [],
               suggestedPrograms: [],
               status: 'draft',
-            },
+            }),
           });
           created.push({ id: job.id, title: job.title, provider: atsResult.provider });
         }
@@ -107,20 +116,19 @@ export async function POST(request: NextRequest) {
       }
       const suffix = `\n\n---\nImported from: ${url}`;
       const job = await prisma.job.create({
-        data: {
-          employerId: ctx.employerId,
+        data: buildEmployerJobCreateData(ctx.employerId, {
           title: extracted.title,
-          location: extracted.location ?? undefined,
+          location: extracted.location,
           locationType: extracted.locationType ?? 'onsite',
           jobType: extracted.jobType ?? 'fulltime',
-          salaryMin: extracted.salaryMin ?? undefined,
-          salaryMax: extracted.salaryMax ?? undefined,
+          salaryMin: extracted.salaryMin,
+          salaryMax: extracted.salaryMax,
           description: `${extracted.description}${suffix}`,
           requirements: extracted.requirements ?? [],
           preferredCertifications: extracted.preferredCertifications ?? [],
           suggestedPrograms: extracted.suggestedPrograms ?? [],
           status: 'draft',
-        },
+        }),
       });
       created.push({ id: job.id, title: job.title, provider: 'ai' });
     }
@@ -138,20 +146,19 @@ export async function POST(request: NextRequest) {
       for (const atsJob of atsResult.jobs) {
         const suffix = atsJob.sourceUrl ? `\n\n---\nImported from: ${atsJob.sourceUrl}` : '';
         const job = await prisma.job.create({
-          data: {
-            employerId: ctx.employerId,
+          data: buildEmployerJobCreateData(ctx.employerId, {
             title: atsJob.title,
-            location: atsJob.location ?? undefined,
+            location: atsJob.location,
             locationType: atsJob.locationType ?? 'onsite',
             jobType: atsJob.jobType ?? 'fulltime',
-            salaryMin: atsJob.salaryMin ?? undefined,
-            salaryMax: atsJob.salaryMax ?? undefined,
+            salaryMin: atsJob.salaryMin,
+            salaryMax: atsJob.salaryMax,
             description: `${atsJob.description}${suffix}`,
             requirements: atsJob.requirements ?? [],
             preferredCertifications: [],
             suggestedPrograms: [],
             status: 'draft',
-          },
+          }),
         });
         created.push({ id: job.id, title: job.title, provider: atsResult.provider });
       }
@@ -175,24 +182,31 @@ export async function POST(request: NextRequest) {
       for (const L of listings) {
         const urlNote = L.sourceUrl ? `\nJob link: ${L.sourceUrl}` : '';
         const job = await prisma.job.create({
-          data: {
-            employerId: ctx.employerId,
+          data: buildEmployerJobCreateData(ctx.employerId, {
             title: L.title.trim(),
             description: `${L.description.trim()}${urlNote}${baseNote}`,
             requirements: [],
             preferredCertifications: [],
             suggestedPrograms: [],
             status: 'draft',
-          },
+          }),
         });
         created.push({ id: job.id, title: job.title, provider: 'ai' });
       }
     }
   }
 
-  if (created.length === 0 && errors.length === 0) {
-    return NextResponse.json({ error: 'Nothing to import. Check URLs or pasted text.' }, { status: 400 });
-  }
+    if (created.length === 0 && errors.length === 0) {
+      return NextResponse.json({ error: 'Nothing to import. Check URLs or pasted text.' }, { status: 400 });
+    }
 
-  return NextResponse.json({ created, errors }, { status: 201 });
+    return NextResponse.json({ created, errors }, { status: 201 });
+  } catch (error) {
+    const detail = getRouteErrorDetails(error);
+    console.error('Employer bulk import failed', detail);
+    return NextResponse.json(
+      { error: 'Failed to create draft jobs.', detail: detail.message, code: detail.code },
+      { status: 500 }
+    );
+  }
 }

@@ -44,10 +44,20 @@ Salary guide upgraded as decision-support and conversion page, not just a salary
 - No generic slop
 - Stats row (Highest, Avg, Programs Over $100K)
 
+## Mobile (<640px)
+
+- **Table → cards:** Desktop table hidden; mobile shows card layout. Each program as a card: program name, salary (prominent), duration, level badge, ramp. No horizontal scroll.
+- **Fit context:** Reduced padding; fit links stack full-width; 44px min tap targets.
+- **Stats row:** Single column; compact padding.
+- **Insights:** Single column.
+- **CTAs:** Full-width stacked; 44px min height. Apply Now remains primary.
+- **Hierarchy:** Tighter heading sizes; readable line-height.
+
 ## Verification Steps
 1. Hero/subtitle: "Use this with fit, timeline, and ramp"
 2. Fit context: Entry paths as strategic; ramp explanation
 3. "How to use this guide" decision steps
-4. Table: Ramp column; methodology note
-5. Insights: Entry paths respected; high-salary + ramp
-6. Conversion: Three CTAs; informed-and-guided framing
+4. Table: Ramp column; methodology note (desktop)
+5. Mobile: Card layout; no horizontal scroll; full-width tap targets
+6. Insights: Entry paths respected; high-salary + ramp
+7. Conversion: Three CTAs; informed-and-guided framing

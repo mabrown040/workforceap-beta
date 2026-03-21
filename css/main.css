@@ -2382,6 +2382,152 @@ fieldset.apply-fieldset {
     text-align: center;
     margin-top: 3rem;
 }
+.salary-guide-stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+.salary-guide-stat-card {
+    background: #f8f8f8;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+}
+.salary-guide-stat-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #ad2c4d;
+}
+.salary-guide-stat-label {
+    font-weight: 600;
+    margin: 0.5rem 0 0.25rem;
+}
+.salary-guide-stat-sub {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Mobile: card layout (hidden on desktop) */
+.salary-guide-cards {
+    display: none;
+}
+
+@media (max-width: 639px) {
+    .salary-table-wrapper { display: none !important; }
+    .salary-guide-cards {
+        display: block;
+        margin-top: 1.5rem;
+    }
+    .salary-guide-card {
+        background: var(--color-white);
+        border: 1px solid var(--color-gray-200);
+        border-radius: 12px;
+        padding: 1.25rem 1rem;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .salary-guide-card__main {
+        margin-bottom: 0.75rem;
+    }
+    .salary-guide-card__program {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0 0 0.35rem;
+        line-height: 1.35;
+    }
+    .salary-guide-card__salary {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--color-accent);
+    }
+    .salary-guide-card__meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1rem;
+        font-size: 0.8125rem;
+        color: var(--color-gray-600);
+    }
+    .salary-guide-card__meta .salary-ramp-badge {
+        font-weight: 600;
+        color: var(--color-gray-700);
+    }
+    /* Fit context */
+    .salary-guide-fit-context {
+        padding: 1.25rem 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .salary-guide-fit-lead { font-size: 0.9375rem; }
+    .salary-guide-decision-steps {
+        padding: 0.625rem 0.875rem;
+        font-size: 0.85rem;
+    }
+    .salary-guide-fit-links {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .salary-guide-fit-links .btn {
+        width: 100%;
+        justify-content: center;
+        min-height: 44px;
+    }
+    /* Stats row */
+    .salary-guide-stats-row {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+        margin-bottom: 1.5rem !important;
+    }
+    .salary-guide-stat-card {
+        padding: 1.25rem 1rem !important;
+    }
+    .salary-guide-stat-value {
+        font-size: 2rem !important;
+    }
+    /* Section hierarchy */
+    .content-section .container h2 {
+        font-size: 1.25rem;
+    }
+    .content-section .container p {
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+    /* Insights grid */
+    .salary-guide-insights {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+        margin-top: 1.5rem !important;
+    }
+    .salary-guide-insights > div {
+        padding: 1.25rem 1rem !important;
+    }
+    /* Methodology */
+    .salary-guide-methodology {
+        margin-top: 1.5rem;
+        font-size: 0.75rem;
+    }
+    /* CTAs */
+    .salary-guide-ctas {
+        margin-top: 2rem;
+        padding: 0 0.25rem;
+    }
+    .salary-guide-cta-title { font-size: 1.125rem; }
+    .salary-guide-cta-desc {
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+    .salary-guide-cta-buttons {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: stretch;
+    }
+    .salary-guide-cta-btn {
+        width: 100% !important;
+        justify-content: center;
+        min-height: 44px;
+        padding: 0.75rem 1rem !important;
+    }
+}
 .salary-guide-cta-note {
     margin-top: 1rem;
     font-size: 0.9rem;

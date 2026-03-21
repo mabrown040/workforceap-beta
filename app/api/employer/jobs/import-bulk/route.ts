@@ -4,7 +4,7 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { parseJobFromText, parseJobListingsFromPageText } from '@/lib/ai/parseJob';
-import { scrapeUrl } from '@/lib/firecrawl';
+import { scrapeUrl, isAtsOrJsHeavyUrl } from '@/lib/firecrawl';
 
 const bulkSchema = z
   .object({
@@ -27,6 +27,14 @@ function stripHtmlToText(html: string): string {
 }
 
 async function fetchTextFromUrl(url: string): Promise<string | null> {
+  const useFirecrawlFirst = isAtsOrJsHeavyUrl(url);
+
+  if (useFirecrawlFirst) {
+    const crawled = await scrapeUrl(url);
+    if (crawled) return crawled;
+    console.warn('[Import] Firecrawl failed for ATS URL, trying fetch', url);
+  }
+
   try {
     const res = await fetch(url, {
       headers: { 'User-Agent': 'Mozilla/5.0 (compatible; WorkforceAP/1.0)' },
@@ -34,12 +42,23 @@ async function fetchTextFromUrl(url: string): Promise<string | null> {
     if (res.ok) {
       const html = await res.text();
       const text = stripHtmlToText(html);
-      if (text.length >= 80) return text;
+      if (text.length >= 80) {
+        console.log('[Import] Fetched', url, 'via fetch →', text.length, 'chars');
+        return text;
+      }
+    } else {
+      console.warn('[Import] Fetch', url, '→', res.status);
     }
-  } catch {
-    /* fall through to Firecrawl */
+  } catch (e) {
+    console.warn('[Import] Fetch failed', url, String(e));
   }
-  return scrapeUrl(url);
+
+  if (!useFirecrawlFirst) {
+    const crawled = await scrapeUrl(url);
+    if (crawled) console.log('[Import] Used Firecrawl fallback for', url);
+    return crawled;
+  }
+  return null;
 }
 
 export async function POST(request: NextRequest) {
@@ -95,16 +114,20 @@ export async function POST(request: NextRequest) {
 
   let listingsText = careersPageRawText?.trim() ?? '';
   if (careersPageUrl && !listingsText) {
+    console.log('[Import] Fetching careers page', careersPageUrl);
     const fetched = await fetchTextFromUrl(careersPageUrl);
     if (!fetched) {
-      errors.push({ source: careersPageUrl, error: 'Could not fetch careers page. Paste the page text instead.' });
+      console.error('[Import] Could not fetch careers page', careersPageUrl);
+      errors.push({ source: careersPageUrl, error: 'Could not fetch careers page. Add FIRECRAWL_API_KEY for ATS sites (Rippling, Greenhouse, etc.) or paste the page text.' });
     } else {
       listingsText = fetched;
+      console.log('[Import] Careers page fetched, text length:', listingsText.length);
     }
   }
 
   if (listingsText.length >= 80) {
     const listings = await parseJobListingsFromPageText(listingsText);
+    console.log('[Import] Parsed', listings?.length ?? 0, 'listings from careers page');
     if (!listings?.length) {
       errors.push({ source: 'careers page', error: 'AI did not find separate job listings in that text.' });
     } else {

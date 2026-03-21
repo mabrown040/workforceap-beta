@@ -15,11 +15,19 @@
 
 ## Firecrawl for job import
 
-**Feature:** Employer job import from URLs (single or bulk) now uses **Firecrawl** as fallback when plain `fetch()` fails. This improves success rate for JS-rendered sites (LinkedIn, etc.).
+**Feature:** Employer job import from URLs (single or bulk) uses **Firecrawl** for ATS sites (Rippling, Greenhouse, Lever, LinkedIn, etc.). Plain fetch is tried first for other URLs; Firecrawl is fallback when fetch fails.
 
-**Setup:** Set `FIRECRAWL_API_KEY=fc-...` in env. When not set, import still works for sites that allow basic fetch; Firecrawl is used only when configured.
+**Setup:** Set `FIRECRAWL_API_KEY=fc-...` in `.env`. Required for `https://ats.rippling.com/closinglock/jobs` and similar ATS pages.
 
-**Endpoints using Firecrawl fallback:** `/api/employer/jobs/import`, `/api/employer/jobs/import-bulk`
+**Test script (no auth):**
+```bash
+npm run test:firecrawl-rippling
+```
+Requires `FIRECRAWL_API_KEY` and `GROQ_API_KEY` in env. Scrapes Rippling URL and parses listings.
+
+**Live test:** Sign in as employer → Import jobs → Careers page URL: `https://ats.rippling.com/closinglock/jobs` → Create draft jobs. Check server logs for `[Import]` and `[Firecrawl]` lines.
+
+**Endpoints:** `/api/employer/jobs/import`, `/api/employer/jobs/import-bulk`
 
 ---
 

@@ -15,6 +15,7 @@
     "db:seed": "node scripts/prisma-env.js npx tsx prisma/seed.ts",
     "db:seed:blog": "node scripts/prisma-env.js npx tsx prisma/seed-blog.ts",
     "db:create-employer-michael-brown": "node scripts/prisma-env.js npx tsx scripts/create-employer-michael-brown.ts",
+    "test:firecrawl-rippling": "node scripts/prisma-env.js npx tsx scripts/test-firecrawl-rippling.ts",
     "db:migrate:resolve-failed": "node scripts/resolve-failed-migration.cjs",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
@@ -43,6 +44,7 @@
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
     "resend": "^4.0.1",
+    "undici": "^7.24.5",
     "zod": "^3.24.1"
   },
   "devDependencies": {

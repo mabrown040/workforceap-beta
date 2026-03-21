@@ -4,7 +4,7 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { parseJobFromText } from '@/lib/ai/parseJob';
-import { scrapeUrl } from '@/lib/firecrawl';
+import { scrapeUrl, isAtsOrJsHeavyUrl } from '@/lib/firecrawl';
 
 const importSchema = z.object({
   url: z.string().url().optional(),
@@ -13,6 +13,14 @@ const importSchema = z.object({
 }).refine((d) => d.url || d.rawText, { message: 'Provide url or rawText' });
 
 async function fetchTextFromUrl(url: string): Promise<string | null> {
+  const useFirecrawlFirst = isAtsOrJsHeavyUrl(url);
+
+  if (useFirecrawlFirst) {
+    const crawled = await scrapeUrl(url);
+    if (crawled) return crawled;
+    console.warn('[Import] Firecrawl failed for ATS URL, trying fetch', url);
+  }
+
   try {
     const res = await fetch(url, {
       headers: { 'User-Agent': 'Mozilla/5.0 (compatible; WorkforceAP/1.0)' },
@@ -31,7 +39,9 @@ async function fetchTextFromUrl(url: string): Promise<string | null> {
   } catch {
     /* fall through to Firecrawl */
   }
-  return scrapeUrl(url);
+
+  if (!useFirecrawlFirst) return scrapeUrl(url);
+  return null;
 }
 
 export async function POST(request: NextRequest) {

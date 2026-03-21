@@ -4,12 +4,35 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { parseJobFromText } from '@/lib/ai/parseJob';
+import { scrapeUrl } from '@/lib/firecrawl';
 
 const importSchema = z.object({
   url: z.string().url().optional(),
   rawText: z.string().min(1).optional(),
   createDraft: z.boolean().optional(),
 }).refine((d) => d.url || d.rawText, { message: 'Provide url or rawText' });
+
+async function fetchTextFromUrl(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; WorkforceAP/1.0)' },
+    });
+    if (res.ok) {
+      const html = await res.text();
+      const text = html
+        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 15000);
+      if (text.length >= 50) return text;
+    }
+  } catch {
+    /* fall through to Firecrawl */
+  }
+  return scrapeUrl(url);
+}
 
 export async function POST(request: NextRequest) {
   const user = await getUser();
@@ -24,24 +47,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Provide url or rawText' }, { status: 400 });
   }
 
-  let textToParse = parsed.data.rawText;
+  let textToParse: string | undefined = parsed.data.rawText;
   if (parsed.data.url && !textToParse) {
-    try {
-      const res = await fetch(parsed.data.url, {
-        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; WorkforceAP/1.0)' },
-      });
-      if (res.ok) {
-        const html = await res.text();
-        textToParse = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-          .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-          .replace(/<[^>]+>/g, ' ')
-          .replace(/\s+/g, ' ')
-          .trim()
-          .slice(0, 15000);
-      }
-    } catch {
-      return NextResponse.json({ error: 'Could not fetch URL. Try pasting the job description instead.' }, { status: 400 });
+    const fetched = await fetchTextFromUrl(parsed.data.url);
+    if (!fetched) {
+      return NextResponse.json(
+        { error: 'Could not fetch URL. Try pasting the job description, or add FIRECRAWL_API_KEY for JS-rendered sites (LinkedIn, etc.).' },
+        { status: 400 }
+      );
     }
+    textToParse = fetched;
   }
 
   if (!textToParse || textToParse.length < 50) {

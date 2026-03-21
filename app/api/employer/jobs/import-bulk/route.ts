@@ -4,6 +4,7 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { parseJobFromText, parseJobListingsFromPageText } from '@/lib/ai/parseJob';
+import { scrapeUrl } from '@/lib/firecrawl';
 
 const bulkSchema = z
   .object({
@@ -30,13 +31,15 @@ async function fetchTextFromUrl(url: string): Promise<string | null> {
     const res = await fetch(url, {
       headers: { 'User-Agent': 'Mozilla/5.0 (compatible; WorkforceAP/1.0)' },
     });
-    if (!res.ok) return null;
-    const html = await res.text();
-    const text = stripHtmlToText(html);
-    return text.length >= 80 ? text : null;
+    if (res.ok) {
+      const html = await res.text();
+      const text = stripHtmlToText(html);
+      if (text.length >= 80) return text;
+    }
   } catch {
-    return null;
+    /* fall through to Firecrawl */
   }
+  return scrapeUrl(url);
 }
 
 export async function POST(request: NextRequest) {

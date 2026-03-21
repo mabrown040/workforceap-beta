@@ -292,7 +292,7 @@ async function fetchWithFirecrawl(url: string): Promise<{ text: string } | null>
 
   try {
     // Use Firecrawl REST API directly to avoid SDK compatibility issues
-    const res = await fetch('https://api.firecrawl.dev/v1/scrape', {
+    const res = await fetch('https://api.firecrawl.dev/v2/scrape', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,

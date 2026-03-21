@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
+import { sendCourseCompletedEmail } from '@/lib/email';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -23,7 +25,7 @@ export async function POST(request: Request) {
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
-    select: { enrolledProgram: true, coursesCompleted: true },
+    select: { enrolledProgram: true, coursesCompleted: true, email: true, fullName: true },
   });
 
   if (!dbUser?.enrolledProgram) {
@@ -51,6 +53,19 @@ export async function POST(request: Request) {
     where: { id: user.id },
     data: { coursesCompleted: updated },
   });
+
+  const courseMeta = program.courses.find((c) => c.slug === courseSlug);
+  const courseName = courseMeta?.name ?? courseSlug;
+
+  await sendPartnerMilestoneEmail(user.id, 'Course completed', {
+    Course: courseName,
+  });
+
+  sendCourseCompletedEmail({
+    to: dbUser.email,
+    fullName: dbUser.fullName,
+    courseName,
+  }).catch((err) => console.error('Course completed email failed:', err));
 
   return NextResponse.json({ ok: true });
 }

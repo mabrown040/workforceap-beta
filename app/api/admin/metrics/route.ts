@@ -1,17 +1,13 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { prisma } from '@/lib/db/prisma';
+import { isAdmin } from '@/lib/auth/roles';
 import { getAdminMetrics } from '@/lib/admin/metrics';
 
 export async function GET() {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const adminRole = await prisma.userRole.findFirst({
-    where: { userId: user.id },
-    include: { role: true },
-  });
-  if (adminRole?.role?.name !== 'admin') {
+  if (!(await isAdmin(user.id))) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 

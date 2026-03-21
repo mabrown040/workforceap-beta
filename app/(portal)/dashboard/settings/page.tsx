@@ -4,7 +4,6 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import Footer from '@/components/Footer';
 import SettingsForm from '@/components/portal/SettingsForm';
 import DeleteAccountButton from '@/components/portal/DeleteAccountButton';
 
@@ -62,7 +61,6 @@ export default async function DashboardSettingsPage() {
         <DeleteAccountButton />
       </section>
 
-      <Footer />
     </>
   );
 }

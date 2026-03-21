@@ -50,8 +50,13 @@ These are sent by the Next.js app via Resend:
 
 | Email | Trigger | Recipient |
 |-------|---------|-----------|
-| Assessment Complete | Member completes pre-assessment | Member |
 | Contact Form | Public submits contact form | info@workforceap.org |
-| New Assessment (admin) | Member completes assessment | info@workforceap.org |
+| New Application Admin | User signs up (Application created) | info@workforceap.org |
+| Application Accepted | Admin approves application | Applicant |
+| Application Rejected | Admin rejects application | Applicant |
+| Program Enrollment | Member enrolls in program | Member |
+| Course Completed | Member completes course | Member |
+| Weekly Recap | Cron (Sundays 6 PM) | Enrolled members |
+| Inactive Nudge | Cron (daily) | Members inactive 7+ days |
 
 The app uses `lib/email/template.ts` for branded HTML layout (dark header, white body, footer).

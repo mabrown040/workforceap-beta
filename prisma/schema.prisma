@@ -54,6 +54,8 @@ model User {
   weeklyRecaps         WeeklyRecap[]
   pathwayStepProgress  PathwayStepProgress[]
   trainingAccessRequests TrainingAccessRequest[]
+  invitationsSent      Invitation[] @relation("InvitationInviter")
+  invitationsAccepted  Invitation[] @relation("InvitationAccepter")
 
   counselorProfile     Counselor?
   counselorAssignments CounselorAssignment[] @relation("MemberAssignments")
@@ -62,7 +64,17 @@ model User {
   counselorNotes     CounselorNote[]  @relation("MemberNotes")
   notesAuthored      CounselorNote[]  @relation("NoteAuthor")
   partnerUser        PartnerUser?
+  employer           Employer?
 
+  jobPostingApplications JobPostingApplication[]
+  aiJobMatches       AIJobMatch[]
+  jobsApproved       Job[]            @relation("JobApprover")
+
+  subgroupsLed       Subgroup[]       @relation("SubgroupLeader")
+  subgroupsCreated   Subgroup[]       @relation("SubgroupCreator")
+  memberSubgroups    MemberSubgroup[]
+  memberSubgroupsAssigned MemberSubgroup[] @relation("MemberSubgroupAssigner")
+  subgroupLeaderRows SubgroupLeader[]
 
   @@map("users")
 }
@@ -478,6 +490,7 @@ model Partner {
   contactEmail String?   @map("contact_email")
   contactPhone String?   @map("contact_phone")
   active       Boolean   @default(true)
+  notes        String?   @db.Text  // internal admin notes
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
 
@@ -489,8 +502,22 @@ model Partner {
   counselors   Counselor[]
   referrals    PartnerReferral[]
   partnerUsers PartnerUser[]
+  subgroups    Subgroup[]
 
   @@map("partners")
+}
+
+model PartnerUser {
+  id        String   @id @default(uuid())
+  partnerId String   @map("partner_id")
+  userId    String   @unique @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  partner Partner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([partnerId])
+  @@map("partner_users")
 }
 
 model Counselor {
@@ -541,17 +568,75 @@ model PartnerReferral {
   @@map("partner_referrals")
 }
 
-model PartnerUser {
-  id        String   @id @default(uuid())
-  partnerId String   @map("partner_id")
-  userId    String   @unique @map("user_id")
-  createdAt DateTime @default(now()) @map("created_at")
+// --- Member Subgroups (partner/manager/church visibility) ---
 
-  partner Partner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+enum SubgroupType {
+  partner
+  manager
+  church
+}
 
+enum MemberSubgroupAssignmentType {
+  auto_referral
+  manual_admin
+  manual_leader
+}
+
+model Subgroup {
+  id          String       @id @default(uuid())
+  name        String
+  type        SubgroupType
+  leaderId    String       @map("leader_id")
+  partnerId   String?      @map("partner_id") // optional: for type=partner, links to Partner for auto-assignment
+  description String?      @db.Text
+  createdAt   DateTime     @default(now()) @map("created_at")
+  createdBy   String       @map("created_by")
+
+  leader   User              @relation("SubgroupLeader", fields: [leaderId], references: [id], onDelete: Restrict)
+  creator  User              @relation("SubgroupCreator", fields: [createdBy], references: [id], onDelete: Restrict)
+  partner  Partner?          @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+  members  MemberSubgroup[]
+  leaders  SubgroupLeader[]
+  invitations Invitation[]
+
+  @@index([type])
+  @@index([leaderId])
   @@index([partnerId])
-  @@map("partner_users")
+  @@map("subgroups")
+}
+
+model MemberSubgroup {
+  id             String                     @id @default(uuid())
+  memberId       String                     @map("member_id")
+  subgroupId     String                     @map("subgroup_id")
+  assignedAt     DateTime                   @default(now()) @map("assigned_at")
+  assignedBy     String?                    @map("assigned_by")
+  assignmentType MemberSubgroupAssignmentType @map("assignment_type")
+
+  member   User     @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  subgroup Subgroup @relation(fields: [subgroupId], references: [id], onDelete: Cascade)
+  assigner User?    @relation("MemberSubgroupAssigner", fields: [assignedBy], references: [id], onDelete: SetNull)
+
+  @@unique([memberId, subgroupId])
+  @@index([memberId])
+  @@index([subgroupId])
+  @@map("member_subgroups")
+}
+
+model SubgroupLeader {
+  id         String   @id @default(uuid())
+  subgroupId String  @map("subgroup_id")
+  userId     String  @map("user_id")
+  role       String  @default("secondary") // primary, secondary
+  addedAt    DateTime @default(now()) @map("added_at")
+
+  subgroup Subgroup @relation(fields: [subgroupId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([subgroupId, userId])
+  @@index([subgroupId])
+  @@index([userId])
+  @@map("subgroup_leaders")
 }
 
 // --- Pipeline & Placement Tracking ---
@@ -607,6 +692,172 @@ model AuditLog {
   @@map("audit_logs")
 }
 
+// --- Admin Invitations ---
+
+enum InvitationRole {
+  admin
+  partner
+  member
+}
+
+enum InvitationStatus {
+  pending
+  accepted
+  expired
+  revoked
+}
+
+model Invitation {
+  id              String           @id @default(uuid())
+  email           String           @db.Text
+  role            InvitationRole
+  subgroupId      String?          @map("subgroup_id")
+  programSlug     String?          @map("program_slug")
+  invitedById     String           @map("invited_by")
+  token           String           @unique
+  status          InvitationStatus @default(pending)
+  personalMessage String?         @map("personal_message") @db.Text
+  expiresAt      DateTime         @map("expires_at")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  acceptedAt      DateTime?        @map("accepted_at")
+  acceptedById    String?          @map("accepted_by")
+
+  invitedBy  User  @relation("InvitationInviter", fields: [invitedById], references: [id], onDelete: Cascade)
+  acceptedBy User? @relation("InvitationAccepter", fields: [acceptedById], references: [id], onDelete: SetNull)
+  subgroup   Subgroup? @relation(fields: [subgroupId], references: [id], onDelete: SetNull)
+
+  @@index([email])
+  @@index([token])
+  @@index([status])
+  @@index([invitedById])
+  @@index([expiresAt])
+  @@map("invitations")
+}
+
+// --- Employer Portal & Job Management ---
+
+model Employer {
+  id                 String    @id @default(uuid())
+  userId             String    @unique @map("user_id")
+  companyName        String    @map("company_name")
+  companyWebsite     String?   @map("company_website")
+  companyDescription String?   @map("company_description")
+  logoUrl            String?   @map("logo_url")
+  contactName        String    @map("contact_name")
+  contactEmail       String    @map("contact_email")
+  contactPhone       String?   @map("contact_phone")
+  status             String    @default("active") // active, inactive
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobs Job[]
+
+  @@map("employers")
+}
+
+enum JobLocationType {
+  remote
+  hybrid
+  onsite
+}
+
+enum JobTypeEnum {
+  fulltime
+  parttime
+  contract
+}
+
+enum JobStatusEnum {
+  draft
+  pending
+  approved
+  live
+  filled
+  closed
+}
+
+model Job {
+  id                     String          @id @default(uuid())
+  employerId             String          @map("employer_id")
+  title                  String
+  location               String?
+  locationType           JobLocationType @default(onsite) @map("location_type")
+  jobType                JobTypeEnum     @default(fulltime) @map("job_type")
+  salaryMin              Int?            @map("salary_min")
+  salaryMax              Int?            @map("salary_max")
+  description            String          @db.Text
+  requirements           String[]        @default([])
+  preferredCertifications String[]       @default([]) @map("preferred_certifications")
+  suggestedPrograms      String[]        @default([]) @map("suggested_programs")
+  status                 JobStatusEnum   @default(draft)
+  applicationsCount      Int             @default(0) @map("applications_count")
+  createdAt              DateTime        @default(now()) @map("created_at")
+  updatedAt              DateTime        @updatedAt @map("updated_at")
+  approvedAt             DateTime?       @map("approved_at")
+  approvedById            String?         @map("approved_by")
+
+  employer   Employer   @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  approvedBy User?      @relation("JobApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  applications JobPostingApplication[]
+  aiMatches  AIJobMatch[]
+
+  @@index([employerId])
+  @@index([status])
+  @@map("jobs")
+}
+
+enum JobPostingApplicationStatus {
+  pending
+  reviewing
+  interview
+  offered
+  hired
+  rejected
+}
+
+model JobPostingApplication {
+  id          String                    @id @default(uuid())
+  jobId       String                    @map("job_id")
+  studentId   String                    @map("student_id")
+  status      JobPostingApplicationStatus @default(pending)
+  coverLetter String?                   @map("cover_letter") @db.Text
+  resumeUrl   String?                   @map("resume_url")
+  appliedAt   DateTime                  @default(now()) @map("applied_at")
+
+  job    Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, studentId])
+  @@index([jobId])
+  @@index([studentId])
+  @@map("job_posting_applications")
+}
+
+enum AIJobMatchStatus {
+  suggested
+  employer_notified
+  student_notified
+  rejected
+}
+
+model AIJobMatch {
+  id          String         @id @default(uuid())
+  jobId       String         @map("job_id")
+  studentId   String         @map("student_id")
+  matchScore  Int            @map("match_score")
+  matchReasons String[]      @default([]) @map("match_reasons")
+  status      AIJobMatchStatus @default(suggested)
+  createdAt   DateTime       @default(now()) @map("created_at")
+
+  job    Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, studentId])
+  @@index([jobId])
+  @@index([studentId])
+  @@map("ai_job_matches")
+}
 
 
 

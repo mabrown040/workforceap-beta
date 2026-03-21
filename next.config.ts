@@ -1,4 +1,9 @@
+import { createRequire } from 'module';
 import type { NextConfig } from 'next';
+
+// Same POSTGRES_* defaults as scripts/prisma-env.js so `next build` can run Prisma without errors
+const require = createRequire(import.meta.url);
+require('./scripts/ensure-prisma-env.cjs');
 
 const nextConfig: NextConfig = {
   async headers() {
@@ -73,6 +78,17 @@ const nextConfig: NextConfig = {
       { source: '/programs/comptia-aplus', destination: '/programs/comptia-a-professional-certificate', permanent: true },
       { source: '/programs/comptia-network-plus', destination: '/programs/comptia-network-professional-certificate', permanent: true },
       { source: '/programs/comptia-security-plus', destination: '/programs/comptia-security-professional-certificate', permanent: true },
+
+      // Employer dashboard canonical redirect
+      { source: '/employer/dashboard', destination: '/employer', permanent: true },
+
+      // Member portal: AI Tools, Career Brief, Learning, Weekly Recap live under /dashboard/*
+      { source: '/ai-tools', destination: '/dashboard/ai-tools', permanent: true },
+      { source: '/ai-tools/:path*', destination: '/dashboard/ai-tools/:path*', permanent: true },
+      { source: '/career-brief', destination: '/dashboard/career-brief', permanent: true },
+      { source: '/career-brief/:path*', destination: '/dashboard/career-brief/:path*', permanent: true },
+      { source: '/learning', destination: '/dashboard/learning', permanent: true },
+      { source: '/weekly-recap', destination: '/dashboard/weekly-recap', permanent: true },
     ];
   },
 };

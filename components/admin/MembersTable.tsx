@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Plus } from 'lucide-react';
 import { formatPhone } from '@/lib/formatPhone';
 
 type Member = {
@@ -18,6 +19,8 @@ type Member = {
   programTitle: string | null | undefined;
   coursesCompleted: string[];
   totalCourses: number;
+  partnerName: string | null;
+  partnerId: string | null;
 };
 
 type MembersTableProps = {
@@ -27,16 +30,23 @@ type MembersTableProps = {
 export default function MembersTable({ members }: MembersTableProps) {
   const [search, setSearch] = useState('');
   const [programFilter, setProgramFilter] = useState('');
+  const [partnerFilter, setPartnerFilter] = useState('');
 
   const filtered = members.filter((m) => {
     const matchSearch = !search || 
       m.fullName?.toLowerCase().includes(search.toLowerCase()) ||
       m.email?.toLowerCase().includes(search.toLowerCase());
     const matchProgram = !programFilter || m.enrolledProgram === programFilter;
-    return matchSearch && matchProgram;
+    const matchPartner =
+      !partnerFilter ||
+      (partnerFilter === '__none' ? !m.partnerId : m.partnerId === partnerFilter);
+    return matchSearch && matchProgram && matchPartner;
   });
 
   const programs = [...new Set(members.map((m) => m.enrolledProgram).filter(Boolean))] as string[];
+  const partnerOptions = [...new Map(members.filter((m) => m.partnerId).map((m) => [m.partnerId!, m.partnerName!])).entries()].sort(
+    (a, b) => a[1].localeCompare(b[1])
+  );
 
   return (
     <div>
@@ -58,6 +68,17 @@ export default function MembersTable({ members }: MembersTableProps) {
             <option key={p} value={p}>{p}</option>
           ))}
         </select>
+        <select
+          value={partnerFilter}
+          onChange={(e) => setPartnerFilter(e.target.value)}
+          style={{ padding: '0.5rem', width: '220px' }}
+        >
+          <option value="">All partners</option>
+          <option value="__none">No partner</option>
+          {partnerOptions.map(([pid, pname]) => (
+            <option key={pid} value={pid}>{pname}</option>
+          ))}
+        </select>
       </div>
 
       <div style={{ overflowX: 'auto' }}>
@@ -66,27 +87,51 @@ export default function MembersTable({ members }: MembersTableProps) {
             <tr>
               <th>Name</th>
               <th>Email</th>
-              <th>Phone</th>
+              <th className="members-col-md">Phone</th>
               <th>Program</th>
+              <th>Partner</th>
               <th>Enrolled</th>
               <th>Score %</th>
               <th>Training</th>
-              <th>Last Active</th>
+              <th className="members-col-md">Last Active</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map((m) => (
+            {filtered.map((m) => {
+              const rawPhone = m.profile?.profilePhone ?? m.phone;
+              const phoneDisplay = formatPhone(rawPhone);
+              const lastActive = m.updatedAt.toLocaleDateString();
+              const narrowDetails = [rawPhone ? `Phone: ${phoneDisplay}` : null, `Last active: ${lastActive}`]
+                .filter(Boolean)
+                .join(' · ');
+              return (
               <tr
                 key={m.id}
                 data-clickable
                 onClick={() => window.location.assign(`/admin/members/${m.id}`)}
               >
                 <td>
-                  <Link href={`/admin/members/${m.id}`} onClick={(e) => e.stopPropagation()}>{m.fullName}</Link>
+                  <Link
+                    href={`/admin/members/${m.id}`}
+                    onClick={(e) => e.stopPropagation()}
+                    title={narrowDetails}
+                  >
+                    {m.fullName}
+                  </Link>
+                  <div className="members-name-details">
+                    {rawPhone ? (
+                      <>
+                        <span>{phoneDisplay}</span>
+                        <span className="members-name-details-sep"> · </span>
+                      </>
+                    ) : null}
+                    <span>Last active {lastActive}</span>
+                  </div>
                 </td>
                 <td>{m.email}</td>
-                <td>{formatPhone(m.profile?.profilePhone ?? m.phone)}</td>
+                <td className="members-col-md">{phoneDisplay}</td>
                 <td>{m.programTitle ?? '—'}</td>
+                <td>{m.partnerName ?? '—'}</td>
                 <td>{m.enrolledAt?.toLocaleDateString() ?? '—'}</td>
                 <td>
                   <span className={
@@ -102,9 +147,10 @@ export default function MembersTable({ members }: MembersTableProps) {
                   </span>
                 </td>
                 <td>{m.assessmentCompleted ? `${m.coursesCompleted.length}/${m.totalCourses}` : '—'}</td>
-                <td>{m.updatedAt.toLocaleDateString()}</td>
+                <td className="members-col-md">{lastActive}</td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -118,7 +164,9 @@ export default function MembersTable({ members }: MembersTableProps) {
               : 'Try adjusting your search or program filter.'}
           </p>
           {members.length === 0 && (
-            <a href="/admin/members/new" className="btn btn-primary">Add Member</a>
+            <a href="/admin/members/new" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+              <Plus size={16} /> Add Member
+            </a>
           )}
         </div>
       )}

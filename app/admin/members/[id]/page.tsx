@@ -9,9 +9,9 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
-import Footer from '@/components/Footer';
 import MemberDetailActions from '@/components/admin/MemberDetailActions';
-
+import MemberPartnerSection from '@/components/admin/MemberPartnerSection';
+import MemberSubgroupSection from '@/components/admin/MemberSubgroupSection';
 import CreateSuccessToast from './CreateSuccessToast';
 import { formatPhone } from '@/lib/formatPhone';
 import { ClipboardList, CheckCircle } from 'lucide-react';
@@ -54,13 +54,29 @@ export default async function AdminMemberDetailPage({
 
   const { id } = await params;
 
-  const member = await prisma.user.findUnique({
-    where: { id },
-    include: {
-      profile: true,
-      partnerReferrals: { include: { partner: { select: { id: true, name: true } } }, take: 1 },
-    },
-  });
+  const [member, partners, partnerReferral, subgroups, memberSubgroups] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id },
+      include: { profile: true },
+    }),
+    prisma.partner.findMany({
+      where: { active: true },
+      orderBy: { name: 'asc' },
+      select: { id: true, name: true },
+    }),
+    prisma.partnerReferral.findFirst({
+      where: { memberId: id },
+      select: { partnerId: true },
+    }),
+    prisma.subgroup.findMany({
+      orderBy: { name: 'asc' },
+      select: { id: true, name: true, type: true },
+    }),
+    prisma.memberSubgroup.findMany({
+      where: { memberId: id },
+      select: { subgroupId: true },
+    }),
+  ]);
 
   if (!member || member.deletedAt) notFound();
 
@@ -121,6 +137,18 @@ export default async function AdminMemberDetailPage({
           />
         </section>
 
+        <MemberPartnerSection
+          memberId={member.id}
+          partners={partners}
+          currentPartnerId={partnerReferral?.partnerId ?? null}
+        />
+
+        <MemberSubgroupSection
+          memberId={member.id}
+          subgroups={subgroups}
+          currentSubgroupIds={memberSubgroups.map((ms) => ms.subgroupId)}
+        />
+
         {(member.profile?.resumeOriginalPath || member.profile?.resumeEnhancedPath) && (
           <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
             <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Resumes</h2>
@@ -160,8 +188,6 @@ export default async function AdminMemberDetailPage({
           </section>
         )}
       </div>
-
-      <Footer />
     </div>
   );
 }

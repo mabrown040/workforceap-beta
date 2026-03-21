@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { memberSignupSchema } from '@/lib/validation/member';
 import { checkSignupRateLimit } from '@/lib/rate-limit';
 import { ApplicationStatus } from '@prisma/client';
+import { sendNewApplicationAdminEmail } from '@/lib/email';
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -157,7 +158,7 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      await tx.application.create({
+      const app = await tx.application.create({
         data: {
           userId: user.id,
           status: ApplicationStatus.PENDING,
@@ -165,6 +166,14 @@ export async function POST(request: NextRequest) {
           submittedAt: new Date(),
         },
       });
+
+      // Best-effort: notify admins of new application (don't block signup)
+      sendNewApplicationAdminEmail({
+        applicantName: data.fullName,
+        applicantEmail: data.email,
+        programInterest: data.programInterest,
+        applicationId: app.id,
+      }).catch((err) => console.error('New application admin email failed:', err));
     });
   } catch (dbError) {
     console.error('Signup DB error:', dbError);

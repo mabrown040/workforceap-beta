@@ -5,7 +5,6 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import Footer from '@/components/Footer';
 import AssessmentsTable from '@/components/admin/AssessmentsTable';
 import { TableSkeleton } from '@/components/ui/Skeleton';
 
@@ -79,8 +78,6 @@ export default async function AdminAssessmentsPage({
             />
           </Suspense>
       </div>
-
-      <Footer />
     </div>
   );
 }

@@ -6,7 +6,6 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { PROGRAMS } from '@/lib/content/programs';
-import Footer from '@/components/Footer';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin – Programs',
@@ -80,8 +79,6 @@ export default async function AdminProgramsPage() {
         </table>
       </div>
       )}
-
-      <Footer />
     </div>
   );
 }

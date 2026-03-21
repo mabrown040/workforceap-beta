@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import AdminSidebar from './AdminSidebar';
-import { SignOutButton } from '@/components/portal/SignOutButton';
-import DevViewToggle from '@/components/portal/DevViewToggle';
+import AdminFooter from './AdminFooter';
+import PortalHeaderActions from '@/components/portal/PortalHeaderActions';
 
 type AdminShellProps = {
   children: React.ReactNode;
@@ -17,17 +17,8 @@ export default function AdminShell({ children }: AdminShellProps) {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', flexDirection: 'column' }}>
-      <header
-        style={{
-          borderBottom: '1px solid var(--color-border, #e5e5e5)',
-          padding: '0.75rem 1.5rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          background: 'white',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+      <header className="portal-shell-header">
+        <div className="portal-shell-header__brand">
           <button
             type="button"
             className="admin-menu-btn"
@@ -40,10 +31,7 @@ export default function AdminShell({ children }: AdminShellProps) {
             WorkforceAP Admin
           </Link>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <DevViewToggle />
-          <SignOutButton />
-        </div>
+        <PortalHeaderActions />
       </header>
 
       <div
@@ -56,8 +44,10 @@ export default function AdminShell({ children }: AdminShellProps) {
 
       <div style={{ display: 'flex', flex: 1 }}>
         <AdminSidebar open={drawerOpen} onClose={closeDrawer} />
-        <main style={{ flex: 1, padding: '1.5rem 2rem', minWidth: 0 }}>{children}</main>
+        <main className="admin-main-content" style={{ flex: 1, minWidth: 0 }}>{children}</main>
       </div>
+
+      <AdminFooter />
     </div>
   );
 }

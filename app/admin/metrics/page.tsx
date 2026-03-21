@@ -3,9 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { prisma } from '@/lib/db/prisma';
 import { getAdminMetrics } from '@/lib/admin/metrics';
-import Footer from '@/components/Footer';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin metrics',
@@ -16,14 +14,6 @@ export const metadata: Metadata = buildPageMetadata({
 export default async function AdminMetricsPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/metrics');
-
-  const adminRole = await prisma.userRole.findFirst({
-    where: { userId: user.id },
-    include: { role: true },
-  });
-  if (adminRole?.role?.name !== 'admin') {
-    redirect('/dashboard');
-  }
 
   const data = await getAdminMetrics();
 
@@ -88,8 +78,6 @@ export default async function AdminMetricsPage() {
           </p>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 }

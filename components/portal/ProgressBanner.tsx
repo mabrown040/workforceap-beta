@@ -47,8 +47,12 @@ export default function ProgressBanner({ programTitle, completedCount, totalCoun
           {completedCount} of {totalCount} courses
         </span>
       </div>
-      <Link href="/dashboard/training" className="btn btn-primary" style={{ padding: '0.4rem 1rem', fontSize: '0.9rem' }}>
-        Continue Training →
+      <Link
+        href="/dashboard/training"
+        className="btn btn-primary progress-banner-cta"
+        style={{ padding: '0.5rem 1rem', fontSize: '0.9rem', minHeight: '44px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+      >
+        <span className="progress-banner-cta-text">Continue Training →</span>
       </Link>
     </div>
   );

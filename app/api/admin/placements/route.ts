@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
+import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 
 const placementSchema = z.object({
   userId: z.string().uuid(),
@@ -41,6 +42,8 @@ export async function POST(request: NextRequest) {
   const member = await prisma.user.findUnique({ where: { id: userId }, select: { id: true } });
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
+  const prior = await prisma.placementRecord.findUnique({ where: { userId } });
+
   const placement = await prisma.placementRecord.upsert({
     where: { userId },
     create: {
@@ -60,6 +63,13 @@ export async function POST(request: NextRequest) {
       notes: notes ?? null,
     },
   });
+
+  if (!prior) {
+    await sendPartnerMilestoneEmail(userId, 'Job placement', {
+      Employer: employerName,
+      Role: jobTitle,
+    });
+  }
 
   return NextResponse.json(placement, { status: 201 });
 }

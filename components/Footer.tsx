@@ -9,7 +9,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
           <div className="footer-grid">
             <div className="footer-brand">
               <h3>Workforce Advancement Project</h3>
-              <p>Breaking systemic barriers through education, technology, and opportunity. Employer-aligned career training, certifications, and personalized support.</p>
+              <p>Free career training and certifications for Austin-area residents. Employer-aligned career training, certifications, and personalized support.</p>
               <a href="mailto:info@workforceap.org">info@workforceap.org</a>
               <a href="tel:5127771808">(512) 777-1808</a>
             </div>
@@ -42,7 +42,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
             quality={85}
             loading="lazy"
           />
-          <p>Breaking systemic barriers through education, technology, and opportunity. Employer-aligned career training, certifications, and personalized support.</p>
+          <p>Free career training and certifications for Austin-area residents. Employer-aligned career training, certifications, and personalized support.</p>
           <p>info@workforceap.org</p>
           <p>(512) 777-1808</p>
         </div>
@@ -71,7 +71,9 @@ function FooterLinks() {
         <h4>About</h4>
         <ul>
           <li><Link href="/what-we-do">What We Do</Link></li>
+          <li><Link href="/partners">Partners</Link></li>
           <li><Link href="/leadership">Leadership Team</Link></li>
+          <li><Link href="/employers">For Employers</Link></li>
           <li><Link href="/faq">FAQ</Link></li>
           <li><Link href="/contact">Contact Us</Link></li>
         </ul>

@@ -4,7 +4,7 @@ import { seedBlogPosts } from './seed-blog';
 const prisma = new PrismaClient();
 
 async function main() {
-  const roles = ['member', 'admin', 'case_manager', 'counselor'];
+  const roles = ['member', 'admin', 'case_manager', 'counselor', 'partner', 'employer'];
   for (const name of roles) {
     await prisma.role.upsert({
       where: { name },
@@ -14,8 +14,31 @@ async function main() {
   }
   console.log('Seeded roles:', roles);
 
-  // Seed admin users
-  const adminEmails = ['mabrown040@gmail.com', 'michael.brown@workforceap.org'];
+  // Seed admin users (mabrown040 is super_admin for testing all portal views)
+  const superAdminEmails = ['mabrown040@gmail.com'];
+  for (const email of superAdminEmails) {
+    const user = await prisma.user.findUnique({ where: { email }, include: { profile: true } });
+    if (user?.profile) {
+      await prisma.profile.update({
+        where: { userId: user.id },
+        data: { role: 'super_admin' },
+      });
+      console.log('Set role=super_admin for', email);
+      // Also create employer record so super_admin can test employer portal
+      await prisma.employer.upsert({
+        where: { userId: user.id },
+        update: {},
+        create: {
+          userId: user.id,
+          companyName: 'Demo Employer',
+          contactName: user.fullName ?? 'Admin',
+          contactEmail: email,
+        },
+      });
+      console.log('Created employer for', email);
+    }
+  }
+  const adminEmails = ['michael.brown@workforceap.org'];
   for (const email of adminEmails) {
     const user = await prisma.user.findUnique({ where: { email }, include: { profile: true } });
     if (user?.profile) {

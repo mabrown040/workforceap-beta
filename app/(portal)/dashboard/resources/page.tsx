@@ -7,7 +7,6 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getResourcesForCategory } from '@/lib/content/programResources';
 import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
-import Footer from '@/components/Footer';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Resources',
@@ -46,17 +45,17 @@ export default async function DashboardResourcesPage() {
   let suggestedActions: Array<{ label: string; href: string }> = [];
   try {
     const briefContext = await getCareerBriefContext(user.id);
-    suggestedActions = briefContext.recommendedActions.filter((a) => a.href.startsWith('/ai-tools'));
+    suggestedActions = briefContext.recommendedActions.filter((a) => a.href.startsWith('/dashboard/ai-tools'));
   } catch {
     suggestedActions = [
-      { label: 'Build your resume', href: '/ai-tools/resume-rewriter' },
-      { label: 'Practice interview questions', href: '/ai-tools/interview-practice' },
-      { label: 'Log your first application', href: '/ai-tools/application-tracker' },
+      { label: 'Build your resume', href: '/dashboard/ai-tools/resume-rewriter' },
+      { label: 'Practice interview questions', href: '/dashboard/ai-tools/interview-practice' },
+      { label: 'Log your first application', href: '/dashboard/ai-tools/application-tracker' },
     ];
   }
 
   const suggestedAiTools = suggestedActions
-    .filter((a) => a.href.startsWith('/ai-tools'))
+    .filter((a) => a.href.startsWith('/dashboard/ai-tools'))
     .slice(0, 4);
 
   return (
@@ -102,7 +101,7 @@ export default async function DashboardResourcesPage() {
           Resume builder, LinkedIn headline, cover letter, interview practice, and more — powered by AI.
         </p>
         <Link
-          href="/ai-tools"
+          href="/dashboard/ai-tools"
           style={{
             display: 'inline-block',
             padding: '0.75rem 1.25rem',
@@ -230,7 +229,6 @@ export default async function DashboardResourcesPage() {
         </div>
       </section>
 
-      <Footer />
     </>
   );
 }

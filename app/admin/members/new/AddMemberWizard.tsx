@@ -1,18 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Program } from '@/lib/content/programs';
 import { ProgramIcon } from '@/components/ProgramIcon';
 import { formatPhone } from '@/lib/formatPhone';
-import { User, BookOpen, FileText, CheckCircle } from 'lucide-react';
+import { ADMIN_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
+import { User, BookOpen, FileText, CheckCircle, Handshake } from 'lucide-react';
 import '@/css/counselor.css';
 
 const EMPLOYMENT = ['Unemployed', 'Underemployed', 'Employed', 'Self-Employed'];
 const VETERAN = ['Not a Veteran', 'Veteran', 'Disabled Veteran'];
 const INCOME = ['Under $20K', '$20K–$40K', '$40K–$60K', 'Over $60K'];
 const EDUCATION = ['Less than HS', 'HS Diploma or GED', 'Some College', "Associate's", "Bachelor's", 'Graduate'];
-const REFERRAL = ['Referral', 'Community Event', 'Social Media', 'Workforce Solutions', 'TWC', 'Church', 'Other'];
+const REFERRAL = [...ADMIN_REFERRAL_SOURCE_OPTIONS];
 const ETHNICITY = [
   'Hispanic/Latino', 'White', 'Black or African American', 'Asian',
   'American Indian or Alaska Native', 'Native Hawaiian or Pacific Islander', 'Two or More Races',
@@ -38,6 +39,7 @@ type FormData = {
   programSlug: string;
   programNotes: string;
   partnerId: string;
+  subgroupId: string;
 };
 
 const initialForm: FormData = {
@@ -60,11 +62,14 @@ const initialForm: FormData = {
   programSlug: '',
   programNotes: '',
   partnerId: '',
+  subgroupId: '',
 };
 
-type Props = { programs: Program[] };
+type PartnerOption = { id: string; name: string };
+type SubgroupOption = { id: string; name: string; type: string };
+type Props = { programs: Program[]; partners: PartnerOption[]; subgroups: SubgroupOption[] };
 
-export default function AddMemberWizard({ programs }: Props) {
+export default function AddMemberWizard({ programs, partners, subgroups }: Props) {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<FormData>(initialForm);
@@ -74,14 +79,6 @@ export default function AddMemberWizard({ programs }: Props) {
   const [improvementSummary, setImprovementSummary] = useState<string[]>([]);
   const [loading, setLoading] = useState<'parse' | 'enhance' | 'create' | null>(null);
   const [error, setError] = useState('');
-  const [partners, setPartners] = useState<{ id: string; name: string }[]>([]);
-
-  useEffect(() => {
-    fetch('/api/admin/partners')
-      .then((r) => r.json())
-      .then((data) => { if (Array.isArray(data)) setPartners(data.map((p: { id: string; name: string }) => ({ id: p.id, name: p.name }))); })
-      .catch(() => {});
-  }, []);
 
   const update = (k: keyof FormData, v: FormData[keyof FormData]) => {
     setForm((f) => ({ ...f, [k]: v }));
@@ -155,6 +152,8 @@ export default function AddMemberWizard({ programs }: Props) {
         usCitizen: form.usCitizen,
         authorizedToWork: form.authorizedToWork,
         hasDisability: form.hasDisability,
+        partnerId: form.partnerId || undefined,
+        subgroupId: form.subgroupId || undefined,
       };
       const res = await fetch('/api/admin/members/create', {
         method: 'POST',
@@ -174,13 +173,6 @@ export default function AddMemberWizard({ programs }: Props) {
         if (enhancedResume) fd.append('resumeEnhanced', enhancedResume);
         await fetch(`/api/admin/members/${userId}/upload-resume`, { method: 'POST', body: fd });
       }
-      if (userId && form.partnerId) {
-        await fetch(`/api/admin/members/${userId}/partner`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ partnerId: form.partnerId }),
-        });
-      }
       const email = data.email ?? form.email;
       router.push(`/admin/members/${userId}?toast=created&email=${encodeURIComponent(email)}`);
       router.refresh();
@@ -194,16 +186,22 @@ export default function AddMemberWizard({ programs }: Props) {
   const canProceedStep1 = form.firstName && form.email && form.employmentStatus && form.educationLevel &&
     form.usCitizen && form.authorizedToWork;
   const canProceedStep2 = !!form.programSlug;
-  const maxStep = 4;
+  const maxStep = 5;
 
-  const stepLabels = ['Basic Info', 'Program Selection', 'Resume Upload', 'Review & Create'];
+  const stepLabels = [
+    'Basic Info',
+    'Program Selection',
+    'Partner Referral',
+    'Resume Upload',
+    'Review & Create',
+  ];
 
   return (
     <div className="wizard-container">
       <div className="wizard-step-indicator">
-        <span className="wizard-step-label">Step {step} of 4 — {stepLabels[step - 1]}</span>
+        <span className="wizard-step-label">Step {step} of 5 — {stepLabels[step - 1]}</span>
         <div className="wizard-step-dots">
-          {[1, 2, 3, 4].map((s) => (
+          {[1, 2, 3, 4, 5].map((s) => (
             <button
               key={s}
               type="button"
@@ -280,18 +278,11 @@ export default function AddMemberWizard({ programs }: Props) {
                 {EDUCATION.map((o) => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
-            <div className="wizard-field">
+            <div className="wizard-field wizard-field-full">
               <label>Referral Source</label>
               <select value={form.referralSource} onChange={(e) => update('referralSource', e.target.value)}>
                 <option value="">Select…</option>
                 {REFERRAL.map((o) => <option key={o} value={o}>{o}</option>)}
-              </select>
-            </div>
-            <div className="wizard-field">
-              <label>Partner Referral</label>
-              <select value={form.partnerId} onChange={(e) => update('partnerId', e.target.value)}>
-                <option value="">No partner</option>
-                {partners.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
             </div>
           </div>
@@ -372,8 +363,51 @@ export default function AddMemberWizard({ programs }: Props) {
         </section>
       )}
 
-      {/* Step 3: Resume Upload */}
+      {/* Step 3: Partner Referral (optional) */}
       {step === 3 && (
+        <section className="wizard-step wizard-step-partner">
+          <h2 className="wizard-section-title">
+            <Handshake size={22} className="wizard-icon" /> Partner referral
+          </h2>
+          <p className="wizard-desc">
+            Optional. Assign an active partner organization for referral tracking and automated milestone emails to their contact.
+          </p>
+          <div className="wizard-field wizard-field-full">
+            <label>Partner organization</label>
+            <select value={form.partnerId} onChange={(e) => update('partnerId', e.target.value)}>
+              <option value="">None</option>
+              {partners.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="wizard-field wizard-field-full">
+            <label>Subgroup (optional)</label>
+            <select value={form.subgroupId} onChange={(e) => update('subgroupId', e.target.value)}>
+              <option value="">None</option>
+              {subgroups.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name} ({s.type})
+                </option>
+              ))}
+            </select>
+            <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', marginTop: '0.25rem' }}>Assign to a subgroup for partner/manager/church visibility. Auto-assigned if partner is linked to a subgroup.</p>
+          </div>
+          <div className="wizard-actions wizard-actions-between">
+            <button type="button" className="btn btn-outline" onClick={() => setStep(2)}>
+              Back
+            </button>
+            <button type="button" className="btn btn-primary" onClick={() => setStep(4)}>
+              Continue to Step 4
+            </button>
+          </div>
+        </section>
+      )}
+
+      {/* Step 4: Resume Upload */}
+      {step === 4 && (
         <section className="wizard-step wizard-step-3">
           <h2 className="wizard-section-title"><FileText size={22} className="wizard-icon" /> Resume Upload + AI Enhancement</h2>
           <p className="wizard-desc">Optional. You can upload a resume later.</p>
@@ -401,7 +435,7 @@ export default function AddMemberWizard({ programs }: Props) {
             {loading === 'parse' ? <span>Parsing…</span> : resumeFile ? <span>{resumeFile.name}</span> : <span>Drag and drop PDF, DOC, or DOCX here (max 5MB)<br />or click to browse</span>}
           </div>
           {!resumeFile && (
-            <button type="button" className="wizard-skip-link" onClick={() => setStep(4)}>
+            <button type="button" className="wizard-skip-link" onClick={() => setStep(5)}>
               Skip — you can upload a resume later
             </button>
           )}
@@ -438,28 +472,35 @@ export default function AddMemberWizard({ programs }: Props) {
             </>
           )}
           <div className="wizard-actions wizard-actions-between">
-            <button type="button" className="btn btn-outline" onClick={() => setStep(2)}>Back</button>
-            <button type="button" className="btn btn-primary" onClick={() => setStep(4)}>
-              Continue to Step 4
+            <button type="button" className="btn btn-outline" onClick={() => setStep(3)}>Back</button>
+            <button type="button" className="btn btn-primary" onClick={() => setStep(5)}>
+              Continue to Step 5
             </button>
           </div>
         </section>
       )}
 
-      {/* Step 4: Review & Create */}
-      {step === 4 && (
+      {/* Step 5: Review & Create */}
+      {step === 5 && (
         <section className="wizard-step wizard-step-4">
           <h2 className="wizard-section-title"><CheckCircle size={22} className="wizard-icon" /> Review & Create</h2>
           <div className="wizard-summary-card">
             <p><strong>Personal:</strong> {form.firstName} {form.lastName}, {form.email}, {formatPhone(form.phone)}</p>
             <p><strong>WIOA:</strong> Citizen {form.usCitizen ? 'Yes' : 'No'}, Authorized {form.authorizedToWork ? 'Yes' : 'No'}, Disability {form.hasDisability ? 'Yes' : 'No'}, Ethnicity: {form.ethnicity || '—'}</p>
             <p><strong>Program:</strong> {programs.find((p) => p.slug === form.programSlug)?.title ?? form.programSlug}</p>
-            <p><strong>Partner:</strong> {form.partnerId ? partners.find((p) => p.id === form.partnerId)?.name ?? form.partnerId : 'None'}</p>
+            <p>
+              <strong>Partner referral:</strong>{' '}
+              {form.partnerId ? partners.find((p) => p.id === form.partnerId)?.name ?? form.partnerId : 'None'}
+            </p>
+            <p>
+              <strong>Subgroup:</strong>{' '}
+              {form.subgroupId ? subgroups.find((s) => s.id === form.subgroupId)?.name ?? form.subgroupId : 'None'}
+            </p>
             <p><strong>Resume:</strong> {resumeFile ? 'Original uploaded' : 'Not uploaded'}{enhancedResume ? ' + Enhanced' : ''}</p>
             {form.notes && <p><strong>Counselor notes:</strong> {form.notes}</p>}
           </div>
           <div className="wizard-actions wizard-actions-between">
-            <button type="button" className="btn btn-outline" onClick={() => setStep(3)}>Back</button>
+            <button type="button" className="btn btn-outline" onClick={() => setStep(4)}>Back</button>
             <button type="button" className="btn btn-primary" onClick={handleSubmit} disabled={!!loading}>
               {loading === 'create' ? 'Creating…' : 'Create Member Account'}
             </button>

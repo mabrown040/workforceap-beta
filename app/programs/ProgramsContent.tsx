@@ -43,9 +43,12 @@ function ProgramCard({ program }: { program: Program }) {
         <span style={{ display: 'flex', alignItems: 'center' }}><ProgramIcon program={program} size={28} /></span>
       </div>
       <h3 style={{ fontSize: '1.1rem', marginBottom: '.5rem' }}>{program.title}</h3>
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '.75rem', fontSize: '.85rem', color: '#666' }}>
-        <span>⏱ {program.duration}</span>
-        <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{program.salary}</span>
+      <div style={{ marginBottom: '.75rem' }}>
+        <div style={{ display: 'flex', gap: '1rem', fontSize: '.85rem', color: '#666' }}>
+          <span>⏱ {program.duration}</span>
+          <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{program.salary}</span>
+        </div>
+        <small style={{ display: 'block', fontSize: '.75rem', color: '#888', marginTop: '.25rem' }}>*Austin-area median based on industry data</small>
       </div>
       <div style={{ marginBottom: '1rem', display: 'flex', flexWrap: 'wrap', gap: '.35rem' }}>
         {skills.map((s) => (

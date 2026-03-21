@@ -1,19 +1,34 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Home, BookOpen, GraduationCap, Sparkles, FileText, ClipboardList, BarChart3, CheckCircle, User, Settings } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import {
+  Home,
+  BookOpen,
+  GraduationCap,
+  Sparkles,
+  FileText,
+  ClipboardList,
+  BarChart3,
+  CheckCircle,
+  ClipboardCheck,
+  User,
+  Settings,
+  LogOut,
+} from 'lucide-react';
+import { SignOutButton } from '@/components/portal/SignOutButton';
 
 const SIDEBAR_LINKS = [
   { href: '/dashboard', label: 'Home', Icon: Home },
   { href: '/dashboard/program', label: 'My Program', Icon: BookOpen },
   { href: '/dashboard/training', label: 'Training', Icon: GraduationCap },
-  { href: '/ai-tools', label: 'AI Tools', Icon: Sparkles },
+  { href: '/dashboard/ai-tools', label: 'AI Tools', Icon: Sparkles },
   { href: '/dashboard/resources', label: 'Resources', Icon: FileText },
-  { href: '/career-brief', label: 'Career Brief', Icon: ClipboardList },
-  { href: '/learning', label: 'Learning', Icon: BookOpen },
-  { href: '/weekly-recap', label: 'Weekly Recap', Icon: BarChart3 },
+  { href: '/dashboard/career-brief', label: 'Career Brief', Icon: ClipboardList },
+  { href: '/dashboard/learning', label: 'Learning', Icon: BookOpen },
+  { href: '/dashboard/weekly-recap', label: 'Weekly Recap', Icon: BarChart3 },
   { href: '/dashboard/readiness', label: 'Career Readiness', Icon: CheckCircle },
+  { href: '/dashboard/assessments', label: 'Skills Assessment', Icon: ClipboardCheck },
   { href: '/dashboard/profile', label: 'My Profile', Icon: User },
   { href: '/dashboard/settings', label: 'Settings', Icon: Settings },
 ];
@@ -25,28 +40,46 @@ type DashboardSidebarProps = {
 
 export default function DashboardSidebar({ open = false, onClose }: DashboardSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <aside className={`dashboard-sidebar ${open ? 'open' : ''}`}>
-      <nav aria-label="Dashboard navigation">
-        <ul className="dashboard-sidebar-list">
-          {SIDEBAR_LINKS.map(({ href, label, Icon }) => {
-            const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
-            return (
-              <li key={href}>
-                <Link
-                  href={href}
-                  className={`dashboard-sidebar-link ${isActive ? 'active' : ''}`}
-                  onClick={onClose}
-                >
-                  <span className="dashboard-sidebar-icon"><Icon size={20} className="text-current" /></span>
-                  {label}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+      <div className="dashboard-sidebar-inner">
+        <nav aria-label="Dashboard navigation" className="dashboard-sidebar-nav">
+          <ul className="dashboard-sidebar-list">
+            {SIDEBAR_LINKS.map(({ href, label, Icon }) => {
+              const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
+              return (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    className={`dashboard-sidebar-link ${isActive ? 'active' : ''}`}
+                    onClick={(e) => {
+                      // Primary-click: explicit router.push + deferred onClose so drawer setState
+                      // cannot race App Router and leave the URL one step behind the segment.
+                      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+                      e.preventDefault();
+                      void router.push(href);
+                      queueMicrotask(() => onClose?.());
+                    }}
+                  >
+                    <span className="dashboard-sidebar-icon">
+                      <Icon size={20} className="text-current" />
+                    </span>
+                    {label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+        <div className="dashboard-sidebar-footer">
+          <SignOutButton className="dashboard-sidebar-signout" onSignOutStart={onClose}>
+            <LogOut size={18} strokeWidth={2} aria-hidden />
+            Sign out
+          </SignOutButton>
+        </div>
+      </div>
     </aside>
   );
 }

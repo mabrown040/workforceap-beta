@@ -11,7 +11,9 @@ const navItems = [
     label: 'About Us',
     children: [
       { href: '/what-we-do', label: 'What We Do' },
+      { href: '/partners', label: 'Partners' },
       { href: '/leadership', label: 'Leadership Team' },
+      { href: '/employers', label: 'Employers' },
     ],
   },
   {
@@ -23,6 +25,7 @@ const navItems = [
       { href: '/salary-guide', label: 'Salary Guide' },
     ],
   },
+  { href: '/jobs', label: 'Jobs' },
   { href: '/how-it-works', label: 'How It Works' },
   { href: '/blog', label: 'Blog' },
   { href: '/faq', label: 'FAQ' },
@@ -51,12 +54,12 @@ export default function MainNav() {
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
-    document.addEventListener('keydown', onKey);
+    document.addEventListener('keydown', onKey, { capture: true });
     onScroll();
     return () => {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
-      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('keydown', onKey, { capture: true });
     };
   }, [closeMobile]);
 

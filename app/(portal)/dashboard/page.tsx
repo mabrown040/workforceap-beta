@@ -6,7 +6,6 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
-import Footer from '@/components/Footer';
 import DashboardHomeClient from '@/components/portal/DashboardHomeClient';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -65,13 +64,13 @@ export default async function DashboardPage() {
   try {
     const briefContext = await getCareerBriefContext(user.id);
     suggestedActions = briefContext.recommendedActions
-      .filter((a) => a.href.startsWith('/ai-tools'))
+      .filter((a) => a.href.startsWith('/dashboard/ai-tools'))
       .slice(0, 3);
   } catch {
     suggestedActions = [
-      { label: 'Build your resume', href: '/ai-tools/resume-rewriter' },
-      { label: 'Practice interview questions', href: '/ai-tools/interview-practice' },
-      { label: 'Log your first application', href: '/ai-tools/application-tracker' },
+      { label: 'Build your resume', href: '/dashboard/ai-tools/resume-rewriter' },
+      { label: 'Practice interview questions', href: '/dashboard/ai-tools/interview-practice' },
+      { label: 'Log your first application', href: '/dashboard/ai-tools/application-tracker' },
     ];
   }
 
@@ -99,7 +98,6 @@ export default async function DashboardPage() {
         checklist={checklist}
         checklistAllDone={checklistAllDone}
       />
-      <Footer />
     </>
   );
 }

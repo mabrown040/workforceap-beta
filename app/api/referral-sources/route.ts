@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
+import { FALLBACK_REFERRAL_SOURCES } from '@/lib/referralSources';
 
 const STATIC_SOURCES = [
   'Google / Web Search',
@@ -23,7 +24,8 @@ export async function GET() {
       headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' },
     });
   } catch {
-    // Fallback to static list if DB is unavailable
-    return NextResponse.json(STATIC_SOURCES);
+    return NextResponse.json([...FALLBACK_REFERRAL_SOURCES], {
+      headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' },
+    });
   }
 }

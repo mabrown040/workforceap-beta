@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import DashboardSidebar from './DashboardSidebar';
+import DashboardFooter from './DashboardFooter';
 import ProgressBanner from './ProgressBanner';
-import { SignOutButton } from './SignOutButton';
-import DevViewToggle from './DevViewToggle';
+import PortalHeaderActions from './PortalHeaderActions';
 
 type DashboardShellProps = {
   children: React.ReactNode;
@@ -26,17 +26,8 @@ export default function DashboardShell({
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', flexDirection: 'column' }}>
-      <header
-        style={{
-          borderBottom: '1px solid var(--color-border, #e5e5e5)',
-          padding: '0.75rem 1.5rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          background: 'white',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+      <header className="portal-shell-header">
+        <div className="portal-shell-header__brand">
           <button
             type="button"
             className="dashboard-menu-btn"
@@ -49,10 +40,7 @@ export default function DashboardShell({
             WorkforceAP
           </Link>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <DevViewToggle />
-          <SignOutButton />
-        </div>
+        <PortalHeaderActions />
       </header>
 
       <div
@@ -64,7 +52,7 @@ export default function DashboardShell({
         aria-hidden
       />
 
-      <div style={{ display: 'flex', flex: 1 }}>
+      <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
         <DashboardSidebar open={drawerOpen} onClose={closeDrawer} />
         <main
           style={{
@@ -81,9 +69,10 @@ export default function DashboardShell({
               totalCount={totalCount}
             />
           )}
-          <div style={{ padding: '1.5rem 2rem', flex: 1 }}>{children}</div>
+          <div className="dashboard-main-content" style={{ padding: '1.5rem 2rem', flex: 1 }}>{children}</div>
         </main>
       </div>
+      <DashboardFooter />
     </div>
   );
 }

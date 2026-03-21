@@ -2,16 +2,23 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, Users, ClipboardList, BookOpen, FileText, Handshake } from 'lucide-react';
+import { BarChart3, Users, ClipboardList, BookOpen, FileText, Handshake, Sparkles, Award, UsersRound, Mail, Briefcase, Building2 } from 'lucide-react';
 
 const LINKS = [
   { href: '/admin', label: 'Overview', Icon: BarChart3 },
   { href: '/admin/members', label: 'Members', Icon: Users },
+  { href: '/admin/invites', label: 'Invites', Icon: Mail },
   { href: '/admin/assessments', label: 'Assessments', Icon: ClipboardList },
   { href: '/admin/programs', label: 'Programs', Icon: BookOpen },
   { href: '/admin/blog', label: 'Blog', Icon: FileText },
+  { href: '/admin/jobs', label: 'Jobs', Icon: Briefcase },
+  { href: '/admin/employers', label: 'Employers', Icon: Building2 },
   { href: '/admin/partners', label: 'Partners', Icon: Handshake },
+  { href: '/admin/subgroups', label: 'Subgroups', Icon: UsersRound },
   { href: '/admin/pipeline', label: 'Pipeline', Icon: BarChart3 },
+  { href: '/admin/weekly-recap', label: 'Weekly recap analytics', Icon: BarChart3 },
+  { href: '/admin/ai-tools', label: 'AI tools analytics', Icon: Sparkles },
+  { href: '/admin/certifications', label: 'Certifications analytics', Icon: Award },
 ];
 
 type AdminSidebarProps = {
@@ -35,7 +42,9 @@ export default function AdminSidebar({ open = false, onClose }: AdminSidebarProp
                   className={`admin-sidebar-link ${isActive ? 'active' : ''}`}
                   onClick={onClose}
                 >
-                  <span><Icon size={18} className="text-current" /></span>
+                  <span className="admin-sidebar-icon-wrap" aria-hidden>
+                    <Icon size={18} className="admin-sidebar-icon" strokeWidth={2} />
+                  </span>
                   {label}
                 </Link>
               </li>

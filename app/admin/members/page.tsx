@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
+import { Plus } from 'lucide-react';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
-import Footer from '@/components/Footer';
 import MembersTable from '@/components/admin/MembersTable';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -24,7 +25,14 @@ export default async function AdminMembersPage() {
   const members = await prisma.user.findMany({
     where: { deletedAt: null },
     orderBy: { createdAt: 'desc' },
-    include: { profile: true },
+    include: {
+      profile: true,
+      partnerReferrals: {
+        take: 1,
+        orderBy: { referredAt: 'desc' },
+        include: { partner: { select: { id: true, name: true } } },
+      },
+    },
   });
 
   const membersWithProgram = members.map((m) => ({
@@ -32,6 +40,8 @@ export default async function AdminMembersPage() {
     programTitle: m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.title : null,
     coursesCompleted: (m.coursesCompleted as string[] | null) ?? [],
     totalCourses: m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.courses.length ?? 0 : 0,
+    partnerName: m.partnerReferrals[0]?.partner.name ?? null,
+    partnerId: m.partnerReferrals[0]?.partner.id ?? null,
   }));
 
   return (
@@ -41,14 +51,12 @@ export default async function AdminMembersPage() {
           <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Members</h1>
           <p style={{ color: 'var(--color-gray-600)' }}>View and manage member accounts.</p>
         </div>
-        <a href="/admin/members/new" className="btn btn-primary">
-          ➕ Add Member
-        </a>
+        <Link href="/admin/members/new" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+          <Plus size={16} /> Add Member
+        </Link>
       </div>
 
       <MembersTable members={membersWithProgram} />
-
-      <Footer />
     </div>
   );
 }

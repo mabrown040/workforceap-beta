@@ -1,10 +1,16 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { sendPartnerNewMemberAssignedEmail } from '@/lib/notifications/partner-notify';
+import { z } from 'zod';
+
+const patchSchema = z.object({
+  partnerId: z.string().uuid().nullable(),
+});
 
 export async function PATCH(
-  request: NextRequest,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const user = await getUser();
@@ -16,41 +22,43 @@ export async function PATCH(
   }
 
   const { id: memberId } = await params;
+  const member = await prisma.user.findUnique({ where: { id: memberId }, select: { id: true, deletedAt: true } });
+  if (!member || member.deletedAt) {
+    return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+  }
 
-  let body: { partnerId: string | null };
+  let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const { partnerId } = body;
+  const parsed = patchSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
+  }
 
-  // Verify member exists
-  const member = await prisma.user.findUnique({ where: { id: memberId, deletedAt: null } });
-  if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+  const { partnerId } = parsed.data;
 
-  if (partnerId === null) {
-    // Remove partner assignment
+  if (!partnerId) {
     await prisma.partnerReferral.deleteMany({ where: { memberId } });
-    return NextResponse.json({ ok: true, partnerId: null });
+    return NextResponse.json({ ok: true });
   }
 
-  // Verify partner exists
-  const partner = await prisma.partner.findUnique({ where: { id: partnerId } });
-  if (!partner) return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
+  const partner = await prisma.partner.findFirst({ where: { id: partnerId, active: true } });
+  if (!partner) {
+    return NextResponse.json({ error: 'Invalid or inactive partner' }, { status: 400 });
+  }
 
-  // Upsert referral
-  await prisma.partnerReferral.upsert({
-    where: { partnerId_memberId: { partnerId, memberId } },
-    update: {},
-    create: { partnerId, memberId },
+  await prisma.$transaction(async (tx) => {
+    await tx.partnerReferral.deleteMany({ where: { memberId } });
+    await tx.partnerReferral.create({
+      data: { partnerId, memberId },
+    });
   });
 
-  // Remove any other partner referral for this member (one partner at a time)
-  await prisma.partnerReferral.deleteMany({
-    where: { memberId, partnerId: { not: partnerId } },
-  });
+  await sendPartnerNewMemberAssignedEmail(memberId, partnerId);
 
-  return NextResponse.json({ ok: true, partnerId });
+  return NextResponse.json({ ok: true });
 }

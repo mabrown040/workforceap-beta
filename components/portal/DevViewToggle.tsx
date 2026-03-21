@@ -46,7 +46,7 @@ export default function DevViewToggle() {
   if (!isAdmin) return null;
 
   return (
-    <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+    <div className="dev-view-toggle">
       <button
         type="button"
         onClick={() => handleToggle('student')}

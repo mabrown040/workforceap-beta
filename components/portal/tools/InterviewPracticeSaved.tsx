@@ -27,7 +27,7 @@ export default function InterviewPracticeSaved({ results }: { results: SavedResu
     <div className="interview-practice-saved">
       <h3 className="interview-practice-saved-title">Saved sessions</h3>
       <p className="interview-practice-saved-hint">
-        Revisit past question sets. <Link href="/ai-tools/history?tool=interview_practice">View all in history</Link>
+        Revisit past question sets. <Link href="/dashboard/ai-tools/history?tool=interview_practice">View all in history</Link>
       </p>
       <ul className="interview-practice-saved-list">
         {results.map((r) => {

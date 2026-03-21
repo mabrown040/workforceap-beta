@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
+import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 
 const toggleSchema = z.object({
   certName: z.string().min(1).max(200),
@@ -46,6 +47,9 @@ export async function POST(request: Request) {
   const { certName, earned } = parsed.data;
 
   if (earned) {
+    const existing = await prisma.userCertification.findUnique({
+      where: { userId_certName: { userId: user.id, certName } },
+    });
     await prisma.userCertification.upsert({
       where: {
         userId_certName: { userId: user.id, certName },
@@ -57,6 +61,11 @@ export async function POST(request: Request) {
       },
       update: {},
     });
+    if (!existing) {
+      await sendPartnerMilestoneEmail(user.id, 'Certification earned', {
+        Certification: certName,
+      });
+    }
   } else {
     await prisma.userCertification.deleteMany({
       where: { userId: user.id, certName },

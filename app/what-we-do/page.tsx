@@ -9,7 +9,7 @@ import Footer from '@/components/Footer';
 export const metadata: Metadata = buildPageMetadata({
   title: 'What We Do',
   description:
-    'Learn how WorkforceAP breaks systemic barriers for Austin-area residents through digital literacy, AI, occupational training, and wrap-around support in Austin, TX.',
+    'Learn how WorkforceAP provides free career training and certifications for Austin-area residents through digital literacy, AI, occupational training, and wrap-around support in Austin, TX.',
   path: '/what-we-do',
 });
 
@@ -18,7 +18,7 @@ export default function WhatWeDoPage() {
     <div className="inner-page">
       <PageHero
         title="What We Do"
-        subtitle="Breaking down systemic barriers through education, technology, and opportunity."
+        subtitle="Free career training and certifications for Austin-area residents."
       />
 
       <PhotoHighlight
@@ -75,7 +75,7 @@ export default function WhatWeDoPage() {
             {[
               { Icon: Target, name: 'Equity', desc: 'Ensuring fair access to opportunity, training, and economic mobility for all individuals.' },
               { Icon: Globe, name: 'Opportunity', desc: 'Opening pathways to meaningful, life-changing careers in high-demand industries.' },
-              { Icon: Lightbulb, name: 'Innovation', desc: 'Preparing communities for the AI-powered future of work with cutting-edge training.' },
+              { Icon: Lightbulb, name: 'Innovation', desc: 'We teach the skills employers want: digital literacy, AI tools, and industry certifications.' },
               { Icon: Handshake, name: 'Partnership', desc: 'Leveraging collective strength across government, education, and industry sectors.' },
               { Icon: TrendingUp, name: 'Impact', desc: 'Delivering measurable outcomes that strengthen both individuals and local economies.' },
             ].map((v) => {

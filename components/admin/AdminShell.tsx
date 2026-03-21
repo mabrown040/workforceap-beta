@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Menu } from 'lucide-react';
 import AdminSidebar from './AdminSidebar';
 import AdminFooter from './AdminFooter';
 import PortalHeaderActions from '@/components/portal/PortalHeaderActions';
@@ -16,7 +17,7 @@ export default function AdminShell({ children }: AdminShellProps) {
   const closeDrawer = () => setDrawerOpen(false);
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', flexDirection: 'column' }}>
+    <div className="portal-shell-root">
       <header className="portal-shell-header">
         <div className="portal-shell-header__brand">
           <button
@@ -25,9 +26,9 @@ export default function AdminShell({ children }: AdminShellProps) {
             onClick={() => setDrawerOpen(true)}
             aria-label="Open menu"
           >
-            ☰
+            <Menu size={22} strokeWidth={2} aria-hidden />
           </button>
-          <Link href="/admin" style={{ fontWeight: 700, fontSize: '1.1rem', textDecoration: 'none', color: 'inherit' }}>
+          <Link href="/admin" className="portal-shell-header__title-link">
             WorkforceAP Admin
           </Link>
         </div>
@@ -37,14 +38,15 @@ export default function AdminShell({ children }: AdminShellProps) {
       <div
         className={`admin-drawer-overlay ${drawerOpen ? 'open' : ''}`}
         onClick={closeDrawer}
+        onKeyDown={(e) => e.key === 'Escape' && closeDrawer()}
         role="button"
         tabIndex={-1}
         aria-hidden
       />
 
-      <div style={{ display: 'flex', flex: 1 }}>
+      <div className="portal-shell-body-row portal-shell-body-row--admin">
         <AdminSidebar open={drawerOpen} onClose={closeDrawer} />
-        <main className="admin-main-content" style={{ flex: 1, minWidth: 0 }}>{children}</main>
+        <main className="admin-main-content portal-shell-main portal-shell-main--admin">{children}</main>
       </div>
 
       <AdminFooter />

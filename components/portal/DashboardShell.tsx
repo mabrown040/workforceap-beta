@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Menu } from 'lucide-react';
 import DashboardSidebar from './DashboardSidebar';
 import DashboardFooter from './DashboardFooter';
 import ProgressBanner from './ProgressBanner';
@@ -25,7 +26,7 @@ export default function DashboardShell({
   const closeDrawer = () => setDrawerOpen(false);
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', flexDirection: 'column' }}>
+    <div className="portal-shell-root">
       <header className="portal-shell-header">
         <div className="portal-shell-header__brand">
           <button
@@ -34,9 +35,9 @@ export default function DashboardShell({
             onClick={() => setDrawerOpen(true)}
             aria-label="Open menu"
           >
-            ☰
+            <Menu size={22} strokeWidth={2} aria-hidden />
           </button>
-          <Link href="/dashboard" style={{ fontWeight: 700, fontSize: '1.1rem', textDecoration: 'none', color: 'inherit' }}>
+          <Link href="/dashboard" className="portal-shell-header__title-link">
             WorkforceAP
           </Link>
         </div>
@@ -52,16 +53,9 @@ export default function DashboardShell({
         aria-hidden
       />
 
-      <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
+      <div className="portal-shell-body-row">
         <DashboardSidebar open={drawerOpen} onClose={closeDrawer} />
-        <main
-          style={{
-            flex: 1,
-            minWidth: 0,
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
+        <main className="portal-shell-main">
           {programTitle && (
             <ProgressBanner
               programTitle={programTitle}
@@ -69,7 +63,7 @@ export default function DashboardShell({
               totalCount={totalCount}
             />
           )}
-          <div className="dashboard-main-content" style={{ padding: '1.5rem 2rem', flex: 1 }}>{children}</div>
+          <div className="dashboard-main-content portal-shell-main__inner">{children}</div>
         </main>
       </div>
       <DashboardFooter />

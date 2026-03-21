@@ -21,6 +21,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
               <a href="https://linkedin.com/company/workforceap" target="_blank" rel="noopener noreferrer">LinkedIn</a>
               <a href="mailto:info@workforceap.org">Email</a>
               <Link href="/privacy">Privacy Policy</Link>
+              <Link href="/terms">Terms of Use</Link>
             </div>
           </div>
         </div>
@@ -43,13 +44,13 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
             loading="lazy"
           />
           <p>Free career training and certifications for Austin-area residents. Employer-aligned career training, certifications, and personalized support.</p>
-          <p>info@workforceap.org</p>
-          <p>(512) 777-1808</p>
+          <p><a href="mailto:info@workforceap.org">info@workforceap.org</a></p>
+          <p><a href="tel:5127771808">(512) 777-1808</a></p>
         </div>
         <FooterLinks />
       </div>
       <div className="footer-bottom">
-        <p>&copy; {new Date().getFullYear()} Workforce Advancement Project. Empowering People. Advancing Futures. &nbsp;|&nbsp; <a href="https://linkedin.com/company/workforceap" target="_blank" rel="noopener noreferrer">LinkedIn</a> &nbsp;|&nbsp; <a href="mailto:info@workforceap.org">info@workforceap.org</a> &nbsp;|&nbsp; <Link href="/privacy">Privacy Policy</Link></p>
+        <p>&copy; {new Date().getFullYear()} Workforce Advancement Project. Empowering People. Advancing Futures. &nbsp;|&nbsp; <a href="https://linkedin.com/company/workforceap" target="_blank" rel="noopener noreferrer">LinkedIn</a> &nbsp;|&nbsp; <a href="mailto:info@workforceap.org">info@workforceap.org</a> &nbsp;|&nbsp; <Link href="/privacy">Privacy</Link> &nbsp;|&nbsp; <Link href="/terms">Terms</Link></p>
       </div>
     </footer>
   );

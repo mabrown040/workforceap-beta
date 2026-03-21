@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { Menu, X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect, useCallback } from 'react';
 
@@ -64,16 +65,38 @@ export default function MainNav() {
   }, [closeMobile]);
 
   useEffect(() => {
-    const updateMemberPortalHref = () => {
-      const hasSupabaseAuthCookie = /(?:^|;\s*)sb-[^=]*-auth-token=/.test(document.cookie);
-      setMemberPortalHref(hasSupabaseAuthCookie ? '/dashboard' : '/login');
+    let cancelled = false;
+
+    const refreshPortalHref = () => {
+      void (async () => {
+        try {
+          const res = await fetch('/api/auth/me', { credentials: 'include' });
+          const data = (await res.json()) as {
+            role: string | null;
+            partner: { partnerId: string } | null;
+            superAdmin: boolean;
+          };
+          if (cancelled) return;
+          if (!data.role) {
+            setMemberPortalHref('/login');
+            return;
+          }
+          if (data.partner && !data.superAdmin) {
+            setMemberPortalHref('/partner');
+            return;
+          }
+          setMemberPortalHref('/dashboard');
+        } catch {
+          if (!cancelled) setMemberPortalHref('/login');
+        }
+      })();
     };
 
-    updateMemberPortalHref();
-    window.addEventListener('focus', updateMemberPortalHref);
-
+    refreshPortalHref();
+    window.addEventListener('focus', refreshPortalHref);
     return () => {
-      window.removeEventListener('focus', updateMemberPortalHref);
+      cancelled = true;
+      window.removeEventListener('focus', refreshPortalHref);
     };
   }, []);
 
@@ -116,7 +139,7 @@ export default function MainNav() {
           aria-expanded={mobileOpen}
           onClick={toggleMobile}
         >
-          {mobileOpen ? '\u2715' : '\u2630'}
+          {mobileOpen ? <X size={26} strokeWidth={2} aria-hidden /> : <Menu size={26} strokeWidth={2} aria-hidden />}
         </button>
         <button
           type="button"
@@ -175,7 +198,11 @@ export default function MainNav() {
               );
             }
             const href = item.href === '/login' ? memberPortalHref : item.href!;
-            const memberPortalActive = item.href === '/login' && (pathname === '/login' || pathname === '/dashboard');
+            const memberPortalActive =
+              item.href === '/login' &&
+              (pathname === '/login' ||
+                pathname.startsWith('/dashboard') ||
+                pathname.startsWith('/partner'));
 
             return (
               <li key={item.href}>

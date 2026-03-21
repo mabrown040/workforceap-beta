@@ -437,19 +437,37 @@ export async function importJobsFromUrl(url: string): Promise<ATSParseResult> {
  * @param waitFor - ms to wait for JS rendering (Rippling, Workday, etc.)
  */
 export async function fetchPageText(url: string, options?: { waitFor?: number }): Promise<string | null> {
-  // Try generic fetch first
   const page = await fetchGenericPage(url);
   if (page && !page.isJSRendered && page.text.length > 200) {
     return page.text;
   }
-
-  // Try Firecrawl for JS-rendered pages
   const firecrawlResult = await fetchWithFirecrawlCached(url, { waitFor: options?.waitFor ?? 2000 });
   if (firecrawlResult && firecrawlResult.text.length > 200) {
     return firecrawlResult.text;
   }
+  return page?.text ?? null;
+}
 
-  // Return whatever we got from generic (even if short)
+/**
+ * Fetch sub-job page text with minimal Firecrawl usage.
+ * Pattern: direct fetch first (free), Firecrawl only as last resort (saves credits).
+ * Use this for per-job URLs discovered from a careers page — the top-level page
+ * should have already used Firecrawl for discovery.
+ */
+export async function fetchSubJobPageText(
+  url: string,
+  options?: { waitFor?: number }
+): Promise<string | null> {
+  // 1. Try direct fetch — many ATS job detail pages are server-rendered
+  const page = await fetchGenericPage(url);
+  if (page && !page.isJSRendered && page.text.length >= 200) {
+    return page.text;
+  }
+  // 2. Direct fetch failed or insufficient (JS-rendered, blocked) — Firecrawl as last resort
+  const firecrawlResult = await fetchWithFirecrawlCached(url, { waitFor: options?.waitFor ?? 2000 });
+  if (firecrawlResult && firecrawlResult.text.length >= 200) {
+    return firecrawlResult.text;
+  }
   return page?.text ?? null;
 }
 

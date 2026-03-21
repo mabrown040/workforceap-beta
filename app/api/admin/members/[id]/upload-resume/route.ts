@@ -8,34 +8,6 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 const BUCKET = 'member-resumes';
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
-const ALLOWED_MIME_TYPES = new Set([
-  'application/pdf',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-]);
-
-const ALLOWED_EXTENSIONS = new Set(['pdf', 'doc', 'docx']);
-
-// Magic bytes for allowed file types
-const MAGIC_BYTES: Array<{ ext: string; bytes: number[] }> = [
-  { ext: 'pdf', bytes: [0x25, 0x50, 0x44, 0x46] }, // %PDF
-  { ext: 'doc', bytes: [0xD0, 0xCF, 0x11, 0xE0] }, // OLE2 (DOC)
-  { ext: 'docx', bytes: [0x50, 0x4B, 0x03, 0x04] }, // PK (ZIP/DOCX)
-];
-
-function validateFileType(buffer: Buffer, mimeType: string, fileName: string): boolean {
-  const ext = fileName.split('.').pop()?.toLowerCase() || '';
-  if (!ALLOWED_EXTENSIONS.has(ext)) return false;
-  if (!ALLOWED_MIME_TYPES.has(mimeType)) return false;
-
-  // Check magic bytes
-  if (buffer.length < 4) return false;
-  const matchesMagic = MAGIC_BYTES.some(
-    (m) => m.bytes.every((b, i) => buffer[i] === b)
-  );
-  return matchesMagic;
-}
-
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -77,12 +49,9 @@ export async function POST(
     if (file.size > MAX_SIZE) {
       return NextResponse.json({ error: 'File too large (max 5MB)' }, { status: 400 });
     }
-    const buffer = Buffer.from(await file.arrayBuffer());
-    if (!validateFileType(buffer, file.type || '', file.name)) {
-      return NextResponse.json({ error: 'Invalid file type. Only PDF, DOC, and DOCX files are allowed.' }, { status: 400 });
-    }
     const ext = file.name.split('.').pop()?.toLowerCase() || 'pdf';
     const path = `${userId}/resume-original.${ext}`;
+    const buffer = Buffer.from(await file.arrayBuffer());
     const { error } = await supabase.storage.from(BUCKET).upload(path, buffer, {
       upsert: true,
       contentType: file.type || 'application/pdf',

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/lib/auth/server';
-import { checkAuthRateLimit } from '@/lib/rate-limit';
 
 export async function POST(request: Request) {
   let body: { email?: string; password?: string; redirectTo?: string };
@@ -18,14 +17,6 @@ export async function POST(request: Request) {
 
   if (!email || !password) {
     return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
-  }
-
-  // Rate limit by email to prevent brute-force
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-  const rateLimitKey = `login:${ip}:${email.toLowerCase()}`;
-  const { success: withinLimit } = await checkAuthRateLimit(rateLimitKey);
-  if (!withinLimit) {
-    return NextResponse.json({ error: 'Too many login attempts. Please try again later.' }, { status: 429 });
   }
 
   const supabase = await createSupabaseServerClient();

@@ -15,7 +15,9 @@ export async function POST(request: Request) {
   }
 
   const supabase = await createSupabaseServerClient();
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
+  const host = request.headers.get('x-forwarded-host') || request.headers.get('host') || '';
+  const proto = request.headers.get('x-forwarded-proto') || 'https';
+  const baseUrl = host ? `${proto}://${host}` : (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org');
   const redirectTo = `${baseUrl}/login?reset=success`;
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {

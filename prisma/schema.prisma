@@ -494,11 +494,6 @@ model Partner {
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
 
-  notifyOnEnrollment   Boolean @default(true) @map("notify_on_enrollment")
-  notifyOnCourse       Boolean @default(true) @map("notify_on_course")
-  notifyOnCertified    Boolean @default(true) @map("notify_on_certified")
-  notifyOnPlaced       Boolean @default(true) @map("notify_on_placed")
-
   counselors   Counselor[]
   referrals    PartnerReferral[]
   partnerUsers PartnerUser[]

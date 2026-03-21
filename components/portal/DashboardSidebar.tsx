@@ -6,8 +6,8 @@ import {
   Home,
   BookOpen,
   GraduationCap,
+  Library,
   Sparkles,
-  FileText,
   ClipboardList,
   BarChart3,
   CheckCircle,
@@ -25,15 +25,14 @@ const SIDEBAR_CORE = [
 ];
 
 const SIDEBAR_TOOLS = [
+  { href: '/dashboard/learning', label: 'Learning hub', Icon: Library },
   { href: '/dashboard/ai-tools', label: 'AI Tools', Icon: Sparkles },
   { href: '/dashboard/readiness', label: 'Career Readiness', Icon: CheckCircle },
   { href: '/dashboard/career-brief', label: 'Career Brief', Icon: ClipboardList },
-  { href: '/dashboard/resources', label: 'Resources', Icon: FileText },
   { href: '/dashboard/assessments', label: 'Skills Assessment', Icon: ClipboardCheck },
 ];
 
 const SIDEBAR_MORE = [
-  { href: '/dashboard/learning', label: 'Learning', Icon: BookOpen },
   { href: '/dashboard/weekly-recap', label: 'Weekly Recap', Icon: BarChart3 },
   { href: '/dashboard/profile', label: 'Profile', Icon: User },
   { href: '/dashboard/settings', label: 'Settings', Icon: Settings },
@@ -49,7 +48,13 @@ export default function DashboardSidebar({ open = false, onClose }: DashboardSid
   const router = useRouter();
 
   const renderLink = (href: string, label: string, Icon: React.ComponentType<{ size?: number; className?: string }>) => {
-    const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
+    let isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
+    if (href === '/dashboard/learning') {
+      isActive =
+        isActive ||
+        pathname.startsWith('/resources') ||
+        pathname.startsWith('/dashboard/resources');
+    }
     return (
       <li key={href}>
         <Link

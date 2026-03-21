@@ -30,16 +30,26 @@ export default async function ResourcesPage() {
   return (
     <div className="inner-page">
       <section className="page-hero">
-        <div className="page-hero-content" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+        <div className="page-hero-content page-hero-content--split">
           <div>
-            <h1>Career Resources</h1>
+            <nav className="learning-hub-breadcrumb learning-hub-breadcrumb--on-dark" aria-label="Learning hub">
+              <Link href="/dashboard/learning">Learning hub</Link>
+              <span className="learning-hub-breadcrumb-sep" aria-hidden>
+                /
+              </span>
+              <span className="learning-hub-breadcrumb-current">Career library</span>
+            </nav>
+            <h1>Career resource library</h1>
             <p>Practical job-seeker resources by career stage. Filter by category or stage to find what you need.</p>
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <Link href="/dashboard" className="btn" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.4)' }}>
+          <div className="page-hero-actions">
+            <Link href="/dashboard/learning" className="btn btn-hero-ghost">
+              Learning hub
+            </Link>
+            <Link href="/dashboard" className="btn btn-hero-ghost">
               Dashboard
             </Link>
-            <SignOutButton />
+            <SignOutButton className="btn btn-hero-ghost" />
           </div>
         </div>
       </section>

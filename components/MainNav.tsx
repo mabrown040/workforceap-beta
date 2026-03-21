@@ -31,7 +31,7 @@ const navItems = [
   { href: '/blog', label: 'Blog' },
   { href: '/faq', label: 'FAQ' },
   { href: '/apply', label: 'Apply Now', cta: true },
-  { href: '/login', label: 'Member Portal' },
+  { href: '/login', label: 'Member Portal', portalEntry: true },
   { href: '/contact', label: 'Contact Us' },
 ];
 
@@ -40,7 +40,10 @@ export default function MainNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
-  const [memberPortalHref, setMemberPortalHref] = useState('/login');
+  const [portalEntry, setPortalEntry] = useState<{ href: string; label: string }>({
+    href: '/login',
+    label: 'Member Portal',
+  });
 
   const closeMobile = useCallback(() => {
     setMobileOpen(false);
@@ -74,20 +77,25 @@ export default function MainNav() {
           const data = (await res.json()) as {
             role: string | null;
             partner: { partnerId: string } | null;
+            employer: { employerId: string; companyName: string } | null;
             superAdmin: boolean;
           };
           if (cancelled) return;
           if (!data.role) {
-            setMemberPortalHref('/login');
+            setPortalEntry({ href: '/login', label: 'Member Portal' });
+            return;
+          }
+          if (data.employer) {
+            setPortalEntry({ href: '/employer', label: 'Employer Portal' });
             return;
           }
           if (data.partner && !data.superAdmin) {
-            setMemberPortalHref('/partner');
+            setPortalEntry({ href: '/partner', label: 'Partner Portal' });
             return;
           }
-          setMemberPortalHref('/dashboard');
+          setPortalEntry({ href: '/dashboard', label: 'Member Portal' });
         } catch {
-          if (!cancelled) setMemberPortalHref('/login');
+          if (!cancelled) setPortalEntry({ href: '/login', label: 'Member Portal' });
         }
       })();
     };
@@ -197,21 +205,24 @@ export default function MainNav() {
                 </li>
               );
             }
-            const href = item.href === '/login' ? memberPortalHref : item.href!;
-            const memberPortalActive =
-              item.href === '/login' &&
+            const isPortalEntry = 'portalEntry' in item && item.portalEntry;
+            const href = isPortalEntry ? portalEntry.href : item.href!;
+            const portalEntryActive =
+              isPortalEntry &&
               (pathname === '/login' ||
                 pathname.startsWith('/dashboard') ||
-                pathname.startsWith('/partner'));
+                pathname.startsWith('/partner') ||
+                pathname.startsWith('/employer'));
+            const linkLabel = isPortalEntry ? portalEntry.label : item.label;
 
             return (
               <li key={item.href}>
                 <Link
                   href={href}
-                  className={`${item.cta ? 'nav-cta' : ''}${isActive(href) || memberPortalActive ? ' active' : ''}`}
+                  className={`${item.cta ? 'nav-cta' : ''}${isActive(href) || portalEntryActive ? ' active' : ''}`}
                   onClick={closeMobile}
                 >
-                  {item.label}
+                  {linkLabel}
                 </Link>
               </li>
             );

@@ -55,19 +55,22 @@ export default async function ResourceDetailPage({ params }: Props) {
     <div className="inner-page">
       <ResourceViewTracker resourceId={id} />
       <section className="page-hero">
-        <div className="page-hero-content" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+        <div className="page-hero-content page-hero-content--split">
           <div>
             <Link href="/resources" className="resource-back-link">
-              ← Back to resources
+              ← Career library
             </Link>
             <h1>{resource.title}</h1>
             <p>{resource.summary}</p>
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <Link href="/dashboard" className="btn" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.4)' }}>
+          <div className="page-hero-actions">
+            <Link href="/dashboard/learning" className="btn btn-hero-ghost">
+              Learning hub
+            </Link>
+            <Link href="/dashboard" className="btn btn-hero-ghost">
               Dashboard
             </Link>
-            <SignOutButton />
+            <SignOutButton className="btn btn-hero-ghost" />
           </div>
         </div>
       </section>

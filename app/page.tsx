@@ -4,7 +4,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Monitor, Wifi, ClipboardList, HeartPulse, Factory, HardHat, Award, Laptop, Handshake } from 'lucide-react';
 import Footer from '@/components/Footer';
-import PhotoHighlight from '@/components/PhotoHighlight';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Home',
@@ -18,13 +17,13 @@ export default function HomePage() {
     { num: 1, title: 'Apply', desc: 'Quick online application' },
     { num: 2, title: 'Overview', desc: 'Learn about our programs' },
     { num: 3, title: 'Interview', desc: 'Meet your counselor' },
-    { num: 4, title: 'Membership', desc: 'Join the WorkforceAP community — free for all accepted members' },
+    { num: 4, title: 'Membership', desc: 'Join free — no cost to qualifying participants' },
     { num: 5, title: 'Assessment', desc: 'Skills & goals evaluation' },
-    { num: 6, title: 'Workforce Readiness', desc: 'Build foundational skills' },
+    { num: 6, title: 'Readiness', desc: 'Build foundational skills' },
     { num: 7, title: 'Resources', desc: 'Tools, network & loaner laptop' },
     { num: 8, title: 'Training', desc: 'Industry certification courses' },
     { num: 9, title: 'Certify', desc: 'Earn credentials' },
-    { num: 10, title: 'Job Placement Assistance', desc: 'Career launch support' },
+    { num: 10, title: 'Placement', desc: 'Career launch support' },
   ];
 
   return (
@@ -42,12 +41,21 @@ export default function HomePage() {
         />
         <div className="hero-overlay" />
         <div className="hero-container">
-          <h1 className="hero-title">Empowering People. <br /><span className="accent">Advancing Futures.</span></h1>
+          <h1 className="hero-title">
+            Empowering People. <br />
+            <span className="accent">Advancing Futures.</span>
+          </h1>
           <div className="hero-no-cost-badge">✦ No-cost training for qualifying participants</div>
-          <p className="hero-subtitle">Career training and industry certifications designed to launch careers in Technology, Data, AI, Healthcare, Manufacturing and Skilled Trades.</p>
+          <p className="hero-subtitle">
+            Career training and certifications in Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Austin-area focus. Employer-aligned.
+          </p>
           <div className="hero-actions hero-actions-prominent">
-            <Link href="/apply" className="btn btn-accent btn-large">Apply Now — It Takes 5 Minutes</Link>
-            <Link href="/find-your-path" className="btn btn-ghost">Find Your Path →</Link>
+            <Link href="/apply" className="btn btn-accent btn-large">
+              Apply Now — It Takes 5 Minutes
+            </Link>
+            <Link href="/find-your-path" className="btn btn-ghost">
+              Find Your Path →
+            </Link>
           </div>
           <div className="trust-strip">
             <span>Trusted by partners including</span>
@@ -73,38 +81,39 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Mission Photo Highlight */}
-      <PhotoHighlight
-        imageUrl="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1400&q=80"
-        label="Our Mission"
-        title="Free Career Training and Certifications"
-        description="Free career training and certifications for Austin-area residents. We provide digital literacy, artificial intelligence, occupational, and professional certification training to underserved individuals, adult learners, and veteran populations."
-        buttonText="Learn About Our Mission"
-        buttonHref="/what-we-do"
-      />
-
-      {/* Vision & Mission */}
-      <section className="vision-mission-section">
+      {/* For You: who it's for + what you get — collapsed from mission/vision/what-you-get */}
+      <section className="home-for-you">
         <div className="container">
-          <div className="vm-grid">
-            <div className="vm-image">
-              <Image src="/images/hero-people.jpg" alt="WorkforceAP Training" width={600} height={400} loading="lazy" />
+          <h2 className="home-section-title">For Austin-area residents ready to launch</h2>
+          <p className="home-for-you-lead">
+            We break down barriers with employer-aligned training and wrap-around support. Underserved individuals, adult learners, and veterans — we're here for you.
+          </p>
+          <div className="wyg-grid">
+            <div className="wyg-card animate-on-scroll">
+              <span className="wyg-icon"><Award size={28} className="text-current" /></span>
+              <h3>Industry Certifications</h3>
+              <p>Google, IBM, Microsoft, Amazon, CompTIA — credentials employers hire against.</p>
             </div>
-            <div className="vm-content">
-              <span className="section-label">Our Vision &amp; Mission</span>
-              <p>To empower individuals by delivering wrap-around services and resources which includes assessment, workforce readiness, resume enhancement, occupational training, stackable career pathways, industry-recognized certificates, and job placement assistance.</p>
-              <Link href="/what-we-do" className="link-arrow">Learn More &#8594;</Link>
+            <div className="wyg-card animate-on-scroll">
+              <span className="wyg-icon"><Laptop size={28} className="text-current" /></span>
+              <h3>Loaner Laptop</h3>
+              <p>Earn a refurbished laptop on completion. Hardware is never a barrier.</p>
+            </div>
+            <div className="wyg-card animate-on-scroll">
+              <span className="wyg-icon"><Handshake size={28} className="text-current" /></span>
+              <h3>Job Placement</h3>
+              <p>Resume support, interview prep, employer connections from day one through hire.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Process Flow */}
+      {/* How it works */}
       <section className="process-flow-section">
         <div className="process-flow-inner">
           <div className="process-flow-header animate-on-scroll">
             <h2>Your Journey With Us</h2>
-            <p>From application to employment &mdash; see how it works</p>
+            <p>From application to employment</p>
           </div>
           <div className="process-steps">
             {journeySteps.map((step, index) => (
@@ -124,19 +133,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* About Section */}
-      <section className="about-section">
+      {/* Why trust: 25+ years, leadership, community roots — protect this */}
+      <section className="about-section home-trust-anchor">
         <div className="container">
           <div className="about-grid">
             <div className="about-content">
               <span className="section-label">Who We Are</span>
               <h2>25+ Years Breaking Barriers</h2>
-              <p>Founded by Michael Brown, PMP &mdash; a distinguished and respected workforce leader who has trained thousands in the Austin Metro Area and Statewide.</p>
-              <p>Through Consulting Solutions.Net, Goodwill Career &amp; Technical Academy, Austin Area Urban League, Universal Tech Movement, and African American Youth Harvest Foundation, we deliver the wrap-around services that launch careers.</p>
+              <p>
+                Founded by Michael Brown, PMP — a workforce leader who has trained thousands across the Austin Metro and Statewide. Through Consulting Solutions.Net, Goodwill Career &amp; Technical Academy, Austin Area Urban League, Universal Tech Movement, and African American Youth Harvest Foundation, we deliver the wrap-around services that launch careers.
+              </p>
               <div className="about-stats">
                 <div className="about-stat"><span className="stat-num">25+</span><span className="stat-desc">Years Experience</span></div>
-                <div className="about-stat"><span className="stat-num">Coursera</span><span className="stat-desc">Approved Partner</span></div>
-                <div className="about-stat"><span className="stat-num">Austin</span><span className="stat-desc">Community Focus</span></div>
+                <div className="about-stat"><span className="stat-num">2,000+</span><span className="stat-desc">Trained</span></div>
+                <div className="about-stat"><span className="stat-num">Austin</span><span className="stat-desc">Community Roots</span></div>
               </div>
               <div className="partner-logos-small">
                 <Image src="/images/Google_2015_logo.svg.png" alt="Google" width={80} height={27} />
@@ -145,18 +155,21 @@ export default function HomePage() {
                 <Image src="/images/microsoft-logo.svg" alt="Microsoft" width={100} height={24} />
                 <Image src="/images/ibm-logo.svg" alt="IBM" width={60} height={24} />
               </div>
-              <Link href="/what-we-do" className="btn btn-primary">Learn More About Us</Link>
+              <div className="about-actions">
+                <Link href="/leadership" className="btn btn-primary">Meet Our Team</Link>
+                <Link href="/what-we-do" className="btn btn-outline">Full Mission &amp; Vision</Link>
+              </div>
             </div>
             <div className="programs-preview">
-              <span className="section-label">Our Programs</span>
+              <span className="section-label">Programs</span>
               <h3>Industry-Recognized Training</h3>
-              <p>Bridging the gap between people, talent, skills, and opportunity through partnerships with leading organizations.</p>
+              <p>19 programs across Tech, Healthcare, Manufacturing, and Skilled Trades.</p>
               <ul className="program-categories">
                 <li><span className="cat-icon"><Monitor size={20} className="text-current" /></span> Digital Literacy &amp; AI</li>
                 <li><span className="cat-icon"><Wifi size={20} className="text-current" /></span> Information Technology</li>
                 <li><span className="cat-icon"><ClipboardList size={20} className="text-current" /></span> Project Management</li>
                 <li><span className="cat-icon"><HeartPulse size={20} className="text-current" /></span> Medical Coding</li>
-                <li><span className="cat-icon"><Factory size={20} className="text-current" /></span> Manufacturing &amp; Production</li>
+                <li><span className="cat-icon"><Factory size={20} className="text-current" /></span> Manufacturing</li>
                 <li><span className="cat-icon"><HardHat size={20} className="text-current" /></span> Core Construction</li>
               </ul>
               <Link href="/programs" className="btn btn-outline">View All Programs</Link>
@@ -165,65 +178,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* What You Get */}
-      <section className="what-you-get-section">
-        <div className="container">
-          <div className="section-header animate-on-scroll">
-            <h2>Everything You Need to Succeed</h2>
-            <p>WorkforceAP wraps real support around every step of your journey.</p>
-          </div>
-          <div className="wyg-grid">
-            <div className="wyg-card animate-on-scroll">
-              <span className="wyg-icon"><Award size={28} className="text-current" /></span>
-              <h3>Industry Certifications</h3>
-              <p>Credentials from Google, IBM, Microsoft, Amazon, and CompTIA that employers hire against directly.</p>
-            </div>
-            <div className="wyg-card animate-on-scroll">
-              <span className="wyg-icon"><Laptop size={28} className="text-current" /></span>
-              <h3>Loaner Laptop Program</h3>
-              <p>Earn a refurbished laptop upon successful program completion — so hardware is never a barrier to your future.</p>
-            </div>
-            <div className="wyg-card animate-on-scroll">
-              <span className="wyg-icon"><Handshake size={28} className="text-current" /></span>
-              <h3>Job Placement Assistance</h3>
-              <p>Resume support, interview prep, and employer connections from your first day of training through your first hire.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Success Stories - commented out until real graduate stories are available */}
-      {/* <section className="testimonials-section">
-        <div className="container">
-          <div className="section-header animate-on-scroll">
-            <h2>Success Stories</h2>
-            <p>Graduates who launched new careers through WorkforceAP training</p>
-          </div>
-          <div className="testimonials-grid">
-            <div className="testimonial-card animate-on-scroll">
-              <span className="quote-mark">&ldquo;</span>
-              <p className="testimonial-text">WorkforceAP gave me the skills and confidence to switch careers. I completed the Google Cybersecurity program and landed a role as a security analyst within three months of graduating.</p>
-              <div className="testimonial-author">— Maria R., Google Cybersecurity Graduate</div>
-            </div>
-            <div className="testimonial-card animate-on-scroll">
-              <span className="quote-mark">&ldquo;</span>
-              <p className="testimonial-text">I was working full-time and worried I couldn&apos;t fit training in. The 10-hour weekly commitment was manageable, and the support from my counselor kept me on track. Now I&apos;m a project coordinator.</p>
-              <div className="testimonial-author">— James T., Microsoft Project Management Graduate</div>
-            </div>
-            <div className="testimonial-card animate-on-scroll">
-              <span className="quote-mark">&ldquo;</span>
-              <p className="testimonial-text">I had no tech background before applying. The program started from the basics and built up. The job placement assistance helped me prepare for interviews and connect with employers. I&apos;m now earning more than I ever did.</p>
-              <div className="testimonial-author">— Sarah L., IBM Data Science Graduate</div>
-            </div>
-          </div>
-        </div>
-      </section> */}
-
-      {/* Footer CTA */}
+      {/* What to do next */}
       <section className="footer-cta">
         <div className="container">
           <h2>Ready to start?</h2>
-          <p>Employer-aligned training. Real certifications. Direct connections to local employers. Applications take under 10 minutes.</p>
+          <p>Applications take under 10 minutes. Real certifications. Direct connections to local employers.</p>
           <Link href="/apply" className="btn btn-primary btn-large">Start Your Application</Link>
         </div>
       </section>

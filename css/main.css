@@ -5173,6 +5173,298 @@ body { animation: fadeIn 0.4s ease; }
     border-color: rgba(255,255,255,0.5);
 }
 
+/* Employer portal — focused tool shell (one nav, minimal chrome) */
+.employer-portal-shell {
+    min-height: 100vh;
+    background: var(--color-light);
+}
+.employer-portal-header {
+    background: var(--color-white);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 40;
+}
+.employer-portal-header-inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.employer-portal-brand {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+.employer-portal-brand:hover {
+    color: var(--color-accent);
+}
+.employer-portal-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.15rem 0.5rem;
+}
+.employer-portal-nav a {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-gray-600);
+    border-radius: var(--radius-sm);
+}
+.employer-portal-nav a:hover {
+    color: var(--color-primary);
+    background: var(--color-gray-100);
+}
+.employer-portal-nav a.active {
+    color: var(--color-primary);
+    background: var(--color-gray-100);
+}
+.employer-portal-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+.employer-portal-company {
+    font-size: 0.8rem;
+    color: var(--color-gray-500);
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.employer-super-admin-banner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0.4rem 1rem;
+    font-size: 0.78rem;
+    color: var(--color-gray-600);
+    background: rgba(59, 130, 246, 0.06);
+    border-bottom: 1px solid rgba(59, 130, 246, 0.15);
+}
+.employer-super-admin-banner a {
+    color: var(--color-accent);
+    text-decoration: underline;
+}
+.employer-portal-main {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 1.25rem 1rem;
+}
+@media (max-width: 768px) {
+    .employer-portal-header-inner {
+        padding: 0.5rem 0.75rem;
+    }
+    .employer-portal-nav {
+        order: 3;
+        flex: 1 1 100%;
+        overflow-x: auto;
+        padding-bottom: 0.25rem;
+        -webkit-overflow-scrolling: touch;
+    }
+    .employer-portal-nav a {
+        flex-shrink: 0;
+    }
+    .employer-portal-company {
+        display: none;
+    }
+    .employer-portal-main {
+        padding: 1rem 0.75rem;
+    }
+}
+
+/* Import job page — hiring-ops assistant */
+.import-job-page {
+    max-width: 640px;
+}
+.import-job-back {
+    margin-bottom: 1rem;
+}
+.import-job-back a {
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+}
+.import-job-back a:hover {
+    color: var(--color-primary);
+}
+.import-job-header h1 {
+    font-size: 1.35rem;
+    margin: 0 0 0.35rem;
+    font-weight: 600;
+}
+.import-job-tagline {
+    color: var(--color-gray-600);
+    font-size: 0.95rem;
+    margin: 0 0 1.5rem;
+    line-height: 1.5;
+}
+.import-job-success-card {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 1.5rem;
+    padding: 1.25rem;
+    background: rgba(74, 155, 79, 0.08);
+    border: 1px solid rgba(74, 155, 79, 0.25);
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+}
+.import-job-success-icon {
+    color: var(--color-green);
+    flex-shrink: 0;
+}
+.import-job-success-title {
+    font-size: 1.1rem;
+    margin: 0 0 0.25rem;
+    font-weight: 600;
+}
+.import-job-success-desc {
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+    margin: 0 0 0.75rem;
+}
+.import-job-success-cta {
+    display: inline-flex;
+    align-items: center;
+}
+.import-job-success-list {
+    flex: 1 1 100%;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 0.9rem;
+}
+.import-job-success-list li {
+    padding: 0.2rem 0;
+}
+.import-job-success-list a {
+    color: var(--color-accent);
+}
+.import-job-success-list a:hover {
+    text-decoration: underline;
+}
+.import-job-primary {
+    margin-bottom: 1.5rem;
+}
+.import-job-primary h2 {
+    font-size: 1.05rem;
+    margin: 0 0 0.35rem;
+}
+.import-job-hint {
+    font-size: 0.85rem;
+    color: var(--color-gray-500);
+    margin: 0 0 0.75rem;
+}
+.import-job-error {
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    background: #fee;
+    border-radius: var(--radius-sm);
+    color: #c00;
+    font-size: 0.9rem;
+}
+.import-job-input {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.95rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.75rem;
+}
+.import-job-more {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-border);
+}
+.import-job-more summary {
+    font-size: 0.95rem;
+    color: var(--color-gray-600);
+    cursor: pointer;
+}
+.import-job-more-content {
+    margin-top: 1rem;
+}
+.import-job-more-content h3 {
+    font-size: 1rem;
+    margin: 0 0 0.5rem;
+}
+.import-job-errors {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    font-size: 0.9rem;
+    color: #a00;
+    background: #fee;
+    border-radius: var(--radius-sm);
+}
+.import-job-errors ul {
+    margin: 0.35rem 0 0;
+    padding-left: 1.25rem;
+}
+
+/* Employer job pages — task-first layout */
+.employer-jobs-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.employer-jobs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+.employer-jobs-header h1 {
+    font-size: 1.35rem;
+    margin: 0;
+    font-weight: 600;
+}
+.employer-jobs-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+.employer-job-edit {
+    max-width: 720px;
+}
+.employer-job-edit__back {
+    margin-bottom: 1rem;
+}
+.employer-job-edit__back a {
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+}
+.employer-job-edit__back a:hover {
+    color: var(--color-primary);
+}
+.employer-job-edit__header {
+    margin-bottom: 1.25rem;
+}
+.employer-job-edit__header h1 {
+    font-size: 1.35rem;
+    margin: 0 0 0.25rem;
+    font-weight: 600;
+}
+.employer-job-edit__meta {
+    font-size: 0.85rem;
+    color: var(--color-gray-500);
+}
+@media (max-width: 640px) {
+    .employer-jobs-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .employer-jobs-actions {
+        justify-content: stretch;
+    }
+    .employer-jobs-actions .btn {
+        flex: 1;
+    }
+}
+
 .help-request-card {
     background: var(--color-light);
     padding: 1.5rem;

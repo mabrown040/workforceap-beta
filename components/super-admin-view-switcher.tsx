@@ -58,6 +58,7 @@ export default function SuperAdminViewSwitcher() {
   if (!isSuperAdmin) return null;
 
   const currentLabel = VIEWS.find((v) => v.id === currentView)?.label ?? 'Student Portal';
+  const shortLabel = { admin: 'Admin', partner: 'Partner', student: 'Student', employer: 'Employer', 'my-group': 'My Group' }[currentView] ?? currentLabel;
 
   return (
     <div className="super-admin-view-switcher" onClick={(e) => e.stopPropagation()}>
@@ -69,8 +70,8 @@ export default function SuperAdminViewSwitcher() {
         aria-haspopup="listbox"
         aria-label={`View: ${currentLabel}. Switch portal view`}
       >
-        <span className="super-admin-view-switcher__label">View: {currentLabel}</span>
-        <ChevronDown size={16} aria-hidden />
+        <span className="super-admin-view-switcher__label" title={currentLabel}>{shortLabel}</span>
+        <ChevronDown size={14} aria-hidden />
       </button>
       {open && (
         <ul

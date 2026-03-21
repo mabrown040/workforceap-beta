@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import PageHero from '@/components/PageHero';
-import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
 import ProgramsContent from './ProgramsContent';
 
@@ -18,18 +17,16 @@ export default function ProgramsPage() {
     <div className="inner-page">
       <PageHero
         title="Our Programs"
-        subtitle="19 no-cost career programs for Austin-area residents. Industry certifications from Google, IBM, AWS, Microsoft, and CompTIA."
+        subtitle="19 no-cost career programs. Industry certifications from Google, IBM, AWS, Microsoft, and CompTIA — employer-aligned, job-ready."
       >
-        <p className="page-hero-cta">
-          Not sure which program is right for you? <Link href="/find-your-path">Take our 2-minute quiz →</Link>
-        </p>
+        <div className="programs-decision-cta">
+          <p className="programs-decision-lead">Not sure which program fits you?</p>
+          <Link href="/find-your-path" className="btn btn-primary">
+            Take the 2-minute pathfinder quiz →
+          </Link>
+          <Link href="/program-comparison" className="programs-compare-link">Or compare programs side-by-side</Link>
+        </div>
       </PageHero>
-      <PhotoHighlight
-        imageUrl="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1400&q=80"
-        label="19 Career Programs"
-        title="Industry-Recognized Certifications"
-        description="From IT Support, AI, Project Manager, Cybersecurity, Healthcare and Skilled Trades, our programs are designed with employers to ensure you graduate job-ready."
-      />
       <ProgramsContent />
       <Footer />
     </div>

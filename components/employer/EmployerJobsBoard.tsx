@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useMemo, useEffect, useId, useCallback } from 'react';
+import { useState, useMemo, useEffect, useId, useCallback, type RefObject } from 'react';
 import { trackEmployerJobAction, trackEmployerBulkDelete } from '@/lib/analytics/events';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 
@@ -36,10 +36,13 @@ function canBulkDelete(status: string): boolean {
   return status === 'draft' || status === 'pending' || status === 'filled' || status === 'closed';
 }
 
+const BULK_DELETE_FLASH_KEY = 'wfap_employer_bulk_delete_ok';
+
 export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem[] }) {
   const router = useRouter();
   const modalTitleId = useId();
   const modalDescId = useId();
+  const modalPendingNoteId = useId();
   const [filter, setFilter] = useState<string>('all');
   const [busyId, setBusyId] = useState<string | null>(null);
   const [closingId, setClosingId] = useState<string | null>(null);
@@ -47,6 +50,7 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [bulkBusy, setBulkBusy] = useState(false);
   const [bulkError, setBulkError] = useState<string | null>(null);
+  const [flashBanner, setFlashBanner] = useState<{ count: number } | null>(null);
 
   const filtered = useMemo(() => {
     if (filter === 'all') return jobs;
@@ -64,9 +68,35 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
     [selected, deletableFiltered]
   );
 
+  const bulkDeleteIncludesPendingReview = useMemo(
+    () =>
+      selectedDeletable.some((id) => {
+        const job = jobs.find((j) => j.id === id);
+        return job?.status === 'pending';
+      }),
+    [selectedDeletable, jobs]
+  );
+
   useEffect(() => {
     setSelected(new Set());
   }, [filter]);
+
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(BULK_DELETE_FLASH_KEY);
+      if (!raw) return;
+      sessionStorage.removeItem(BULK_DELETE_FLASH_KEY);
+      const parsed = JSON.parse(raw) as { count?: unknown };
+      const count = typeof parsed.count === 'number' && parsed.count > 0 ? parsed.count : null;
+      if (count != null) setFlashBanner({ count });
+    } catch {
+      try {
+        sessionStorage.removeItem(BULK_DELETE_FLASH_KEY);
+      } catch {
+        /* ignore */
+      }
+    }
+  }, []);
 
   const modalTrapRef = useFocusTrap(confirmOpen, () => setConfirmOpen(false));
 
@@ -143,12 +173,34 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
         setBulkError(typeof data.error === 'string' ? data.error : 'Could not delete selected jobs.');
         return;
       }
-      trackEmployerBulkDelete(data.deleted ?? selectedDeletable.length, {
+      const deletedCount = typeof data.deleted === 'number' ? data.deleted : selectedDeletable.length;
+      trackEmployerBulkDelete(deletedCount, {
         filter,
       });
+      try {
+        sessionStorage.setItem(BULK_DELETE_FLASH_KEY, JSON.stringify({ count: deletedCount }));
+      } catch {
+        /* ignore quota / private mode */
+      }
       setConfirmOpen(false);
       clearSelection();
       router.refresh();
+      queueMicrotask(() => {
+        try {
+          const raw = sessionStorage.getItem(BULK_DELETE_FLASH_KEY);
+          if (!raw) return;
+          sessionStorage.removeItem(BULK_DELETE_FLASH_KEY);
+          const parsed = JSON.parse(raw) as { count?: unknown };
+          const count = typeof parsed.count === 'number' && parsed.count > 0 ? parsed.count : null;
+          if (count != null) setFlashBanner({ count });
+        } catch {
+          try {
+            sessionStorage.removeItem(BULK_DELETE_FLASH_KEY);
+          } catch {
+            /* ignore */
+          }
+        }
+      });
     } catch {
       setBulkError('Network error. Check your connection and try again.');
     } finally {
@@ -172,6 +224,21 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
 
   return (
     <div className="employer-jobs-board">
+      {flashBanner && (
+        <div className="employer-jobs-flash-banner" role="status">
+          <p className="employer-jobs-flash-banner__text">
+            Deleted <strong>{flashBanner.count}</strong> posting{flashBanner.count === 1 ? '' : 's'}.
+          </p>
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm employer-jobs-flash-banner__dismiss"
+            onClick={() => setFlashBanner(null)}
+            aria-label="Dismiss confirmation"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
       <div className="employer-jobs-board__summary" aria-label="Posting counts">
         <span>
           <strong>{counts.draft}</strong> draft{counts.draft === 1 ? '' : 's'}
@@ -326,12 +393,14 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
       {confirmOpen && (
         <div className="employer-bulk-modal-overlay" role="presentation" onClick={() => !bulkBusy && setConfirmOpen(false)}>
           <div
-            ref={modalTrapRef as React.RefObject<HTMLDivElement>}
+            ref={modalTrapRef as RefObject<HTMLDivElement>}
             className="employer-bulk-modal"
             role="dialog"
             aria-modal="true"
             aria-labelledby={modalTitleId}
-            aria-describedby={modalDescId}
+            aria-describedby={
+              bulkDeleteIncludesPendingReview ? `${modalDescId} ${modalPendingNoteId}` : modalDescId
+            }
             onClick={(e) => e.stopPropagation()}
           >
             <h2 id={modalTitleId} className="employer-bulk-modal__title">
@@ -350,6 +419,12 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
                 <li className="employer-bulk-modal__list-more">+{selectedDeletable.length - 6} more</li>
               )}
             </ul>
+            {bulkDeleteIncludesPendingReview && (
+              <p id={modalPendingNoteId} className="employer-bulk-modal__pending-callout" role="note">
+                <strong>In review:</strong> at least one selected posting is pending WorkforceAP review. Deleting it removes
+                it from the admin review queue. You can still proceed.
+              </p>
+            )}
             {bulkError && <p className="employer-bulk-modal__error">{bulkError}</p>}
             <div className="employer-bulk-modal__actions">
               <button type="button" className="btn btn-ghost" disabled={bulkBusy} onClick={() => setConfirmOpen(false)}>

@@ -16,7 +16,7 @@ if (!process.env.POSTGRES_PRISMA_URL || process.env.__PRISMA_PLACEHOLDER_DB === 
 }
 
 const { spawnSync } = require('child_process');
-const migrationName = '20260320100000_employer_portal_jobs';
+const migrationName = '20260320100001_employer_portal_jobs';
 
 console.log(`Marking migration "${migrationName}" as rolled back...`);
 const r = spawnSync(

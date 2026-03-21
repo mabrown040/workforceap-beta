@@ -17,6 +17,7 @@ if (cmd) {
     process.exit(0);
   }
   const { spawnSync } = require('child_process');
-  const r = spawnSync(cmd, args, { stdio: 'inherit', env: process.env });
+  // Use npx to resolve local binaries (e.g. prisma) when not running via npm script
+  const r = spawnSync(cmd, args, { stdio: 'inherit', env: process.env, shell: true });
   process.exit(r.status ?? 1);
 }

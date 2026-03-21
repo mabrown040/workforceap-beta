@@ -89,6 +89,161 @@ function getTopPrograms(weights: CategoryWeights): Program[] {
   return scored.slice(0, 3).map((s) => s.program);
 }
 
+// Salary stat extracted from program.salary string (e.g. "Starting salary: $85K-$135K" → "$85K-$135K")
+function extractSalaryRange(salary: string): string {
+  const match = salary.match(/\$[\d,]+K?\s*[-–]\s*\$[\d,]+K?/i);
+  return match ? match[0] : salary.replace(/^Starting salary:\s*/i, '');
+}
+
+function QuizResultsView({
+  programs,
+  isPrevious,
+  onRetake,
+}: {
+  programs: Program[];
+  isPrevious?: boolean;
+  onRetake?: () => void;
+}) {
+  const topProgram = programs[0];
+  return (
+    <div className="quiz-results">
+      <h2 className="quiz-results-title">
+        {isPrevious ? 'Your Previous Results' : 'Your Top 3 Career Paths'}
+      </h2>
+      <p className="quiz-results-subtitle">
+        {isPrevious
+          ? 'Here are the programs we recommended last time:'
+          : 'Based on your answers, here are the programs we recommend:'}
+      </p>
+
+      <div className="quiz-results-grid">
+        {programs.map((program, idx) => {
+          const rank = idx === 0 ? 'Best Match' : idx === 1 ? 'Strong Fit' : 'Also Consider';
+          const borderColor = CATEGORY_BORDER[program.category] ?? program.categoryColor;
+          return (
+            <div
+              key={program.slug}
+              className="quiz-result-card"
+              style={{ borderLeft: `4px solid ${borderColor}` }}
+            >
+              <span className="quiz-result-rank">#{idx + 1} {rank}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                <span
+                  style={{
+                    background: program.categoryColor,
+                    color: 'white',
+                    padding: '0.2rem 0.6rem',
+                    borderRadius: '50px',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                  }}
+                >
+                  {program.categoryLabel}
+                </span>
+                <span style={{ display: 'flex', alignItems: 'center' }}>
+                  <ProgramIcon program={program} size={24} />
+                </span>
+              </div>
+              <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>{program.title}</h3>
+              <div style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '0.5rem' }}>
+                ⏱ {program.duration}
+              </div>
+              <div style={{ fontSize: '0.9rem', color: 'var(--color-accent)', fontWeight: 600, marginBottom: '0.5rem' }}>
+                {program.salary}
+              </div>
+              <div style={{ fontSize: '0.85rem', color: '#888', marginBottom: '1rem' }}>
+                Partner: {program.partner}
+              </div>
+              <Link
+                href={`/apply?program=${program.slug}`}
+                className="btn btn-primary"
+                style={{ width: '100%', padding: '0.75rem', fontSize: '0.9rem' }}
+              >
+                Apply for This Program →
+              </Link>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Conversion section */}
+      {topProgram && (
+        <div style={{
+          background: 'linear-gradient(135deg, #f0fdf4, #ecfdf5)',
+          border: '2px solid #4a9b4f',
+          borderRadius: '12px',
+          padding: '2rem',
+          textAlign: 'center',
+          marginTop: '2rem',
+        }}>
+          <p style={{ fontSize: '1.1rem', fontWeight: 600, color: '#1a1a1a', marginBottom: '0.5rem' }}>
+            Graduates in {topProgram.title} average {extractSalaryRange(topProgram.salary)} in year one
+          </p>
+          <Link
+            href="/apply"
+            className="btn btn-primary"
+            style={{
+              padding: '1rem 2rem',
+              fontSize: '1.1rem',
+              fontWeight: 700,
+              display: 'inline-block',
+              marginTop: '1rem',
+              marginBottom: '0.75rem',
+            }}
+          >
+            Start Your Application — Takes 10 Minutes
+          </Link>
+          <p style={{ marginBottom: '0', marginTop: '0.5rem' }}>
+            <a
+              href="tel:+15127771808"
+              style={{ color: '#2563eb', fontWeight: 600, fontSize: '0.95rem' }}
+            >
+              Talk to Someone First → (512) 777-1808
+            </a>
+          </p>
+        </div>
+      )}
+
+      <div style={{
+        background: '#f8fafc',
+        border: '1px solid #e2e8f0',
+        borderRadius: '8px',
+        padding: '1.25rem',
+        marginTop: '1.5rem',
+        textAlign: 'center',
+      }}>
+        <p style={{ fontStyle: 'italic', color: 'var(--color-gray-600)', margin: 0, fontSize: '0.95rem' }}>
+          Real graduate stories coming soon
+        </p>
+      </div>
+
+      <div className="quiz-results-footer">
+        {isPrevious && onRetake ? (
+          <>
+            <p>Want to retake the quiz?</p>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              style={{ color: 'var(--color-primary)', borderColor: 'var(--color-gray-300)' }}
+              onClick={onRetake}
+            >
+              Retake Quiz
+            </button>
+          </>
+        ) : (
+          <>
+            <p>Not seeing what you expected?</p>
+            <Link href="/programs" className="btn btn-outline">
+              Browse All 19 Programs →
+            </Link>
+          </>
+        )}
+      </div>
+      <p className="quiz-results-note">All programs are available at no cost to qualifying participants.</p>
+    </div>
+  );
+}
+
 export default function FindYourPathClient() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Partial<QuizAnswers>>({});
@@ -147,147 +302,23 @@ export default function FindYourPathClient() {
   };
 
   if (storedResults && step === QUESTIONS.length - 1 && currentAnswer) {
-    return (
-      <div className="quiz-results">
-        <h2 className="quiz-results-title">Your Top 3 Career Paths</h2>
-        <p className="quiz-results-subtitle">
-          Based on your answers, here are the programs we recommend:
-        </p>
-
-        <div className="quiz-results-grid">
-          {storedResults.map((program, idx) => {
-            const rank = idx === 0 ? 'Best Match' : idx === 1 ? 'Strong Fit' : 'Also Consider';
-            const borderColor = CATEGORY_BORDER[program.category] ?? program.categoryColor;
-            return (
-              <div
-                key={program.slug}
-                className="quiz-result-card"
-                style={{ borderLeft: `4px solid ${borderColor}` }}
-              >
-                <span className="quiz-result-rank">#{idx + 1} {rank}</span>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
-                  <span
-                    style={{
-                      background: program.categoryColor,
-                      color: 'white',
-                      padding: '0.2rem 0.6rem',
-                      borderRadius: '50px',
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                    }}
-                  >
-                    {program.categoryLabel}
-                  </span>
-                  <span style={{ display: 'flex', alignItems: 'center' }}>
-                    <ProgramIcon program={program} size={24} />
-                  </span>
-                </div>
-                <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>{program.title}</h3>
-                <div style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '0.5rem' }}>
-                  ⏱ {program.duration}
-                </div>
-                <div style={{ fontSize: '0.9rem', color: 'var(--color-accent)', fontWeight: 600, marginBottom: '0.5rem' }}>
-                  {program.salary}
-                </div>
-                <div style={{ fontSize: '0.85rem', color: '#888', marginBottom: '1rem' }}>
-                  Partner: {program.partner}
-                </div>
-                <Link
-                  href={`/apply?program=${program.slug}`}
-                  className="btn btn-primary"
-                  style={{ width: '100%', padding: '0.75rem', fontSize: '0.9rem' }}
-                >
-                  Apply for This Program →
-                </Link>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="quiz-results-footer">
-          <p>Not seeing what you expected?</p>
-          <Link href="/programs" className="btn btn-outline">
-            Browse All 19 Programs →
-          </Link>
-        </div>
-        <p className="quiz-results-note">All programs are available at no cost to qualifying participants.</p>
-      </div>
-    );
+    return <QuizResultsView programs={storedResults} />;
   }
 
   if (storedResults && step === 0 && Object.keys(answers).length === 0) {
     return (
-      <div className="quiz-results">
-        <h2 className="quiz-results-title">Your Previous Results</h2>
-        <p className="quiz-results-subtitle">Here are the programs we recommended last time:</p>
-        <div className="quiz-results-grid">
-          {storedResults.map((program, idx) => {
-            const rank = idx === 0 ? 'Best Match' : idx === 1 ? 'Strong Fit' : 'Also Consider';
-            const borderColor = CATEGORY_BORDER[program.category] ?? program.categoryColor;
-            return (
-              <div
-                key={program.slug}
-                className="quiz-result-card"
-                style={{ borderLeft: `4px solid ${borderColor}` }}
-              >
-                <span className="quiz-result-rank">#{idx + 1} {rank}</span>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
-                  <span
-                    style={{
-                      background: program.categoryColor,
-                      color: 'white',
-                      padding: '0.2rem 0.6rem',
-                      borderRadius: '50px',
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                    }}
-                  >
-                    {program.categoryLabel}
-                  </span>
-                  <span style={{ display: 'flex', alignItems: 'center' }}>
-                    <ProgramIcon program={program} size={24} />
-                  </span>
-                </div>
-                <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>{program.title}</h3>
-                <div style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '0.5rem' }}>
-                  ⏱ {program.duration}
-                </div>
-                <div style={{ fontSize: '0.9rem', color: 'var(--color-accent)', fontWeight: 600, marginBottom: '0.5rem' }}>
-                  {program.salary}
-                </div>
-                <div style={{ fontSize: '0.85rem', color: '#888', marginBottom: '1rem' }}>
-                  Partner: {program.partner}
-                </div>
-                <Link
-                  href={`/apply?program=${program.slug}`}
-                  className="btn btn-primary"
-                  style={{ width: '100%', padding: '0.75rem', fontSize: '0.9rem' }}
-                >
-                  Apply for This Program →
-                </Link>
-              </div>
-            );
-          })}
-        </div>
-        <div className="quiz-results-footer">
-          <p>Want to retake the quiz?</p>
-          <button
-            type="button"
-            className="btn btn-ghost"
-            style={{ color: 'var(--color-primary)', borderColor: 'var(--color-gray-300)' }}
-            onClick={() => {
-              setStoredResults(null);
-              setAnswers({});
-              setStep(0);
-              try {
-                localStorage.removeItem(QUIZ_STORAGE_KEY);
-              } catch {}
-            }}
-          >
-            Retake Quiz
-          </button>
-        </div>
-      </div>
+      <QuizResultsView
+        programs={storedResults}
+        isPrevious
+        onRetake={() => {
+          setStoredResults(null);
+          setAnswers({});
+          setStep(0);
+          try {
+            localStorage.removeItem(QUIZ_STORAGE_KEY);
+          } catch {}
+        }}
+      />
     );
   }
 

@@ -4,7 +4,8 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { parseJobFromText, parseJobListingsFromPageText } from '@/lib/ai/parseJob';
-import { scrapeUrl, isAtsOrJsHeavyUrl } from '@/lib/firecrawl';
+import { smartImportJobs, detectProvider } from '@/lib/ai/atsProviders';
+import { buildEmployerJobCreateData, getRouteErrorDetails } from '@/lib/employer/jobCreate';
 
 const bulkSchema = z
   .object({
@@ -27,60 +28,82 @@ function stripHtmlToText(html: string): string {
 }
 
 async function fetchTextFromUrl(url: string): Promise<string | null> {
-  const useFirecrawlFirst = isAtsOrJsHeavyUrl(url);
-
-  if (useFirecrawlFirst) {
-    const crawled = await scrapeUrl(url);
-    if (crawled) return crawled;
-    console.warn('[Import] Firecrawl failed for ATS URL, trying fetch', url);
-  }
-
   try {
     const res = await fetch(url, {
       headers: { 'User-Agent': 'Mozilla/5.0 (compatible; WorkforceAP/1.0)' },
     });
-    if (res.ok) {
-      const html = await res.text();
-      const text = stripHtmlToText(html);
-      if (text.length >= 80) {
-        console.log('[Import] Fetched', url, 'via fetch →', text.length, 'chars');
-        return text;
-      }
-    } else {
-      console.warn('[Import] Fetch', url, '→', res.status);
-    }
-  } catch (e) {
-    console.warn('[Import] Fetch failed', url, String(e));
+    if (!res.ok) return null;
+    const html = await res.text();
+    const text = stripHtmlToText(html);
+    return text.length >= 80 ? text : null;
+  } catch {
+    return null;
   }
-
-  if (!useFirecrawlFirst) {
-    const crawled = await scrapeUrl(url);
-    if (crawled) console.log('[Import] Used Firecrawl fallback for', url);
-    return crawled;
-  }
-  return null;
 }
 
 export async function POST(request: NextRequest) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const ctx = await getEmployerForUser(user.id);
-  if (!ctx) return NextResponse.json({ error: 'Forbidden: employer access required' }, { status: 403 });
+    const ctx = await getEmployerForUser(user.id);
+    if (!ctx) return NextResponse.json({ error: 'Forbidden: employer access required' }, { status: 403 });
 
-  const body = await request.json().catch(() => null);
-  const parsed = bulkSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Invalid body' }, { status: 400 });
-  }
+    const employerExists = await prisma.employer.findUnique({
+      where: { id: ctx.employerId },
+      select: { id: true },
+    });
+    if (!employerExists) {
+      return NextResponse.json({ error: 'Selected employer record was not found.' }, { status: 400 });
+    }
 
-  const created: { id: string; title: string }[] = [];
-  const errors: { source: string; error: string }[] = [];
+    const body = await request.json().catch(() => null);
+    const parsed = bulkSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Invalid body' }, { status: 400 });
+    }
 
-  const { jobUrls, careersPageUrl, careersPageRawText } = parsed.data;
+    const created: { id: string; title: string; provider?: string }[] = [];
+    const errors: { source: string; error: string }[] = [];
 
+    const { jobUrls, careersPageUrl, careersPageRawText } = parsed.data;
+
+  // ── Process individual job URLs ──
   if (jobUrls?.length) {
     for (const url of jobUrls) {
+      // Try smart ATS import first
+      const atsResult = await smartImportJobs(url);
+
+      if (atsResult.jobs.length > 0) {
+        // ATS API returned structured jobs
+        for (const atsJob of atsResult.jobs) {
+          const suffix = atsJob.sourceUrl ? `\n\n---\nImported from: ${atsJob.sourceUrl}` : '';
+          const job = await prisma.job.create({
+            data: buildEmployerJobCreateData(ctx.employerId, {
+              title: atsJob.title,
+              location: atsJob.location,
+              locationType: atsJob.locationType ?? 'onsite',
+              jobType: atsJob.jobType ?? 'fulltime',
+              salaryMin: atsJob.salaryMin,
+              salaryMax: atsJob.salaryMax,
+              description: `${atsJob.description}${suffix}`,
+              requirements: atsJob.requirements ?? [],
+              preferredCertifications: [],
+              suggestedPrograms: [],
+              status: 'draft',
+            }),
+          });
+          created.push({ id: job.id, title: job.title, provider: atsResult.provider });
+        }
+        continue;
+      }
+
+      if (atsResult.errors.length > 0) {
+        errors.push({ source: url, error: atsResult.errors[0] });
+        continue;
+      }
+
+      // Fallback: generic fetch + AI parse
       const text = await fetchTextFromUrl(url);
       if (!text || text.length < 50) {
         errors.push({ source: url, error: 'Could not fetch or not enough text (try pasting the description).' });
@@ -93,41 +116,65 @@ export async function POST(request: NextRequest) {
       }
       const suffix = `\n\n---\nImported from: ${url}`;
       const job = await prisma.job.create({
-        data: {
-          employerId: ctx.employerId,
+        data: buildEmployerJobCreateData(ctx.employerId, {
           title: extracted.title,
-          location: extracted.location ?? undefined,
+          location: extracted.location,
           locationType: extracted.locationType ?? 'onsite',
           jobType: extracted.jobType ?? 'fulltime',
-          salaryMin: extracted.salaryMin ?? undefined,
-          salaryMax: extracted.salaryMax ?? undefined,
+          salaryMin: extracted.salaryMin,
+          salaryMax: extracted.salaryMax,
           description: `${extracted.description}${suffix}`,
           requirements: extracted.requirements ?? [],
           preferredCertifications: extracted.preferredCertifications ?? [],
           suggestedPrograms: extracted.suggestedPrograms ?? [],
           status: 'draft',
-        },
+        }),
       });
-      created.push({ id: job.id, title: job.title });
+      created.push({ id: job.id, title: job.title, provider: 'ai' });
     }
   }
 
+  // ── Process careers page URL (smart ATS first) ──
   let listingsText = careersPageRawText?.trim() ?? '';
+
   if (careersPageUrl && !listingsText) {
-    console.log('[Import] Fetching careers page', careersPageUrl);
-    const fetched = await fetchTextFromUrl(careersPageUrl);
-    if (!fetched) {
-      console.error('[Import] Could not fetch careers page', careersPageUrl);
-      errors.push({ source: careersPageUrl, error: 'Could not fetch careers page. Add FIRECRAWL_API_KEY for ATS sites (Rippling, Greenhouse, etc.) or paste the page text.' });
+    // Try smart ATS import for careers page
+    const atsResult = await smartImportJobs(careersPageUrl);
+
+    if (atsResult.jobs.length > 0) {
+      // ATS API returned all jobs from careers page
+      for (const atsJob of atsResult.jobs) {
+        const suffix = atsJob.sourceUrl ? `\n\n---\nImported from: ${atsJob.sourceUrl}` : '';
+        const job = await prisma.job.create({
+          data: buildEmployerJobCreateData(ctx.employerId, {
+            title: atsJob.title,
+            location: atsJob.location,
+            locationType: atsJob.locationType ?? 'onsite',
+            jobType: atsJob.jobType ?? 'fulltime',
+            salaryMin: atsJob.salaryMin,
+            salaryMax: atsJob.salaryMax,
+            description: `${atsJob.description}${suffix}`,
+            requirements: atsJob.requirements ?? [],
+            preferredCertifications: [],
+            suggestedPrograms: [],
+            status: 'draft',
+          }),
+        });
+        created.push({ id: job.id, title: job.title, provider: atsResult.provider });
+      }
+    } else if (atsResult.errors.length > 0) {
+      errors.push({ source: careersPageUrl, error: atsResult.errors[0] });
+    } else if (atsResult.rawText && atsResult.rawText.length >= 80) {
+      // Use the text already fetched by smartImportJobs (no double-fetch)
+      listingsText = atsResult.rawText;
     } else {
-      listingsText = fetched;
-      console.log('[Import] Careers page fetched, text length:', listingsText.length);
+      errors.push({ source: careersPageUrl, error: 'Could not fetch careers page content. Paste the page text instead.' });
     }
   }
 
+  // ── AI-parse listings text ──
   if (listingsText.length >= 80) {
     const listings = await parseJobListingsFromPageText(listingsText);
-    console.log('[Import] Parsed', listings?.length ?? 0, 'listings from careers page');
     if (!listings?.length) {
       errors.push({ source: 'careers page', error: 'AI did not find separate job listings in that text.' });
     } else {
@@ -135,24 +182,31 @@ export async function POST(request: NextRequest) {
       for (const L of listings) {
         const urlNote = L.sourceUrl ? `\nJob link: ${L.sourceUrl}` : '';
         const job = await prisma.job.create({
-          data: {
-            employerId: ctx.employerId,
+          data: buildEmployerJobCreateData(ctx.employerId, {
             title: L.title.trim(),
             description: `${L.description.trim()}${urlNote}${baseNote}`,
             requirements: [],
             preferredCertifications: [],
             suggestedPrograms: [],
             status: 'draft',
-          },
+          }),
         });
-        created.push({ id: job.id, title: job.title });
+        created.push({ id: job.id, title: job.title, provider: 'ai' });
       }
     }
   }
 
-  if (created.length === 0 && errors.length === 0) {
-    return NextResponse.json({ error: 'Nothing to import. Check URLs or pasted text.' }, { status: 400 });
-  }
+    if (created.length === 0 && errors.length === 0) {
+      return NextResponse.json({ error: 'Nothing to import. Check URLs or pasted text.' }, { status: 400 });
+    }
 
-  return NextResponse.json({ created, errors }, { status: 201 });
+    return NextResponse.json({ created, errors }, { status: 201 });
+  } catch (error) {
+    const detail = getRouteErrorDetails(error);
+    console.error('Employer bulk import failed', detail);
+    return NextResponse.json(
+      { error: 'Failed to create draft jobs.', detail: detail.message, code: detail.code },
+      { status: 500 }
+    );
+  }
 }

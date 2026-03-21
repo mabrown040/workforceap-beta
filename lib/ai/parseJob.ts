@@ -27,7 +27,53 @@ export interface ParsedJobListing {
  * Extract multiple job postings from careers-page HTML (plain text) or pasted listings.
  * Used for bulk draft creation in the employer portal.
  */
+/**
+ * Try to extract jobs from structured markdown (ATS career pages typically have
+ * [Title](url) patterns). Falls back to AI parsing if no structured data found.
+ */
+function extractJobsFromMarkdown(rawText: string): ParsedJobListing[] | null {
+  // Match markdown links: [Job Title](url)
+  const linkPattern = /\[([^\]]{3,100})\]\((https?:\/\/[^\s)]+\/jobs\/[^\s)]+)\)/g;
+  const seen = new Set<string>();
+  const jobs: ParsedJobListing[] = [];
+
+  let match;
+  while ((match = linkPattern.exec(rawText)) !== null) {
+    const title = match[1].trim();
+    const url = match[2].trim();
+
+    // Skip generic links like "View job", "Apply", "Terms"
+    if (/^(view|apply|see|terms|privacy|cookie|powered)/i.test(title)) continue;
+    // Skip duplicates
+    if (seen.has(url)) continue;
+    seen.add(url);
+
+    // Try to find department/location near this link
+    const afterLink = rawText.slice(match.index + match[0].length, match.index + match[0].length + 200);
+    const lines = afterLink.split('\n').map(l => l.trim()).filter(Boolean);
+    const department = lines[0] && lines[0].length < 60 && !lines[0].startsWith('[') && !lines[0].startsWith('#') ? lines[0] : undefined;
+    const location = lines[1] && lines[1].length < 60 && !lines[1].startsWith('[') && !lines[1].startsWith('#') ? lines[1] : undefined;
+
+    const descParts = [title];
+    if (department) descParts.push(`Department: ${department}`);
+    if (location) descParts.push(`Location: ${location}`);
+    descParts.push('Details to be added — imported from careers page.');
+
+    jobs.push({
+      title,
+      description: descParts.join('\n'),
+      sourceUrl: url,
+    });
+  }
+
+  return jobs.length > 0 ? jobs.slice(0, 25) : null;
+}
+
 export async function parseJobListingsFromPageText(rawText: string): Promise<ParsedJobListing[] | null> {
+  // Try structured markdown extraction first (fast, no AI credits)
+  const markdownJobs = extractJobsFromMarkdown(rawText);
+  if (markdownJobs && markdownJobs.length > 0) return markdownJobs;
+
   if (!isAIConfigured()) return null;
 
   const systemPrompt = `You extract individual job openings from a careers page or job board index (plain text).

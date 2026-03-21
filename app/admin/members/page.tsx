@@ -7,6 +7,8 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { calculateFitScore } from '@/lib/admin/fitScore';
+import { calculateHealthStatus } from '@/lib/admin/healthScore';
 import MembersTable from '@/components/admin/MembersTable';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -22,6 +24,9 @@ export default async function AdminMembersPage() {
   const hasAdmin = await isAdmin(user.id);
   if (!hasAdmin) redirect('/dashboard');
 
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
   const members = await prisma.user.findMany({
     where: { deletedAt: null },
     orderBy: { createdAt: 'desc' },
@@ -35,14 +40,51 @@ export default async function AdminMembersPage() {
     },
   });
 
-  const membersWithProgram = members.map((m) => ({
-    ...m,
-    programTitle: m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.title : null,
-    coursesCompleted: (m.coursesCompleted as string[] | null) ?? [],
-    totalCourses: m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.courses.length ?? 0 : 0,
-    partnerName: m.partnerReferrals[0]?.partner.name ?? null,
-    partnerId: m.partnerReferrals[0]?.partner.id ?? null,
-  }));
+  // Batch fetch last event dates and recent event counts
+  const lastEvents = await prisma.memberEvent.groupBy({
+    by: ['userId'],
+    _max: { createdAt: true },
+  });
+  const lastEventMap = new Map(lastEvents.map((e) => [e.userId, e._max.createdAt]));
+
+  const recentEvents = await prisma.memberEvent.groupBy({
+    by: ['userId'],
+    where: { createdAt: { gte: thirtyDaysAgo } },
+    _count: true,
+  });
+  const recentEventMap = new Map(recentEvents.map((e) => [e.userId, e._count]));
+
+  const membersWithProgram = members.map((m) => {
+    const fitScore = calculateFitScore({
+      enrolledProgram: m.enrolledProgram,
+      programInterest: m.programInterest,
+      assessmentScorePct: m.assessmentScorePct,
+      profile: m.profile,
+      fullName: m.fullName,
+      email: m.email,
+      phone: m.phone,
+    });
+
+    const healthStatus = calculateHealthStatus({
+      lastEventAt: lastEventMap.get(m.id) ?? null,
+      recentEventCount: recentEventMap.get(m.id) ?? 0,
+      enrolledAt: m.enrolledAt,
+    });
+
+    return {
+      ...m,
+      programTitle: m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.title : null,
+      coursesCompleted: (m.coursesCompleted as string[] | null) ?? [],
+      totalCourses: m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.courses.length ?? 0 : 0,
+      partnerName: m.partnerReferrals[0]?.partner.name ?? null,
+      partnerId: m.partnerReferrals[0]?.partner.id ?? null,
+      fitScore,
+      healthStatus,
+    };
+  });
+
+  // Sort by fit score descending by default
+  membersWithProgram.sort((a, b) => b.fitScore - a.fitScore);
 
   return (
     <div>

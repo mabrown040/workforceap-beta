@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { formatPhone } from '@/lib/formatPhone';
+import type { HealthStatus } from '@/lib/admin/healthScore';
 
 type Member = {
   id: string;
@@ -21,26 +22,72 @@ type Member = {
   totalCourses: number;
   partnerName: string | null;
   partnerId: string | null;
+  fitScore?: number;
+  healthStatus?: HealthStatus;
 };
 
 type MembersTableProps = {
   members: Member[];
 };
 
+function FitScoreBadge({ score }: { score: number }) {
+  const color = score >= 8 ? '#16a34a' : score >= 5 ? '#d97706' : '#dc2626';
+  const bg = score >= 8 ? '#f0fdf4' : score >= 5 ? '#fffbeb' : '#fef2f2';
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '0.25rem',
+        padding: '0.15rem 0.5rem',
+        borderRadius: '50px',
+        fontSize: '0.8rem',
+        fontWeight: 600,
+        color,
+        background: bg,
+        border: `1px solid ${color}20`,
+      }}
+    >
+      {score}/10
+    </span>
+  );
+}
+
+function HealthDot({ status }: { status: HealthStatus }) {
+  const color = status === 'green' ? '#16a34a' : status === 'yellow' ? '#d97706' : '#dc2626';
+  const label = status === 'green' ? 'Active' : status === 'yellow' ? 'At Risk' : 'Inactive';
+  return (
+    <span
+      title={label}
+      style={{
+        display: 'inline-block',
+        width: '10px',
+        height: '10px',
+        borderRadius: '50%',
+        background: color,
+        marginRight: '0.35rem',
+        verticalAlign: 'middle',
+      }}
+    />
+  );
+}
+
 export default function MembersTable({ members }: MembersTableProps) {
   const [search, setSearch] = useState('');
   const [programFilter, setProgramFilter] = useState('');
   const [partnerFilter, setPartnerFilter] = useState('');
+  const [healthFilter, setHealthFilter] = useState('');
 
   const filtered = members.filter((m) => {
-    const matchSearch = !search || 
+    const matchSearch = !search ||
       m.fullName?.toLowerCase().includes(search.toLowerCase()) ||
       m.email?.toLowerCase().includes(search.toLowerCase());
     const matchProgram = !programFilter || m.enrolledProgram === programFilter;
     const matchPartner =
       !partnerFilter ||
       (partnerFilter === '__none' ? !m.partnerId : m.partnerId === partnerFilter);
-    return matchSearch && matchProgram && matchPartner;
+    const matchHealth = !healthFilter || m.healthStatus === healthFilter;
+    return matchSearch && matchProgram && matchPartner && matchHealth;
   });
 
   const programs = [...new Set(members.map((m) => m.enrolledProgram).filter(Boolean))] as string[];
@@ -79,6 +126,16 @@ export default function MembersTable({ members }: MembersTableProps) {
             <option key={pid} value={pid}>{pname}</option>
           ))}
         </select>
+        <select
+          value={healthFilter}
+          onChange={(e) => setHealthFilter(e.target.value)}
+          style={{ padding: '0.5rem', width: '140px' }}
+        >
+          <option value="">All health</option>
+          <option value="green">Active</option>
+          <option value="yellow">At Risk</option>
+          <option value="red">Inactive</option>
+        </select>
       </div>
 
       <div style={{ overflowX: 'auto' }}>
@@ -90,6 +147,8 @@ export default function MembersTable({ members }: MembersTableProps) {
               <th className="members-col-md">Phone</th>
               <th>Program</th>
               <th>Partner</th>
+              <th>Fit</th>
+              <th>Health</th>
               <th>Enrolled</th>
               <th>Score %</th>
               <th>Training</th>
@@ -116,6 +175,7 @@ export default function MembersTable({ members }: MembersTableProps) {
                     onClick={(e) => e.stopPropagation()}
                     title={narrowDetails}
                   >
+                    {m.healthStatus && <HealthDot status={m.healthStatus} />}
                     {m.fullName}
                   </Link>
                   <div className="members-name-details">
@@ -132,6 +192,18 @@ export default function MembersTable({ members }: MembersTableProps) {
                 <td className="members-col-md">{phoneDisplay}</td>
                 <td>{m.programTitle ?? '—'}</td>
                 <td>{m.partnerName ?? '—'}</td>
+                <td>{m.fitScore != null ? <FitScoreBadge score={m.fitScore} /> : '—'}</td>
+                <td>
+                  {m.healthStatus ? (
+                    <span style={{
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      color: m.healthStatus === 'green' ? '#16a34a' : m.healthStatus === 'yellow' ? '#d97706' : '#dc2626',
+                    }}>
+                      {m.healthStatus === 'green' ? 'Active' : m.healthStatus === 'yellow' ? 'At Risk' : 'Inactive'}
+                    </span>
+                  ) : '—'}
+                </td>
                 <td>{m.enrolledAt?.toLocaleDateString() ?? '—'}</td>
                 <td>
                   <span className={
@@ -161,7 +233,7 @@ export default function MembersTable({ members }: MembersTableProps) {
           <p>
             {members.length === 0
               ? 'Add your first member to get started.'
-              : 'Try adjusting your search or program filter.'}
+              : 'Try adjusting your search or filters.'}
           </p>
           {members.length === 0 && (
             <a href="/admin/members/new" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/prisma-env.js prisma migrate resolve --rolled-back 20260320100000_employer_portal_jobs 2>/dev/null || true && node scripts/prisma-env.js prisma migrate deploy && node scripts/prisma-env.js prisma generate && next build",
+    "build": "node scripts/safe-migrate.cjs && node scripts/prisma-env.js prisma generate && next build",
     "postinstall": "node scripts/prisma-env.js prisma generate",
     "start": "next start",
     "db:generate": "node scripts/prisma-env.js prisma generate",
@@ -15,8 +15,6 @@
     "db:seed": "node scripts/prisma-env.js npx tsx prisma/seed.ts",
     "db:seed:blog": "node scripts/prisma-env.js npx tsx prisma/seed-blog.ts",
     "db:create-employer-michael-brown": "node scripts/prisma-env.js npx tsx scripts/create-employer-michael-brown.ts",
-    "test:firecrawl-rippling": "node scripts/prisma-env.js npx tsx scripts/test-firecrawl-rippling.ts",
-    "test:import-e2e": "node scripts/prisma-env.js npx tsx scripts/test-import-e2e.ts",
     "db:migrate:resolve-failed": "node scripts/resolve-failed-migration.cjs",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
@@ -26,8 +24,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
-    "@mendable/firecrawl-js": "^4.16.0",
-    "@prisma/client": "^6.1.0",
+    "@prisma/client": "^5.22.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.10",
     "@upstash/ratelimit": "^2.0.4",
@@ -53,7 +50,7 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "prisma": "^6.1.0",
+    "prisma": "^5.22.0",
     "tsx": "^4.19.2",
     "typescript": "^5"
   }

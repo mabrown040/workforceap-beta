@@ -17,3 +17,7 @@ export { jobApprovedHtml } from './job-approved';
 export { jobRejectedHtml } from './job-rejected';
 export { newJobApplicationHtml } from './new-job-application';
 export { aiMatchSuggestionHtml } from './ai-match-suggestion';
+export { applicationConfirmationHtml } from './application-confirmation';
+export { applicantFollowupHtml } from './applicant-followup';
+export { adminPendingApplicantsHtml } from './admin-pending-applicants';
+export { adminWeeklyRecapHtml } from './admin-weekly-recap';

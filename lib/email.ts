@@ -20,6 +20,10 @@ import {
   jobRejectedHtml,
   newJobApplicationHtml,
   aiMatchSuggestionHtml,
+  applicationConfirmationHtml,
+  applicantFollowupHtml,
+  adminPendingApplicantsHtml,
+  adminWeeklyRecapHtml,
 } from '@/emails';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
@@ -485,6 +489,130 @@ export async function sendAIMatchSuggestionEmail(params: {
     return { ok: true };
   } catch (err) {
     console.error('sendAIMatchSuggestionEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Send application confirmation to applicant after form submit */
+export async function sendApplicationConfirmationEmail(params: {
+  to: string;
+  fullName: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendApplicationConfirmationEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const first = params.fullName.trim().split(/\s+/)[0] || 'there';
+  const html = brandedEmailLayout({
+    title: 'Application Received — WorkforceAP',
+    bodyHtml: applicationConfirmationHtml({ firstName: first }),
+    ctaText: 'Bookmark Your Portal',
+    ctaUrl: `${SITE_URL}/login`,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject: 'Application Received — Workforce Advancement Project',
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendApplicationConfirmationEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Send Day 3 follow-up email to applicant */
+export async function sendApplicantFollowupEmail(params: {
+  to: string;
+  fullName: string;
+  expectedDate: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendApplicantFollowupEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const first = params.fullName.trim().split(/\s+/)[0] || 'there';
+  const html = brandedEmailLayout({
+    title: 'Your Application is Being Reviewed',
+    bodyHtml: applicantFollowupHtml({ firstName: first, expectedDate: params.expectedDate }),
+    ctaText: 'Explore Our Programs',
+    ctaUrl: `${SITE_URL}/programs`,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject: 'Your WorkforceAP Application is Being Reviewed',
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendApplicantFollowupEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Send admin alert about pending applications */
+export async function sendAdminPendingApplicantsEmail(params: {
+  pendingCount: number;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendAdminPendingApplicantsEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: `${params.pendingCount} Pending Applications Need Review`,
+    bodyHtml: adminPendingApplicantsHtml({ pendingCount: params.pendingCount }),
+    ctaText: 'Review Applications',
+    ctaUrl: `${SITE_URL}/admin/members`,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: ADMIN_EMAIL,
+      subject: `Action Needed: ${params.pendingCount} pending applications over 3 days old`,
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendAdminPendingApplicantsEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Send weekly admin recap summary */
+export async function sendAdminWeeklyRecapEmail(params: {
+  newApplicants: number;
+  placements: number;
+  atRiskStudents: number;
+  pendingApplications: number;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendAdminWeeklyRecapEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: 'Weekly Admin Recap — WorkforceAP',
+    bodyHtml: adminWeeklyRecapHtml(params),
+    ctaText: 'View Admin Dashboard',
+    ctaUrl: `${SITE_URL}/admin`,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: ADMIN_EMAIL,
+      subject: `Weekly Recap: ${params.newApplicants} new applicants, ${params.placements} placements`,
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendAdminWeeklyRecapEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
 }

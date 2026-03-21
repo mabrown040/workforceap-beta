@@ -122,6 +122,20 @@ export default function ApplyFlowClient() {
         // Non-fatal: tracker write failing shouldn't block the applicant
       }
 
+      // Best-effort: send confirmation email
+      const email = (formData.get('email') as string) ?? '';
+      if (email) {
+        try {
+          await fetch('/api/apply/confirmation-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, fullName }),
+          });
+        } catch {
+          // Non-fatal
+        }
+      }
+
       // Redirect to confirmation
       window.location.href = `${SITE_URL}/apply/confirmation`;
     } catch {
@@ -182,6 +196,12 @@ export default function ApplyFlowClient() {
             </div>
           )}
 
+          {!canContinue && (
+            <p className="form-validation-hint" style={{ color: '#b91c1c', fontSize: '.9rem', marginBottom: '.75rem' }}>
+              Please answer all questions to continue.
+            </p>
+          )}
+
           <button
             type="button"
             className="btn btn-primary"
@@ -190,6 +210,11 @@ export default function ApplyFlowClient() {
           >
             Continue to application
           </button>
+
+          <p style={{ marginTop: '1.5rem', fontSize: '.85rem', color: '#666', textAlign: 'center' }}>
+            Having trouble? Call{' '}
+            <a href="tel:+15127771808" style={{ color: '#2563eb', fontWeight: 600 }}>(512) 777-1808</a>
+          </p>
         </div>
       )}
 

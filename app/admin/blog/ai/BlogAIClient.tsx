@@ -12,6 +12,13 @@ type Suggestion = {
   reasoning: string;
 };
 
+function formatApiError(data: { error?: unknown; detail?: unknown }): string {
+  const parts = [data.error, data.detail]
+    .filter((x): x is string => typeof x === 'string' && x.trim().length > 0)
+    .map((s) => s.trim());
+  return parts.join(' — ') || 'Something went wrong';
+}
+
 export default function BlogAIClient({ postCount }: { postCount: number }) {
   const router = useRouter();
   const [ideas, setIdeas] = useState('');
@@ -31,7 +38,7 @@ export default function BlogAIClient({ postCount }: { postCount: number }) {
         body: JSON.stringify({ ideas: ideas.trim(), mode: 'topics' }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? 'Failed');
+      if (!res.ok) throw new Error(formatApiError(data));
       setSuggestions(data.suggestions ?? []);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong');
@@ -51,7 +58,7 @@ export default function BlogAIClient({ postCount }: { postCount: number }) {
         body: JSON.stringify({ ideas: ideas.trim(), mode: 'draft' }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? 'Failed');
+      if (!res.ok) throw new Error(formatApiError(data));
       router.push(`/admin/blog/${data.post.id}/edit`);
       router.refresh();
     } catch (e) {
@@ -68,7 +75,7 @@ export default function BlogAIClient({ postCount }: { postCount: number }) {
     try {
       const res = await fetch('/api/admin/blog/ai/suggest-topics', { method: 'POST' });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? 'Failed');
+      if (!res.ok) throw new Error(formatApiError(data));
       setSuggestions(data.suggestions ?? []);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong');
@@ -87,7 +94,7 @@ export default function BlogAIClient({ postCount }: { postCount: number }) {
         body: JSON.stringify(s),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? 'Failed');
+      if (!res.ok) throw new Error(formatApiError(data));
       router.push(`/admin/blog/${data.post.id}/edit`);
       router.refresh();
     } catch (e) {

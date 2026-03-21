@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
-import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
+import { chatCompletion, groqRouteErrorResult, isAIConfigured } from '@/lib/ai/groq';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -71,10 +71,8 @@ Review this draft.`;
     return NextResponse.json(parsedOutput);
   } catch (err) {
     console.error('Blog AI review error:', err);
-    return NextResponse.json(
-      { error: 'Failed to review. Please try again.' },
-      { status: 500 }
-    );
+    const { status, body, headers } = groqRouteErrorResult(err, 'Failed to review. Please try again.');
+    return NextResponse.json(body, { status, headers });
   }
 }
 

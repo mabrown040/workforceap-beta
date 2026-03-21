@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
+import { chatCompletion, groqRouteErrorResult, isAIConfigured } from '@/lib/ai/groq';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -69,10 +69,11 @@ Output ONLY the JSON array, no other text.`;
       return NextResponse.json({ suggestions: parsed.slice(0, 3) });
     } catch (err) {
       console.error('Blog from-ideas topics error:', err);
-      return NextResponse.json(
-        { error: 'Failed to generate topics. Please try again.' },
-        { status: 500 }
+      const { status, body, headers } = groqRouteErrorResult(
+        err,
+        'Failed to generate topics. Please try again.'
       );
+      return NextResponse.json(body, { status, headers });
     }
   }
 
@@ -122,10 +123,11 @@ Use "no-cost training for qualifying participants" if relevant. Be authentic and
     return NextResponse.json({ post: { id: post.id, slug: post.slug } });
   } catch (err) {
     console.error('Blog from-ideas draft error:', err);
-    return NextResponse.json(
-      { error: 'Failed to create draft. Please try again.' },
-      { status: 500 }
+    const { status, body, headers } = groqRouteErrorResult(
+      err,
+      'Failed to create draft. Please try again.'
     );
+    return NextResponse.json(body, { status, headers });
   }
 }
 

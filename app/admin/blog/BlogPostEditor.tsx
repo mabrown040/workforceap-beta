@@ -97,7 +97,12 @@ export default function BlogPostEditor({
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? 'Failed');
+      if (!res.ok) {
+        const parts = [data.error, data.detail].filter(
+          (x): x is string => typeof x === 'string' && x.trim().length > 0
+        );
+        throw new Error(parts.join(' — ') || 'Failed');
+      }
       if (data.title && !title) setTitle(data.title);
       if (data.excerpt && !excerpt) setExcerpt(data.excerpt);
       if (data.content) {
@@ -123,7 +128,12 @@ export default function BlogPostEditor({
         body: JSON.stringify({ title, content, excerpt }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? 'Failed');
+      if (!res.ok) {
+        const parts = [data.error, data.detail].filter(
+          (x): x is string => typeof x === 'string' && x.trim().length > 0
+        );
+        throw new Error(parts.join(' — ') || 'Failed');
+      }
       setReview(data);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong');

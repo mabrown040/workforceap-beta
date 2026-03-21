@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
+import { chatCompletion, groqRouteErrorResult, isAIConfigured } from '@/lib/ai/groq';
 import { webSearch, isWebSearchConfigured } from '@/lib/ai/blogAI';
 
 export async function POST(request: Request) {
@@ -89,10 +89,11 @@ Write the full blog post in Markdown.`;
     return NextResponse.json({ post: { id: post.id, slug: post.slug } });
   } catch (err) {
     console.error('Blog AI draft error:', err);
-    return NextResponse.json(
-      { error: 'Failed to create draft. Please try again.' },
-      { status: 500 }
+    const { status, body, headers } = groqRouteErrorResult(
+      err,
+      'Failed to create draft. Please try again.'
     );
+    return NextResponse.json(body, { status, headers });
   }
 }
 

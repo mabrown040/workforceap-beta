@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
+import { chatCompletion, groqRouteErrorResult, isAIConfigured } from '@/lib/ai/groq';
 import { PROGRAMS } from '@/lib/content/programs';
 
 export async function POST() {
@@ -83,9 +83,10 @@ Suggest 3 new blog post topics.`;
     return NextResponse.json({ suggestions: parsed.slice(0, 3) });
   } catch (err) {
     console.error('Blog AI suggest-topics error:', err);
-    return NextResponse.json(
-      { error: 'Failed to generate suggestions. Please try again.' },
-      { status: 500 }
+    const { status, body, headers } = groqRouteErrorResult(
+      err,
+      'Failed to generate suggestions. Please try again.'
     );
+    return NextResponse.json(body, { status, headers });
   }
 }

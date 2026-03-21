@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
-import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
+import { chatCompletion, groqRouteErrorResult, isAIConfigured } from '@/lib/ai/groq';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -52,10 +52,11 @@ export async function POST(request: Request) {
     });
   } catch (err) {
     console.error('Blog generate error:', err);
-    return NextResponse.json(
-      { error: 'Generation failed — check your API key or try again' },
-      { status: 500 }
+    const { status, body, headers } = groqRouteErrorResult(
+      err,
+      'Generation failed — check your API key or try again'
     );
+    return NextResponse.json(body, { status, headers });
   }
 }
 

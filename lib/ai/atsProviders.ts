@@ -281,6 +281,28 @@ function getJSRenderedGuidance(provider: string): string {
 }
 
 // ────────────────────────────────────────────────────────────
+// Tier 3: Firecrawl (JS-rendered page scraping)
+// ────────────────────────────────────────────────────────────
+
+async function fetchWithFirecrawl(url: string): Promise<{ text: string } | null> {
+  const apiKey = process.env.FIRECRAWL_API_KEY;
+  if (!apiKey) return null;
+
+  try {
+    const FirecrawlModule = await import('@mendable/firecrawl-js');
+    const Firecrawl = FirecrawlModule.default;
+    const app = new Firecrawl({ apiKey });
+    const result = await app.scrapeUrl(url, { formats: ['markdown'] });
+    if (result.success && result.markdown && result.markdown.length > 100) {
+      return { text: result.markdown.slice(0, 28000) };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+// ────────────────────────────────────────────────────────────
 // Main Entry Point
 // ────────────────────────────────────────────────────────────
 
@@ -298,9 +320,9 @@ export async function importJobsFromUrl(url: string): Promise<ATSParseResult> {
         return fetchAshbyJobs(detected.company, detected.jobId);
     }
 
-    // Tier 3: Known JS-rendered providers
+    // Tier 3: Known JS-rendered providers — try Firecrawl first
     if (JS_RENDERED_PROVIDERS.includes(detected.provider)) {
-      // Try fetching anyway for single job pages (sometimes have SSR)
+      // Try plain fetch for single job pages (sometimes SSR)
       if (!detected.isJobList && detected.jobId) {
         const page = await fetchGenericPage(url);
         if (page && !page.isJSRendered && page.text.length > 200) {
@@ -311,6 +333,17 @@ export async function importJobsFromUrl(url: string): Promise<ATSParseResult> {
           };
         }
       }
+
+      // Try Firecrawl for JS-rendered pages
+      const firecrawlResult = await fetchWithFirecrawl(url);
+      if (firecrawlResult && firecrawlResult.text.length > 200) {
+        return {
+          provider: `${detected.provider}+firecrawl`,
+          jobs: [], // Will be AI-parsed by caller with the markdown text
+          errors: [],
+        };
+      }
+
       return {
         provider: detected.provider,
         jobs: [],
@@ -321,32 +354,62 @@ export async function importJobsFromUrl(url: string): Promise<ATSParseResult> {
 
   // Tier 2: Generic HTML fetch
   const page = await fetchGenericPage(url);
-  if (!page) {
+  if (page && !page.isJSRendered && page.text.length > 200) {
     return {
       provider: 'generic',
       jobs: [],
-      errors: ['Could not fetch this URL. Check the link or paste the job description text.'],
+      errors: [],
     };
   }
 
-  if (page.isJSRendered) {
+  // Tier 3 fallback: Try Firecrawl for any JS-rendered or failed page
+  const firecrawlResult = await fetchWithFirecrawl(url);
+  if (firecrawlResult && firecrawlResult.text.length > 200) {
+    return {
+      provider: 'firecrawl',
+      jobs: [], // Will be AI-parsed by caller
+      errors: [],
+    };
+  }
+
+  if (page?.isJSRendered) {
     return {
       provider: 'generic',
       jobs: [],
-      errors: ['This career page uses JavaScript rendering and cannot be parsed directly. Please paste individual job URLs or copy-paste the job description text.'],
+      errors: ['This career page uses JavaScript rendering. Firecrawl is not configured — add FIRECRAWL_API_KEY to enable JS page scraping, or paste individual job URLs.'],
     };
   }
 
-  // Return raw text for AI parsing by caller
   return {
     provider: 'generic',
     jobs: [],
-    errors: [],
+    errors: ['Could not fetch this URL. Check the link or paste the job description text.'],
   };
 }
 
 /**
- * Smart import: detects ATS provider, uses API when available, falls back to HTML parsing.
+ * Fetch page text using best available method (generic fetch → Firecrawl fallback).
+ * Returns cleaned text for AI parsing.
+ */
+export async function fetchPageText(url: string): Promise<string | null> {
+  // Try generic fetch first
+  const page = await fetchGenericPage(url);
+  if (page && !page.isJSRendered && page.text.length > 200) {
+    return page.text;
+  }
+
+  // Try Firecrawl for JS-rendered pages
+  const firecrawlResult = await fetchWithFirecrawl(url);
+  if (firecrawlResult && firecrawlResult.text.length > 200) {
+    return firecrawlResult.text;
+  }
+
+  // Return whatever we got from generic (even if short)
+  return page?.text ?? null;
+}
+
+/**
+ * Smart import: detects ATS provider, uses API when available, falls back to HTML/Firecrawl parsing.
  * Returns structured jobs ready for draft creation.
  */
 export async function smartImportJobs(url: string): Promise<ATSParseResult> {
@@ -362,7 +425,7 @@ export async function smartImportJobs(url: string): Promise<ATSParseResult> {
     return result;
   }
 
-  // Tier 2 success but no structured jobs — return for AI parsing
+  // Tier 2/3 success but no structured jobs — return for AI parsing
   // Caller should use parseJobListingsFromPageText on the fetched text
   return result;
 }

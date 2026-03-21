@@ -4,7 +4,7 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { parseJobFromText } from '@/lib/ai/parseJob';
-import { smartImportJobs, detectProvider } from '@/lib/ai/atsProviders';
+import { smartImportJobs, detectProvider, fetchPageText } from '@/lib/ai/atsProviders';
 
 const importSchema = z.object({
   url: z.string().url().optional(),
@@ -87,15 +87,10 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Tier 2: Generic HTML — fall through to AI parsing
+    // Tier 2/3: Generic HTML or Firecrawl — fall through to AI parsing
     try {
-      const res = await fetch(parsed.data.url, {
-        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; WorkforceAP/1.0)' },
-      });
-      if (res.ok) {
-        const html = await res.text();
-        const textToParse = stripHtmlToText(html);
-        if (textToParse.length >= 50) {
+      const textToParse = await fetchPageText(parsed.data.url);
+      if (textToParse && textToParse.length >= 50) {
           const extracted = await parseJobFromText(textToParse);
           if (extracted) {
             if (parsed.data.createDraft) {
@@ -122,7 +117,6 @@ export async function POST(request: NextRequest) {
               provider: 'ai',
             });
           }
-        }
       }
     } catch {
       // Fall through to error

@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
+    "@mendable/firecrawl-js": "^4.16.0",
     "@prisma/client": "^5.22.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.10",
@@ -54,4 +55,3 @@
     "typescript": "^5"
   }
 }
-

@@ -20,12 +20,6 @@ export default function ApplyResultsClient() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    if (programParam && getProgramBySlug(programParam)) {
-      setSelectedSlug(programParam);
-      setQualifies(true);
-      setPageState('ready');
-      return;
-    }
     try {
       const stored = sessionStorage.getItem(APPLY_STORAGE_KEY);
       if (!stored) {
@@ -34,6 +28,9 @@ export default function ApplyResultsClient() {
       }
       const data = JSON.parse(stored) as { qualifies?: boolean };
       setQualifies(data.qualifies === true);
+      if (programParam && getProgramBySlug(programParam)) {
+        setSelectedSlug(programParam);
+      }
       setPageState('ready');
     } catch {
       setPageState('missing');

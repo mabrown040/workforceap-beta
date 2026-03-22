@@ -9079,6 +9079,16 @@ body { animation: fadeIn 0.4s ease; }
     margin-top: 0.25rem;
     font-weight: 400;
 }
+.contact-form-name-row {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+}
+@media (min-width: 640px) {
+    .contact-form-name-row {
+        grid-template-columns: 1fr 1fr;
+    }
+}
 .contact-form-footnote {
     text-align: center;
     margin-top: 1rem;

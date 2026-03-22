@@ -6,6 +6,10 @@ import { useState, useMemo, useEffect, useId, useCallback, type RefObject } from
 import { trackEmployerJobAction, trackEmployerBulkDelete } from '@/lib/analytics/events';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { readinessLabel, type JobReadinessLevel } from '@/lib/employer/jobReadiness';
+import { Alert } from '@/components/ui/Alert';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export type EmployerJobBoardItem = {
   id: string;
@@ -382,18 +386,22 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
   if (jobs.length === 0) {
     return (
       <div className="employer-jobs-board">
-        <div className="employer-jobs-board__empty-state" role="status">
-          <h2 className="employer-jobs-board__empty-title">No postings yet</h2>
-          <p className="employer-jobs-board__empty-desc">
-            Create a posting to start hiring. Everything stays private until you submit for WorkforceAP
-            review — nothing goes live by surprise.
-          </p>
-          <div className="employer-jobs-board__empty-actions">
+        <EmptyState
+          className="employer-jobs-board__empty-state"
+          role="status"
+          title="No postings yet"
+          description={
+            <>
+              Create a posting to start hiring. Everything stays private until you submit for WorkforceAP
+              review — nothing goes live by surprise.
+            </>
+          }
+          action={
             <Link href="/employer/jobs/new" className="btn btn-primary">
               Create your first posting
             </Link>
-          </div>
-        </div>
+          }
+        />
       </div>
     );
   }
@@ -401,15 +409,38 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
   return (
     <div className="employer-jobs-board">
       {reviewActionError && (
-        <div className="employer-jobs-board__action-error" role="alert">
-          <p>{reviewActionError}</p>
-          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setReviewActionError(null)}>
-            Dismiss
-          </button>
-        </div>
+        <Alert
+          className="employer-jobs-board__action-error"
+          tone="error"
+          role="alert"
+          title="Action couldn&apos;t be completed"
+          action={
+            <Button type="button" variant="outline" size="small" onClick={() => setReviewActionError(null)}>
+              Dismiss
+            </Button>
+          }
+        >
+          {reviewActionError}
+        </Alert>
       )}
       {flashBanner && (
-        <div className="employer-jobs-flash-banner" role="status">
+        <Alert
+          className="employer-jobs-flash-banner"
+          tone="success"
+          role="status"
+          action={
+            <Button
+              type="button"
+              variant="outline"
+              size="small"
+              className="employer-jobs-flash-banner__dismiss"
+              onClick={() => setFlashBanner(null)}
+              aria-label="Dismiss confirmation"
+            >
+              Dismiss
+            </Button>
+          }
+        >
           <p className="employer-jobs-flash-banner__text">
             {flashBanner.type === 'delete' ? (
               <><strong>{flashBanner.count}</strong> posting{flashBanner.count === 1 ? '' : 's'} removed.</>
@@ -417,15 +448,7 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
               <><strong>{flashBanner.count}</strong> posting{flashBanner.count === 1 ? '' : 's'} marked as filled.</>
             )}
           </p>
-          <button
-            type="button"
-            className="btn btn-ghost btn-sm employer-jobs-flash-banner__dismiss"
-            onClick={() => setFlashBanner(null)}
-            aria-label="Dismiss confirmation"
-          >
-            Dismiss
-          </button>
-        </div>
+        </Alert>
       )}
 
       <div className="employer-jobs-board__filters" role="toolbar" aria-label="Filter by hiring stage">
@@ -544,7 +567,7 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
                     </label>
                   )}
                   <div className="employer-job-card__lane">
-                    <span className={`employer-job-card__status ${statusModifier(j.status)}`}>{j.statusLabel}</span>
+                    <Badge className={`employer-job-card__status ${statusModifier(j.status)}`} size="sm">{j.statusLabel}</Badge>
                     {next && <span className="employer-job-card__next">{next}</span>}
                   </div>
                   <time className="employer-job-card__time" dateTime={j.updatedAt.toISOString()}>

@@ -3,6 +3,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { trackLicenseRequest } from '@/lib/analytics/events';
+import { Alert } from '@/components/ui/Alert';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 
 const ASSESSMENT_REDIRECT_KEY = 'assessment_intended_destination';
 
@@ -81,39 +85,47 @@ export default function BenefitAccessCard({ benefitId, name, status: initialStat
 
   if (isActive) {
     return (
-      <div className="benefit-card">
+      <Card className="benefit-card" variant="bordered">
         <div className="benefit-card-header">
           <h3 className="benefit-card-title">{name}</h3>
-          <span className="benefit-card-status status-active">{STATUS_LABELS.active}</span>
+          <Badge className="benefit-card-status" tone="success" size="sm">{STATUS_LABELS.active}</Badge>
         </div>
         {description && <p className="benefit-card-desc">{description}</p>}
-        <button
-          type="button"
-          className="btn btn-primary benefit-card-cta"
-          onClick={handleOpenPlatform}
-        >
+        <Button type="button" className="benefit-card-cta" onClick={handleOpenPlatform}>
           Open Platform
-        </button>
-      </div>
+        </Button>
+      </Card>
     );
   }
 
   return (
-    <div className="benefit-card">
+    <Card className="benefit-card" variant="bordered">
       <div className="benefit-card-header">
         <h3 className="benefit-card-title">{name}</h3>
-        <span className={`benefit-card-status status-${status}`}>{STATUS_LABELS[status]}</span>
+        <Badge
+          className="benefit-card-status"
+          tone={status === 'pending' ? 'warning' : 'neutral'}
+          size="sm"
+        >
+          {STATUS_LABELS[status]}
+        </Badge>
       </div>
       {description && <p className="benefit-card-desc">{description}</p>}
-      {error && <p className="form-error" role="alert">{error}</p>}
-      <button
+      {error ? (
+        <Alert tone="error" role="alert">
+          {error}
+        </Alert>
+      ) : null}
+      <Button
         type="button"
-        className="btn btn-outline benefit-card-cta"
+        variant="outline"
+        className="benefit-card-cta"
         onClick={handleRequest}
         disabled={loading || isPending}
+        loading={loading}
       >
-        {loading ? 'Requesting...' : isPending ? 'Pending' : 'Request Access'}
-      </button>
-    </div>
+        {isPending ? 'Pending' : 'Request Access'}
+      </Button>
+    </Card>
   );
 }

@@ -5097,6 +5097,149 @@ body { animation: fadeIn 0.4s ease; }
 }
 
 /* =============================================
+   UI COMPONENTS - BADGES, ALERTS, EMPTY STATES
+   ============================================= */
+.ui-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    width: fit-content;
+    border-radius: var(--radius-full);
+    border: 1px solid transparent;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+}
+.ui-badge--sm {
+    padding: 0.2rem 0.55rem;
+    font-size: 0.75rem;
+}
+.ui-badge--md {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.8125rem;
+}
+.ui-badge--neutral {
+    background: var(--color-gray-100);
+    border-color: var(--color-gray-200);
+    color: var(--color-gray-700);
+}
+.ui-badge--info {
+    background: rgba(43, 123, 185, 0.12);
+    border-color: rgba(43, 123, 185, 0.2);
+    color: #185781;
+}
+.ui-badge--success {
+    background: rgba(74, 155, 79, 0.14);
+    border-color: rgba(74, 155, 79, 0.2);
+    color: #21622a;
+}
+.ui-badge--warning {
+    background: rgba(164, 127, 56, 0.16);
+    border-color: rgba(164, 127, 56, 0.22);
+    color: #7a5a1f;
+}
+.ui-badge--danger {
+    background: rgba(173, 44, 77, 0.12);
+    border-color: rgba(173, 44, 77, 0.18);
+    color: var(--color-accent-dark);
+}
+.ui-badge--accent {
+    background: rgba(173, 44, 77, 0.1);
+    border-color: rgba(173, 44, 77, 0.2);
+    color: var(--color-accent-dark);
+}
+.ui-alert {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem 1.1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+}
+.ui-alert__body {
+    min-width: 0;
+}
+.ui-alert__title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+}
+.ui-alert__content {
+    color: inherit;
+    font-size: 0.9rem;
+}
+.ui-alert__action {
+    flex-shrink: 0;
+}
+.ui-alert--info {
+    background: rgba(43, 123, 185, 0.08);
+    border-color: rgba(43, 123, 185, 0.16);
+    color: #185781;
+}
+.ui-alert--success {
+    background: rgba(74, 155, 79, 0.1);
+    border-color: rgba(74, 155, 79, 0.18);
+    color: #21622a;
+}
+.ui-alert--warning {
+    background: rgba(164, 127, 56, 0.1);
+    border-color: rgba(164, 127, 56, 0.18);
+    color: #7a5a1f;
+}
+.ui-alert--error {
+    background: #fff3f5;
+    border-color: rgba(173, 44, 77, 0.16);
+    color: var(--color-accent-dark);
+}
+.ui-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    border: 1px dashed var(--color-gray-300);
+    background: linear-gradient(180deg, var(--color-gray-50), #fff);
+}
+.ui-empty-state__title {
+    font-size: 1.35rem;
+    margin-bottom: 0.35rem;
+}
+.ui-empty-state__description {
+    color: var(--color-gray-600);
+    max-width: 60ch;
+}
+.ui-form-card {
+    max-width: 720px;
+}
+.ui-form {
+    display: grid;
+    gap: 0.25rem;
+}
+.ui-form--narrow {
+    max-width: 560px;
+}
+.ui-form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+@media (max-width: 767px) {
+    .ui-alert {
+        flex-direction: column;
+    }
+    .ui-alert__action {
+        width: 100%;
+    }
+    .ui-alert__action .btn {
+        width: 100%;
+    }
+}
+
+/* =============================================
    UI COMPONENTS - CARD
    ============================================= */
 .ui-card {
@@ -5335,13 +5478,8 @@ body { animation: fadeIn 0.4s ease; }
 .resource-progress-actions .saved { color: var(--color-green); }
 .resource-card-badges { margin-left: auto; display: flex; gap: 0.35rem; }
 .resource-badge {
-    font-size: 0.7rem;
-    padding: 0.15rem 0.4rem;
-    border-radius: var(--radius-full);
-    font-weight: 600;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4);
 }
-.resource-badge.completed { background: #d1fae5; color: #065f46; }
-.resource-badge.saved { background: #fef3c7; color: #92400e; }
 
 /* Learning step */
 .learning-step-label {
@@ -6137,22 +6275,7 @@ body { animation: fadeIn 0.4s ease; }
     font-weight: 600;
 }
 .benefit-card-status {
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.2rem 0.5rem;
-    border-radius: var(--radius-full);
-}
-.benefit-card-status.status-not_requested {
-    background: var(--color-gray-200);
-    color: var(--color-gray-600);
-}
-.benefit-card-status.status-pending {
-    background: #fef3c7;
-    color: #92400e;
-}
-.benefit-card-status.status-active {
-    background: #d1fae5;
-    color: #065f46;
+    align-self: flex-start;
 }
 .benefit-card-desc {
     font-size: 0.9rem;

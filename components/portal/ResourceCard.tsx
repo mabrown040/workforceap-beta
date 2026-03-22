@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import type { MemberResource } from '@/lib/content/memberResources';
 import { trackResourceOpen } from '@/lib/analytics/events';
+import { Badge } from '@/components/ui/Badge';
 
 type ResourceCardProps = {
   resource: MemberResource;
@@ -59,8 +60,8 @@ export default function ResourceCard({ resource, progress }: ResourceCardProps) 
         <span className="resource-card-type">{resource.type}</span>
         {(isCompleted || isSaved) && (
           <span className="resource-card-badges">
-            {isCompleted && <span className="resource-badge completed">Completed</span>}
-            {isSaved && <span className="resource-badge saved">Saved</span>}
+            {isCompleted && <Badge className="resource-badge" tone="success" size="sm">Completed</Badge>}
+            {isSaved && <Badge className="resource-badge" tone="warning" size="sm">Saved</Badge>}
           </span>
         )}
       </div>

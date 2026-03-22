@@ -2,6 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Alert } from '@/components/ui/Alert';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 
 type UserOpt = { id: string; fullName: string; email: string };
 type PartnerOpt = { id: string; name: string };
@@ -67,107 +70,104 @@ export default function SubgroupForm({ users, partners, subgroup }: Props) {
     }
   };
 
-  const inputStyle = { width: '100%', maxWidth: '480px', padding: '0.5rem 0.75rem', border: '1px solid #ccc', borderRadius: '6px', fontSize: '1rem' } as const;
-  const labelStyle = { display: 'block', marginBottom: '0.25rem', fontWeight: 500 } as const;
-
   return (
-    <form onSubmit={handleSubmit} style={{ maxWidth: '560px' }}>
-      {error && (
-        <div style={{ padding: '0.75rem', marginBottom: '1rem', background: '#fee', borderRadius: '6px', color: '#c00' }}>
-          {error}
+    <Card className="ui-form-card" variant="bordered">
+      <form onSubmit={handleSubmit} className="ui-form ui-form--narrow">
+        {error ? (
+          <Alert tone="error" role="alert" title="Could not save subgroup">
+            {error}
+          </Alert>
+        ) : null}
+
+        <div className="form-group">
+          <label htmlFor="subgroup-name">Name *</label>
+          <input
+            id="subgroup-name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            placeholder="e.g. Oak Hill Church, Workforce Solutions Central"
+            disabled={saving}
+          />
         </div>
-      )}
 
-      <div style={{ marginBottom: '1rem' }}>
-        <label style={labelStyle}>Name *</label>
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          style={inputStyle}
-          placeholder="e.g. Oak Hill Church, Workforce Solutions Central"
-          disabled={saving}
-        />
-      </div>
-
-      <div style={{ marginBottom: '1rem' }}>
-        <label style={labelStyle}>Type *</label>
-        <select
-          value={type}
-          onChange={(e) => setType(e.target.value as 'partner' | 'manager' | 'church')}
-          style={inputStyle}
-          disabled={saving}
-        >
-          <option value="partner">Partner</option>
-          <option value="manager">Manager</option>
-          <option value="church">Church</option>
-        </select>
-      </div>
-
-      <div style={{ marginBottom: '1rem' }}>
-        <label style={labelStyle}>Leader *</label>
-        <select
-          value={leaderId}
-          onChange={(e) => setLeaderId(e.target.value)}
-          required
-          style={inputStyle}
-          disabled={saving}
-        >
-          <option value="">Select leader</option>
-          {users.map((u) => (
-            <option key={u.id} value={u.id}>
-              {u.fullName} ({u.email})
-            </option>
-          ))}
-        </select>
-        <p style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)', marginTop: '0.25rem' }}>
-          The leader can view this subgroup&apos;s members in the portal.
-        </p>
-      </div>
-
-      {type === 'partner' && (
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={labelStyle}>Linked Partner (optional)</label>
+        <div className="form-group">
+          <label htmlFor="subgroup-type">Type *</label>
           <select
-            value={partnerId}
-            onChange={(e) => setPartnerId(e.target.value)}
-            style={inputStyle}
+            id="subgroup-type"
+            value={type}
+            onChange={(e) => setType(e.target.value as 'partner' | 'manager' | 'church')}
             disabled={saving}
           >
-            <option value="">No partner</option>
-            {partners.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
+            <option value="partner">Partner</option>
+            <option value="manager">Manager</option>
+            <option value="church">Church</option>
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="subgroup-leader">Leader *</label>
+          <select
+            id="subgroup-leader"
+            value={leaderId}
+            onChange={(e) => setLeaderId(e.target.value)}
+            required
+            disabled={saving}
+          >
+            <option value="">Select leader</option>
+            {users.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.fullName} ({u.email})
               </option>
             ))}
           </select>
-          <p style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)', marginTop: '0.25rem' }}>
-            Link to a partner for auto-assignment when members are referred by that partner.
-          </p>
+          <p className="form-hint">The leader can view this subgroup&apos;s members in the portal.</p>
         </div>
-      )}
 
-      <div style={{ marginBottom: '1.5rem' }}>
-        <label style={labelStyle}>Description (optional)</label>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={3}
-          style={{ ...inputStyle, maxWidth: '100%' }}
-          placeholder="Brief description of this subgroup"
-          disabled={saving}
-        />
-      </div>
+        {type === 'partner' ? (
+          <div className="form-group">
+            <label htmlFor="subgroup-partner">Linked Partner (optional)</label>
+            <select
+              id="subgroup-partner"
+              value={partnerId}
+              onChange={(e) => setPartnerId(e.target.value)}
+              disabled={saving}
+            >
+              <option value="">No partner</option>
+              {partners.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+            <p className="form-hint">
+              Link to a partner for auto-assignment when members are referred by that partner.
+            </p>
+          </div>
+        ) : null}
 
-      <div style={{ display: 'flex', gap: '0.75rem' }}>
-        <button type="submit" className="btn btn-primary" disabled={saving}>
-          {saving ? 'Saving…' : subgroup ? 'Update' : 'Create'}
-        </button>
-        <button type="button" className="btn btn-outline" onClick={() => router.back()} disabled={saving}>
-          Cancel
-        </button>
-      </div>
-    </form>
+        <div className="form-group">
+          <label htmlFor="subgroup-description">Description (optional)</label>
+          <textarea
+            id="subgroup-description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
+            placeholder="Brief description of this subgroup"
+            disabled={saving}
+          />
+        </div>
+
+        <div className="ui-form-actions">
+          <Button type="submit" disabled={saving} loading={saving}>
+            {subgroup ? 'Update' : 'Create'}
+          </Button>
+          <Button type="button" variant="outline" onClick={() => router.back()} disabled={saving}>
+            Cancel
+          </Button>
+        </div>
+      </form>
+    </Card>
   );
 }

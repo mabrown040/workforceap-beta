@@ -3,6 +3,8 @@
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import SuggestedProgramsRanked from '@/components/employer/SuggestedProgramsRanked';
+import { Alert } from '@/components/ui/Alert';
+import { Button } from '@/components/ui/Button';
 
 type JobFormProps = {
   job?: {
@@ -145,9 +147,9 @@ export default function JobForm({ job, initialData, companyName, programSlugs, i
   return (
     <form ref={formRef} className="employer-job-form" onSubmit={handleSubmit} noValidate>
       {status === 'error' && errorMsg && (
-        <div className="employer-job-form-error" role="alert">
+        <Alert className="employer-job-form-error" tone="error" role="alert" title="Review this posting">
           {errorMsg}
-        </div>
+        </Alert>
       )}
 
       <div className="form-group">
@@ -229,18 +231,18 @@ export default function JobForm({ job, initialData, companyName, programSlugs, i
       )}
 
       <div className="employer-job-form-actions">
-        <button type="submit" className="btn btn-primary" disabled={status === 'saving'}>
-          {status === 'saving' ? 'Saving…' : 'Save as Draft'}
-        </button>
+        <Button type="submit" disabled={status === 'saving'} loading={status === 'saving'}>
+          Save as Draft
+        </Button>
         {(!isEdit || (job && job.status === 'draft')) && (
-          <button type="submit" name="submitForReview" value="1" className="btn btn-accent" disabled={status === 'saving'}>
+          <Button type="submit" name="submitForReview" value="1" variant="accent" disabled={status === 'saving'}>
             Submit for Review
-          </button>
+          </Button>
         )}
         {job && job.status === 'closed' && (
-          <button type="submit" name="resubmitForReview" value="1" className="btn btn-accent" disabled={status === 'saving'}>
+          <Button type="submit" name="resubmitForReview" value="1" variant="accent" disabled={status === 'saving'}>
             Resubmit for Review
-          </button>
+          </Button>
         )}
       </div>
     </form>

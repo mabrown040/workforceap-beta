@@ -57,11 +57,11 @@ export default async function EmployerDashboardPage() {
           <div className="employer-dash-header-actions">
             <Link href="/employer/jobs/import" className="btn btn-secondary">
               <Upload size={18} aria-hidden />
-              Import jobs
+              Import from careers page
             </Link>
             <Link href="/employer/jobs/new" className="btn btn-primary">
               <FilePlus size={18} aria-hidden />
-              Post a job
+              Create posting
             </Link>
           </div>
         }

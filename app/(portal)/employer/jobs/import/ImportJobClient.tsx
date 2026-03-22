@@ -139,8 +139,8 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
             ← Back
           </button>
         </div>
-        <h1 style={{ fontSize: '1.35rem', marginBottom: '0.5rem' }}>Review before saving</h1>
-        <p style={{ color: 'var(--color-gray-600)', marginBottom: '1rem', fontSize: '0.9rem' }}>
+        <h1 className="import-review-heading">Review before saving</h1>
+        <p className="import-review-intro">
           This is still private. Adjust anything that does not sound like your team, then save as a draft or send for
           WorkforceAP review.
         </p>
@@ -225,7 +225,7 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
               how you hire.
             </p>
             <Link href="/employer/jobs" className="btn btn-primary import-job-success-cta">
-              Go to your jobs
+              View job postings
               <ExternalLink size={16} style={{ marginLeft: '0.35rem', verticalAlign: 'middle' }} />
             </Link>
           </div>
@@ -276,7 +276,7 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
           onClick={handleBulkImport}
           disabled={bulkLoading || loading || !careersUrl.trim()}
         >
-          {bulkLoading ? 'Building your drafts…' : 'Create private drafts from this page'}
+          {bulkLoading ? 'Building drafts…' : 'Import from careers page'}
         </button>
       </section>
 
@@ -320,7 +320,7 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
                 !careersUrl.trim())
             }
           >
-            Create drafts from links or paste
+            Import from links or paste
           </button>
         </div>
       </details>

@@ -7041,6 +7041,17 @@ body { animation: fadeIn 0.4s ease; }
 }
 
 /* Import review — extraction summary */
+.import-review-heading {
+    font-size: 1.35rem;
+    margin: 0 0 0.5rem;
+    font-weight: 600;
+}
+.import-review-intro {
+    color: var(--color-gray-600);
+    margin: 0 0 1rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
 .import-review-summary {
     margin-bottom: 1.5rem;
     padding: 1rem 1.15rem;
@@ -10371,6 +10382,13 @@ body { animation: fadeIn 0.4s ease; }
     border-color: var(--color-accent);
     color: var(--color-accent-dark);
 }
+.employer-jobs-board__filter-count {
+    font-weight: 500;
+    opacity: 0.85;
+}
+.employer-jobs-board__filter.is-active .employer-jobs-board__filter-count {
+    opacity: 0.9;
+}
 .employer-jobs-board__empty {
     color: var(--color-gray-500);
     font-size: 0.95rem;
@@ -11080,6 +11098,22 @@ body { animation: fadeIn 0.4s ease; }
 }
 .portal-page-header-action {
     flex-shrink: 0;
+}
+@media (max-width: 640px) {
+    .portal-page-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .portal-page-header-action {
+        width: 100%;
+    }
+    .employer-dash-header-actions {
+        flex-direction: column;
+    }
+    .employer-dash-header-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 /* Partner guide steps list */

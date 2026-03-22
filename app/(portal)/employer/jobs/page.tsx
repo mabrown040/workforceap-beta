@@ -88,6 +88,9 @@ export default async function EmployerJobsPage() {
           </p>
         </div>
         <div className="employer-jobs-actions">
+          <Link href="/employer/jobs/import" className="btn btn-outline btn-sm">
+            Import
+          </Link>
           <Link href="/employer/jobs/new" className="btn btn-primary btn-sm">
             Create posting
           </Link>

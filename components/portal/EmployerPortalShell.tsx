@@ -5,6 +5,7 @@ import WorkspaceShell from './WorkspaceShell';
 const NAV_LINKS = [
   { href: '/employer', label: 'Home' },
   { href: '/employer/jobs', label: 'Job Postings' },
+  { href: '/employer/jobs/import', label: 'Import' },
   { href: '/employer/applications', label: 'Applicants' },
   { href: '/employer/jobs/new', label: 'Create Posting' },
 ];

@@ -429,17 +429,24 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
       )}
 
       <div className="employer-jobs-board__filters" role="toolbar" aria-label="Filter by hiring stage">
-        {FILTERS.map((f) => (
-          <button
-            key={f.value}
-            type="button"
-            className={`employer-jobs-board__filter ${filter === f.value ? 'is-active' : ''}`}
-            onClick={() => setFilter(f.value)}
-            aria-pressed={filter === f.value}
-          >
-            {f.label}
-          </button>
-        ))}
+        {FILTERS.map((f) => {
+          const count = f.value === 'all' ? jobs.length : f.value === 'filled' ? counts.filled : f.value === 'review' ? counts.inReview : counts[f.value as keyof typeof counts] ?? 0;
+          return (
+            <button
+              key={f.value}
+              type="button"
+              className={`employer-jobs-board__filter ${filter === f.value ? 'is-active' : ''}`}
+              onClick={() => setFilter(f.value)}
+              aria-pressed={filter === f.value}
+              aria-label={`${f.label}${f.value !== 'all' ? `, ${count} posting${count === 1 ? '' : 's'}` : ''}`}
+            >
+              {f.label}
+              {f.value !== 'all' && (
+                <span className="employer-jobs-board__filter-count"> ({count})</span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* Bulk actions bar */}
@@ -465,7 +472,7 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
                   onClick={selectAllDeletable}
                   disabled={allDeletableSelected}
                 >
-                  Select deletable
+                  Select drafts & closed
                 </button>
                 <button
                   type="button"
@@ -485,7 +492,7 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
                   onClick={selectAllClosable}
                   disabled={allClosableSelected}
                 >
-                  Select closable
+                  Select live & approved
                 </button>
                 <button
                   type="button"

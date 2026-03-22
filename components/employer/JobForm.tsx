@@ -33,11 +33,12 @@ type JobFormProps = {
   }>;
   companyName: string;
   programSlugs: string[];
+  isImportReview?: boolean;
 };
 
 type FieldErrors = Partial<Record<'title' | 'location' | 'salaryMin' | 'salaryMax' | 'description' | 'requirements', string>>;
 
-export default function JobForm({ job, initialData, companyName, programSlugs }: JobFormProps) {
+export default function JobForm({ job, initialData, companyName, programSlugs, isImportReview }: JobFormProps) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [status, setStatus] = useState<'idle' | 'saving' | 'error'>('idle');
@@ -46,6 +47,15 @@ export default function JobForm({ job, initialData, companyName, programSlugs }:
 
   const isEdit = !!job && !!job.id;
   const prefill = job ?? initialData;
+
+  const importEmpty = isImportReview
+    ? {
+        location: !prefill?.location,
+        salary: prefill?.salaryMin == null && prefill?.salaryMax == null,
+        requirements: (prefill?.requirements?.length ?? 0) < 2,
+        certs: (prefill?.preferredCertifications?.length ?? 0) === 0,
+      }
+    : null;
 
   const initialHaystack = [prefill?.title, prefill?.description, ...(prefill?.requirements ?? [])]
     .filter(Boolean)
@@ -155,6 +165,7 @@ export default function JobForm({ job, initialData, companyName, programSlugs }:
         <label htmlFor="job-location">Location (City, State or Remote)</label>
         <input id="job-location" type="text" name="location" placeholder="e.g. Austin, TX or Remote" defaultValue={prefill?.location ?? ''} disabled={status === 'saving'} aria-invalid={!!fieldErrors.location} aria-describedby={fieldErrors.location ? fieldErrorId('location') : undefined} />
         {fieldErrors.location ? <p id={fieldErrorId('location')} className="form-error">{fieldErrors.location}</p> : null}
+        {importEmpty?.location && <p className="employer-job-form-import-hint">Not detected — add where people work so candidates can filter.</p>}
       </div>
 
       <div className="form-group">
@@ -187,6 +198,7 @@ export default function JobForm({ job, initialData, companyName, programSlugs }:
           {fieldErrors.salaryMax ? <p id={fieldErrorId('salaryMax')} className="form-error">{fieldErrors.salaryMax}</p> : null}
         </div>
       </div>
+      {importEmpty?.salary && <p className="employer-job-form-import-hint">No pay range detected — adding one helps candidates decide faster.</p>}
 
       <div className="form-group">
         <label htmlFor="job-description">Job Description *</label>
@@ -198,6 +210,7 @@ export default function JobForm({ job, initialData, companyName, programSlugs }:
         <label htmlFor="job-requirements">Requirements (one per line)</label>
         <textarea id="job-requirements" name="requirements" rows={4} placeholder="2+ years experience&#10;Bachelor's degree&#10;Proficiency in Python" defaultValue={prefill?.requirements?.join('\n') ?? ''} disabled={status === 'saving'} aria-invalid={!!fieldErrors.requirements} aria-describedby={fieldErrors.requirements ? fieldErrorId('requirements') : undefined} />
         {fieldErrors.requirements ? <p id={fieldErrorId('requirements')} className="form-error">{fieldErrors.requirements}</p> : null}
+        {importEmpty?.requirements && <p className="employer-job-form-import-hint">Fewer than 2 requirements detected — add the must-haves for this role.</p>}
       </div>
 
       <div className="form-group">

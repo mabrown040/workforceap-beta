@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
@@ -17,12 +17,16 @@ export default function ApplyResultsClient() {
   const [pageState, setPageState] = useState<'loading' | 'ready' | 'missing'>('loading');
   const [qualifies, setQualifies] = useState<boolean | null>(null);
   const [selectedSlug, setSelectedSlug] = useState<string>(programParam ?? '');
+  const continuedRef = useRef(false);
+  const qualifiesRef = useRef<boolean | null>(null);
+  const selectedSlugRef = useRef('');
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
       const stored = sessionStorage.getItem(APPLY_STORAGE_KEY);
       if (!stored) {
+        trackApplyFunnel(2, 'results_missing_prereq');
         setPageState('missing');
         return;
       }
@@ -33,6 +37,7 @@ export default function ApplyResultsClient() {
       }
       setPageState('ready');
     } catch {
+      trackApplyFunnel(2, 'results_missing_prereq');
       setPageState('missing');
     }
   }, [programParam]);
@@ -42,9 +47,29 @@ export default function ApplyResultsClient() {
     trackApplyFunnel(2, 'results_view', { qualifies });
   }, [qualifies, pageState]);
 
+  useEffect(() => {
+    qualifiesRef.current = qualifies;
+    selectedSlugRef.current = selectedSlug;
+  }, [qualifies, selectedSlug]);
+
+  useEffect(() => {
+    return () => {
+      if (pageState === 'ready' && !continuedRef.current) {
+        trackApplyFunnel(2, 'results_dropoff', {
+          qualifies: qualifiesRef.current,
+          selected_program_slug: selectedSlugRef.current || null,
+        });
+      }
+    };
+  }, [pageState]);
+
   const handleContinue = () => {
-    if (!selectedSlug) return;
-    trackApplyFunnel(2, 'program_selected', { program_slug: selectedSlug });
+    if (!selectedSlug) {
+      trackApplyFunnel(2, 'program_continue_blocked');
+      return;
+    }
+    continuedRef.current = true;
+    trackApplyFunnel(2, 'program_selected', { program_slug: selectedSlug, qualifies });
     if (typeof window !== 'undefined') {
       sessionStorage.setItem(PROGRAM_STORAGE_KEY, selectedSlug);
     }
@@ -79,22 +104,21 @@ export default function ApplyResultsClient() {
       <div className="apply-flow">
         <div className="apply-progress-bar">
           <div className="apply-progress-fill" style={{ width: '66%' }} />
-          <p className="apply-progress-label">Step 2 of 3</p>
+          <p className="apply-progress-label">Step 2 of 3 — choose a program</p>
         </div>
         <div className="apply-step-content apply-missing-session">
-          <h2 className="apply-step-title">We need your answers from step 1</h2>
+          <h2 className="apply-step-title">We need your answers from step 1 first</h2>
           <p className="apply-step-desc">
-            This page expects eligibility answers saved in your browser. That can be missing if you bookmarked this link,
-            opened it on another device, or cleared site data.
+            This page works after the quick eligibility check. If you opened this page directly, switched devices, or cleared browser data,
+            we may not have your step 1 answers anymore.
           </p>
           <p style={{ marginBottom: '1.25rem' }}>
             <Link href="/apply" className="btn btn-primary">
-              Go to step 1 — eligibility
+              Go to step 1 — quick eligibility check
             </Link>
           </p>
           <p className="apply-step-desc" style={{ fontSize: '0.9rem' }}>
-            Already completed step 1 in this browser?{' '}
-            <Link href="/apply">Return to step 1</Link> — your previous answers will be replaced when you submit again.
+            Already did step 1 in this browser? Return to <Link href="/apply">/apply</Link> and answer the 3 questions again — it only takes about a minute.
           </p>
         </div>
       </div>
@@ -105,39 +129,34 @@ export default function ApplyResultsClient() {
     <div className="apply-flow">
       <div className="apply-progress-bar">
         <div className="apply-progress-fill" style={{ width: '66%' }} />
-        <p className="apply-progress-label">Step 2 of 3</p>
+        <p className="apply-progress-label">Step 2 of 3 — choose your program</p>
       </div>
 
       <div className="apply-step-content">
         <p className="apply-step-back-nav">
-          <Link href="/apply">← Back to eligibility (step 1)</Link>
+          <Link href="/apply">← Back to step 1 — eligibility</Link>
         </p>
+        <p className="apply-step-kicker">About 2 minutes • still no account required</p>
+        <div className="apply-transition-card" role="note" aria-label="What happens after program selection">
+          <strong>Before you continue:</strong>
+          <span> choosing a program does not lock you in forever. It tells us what you want to discuss first. After this, you&apos;ll create your account so we can save your choice and follow up.</span>
+        </div>
         {qualifies ? (
           <>
             <div className={`funding-banner funding-banner-qualify`} style={{ marginBottom: '1.5rem' }}>
               <p>
-                <strong>Looks like a good fit.</strong> We&rsquo;ll connect within 24–48 hours to walk through next steps.
-                First, pick the program that interests you most:
+                <strong>Looks like a strong funding fit.</strong> Pick the program you want most, then create your account so a counselor can confirm next steps within 24–48 hours.
               </p>
             </div>
-            <h2 className="apply-step-title">Choose the program you&apos;re most interested in:</h2>
+            <h2 className="apply-step-title">Which program are you most interested in right now?</h2>
+            <p className="apply-results-program-hint">Choose one now — if your goals change, a counselor can still help you compare options later.</p>
           </>
         ) : (
           <>
-            <div
-              className="apply-results-anyway"
-              style={{
-                marginBottom: '1rem',
-                padding: '1rem 1.25rem',
-                background: '#f8fafc',
-                border: '1px solid #e2e8f0',
-                borderRadius: '8px',
-              }}
-            >
+            <div className="apply-results-anyway" style={{ marginBottom: '1rem', padding: '1rem 1.25rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
               <p style={{ margin: 0 }}>
-                <strong>Your answers don&apos;t match our standard funding profile right now.</strong> That is not a
-                &quot;no&quot; to you — it means we may need a different path or timing. We still review every application
-                and help people move toward job-ready skills.
+                <strong>Your answers don&apos;t match our standard funding profile right now.</strong> That is not a final decision. We still review every application,
+                suggest realistic next steps, and often start people with foundational options while we sort out timing and support.
               </p>
             </div>
             <section className="apply-foundational-support" aria-labelledby="apply-foundational-heading">
@@ -147,24 +166,18 @@ export default function ApplyResultsClient() {
               <ul className="apply-foundational-support__list">
                 <li>
                   <strong>Digital foundations:</strong> Uncomfortable with computers or online forms? Our{' '}
-                  <Link href="/programs/digital-literacy-empowerment-class">Digital Literacy Empowerment Class</Link> is
-                  listed first below — it builds confidence before heavier tech tracks.
+                  <Link href="/programs/digital-literacy-empowerment-class">Digital Literacy Empowerment Class</Link> is listed first below.
                 </li>
                 <li>
-                  <strong>Not sure what fits?</strong> Take the{' '}
-                  <Link href="/find-your-path">2-minute pathfinder</Link> for ranked program ideas.
+                  <strong>Not sure what fits?</strong> Take the <Link href="/find-your-path">2-minute pathfinder</Link> for ranked ideas.
                 </li>
                 <li>
-                  <strong>Want to talk to a person?</strong>{' '}
-                  <Link href="/contact">Contact us</Link> or call{' '}
-                  <a href="tel:+15127771808">(512) 777-1808</a> — we respond within 24–48 hours.
+                  <strong>Want a person to help?</strong> <Link href="/contact">Contact us</Link> or call <a href="tel:+15127771808">(512) 777-1808</a>.
                 </li>
               </ul>
             </section>
-            <h2 className="apply-step-title">Which program interests you most?</h2>
-            <p className="apply-results-program-hint">
-              Pick one to continue — a counselor will review your situation and next steps with you.
-            </p>
+            <h2 className="apply-step-title">Which program should we start with?</h2>
+            <p className="apply-results-program-hint">Pick one to continue. We&apos;ll save it as your starting point, not your final commitment.</p>
           </>
         )}
 
@@ -181,6 +194,15 @@ export default function ApplyResultsClient() {
             <div
               key={p.slug}
               onClick={() => setSelectedSlug(p.slug)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  setSelectedSlug(p.slug);
+                }
+              }}
+              aria-pressed={selectedSlug === p.slug}
               style={{
                 padding: '1.25rem',
                 border: selectedSlug === p.slug ? '2px solid var(--color-accent)' : '1px solid #e5e5e5',
@@ -189,9 +211,7 @@ export default function ApplyResultsClient() {
                 background: selectedSlug === p.slug ? 'rgba(74, 155, 79, 0.05)' : 'white',
               }}
             >
-              <div
-                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}
-              >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                 <span
                   style={{
                     background: p.categoryColor,
@@ -217,8 +237,14 @@ export default function ApplyResultsClient() {
           ))}
         </div>
 
+        {!selectedSlug && (
+          <p className="apply-continue-hint" role="alert">
+            Select one program to continue. If you&apos;re undecided, choose the one you want to discuss first — your counselor can help you compare options.
+          </p>
+        )}
+
         <button type="button" className="btn btn-primary" disabled={!selectedSlug} onClick={handleContinue}>
-          Continue to Create Your Account →
+          Continue to step 3 — create your account →
         </button>
       </div>
     </div>

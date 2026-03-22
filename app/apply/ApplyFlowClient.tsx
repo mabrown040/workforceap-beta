@@ -155,7 +155,7 @@ export default function ApplyFlowClient() {
       <div className="apply-progress-bar">
         <div className="apply-progress-fill" style={{ width: step === 1 ? '33%' : '66%' }} />
         <p className="apply-progress-label">
-          Step {step} of 2
+          Combined apply flow — step {step} of 2
         </p>
       </div>
 

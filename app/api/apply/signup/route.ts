@@ -15,13 +15,13 @@ function getClientIp(request: NextRequest): string {
 }
 
 const applySignupSchema = z.object({
-  firstName: z.string().min(1).max(100),
-  lastName: z.string().max(100),
-  email: z.string().email(),
-  phone: z.string().min(10).max(50),
+  firstName: z.string().trim().min(1, 'Please enter your first name.').max(100),
+  lastName: z.string().trim().min(1, 'Please enter your last name.').max(100),
+  email: z.string().trim().email('Please enter a valid email address.'),
+  phone: z.string().trim().min(10, 'Please enter a valid phone number with area code.').max(50),
   smsOptIn: z.boolean().optional().default(false),
-  password: z.string().min(8),
-  programSlug: z.string().min(1),
+  password: z.string().min(8, 'Create a password with at least 8 characters.'),
+  programSlug: z.string().min(1, 'Please choose a program before creating your account.'),
 });
 
 export async function POST(request: NextRequest) {
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
   const { success: rateOk } = await checkSignupRateLimit(ip);
   if (!rateOk) {
     return NextResponse.json(
-      { error: 'Too many signup attempts. Please try again later.' },
+      { error: 'We received too many signup attempts from this connection. Please wait a few minutes and try again.' },
       { status: 429 }
     );
   }
@@ -38,25 +38,25 @@ export async function POST(request: NextRequest) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+    return NextResponse.json({ error: 'We could not read your signup details. Please refresh the page and try again.' }, { status: 400 });
   }
 
   const parsed = applySignupSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
+    return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Please review your information and try again.' }, { status: 400 });
   }
 
   const { firstName, lastName, email, phone, smsOptIn, password, programSlug } = parsed.data;
 
   const program = getProgramBySlug(programSlug);
   if (!program) {
-    return NextResponse.json({ error: 'Invalid program' }, { status: 400 });
+    return NextResponse.json({ error: 'We could not match that program choice. Please go back and choose your program again.' }, { status: 400 });
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!supabaseUrl || !supabaseAnonKey) {
-    return NextResponse.json({ error: 'Server not configured' }, { status: 500 });
+    return NextResponse.json({ error: 'Our signup service is temporarily unavailable. Please try again shortly.' }, { status: 500 });
   }
 
   const cookieStore = await cookies();
@@ -86,16 +86,16 @@ export async function POST(request: NextRequest) {
   if (authError) {
     if (authError.message.includes('already registered') || authError.code === 'user_already_exists') {
       return NextResponse.json(
-        { error: 'An account with this email already exists. Try logging in.' },
+        { error: 'An account with this email already exists. Try logging in, or use password reset if you are returning.' },
         { status: 400 }
       );
     }
-    return NextResponse.json({ error: authError.message }, { status: 400 });
+    return NextResponse.json({ error: 'We could not create your account just yet. Please try again in a moment.' }, { status: 400 });
   }
 
   const user = authData.user;
   if (!user) {
-    return NextResponse.json({ error: 'Account creation failed' }, { status: 500 });
+    return NextResponse.json({ error: 'Your account could not be created. Please try again.' }, { status: 500 });
   }
 
   try {
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (dbError) {
     console.error('Apply signup DB error:', dbError);
-    return NextResponse.json({ error: 'Account creation failed. Please try again.' }, { status: 500 });
+    return NextResponse.json({ error: 'Your account was started, but we could not finish saving it. Please try again, or contact us if this keeps happening.' }, { status: 500 });
   }
 
   if (authData.session) {
@@ -137,8 +137,7 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({
     success: true,
-    message: 'Check your email to verify your account, then log in.',
+    message: 'Please verify your email, then log in to view your dashboard and next steps.',
     redirectTo: '/login',
   });
 }
-

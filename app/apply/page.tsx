@@ -17,18 +17,18 @@ export default function ApplyPage() {
     <div className="inner-page">
       <section className="page-hero">
         <div className="page-hero-content">
-          <h1>Start Your Career Today</h1>
-          <p>Apply for no-cost training — we&rsquo;ll help you find the right path. No experience required. We respond within 24–48 hours.</p>
+          <h1>Start your application</h1>
+          <p>Answer 3 quick questions, choose a program, then create your account so we can follow up with your next steps. No experience required.</p>
           <div className="hero-badges">
-            {['No experience required', 'Flexible learning options', 'We respond within 24–48 hours', 'Full job placement assistance'].map((t) => (
+            {['Step 1: quick eligibility check', 'Step 2: choose a program', 'Step 3: create your account', 'We respond within 24–48 hours'].map((t) => (
               <span key={t} className="hero-badge-item">&#10003; {t}</span>
             ))}
           </div>
           <p className="apply-eligibility-note">
-            <strong>Where we operate today:</strong> We&rsquo;re currently serving the Austin area. This is our launch community — we&rsquo;re building toward expansion. If you&rsquo;re elsewhere, apply anyway; we&rsquo;ll keep you in the loop.
+            <strong>Where we operate today:</strong> We&apos;re currently serving the Austin area. This is our launch community — we&apos;re building toward expansion. If you&apos;re elsewhere, apply anyway; we&apos;ll keep you in the loop.
           </p>
           <p className="hero-cta-note">
-            Questions? Call us: <a href="tel:5127771808">(512) 777-1808</a>
+            Questions before you start? Call us: <a href="tel:5127771808">(512) 777-1808</a>
           </p>
         </div>
       </section>
@@ -36,9 +36,7 @@ export default function ApplyPage() {
       <section className="content-section">
         <div className="container">
           <div className="apply-info-banner" role="note">
-            <strong>Enrollment:</strong> We review applications on a rolling basis in the Austin launch community and respond
-            within 24–48 hours. There is no fixed &quot;cohort closing&quot; date on this page — a counselor confirms next steps with
-            you directly.
+            <strong>What to expect:</strong> this intake starts with a short eligibility check before account creation, so you can see your likely options first. After you create an account, a counselor reviews your selection and follows up within 24–48 hours.
           </div>
 
           <Suspense fallback={<ApplyPageSkeleton />}>

@@ -104,7 +104,7 @@ Reposition this resume toward the career goal above. Remember: only work with wh
       console.error('Resume rewriter: failed to save result', saveErr);
     }
 
-    return NextResponse.json({ output });
+    return NextResponse.json({ output, saved: true });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     console.error('Resume rewriter error:', err);

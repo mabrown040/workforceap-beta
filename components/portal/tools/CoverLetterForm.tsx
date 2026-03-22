@@ -1,10 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
-import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import { AIToolIntro, AIToolPathway, AIToolResult, AIToolSubmitButton } from './shared/AIToolShared';
 
 export default function CoverLetterForm() {
   const [resume, setResume] = useState('');
@@ -14,7 +12,6 @@ export default function CoverLetterForm() {
   const [output, setOutput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { copy, copied } = useCopyToClipboard();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,14 +24,8 @@ export default function CoverLetterForm() {
       const res = await fetch('/api/ai/cover-letter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          resume,
-          jobDescription,
-          companyName: companyName || 'the company',
-          tone,
-        }),
+        body: JSON.stringify({ resume, jobDescription, companyName: companyName || 'the company', tone }),
       });
-
       const data = await res.json();
       if (!res.ok) {
         setError(data.error ?? 'Something went wrong');
@@ -48,85 +39,41 @@ export default function CoverLetterForm() {
     }
   };
 
-  const handleCopy = () => {
-    if (output) void copy(output);
-  };
-
   return (
-    <form onSubmit={handleSubmit} className="portal-ai-tool-form">
-      <div className="form-group">
-        <label htmlFor="company">Company name</label>
-        <input
-          id="company"
-          type="text"
-          value={companyName}
-          onChange={(e) => setCompanyName(e.target.value)}
-          placeholder="e.g. Acme Corp"
-          disabled={loading}
-        />
-      </div>
-      <div className="form-group">
-        <label htmlFor="tone">Tone</label>
-        <select
-          id="tone"
-          value={tone}
-          onChange={(e) => setTone(e.target.value as 'formal' | 'confident' | 'conversational')}
-          disabled={loading}
-        >
-          <option value="formal">Formal</option>
-          <option value="confident">Confident</option>
-          <option value="conversational">Conversational</option>
-        </select>
-      </div>
-      <div className="form-group">
-        <label htmlFor="job-desc">Job description</label>
-        <textarea
-          id="job-desc"
-          value={jobDescription}
-          onChange={(e) => setJobDescription(e.target.value)}
-          placeholder="Paste the job posting here..."
-          rows={6}
-          required
-          disabled={loading}
-        />
-      </div>
-      <div className="form-group">
-        <label htmlFor="resume">Your resume / experience</label>
-        <textarea
-          id="resume"
-          value={resume}
-          onChange={(e) => setResume(e.target.value)}
-          placeholder="Paste your resume or key experience..."
-          rows={8}
-          required
-          disabled={loading}
-        />
-      </div>
-      {error && <div className="form-error" role="alert">{error}</div>}
-      <button type="submit" className="btn btn-primary" disabled={loading} aria-busy={loading}>
-        {loading ? (
-          <>
-            <Loader2 className="ai-tool-submit-spinner" size={18} aria-hidden />
-            Generating cover letter…
-          </>
-        ) : (
-          'Generate cover letter'
-        )}
-      </button>
-      {output && (
-        <div className="resume-rewriter-output">
-          <div className="resume-rewriter-output-header">
-            <h3>Cover letter</h3>
-            <button type="button" className="btn btn-outline btn-sm" onClick={handleCopy}>
-              {copied ? 'Copied!' : 'Copy to clipboard'}
-            </button>
+    <>
+      <AIToolIntro
+        expectation="Builds a role-specific cover letter draft that connects your real experience to the posting in a tone you choose."
+        inputs="The company name, the full job description, your resume or relevant experience, and the tone you want to strike."
+        outputUse="Use the draft as a first version, then add your own voice, company-specific details, and any nuance the AI could not know."
+      />
+      <form onSubmit={handleSubmit} className="portal-ai-tool-form">
+        <div className="ai-tool-grid ai-tool-grid-2">
+          <div className="form-group">
+            <label htmlFor="company">Company name</label>
+            <input id="company" type="text" value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="e.g. Acme Corp" disabled={loading} />
           </div>
-          <pre className="resume-rewriter-output-content">{output}</pre>
-          <p className="ai-result-saved">
-            Saved to your history. <Link href="/dashboard/ai-tools/history">View all results</Link>
-          </p>
+          <div className="form-group">
+            <label htmlFor="tone">Tone</label>
+            <select id="tone" value={tone} onChange={(e) => setTone(e.target.value as 'formal' | 'confident' | 'conversational')} disabled={loading}>
+              <option value="formal">Formal</option>
+              <option value="confident">Confident</option>
+              <option value="conversational">Conversational</option>
+            </select>
+          </div>
         </div>
-      )}
-    </form>
+        <div className="form-group">
+          <label htmlFor="job-desc">Job description</label>
+          <textarea id="job-desc" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} placeholder="Paste the job posting here..." rows={7} required disabled={loading} />
+        </div>
+        <div className="form-group">
+          <label htmlFor="resume">Resume / relevant experience</label>
+          <textarea id="resume" value={resume} onChange={(e) => setResume(e.target.value)} placeholder="Paste your resume or the experience you want reflected..." rows={10} required disabled={loading} />
+        </div>
+        {error && <div className="form-error" role="alert">{error}</div>}
+        <AIToolSubmitButton loading={loading} idleLabel="Generate cover letter" loadingLabel="Generating cover letter…" />
+        {output && <AIToolResult title="Cover letter draft" output={output} toolType="cover_letter" nextSteps={['application-tracker', 'interview-practice']} />}
+      </form>
+      <AIToolPathway currentTool="cover-letter" nextSteps={['application-tracker', 'interview-practice']} />
+    </>
   );
 }

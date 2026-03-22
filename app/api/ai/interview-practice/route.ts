@@ -91,7 +91,7 @@ Include a mix of behavioral (STAR method) and technical questions. Make them spe
       console.error('Interview practice: failed to save result', saveErr);
     }
 
-    return NextResponse.json({ questions });
+    return NextResponse.json({ questions, saved: true });
   } catch (err) {
     console.error('Interview practice error:', err);
     return NextResponse.json(

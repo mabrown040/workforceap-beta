@@ -2,17 +2,7 @@ import { NextResponse } from 'next/server';
 import type { AIToolType } from '@prisma/client';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-
-const TOOL_LABELS: Record<string, string> = {
-  job_match_scorer: 'Job Match Scorer',
-  resume_rewriter: 'Resume Rewriter',
-  cover_letter: 'Cover Letter',
-  interview_practice: 'Interview Practice',
-  linkedin_headline: 'LinkedIn Headline',
-  linkedin_about: 'LinkedIn About',
-  salary_negotiation: 'Salary Negotiation',
-  gap_analyzer: 'Gap Analyzer',
-};
+import { TOOL_METADATA_BY_TYPE } from '@/lib/ai/toolMeta';
 
 export async function GET(request: Request) {
   const user = await getUser();
@@ -25,7 +15,7 @@ export async function GET(request: Request) {
   const results = await prisma.aIToolResult.findMany({
     where: {
       userId: user.id,
-      ...(toolType && toolType in TOOL_LABELS ? { toolType: toolType as AIToolType } : {}),
+      ...(toolType && toolType in TOOL_METADATA_BY_TYPE ? { toolType: toolType as AIToolType } : {}),
     },
     orderBy: { createdAt: 'desc' },
     take: limit,
@@ -39,13 +29,18 @@ export async function GET(request: Request) {
   });
 
   return NextResponse.json({
-    results: results.map((r) => ({
-      id: r.id,
-      toolType: r.toolType,
-      toolLabel: TOOL_LABELS[r.toolType] ?? r.toolType,
-      inputSummary: r.inputSummary,
-      output: r.output,
-      createdAt: r.createdAt,
-    })),
+    results: results.map((result) => {
+      const meta = TOOL_METADATA_BY_TYPE[result.toolType];
+      return {
+        id: result.id,
+        toolType: result.toolType,
+        toolLabel: meta?.title ?? result.toolType,
+        toolHref: meta?.href ?? '/dashboard/ai-tools',
+        job: meta?.job ?? null,
+        inputSummary: result.inputSummary,
+        output: result.output,
+        createdAt: result.createdAt,
+      };
+    }),
   });
 }

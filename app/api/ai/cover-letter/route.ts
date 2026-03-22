@@ -74,7 +74,7 @@ Write a tailored cover letter.`;
       console.error('Cover letter: failed to save result', saveErr);
     }
 
-    return NextResponse.json({ output });
+    return NextResponse.json({ output, saved: true });
   } catch (err) {
     console.error('Cover letter error:', err);
     return NextResponse.json(

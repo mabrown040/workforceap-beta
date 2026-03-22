@@ -72,7 +72,7 @@ Write a 3-paragraph LinkedIn About section.`;
       console.error('LinkedIn about: failed to save result', saveErr);
     }
 
-    return NextResponse.json({ output });
+    return NextResponse.json({ output, saved: true });
   } catch (err) {
     console.error('LinkedIn about error:', err);
     return NextResponse.json(

@@ -1,10 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
-import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import { AIToolIntro, AIToolPathway, AIToolResult, AIToolSubmitButton } from './shared/AIToolShared';
 
 export default function LinkedInAboutForm() {
   const [role, setRole] = useState('');
@@ -12,7 +10,6 @@ export default function LinkedInAboutForm() {
   const [output, setOutput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { copy, copied } = useCopyToClipboard();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +24,6 @@ export default function LinkedInAboutForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ role, bullets }),
       });
-
       const data = await res.json();
       if (!res.ok) {
         setError(data.error ?? 'Something went wrong');
@@ -41,61 +37,27 @@ export default function LinkedInAboutForm() {
     }
   };
 
-  const handleCopy = () => {
-    if (output) void copy(output);
-  };
-
   return (
-    <form onSubmit={handleSubmit} className="portal-ai-tool-form">
-      <div className="form-group">
-        <label htmlFor="role">Target role / job title</label>
-        <input
-          id="role"
-          type="text"
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
-          placeholder="e.g. Software Developer, Project Manager"
-          required
-          disabled={loading}
-        />
-      </div>
-      <div className="form-group">
-        <label htmlFor="bullets">3-5 bullet points about yourself</label>
-        <textarea
-          id="bullets"
-          value={bullets}
-          onChange={(e) => setBullets(e.target.value)}
-          placeholder={'• 5 years in IT support\n• Led migration to cloud\n• CompTIA A+ certified\n• Passionate about helping teams succeed'}
-          rows={8}
-          required
-          disabled={loading}
-        />
-      </div>
-      {error && <div className="form-error" role="alert">{error}</div>}
-      <button type="submit" className="btn btn-primary" disabled={loading} aria-busy={loading}>
-        {loading ? (
-          <>
-            <Loader2 className="ai-tool-submit-spinner" size={18} aria-hidden />
-            Generating About section…
-          </>
-        ) : (
-          'Generate About section'
-        )}
-      </button>
-      {output && (
-        <div className="resume-rewriter-output">
-          <div className="resume-rewriter-output-header">
-            <h3>LinkedIn About section</h3>
-            <button type="button" className="btn btn-outline btn-sm" onClick={handleCopy}>
-              {copied ? 'Copied!' : 'Copy to clipboard'}
-            </button>
-          </div>
-          <pre className="resume-rewriter-output-content">{output}</pre>
-          <p className="ai-result-saved">
-            Saved to your history. <Link href="/dashboard/ai-tools/history">View all results</Link>
-          </p>
+    <>
+      <AIToolIntro
+        expectation="Creates a more polished LinkedIn About section from a few bullet points, with enough structure to help you start but still leave room for your voice."
+        inputs="Your target role plus 3–5 bullets covering your experience, strengths, or what you want employers to notice."
+        outputUse="Edit for authenticity before posting. The best About section still sounds like you and includes details the AI could not know."
+      />
+      <form onSubmit={handleSubmit} className="portal-ai-tool-form">
+        <div className="form-group">
+          <label htmlFor="role">Target role / job title</label>
+          <input id="role" type="text" value={role} onChange={(e) => setRole(e.target.value)} placeholder="e.g. Project Manager, Operations Analyst" required disabled={loading} />
         </div>
-      )}
-    </form>
+        <div className="form-group">
+          <label htmlFor="bullets">Bullet points about you</label>
+          <textarea id="bullets" value={bullets} onChange={(e) => setBullets(e.target.value)} placeholder={'• Led onboarding for new staff\n• Coordinated cross-team projects\n• Strong in stakeholder communication'} rows={8} required disabled={loading} />
+        </div>
+        {error && <div className="form-error" role="alert">{error}</div>}
+        <AIToolSubmitButton loading={loading} idleLabel="Generate About section" loadingLabel="Generating About section…" />
+        {output && <AIToolResult title="LinkedIn About draft" output={output} toolType="linkedin_about" nextSteps={['application-tracker']} />}
+      </form>
+      <AIToolPathway currentTool="linkedin-about" nextSteps={['application-tracker']} />
+    </>
   );
 }

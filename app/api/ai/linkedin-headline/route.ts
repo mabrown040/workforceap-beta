@@ -67,7 +67,7 @@ Generate 3 LinkedIn headline options.`;
       console.error('LinkedIn headline: failed to save result', saveErr);
     }
 
-    return NextResponse.json({ headlines: headlines.slice(0, 5) });
+    return NextResponse.json({ headlines: headlines.slice(0, 5), saved: true });
   } catch (err) {
     console.error('LinkedIn headline error:', err);
     return NextResponse.json(

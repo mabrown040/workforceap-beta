@@ -1,19 +1,10 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import Link from 'next/link';
-import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
 import { trackToolLaunch } from '@/lib/analytics/events';
-import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import { AIToolIntro, AIToolPathway, AIToolResult, AIToolSubmitButton, ResumeTextInput } from './shared/AIToolShared';
 
-const SALARY_RANGES = [
-  '',
-  '$40,000 - $60,000',
-  '$60,000 - $80,000',
-  '$80,000 - $100,000',
-  '$100,000 - $130,000',
-  '$130,000+',
-];
+const SALARY_RANGES = ['', '$40,000 - $60,000', '$60,000 - $80,000', '$80,000 - $100,000', '$100,000 - $130,000', '$130,000+'];
 
 export default function ResumeRewriterForm() {
   const [resume, setResume] = useState('');
@@ -22,10 +13,7 @@ export default function ResumeRewriterForm() {
   const [targetLocation, setTargetLocation] = useState('');
   const [output, setOutput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [extracting, setExtracting] = useState(false);
   const [error, setError] = useState('');
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const { copy, copied } = useCopyToClipboard();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,16 +26,18 @@ export default function ResumeRewriterForm() {
       const res = await fetch('/api/ai/resume-rewriter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resume, jobTarget, targetSalary: targetSalary || undefined, targetLocation: targetLocation.trim() || undefined }),
+        body: JSON.stringify({
+          resume,
+          jobTarget,
+          targetSalary: targetSalary || undefined,
+          targetLocation: targetLocation.trim() || undefined,
+        }),
       });
-
       const data = await res.json();
-
       if (!res.ok) {
         setError(data.error ?? 'Something went wrong');
         return;
       }
-
       setOutput(data.output ?? '');
     } catch {
       setError('Network error. Please try again.');
@@ -56,143 +46,43 @@ export default function ResumeRewriterForm() {
     }
   };
 
-  const handleCopy = () => {
-    if (output) void copy(output);
-  };
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setError('');
-    setExtracting(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await fetch('/api/ai/extract-resume-text', {
-        method: 'POST',
-        body: formData,
-      });
-      const data = await res.json();
-      if (res.ok && data.text) {
-        setResume(data.text);
-      } else {
-        setError(data.error ?? 'Could not extract text');
-      }
-    } catch {
-      setError('Upload failed. Try pasting instead.');
-    } finally {
-      setExtracting(false);
-      e.target.value = '';
-    }
-  };
-
   return (
-    <form onSubmit={handleSubmit} className="portal-ai-tool-form">
-      <div style={{ background: 'rgba(74,155,79,0.06)', border: '1px solid rgba(74,155,79,0.2)', borderRadius: '8px', padding: '1rem 1.25rem', marginBottom: '1.5rem' }}>
-        <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-gray-700)', lineHeight: 1.5 }}>
-          <strong>How this works:</strong> Tell us your career goal — we&rsquo;ll reposition your existing experience to match. We don&rsquo;t invent anything. Every bullet in the output comes from what you&rsquo;ve actually done.
-        </p>
-      </div>
-
-      <fieldset style={{ border: 'none', padding: 0, margin: '0 0 1.5rem' }}>
-        <legend style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '1rem', display: 'block' }}>Your Career Goal</legend>
-        <div style={{ display: 'grid', gap: '1rem' }}>
-          <div className="form-group">
-            <label htmlFor="job-target">Target job title *</label>
-            <input
-              id="job-target"
-              type="text"
-              value={jobTarget}
-              onChange={(e) => setJobTarget(e.target.value)}
-              placeholder="e.g. IT Support Specialist, Cybersecurity Analyst, Data Analyst"
-              required
-              disabled={loading}
-            />
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+    <>
+      <AIToolIntro
+        expectation="Rewrites your existing resume toward a target role using stronger framing, clearer language, and more relevant emphasis without inventing experience."
+        inputs="A current resume, the role you want, and optional salary/location context if you want the tone adjusted for a specific market or level."
+        outputUse="Treat the result as a working draft. Review every bullet, keep only what is true, and use that draft for job match scoring and role-specific tailoring."
+      />
+      <form onSubmit={handleSubmit} className="portal-ai-tool-form">
+        <fieldset className="ai-tool-fieldset">
+          <legend>Your goal</legend>
+          <div className="ai-tool-grid ai-tool-grid-2">
             <div className="form-group">
-              <label htmlFor="target-salary">Target salary range</label>
-              <select
-                id="target-salary"
-                value={targetSalary}
-                onChange={(e) => setTargetSalary(e.target.value)}
-                disabled={loading}
-              >
-                {SALARY_RANGES.map((s) => (
-                  <option key={s} value={s}>{s || 'Select a range (optional)'}</option>
-                ))}
-              </select>
-              <small style={{ color: 'var(--color-gray-500)', fontSize: '0.8rem' }}>Helps calibrate language and seniority level</small>
+              <label htmlFor="job-target">Target job title</label>
+              <input id="job-target" type="text" value={jobTarget} onChange={(e) => setJobTarget(e.target.value)} placeholder="e.g. IT Support Specialist, Cybersecurity Analyst" required disabled={loading} />
             </div>
             <div className="form-group">
               <label htmlFor="target-location">Target city / location</label>
-              <input
-                id="target-location"
-                type="text"
-                value={targetLocation}
-                onChange={(e) => setTargetLocation(e.target.value)}
-                placeholder="e.g. Austin, TX"
-                disabled={loading}
-              />
-              <small style={{ color: 'var(--color-gray-500)', fontSize: '0.8rem' }}>Tailors language to your local job market</small>
+              <input id="target-location" type="text" value={targetLocation} onChange={(e) => setTargetLocation(e.target.value)} placeholder="e.g. Austin, TX" disabled={loading} />
+            </div>
+            <div className="form-group">
+              <label htmlFor="target-salary">Target salary range</label>
+              <select id="target-salary" value={targetSalary} onChange={(e) => setTargetSalary(e.target.value)} disabled={loading}>
+                {SALARY_RANGES.map((salary) => <option key={salary} value={salary}>{salary || 'Select a range (optional)'}</option>)}
+              </select>
+              <small>Used to calibrate tone and seniority, not to invent qualifications.</small>
             </div>
           </div>
-        </div>
-      </fieldset>
+        </fieldset>
 
-      <div className="form-group">
-        <label htmlFor="resume">Your resume (paste or upload PDF/DOCX) *</label>
-        <div className="resume-upload-row">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".pdf,.docx,.doc,.txt"
-            onChange={handleFileUpload}
-            disabled={extracting || loading}
-            className="resume-file-input"
-          />
-          {extracting && <span className="resume-upload-status">Extracting text...</span>}
-        </div>
-        <textarea
-          id="resume"
-          value={resume}
-          onChange={(e) => setResume(e.target.value)}
-          placeholder="Paste your resume here..."
-          rows={12}
-          required
-          disabled={loading}
-        />
-      </div>
-      {error && (
-        <div className="form-error" role="alert">
-          {error}
-        </div>
-      )}
-      <button type="submit" className="btn btn-primary" disabled={loading} aria-busy={loading}>
-        {loading ? (
-          <>
-            <Loader2 className="ai-tool-submit-spinner" size={18} aria-hidden />
-            Positioning your resume…
-          </>
-        ) : (
-          'Position my resume'
-        )}
-      </button>
+        <ResumeTextInput value={resume} onChange={setResume} disabled={loading} label="Current resume" placeholder="Paste your current resume here..." />
 
-      {output && (
-        <div className="resume-rewriter-output">
-          <div className="resume-rewriter-output-header">
-            <h3>Your repositioned resume</h3>
-            <button type="button" className="btn btn-outline btn-sm" onClick={handleCopy}>
-              {copied ? 'Copied!' : 'Copy to clipboard'}
-            </button>
-          </div>
-          <pre className="resume-rewriter-output-content">{output}</pre>
-          <p className="ai-result-saved">
-            Saved to your history. <Link href="/dashboard/ai-tools/history">View all results</Link>
-          </p>
-        </div>
-      )}
-    </form>
+        {error && <div className="form-error" role="alert">{error}</div>}
+        <AIToolSubmitButton loading={loading} idleLabel="Position my resume" loadingLabel="Positioning your resume…" />
+
+        {output && <AIToolResult title="Your repositioned resume" output={output} toolType="resume_rewriter" nextSteps={['job-match-scorer', 'cover-letter']} />}
+      </form>
+      <AIToolPathway currentTool="resume-rewriter" nextSteps={['job-match-scorer', 'cover-letter', 'interview-practice']} />
+    </>
   );
 }

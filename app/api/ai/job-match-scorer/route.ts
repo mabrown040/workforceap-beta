@@ -84,7 +84,7 @@ Analyze the match and output in the format above.`;
       console.error('Job match scorer: failed to save result', saveErr);
     }
 
-    return NextResponse.json({ output });
+    return NextResponse.json({ output, saved: true });
   } catch (err) {
     console.error('Job match scorer error:', err);
     return NextResponse.json(

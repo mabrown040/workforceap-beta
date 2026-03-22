@@ -67,7 +67,7 @@ Write a ${isPhone ? 'phone call' : 'email'} script they can use word-for-word.`;
       console.error('Salary negotiation: failed to save result', saveErr);
     }
 
-    return NextResponse.json({ output });
+    return NextResponse.json({ output, saved: true });
   } catch (err) {
     console.error('Salary negotiation error:', err);
     return NextResponse.json(

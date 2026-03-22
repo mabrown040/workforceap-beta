@@ -78,7 +78,7 @@ Identify any employment gaps and provide framing language for each.`;
       console.error('Gap analyzer: failed to save result', saveErr);
     }
 
-    return NextResponse.json({ output });
+    return NextResponse.json({ output, saved: true });
   } catch (err) {
     console.error('Gap analyzer error:', err);
     return NextResponse.json(

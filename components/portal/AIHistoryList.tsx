@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { formatToolOutput } from '@/lib/ai/formatToolOutput';
+import { TOOL_JOBS, TOOL_METADATA_BY_TYPE } from '@/lib/ai/toolMeta';
 
 type Result = {
   id: string;
@@ -16,100 +18,76 @@ export default function AIHistoryList({ results, initialFilter = '' }: { results
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>(initialFilter);
 
-  const filtered = filter
-    ? results.filter((r) => r.toolType === filter || r.toolLabel.toLowerCase().includes(filter.toLowerCase()))
-    : results;
+  const filtered = useMemo(() => {
+    if (!filter) return results;
+    return results.filter((result) => {
+      const job = TOOL_METADATA_BY_TYPE[result.toolType as keyof typeof TOOL_METADATA_BY_TYPE]?.job;
+      return result.toolType === filter || result.toolLabel.toLowerCase().includes(filter.toLowerCase()) || job === filter;
+    });
+  }, [filter, results]);
 
-  const formatOutput = (output: string, toolType: string): string => {
-    if (toolType === 'interview_practice') {
-      try {
-        const raw = typeof output === 'string' ? output : JSON.stringify(output);
-        const jsonMatch = raw.match(/\[[\s\S]*\]/);
-        const jsonStr = jsonMatch ? jsonMatch[0] : raw;
-        const parsed = JSON.parse(jsonStr);
-        const arr = Array.isArray(parsed) ? parsed : (parsed?.questions ? parsed.questions : []);
-        if (!Array.isArray(arr) || arr.length === 0) return output || 'No questions available.';
-        return arr
-          .map((item: unknown, i: number) => {
-            const q = item && typeof item === 'object' ? (item as Record<string, unknown>) : {};
-            const question = (q.question ?? q.Question ?? '') as string;
-            const type = (q.type ?? q.Type ?? '') as string;
-            const tip = (q.tip ?? q.Tip ?? '') as string;
-            const parts = [question ? `${i + 1}. ${question}` : '', type ? `Type: ${type}` : '', tip].filter(Boolean);
-            return parts.join('\n');
-          })
-          .filter(Boolean)
-          .join('\n\n');
-      } catch {
-        return typeof output === 'string' ? output : 'Unable to display format.';
-      }
-    }
-    if (toolType === 'linkedin_headline') {
-      try {
-        const arr = JSON.parse(typeof output === 'string' ? output : JSON.stringify(output));
-        return Array.isArray(arr) ? arr.map((x: unknown) => (typeof x === 'string' ? x : String(x))).join('\n\n') : String(output);
-      } catch {
-        return typeof output === 'string' ? output : '';
-      }
-    }
-    return typeof output === 'string' ? output : 'Unable to display.';
-  };
+  const countsByJob = useMemo(() => filtered.reduce<Record<string, number>>((acc, result) => {
+    const job = TOOL_METADATA_BY_TYPE[result.toolType as keyof typeof TOOL_METADATA_BY_TYPE]?.job ?? 'other';
+    acc[job] = (acc[job] ?? 0) + 1;
+    return acc;
+  }, {}), [filtered]);
 
-  const getPreview = (output: string, toolType: string, maxLen = 100) => {
-    const formatted = formatOutput(output, toolType);
-    const text = formatted.replace(/\s+/g, ' ').trim();
-    if (text.length <= maxLen) return text;
-    return text.slice(0, maxLen) + '…';
+  const getPreview = (output: string, toolType: string, maxLen = 140) => {
+    const formatted = formatToolOutput(output, toolType).replace(/\s+/g, ' ').trim();
+    return formatted.length <= maxLen ? formatted : `${formatted.slice(0, maxLen)}…`;
   };
 
   return (
     <div className="ai-history">
-      <div className="ai-history-filters">
+      <div className="ai-history-toolbar">
         <label>
-          Filter:
+          Filter history
           <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-            <option value="">All tools</option>
-            <option value="job_match_scorer">Job Match Scorer</option>
-            <option value="resume_rewriter">Resume Rewriter</option>
-            <option value="cover_letter">Cover Letter</option>
-            <option value="interview_practice">Interview Practice</option>
-            <option value="linkedin_headline">LinkedIn Headline</option>
-            <option value="linkedin_about">LinkedIn About</option>
-            <option value="salary_negotiation">Salary Negotiation</option>
-            <option value="gap_analyzer">Gap Analyzer</option>
+            <option value="">All saved outputs</option>
+            {TOOL_JOBS.map((job) => <option key={job.id} value={job.id}>{job.title}</option>)}
+            {Object.entries(TOOL_METADATA_BY_TYPE).map(([toolType, meta]) => <option key={toolType} value={toolType}>{meta.title}</option>)}
           </select>
         </label>
+        <Link href="/dashboard/ai-tools" className="btn btn-outline btn-sm">Back to toolkit</Link>
       </div>
-      <ul className="ai-history-list">
-        {filtered.map((r) => (
-          <li key={r.id} className="ai-history-item">
-            <button
-              type="button"
-              className="ai-history-header"
-              onClick={() => setExpandedId(expandedId === r.id ? null : r.id)}
-            >
-              <span className="ai-history-tool">{r.toolLabel}</span>
-              <span className="ai-history-summary">{r.inputSummary}</span>
-              <span className="ai-history-date">
-                {new Date(r.createdAt).toLocaleDateString()}
-              </span>
-              <span className="ai-history-chevron">{expandedId === r.id ? '▼' : '▶'}</span>
-            </button>
-            <p className="ai-history-preview">{getPreview(r.output, r.toolType)}</p>
-            {expandedId === r.id && (
-              <div className="ai-history-output">
-                <pre>{formatOutput(r.output, r.toolType)}</pre>
-                <button
-                  type="button"
-                  className="btn btn-outline btn-sm"
-                  onClick={() => navigator.clipboard.writeText(formatOutput(r.output, r.toolType))}
-                >
-                  Copy
-                </button>
-              </div>
-            )}
-          </li>
+
+      <div className="ai-history-summary-cards">
+        {TOOL_JOBS.map((job) => (
+          <div key={job.id} className="ai-history-summary-card">
+            <p>{job.title}</p>
+            <strong>{countsByJob[job.id] ?? 0}</strong>
+          </div>
         ))}
+      </div>
+
+      <ul className="ai-history-list">
+        {filtered.map((result) => {
+          const meta = TOOL_METADATA_BY_TYPE[result.toolType as keyof typeof TOOL_METADATA_BY_TYPE];
+          const isExpanded = expandedId === result.id;
+          return (
+            <li key={result.id} className="ai-history-item">
+              <button type="button" className="ai-history-header" onClick={() => setExpandedId(isExpanded ? null : result.id)}>
+                <div className="ai-history-header-main">
+                  <span className="ai-history-tool">{result.toolLabel}</span>
+                  {meta && <span className="ai-history-job-tag">{TOOL_JOBS.find((job) => job.id === meta.job)?.title}</span>}
+                  <span className="ai-history-summary">{result.inputSummary}</span>
+                </div>
+                <span className="ai-history-date">{new Date(result.createdAt).toLocaleDateString()}</span>
+                <span className="ai-history-chevron">{isExpanded ? '▼' : '▶'}</span>
+              </button>
+              <p className="ai-history-preview">{getPreview(result.output, result.toolType)}</p>
+              {isExpanded && (
+                <div className="ai-history-output">
+                  <pre>{formatToolOutput(result.output, result.toolType)}</pre>
+                  <div className="ai-history-actions">
+                    <button type="button" className="btn btn-outline btn-sm" onClick={() => navigator.clipboard.writeText(formatToolOutput(result.output, result.toolType))}>Copy</button>
+                    {meta && <Link href={meta.href} className="btn btn-primary btn-sm">Reopen tool</Link>}
+                  </div>
+                </div>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

@@ -7276,6 +7276,38 @@ body { animation: fadeIn 0.4s ease; }
     line-height: 1.45;
     color: var(--color-gray-700);
 }
+.employer-job-edit-readiness__issue-button {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.45rem 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+}
+.employer-job-edit-readiness__issue-button:hover .employer-job-edit-readiness__issue-action,
+.employer-job-edit-readiness__issue-button:focus-visible .employer-job-edit-readiness__issue-action {
+    text-decoration: underline;
+}
+.employer-job-edit-readiness__issue-button:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+}
+.employer-job-edit-readiness__issue-message {
+    flex: 1 1 auto;
+}
+.employer-job-edit-readiness__issue-action {
+    flex: 0 0 auto;
+    font-weight: 700;
+    color: var(--color-primary);
+    white-space: nowrap;
+}
 .employer-job-form {
     max-width: 640px;
 }

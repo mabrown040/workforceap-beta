@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useMemo, useEffect, useId, useCallback, type RefObject } from 'react';
 import { trackEmployerJobAction, trackEmployerBulkDelete } from '@/lib/analytics/events';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
-import { readinessLabel, type JobReadinessLevel } from '@/lib/employer/jobReadiness';
+import { readinessLabel, type JobReadinessIssue, type JobReadinessLevel } from '@/lib/employer/jobReadiness';
 
 export type EmployerJobBoardItem = {
   id: string;
@@ -24,7 +24,7 @@ export type EmployerJobBoardItem = {
   applicationsCount: number;
   updatedAt: Date;
   readinessLevel: JobReadinessLevel;
-  readinessIssues: string[];
+  readinessIssues: JobReadinessIssue[];
 };
 
 const FILTERS = [
@@ -565,7 +565,7 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
                       <span className="employer-job-card__readiness-label">{readinessLabel(j.readinessLevel)}</span>
                       <ul className="employer-job-card__readiness-list">
                         {j.readinessIssues.map((issue) => (
-                          <li key={issue}>{issue}</li>
+                          <li key={issue.key}>{issue.message}</li>
                         ))}
                       </ul>
                     </div>

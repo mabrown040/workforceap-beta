@@ -7,6 +7,7 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { PROGRAMS } from '@/lib/content/programs';
 import JobForm from '@/components/employer/JobForm';
+import JobReadinessIssueList from '@/components/employer/JobReadinessIssueList';
 import { assessJobPostingReadiness, readinessLabel } from '@/lib/employer/jobReadiness';
 
 type Props = { params: Promise<{ id: string }> };
@@ -72,11 +73,7 @@ export default async function EmployerJobDetailPage({ params }: Props) {
               ? 'You can still edit while WorkforceAP reviews — tightening these items helps candidates self-select.'
               : 'Strong postings get faster review and better matches. Here is what is still light:'}
           </p>
-          <ul className="employer-job-edit-readiness__list">
-            {editReadiness.issues.map((issue) => (
-              <li key={issue}>{issue}</li>
-            ))}
-          </ul>
+          <JobReadinessIssueList issues={editReadiness.issues} />
         </div>
       )}
       <JobForm

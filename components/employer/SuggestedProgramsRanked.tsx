@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState, type RefObject } from 'react';
 import { rankProgramsForEmployerJob, type RankedProgramMatch } from '@/lib/employer/rankProgramsForEmployerJob';
 
 type SuggestedProgramsRankedProps = {
+  fieldsetId?: string;
   formRef: RefObject<HTMLFormElement | null>;
   programSlugs: string[];
   defaultSelected: string[];
@@ -27,6 +28,7 @@ function confidenceLabel(c: RankedProgramMatch['confidence']): string {
 }
 
 export default function SuggestedProgramsRanked({
+  fieldsetId,
   formRef,
   programSlugs,
   defaultSelected,
@@ -48,7 +50,7 @@ export default function SuggestedProgramsRanked({
   const rest = ranked.slice(7);
 
   return (
-    <fieldset className="employer-job-form-fieldset employer-job-form-programs employer-suggested-programs">
+    <fieldset id={fieldsetId} className="employer-job-form-fieldset employer-job-form-programs employer-suggested-programs">
       <legend>Training matches for this role</legend>
       <p className="employer-job-form-hint">
         Rankings reflect keywords in your title, description, and requirements — a practical map to our training

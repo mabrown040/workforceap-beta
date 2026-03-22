@@ -161,7 +161,7 @@ export default function JobForm({ job, initialData, companyName, programSlugs, i
         <input id="company-name" type="text" value={companyName} readOnly disabled className="employer-job-form-readonly" />
       </div>
 
-      <div className="form-group">
+      <div id="job-form-target-location" className="form-group">
         <label htmlFor="job-location">Location (City, State or Remote)</label>
         <input id="job-location" type="text" name="location" placeholder="e.g. Austin, TX or Remote" defaultValue={prefill?.location ?? ''} disabled={status === 'saving'} aria-invalid={!!fieldErrors.location} aria-describedby={fieldErrors.location ? fieldErrorId('location') : undefined} />
         {fieldErrors.location ? <p id={fieldErrorId('location')} className="form-error">{fieldErrors.location}</p> : null}
@@ -186,7 +186,7 @@ export default function JobForm({ job, initialData, companyName, programSlugs, i
         </select>
       </div>
 
-      <div className="employer-job-form-salary-grid">
+      <div id="job-form-target-salary" className="employer-job-form-salary-grid">
         <div className="form-group">
           <label htmlFor="salary-min">Salary Min (optional)</label>
           <input id="salary-min" type="number" name="salaryMin" placeholder="50000" defaultValue={prefill?.salaryMin ?? ''} disabled={status === 'saving'} aria-invalid={!!fieldErrors.salaryMin} aria-describedby={fieldErrors.salaryMin ? fieldErrorId('salaryMin') : undefined} />
@@ -200,13 +200,13 @@ export default function JobForm({ job, initialData, companyName, programSlugs, i
       </div>
       {importEmpty?.salary && <p className="employer-job-form-import-hint">No pay range detected — adding one helps candidates decide faster.</p>}
 
-      <div className="form-group">
+      <div id="job-form-target-description" className="form-group">
         <label htmlFor="job-description">Job Description *</label>
         <textarea id="job-description" name="description" rows={8} required defaultValue={prefill?.description} disabled={status === 'saving'} aria-invalid={!!fieldErrors.description} aria-describedby={fieldErrors.description ? fieldErrorId('description') : undefined} />
         {fieldErrors.description ? <p id={fieldErrorId('description')} className="form-error">{fieldErrors.description}</p> : null}
       </div>
 
-      <div className="form-group">
+      <div id="job-form-target-requirements" className="form-group">
         <label htmlFor="job-requirements">Requirements (one per line)</label>
         <textarea id="job-requirements" name="requirements" rows={4} placeholder="2+ years experience&#10;Bachelor's degree&#10;Proficiency in Python" defaultValue={prefill?.requirements?.join('\n') ?? ''} disabled={status === 'saving'} aria-invalid={!!fieldErrors.requirements} aria-describedby={fieldErrors.requirements ? fieldErrorId('requirements') : undefined} />
         {fieldErrors.requirements ? <p id={fieldErrorId('requirements')} className="form-error">{fieldErrors.requirements}</p> : null}
@@ -220,6 +220,7 @@ export default function JobForm({ job, initialData, companyName, programSlugs, i
 
       {programSlugs.length > 0 && (
         <SuggestedProgramsRanked
+          fieldsetId="job-form-target-suggested-programs"
           formRef={formRef}
           programSlugs={programSlugs}
           defaultSelected={defaultPrograms}

@@ -33,8 +33,17 @@ CREATE POLICY "users_update_own" ON users
 CREATE POLICY "profiles_select_own" ON profiles
   FOR SELECT USING (user_id = auth.uid());
 
+DROP POLICY IF EXISTS "profiles_update_own" ON profiles;
 CREATE POLICY "profiles_update_own" ON profiles
-  FOR UPDATE USING (user_id = auth.uid());
+  FOR UPDATE USING (user_id = auth.uid())
+  WITH CHECK (
+    user_id = auth.uid()
+    AND role = (
+      SELECT p.role
+      FROM profiles AS p
+      WHERE p.id = profiles.id
+    )
+  );
 
 -- Applications: members can read their own
 CREATE POLICY "applications_select_own" ON applications

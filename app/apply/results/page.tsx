@@ -6,7 +6,7 @@ import ApplyResultsClient from './ApplyResultsClient';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Choose Your Program',
-  description: 'Select the program you\'re most interested in.',
+  description: 'Review your likely fit, choose the program you want to discuss, and continue to account creation.',
   path: '/apply/results',
 });
 
@@ -15,8 +15,8 @@ export default function ApplyResultsPage() {
     <div className="inner-page">
       <section className="page-hero">
         <div className="page-hero-content">
-          <h1>Program Selection</h1>
-          <p>Choose the program you&apos;re most interested in.</p>
+          <h1>Step 2 of 3 — choose your program</h1>
+          <p>Pick the program you want to discuss first. You&apos;ll create your account on the next step so we can save it and follow up.</p>
         </div>
       </section>
 

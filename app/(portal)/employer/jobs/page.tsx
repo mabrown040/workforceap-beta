@@ -79,25 +79,18 @@ export default async function EmployerJobsPage() {
   return (
     <div className="employer-jobs-page">
       <header className="employer-jobs-header">
-        <div className="employer-jobs-header-text">
-          <h1>Job postings</h1>
-          <p className="employer-jobs-kicker">
-            {jobs.length === 0
-              ? 'Create your first posting to start hiring.'
-              : `${counts.draft} draft${counts.draft === 1 ? '' : 's'} · ${counts.inReview} in review · ${counts.live} live · ${counts.filled} filled/closed`}
-          </p>
-        </div>
+        <h1>My Jobs</h1>
         <div className="employer-jobs-actions">
+          <Link href="/employer/jobs/import" className="btn btn-secondary btn-sm">
+            Import
+          </Link>
           <Link href="/employer/jobs/new" className="btn btn-primary btn-sm">
-            Create posting
+            Post Job
           </Link>
         </div>
       </header>
-      <p className="employer-jobs-lead">
-        Drafts stay private. Submit for review when ready, and we will publish after a quick check. 
-        Live postings appear on the public board. Mark filled when the role closes.
-      </p>
-      <EmployerJobsBoard jobs={boardItems} />
+      <DraftJobCards drafts={draftCards} />
+      <JobsTable jobs={items} />
     </div>
   );
 }

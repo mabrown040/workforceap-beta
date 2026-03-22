@@ -56,7 +56,7 @@ export default async function EmployerJobDetailPage({ params }: Props) {
   return (
     <article className="employer-job-edit">
       <div className="employer-job-edit__back">
-        <Link href="/employer/jobs">← Back to jobs</Link>
+        <Link href="/employer/jobs">← My Jobs</Link>
       </div>
       <header className="employer-job-edit__header">
         <h1>{job.title}</h1>
@@ -65,17 +65,6 @@ export default async function EmployerJobDetailPage({ params }: Props) {
           {job.applicationsCount > 0 && ` · ${job.applicationsCount} application${job.applicationsCount === 1 ? '' : 's'}`}
         </span>
       </header>
-      {(job.status === 'draft' || job.status === 'pending') && editReadiness.issues.length > 0 && (
-        <div className={`employer-job-edit-readiness employer-job-edit-readiness--${editReadiness.level}`}>
-          <p className="employer-job-edit-readiness__label">{readinessLabel(editReadiness.level)}</p>
-          <p className="employer-job-edit-readiness__intro">
-            {job.status === 'pending'
-              ? 'You can still edit while WorkforceAP reviews — tightening these items helps candidates self-select.'
-              : 'Strong postings get faster review and better matches. Here is what is still light:'}
-          </p>
-          <JobReadinessIssueList issues={editReadiness.issues} />
-        </div>
-      )}
       <JobForm
         job={{
           id: job.id,

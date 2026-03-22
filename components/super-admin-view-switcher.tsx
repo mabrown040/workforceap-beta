@@ -57,8 +57,8 @@ export default function SuperAdminViewSwitcher() {
 
   if (!isSuperAdmin) return null;
 
-  const currentLabel = VIEWS.find((v) => v.id === currentView)?.label ?? 'Member Portal';
-  const shortLabel = { admin: 'Admin', partner: 'Partner', student: 'Member', employer: 'Employer', 'my-group': 'My Group' }[currentView] ?? currentLabel;
+  const currentLabel = VIEWS.find((v) => v.id === currentView)?.label ?? 'Student Portal';
+  const shortLabel = { admin: 'Admin', partner: 'Partner', student: 'Student', employer: 'Employer', 'my-group': 'My Group' }[currentView] ?? currentLabel;
 
   return (
     <div className="super-admin-view-switcher" onClick={(e) => e.stopPropagation()}>

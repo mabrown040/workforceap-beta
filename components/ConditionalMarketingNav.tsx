@@ -5,14 +5,15 @@ import { isMarketingChromeHidden } from '@/lib/nav/marketing-chrome';
 import TopBanner from './TopBanner';
 import MainNav from './MainNav';
 
-/** Top banner + main nav on public marketing routes only — portals keep a single shell. */
+const PORTAL_PREFIXES = ['/dashboard', '/admin', '/employer', '/partner', '/my-group', '/resources', '/help', '/applications', '/certifications', '/profile', '/account'];
+
+/**
+ * Renders MainNav only on public marketing routes.
+ * Hidden inside any portal (one-shell rule) so portal nav is the only chrome.
+ */
 export default function ConditionalMarketingNav() {
   const pathname = usePathname();
-  if (isMarketingChromeHidden(pathname)) return null;
-  return (
-    <>
-      <TopBanner />
-      <MainNav />
-    </>
-  );
+  const isPortal = PORTAL_PREFIXES.some((p) => pathname === p || pathname?.startsWith(`${p}/`));
+  if (isPortal) return null;
+  return <MainNav />;
 }

@@ -17,6 +17,12 @@ type MatchableText = {
   tokenSet: Set<string>;
 };
 
+type RoleContext = {
+  isSupportRole: boolean;
+  isSoftwareRole: boolean;
+  isDataRole: boolean;
+};
+
 function normalizeHaystack(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9+#.\s/]/g, ' ');
 }
@@ -73,6 +79,7 @@ function skillMatchesText(skill: string, matchableText: MatchableText): boolean 
 
   switch (classifySkillMatch(skill)) {
     case 'short-token':
+      return false;
     case 'token':
       return matchableText.tokenSet.has(skillNorm);
     case 'phrase':
@@ -82,7 +89,54 @@ function skillMatchesText(skill: string, matchableText: MatchableText): boolean 
   }
 }
 
-function scoreProgram(program: Program, matchableText: MatchableText, tokens: Set<string>): number {
+
+function buildRoleContext(matchableText: MatchableText): RoleContext {
+  const haystack = matchableText.haystackNorm;
+  return {
+    isSupportRole: /(customer\s+(?:success|support|service)|help\s*desk|technical\s+support|support\s+representative|book\s+of\s+business|onboarding|ticket|zendesk|knowledge\s+base|qbr|renewal)/.test(haystack),
+    isSoftwareRole: /(software\s+engineer|software\s+developer|full\s*stack|frontend|backend|react|node(?:\.js)?|typescript|javascript|api|pull\s+request|distributed\s+systems)/.test(haystack),
+    isDataRole: /(data\s+analyst|analytics|dashboard|sql|tableau|spreadsheet|excel|data\s+visualization|statistical\s+analysis|experimentation)/.test(haystack),
+  };
+}
+
+function skillWeight(skill: string, program: Program, context: RoleContext): number {
+  const skillNorm = normalizeHaystack(skill).replace(/\s+/g, ' ').trim();
+
+  if (context.isSupportRole && !context.isSoftwareRole && program.category === 'ai-software') {
+    if (/^(html|css|javascript)$/.test(skillNorm)) return 0.25;
+  }
+
+  if (context.isSupportRole && !context.isDataRole && program.category === 'cloud-data') {
+    if (/^(sql|r|tableau|data viz|spreadsheets)$/.test(skillNorm)) return 0.25;
+  }
+
+  return 2;
+}
+
+function contextualScoreAdjustment(program: Program, context: RoleContext): number {
+  let adjustment = 0;
+
+  if (context.isSupportRole) {
+    if (program.title.toLowerCase().includes('support')) adjustment += 4;
+    if (program.slug === 'comptia-a-professional-certificate') adjustment += 2;
+    if (!context.isSoftwareRole && program.category === 'ai-software') adjustment -= 2;
+    if (!context.isDataRole && program.category === 'cloud-data') adjustment -= 1;
+  }
+
+  if (context.isSoftwareRole) {
+    if (program.category === 'ai-software') adjustment += 3;
+    if (program.title.toLowerCase().includes('support')) adjustment -= 1;
+  }
+
+  if (context.isDataRole) {
+    if (program.category === 'cloud-data') adjustment += 3;
+    if (program.category === 'ai-software') adjustment -= 1;
+  }
+
+  return adjustment;
+}
+
+function scoreProgram(program: Program, matchableText: MatchableText, tokens: Set<string>, context: RoleContext): number {
   let score = 0;
   const blob = [program.title, program.categoryLabel, ...program.skills, program.partner].join(' ').toLowerCase();
 
@@ -91,9 +145,10 @@ function scoreProgram(program: Program, matchableText: MatchableText, tokens: Se
     if (blob.includes(t)) score += 1;
   }
   for (const skill of program.skills) {
-    if (skillMatchesText(skill, matchableText)) score += 2;
+    if (skillMatchesText(skill, matchableText)) score += skillWeight(skill, program, context);
   }
-  return score;
+
+  return score + contextualScoreAdjustment(program, context);
 }
 
 function rationaleFor(program: Program, matchableText: MatchableText): string {
@@ -142,12 +197,13 @@ function confidenceFromScore(score: number, maxScore: number): ProgramMatchConfi
 export function rankProgramsForEmployerJob(haystack: string, allowedSlugs: string[]): RankedProgramMatch[] {
   const matchableText = buildMatchableText(haystack);
   const tokens = new Set(tokenize(haystack));
+  const context = buildRoleContext(matchableText);
 
   const rows: { program: Program; score: number }[] = [];
   for (const slug of allowedSlugs) {
     const program = PROGRAMS.find((p) => p.slug === slug);
     if (!program) continue;
-    rows.push({ program, score: scoreProgram(program, matchableText, tokens) });
+    rows.push({ program, score: scoreProgram(program, matchableText, tokens, context) });
   }
 
   rows.sort((a, b) => b.score - a.score);

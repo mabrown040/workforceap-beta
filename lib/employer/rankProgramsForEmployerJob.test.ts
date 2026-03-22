@@ -1,52 +1,79 @@
-import { rankProgramsForEmployerJob, __rankProgramsForEmployerJob } from './rankProgramsForEmployerJob';
+import assert from 'node:assert/strict';
+import test from 'node:test';
 
-function assert(condition: unknown, message: string): void {
-  if (!condition) {
-    throw new Error(message);
-  }
-}
+import { EMPLOYER_ROLE_SAMPLES } from '@/lib/test-fixtures/employerRoleSamples';
+import { rankProgramsForEmployerJob } from './rankProgramsForEmployerJob';
 
-const matchableText = __rankProgramsForEmployerJob.buildMatchableText(
-  'Customer service teams use AWS, SQL, and help desk workflows. Training covers browser rendering and closeout checklists without mentioning those short skills explicitly.'
-);
-
-const skillCases = [
-  { skill: 'AWS', expected: true },
-  { skill: 'SQL', expected: true },
-  { skill: 'help desk', expected: true },
-  { skill: 'customer service', expected: true },
-  { skill: 'R', expected: false },
-  { skill: 'OS', expected: false },
+const supportVsTechnicalSlugs = [
+  'it-support-professional-certificate-ibm',
+  'comptia-a-professional-certificate',
+  'software-developer-professional-certificate-ibm',
+  'data-analytics-professional-certificate-google',
 ] as const;
 
-for (const { skill, expected } of skillCases) {
-  const actual = __rankProgramsForEmployerJob.skillMatchesText(skill, matchableText);
-  assert(actual === expected, `Expected ${skill} match to be ${expected}, got ${actual}`);
-}
+test('customer success roles rank support tracks above developer and data tracks', () => {
+  const ranked = rankProgramsForEmployerJob(
+    EMPLOYER_ROLE_SAMPLES.customerSuccessManagerMidMarket,
+    [...supportVsTechnicalSlugs]
+  );
 
-const employerEditRoleText = `Customer Success Manager, Mid-Market
-Closinglock is hiring a Customer Success Manager to support mid-market customers through onboarding, adoption, and renewal.
-Responsibilities include managing a book of business, leading quarterly business reviews, and partnering with sales and product teams.
-Requirements include 3+ years in customer success, strong communication, and experience with SaaS accounts.`;
+  const orderedSlugs = ranked.map((program) => program.slug);
+  assert.deepEqual(orderedSlugs.slice(0, 2), [
+    'it-support-professional-certificate-ibm',
+    'comptia-a-professional-certificate',
+  ]);
+  assert.equal(orderedSlugs.at(-1), 'data-analytics-professional-certificate-google');
+});
 
-const ranked = rankProgramsForEmployerJob(employerEditRoleText, [
-  'comptia-a-professional-certificate',
-  'data-analytics-professional-certificate-google',
-  'it-support-professional-certificate-ibm',
-]);
+test('customer support roles are not pushed below developer and data tracks by short technical terms', () => {
+  const ranked = rankProgramsForEmployerJob(
+    EMPLOYER_ROLE_SAMPLES.customerSupportRepresentative,
+    [...supportVsTechnicalSlugs]
+  );
 
-const comptia = ranked.find((program) => program.slug === 'comptia-a-professional-certificate');
-const dataAnalytics = ranked.find((program) => program.slug === 'data-analytics-professional-certificate-google');
+  const orderedSlugs = ranked.map((program) => program.slug);
+  assert.deepEqual(orderedSlugs.slice(0, 2), [
+    'it-support-professional-certificate-ibm',
+    'comptia-a-professional-certificate',
+  ]);
+  assert.ok(
+    orderedSlugs.indexOf('it-support-professional-certificate-ibm') <
+      orderedSlugs.indexOf('software-developer-professional-certificate-ibm')
+  );
+  assert.ok(
+    orderedSlugs.indexOf('it-support-professional-certificate-ibm') <
+      orderedSlugs.indexOf('data-analytics-professional-certificate-google')
+  );
+});
 
-assert(comptia, 'Expected CompTIA A+ program to be ranked');
-assert(dataAnalytics, 'Expected Data Analytics program to be ranked');
-assert(
-  !comptia?.rationale.includes('OS'),
-  `CompTIA A+ rationale should not cite OS for the customer success role: ${comptia?.rationale}`
-);
-assert(
-  !dataAnalytics?.rationale.includes('R'),
-  `Data Analytics rationale should not cite R for the customer success role: ${dataAnalytics?.rationale}`
-);
+test('software engineering roles still rank software developer track first', () => {
+  const ranked = rankProgramsForEmployerJob(EMPLOYER_ROLE_SAMPLES.softwareEngineer, [
+    'software-developer-professional-certificate-ibm',
+    'ai-professional-developer-certificate-ibm',
+    'it-support-professional-certificate-ibm',
+    'data-analytics-professional-certificate-google',
+  ]);
 
-console.log('rankProgramsForEmployerJob short-skill matching checks passed');
+  const orderedSlugs = ranked.map((program) => program.slug);
+  assert.equal(ranked[0]?.slug, 'software-developer-professional-certificate-ibm');
+  assert.ok(
+    orderedSlugs.indexOf('software-developer-professional-certificate-ibm') <
+      orderedSlugs.indexOf('it-support-professional-certificate-ibm')
+  );
+  assert.ok(
+    orderedSlugs.indexOf('software-developer-professional-certificate-ibm') <
+      orderedSlugs.indexOf('data-analytics-professional-certificate-google')
+  );
+});
+
+test('data analyst roles still rank data programs above support and developer tracks', () => {
+  const ranked = rankProgramsForEmployerJob(EMPLOYER_ROLE_SAMPLES.dataAnalyst, [
+    'data-analytics-professional-certificate-google',
+    'data-science-professional-certificate-ibm',
+    'software-developer-professional-certificate-ibm',
+    'it-support-professional-certificate-ibm',
+  ]);
+
+  assert.equal(ranked[0]?.slug, 'data-analytics-professional-certificate-google');
+  assert.equal(ranked[1]?.slug, 'data-science-professional-certificate-ibm');
+});

@@ -17,7 +17,8 @@
     "db:create-employer-michael-brown": "node scripts/prisma-env.js npx tsx scripts/create-employer-michael-brown.ts",
     "db:migrate:resolve-failed": "node scripts/resolve-failed-migration.cjs",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "repo:sync-master": "powershell -ExecutionPolicy Bypass -File scripts/auto-sync-master.ps1"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"

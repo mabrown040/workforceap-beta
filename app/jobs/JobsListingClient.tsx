@@ -5,6 +5,7 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Briefcase, MapPin, Clock, DollarSign, Search, SlidersHorizontal, X } from 'lucide-react';
 import { PROGRAMS } from '@/lib/content/programs';
+import { formatJobSalaryRange } from '@/lib/jobs/formatSalary';
 
 const DEBOUNCE_MS = 400;
 
@@ -37,10 +38,7 @@ const SORT_OPTIONS: { value: string; label: string }[] = [
 ];
 
 function formatSalary(min: number | null, max: number | null): string {
-  if (min != null && max != null) return `$${min.toLocaleString()} – $${max.toLocaleString()}/yr`;
-  if (min != null) return `From $${min.toLocaleString()}/yr`;
-  if (max != null) return `Up to $${max.toLocaleString()}/yr`;
-  return '';
+  return formatJobSalaryRange(min, max) ?? '';
 }
 
 function JobCardSkeleton() {

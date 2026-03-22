@@ -28,9 +28,12 @@ function isProtectedPath(pathname: string) {
 }
 
 export async function middleware(request: NextRequest) {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-pathname', request.nextUrl.pathname);
+
   let response = NextResponse.next({
     request: {
-      headers: request.headers,
+      headers: requestHeaders,
     },
   });
 

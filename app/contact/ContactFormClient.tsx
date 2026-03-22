@@ -95,7 +95,7 @@ export default function ContactFormClient() {
           </button>
         </div>
       )}
-      <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+      <div className="form-row contact-form-name-row">
         <div className="form-group">
           <label htmlFor={`${formId}-first_name`}>First Name *</label>
           <input

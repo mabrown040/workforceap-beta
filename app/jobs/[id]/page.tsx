@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
 import JobApplyButton from './JobApplyButton';
+import { formatJobSalaryRange } from '@/lib/jobs/formatSalary';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -35,6 +36,8 @@ export default async function JobDetailPage({ params }: Props) {
   const job = await getJob(id);
   if (!job) notFound();
 
+  const salaryLine = formatJobSalaryRange(job.salaryMin, job.salaryMax);
+
   const LOCATION_LABELS: Record<string, string> = {
     remote: 'Remote',
     hybrid: 'Hybrid',
@@ -60,9 +63,9 @@ export default async function JobDetailPage({ params }: Props) {
             </Link>
           </div>
 
-          {(job.salaryMin ?? job.salaryMax) && (
+          {salaryLine && (
             <p style={{ marginBottom: '1rem', fontSize: '1.1rem' }}>
-              <strong>Salary:</strong> ${(job.salaryMin ?? 0).toLocaleString()} – ${(job.salaryMax ?? 0).toLocaleString()}/year
+              <strong>Salary:</strong> {salaryLine}
             </p>
           )}
 

@@ -7,6 +7,7 @@ import { SignOutButton } from './SignOutButton';
 const PORTAL_LINKS: { href: string; label: string }[] = [
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/dashboard/learning', label: 'Learning hub' },
+  { href: '/dashboard/resources', label: 'Program resources' },
   { href: '/dashboard/ai-tools', label: 'AI Tools' },
   { href: '/certifications', label: 'Certifications' },
   { href: '/dashboard/career-brief', label: 'Career Brief' },
@@ -28,8 +29,11 @@ export default function PortalNav() {
             if (href === '/dashboard/learning') {
               isActive =
                 isActive ||
-                pathname.startsWith('/resources') ||
-                pathname.startsWith('/dashboard/resources');
+                pathname === '/resources' ||
+                pathname.startsWith('/resources/');
+            }
+            if (href === '/dashboard/resources') {
+              isActive = isActive || pathname.startsWith('/dashboard/resources');
             }
             return (
               <li key={href}>

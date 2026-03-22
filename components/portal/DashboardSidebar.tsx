@@ -19,6 +19,7 @@ import {
   LogOut,
   FileText,
   Award,
+  Layers,
 } from 'lucide-react';
 import { SignOutButton } from '@/components/portal/SignOutButton';
 
@@ -30,6 +31,7 @@ const SIDEBAR_CORE = [
 
 const SIDEBAR_TOOLS = [
   { href: '/dashboard/learning', label: 'Learning hub', Icon: Library },
+  { href: '/dashboard/resources', label: 'Program resources', Icon: Layers },
   { href: '/dashboard/ai-tools', label: 'AI Tools', Icon: Sparkles },
   { href: '/dashboard/ai-tools/application-tracker', label: 'Applications', Icon: FileText },
   { href: '/dashboard/readiness', label: 'Career Readiness', Icon: CheckCircle },
@@ -61,7 +63,10 @@ export default function DashboardSidebar({ open = false, onClose }: DashboardSid
       isActive =
         isActive ||
         pathname.startsWith('/resources') ||
-        pathname.startsWith('/dashboard/resources');
+        pathname.startsWith('/resources/');
+    }
+    if (href === '/dashboard/resources') {
+      isActive = isActive || pathname.startsWith('/dashboard/resources');
     }
     return (
       <li key={href}>

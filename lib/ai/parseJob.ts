@@ -66,6 +66,43 @@ export function extractSubJobUrlsFromPageText(rawText: string): { url: string; t
   return results.slice(0, 12);
 }
 
+function looksLikeCssNoiseLine(line: string): boolean {
+  const trimmed = line.trim();
+  if (!trimmed) return false;
+
+  const braceCount = (trimmed.match(/\{/g) ?? []).length;
+  const semicolonCount = (trimmed.match(/;/g) ?? []).length;
+  if (trimmed.length > 2000 && (braceCount >= 3 || semicolonCount >= 8)) return true;
+
+  if (/^(?:@font-face|:root\s*\{|body\s*\{|html\s*\{|main\s*\{|div\s*\{|span\s*\{|ul\s*\{|ol\s*\{|li\s*\{|p(?:,|\s*\{)|h[1-6](?:,|\s*\{)|\.\w[-\w]*\s*\{|#\w[-\w]*\s*\{)/i.test(trimmed)) {
+    return true;
+  }
+
+  return /(?:--[a-z0-9-]+\s*:|font-family\s*:|src:\s*url\(|format\(|-webkit-|-moz-|rgba?\(|#[0-9a-f]{3,8}\b)/i.test(trimmed)
+    && /[{};]/.test(trimmed);
+}
+
+export function sanitizeScrapedJobText(rawText: string): string {
+  let cleaned = rawText
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, ' ')
+    .replace(/@font-face\s*\{[\s\S]{0,4000}?\}/gi, ' ')
+    .replace(/:root\s*\{[\s\S]{0,20000}?\}/gi, ' ')
+    .replace(/(?:^|\n)\s*(?:body|html|main|div|span|ul|ol|li|p|h[1-6]|\.truncate|\.lineClamp(?:--inline)?)\s*\{[^\n]*\}/gi, '\n');
+
+  const lines = cleaned
+    .split('\n')
+    .map((line) => line.trimEnd())
+    .filter((line) => !looksLikeCssNoiseLine(line));
+
+  cleaned = lines.join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/[ \t]{2,}/g, ' ')
+    .trim();
+
+  return cleaned;
+}
+
 /** Remove raw URL strings from text to avoid leaking into card body */
 export function stripUrlsFromDescription(text: string): string {
   return text
@@ -118,7 +155,7 @@ function extractJobsFromMarkdown(rawText: string): ParsedJobListing[] | null {
 
 /** Keep prompts within model context: for noisy ATS pages, include start + end so the real JD isn't only in the tail. */
 export function clipJobSourceTextForLLM(rawText: string, maxChars = 26000): string {
-  const t = rawText.trim();
+  const t = sanitizeScrapedJobText(rawText).trim();
   if (t.length <= maxChars) return t;
   const budget = maxChars - 120;
   const head = Math.floor(budget / 2);
@@ -159,7 +196,7 @@ export function buildFallbackParsedJobFromScrape(
       ? listingTitle.trim()
       : extractLikelyJobTitleFromScrape(pageText);
   if (!title) return null;
-  let body = stripUrlsFromDescription(pageText).trim();
+  let body = stripUrlsFromDescription(sanitizeScrapedJobText(pageText)).trim();
   if (body.length < 50) return null;
   const maxBody = 85_000;
   if (body.length > maxBody) {

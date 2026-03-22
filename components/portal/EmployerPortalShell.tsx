@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useMemo } from 'react';
 import SuperAdminViewSwitcher from '@/components/super-admin-view-switcher';
 import { SignOutButton } from './SignOutButton';
+import { getBestActiveHref } from '@/lib/nav/activeRoute';
 
 const NAV_LINKS = [
   { href: '/employer', label: 'Home' },
@@ -13,15 +14,6 @@ const NAV_LINKS = [
   { href: '/employer/jobs/new', label: 'Post job' },
   { href: '/employer/applications', label: 'Workforce AP Applicants' },
 ];
-
-function activeHrefForPath(pathname: string): string | null {
-  if (pathname === '/employer') return '/employer';
-  const candidates = NAV_LINKS.filter(
-    (l) => l.href !== '/employer' && (pathname === l.href || pathname.startsWith(`${l.href}/`))
-  ).map((l) => l.href);
-  if (candidates.length === 0) return null;
-  return candidates.sort((a, b) => b.length - a.length)[0];
-}
 
 export default function EmployerPortalShell({
   companyName,
@@ -33,7 +25,7 @@ export default function EmployerPortalShell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname() ?? '';
-  const activeHref = useMemo(() => activeHrefForPath(pathname), [pathname]);
+  const activeHref = useMemo(() => getBestActiveHref(pathname, NAV_LINKS), [pathname]);
 
   return (
     <div className="employer-portal-shell">

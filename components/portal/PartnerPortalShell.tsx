@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import SuperAdminViewSwitcher from '@/components/super-admin-view-switcher';
 import { SignOutButton } from './SignOutButton';
+import { getBestActiveHref } from '@/lib/nav/activeRoute';
 
 const NAV_LINKS = [
   { href: '/partner', label: 'Dashboard' },
@@ -11,10 +12,6 @@ const NAV_LINKS = [
   { href: '/partner/resources', label: 'Resources' },
 ];
 
-/**
- * Same light “tool portal” chrome as the employer portal (white header, gray page bg),
- * not the dark marketing-style `portal-nav` strip used for legacy member routes.
- */
 export default function PartnerPortalShell({
   partnerName,
   children,
@@ -23,23 +20,26 @@ export default function PartnerPortalShell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname() ?? '';
+  const activeHref = getBestActiveHref(pathname, NAV_LINKS);
 
   return (
     <div className="employer-portal-shell">
       <header className="employer-portal-header">
         <div className="employer-portal-header-inner">
-          <Link href="/partner" className="employer-portal-brand">
-            WorkforceAP
-          </Link>
+          <div className="employer-portal-brand-row">
+            <div className="employer-portal-brand-block">
+              <Link href="/partner" className="employer-portal-brand">
+                WorkforceAP
+              </Link>
+              <span className="employer-portal-tagline">Partner progress view · Austin-first launch</span>
+            </div>
+            <Link href="/" className="employer-portal-home-link">
+              Site home
+            </Link>
+          </div>
           <nav className="employer-portal-nav" aria-label="Partner portal navigation">
             {NAV_LINKS.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className={
-                  pathname === href || (href !== '/partner' && pathname.startsWith(href)) ? 'active' : undefined
-                }
-              >
+              <Link key={href} href={href} className={activeHref === href ? 'active' : undefined}>
                 {label}
               </Link>
             ))}
@@ -49,9 +49,6 @@ export default function PartnerPortalShell({
             <span className="employer-portal-company" title={partnerName}>
               {partnerName}
             </span>
-            <Link href="/" className="employer-portal-home-link">
-              Site home
-            </Link>
             <SignOutButton className="btn btn-outline btn-sm">Sign out</SignOutButton>
           </div>
         </div>

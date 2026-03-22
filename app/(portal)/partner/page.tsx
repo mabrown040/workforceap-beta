@@ -8,6 +8,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
+import PartnerMembersList from '@/components/portal/PartnerMembersList';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Partner Portal',
@@ -199,36 +200,31 @@ export default async function PartnerDashboardPage() {
             </section>
           )}
 
-          <section className="partner-members">
-            <h2>Members</h2>
-            <div className="partner-members-list">
-              {pipelineMembers.map(({ member: m, stage, progress, programTitle }) => {
-                const stageLabel = PIPELINE_STAGE_LABELS[stage as keyof typeof PIPELINE_STAGE_LABELS];
-                const story = m.placementRecord
-                  ? `Placed at ${m.placementRecord.employerName} as ${m.placementRecord.jobTitle}`
-                  : progress >= 100
-                    ? `Completed ${programTitle}`
-                    : progress > 0
-                      ? `${progress}% through ${programTitle}`
-                      : stage === 'enrolled'
-                        ? `Enrolled in ${programTitle}`
-                        : stageLabel;
+          <PartnerMembersList
+            members={pipelineMembers.map(({ member: m, stage, progress, programTitle }) => {
+              const stageLabel = PIPELINE_STAGE_LABELS[stage as keyof typeof PIPELINE_STAGE_LABELS];
+              const story = m.placementRecord
+                ? `Placed at ${m.placementRecord.employerName} as ${m.placementRecord.jobTitle}`
+                : progress >= 100
+                  ? `Completed ${programTitle}`
+                  : progress > 0
+                    ? `${progress}% through ${programTitle}`
+                    : stage === 'enrolled'
+                      ? `Enrolled in ${programTitle}`
+                      : stageLabel;
 
-                return (
-                  <Link key={m.id} href={`/partner/members/${m.id}`} className="partner-member-card">
-                    <div className="partner-member-main">
-                      <span className="partner-member-name">{m.fullName}</span>
-                      <span className="partner-member-story">{story}</span>
-                    </div>
-                    <div className="partner-member-meta">
-                      <span className={`partner-member-stage stage-${stage}`}>{stageLabel}</span>
-                      <span className="partner-member-date">{m.updatedAt.toLocaleDateString()}</span>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          </section>
+              return {
+                id: m.id,
+                fullName: m.fullName,
+                stage,
+                stageLabel,
+                progress,
+                programTitle,
+                story,
+                updatedAtLabel: m.updatedAt.toLocaleDateString(),
+              };
+            })}
+          />
 
           <section className="partner-activity">
             <details className="partner-activity-collapsed">

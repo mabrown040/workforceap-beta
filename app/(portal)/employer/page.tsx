@@ -41,6 +41,13 @@ export default async function EmployerDashboardPage() {
     },
   });
 
+  const stats = [
+    { label: 'Active Job Postings', value: activeJobs, Icon: Briefcase },
+    { label: 'Total Applications', value: totalApplications, Icon: Users },
+    { label: 'Pending Approvals', value: pendingApprovals, Icon: Clock },
+    { label: 'Filled Positions', value: filledPositions, Icon: CheckCircle },
+  ];
+
   return (
     <div>
       <PageHeader
@@ -48,42 +55,22 @@ export default async function EmployerDashboardPage() {
         subtitle="Manage your job postings and view applications."
       />
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
-          gap: '1rem',
-          marginBottom: '2rem',
-        }}
-      >
-        {[
-          { label: 'Active Job Postings', value: activeJobs, icon: Briefcase },
-          { label: 'Total Applications', value: totalApplications, icon: Users },
-          { label: 'Pending Approvals', value: pendingApprovals, icon: Clock },
-          { label: 'Filled Positions', value: filledPositions, icon: CheckCircle },
-        ].map((s) => (
-          <div
-            key={s.label}
-            style={{
-              padding: '1rem',
-              borderRadius: '8px',
-              border: '1px solid var(--color-border)',
-              background: 'var(--color-light)',
-            }}
-          >
-            <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{s.value}</div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)' }}>{s.label}</div>
+      <div className="employer-dash-stats">
+        {stats.map(({ label, value }) => (
+          <div key={label} className="employer-dash-stat">
+            <div className="employer-dash-stat-value">{value}</div>
+            <div className="employer-dash-stat-label">{label}</div>
           </div>
         ))}
       </div>
 
-      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
+      <div className="employer-dash-actions">
         <Link href="/employer/jobs/new" className="btn btn-primary">
-          <FilePlus size={18} style={{ marginRight: '0.5rem', verticalAlign: 'middle' }} />
+          <FilePlus size={18} aria-hidden />
           Post New Job
         </Link>
         <Link href="/employer/jobs/import" className="btn btn-secondary">
-          <Upload size={18} style={{ marginRight: '0.5rem', verticalAlign: 'middle' }} />
+          <Upload size={18} aria-hidden />
           Import from LinkedIn/URL
         </Link>
         <Link href="/employer/applications" className="btn btn-ghost">
@@ -91,26 +78,19 @@ export default async function EmployerDashboardPage() {
         </Link>
       </div>
 
-      <h2 style={{ fontSize: '1.15rem', marginBottom: '0.75rem' }}>Recent activity</h2>
+      <h2 className="portal-page-title" style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Recent activity</h2>
       {recentApplications.length === 0 ? (
-        <p style={{ color: 'var(--color-gray-500)' }}>No applications yet.</p>
+        <p style={{ color: 'var(--color-gray-500)', fontSize: '0.9rem' }}>No applications yet.</p>
       ) : (
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+        <ul className="employer-dash-activity-list">
           {recentApplications.map((app) => (
-            <li
-              key={app.id}
-              style={{
-                padding: '0.65rem 0',
-                borderBottom: '1px solid var(--color-border)',
-                fontSize: '0.9rem',
-              }}
-            >
+            <li key={app.id} className="employer-dash-activity-item">
               <strong>{app.student.fullName}</strong>
               <span style={{ color: 'var(--color-gray-500)' }}> applied to </span>
               <Link href={`/employer/jobs/${app.jobId}`} style={{ color: 'var(--color-accent)' }}>
                 {app.job.title}
               </Link>
-              <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)' }}>
+              <div className="employer-dash-activity-item-meta">
                 {app.appliedAt.toLocaleString()}
               </div>
             </li>

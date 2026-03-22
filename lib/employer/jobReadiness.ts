@@ -4,10 +4,21 @@
 
 export type JobReadinessLevel = 'solid' | 'usable' | 'thin';
 
+export type JobReadinessTarget = 'location' | 'salary' | 'description' | 'requirements' | 'suggestedPrograms';
+
+export type JobReadinessIssueKey = JobReadinessTarget;
+
+export type JobReadinessIssue = {
+  key: JobReadinessIssueKey;
+  target: JobReadinessTarget;
+  message: string;
+  action: string;
+};
+
 export type JobReadiness = {
   level: JobReadinessLevel;
   /** Short, scannable cues (max 4) */
-  issues: string[];
+  issues: JobReadinessIssue[];
 };
 
 export function assessJobPostingReadiness(input: {
@@ -18,23 +29,48 @@ export function assessJobPostingReadiness(input: {
   requirementsCount: number;
   suggestedProgramsCount: number;
 }): JobReadiness {
-  const issues: string[] = [];
+  const issues: JobReadinessIssue[] = [];
   const loc = input.location.trim();
   if (!loc || loc === '—') {
-    issues.push('Add where people work (city, hybrid, or remote).');
+    issues.push({
+      key: 'location',
+      target: 'location',
+      message: 'Add where people work (city, hybrid, or remote).',
+      action: 'Add location',
+    });
   }
   if (input.salaryMin == null && input.salaryMax == null) {
-    issues.push('A pay range sets expectations and saves everyone time.');
+    issues.push({
+      key: 'salary',
+      target: 'salary',
+      message: 'A pay range sets expectations and saves everyone time.',
+      action: 'Add pay range',
+    });
   }
   const desc = input.description.trim();
   if (desc.length < 140) {
-    issues.push('Expand the role: day-to-day work, must-haves, and nice-to-haves.');
+    issues.push({
+      key: 'description',
+      target: 'description',
+      message: 'Expand the role: day-to-day work, must-haves, and nice-to-haves.',
+      action: 'Add description',
+    });
   }
   if (input.requirementsCount === 0) {
-    issues.push('Add a few requirement lines — even rough bullets from HR.');
+    issues.push({
+      key: 'requirements',
+      target: 'requirements',
+      message: 'Add a few requirement lines — even rough bullets from HR.',
+      action: 'Add requirements',
+    });
   }
   if (input.suggestedProgramsCount === 0) {
-    issues.push('Match training tracks so we can surface certification-ready candidates.');
+    issues.push({
+      key: 'suggestedPrograms',
+      target: 'suggestedPrograms',
+      message: 'Match training tracks so we can surface certification-ready candidates.',
+      action: 'Select training matches',
+    });
   }
 
   let level: JobReadinessLevel = 'solid';

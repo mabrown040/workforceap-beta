@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, ty
 import { rankProgramsForEmployerJob, type RankedProgramMatch } from '@/lib/employer/rankProgramsForEmployerJob';
 
 type SuggestedProgramsRankedProps = {
+  fieldsetId?: string;
   formRef: RefObject<HTMLFormElement | null>;
   programSlugs: string[];
   defaultSelected: string[];
@@ -36,6 +37,7 @@ function confidenceLabel(c: RankedProgramMatch['confidence']): string {
 }
 
 export default function SuggestedProgramsRanked({
+  fieldsetId,
   formRef,
   programSlugs,
   defaultSelected,
@@ -147,7 +149,7 @@ export default function SuggestedProgramsRanked({
   }, []);
 
   return (
-    <fieldset className="employer-job-form-fieldset employer-job-form-programs employer-suggested-programs">
+    <fieldset id={fieldsetId} className="employer-job-form-fieldset employer-job-form-programs employer-suggested-programs">
       <legend>Training matches for this role</legend>
       <p className="employer-job-form-hint">
         These suggestions are generated from signals in your job title, description, and requirements. They help map

@@ -21,49 +21,99 @@ export interface ParsedJobListing {
   description: string;
   /** Job detail URL if found in the page */
   sourceUrl?: string;
+  /** Best-effort location extracted near the listing */
+  location?: string;
 }
 
+type JobLinkCandidate = { url: string; title?: string; index: number };
+
 /** Markdown [Title](url) - capture groups: 1=title, 2=url */
-const MARKDOWN_LINK = /\[([^\]]{3,100})\]\((https?:\/\/[^\s)]+\/jobs\/[^\s)]+)\)/g;
-/** Plain job URLs (single group) */
-const PLAIN_JOB_URLS = [
-  /(https?:\/\/[^\s]+ats\.rippling\.com[^\s]*\/jobs\/[a-zA-Z0-9_-]+)/g,
-  /(https?:\/\/[^\s]+\.greenhouse\.io[^\s]*\/jobs\/\d+)/g,
-  /(https?:\/\/[^\s]+jobs\.lever\.co[^\s]*\/[a-f0-9-]+)/g,
-  /(https?:\/\/[^\s]+jobs\.ashbyhq\.com[^\s]*\/[a-f0-9-]+)/g,
-  /(https?:\/\/[^\s]+\/jobs\/[a-zA-Z0-9_-]+)/g,
-];
+const MARKDOWN_LINK = /\[([^\]]{3,160})\]\(((?:https?:\/\/|\/)[^\s)]+)\)/g;
+const PLAIN_URL = /(https?:\/\/[^\s<>)\]]+)/g;
+const NOISE_LINK_TITLE = /^(view|apply|see|terms|privacy|cookie|powered|learn more|read more|details?)$/i;
+const NOISE_LINK_URL = /\/(?:apply|privacy|cookies?|terms|login|signin|sign-in)(?:[/?#]|$)/i;
+const JOB_DETAIL_URL_HINT =
+  /(?:\/jobs?\/(?!$)|\/job\/|\/job-posting\/|\/positions?\/|\/openings?\/|\/careers\/[^/?#]+\/jobs?\/|[?&](?:job|jobid|job_id|gh_jid|lever-via|ashby_jid|postingId|reqid)=|ats\.rippling\.com\/(?:en-[^/]+\/)?[^/]+\/jobs\/[^/?#]+|jobs\.lever\.co\/[^/]+\/[a-f0-9-]+|boards\.greenhouse\.io\/[^/]+\/jobs\/\d+|jobs\.ashbyhq\.com\/[^/]+\/[a-z0-9-]+)/i;
+const JOB_TITLE_HINT =
+  /\b(engineer|developer|manager|director|analyst|designer|specialist|associate|representative|coordinator|architect|administrator|recruiter|consultant|intern|officer|lead|head|principal|scientist|product|success|marketing|sales|support|operations|finance|account|nurse|therapist|teacher)\b/i;
+const NOISE_BODY_LINE =
+  /^(draft|needs a few details|job description\s*\*?|location \(city, state or remote\)|share this job|copy link|back to jobs|apply now|save job)$/i;
+
+function cleanWhitespace(value: string): string {
+  return value.replace(/\s+/g, ' ').trim();
+}
+
+function normalizeCandidateUrl(rawUrl: string, baseUrl?: string): string | null {
+  const trimmed = rawUrl.trim().replace(/[),.;:]+$/g, '');
+  try {
+    const resolved = new URL(trimmed, baseUrl);
+    resolved.hash = '';
+    for (const key of [...resolved.searchParams.keys()]) {
+      if (/^(utm_|gh_src|gh_jid_source|fbclid|gclid|source|ref)$/i.test(key)) {
+        resolved.searchParams.delete(key);
+      }
+    }
+    return resolved.toString();
+  } catch {
+    return null;
+  }
+}
+
+function looksLikeJobDetailUrl(url: string, title?: string): boolean {
+  if (NOISE_LINK_URL.test(url)) return false;
+  if (title && NOISE_LINK_TITLE.test(cleanWhitespace(title))) return false;
+  return JOB_DETAIL_URL_HINT.test(url) || Boolean(title && JOB_TITLE_HINT.test(title));
+}
+
+function extractJobLinkCandidates(rawText: string, baseUrl?: string): JobLinkCandidate[] {
+  const seen = new Set<string>();
+  const results: JobLinkCandidate[] = [];
+
+  let match: RegExpExecArray | null;
+  while ((match = MARKDOWN_LINK.exec(rawText)) !== null) {
+    const title = cleanWhitespace(match[1] ?? '');
+    const url = normalizeCandidateUrl(match[2] ?? '', baseUrl);
+    if (!url || seen.has(url) || !looksLikeJobDetailUrl(url, title)) continue;
+    seen.add(url);
+    results.push({ url, title, index: match.index });
+  }
+
+  while ((match = PLAIN_URL.exec(rawText)) !== null) {
+    const url = normalizeCandidateUrl(match[1] ?? '', baseUrl);
+    if (!url || seen.has(url) || !looksLikeJobDetailUrl(url)) continue;
+    seen.add(url);
+    results.push({ url, index: match.index });
+  }
+
+  return results.sort((a, b) => a.index - b.index);
+}
+
+function collectContextLines(rawText: string, startIndex: number, maxLines = 4): string[] {
+  const after = rawText.slice(startIndex).split('\n');
+  const lines: string[] = [];
+  for (const line of after) {
+    const cleaned = cleanWhitespace(line);
+    if (!cleaned) continue;
+    if (cleaned.startsWith('[') || cleaned.startsWith('#')) continue;
+    if (/^https?:\/\//i.test(cleaned)) continue;
+    if (NOISE_BODY_LINE.test(cleaned)) continue;
+    lines.push(cleaned);
+    if (lines.length >= maxLines) break;
+  }
+  return lines;
+}
 
 /**
  * Extract sub-job URLs from careers page text. Used to follow each URL and parse
  * the actual job posting for clean draft cards (no raw URL text in body).
  */
-export function extractSubJobUrlsFromPageText(rawText: string): { url: string; title?: string }[] {
-  const seen = new Set<string>();
-  const results: { url: string; title?: string }[] = [];
-
-  let match;
-  while ((match = MARKDOWN_LINK.exec(rawText)) !== null) {
-    const title = match[1].trim();
-    const url = match[2].trim();
-    if (seen.has(url)) continue;
-    if (/^(view|apply|see|terms|privacy|cookie|powered)/i.test(title)) continue;
-    seen.add(url);
-    results.push({ url, title });
-  }
-
-  for (const regex of PLAIN_JOB_URLS) {
-    regex.lastIndex = 0;
-    while ((match = regex.exec(rawText)) !== null) {
-      const url = match[1].trim();
-      if (!seen.has(url)) {
-        seen.add(url);
-        results.push({ url });
-      }
-    }
-  }
-
-  return results.slice(0, 12);
+export function extractSubJobUrlsFromPageText(
+  rawText: string,
+  options?: { baseUrl?: string; limit?: number }
+): { url: string; title?: string }[] {
+  return extractJobLinkCandidates(rawText, options?.baseUrl)
+    .slice(0, options?.limit ?? 25)
+    .map(({ url, title }) => ({ url, title }));
 }
 
 function looksLikeCssNoiseLine(line: string): boolean {
@@ -93,7 +143,8 @@ export function sanitizeScrapedJobText(rawText: string): string {
   const lines = cleaned
     .split('\n')
     .map((line) => line.trimEnd())
-    .filter((line) => !looksLikeCssNoiseLine(line));
+    .filter((line) => !looksLikeCssNoiseLine(line))
+    .filter((line) => !NOISE_BODY_LINE.test(line.trim()));
 
   cleaned = lines.join('\n')
     .replace(/\n{3,}/g, '\n\n')
@@ -107,8 +158,37 @@ export function sanitizeScrapedJobText(rawText: string): string {
 export function stripUrlsFromDescription(text: string): string {
   return text
     .replace(/\bhttps?:\/\/[^\s]+/g, '')
+    .replace(/[ \t]+\n/g, '\n')
     .replace(/\n\s*\n\s*\n/g, '\n\n')
     .trim();
+}
+
+function cleanStringList(values?: string[]): string[] | undefined {
+  if (!values?.length) return undefined;
+  const seen = new Set<string>();
+  const cleaned: string[] = [];
+  for (const value of values) {
+    const normalized = cleanWhitespace(value ?? '');
+    if (!normalized) continue;
+    const key = normalized.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    cleaned.push(normalized);
+  }
+  return cleaned.length > 0 ? cleaned : undefined;
+}
+
+export function normalizeImportedParsedJob(job: ParsedJob): ParsedJob {
+  return {
+    ...job,
+    title: cleanWhitespace(job.title),
+    company: job.company ? cleanWhitespace(job.company) : undefined,
+    location: job.location ? cleanWhitespace(job.location) : undefined,
+    description: stripUrlsFromDescription(job.description).replace(/\n{3,}/g, '\n\n').trim(),
+    requirements: cleanStringList(job.requirements),
+    preferredCertifications: cleanStringList(job.preferredCertifications),
+    suggestedPrograms: cleanStringList(job.suggestedPrograms),
+  };
 }
 
 /**
@@ -116,37 +196,26 @@ export function stripUrlsFromDescription(text: string): string {
  * [Title](url) patterns). Falls back to AI parsing if no structured data found.
  */
 function extractJobsFromMarkdown(rawText: string): ParsedJobListing[] | null {
-  // Match markdown links: [Job Title](url)
-  const linkPattern = /\[([^\]]{3,100})\]\((https?:\/\/[^\s)]+\/jobs\/[^\s)]+)\)/g;
-  const seen = new Set<string>();
   const jobs: ParsedJobListing[] = [];
 
-  let match;
-  while ((match = linkPattern.exec(rawText)) !== null) {
-    const title = match[1].trim();
-    const url = match[2].trim();
+  for (const candidate of extractJobLinkCandidates(rawText)) {
+    if (!candidate.title) continue;
+    const lines = collectContextLines(rawText, candidate.index, 4);
+    const department = lines[0] && lines[0].length < 80 ? lines[0] : undefined;
+    const location = lines.find((line) =>
+      /(?:remote|hybrid|[A-Za-z .'-]+,\s*[A-Z]{2}|[A-Za-z .'-]+,\s*[A-Za-z .'-]+|united states|usa)/i.test(line)
+    );
 
-    // Skip generic links like "View job", "Apply", "Terms"
-    if (/^(view|apply|see|terms|privacy|cookie|powered)/i.test(title)) continue;
-    // Skip duplicates
-    if (seen.has(url)) continue;
-    seen.add(url);
-
-    // Try to find department/location near this link
-    const afterLink = rawText.slice(match.index + match[0].length, match.index + match[0].length + 200);
-    const lines = afterLink.split('\n').map(l => l.trim()).filter(Boolean);
-    const department = lines[0] && lines[0].length < 60 && !lines[0].startsWith('[') && !lines[0].startsWith('#') ? lines[0] : undefined;
-    const location = lines[1] && lines[1].length < 60 && !lines[1].startsWith('[') && !lines[1].startsWith('#') ? lines[1] : undefined;
-
-    const descParts = [title];
-    if (department) descParts.push(`Department: ${department}`);
+    const descParts = [candidate.title];
+    if (department && department !== candidate.title) descParts.push(`Department: ${department}`);
     if (location) descParts.push(`Location: ${location}`);
-    descParts.push('Details to be added — imported from careers page.');
+    descParts.push('Details to be added - imported from careers page.');
 
     jobs.push({
-      title,
+      title: candidate.title,
       description: descParts.join('\n'),
-      sourceUrl: url,
+      sourceUrl: candidate.url,
+      location,
     });
   }
 
@@ -184,7 +253,7 @@ export function extractLikelyJobTitleFromScrape(rawText: string): string | null 
 }
 
 const FALLBACK_NOTE =
-  '\n\n---\nNote: Structured AI parse did not return a clean result — this draft was built from the scraped page text. Please edit title, location, and description before submitting.';
+  '\n\n---\nNote: Structured AI parse did not return a clean result - this draft was built from the scraped page text. Please edit title, location, and description before submitting.';
 
 /** Last-resort draft when Groq JSON parse fails but we have a title hint and enough body text. */
 export function buildFallbackParsedJobFromScrape(
@@ -203,13 +272,13 @@ export function buildFallbackParsedJobFromScrape(
     const half = Math.floor(maxBody / 2) - 80;
     body = `${body.slice(0, half)}\n\n[... trimmed for length ...]\n\n${body.slice(-half)}`;
   }
-  return {
+  return normalizeImportedParsedJob({
     title,
     description: `${body}${FALLBACK_NOTE}`,
     requirements: [],
     preferredCertifications: [],
     suggestedPrograms: [],
-  };
+  });
 }
 
 export async function parseJobListingsFromPageText(rawText: string): Promise<ParsedJobListing[] | null> {
@@ -225,7 +294,7 @@ Output valid JSON only, no markdown. Schema:
 Rules:
 - Each array item must be a distinct role (not duplicate titles).
 - NEVER include raw URLs, link URLs, or placeholder URLs in the description. Use clean prose only.
-- If the page only lists titles with links and no body text, use title + "Details to be added — imported from careers page." as description.
+- If the page only lists titles with links and no body text, use title + "Details to be added - imported from careers page." as description.
 - Cap at 25 jobs; prefer the most recently listed or most prominent if there are more.
 - Omit non-job content (navigation, footers). Put the URL in sourceUrl only, not in description.`;
 
@@ -274,7 +343,7 @@ Output valid JSON only, no markdown fences. Use this exact schema:
   "preferredCertifications": ["string"] (cert names if mentioned),
   "suggestedPrograms": ["slug"] (from: ${programSlugs} - pick slugs that best match job requirements)
 }
-Long pages often begin with navigation, cookie banners, or repeated site chrome — find the real role title and the responsibilities/qualifications sections.
+Long pages often begin with navigation, cookie banners, or repeated site chrome - find the real role title and the responsibilities/qualifications sections.
 Infer locationType from words like "remote", "hybrid", "on-site". Infer jobType from "full-time", "part-time", "contract".
 Keep "description" complete but concise if the source is huge (under ~6000 characters of prose is OK).`;
 
@@ -309,7 +378,7 @@ Keep "description" complete but concise if the source is huge (under ~6000 chara
       console.warn('[parseJobFromText] parsed object missing title or description');
       return null;
     }
-    return parsed;
+    return normalizeImportedParsedJob(parsed);
   } catch (err) {
     console.error('[parseJobFromText] failed:', err instanceof Error ? err.message : err);
     return null;

@@ -1,4 +1,4 @@
-import { buildFallbackParsedJobFromScrape, sanitizeScrapedJobText } from '../lib/ai/parseJob';
+import { buildFallbackParsedJobFromScrape, normalizeImportedParsedJob, sanitizeScrapedJobText } from '../lib/ai/parseJob';
 
 const fixture = `# Customer Success Manager, Mid-Market
 
@@ -36,8 +36,22 @@ if (!parsed.description.includes('Closinglock is hiring a Customer Success Manag
   throw new Error('Expected core job description text to be preserved');
 }
 
+const normalized = normalizeImportedParsedJob({
+  ...parsed,
+  description: `${parsed.description}\n\nhttps://ats.rippling.com/closinglock/jobs/d2b5d49f-f2a8-4c92-9405-a05769ce81fe`,
+  requirements: ['  SaaS accounts  ', 'SaaS accounts'],
+});
+
+if (/https?:\/\//i.test(normalized.description)) {
+  throw new Error('normalizeImportedParsedJob should strip raw URLs from description');
+}
+
+if ((normalized.requirements?.length ?? 0) !== 1) {
+  throw new Error(`Expected normalized requirements to dedupe to 1 item, got ${normalized.requirements?.length ?? 0}`);
+}
+
 console.log(JSON.stringify({
   ok: true,
   title: parsed.title,
-  excerpt: parsed.description.slice(0, 220),
+  excerpt: normalized.description.slice(0, 220),
 }, null, 2));

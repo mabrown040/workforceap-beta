@@ -1,4 +1,4 @@
-import { parseJobListingsFromPageText } from '../lib/ai/parseJob';
+import { extractSubJobUrlsFromPageText, parseJobListingsFromPageText } from '../lib/ai/parseJob';
 
 async function main() {
   const fixture = `### Current Openings
@@ -74,9 +74,14 @@ Austin, TX
 [View job](https://ats.rippling.com/closinglock/jobs/ac25579d-6556-449b-b674-08159e5b5d13)`;
 
   const listings = await parseJobListingsFromPageText(fixture);
+  const subUrls = extractSubJobUrlsFromPageText(fixture);
 
   if (!listings) {
     throw new Error('Parser returned null');
+  }
+
+  if (subUrls.length !== 14) {
+    throw new Error(`Expected 14 sub-job URLs, got ${subUrls.length}`);
   }
 
   if (listings.length !== 14) {
@@ -88,9 +93,14 @@ Austin, TX
     throw new Error(`Expected all jobs to have sourceUrl, missing on ${missingLinks.length}`);
   }
 
+  if (listings[0]?.location !== 'Austin, TX') {
+    throw new Error(`Expected first listing location to be Austin, TX, got ${listings[0]?.location ?? 'missing'}`);
+  }
+
   console.log(JSON.stringify({
     ok: true,
     count: listings.length,
+    urlCount: subUrls.length,
     first: listings[0],
     last: listings[listings.length - 1],
   }, null, 2));

@@ -30,7 +30,7 @@ export default function MyGroupShell({
             </Link>
           </div>
           <nav className="employer-portal-nav" aria-label="My group navigation">
-            <Link href="/my-group" className={active ? 'active' : undefined}>
+            <Link href="/my-group" className={pathname === '/my-group' ? 'active' : undefined}>
               My Group
             </Link>
           </nav>
@@ -42,15 +42,7 @@ export default function MyGroupShell({
           </div>
         </div>
       </header>
-      <div style={{ display: 'grid', gridTemplateColumns: '240px minmax(0, 1fr)', gap: '1.5rem', alignItems: 'start', maxWidth: 1400, margin: '0 auto', padding: '1.5rem' }}>
-        <aside style={{ position: 'sticky', top: '1rem', alignSelf: 'start', background: 'white', border: '1px solid var(--color-border, #e5e5e5)', borderRadius: 12, padding: '1rem' }}>
-          <p style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--color-gray-500)', marginBottom: '0.75rem' }}>Group workspace</p>
-          <Link href="/my-group" style={{ display: 'block', padding: '0.65rem 0.75rem', borderRadius: 8, background: active ? 'var(--color-light)' : 'transparent', fontWeight: active ? 700 : 500 }}>
-            My Group
-          </Link>
-        </aside>
-        <main className="employer-portal-main">{children}</main>
-      </div>
+      <main className="employer-portal-main">{children}</main>
     </div>
   );
 }

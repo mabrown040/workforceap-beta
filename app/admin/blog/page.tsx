@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Clock } from 'lucide-react';
 import { prisma } from '@/lib/db/prisma';
 import BlogPostActions from '@/components/admin/BlogPostActions';
+import PageHeader from '@/components/portal/PageHeader';
 
 export default async function AdminBlogPage() {
   const posts = await prisma.blogPost.findMany({
@@ -20,45 +21,15 @@ export default async function AdminBlogPage() {
 
   return (
     <div style={{ paddingTop: '1.5rem' }}>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '1.5rem',
-        }}
-      >
-        <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Blog Posts</h1>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-          <Link
-            href="/admin/blog/ai"
-            style={{
-              padding: '0.5rem 1rem',
-              background: '#f0f0f0',
-              color: '#333',
-              borderRadius: '6px',
-              textDecoration: 'none',
-              fontWeight: 600,
-              border: '1px solid #ccc',
-            }}
-          >
-            AI Writing Assistant
-          </Link>
-          <Link
-            href="/admin/blog/new"
-            style={{
-              padding: '0.5rem 1rem',
-              background: 'var(--color-accent)',
-              color: 'white',
-              borderRadius: '6px',
-              textDecoration: 'none',
-              fontWeight: 600,
-            }}
-          >
-            New Post
-          </Link>
-        </div>
-      </div>
+      <PageHeader
+        title="Blog Posts"
+        action={
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+            <Link href="/admin/blog/ai" className="btn btn-outline btn-sm">AI Writing Assistant</Link>
+            <Link href="/admin/blog/new" className="btn btn-primary btn-sm">New Post</Link>
+          </div>
+        }
+      />
       <table className="admin-table">
         <thead>
           <tr>

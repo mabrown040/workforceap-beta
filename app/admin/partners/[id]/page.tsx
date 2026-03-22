@@ -6,6 +6,7 @@ import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
 import InvitePartnerUserButton from '@/components/admin/InvitePartnerUserButton';
 import PartnerDetailActions from '@/components/admin/PartnerDetailActions';
+import PageHeader from '@/components/portal/PageHeader';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -77,29 +78,26 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
       <Link href="/admin/partners" style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'inline-block' }}>
         &larr; Back to Partners
       </Link>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <h1 style={{ margin: '0 0 0.25rem' }}>{partner.name}</h1>
-          <p style={{ margin: 0, color: 'var(--color-gray-500)', fontSize: '0.9rem' }}>
-            {partner._count.counselors} counselor{partner._count.counselors !== 1 ? 's' : ''} · {partner._count.referrals} referral
-            {partner._count.referrals !== 1 ? 's' : ''}
-          </p>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <span
-            style={{
-              padding: '0.3rem 0.75rem',
-              borderRadius: '6px',
-              fontSize: '0.85rem',
-              background: partner.active ? 'rgba(74, 155, 79, 0.12)' : 'var(--color-gray-100)',
-              color: partner.active ? '#2d7a32' : 'var(--color-gray-600)',
-            }}
-          >
-            {partner.active ? 'Active' : 'Inactive'}
-          </span>
-          <PartnerDetailActions partner={partner} subgroups={subgroups} allPartners={allPartners} />
-        </div>
-      </div>
+      <PageHeader
+        title={partner.name}
+        subtitle={`${partner._count.counselors} counselor${partner._count.counselors !== 1 ? 's' : ''} · ${partner._count.referrals} referral${partner._count.referrals !== 1 ? 's' : ''}`}
+        action={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span
+              style={{
+                padding: '0.3rem 0.75rem',
+                borderRadius: '6px',
+                fontSize: '0.85rem',
+                background: partner.active ? 'rgba(74, 155, 79, 0.12)' : 'var(--color-gray-100)',
+                color: partner.active ? '#2d7a32' : 'var(--color-gray-600)',
+              }}
+            >
+              {partner.active ? 'Active' : 'Inactive'}
+            </span>
+            <PartnerDetailActions partner={partner} subgroups={subgroups} allPartners={allPartners} />
+          </div>
+        }
+      />
 
       <section style={{ marginBottom: '2rem', padding: '1rem', border: '1px solid var(--color-border)', borderRadius: '8px' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Invite partner user</h2>

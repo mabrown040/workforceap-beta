@@ -12,7 +12,7 @@ const NAV_LINKS = [
   { href: '/employer/jobs', label: 'My Jobs' },
   { href: '/employer/jobs/import', label: 'Import' },
   { href: '/employer/jobs/new', label: 'Post job' },
-  { href: '/employer/applications', label: 'Workforce AP Applicants' },
+  { href: '/employer/applications', label: 'Applicants' },
 ];
 
 export default function EmployerPortalShell({
@@ -36,7 +36,7 @@ export default function EmployerPortalShell({
               <Link href="/employer" className="employer-portal-brand">
                 WorkforceAP
               </Link>
-              <span className="employer-portal-tagline">Employer hiring partner · Austin-first launch</span>
+              <span className="employer-portal-tagline">Employer hiring portal</span>
             </div>
             <Link href="/" className="employer-portal-home-link">
               Site home

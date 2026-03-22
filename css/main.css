@@ -6388,6 +6388,9 @@ body { animation: fadeIn 0.4s ease; }
     .employer-portal-company {
         display: none;
     }
+    .employer-portal-tagline {
+        display: none;
+    }
     .employer-portal-main {
         padding: 1.1rem 0.75rem 1.5rem;
     }
@@ -7107,6 +7110,25 @@ body { animation: fadeIn 0.4s ease; }
     padding: 1rem 1rem 0;
     margin-top: 0.75rem;
     border-top: 1px solid var(--color-gray-200);
+}
+.dashboard-sidebar-home-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.55rem 1rem;
+    border-radius: var(--radius-sm);
+    color: var(--color-gray-600);
+    font-weight: 500;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: color var(--transition-fast), background var(--transition-fast);
+    margin-bottom: 0.4rem;
+}
+.dashboard-sidebar-home-link:hover {
+    color: var(--color-primary);
+    background: rgba(173, 44, 77, 0.06);
 }
 .dashboard-sidebar-signout {
     display: flex;
@@ -9222,7 +9244,6 @@ body { animation: fadeIn 0.4s ease; }
 }
 .dashboard-menu-btn,
 .admin-menu-btn {
-    display: inline-flex;
     align-items: center;
     justify-content: center;
 }
@@ -10187,4 +10208,44 @@ body { animation: fadeIn 0.4s ease; }
         grid-column: 1 / -1;
         grid-row: 2;
     }
+}
+
+/* =========================================================
+   Portal page header — shared across admin and portal pages
+   ========================================================= */
+.portal-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.portal-page-header-main {
+    flex: 1;
+    min-width: 0;
+}
+.portal-page-title {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+}
+.portal-page-subtitle {
+    color: var(--color-gray-600);
+}
+.portal-page-header-action {
+    flex-shrink: 0;
+}
+
+/* Partner guide steps list */
+.partner-guide-steps {
+    line-height: 1.6;
+    padding-left: 1.25rem;
+    max-width: 720px;
+}
+.partner-guide-steps li {
+    margin-bottom: 1rem;
+}
+.partner-guide-note {
+    margin-top: 2rem;
+    color: var(--color-gray-600);
 }

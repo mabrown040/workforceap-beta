@@ -8,6 +8,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { CheckCircle } from 'lucide-react';
+import PageHeader from '@/components/portal/PageHeader';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -66,10 +67,10 @@ export default async function PartnerMemberDetailPage({ params }: Props) {
       <Link href="/partner" style={{ color: 'var(--color-accent)', display: 'inline-block', marginBottom: '1rem' }}>
         ← Back to dashboard
       </Link>
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>{member.fullName}</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-        Read-only overview. Contact information, assessments, and benefit requests are not shown in the partner portal.
-      </p>
+      <PageHeader
+        title={member.fullName}
+        subtitle="Read-only overview. Contact information, assessments, and benefit requests are not shown in the partner portal."
+      />
 
       <section style={{ marginBottom: '1.5rem', padding: '1rem', background: 'var(--color-light)', borderRadius: '8px' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Program</h2>

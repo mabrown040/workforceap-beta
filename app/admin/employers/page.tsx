@@ -8,6 +8,7 @@ import { prisma } from '@/lib/db/prisma';
 import CreateEmployerAccountClient from './CreateEmployerAccountClient';
 import OpenEmployerPortalButton from './OpenEmployerPortalButton';
 import ClearEmployerPortalContext from './ClearEmployerPortalContext';
+import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin - Employers',
@@ -33,11 +34,7 @@ export default async function AdminEmployersPage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Employers</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
-        Employers with portal access. Create accounts below, or open a company&apos;s portal as a super-admin to help
-        them post jobs.
-      </p>
+      <PageHeader title="Employers" subtitle="Employers with portal access. Create accounts below, or open a company's portal as a super-admin to help them post jobs." />
 
       {superAdmin && (
         <p style={{ fontSize: '0.9rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
+import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Messages',
@@ -23,10 +24,10 @@ export default async function EmployerMessagesPage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Messages</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
-        Need help? Contact the WorkforceAP team.
-      </p>
+      <PageHeader
+        title="Messages"
+        subtitle="Need help? Contact the WorkforceAP team."
+      />
       <div
         style={{
           padding: '1.5rem',

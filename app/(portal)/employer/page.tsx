@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { Briefcase, FilePlus, Upload, Users, CheckCircle, Clock } from 'lucide-react';
+import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Employer Dashboard',
@@ -42,10 +43,10 @@ export default async function EmployerDashboardPage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Employer dashboard</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
-        Manage your job postings and view applications.
-      </p>
+      <PageHeader
+        title="Employer dashboard"
+        subtitle="Manage your job postings and view applications."
+      />
 
       <div
         style={{

@@ -23,7 +23,7 @@ export default function MyGroupShell({
               <Link href="/my-group" className="employer-portal-brand">
                 WorkforceAP
               </Link>
-              <span className="employer-portal-tagline">My group view · accountability and support</span>
+              <span className="employer-portal-tagline">Group leader view</span>
             </div>
             <Link href="/" className="employer-portal-home-link">
               Site home

@@ -10,6 +10,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { calculateFitScore } from '@/lib/admin/fitScore';
 import { calculateHealthStatus } from '@/lib/admin/healthScore';
 import MembersTable from '@/components/admin/MembersTable';
+import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin – Members',
@@ -88,15 +89,11 @@ export default async function AdminMembersPage() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
-        <div>
-          <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Members</h1>
-          <p style={{ color: 'var(--color-gray-600)' }}>View and manage member accounts.</p>
-        </div>
-        <Link href="/admin/members/new" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-          <Plus size={16} /> Add Member
-        </Link>
-      </div>
+      <PageHeader
+        title="Members"
+        subtitle="View and manage member accounts."
+        action={<Link href="/admin/members/new" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}><Plus size={16} /> Add Member</Link>}
+      />
 
       <MembersTable members={membersWithProgram} />
     </div>

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import PageHeader from '@/components/portal/PageHeader';
 import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
 import SubgroupMembersTable from '@/components/admin/SubgroupMembersTable';
@@ -93,18 +94,11 @@ export default async function AdminSubgroupDetailPage({ params }: Props) {
       <Link href="/admin/subgroups" style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'inline-block' }}>
         &larr; Back to Subgroups
       </Link>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <h1 style={{ margin: '0 0 0.25rem' }}>{subgroup.name}</h1>
-          <p style={{ margin: 0, color: 'var(--color-gray-500)', fontSize: '0.9rem' }}>
-            {subgroup.type} · Leader: {subgroup.leader.fullName}
-            {subgroup.partner && ` · Linked to ${subgroup.partner.name}`}
-          </p>
-        </div>
-        <Link href={`/admin/subgroups/${id}/edit`} className="btn btn-outline">
-          Edit
-        </Link>
-      </div>
+      <PageHeader
+        title={subgroup.name}
+        subtitle={`${subgroup.type} · Leader: ${subgroup.leader.fullName}${subgroup.partner ? ` · Linked to ${subgroup.partner.name}` : ''}`}
+        action={<Link href={`/admin/subgroups/${id}/edit`} className="btn btn-outline">Edit</Link>}
+      />
 
       {subgroup.description && (
         <p style={{ marginBottom: '1.5rem', color: 'var(--color-gray-600)', maxWidth: 600 }}>{subgroup.description}</p>

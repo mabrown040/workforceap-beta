@@ -1,9 +1,7 @@
 import type { Metadata } from 'next';
 
 export const SITE_URL = 'https://www.workforceap.org';
-export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
-
-const FALLBACK_OG_IMAGE = `${SITE_URL}/images/hero-people.jpg`;
+export const DEFAULT_OG_IMAGE = `${SITE_URL}/images/hero-people.jpg`;
 
 type PageSeoInput = {
   title: string;
@@ -14,7 +12,7 @@ type PageSeoInput = {
 };
 
 export function buildPageMetadata({ title, description, path, image, robots }: PageSeoInput): Metadata {
-  const ogImage = image ?? (path === '/' ? FALLBACK_OG_IMAGE : DEFAULT_OG_IMAGE);
+  const ogImage = image ?? DEFAULT_OG_IMAGE;
   const fullUrl = path.startsWith('http') ? path : `${SITE_URL}${path.startsWith('/') ? path : `/${path}`}`;
   const meta: Metadata = {
     title,

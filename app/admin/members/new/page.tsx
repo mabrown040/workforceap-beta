@@ -7,6 +7,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { PROGRAMS } from '@/lib/content/programs';
 import { prisma } from '@/lib/db/prisma';
 import AddMemberWizard from './AddMemberWizard';
+import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Add Member',
@@ -41,10 +42,7 @@ export default async function AddMemberPage() {
       >
         ← Back to Members
       </Link>
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Add Member</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
-        Multi-step onboarding. All WIOA fields required for grant reporting.
-      </p>
+      <PageHeader title="Add Member" subtitle="Multi-step onboarding. All WIOA fields required for grant reporting." />
       <AddMemberWizard programs={PROGRAMS} partners={partners} subgroups={subgroups} />
     </div>
   );

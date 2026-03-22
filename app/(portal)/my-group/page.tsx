@@ -8,6 +8,7 @@ import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
 import { prisma } from '@/lib/db/prisma';
 import MyGroupMembersTable from '@/components/portal/MyGroupMembersTable';
+import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'My Group',
@@ -99,10 +100,10 @@ export default async function MyGroupPage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>My Group</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
-        Members assigned to your subgroup. View progress and placement status.
-      </p>
+      <PageHeader
+        title="My Group"
+        subtitle="Members assigned to your subgroup. View progress and placement status."
+      />
 
       <div
         style={{

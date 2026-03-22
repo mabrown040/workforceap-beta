@@ -7,6 +7,7 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { PROGRAMS } from '@/lib/content/programs';
 import JobForm from '@/components/employer/JobForm';
+import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Post New Job',
@@ -33,10 +34,10 @@ export default async function NewJobPage() {
           ← Back to My Jobs
         </Link>
       </div>
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Post New Job</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
-        Create a job posting. Save as draft or submit for admin review.
-      </p>
+      <PageHeader
+        title="Post New Job"
+        subtitle="Create a job posting. Save as draft or submit for admin review."
+      />
       <JobForm
         companyName={employer?.companyName ?? ''}
         programSlugs={PROGRAMS.map((p) => p.slug)}

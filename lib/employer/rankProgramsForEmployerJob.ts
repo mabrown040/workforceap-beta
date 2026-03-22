@@ -26,6 +26,10 @@ type MatchableText = {
   tokenSet: Set<string>;
 };
 
+const LOW_SIGNAL_SKILL_WEIGHTS: Record<string, number> = {
+  html: 1,
+};
+
 type RoleFamilySignalConfig = {
   roleFamily: Exclude<RoleFamily, 'general'>;
   phrases: string[];
@@ -389,7 +393,7 @@ function scoreProgram(
     const skillNorm = normalizeHaystack(skill).trim();
     const isIsolatedTechnical = isolatedTechnicalTerms.has(skillNorm);
     if (isIsolatedTechnical) matchedTechnicalIsolatedCount += 1;
-    score += isIsolatedTechnical ? 1.5 : 3;
+    score += isIsolatedTechnical ? scoreSkillMatch(skill) : 3;
   }
 
   const alignedFamilies = PROGRAM_ROLE_FAMILY_ALIGNMENT[program.slug] ?? [];
@@ -409,6 +413,11 @@ function scoreProgram(
 
 function roleFamilyLabel(roleFamily: RoleFamily): string {
   return roleFamily.replace(/-/g, ' ');
+}
+
+function scoreSkillMatch(skill: string): number {
+  const skillNorm = normalizeHaystack(skill).replace(/\s+/g, ' ').trim();
+  return LOW_SIGNAL_SKILL_WEIGHTS[skillNorm] ?? 2;
 }
 
 function rationaleFor(program: Program, matchableText: MatchableText, detectedRoleFamily: DetectedRoleFamily): string {
@@ -483,4 +492,5 @@ export const __rankProgramsForEmployerJob = {
   skillMatchesText,
   detectRoleFamily,
   scoreProgram,
+  scoreSkillMatch,
 };

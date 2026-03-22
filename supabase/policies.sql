@@ -6,6 +6,7 @@
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE applications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE job_applications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_roles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE resources ENABLE ROW LEVEL SECURITY;
 ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
@@ -41,6 +42,19 @@ CREATE POLICY "applications_select_own" ON applications
 
 -- Applications: members cannot update (status changes are admin-only via API)
 -- No UPDATE policy for members.
+
+-- Job applications: members can CRUD their own entries
+CREATE POLICY "job_applications_select_own" ON job_applications
+  FOR SELECT USING (user_id = auth.uid());
+
+CREATE POLICY "job_applications_insert_own" ON job_applications
+  FOR INSERT WITH CHECK (user_id = auth.uid());
+
+CREATE POLICY "job_applications_update_own" ON job_applications
+  FOR UPDATE USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
+
+CREATE POLICY "job_applications_delete_own" ON job_applications
+  FOR DELETE USING (user_id = auth.uid());
 
 -- User_roles: members can read their own roles
 CREATE POLICY "user_roles_select_own" ON user_roles

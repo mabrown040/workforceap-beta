@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { Menu } from 'lucide-react';
 import DashboardSidebar from './DashboardSidebar';
@@ -22,8 +22,18 @@ export default function DashboardShell({
   totalCount = 0,
 }: DashboardShellProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
 
   const closeDrawer = () => setDrawerOpen(false);
+
+  useEffect(() => {
+    const el = mainRef.current;
+    if (!el) return;
+    el.inert = drawerOpen;
+    return () => {
+      el.inert = false;
+    };
+  }, [drawerOpen]);
 
   return (
     <div className="portal-shell-root">
@@ -55,7 +65,7 @@ export default function DashboardShell({
 
       <div className="portal-shell-body-row">
         <DashboardSidebar open={drawerOpen} onClose={closeDrawer} />
-        <main className="portal-shell-main">
+        <main ref={mainRef} className="portal-shell-main">
           {programTitle && (
             <ProgressBanner
               programTitle={programTitle}

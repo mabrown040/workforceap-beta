@@ -229,8 +229,17 @@ export default async function DashboardResourcesPage() {
             <p style={{ marginBottom: '0.5rem' }}>
               Your counselor will be assigned when your program begins.
             </p>
-            <button type="button" className="btn btn-outline" disabled style={{ opacity: 0.6, cursor: 'not-allowed' }}>
-              Schedule Meeting
+            <button
+              type="button"
+              className="btn btn-outline"
+              disabled
+              style={{ opacity: 0.6, cursor: 'not-allowed' }}
+              title="Coming soon — your counselor will be available after assignment."
+            >
+              Schedule meeting <span className="sr-only">(coming soon)</span>
+              <span aria-hidden style={{ fontSize: '0.75rem', fontWeight: 600, marginLeft: '0.35rem' }}>
+                (soon)
+              </span>
             </button>
           </div>
         </div>

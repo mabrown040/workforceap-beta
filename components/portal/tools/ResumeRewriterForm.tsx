@@ -2,7 +2,9 @@
 
 import { useState, useRef } from 'react';
 import Link from 'next/link';
+import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
+import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 
 const SALARY_RANGES = [
   '',
@@ -23,6 +25,7 @@ export default function ResumeRewriterForm() {
   const [extracting, setExtracting] = useState(false);
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { copy, copied } = useCopyToClipboard();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +57,7 @@ export default function ResumeRewriterForm() {
   };
 
   const handleCopy = () => {
-    if (output) navigator.clipboard.writeText(output);
+    if (output) void copy(output);
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,7 +87,7 @@ export default function ResumeRewriterForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="resume-rewriter-form">
+    <form onSubmit={handleSubmit} className="portal-ai-tool-form">
       <div style={{ background: 'rgba(74,155,79,0.06)', border: '1px solid rgba(74,155,79,0.2)', borderRadius: '8px', padding: '1rem 1.25rem', marginBottom: '1.5rem' }}>
         <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-gray-700)', lineHeight: 1.5 }}>
           <strong>How this works:</strong> Tell us your career goal — we&rsquo;ll reposition your existing experience to match. We don&rsquo;t invent anything. Every bullet in the output comes from what you&rsquo;ve actually done.
@@ -165,8 +168,15 @@ export default function ResumeRewriterForm() {
           {error}
         </div>
       )}
-      <button type="submit" className="btn btn-primary" disabled={loading}>
-        {loading ? 'Positioning your resume...' : 'Position my resume'}
+      <button type="submit" className="btn btn-primary" disabled={loading} aria-busy={loading}>
+        {loading ? (
+          <>
+            <Loader2 className="ai-tool-submit-spinner" size={18} aria-hidden />
+            Positioning your resume…
+          </>
+        ) : (
+          'Position my resume'
+        )}
       </button>
 
       {output && (
@@ -174,7 +184,7 @@ export default function ResumeRewriterForm() {
           <div className="resume-rewriter-output-header">
             <h3>Your repositioned resume</h3>
             <button type="button" className="btn btn-outline btn-sm" onClick={handleCopy}>
-              Copy to clipboard
+              {copied ? 'Copied!' : 'Copy to clipboard'}
             </button>
           </div>
           <pre className="resume-rewriter-output-content">{output}</pre>

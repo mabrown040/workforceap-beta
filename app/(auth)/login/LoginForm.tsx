@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Eye, EyeOff } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
+import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 
 const PORTAL_DESTINATIONS: { redirectTo: string; title: string; desc: string }[] = [
   {
@@ -26,19 +27,13 @@ const PORTAL_DESTINATIONS: { redirectTo: string; title: string; desc: string }[]
 export default function LoginForm() {
   const searchParams = useSearchParams();
   const redirectParam = searchParams.get('redirectTo');
-  const redirectTo =
-    redirectParam && redirectParam.startsWith('/') && !redirectParam.startsWith('//') ? redirectParam : '/dashboard';
+  const redirectTo = sanitizeRedirectPath(redirectParam, '/dashboard');
 
   const destinationActive = (target: string) => {
     if (target === '/dashboard') {
-      return (
-        redirectParam == null ||
-        redirectParam === '' ||
-        redirectParam === '/dashboard' ||
-        !(redirectParam.startsWith('/') && !redirectParam.startsWith('//'))
-      );
+      return redirectParam == null || redirectParam === '' || redirectTo === '/dashboard';
     }
-    return redirectParam === target;
+    return redirectTo === target;
   };
 
   const [email, setEmail] = useState('');
@@ -63,12 +58,18 @@ export default function LoginForm() {
 
       if (res.type === 'opaqueredirect' || (res.status >= 300 && res.status < 400)) {
         const location = res.headers.get('Location');
-        window.location.href =
-          location && location.startsWith('/')
-            ? new URL(location, window.location.origin).href
-            : redirectTo.startsWith('/')
-              ? redirectTo
-              : `/${redirectTo}`;
+        if (location) {
+          try {
+            const next = new URL(location, window.location.origin);
+            if (next.origin === window.location.origin) {
+              window.location.href = next.href;
+              return;
+            }
+          } catch {
+            /* ignore malformed Location */
+          }
+        }
+        window.location.href = new URL(redirectTo, window.location.origin).href;
         return;
       }
 
@@ -80,7 +81,7 @@ export default function LoginForm() {
         return;
       }
 
-      window.location.href = redirectTo.startsWith('/') ? redirectTo : `/${redirectTo}`;
+      window.location.href = redirectTo;
     } catch {
       setError('Something went wrong. Please try again.');
       setLoading(false);
@@ -191,6 +192,9 @@ export default function LoginForm() {
                 </button>
                 <div className="login-form-footer-links">
                   <Link href="/forgot-password">Forgot password?</Link>
+                  <p className="login-form-footer-links-muted">
+                    Passwords are the ones you set when you created your account (at least 8 characters).
+                  </p>
                   <p className="login-form-footer-links-muted">
                     Don&apos;t have an account? <Link href="/signup">Sign up</Link>
                   </p>

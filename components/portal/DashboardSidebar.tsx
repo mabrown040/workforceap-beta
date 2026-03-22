@@ -17,6 +17,8 @@ import {
   User,
   Settings,
   LogOut,
+  FileText,
+  Award,
 } from 'lucide-react';
 import { SignOutButton } from '@/components/portal/SignOutButton';
 
@@ -29,14 +31,16 @@ const SIDEBAR_CORE = [
 const SIDEBAR_TOOLS = [
   { href: '/dashboard/learning', label: 'Learning hub', Icon: Library },
   { href: '/dashboard/ai-tools', label: 'AI Tools', Icon: Sparkles },
+  { href: '/dashboard/ai-tools/application-tracker', label: 'Applications', Icon: FileText },
   { href: '/dashboard/readiness', label: 'Career Readiness', Icon: CheckCircle },
   { href: '/dashboard/career-brief', label: 'Career Brief', Icon: ClipboardList },
   { href: '/dashboard/assessments', label: 'Skills Assessment', Icon: ClipboardCheck },
 ];
 
 const SIDEBAR_MORE = [
+  { href: '/certifications', label: 'Certifications', Icon: Award },
   { href: '/dashboard/weekly-recap', label: 'Weekly Recap', Icon: BarChart3 },
-  { href: '/dashboard/profile', label: 'Profile', Icon: User },
+  { href: '/profile', label: 'Profile', Icon: User },
   { href: '/dashboard/settings', label: 'Settings', Icon: Settings },
 ];
 

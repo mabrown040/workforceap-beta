@@ -4509,6 +4509,18 @@ body { animation: fadeIn 0.4s ease; }
    APPLY FLOW - Funding pre-check & progress
    ============================================= */
 .apply-flow { margin-top: 1rem; }
+.apply-step-back-nav {
+    margin: 0 0 1rem;
+    font-size: 0.95rem;
+}
+.apply-step-back-nav a {
+    color: var(--color-accent);
+    font-weight: 600;
+}
+.apply-missing-session .apply-step-desc {
+    margin-bottom: 0.75rem;
+    line-height: 1.55;
+}
 .apply-progress-bar {
     background: var(--color-gray-200);
     border-radius: var(--radius-full);
@@ -5660,7 +5672,15 @@ body { animation: fadeIn 0.4s ease; }
     opacity: 0.8;
 }
 
-.resume-rewriter-form { margin-top: 1rem; }
+.resume-rewriter-form,
+.portal-ai-tool-form { margin-top: 1rem; }
+.ai-tool-submit-spinner {
+    display: inline-block;
+    vertical-align: -0.2em;
+    margin-right: 0.45rem;
+    animation: ai-tool-spin 0.75s linear infinite;
+}
+@keyframes ai-tool-spin { to { transform: rotate(360deg); } }
 .resume-upload-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
 .resume-file-input { font-size: 0.9rem; }
 .resume-upload-status { font-size: 0.85rem; color: var(--color-gray-500); }
@@ -5915,11 +5935,39 @@ body { animation: fadeIn 0.4s ease; }
     border-radius: var(--radius-md);
     color: var(--color-gray-600);
 }
-.application-tracker-table-wrap { overflow-x: auto; margin-bottom: 1rem; }
+.application-tracker-action-error { margin-bottom: 0.75rem; }
+.application-tracker-scroll-hint {
+    font-size: 0.8rem;
+    color: var(--color-gray-600);
+    margin: 0 0 0.5rem;
+}
+.application-tracker-table-wrap { overflow-x: auto; margin-bottom: 1rem; -webkit-overflow-scrolling: touch; }
 .application-tracker-table {
     width: 100%;
+    min-width: 640px;
     border-collapse: collapse;
 }
+.application-tracker-delete-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgba(0,0,0,0.45);
+}
+.application-tracker-delete-modal__panel {
+    max-width: 400px;
+    width: 100%;
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    background: var(--color-white, #fff);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+}
+.application-tracker-delete-modal__panel h3 { margin: 0 0 0.5rem; font-size: 1.1rem; }
+.application-tracker-delete-modal__panel p { margin: 0 0 1.25rem; color: var(--color-gray-600); font-size: 0.95rem; }
+.application-tracker-delete-modal__actions { display: flex; gap: 0.75rem; justify-content: flex-end; flex-wrap: wrap; }
 .application-tracker-table th,
 .application-tracker-table td {
     padding: 0.75rem;

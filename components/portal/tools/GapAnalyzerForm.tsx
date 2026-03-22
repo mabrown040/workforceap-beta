@@ -2,7 +2,9 @@
 
 import { useState, useRef } from 'react';
 import Link from 'next/link';
+import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
+import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 
 export default function GapAnalyzerForm() {
   const [resume, setResume] = useState('');
@@ -11,6 +13,7 @@ export default function GapAnalyzerForm() {
   const [extracting, setExtracting] = useState(false);
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { copy, copied } = useCopyToClipboard();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,7 +43,7 @@ export default function GapAnalyzerForm() {
   };
 
   const handleCopy = () => {
-    if (output) navigator.clipboard.writeText(output);
+    if (output) void copy(output);
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,7 +73,7 @@ export default function GapAnalyzerForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="resume-rewriter-form">
+    <form onSubmit={handleSubmit} className="portal-ai-tool-form">
       <div className="form-group">
         <label htmlFor="resume">Your resume (paste or upload PDF/DOCX)</label>
         <div className="resume-upload-row">
@@ -95,15 +98,22 @@ export default function GapAnalyzerForm() {
         />
       </div>
       {error && <div className="form-error" role="alert">{error}</div>}
-      <button type="submit" className="btn btn-primary" disabled={loading}>
-        {loading ? 'Analyzing gaps...' : 'Analyze gaps'}
+      <button type="submit" className="btn btn-primary" disabled={loading} aria-busy={loading}>
+        {loading ? (
+          <>
+            <Loader2 className="ai-tool-submit-spinner" size={18} aria-hidden />
+            Analyzing gaps…
+          </>
+        ) : (
+          'Analyze gaps'
+        )}
       </button>
       {output && (
         <div className="resume-rewriter-output">
           <div className="resume-rewriter-output-header">
             <h3>Gap analysis</h3>
             <button type="button" className="btn btn-outline btn-sm" onClick={handleCopy}>
-              Copy to clipboard
+              {copied ? 'Copied!' : 'Copy to clipboard'}
             </button>
           </div>
           <pre className="resume-rewriter-output-content">{output}</pre>

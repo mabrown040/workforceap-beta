@@ -32,9 +32,11 @@ const STATUS_OPTIONS: { value: ApplicationStatus; label: string }[] = [
 export function MemberReviewTable({ applications }: MemberReviewTableProps) {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const [feedback, setFeedback] = useState<string | null>(null);
 
   const handleStatusChange = async (applicationId: string, newStatus: ApplicationStatus) => {
     setUpdatingId(applicationId);
+    setFeedback(null);
     try {
       const res = await fetch(`/api/admin/members/${applicationId}/status`, {
         method: 'PATCH',
@@ -46,14 +48,14 @@ export function MemberReviewTable({ applications }: MemberReviewTableProps) {
       });
 
       if (!res.ok) {
-        const json = await res.json();
-        alert(json.error ?? 'Failed to update status');
+        const json = await res.json().catch(() => ({}));
+        setFeedback(typeof json.error === 'string' ? json.error : 'Failed to update status.');
         return;
       }
 
       window.location.reload();
     } catch {
-      alert('Network error. Please try again.');
+      setFeedback('Network error. Please try again.');
     } finally {
       setUpdatingId(null);
     }
@@ -68,7 +70,16 @@ export function MemberReviewTable({ applications }: MemberReviewTableProps) {
   }
 
   return (
-    <div style={{ overflowX: 'auto' }}>
+    <div className="admin-responsive-data">
+      {feedback && (
+        <div className="admin-inline-feedback admin-inline-feedback--error" role="alert">
+          <p>{feedback}</p>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setFeedback(null)}>
+            Dismiss
+          </button>
+        </div>
+      )}
+      <div className="admin-table-scroll admin-member-review-desktop">
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr style={{ borderBottom: '2px solid var(--color-gray-200)' }}>
@@ -162,6 +173,72 @@ export function MemberReviewTable({ applications }: MemberReviewTableProps) {
           ))}
         </tbody>
       </table>
+      </div>
+      <ul className="admin-portal-card-list admin-member-review-cards" aria-label="Applications (mobile layout)">
+        {applications.map((app) => (
+          <li key={`card-${app.id}`} className="admin-portal-card">
+            <div className="admin-portal-card__header">
+              <strong>{app.user.fullName}</strong>
+              <span
+                className="admin-portal-card__badge"
+                style={{
+                  background:
+                    app.status === 'APPROVED'
+                      ? 'rgba(74,155,79,0.15)'
+                      : app.status === 'DENIED'
+                        ? 'rgba(173,44,77,0.15)'
+                        : app.status === 'NEEDS_INFO'
+                          ? 'rgba(164,127,56,0.15)'
+                          : 'var(--color-gray-100)',
+                }}
+              >
+                {app.status.replace('_', ' ')}
+              </span>
+            </div>
+            <p className="admin-portal-card__meta">{app.user.email}</p>
+            {app.user.phone && <p className="admin-portal-card__meta">{formatPhone(app.user.phone)}</p>}
+            <p className="admin-portal-card__row">
+              <span className="admin-portal-card__label">Program</span> {app.programInterest}
+            </p>
+            <p className="admin-portal-card__row">
+              <span className="admin-portal-card__label">Submitted</span>{' '}
+              {app.submittedAt ? new Date(app.submittedAt).toLocaleDateString() : '-'}
+            </p>
+            <input
+              type="text"
+              placeholder="Notes (optional)"
+              value={notes[app.id] ?? ''}
+              onChange={(e) => setNotes((prev) => ({ ...prev, [app.id]: e.target.value }))}
+              className="admin-portal-card__notes"
+            />
+            <div className="admin-portal-card__actions">
+              {STATUS_OPTIONS.filter((o) => o.value !== app.status).map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => handleStatusChange(app.id, opt.value)}
+                  disabled={updatingId === app.id}
+                  className="btn"
+                  style={{
+                    padding: '0.35rem 0.6rem',
+                    fontSize: '.8rem',
+                    background:
+                      opt.value === 'APPROVED'
+                        ? 'var(--color-green)'
+                        : opt.value === 'DENIED'
+                          ? 'var(--color-accent)'
+                          : 'var(--color-gray-600)',
+                    color: 'white',
+                    border: 'none',
+                  }}
+                >
+                  {updatingId === app.id ? '...' : opt.label}
+                </button>
+              ))}
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

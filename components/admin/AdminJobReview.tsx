@@ -34,16 +34,18 @@ export default function AdminJobReview({ job }: { job: Job }) {
     student: { fullName: string; email: string; enrolledProgram: string | null };
   }> | null>(null);
   const [suggesting, setSuggesting] = useState(false);
+  const [actionFeedback, setActionFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const canApprove = job.status === 'pending';
   const canReject = job.status === 'pending';
 
   async function handleApprove() {
     setApproving(true);
+    setActionFeedback(null);
     try {
       const res = await fetch(`/api/admin/jobs/${job.id}/approve`, { method: 'POST' });
       if (res.ok) router.refresh();
-      else alert('Failed to approve');
+      else setActionFeedback({ type: 'error', message: 'Failed to approve. Try again.' });
     } finally {
       setApproving(false);
     }
@@ -51,10 +53,11 @@ export default function AdminJobReview({ job }: { job: Job }) {
 
   async function handleReject() {
     if (!rejectReason.trim()) {
-      alert('Please enter a reason');
+      setActionFeedback({ type: 'error', message: 'Please enter a rejection reason.' });
       return;
     }
     setRejecting(true);
+    setActionFeedback(null);
     try {
       const res = await fetch(`/api/admin/jobs/${job.id}/reject`, {
         method: 'POST',
@@ -62,7 +65,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
         body: JSON.stringify({ reason: rejectReason }),
       });
       if (res.ok) router.refresh();
-      else alert('Failed to reject');
+      else setActionFeedback({ type: 'error', message: 'Failed to reject. Try again.' });
     } finally {
       setRejecting(false);
     }
@@ -81,14 +84,15 @@ export default function AdminJobReview({ job }: { job: Job }) {
 
   async function handleSuggestMatches() {
     setSuggesting(true);
+    setActionFeedback(null);
     try {
       const res = await fetch(`/api/admin/jobs/${job.id}/suggest-matches`, { method: 'POST' });
       if (res.ok) {
-        alert('Match suggestions sent to employer.');
+        setActionFeedback({ type: 'success', message: 'Match suggestions sent to employer.' });
         router.refresh();
       } else {
         const d = await res.json();
-        alert(d.error ?? 'Failed');
+        setActionFeedback({ type: 'error', message: typeof d.error === 'string' ? d.error : 'Failed to send suggestions.' });
       }
     } finally {
       setSuggesting(false);
@@ -97,6 +101,17 @@ export default function AdminJobReview({ job }: { job: Job }) {
 
   return (
     <div>
+      {actionFeedback && (
+        <div
+          className={`admin-inline-feedback ${actionFeedback.type === 'success' ? 'admin-inline-feedback--success' : 'admin-inline-feedback--error'}`}
+          role="status"
+        >
+          <p>{actionFeedback.message}</p>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setActionFeedback(null)}>
+            Dismiss
+          </button>
+        </div>
+      )}
       <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>{job.title}</h1>
       <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
         {job.employer?.companyName ?? 'Unknown'} · {job.employer?.contactName ?? job.employer?.contactEmail ?? '—'} · Status: {job.status}

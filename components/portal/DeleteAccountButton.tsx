@@ -8,21 +8,23 @@ export default function DeleteAccountButton() {
   const [loading, setLoading] = useState(false);
   const [confirmText, setConfirmText] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const handleDelete = async () => {
     if (confirmText.toLowerCase() !== 'delete') return;
     setLoading(true);
+    setDeleteError(null);
     try {
       const res = await fetch('/api/member/delete-account', { method: 'POST' });
       if (res.ok) {
         router.push('/login');
         router.refresh();
       } else {
-        const data = await res.json();
-        alert(data.error ?? 'Failed to delete account');
+        const data = await res.json().catch(() => ({}));
+        setDeleteError(typeof data.error === 'string' ? data.error : 'Failed to delete account.');
       }
     } catch {
-      alert('Failed to delete account');
+      setDeleteError('Failed to delete account. Check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -34,7 +36,10 @@ export default function DeleteAccountButton() {
         type="button"
         className="btn"
         style={{ background: 'var(--color-error, #c00)', color: 'white' }}
-        onClick={() => setShowModal(true)}
+        onClick={() => {
+          setShowModal(true);
+          setDeleteError(null);
+        }}
       >
         Delete Account
       </button>
@@ -72,6 +77,11 @@ export default function DeleteAccountButton() {
               placeholder="Type delete to confirm"
               style={{ width: '100%', marginBottom: '1rem', padding: '0.5rem' }}
             />
+            {deleteError && (
+              <p className="form-error" role="alert" style={{ marginBottom: '1rem' }}>
+                {deleteError}
+              </p>
+            )}
             <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
               <button type="button" className="btn btn-outline" onClick={() => setShowModal(false)} disabled={loading}>
                 Cancel

@@ -350,17 +350,23 @@ body.mobile-nav-open .main-nav::after {
 .nav-menu a.active { color: #f0cd83; }
 .nav-menu a.active::after { width: 100%; }
 .nav-menu .dropdown { position: relative; padding: 0.5rem 0; }
-.nav-menu .dropdown span {
+.nav-menu .dropdown .dropdown-trigger {
     color: rgba(255,255,255,0.95);
     font-size: 0.875rem;
     font-weight: 500;
+    font-family: inherit;
     cursor: pointer;
     transition: color var(--transition-fast);
     display: inline-flex;
     align-items: center;
     gap: 4px;
+    background: none;
+    border: none;
+    padding: 0.5rem 0;
+    margin: 0;
+    -webkit-tap-highlight-color: transparent;
 }
-.nav-menu .dropdown span::after {
+.nav-menu .dropdown .dropdown-trigger::after {
     content: '';
     border-left: 4px solid transparent;
     border-right: 4px solid transparent;
@@ -368,9 +374,9 @@ body.mobile-nav-open .main-nav::after {
     opacity: 0.5;
     transition: transform var(--transition-fast), opacity var(--transition-fast);
 }
-.nav-menu .dropdown:hover span::after { transform: rotate(180deg); opacity: 0.8; }
-.nav-menu .dropdown span.active { color: #f0cd83; }
-.nav-menu .dropdown:hover span { color: var(--color-white); }
+.nav-menu .dropdown:hover .dropdown-trigger::after { transform: rotate(180deg); opacity: 0.8; }
+.nav-menu .dropdown .dropdown-trigger.active { color: #f0cd83; }
+.nav-menu .dropdown:hover .dropdown-trigger { color: var(--color-white); }
 .dropdown-menu {
     visibility: hidden;
     opacity: 0;
@@ -395,7 +401,8 @@ body.mobile-nav-open .main-nav::after {
     right: 0;
     height: 12px;
 }
-.dropdown:hover .dropdown-menu {
+.dropdown:hover .dropdown-menu,
+.dropdown:focus-within .dropdown-menu {
     visibility: visible;
     opacity: 1;
     transform: translateY(0);
@@ -4003,7 +4010,7 @@ img.img-fade.loaded { opacity: 1; }
         width: 100%;
     }
     .nav-menu > li > a,
-    .nav-menu .dropdown > span {
+    .nav-menu .dropdown > .dropdown-trigger {
         color: var(--color-white);
         font-size: 1.0625rem;
         display: flex;
@@ -4011,18 +4018,20 @@ img.img-fade.loaded { opacity: 1; }
         justify-content: space-between;
         padding: 1rem 0.5rem;
         min-height: 52px;
+        width: 100%;
+        text-align: left;
         border-radius: var(--radius-sm);
         transition: background var(--transition-fast);
     }
     .nav-menu > li > a:active,
-    .nav-menu .dropdown > span:active {
+    .nav-menu .dropdown > .dropdown-trigger:active {
         background: rgba(255,255,255,0.06);
     }
-    .nav-menu .dropdown span::after {
+    .nav-menu .dropdown .dropdown-trigger::after {
         border-top-color: rgba(255,255,255,0.4);
         transition: transform var(--transition-base);
     }
-    .dropdown.active > span::after { transform: rotate(180deg); }
+    .dropdown.active > .dropdown-trigger::after { transform: rotate(180deg); }
     .nav-menu a::after { display: none; }
     .dropdown-menu {
         position: static;
@@ -4504,17 +4513,17 @@ button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
-.nav-menu .dropdown span:focus-visible,
+.nav-menu .dropdown .dropdown-trigger:focus-visible,
 .mobile-nav-toggle:focus-visible,
 .mobile-nav-backdrop:focus-visible {
     outline: 2px solid var(--color-gold);
     outline-offset: 3px;
     border-radius: 4px;
 }
-.nav-menu .dropdown span {
+.nav-menu .dropdown .dropdown-trigger {
     outline: none;
 }
-.nav-menu .dropdown span:focus-visible {
+.nav-menu .dropdown .dropdown-trigger:focus-visible {
     outline: 2px solid var(--color-gold);
     outline-offset: 2px;
 }
@@ -10210,6 +10219,228 @@ body { animation: fadeIn 0.4s ease; }
     }
 }
 
+/* --- Alerts replacement, admin mobile cards, nav dropdown button, tracker cards --- */
+.employer-jobs-board__action-error {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(185, 28, 28, 0.35);
+    background: rgba(254, 226, 226, 0.45);
+    font-size: 0.92rem;
+    color: #7f1d1d;
+}
+.employer-jobs-board__action-error p {
+    margin: 0;
+    flex: 1;
+}
+.admin-inline-feedback {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: var(--radius-md);
+    font-size: 0.92rem;
+}
+.admin-inline-feedback p {
+    margin: 0;
+    flex: 1;
+}
+.admin-inline-feedback--error {
+    border: 1px solid rgba(185, 28, 28, 0.35);
+    background: rgba(254, 226, 226, 0.45);
+    color: #7f1d1d;
+}
+.admin-inline-feedback--success {
+    border: 1px solid rgba(34, 84, 61, 0.35);
+    background: rgba(220, 252, 231, 0.65);
+    color: #14532d;
+}
+.admin-table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.admin-portal-card-list {
+    display: none;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+.admin-portal-card {
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.1rem;
+    background: var(--color-white);
+    box-shadow: var(--shadow-sm);
+}
+.admin-portal-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.35rem;
+}
+.admin-portal-card__badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.2rem 0.45rem;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+}
+.admin-portal-card__meta {
+    font-size: 0.85rem;
+    color: var(--color-gray-500);
+    margin: 0 0 0.5rem;
+}
+.admin-portal-card__row {
+    font-size: 0.9rem;
+    margin: 0.35rem 0 0;
+    line-height: 1.45;
+}
+.admin-portal-card__label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-gray-500);
+    margin-right: 0.35rem;
+}
+.admin-portal-card__notes {
+    width: 100%;
+    margin-top: 0.65rem;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-sm);
+}
+.admin-portal-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+@media (max-width: 768px) {
+    .admin-member-review-desktop,
+    .admin-invites-desktop,
+    .admin-subgroup-desktop {
+        display: none;
+    }
+    .admin-portal-card-list.admin-member-review-cards,
+    .admin-portal-card-list.admin-invites-cards,
+    .admin-portal-card-list.admin-subgroup-cards {
+        display: flex;
+    }
+}
+.admin-confirm-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+.admin-confirm-modal {
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    padding: 1.35rem 1.5rem;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: var(--shadow-xl);
+}
+.admin-confirm-modal h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1.15rem;
+}
+.admin-confirm-modal p {
+    margin: 0 0 1.25rem;
+    color: var(--color-gray-600);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+.admin-confirm-modal__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+.admin-open-portal-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+}
+.admin-inline-text-error {
+    margin: 0;
+    font-size: 0.82rem;
+    color: #b91c1c;
+    max-width: 16rem;
+}
+.application-tracker-card-list {
+    display: none;
+    list-style: none;
+    padding: 0;
+    margin: 0.75rem 0 0;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+.application-tracker-card {
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.1rem;
+    background: var(--color-white);
+    box-shadow: var(--shadow-sm);
+}
+.application-tracker-card__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 0.65rem;
+}
+.application-tracker-card__role {
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+}
+.application-tracker-card__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+}
+.application-tracker-card__label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-gray-500);
+}
+.application-tracker-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.85rem;
+}
+@media (max-width: 720px) {
+    .application-tracker-table-desktop {
+        display: none;
+    }
+    .application-tracker-card-list {
+        display: flex;
+    }
+    .application-tracker-scroll-hint--desktop-only {
+        display: none;
+    }
+}
 /* =========================================================
    Portal page header — shared across admin and portal pages
    ========================================================= */

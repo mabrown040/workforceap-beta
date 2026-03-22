@@ -4,6 +4,10 @@ const fixture = `# Customer Success Manager, Mid-Market
 
 draft
 Needs a few details
+Employer portal
+Viewing as Test
+Sign out
+Back to jobs
 
 body{-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased;font-family:"ripplingFontNormal",Arial,Helvetica,sans-serif;letter-spacing:0.5px;}ul{list-style:none;-webkit-padding-start:0;padding-inline-start:0;}p,h4,h3,h5,h6{margin:0;}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}@font-face{font-display:swap;font-family:"ripplingFontLight";src:url(' format('embedded-opentype'),url(' format('woff2'),url(' format('woff');font-style:normal;font-weight:300;} :root{--color-primary:#7a005d;--color-surface:#f9f7f6;--color-white:#ffffff;--color-black:#000000;}
 
@@ -22,6 +26,9 @@ const cleaned = sanitizeScrapedJobText(fixture);
 if (/body\{|@font-face|:root|--color-primary|font-family/i.test(cleaned)) {
   throw new Error('CSS noise still present after sanitizeScrapedJobText');
 }
+if (/Employer portal|Viewing as Test|Sign out|Back to jobs/i.test(cleaned)) {
+  throw new Error('Portal chrome still present after sanitizeScrapedJobText');
+}
 
 const parsed = buildFallbackParsedJobFromScrape('Customer Success Manager, Mid-Market', fixture);
 if (!parsed) {
@@ -34,6 +41,15 @@ if (/body\{|@font-face|:root|--color-primary|font-family/i.test(parsed.descripti
 
 if (!parsed.description.includes('Closinglock is hiring a Customer Success Manager')) {
   throw new Error('Expected core job description text to be preserved');
+}
+if (/Employer portal|Viewing as Test|Sign out|Back to jobs/i.test(parsed.description)) {
+  throw new Error('Fallback description still contains portal chrome');
+}
+if (!parsed.description.includes('Imported from:')) {
+  throw new Error('Expected fallback description to preserve the Imported from footer label');
+}
+if (/Imported from:\s+https?:\/\//i.test(parsed.description)) {
+  throw new Error('Expected fallback description to strip the Imported from URL from the saved draft body');
 }
 
 const normalized = normalizeImportedParsedJob({

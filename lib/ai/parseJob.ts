@@ -36,11 +36,29 @@ const JOB_DETAIL_URL_HINT =
   /(?:\/jobs?\/(?!$)|\/job\/|\/job-posting\/|\/positions?\/|\/openings?\/|\/careers\/[^/?#]+\/jobs?\/|[?&](?:job|jobid|job_id|gh_jid|lever-via|ashby_jid|postingId|reqid)=|ats\.rippling\.com\/(?:en-[^/]+\/)?[^/]+\/jobs\/[^/?#]+|jobs\.lever\.co\/[^/]+\/[a-f0-9-]+|boards\.greenhouse\.io\/[^/]+\/jobs\/\d+|jobs\.ashbyhq\.com\/[^/]+\/[a-z0-9-]+)/i;
 const JOB_TITLE_HINT =
   /\b(engineer|developer|manager|director|analyst|designer|specialist|associate|representative|coordinator|architect|administrator|recruiter|consultant|intern|officer|lead|head|principal|scientist|product|success|marketing|sales|support|operations|finance|account|nurse|therapist|teacher)\b/i;
+const PORTAL_CHROME_LINE =
+  /^(?:employer portal|site home|sign out|viewing as(?:\s+.+)?|switch company|job postings|applicants|create posting|almost ready to send|review and send|send test|publish job|posting settings|candidate pipeline|interview kits?|reports|settings|dashboard|back to jobs|back to job postings|all jobs|manage postings|review posting|preview posting|posting preview|job board|company settings|team settings|billing|integrations|workflow automations?|approval flows?|candidate details|application review|review application|review job|edit posting|edit job|post job|new posting)$/i;
 const NOISE_BODY_LINE =
-  /^(draft|needs a few details|job description\s*\*?|location \(city, state or remote\)|share this job|copy link|back to jobs|apply now|save job)$/i;
+  /^(?:draft|needs a few details|job description\s*\*?|location \(city, state or remote\)|share this job|copy link|back to jobs|apply now|save job|imported with|read more|show more)$/i;
+
+function isPortalChromeLine(line: string): boolean {
+  const cleaned = cleanWhitespace(line)
+    .replace(/^[#>*\-\s]+/, '')
+    .replace(/[|:•·]+$/g, '')
+    .trim();
+  if (!cleaned) return false;
+  return PORTAL_CHROME_LINE.test(cleaned) || NOISE_BODY_LINE.test(cleaned);
+}
 
 function cleanWhitespace(value: string): string {
   return value.replace(/\s+/g, ' ').trim();
+}
+
+function shouldSkipImportedTitle(title: string): boolean {
+  const cleaned = cleanWhitespace(title).replace(/^#{1,6}\s+/, '').trim();
+  if (!cleaned) return true;
+  if (isPortalChromeLine(cleaned)) return true;
+  return /^(?:rippling|careers|jobs at|open positions|home|menu|skip to|cookie|privacy|apply|log ?in|sign ?in|back to jobs)$/i.test(cleaned);
 }
 
 function normalizeCandidateUrl(rawUrl: string, baseUrl?: string): string | null {
@@ -96,7 +114,7 @@ function collectContextLines(rawText: string, startIndex: number, maxLines = 4):
     if (!cleaned) continue;
     if (cleaned.startsWith('[') || cleaned.startsWith('#')) continue;
     if (/^https?:\/\//i.test(cleaned)) continue;
-    if (NOISE_BODY_LINE.test(cleaned)) continue;
+    if (isPortalChromeLine(cleaned)) continue;
     lines.push(cleaned);
     if (lines.length >= maxLines) break;
   }
@@ -144,7 +162,7 @@ export function sanitizeScrapedJobText(rawText: string): string {
     .split('\n')
     .map((line) => line.trimEnd())
     .filter((line) => !looksLikeCssNoiseLine(line))
-    .filter((line) => !NOISE_BODY_LINE.test(line.trim()));
+    .filter((line) => !isPortalChromeLine(line.trim()));
 
   cleaned = lines.join('\n')
     .replace(/\n{3,}/g, '\n\n')
@@ -236,8 +254,8 @@ export function clipJobSourceTextForLLM(rawText: string, maxChars = 26000): stri
  * When AI parse fails, try the first markdown H1/H2 that looks like a role title (not nav chrome).
  */
 export function extractLikelyJobTitleFromScrape(rawText: string): string | null {
-  const lines = rawText.split('\n').map((l) => l.trim());
-  const skip = /^(rippling|careers|jobs at|open positions|home|menu|skip to|cookie|privacy|apply|log ?in|sign ?in)/i;
+  const lines = sanitizeScrapedJobText(rawText).split('\n').map((l) => l.trim());
+  const skip = /^(rippling|careers|jobs at|open positions|home|menu|skip to|cookie|privacy|apply|log ?in|sign ?in|employer portal|site home|viewing as|switch company|job postings|applicants|create posting|almost ready to send|back to jobs)/i;
   for (let i = 0; i < Math.min(lines.length, 100); i++) {
     const line = lines[i];
     if (!line) continue;
@@ -246,6 +264,7 @@ export function extractLikelyJobTitleFromScrape(rawText: string): string | null 
       const title = hm[1].replace(/\*+/g, '').trim();
       if (title.length < 3 || title.length > 140) continue;
       if (skip.test(title)) continue;
+      if (shouldSkipImportedTitle(title)) continue;
       return title;
     }
   }
@@ -260,9 +279,10 @@ export function buildFallbackParsedJobFromScrape(
   listingTitle: string | undefined,
   pageText: string
 ): ParsedJob | null {
+  const cleanedListingTitle = listingTitle?.trim();
   const title =
-    listingTitle && listingTitle.trim().length >= 3
-      ? listingTitle.trim()
+    cleanedListingTitle && cleanedListingTitle.length >= 3 && !shouldSkipImportedTitle(cleanedListingTitle)
+      ? cleanedListingTitle
       : extractLikelyJobTitleFromScrape(pageText);
   if (!title) return null;
   let body = stripUrlsFromDescription(sanitizeScrapedJobText(pageText)).trim();

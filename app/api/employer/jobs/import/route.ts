@@ -3,8 +3,19 @@ import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
-import { parseJobFromText, buildFallbackParsedJobFromScrape } from '@/lib/ai/parseJob';
-import { smartImportJobs, detectProvider } from '@/lib/ai/atsProviders';
+import {
+  buildFallbackParsedJobFromScrape,
+  normalizeImportedParsedJob,
+  parseJobFromText,
+} from '@/lib/ai/parseJob';
+import {
+  detectProvider,
+  fetchSubJobPageText,
+  getImportWaitForMs,
+  isKnownStructuredApiProvider,
+  isLikelyJobDetailUrl,
+  smartImportJobs,
+} from '@/lib/ai/atsProviders';
 import { buildEmployerJobCreateData, getRouteErrorDetails } from '@/lib/employer/jobCreate';
 import { checkEmployerJobImportRateLimit } from '@/lib/rate-limit';
 
@@ -14,14 +25,20 @@ const importSchema = z.object({
   createDraft: z.boolean().optional(),
 }).refine((d) => d.url || d.rawText, { message: 'Provide url or rawText' });
 
-function stripHtmlToText(html: string): string {
-  return html
-    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 15000);
+function appendImportedFrom(description: string, sourceUrl?: string): string {
+  return sourceUrl ? `${description}\n\n---\nImported from: ${sourceUrl}` : description;
+}
+
+async function parseDirectJobUrl(url: string) {
+  const textToParse = await fetchSubJobPageText(url, { waitFor: getImportWaitForMs(url) });
+  if (!textToParse || textToParse.length < 50) return null;
+  const parsedJob = await parseJobFromText(textToParse);
+  const extractedRaw = parsedJob ?? buildFallbackParsedJobFromScrape(undefined, textToParse);
+  if (!extractedRaw) return null;
+  return {
+    extracted: normalizeImportedParsedJob(extractedRaw),
+    provider: parsedJob ? 'ai+direct-job-url' : 'scrape+fallback',
+  };
 }
 
 export async function POST(request: NextRequest) {
@@ -54,11 +71,42 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Provide url or rawText' }, { status: 400 });
     }
 
-    // ── URL-based import (smart ATS detection) ──
     if (parsed.data.url && !parsed.data.rawText) {
+      const providerMatch = detectProvider(parsed.data.url);
+      const shouldTreatAsDirectJobUrl =
+        isLikelyJobDetailUrl(parsed.data.url)
+        && !isKnownStructuredApiProvider(providerMatch?.provider);
+
+      if (shouldTreatAsDirectJobUrl) {
+        const directResult = await parseDirectJobUrl(parsed.data.url);
+        if (directResult) {
+          if (parsed.data.createDraft) {
+            const job = await prisma.job.create({
+              data: buildEmployerJobCreateData(ctx.employerId, {
+                title: directResult.extracted.title,
+                location: directResult.extracted.location,
+                locationType: directResult.extracted.locationType ?? 'onsite',
+                jobType: directResult.extracted.jobType ?? 'fulltime',
+                salaryMin: directResult.extracted.salaryMin,
+                salaryMax: directResult.extracted.salaryMax,
+                description: appendImportedFrom(directResult.extracted.description, parsed.data.url),
+                requirements: directResult.extracted.requirements ?? [],
+                preferredCertifications: directResult.extracted.preferredCertifications ?? [],
+                suggestedPrograms: directResult.extracted.suggestedPrograms ?? [],
+                status: 'draft',
+              }),
+            });
+            return NextResponse.json({ job, created: true, provider: directResult.provider }, { status: 201 });
+          }
+          return NextResponse.json({
+            extracted: { ...directResult.extracted, sourceUrl: parsed.data.url },
+            provider: directResult.provider,
+          });
+        }
+      }
+
       const atsResult = await smartImportJobs(parsed.data.url);
 
-      // If ATS API returned structured jobs, use them directly
       if (atsResult.jobs.length > 0) {
         if (parsed.data.createDraft) {
           const created = [];
@@ -96,7 +144,6 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      // ATS errors (JS-rendered, etc)
       if (atsResult.errors.length > 0) {
         return NextResponse.json({
           error: atsResult.errors[0],
@@ -105,13 +152,12 @@ export async function POST(request: NextRequest) {
         }, { status: 400 });
       }
 
-      // Use text already fetched by smartImportJobs (no double-fetch)
       try {
         const textToParse = atsResult.rawText;
         if (textToParse && textToParse.length >= 50) {
           const parsedJob = await parseJobFromText(textToParse);
-          const extracted =
-            parsedJob ?? buildFallbackParsedJobFromScrape(undefined, textToParse);
+          const extractedRaw = parsedJob ?? buildFallbackParsedJobFromScrape(undefined, textToParse);
+          const extracted = extractedRaw ? normalizeImportedParsedJob(extractedRaw) : null;
           if (extracted) {
             const provider = parsedJob ? 'ai' : 'scrape+fallback';
             if (parsed.data.createDraft) {
@@ -123,7 +169,7 @@ export async function POST(request: NextRequest) {
                   jobType: extracted.jobType ?? 'fulltime',
                   salaryMin: extracted.salaryMin,
                   salaryMax: extracted.salaryMax,
-                  description: extracted.description,
+                  description: appendImportedFrom(extracted.description, parsed.data.url),
                   requirements: extracted.requirements ?? [],
                   preferredCertifications: extracted.preferredCertifications ?? [],
                   suggestedPrograms: extracted.suggestedPrograms ?? [],
@@ -144,31 +190,26 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         error: 'Could not extract job details from this URL. Try pasting the job description text.',
-        tip: detectProvider(parsed.data.url)
-          ? `Detected ATS: ${detectProvider(parsed.data.url)!.provider}. Try a direct link to a specific job posting.`
+        tip: providerMatch
+          ? `Detected ATS: ${providerMatch.provider}. Try a direct link to a specific job posting.`
           : undefined,
       }, { status: 400 });
     }
 
-    // ── Raw text import (AI parsing) ──
-    let textToParse = parsed.data.rawText;
-    if (parsed.data.url && textToParse) {
-      // Both provided — use text, note the URL
-    }
-
+    const textToParse = parsed.data.rawText;
     if (!textToParse || textToParse.length < 50) {
       return NextResponse.json({ error: 'Not enough text to parse. Paste the full job description.' }, { status: 400 });
     }
 
     const parsedJob = await parseJobFromText(textToParse);
-    const extracted = parsedJob ?? buildFallbackParsedJobFromScrape(undefined, textToParse);
+    const extractedRaw = parsedJob ?? buildFallbackParsedJobFromScrape(undefined, textToParse);
+    const extracted = extractedRaw ? normalizeImportedParsedJob(extractedRaw) : null;
     if (!extracted) {
       return NextResponse.json({ error: 'Could not extract job details. Please edit the form manually.' }, { status: 400 });
     }
 
     const provider = parsedJob ? 'ai' : 'scrape+fallback';
-    const createDraft = parsed.data.createDraft === true;
-    if (createDraft) {
+    if (parsed.data.createDraft === true) {
       const job = await prisma.job.create({
         data: buildEmployerJobCreateData(ctx.employerId, {
           title: extracted.title,
@@ -177,7 +218,7 @@ export async function POST(request: NextRequest) {
           jobType: extracted.jobType ?? 'fulltime',
           salaryMin: extracted.salaryMin,
           salaryMax: extracted.salaryMax,
-          description: extracted.description,
+          description: appendImportedFrom(extracted.description, parsed.data.url),
           requirements: extracted.requirements ?? [],
           preferredCertifications: extracted.preferredCertifications ?? [],
           suggestedPrograms: extracted.suggestedPrograms ?? [],

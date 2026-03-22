@@ -72,6 +72,24 @@ export function detectProvider(url: string): ProviderMatch | null {
   return null;
 }
 
+export function isKnownStructuredApiProvider(provider: string | null | undefined): boolean {
+  return provider === 'greenhouse' || provider === 'lever' || provider === 'ashby';
+}
+
+export function isLikelyJobDetailUrl(url: string): boolean {
+  const detected = detectProvider(url);
+  if (detected) return !detected.isJobList;
+  return /(?:\/jobs?\/[^/?#]+|\/job\/[^/?#]+|\/positions?\/[^/?#]+|[?&](?:job|jobid|job_id|gh_jid|postingId|reqid)=)/i.test(url);
+}
+
+export function getImportWaitForMs(url: string): number {
+  const provider = detectProvider(url)?.provider;
+  if (provider === 'rippling' || provider === 'workday' || provider === 'icims') {
+    return 4500;
+  }
+  return 2000;
+}
+
 // ────────────────────────────────────────────────────────────
 // Tier 1: Public API Parsers
 // ────────────────────────────────────────────────────────────
@@ -488,7 +506,7 @@ export async function fetchPageText(url: string, options?: { waitFor?: number })
   if (page && !page.isJSRendered && page.text.length > 200) {
     return page.text;
   }
-  const firecrawlResult = await fetchWithFirecrawlCached(url, { waitFor: options?.waitFor ?? 2000 });
+  const firecrawlResult = await fetchWithFirecrawlCached(url, { waitFor: options?.waitFor ?? getImportWaitForMs(url) });
   if (firecrawlResult && firecrawlResult.text.length > 200) {
     return firecrawlResult.text;
   }
@@ -511,7 +529,7 @@ export async function fetchSubJobPageText(
     return page.text;
   }
   // 2. Direct fetch failed or insufficient (JS-rendered, blocked) — Firecrawl as last resort
-  const firecrawlResult = await fetchWithFirecrawlCached(url, { waitFor: options?.waitFor ?? 2000 });
+  const firecrawlResult = await fetchWithFirecrawlCached(url, { waitFor: options?.waitFor ?? getImportWaitForMs(url) });
   if (firecrawlResult && firecrawlResult.text.length >= 200) {
     return firecrawlResult.text;
   }

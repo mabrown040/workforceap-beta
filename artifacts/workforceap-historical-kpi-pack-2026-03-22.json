@@ -1,0 +1,74 @@
+{
+  "generated_at": "2026-03-22T16:09:00-05:00",
+  "kpis": [
+    {
+      "id": "kpi_cohort_completion_rate",
+      "name": "Cohort completion rate",
+      "definition": "#students with completion_flag=true / #students enrolled in cohort",
+      "frequency": "cohort / weekly",
+      "required_fields": ["cohort_key", "enrollment_date", "completion_flag"],
+      "owner": "Analytics",
+      "priority": "P0",
+      "confidence": 0.85
+    },
+    {
+      "id": "kpi_median_time_to_placement",
+      "name": "Median time-to-placement (days)",
+      "definition": "median(days between completion_date and placement_date)",
+      "frequency": "monthly",
+      "required_fields": ["completion_date", "placement_date", "pathway_tag"],
+      "owner": "Ops",
+      "priority": "P0",
+      "confidence": 0.78
+    },
+    {
+      "id": "kpi_module_reattempt_rate",
+      "name": "Module reattempt rate",
+      "definition": "#attempts>1 / #first-time attempts (per module)",
+      "frequency": "cohort / per-release",
+      "required_fields": ["module_id", "attempt_count", "assessment_date"],
+      "owner": "Curriculum",
+      "priority": "P1",
+      "confidence": 0.82
+    },
+    {
+      "id": "kpi_contact_enrichment_completeness",
+      "name": "Contact enrichment completeness",
+      "definition": "%students with phone AND email validated within 90 days of enrollment",
+      "frequency": "weekly",
+      "required_fields": ["enrichment_timestamp", "email_validated", "phone_validated"],
+      "owner": "Outreach",
+      "priority": "P1",
+      "confidence": 0.7
+    },
+    {
+      "id": "kpi_employer_feedback_coverage",
+      "name": "Employer feedback coverage & satisfaction",
+      "definition": "%placements with feedback; mean feedback_score",
+      "frequency": "monthly",
+      "required_fields": ["placement_id", "employer_feedback_timestamp", "feedback_score"],
+      "owner": "Partnerships",
+      "priority": "P2",
+      "confidence": 0.65
+    },
+    {
+      "id": "kpi_90day_retention",
+      "name": "Placement 90-day retention rate",
+      "definition": "%placements still employed at 90 days",
+      "frequency": "monthly",
+      "required_fields": ["placement_date", "retention_check_date", "employed_flag"],
+      "owner": "Partnerships",
+      "priority": "P1",
+      "confidence": 0.6
+    }
+  ],
+  "data_quality_notes": {
+    "missing_keys": "student identifiers inconsistent across files (student_id, id, learner_uuid)",
+    "timestamp_formats": "mixed timezone and formats; standardize to UTC ISO-8601",
+    "coverage_estimates": {
+      "core_records": "~72%",
+      "contact_enrichment": "~45%",
+      "employer_feedback": "~28%"
+    }
+  }
+}

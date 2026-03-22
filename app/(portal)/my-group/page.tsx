@@ -11,7 +11,7 @@ import MyGroupMembersTable from '@/components/portal/MyGroupMembersTable';
 import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'My Group',
+  title: 'Group members',
   description: 'View members in your subgroup.',
   path: '/my-group',
 });
@@ -101,8 +101,8 @@ export default async function MyGroupPage() {
   return (
     <div>
       <PageHeader
-        title="My Group"
-        subtitle="Members assigned to your subgroup. View progress and placement status."
+        title="Group members"
+        subtitle="Members assigned to your workspace. View progress, training status, and placements."
       />
 
       <div

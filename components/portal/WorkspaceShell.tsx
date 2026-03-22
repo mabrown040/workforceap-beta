@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Menu } from 'lucide-react';
 import { getBestActiveHref } from '@/lib/nav/activeRoute';
+import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import SuperAdminViewSwitcher from '@/components/super-admin-view-switcher';
 import PortalHeaderActions from './PortalHeaderActions';
@@ -118,7 +119,7 @@ export default function WorkspaceShell({
                 <SuperAdminViewSwitcher />
               </div>
               <Link href="/" className="workspace-sidebar-home-link" onClick={closeDrawer}>
-                Site home
+                {PRODUCT_COPY.publicSiteLabel}
               </Link>
               <SignOutButton className="workspace-sidebar-signout" onSignOutStart={closeDrawer}>
                 Sign out

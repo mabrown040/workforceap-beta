@@ -6,6 +6,7 @@ import { Menu } from 'lucide-react';
 import AdminSidebar from './AdminSidebar';
 import AdminFooter from './AdminFooter';
 import PortalHeaderActions from '@/components/portal/PortalHeaderActions';
+import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
 
 type AdminShellProps = {
   children: React.ReactNode;
@@ -29,7 +30,7 @@ export default function AdminShell({ children }: AdminShellProps) {
             <Menu size={22} strokeWidth={2} aria-hidden />
           </button>
           <Link href="/admin" className="portal-shell-header__title-link">
-            WorkforceAP Admin
+            {PRODUCT_COPY.adminWorkspace}
           </Link>
         </div>
         <PortalHeaderActions />

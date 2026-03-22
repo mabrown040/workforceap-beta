@@ -7,6 +7,7 @@ import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { LogOut } from 'lucide-react';
 import { SignOutButton } from '@/components/portal/SignOutButton';
 import { MEMBER_PORTAL_NAV } from '@/lib/nav/memberPortalNav';
+import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
 import { isActiveRoute } from '@/lib/nav/activeRoute';
 
 type DashboardSidebarProps = {
@@ -29,7 +30,7 @@ export default function DashboardSidebar({ open = false, onClose }: DashboardSid
   return (
     <aside ref={trapRef} className={`dashboard-sidebar ${open ? 'open' : ''}`}>
       <div className="dashboard-sidebar-inner">
-        <nav aria-label="Dashboard navigation" className="dashboard-sidebar-nav">
+        <nav aria-label="Member portal navigation" className="dashboard-sidebar-nav">
           <ul className="dashboard-sidebar-list">
             {(['core', 'tools', 'more'] as const).map((group) => (
               <li key={group}>
@@ -67,7 +68,7 @@ export default function DashboardSidebar({ open = false, onClose }: DashboardSid
         </nav>
         <div className="dashboard-sidebar-footer">
           <Link href="/" className="dashboard-sidebar-home-link" onClick={() => onClose?.()}>
-            Site home
+            {PRODUCT_COPY.publicSiteLabel}
           </Link>
           <SignOutButton className="dashboard-sidebar-signout" onSignOutStart={onClose}>
             <LogOut size={18} strokeWidth={2} aria-hidden />

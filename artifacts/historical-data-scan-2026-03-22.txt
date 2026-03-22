@@ -1,0 +1,451 @@
+ROOT: C:\Users\mabro\Downloads\historical-student-data
+TOTAL_FILES: 1449
+
+EXTENSION_COUNTS:
+.xlsx	381
+.docx	375
+.pdf	264
+.jpg	127
+.doc	102
+.png	66
+.pub	65
+.ini	19
+.tmp	13
+.pptx	10
+.mdb	9
+.jpeg	7
+.gif	2
+.xcf	2
+.db	2
+.DS_Store	2
+.lnk	1
+.mht	1
+.xls	1
+
+DB_LIKE_FILES:
+C:\Users\mabro\Downloads\historical-student-data\AAUL Student Database (as of 7-30-2019 current)_Backup.mdb	.mdb	31326208
+C:\Users\mabro\Downloads\historical-student-data\AAUL Student Database-2022.mdb	.mdb	31002624
+C:\Users\mabro\Downloads\historical-student-data\AAUL Student Database.mdb	.mdb	31068160
+C:\Users\mabro\Downloads\historical-student-data\ADA Training = Non Complete as of Noon on Sunday 9.29.xlsx	.xlsx	111268
+C:\Users\mabro\Downloads\historical-student-data\AUTMHQ Student Database (as of 7-30-2019 current).mdb	.mdb	45989888
+C:\Users\mabro\Downloads\historical-student-data\AUTMHQ Student Database New_2024-11-191.mdb	.mdb	46661632
+C:\Users\mabro\Downloads\historical-student-data\Copy of CSN Potential Clients (2011-Current) as of 6-11-19.xlsx	.xlsx	450319
+C:\Users\mabro\Downloads\historical-student-data\CSN Student Database (as of 7-30-2019 current).mdb	.mdb	37687296
+C:\Users\mabro\Downloads\historical-student-data\Enrolled Students 7-1-17-6-30-2019.xlsx	.xlsx	27778
+C:\Users\mabro\Downloads\historical-student-data\MCSA MCSE MCITP Schedule 2019-2020 .xlsx	.xlsx	67154
+C:\Users\mabro\Downloads\historical-student-data\MCSA MCSE Schedule 2019-2020 - Extended .xlsx	.xlsx	67889
+C:\Users\mabro\Downloads\historical-student-data\MOS Schedule 2019 Wednesdays - Fridays and alternate Saturdays - Extended.xlsx	.xlsx	66446
+C:\Users\mabro\Downloads\historical-student-data\Potential MCSA Students (Autosaved).xlsx	.xlsx	11838
+C:\Users\mabro\Downloads\historical-student-data\Potential MCSA Students.xlsx	.xlsx	11817
+C:\Users\mabro\Downloads\historical-student-data\RecMsg.mdb	.mdb	172032
+C:\Users\mabro\Downloads\historical-student-data\Training Attendance Log.xls	.xls	60416
+C:\Users\mabro\Downloads\historical-student-data\~$11-15-19 MASTER CSN MASTER SORTED 11-15-19 Student Spreadsheet 2008-2019--TWC --w notations.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\~$Copy of 10-12-18 MASTER CSN MASTER SORTED 08-30-19 Student Spreadsheet 2008-2018--TWC --w notations.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\~$CSN Potential Clients (2011-Current).xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\~$Current Students-MB.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\~$Current Students.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\~$Enrolled Students Dec 2018.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\~$JAVA Students.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\~$May 20th SQL Class.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\~$Nov PMP Class Roster.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\~$Oct 2019 SQL Roster.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\~$Oct SQL Students Updated.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\~$PMP Class Roster Nov 12-Dec 19.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\~$Potential Students Sept-Current.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\~$September's PMP Class Roster.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\~$SQL PMP Class 6-18-19.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\CSN 2018 Completers Survey-Updated\._1-SQLPMP Completer Survey 2018.xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\CSN 2018 Completers Survey-Updated\._2-PMP Completer Survey 2018.xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\CSN 2018 Completers Survey-Updated\._3-JAVASQL Completer Survey 2018.xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\CSN 2018 Completers Survey-Updated\._4-MCITP Completer Survey 2018.xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\CSN 2018 Completers Survey-Updated\._5-MOSCAPM Completer Survey 2018.xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\CSN 2018 Completers Survey-Updated\._6-IMDBOS Completer Survey 2018.xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\CSN 2018 Completers Survey-Updated\._7-Web Com Manager Completer Survey 2018.xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\CSN 2018 Completers Survey-Updated\._EnrolledStudentsSept1-Aug31 FORMATTED FOR COMPLETERS SURVEY.xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\CSN 2018 Completers Survey-Updated\._~$EnrolledStudentsSept1-Aug31 FORMATTED FOR COMPLETERS SURVEY.xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\CSN 2018 Completers Survey-Updated\1-SQLPMP Completer Survey 2018.xlsx	.xlsx	67922
+C:\Users\mabro\Downloads\historical-student-data\CSN 2018 Completers Survey-Updated\2-PMP Completer Survey 2018-Updated.xlsx	.xlsx	10356
+C:\Users\mabro\Downloads\historical-student-data\CSN 2018 Completers Survey-Updated\2-PMP Completer Survey 2018.xlsx	.xlsx	45173
+C:\Users\mabro\Downloads\historical-student-data\CSN 2018 Completers Survey-Updated\3-JAVASQL Completer Survey 2018-Updated.xlsx	.xlsx	10538
+C:\Users\mabro\Downloads\historical-student-data\CSN 2018 Completers Survey-Updated\3-JAVASQL Completer Survey 2018.xlsx	.xlsx	62078
+C:\Users\mabro\Downloads\historical-student-data\CSN 2018 Completers Survey-Updated\4-MCITP Completer Survey 2018-Updated.xlsx	.xlsx	10571
+C:\Users\mabro\Downloads\historical-student-data\CSN 2018 Completers Survey-Updated\4-MCITP Completer Survey 2018.xlsx	.xlsx	45640
+C:\Users\mabro\Downloads\historical-student-data\CSN 2018 Completers Survey-Updated\5-MOSCAPM Completer Survey 2018-Updated.xlsx	.xlsx	9937
+C:\Users\mabro\Downloads\historical-student-data\CSN 2018 Completers Survey-Updated\5-MOSCAPM Completer Survey 2018.xlsx	.xlsx	44935
+C:\Users\mabro\Downloads\historical-student-data\CSN 2018 Completers Survey-Updated\6-IMDBOS Completer Survey 2018-Updated.xlsx	.xlsx	10401
+C:\Users\mabro\Downloads\historical-student-data\CSN 2018 Completers Survey-Updated\6-IMDBOS Completer Survey 2018.xlsx	.xlsx	38570
+C:\Users\mabro\Downloads\historical-student-data\CSN 2018 Completers Survey-Updated\7-Web Com Manager Completer Survey 2018-Updated.xlsx	.xlsx	9426
+C:\Users\mabro\Downloads\historical-student-data\CSN 2018 Completers Survey-Updated\7-Web Com Manager Completer Survey 2018.xlsx	.xlsx	37156
+C:\Users\mabro\Downloads\historical-student-data\CSN 2018 Completers Survey-Updated\Copy of 1-SQLPMP Completer Survey 2018-Updated.xlsx	.xlsx	17901
+C:\Users\mabro\Downloads\historical-student-data\CSN 2018 Completers Survey-Updated\EnrolledStudentsSept1-Aug31 FORMATTED FOR COMPLETERS SURVEY.xlsx	.xlsx	21140
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CSN Administrator Passwords.xlsx	.xlsx	12757
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CSN CONTACT LIST.xlsx	.xlsx	21663
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Updated Book Sign Sheets.xlsx	.xlsx	105876
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\BOOK SIGN SHEETS\CSN Book Sign Sheets.xlsx	.xlsx	106553
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\BOOK SIGN SHEETS\SQL-PMP Book Sign Sheets.xlsx	.xlsx	102164
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\BOOK SIGN SHEETS\~$CSN Book Sign Sheets.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\BROCHURES & FLYERS & BUSINESS CARDS\Appointment Sheets Update (8_30_16).xlsx	.xlsx	16223
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\BROCHURES & FLYERS & BUSINESS CARDS\Appointment Sheets Update (GW).xlsx	.xlsx	16607
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\BROCHURES & FLYERS & BUSINESS CARDS\~$Appointment Sheets Update (8_30_16).xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\BROCHURES & FLYERS & BUSINESS CARDS\~$Appointment Sheets Update (GW).xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\BROCHURES & FLYERS & BUSINESS CARDS\PROGRAM DECALS\AAS Michael Brown\Thumbs.db	.db	16896
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS LISTS\JAVA Class List (NIGHT_4-18).xlsx	.xlsx	11385
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS LISTS\PMP Class List (NIGHT_4-18).xlsx	.xlsx	13426
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS LISTS\PMP Class List 9-19-17.xlsx	.xlsx	85054
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS LISTS\SQL Class List (NIGHT_11-29).xlsx	.xlsx	11105
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS LISTS\SQL Class List (NIGHT_2-6).xlsx	.xlsx	12062
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS LISTS\Upcoming Student List.xlsx	.xlsx	61813
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS LISTS\~$PMP Class List (NIGHT_4-18).xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Class Rosters 2019-2020\A+ Students.xlsx	.xlsx	9182
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Class Rosters 2019-2020\January 2020 JAVA Class Roster (Autosaved).xlsx	.xlsx	10765
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Class Rosters 2019-2020\January 2020 JAVA Class Roster-MB.xlsx	.xlsx	10031
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Class Rosters 2019-2020\January 2020 JAVA Class Roster.xlsx	.xlsx	11006
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Class Rosters 2019-2020\January 2020 PMP Roster.xlsx	.xlsx	12389
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Class Rosters 2019-2020\January JAVA Class Roster.xlsx	.xlsx	11593
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Class Rosters 2019-2020\JAVA Students.xlsx	.xlsx	11350
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Class Rosters 2019-2020\MCSE MCSA Roster 2.xlsx	.xlsx	10139
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Class Rosters 2019-2020\MCSE MCSA Student Roster.xlsx	.xlsx	10412
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Class Rosters 2019-2020\MOS CAPM March 23 2020.xlsx	.xlsx	11841
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Class Rosters 2019-2020\MOS CSR CAPM Students.xlsx	.xlsx	13047
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Class Rosters 2019-2020\MOS CSR Students.xlsx	.xlsx	10776
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Class Rosters 2019-2020\NoSQL Class Roster March 16 2020.xlsx	.xlsx	13678
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Class Rosters 2019-2020\Nov PMP Class Roster.xlsx	.xlsx	11572
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Class Rosters 2019-2020\Oct 2019 SQL Roster.xlsx	.xlsx	12956
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Class Rosters 2019-2020\Oct SQL Students Updated.xlsx	.xlsx	12610
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Class Rosters 2019-2020\Oct SQL Students.xlsx	.xlsx	10534
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Class Rosters 2019-2020\PC Tech Roster.xlsx	.xlsx	11096
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Class Rosters 2019-2020\PMP & SQL PMP Roster May 1 2019 to Current.xlsx	.xlsx	23551
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Class Rosters 2019-2020\PMP Class Roster Nov 12-Dec 19.xlsx	.xlsx	13067
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Class Rosters 2019-2020\Potential Students January 2019 - Current.xlsx	.xlsx	44132
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Class Rosters 2019-2020\September's PMP Class Roster.xlsx	.xlsx	10425
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Class Rosters 2019-2020\SQL PMP Class 6-18-19.xlsx	.xlsx	13458
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Class Rosters 2019-2020\~$A+ Students.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\CCNA\CCNA Schedule (Night_2-26).xlsx	.xlsx	60841
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\IMDBOS\._IMDBOS Schedule (NIGHT_9-18-17 to 3-5-18).xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\IMDBOS\IMDBOS Schedule (NIGHT_10-9).xlsx	.xlsx	64321
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\IMDBOS\IMDBOS Schedule (NIGHT_4-24).xlsx	.xlsx	63783
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\IMDBOS\IMDBOS Schedule (NIGHT_9-18-17 to 3-5-18).xlsx	.xlsx	64454
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\IMDBOS\IMDBOS Schedule (NIGHT_Wynn_Peterson).xlsx	.xlsx	66648
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\JAVA_SQL\._JAVA_SQL Updated Schedule (NIGHT_4-18).xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\JAVA_SQL\JAVA_SQL Schedule (NIGHT_4-18).xlsx	.xlsx	64594
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\JAVA_SQL\JAVA_SQL Updated Schedule (NIGHT_4-18).xlsx	.xlsx	65726
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\MCITP\._MCITP Schedule (NIGHT_4-5) UPDATED.xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\MCITP\._MCITP Schedule (NIGHT_7-5) UPDATED.xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\MCITP\MCITP Schedule (NIGHT_4-5) UPDATED.xlsx	.xlsx	63675
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\MCITP\MCITP Schedule (NIGHT_4-5).xlsx	.xlsx	63544
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\MCITP\MCITP Schedule (NIGHT_7-5) UPDATED.xlsx	.xlsx	64304
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\MOS_CAPM\._MOS_CAPM Schedule (NIGHT_4-18) UPDATED.xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\MOS_CAPM\MOS_CAPM Schedule (NIGHT_4-18) UPDATED.xlsx	.xlsx	65222
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\MOS_CAPM\MOS_CAPM Schedule (NIGHT_4-18).xlsx	.xlsx	64753
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\SQL_PMP\._PMP Schedule ONLY  (NIGHT 9-19-17).xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\SQL_PMP\._SQL ONLY Updated Schedule  (NIGHT_9-18-17) MWAltSat  Steve.xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\SQL_PMP\._SQL_PMP Schedule  (NIGHT_6-12)  UPDATED.xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\SQL_PMP\._SQL_PMP Schedule (NIGHT_4-18) UPDATED.xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\SQL_PMP\PMP Schedule ONLY  (NIGHT 9-19-17).xlsx	.xlsx	63052
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\SQL_PMP\SQL ONLY Updated Schedule  (NIGHT_9-18-17) MWAltSat  Steve.xlsx	.xlsx	62422
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\SQL_PMP\SQL_PMP Schedule  (NIGHT_6-12)  UPDATED.xlsx	.xlsx	65747
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\SQL_PMP\SQL_PMP Schedule (NIGHT_4-18) UPDATED.xlsx	.xlsx	65294
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\SQL_PMP\SQL_PMP Schedule (NIGHT_4-18).xlsx	.xlsx	64604
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\SQL_PMP\SQL_PMP Schedule (NIGHT_6-12).xlsx	.xlsx	65100
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\SQL_PMP\SQL_PMP Schedule (NIGHT_7-25).xlsx	.xlsx	65943
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\TAA\CCNA Schedule (TAA_2-26).xlsx	.xlsx	59953
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\TAA\JAVA_SQL Schedule (TAA_4-18).xlsx	.xlsx	63268
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS SCHEDULES\TAA\PMP Schedule (TAA_11-7).xlsx	.xlsx	62252
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CSN PROGRAMS\CREDIT CARD PAYMENT AUTHORIZATION\Credit Card Payment Authorization Form.xlsx	.xlsx	58669
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\GRADE REPORTS\Copy of CSN GRADE REPORT (SQL_PMP).xlsx	.xlsx	60823
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\GRADE REPORTS\CSN ASSESSMENT REPORT (SQL_PMP).xlsx	.xlsx	61146
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\GRADE REPORTS\CSN GRADE REPORT (IMDBOS).xlsx	.xlsx	67806
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\GRADE REPORTS\CSN GRADE REPORT (JAVA_SQL).xlsx	.xlsx	68110
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\GRADE REPORTS\CSN GRADE REPORT (MBC).xlsx	.xlsx	67357
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\GRADE REPORTS\CSN GRADE REPORT (MCITP).xlsx	.xlsx	60549
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\GRADE REPORTS\CSN GRADE REPORT (MOS_CAPM).xlsx	.xlsx	60796
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\GRADE REPORTS\CSN GRADE REPORT (PMP).xlsx	.xlsx	60676
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\GRADE REPORTS\CSN GRADE REPORT (SQL_PMP).xlsx	.xlsx	61137
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\GRADE REPORTS\~$CSN GRADE REPORT (MOS_CAPM).xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\GRADE REPORTS\~$CSN GRADE REPORT (SQL_PMP).xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (ADMIN)\HOW TO - Request Office Supplies.xlsx	.xlsx	54379
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (ADMIN)\HOW TO - Seating Charts.xlsx	.xlsx	25938
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CSN Administrator Passwords.xlsx	.xlsx	12757
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CSN CONTACT LIST.xlsx	.xlsx	21663
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Updated Book Sign Sheets.xlsx	.xlsx	105876
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\BOOK SIGN SHEETS\CSN Book Sign Sheets.xlsx	.xlsx	106553
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\BOOK SIGN SHEETS\SQL-PMP Book Sign Sheets.xlsx	.xlsx	102164
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\BOOK SIGN SHEETS\~$CSN Book Sign Sheets.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\BROCHURES & FLYERS & BUSINESS CARDS\Appointment Sheets Update (8_30_16).xlsx	.xlsx	16223
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\BROCHURES & FLYERS & BUSINESS CARDS\Appointment Sheets Update (GW).xlsx	.xlsx	16607
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\BROCHURES & FLYERS & BUSINESS CARDS\~$Appointment Sheets Update (8_30_16).xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\BROCHURES & FLYERS & BUSINESS CARDS\~$Appointment Sheets Update (GW).xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\BROCHURES & FLYERS & BUSINESS CARDS\PROGRAM DECALS\AAS Michael Brown\Thumbs.db	.db	16896
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS LISTS\JAVA Class List (NIGHT_4-18).xlsx	.xlsx	11385
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS LISTS\PMP Class List (NIGHT_4-18).xlsx	.xlsx	13426
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS LISTS\PMP Class List 9-19-17.xlsx	.xlsx	85054
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS LISTS\SQL Class List (NIGHT_11-29).xlsx	.xlsx	11105
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS LISTS\SQL Class List (NIGHT_2-6).xlsx	.xlsx	12062
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS LISTS\Upcoming Student List.xlsx	.xlsx	61813
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS LISTS\~$PMP Class List (NIGHT_4-18).xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Class Rosters 2019-2020\A+ Students.xlsx	.xlsx	9182
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Class Rosters 2019-2020\January 2020 JAVA Class Roster (Autosaved).xlsx	.xlsx	10765
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Class Rosters 2019-2020\January 2020 JAVA Class Roster-MB.xlsx	.xlsx	10031
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Class Rosters 2019-2020\January 2020 JAVA Class Roster.xlsx	.xlsx	11006
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Class Rosters 2019-2020\January 2020 PMP Roster.xlsx	.xlsx	12389
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Class Rosters 2019-2020\January JAVA Class Roster.xlsx	.xlsx	11593
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Class Rosters 2019-2020\JAVA Students.xlsx	.xlsx	11350
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Class Rosters 2019-2020\MCSE MCSA Roster 2.xlsx	.xlsx	10139
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Class Rosters 2019-2020\MCSE MCSA Student Roster.xlsx	.xlsx	10412
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Class Rosters 2019-2020\MOS CAPM March 23 2020.xlsx	.xlsx	10786
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Class Rosters 2019-2020\MOS CSR CAPM Students.xlsx	.xlsx	13047
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Class Rosters 2019-2020\MOS CSR Students.xlsx	.xlsx	10776
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Class Rosters 2019-2020\NoSQL Class Roster March 16 2020.xlsx	.xlsx	13489
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Class Rosters 2019-2020\Nov PMP Class Roster.xlsx	.xlsx	11572
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Class Rosters 2019-2020\Oct 2019 SQL Roster.xlsx	.xlsx	12956
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Class Rosters 2019-2020\Oct SQL Students Updated.xlsx	.xlsx	12610
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Class Rosters 2019-2020\Oct SQL Students.xlsx	.xlsx	10534
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Class Rosters 2019-2020\PC Tech Roster.xlsx	.xlsx	11096
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Class Rosters 2019-2020\PMP & SQL PMP Roster May 1 2019 to Current.xlsx	.xlsx	23551
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Class Rosters 2019-2020\PMP Class Roster Nov 12-Dec 19.xlsx	.xlsx	13067
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Class Rosters 2019-2020\September's PMP Class Roster.xlsx	.xlsx	10425
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Class Rosters 2019-2020\SQL PMP Class 6-18-19.xlsx	.xlsx	13458
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Class Rosters 2019-2020\~$A+ Students.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Class Rosters 2019-2020\~$PMP & SQL PMP Roster May 1 2019 to Current.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\CCNA\CCNA Schedule (Night_2-26).xlsx	.xlsx	60841
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\IMDBOS\._IMDBOS Schedule (NIGHT_9-18-17 to 3-5-18).xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\IMDBOS\IMDBOS Schedule (NIGHT_10-9).xlsx	.xlsx	64321
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\IMDBOS\IMDBOS Schedule (NIGHT_4-24).xlsx	.xlsx	63783
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\IMDBOS\IMDBOS Schedule (NIGHT_9-18-17 to 3-5-18).xlsx	.xlsx	64454
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\IMDBOS\IMDBOS Schedule (NIGHT_Wynn_Peterson).xlsx	.xlsx	66648
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\JAVA_SQL\._JAVA_SQL Updated Schedule (NIGHT_4-18).xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\JAVA_SQL\JAVA_SQL Schedule (NIGHT_4-18).xlsx	.xlsx	64594
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\JAVA_SQL\JAVA_SQL Updated Schedule (NIGHT_4-18).xlsx	.xlsx	65726
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\MCITP\._MCITP Schedule (NIGHT_4-5) UPDATED.xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\MCITP\._MCITP Schedule (NIGHT_7-5) UPDATED.xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\MCITP\MCITP Schedule (NIGHT_4-5) UPDATED.xlsx	.xlsx	63675
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\MCITP\MCITP Schedule (NIGHT_4-5).xlsx	.xlsx	63544
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\MCITP\MCITP Schedule (NIGHT_7-5) UPDATED.xlsx	.xlsx	64304
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\MOS_CAPM\._MOS_CAPM Schedule (NIGHT_4-18) UPDATED.xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\MOS_CAPM\MOS_CAPM Schedule (NIGHT_4-18) UPDATED.xlsx	.xlsx	65222
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\MOS_CAPM\MOS_CAPM Schedule (NIGHT_4-18).xlsx	.xlsx	64753
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\SQL_PMP\._PMP Schedule ONLY  (NIGHT 9-19-17).xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\SQL_PMP\._SQL ONLY Updated Schedule  (NIGHT_9-18-17) MWAltSat  Steve.xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\SQL_PMP\._SQL_PMP Schedule  (NIGHT_6-12)  UPDATED.xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\SQL_PMP\._SQL_PMP Schedule (NIGHT_4-18) UPDATED.xlsx	.xlsx	4096
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\SQL_PMP\PMP Schedule ONLY  (NIGHT 9-19-17).xlsx	.xlsx	63052
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\SQL_PMP\SQL ONLY Updated Schedule  (NIGHT_9-18-17) MWAltSat  Steve.xlsx	.xlsx	62422
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\SQL_PMP\SQL_PMP Schedule  (NIGHT_6-12)  UPDATED.xlsx	.xlsx	65747
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\SQL_PMP\SQL_PMP Schedule (NIGHT_4-18) UPDATED.xlsx	.xlsx	65294
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\SQL_PMP\SQL_PMP Schedule (NIGHT_4-18).xlsx	.xlsx	64604
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\SQL_PMP\SQL_PMP Schedule (NIGHT_6-12).xlsx	.xlsx	65100
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\SQL_PMP\SQL_PMP Schedule (NIGHT_7-25).xlsx	.xlsx	65943
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\TAA\CCNA Schedule (TAA_2-26).xlsx	.xlsx	59953
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\TAA\JAVA_SQL Schedule (TAA_4-18).xlsx	.xlsx	63268
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\TAA\PMP Schedule (TAA_11-7).xlsx	.xlsx	62252
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CSN PROGRAMS\CREDIT CARD PAYMENT AUTHORIZATION\Credit Card Payment Authorization Form.xlsx	.xlsx	58669
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\GRADE REPORTS\Copy of CSN GRADE REPORT (SQL_PMP).xlsx	.xlsx	60823
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\GRADE REPORTS\CSN ASSESSMENT REPORT (SQL_PMP).xlsx	.xlsx	61146
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\GRADE REPORTS\CSN GRADE REPORT (CSS).xlsx	.xlsx	59985
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\GRADE REPORTS\CSN GRADE REPORT (IMDBOS).xlsx	.xlsx	67459
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\GRADE REPORTS\CSN GRADE REPORT (JAVA_SQL).xlsx	.xlsx	68110
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\GRADE REPORTS\CSN GRADE REPORT (MBC).xlsx	.xlsx	67357
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\GRADE REPORTS\CSN GRADE REPORT (MCITP).xlsx	.xlsx	60549
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\GRADE REPORTS\CSN GRADE REPORT (MOS_CAPM).xlsx	.xlsx	60796
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\GRADE REPORTS\CSN GRADE REPORT (PMP).xlsx	.xlsx	60676
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\GRADE REPORTS\CSN GRADE REPORT (SQL_PMP).xlsx	.xlsx	61137
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\GRADE REPORTS\~$CSN GRADE REPORT (MOS_CAPM).xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\GRADE REPORTS\~$CSN GRADE REPORT (SQL_PMP).xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\HOW TO'S (ADMIN)\HOW TO - Request Office Supplies.xlsx	.xlsx	54379
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\HOW TO'S (ADMIN)\HOW TO - Seating Charts.xlsx	.xlsx	25938
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\PROCTORED EXAMS\Proctored Exam Iteration Check List.xlsx	.xlsx	14077
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\PROCTORED EXAMS\CAPM\CAPM Test Answer Sheet.xlsx	.xlsx	32948
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\PROCTORED EXAMS\JAVA\JAVA SE7 Programmer 1&2 Proctored Exam.xlsx	.xlsx	21240
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\PROCTORED EXAMS\PMP\PMP Test Answer Sheet.xlsx	.xlsx	32948
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT BINDERS\PMP_CAPM\PMBOK 47 Process Blank Chart with shading 20150915_v2.0.xls.xlsx	.xlsx	19767
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT BINDERS\PMP_CAPM\PMP Process Chart.xlsx	.xlsx	12673
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT BINDERS\STUDENT ATTENDANCE SHEETS\CSN ATTENDANCE SHEETS\CSN Attendance Sheet (CCNA).xlsx	.xlsx	65322
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT BINDERS\STUDENT ATTENDANCE SHEETS\CSN ATTENDANCE SHEETS\CSN Attendance Sheet (IMDBOS).xlsx	.xlsx	65187
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT BINDERS\STUDENT ATTENDANCE SHEETS\CSN ATTENDANCE SHEETS\CSN Attendance Sheet (JAVA_SQL).xlsx	.xlsx	65054
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT BINDERS\STUDENT ATTENDANCE SHEETS\CSN ATTENDANCE SHEETS\CSN Attendance Sheet (MCITP).xlsx	.xlsx	65527
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT BINDERS\STUDENT ATTENDANCE SHEETS\CSN ATTENDANCE SHEETS\CSN Attendance Sheet (MOS_CAPM).xlsx	.xlsx	65211
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT BINDERS\STUDENT ATTENDANCE SHEETS\CSN ATTENDANCE SHEETS\CSN Attendance Sheet (PMP).xlsx	.xlsx	65340
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT BINDERS\STUDENT ATTENDANCE SHEETS\CSN ATTENDANCE SHEETS\CSN Attendance Sheet (SQL_PMP).xlsx	.xlsx	65257
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT BINDERS\STUDENT ATTENDANCE SHEETS\CSN ATTENDANCE SHEETS\~$CSN Attendance Sheet (MCITP).xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT BINDERS\STUDENT ATTENDANCE SHEETS\CSN ATTENDANCE SHEETS\~$CSN Attendance Sheet (PMP).xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\10-12-18 MASTER CSN MASTER SORTED 03-04-19 Student Spreadsheet 2008-2018--TWC --w notations.xlsx	.xlsx	298659
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\10-12-18 MASTER CSN MASTER SORTED 11-15-19 Student Spreadsheet 2008-2019--TWC --w notations.xlsx	.xlsx	298654
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\2020  TWC Audit Master Document as of 2-3-20 at 5pm.xlsx	.xlsx	312041
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\2020 ALL Audit Master Document as of 2-3-20 at 2pm.xlsx	.xlsx	312042
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\2020 ALL Audit Master Document as of 2-3-20 at 5pm.xlsx	.xlsx	312408
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\2020 Audit Master Document as of 1-29-20 at 4-30pm.xlsx	.xlsx	308567
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\2020 Audit Master Document as of 1-30-20 at 1-20pm.xlsx	.xlsx	309888
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\2020 Audit Master Document as of 1-30-20 at 3pm.xlsx	.xlsx	309810
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\2020 Audit Master Document as of 1-30-20 at 4pm.xlsx	.xlsx	310732
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\2020 Audit Master Document as of 1-30-20 at 5-50pm.xlsx	.xlsx	310731
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\2020 Audit Master Document as of 2-3-20 at 2pm.xlsx	.xlsx	312047
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\2020 Audit Master Document-1.xlsx	.xlsx	302538
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\Copy of 10-12-18 MASTER CSN MASTER SORTED 11-30-18 Student Spreadsheet 2008-2018--TWC --w notations.xlsx	.xlsx	286152
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\Copy of CSN Potential Clients (2011-Current) as of 2-13-2019.xlsx	.xlsx	449959
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\CSN MASTER SORTED 11-06-18 Student Spreadsheet 2008-2018--TWC --w notations SORTED BY CLASS.xlsx	.xlsx	277219
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\CSN Potential Clients (2011-Current) as of 11-13-18.xlsx	.xlsx	447707
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\CSN Potential Clients (2011-Current) as of 9-3-19.xlsx	.xlsx	472779
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\CSN Student Database (OLD__5-1-17).mdb	.mdb	37687296
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\~$10-12-18 MASTER CSN MASTER SORTED 03-04-19 Student Spreadsheet 2008-2018--TWC --w notations.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\~$10-12-18 MASTER CSN MASTER SORTED 11-12-18 Student Spreadsheet 2008-2018--TWC --w notations.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\~$2020  TWC Audit Master Document as of 2-3-20 at 5pm.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\~$Copy of 10-12-18 MASTER CSN MASTER SORTED 11-30-18 Student Spreadsheet 2008-2018--TWC --w notations.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\~$CSN MASTER SORTED 7-25-17 Student Spreadsheet 2008-2017--w notations.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\~$CSN Potential Clients (2011-Current) as of 10-12-18.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\~$CSN Potential Clients (2011-Current) as of 11-13-18.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\~$CSN Potential Clients (2011-Current) as of 9-3-19.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\All BACKUPS\Copy of CSN MASTER SORTED 4-23-18 Student Spreadsheet 2008-2018--TWC (Autosaved).xlsx	.xlsx	264791
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\All BACKUPS\Copy of CSN MASTER SORTED 4-23-18 Student Spreadsheet 2008-2018--TWC (Update).xlsx	.xlsx	271822
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\All BACKUPS\CSN MASTER SORTED 10-09-18 Student Spreadsheet 2008-2018--TWC  (Autosaved).xlsx	.xlsx	278053
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\All BACKUPS\CSN MASTER SORTED 10-10-18 Student Spreadsheet 2008-2018--TWC --sorted by START DATE.xlsx	.xlsx	284133
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\All BACKUPS\CSN MASTER SORTED 10-10-18 Student Spreadsheet 2008-2018--TWC --w notations.xlsx	.xlsx	289081
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\All BACKUPS\CSN MASTER SORTED 10-10-18 Student Spreadsheet 2008-2018--TWC.xlsx	.xlsx	289686
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\All BACKUPS\CSN MASTER SORTED 4-23-18 Student Spreadsheet 2008-2018--TWC.xlsx	.xlsx	270199
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\All BACKUPS\CSN MASTER SORTED 8-24-17 Student Spreadsheet 2008-2017--TWC.xlsx	.xlsx	284664
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\All BACKUPS\CSN MASTER SORTED 8-24-17 Student Spreadsheet 2008-2017--w notations.xlsx	.xlsx	278261
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\All BACKUPS\CSN MASTER SORTED 8-29-18 Student Spreadsheet 2008-2018--TWC (Autosaved).xlsx	.xlsx	265664
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\All BACKUPS\CSN MASTER SORTED 9-17-18 Student Spreadsheet 2008-2018--TWC --sorted by START DATE upd.xlsx	.xlsx	284137
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\All BACKUPS\CSN MASTER SORTED 9-17-18 Student Spreadsheet 2008-2018--TWC --w notations.xlsx	.xlsx	284135
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\All BACKUPS\CSN MASTER SORTED 9-17-18 Student Spreadsheet 2008-2018--TWC .xlsx	.xlsx	284014
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\All BACKUPS\CSN MASTER SORTED 9-17-18 Student Spreadsheet 2008-2018--TWC.xlsx	.xlsx	283272
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\All BACKUPS\CSN Potential Clients (2011-Current) Back up 5-22-17.xlsx	.xlsx	411048
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\All BACKUPS\CSN Potential Clients (2011-Current).xlsx	.xlsx	415085
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\All BACKUPS\CSN Student Database 2008-2013 ver2.xlsx	.xlsx	391516
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\All BACKUPS\CSN Student Database 2008-2017as of 6-6-17.xlsx	.xlsx	391480
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\All BACKUPS\CSN Student Database 2008-2017as of 6-7-17 Sorted old to new.xlsx	.xlsx	390857
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\All BACKUPS\CSN Student Database Back Up.xlsx	.xlsx	28288
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\All BACKUPS\March to August 2018 Starting Students.xlsx	.xlsx	13533
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\All BACKUPS\Potential Java-SQL Students Since 9-2016 to Current for 6-12-2017 Start Date.xlsx	.xlsx	19176
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\All BACKUPS\Potential SQL-PMP Students Since 9-2016 to Current for 6-12-2017 Start Date.xlsx	.xlsx	39143
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\TEST ITERATION SHEETS\CAPM\CSN PMP Test Iterations.xlsx	.xlsx	35888
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\TEST ITERATION SHEETS\CSS\CSN A+ (220-801) Test Iterations.xlsx	.xlsx	34466
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\TEST ITERATION SHEETS\CSS\CSN A+ (220-802) Test Iterations.xlsx	.xlsx	34622
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\TEST ITERATION SHEETS\MCITP\CSN A+ (220-801) Test Iterations.xlsx	.xlsx	34466
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\TEST ITERATION SHEETS\MCITP\CSN A+ (220-802) Test Iterations.xlsx	.xlsx	34622
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\TEST ITERATION SHEETS\MCITP\Subcategory Tracker Form (Comp TIA A+220-801).xlsx	.xlsx	11038
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\TEST ITERATION SHEETS\MOS\CSN MS Excel Test Iterations.xlsx	.xlsx	34604
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\TEST ITERATION SHEETS\MOS\CSN MS PowerPoint Test Iterations.xlsx	.xlsx	34612
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\TEST ITERATION SHEETS\MOS\CSN MS Word Test Iterations.xlsx	.xlsx	34581
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\TEST ITERATION SHEETS\PMP\CSN PMP Test Iterations.xlsx	.xlsx	36569
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\TEST ITERATION SHEETS\SQL\CSN SQL Expert Test Iterations.xlsx	.xlsx	34527
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\TEST ITERATION SHEETS\SQL\CSN SQL Fundamentals Test Iterations.xlsx	.xlsx	34367
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\TWC AUDIT\Audit (2017).xlsx	.xlsx	14276
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\TWC AUDIT\CSN's 2012 Inventory List.xlsx	.xlsx	61219
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\TWC AUDIT\Student Attendance Sign-in Sheet.xlsx	.xlsx	54942
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\TWC AUDIT\Student Folder Audit Checklist - Updated 8-21-17.xlsx	.xlsx	58511
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\TWC AUDIT\Student Folder Audit Checklist.xlsx	.xlsx	58506
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\PROCTORED EXAMS\Proctored Exam Iteration Check List.xlsx	.xlsx	14077
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\PROCTORED EXAMS\CAPM\CAPM Test Answer Sheet.xlsx	.xlsx	32948
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\PROCTORED EXAMS\JAVA\JAVA SE7 Programmer 1&2 Proctored Exam.xlsx	.xlsx	21240
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\PROCTORED EXAMS\PMP\PMP Test Answer Sheet.xlsx	.xlsx	32948
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT BINDERS\PMP_CAPM\PMBOK 47 Process Blank Chart with shading 20150915_v2.0.xls.xlsx	.xlsx	19767
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT BINDERS\PMP_CAPM\PMP Process Chart.xlsx	.xlsx	12673
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT BINDERS\STUDENT ATTENDANCE SHEETS\CSN ATTENDANCE SHEETS\CSN Attendance Sheet (CCNA).xlsx	.xlsx	65322
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT BINDERS\STUDENT ATTENDANCE SHEETS\CSN ATTENDANCE SHEETS\CSN Attendance Sheet (IMDBOS).xlsx	.xlsx	65187
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT BINDERS\STUDENT ATTENDANCE SHEETS\CSN ATTENDANCE SHEETS\CSN Attendance Sheet (JAVA_SQL).xlsx	.xlsx	65054
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT BINDERS\STUDENT ATTENDANCE SHEETS\CSN ATTENDANCE SHEETS\CSN Attendance Sheet (MCITP).xlsx	.xlsx	65527
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT BINDERS\STUDENT ATTENDANCE SHEETS\CSN ATTENDANCE SHEETS\CSN Attendance Sheet (MOS_CAPM).xlsx	.xlsx	65310
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT BINDERS\STUDENT ATTENDANCE SHEETS\CSN ATTENDANCE SHEETS\CSN Attendance Sheet (PMP).xlsx	.xlsx	65340
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT BINDERS\STUDENT ATTENDANCE SHEETS\CSN ATTENDANCE SHEETS\CSN Attendance Sheet (SQL_PMP).xlsx	.xlsx	65257
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT BINDERS\STUDENT ATTENDANCE SHEETS\CSN ATTENDANCE SHEETS\~$CSN Attendance Sheet (MCITP).xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT BINDERS\STUDENT ATTENDANCE SHEETS\CSN ATTENDANCE SHEETS\~$CSN Attendance Sheet (PMP).xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\10-12-18 MASTER CSN MASTER SORTED 03-04-19 Student Spreadsheet 2008-2018--TWC --w notations.xlsx	.xlsx	298659
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\10-12-18 MASTER CSN MASTER SORTED 11-15-19 Student Spreadsheet 2008-2019--TWC --w notations.xlsx	.xlsx	298654
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\2020  TWC Audit Master Document as of 2-3-20 at 5pm.xlsx	.xlsx	312041
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\2020 ALL Audit Master Document as of 2-3-20 at 2pm.xlsx	.xlsx	312042
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\2020 ALL Audit Master Document as of 2-3-20 at 5pm.xlsx	.xlsx	312408
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\2020 Audit Master Document as of 1-29-20 at 4-30pm.xlsx	.xlsx	308567
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\2020 Audit Master Document as of 1-30-20 at 1-20pm.xlsx	.xlsx	309888
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\2020 Audit Master Document as of 1-30-20 at 3pm.xlsx	.xlsx	309810
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\2020 Audit Master Document as of 1-30-20 at 4pm.xlsx	.xlsx	310732
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\2020 Audit Master Document as of 1-30-20 at 5-50pm.xlsx	.xlsx	310731
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\2020 Audit Master Document as of 2-3-20 at 2pm.xlsx	.xlsx	312047
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\2020 Audit Master Document-1.xlsx	.xlsx	302538
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\Copy of 10-12-18 MASTER CSN MASTER SORTED 11-30-18 Student Spreadsheet 2008-2018--TWC --w notations.xlsx	.xlsx	286152
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\Copy of CSN Potential Clients (2011-Current) as of 2-13-2019.xlsx	.xlsx	449959
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\CSN MASTER SORTED 11-06-18 Student Spreadsheet 2008-2018--TWC --w notations SORTED BY CLASS.xlsx	.xlsx	277219
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\CSN Potential Clients (2011-Current) as of 11-13-18.xlsx	.xlsx	447707
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\CSN Potential Clients (2011-Current) as of 9-3-19.xlsx	.xlsx	472779
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\CSN Student Database (OLD__5-1-17).mdb	.mdb	37687296
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\~$10-12-18 MASTER CSN MASTER SORTED 03-04-19 Student Spreadsheet 2008-2018--TWC --w notations.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\~$10-12-18 MASTER CSN MASTER SORTED 11-12-18 Student Spreadsheet 2008-2018--TWC --w notations.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\~$2020  TWC Audit Master Document as of 2-3-20 at 5pm.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\~$Copy of 10-12-18 MASTER CSN MASTER SORTED 11-30-18 Student Spreadsheet 2008-2018--TWC --w notations.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\~$CSN MASTER SORTED 7-25-17 Student Spreadsheet 2008-2017--w notations.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\~$CSN Potential Clients (2011-Current) as of 10-12-18.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\~$CSN Potential Clients (2011-Current) as of 11-13-18.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\~$CSN Potential Clients (2011-Current) as of 9-3-19.xlsx	.xlsx	165
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\All BACKUPS\Copy of CSN MASTER SORTED 4-23-18 Student Spreadsheet 2008-2018--TWC (Autosaved).xlsx	.xlsx	264791
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\All BACKUPS\Copy of CSN MASTER SORTED 4-23-18 Student Spreadsheet 2008-2018--TWC (Update).xlsx	.xlsx	271822
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\All BACKUPS\CSN MASTER SORTED 10-09-18 Student Spreadsheet 2008-2018--TWC  (Autosaved).xlsx	.xlsx	278053
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\All BACKUPS\CSN MASTER SORTED 10-10-18 Student Spreadsheet 2008-2018--TWC --sorted by CLASS then start date.xlsx	.xlsx	289864
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\All BACKUPS\CSN MASTER SORTED 10-10-18 Student Spreadsheet 2008-2018--TWC --sorted by START DATE.xlsx	.xlsx	284133
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\All BACKUPS\CSN MASTER SORTED 10-10-18 Student Spreadsheet 2008-2018--TWC --w notations.xlsx	.xlsx	289081
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\All BACKUPS\CSN MASTER SORTED 10-10-18 Student Spreadsheet 2008-2018--TWC.xlsx	.xlsx	289686
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\All BACKUPS\CSN MASTER SORTED 4-23-18 Student Spreadsheet 2008-2018--TWC.xlsx	.xlsx	270199
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\All BACKUPS\CSN MASTER SORTED 8-24-17 Student Spreadsheet 2008-2017--TWC.xlsx	.xlsx	284664
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\All BACKUPS\CSN MASTER SORTED 8-24-17 Student Spreadsheet 2008-2017--w notations.xlsx	.xlsx	278261
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\All BACKUPS\CSN MASTER SORTED 8-29-18 Student Spreadsheet 2008-2018--TWC (Autosaved).xlsx	.xlsx	265664
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\All BACKUPS\CSN MASTER SORTED 9-17-18 Student Spreadsheet 2008-2018--TWC --sorted by START DATE upd.xlsx	.xlsx	284137
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\All BACKUPS\CSN MASTER SORTED 9-17-18 Student Spreadsheet 2008-2018--TWC --w notations.xlsx	.xlsx	284135
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\All BACKUPS\CSN MASTER SORTED 9-17-18 Student Spreadsheet 2008-2018--TWC .xlsx	.xlsx	284014
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\All BACKUPS\CSN MASTER SORTED 9-17-18 Student Spreadsheet 2008-2018--TWC.xlsx	.xlsx	283272
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\All BACKUPS\CSN Potential Clients (2011-Current) Back up 5-22-17.xlsx	.xlsx	411048
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\All BACKUPS\CSN Potential Clients (2011-Current).xlsx	.xlsx	415085
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\All BACKUPS\CSN Student Database 2008-2013 ver2.xlsx	.xlsx	391516
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\All BACKUPS\CSN Student Database 2008-2017as of 6-6-17.xlsx	.xlsx	391480
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\All BACKUPS\CSN Student Database 2008-2017as of 6-7-17 Sorted old to new.xlsx	.xlsx	390857
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\All BACKUPS\CSN Student Database Back Up.xlsx	.xlsx	28288
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\All BACKUPS\March to August 2018 Starting Students.xlsx	.xlsx	13533
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\All BACKUPS\Potential Java-SQL Students Since 9-2016 to Current for 6-12-2017 Start Date.xlsx	.xlsx	19176
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\All BACKUPS\Potential SQL-PMP Students Since 9-2016 to Current for 6-12-2017 Start Date.xlsx	.xlsx	39143
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\TEST ITERATION SHEETS\CAPM\CSN PMP Test Iterations.xlsx	.xlsx	35888
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\TEST ITERATION SHEETS\CSS\CSN A+ (220-801) Test Iterations.xlsx	.xlsx	34466
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\TEST ITERATION SHEETS\CSS\CSN A+ (220-802) Test Iterations.xlsx	.xlsx	34622
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\TEST ITERATION SHEETS\MCITP\CSN A+ (220-801) Test Iterations.xlsx	.xlsx	34466
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\TEST ITERATION SHEETS\MCITP\CSN A+ (220-802) Test Iterations.xlsx	.xlsx	34622
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\TEST ITERATION SHEETS\MCITP\Subcategory Tracker Form (Comp TIA A+220-801).xlsx	.xlsx	11038
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\TEST ITERATION SHEETS\MOS\CSN MS Excel Test Iterations.xlsx	.xlsx	34604
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\TEST ITERATION SHEETS\MOS\CSN MS PowerPoint Test Iterations.xlsx	.xlsx	34612
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\TEST ITERATION SHEETS\MOS\CSN MS Word Test Iterations.xlsx	.xlsx	34581
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\TEST ITERATION SHEETS\PMP\CSN PMP Test Iterations.xlsx	.xlsx	36569
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\TEST ITERATION SHEETS\SQL\CSN SQL Expert Test Iterations.xlsx	.xlsx	34527
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\TEST ITERATION SHEETS\SQL\CSN SQL Fundamentals Test Iterations.xlsx	.xlsx	34367
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\TWC AUDIT\Audit (2017).xlsx	.xlsx	14276
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\TWC AUDIT\CSN's 2012 Inventory List.xlsx	.xlsx	61219
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\TWC AUDIT\Student Attendance Sign-in Sheet.xlsx	.xlsx	54942
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\TWC AUDIT\Student Folder Audit Checklist - Updated 8-21-17.xlsx	.xlsx	58511
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\TWC AUDIT\Student Folder Audit Checklist.xlsx	.xlsx	58506
+
+TOP_DIRECTORIES:
+C:\Users\mabro\Downloads\historical-student-data	105
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\TWC AUDIT\STUDENT DIPLOMAS	63
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\TWC AUDIT\STUDENT DIPLOMAS	63
+C:\Users\mabro\Downloads\historical-student-data\Office Admin	27
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE	26
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin	26
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE	26
+C:\Users\mabro\Downloads\historical-student-data\CSN 2018 Completers Survey-Updated	26
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\Class Rosters 2019-2020	24
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT DATABASE\All BACKUPS	24
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\Class Rosters 2019-2020	24
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT DATABASE\All BACKUPS	23
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CLASS ENROLLMENT FORMS	21
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\COC's	21
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\COC's	21
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS ENROLLMENT FORMS	21
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\STUDENT BINDERS	20
+C:\Users\mabro\Downloads\historical-student-data\AAUL Handbook Pictures	20
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\STUDENT BINDERS	20
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\BROCHURES & FLYERS & BUSINESS CARDS\CLASS BROCHURES	20
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\BROCHURES & FLYERS & BUSINESS CARDS\CLASS BROCHURES	20
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\LABELS, DIVIDERS, TABS	17
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\BROCHURES & FLYERS & BUSINESS CARDS\LOGO	17
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\LABELS, DIVIDERS, TABS	17
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\BROCHURES & FLYERS & BUSINESS CARDS\LOGO	17
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CLASS SCHEDULES\SQL_PMP	16
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\CSN Handbook	16
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\HOW TO'S (STUDENTS_INSTRUCTORS)\HOW TO - ZOOM WEBINAR (INSTRUCTORS)\Office Admin\DOOR SIGNS	16
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\DOOR SIGNS	16
+C:\Users\mabro\Downloads\historical-student-data\Office Admin\CSN Handbook	16
+

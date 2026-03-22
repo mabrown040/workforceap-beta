@@ -120,7 +120,7 @@ export default async function PartnerDashboardPage() {
   return (
     <div className="partner-impact-console">
       <PageHeader
-        title="Partner dashboard"
+        title="Partner overview"
         subtitle={`${ctx.partner.name} referrals, progress, and placement outcomes in one place.`}
         action={
           <Link href="/partner/guide" className="btn btn-secondary btn-sm">

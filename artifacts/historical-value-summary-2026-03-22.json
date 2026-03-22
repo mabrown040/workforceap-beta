@@ -1,0 +1,250 @@
+{
+  "datasets": [
+    {
+      "file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Office Admin\\STUDENT DATABASE\\10-12-18 MASTER CSN MASTER SORTED 11-15-19 Student Spreadsheet 2008-2019--TWC --w notations.xlsx",
+      "rows": 807,
+      "columns": [
+        "Start",
+        "End",
+        "Last Name",
+        "First Name",
+        "Address",
+        "City",
+        "ST",
+        "Zip",
+        "E-Mail",
+        "Phone (Home",
+        "Phone (Cell)",
+        "SSID No.",
+        "DOB",
+        "Class",
+        "Unnamed: 14",
+        "Unnamed: 15",
+        "Unnamed: 16"
+      ],
+      "nonNullByColumn": {
+        "Start": 803,
+        "End": 802,
+        "Last Name": 804,
+        "First Name": 804,
+        "Address": 802,
+        "City": 802,
+        "ST": 802,
+        "Zip": 798,
+        "E-Mail": 798,
+        "Phone (Home": 385,
+        "Phone (Cell)": 775,
+        "SSID No.": 772,
+        "DOB": 783,
+        "Class": 799,
+        "Unnamed: 14": 182,
+        "Unnamed: 15": 13,
+        "Unnamed: 16": 3
+      },
+      "insights": {
+        "startDateMin": "2008-10-06",
+        "startDateMax": "2019-11-12",
+        "startsByYear": {
+          "2008": 17,
+          "2009": 151,
+          "2010": 40,
+          "2011": 59,
+          "2012": 62,
+          "2013": 116,
+          "2014": 85,
+          "2015": 58,
+          "2016": 58,
+          "2017": 56,
+          "2018": 44,
+          "2019": 53
+        },
+        "recordsWithEndDate": 797,
+        "topClasses": {
+          "SQL/PMP": 253,
+          "PMP": 140,
+          "CSAD": 103,
+          "MM": 49,
+          "MOS/CAPM": 45,
+          "MCITP": 45,
+          "IMDBOS": 30,
+          "CSS": 26,
+          "JAVA/SQL": 24,
+          "CCNA": 23
+        },
+        "topCities": {
+          "Austin": 584,
+          "Pflugerville": 59,
+          "Round Rock": 49,
+          "Cedar Park": 33,
+          "Leander": 14,
+          "Manor": 7,
+          "Buda": 6,
+          "Lakeway": 5,
+          "Hutto": 4,
+          "Elgin": 4
+        },
+        "rowsWithEmail": 798,
+        "rowsWithAnyPhone": 803
+      }
+    },
+    {
+      "file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Office Admin\\STUDENT DATABASE\\2020 ALL Audit Master Document as of 2-3-20 at 5pm.xlsx",
+      "rows": 834,
+      "columns": [
+        "Start",
+        "End",
+        "Last Name",
+        "First Name",
+        "Address",
+        "City",
+        "ST",
+        "Zip",
+        "E-Mail",
+        "Phone (Home",
+        "Phone (Cell)",
+        "SSID No.",
+        "DOB",
+        "Class",
+        "Unnamed: 14",
+        "Unnamed: 15",
+        "Unnamed: 16"
+      ],
+      "nonNullByColumn": {
+        "Start": 831,
+        "End": 830,
+        "Last Name": 830,
+        "First Name": 830,
+        "Address": 829,
+        "City": 830,
+        "ST": 831,
+        "Zip": 827,
+        "E-Mail": 825,
+        "Phone (Home": 386,
+        "Phone (Cell)": 802,
+        "SSID No.": 799,
+        "DOB": 810,
+        "Class": 830,
+        "Unnamed: 14": 217,
+        "Unnamed: 15": 13,
+        "Unnamed: 16": 2
+      },
+      "insights": {
+        "startDateMin": "2008-10-06",
+        "startDateMax": "2020-02-03",
+        "startsByYear": {
+          "2008": 17,
+          "2009": 151,
+          "2010": 40,
+          "2011": 59,
+          "2012": 62,
+          "2013": 116,
+          "2014": 85,
+          "2015": 58,
+          "2016": 58,
+          "2017": 56,
+          "2018": 45,
+          "2019": 70,
+          "2020": 9
+        },
+        "recordsWithEndDate": 824,
+        "topClasses": {
+          "SQL/PMP": 259,
+          "PMP": 139,
+          "CSAD": 104,
+          "MOS/CAPM": 50,
+          "MM": 49,
+          "MCITP": 45,
+          "IMDBOS": 30,
+          "PMP/Agile": 30,
+          "CSS": 26,
+          "JAVA/SQL": 26
+        },
+        "topCities": {
+          "Austin": 603,
+          "Pflugerville": 62,
+          "Round Rock": 51,
+          "Cedar Park": 33,
+          "Leander": 14,
+          "Manor": 7,
+          "Buda": 6,
+          "Lakeway": 5,
+          "Hutto": 4,
+          "Elgin": 4
+        },
+        "rowsWithEmail": 825,
+        "rowsWithAnyPhone": 830
+      }
+    },
+    {
+      "file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Office Admin\\Class Rosters 2019-2020\\Potential Students January 2019 - Current.xlsx",
+      "rows": 257,
+      "columns": [
+        "Last Name",
+        "First Name",
+        "Unnamed: 2",
+        "Phone",
+        "Email",
+        "Date",
+        "County",
+        "Unnamed: 7",
+        "Unnamed: 8",
+        "Unnamed: 9",
+        "Class"
+      ],
+      "nonNullByColumn": {
+        "Last Name": 256,
+        "First Name": 257,
+        "Unnamed: 2": 0,
+        "Phone": 251,
+        "Email": 252,
+        "Date": 256,
+        "County": 256,
+        "Unnamed: 7": 0,
+        "Unnamed: 8": 0,
+        "Unnamed: 9": 0,
+        "Class": 256
+      },
+      "insights": {
+        "topClasses": {
+          "SQL/PMP": 93,
+          "PMP/Agile": 72,
+          "MOS/CAPM": 28,
+          "JAVA/SQL": 11,
+          "IMDBOS": 11,
+          "Undecided": 10,
+          "MCITP": 7,
+          "PMP/IMDBOS": 5,
+          "PMP/SQL": 5,
+          "MCITP/CSS": 3
+        },
+        "rowsWithEmail": 252,
+        "rowsWithAnyPhone": 251
+      }
+    },
+    {
+      "file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Office Admin\\CSN CONTACT LIST.xlsx",
+      "rows": 74,
+      "columns": [
+        "Unnamed: 0",
+        "CSN's Contact List",
+        "Unnamed: 2",
+        "Unnamed: 3",
+        "Unnamed: 4",
+        "Last Updated:",
+        "2017-04-25 00:00:00",
+        "Unnamed: 7"
+      ],
+      "nonNullByColumn": {
+        "Unnamed: 0": 61,
+        "CSN's Contact List": 56,
+        "Unnamed: 2": 56,
+        "Unnamed: 3": 56,
+        "Unnamed: 4": 54,
+        "Last Updated:": 51,
+        "2017-04-25 00:00:00": 55,
+        "Unnamed: 7": 56
+      },
+      "insights": {}
+    }
+  ]
+}

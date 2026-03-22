@@ -6,6 +6,7 @@ import { Menu, X } from 'lucide-react';
 import DevViewToggle from './DevViewToggle';
 import SuperAdminViewSwitcher from '@/components/super-admin-view-switcher';
 import { SignOutButton } from './SignOutButton';
+import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
 
 function ActionItems({ onItemClick }: { onItemClick?: () => void }) {
   return (
@@ -13,7 +14,7 @@ function ActionItems({ onItemClick }: { onItemClick?: () => void }) {
       <SuperAdminViewSwitcher />
       <DevViewToggle />
       <Link href="/" className="btn btn-outline btn-sm" onClick={onItemClick}>
-        Site home
+        {PRODUCT_COPY.publicSiteLabel}
       </Link>
       <SignOutButton className="btn btn-outline btn-sm" onSignOutStart={onItemClick} />
     </>

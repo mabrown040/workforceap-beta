@@ -1,0 +1,584 @@
+{
+  "files": [
+    {
+      "file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Office Admin\\STUDENT DATABASE\\2020 Audit Master Document-1.xlsx",
+      "score": 70,
+      "size": 302538,
+      "lastWriteTime": "3/22/2026 12:26:55 PM",
+      "sheets": [
+        {
+          "name": "Sheet1",
+          "sampleColumns": [
+            "Start",
+            "End",
+            "Last Name",
+            "First Name",
+            "Address",
+            "City",
+            "ST",
+            "Zip",
+            "E-Mail",
+            "Phone (Home",
+            "Phone (Cell)",
+            "SSID No.",
+            "DOB",
+            "Class"
+          ],
+          "sampleRowsRead": 5
+        }
+      ],
+      "error": null
+    },
+    {
+      "file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Office Admin\\STUDENT DATABASE\\2020 Audit Master Document as of 2-3-20 at 2pm.xlsx",
+      "score": 70,
+      "size": 312047,
+      "lastWriteTime": "3/22/2026 12:26:55 PM",
+      "sheets": [
+        {
+          "name": "Sheet1",
+          "sampleColumns": [
+            "Start",
+            "End",
+            "Last Name",
+            "First Name",
+            "Address",
+            "City",
+            "ST",
+            "Zip",
+            "E-Mail",
+            "Phone (Home",
+            "Phone (Cell)",
+            "SSID No.",
+            "DOB",
+            "Class"
+          ],
+          "sampleRowsRead": 5
+        }
+      ],
+      "error": null
+    },
+    {
+      "file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Office Admin\\STUDENT DATABASE\\2020 Audit Master Document as of 1-30-20 at 5-50pm.xlsx",
+      "score": 70,
+      "size": 310731,
+      "lastWriteTime": "3/22/2026 12:26:55 PM",
+      "sheets": [
+        {
+          "name": "Sheet1",
+          "sampleColumns": [
+            "Start",
+            "End",
+            "Last Name",
+            "First Name",
+            "Address",
+            "City",
+            "ST",
+            "Zip",
+            "E-Mail",
+            "Phone (Home",
+            "Phone (Cell)",
+            "SSID No.",
+            "DOB",
+            "Class"
+          ],
+          "sampleRowsRead": 5
+        }
+      ],
+      "error": null
+    },
+    {
+      "file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Office Admin\\STUDENT DATABASE\\2020 Audit Master Document as of 1-30-20 at 4pm.xlsx",
+      "score": 70,
+      "size": 310732,
+      "lastWriteTime": "3/22/2026 12:26:55 PM",
+      "sheets": [
+        {
+          "name": "Sheet1",
+          "sampleColumns": [
+            "Start",
+            "End",
+            "Last Name",
+            "First Name",
+            "Address",
+            "City",
+            "ST",
+            "Zip",
+            "E-Mail",
+            "Phone (Home",
+            "Phone (Cell)",
+            "SSID No.",
+            "DOB",
+            "Class"
+          ],
+          "sampleRowsRead": 5
+        }
+      ],
+      "error": null
+    },
+    {
+      "file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Office Admin\\STUDENT DATABASE\\2020 Audit Master Document as of 1-30-20 at 3pm.xlsx",
+      "score": 70,
+      "size": 309810,
+      "lastWriteTime": "3/22/2026 12:26:55 PM",
+      "sheets": [
+        {
+          "name": "Sheet1",
+          "sampleColumns": [
+            "Start",
+            "End",
+            "Last Name",
+            "First Name",
+            "Address",
+            "City",
+            "ST",
+            "Zip",
+            "E-Mail",
+            "Phone (Home",
+            "Phone (Cell)",
+            "SSID No.",
+            "DOB",
+            "Class"
+          ],
+          "sampleRowsRead": 5
+        }
+      ],
+      "error": null
+    },
+    {
+      "file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Office Admin\\STUDENT DATABASE\\2020 Audit Master Document as of 1-30-20 at 1-20pm.xlsx",
+      "score": 70,
+      "size": 309888,
+      "lastWriteTime": "3/22/2026 12:26:55 PM",
+      "sheets": [
+        {
+          "name": "Sheet1",
+          "sampleColumns": [
+            "Start",
+            "End",
+            "Last Name",
+            "First Name",
+            "Address",
+            "City",
+            "ST",
+            "Zip",
+            "E-Mail",
+            "Phone (Home",
+            "Phone (Cell)",
+            "SSID No.",
+            "DOB",
+            "Class"
+          ],
+          "sampleRowsRead": 5
+        }
+      ],
+      "error": null
+    },
+    {
+      "file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Office Admin\\STUDENT DATABASE\\2020 Audit Master Document as of 1-29-20 at 4-30pm.xlsx",
+      "score": 70,
+      "size": 308567,
+      "lastWriteTime": "3/22/2026 12:26:55 PM",
+      "sheets": [
+        {
+          "name": "Sheet1",
+          "sampleColumns": [
+            "Start",
+            "End",
+            "Last Name",
+            "First Name",
+            "Address",
+            "City",
+            "ST",
+            "Zip",
+            "E-Mail",
+            "Phone (Home",
+            "Phone (Cell)",
+            "SSID No.",
+            "DOB",
+            "Class"
+          ],
+          "sampleRowsRead": 5
+        }
+      ],
+      "error": null
+    },
+    {
+      "file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Office Admin\\STUDENT DATABASE\\2020 ALL Audit Master Document as of 2-3-20 at 5pm.xlsx",
+      "score": 70,
+      "size": 312408,
+      "lastWriteTime": "3/22/2026 12:26:55 PM",
+      "sheets": [
+        {
+          "name": "Sheet1",
+          "sampleColumns": [
+            "Start",
+            "End",
+            "Last Name",
+            "First Name",
+            "Address",
+            "City",
+            "ST",
+            "Zip",
+            "E-Mail",
+            "Phone (Home",
+            "Phone (Cell)",
+            "SSID No.",
+            "DOB",
+            "Class"
+          ],
+          "sampleRowsRead": 5
+        }
+      ],
+      "error": null
+    },
+    {
+      "file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Office Admin\\STUDENT DATABASE\\2020 ALL Audit Master Document as of 2-3-20 at 2pm.xlsx",
+      "score": 70,
+      "size": 312042,
+      "lastWriteTime": "3/22/2026 12:26:55 PM",
+      "sheets": [
+        {
+          "name": "Sheet1",
+          "sampleColumns": [
+            "Start",
+            "End",
+            "Last Name",
+            "First Name",
+            "Address",
+            "City",
+            "ST",
+            "Zip",
+            "E-Mail",
+            "Phone (Home",
+            "Phone (Cell)",
+            "SSID No.",
+            "DOB",
+            "Class"
+          ],
+          "sampleRowsRead": 5
+        }
+      ],
+      "error": null
+    },
+    {
+      "file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Office Admin\\STUDENT DATABASE\\2020  TWC Audit Master Document as of 2-3-20 at 5pm.xlsx",
+      "score": 70,
+      "size": 312041,
+      "lastWriteTime": "3/22/2026 12:26:55 PM",
+      "sheets": [
+        {
+          "name": "Sheet1",
+          "sampleColumns": [
+            "Start",
+            "End",
+            "Last Name",
+            "First Name",
+            "Address",
+            "City",
+            "ST",
+            "Zip",
+            "E-Mail",
+            "Phone (Home",
+            "Phone (Cell)",
+            "SSID No.",
+            "DOB",
+            "Class"
+          ],
+          "sampleRowsRead": 5
+        }
+      ],
+      "error": null
+    },
+    {
+      "file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Office Admin\\STUDENT DATABASE\\All BACKUPS\\Copy of CSN MASTER SORTED 4-23-18 Student Spreadsheet 2008-2018--TWC (Update).xlsx",
+      "score": 50,
+      "size": 271822,
+      "lastWriteTime": "3/22/2026 12:26:55 PM",
+      "sheets": [
+        {
+          "name": "Sheet1",
+          "sampleColumns": [
+            "Start",
+            "End",
+            "Last Name",
+            "First Name",
+            "Address",
+            "City",
+            "ST",
+            "Zip",
+            "E-Mail",
+            "Phone (Home",
+            "Phone (Cell)",
+            "SSID No.",
+            "DOB",
+            "Class"
+          ],
+          "sampleRowsRead": 5
+        }
+      ],
+      "error": null
+    },
+    {
+      "file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Office Admin\\STUDENT DATABASE\\All BACKUPS\\Copy of CSN MASTER SORTED 4-23-18 Student Spreadsheet 2008-2018--TWC (Autosaved).xlsx",
+      "score": 50,
+      "size": 264791,
+      "lastWriteTime": "3/22/2026 12:26:55 PM",
+      "sheets": [
+        {
+          "name": "Sheet1",
+          "sampleColumns": [
+            "Start",
+            "End",
+            "Last Name",
+            "First Name",
+            "Address",
+            "City",
+            "ST",
+            "Zip",
+            "E-Mail",
+            "Phone (Home",
+            "Phone (Cell)",
+            "SSID No.",
+            "DOB",
+            "Class"
+          ],
+          "sampleRowsRead": 5
+        }
+      ],
+      "error": null
+    },
+    {
+      "file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Office Admin\\STUDENT DATABASE\\All BACKUPS\\CSN MASTER SORTED 9-17-18 Student Spreadsheet 2008-2018--TWC.xlsx",
+      "score": 50,
+      "size": 283272,
+      "lastWriteTime": "3/22/2026 12:26:55 PM",
+      "sheets": [
+        {
+          "name": "Sheet1",
+          "sampleColumns": [
+            "Start",
+            "End",
+            "Last Name",
+            "First Name",
+            "Address",
+            "City",
+            "ST",
+            "Zip",
+            "E-Mail",
+            "Phone (Home",
+            "Phone (Cell)",
+            "SSID No.",
+            "DOB",
+            "Class"
+          ],
+          "sampleRowsRead": 5
+        }
+      ],
+      "error": null
+    },
+    {
+      "file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Office Admin\\STUDENT DATABASE\\All BACKUPS\\CSN MASTER SORTED 9-17-18 Student Spreadsheet 2008-2018--TWC .xlsx",
+      "score": 50,
+      "size": 284014,
+      "lastWriteTime": "3/22/2026 12:26:55 PM",
+      "sheets": [
+        {
+          "name": "Sheet1",
+          "sampleColumns": [
+            "Start",
+            "End",
+            "Last Name",
+            "First Name",
+            "Address",
+            "City",
+            "ST",
+            "Zip",
+            "E-Mail",
+            "Phone (Home",
+            "Phone (Cell)",
+            "SSID No.",
+            "DOB",
+            "Class"
+          ],
+          "sampleRowsRead": 5
+        }
+      ],
+      "error": null
+    },
+    {
+      "file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Office Admin\\STUDENT DATABASE\\All BACKUPS\\CSN MASTER SORTED 9-17-18 Student Spreadsheet 2008-2018--TWC --w notations.xlsx",
+      "score": 50,
+      "size": 284135,
+      "lastWriteTime": "3/22/2026 12:26:55 PM",
+      "sheets": [
+        {
+          "name": "Sheet1",
+          "sampleColumns": [
+            "Start",
+            "End",
+            "Last Name",
+            "First Name",
+            "Address",
+            "City",
+            "ST",
+            "Zip",
+            "E-Mail",
+            "Phone (Home",
+            "Phone (Cell)",
+            "SSID No.",
+            "DOB",
+            "Class"
+          ],
+          "sampleRowsRead": 5
+        }
+      ],
+      "error": null
+    },
+    {
+      "file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Office Admin\\STUDENT DATABASE\\All BACKUPS\\CSN MASTER SORTED 9-17-18 Student Spreadsheet 2008-2018--TWC --sorted by START DATE upd.xlsx",
+      "score": 50,
+      "size": 284137,
+      "lastWriteTime": "3/22/2026 12:26:55 PM",
+      "sheets": [
+        {
+          "name": "Sheet1",
+          "sampleColumns": [
+            "Start",
+            "End",
+            "Last Name",
+            "First Name",
+            "Address",
+            "City",
+            "ST",
+            "Zip",
+            "E-Mail",
+            "Phone (Home",
+            "Phone (Cell)",
+            "SSID No.",
+            "DOB",
+            "Class"
+          ],
+          "sampleRowsRead": 5
+        }
+      ],
+      "error": null
+    },
+    {
+      "file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Office Admin\\STUDENT DATABASE\\All BACKUPS\\CSN MASTER SORTED 8-29-18 Student Spreadsheet 2008-2018--TWC (Autosaved).xlsx",
+      "score": 50,
+      "size": 265664,
+      "lastWriteTime": "3/22/2026 12:26:55 PM",
+      "sheets": [
+        {
+          "name": "Sheet1",
+          "sampleColumns": [
+            "Start",
+            "End",
+            "Last Name",
+            "First Name",
+            "Address",
+            "City",
+            "ST",
+            "Zip",
+            "E-Mail",
+            "Phone (Home",
+            "Phone (Cell)",
+            "SSID No.",
+            "DOB",
+            "Class"
+          ],
+          "sampleRowsRead": 5
+        }
+      ],
+      "error": null
+    },
+    {
+      "file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Office Admin\\STUDENT DATABASE\\All BACKUPS\\CSN MASTER SORTED 8-24-17 Student Spreadsheet 2008-2017--w notations.xlsx",
+      "score": 50,
+      "size": 278261,
+      "lastWriteTime": "3/22/2026 12:26:55 PM",
+      "sheets": [
+        {
+          "name": "Sheet1",
+          "sampleColumns": [
+            "Start",
+            "End",
+            "Last Name",
+            "First Name",
+            "Address",
+            "City",
+            "ST",
+            "Zip",
+            "E-Mail",
+            "Phone (Home",
+            "Phone (Cell)",
+            "SSID No.",
+            "DOB",
+            "Class"
+          ],
+          "sampleRowsRead": 5
+        }
+      ],
+      "error": null
+    },
+    {
+      "file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Office Admin\\STUDENT DATABASE\\All BACKUPS\\CSN MASTER SORTED 8-24-17 Student Spreadsheet 2008-2017--TWC.xlsx",
+      "score": 50,
+      "size": 284664,
+      "lastWriteTime": "3/22/2026 12:26:55 PM",
+      "sheets": [
+        {
+          "name": "Sheet1",
+          "sampleColumns": [
+            "Start",
+            "End",
+            "Last Name",
+            "First Name",
+            "Address",
+            "City",
+            "ST",
+            "Zip",
+            "E-Mail",
+            "Phone (Home",
+            "Phone (Cell)",
+            "SSID No.",
+            "DOB",
+            "Class"
+          ],
+          "sampleRowsRead": 5
+        }
+      ],
+      "error": null
+    },
+    {
+      "file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Office Admin\\STUDENT DATABASE\\All BACKUPS\\CSN MASTER SORTED 4-23-18 Student Spreadsheet 2008-2018--TWC.xlsx",
+      "score": 50,
+      "size": 270199,
+      "lastWriteTime": "3/22/2026 12:26:55 PM",
+      "sheets": [
+        {
+          "name": "Sheet1",
+          "sampleColumns": [
+            "Start",
+            "End",
+            "Last Name",
+            "First Name",
+            "Address",
+            "City",
+            "ST",
+            "Zip",
+            "E-Mail",
+            "Phone (Home",
+            "Phone (Cell)",
+            "SSID No.",
+            "DOB",
+            "Class"
+          ],
+          "sampleRowsRead": 5
+        }
+      ],
+      "error": null
+    }
+  ]
+}

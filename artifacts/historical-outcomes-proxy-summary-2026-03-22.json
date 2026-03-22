@@ -1,0 +1,169 @@
+{
+  "generated_at": "2026-03-22",
+  "salary_outcome_status": {
+    "structured_salary_fields_found": true,
+    "structured_employment_fields_found": true,
+    "explicit_pre_post_salary_fields_found": false,
+    "explicit_before_after_employment_fields_found": false,
+    "promotion_or_raise_fields_found": false
+  },
+  "scan_coverage": {
+    "candidate_excel_files_selected": 110,
+    "excel_files_scanned_successfully": 109,
+    "excel_sheets_scanned": 225,
+    "excel_columns_scanned": 2779,
+    "excel_scan_failures": [
+      {
+        "file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Training Attendance Log.xls",
+        "reason": "xlrd missing for legacy xls parsing"
+      }
+    ],
+    "mdb_artifact_reviewed": true,
+    "mdb_databases_profiled": 7,
+    "mdb_ok_table_counts": 36,
+    "mdb_permission_blocked_table_counts": 240,
+    "mdb_open_error_rows": 1
+  },
+  "primary_salary_evidence": {
+    "source_type": "completer_surveys",
+    "survey_file_count": 7,
+    "respondent_rows": 67,
+    "rows_with_numeric_pay": 63,
+    "rows_with_place_of_work": 63,
+    "rows_with_title_position": 63,
+    "distinct_workplaces": 53,
+    "distinct_titles": 55,
+    "start_date_min": "2017-03-07",
+    "end_date_max": "2019-03-02",
+    "pay_stats": {
+      "min": 14.0,
+      "p25": 28.0,
+      "median": 37.5,
+      "p75": 45.5,
+      "max": 72.5,
+      "mean": 37.68
+    },
+    "pay_band_counts": {
+      "<20": 3,
+      "20-29.99": 15,
+      "30-39.99": 19,
+      "40-49.99": 12,
+      "50+": 14
+    },
+    "program_summary": [
+      {
+        "program": "1-SQLPMP",
+        "rows": 37,
+        "pay_count": 35,
+        "pay_median": 39.0,
+        "pay_min": 26.0,
+        "pay_max": 72.5
+      },
+      {
+        "program": "2-PMP",
+        "rows": 5,
+        "pay_count": 5,
+        "pay_median": 50.0,
+        "pay_min": 32.0,
+        "pay_max": 62.0
+      },
+      {
+        "program": "3-JAVASQL",
+        "rows": 9,
+        "pay_count": 8,
+        "pay_median": 43.0,
+        "pay_min": 22.0,
+        "pay_max": 57.0
+      },
+      {
+        "program": "4-MCITP",
+        "rows": 5,
+        "pay_count": 5,
+        "pay_median": 18.0,
+        "pay_min": 14.0,
+        "pay_max": 51.0
+      },
+      {
+        "program": "5-MOSCAPM",
+        "rows": 5,
+        "pay_count": 5,
+        "pay_median": 23.0,
+        "pay_min": 20.0,
+        "pay_max": 28.0
+      },
+      {
+        "program": "6-IMDBOS",
+        "rows": 3,
+        "pay_count": 3,
+        "pay_median": 24.0,
+        "pay_min": 22.0,
+        "pay_max": 25.0
+      },
+      {
+        "program": "7-Web Com Manager",
+        "rows": 3,
+        "pay_count": 2,
+        "pay_median": 26.5,
+        "pay_min": 25.0,
+        "pay_max": 28.0
+      }
+    ],
+    "interpretation": "Structured post-completion employer, title, and pay outcomes exist, but explicit pre-vs-post salary uplift fields do not."
+  },
+  "proxy_outcomes": {
+    "completion": {
+      "latest_master_file": "C:\\Users\\mabro\\Downloads\\historical-student-data\\Office Admin\\STUDENT DATABASE\\2020 ALL Audit Master Document as of 2-3-20 at 5pm.xlsx",
+      "rows": 834,
+      "rows_with_start": 826,
+      "rows_with_end": 824,
+      "start_date_min": "2008-10-06",
+      "start_date_max": "2020-02-03"
+    },
+    "time_to_completion": {
+      "latest_master_measurable_rows": 817,
+      "latest_master_median_days": 152.0,
+      "latest_master_p25_days": 93.0,
+      "latest_master_p75_days": 200.0,
+      "prior_master_measurable_rows": 790,
+      "prior_master_median_days": 156.0
+    },
+    "contactability": {
+      "latest_master_rows_with_email": 825,
+      "latest_master_rows_with_any_phone": 830,
+      "prior_master_rows_with_email": 798,
+      "prior_master_rows_with_any_phone": 803,
+      "potential_students_rows": 257,
+      "potential_students_rows_with_email": 252,
+      "potential_students_rows_with_any_phone": 251
+    },
+    "program_mix_latest_master_top_classes": {
+      "SQL/PMP": 259,
+      "PMP": 139,
+      "CSAD": 104,
+      "MOS/CAPM": 50,
+      "MM": 49,
+      "MCITP": 45,
+      "IMDBOS": 30,
+      "PMP/Agile": 30,
+      "CSS": 26,
+      "JAVA/SQL": 26
+    },
+    "best_substitute_if_pre_post_claim_is_required": [
+      "completion/end-date coverage",
+      "time-to-completion distribution",
+      "contactability coverage",
+      "post-completion employer/title/pay from completer surveys"
+    ]
+  },
+  "risks": [
+    "MDB outcome and finance tables were permission-blocked and may contain additional evidence.",
+    "PAY likely represents compensation, but the unit is not explicitly labeled in the accessible survey files.",
+    "One legacy xls file was not parsed."
+  ],
+  "confidence": {
+    "salary_outcome_exists": "high",
+    "true_before_after_salary_proof_exists_in_accessible_files": "low",
+    "proxy_outcome_evidence_exists": "high",
+    "overall": "medium-high"
+  }
+}

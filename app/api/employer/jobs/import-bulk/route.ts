@@ -5,14 +5,10 @@ import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import {
   buildFallbackParsedJobFromScrape,
-  extractSubJobUrlsFromPageText,
   normalizeImportedParsedJob,
   parseJobFromText,
-  parseJobListingsFromPageText,
   sanitizeScrapedJobText,
-  stripUrlsFromDescription,
   type ParsedJob,
-  type ParsedJobListing,
 } from '@/lib/ai/parseJob';
 import {
   fetchSubJobPageText,
@@ -21,6 +17,7 @@ import {
 } from '@/lib/ai/atsProviders';
 import { isAIConfigured } from '@/lib/ai/groq';
 import { buildEmployerJobCreateData, getRouteErrorDetails } from '@/lib/employer/jobCreate';
+import { appendImportedFrom, collectDraftInputsFromPageText, type ImportedDraftInput } from '@/lib/employer/jobImportBulk';
 import { checkEmployerJobImportRateLimit } from '@/lib/rate-limit';
 
 const bulkSchema = z
@@ -32,10 +29,6 @@ const bulkSchema = z
   .refine((d) => (d.jobUrls?.length ?? 0) > 0 || d.careersPageUrl || d.careersPageRawText, {
     message: 'Provide jobUrls, careersPageUrl, or careersPageRawText',
   });
-
-function appendImportedFrom(description: string, sourceUrl?: string): string {
-  return sourceUrl ? `${description}\n\n---\nImported from: ${sourceUrl}` : description;
-}
 
 async function createDraftFromParsedJob(
   employerId: string,
@@ -62,25 +55,26 @@ async function createDraftFromParsedJob(
   return { id: job.id, title: job.title, provider };
 }
 
-async function createDraftFromListingFallback(
+async function createDraftFromImportedInput(
   employerId: string,
-  listing: ParsedJobListing,
-  sourceUrl: string,
-  provider = 'listing-fallback'
+  draft: ImportedDraftInput
 ) {
-  const cleanDesc = stripUrlsFromDescription(listing.description.trim());
   const job = await prisma.job.create({
     data: buildEmployerJobCreateData(employerId, {
-      title: listing.title.trim(),
-      location: listing.location,
-      description: cleanDesc ? appendImportedFrom(cleanDesc, sourceUrl) : appendImportedFrom('Imported listing.', sourceUrl),
-      requirements: [],
-      preferredCertifications: [],
-      suggestedPrograms: [],
+      title: draft.title,
+      location: draft.location,
+      locationType: draft.locationType,
+      jobType: draft.jobType,
+      salaryMin: draft.salaryMin,
+      salaryMax: draft.salaryMax,
+      description: draft.description,
+      requirements: draft.requirements ?? [],
+      preferredCertifications: draft.preferredCertifications ?? [],
+      suggestedPrograms: draft.suggestedPrograms ?? [],
       status: 'draft',
     }),
   });
-  return { id: job.id, title: job.title, provider };
+  return { id: job.id, title: job.title, provider: draft.provider };
 }
 
 async function parseSingleJobUrl(url: string): Promise<{ extracted: ParsedJob; provider: string } | null> {
@@ -155,6 +149,17 @@ export async function POST(request: NextRequest) {
             created.push({ id: job.id, title: job.title, provider: atsResult.provider });
           }
           continue;
+        }
+
+        if (atsResult.rawText && atsResult.rawText.length >= 80) {
+          const collected = await collectDraftInputsFromPageText(atsResult.rawText, { baseUrl: url });
+          if (collected.handled) {
+            for (const draft of collected.drafts) {
+              created.push(await createDraftFromImportedInput(ctx.employerId, draft));
+            }
+            errors.push(...collected.errors);
+            continue;
+          }
         }
 
         if (atsResult.rawText && atsResult.rawText.length >= 50) {
@@ -235,71 +240,18 @@ export async function POST(request: NextRequest) {
     }
 
     if (listingsText.length >= 80 && !careersPageProcessed) {
-      const sanitized = sanitizeScrapedJobText(listingsText);
-      const subUrls = extractSubJobUrlsFromPageText(sanitized, { baseUrl: careersPageUrl });
-      const listingFallbacks = (await parseJobListingsFromPageText(sanitized)) ?? [];
-      const listingFallbackByUrl = new Map(
-        listingFallbacks
-          .filter((listing) => listing.sourceUrl)
-          .map((listing) => [listing.sourceUrl as string, listing])
-      );
-
-      if (subUrls.length > 0) {
-        for (const { url, title: listingTitle } of subUrls) {
-          const listingFallback = listingFallbackByUrl.get(url);
-          const textForParse = await fetchSubJobPageText(url, { waitFor: getImportWaitForMs(url) });
-
-          if (!textForParse || textForParse.length < 80) {
-            if (listingFallback) {
-              created.push(await createDraftFromListingFallback(ctx.employerId, listingFallback, url));
-              continue;
-            }
-            errors.push({ source: url, error: 'Could not fetch job page.' });
-            continue;
-          }
-
-          const parsedJob = await parseJobFromText(textForParse);
-          const extractedRaw = parsedJob ?? buildFallbackParsedJobFromScrape(listingTitle, textForParse);
-          if (!extractedRaw) {
-            if (listingFallback) {
-              created.push(await createDraftFromListingFallback(ctx.employerId, listingFallback, url));
-              continue;
-            }
-            errors.push({
-              source: url,
-              error: !isAIConfigured()
-                ? 'Job parse requires GROQ_API_KEY to be configured on the server.'
-                : 'Could not parse job posting. Check server logs for [parseJobFromText].',
-            });
-            continue;
-          }
-
-          created.push(await createDraftFromParsedJob(
-            ctx.employerId,
-            extractedRaw,
-            url,
-            parsedJob ? 'ai+per-job' : 'scrape+fallback'
-          ));
+      const collected = await collectDraftInputsFromPageText(listingsText, { baseUrl: careersPageUrl });
+      if (collected.handled) {
+        for (const draft of collected.drafts) {
+          created.push(await createDraftFromImportedInput(ctx.employerId, draft));
         }
+        errors.push(...collected.errors);
         careersPageProcessed = true;
       }
     }
 
     if (listingsText.length >= 80 && !careersPageProcessed) {
-      const listings = await parseJobListingsFromPageText(listingsText);
-      if (!listings?.length) {
-        errors.push({ source: 'careers page', error: 'AI did not find separate job listings in that text.' });
-      } else {
-        const baseUrl = careersPageUrl;
-        for (const listing of listings) {
-          created.push(await createDraftFromListingFallback(
-            ctx.employerId,
-            listing,
-            listing.sourceUrl ?? baseUrl ?? '',
-            'ai'
-          ));
-        }
-      }
+      errors.push({ source: 'careers page', error: 'AI did not find separate job listings in that text.' });
     }
 
     if (created.length === 0 && errors.length === 0) {

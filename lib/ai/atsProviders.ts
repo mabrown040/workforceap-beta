@@ -6,6 +6,8 @@
  * Tier 3: JS-rendered fallback detection with user guidance
  */
 
+import { sanitizeScrapedJobText } from '@/lib/ai/parseJob';
+
 export interface ATSJob {
   title: string;
   description: string;
@@ -113,6 +115,19 @@ function stripHtml(html: string): string {
     .replace(/\n{3,}/g, '\n\n')
     .replace(/ {2,}/g, ' ')
     .trim();
+}
+
+export function extractMeaningfulPageText(html: string): { text: string; isUsable: boolean } {
+  const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+  const bodyText = bodyMatch?.[1] ?? html;
+  const stripped = stripHtml(bodyText);
+  const cleaned = sanitizeScrapedJobText(stripped);
+
+  if (cleaned.length < 200) {
+    return { text: cleaned, isUsable: false };
+  }
+
+  return { text: cleaned.slice(0, 28000), isUsable: true };
 }
 
 function inferLocationType(location: string | undefined): 'remote' | 'hybrid' | 'onsite' | undefined {
@@ -269,17 +284,13 @@ async function fetchGenericPage(url: string): Promise<{ text: string; isJSRender
     });
     if (!res.ok) return null;
     const html = await res.text();
+    const extracted = extractMeaningfulPageText(html);
 
-    // Detect JS-rendered pages (minimal content in body)
-    const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
-    const bodyText = bodyMatch?.[1] ?? html;
-    const stripped = stripHtml(bodyText);
-
-    if (stripped.length < 200) {
-      return { text: stripped, isJSRendered: true };
+    if (!extracted.isUsable) {
+      return { text: extracted.text, isJSRendered: true };
     }
 
-    return { text: stripped.slice(0, 28000), isJSRendered: false };
+    return { text: extracted.text, isJSRendered: false };
   } catch {
     return null;
   }

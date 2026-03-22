@@ -3,6 +3,8 @@ import {
   parseJobListingsFromPageText,
   sanitizeScrapedJobText,
 } from '../lib/ai/parseJob';
+import { extractMeaningfulPageText } from '../lib/ai/atsProviders';
+import { collectDraftInputsFromPageText } from '../lib/employer/jobImportBulk';
 
 async function main() {
   const fixture = `### Current Openings
@@ -111,10 +113,73 @@ Austin, TX
     throw new Error(`Expected first listing location to be Austin, TX, got ${listings[0]?.location ?? 'missing'}`);
   }
 
+  const cssSoup = `<html><body><style>body{-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased;font-family:"ripplingFontNormal",Arial,Helvetica,sans-serif;}ul{list-style:none;}p,h4,h3,h5,h6{margin:0;}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}.lineClamp{display:-webkit-box!important;-webkit-line-clamp:2;overflow:hidden;text-overflow:ellipsis;white-space:normal;}@font-face{font-display:swap;font-family:RipplingIconsKit;src:url('https://static-assets.ripplingcdn.com/pebble/fonts/RipplingIconsKit/v5.93/r-icon.woff2') format('woff2');font-weight:normal;font-style:normal;}</style></body></html>`;
+  const extractedFromCssSoup = extractMeaningfulPageText(cssSoup);
+  if (extractedFromCssSoup.isUsable || extractedFromCssSoup.text.length !== 0) {
+    throw new Error('Expected CSS-heavy Rippling shell HTML to be rejected as unusable page text');
+  }
+
+  const draftPlan = await collectDraftInputsFromPageText(fixture, {
+    baseUrl: 'https://ats.rippling.com/closinglock/jobs',
+    deps: {
+      parseJobListingsFromPageText: async () => listings,
+      extractSubJobUrlsFromPageText: () => subUrls,
+      fetchSubJobPageText: async (url) => {
+        const listing = listings.find((job) => job.sourceUrl === url);
+        if (!listing) return null;
+        return `# ${listing.title}\n\n${listing.location ?? 'Austin, TX'}\n\nResponsibilities\n- Imported from fixture`;
+      },
+      parseJobFromText: async () => null,
+      isAIConfigured: () => false,
+    },
+  });
+
+  if (!draftPlan.handled) {
+    throw new Error('Expected one careers page URL to be treated as a multi-job source');
+  }
+
+  if (draftPlan.drafts.length !== 14) {
+    throw new Error(`Expected 14 draft inputs from one careers page URL, got ${draftPlan.drafts.length}`);
+  }
+
+  if (draftPlan.errors.length !== 0) {
+    throw new Error(`Expected 0 draft planning errors, got ${draftPlan.errors.length}`);
+  }
+
+  const firstDraft = draftPlan.drafts[0];
+  if (!firstDraft?.description.includes('Imported from: https://ats.rippling.com/closinglock/jobs/')) {
+    throw new Error('Expected draft descriptions to retain the per-job source URL');
+  }
+
+  const shortChildDraftPlan = await collectDraftInputsFromPageText(fixture, {
+    baseUrl: 'https://ats.rippling.com/closinglock/jobs',
+    deps: {
+      parseJobListingsFromPageText: async () => listings,
+      extractSubJobUrlsFromPageText: () => subUrls.slice(0, 1),
+      fetchSubJobPageText: async () => 'Customer Success Manager, Mid-Market\nOwn onboarding. Drive adoption.',
+      parseJobFromText: async () => null,
+      isAIConfigured: () => false,
+    },
+  });
+
+  if (shortChildDraftPlan.drafts.length !== 1) {
+    throw new Error(`Expected short child page text to still produce 1 draft, got ${shortChildDraftPlan.drafts.length}`);
+  }
+
+  if (shortChildDraftPlan.drafts[0]?.provider !== 'scrape+fallback') {
+    throw new Error(`Expected short child page text to prefer scrape+fallback, got ${shortChildDraftPlan.drafts[0]?.provider ?? 'missing'}`);
+  }
+
+  if (shortChildDraftPlan.drafts[0]?.description.includes('Details to be added - imported from careers page.')) {
+    throw new Error('Expected short child page text to beat the careers-page listing fallback copy');
+  }
+
   console.log(JSON.stringify({
     ok: true,
     count: listings.length,
     urlCount: subUrls.length,
+    draftCount: draftPlan.drafts.length,
+    shortChildProvider: shortChildDraftPlan.drafts[0]?.provider ?? null,
     first: listings[0],
     last: listings[listings.length - 1],
   }, null, 2));

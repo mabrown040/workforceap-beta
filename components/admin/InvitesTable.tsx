@@ -38,33 +38,39 @@ export default function InvitesTable({ invites }: Props) {
   const [filter, setFilter] = useState<string>('all');
   const [resending, setResending] = useState<string | null>(null);
   const [revoking, setRevoking] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [revokeTarget, setRevokeTarget] = useState<{ id: string; email: string } | null>(null);
 
   const filtered = invites.filter((i) => filter === 'all' || i.status === filter);
 
   const handleResend = async (id: string) => {
     setResending(id);
+    setFeedback(null);
     try {
       const res = await fetch(`/api/admin/invites/${id}/resend`, { method: 'POST' });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? 'Failed to resend');
       router.refresh();
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Failed to resend');
+      setFeedback(e instanceof Error ? e.message : 'Failed to resend');
     } finally {
       setResending(null);
     }
   };
 
-  const handleRevoke = async (id: string) => {
-    if (!confirm('Are you sure you want to revoke this invitation?')) return;
+  const runRevoke = async () => {
+    if (!revokeTarget) return;
+    const { id } = revokeTarget;
     setRevoking(id);
+    setFeedback(null);
     try {
       const res = await fetch(`/api/admin/invites/${id}/revoke`, { method: 'PATCH' });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? 'Failed to revoke');
+      setRevokeTarget(null);
       router.refresh();
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Failed to revoke');
+      setFeedback(e instanceof Error ? e.message : 'Failed to revoke');
     } finally {
       setRevoking(null);
     }
@@ -73,7 +79,15 @@ export default function InvitesTable({ invites }: Props) {
   const formatDate = (d: string) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
   return (
-    <div>
+    <div className="admin-responsive-data">
+      {feedback && (
+        <div className="admin-inline-feedback admin-inline-feedback--error" role="alert">
+          <p>{feedback}</p>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setFeedback(null)}>
+            Dismiss
+          </button>
+        </div>
+      )}
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
         {['all', 'pending', 'accepted', 'expired', 'revoked'].map((s) => (
           <button
@@ -105,7 +119,7 @@ export default function InvitesTable({ invites }: Props) {
           </p>
         </div>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
+        <div className="admin-table-scroll admin-invites-desktop">
           <table className="admin-table">
             <thead>
               <tr>
@@ -172,7 +186,7 @@ export default function InvitesTable({ invites }: Props) {
                           </button>
                           <button
                             type="button"
-                            onClick={() => handleRevoke(inv.id)}
+                            onClick={() => setRevokeTarget({ id: inv.id, email: inv.email })}
                             disabled={!!revoking}
                             style={{
                               padding: '0.25rem 0.5rem',
@@ -194,6 +208,75 @@ export default function InvitesTable({ invites }: Props) {
               })}
             </tbody>
           </table>
+        </div>
+      )}
+      <ul className="admin-portal-card-list admin-invites-cards" aria-label="Invitations (mobile layout)">
+        {filtered.map((inv) => {
+          const statusStyle = STATUS_STYLES[inv.status] ?? STATUS_STYLES.pending;
+          return (
+            <li key={`card-${inv.id}`} className="admin-portal-card">
+              <div className="admin-portal-card__header">
+                <strong>{inv.email}</strong>
+                <span
+                  className="admin-portal-card__badge"
+                  style={{ background: statusStyle.bg, color: statusStyle.color, textTransform: 'capitalize' }}
+                >
+                  {inv.status}
+                </span>
+              </div>
+              {inv.subgroup && <p className="admin-portal-card__meta">Subgroup: {inv.subgroup.name}</p>}
+              <p className="admin-portal-card__row">
+                <span className="admin-portal-card__label">Role</span> {ROLE_LABELS[inv.role] ?? inv.role}
+              </p>
+              <p className="admin-portal-card__row">
+                <span className="admin-portal-card__label">Invited by</span> {inv.invitedBy.fullName}
+              </p>
+              <p className="admin-portal-card__row">
+                <span className="admin-portal-card__label">Date</span>{' '}
+                {inv.status === 'accepted' && inv.acceptedAt
+                  ? formatDate(inv.acceptedAt)
+                  : formatDate(inv.createdAt)}
+              </p>
+              {inv.status === 'pending' && (
+                <div className="admin-portal-card__actions">
+                  <button type="button" className="btn btn-outline btn-sm" onClick={() => handleResend(inv.id)} disabled={!!resending}>
+                    {resending === inv.id ? 'Resending...' : 'Resend'}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => setRevokeTarget({ id: inv.id, email: inv.email })}
+                    disabled={!!revoking}
+                  >
+                    Revoke
+                  </button>
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+
+      {revokeTarget && (
+        <div className="admin-confirm-modal-overlay" role="presentation" onClick={() => !revoking && setRevokeTarget(null)}>
+          <div
+            className="admin-confirm-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="revoke-invite-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 id="revoke-invite-title">Revoke invitation?</h3>
+            <p>This will invalidate the invite sent to {revokeTarget.email}.</p>
+            <div className="admin-confirm-modal__actions">
+              <button type="button" className="btn btn-outline" disabled={!!revoking} onClick={() => setRevokeTarget(null)}>
+                Cancel
+              </button>
+              <button type="button" className="btn btn-primary" disabled={!!revoking} onClick={() => void runRevoke()}>
+                {revoking ? 'Revoking...' : 'Revoke'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

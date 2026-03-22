@@ -12,7 +12,7 @@ const NAV_LINKS = [
 ];
 
 /**
- * Same light “tool portal” chrome as the employer portal (white header, gray page bg),
+ * Same light tool-portal chrome as the employer portal (white header, gray page bg),
  * not the dark marketing-style `portal-nav` strip used for legacy member routes.
  */
 export default function PartnerPortalShell({

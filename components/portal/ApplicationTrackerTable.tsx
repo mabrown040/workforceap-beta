@@ -325,8 +325,10 @@ export default function ApplicationTrackerTable() {
               {actionError}
             </p>
           )}
-          <p className="application-tracker-scroll-hint">On a small screen, scroll sideways to see all columns.</p>
-          <div className="application-tracker-table-wrap">
+          <p className="application-tracker-scroll-hint application-tracker-scroll-hint--desktop-only">
+            On a small screen, use the card view below or scroll the table sideways.
+          </p>
+          <div className="application-tracker-table-wrap application-tracker-table-desktop">
           <table className="application-tracker-table">
             <thead>
               <tr>
@@ -419,6 +421,83 @@ export default function ApplicationTrackerTable() {
             </tbody>
           </table>
         </div>
+          <ul className="application-tracker-card-list" aria-label="Applications (mobile layout)">
+            {filteredApplications.map((app) => (
+              <li key={`card-${app.id}`} className="application-tracker-card">
+                <div className="application-tracker-card__header">
+                  <strong>{app.company}</strong>
+                  <span className="application-tracker-card__role">{app.role}</span>
+                </div>
+                <div className="application-tracker-card__field">
+                  <span className="application-tracker-card__label">Status</span>
+                  <select
+                    value={app.status}
+                    onChange={(e) => handleStatusChange(app.id, e.target.value)}
+                    className="application-status-select"
+                    aria-label={`Status for ${app.company}`}
+                  >
+                    {STATUS_OPTIONS.map((s) => (
+                      <option key={s} value={s}>
+                        {STATUS_LABELS[s] ?? s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="application-tracker-card__field">
+                  <span className="application-tracker-card__label">Applied</span>
+                  {editingId === app.id ? (
+                    <input
+                      type="date"
+                      value={editAppliedAt}
+                      onChange={(e) => setEditAppliedAt(e.target.value)}
+                      className="application-tracker-edit-input"
+                    />
+                  ) : (
+                    <span>{app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : '— (add date)'}</span>
+                  )}
+                </div>
+                <div className="application-tracker-card__field">
+                  <span className="application-tracker-card__label">Link</span>
+                  {editingId === app.id ? (
+                    <input
+                      type="url"
+                      value={editUrl}
+                      onChange={(e) => setEditUrl(e.target.value)}
+                      placeholder="https://..."
+                      className="application-tracker-edit-input"
+                    />
+                  ) : app.url ? (
+                    <a href={app.url} target="_blank" rel="noopener noreferrer" className="btn btn-outline btn-sm">
+                      View
+                    </a>
+                  ) : (
+                    '—'
+                  )}
+                </div>
+                <div className="application-tracker-card__actions">
+                  {editingId === app.id ? (
+                    <>
+                      <button type="button" className="btn btn-primary btn-sm" onClick={saveEdit}>
+                        Save
+                      </button>
+                      <button type="button" className="btn btn-outline btn-sm" onClick={cancelEdit}>
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button type="button" className="btn btn-outline btn-sm" onClick={() => startEdit(app)}>
+                        Edit
+                      </button>
+                      <button type="button" className="btn btn-outline btn-sm" onClick={() => setPendingDeleteId(app.id)}>
+                        Delete
+                      </button>
+                    </>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
         {filteredApplications.length === 0 && applications.length > 0 && (
           <p className="application-tracker-no-results">No applications match your filters.</p>
         )}

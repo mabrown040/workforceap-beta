@@ -10783,7 +10783,8 @@ body { animation: fadeIn 0.4s ease; }
     letter-spacing: 0.04em;
     padding: 0.2rem 0.45rem;
     border-radius: var(--radius-sm);
-    white-space: nowrap;
+    white-space: normal;
+    line-height: 1.2;
     margin-top: 0.15rem;
 }
 .employer-suggested-programs__badge--strong {

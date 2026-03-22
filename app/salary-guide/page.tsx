@@ -23,7 +23,7 @@ const insights = [
   },
   {
     Icon: CheckCircle,
-    title: 'Entry ranges are not “lesser” options',
+    title: 'Entry ranges are not "lesser" options',
     desc: 'IT Support, Digital Literacy, and several CompTIA paths get you credentialed faster. Plenty of people stack from there. The win is momentum.',
   },
   {
@@ -159,7 +159,7 @@ export default function SalaryGuidePage() {
           </div>
 
           <p className="salary-guide-methodology">
-            <strong>How we set the ranges:</strong> We start from Lightcast / BLS-style market data and employer conversations, then publish conservative bands on each program page. This guide copies those bands so you are never comparing a “marketing number” here against a different number there.
+            <strong>How we set the ranges:</strong> We start from Lightcast / BLS-style market data and employer conversations, then publish conservative bands on each program page. This guide copies those bands so you are never comparing a &quot;marketing number&quot; here against a different number there.
           </p>
 
           <div className="salary-guide-ctas">

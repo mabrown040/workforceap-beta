@@ -8,6 +8,10 @@ const NAV_LINKS = [
   { href: '/partner/resources', label: 'Resources' },
 ];
 
+/**
+ * Same light tool-portal chrome as the employer portal (white header, gray page bg),
+ * not the dark marketing-style `portal-nav` strip used for legacy member routes.
+ */
 export default function PartnerPortalShell({
   partnerName,
   children,

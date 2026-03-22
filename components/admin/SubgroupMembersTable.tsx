@@ -30,6 +30,8 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
   const [searching, setSearching] = useState(false);
   const [adding, setAdding] = useState<string | null>(null);
   const [removing, setRemoving] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [removeTarget, setRemoveTarget] = useState<{ id: string; name: string } | null>(null);
 
   const memberIds = new Set(members.map((m) => m.id));
 
@@ -53,6 +55,7 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
 
   async function addMember(memberId: string) {
     setAdding(memberId);
+    setFeedback(null);
     try {
       const res = await fetch(`/api/admin/members/${memberId}/subgroup`, {
         method: 'POST',
@@ -68,15 +71,17 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
       setSearch('');
       setSearchResults([]);
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Failed to add member');
+      setFeedback(e instanceof Error ? e.message : 'Failed to add member');
     } finally {
       setAdding(null);
     }
   }
 
-  async function removeMember(memberId: string) {
-    if (!confirm('Remove this member from the subgroup?')) return;
+  async function runRemoveMember() {
+    if (!removeTarget) return;
+    const memberId = removeTarget.id;
     setRemoving(memberId);
+    setFeedback(null);
     try {
       const res = await fetch(`/api/admin/members/${memberId}/subgroup?subgroup=${subgroupId}`, {
         method: 'DELETE',
@@ -85,9 +90,10 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
         const data = await res.json();
         throw new Error(data.error ?? 'Failed');
       }
+      setRemoveTarget(null);
       router.refresh();
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Failed to remove');
+      setFeedback(e instanceof Error ? e.message : 'Failed to remove');
     } finally {
       setRemoving(null);
     }
@@ -95,6 +101,14 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
 
   return (
     <>
+      {feedback && (
+        <div className="admin-inline-feedback admin-inline-feedback--error" role="alert" style={{ marginBottom: '1rem' }}>
+          <p>{feedback}</p>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setFeedback(null)}>
+            Dismiss
+          </button>
+        </div>
+      )}
       <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
         <button type="button" className="btn btn-primary" onClick={() => setShowAddModal(true)}>
           Add member
@@ -104,7 +118,8 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
       {members.length === 0 ? (
         <p style={{ color: 'var(--color-gray-500)', fontSize: '0.9rem' }}>No members assigned yet. Add members to give the subgroup leader visibility.</p>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
+        <div className="admin-responsive-data">
+        <div className="admin-table-scroll admin-subgroup-desktop">
           <table className="admin-table">
             <thead>
               <tr>
@@ -136,7 +151,7 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
                       type="button"
                       className="btn btn-outline"
                       style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}
-                      onClick={() => removeMember(m.id)}
+                      onClick={() => setRemoveTarget({ id: m.id, name: m.fullName })}
                       disabled={!!removing}
                     >
                       {removing === m.id ? '…' : 'Remove'}
@@ -146,6 +161,66 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
               ))}
             </tbody>
           </table>
+        </div>
+        <ul className="admin-portal-card-list admin-subgroup-cards" aria-label="Subgroup members (mobile layout)">
+          {members.map((m) => (
+            <li key={`card-${m.id}`} className="admin-portal-card">
+              <div className="admin-portal-card__header">
+                <Link href={`/admin/members/${m.id}`} style={{ fontWeight: 700, color: 'var(--color-accent)' }}>
+                  {m.fullName}
+                </Link>
+              </div>
+              <p className="admin-portal-card__row">
+                <span className="admin-portal-card__label">Program</span> {m.enrolledProgram ?? '-'}
+              </p>
+              <p className="admin-portal-card__row">
+                <span className="admin-portal-card__label">Progress</span> {m.progressPct}%
+              </p>
+              <p className="admin-portal-card__row">
+                <span className="admin-portal-card__label">Status</span> {m.stage}
+              </p>
+              <p className="admin-portal-card__meta">
+                Assigned {new Date(m.assignedAt).toLocaleDateString()}
+                {m.assignedBy && <span> by {m.assignedBy}</span>}
+              </p>
+              <div className="admin-portal-card__actions">
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm"
+                  onClick={() => setRemoveTarget({ id: m.id, name: m.fullName })}
+                  disabled={!!removing}
+                >
+                  {removing === m.id ? '…' : 'Remove'}
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+        </div>
+      )}
+
+      {removeTarget && (
+        <div className="admin-confirm-modal-overlay" role="presentation" onClick={() => !removing && setRemoveTarget(null)}>
+          <div
+            className="admin-confirm-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="subgroup-remove-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 id="subgroup-remove-title">Remove from subgroup?</h3>
+            <p>
+              Remove <strong>{removeTarget.name}</strong> from this subgroup? They keep their WorkforceAP account.
+            </p>
+            <div className="admin-confirm-modal__actions">
+              <button type="button" className="btn btn-outline" disabled={!!removing} onClick={() => setRemoveTarget(null)}>
+                Cancel
+              </button>
+              <button type="button" className="btn btn-primary" disabled={!!removing} onClick={() => void runRemoveMember()}>
+                {removing ? 'Removing...' : 'Remove'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

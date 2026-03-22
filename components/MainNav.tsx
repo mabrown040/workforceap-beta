@@ -48,6 +48,7 @@ export default function MainNav() {
   const [portalLinks, setPortalLinks] = useState<{ href: string; label: string }[]>([{ href: '/login', label: 'Sign in' }]);
   const menuRef = useRef<HTMLUListElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
+  const navContainerRef = useRef<HTMLDivElement>(null);
 
   const closeMobile = useCallback(() => {
     setMobileOpen(false);
@@ -179,6 +180,23 @@ export default function MainNav() {
     return () => document.removeEventListener('keydown', onKey);
   }, [activeDropdown]);
 
+  /** Mobile accordion: close open dropdown when tapping outside the nav menu. */
+  useEffect(() => {
+    if (!activeDropdown) return;
+    const onPointerDown = (e: MouseEvent | TouchEvent) => {
+      const root = navContainerRef.current;
+      const t = e.target;
+      if (!root || !(t instanceof Node) || root.contains(t)) return;
+      setActiveDropdown(null);
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('touchstart', onPointerDown, { passive: true });
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('touchstart', onPointerDown);
+    };
+  }, [activeDropdown]);
+
   const toggleMobile = () => {
     if (mobileOpen) {
       closeMobile();
@@ -205,7 +223,7 @@ export default function MainNav() {
 
   return (
     <nav className={`main-nav${scrolled ? ' scrolled' : ''}`} aria-label="Main navigation">
-      <div className="nav-container">
+      <div className="nav-container" ref={navContainerRef}>
         <Link href="/" className="logo" aria-label="Workforce Advancement Project home" onClick={closeMobile}>
           <Image
             src="/images/logo-tight.png"
@@ -245,25 +263,37 @@ export default function MainNav() {
               const isOpen = activeDropdown === item.label;
               return [
                 <li key={item.label} className={`dropdown${isOpen ? ' active' : ''}`}>
-                  <span
+                  <button
+                    type="button"
                     id={`${subMenuId}-trigger`}
-                    role="button"
-                    tabIndex={0}
                     aria-expanded={isOpen}
                     aria-haspopup="true"
                     aria-controls={subMenuId}
-                    className={parentActive ? 'active' : undefined}
+                    className={`dropdown-trigger${parentActive ? ' active' : ''}`}
                     onClick={() => setActiveDropdown(isOpen ? null : item.label)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
                         setActiveDropdown(isOpen ? null : item.label);
+                        return;
+                      }
+                      if (e.key === 'Escape') {
+                        e.preventDefault();
+                        setActiveDropdown(null);
+                        return;
+                      }
+                      if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        if (!isOpen) setActiveDropdown(item.label);
+                        queueMicrotask(() => {
+                          document.getElementById(subMenuId)?.querySelector<HTMLElement>('a[href]')?.focus();
+                        });
                       }
                     }}
                   >
                     {item.label}
-                  </span>
-                  <ul className="dropdown-menu" id={subMenuId} aria-labelledby={`${subMenuId}-trigger`}>
+                  </button>
+                  <ul className="dropdown-menu" id={subMenuId} role="menu" aria-labelledby={`${subMenuId}-trigger`}>
                     {item.children.map((child) => (
                       <li key={child.href}>
                         <Link

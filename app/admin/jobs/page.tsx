@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import AdminJobsFilterTabs from '@/components/admin/AdminJobsFilterTabs';
+import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin - Jobs',
@@ -77,10 +78,7 @@ export default async function AdminJobsPage({
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Jobs</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '0.5rem' }}>
-        Employer submits → Admin reviews → Approve/Reject → Live. Manage job postings.
-      </p>
+      <PageHeader title="Jobs" subtitle="Employer submits → Admin reviews → Approve/Reject → Live. Manage job postings." />
 
       <AdminJobsFilterTabs currentFilter={currentFilter} tabs={tabs} />
 

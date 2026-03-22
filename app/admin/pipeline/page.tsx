@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db/prisma';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, PIPELINE_STAGE_COLORS, PIPELINE_STAGES_ORDERED, type PipelineStage } from '@/lib/pipeline/stage';
 import Link from 'next/link';
+import PageHeader from '@/components/portal/PageHeader';
 
 export default async function AdminPipelinePage() {
   const students = await prisma.user.findMany({
@@ -56,22 +57,10 @@ export default async function AdminPipelinePage() {
 
   return (
     <div style={{ paddingTop: '1.5rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Student Pipeline</h1>
-        <Link
-          href="/admin/placements/new"
-          style={{
-            padding: '0.5rem 1rem',
-            background: 'var(--color-blue)',
-            color: 'white',
-            borderRadius: '6px',
-            textDecoration: 'none',
-            fontWeight: 600,
-          }}
-        >
-          Record Placement
-        </Link>
-      </div>
+      <PageHeader
+        title="Student Pipeline"
+        action={<Link href="/admin/placements/new" style={{ padding: '0.5rem 1rem', background: 'var(--color-blue)', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 600 }}>Record Placement</Link>}
+      />
 
       {/* Stats bar */}
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>

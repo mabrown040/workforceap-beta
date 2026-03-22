@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { prisma } from '@/lib/db/prisma';
 import SubgroupForm from '@/components/admin/SubgroupForm';
 import { buildPageMetadata } from '@/app/seo';
+import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Create Subgroup',
@@ -31,10 +32,7 @@ export default async function NewSubgroupPage() {
           ← Back to Subgroups
         </Link>
       </div>
-      <h1 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Create Subgroup</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
-        Subgroups let partners, managers, and churches see members assigned to their group. Link a partner for auto-assignment when members are referred.
-      </p>
+      <PageHeader title="Create Subgroup" subtitle="Subgroups let partners, managers, and churches see members assigned to their group. Link a partner for auto-assignment when members are referred." />
       <SubgroupForm users={users} partners={partners} />
     </div>
   );

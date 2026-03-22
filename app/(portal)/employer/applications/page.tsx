@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
+import PageHeader from '@/components/portal/PageHeader';
 import { prisma } from '@/lib/db/prisma';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -30,10 +31,10 @@ export default async function EmployerApplicationsPage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Workforce AP applicants</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
-        Members who applied through WorkforceAP to your open roles. Review and follow up here.
-      </p>
+      <PageHeader
+        title="Workforce AP applicants"
+        subtitle="Members who applied through WorkforceAP to your open roles. Review and follow up here."
+      />
 
       {applications.length === 0 ? (
         <p style={{ color: 'var(--color-gray-500)' }}>No applications yet.</p>

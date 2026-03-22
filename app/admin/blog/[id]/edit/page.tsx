@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/db/prisma';
 import { isAIConfigured } from '@/lib/ai/groq';
 import BlogPostEditor from '../../BlogPostEditor';
+import PageHeader from '@/components/portal/PageHeader';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -26,7 +27,7 @@ export default async function AdminBlogEditPage({ params }: Props) {
       >
         ← Back to Blog
       </Link>
-      <h1 style={{ marginBottom: '1.5rem' }}>Edit: {post.title}</h1>
+      <PageHeader title={`Edit: ${post.title}`} />
       <BlogPostEditor mode="edit" post={{ ...post, scheduledAt: post.scheduledAt ? post.scheduledAt.toISOString() : null }} aiEnabled={isAIConfigured()} />
     </div>
   );

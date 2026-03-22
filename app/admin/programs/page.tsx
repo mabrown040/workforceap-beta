@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { PROGRAMS } from '@/lib/content/programs';
+import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin – Programs',
@@ -40,8 +41,7 @@ export default async function AdminProgramsPage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Program Overview</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>Read-only enrollment and progress stats.</p>
+      <PageHeader title="Program Overview" subtitle="Read-only enrollment and progress stats." />
 
       {totalEnrollments === 0 ? (
         <div className="admin-empty-state">

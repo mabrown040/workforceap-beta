@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 import { isAIConfigured } from '@/lib/ai/groq';
 import { isWebSearchConfigured } from '@/lib/ai/blogAI';
 import BlogAIClient from './BlogAIClient';
+import PageHeader from '@/components/portal/PageHeader';
 
 export default async function AdminBlogAIPage() {
   const hasAI = isAIConfigured();
@@ -17,10 +18,7 @@ export default async function AdminBlogAIPage() {
       >
         ← Back to Blog
       </Link>
-      <h1 style={{ marginBottom: '0.5rem' }}>Blog AI Tools</h1>
-      <p style={{ color: '#666', marginBottom: '1.5rem' }}>
-        Suggest topics, draft posts, and review content. {hasWebSearch && 'Web search enabled for current info.'}
-      </p>
+      <PageHeader title="Blog AI Tools" subtitle={`Suggest topics, draft posts, and review content.${hasWebSearch ? ' Web search enabled for current info.' : ''}`} />
       {!hasAI ? (
         <div
           style={{

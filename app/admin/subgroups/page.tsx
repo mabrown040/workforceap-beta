@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/db/prisma';
+import PageHeader from '@/components/portal/PageHeader';
 
 export default async function AdminSubgroupsPage() {
   const subgroups = await prisma.subgroup.findMany({
@@ -13,15 +14,10 @@ export default async function AdminSubgroupsPage() {
 
   return (
     <div style={{ paddingTop: '1.5rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Subgroups</h1>
-        <Link
-          href="/admin/subgroups/new"
-          style={{ padding: '0.5rem 1rem', background: 'var(--color-accent)', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 600 }}
-        >
-          Create Subgroup
-        </Link>
-      </div>
+      <PageHeader
+        title="Subgroups"
+        action={<Link href="/admin/subgroups/new" style={{ padding: '0.5rem 1rem', background: 'var(--color-accent)', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 600 }}>Create Subgroup</Link>}
+      />
 
       <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem', maxWidth: '600px' }}>
         Subgroups let partners, managers, and churches see all members assigned to their group. Members can be assigned manually or auto-assigned when referred by a linked partner.

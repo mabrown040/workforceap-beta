@@ -15,6 +15,7 @@ import MemberSubgroupSection from '@/components/admin/MemberSubgroupSection';
 import CreateSuccessToast from './CreateSuccessToast';
 import { formatPhone } from '@/lib/formatPhone';
 import { ClipboardList, CheckCircle } from 'lucide-react';
+import PageHeader from '@/components/portal/PageHeader';
 import '@/css/counselor.css';
 
 const BUCKET = 'member-resumes';
@@ -98,19 +99,19 @@ export default async function AdminMemberDetailPage({
       <Suspense fallback={null}>
         <CreateSuccessToast />
       </Suspense>
-      <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <h1 style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>{member.fullName}</h1>
-          <p style={{ color: 'var(--color-gray-600)' }}>{member.email}</p>
-        </div>
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-          <Link href={`/admin/members/${id}/readiness`} className="btn btn-outline">
-            <ClipboardList size={18} style={{ marginRight: '0.35rem', verticalAlign: 'middle' }} />
-            Readiness
-          </Link>
-          <Link href="/admin/members" className="btn btn-outline">← Back to Members</Link>
-        </div>
-      </div>
+      <PageHeader
+        title={member.fullName}
+        subtitle={member.email}
+        action={
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <Link href={`/admin/members/${id}/readiness`} className="btn btn-outline">
+              <ClipboardList size={18} style={{ marginRight: '0.35rem', verticalAlign: 'middle' }} />
+              Readiness
+            </Link>
+            <Link href="/admin/members" className="btn btn-outline">← Back to Members</Link>
+          </div>
+        }
+      />
 
       <div style={{ display: 'grid', gap: '1.5rem', maxWidth: '800px' }}>
         <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>

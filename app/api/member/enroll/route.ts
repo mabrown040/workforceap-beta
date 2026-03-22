@@ -46,9 +46,9 @@ export async function POST(request: Request) {
     select: { email: true, fullName: true },
   });
 
-  await sendPartnerMilestoneEmail(user.id, 'Program enrollment', {
+  sendPartnerMilestoneEmail(user.id, 'Program enrollment', {
     Program: program.title,
-  });
+  }).catch((err) => console.error('Partner milestone email failed:', err));
 
   sendCourseEnrolledEmail({
     to: updatedUser.email,

@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/db/prisma';
 import SubgroupForm from '@/components/admin/SubgroupForm';
 import { buildPageMetadata } from '@/app/seo';
+import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Edit Subgroup',
@@ -40,7 +41,7 @@ export default async function EditSubgroupPage({ params }: Props) {
       <Link href={`/admin/subgroups/${id}`} style={{ color: 'var(--color-gray-600)', textDecoration: 'none', fontSize: '0.9rem', marginBottom: '1rem', display: 'inline-block' }}>
         ← Back to {subgroup.name}
       </Link>
-      <h1 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Edit Subgroup</h1>
+      <PageHeader title="Edit Subgroup" />
       <SubgroupForm users={users} partners={partners} subgroup={subgroup} />
     </div>
   );

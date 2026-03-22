@@ -57,9 +57,9 @@ export async function POST(request: Request) {
   const courseMeta = program.courses.find((c) => c.slug === courseSlug);
   const courseName = courseMeta?.name ?? courseSlug;
 
-  await sendPartnerMilestoneEmail(user.id, 'Course completed', {
+  sendPartnerMilestoneEmail(user.id, 'Course completed', {
     Course: courseName,
-  });
+  }).catch((err) => console.error('Partner milestone email failed:', err));
 
   sendCourseCompletedEmail({
     to: dbUser.email,

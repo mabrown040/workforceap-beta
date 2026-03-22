@@ -10188,3 +10188,43 @@ body { animation: fadeIn 0.4s ease; }
         grid-row: 2;
     }
 }
+
+/* =========================================================
+   Portal page header — shared across admin and portal pages
+   ========================================================= */
+.portal-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.portal-page-header-main {
+    flex: 1;
+    min-width: 0;
+}
+.portal-page-title {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+}
+.portal-page-subtitle {
+    color: var(--color-gray-600);
+}
+.portal-page-header-action {
+    flex-shrink: 0;
+}
+
+/* Partner guide steps list */
+.partner-guide-steps {
+    line-height: 1.6;
+    padding-left: 1.25rem;
+    max-width: 720px;
+}
+.partner-guide-steps li {
+    margin-bottom: 1rem;
+}
+.partner-guide-note {
+    margin-top: 2rem;
+    color: var(--color-gray-600);
+}

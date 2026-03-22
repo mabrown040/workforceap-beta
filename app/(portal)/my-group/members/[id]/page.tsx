@@ -8,6 +8,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
+import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Member Detail',
@@ -86,8 +87,7 @@ export default async function MyGroupMemberDetailPage({ params }: Props) {
       <Link href="/my-group" style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'inline-block' }}>
         &larr; Back to My Group
       </Link>
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>{m.fullName}</h1>
-      <p style={{ color: 'var(--color-gray-600)' }}>{m.email}</p>
+      <PageHeader title={m.fullName} subtitle={m.email} />
 
       <div style={{ display: 'grid', gap: '1.5rem', maxWidth: '800px', marginTop: '1.5rem' }}>
         <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>

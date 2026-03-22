@@ -9,6 +9,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
 import PartnerMembersList from '@/components/portal/PartnerMembersList';
+import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Partner Portal',
@@ -118,28 +119,30 @@ export default async function PartnerDashboardPage() {
 
   return (
     <div className="partner-impact-console">
-      <header className="partner-impact-header">
-        <h1>Partner accountability</h1>
-        <p className="partner-impact-subtitle">
-          <strong>{ctx.partner.name}</strong> — who you referred, where they are in the journey, and placement outcomes.
-          Use this view for check-ins and impact conversations with WorkforceAP.
-        </p>
-      </header>
+      <PageHeader
+        title="Partner dashboard"
+        subtitle={`${ctx.partner.name} referrals, progress, and placement outcomes in one place.`}
+        action={
+          <Link href="/partner/guide" className="btn btn-secondary btn-sm">
+            Referral guide
+          </Link>
+        }
+      />
 
       {total === 0 ? (
-        <div className="partner-empty-state">
+        <section className="partner-empty-state partner-panel">
           <div className="partner-empty-icon">👋</div>
           <h2>No referred members yet</h2>
           <p>
-            Direct applicants to <strong>workforceap.org/apply</strong> and ask them to list <strong>{ctx.partner.name}</strong> when asked how they heard about us. Referrals will appear here.
+            Send applicants to <strong>workforceap.org/apply</strong> and have them list <strong>{ctx.partner.name}</strong> when asked how they heard about WorkforceAP. Referrals will show up here automatically.
           </p>
           <Link href="/partner/guide" className="btn btn-primary">
-            Referral guide
+            Open referral guide
           </Link>
-        </div>
+        </section>
       ) : (
         <>
-          <section className="partner-impact-summary">
+          <section className="partner-impact-summary partner-panel">
             <div className="partner-impact-hero">
               <div className="partner-impact-hero-main">
                 <span className="partner-impact-hero-value">{placements}</span>
@@ -156,7 +159,7 @@ export default async function PartnerDashboardPage() {
             </div>
 
             <div className="partner-journey-strip">
-              <span className="partner-journey-label">Journey</span>
+              <span className="partner-journey-label">Journey snapshot</span>
               <div className="partner-journey-stages">
                 {JOURNEY_STAGES.map((s) => (
                   <div
@@ -172,8 +175,13 @@ export default async function PartnerDashboardPage() {
             </div>
           </section>
 
-          <section className="partner-next-action">
-            <h2>What to do next</h2>
+          <section className="partner-next-action partner-panel">
+            <div className="partner-section-heading">
+              <div>
+                <p className="partner-section-eyebrow">What to do next</p>
+                <h2>Keep momentum high with the clearest next step.</h2>
+              </div>
+            </div>
             <div className="partner-next-action-card">
               <p className="partner-next-action-label">{nextAction.label}</p>
               <p className="partner-next-action-tip">{nextAction.tip}</p>
@@ -184,10 +192,15 @@ export default async function PartnerDashboardPage() {
           </section>
 
           {nearCompletion.length > 0 && (
-            <section className="partner-momentum">
-              <h2>Near completion</h2>
+            <section className="partner-momentum partner-panel">
+              <div className="partner-section-heading">
+                <div>
+                  <p className="partner-section-eyebrow">Near completion</p>
+                  <h2>Members who could use a quick nudge.</h2>
+                </div>
+              </div>
               <p className="partner-momentum-desc">
-                {nearCompletion.length} member{nearCompletion.length !== 1 ? 's' : ''} at 70%+ — a check-in could help.
+                {nearCompletion.length} member{nearCompletion.length !== 1 ? 's' : ''} at 70%+ — a short check-in could help them finish strong.
               </p>
               <div className="partner-momentum-list">
                 {nearCompletion.slice(0, 5).map((p) => (
@@ -200,33 +213,41 @@ export default async function PartnerDashboardPage() {
             </section>
           )}
 
-          <PartnerMembersList
-            members={pipelineMembers.map(({ member: m, stage, progress, programTitle }) => {
-              const stageLabel = PIPELINE_STAGE_LABELS[stage as keyof typeof PIPELINE_STAGE_LABELS];
-              const story = m.placementRecord
-                ? `Placed at ${m.placementRecord.employerName} as ${m.placementRecord.jobTitle}`
-                : progress >= 100
-                  ? `Completed ${programTitle}`
-                  : progress > 0
-                    ? `${progress}% through ${programTitle}`
-                    : stage === 'enrolled'
-                      ? `Enrolled in ${programTitle}`
-                      : stageLabel;
+          <section className="partner-panel">
+            <div className="partner-section-heading">
+              <div>
+                <p className="partner-section-eyebrow">Member pipeline</p>
+                <h2>Who you referred and where they are now.</h2>
+              </div>
+            </div>
+            <PartnerMembersList
+              members={pipelineMembers.map(({ member: m, stage, progress, programTitle }) => {
+                const stageLabel = PIPELINE_STAGE_LABELS[stage as keyof typeof PIPELINE_STAGE_LABELS];
+                const story = m.placementRecord
+                  ? `Placed at ${m.placementRecord.employerName} as ${m.placementRecord.jobTitle}`
+                  : progress >= 100
+                    ? `Completed ${programTitle}`
+                    : progress > 0
+                      ? `${progress}% through ${programTitle}`
+                      : stage === 'enrolled'
+                        ? `Enrolled in ${programTitle}`
+                        : stageLabel;
 
-              return {
-                id: m.id,
-                fullName: m.fullName,
-                stage,
-                stageLabel,
-                progress,
-                programTitle,
-                story,
-                updatedAtLabel: m.updatedAt.toLocaleDateString(),
-              };
-            })}
-          />
+                return {
+                  id: m.id,
+                  fullName: m.fullName,
+                  stage,
+                  stageLabel,
+                  progress,
+                  programTitle,
+                  story,
+                  updatedAtLabel: m.updatedAt.toLocaleDateString(),
+                };
+              })}
+            />
+          </section>
 
-          <section className="partner-activity">
+          <section className="partner-activity partner-panel">
             <details className="partner-activity-collapsed">
               <summary>Recent activity</summary>
               {events.length === 0 ? (

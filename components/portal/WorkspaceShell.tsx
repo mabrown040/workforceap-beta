@@ -6,6 +6,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { Menu } from 'lucide-react';
 import { getBestActiveHref } from '@/lib/nav/activeRoute';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
+import SuperAdminViewSwitcher from '@/components/super-admin-view-switcher';
 import PortalHeaderActions from './PortalHeaderActions';
 import { SignOutButton } from './SignOutButton';
 
@@ -110,6 +111,12 @@ export default function WorkspaceShell({
               </ul>
             </nav>
             <div className="workspace-sidebar-footer">
+              <div className="workspace-sidebar-meta">
+                <span className="workspace-sidebar-context" title={contextLabel}>
+                  {contextLabel}
+                </span>
+                <SuperAdminViewSwitcher />
+              </div>
               <Link href="/" className="workspace-sidebar-home-link" onClick={closeDrawer}>
                 Site home
               </Link>

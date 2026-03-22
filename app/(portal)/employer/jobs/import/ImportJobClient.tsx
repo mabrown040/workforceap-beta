@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { CheckCircle2, ExternalLink } from 'lucide-react';
+import { CheckCircle2, ExternalLink, Check, AlertCircle } from 'lucide-react';
 import JobForm from '@/components/employer/JobForm';
 
 type ImportJobClientProps = {
@@ -23,7 +23,7 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
   const [careersUrl, setCareersUrl] = useState('');
   const [careersPaste, setCareersPaste] = useState('');
   const [bulkResult, setBulkResult] = useState<{
-    created: { id: string; title: string }[];
+    created: { id: string; title: string; provider?: string }[];
     errors: { source: string; error: string }[];
   } | null>(null);
   const [extracted, setExtracted] = useState<{
@@ -39,6 +39,19 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
     preferredCertifications?: string[];
     suggestedPrograms?: string[];
   } | null>(null);
+
+  const fieldCoverage = useMemo(() => {
+    if (!extracted) return [];
+    return [
+      { label: 'Title', filled: !!extracted.title },
+      { label: 'Location', filled: !!extracted.location },
+      { label: 'Salary range', filled: extracted.salaryMin != null || extracted.salaryMax != null },
+      { label: 'Description', filled: !!extracted.description && extracted.description.length > 60 },
+      { label: 'Requirements', filled: (extracted.requirements?.length ?? 0) >= 2 },
+      { label: 'Certifications', filled: (extracted.preferredCertifications?.length ?? 0) > 0 },
+      { label: 'Training programs', filled: (extracted.suggestedPrograms?.length ?? 0) > 0 },
+    ];
+  }, [extracted]);
 
   async function handleParse() {
     if (!url && !rawText.trim()) {
@@ -111,9 +124,12 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
   }
 
   if (step === 'review' && extracted) {
+    const filledCount = fieldCoverage.filter((f) => f.filled).length;
+    const missingFields = fieldCoverage.filter((f) => !f.filled);
+
     return (
       <div className="import-job-review">
-        <div style={{ marginBottom: '1.5rem' }}>
+        <div className="import-job-back">
           <button
             type="button"
             onClick={() => setStep('input')}
@@ -124,10 +140,35 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
           </button>
         </div>
         <h1 style={{ fontSize: '1.35rem', marginBottom: '0.5rem' }}>Review before saving</h1>
-        <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+        <p style={{ color: 'var(--color-gray-600)', marginBottom: '1rem', fontSize: '0.9rem' }}>
           This is still private. Adjust anything that does not sound like your team, then save as a draft or send for
           WorkforceAP review.
         </p>
+
+        <div className="import-review-summary">
+          <div className="import-review-summary__header">
+            <span className="import-review-summary__count">
+              {filledCount} of {fieldCoverage.length} fields auto-filled
+            </span>
+            {missingFields.length > 0 && (
+              <span className="import-review-summary__hint">
+                {missingFields.length === 1 ? '1 field needs' : `${missingFields.length} fields need`} your input
+              </span>
+            )}
+          </div>
+          <div className="import-review-summary__fields">
+            {fieldCoverage.map((f) => (
+              <span
+                key={f.label}
+                className={`import-review-summary__field ${f.filled ? 'is-filled' : 'is-empty'}`}
+              >
+                {f.filled ? <Check size={14} /> : <AlertCircle size={14} />}
+                {f.label}
+              </span>
+            ))}
+          </div>
+        </div>
+
         <JobForm
           initialData={{
             title: extracted.title,
@@ -143,6 +184,7 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
           }}
           companyName={extracted.company ?? companyName}
           programSlugs={programSlugs}
+          isImportReview
         />
       </div>
     );
@@ -187,16 +229,24 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
               <ExternalLink size={16} style={{ marginLeft: '0.35rem', verticalAlign: 'middle' }} />
             </Link>
           </div>
-          <ul className="import-job-success-list">
+          <div className="import-job-draft-grid">
             {bulkResult.created.slice(0, 8).map((c) => (
-              <li key={c.id}>
-                <Link href={`/employer/jobs/${c.id}`}>{c.title}</Link>
-              </li>
+              <Link key={c.id} href={`/employer/jobs/${c.id}`} className="import-job-draft-card">
+                <span className="import-job-draft-card__status">Draft</span>
+                {c.provider && (
+                  <span className="import-job-draft-card__source">via {c.provider}</span>
+                )}
+                <span className="import-job-draft-card__title">{c.title}</span>
+                <span className="import-job-draft-card__cta">Edit draft →</span>
+              </Link>
             ))}
             {bulkResult.created.length > 8 && (
-              <li style={{ color: 'var(--color-gray-500)' }}>+{bulkResult.created.length - 8} more</li>
+              <p className="import-job-draft-grid__more">
+                +{bulkResult.created.length - 8} more — see all in{' '}
+                <Link href="/employer/jobs">your jobs</Link>
+              </p>
             )}
-          </ul>
+          </div>
         </div>
       )}
 

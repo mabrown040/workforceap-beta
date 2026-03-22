@@ -108,7 +108,7 @@ export default async function ProgramPage({ params }: Props) {
                 Ready to start your career in {program.categoryLabel}?
               </h3>
               <p style={{ fontSize: '1rem', color: '#555', marginBottom: '1.5rem', maxWidth: '500px', margin: '0 auto 1.5rem' }}>
-                Applications take under 10 minutes. No cost for qualifying Austin-area residents. 
+                Applications take about 10 minutes. No cost for qualifying Austin-area residents. 
                 We respond within 24–48 hours.
               </p>
               <Link 

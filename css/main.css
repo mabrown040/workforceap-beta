@@ -6388,6 +6388,9 @@ body { animation: fadeIn 0.4s ease; }
     .employer-portal-company {
         display: none;
     }
+    .employer-portal-tagline {
+        display: none;
+    }
     .employer-portal-main {
         padding: 1.1rem 0.75rem 1.5rem;
     }

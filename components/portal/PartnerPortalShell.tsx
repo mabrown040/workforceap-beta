@@ -31,7 +31,7 @@ export default function PartnerPortalShell({
               <Link href="/partner" className="employer-portal-brand">
                 WorkforceAP
               </Link>
-              <span className="employer-portal-tagline">Partner progress view · Austin-first launch</span>
+              <span className="employer-portal-tagline">Partner portal</span>
             </div>
             <Link href="/" className="employer-portal-home-link">
               Site home

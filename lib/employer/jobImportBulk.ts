@@ -14,8 +14,9 @@ import { isAIConfigured } from '@/lib/ai/groq';
 export type ImportedDraftInput = {
   title: string;
   description: string;
-  sourceUrl: string;
-  provider: string;
+  sourceUrl?: string;
+  importProvider: string;
+  importMethod?: string;
   location?: string;
   locationType?: 'remote' | 'hybrid' | 'onsite';
   jobType?: 'fulltime' | 'parttime' | 'contract';
@@ -41,14 +42,11 @@ type CollectDraftInputsDeps = {
   isAIConfigured?: typeof isAIConfigured;
 };
 
-export function appendImportedFrom(description: string, sourceUrl?: string): string {
-  return sourceUrl ? `${description}\n\n---\nImported from: ${sourceUrl}` : description;
-}
-
 function buildDraftInputFromParsedJob(
   extracted: ParsedJob,
   sourceUrl: string,
-  provider: string
+  importProvider: string,
+  importMethod?: string
 ): ImportedDraftInput {
   const normalized = normalizeImportedParsedJob(extracted);
   return {
@@ -58,30 +56,33 @@ function buildDraftInputFromParsedJob(
     jobType: normalized.jobType ?? 'fulltime',
     salaryMin: normalized.salaryMin,
     salaryMax: normalized.salaryMax,
-    description: appendImportedFrom(normalized.description, sourceUrl),
+    description: normalized.description,
     requirements: normalized.requirements ?? [],
     preferredCertifications: normalized.preferredCertifications ?? [],
     suggestedPrograms: normalized.suggestedPrograms ?? [],
     sourceUrl,
-    provider,
+    importProvider,
+    importMethod,
   };
 }
 
 function buildDraftInputFromListing(
   listing: ParsedJobListing,
   sourceUrl: string,
-  provider = 'listing-fallback'
+  importProvider = 'listing-fallback',
+  importMethod = 'listing-fallback'
 ): ImportedDraftInput {
   const cleanDesc = stripUrlsFromDescription(listing.description.trim());
   return {
     title: listing.title.trim(),
     location: listing.location,
-    description: cleanDesc ? appendImportedFrom(cleanDesc, sourceUrl) : appendImportedFrom('Imported listing.', sourceUrl),
+    description: cleanDesc || 'Imported listing.',
     requirements: [],
     preferredCertifications: [],
     suggestedPrograms: [],
     sourceUrl,
-    provider,
+    importProvider,
+    importMethod,
   };
 }
 
@@ -127,7 +128,8 @@ export async function collectDraftInputsFromPageText(
         drafts.push(buildDraftInputFromParsedJob(
           extractedRaw,
           url,
-          parsedJob ? 'ai+per-job' : 'scrape+fallback'
+          parsedJob ? 'ai+per-job' : 'scrape+fallback',
+          'sub-job-page'
         ));
         continue;
       }
@@ -157,7 +159,8 @@ export async function collectDraftInputsFromPageText(
     drafts.push(buildDraftInputFromListing(
       listing,
       listing.sourceUrl ?? options?.baseUrl ?? '',
-      'ai'
+      'ai',
+      'careers-page-listing'
     ));
   }
 

@@ -7288,6 +7288,40 @@ body { animation: fadeIn 0.4s ease; }
     color: #b91c1c;
     font-size: 0.9rem;
 }
+.employer-job-form-provenance {
+    margin-bottom: 1.25rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    background: var(--color-gray-50);
+}
+.employer-job-form-provenance__eyebrow {
+    margin: 0 0 0.65rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-gray-600);
+}
+.employer-job-form-provenance__grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.45rem 0.85rem;
+    margin: 0;
+}
+.employer-job-form-provenance__grid dt {
+    color: var(--color-gray-600);
+    font-weight: 600;
+}
+.employer-job-form-provenance__grid dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+.employer-job-form-provenance__note {
+    margin: 0.75rem 0 0;
+    font-size: 0.88rem;
+    color: var(--color-gray-600);
+}
 .employer-job-form-readonly {
     background: var(--color-gray-100) !important;
     color: var(--color-gray-700);

@@ -25,10 +25,6 @@ const importSchema = z.object({
   createDraft: z.boolean().optional(),
 }).refine((d) => d.url || d.rawText, { message: 'Provide url or rawText' });
 
-function appendImportedFrom(description: string, sourceUrl?: string): string {
-  return sourceUrl ? `${description}\n\n---\nImported from: ${sourceUrl}` : description;
-}
-
 async function parseDirectJobUrl(url: string) {
   const textToParse = await fetchSubJobPageText(url, { waitFor: getImportWaitForMs(url) });
   if (!textToParse || textToParse.length < 50) return null;
@@ -89,7 +85,10 @@ export async function POST(request: NextRequest) {
                 jobType: directResult.extracted.jobType ?? 'fulltime',
                 salaryMin: directResult.extracted.salaryMin,
                 salaryMax: directResult.extracted.salaryMax,
-                description: appendImportedFrom(directResult.extracted.description, parsed.data.url),
+                description: directResult.extracted.description,
+                sourceUrl: parsed.data.url,
+                importProvider: directResult.provider,
+                importMethod: 'direct-job-url',
                 requirements: directResult.extracted.requirements ?? [],
                 preferredCertifications: directResult.extracted.preferredCertifications ?? [],
                 suggestedPrograms: directResult.extracted.suggestedPrograms ?? [],
@@ -99,7 +98,12 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ job, created: true, provider: directResult.provider }, { status: 201 });
           }
           return NextResponse.json({
-            extracted: { ...directResult.extracted, sourceUrl: parsed.data.url },
+            extracted: {
+              ...directResult.extracted,
+              sourceUrl: parsed.data.url,
+              importProvider: directResult.provider,
+              importMethod: 'direct-job-url',
+            },
             provider: directResult.provider,
           });
         }
@@ -111,7 +115,6 @@ export async function POST(request: NextRequest) {
         if (parsed.data.createDraft) {
           const created = [];
           for (const atsJob of atsResult.jobs) {
-            const suffix = atsJob.sourceUrl ? `\n\n---\nImported from: ${atsJob.sourceUrl}` : '';
             const job = await prisma.job.create({
               data: buildEmployerJobCreateData(ctx.employerId, {
                 title: atsJob.title,
@@ -120,7 +123,10 @@ export async function POST(request: NextRequest) {
                 jobType: atsJob.jobType ?? 'fulltime',
                 salaryMin: atsJob.salaryMin,
                 salaryMax: atsJob.salaryMax,
-                description: `${atsJob.description}${suffix}`,
+                description: atsJob.description,
+                sourceUrl: atsJob.sourceUrl,
+                importProvider: atsResult.provider,
+                importMethod: 'structured-api',
                 requirements: atsJob.requirements ?? [],
                 preferredCertifications: [],
                 suggestedPrograms: [],
@@ -138,8 +144,12 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
           provider: atsResult.provider,
-          extracted: atsResult.jobs.length === 1 ? atsResult.jobs[0] : undefined,
-          jobs: atsResult.jobs.length > 1 ? atsResult.jobs : undefined,
+          extracted: atsResult.jobs.length === 1
+            ? { ...atsResult.jobs[0], importProvider: atsResult.provider, importMethod: 'structured-api' }
+            : undefined,
+          jobs: atsResult.jobs.length > 1
+            ? atsResult.jobs.map((job) => ({ ...job, importProvider: atsResult.provider, importMethod: 'structured-api' }))
+            : undefined,
           total: atsResult.jobs.length,
         });
       }
@@ -169,7 +179,10 @@ export async function POST(request: NextRequest) {
                   jobType: extracted.jobType ?? 'fulltime',
                   salaryMin: extracted.salaryMin,
                   salaryMax: extracted.salaryMax,
-                  description: appendImportedFrom(extracted.description, parsed.data.url),
+                  description: extracted.description,
+                  sourceUrl: parsed.data.url,
+                  importProvider: provider,
+                  importMethod: 'url-text-parse',
                   requirements: extracted.requirements ?? [],
                   preferredCertifications: extracted.preferredCertifications ?? [],
                   suggestedPrograms: extracted.suggestedPrograms ?? [],
@@ -179,7 +192,12 @@ export async function POST(request: NextRequest) {
               return NextResponse.json({ job, created: true, provider }, { status: 201 });
             }
             return NextResponse.json({
-              extracted: { ...extracted, sourceUrl: parsed.data.url },
+              extracted: {
+                ...extracted,
+                sourceUrl: parsed.data.url,
+                importProvider: provider,
+                importMethod: 'url-text-parse',
+              },
               provider,
             });
           }
@@ -209,6 +227,7 @@ export async function POST(request: NextRequest) {
     }
 
     const provider = parsedJob ? 'ai' : 'scrape+fallback';
+    const importMethod = parsed.data.url ? 'raw-text-with-url' : 'raw-text';
     if (parsed.data.createDraft === true) {
       const job = await prisma.job.create({
         data: buildEmployerJobCreateData(ctx.employerId, {
@@ -218,7 +237,10 @@ export async function POST(request: NextRequest) {
           jobType: extracted.jobType ?? 'fulltime',
           salaryMin: extracted.salaryMin,
           salaryMax: extracted.salaryMax,
-          description: appendImportedFrom(extracted.description, parsed.data.url),
+          description: extracted.description,
+          sourceUrl: parsed.data.url,
+          importProvider: provider,
+          importMethod,
           requirements: extracted.requirements ?? [],
           preferredCertifications: extracted.preferredCertifications ?? [],
           suggestedPrograms: extracted.suggestedPrograms ?? [],
@@ -229,7 +251,12 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({
-      extracted: parsed.data.url ? { ...extracted, sourceUrl: parsed.data.url } : extracted,
+      extracted: {
+        ...extracted,
+        ...(parsed.data.url ? { sourceUrl: parsed.data.url } : {}),
+        importProvider: provider,
+        importMethod,
+      },
       provider,
     });
   } catch (error) {

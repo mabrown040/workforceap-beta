@@ -4,6 +4,12 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import SuggestedProgramsRanked from '@/components/employer/SuggestedProgramsRanked';
 
+type JobProvenance = {
+  sourceUrl?: string | null;
+  importProvider?: string | null;
+  importMethod?: string | null;
+};
+
 type JobFormProps = {
   job?: {
     id: string;
@@ -18,7 +24,7 @@ type JobFormProps = {
     preferredCertifications: string[];
     suggestedPrograms: string[];
     status: string;
-  };
+  } & JobProvenance;
   initialData?: Partial<{
     title: string;
     location: string;
@@ -30,6 +36,9 @@ type JobFormProps = {
     requirements: string[];
     preferredCertifications: string[];
     suggestedPrograms: string[];
+    sourceUrl: string;
+    importProvider: string;
+    importMethod: string;
   }>;
   companyName: string;
   programSlugs: string[];
@@ -37,6 +46,15 @@ type JobFormProps = {
 };
 
 type FieldErrors = Partial<Record<'title' | 'location' | 'salaryMin' | 'salaryMax' | 'description' | 'requirements', string>>;
+
+function formatImportMethod(importMethod?: string | null) {
+  if (!importMethod) return null;
+  return importMethod
+    .split(/[-_]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
 
 export default function JobForm({ job, initialData, companyName, programSlugs, isImportReview }: JobFormProps) {
   const router = useRouter();
@@ -47,6 +65,12 @@ export default function JobForm({ job, initialData, companyName, programSlugs, i
 
   const isEdit = !!job && !!job.id;
   const prefill = job ?? initialData;
+  const provenance = {
+    sourceUrl: prefill?.sourceUrl ?? null,
+    importProvider: prefill?.importProvider ?? null,
+    importMethod: prefill?.importMethod ?? null,
+  };
+  const hasProvenance = !!(provenance.sourceUrl || provenance.importProvider || provenance.importMethod);
 
   const importEmpty = isImportReview
     ? {
@@ -89,6 +113,9 @@ export default function JobForm({ job, initialData, companyName, programSlugs, i
       salaryMin,
       salaryMax,
       description: String(formData.get('description') || '').trim(),
+      sourceUrl: provenance.sourceUrl ?? undefined,
+      importProvider: provenance.importProvider ?? undefined,
+      importMethod: provenance.importMethod ?? undefined,
       requirements,
       preferredCertifications: certs,
       suggestedPrograms: programs,
@@ -148,6 +175,39 @@ export default function JobForm({ job, initialData, companyName, programSlugs, i
         <div className="employer-job-form-error" role="alert">
           {errorMsg}
         </div>
+      )}
+
+      {hasProvenance && (
+        <section className="employer-job-form-provenance" aria-label="Import source details">
+          <p className="employer-job-form-provenance__eyebrow">Imported draft</p>
+          <dl className="employer-job-form-provenance__grid">
+            {provenance.importProvider && (
+              <>
+                <dt>Provider</dt>
+                <dd>{provenance.importProvider}</dd>
+              </>
+            )}
+            {provenance.importMethod && (
+              <>
+                <dt>Method</dt>
+                <dd>{formatImportMethod(provenance.importMethod)}</dd>
+              </>
+            )}
+            {provenance.sourceUrl && (
+              <>
+                <dt>Source</dt>
+                <dd>
+                  <a href={provenance.sourceUrl} target="_blank" rel="noreferrer">
+                    {provenance.sourceUrl}
+                  </a>
+                </dd>
+              </>
+            )}
+          </dl>
+          <p className="employer-job-form-provenance__note">
+            Traceability stays here for admins and employers. It will not be mixed into the posting body.
+          </p>
+        </section>
       )}
 
       <div className="form-group">

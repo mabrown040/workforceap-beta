@@ -17,7 +17,7 @@ import {
 } from '@/lib/ai/atsProviders';
 import { isAIConfigured } from '@/lib/ai/groq';
 import { buildEmployerJobCreateData, getRouteErrorDetails } from '@/lib/employer/jobCreate';
-import { appendImportedFrom, collectDraftInputsFromPageText, type ImportedDraftInput } from '@/lib/employer/jobImportBulk';
+import { collectDraftInputsFromPageText, type ImportedDraftInput } from '@/lib/employer/jobImportBulk';
 import { checkEmployerJobImportRateLimit } from '@/lib/rate-limit';
 
 const bulkSchema = z
@@ -34,7 +34,8 @@ async function createDraftFromParsedJob(
   employerId: string,
   extracted: ParsedJob,
   sourceUrl: string,
-  provider: string
+  importProvider: string,
+  importMethod: string
 ) {
   const normalized = normalizeImportedParsedJob(extracted);
   const job = await prisma.job.create({
@@ -45,14 +46,17 @@ async function createDraftFromParsedJob(
       jobType: normalized.jobType ?? 'fulltime',
       salaryMin: normalized.salaryMin,
       salaryMax: normalized.salaryMax,
-      description: appendImportedFrom(normalized.description, sourceUrl),
+      description: normalized.description,
+      sourceUrl,
+      importProvider,
+      importMethod,
       requirements: normalized.requirements ?? [],
       preferredCertifications: normalized.preferredCertifications ?? [],
       suggestedPrograms: normalized.suggestedPrograms ?? [],
       status: 'draft',
     }),
   });
-  return { id: job.id, title: job.title, provider };
+  return { id: job.id, title: job.title, provider: importProvider };
 }
 
 async function createDraftFromImportedInput(
@@ -68,13 +72,16 @@ async function createDraftFromImportedInput(
       salaryMin: draft.salaryMin,
       salaryMax: draft.salaryMax,
       description: draft.description,
+      sourceUrl: draft.sourceUrl,
+      importProvider: draft.importProvider,
+      importMethod: draft.importMethod,
       requirements: draft.requirements ?? [],
       preferredCertifications: draft.preferredCertifications ?? [],
       suggestedPrograms: draft.suggestedPrograms ?? [],
       status: 'draft',
     }),
   });
-  return { id: job.id, title: job.title, provider: draft.provider };
+  return { id: job.id, title: job.title, provider: draft.importProvider };
 }
 
 async function parseSingleJobUrl(url: string): Promise<{ extracted: ParsedJob; provider: string } | null> {
@@ -130,7 +137,6 @@ export async function POST(request: NextRequest) {
 
         if (atsResult.jobs.length > 0) {
           for (const atsJob of atsResult.jobs) {
-            const suffix = atsJob.sourceUrl ? `\n\n---\nImported from: ${atsJob.sourceUrl}` : '';
             const job = await prisma.job.create({
               data: buildEmployerJobCreateData(ctx.employerId, {
                 title: atsJob.title,
@@ -139,7 +145,10 @@ export async function POST(request: NextRequest) {
                 jobType: atsJob.jobType ?? 'fulltime',
                 salaryMin: atsJob.salaryMin,
                 salaryMax: atsJob.salaryMax,
-                description: `${atsJob.description}${suffix}`,
+                description: atsJob.description,
+                sourceUrl: atsJob.sourceUrl,
+                importProvider: atsResult.provider,
+                importMethod: 'structured-api',
                 requirements: atsJob.requirements ?? [],
                 preferredCertifications: [],
                 suggestedPrograms: [],
@@ -170,7 +179,8 @@ export async function POST(request: NextRequest) {
               ctx.employerId,
               extractedRaw,
               url,
-              parsedJob ? 'ai' : 'scrape+fallback'
+              parsedJob ? 'ai' : 'scrape+fallback',
+              'url-text-parse'
             ));
             continue;
           }
@@ -187,7 +197,8 @@ export async function POST(request: NextRequest) {
             ctx.employerId,
             directResult.extracted,
             url,
-            directResult.provider
+            directResult.provider,
+            'direct-job-url'
           ));
           continue;
         }
@@ -209,7 +220,6 @@ export async function POST(request: NextRequest) {
 
       if (atsResult.jobs.length > 0) {
         for (const atsJob of atsResult.jobs) {
-          const suffix = atsJob.sourceUrl ? `\n\n---\nImported from: ${atsJob.sourceUrl}` : '';
           const job = await prisma.job.create({
             data: buildEmployerJobCreateData(ctx.employerId, {
               title: atsJob.title,
@@ -218,7 +228,10 @@ export async function POST(request: NextRequest) {
               jobType: atsJob.jobType ?? 'fulltime',
               salaryMin: atsJob.salaryMin,
               salaryMax: atsJob.salaryMax,
-              description: `${atsJob.description}${suffix}`,
+              description: atsJob.description,
+              sourceUrl: atsJob.sourceUrl,
+              importProvider: atsResult.provider,
+              importMethod: 'structured-api',
               requirements: atsJob.requirements ?? [],
               preferredCertifications: [],
               suggestedPrograms: [],

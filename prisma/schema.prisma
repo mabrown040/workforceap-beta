@@ -793,6 +793,9 @@ model Job {
   salaryMin              Int?            @map("salary_min")
   salaryMax              Int?            @map("salary_max")
   description            String          @db.Text
+  sourceUrl              String?         @map("source_url")
+  importProvider         String?         @map("import_provider")
+  importMethod           String?         @map("import_method")
   requirements           String[]        @default([])
   preferredCertifications String[]       @default([]) @map("preferred_certifications")
   suggestedPrograms      String[]        @default([]) @map("suggested_programs")

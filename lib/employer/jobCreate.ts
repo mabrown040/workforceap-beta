@@ -8,6 +8,9 @@ export type JobCreateFields = {
   jobType?: 'fulltime' | 'parttime' | 'contract' | null;
   salaryMin?: number | null;
   salaryMax?: number | null;
+  sourceUrl?: string | null;
+  importProvider?: string | null;
+  importMethod?: string | null;
   requirements?: string[];
   preferredCertifications?: string[];
   suggestedPrograms?: string[];
@@ -37,6 +40,9 @@ export function buildEmployerJobCreateData(
     ...(fields.jobType ? { jobType: fields.jobType } : {}),
     ...(typeof fields.salaryMin === 'number' ? { salaryMin: fields.salaryMin } : {}),
     ...(typeof fields.salaryMax === 'number' ? { salaryMax: fields.salaryMax } : {}),
+    ...(fields.sourceUrl?.trim() ? { sourceUrl: fields.sourceUrl.trim() } : {}),
+    ...(fields.importProvider?.trim() ? { importProvider: fields.importProvider.trim() } : {}),
+    ...(fields.importMethod?.trim() ? { importMethod: fields.importMethod.trim() } : {}),
     ...(requirements ? { requirements } : {}),
     ...(preferredCertifications ? { preferredCertifications } : {}),
     ...(suggestedPrograms ? { suggestedPrograms } : {}),

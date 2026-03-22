@@ -20,15 +20,16 @@ export default async function AdminEmployersPage() {
   if (!user) redirect('/login?redirectTo=/admin/employers');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
-  const superAdmin = await isSuperAdmin(user.id);
-
-  const employers = await prisma.employer.findMany({
-    orderBy: { companyName: 'asc' },
-    include: {
-      user: { select: { email: true, fullName: true } },
-      _count: { select: { jobs: true } },
-    },
-  });
+  const [superAdmin, employers] = await Promise.all([
+    isSuperAdmin(user.id),
+    prisma.employer.findMany({
+      orderBy: { companyName: 'asc' },
+      include: {
+        user: { select: { email: true, fullName: true } },
+        _count: { select: { jobs: true } },
+      },
+    }),
+  ]);
 
   return (
     <div>

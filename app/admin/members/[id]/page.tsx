@@ -22,16 +22,20 @@ const BUCKET = 'member-resumes';
 async function getResumeUrls(originalPath: string | null, enhancedPath: string | null) {
   if (!originalPath && !enhancedPath) return { originalUrl: null, enhancedUrl: null };
   const supabase = getSupabaseAdmin();
-  let originalUrl: string | null = null;
-  let enhancedUrl: string | null = null;
-  if (originalPath) {
-    const { data } = await supabase.storage.from(BUCKET).createSignedUrl(originalPath, 3600);
-    originalUrl = data?.signedUrl ?? null;
-  }
-  if (enhancedPath) {
-    const { data } = await supabase.storage.from(BUCKET).createSignedUrl(enhancedPath, 3600);
-    enhancedUrl = data?.signedUrl ?? null;
-  }
+  const [originalUrl, enhancedUrl] = await Promise.all([
+    originalPath
+      ? supabase.storage
+          .from(BUCKET)
+          .createSignedUrl(originalPath, 3600)
+          .then((r) => r.data?.signedUrl ?? null)
+      : Promise.resolve(null),
+    enhancedPath
+      ? supabase.storage
+          .from(BUCKET)
+          .createSignedUrl(enhancedPath, 3600)
+          .then((r) => r.data?.signedUrl ?? null)
+      : Promise.resolve(null),
+  ]);
   return { originalUrl, enhancedUrl };
 }
 

@@ -23,13 +23,21 @@ export default function LeadershipContent() {
         <h2 className="leadership-grid-title animate-on-scroll">Meet the Team</h2>
 
         <div className="leaders-card-grid animate-on-scroll">
-          {LEADERS.map((leader) => (
+          {LEADERS.map((leader, index) => (
             <article key={leader.slug} className="leader-card">
               <Link href={`/leadership/${leader.slug}`} className="leader-card-overlay-link">
                 <span className="sr-only">View full profile: {leader.name}</span>
               </Link>
               <div className="leader-card-photo">
-                <Image src={leader.image} alt={leader.name} width={240} height={240} loading="lazy" />
+                <Image
+                  src={leader.image}
+                  alt={leader.name}
+                  width={240}
+                  height={240}
+                  sizes="(max-width: 640px) 45vw, 240px"
+                  priority={index === 0}
+                  loading={index === 0 ? undefined : 'lazy'}
+                />
                 {leader.founder && <span className="leader-card-badge">Founder</span>}
               </div>
               <div className="leader-card-body">

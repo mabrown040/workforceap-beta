@@ -27,32 +27,25 @@ export type ScoreBreakdown = {
   weeklyConsistency: { earned: number; max: number; done: boolean };
 };
 
-export async function computeReadinessScore(userId: string): Promise<number> {
-  const breakdown = await getScoreBreakdown(userId);
-  return Math.min(
-    100,
-    Object.values(breakdown).reduce((sum, b) => sum + b.earned, 0)
-  );
-}
+/** Narrow shapes — avoids coupling callers to full Prisma payloads. */
+type ProfileSlice = { address: string | null; city: string | null; zip: string | null } | null | undefined;
 
-export async function getScoreBreakdown(userId: string): Promise<ScoreBreakdown> {
-  const [user, goals, aiResults, resourceProgress, learningProgress, pathwaySteps, jobApps, certs, lastEvent] = await Promise.all([
-    prisma.user.findUnique({
-      where: { id: userId },
-      include: { profile: true },
-    }),
-    prisma.goal.findMany({ where: { userId } }),
-    prisma.aIToolResult.findMany({ where: { userId }, select: { toolType: true } }),
-    prisma.resourceProgress.findMany({ where: { userId } }),
-    prisma.learningProgress.findMany({ where: { userId } }),
-    prisma.pathwayStepProgress.findMany({ where: { userId } }),
-    prisma.jobApplication.findMany({ where: { userId } }),
-    prisma.userCertification.findMany({ where: { userId } }),
-    prisma.memberEvent.findFirst({ where: { userId }, orderBy: { createdAt: 'desc' } }),
-  ]);
+type UserSlice = { profile: ProfileSlice } | null;
 
+export function buildScoreBreakdownFromRelations(
+  user: UserSlice,
+  goals: unknown[],
+  aiResults: { toolType: string }[],
+  resourceProgress: { completedAt: Date | null }[],
+  learningProgress: unknown[],
+  pathwaySteps: { status: string }[],
+  jobApps: { status: string }[],
+  certs: unknown[],
+  lastEvent: { createdAt: Date } | null
+): ScoreBreakdown {
   const toolTypes = new Set(aiResults.map((r) => r.toolType));
-  const hasProfile = !!user?.profile && (!!user.profile.address || !!user.profile.city || !!user.profile.zip);
+  const prof = user?.profile;
+  const hasProfile = !!prof && (!!prof.address || !!prof.city || !!prof.zip);
   const hasGoals = goals.length > 0;
   const hasResume = toolTypes.has('resume_rewriter');
   const resourcesCompleted = resourceProgress.filter((r) => r.completedAt).length;
@@ -117,4 +110,42 @@ export async function getScoreBreakdown(userId: string): Promise<ScoreBreakdown>
       done: hasRecentActivity,
     },
   };
+}
+
+export async function computeReadinessScore(userId: string): Promise<number> {
+  const breakdown = await getScoreBreakdown(userId);
+  return Math.min(
+    100,
+    Object.values(breakdown).reduce((sum, b) => sum + b.earned, 0)
+  );
+}
+
+export async function getScoreBreakdown(userId: string): Promise<ScoreBreakdown> {
+  const [user, goals, aiResults, resourceProgress, learningProgress, pathwaySteps, jobApps, certs, lastEvent] =
+    await Promise.all([
+      prisma.user.findUnique({
+        where: { id: userId },
+        include: { profile: true },
+      }),
+      prisma.goal.findMany({ where: { userId } }),
+      prisma.aIToolResult.findMany({ where: { userId }, select: { toolType: true } }),
+      prisma.resourceProgress.findMany({ where: { userId } }),
+      prisma.learningProgress.findMany({ where: { userId } }),
+      prisma.pathwayStepProgress.findMany({ where: { userId } }),
+      prisma.jobApplication.findMany({ where: { userId } }),
+      prisma.userCertification.findMany({ where: { userId } }),
+      prisma.memberEvent.findFirst({ where: { userId }, orderBy: { createdAt: 'desc' } }),
+    ]);
+
+  return buildScoreBreakdownFromRelations(
+    user,
+    goals,
+    aiResults,
+    resourceProgress,
+    learningProgress,
+    pathwaySteps,
+    jobApps,
+    certs,
+    lastEvent
+  );
 }

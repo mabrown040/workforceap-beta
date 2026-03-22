@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
@@ -50,11 +51,12 @@ export async function getSession() {
 /**
  * Gets the current user from the server. Returns null if not authenticated.
  * Prefer getSession() when you need the full session; use this for user-only checks.
+ * Request-level memoization avoids duplicate Supabase round-trips when layout + page both call getUser().
  */
-export async function getUser() {
+export const getUser = cache(async function getUser() {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   return user;
-}
+});

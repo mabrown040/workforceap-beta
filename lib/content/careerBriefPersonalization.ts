@@ -1,5 +1,15 @@
+import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
-import { getScoreBreakdown } from '@/lib/readiness/score';
+import { buildScoreBreakdownFromRelations, type ScoreBreakdown } from '@/lib/readiness/score';
+
+const memberCareerBriefInclude = {
+  profile: true,
+  applications: { orderBy: { createdAt: 'desc' as const }, take: 1 },
+  jobApplications: true,
+  aiToolResults: { select: { toolType: true } },
+} satisfies Prisma.UserInclude;
+
+export type MemberCareerBriefUser = Prisma.UserGetPayload<{ include: typeof memberCareerBriefInclude }>;
 
 export type CareerBriefContext = {
   location: string | null;
@@ -7,23 +17,39 @@ export type CareerBriefContext = {
   programShortLabel: string | null;
   applicationsCount: number;
   toolsUsed: string[];
-  recommendedActions: Array< { label: string; href: string }>;
+  recommendedActions: Array<{ label: string; href: string }>;
   jobSearchUrl: string | null;
 };
 
 /** Map program interest to a short label for display */
 function getProgramShortLabel(programInterest: string | null): string | null {
   if (!programInterest) return null;
-  if (programInterest.includes('IT Support') || programInterest.includes('CompTIA') || programInterest.includes('Cybersecurity') || programInterest.includes('AWS') || programInterest.includes('IBM')) {
+  if (
+    programInterest.includes('IT Support') ||
+    programInterest.includes('CompTIA') ||
+    programInterest.includes('Cybersecurity') ||
+    programInterest.includes('AWS') ||
+    programInterest.includes('IBM')
+  ) {
     return 'IT & Tech';
   }
   if (programInterest.includes('Medical') || programInterest.includes('Health')) {
     return 'Healthcare';
   }
-  if (programInterest.includes('Construction') || programInterest.includes('Logistics') || programInterest.includes('CPT') || programInterest.includes('CLT')) {
+  if (
+    programInterest.includes('Construction') ||
+    programInterest.includes('Logistics') ||
+    programInterest.includes('CPT') ||
+    programInterest.includes('CLT')
+  ) {
     return 'Trades & Logistics';
   }
-  if (programInterest.includes('Data') || programInterest.includes('UX') || programInterest.includes('Digital Marketing') || programInterest.includes('Project Management')) {
+  if (
+    programInterest.includes('Data') ||
+    programInterest.includes('UX') ||
+    programInterest.includes('Digital Marketing') ||
+    programInterest.includes('Project Management')
+  ) {
     return 'Data & Design';
   }
   return programInterest.length > 30 ? programInterest.slice(0, 30) + '…' : programInterest;
@@ -41,20 +67,42 @@ function buildJobSearchUrl(programShortLabel: string | null, city: string | null
   return `https://www.indeed.com/jobs?${params.toString()}`;
 }
 
-export async function getCareerBriefContext(userId: string): Promise<CareerBriefContext> {
-  const [dbUser, scoreBreakdown] = await Promise.all([
+export async function fetchCareerBriefRelations(userId: string, options?: { activeMemberOnly?: boolean }) {
+  const where = options?.activeMemberOnly ? { id: userId, deletedAt: null } : { id: userId };
+
+  const [user, goals, resourceProgress, learningProgress, pathwaySteps, certs, lastEvent] = await Promise.all([
     prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        profile: true,
-        applications: { orderBy: { createdAt: 'desc' }, take: 1 },
-        jobApplications: true,
-        aiToolResults: { select: { toolType: true } },
-      },
+      where,
+      include: memberCareerBriefInclude,
     }),
-    getScoreBreakdown(userId),
+    prisma.goal.findMany({ where: { userId } }),
+    prisma.resourceProgress.findMany({ where: { userId } }),
+    prisma.learningProgress.findMany({ where: { userId } }),
+    prisma.pathwayStepProgress.findMany({ where: { userId } }),
+    prisma.userCertification.findMany({ where: { userId } }),
+    prisma.memberEvent.findFirst({ where: { userId }, orderBy: { createdAt: 'desc' } }),
   ]);
 
+  const aiResults = user?.aiToolResults ?? [];
+  const jobApps = user?.jobApplications ?? [];
+
+  return {
+    user,
+    goals,
+    aiResults,
+    resourceProgress,
+    learningProgress,
+    pathwaySteps,
+    jobApps,
+    certs,
+    lastEvent,
+  };
+}
+
+export function assembleCareerBriefContext(
+  dbUser: MemberCareerBriefUser | null,
+  scoreBreakdown: ScoreBreakdown
+): CareerBriefContext {
   const profile = dbUser?.profile;
   const application = dbUser?.applications?.[0];
   const programInterest = application?.programInterest ?? null;
@@ -63,8 +111,7 @@ export async function getCareerBriefContext(userId: string): Promise<CareerBrief
   const state = profile?.state?.trim() || null;
   const location = [city, state].filter(Boolean).join(', ') || null;
 
-  const applicationsCount =
-    dbUser?.jobApplications?.filter((a) => a.status !== 'SAVED').length ?? 0;
+  const applicationsCount = dbUser?.jobApplications?.filter((a) => a.status !== 'SAVED').length ?? 0;
   const toolsUsed = [...new Set((dbUser?.aiToolResults ?? []).map((r) => r.toolType))];
 
   const recommendedActions: Array<{ label: string; href: string }> = [];
@@ -99,4 +146,27 @@ export async function getCareerBriefContext(userId: string): Promise<CareerBrief
     recommendedActions: recommendedActions.slice(0, 3),
     jobSearchUrl,
   };
+}
+
+/** One merged DB round-trip for readiness breakdown + career brief (used by dashboard). */
+export async function loadMemberCareerBriefBundle(userId: string, options?: { activeMemberOnly?: boolean }) {
+  const rows = await fetchCareerBriefRelations(userId, options);
+  const scoreBreakdown = buildScoreBreakdownFromRelations(
+    rows.user,
+    rows.goals,
+    rows.aiResults,
+    rows.resourceProgress,
+    rows.learningProgress,
+    rows.pathwaySteps,
+    rows.jobApps,
+    rows.certs,
+    rows.lastEvent
+  );
+  const careerBrief = assembleCareerBriefContext(rows.user, scoreBreakdown);
+  return { user: rows.user, careerBrief };
+}
+
+export async function getCareerBriefContext(userId: string): Promise<CareerBriefContext> {
+  const { careerBrief } = await loadMemberCareerBriefBundle(userId);
+  return careerBrief;
 }

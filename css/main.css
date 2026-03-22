@@ -6990,9 +6990,27 @@ body { animation: fadeIn 0.4s ease; }
     margin: 0 0 0.35rem;
 }
 .import-job-hint {
-    font-size: 0.85rem;
-    color: var(--color-gray-500);
-    margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  color: var(--color-gray-500);
+  margin: 0 0 0.75rem;
+}
+.import-job-loading-hint {
+  font-size: 0.82rem;
+  color: var(--color-gray-500);
+  margin: 0.5rem 0 0;
+}
+.import-job-paste-fallback {
+  margin-bottom: 1rem;
+  padding: 0.9rem 1rem;
+  background: rgba(234, 179, 8, 0.08);
+  border: 1px solid rgba(234, 179, 8, 0.25);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  color: var(--color-gray-800);
+}
+.import-job-paste-fallback p {
+  margin: 0;
+  line-height: 1.45;
 }
 .import-job-error {
     padding: 0.75rem;

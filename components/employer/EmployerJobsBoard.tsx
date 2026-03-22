@@ -66,8 +66,8 @@ function nextStepHint(j: EmployerJobBoardItem): string {
     if (j.readinessLevel === 'usable') return 'Next: submit for WorkforceAP review';
     return 'Next: submit for WorkforceAP review';
   }
-  if (j.status === 'pending') return 'Next: we review — listing stays private';
-  if (j.status === 'approved') return 'Next: goes live on the job board';
+  if (j.status === 'pending') return 'Next: WorkforceAP review — stays private';
+  if (j.status === 'approved') return 'Next: go live when ready';
   if (j.status === 'live') return 'Next: mark filled when someone starts';
   if (j.status === 'filled' || j.status === 'closed') return 'Role closed — duplicate if hiring again';
   return '';
@@ -77,7 +77,12 @@ function canBulkDelete(status: string): boolean {
   return status === 'draft' || status === 'pending' || status === 'filled' || status === 'closed';
 }
 
+function canBulkClose(status: string): boolean {
+  return status === 'live' || status === 'approved';
+}
+
 const BULK_DELETE_FLASH_KEY = 'wfap_employer_bulk_delete_ok';
+const BULK_CLOSE_FLASH_KEY = 'wfap_employer_bulk_close_ok';
 
 export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem[] }) {
   const router = useRouter();
@@ -86,12 +91,14 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
   const modalPendingNoteId = useId();
   const [filter, setFilter] = useState<string>('all');
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [publishingId, setPublishingId] = useState<string | null>(null);
   const [closingId, setClosingId] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(() => new Set());
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmMode, setConfirmMode] = useState<'delete' | 'close'>('delete');
   const [bulkBusy, setBulkBusy] = useState(false);
   const [bulkError, setBulkError] = useState<string | null>(null);
-  const [flashBanner, setFlashBanner] = useState<{ count: number } | null>(null);
+  const [flashBanner, setFlashBanner] = useState<{ type: 'delete' | 'close'; count: number } | null>(null);
   const [reviewActionError, setReviewActionError] = useState<string | null>(null);
   const [closeModal, setCloseModal] = useState<{ id: string; title: string; status: string } | null>(null);
   const closeModalTitleId = useId();
@@ -109,9 +116,19 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
     [filtered]
   );
 
+  const closableFiltered = useMemo(
+    () => filtered.filter((j) => canBulkClose(j.status)),
+    [filtered]
+  );
+
   const selectedDeletable = useMemo(
     () => [...selected].filter((id) => deletableFiltered.some((j) => j.id === id)),
     [selected, deletableFiltered]
+  );
+
+  const selectedClosable = useMemo(
+    () => [...selected].filter((id) => closableFiltered.some((j) => j.id === id)),
+    [selected, closableFiltered]
   );
 
   const bulkDeleteIncludesPendingReview = useMemo(
@@ -128,19 +145,30 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
   }, [filter]);
 
   useEffect(() => {
+    // Check for delete flash
     try {
       const raw = sessionStorage.getItem(BULK_DELETE_FLASH_KEY);
-      if (!raw) return;
-      sessionStorage.removeItem(BULK_DELETE_FLASH_KEY);
-      const parsed = JSON.parse(raw) as { count?: unknown };
-      const count = typeof parsed.count === 'number' && parsed.count > 0 ? parsed.count : null;
-      if (count != null) setFlashBanner({ count });
-    } catch {
-      try {
+      if (raw) {
         sessionStorage.removeItem(BULK_DELETE_FLASH_KEY);
-      } catch {
-        /* ignore */
+        const parsed = JSON.parse(raw) as { count?: unknown };
+        const count = typeof parsed.count === 'number' && parsed.count > 0 ? parsed.count : null;
+        if (count != null) setFlashBanner({ type: 'delete', count });
       }
+    } catch {
+      try { sessionStorage.removeItem(BULK_DELETE_FLASH_KEY); } catch { /* ignore */ }
+    }
+
+    // Check for close flash
+    try {
+      const raw = sessionStorage.getItem(BULK_CLOSE_FLASH_KEY);
+      if (raw) {
+        sessionStorage.removeItem(BULK_CLOSE_FLASH_KEY);
+        const parsed = JSON.parse(raw) as { count?: unknown };
+        const count = typeof parsed.count === 'number' && parsed.count > 0 ? parsed.count : null;
+        if (count != null) setFlashBanner({ type: 'close', count });
+      }
+    } catch {
+      try { sessionStorage.removeItem(BULK_CLOSE_FLASH_KEY); } catch { /* ignore */ }
     }
   }, []);
 
@@ -159,6 +187,10 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
   const selectAllDeletable = useCallback(() => {
     setSelected(new Set(deletableFiltered.map((j) => j.id)));
   }, [deletableFiltered]);
+
+  const selectAllClosable = useCallback(() => {
+    setSelected(new Set(closableFiltered.map((j) => j.id)));
+  }, [closableFiltered]);
 
   const clearSelection = useCallback(() => setSelected(new Set()), []);
 
@@ -180,6 +212,27 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
       router.refresh();
     } finally {
       setBusyId(null);
+    }
+  }
+
+  async function publishJob(id: string, jobStatus: string) {
+    setPublishingId(id);
+    setReviewActionError(null);
+    trackEmployerJobAction('publish', id, { status: jobStatus });
+    try {
+      const res = await fetch(`/api/employer/jobs/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'live' }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setReviewActionError(typeof data.error === 'string' ? data.error : 'Could not publish job.');
+        return;
+      }
+      router.refresh();
+    } finally {
+      setPublishingId(null);
     }
   }
 
@@ -206,10 +259,20 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
     }
   };
 
-  const openConfirm = () => {
-    if (selectedDeletable.length === 0) return;
+  const openConfirm = (mode: 'delete' | 'close') => {
+    if (mode === 'delete' && selectedDeletable.length === 0) return;
+    if (mode === 'close' && selectedClosable.length === 0) return;
+    setConfirmMode(mode);
     setBulkError(null);
     setConfirmOpen(true);
+  };
+
+  const runBulkAction = async () => {
+    if (confirmMode === 'delete') {
+      await runBulkDelete();
+    } else {
+      await runBulkClose();
+    }
   };
 
   const runBulkDelete = async () => {
@@ -220,7 +283,7 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
       const res = await fetch('/api/employer/jobs/bulk-delete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids: selectedDeletable }),
+        body: JSON.stringify({ ids: selectedDeletable, action: 'delete' }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -228,14 +291,10 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
         return;
       }
       const deletedCount = typeof data.deleted === 'number' ? data.deleted : selectedDeletable.length;
-      trackEmployerBulkDelete(deletedCount, {
-        filter,
-      });
+      trackEmployerBulkDelete(deletedCount, { filter });
       try {
         sessionStorage.setItem(BULK_DELETE_FLASH_KEY, JSON.stringify({ count: deletedCount }));
-      } catch {
-        /* ignore quota / private mode */
-      }
+      } catch { /* ignore quota / private mode */ }
       setConfirmOpen(false);
       clearSelection();
       router.refresh();
@@ -246,13 +305,50 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
           sessionStorage.removeItem(BULK_DELETE_FLASH_KEY);
           const parsed = JSON.parse(raw) as { count?: unknown };
           const count = typeof parsed.count === 'number' && parsed.count > 0 ? parsed.count : null;
-          if (count != null) setFlashBanner({ count });
+          if (count != null) setFlashBanner({ type: 'delete', count });
         } catch {
-          try {
-            sessionStorage.removeItem(BULK_DELETE_FLASH_KEY);
-          } catch {
-            /* ignore */
-          }
+          try { sessionStorage.removeItem(BULK_DELETE_FLASH_KEY); } catch { /* ignore */ }
+        }
+      });
+    } catch {
+      setBulkError('Network error. Check your connection and try again.');
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
+  const runBulkClose = async () => {
+    if (selectedClosable.length === 0) return;
+    setBulkBusy(true);
+    setBulkError(null);
+    try {
+      const res = await fetch('/api/employer/jobs/bulk-delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: selectedClosable, action: 'close' }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setBulkError(typeof data.error === 'string' ? data.error : 'Could not close selected jobs.');
+        return;
+      }
+      const closedCount = typeof data.closed === 'number' ? data.closed : selectedClosable.length;
+      try {
+        sessionStorage.setItem(BULK_CLOSE_FLASH_KEY, JSON.stringify({ count: closedCount }));
+      } catch { /* ignore quota / private mode */ }
+      setConfirmOpen(false);
+      clearSelection();
+      router.refresh();
+      queueMicrotask(() => {
+        try {
+          const raw = sessionStorage.getItem(BULK_CLOSE_FLASH_KEY);
+          if (!raw) return;
+          sessionStorage.removeItem(BULK_CLOSE_FLASH_KEY);
+          const parsed = JSON.parse(raw) as { count?: unknown };
+          const count = typeof parsed.count === 'number' && parsed.count > 0 ? parsed.count : null;
+          if (count != null) setFlashBanner({ type: 'close', count });
+        } catch {
+          try { sessionStorage.removeItem(BULK_CLOSE_FLASH_KEY); } catch { /* ignore */ }
         }
       });
     } catch {
@@ -265,6 +361,9 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
   const allDeletableSelected =
     deletableFiltered.length > 0 && deletableFiltered.every((j) => selected.has(j.id));
 
+  const allClosableSelected =
+    closableFiltered.length > 0 && closableFiltered.every((j) => selected.has(j.id));
+
   const counts = useMemo(() => {
     const c = { draft: 0, inReview: 0, live: 0, filled: 0 };
     for (const j of jobs) {
@@ -276,21 +375,22 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
     return c;
   }, [jobs]);
 
+  // Determine which bulk actions to show based on current filter
+  const showBulkDelete = deletableFiltered.length > 0;
+  const showBulkClose = closableFiltered.length > 0;
+
   if (jobs.length === 0) {
     return (
       <div className="employer-jobs-board">
         <div className="employer-jobs-board__empty-state" role="status">
           <h2 className="employer-jobs-board__empty-title">No postings yet</h2>
           <p className="employer-jobs-board__empty-desc">
-            Start from a careers page or add a single role. Everything stays private until you submit for WorkforceAP
+            Create a posting to start hiring. Everything stays private until you submit for WorkforceAP
             review — nothing goes live by surprise.
           </p>
           <div className="employer-jobs-board__empty-actions">
-            <Link href="/employer/jobs/import" className="btn btn-primary">
-              Add roles from your careers page
-            </Link>
-            <Link href="/employer/jobs/new" className="btn btn-secondary">
-              Create one posting
+            <Link href="/employer/jobs/new" className="btn btn-primary">
+              Create your first posting
             </Link>
           </div>
         </div>
@@ -311,7 +411,11 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
       {flashBanner && (
         <div className="employer-jobs-flash-banner" role="status">
           <p className="employer-jobs-flash-banner__text">
-            Removed <strong>{flashBanner.count}</strong> posting{flashBanner.count === 1 ? '' : 's'}.
+            {flashBanner.type === 'delete' ? (
+              <><strong>{flashBanner.count}</strong> posting{flashBanner.count === 1 ? '' : 's'} removed.</>
+            ) : (
+              <><strong>{flashBanner.count}</strong> posting{flashBanner.count === 1 ? '' : 's'} marked as filled.</>
+            )}
           </p>
           <button
             type="button"
@@ -323,29 +427,6 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
           </button>
         </div>
       )}
-      <div className="employer-jobs-board__summary" aria-label="Posting counts by stage">
-        <span>
-          <strong>{counts.draft}</strong> draft{counts.draft === 1 ? '' : 's'}
-        </span>
-        <span className="employer-jobs-board__summary-sep" aria-hidden="true">
-          ·
-        </span>
-        <span>
-          <strong>{counts.inReview}</strong> in review
-        </span>
-        <span className="employer-jobs-board__summary-sep" aria-hidden="true">
-          ·
-        </span>
-        <span>
-          <strong>{counts.live}</strong> live
-        </span>
-        <span className="employer-jobs-board__summary-sep" aria-hidden="true">
-          ·
-        </span>
-        <span>
-          <strong>{counts.filled}</strong> filled
-        </span>
-      </div>
 
       <div className="employer-jobs-board__filters" role="toolbar" aria-label="Filter by hiring stage">
         {FILTERS.map((f) => (
@@ -361,36 +442,70 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
         ))}
       </div>
 
-      {deletableFiltered.length > 0 && (
+      {/* Bulk actions bar */}
+      {(showBulkDelete || showBulkClose) && (
         <div
           className="employer-jobs-board__bulk-bar"
           role="region"
-          aria-label="Bulk actions for drafts, in review, and closed postings"
+          aria-label="Bulk actions for selected postings"
         >
           <p className="employer-jobs-board__bulk-count" aria-live="polite">
-            {selectedDeletable.length === 0 ? (
-              <>Select postings below to remove several at once.</>
+            {selected.size === 0 ? (
+              <>Select postings below for bulk actions.</>
             ) : (
-              <>
-                <strong>{selectedDeletable.length}</strong> selected
-              </>
+              <><strong>{selected.size}</strong> selected</>
             )}
           </p>
           <div className="employer-jobs-board__bulk-actions">
-            <button type="button" className="btn btn-ghost btn-sm" onClick={selectAllDeletable} disabled={allDeletableSelected}>
-              Select all in view
-            </button>
-            <button type="button" className="btn btn-ghost btn-sm" onClick={clearSelection} disabled={selectedDeletable.length === 0}>
-              Clear
-            </button>
-            <button
-              type="button"
-              className="btn btn-outline btn-sm employer-jobs-board__bulk-delete"
-              disabled={selectedDeletable.length === 0 || bulkBusy}
-              onClick={openConfirm}
-            >
-              Remove selected
-            </button>
+            {showBulkDelete && (
+              <>
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  onClick={selectAllDeletable}
+                  disabled={allDeletableSelected}
+                >
+                  Select deletable
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm employer-jobs-board__bulk-delete"
+                  disabled={selectedDeletable.length === 0 || bulkBusy}
+                  onClick={() => openConfirm('delete')}
+                >
+                  Remove ({selectedDeletable.length})
+                </button>
+              </>
+            )}
+            {showBulkClose && (
+              <>
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  onClick={selectAllClosable}
+                  disabled={allClosableSelected}
+                >
+                  Select closable
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm"
+                  disabled={selectedClosable.length === 0 || bulkBusy}
+                  onClick={() => openConfirm('close')}
+                >
+                  Mark filled ({selectedClosable.length})
+                </button>
+              </>
+            )}
+            {selected.size > 0 && (
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                onClick={clearSelection}
+              >
+                Clear
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -406,6 +521,8 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
         <ul className="employer-jobs-board__grid" role="list">
           {filtered.map((j) => {
             const deletable = canBulkDelete(j.status);
+            const closable = canBulkClose(j.status);
+            const selectable = deletable || closable;
             const checked = selected.has(j.id);
             const pay = formatCompensation(j.salaryMin, j.salaryMax);
             const workStyle = formatWorkStyle(j.locationType, j.jobType);
@@ -416,13 +533,13 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
             return (
               <li key={j.id}>
                 <article className="employer-job-card">
-                  {deletable && (
+                  {selectable && (
                     <label className="employer-job-card__select">
                       <input
                         type="checkbox"
                         checked={checked}
                         onChange={(e) => toggleOne(j.id, e.target.checked)}
-                        aria-label={`Select ${j.title} for bulk remove`}
+                        aria-label={`Select ${j.title}`}
                       />
                     </label>
                   )}
@@ -497,6 +614,16 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
                         {busyId === j.id ? 'Sending…' : 'Send for review'}
                       </button>
                     )}
+                    {j.status === 'approved' && (
+                      <button
+                        type="button"
+                        className="btn btn-accent btn-sm"
+                        disabled={publishingId === j.id}
+                        onClick={() => publishJob(j.id, j.status)}
+                      >
+                        {publishingId === j.id ? 'Publishing…' : 'Go live'}
+                      </button>
+                    )}
                     {(j.status === 'live' || j.status === 'approved') && (
                       <button
                         type="button"
@@ -562,28 +689,35 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
             role="dialog"
             aria-modal="true"
             aria-labelledby={modalTitleId}
-            aria-describedby={
-              bulkDeleteIncludesPendingReview ? `${modalDescId} ${modalPendingNoteId}` : modalDescId
-            }
+            aria-describedby={bulkDeleteIncludesPendingReview && confirmMode === 'delete' ? `${modalDescId} ${modalPendingNoteId}` : modalDescId}
             onClick={(e) => e.stopPropagation()}
           >
             <h2 id={modalTitleId} className="employer-bulk-modal__title">
-              Remove {selectedDeletable.length} posting{selectedDeletable.length === 1 ? '' : 's'}?
+              {confirmMode === 'delete' ? (
+                <>Remove {selectedDeletable.length} posting{selectedDeletable.length === 1 ? '' : 's'}?</>
+              ) : (
+                <>Mark {selectedClosable.length} posting{selectedClosable.length === 1 ? '' : 's'} as filled?</>
+              )}
             </h2>
             <p id={modalDescId} className="employer-bulk-modal__desc">
-              These postings leave WorkforceAP. Applicant records tied to them are removed too. Live and board-approved
-              roles cannot be bulk-removed — mark filled first.
+              {confirmMode === 'delete' ? (
+                <>These postings leave WorkforceAP. Applicant records tied to them are removed too. Live and board-approved
+                roles cannot be bulk-removed — mark filled first.</>
+              ) : (
+                <>These postings will move out of active hiring and into your filled/closed list. You can still view
+                past applicants from the applicants list.</>
+              )}
             </p>
             <ul className="employer-bulk-modal__list">
-              {selectedDeletable.slice(0, 6).map((id) => {
+              {(confirmMode === 'delete' ? selectedDeletable : selectedClosable).slice(0, 6).map((id) => {
                 const job = jobs.find((x) => x.id === id);
                 return <li key={id}>{job?.title ?? id}</li>;
               })}
-              {selectedDeletable.length > 6 && (
-                <li className="employer-bulk-modal__list-more">+{selectedDeletable.length - 6} more</li>
+              {(confirmMode === 'delete' ? selectedDeletable : selectedClosable).length > 6 && (
+                <li className="employer-bulk-modal__list-more">+{(confirmMode === 'delete' ? selectedDeletable : selectedClosable).length - 6} more</li>
               )}
             </ul>
-            {bulkDeleteIncludesPendingReview && (
+            {confirmMode === 'delete' && bulkDeleteIncludesPendingReview && (
               <p id={modalPendingNoteId} className="employer-bulk-modal__pending-callout" role="note">
                 <strong>In review:</strong> at least one selected posting is waiting on WorkforceAP. Removing it pulls it
                 from our review queue. You can still continue.
@@ -594,8 +728,8 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
               <button type="button" className="btn btn-ghost" disabled={bulkBusy} onClick={() => setConfirmOpen(false)}>
                 Cancel
               </button>
-              <button type="button" className="btn btn-primary employer-bulk-modal__confirm" disabled={bulkBusy} onClick={runBulkDelete}>
-                {bulkBusy ? 'Removing…' : 'Yes, remove'}
+              <button type="button" className="btn btn-primary employer-bulk-modal__confirm" disabled={bulkBusy} onClick={runBulkAction}>
+                {bulkBusy ? (confirmMode === 'delete' ? 'Removing…' : 'Marking filled…') : (confirmMode === 'delete' ? 'Yes, remove' : 'Yes, mark filled')}
               </button>
             </div>
           </div>

@@ -28,7 +28,7 @@ export default async function EmployerDashboardPage() {
 
   const activeJobs = jobs.filter((j) => j.status === 'live').length;
   const totalApplications = jobs.reduce((s, j) => s + j._count.applications, 0);
-  const pendingApprovals = jobs.filter((j) => j.status === 'pending').length;
+  const inReview = jobs.filter((j) => j.status === 'pending' || j.status === 'approved').length;
   const filledPositions = jobs.filter((j) => j.status === 'filled' || j.status === 'closed').length;
 
   const recentApplications = await prisma.jobPostingApplication.findMany({
@@ -42,10 +42,10 @@ export default async function EmployerDashboardPage() {
   });
 
   const stats = [
-    { label: 'Active Job Postings', value: activeJobs, Icon: Briefcase },
+    { label: 'Active Postings', value: activeJobs, Icon: Briefcase },
     { label: 'Total Applications', value: totalApplications, Icon: Users },
-    { label: 'Pending Approvals', value: pendingApprovals, Icon: Clock },
-    { label: 'Filled Positions', value: filledPositions, Icon: CheckCircle },
+    { label: 'In Review', value: inReview, Icon: Clock },
+    { label: 'Filled/Closed', value: filledPositions, Icon: CheckCircle },
   ];
 
   return (
@@ -91,20 +91,20 @@ export default async function EmployerDashboardPage() {
       <section className="employer-dash-actions-panel employer-dash-panel">
         <div>
           <p className="employer-dash-eyebrow">Next move</p>
-          <h2>Choose the lane that matches how you hire.</h2>
+          <h2>Hire in three steps: create, review, place.</h2>
         </div>
         <div className="employer-dash-actions">
-          <Link href="/employer/jobs/import" className="employer-dash-action-link">
+          <Link href="/employer/jobs/new" className="employer-dash-action-link">
             <span className="employer-dash-action-copy">
-              <strong>Import jobs</strong>
-              <span>Paste a careers page or job URL and review clean drafts before publishing.</span>
+              <strong>Create a posting</strong>
+              <span>Add a role, set pay and location, then submit for WorkforceAP review.</span>
             </span>
             <ArrowRight size={18} aria-hidden />
           </Link>
-          <Link href="/employer/jobs/new" className="employer-dash-action-link">
+          <Link href="/employer/jobs" className="employer-dash-action-link">
             <span className="employer-dash-action-copy">
-              <strong>Post manually</strong>
-              <span>Create a job from scratch when you need a custom role or quick edit.</span>
+              <strong>Manage postings</strong>
+              <span>Edit drafts, track what is live, and close roles once filled.</span>
             </span>
             <ArrowRight size={18} aria-hidden />
           </Link>
@@ -122,7 +122,7 @@ export default async function EmployerDashboardPage() {
         <div className="employer-dash-section-heading">
           <div>
             <p className="employer-dash-eyebrow">Recent activity</p>
-            <h2>Latest applicant movement</h2>
+            <h2>Latest applicants</h2>
           </div>
           <Link href="/employer/applications" className="employer-dash-inline-link">
             View all applications

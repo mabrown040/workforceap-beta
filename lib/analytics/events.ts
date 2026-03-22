@@ -40,7 +40,7 @@ export function trackLearningHubNavigate(destination: 'career_library' | 'progra
 }
 
 export function trackEmployerJobAction(
-  action: 'edit' | 'submit_review' | 'close_job' | 'view_applications',
+  action: 'edit' | 'submit_review' | 'publish' | 'close_job' | 'view_applications',
   jobId: string,
   extra?: { status?: string }
 ) {

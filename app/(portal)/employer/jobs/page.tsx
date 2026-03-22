@@ -68,25 +68,34 @@ export default async function EmployerJobsPage() {
     };
   });
 
+  // Group counts for the hierarchy summary
+  const counts = {
+    draft: jobs.filter((j) => j.status === 'draft').length,
+    inReview: jobs.filter((j) => j.status === 'pending' || j.status === 'approved').length,
+    live: jobs.filter((j) => j.status === 'live').length,
+    filled: jobs.filter((j) => j.status === 'filled' || j.status === 'closed').length,
+  };
+
   return (
     <div className="employer-jobs-page">
       <header className="employer-jobs-header">
         <div className="employer-jobs-header-text">
           <h1>Job postings</h1>
-          <p className="employer-jobs-kicker">Drafts, review, and live roles candidates see on the Austin-area board.</p>
+          <p className="employer-jobs-kicker">
+            {jobs.length === 0
+              ? 'Create your first posting to start hiring.'
+              : `${counts.draft} draft${counts.draft === 1 ? '' : 's'} · ${counts.inReview} in review · ${counts.live} live · ${counts.filled} filled/closed`}
+          </p>
         </div>
         <div className="employer-jobs-actions">
-          <Link href="/employer/jobs/import" className="btn btn-primary btn-sm">
-            Add from careers page
-          </Link>
-          <Link href="/employer/jobs/new" className="btn btn-secondary btn-sm">
-            New posting
+          <Link href="/employer/jobs/new" className="btn btn-primary btn-sm">
+            Create posting
           </Link>
         </div>
       </header>
       <p className="employer-jobs-lead">
-        Scan by stage, tighten drafts before you send them, and bulk-clean what you do not need. Live and board-approved
-        postings stay protected until you mark a role filled.
+        Drafts stay private. Submit for review when ready, and we will publish after a quick check. 
+        Live postings appear on the public board. Mark filled when the role closes.
       </p>
       <EmployerJobsBoard jobs={boardItems} />
     </div>

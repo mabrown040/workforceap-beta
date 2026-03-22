@@ -31,3 +31,7 @@ CREATE INDEX "counselor_notes_member_id_idx" ON "counselor_notes"("member_id");
 CREATE INDEX "counselor_notes_author_id_idx" ON "counselor_notes"("author_id");
 ALTER TABLE "counselor_notes" ADD CONSTRAINT "counselor_notes_member_id_fkey" FOREIGN KEY ("member_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE "counselor_notes" ADD CONSTRAINT "counselor_notes_author_id_fkey" FOREIGN KEY ("author_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- Protect sensitive pipeline tables behind explicit RLS policies
+ALTER TABLE "placement_records" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "counselor_notes" ENABLE ROW LEVEL SECURITY;

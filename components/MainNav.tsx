@@ -30,9 +30,9 @@ const navItems = [
   { href: '/jobs', label: 'Jobs' },
   { href: '/blog', label: 'Blog' },
   { href: '/faq', label: 'FAQ' },
-  { href: '/apply', label: 'Apply Now', cta: true },
+  { href: '/apply', label: 'Apply', cta: true },
   { href: '/login', label: 'Sign in', portalEntry: true },
-  { href: '/contact', label: 'Contact Us' },
+  { href: '/contact', label: 'Contact WorkforceAP' },
 ];
 
 function dropdownMenuId(baseId: string, label: string) {

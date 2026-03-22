@@ -17,23 +17,39 @@ export default function ContactPage() {
   return (
     <div className="inner-page contact-page">
       <PageHero
-        title="Contact Us"
-        subtitle="Questions about programs? Ready to apply? We respond within 24–48 hours."
-      />
+        title="Contact WorkforceAP"
+        subtitle="Use this page when you are not ready to apply, hire talent, or choose a program on your own. We respond within 24–48 hours and help route you to the right next step."
+      >
+        <div className="hero-actions" style={{ marginTop: '1.5rem' }}>
+          <Link href="/apply" className="btn btn-primary">Apply</Link>
+          <Link href="/programs" className="btn btn-outline">Explore programs</Link>
+          <Link href="/employers" className="btn btn-outline">Hire talent</Link>
+        </div>
+      </PageHero>
 
       <PhotoHighlight
         imageUrl="https://images.unsplash.com/photo-1497366216548-37526070297c?w=1400&q=80"
         label="Get In Touch"
-        title="We're Here to Help"
-        description="Whether you have questions about programs, schedules, or partnerships, our team is ready to assist you on your journey."
+        title="A simple routing page for every audience"
+        description="Members, employers, and partners can all start here when they need help. Our job is to point you toward the right WorkforceAP journey without splitting your attention."
       />
 
       <section className="content-section">
         <div className="container">
+          <div className="mission-vision-grid" style={{ marginBottom: '2.5rem' }}>
+            <div className="mv-card animate-on-scroll">
+              <h2>Who this is for</h2>
+              <p>Prospective members, employers, partners, and supporters who need help choosing the best next action.</p>
+            </div>
+            <div className="mv-card animate-on-scroll">
+              <h2>What WorkforceAP offers</h2>
+              <p>A real person, a fast response window, and guidance toward the right route: apply, explore programs, hire talent, or continue the conversation.</p>
+            </div>
+          </div>
           <div className="two-col">
             <div className="col animate-on-scroll">
-              <h2>Let&rsquo;s Connect</h2>
-              <p>We&rsquo;d love to hear from you. Have questions about our programs? Send us a message and we&rsquo;ll get back to you within 24–48 hours.</p>
+              <h2>What to do next</h2>
+              <p>If you already know your goal, use one of the primary paths below. If not, send us a message and we will help you choose the right one.</p>
               <div className="contact-info">
                 <div className="contact-item">
                   <span className="contact-icon">&#128231;</span>
@@ -49,8 +65,12 @@ export default function ContactPage() {
                 </div>
               </div>
               <div style={{ marginTop: '2rem', padding: '1.5rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-gray-200)' }}>
-                <p style={{ fontWeight: 600, marginBottom: '.5rem' }}>Ready to apply instead?</p>
-                <Link href="/apply" className="btn btn-primary">Start Your Application</Link>
+                <p style={{ fontWeight: 600, marginBottom: '.75rem' }}>Most common next steps</p>
+                <div className="cta-buttons" style={{ justifyContent: 'flex-start' }}>
+                  <Link href="/apply" className="btn btn-primary">Apply</Link>
+                  <Link href="/programs" className="btn btn-outline">Explore programs</Link>
+                  <Link href="/employers" className="btn btn-outline">Hire talent</Link>
+                </div>
               </div>
             </div>
             <div className="col animate-on-scroll">

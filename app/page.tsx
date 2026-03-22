@@ -24,6 +24,33 @@ export const metadata: Metadata = buildPageMetadata({
   path: '/',
 });
 
+const AUDIENCE_PATHS = [
+  {
+    title: 'For members',
+    summary: 'Explore no-cost training, certifications, and job placement support.',
+    primaryHref: '/apply',
+    primaryLabel: 'Apply',
+    secondaryHref: '/programs',
+    secondaryLabel: 'Explore programs',
+  },
+  {
+    title: 'For employers',
+    summary: 'Hire certified, job-ready talent and shape your future pipeline.',
+    primaryHref: '/employers',
+    primaryLabel: 'Hire talent',
+    secondaryHref: '/contact',
+    secondaryLabel: 'Contact WorkforceAP',
+  },
+  {
+    title: 'For partners',
+    summary: 'Refer community members and coordinate around one shared workforce journey.',
+    primaryHref: '/contact',
+    primaryLabel: 'Contact WorkforceAP',
+    secondaryHref: '/what-we-do',
+    secondaryLabel: 'What WorkforceAP offers',
+  },
+];
+
 export default function HomePage() {
   const journeySteps = [
     { num: 1, title: 'Apply', desc: 'Short online form — about 10 minutes. We respond within 24–48 hours.' },
@@ -45,7 +72,6 @@ export default function HomePage() {
 
   return (
     <div className="homepage">
-      {/* Hero */}
       <section className="hero" aria-label="Hero">
         <Image
           src="/images/austin-skyline.jpg"
@@ -59,19 +85,19 @@ export default function HomePage() {
         <div className="hero-overlay" />
         <div className="hero-container">
           <h1 className="hero-title">
-            Empowering People. <br />
-            <span className="accent">Advancing Futures.</span>
+            WorkforceAP connects <br />
+            <span className="accent">members, employers, and partners.</span>
           </h1>
-          <div className="hero-no-cost-badge">✦ No-cost training for qualifying participants</div>
+          <div className="hero-no-cost-badge">✦ Austin launch market · no-cost training for qualifying participants</div>
           <p className="hero-subtitle">
-            Career training and certifications in Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Launching in Austin. Employer-aligned. Building toward more.
+            Members get employer-aligned training and job placement support. Employers get certified talent. Partners get a trusted referral path with one clear next step for every audience.
           </p>
           <div className="hero-actions hero-actions-prominent">
             <Link href="/apply" className="btn btn-accent btn-large">
-              Apply now — about 10 minutes
+              Apply
             </Link>
-            <Link href="/find-your-path" className="btn btn-ghost">
-              Find Your Path →
+            <Link href="/programs" className="btn btn-ghost">
+              Explore programs →
             </Link>
           </div>
           <div className="trust-strip">
@@ -87,10 +113,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Stats — trust-bearing, category-defining */}
       <section className="stats-bar">
         <div className="stats-container">
-          <p className="stats-trust-line">Employer-aligned. No participant debt. Success = you get hired.</p>
+          <p className="stats-trust-line">Employer-aligned. No participant debt. Clear paths for members, employers, and partners.</p>
           <div className="stats-row">
             <div className="stat"><span className="stat-number">19</span><span className="stat-label">Programs</span></div>
             <div className="stat"><span className="stat-number">$0</span><span className="stat-label">Cost to Qualifying Participants</span></div>
@@ -101,112 +126,75 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Who we serve — members, employers, partners */}
       <section className="home-audiences" aria-labelledby="home-audiences-heading">
         <div className="container">
           <h2 id="home-audiences-heading" className="home-section-title">
-            Who WorkforceAP is for
+            Start from the right front door
           </h2>
           <p className="home-audiences-lead">
-            One training-and-placement operating model with clear front doors. Austin is where we are proving it first.
+            Every public page should make the next step obvious. These are the three journeys WorkforceAP is designed to support.
           </p>
           <div className="home-audiences-grid">
-            <div className="home-audience-card animate-on-scroll">
-              <span className="home-audience-icon" aria-hidden>
-                <Users size={28} />
-              </span>
-              <h3>Members &amp; job seekers</h3>
-              <p>
-                No-cost industry certifications and counselor support for qualifying participants — from intake through job search.
-              </p>
-              <div className="home-audience-links">
-                <Link href="/apply" className="btn btn-primary btn-sm">
-                  Apply
-                </Link>
-                <Link href="/find-your-path" className="btn btn-outline btn-sm">
-                  2-min quiz
-                </Link>
+            {AUDIENCE_PATHS.map((path, index) => (
+              <div key={path.title} className="home-audience-card animate-on-scroll">
+                <span className="home-audience-icon" aria-hidden>
+                  {index === 0 ? <Users size={28} /> : index === 1 ? <Building2 size={28} /> : <Handshake size={28} />}
+                </span>
+                <h3>{path.title}</h3>
+                <p>{path.summary}</p>
+                <div className="home-audience-links">
+                  <Link href={path.primaryHref} className="btn btn-primary btn-sm">
+                    {path.primaryLabel}
+                  </Link>
+                  <Link href={path.secondaryHref} className="btn btn-outline btn-sm">
+                    {path.secondaryLabel}
+                  </Link>
+                </div>
               </div>
-            </div>
-            <div className="home-audience-card animate-on-scroll">
-              <span className="home-audience-icon" aria-hidden>
-                <Building2 size={28} />
-              </span>
-              <h3>Employers</h3>
-              <p>
-                Post roles, review certify-ready candidates, and hire from a pipeline trained on the credentials you already recognize.
-              </p>
-              <div className="home-audience-links">
-                <Link href="/employers" className="btn btn-primary btn-sm">
-                  Employer overview
-                </Link>
-                <Link href="/jobs" className="btn btn-outline btn-sm">
-                  Public job board
-                </Link>
-              </div>
-            </div>
-            <div className="home-audience-card animate-on-scroll">
-              <span className="home-audience-icon" aria-hidden>
-                <Handshake size={28} />
-              </span>
-              <h3>Community partners</h3>
-              <p>
-                Churches, nonprofits, and referral organizations: track referrals, stay in the loop on milestones, and send people to a single apply path.
-              </p>
-              <div className="home-audience-links">
-                <Link href="/partners" className="btn btn-primary btn-sm">
-                  Partner with us
-                </Link>
-                <Link href="/contact" className="btn btn-outline btn-sm">
-                  Contact
-                </Link>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* For You: fit + what you get — orchestrated persuasion */}
       <section className="home-for-you">
         <div className="container">
-          <h2 className="home-section-title">For you, if you&rsquo;re ready to launch</h2>
+          <h2 className="home-section-title">For members: what WorkforceAP offers</h2>
           <p className="home-for-you-lead">
-            Underserved individuals, adult learners, veterans. No prior tech required. We&rsquo;re currently serving the Austin area — our launch community — and building toward more. If that&rsquo;s you, here&rsquo;s what you get:
+            If you are a job seeker, adult learner, or career changer in the Austin launch market, WorkforceAP is built to help you choose a program, earn a recognized credential, and move toward a better-paying role.
           </p>
           <div className="wyg-grid">
             <div className="wyg-card animate-on-scroll">
               <span className="wyg-icon"><Award size={28} className="text-current" /></span>
-              <h3>Industry Certifications</h3>
-              <p>Google, IBM, Microsoft, Amazon, CompTIA — the same credentials employers hire against. Real credentials, not completion certificates.</p>
+              <h3>Industry certifications</h3>
+              <p>Google, IBM, Microsoft, Amazon, CompTIA — credentials employers already recognize.</p>
             </div>
             <div className="wyg-card animate-on-scroll">
               <span className="wyg-icon"><Laptop size={28} className="text-current" /></span>
-              <h3>Loaner Laptop</h3>
-              <p>Earn a refurbished laptop on completion. Hardware is never a barrier.</p>
+              <h3>Support that removes barriers</h3>
+              <p>Readiness coaching, tools, and a loaner laptop pathway so training stays accessible.</p>
             </div>
             <div className="wyg-card animate-on-scroll">
               <span className="wyg-icon"><Handshake size={28} className="text-current" /></span>
-              <h3>Job Placement</h3>
-              <p>Resume support, interview prep, employer connections from day one through hire. We don&rsquo;t disappear after you certify.</p>
+              <h3>Placement help through hire</h3>
+              <p>Resume support, interview prep, and employer introductions from day one through job search.</p>
             </div>
           </div>
           <div className="home-for-you-cta">
-            <Link href="/find-your-path" className="btn btn-outline">Not sure which program fits? Take the 2-min quiz →</Link>
+            <Link href="/programs" className="btn btn-outline">Explore programs →</Link>
           </div>
         </div>
       </section>
 
-      {/* How it works — applicant-benefit-driven, confidence-building */}
       <section className="process-flow-section">
         <div className="process-flow-inner">
           <div className="process-flow-header animate-on-scroll">
-            <h2>Your Journey With Us</h2>
+            <h2>For members: what to do next</h2>
             <p>
-              Eleven milestones from apply to outcomes — same path as our{' '}
+              Start with the application, then move through the same guided journey shown on our{' '}
               <Link href="/how-it-works" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-                full How it works
+                How it works
               </Link>{' '}
-              page, shown here at a glance.
+              page.
             </p>
           </div>
           <div className="process-steps">
@@ -222,41 +210,39 @@ export default function HomePage() {
             ))}
           </div>
           <div className="process-cta animate-on-scroll">
-            <Link href="/how-it-works" className="btn btn-secondary">See Full Process</Link>
+            <Link href="/apply" className="btn btn-secondary">Apply</Link>
           </div>
         </div>
       </section>
 
-      {/* Social proof — real destinations, no placeholder quotes */}
       <section className="home-social-proof" aria-labelledby="home-social-proof-heading">
         <div className="container">
           <h2 id="home-social-proof-heading" className="home-section-title">
-            Stories &amp; proof points
+            Proof, context, and partner confidence
           </h2>
           <p className="home-social-proof-lead">
-            We don&apos;t use fabricated employer quotes. For real updates, graduate-focused writing, and who stands behind the work, use the links below.
+            Use these pages when you want to understand the model, review leadership, or share WorkforceAP with another stakeholder.
           </p>
           <div className="home-social-proof-actions">
-            <Link href="/blog" className="btn btn-primary btn-sm">
-              Blog &amp; updates
+            <Link href="/what-we-do" className="btn btn-primary btn-sm">
+              What WorkforceAP offers
             </Link>
             <Link href="/leadership" className="btn btn-outline btn-sm">
               Leadership &amp; board
             </Link>
-            <Link href="/what-we-do" className="btn btn-outline btn-sm">
-              What we do
+            <Link href="/contact" className="btn btn-outline btn-sm">
+              Contact WorkforceAP
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Why trust: leadership depth, local roots, broader ambition */}
       <section className="about-section home-trust-anchor">
         <div className="container">
           <div className="about-grid">
             <div className="about-content">
               <span className="section-label">Who We Are</span>
-              <h2>25+ Years Breaking Barriers</h2>
+              <h2>25+ years of workforce development experience</h2>
               <p>
                 Founded by Michael Brown, PMP — a workforce leader who has trained thousands across the Austin Metro and statewide. Through Consulting Solutions.Net, Goodwill Career &amp; Technical Academy, Austin Area Urban League, Universal Tech Movement, and African American Youth Harvest Foundation, we deliver the wrap-around services that launch careers. Austin is our launch community; we&rsquo;re building toward national scale.
               </p>
@@ -273,14 +259,14 @@ export default function HomePage() {
                 <Image src="/images/ibm-logo.svg" alt="IBM" width={60} height={24} />
               </div>
               <div className="about-actions">
-                <Link href="/leadership" className="btn btn-primary">Meet Our Team</Link>
-                <Link href="/what-we-do" className="btn btn-outline">Full Mission &amp; Vision</Link>
+                <Link href="/what-we-do" className="btn btn-primary">What WorkforceAP offers</Link>
+                <Link href="/contact" className="btn btn-outline">Contact WorkforceAP</Link>
               </div>
             </div>
             <div className="programs-preview">
               <span className="section-label">Programs</span>
-              <h3>Careers That Pay — From $48K to $145K</h3>
-              <p>19 programs across Tech, Healthcare, Manufacturing, and Skilled Trades. Each path leads to real roles: IT support, cybersecurity, data analytics, project management, medical coding, and more.</p>
+              <h3>Distinct routes, one operating model</h3>
+              <p>Members explore programs and apply. Employers hire talent. Partners send referrals and stay connected to progress. Every path starts from a clearer public experience.</p>
               <ul className="program-categories">
                 <li><span className="cat-icon"><Monitor size={20} className="text-current" /></span> Digital Literacy &amp; AI</li>
                 <li><span className="cat-icon"><Wifi size={20} className="text-current" /></span> Information Technology</li>
@@ -290,21 +276,23 @@ export default function HomePage() {
                 <li><span className="cat-icon"><HardHat size={20} className="text-current" /></span> Core Construction</li>
               </ul>
               <div className="programs-preview-actions">
-                <Link href="/find-your-path" className="btn btn-primary btn-sm">Find Your Fit (2-min quiz)</Link>
-                <Link href="/programs" className="btn btn-outline btn-sm">View All 19 Programs</Link>
+                <Link href="/programs" className="btn btn-primary btn-sm">Explore programs</Link>
+                <Link href="/employers" className="btn btn-outline btn-sm">Hire talent</Link>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* What to do next — decisive, intentional */}
       <section className="footer-cta">
         <div className="container">
-          <h2>Your Next Step</h2>
-          <p>Apply now — about 10 minutes. We respond within 24–48 hours. Real certifications. Employer connections. No cost to qualifying participants.</p>
-          <Link href="/apply" className="btn btn-primary btn-large">Start Your Application</Link>
-          <p className="footer-cta-sub"><Link href="/find-your-path">Not sure yet? Take the pathfinder quiz first.</Link></p>
+          <h2>Choose your next step</h2>
+          <p>Apply if you are ready to start. Explore programs if you need to compare options. Hire talent if you are an employer. Contact WorkforceAP if you need guidance.</p>
+          <div className="hero-actions" style={{ justifyContent: 'center', marginTop: '1.5rem' }}>
+            <Link href="/apply" className="btn btn-primary btn-large">Apply</Link>
+            <Link href="/programs" className="btn btn-outline btn-large">Explore programs</Link>
+            <Link href="/contact" className="btn btn-outline btn-large">Contact WorkforceAP</Link>
+          </div>
         </div>
       </section>
 

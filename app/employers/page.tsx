@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
-import PageHero from '@/components/PageHero';
 import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
 import EmployerContactForm from './EmployerContactForm';
@@ -31,22 +30,21 @@ export const metadata: Metadata = buildPageMetadata({
 const WHY_HIRE = [
   {
     icon: ShieldCheck,
-    title: 'Verified Skills',
-    desc: 'All graduates complete skills assessments and earn certifications from Google, IBM, Microsoft, AWS, CompTIA.',
+    title: 'Verified skills',
+    desc: 'All graduates complete skills assessments and earn certifications from Google, IBM, Microsoft, AWS, and CompTIA.',
   },
   {
     icon: Users,
-    title: 'Diverse Pipeline',
+    title: 'Pipeline with purpose',
     desc: 'Access motivated candidates from underserved communities, career changers, and veterans.',
   },
   {
     icon: Headphones,
-    title: 'Ongoing Support',
-    desc: 'We provide 90-day post-hire support to ensure successful onboarding.',
+    title: 'Post-hire support',
+    desc: 'We provide 90-day post-hire support to strengthen onboarding and retention.',
   },
 ];
 
-/** Illustrative Austin-area starting bands — aligned with program catalog / salary guide (not third-party job postings). */
 const PROGRAMS = [
   { name: 'IT Support', cert: 'IBM Professional Certificate', level: 'Entry-level', salary: '$55K–$72K', icon: Briefcase },
   { name: 'Cybersecurity', cert: 'Google / CompTIA pathway', level: 'Entry to mid', salary: '$75K–$112K', icon: ShieldCheck },
@@ -57,49 +55,49 @@ const PROGRAMS = [
 ];
 
 const HOW_IT_WORKS = [
-  { num: 1, title: 'Post Your Opening', desc: 'Add your job to our employer portal. Free. We match it to our pipeline.', icon: FileText },
-  { num: 2, title: 'Review Matched Candidates', desc: 'Receive pre-screened applicants who hold relevant certifications and fit your requirements.', icon: Search },
-  { num: 3, title: 'Interview & Hire', desc: 'You conduct interviews and make the hire. No placement fees.', icon: UserCheck },
-  { num: 4, title: '90-Day Support', desc: "We support your new hire's onboarding. You get a team member who's set up to succeed.", icon: Handshake },
+  { num: 1, title: 'Share your hiring need', desc: 'Tell us about the role, target skills, and timeline. We use that information to match talent from our pipeline.', icon: FileText },
+  { num: 2, title: 'Review matched candidates', desc: 'Receive pre-screened applicants who hold relevant certifications and fit your requirements.', icon: Search },
+  { num: 3, title: 'Interview and hire', desc: 'Your team runs the interview process and makes the hiring decision. No placement fees.', icon: UserCheck },
+  { num: 4, title: 'Support onboarding', desc: 'We stay involved for 90 days so the new hire and your team both have support.', icon: Handshake },
 ];
 
 const EMPLOYER_COMMITMENTS = [
   {
     icon: ShieldCheck,
-    title: 'Pre-Screened Pipeline',
+    title: 'Pre-screened pipeline',
     desc: 'Every candidate completes skills assessment and workforce readiness before we refer them. You get vetted talent, not cold resumes.',
   },
   {
     icon: Award,
-    title: 'Industry Credentials',
-    desc: 'Google, IBM, AWS, Microsoft, CompTIA — the same certifications you hire against. No generic certificates.',
+    title: 'Industry credentials',
+    desc: 'Google, IBM, AWS, Microsoft, and CompTIA — the same certifications you hire against. No generic certificates.',
   },
   {
     icon: Handshake,
-    title: '90-Day Post-Hire Support',
-    desc: 'We stay involved after the hire. Onboarding, check-ins, and support so your new team member succeeds.',
+    title: '90-day post-hire support',
+    desc: 'We stay involved after the hire with onboarding check-ins and support.',
   },
 ];
 
 const PARTNERSHIP_OPTIONS = [
   {
-    title: 'Job Postings (Free)',
-    features: ['Post unlimited jobs', 'Access to active students and alumni', 'Direct candidate introductions'],
-    cta: 'Get Started',
+    title: 'Post a role',
+    features: ['Share current openings', 'Access active students and alumni', 'Receive direct candidate introductions'],
+    cta: 'Hire talent',
     href: '#employer-contact',
     featured: false,
   },
   {
-    title: 'Hiring Partner (Preferred)',
+    title: 'Become a hiring partner',
     features: ['First access to graduating cohorts', 'Input on curriculum design', 'Co-branded success stories', 'Quarterly hiring events'],
-    cta: 'Become a Partner',
+    cta: 'Hire talent',
     href: '#employer-contact',
     featured: true,
   },
   {
-    title: 'Corporate Training',
-    features: ['Upskill your existing workforce', 'Custom training programs', 'Group enrollment discounts'],
-    cta: 'Learn More',
+    title: 'Plan a workforce conversation',
+    features: ['Upskilling exploration', 'Custom pathway discussion', 'Group and cohort planning'],
+    cta: 'Contact WorkforceAP',
     href: '#employer-contact',
     featured: false,
   },
@@ -108,38 +106,51 @@ const PARTNERSHIP_OPTIONS = [
 export default function EmployersPage() {
   return (
     <div className="inner-page">
-      {/* Hero */}
       <section className="page-hero employers-hero">
         <div className="page-hero-content">
-          <h1>Hire Certified, Job-Ready Tech Talent</h1>
+          <h1>Hire talent from WorkforceAP&apos;s certified pipeline</h1>
           <p>
-            Pre-screened graduates with industry credentials — Google, IBM, AWS, CompTIA. Workforce readiness built in. 90-day post-hire support so your hire succeeds.
+            This page is for employers. WorkforceAP offers pre-screened candidates, recognized credentials, and post-hire support so your team can hire with more confidence.
           </p>
           <div className="hero-actions" style={{ marginTop: '1.5rem', marginBottom: 0 }}>
-            <Link href="/employer" className="btn btn-accent btn-large">
-              Post a Job (Free)
+            <Link href="#employer-contact" className="btn btn-accent btn-large">
+              Hire talent
             </Link>
-            <Link href="#employer-contact" className="btn btn-ghost btn-large">
-              Become a Hiring Partner
+            <Link href="/contact" className="btn btn-ghost btn-large">
+              Contact WorkforceAP
             </Link>
-            <a href="tel:5127771808" className="btn btn-ghost btn-large">
-              Call (512) 777-1808
-            </a>
+            <Link href="/programs" className="btn btn-ghost btn-large">
+              Explore programs
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Why Hire Our Graduates */}
+      <section className="content-section" style={{ paddingBottom: 0 }}>
+        <div className="container">
+          <div className="mission-vision-grid">
+            <div className="mv-card animate-on-scroll">
+              <h2>Who this is for</h2>
+              <p>Hiring managers, talent teams, and employer partners who want a clearer route to entry-level and early-career talent.</p>
+            </div>
+            <div className="mv-card animate-on-scroll">
+              <h2>What WorkforceAP offers</h2>
+              <p>A vetted pipeline of members who complete training, workforce readiness, certification, and coordinated support before referral.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="content-section employers-why-section">
         <div className="container">
           <div className="section-header animate-on-scroll" style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h2>Why Hire Our Graduates</h2>
+            <h2>Why employers use WorkforceAP</h2>
             <p className="section-subtitle" style={{ marginBottom: 0 }}>
-              Pre-screened, certified, and supported talent ready for your team
+              Less noise, more signal, and a stronger handoff into hiring.
             </p>
           </div>
           <div className="employers-three-col">
-            {WHY_HIRE.map((item, idx) => (
+            {WHY_HIRE.map((item) => (
               <div key={item.title} className="employers-why-card animate-on-scroll">
                 <span className="employers-why-icon">
                   <item.icon size={32} className="text-current" />
@@ -152,29 +163,26 @@ export default function EmployersPage() {
         </div>
       </section>
 
-      {/* Photo Highlight */}
       <PhotoHighlight
         imageUrl="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1400&q=80"
         label="Employer Partnerships"
-        title="Job-Ready Tech Talent"
-        description="Our graduates hold industry certifications, complete workforce readiness training, and are backed by 90-day post-hire support. We're currently serving the Austin area and building toward expansion."
+        title="A clearer hiring journey"
+        description="Employers do not need to decode the program model on every page. This route keeps the next action focused on hiring talent or starting a partnership conversation."
       />
 
-      {/* Available Talent - Program Cards */}
       <section className="content-section employers-programs-section">
         <div className="container">
           <div className="section-header animate-on-scroll" style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h2>Available Talent</h2>
+            <h2>Programs behind the talent pipeline</h2>
             <p className="section-subtitle" style={{ marginBottom: 0 }}>
-              Graduate profiles by program and certification
+              Use this snapshot to understand the types of roles members are preparing for.
             </p>
             <p className="section-subtitle" style={{ marginTop: '0.75rem', marginBottom: 0, fontSize: '0.9rem', maxWidth: '640px', marginInline: 'auto' }}>
-              Ranges match our published program outcomes (not scraped job ads). See{' '}
-              <Link href="/programs">program pages</Link> and the <Link href="/salary-guide">salary guide</Link> for detail.
+              Ranges match our published program outcomes. For deeper detail, review the <Link href="/programs">program catalog</Link> and <Link href="/salary-guide">salary guide</Link>.
             </p>
           </div>
           <div className="employers-program-cards">
-            {PROGRAMS.map((prog, idx) => (
+            {PROGRAMS.map((prog) => (
               <div key={prog.name} className="employers-program-card animate-on-scroll">
                 <span className="employers-program-icon">
                   <prog.icon size={24} className="text-current" />
@@ -191,13 +199,12 @@ export default function EmployersPage() {
         </div>
       </section>
 
-      {/* How It Works */}
       <section className="content-section employers-how-section">
         <div className="container">
           <div className="section-header animate-on-scroll" style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h2>How It Works</h2>
+            <h2>How to hire talent through WorkforceAP</h2>
             <p className="section-subtitle" style={{ marginBottom: 0 }}>
-              Four simple steps from posting to partnership
+              Four steps from first conversation to onboarding support.
             </p>
           </div>
           <div className="employers-how-steps">
@@ -219,13 +226,12 @@ export default function EmployersPage() {
         </div>
       </section>
 
-      {/* Why Partner With Us — commitments, not placeholders */}
       <section className="content-section employers-commitments-section">
         <div className="container">
           <div className="section-header animate-on-scroll" style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h2>Why Employers Partner With Us</h2>
+            <h2>What employers can expect</h2>
             <p className="section-subtitle" style={{ marginBottom: 0 }}>
-              Pre-screened, certified, and supported — we deliver talent that fits
+              Clear expectations, consistent credentials, and support beyond the handoff.
             </p>
           </div>
           <div className="employers-three-col">
@@ -242,13 +248,12 @@ export default function EmployersPage() {
         </div>
       </section>
 
-      {/* Hiring Partnership Options */}
       <section className="content-section employers-partnership-section">
         <div className="container">
           <div className="section-header animate-on-scroll" style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h2>Hiring Partnership Options</h2>
+            <h2>Choose the right employer path</h2>
             <p className="section-subtitle" style={{ marginBottom: 0 }}>
-              Choose the level that fits your hiring needs
+              Keep the next action simple: hire talent or contact WorkforceAP.
             </p>
           </div>
           <div className="employers-partnership-cards">
@@ -257,7 +262,7 @@ export default function EmployersPage() {
                 key={opt.title}
                 className={`employers-partnership-card animate-on-scroll ${opt.featured ? 'featured' : ''}`}
               >
-                {opt.featured && <span className="employers-partnership-badge">Most Popular</span>}
+                {opt.featured && <span className="employers-partnership-badge">Recommended</span>}
                 <h3>{opt.title}</h3>
                 <ul>
                   {opt.features.map((f) => (
@@ -273,15 +278,13 @@ export default function EmployersPage() {
         </div>
       </section>
 
-      {/* Contact CTA */}
       <section id="employer-contact" className="content-section employers-contact-section">
         <div className="container">
           <div className="employers-contact-inner">
             <div className="employers-contact-content animate-on-scroll">
-              <h2>Ready to Hire?</h2>
+              <h2>What to do next</h2>
               <p>
-                Let&rsquo;s discuss your hiring needs and how WorkforceAP can help. Fill out the form or reach out
-                directly.
+                Share your hiring need here if you want candidate introductions. If you need a broader conversation first, contact WorkforceAP directly.
               </p>
               <div
                 className="employers-direct-contact"
@@ -308,8 +311,7 @@ export default function EmployersPage() {
                   </a>
                 </p>
                 <p style={{ marginTop: '1rem', fontSize: '0.85rem', color: 'var(--color-gray-600)', lineHeight: 1.5 }}>
-                  The web form on this page delivers to <strong>info@workforceap.org</strong> (team inbox). Use
-                  Michael&apos;s email when you already have a direct relationship.
+                  The web form on this page delivers to <strong>info@workforceap.org</strong>. Use Michael&apos;s email when you already have a direct relationship.
                 </p>
               </div>
             </div>

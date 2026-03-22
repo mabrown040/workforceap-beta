@@ -17,15 +17,18 @@ export default function ProgramsPage() {
   return (
     <div className="inner-page programs-page">
       <PageHero
-        title="Our Programs"
-        subtitle="19 no-cost career programs with industry certifications from Google, IBM, AWS, Microsoft, and CompTIA. Use fit, timeline, and readiness — not just the title — to choose your track."
+        title="Explore programs built for member outcomes"
+        subtitle="For members and career changers: compare WorkforceAP programs by fit, credential, and timeline. Employers and partners can use this page to understand the talent pipeline members move through before they apply."
       >
         <div className="programs-decision-cta">
-          <p className="programs-decision-lead">Not sure which program fits you?</p>
-          <Link href="/find-your-path" className="btn btn-primary">
-            Take the 2-minute pathfinder quiz →
+          <p className="programs-decision-lead">What this page does: show who each program is for, what credential it leads to, and where to go next.</p>
+          <Link href="/programs" className="btn btn-primary" aria-current="page">
+            Explore programs
           </Link>
-          <Link href="/program-comparison" className="programs-compare-link">Or compare programs side-by-side</Link>
+          <Link href="/apply" className="btn btn-outline">
+            Apply
+          </Link>
+          <Link href="/contact" className="programs-compare-link">Need guidance? Contact WorkforceAP</Link>
         </div>
       </PageHero>
       <section className="content-section" style={{ paddingTop: '0.5rem', paddingBottom: 0 }}>

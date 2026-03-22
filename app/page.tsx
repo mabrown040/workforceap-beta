@@ -26,16 +26,21 @@ export const metadata: Metadata = buildPageMetadata({
 
 export default function HomePage() {
   const journeySteps = [
-    { num: 1, title: 'Apply', desc: '5-minute form. We respond within 24–48 hours.' },
+    { num: 1, title: 'Apply', desc: 'Short online form — about 10 minutes. We respond within 24–48 hours.' },
     { num: 2, title: 'Overview', desc: 'Meet a counselor. Learn which program fits you — no exam, no gatekeeping.' },
     { num: 3, title: 'Interview', desc: '30 minutes. We confirm mutual fit and answer your questions.' },
     { num: 4, title: 'Membership', desc: 'Join free — no cost to qualifying participants.' },
     { num: 5, title: 'Assessment', desc: 'Skills and goals. We match you to the right path.' },
     { num: 6, title: 'Readiness', desc: 'Soft skills and job-search basics — what employers expect.' },
-    { num: 7, title: 'Resources', desc: 'Tools, network, loaner laptop on completion.' },
+    { num: 7, title: 'Resources', desc: 'Tools, network, and loaner laptop program when you complete training (program-dependent).' },
     { num: 8, title: 'Training', desc: 'Industry certification courses. Same credentials employers hire for.' },
     { num: 9, title: 'Certify', desc: 'Earn credentials. Proof that sticks on your resume.' },
-    { num: 10, title: 'Placement', desc: 'We support you until you land. Resume, interviews, employer intros.' },
+    { num: 10, title: 'Placement', desc: 'We support you until you land — resume, interviews, and employer intros.' },
+    {
+      num: 11,
+      title: 'Outcomes',
+      desc: 'A role that pays, with room to grow. Many graduates see strong wage gains within a few years.',
+    },
   ];
 
   return (
@@ -63,7 +68,7 @@ export default function HomePage() {
           </p>
           <div className="hero-actions hero-actions-prominent">
             <Link href="/apply" className="btn btn-accent btn-large">
-              Apply Now — It Takes 5 Minutes
+              Apply now — about 10 minutes
             </Link>
             <Link href="/find-your-path" className="btn btn-ghost">
               Find Your Path →
@@ -196,7 +201,13 @@ export default function HomePage() {
         <div className="process-flow-inner">
           <div className="process-flow-header animate-on-scroll">
             <h2>Your Journey With Us</h2>
-            <p>Clear steps. No surprises. We tell you what happens at each stage so you can move forward with confidence.</p>
+            <p>
+              Eleven milestones from apply to outcomes — same path as our{' '}
+              <Link href="/how-it-works" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+                full How it works
+              </Link>{' '}
+              page, shown here at a glance.
+            </p>
           </div>
           <div className="process-steps">
             {journeySteps.map((step, index) => (
@@ -212,6 +223,29 @@ export default function HomePage() {
           </div>
           <div className="process-cta animate-on-scroll">
             <Link href="/how-it-works" className="btn btn-secondary">See Full Process</Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Social proof — real destinations, no placeholder quotes */}
+      <section className="home-social-proof" aria-labelledby="home-social-proof-heading">
+        <div className="container">
+          <h2 id="home-social-proof-heading" className="home-section-title">
+            Stories &amp; proof points
+          </h2>
+          <p className="home-social-proof-lead">
+            We don&apos;t use fabricated employer quotes. For real updates, graduate-focused writing, and who stands behind the work, use the links below.
+          </p>
+          <div className="home-social-proof-actions">
+            <Link href="/blog" className="btn btn-primary btn-sm">
+              Blog &amp; updates
+            </Link>
+            <Link href="/leadership" className="btn btn-outline btn-sm">
+              Leadership &amp; board
+            </Link>
+            <Link href="/what-we-do" className="btn btn-outline btn-sm">
+              What we do
+            </Link>
           </div>
         </div>
       </section>
@@ -268,7 +302,7 @@ export default function HomePage() {
       <section className="footer-cta">
         <div className="container">
           <h2>Your Next Step</h2>
-          <p>Apply now — under 10 minutes. We respond within 24–48 hours. Real certifications. Employer connections. No cost to qualifying participants.</p>
+          <p>Apply now — about 10 minutes. We respond within 24–48 hours. Real certifications. Employer connections. No cost to qualifying participants.</p>
           <Link href="/apply" className="btn btn-primary btn-large">Start Your Application</Link>
           <p className="footer-cta-sub"><Link href="/find-your-path">Not sure yet? Take the pathfinder quiz first.</Link></p>
         </div>

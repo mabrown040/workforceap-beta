@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { trackApplyFunnel } from '@/lib/analytics/events';
 
@@ -37,6 +38,14 @@ export default function ApplyEligibilityClient() {
       <div className="apply-step-content">
         <h2 className="apply-step-title">Quick check — we want to help you find the right fit</h2>
         <p className="apply-step-desc">These answers help us point you to the right program and funding options. Everyone who applies gets a personal response.</p>
+        <p className="apply-step-desc apply-eligibility-exception-note">
+          Not a perfect match on income or employment (for example, just over the threshold, between jobs, or a special
+          circumstance)? Continue anyway — we review cases individually, consistent with our{' '}
+          <Link href="/faq" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+            FAQ
+          </Link>
+          .
+        </p>
 
         <div className="funding-questions">
           <div className="form-group">

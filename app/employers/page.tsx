@@ -46,13 +46,14 @@ const WHY_HIRE = [
   },
 ];
 
+/** Illustrative Austin-area starting bands — aligned with program catalog / salary guide (not third-party job postings). */
 const PROGRAMS = [
-  { name: 'IT Support Specialist', cert: 'CompTIA A+', level: 'Entry-level', salary: '$42K–$55K', icon: Briefcase },
-  { name: 'Cybersecurity Analyst', cert: 'Security+', level: 'Entry to mid', salary: '$55K–$75K', icon: ShieldCheck },
-  { name: 'Cloud Practitioner', cert: 'AWS Certified', level: 'Entry-level', salary: '$50K–$70K', icon: Cloud },
-  { name: 'Data Analyst', cert: 'Google Data Analytics', level: 'Entry-level', salary: '$48K–$65K', icon: BarChart3 },
-  { name: 'Software Developer', cert: 'Full-stack training', level: 'Entry-level', salary: '$55K–$80K', icon: Code },
-  { name: 'Project Manager', cert: 'CAPM/PMI', level: 'Entry to mid', salary: '$55K–$75K', icon: FolderKanban },
+  { name: 'IT Support', cert: 'IBM Professional Certificate', level: 'Entry-level', salary: '$55K–$72K', icon: Briefcase },
+  { name: 'Cybersecurity', cert: 'Google / CompTIA pathway', level: 'Entry to mid', salary: '$75K–$112K', icon: ShieldCheck },
+  { name: 'Cloud (AWS)', cert: 'AWS Cloud Technology', level: 'Entry to mid', salary: '$95K–$145K', icon: Cloud },
+  { name: 'Data Analytics', cert: 'Google Data Analytics', level: 'Entry-level', salary: '$72K–$102K', icon: BarChart3 },
+  { name: 'Software Developer', cert: 'IBM', level: 'Entry-level', salary: '$78K–$98K', icon: Code },
+  { name: 'Project Management', cert: 'Microsoft', level: 'Entry to mid', salary: '$82K–$112K', icon: FolderKanban },
 ];
 
 const HOW_IT_WORKS = [
@@ -167,6 +168,10 @@ export default function EmployersPage() {
             <p className="section-subtitle" style={{ marginBottom: 0 }}>
               Graduate profiles by program and certification
             </p>
+            <p className="section-subtitle" style={{ marginTop: '0.75rem', marginBottom: 0, fontSize: '0.9rem', maxWidth: '640px', marginInline: 'auto' }}>
+              Ranges match our published program outcomes (not scraped job ads). See{' '}
+              <Link href="/programs">program pages</Link> and the <Link href="/salary-guide">salary guide</Link> for detail.
+            </p>
           </div>
           <div className="employers-program-cards">
             {PROGRAMS.map((prog, idx) => (
@@ -215,7 +220,7 @@ export default function EmployersPage() {
       </section>
 
       {/* Why Partner With Us — commitments, not placeholders */}
-      <section className="content-section employers-testimonials-section">
+      <section className="content-section employers-commitments-section">
         <div className="container">
           <div className="section-header animate-on-scroll" style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <h2>Why Employers Partner With Us</h2>
@@ -301,6 +306,10 @@ export default function EmployersPage() {
                   <a href="tel:5127771808" style={{ color: 'var(--color-accent)' }}>
                     (512) 777-1808
                   </a>
+                </p>
+                <p style={{ marginTop: '1rem', fontSize: '0.85rem', color: 'var(--color-gray-600)', lineHeight: 1.5 }}>
+                  The web form on this page delivers to <strong>info@workforceap.org</strong> (team inbox). Use
+                  Michael&apos;s email when you already have a direct relationship.
                 </p>
               </div>
             </div>

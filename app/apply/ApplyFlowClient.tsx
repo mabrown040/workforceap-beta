@@ -80,11 +80,13 @@ export default function ApplyFlowClient() {
   const [q2, setQ2] = useState<'yes' | 'no' | null>(null);
   const [q3, setQ3] = useState<'yes' | 'no' | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (submitting) return;
     setSubmitting(true);
+    setSubmitError(null);
 
     const form = e.currentTarget;
     const formData = new FormData(form);
@@ -140,7 +142,7 @@ export default function ApplyFlowClient() {
       window.location.href = `${SITE_URL}/apply/confirmation`;
     } catch {
       setSubmitting(false);
-      alert('Something went wrong submitting your application. Please try again.');
+      setSubmitError('Something went wrong submitting your application. Please try again, or call (512) 777-1808.');
     }
   };
 
@@ -246,6 +248,11 @@ export default function ApplyFlowClient() {
 
             <div className="col">
               <form className="apply-form" onSubmit={handleFormSubmit}>
+                {submitError && (
+                  <p className="form-error" role="alert" style={{ marginBottom: '1rem' }}>
+                    {submitError}
+                  </p>
+                )}
                 <input type="hidden" name="_subject" value="New WorkforceAP Application" />
                 <input type="hidden" name="funding_assistance_qualify" value={qualifies ? 'yes' : 'no'} />
 

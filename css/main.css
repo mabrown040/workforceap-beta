@@ -1823,6 +1823,39 @@ a.btn-accent:hover {
     text-align: center;
     margin-top: 2rem;
 }
+.home-social-proof {
+    padding: 3rem 0;
+    background: var(--color-light);
+    border-top: 1px solid var(--color-gray-200);
+}
+.home-social-proof-lead {
+    max-width: 42rem;
+    margin: 0 auto 1.25rem;
+    color: var(--color-gray-700);
+    line-height: 1.55;
+    text-align: center;
+}
+.home-social-proof-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+}
+.apply-info-banner {
+    background: var(--color-light);
+    color: var(--color-gray-800);
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-gray-200);
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+.apply-eligibility-exception-note {
+    font-size: 0.95rem;
+    color: var(--color-gray-700);
+    margin-bottom: 1.25rem;
+}
 .programs-preview-actions {
     display: flex;
     flex-wrap: wrap;
@@ -2687,6 +2720,11 @@ fieldset.apply-fieldset {
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
     margin-bottom: 3rem;
+}
+@media (max-width: 900px) {
+    .salary-guide-stats-row {
+        grid-template-columns: 1fr;
+    }
 }
 .salary-guide-stat-card {
     background: #f8f8f8;

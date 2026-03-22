@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle2, ExternalLink, Check, AlertCircle } from 'lucide-react';
 import JobForm from '@/components/employer/JobForm';
+import { trackEmployerImport, trackFunnelEvent } from '@/lib/analytics/events';
 
 type ImportJobClientProps = {
   companyName: string;
@@ -65,6 +66,7 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
     }
     setLoading(true);
     setError(null);
+    trackEmployerImport('started', { mode: rawText.trim() ? 'paste' : 'url', has_url: !!url });
     try {
       const res = await fetch('/api/employer/jobs/import', {
         method: 'POST',
@@ -73,14 +75,21 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
       });
       const data = await res.json();
       if (!res.ok) {
+        trackEmployerImport('errored', { mode: rawText.trim() ? 'paste' : 'url', has_url: !!url });
         setError(data.error ?? 'Failed to parse');
         return;
       }
       if (data.created && data.job) {
+        trackEmployerImport('succeeded', { provider: data.provider, created: true });
         router.push(`/employer/jobs/${data.job.id}`);
         router.refresh();
         return;
       }
+      trackEmployerImport(data.provider?.includes('fallback') ? 'fallback_used' : 'succeeded', {
+        provider: data.provider,
+        field_coverage: data.extracted ? Object.values(data.extracted).filter(Boolean).length : undefined,
+      });
+      trackFunnelEvent('employer_import', 'review_opened', { provider: data.provider });
       setExtracted(data.extracted);
       setStep('review');
     } finally {
@@ -110,6 +119,12 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
     if (paste.length >= 80) body.careersPageRawText = paste;
 
     setBulkLoading(true);
+    trackEmployerImport('started', {
+      mode: 'bulk',
+      job_url_count: urls.length,
+      has_careers_page_url: !!cUrl,
+      has_careers_page_paste: paste.length >= 80,
+    });
     try {
       const res = await fetch('/api/employer/jobs/import-bulk', {
         method: 'POST',
@@ -118,12 +133,19 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
       });
       const data = await res.json();
       if (!res.ok) {
+        trackEmployerImport('errored', { mode: 'bulk' });
         setError(data.error ?? 'Bulk import failed');
         return;
       }
       const created = data.created ?? [];
       const errs = data.errors ?? [];
       setBulkResult({ created, errors: errs });
+      trackEmployerImport(errs.length > 0 ? 'fallback_used' : 'succeeded', {
+        mode: 'bulk',
+        created_count: created.length,
+        error_count: errs.length,
+        providers: created.map((item: { provider?: string }) => item.provider).filter(Boolean),
+      });
       if (created.length === 0 && errs.length > 0 && cUrl) {
         setPasteSectionOpen(true);
       }

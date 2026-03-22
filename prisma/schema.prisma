@@ -51,6 +51,7 @@ model User {
   goals                Goal[]
   resourceProgress     ResourceProgress[]
   memberEvents         MemberEvent[]
+  workflowDiagnostics  WorkflowDiagnostic[] @relation("WorkflowDiagnosticActor")
   weeklyRecaps         WeeklyRecap[]
   pathwayStepProgress  PathwayStepProgress[]
   trainingAccessRequests TrainingAccessRequest[]
@@ -332,6 +333,29 @@ model MemberEvent {
   @@index([eventName])
   @@index([createdAt])
   @@map("member_events")
+}
+
+model WorkflowDiagnostic {
+  id            String   @id @default(uuid())
+  workflow      String
+  status        String
+  actorUserId   String?  @map("actor_user_id")
+  entityType    String?  @map("entity_type")
+  entityId      String?  @map("entity_id")
+  summary       String
+  provider      String?
+  method        String?
+  fallbackPath  String?  @map("fallback_path")
+  failureReason String?  @map("failure_reason")
+  metadata      Json?
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  actor User? @relation("WorkflowDiagnosticActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([workflow, createdAt])
+  @@index([status, createdAt])
+  @@index([actorUserId])
+  @@map("workflow_diagnostics")
 }
 
 model WeeklyRecap {
@@ -871,6 +895,5 @@ model AIJobMatch {
   @@index([studentId])
   @@map("ai_job_matches")
 }
-
 
 

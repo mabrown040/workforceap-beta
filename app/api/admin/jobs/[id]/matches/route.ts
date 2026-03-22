@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { matchStudentsForJob } from '@/lib/ai/matchStudents';
+import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
 
 export async function GET(
   _request: NextRequest,
@@ -40,6 +41,16 @@ export async function GET(
   });
 
   if (cached.length > 0) {
+    await recordWorkflowDiagnostic({
+      workflow: 'admin_job_matches',
+      status: 'inspection',
+      actorUserId: user.id,
+      entityType: 'job',
+      entityId: id,
+      summary: `Admin opened cached AI matches (${cached.length})`,
+      method: 'cache',
+      metadata: { count: cached.length },
+    });
     return NextResponse.json(
       cached.map((m) => ({
         studentId: m.studentId,
@@ -52,6 +63,17 @@ export async function GET(
   }
 
   const matches = await matchStudentsForJob(job);
+  await recordWorkflowDiagnostic({
+    workflow: 'admin_job_matches',
+    status: matches.length > 0 ? 'success' : 'fallback',
+    actorUserId: user.id,
+    entityType: 'job',
+    entityId: id,
+    summary: matches.length > 0 ? `Generated ${matches.length} AI matches` : 'AI matching returned zero matches',
+    method: 'generated',
+    fallbackPath: matches.length > 0 ? null : 'no_matches',
+    metadata: { count: matches.length },
+  });
   if (matches.length === 0) return NextResponse.json([]);
 
   await prisma.aIJobMatch.createMany({

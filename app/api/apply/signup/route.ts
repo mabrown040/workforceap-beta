@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { z } from 'zod';
 import { checkSignupRateLimit } from '@/lib/rate-limit';
+import { trackEvent } from '@/lib/events/track';
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -126,6 +127,14 @@ export async function POST(request: NextRequest) {
         },
       });
     });
+    await trackEvent({
+      userId: user.id,
+      eventName: 'apply_signup_completed',
+      entityType: 'program',
+      entityId: programSlug,
+      metadata: { smsOptIn: smsOptIn ?? false },
+      sourcePage: '/apply/create-account',
+    });
   } catch (dbError) {
     console.error('Apply signup DB error:', dbError);
     return NextResponse.json({ error: 'Account creation failed. Please try again.' }, { status: 500 });
@@ -141,4 +150,3 @@ export async function POST(request: NextRequest) {
     redirectTo: '/login',
   });
 }
-

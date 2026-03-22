@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import SuggestedProgramsRanked from '@/components/employer/SuggestedProgramsRanked';
+import { trackFunnelEvent } from '@/lib/analytics/events';
 
 type JobProvenance = {
   sourceUrl?: string | null;
@@ -135,6 +136,11 @@ export default function JobForm({ job, initialData, companyName, programSlugs, i
 
     setFieldErrors(nextFieldErrors);
     if (Object.keys(nextFieldErrors).length > 0) {
+      trackFunnelEvent('employer_job_review', 'validation_blocked', {
+        is_edit: isEdit,
+        submit_for_review: submitForReview,
+        error_fields: Object.keys(nextFieldErrors),
+      });
       setErrorMsg('Please fix the highlighted fields.');
       setStatus('error');
       return;
@@ -154,14 +160,29 @@ export default function JobForm({ job, initialData, companyName, programSlugs, i
       const data = await res.json();
 
       if (!res.ok) {
+        trackFunnelEvent('employer_job_review', 'save_failed', {
+          is_edit: isEdit,
+          submit_for_review: submitForReview,
+          status: payload.status,
+        });
         setStatus('error');
         setErrorMsg(data.error ?? 'Failed to save');
         return;
       }
 
+      trackFunnelEvent('employer_job_review', submitForReview ? 'submit_for_review' : 'draft_saved', {
+        is_edit: isEdit,
+        status: payload.status,
+        is_import_review: !!isImportReview,
+        suggested_programs_count: programs.length,
+      });
       router.push('/employer/jobs');
       router.refresh();
     } catch {
+      trackFunnelEvent('employer_job_review', 'network_error', {
+        is_edit: isEdit,
+        submit_for_review: submitForReview,
+      });
       setStatus('error');
       setErrorMsg('Network error');
     }

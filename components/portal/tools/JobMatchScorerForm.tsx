@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
-import { trackToolLaunch } from '@/lib/analytics/events';
+import { trackAIToolRun, trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 
 export default function JobMatchScorerForm() {
@@ -22,6 +22,7 @@ export default function JobMatchScorerForm() {
     setOutput('');
     setLoading(true);
     trackToolLaunch('job-match-scorer', 'Job Match Scorer');
+    trackAIToolRun('started', 'job-match-scorer');
 
     try {
       const res = await fetch('/api/ai/job-match-scorer', {
@@ -33,12 +34,15 @@ export default function JobMatchScorerForm() {
       const data = await res.json();
 
       if (!res.ok) {
+        trackAIToolRun('errored', 'job-match-scorer', { reason: data.error ?? 'request_failed' });
         setError(data.error ?? 'Something went wrong');
         return;
       }
 
+      trackAIToolRun('completed', 'job-match-scorer', { output_length: (data.output ?? '').length });
       setOutput(data.output ?? '');
     } catch {
+      trackAIToolRun('errored', 'job-match-scorer', { reason: 'network_error' });
       setError('Network error. Please try again.');
     } finally {
       setLoading(false);

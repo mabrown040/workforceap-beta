@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { sendNewJobApplicationEmail } from '@/lib/email';
 import { z } from 'zod';
+import { trackEvent } from '@/lib/events/track';
 
 const applySchema = z.object({
   coverLetter: z.string().max(5000).optional(),
@@ -58,6 +59,15 @@ export async function POST(
     applicantName: dbUser.fullName ?? dbUser.email ?? 'Applicant',
     applicantEmail: dbUser.email,
     applicationId: app.id,
+  });
+
+  await trackEvent({
+    userId: authUser.id,
+    eventName: 'application_added',
+    entityType: 'job_application',
+    entityId: app.id,
+    metadata: { jobId: id, jobTitle: job.title },
+    sourcePage: `/jobs/${id}`,
   });
 
   return NextResponse.json({ ok: true, applicationId: app.id });

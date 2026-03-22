@@ -34,15 +34,19 @@ export default function ApplyCreateAccountForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    trackApplyFunnel(3, 'signup_started', { program_slug: programSlug ?? undefined });
     if (password !== confirmPassword) {
+      trackApplyFunnel(3, 'signup_validation_failed', { reason: 'password_mismatch' });
       setError('Passwords do not match.');
       return;
     }
     if (password.length < 8) {
+      trackApplyFunnel(3, 'signup_validation_failed', { reason: 'password_too_short' });
       setError('Password must be at least 8 characters.');
       return;
     }
     if (!programSlug) {
+      trackApplyFunnel(3, 'signup_validation_failed', { reason: 'missing_program' });
       setError('Please go back and select a program.');
       return;
     }
@@ -66,6 +70,7 @@ export default function ApplyCreateAccountForm() {
       const data = await res.json();
 
       if (!res.ok) {
+        trackApplyFunnel(3, 'signup_failed', { program_slug: programSlug, reason: data.error ?? 'unknown' });
         setError(data.error ?? 'Signup failed. Please try again.');
         setLoading(false);
         return;
@@ -76,6 +81,7 @@ export default function ApplyCreateAccountForm() {
       trackApplyFunnel(3, 'account_created', { program_slug: programSlug });
       window.location.href = data.redirectTo ?? '/dashboard';
     } catch {
+      trackApplyFunnel(3, 'signup_network_error', { program_slug: programSlug });
       setError('Something went wrong. Please try again.');
       setLoading(false);
     }

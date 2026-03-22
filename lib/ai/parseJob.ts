@@ -39,13 +39,18 @@ const JOB_TITLE_HINT =
 const PORTAL_CHROME_LINE =
   /^(?:employer portal|site home|sign out|viewing as(?:\s+.+)?|switch company|job postings|applicants|create posting|almost ready to send|review and send|send test|publish job|posting settings|candidate pipeline|interview kits?|reports|settings|dashboard|back to jobs|back to job postings|all jobs|manage postings|review posting|preview posting|posting preview|job board|company settings|team settings|billing|integrations|workflow automations?|approval flows?|candidate details|application review|review application|review job|edit posting|edit job|post job|new posting)$/i;
 const NOISE_BODY_LINE =
-  /^(?:draft|needs a few details|job description\s*\*?|location \(city, state or remote\)|share this job|copy link|back to jobs|apply now|save job|imported with|read more|show more)$/i;
+  /^(?:draft|needs a few details|job description\s*\*?|location \(city, state or remote\)|share this job|copy link|back to jobs|apply now|save job|imported with|read more|show more|employer portal|site home|sign out|viewing as(?:\s+.+)?|switch company|job postings|applicants|create posting|almost ready to send|submit for review)$/i;
 
-function isPortalChromeLine(line: string): boolean {
-  const cleaned = cleanWhitespace(line)
-    .replace(/^[#>*\-\s]+/, '')
+function cleanScrapedJobLine(line: string, options?: { preserveMarkdownHeadings?: boolean }): string {
+  const leadingPattern = options?.preserveMarkdownHeadings ? /^[>*\-\s]+/ : /^[#>*\-\s]+/;
+  return cleanWhitespace(line)
+    .replace(leadingPattern, '')
     .replace(/[|:•·]+$/g, '')
     .trim();
+}
+
+function isPortalChromeLine(line: string): boolean {
+  const cleaned = cleanScrapedJobLine(line);
   if (!cleaned) return false;
   return PORTAL_CHROME_LINE.test(cleaned) || NOISE_BODY_LINE.test(cleaned);
 }
@@ -110,7 +115,7 @@ function collectContextLines(rawText: string, startIndex: number, maxLines = 4):
   const after = rawText.slice(startIndex).split('\n');
   const lines: string[] = [];
   for (const line of after) {
-    const cleaned = cleanWhitespace(line);
+    const cleaned = cleanScrapedJobLine(line);
     if (!cleaned) continue;
     if (cleaned.startsWith('[') || cleaned.startsWith('#')) continue;
     if (/^https?:\/\//i.test(cleaned)) continue;
@@ -160,9 +165,9 @@ export function sanitizeScrapedJobText(rawText: string): string {
 
   const lines = cleaned
     .split('\n')
-    .map((line) => line.trimEnd())
+    .map((line) => cleanScrapedJobLine(line, { preserveMarkdownHeadings: true }))
     .filter((line) => !looksLikeCssNoiseLine(line))
-    .filter((line) => !isPortalChromeLine(line.trim()));
+    .filter((line) => !isPortalChromeLine(line));
 
   cleaned = lines.join('\n')
     .replace(/\n{3,}/g, '\n\n')
@@ -254,8 +259,10 @@ export function clipJobSourceTextForLLM(rawText: string, maxChars = 26000): stri
  * When AI parse fails, try the first markdown H1/H2 that looks like a role title (not nav chrome).
  */
 export function extractLikelyJobTitleFromScrape(rawText: string): string | null {
-  const lines = sanitizeScrapedJobText(rawText).split('\n').map((l) => l.trim());
-  const skip = /^(rippling|careers|jobs at|open positions|home|menu|skip to|cookie|privacy|apply|log ?in|sign ?in|employer portal|site home|viewing as|switch company|job postings|applicants|create posting|almost ready to send|back to jobs)/i;
+  const lines = sanitizeScrapedJobText(rawText)
+    .split('\n')
+    .map((line) => cleanScrapedJobLine(line, { preserveMarkdownHeadings: true }));
+  const skip = /^(rippling|careers|jobs at|open positions|home|menu|skip to|cookie|privacy|apply|log ?in|sign ?in|employer portal|site home|viewing as|switch company|job postings|applicants|create posting|almost ready to send|submit for review|back to jobs)/i;
   for (let i = 0; i < Math.min(lines.length, 100); i++) {
     const line = lines[i];
     if (!line) continue;

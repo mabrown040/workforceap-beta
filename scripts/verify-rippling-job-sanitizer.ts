@@ -1,36 +1,34 @@
-import { buildFallbackParsedJobFromScrape, normalizeImportedParsedJob, sanitizeScrapedJobText } from '../lib/ai/parseJob';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
-const fixture = `# Customer Success Manager, Mid-Market
+import {
+  buildFallbackParsedJobFromScrape,
+  extractLikelyJobTitleFromScrape,
+  normalizeImportedParsedJob,
+  sanitizeScrapedJobText,
+} from '../lib/ai/parseJob';
 
-draft
-Needs a few details
-Employer portal
-Viewing as Test
-Sign out
-Back to jobs
-
-body{-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased;font-family:"ripplingFontNormal",Arial,Helvetica,sans-serif;letter-spacing:0.5px;}ul{list-style:none;-webkit-padding-start:0;padding-inline-start:0;}p,h4,h3,h5,h6{margin:0;}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}@font-face{font-display:swap;font-family:"ripplingFontLight";src:url(' format('embedded-opentype'),url(' format('woff2'),url(' format('woff');font-style:normal;font-weight:300;} :root{--color-primary:#7a005d;--color-surface:#f9f7f6;--color-white:#ffffff;--color-black:#000000;}
-
-Location (City, State or Remote)
-Austin, TX
-
-Job Description *
-Closinglock is hiring a Customer Success Manager to support mid-market customers through onboarding, adoption, and renewal.
-Responsibilities include managing a book of business, leading quarterly business reviews, and partnering with sales and product teams.
-Requirements include 3+ years in customer success, strong communication, and experience with SaaS accounts.
-
----
-Imported from: https://ats.rippling.com/closinglock/jobs/d2b5d49f-f2a8-4c92-9405-a05769ce81fe`;
+const fixture = readFileSync(join(process.cwd(), 'scripts/fixtures/rippling-portal-chrome-scrape.txt'), 'utf8');
 
 const cleaned = sanitizeScrapedJobText(fixture);
 if (/body\{|@font-face|:root|--color-primary|font-family/i.test(cleaned)) {
   throw new Error('CSS noise still present after sanitizeScrapedJobText');
 }
-if (/Employer portal|Viewing as Test|Sign out|Back to jobs/i.test(cleaned)) {
+if (/Employer portal|Site home|Viewing as Talent Ops|Switch company|Job Postings|Applicants|Create Posting|Almost ready to send|Submit for Review|Sign out|Back to jobs/i.test(cleaned)) {
   throw new Error('Portal chrome still present after sanitizeScrapedJobText');
 }
+for (const phrase of ['technical support', 'support representative', 'customer advocate', 'basic html']) {
+  if (!cleaned.toLowerCase().includes(phrase)) {
+    throw new Error(`Expected sanitized text to preserve legitimate content: ${phrase}`);
+  }
+}
 
-const parsed = buildFallbackParsedJobFromScrape('Customer Success Manager, Mid-Market', fixture);
+const title = extractLikelyJobTitleFromScrape(fixture);
+if (title !== 'Customer Support Representative') {
+  throw new Error(`Expected extracted title to be Customer Support Representative, got ${title ?? 'null'}`);
+}
+
+const parsed = buildFallbackParsedJobFromScrape(undefined, fixture);
 if (!parsed) {
   throw new Error('Fallback parse returned null');
 }
@@ -39,10 +37,12 @@ if (/body\{|@font-face|:root|--color-primary|font-family/i.test(parsed.descripti
   throw new Error('Fallback description still contains CSS noise');
 }
 
-if (!parsed.description.includes('Closinglock is hiring a Customer Success Manager')) {
-  throw new Error('Expected core job description text to be preserved');
+for (const phrase of ['technical support', 'support representative', 'customer advocate', 'basic html']) {
+  if (!parsed.description.toLowerCase().includes(phrase)) {
+    throw new Error(`Expected fallback description to preserve legitimate content: ${phrase}`);
+  }
 }
-if (/Employer portal|Viewing as Test|Sign out|Back to jobs/i.test(parsed.description)) {
+if (/Employer portal|Site home|Viewing as Talent Ops|Switch company|Job Postings|Applicants|Create Posting|Almost ready to send|Submit for Review|Sign out|Back to jobs/i.test(parsed.description)) {
   throw new Error('Fallback description still contains portal chrome');
 }
 if (!parsed.description.includes('Imported from:')) {
@@ -54,8 +54,10 @@ if (/Imported from:\s+https?:\/\//i.test(parsed.description)) {
 
 const normalized = normalizeImportedParsedJob({
   ...parsed,
-  description: `${parsed.description}\n\nhttps://ats.rippling.com/closinglock/jobs/d2b5d49f-f2a8-4c92-9405-a05769ce81fe`,
-  requirements: ['  SaaS accounts  ', 'SaaS accounts'],
+  description: `${parsed.description}
+
+https://ats.rippling.com/example/jobs/12345678-abcd-4321-abcd-1234567890ab`,
+  requirements: ['  technical support  ', 'technical support'],
 });
 
 if (/https?:\/\//i.test(normalized.description)) {

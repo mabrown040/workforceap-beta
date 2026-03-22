@@ -4,10 +4,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Menu } from 'lucide-react';
-import SuperAdminViewSwitcher from '@/components/super-admin-view-switcher';
-import { SignOutButton } from './SignOutButton';
 import { getBestActiveHref } from '@/lib/nav/activeRoute';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
+import PortalHeaderActions from './PortalHeaderActions';
+import { SignOutButton } from './SignOutButton';
 
 export type WorkspaceNavLink = { href: string; label: string };
 
@@ -63,15 +63,11 @@ export default function WorkspaceShell({
             <span className="workspace-shell-tagline">{workspaceLabel}</span>
           </div>
         </div>
-        <div className="workspace-shell-header__actions">
-          <SuperAdminViewSwitcher />
+        <div className="workspace-shell-header__meta">
           <span className="workspace-shell-context" title={contextLabel}>
             {contextLabel}
           </span>
-          <Link href="/" className="btn btn-outline btn-sm">
-            Site home
-          </Link>
-          <SignOutButton className="btn btn-outline btn-sm">Sign out</SignOutButton>
+          <PortalHeaderActions />
         </div>
       </header>
 

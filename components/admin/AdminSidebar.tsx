@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback } from 'react';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
-import { BarChart3, Users, ClipboardList, BookOpen, FileText, Handshake, Sparkles, Award, UsersRound, Mail, Briefcase, Building2 } from 'lucide-react';
+import { BarChart3, Users, ClipboardList, BookOpen, FileText, Handshake, Sparkles, Award, UsersRound, Mail, Briefcase, Building2, Activity } from 'lucide-react';
 
 const LINKS = [
   { href: '/admin', label: 'Overview', Icon: BarChart3 },
@@ -18,6 +18,7 @@ const LINKS = [
   { href: '/admin/partners', label: 'Partners', Icon: Handshake },
   { href: '/admin/subgroups', label: 'Subgroups', Icon: UsersRound },
   { href: '/admin/pipeline', label: 'Pipeline', Icon: BarChart3 },
+  { href: '/admin/diagnostics', label: 'Diagnostics', Icon: Activity },
   { href: '/admin/weekly-recap', label: 'Weekly recap analytics', Icon: BarChart3 },
   { href: '/admin/ai-tools', label: 'AI tools analytics', Icon: Sparkles },
   { href: '/admin/certifications', label: 'Certifications analytics', Icon: Award },
@@ -59,5 +60,4 @@ export default function AdminSidebar({ open = false, onClose }: AdminSidebarProp
     </aside>
   );
 }
-
 

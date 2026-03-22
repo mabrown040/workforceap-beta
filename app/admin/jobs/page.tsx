@@ -7,6 +7,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import AdminJobsFilterTabs from '@/components/admin/AdminJobsFilterTabs';
 import PageHeader from '@/components/portal/PageHeader';
+import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin - Jobs',
@@ -75,6 +76,15 @@ export default async function AdminJobsPage({
     { value: 'draft', label: 'Draft', count: countByStatus['draft'] ?? 0 },
     { value: 'filled', label: 'Filled / Closed', count: countByStatus['filled'] ?? 0 },
   ];
+
+  await recordWorkflowDiagnostic({
+    workflow: 'admin_review_queue',
+    status: 'inspection',
+    actorUserId: user.id,
+    summary: `Admin opened jobs review queue (${currentFilter})`,
+    method: 'page_load',
+    metadata: { filter: currentFilter, queueCount: jobs.length },
+  });
 
   return (
     <div>

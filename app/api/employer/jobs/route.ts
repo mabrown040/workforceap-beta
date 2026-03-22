@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 import { sendJobSubmittedEmail } from '@/lib/email';
 import { buildEmployerJobCreateData, getRouteErrorDetails } from '@/lib/employer/jobCreate';
 import { z } from 'zod';
+import { trackEvent } from '@/lib/events/track';
 
 const jobCreateSchema = z.object({
   title: z.string().min(1).max(200),
@@ -98,6 +99,15 @@ export async function POST(request: NextRequest) {
         jobId: job.id,
       });
     }
+
+    await trackEvent({
+      userId: user.id,
+      eventName: parsed.data.status === 'pending' ? 'employer_job_submitted_for_review' : 'employer_job_draft_saved',
+      entityType: 'job',
+      entityId: job.id,
+      metadata: { isCreate: true, status: parsed.data.status },
+      sourcePage: parsed.data.status === 'pending' ? '/employer/jobs/new?submit=review' : '/employer/jobs/new',
+    });
 
     return NextResponse.json(job, { status: 201 });
   } catch (error) {

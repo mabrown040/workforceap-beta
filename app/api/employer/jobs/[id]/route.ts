@@ -4,6 +4,7 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { sendJobSubmittedEmail } from '@/lib/email';
 import { z } from 'zod';
+import { trackEvent } from '@/lib/events/track';
 
 const jobUpdateSchema = z.object({
   title: z.string().min(1).max(200).optional(),
@@ -109,6 +110,17 @@ export async function PATCH(
         jobId: job.id,
       });
     }
+  }
+
+  if (parsed.data.status === 'pending' || parsed.data.status === 'draft' || parsed.data.status === undefined) {
+    await trackEvent({
+      userId: user.id,
+      eventName: parsed.data.status === 'pending' ? 'employer_job_submitted_for_review' : 'employer_job_draft_saved',
+      entityType: 'job',
+      entityId: job.id,
+      metadata: { isCreate: false, previousStatus: existing.status, nextStatus: job.status },
+      sourcePage: `/employer/jobs/${id}`,
+    });
   }
 
   return NextResponse.json(job);

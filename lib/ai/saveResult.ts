@@ -23,4 +23,11 @@ export async function saveAIToolResult(
     entityId: result.id,
     metadata: { toolType },
   }).catch(() => {});
+  trackEvent({
+    userId,
+    eventName: 'ai_tool_run_completed',
+    entityType: 'ai_tool_result',
+    entityId: result.id,
+    metadata: { toolType, outputLength: output.length },
+  }).catch(() => {});
 }

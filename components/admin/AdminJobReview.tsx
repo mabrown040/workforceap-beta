@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { postMemberEvent } from '@/lib/events/client';
+import { trackFunnelEvent } from '@/lib/analytics/events';
 
 type Job = {
   id: string;
@@ -39,6 +41,17 @@ export default function AdminJobReview({ job }: { job: Job }) {
   const canApprove = job.status === 'pending';
   const canReject = job.status === 'pending';
 
+  useEffect(() => {
+    trackFunnelEvent('admin_review_queue', 'job_review_opened', { job_id: job.id, status: job.status });
+    void postMemberEvent({
+      eventName: 'admin_job_review_viewed',
+      entityType: 'job',
+      entityId: job.id,
+      sourcePage: `/admin/jobs/${job.id}`,
+      metadata: { status: job.status },
+    });
+  }, [job.id, job.status]);
+
   async function handleApprove() {
     setApproving(true);
     setActionFeedback(null);
@@ -73,6 +86,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
 
   async function loadMatches() {
     setLoadingMatches(true);
+    trackFunnelEvent('admin_review_queue', 'matches_requested', { job_id: job.id });
     try {
       const res = await fetch(`/api/admin/jobs/${job.id}/matches`);
       const data = await res.json();
@@ -85,6 +99,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
   async function handleSuggestMatches() {
     setSuggesting(true);
     setActionFeedback(null);
+    trackFunnelEvent('admin_review_queue', 'match_suggestions_requested', { job_id: job.id });
     try {
       const res = await fetch(`/api/admin/jobs/${job.id}/suggest-matches`, { method: 'POST' });
       if (res.ok) {

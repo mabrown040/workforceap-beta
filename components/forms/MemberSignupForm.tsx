@@ -9,6 +9,7 @@ import {
   type MemberSignupInput,
   PROGRAM_INTEREST_OPTIONS,
 } from '@/lib/validation/member';
+import { trackFunnelEvent } from '@/lib/analytics/events';
 
 const EMPLOYMENT_OPTIONS = [
   'Employed full-time',
@@ -39,6 +40,10 @@ export default function MemberSignupForm() {
   const onSubmit = async (data: MemberSignupInput) => {
     setSubmitStatus('loading');
     setErrorMessage(null);
+    trackFunnelEvent('member_signup', 'signup_started', {
+      program_interest: data.programInterest,
+      employment_status: data.employmentStatus,
+    });
 
     try {
       const res = await fetch('/api/member/signup', {
@@ -50,13 +55,16 @@ export default function MemberSignupForm() {
       const json = await res.json();
 
       if (!res.ok) {
+        trackFunnelEvent('member_signup', 'signup_failed', { program_interest: data.programInterest });
         setSubmitStatus('error');
         setErrorMessage(json.error ?? 'Something went wrong. Please try again.');
         return;
       }
 
+      trackFunnelEvent('member_signup', 'signup_completed', { program_interest: data.programInterest });
       setSubmitStatus('success');
     } catch {
+      trackFunnelEvent('member_signup', 'signup_network_error', { program_interest: data.programInterest });
       setSubmitStatus('error');
       setErrorMessage('Network error. Please try again.');
     }
@@ -284,4 +292,3 @@ export default function MemberSignupForm() {
     </form>
   );
 }
-

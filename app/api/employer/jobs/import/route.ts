@@ -18,6 +18,8 @@ import {
 } from '@/lib/ai/atsProviders';
 import { buildEmployerJobCreateData, getRouteErrorDetails } from '@/lib/employer/jobCreate';
 import { checkEmployerJobImportRateLimit } from '@/lib/rate-limit';
+import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
+import { trackEvent } from '@/lib/events/track';
 
 const importSchema = z.object({
   url: z.string().url().optional(),
@@ -71,6 +73,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Provide url or rawText' }, { status: 400 });
     }
 
+    await trackEvent({
+      userId: user.id,
+      eventName: 'employer_import_started',
+      entityType: 'employer',
+      entityId: ctx.employerId,
+      metadata: { hasUrl: !!parsed.data.url, hasRawText: !!parsed.data.rawText, createDraft: !!parsed.data.createDraft },
+      sourcePage: '/employer/jobs/import',
+    });
+    await recordWorkflowDiagnostic({
+      workflow: 'employer_import_single',
+      status: 'started',
+      actorUserId: user.id,
+      entityType: 'employer',
+      entityId: ctx.employerId,
+      summary: 'Employer job import started',
+      method: parsed.data.url ? 'url' : 'raw_text',
+      metadata: { url: parsed.data.url ?? null, createDraft: !!parsed.data.createDraft },
+    });
+
     if (parsed.data.url && !parsed.data.rawText) {
       const providerMatch = detectProvider(parsed.data.url);
       const shouldTreatAsDirectJobUrl =
@@ -96,8 +117,12 @@ export async function POST(request: NextRequest) {
                 status: 'draft',
               }),
             });
+            await trackEvent({ userId: user.id, eventName: 'employer_import_succeeded', entityType: 'job', entityId: job.id, metadata: { provider: directResult.provider, method: 'direct_job_url' }, sourcePage: '/employer/jobs/import' });
+            await recordWorkflowDiagnostic({ workflow: 'employer_import_single', status: 'success', actorUserId: user.id, entityType: 'job', entityId: job.id, summary: 'Direct job URL imported as draft', provider: directResult.provider, method: 'direct_job_url' });
             return NextResponse.json({ job, created: true, provider: directResult.provider }, { status: 201 });
           }
+          await trackEvent({ userId: user.id, eventName: directResult.provider.includes('fallback') ? 'employer_import_fallback_used' : 'employer_import_succeeded', entityType: 'employer', entityId: ctx.employerId, metadata: { provider: directResult.provider, method: 'direct_job_url_review' }, sourcePage: '/employer/jobs/import' });
+          await recordWorkflowDiagnostic({ workflow: 'employer_import_single', status: directResult.provider.includes('fallback') ? 'fallback' : 'success', actorUserId: user.id, entityType: 'employer', entityId: ctx.employerId, summary: 'Direct job URL parsed for review', provider: directResult.provider, method: 'direct_job_url_review', fallbackPath: directResult.provider.includes('fallback') ? directResult.provider : null });
           return NextResponse.json({
             extracted: { ...directResult.extracted, sourceUrl: parsed.data.url },
             provider: directResult.provider,
@@ -127,9 +152,11 @@ export async function POST(request: NextRequest) {
                 status: 'draft',
               }),
             });
-            created.push({ id: job.id, title: job.title });
-          }
-          return NextResponse.json({
+              created.push({ id: job.id, title: job.title });
+            }
+            await trackEvent({ userId: user.id, eventName: 'employer_import_succeeded', entityType: 'employer', entityId: ctx.employerId, metadata: { provider: atsResult.provider, method: 'structured_ats', total: created.length }, sourcePage: '/employer/jobs/import' });
+            await recordWorkflowDiagnostic({ workflow: 'employer_import_single', status: 'success', actorUserId: user.id, entityType: 'employer', entityId: ctx.employerId, summary: `Structured ATS import created ${created.length} draft(s)`, provider: atsResult.provider, method: 'structured_ats' });
+            return NextResponse.json({
             provider: atsResult.provider,
             created,
             total: atsResult.jobs.length,
@@ -176,8 +203,12 @@ export async function POST(request: NextRequest) {
                   status: 'draft',
                 }),
               });
+              await trackEvent({ userId: user.id, eventName: parsedJob ? 'employer_import_succeeded' : 'employer_import_fallback_used', entityType: 'job', entityId: job.id, metadata: { provider, method: 'ats_raw_text' }, sourcePage: '/employer/jobs/import' });
+              await recordWorkflowDiagnostic({ workflow: 'employer_import_single', status: parsedJob ? 'success' : 'fallback', actorUserId: user.id, entityType: 'job', entityId: job.id, summary: 'ATS raw text imported as draft', provider, method: 'ats_raw_text', fallbackPath: parsedJob ? null : 'buildFallbackParsedJobFromScrape' });
               return NextResponse.json({ job, created: true, provider }, { status: 201 });
             }
+            await trackEvent({ userId: user.id, eventName: parsedJob ? 'employer_import_succeeded' : 'employer_import_fallback_used', entityType: 'employer', entityId: ctx.employerId, metadata: { provider, method: 'ats_raw_text_review' }, sourcePage: '/employer/jobs/import' });
+            await recordWorkflowDiagnostic({ workflow: 'employer_import_single', status: parsedJob ? 'success' : 'fallback', actorUserId: user.id, entityType: 'employer', entityId: ctx.employerId, summary: 'ATS raw text parsed for review', provider, method: 'ats_raw_text_review', fallbackPath: parsedJob ? null : 'buildFallbackParsedJobFromScrape' });
             return NextResponse.json({
               extracted: { ...extracted, sourceUrl: parsed.data.url },
               provider,
@@ -205,6 +236,7 @@ export async function POST(request: NextRequest) {
     const extractedRaw = parsedJob ?? buildFallbackParsedJobFromScrape(undefined, textToParse);
     const extracted = extractedRaw ? normalizeImportedParsedJob(extractedRaw) : null;
     if (!extracted) {
+      await recordWorkflowDiagnostic({ workflow: 'employer_import_single', status: 'error', actorUserId: user.id, entityType: 'employer', entityId: ctx.employerId, summary: 'Raw text import could not extract job details', method: 'raw_text', failureReason: 'no_extracted_payload' });
       return NextResponse.json({ error: 'Could not extract job details. Please edit the form manually.' }, { status: 400 });
     }
 
@@ -225,8 +257,13 @@ export async function POST(request: NextRequest) {
           status: 'draft',
         }),
       });
+      await trackEvent({ userId: user.id, eventName: parsedJob ? 'employer_import_succeeded' : 'employer_import_fallback_used', entityType: 'job', entityId: job.id, metadata: { provider, method: 'raw_text' }, sourcePage: '/employer/jobs/import' });
+      await recordWorkflowDiagnostic({ workflow: 'employer_import_single', status: parsedJob ? 'success' : 'fallback', actorUserId: user.id, entityType: 'job', entityId: job.id, summary: 'Raw text import created draft', provider, method: 'raw_text', fallbackPath: parsedJob ? null : 'buildFallbackParsedJobFromScrape' });
       return NextResponse.json({ job, created: true, provider }, { status: 201 });
     }
+
+    await trackEvent({ userId: user.id, eventName: parsedJob ? 'employer_import_succeeded' : 'employer_import_fallback_used', entityType: 'employer', entityId: ctx.employerId, metadata: { provider, method: 'raw_text_review' }, sourcePage: '/employer/jobs/import' });
+    await recordWorkflowDiagnostic({ workflow: 'employer_import_single', status: parsedJob ? 'success' : 'fallback', actorUserId: user.id, entityType: 'employer', entityId: ctx.employerId, summary: 'Raw text import parsed for review', provider, method: 'raw_text_review', fallbackPath: parsedJob ? null : 'buildFallbackParsedJobFromScrape' });
 
     return NextResponse.json({
       extracted: parsed.data.url ? { ...extracted, sourceUrl: parsed.data.url } : extracted,
@@ -235,6 +272,13 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const detail = getRouteErrorDetails(error);
     console.error('Employer job import failed', detail);
+    await recordWorkflowDiagnostic({
+      workflow: 'employer_import_single',
+      status: 'error',
+      summary: 'Employer job import request failed',
+      failureReason: detail.message,
+      metadata: { code: detail.code },
+    });
     return NextResponse.json(
       { error: 'Failed to import job.', detail: detail.message, code: detail.code },
       { status: 500 }

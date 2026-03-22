@@ -19,6 +19,19 @@ function pushEvent(payload: EventPayload) {
   window.dataLayer.push(payload);
 }
 
+export function trackFunnelEvent(
+  funnel: string,
+  stepName: string,
+  extra?: Record<string, unknown>
+) {
+  pushEvent({
+    event: 'funnel_event',
+    funnel,
+    funnel_step: stepName,
+    ...extra,
+  });
+}
+
 export function trackApplyFunnel(
   step: number,
   stepName: string,
@@ -73,6 +86,30 @@ export function trackToolLaunch(toolId: string, toolTitle: string) {
     event: 'tool_launch',
     tool_id: toolId,
     tool_title: toolTitle,
+  });
+}
+
+export function trackAIToolRun(
+  phase: 'started' | 'completed' | 'errored',
+  toolId: string,
+  extra?: Record<string, unknown>
+) {
+  pushEvent({
+    event: 'ai_tool_run',
+    ai_tool_phase: phase,
+    tool_id: toolId,
+    ...extra,
+  });
+}
+
+export function trackEmployerImport(
+  phase: 'started' | 'succeeded' | 'fallback_used' | 'errored',
+  extra?: Record<string, unknown>
+) {
+  pushEvent({
+    event: 'employer_import',
+    employer_import_phase: phase,
+    ...extra,
   });
 }
 

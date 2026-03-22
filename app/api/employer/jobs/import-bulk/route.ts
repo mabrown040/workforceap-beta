@@ -19,6 +19,8 @@ import { isAIConfigured } from '@/lib/ai/groq';
 import { buildEmployerJobCreateData, getRouteErrorDetails } from '@/lib/employer/jobCreate';
 import { appendImportedFrom, collectDraftInputsFromPageText, type ImportedDraftInput } from '@/lib/employer/jobImportBulk';
 import { checkEmployerJobImportRateLimit } from '@/lib/rate-limit';
+import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
+import { trackEvent } from '@/lib/events/track';
 
 const bulkSchema = z
   .object({
@@ -123,6 +125,30 @@ export async function POST(request: NextRequest) {
     const errors: { source: string; error: string }[] = [];
 
     const { jobUrls, careersPageUrl, careersPageRawText } = parsed.data;
+
+    await trackEvent({
+      userId: user.id,
+      eventName: 'employer_import_started',
+      entityType: 'employer',
+      entityId: ctx.employerId,
+      metadata: {
+        mode: 'bulk',
+        jobUrlCount: jobUrls?.length ?? 0,
+        hasCareersPageUrl: !!careersPageUrl,
+        hasCareersPageRawText: !!careersPageRawText,
+      },
+      sourcePage: '/employer/jobs/import',
+    });
+    await recordWorkflowDiagnostic({
+      workflow: 'employer_import_bulk',
+      status: 'started',
+      actorUserId: user.id,
+      entityType: 'employer',
+      entityId: ctx.employerId,
+      summary: 'Bulk employer import started',
+      method: 'bulk',
+      metadata: { jobUrlCount: jobUrls?.length ?? 0, hasCareersPageUrl: !!careersPageUrl, hasCareersPageRawText: !!careersPageRawText },
+    });
 
     if (jobUrls?.length) {
       for (const url of jobUrls) {
@@ -255,13 +281,41 @@ export async function POST(request: NextRequest) {
     }
 
     if (created.length === 0 && errors.length === 0) {
+      await recordWorkflowDiagnostic({ workflow: 'employer_import_bulk', status: 'error', actorUserId: user.id, entityType: 'employer', entityId: ctx.employerId, summary: 'Bulk employer import produced no drafts', method: 'bulk', failureReason: 'nothing_to_import' });
       return NextResponse.json({ error: 'Nothing to import. Check URLs or pasted text.' }, { status: 400 });
     }
+
+    await trackEvent({
+      userId: user.id,
+      eventName: errors.length > 0 ? 'employer_import_fallback_used' : 'employer_import_succeeded',
+      entityType: 'employer',
+      entityId: ctx.employerId,
+      metadata: { mode: 'bulk', createdCount: created.length, errorCount: errors.length, providers: created.map((item) => item.provider).filter(Boolean) },
+      sourcePage: '/employer/jobs/import',
+    });
+    await recordWorkflowDiagnostic({
+      workflow: 'employer_import_bulk',
+      status: errors.length > 0 ? 'fallback' : 'success',
+      actorUserId: user.id,
+      entityType: 'employer',
+      entityId: ctx.employerId,
+      summary: `Bulk employer import created ${created.length} draft(s) with ${errors.length} error(s)`,
+      method: 'bulk',
+      fallbackPath: errors.length > 0 ? 'mixed_provider_fallbacks' : null,
+      metadata: { created, errors },
+    });
 
     return NextResponse.json({ created, errors }, { status: 201 });
   } catch (error) {
     const detail = getRouteErrorDetails(error);
     console.error('Employer bulk import failed', detail);
+    await recordWorkflowDiagnostic({
+      workflow: 'employer_import_bulk',
+      status: 'error',
+      summary: 'Employer bulk import request failed',
+      failureReason: detail.message,
+      metadata: { code: detail.code },
+    });
     return NextResponse.json(
       { error: 'Failed to create draft jobs.', detail: detail.message, code: detail.code },
       { status: 500 }

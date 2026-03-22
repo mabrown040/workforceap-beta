@@ -1,7 +1,10 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { BookOpen, Calendar, BarChart3, Target, PartyPopper, ChevronRight } from 'lucide-react';
+import { trackFunnelEvent } from '@/lib/analytics/events';
+import { postMemberEvent } from '@/lib/events/client';
 
 type State = 'A' | 'B' | 'C' | 'D';
 
@@ -45,6 +48,24 @@ export default function DashboardHomeClient({
   const primaryAction = recommendedActions[0];
   const secondaryAction = recommendedActions[1];
 
+  useEffect(() => {
+    trackFunnelEvent('member_dashboard', 'dashboard_viewed', { state, checklist_all_done: checklistAllDone });
+    void postMemberEvent({
+      eventName: 'member_dashboard_viewed',
+      sourcePage: '/dashboard',
+      metadata: { state, checklistAllDone },
+    });
+  }, [state, checklistAllDone]);
+
+  const handleDashboardAction = (action: string) => {
+    trackFunnelEvent('member_dashboard', action, { state });
+    void postMemberEvent({
+      eventName: 'member_dashboard_action_clicked',
+      sourcePage: '/dashboard',
+      metadata: { state, action },
+    });
+  };
+
   return (
     <div className="dashboard-home-coach">
       <header className="dashboard-home-header">
@@ -74,10 +95,10 @@ export default function DashboardHomeClient({
               Select one of our no-cost career programs. Funding is tied to a single program — we'll help you pick the right fit.
             </p>
             <div className="dashboard-today-actions">
-              <Link href="/dashboard/program" className="btn btn-primary dashboard-today-primary">
+              <Link href="/dashboard/program" className="btn btn-primary dashboard-today-primary" onClick={() => handleDashboardAction('choose_program_clicked')}>
                 Choose Your Program
               </Link>
-              <Link href="/how-it-works" className="btn btn-ghost dashboard-today-secondary">
+              <Link href="/how-it-works" className="btn btn-ghost dashboard-today-secondary" onClick={() => handleDashboardAction('how_it_works_clicked')}>
                 How It Works
               </Link>
             </div>
@@ -91,10 +112,10 @@ export default function DashboardHomeClient({
               A quick assessment tailors your {programTitle} learning path and unlocks role matching so we can surface jobs that fit.
             </p>
             <div className="dashboard-today-actions">
-              <Link href="/dashboard/assessment" className="btn btn-primary dashboard-today-primary">
+              <Link href="/dashboard/assessment" className="btn btn-primary dashboard-today-primary" onClick={() => handleDashboardAction('assessment_clicked')}>
                 Take Assessment
               </Link>
-              <Link href="/dashboard/program" className="btn btn-ghost dashboard-today-secondary">
+              <Link href="/dashboard/program" className="btn btn-ghost dashboard-today-secondary" onClick={() => handleDashboardAction('view_program_clicked')}>
                 View Program
               </Link>
             </div>
@@ -108,11 +129,11 @@ export default function DashboardHomeClient({
               {completedCount} of {totalCourses} courses done. Finish training to move toward job-ready — employers see your progress.
             </p>
             <div className="dashboard-today-actions">
-              <Link href="/dashboard/training" className="btn btn-primary dashboard-today-primary">
+              <Link href="/dashboard/training" className="btn btn-primary dashboard-today-primary" onClick={() => handleDashboardAction('continue_training_clicked')}>
                 Continue Training
               </Link>
               {primaryAction && (
-                <Link href={primaryAction.href} className="btn btn-ghost dashboard-today-secondary">
+                <Link href={primaryAction.href} className="btn btn-ghost dashboard-today-secondary" onClick={() => handleDashboardAction('recommended_action_clicked')}>
                   Or: {primaryAction.label}
                 </Link>
               )}
@@ -131,15 +152,15 @@ export default function DashboardHomeClient({
               You've finished {programTitle}. Build readiness and apply — resume, applications, and interview practice move you toward offers.
             </p>
             <div className="dashboard-today-actions">
-              <Link href="/dashboard/readiness" className="btn btn-primary dashboard-today-primary">
+              <Link href="/dashboard/readiness" className="btn btn-primary dashboard-today-primary" onClick={() => handleDashboardAction('career_readiness_clicked')}>
                 View Career Readiness
               </Link>
               {jobSearchUrl ? (
-                <a href={jobSearchUrl} target="_blank" rel="noopener noreferrer" className="btn btn-ghost dashboard-today-secondary">
+                <a href={jobSearchUrl} target="_blank" rel="noopener noreferrer" className="btn btn-ghost dashboard-today-secondary" onClick={() => handleDashboardAction('job_search_clicked')}>
                   Browse jobs in your area
                 </a>
               ) : primaryAction ? (
-                <Link href={primaryAction.href} className="btn btn-ghost dashboard-today-secondary">
+                <Link href={primaryAction.href} className="btn btn-ghost dashboard-today-secondary" onClick={() => handleDashboardAction('recommended_action_clicked')}>
                   Or: {primaryAction.label}
                 </Link>
               ) : null}
@@ -152,15 +173,15 @@ export default function DashboardHomeClient({
         <h2 className="dashboard-today-label">This week</h2>
         <ul className="dashboard-weekly-links">
           <li>
-            <Link href="/dashboard/weekly-recap">Weekly recap</Link>
+            <Link href="/dashboard/weekly-recap" onClick={() => handleDashboardAction('weekly_recap_clicked')}>Weekly recap</Link>
             <span className="dashboard-weekly-links-desc"> — milestones and reminders</span>
           </li>
           <li>
-            <Link href="/dashboard/learning">Learning hub</Link>
+            <Link href="/dashboard/learning" onClick={() => handleDashboardAction('learning_hub_clicked')}>Learning hub</Link>
             <span className="dashboard-weekly-links-desc"> — resources and your paths</span>
           </li>
           <li>
-            <Link href="/dashboard/ai-tools">Career tools</Link>
+            <Link href="/dashboard/ai-tools" onClick={() => handleDashboardAction('ai_tools_clicked')}>Career tools</Link>
             <span className="dashboard-weekly-links-desc"> — resume, interview practice, job match</span>
           </li>
         </ul>
@@ -188,7 +209,7 @@ export default function DashboardHomeClient({
           <p>
             <strong>Also:</strong> {secondaryAction.label} when you're ready.
           </p>
-          <Link href={secondaryAction.href} className="dashboard-also-link">
+          <Link href={secondaryAction.href} className="dashboard-also-link" onClick={() => handleDashboardAction('secondary_action_clicked')}>
             {secondaryAction.label}
             <ChevronRight size={16} />
           </Link>
@@ -200,7 +221,7 @@ export default function DashboardHomeClient({
           <p>
             <strong>Next:</strong> {(jobSearchUrl ? primaryAction : secondaryAction)!.label} to strengthen your readiness.
           </p>
-          <Link href={(jobSearchUrl ? primaryAction : secondaryAction)!.href} className="dashboard-also-link">
+          <Link href={(jobSearchUrl ? primaryAction : secondaryAction)!.href} className="dashboard-also-link" onClick={() => handleDashboardAction('next_action_clicked')}>
             {(jobSearchUrl ? primaryAction : secondaryAction)!.label}
             <ChevronRight size={16} />
           </Link>

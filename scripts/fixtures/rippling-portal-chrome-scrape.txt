@@ -1,0 +1,28 @@
+# Customer Support Representative
+
+draft
+Needs a few details
+Employer portal
+Site home
+Viewing as Talent Ops
+Switch company
+Job Postings
+Applicants
+Create Posting
+Almost ready to send
+Submit for Review
+Sign out
+Back to jobs
+
+body{-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased;font-family:"ripplingFontNormal",Arial,Helvetica,sans-serif;letter-spacing:0.5px;}ul{list-style:none;-webkit-padding-start:0;padding-inline-start:0;}p,h4,h3,h5,h6{margin:0;}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}@font-face{font-display:swap;font-family:"ripplingFontLight";src:url(' format('embedded-opentype'),url(' format('woff2'),url(' format('woff');font-style:normal;font-weight:300;} :root{--color-primary:#7a005d;--color-surface:#f9f7f6;--color-white:#ffffff;--color-black:#000000;}
+
+Location (City, State or Remote)
+Remote
+
+Job Description *
+Our customer advocate team is hiring a technical support specialist to join our support representative rotation.
+You will resolve customer issues, document workflows in basic html, and collaborate with product and operations.
+Requirements include technical support experience, empathy, and strong written communication.
+
+---
+Imported from: https://ats.rippling.com/example/jobs/12345678-abcd-4321-abcd-1234567890ab

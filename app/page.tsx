@@ -25,17 +25,23 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 export default function HomePage() {
+  /** Eleven steps — aligned with /how-it-works (condensed copy for the homepage timeline). */
   const journeySteps = [
-    { num: 1, title: 'Apply', desc: '5-minute form. We respond within 24–48 hours.' },
+    { num: 1, title: 'Apply', desc: 'Short online form — about 10 minutes. We respond within 24–48 hours.' },
     { num: 2, title: 'Overview', desc: 'Meet a counselor. Learn which program fits you — no exam, no gatekeeping.' },
     { num: 3, title: 'Interview', desc: '30 minutes. We confirm mutual fit and answer your questions.' },
     { num: 4, title: 'Membership', desc: 'Join free — no cost to qualifying participants.' },
     { num: 5, title: 'Assessment', desc: 'Skills and goals. We match you to the right path.' },
-    { num: 6, title: 'Readiness', desc: 'Soft skills and job-search basics — what employers expect.' },
-    { num: 7, title: 'Resources', desc: 'Tools, network, loaner laptop on completion.' },
+    { num: 6, title: 'Workforce Readiness', desc: 'Soft skills and job-search basics — what employers expect.' },
+    { num: 7, title: 'Resources', desc: 'Loaner laptop program, resume support, and tools so you can focus on training.' },
     { num: 8, title: 'Training', desc: 'Industry certification courses. Same credentials employers hire for.' },
     { num: 9, title: 'Certify', desc: 'Earn credentials. Proof that sticks on your resume.' },
-    { num: 10, title: 'Placement', desc: 'We support you until you land. Resume, interviews, employer intros.' },
+    { num: 10, title: 'Job placement', desc: 'Resume review, interview prep, and employer connections until you land.' },
+    {
+      num: 11,
+      title: 'Outcomes',
+      desc: 'Published starting ranges vary by program (see /programs). Many graduates see strong wage growth within 2–3 years.',
+    },
   ];
 
   return (
@@ -63,7 +69,7 @@ export default function HomePage() {
           </p>
           <div className="hero-actions hero-actions-prominent">
             <Link href="/apply" className="btn btn-accent btn-large">
-              Apply Now — It Takes 5 Minutes
+              Apply now — about 10 minutes
             </Link>
             <Link href="/find-your-path" className="btn btn-ghost">
               Find Your Path →
@@ -176,8 +182,11 @@ export default function HomePage() {
             </div>
             <div className="wyg-card animate-on-scroll">
               <span className="wyg-icon"><Laptop size={28} className="text-current" /></span>
-              <h3>Loaner Laptop</h3>
-              <p>Earn a refurbished laptop on completion. Hardware is never a barrier.</p>
+              <h3>Loaner laptop program</h3>
+              <p>
+                Loaner hardware during training when you need it; eligible graduates may receive a refurbished laptop after
+                completion — same framing as our FAQ and intake team.
+              </p>
             </div>
             <div className="wyg-card animate-on-scroll">
               <span className="wyg-icon"><Handshake size={28} className="text-current" /></span>
@@ -212,6 +221,29 @@ export default function HomePage() {
           </div>
           <div className="process-cta animate-on-scroll">
             <Link href="/how-it-works" className="btn btn-secondary">See Full Process</Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="home-social-proof" aria-labelledby="home-social-proof-heading">
+        <div className="container">
+          <h2 id="home-social-proof-heading" className="home-section-title">
+            Stories &amp; proof points
+          </h2>
+          <p className="home-social-proof-lead">
+            We share real updates and leadership context — not fabricated employer quotes. Explore how we work and who
+            stands behind the mission.
+          </p>
+          <div className="home-social-proof-links">
+            <Link href="/blog" className="btn btn-primary btn-sm">
+              Blog &amp; updates
+            </Link>
+            <Link href="/leadership" className="btn btn-outline btn-sm">
+              Leadership team
+            </Link>
+            <Link href="/what-we-do" className="btn btn-outline btn-sm">
+              What we do
+            </Link>
           </div>
         </div>
       </section>
@@ -268,7 +300,7 @@ export default function HomePage() {
       <section className="footer-cta">
         <div className="container">
           <h2>Your Next Step</h2>
-          <p>Apply now — under 10 minutes. We respond within 24–48 hours. Real certifications. Employer connections. No cost to qualifying participants.</p>
+          <p>Apply now — about 10 minutes. We respond within 24–48 hours. Real certifications. Employer connections. No cost to qualifying participants.</p>
           <Link href="/apply" className="btn btn-primary btn-large">Start Your Application</Link>
           <p className="footer-cta-sub"><Link href="/find-your-path">Not sure yet? Take the pathfinder quiz first.</Link></p>
         </div>

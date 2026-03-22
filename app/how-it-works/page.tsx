@@ -42,7 +42,12 @@ const PHASES = [
       { num: 8, title: 'Training', desc: 'Industry certification courses — taught by certified instructors or approved online platforms. The same credentials employers hire against.', why: 'Real credentials, not certificates of attendance.' },
       { num: 9, title: 'Certify', desc: 'Earn credentials recognized by employers — CompTIA, AWS, Google, Microsoft, and more. You walk away with proof employers trust.', why: 'Your resume needs more than "I took a class."' },
       { num: 10, title: 'Job Placement Assistance', desc: 'Resume review, interview prep, employer connections, and job search support until you land. We don\'t disappear after you graduate.', why: 'We\'re invested in your first hire, not just your last exam.' },
-      { num: 11, title: 'Better Life', desc: 'A career that pays. Graduates average $42K+ starting in their new field — many see significant growth within 2–3 years.', why: 'This is the outcome we\'re both working toward.' },
+      {
+        num: 11,
+        title: 'Better Life',
+        desc: 'A career that pays. Published starting ranges across our programs span roughly $38K–$145K depending on track; many graduates see strong growth within 2–3 years once they are in-role.',
+        why: 'This is the outcome we\'re both working toward.',
+      },
     ],
   },
 ];

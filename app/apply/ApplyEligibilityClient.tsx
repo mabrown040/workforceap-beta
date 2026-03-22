@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { trackApplyFunnel } from '@/lib/analytics/events';
 
@@ -70,7 +71,7 @@ export default function ApplyEligibilityClient() {
             </div>
           </div>
           <div className="form-group">
-            <label>Are you a US resident?</label>
+            <label>Are you a U.S. citizen or permanent resident?</label>
             <div className="form-radio-cards">
               <label className={`form-radio-card ${q3 === 'yes' ? 'selected' : ''}`}>
                 <input type="radio" name="q3" value="yes" checked={q3 === 'yes'} onChange={() => setQ3('yes')} />
@@ -85,6 +86,12 @@ export default function ApplyEligibilityClient() {
             </div>
           </div>
         </div>
+
+        <p className="apply-eligibility-exception-note">
+          Special circumstances? Our{' '}
+          <Link href="/faq">FAQ</Link> explains that we still review edge cases — answer honestly and a counselor will
+          follow up.
+        </p>
 
         <button
           type="button"

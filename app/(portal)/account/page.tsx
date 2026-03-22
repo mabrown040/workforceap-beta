@@ -49,7 +49,7 @@ export default async function AccountPage() {
             </Link>
 
             <p style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>
-              <Link href="/profile">Back to profile</Link>
+              <Link href="/dashboard/profile">Back to profile</Link>
             </p>
           </div>
         </div>

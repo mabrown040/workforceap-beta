@@ -44,6 +44,8 @@ export default function DashboardShell({
             className="dashboard-menu-btn"
             onClick={() => setDrawerOpen(true)}
             aria-label="Open menu"
+            aria-expanded={drawerOpen}
+            aria-controls="dashboard-member-drawer"
           >
             <Menu size={22} strokeWidth={2} aria-hidden />
           </button>
@@ -58,9 +60,8 @@ export default function DashboardShell({
         className={`dashboard-drawer-overlay ${drawerOpen ? 'open' : ''}`}
         onClick={closeDrawer}
         onKeyDown={(e) => e.key === 'Escape' && closeDrawer()}
-        role="button"
-        tabIndex={-1}
-        aria-hidden
+        role="presentation"
+        aria-hidden={!drawerOpen}
       />
 
       <div className="portal-shell-body-row">

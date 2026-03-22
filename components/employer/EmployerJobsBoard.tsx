@@ -92,6 +92,10 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
   const [bulkBusy, setBulkBusy] = useState(false);
   const [bulkError, setBulkError] = useState<string | null>(null);
   const [flashBanner, setFlashBanner] = useState<{ count: number } | null>(null);
+  const [reviewActionError, setReviewActionError] = useState<string | null>(null);
+  const [closeModal, setCloseModal] = useState<{ id: string; title: string; status: string } | null>(null);
+  const closeModalTitleId = useId();
+  const closeModalDescId = useId();
 
   const filtered = useMemo(() => {
     if (filter === 'all') return jobs;
@@ -141,6 +145,7 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
   }, []);
 
   const modalTrapRef = useFocusTrap(confirmOpen, () => setConfirmOpen(false));
+  const closeModalTrapRef = useFocusTrap(!!closeModal, () => setCloseModal(null));
 
   const toggleOne = useCallback((id: string, checked: boolean) => {
     setSelected((prev) => {
@@ -159,6 +164,7 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
 
   async function submitForReview(id: string, jobStatus: string) {
     setBusyId(id);
+    setReviewActionError(null);
     trackEmployerJobAction('submit_review', id, { status: jobStatus });
     try {
       const res = await fetch(`/api/employer/jobs/${id}`, {
@@ -168,7 +174,7 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        alert(data.error ?? 'Could not submit for review');
+        setReviewActionError(typeof data.error === 'string' ? data.error : 'Could not submit for review.');
         return;
       }
       router.refresh();
@@ -177,9 +183,11 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
     }
   }
 
-  const handleClose = async (id: string, status: string) => {
-    if (!confirm('Mark this job as filled/closed?')) return;
+  const confirmCloseJob = async () => {
+    if (!closeModal) return;
+    const { id, status } = closeModal;
     setClosingId(id);
+    setReviewActionError(null);
     trackEmployerJobAction('close_job', id, { status });
     try {
       const res = await fetch(`/api/employer/jobs/${id}`, {
@@ -187,8 +195,12 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'filled' }),
       });
-      if (res.ok) router.refresh();
-      else alert('Failed to update');
+      if (res.ok) {
+        setCloseModal(null);
+        router.refresh();
+      } else {
+        setReviewActionError('Could not mark this posting as filled. Try again or contact support.');
+      }
     } finally {
       setClosingId(null);
     }
@@ -288,6 +300,14 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
 
   return (
     <div className="employer-jobs-board">
+      {reviewActionError && (
+        <div className="employer-jobs-board__action-error" role="alert">
+          <p>{reviewActionError}</p>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setReviewActionError(null)}>
+            Dismiss
+          </button>
+        </div>
+      )}
       {flashBanner && (
         <div className="employer-jobs-flash-banner" role="status">
           <p className="employer-jobs-flash-banner__text">
@@ -482,7 +502,7 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
                         type="button"
                         className="btn btn-outline btn-sm"
                         disabled={!!closingId}
-                        onClick={() => handleClose(j.id, j.status)}
+                        onClick={() => setCloseModal({ id: j.id, title: j.title, status: j.status })}
                       >
                         {closingId === j.id ? 'Updating…' : 'Mark filled'}
                       </button>
@@ -493,7 +513,7 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
                         className="btn btn-ghost btn-sm"
                         onClick={() => trackEmployerJobAction('view_applications', j.id, { status: j.status })}
                       >
-                        Workforce AP applicants
+                        View applicants
                       </Link>
                     )}
                   </div>
@@ -502,6 +522,36 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
             );
           })}
         </ul>
+      )}
+
+      {closeModal && (
+        <div className="employer-bulk-modal-overlay" role="presentation" onClick={() => !closingId && setCloseModal(null)}>
+          <div
+            ref={closeModalTrapRef as RefObject<HTMLDivElement>}
+            className="employer-bulk-modal employer-close-job-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={closeModalTitleId}
+            aria-describedby={closeModalDescId}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 id={closeModalTitleId} className="employer-bulk-modal__title">
+              Mark filled?
+            </h2>
+            <p id={closeModalDescId} className="employer-bulk-modal__desc">
+              This moves <strong>{closeModal.title}</strong> out of active hiring. You can still view past applicants from
+              the applicants list.
+            </p>
+            <div className="employer-bulk-modal__actions">
+              <button type="button" className="btn btn-ghost" disabled={!!closingId} onClick={() => setCloseModal(null)}>
+                Cancel
+              </button>
+              <button type="button" className="btn btn-primary" disabled={!!closingId} onClick={() => void confirmCloseJob()}>
+                {closingId ? 'Updating…' : 'Yes, mark filled'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {confirmOpen && (

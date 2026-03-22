@@ -137,7 +137,8 @@ export default function ApplyResultsClient() {
               <p style={{ margin: 0 }}>
                 <strong>Your answers don&apos;t match our standard funding profile right now.</strong> That is not a
                 &quot;no&quot; to you — it means we may need a different path or timing. We still review every application
-                and help people move toward job-ready skills.
+                and help people move toward job-ready skills. If your situation is unique, read our{' '}
+                <Link href="/faq">FAQ on special circumstances</Link> — then pick a program below to continue.
               </p>
             </div>
             <section className="apply-foundational-support" aria-labelledby="apply-foundational-heading">

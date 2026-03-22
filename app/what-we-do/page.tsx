@@ -43,7 +43,33 @@ export default function WhatWeDoPage() {
             </div>
           </div>
 
-          <div className="legacy-section animate-on-scroll">
+          <h2 className="section-title animate-on-scroll">What we optimize for (participant outcomes first)</h2>
+          <p className="what-we-do-outcomes-lead animate-on-scroll">
+            Credentials and training matter because they change hiring conversations. We lead with completion, job readiness,
+            and first hire — revenue milestones below are organizational context, not the scoreboard for a member.
+          </p>
+
+          <h2 className="section-title animate-on-scroll" style={{ marginTop: '2.5rem' }}>What We Stand For</h2>
+          <div className="values-grid">
+            {[
+              { Icon: Target, name: 'Equity', desc: 'Fair access to opportunity — no one should pay for the training that gets them hired.' },
+              { Icon: Globe, name: 'Employer-Aligned', desc: 'We teach what employers hire for. Google, IBM, AWS, CompTIA — credentials that open doors.' },
+              { Icon: Lightbulb, name: 'Outcomes Matter', desc: 'Our success is your hire. We measure what matters: jobs landed, careers launched.' },
+              { Icon: Handshake, name: 'Partnership', desc: 'Government, employers, community orgs — we leverage collective strength so participants don\'t carry the load alone.' },
+              { Icon: TrendingUp, name: 'Scale Where It Works', desc: 'We launch where we can deliver, then expand. Austin first; more communities as we grow.' },
+            ].map((v) => {
+              const Icon = v.Icon;
+              return (
+              <div key={v.name} className="value-card animate-on-scroll">
+                <div className="value-icon"><Icon size={28} className="text-current" /></div>
+                <h3>{v.name}</h3>
+                <p>{v.desc}</p>
+              </div>
+              );
+            })}
+          </div>
+
+          <div className="legacy-section animate-on-scroll" style={{ marginTop: '3rem' }}>
             <h2>Our Leadership &amp; Legacy</h2>
             <p className="legacy-subtitle">Built on 25+ years of workforce development — Goodwill, Austin Area Urban League, state and local initiatives. We know what works.</p>
             <div className="stats-row">
@@ -68,26 +94,6 @@ export default function WhatWeDoPage() {
                 <p>Established thriving workforce unit for Austin Area Urban League.</p>
               </div>
             </div>
-          </div>
-
-          <h2 className="section-title animate-on-scroll">What We Stand For</h2>
-          <div className="values-grid">
-            {[
-              { Icon: Target, name: 'Equity', desc: 'Fair access to opportunity — no one should pay for the training that gets them hired.' },
-              { Icon: Globe, name: 'Employer-Aligned', desc: 'We teach what employers hire for. Google, IBM, AWS, CompTIA — credentials that open doors.' },
-              { Icon: Lightbulb, name: 'Outcomes Matter', desc: 'Our success is your hire. We measure what matters: jobs landed, careers launched.' },
-              { Icon: Handshake, name: 'Partnership', desc: 'Government, employers, community orgs — we leverage collective strength so participants don\'t carry the load alone.' },
-              { Icon: TrendingUp, name: 'Scale Where It Works', desc: 'We launch where we can deliver, then expand. Austin first; more communities as we grow.' },
-            ].map((v) => {
-              const Icon = v.Icon;
-              return (
-              <div key={v.name} className="value-card animate-on-scroll">
-                <div className="value-icon"><Icon size={28} className="text-current" /></div>
-                <h3>{v.name}</h3>
-                <p>{v.desc}</p>
-              </div>
-              );
-            })}
           </div>
 
           <div className="cta-section animate-on-scroll">

@@ -198,6 +198,11 @@ export default function FAQContent() {
           </div>
         ))}
 
+        <p className="faq-updated-note" style={{ textAlign: 'center', marginTop: '3rem', fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>
+          FAQ content reflects our current public messaging as of <strong>March 2026</strong>. Program details and eligibility
+          are confirmed at intake.
+        </p>
+
         {/* CTA Section */}
         <div style={{ background: 'linear-gradient(135deg,#1a1a1a,#2d2d2d)', color: 'white', borderRadius: '12px', padding: '3rem', textAlign: 'center', marginTop: '4rem' }}>
           <h2 style={{ color: 'white', marginBottom: '.75rem' }}>Still have questions?</h2>

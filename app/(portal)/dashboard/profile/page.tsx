@@ -39,6 +39,23 @@ export default async function DashboardProfilePage() {
         Manage your contact information and career goals.
       </p>
 
+      <p
+        className="dashboard-profile-ia-hint"
+        style={{
+          fontSize: '0.9rem',
+          color: 'var(--color-gray-700)',
+          background: 'var(--color-gray-100)',
+          padding: '0.85rem 1rem',
+          borderRadius: 'var(--radius-md)',
+          marginBottom: '1.5rem',
+          lineHeight: 1.5,
+        }}
+      >
+        <strong>Job applications you are tracking:</strong>{' '}
+        <Link href="/dashboard/ai-tools/application-tracker">Open the application tracker</Link> (status updates and
+        notes live there — this page is for profile and program context).
+      </p>
+
       <div className="dashboard-profile-section">
         <h3>Contact info</h3>
         <DashboardProfileForm

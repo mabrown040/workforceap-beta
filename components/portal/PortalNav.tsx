@@ -13,7 +13,7 @@ const PORTAL_LINKS: { href: string; label: string }[] = [
   { href: '/dashboard/career-brief', label: 'Career Brief' },
   { href: '/dashboard/weekly-recap', label: 'Weekly Recap' },
   { href: '/dashboard/ai-tools/application-tracker', label: 'Applications' },
-  { href: '/profile', label: 'Profile' },
+  { href: '/dashboard/profile', label: 'Profile' },
 ];
 
 export default function PortalNav() {

@@ -42,7 +42,7 @@ const SIDEBAR_TOOLS = [
 const SIDEBAR_MORE = [
   { href: '/certifications', label: 'Certifications', Icon: Award },
   { href: '/dashboard/weekly-recap', label: 'Weekly Recap', Icon: BarChart3 },
-  { href: '/profile', label: 'Profile', Icon: User },
+  { href: '/dashboard/profile', label: 'Profile', Icon: User },
   { href: '/dashboard/settings', label: 'Settings', Icon: Settings },
 ];
 
@@ -90,7 +90,7 @@ export default function DashboardSidebar({ open = false, onClose }: DashboardSid
   };
 
   return (
-    <aside ref={trapRef} className={`dashboard-sidebar ${open ? 'open' : ''}`}>
+    <aside id="dashboard-member-drawer" ref={trapRef} className={`dashboard-sidebar ${open ? 'open' : ''}`}>
       <div className="dashboard-sidebar-inner">
         <nav aria-label="Dashboard navigation" className="dashboard-sidebar-nav">
           <ul className="dashboard-sidebar-list">

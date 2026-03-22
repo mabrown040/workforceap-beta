@@ -33,6 +33,30 @@ export default function ProgramsPage() {
           <ProgramsDecisionJourneyNav current="programs" />
         </div>
       </section>
+      <section className="content-section programs-mid-cta-section" aria-label="Next steps">
+        <div className="container">
+          <div className="programs-mid-cta">
+            <div className="programs-mid-cta__copy">
+              <h2 className="programs-mid-cta__title">Ready to pick a track?</h2>
+              <p className="programs-mid-cta__desc">
+                Use the quiz for personalized ideas, compare side-by-side, then apply — most people finish in about 10
+                minutes.
+              </p>
+            </div>
+            <div className="programs-mid-cta__actions">
+              <Link href="/find-your-path" className="btn btn-primary">
+                2-minute pathfinder quiz
+              </Link>
+              <Link href="/program-comparison" className="btn btn-outline">
+                Compare programs
+              </Link>
+              <Link href="/apply" className="btn btn-secondary">
+                Start application
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
       <ProgramsContent />
       <Footer />
     </div>

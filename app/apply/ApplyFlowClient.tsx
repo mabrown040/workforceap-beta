@@ -80,11 +80,13 @@ export default function ApplyFlowClient() {
   const [q2, setQ2] = useState<'yes' | 'no' | null>(null);
   const [q3, setQ3] = useState<'yes' | 'no' | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (submitting) return;
     setSubmitting(true);
+    setSubmitError(null);
 
     const form = e.currentTarget;
     const formData = new FormData(form);
@@ -140,7 +142,7 @@ export default function ApplyFlowClient() {
       window.location.href = `${SITE_URL}/apply/confirmation`;
     } catch {
       setSubmitting(false);
-      alert('Something went wrong submitting your application. Please try again.');
+      setSubmitError('Something went wrong submitting your application. Check your connection and try again, or call (512) 777-1808.');
     }
   };
 
@@ -178,13 +180,18 @@ export default function ApplyFlowClient() {
               </div>
             </div>
             <div className="form-group">
-              <label>Are you a US resident?</label>
+              <label>Are you a U.S. citizen or permanent resident?</label>
               <div className="form-radio-group">
                 <label><input type="radio" name="q3" value="yes" checked={q3 === 'yes'} onChange={() => setQ3('yes')} /> Yes</label>
                 <label><input type="radio" name="q3" value="no" checked={q3 === 'no'} onChange={() => setQ3('no')} /> No</label>
               </div>
             </div>
           </div>
+
+          <p className="apply-eligibility-exception-note">
+            Special circumstances? See our{' '}
+            <Link href="/faq">FAQ</Link> — we still review cases that do not match every checkbox perfectly.
+          </p>
 
           {canContinue && (
             <div className={`funding-banner ${qualifies ? 'funding-banner-qualify' : 'funding-banner-neutral'}`}>
@@ -364,8 +371,13 @@ export default function ApplyFlowClient() {
                 </fieldset>
 
                 <div id="section-submit" className="form-group"><label>Anything else you&rsquo;d like us to know?</label><textarea name="message" rows={4} /></div>
+                {submitError && (
+                  <p className="form-error" role="alert">
+                    {submitError}
+                  </p>
+                )}
                 <button type="submit" className="btn btn-primary btn-submit-full" disabled={submitting}>
-                  {submitting ? 'Submitting...' : 'Submit Application'}
+                  {submitting ? 'Submitting…' : 'Submit Application'}
                 </button>
                 <p className="form-disclaimer">We review every application and respond within 24–48 hours. Your information is kept private.</p>
               </form>

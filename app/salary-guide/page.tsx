@@ -23,7 +23,7 @@ const insights = [
   },
   {
     Icon: CheckCircle,
-    title: 'Entry ranges are not “lesser” options',
+    title: 'Entry ranges are not "lesser" options',
     desc: 'IT Support, Digital Literacy, and several CompTIA paths get you credentialed faster. Plenty of people stack from there. The win is momentum.',
   },
   {
@@ -89,7 +89,7 @@ export default function SalaryGuidePage() {
               {
                 value: String(guideStats.over100Count),
                 label: 'Tracks topping ~$100K',
-                sub: 'High end of range at/above $100K',
+                sub: 'Counted from published high ends (same methodology as /programs)',
               },
             ].map((s) => (
               <div key={s.label} className="salary-guide-stat-card">

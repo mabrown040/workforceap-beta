@@ -46,13 +46,14 @@ const WHY_HIRE = [
   },
 ];
 
+/** Illustrative roles — salary bands match published ranges on /programs and /salary-guide (not a separate “employer-only” story). */
 const PROGRAMS = [
-  { name: 'IT Support Specialist', cert: 'CompTIA A+', level: 'Entry-level', salary: '$42K–$55K', icon: Briefcase },
-  { name: 'Cybersecurity Analyst', cert: 'Security+', level: 'Entry to mid', salary: '$55K–$75K', icon: ShieldCheck },
-  { name: 'Cloud Practitioner', cert: 'AWS Certified', level: 'Entry-level', salary: '$50K–$70K', icon: Cloud },
-  { name: 'Data Analyst', cert: 'Google Data Analytics', level: 'Entry-level', salary: '$48K–$65K', icon: BarChart3 },
-  { name: 'Software Developer', cert: 'Full-stack training', level: 'Entry-level', salary: '$55K–$80K', icon: Code },
-  { name: 'Project Manager', cert: 'CAPM/PMI', level: 'Entry to mid', salary: '$55K–$75K', icon: FolderKanban },
+  { name: 'IT Support Specialist', cert: 'IBM IT Support Professional Certificate', level: 'Entry-level', salary: '$55K–$72K', icon: Briefcase },
+  { name: 'Cybersecurity Analyst', cert: 'Google Cybersecurity Professional Certificate', level: 'Entry to mid', salary: '$75K–$112K', icon: ShieldCheck },
+  { name: 'Cloud Consultant path', cert: 'AWS Cloud Technology (Amazon)', level: 'Mid to high', salary: '$95K–$145K', icon: Cloud },
+  { name: 'Data Analyst', cert: 'Google Data Analytics Professional Certificate', level: 'Entry to mid', salary: '$72K–$102K', icon: BarChart3 },
+  { name: 'Software Developer', cert: 'IBM Software Developer Professional Certificate', level: 'Entry to mid', salary: '$78K–$98K', icon: Code },
+  { name: 'Project Manager', cert: 'Microsoft Project Management Professional Certificate', level: 'Mid', salary: '$82K–$112K', icon: FolderKanban },
 ];
 
 const HOW_IT_WORKS = [
@@ -183,6 +184,11 @@ export default function EmployersPage() {
               </div>
             ))}
           </div>
+          <p className="employers-programs-footnote">
+            Ranges are the same published starting bands as our public program catalog — see{' '}
+            <Link href="/programs">Programs</Link> and <Link href="/salary-guide">Salary guide</Link> for full context.
+            Actual offers depend on employer, proof, and market.
+          </p>
         </div>
       </section>
 
@@ -215,7 +221,7 @@ export default function EmployersPage() {
       </section>
 
       {/* Why Partner With Us — commitments, not placeholders */}
-      <section className="content-section employers-testimonials-section">
+      <section className="content-section employers-commitments-section">
         <div className="container">
           <div className="section-header animate-on-scroll" style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <h2>Why Employers Partner With Us</h2>

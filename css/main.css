@@ -10150,3 +10150,212 @@ body { animation: fadeIn 0.4s ease; }
         grid-row: 2;
     }
 }
+
+/* --- Audit pass Mar 2026: trust, employer applicants, programs CTA, homepage --- */
+.apply-info-banner {
+    margin-bottom: 1.5rem;
+    padding: 1rem 1.15rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-gray-200);
+    background: var(--color-gray-50);
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: var(--color-gray-800);
+}
+.apply-eligibility-exception-note {
+    margin: 1rem 0 0.25rem;
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+    line-height: 1.5;
+}
+.apply-eligibility-exception-note a {
+    color: var(--color-accent);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+.home-social-proof {
+    padding: 3.5rem 0;
+    background: var(--color-light);
+    border-top: 1px solid var(--color-gray-200);
+}
+.home-social-proof-lead {
+    max-width: 42rem;
+    margin: 0 auto 1.5rem;
+    text-align: center;
+    color: var(--color-gray-700);
+    line-height: 1.6;
+}
+.home-social-proof-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    justify-content: center;
+}
+.programs-mid-cta-section {
+    padding-top: 0.25rem;
+    padding-bottom: 1.5rem;
+}
+.programs-mid-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    padding: 1.5rem 1.75rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-gray-200);
+    background: linear-gradient(135deg, var(--color-white), var(--color-gray-50));
+    box-shadow: var(--shadow-sm);
+}
+.programs-mid-cta__title {
+    font-size: 1.35rem;
+    margin: 0 0 0.35rem;
+    font-weight: 700;
+}
+.programs-mid-cta__desc {
+    margin: 0;
+    color: var(--color-gray-600);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    max-width: 36rem;
+}
+.programs-mid-cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+.what-we-do-outcomes-lead {
+    max-width: 48rem;
+    margin: 0 auto 1.5rem;
+    text-align: center;
+    color: var(--color-gray-700);
+    line-height: 1.6;
+    font-size: 1.02rem;
+}
+.employers-programs-footnote {
+    margin-top: 2rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+    max-width: 40rem;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.55;
+}
+.employers-programs-footnote a {
+    color: var(--color-accent);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+.employer-applications-filter-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.85rem 1.1rem;
+    margin-bottom: 1.25rem;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(43, 123, 185, 0.35);
+    background: rgba(43, 123, 185, 0.08);
+    font-size: 0.95rem;
+}
+.employer-applications-filter-banner--warning {
+    border-color: rgba(180, 83, 9, 0.45);
+    background: rgba(253, 230, 138, 0.25);
+}
+.employer-applications-filter-banner p {
+    margin: 0;
+    flex: 1;
+    min-width: min(100%, 220px);
+}
+.employer-applications-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 0.5rem;
+}
+.employer-applications-table {
+    min-width: 560px;
+}
+.employer-applications-card-list {
+    display: none;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+.employer-application-card {
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.1rem;
+    background: var(--color-white);
+    box-shadow: var(--shadow-sm);
+}
+.employer-application-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.35rem;
+}
+.employer-application-card__status {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-gray-600);
+    white-space: nowrap;
+}
+.employer-application-card__email {
+    font-size: 0.85rem;
+    color: var(--color-gray-500);
+    margin: 0 0 0.65rem;
+}
+.employer-application-card__job,
+.employer-application-card__date {
+    font-size: 0.9rem;
+    margin: 0.35rem 0 0;
+    line-height: 1.45;
+}
+.employer-application-card__meta-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-gray-500);
+    margin-right: 0.25rem;
+}
+.employer-application-card a {
+    color: var(--color-accent);
+    font-weight: 600;
+}
+@media (max-width: 720px) {
+    .employer-applications-table-wrap {
+        display: none;
+    }
+    .employer-applications-card-list {
+        display: flex;
+    }
+}
+.employer-jobs-board__action-error {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(185, 28, 28, 0.35);
+    background: rgba(254, 226, 226, 0.45);
+    font-size: 0.92rem;
+    color: #7f1d1d;
+}
+.employer-jobs-board__action-error p {
+    margin: 0;
+    flex: 1;
+}

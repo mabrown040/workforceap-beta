@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { buildPageMetadata } from '@/app/seo';
-import { Flame } from 'lucide-react';
 import Footer from '@/components/Footer';
 import ApplyEligibilityClient from './ApplyEligibilityClient';
 import ApplyPageSkeleton from './ApplyPageSkeleton';
@@ -36,9 +35,10 @@ export default function ApplyPage() {
 
       <section className="content-section">
         <div className="container">
-          <div className="apply-alert" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Flame size={18} className="flex-shrink-0" aria-hidden />
-            <span>Seats are limited. Apply today to hold your spot.</span>
+          <div className="apply-info-banner" role="note">
+            <strong>Enrollment:</strong> We review applications on a rolling basis and place members into the next
+            appropriate cohort — not a one-time &quot;first class&quot; rush. Apply when you are ready; we respond within
+            24–48 hours.
           </div>
 
           <Suspense fallback={<ApplyPageSkeleton />}>

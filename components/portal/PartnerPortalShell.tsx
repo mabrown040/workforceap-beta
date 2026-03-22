@@ -1,12 +1,7 @@
 'use client';
 
 import WorkspaceShell from './WorkspaceShell';
-
-const NAV_LINKS = [
-  { href: '/partner', label: 'Dashboard' },
-  { href: '/partner/guide', label: 'Referral guide' },
-  { href: '/partner/resources', label: 'Resources' },
-];
+import { PARTNER_PORTAL_NAV, PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
 
 /**
  * Same light tool-portal chrome as the employer portal (white header, gray page bg),
@@ -21,8 +16,8 @@ export default function PartnerPortalShell({
 }) {
   return (
     <WorkspaceShell
-      navLinks={NAV_LINKS}
-      workspaceLabel="Partner portal"
+      navLinks={[...PARTNER_PORTAL_NAV]}
+      workspaceLabel={PRODUCT_COPY.partnerWorkspace}
       contextLabel={partnerName}
     >
       {children}

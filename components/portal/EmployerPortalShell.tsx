@@ -1,13 +1,7 @@
 'use client';
 
 import WorkspaceShell from './WorkspaceShell';
-
-const NAV_LINKS = [
-  { href: '/employer', label: 'Home' },
-  { href: '/employer/jobs', label: 'Job Postings' },
-  { href: '/employer/applications', label: 'Applicants' },
-  { href: '/employer/jobs/new', label: 'Create Posting' },
-];
+import { EMPLOYER_PORTAL_NAV, PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
 
 export default function EmployerPortalShell({
   companyName,
@@ -20,12 +14,12 @@ export default function EmployerPortalShell({
 }) {
   return (
     <WorkspaceShell
-      navLinks={NAV_LINKS}
-      workspaceLabel="Employer portal"
+      navLinks={[...EMPLOYER_PORTAL_NAV]}
+      workspaceLabel={PRODUCT_COPY.employerWorkspace}
       contextLabel={companyName}
       superAdmin={superAdmin}
       superAdminBackHref="/admin/employers"
-      superAdminBackLabel="Switch company"
+      superAdminBackLabel="Back to employers"
     >
       {children}
     </WorkspaceShell>

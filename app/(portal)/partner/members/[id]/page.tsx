@@ -65,7 +65,7 @@ export default async function PartnerMemberDetailPage({ params }: Props) {
   return (
     <div>
       <Link href="/partner" style={{ color: 'var(--color-accent)', display: 'inline-block', marginBottom: '1rem' }}>
-        ← Back to dashboard
+        ← Back to partner overview
       </Link>
       <PageHeader
         title={member.fullName}

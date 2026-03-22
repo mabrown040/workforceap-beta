@@ -35,7 +35,7 @@ export default async function PartnerResourcesPage() {
   return (
     <div>
       <PageHeader
-        title="Resources"
+        title="Partner resources"
         subtitle={`Quick links for ${ctx.partner.name} and your internal team.`}
       />
 
@@ -95,7 +95,7 @@ export default async function PartnerResourcesPage() {
       <p style={{ color: 'var(--color-gray-600)', fontSize: '0.9rem' }}>
         Member-facing tools (resume, learning, assessments) live in the{' '}
         <Link href="/dashboard" style={{ color: 'var(--color-accent)' }}>
-          student portal
+          member portal
         </Link>{' '}
         after they enroll.
       </p>

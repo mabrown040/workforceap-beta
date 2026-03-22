@@ -25,7 +25,7 @@ export type MemberPortalNavItem = {
 };
 
 export const MEMBER_PORTAL_NAV: MemberPortalNavItem[] = [
-  { href: '/dashboard', label: 'Home', group: 'core', Icon: Home },
+  { href: '/dashboard', label: 'Overview', group: 'core', Icon: Home },
   { href: '/dashboard/program', label: 'My Program', group: 'core', Icon: BookOpen },
   { href: '/dashboard/training', label: 'Training', group: 'core', Icon: GraduationCap },
   { href: '/dashboard/learning', label: 'Learning hub', group: 'tools', Icon: Library, aliases: ['/resources'] },

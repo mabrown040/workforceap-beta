@@ -11,7 +11,7 @@ import RecentSignupsTable from '@/components/admin/RecentSignupsTable';
 import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Admin',
+  title: 'Admin overview',
   description: 'Admin dashboard.',
   path: '/admin',
 });
@@ -73,7 +73,7 @@ export default async function AdminPage() {
 
   return (
     <div>
-      <PageHeader title="Admin Overview" subtitle="Manage members and view metrics." />
+      <PageHeader title="Admin overview" subtitle="Manage members, employers, partners, and program metrics." />
 
       <div className="admin-stat-cards">
         <div className="admin-stat-card">

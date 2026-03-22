@@ -9,7 +9,7 @@ import { Briefcase, FilePlus, Upload, Users, CheckCircle, Clock, ArrowRight } fr
 import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Employer Dashboard',
+  title: 'Employer overview',
   description: 'Manage your job postings and view applications.',
   path: '/employer',
 });
@@ -51,7 +51,7 @@ export default async function EmployerDashboardPage() {
   return (
     <div className="employer-dash-page">
       <PageHeader
-        title="Employer dashboard"
+        title="Employer overview"
         subtitle="One place to post jobs, review applicants, and keep your hiring pipeline moving."
         action={
           <div className="employer-dash-header-actions">

@@ -8,8 +8,8 @@ import DashboardHomeClient from '@/components/portal/DashboardHomeClient';
 import MatchedRoles from '@/components/portal/MatchedRoles';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Dashboard',
-  description: 'Your WorkforceAP member dashboard.',
+  title: 'Member overview',
+  description: 'Your WorkforceAP member portal overview.',
   path: '/dashboard',
 });
 

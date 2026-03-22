@@ -5,23 +5,26 @@ import { usePathname } from 'next/navigation';
 import { useCallback } from 'react';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { BarChart3, Users, ClipboardList, BookOpen, FileText, Handshake, Sparkles, Award, UsersRound, Mail, Briefcase, Building2 } from 'lucide-react';
+import { ADMIN_NAV } from '@/lib/nav/workspaceCopy';
 
-const LINKS = [
-  { href: '/admin', label: 'Overview', Icon: BarChart3 },
-  { href: '/admin/members', label: 'Members', Icon: Users },
-  { href: '/admin/invites', label: 'Invites', Icon: Mail },
-  { href: '/admin/assessments', label: 'Assessments', Icon: ClipboardList },
-  { href: '/admin/programs', label: 'Programs', Icon: BookOpen },
-  { href: '/admin/blog', label: 'Blog', Icon: FileText },
-  { href: '/admin/jobs', label: 'Jobs', Icon: Briefcase },
-  { href: '/admin/employers', label: 'Employers', Icon: Building2 },
-  { href: '/admin/partners', label: 'Partners', Icon: Handshake },
-  { href: '/admin/subgroups', label: 'Subgroups', Icon: UsersRound },
-  { href: '/admin/pipeline', label: 'Pipeline', Icon: BarChart3 },
-  { href: '/admin/weekly-recap', label: 'Weekly recap analytics', Icon: BarChart3 },
-  { href: '/admin/ai-tools', label: 'AI tools analytics', Icon: Sparkles },
-  { href: '/admin/certifications', label: 'Certifications analytics', Icon: Award },
-];
+const ICONS = {
+  '/admin': BarChart3,
+  '/admin/members': Users,
+  '/admin/invites': Mail,
+  '/admin/assessments': ClipboardList,
+  '/admin/programs': BookOpen,
+  '/admin/blog': FileText,
+  '/admin/jobs': Briefcase,
+  '/admin/employers': Building2,
+  '/admin/partners': Handshake,
+  '/admin/subgroups': UsersRound,
+  '/admin/pipeline': BarChart3,
+  '/admin/weekly-recap': BarChart3,
+  '/admin/ai-tools': Sparkles,
+  '/admin/certifications': Award,
+} as const;
+
+const LINKS = ADMIN_NAV.map(({ href, label }) => ({ href, label, Icon: ICONS[href as keyof typeof ICONS] }));
 
 type AdminSidebarProps = {
   open?: boolean;

@@ -12,9 +12,9 @@ export default function ReadinessProgress({
   applicationsSubmitted,
 }: ReadinessProgressProps) {
   const items = [
-    { label: 'Profile complete', done: profileComplete },
-    { label: 'Tools used', done: toolsUsed > 0, value: toolsUsed },
-    { label: 'Applications submitted', done: applicationsSubmitted > 0, value: applicationsSubmitted },
+    { label: 'Complete profile', done: profileComplete },
+    { label: 'Use AI tools', done: toolsUsed > 0, value: toolsUsed },
+    { label: 'Apply to roles', done: applicationsSubmitted > 0, value: applicationsSubmitted },
   ];
 
   return (

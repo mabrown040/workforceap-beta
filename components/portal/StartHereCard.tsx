@@ -4,19 +4,19 @@ import { FileText, Mic, BookOpen } from 'lucide-react';
 const CTAS = [
   {
     href: '/dashboard/ai-tools/resume-rewriter',
-    label: 'Build Resume',
-    description: 'Use AI to strengthen your resume',
+    label: 'Complete resume',
+    description: 'Complete or improve your resume with AI support',
     Icon: FileText,
   },
   {
     href: '/dashboard/ai-tools/interview-practice',
-    label: 'Practice Interview',
+    label: 'Practice interview',
     description: 'Prepare with role-specific questions',
     Icon: Mic,
   },
   {
     href: '/dashboard/learning',
-    label: 'Learning hub',
+    label: 'Review learning hub',
     description: 'Pathways, resource library, and program tools',
     Icon: BookOpen,
   },
@@ -28,7 +28,7 @@ export default function StartHereCard() {
       <h2 id="start-here-title" className="start-here-title">
         Start Here
       </h2>
-      <p className="start-here-subtitle">Your next steps to get job-ready</p>
+      <p className="start-here-subtitle">Follow these next steps to move from learning to readiness to applications</p>
       <div className="start-here-ctas">
         {CTAS.map((cta) => {
           const Icon = cta.Icon;

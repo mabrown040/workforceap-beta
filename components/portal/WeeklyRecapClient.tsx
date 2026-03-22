@@ -24,9 +24,9 @@ export default function WeeklyRecapClient({ recap, recapData, weekStart }: Props
   if (!recap || !recapData) {
     return (
       <div className="weekly-recap-empty">
-        <p>No recap generated yet. Check back after you&apos;ve used the portal this week.</p>
+        <p>No recap generated yet. Return after you complete training, readiness, or job-search actions this week.</p>
         <Link href="/dashboard" className="btn btn-primary">
-          Go to Dashboard
+          Review dashboard
         </Link>
       </div>
     );
@@ -72,7 +72,7 @@ export default function WeeklyRecapClient({ recap, recapData, weekStart }: Props
       )}
 
       <div className="weekly-recap-section">
-        <h3>Recommended actions for next week</h3>
+        <h3>Your next recommended actions</h3>
         <ul className="weekly-recap-actions">
           {(recapData.recommendedActions ?? []).map((action, i) => (
             <li key={i}>
@@ -90,7 +90,7 @@ export default function WeeklyRecapClient({ recap, recapData, weekStart }: Props
       </div>
 
       <p className="weekly-recap-hint">
-        <Link href="/dashboard">Back to dashboard</Link>
+        <Link href="/dashboard">Review dashboard</Link>
       </p>
     </div>
   );

@@ -44,7 +44,7 @@ export default function ProgressBanner({ programTitle, completedCount, totalCoun
           </div>
         </div>
         <span style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)', whiteSpace: 'nowrap' }}>
-          {completedCount} of {totalCount} courses
+          {completedCount} of {totalCount} courses complete
         </span>
       </div>
       <Link
@@ -52,7 +52,7 @@ export default function ProgressBanner({ programTitle, completedCount, totalCoun
         className="btn btn-primary progress-banner-cta"
         style={{ padding: '0.5rem 1rem', fontSize: '0.9rem', minHeight: '44px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
       >
-        <span className="progress-banner-cta-text">Continue Training →</span>
+        <span className="progress-banner-cta-text">Continue training</span>
       </Link>
     </div>
   );

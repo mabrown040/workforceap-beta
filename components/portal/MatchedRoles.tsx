@@ -31,9 +31,9 @@ export default function MatchedRoles() {
 
   return (
     <section className="dashboard-matched-roles" style={{ marginTop: '1.5rem' }}>
-      <h2 className="dashboard-today-label">Roles that match you</h2>
+      <h2 className="dashboard-today-label">Step 3: Apply to matched roles</h2>
       <p style={{ color: 'var(--color-gray-600)', fontSize: '0.9rem', marginBottom: '1rem' }}>
-        Ranked by fit to your skills and program. Apply when you're ready.
+        These roles are ranked by fit to your skills and program so you can focus on the best next applications.
       </p>
       <div style={{ display: 'grid', gap: '0.75rem' }}>
         {jobs.map((job) => {

@@ -16,7 +16,7 @@ type DashboardSidebarProps = {
 
 const GROUP_LABELS: Record<'core' | 'tools' | 'more', string | null> = {
   core: null,
-  tools: 'Tools',
+  tools: 'Next steps',
   more: 'More',
 };
 

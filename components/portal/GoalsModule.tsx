@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 
 type Goal = {
   id: string;
@@ -98,15 +97,15 @@ export default function GoalsModule() {
                 type="button"
                 className="btn btn-outline btn-sm"
                 onClick={() => handleComplete(goal.id)}
-                aria-label="Mark complete"
+                aria-label="Complete goal"
               >
-                Done
+                Complete
               </button>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="goals-empty">No active goals. Set 1–3 goals to stay focused.</p>
+        <p className="goals-empty">No active goals. Add 1–3 goals so your dashboard can prioritize the right next actions.</p>
       )}
 
       {activeGoals.length < 3 && (
@@ -135,7 +134,7 @@ export default function GoalsModule() {
               />
               <div className="goals-form-actions">
                 <button type="submit" className="btn btn-primary btn-sm" disabled={saving}>
-                  Add
+                  Add goal
                 </button>
                 <button type="button" className="btn btn-outline btn-sm" onClick={() => setShowForm(false)}>
                   Cancel
@@ -144,12 +143,12 @@ export default function GoalsModule() {
             </form>
           ) : (
             <button type="button" className="btn btn-outline btn-sm" onClick={() => setShowForm(true)}>
-              + Add goal
+              Add goal
             </button>
           )}
         </>
       )}
-      <p className="goals-hint">Goals shape your recommendations and weekly recap.</p>
+      <p className="goals-hint">Goals shape your recommendations, weekly recap, and next-step guidance.</p>
     </div>
   );
 }

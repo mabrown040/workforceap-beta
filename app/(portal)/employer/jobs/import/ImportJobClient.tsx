@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle2, ExternalLink, Check, AlertCircle } from 'lucide-react';
@@ -39,6 +39,8 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
     preferredCertifications?: string[];
     suggestedPrograms?: string[];
   } | null>(null);
+  const [pasteSectionOpen, setPasteSectionOpen] = useState(false);
+  const successCardRef = useRef<HTMLDivElement>(null);
 
   const fieldCoverage = useMemo(() => {
     if (!extracted) return [];
@@ -116,12 +118,24 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
         setError(data.error ?? 'Bulk import failed');
         return;
       }
-      setBulkResult({ created: data.created ?? [], errors: data.errors ?? [] });
+      const created = data.created ?? [];
+      const errs = data.errors ?? [];
+      setBulkResult({ created, errors: errs });
+      if (created.length === 0 && errs.length > 0 && cUrl) {
+        setPasteSectionOpen(true);
+      }
       router.refresh();
     } finally {
       setBulkLoading(false);
     }
   }
+
+  useEffect(() => {
+    if (bulkResult && bulkResult.created.length > 0 && successCardRef.current) {
+      successCardRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [bulkResult]);
+
 
   if (step === 'review' && extracted) {
     const filledCount = fieldCoverage.filter((f) => f.filled).length;
@@ -212,7 +226,7 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
       </header>
 
       {hasSuccess && (
-        <div className="import-job-success-card">
+        <div ref={successCardRef} className="import-job-success-card">
           <div className="import-job-success-icon">
             <CheckCircle2 size={32} strokeWidth={2} />
           </div>
@@ -225,12 +239,12 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
               how you hire.
             </p>
             <Link href="/employer/jobs" className="btn btn-primary import-job-success-cta">
-              Go to your jobs
+              View all {bulkResult.created.length} drafts
               <ExternalLink size={16} style={{ marginLeft: '0.35rem', verticalAlign: 'middle' }} />
             </Link>
           </div>
           <div className="import-job-draft-grid">
-            {bulkResult.created.slice(0, 8).map((c) => (
+            {bulkResult.created.slice(0, 12).map((c) => (
               <Link key={c.id} href={`/employer/jobs/${c.id}`} className="import-job-draft-card">
                 <span className="import-job-draft-card__status">Draft</span>
                 {c.provider && (
@@ -240,9 +254,9 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
                 <span className="import-job-draft-card__cta">Edit draft →</span>
               </Link>
             ))}
-            {bulkResult.created.length > 8 && (
+            {bulkResult.created.length > 12 && (
               <p className="import-job-draft-grid__more">
-                +{bulkResult.created.length - 8} more — see all in{' '}
+                +{bulkResult.created.length - 12} more — see all in{' '}
                 <Link href="/employer/jobs">your jobs</Link>
               </p>
             )}
@@ -276,12 +290,30 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
           onClick={handleBulkImport}
           disabled={bulkLoading || loading || !careersUrl.trim()}
         >
-          {bulkLoading ? 'Building your drafts…' : 'Create private drafts from this page'}
+          {bulkLoading ? 'Creating drafts…' : 'Import from careers page'}
         </button>
+        {bulkLoading && (
+          <p className="import-job-loading-hint">
+            Pages with many jobs may take a minute. Do not close or refresh.
+          </p>
+        )}
       </section>
 
-      <details className="import-job-more">
-        <summary>Other ways to add a role</summary>
+      {bulkResult && bulkResult.created.length === 0 && bulkResult.errors.length > 0 && careersUrl.trim() && (
+        <div className="import-job-paste-fallback">
+          <p>
+            <strong>Could not read that page automatically.</strong> Paste the job listings from your careers page below —
+            you will get the same drafts.
+          </p>
+        </div>
+      )}
+
+      <details
+        className="import-job-more"
+        open={pasteSectionOpen}
+        onToggle={(e) => setPasteSectionOpen((e.target as HTMLDetailsElement).open)}
+      >
+        <summary>Other ways to add roles</summary>
         <div className="import-job-more-content">
           <h3>One role at a time</h3>
           <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '0.75rem' }}>

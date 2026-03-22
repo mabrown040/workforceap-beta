@@ -9,6 +9,7 @@ import {
   normalizeImportedParsedJob,
   parseJobFromText,
   parseJobListingsFromPageText,
+  sanitizeScrapedJobText,
   stripUrlsFromDescription,
   type ParsedJob,
   type ParsedJobListing,
@@ -226,7 +227,7 @@ export async function POST(request: NextRequest) {
         errors.push({ source: careersPageUrl, error: atsResult.errors[0] });
         careersPageProcessed = true;
       } else if (atsResult.rawText && atsResult.rawText.length >= 80) {
-        listingsText = atsResult.rawText;
+        listingsText = sanitizeScrapedJobText(atsResult.rawText);
       } else {
         errors.push({ source: careersPageUrl, error: 'Could not fetch careers page content. Paste the page text instead.' });
         careersPageProcessed = true;
@@ -234,8 +235,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (listingsText.length >= 80 && !careersPageProcessed) {
-      const subUrls = extractSubJobUrlsFromPageText(listingsText, { baseUrl: careersPageUrl });
-      const listingFallbacks = (await parseJobListingsFromPageText(listingsText)) ?? [];
+      const sanitized = sanitizeScrapedJobText(listingsText);
+      const subUrls = extractSubJobUrlsFromPageText(sanitized, { baseUrl: careersPageUrl });
+      const listingFallbacks = (await parseJobListingsFromPageText(sanitized)) ?? [];
       const listingFallbackByUrl = new Map(
         listingFallbacks
           .filter((listing) => listing.sourceUrl)

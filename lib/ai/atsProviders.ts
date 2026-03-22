@@ -433,7 +433,8 @@ export async function importJobsFromUrl(url: string): Promise<ATSParseResult> {
       }
 
       // Try Firecrawl for JS-rendered pages (waitFor helps Rippling/Workday load)
-      const firecrawlResult = await fetchWithFirecrawlCached(url, { waitFor: 3000 });
+      const waitFor = getImportWaitForMs(url);
+      const firecrawlResult = await fetchWithFirecrawlCached(url, { waitFor });
       if (firecrawlResult && firecrawlResult.text.length > 200) {
         return {
           provider: `${detected.provider}+firecrawl`,

@@ -1,4 +1,8 @@
-import { extractSubJobUrlsFromPageText, parseJobListingsFromPageText } from '../lib/ai/parseJob';
+import {
+  extractSubJobUrlsFromPageText,
+  parseJobListingsFromPageText,
+  sanitizeScrapedJobText,
+} from '../lib/ai/parseJob';
 
 async function main() {
   const fixture = `### Current Openings
@@ -75,6 +79,16 @@ Austin, TX
 
   const listings = await parseJobListingsFromPageText(fixture);
   const subUrls = extractSubJobUrlsFromPageText(fixture);
+
+  // Also verify sanitized path (used by import-bulk for Firecrawl content)
+  const sanitized = sanitizeScrapedJobText(fixture);
+  const sanitizedListings = await parseJobListingsFromPageText(sanitized);
+  const sanitizedSubUrls = extractSubJobUrlsFromPageText(sanitized);
+  if (sanitizedSubUrls.length !== 14 || (sanitizedListings?.length ?? 0) !== 14) {
+    throw new Error(
+      `Sanitized path: expected 14/14, got subUrls=${sanitizedSubUrls.length} listings=${sanitizedListings?.length ?? 0}`
+    );
+  }
 
   if (!listings) {
     throw new Error('Parser returned null');

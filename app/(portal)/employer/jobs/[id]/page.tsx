@@ -93,6 +93,9 @@ export default async function EmployerJobDetailPage({ params }: Props) {
           preferredCertifications: job.preferredCertifications,
           suggestedPrograms: job.suggestedPrograms,
           status: job.status,
+          sourceUrl: job.sourceUrl,
+          importProvider: job.importProvider,
+          importMethod: job.importMethod,
         }}
         companyName={employer?.companyName ?? ''}
         programSlugs={PROGRAMS.map((p) => p.slug)}

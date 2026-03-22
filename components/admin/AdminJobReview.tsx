@@ -12,6 +12,9 @@ type Job = {
   salaryMin: number | null;
   salaryMax: number | null;
   description: string;
+  sourceUrl?: string | null;
+  importProvider?: string | null;
+  importMethod?: string | null;
   requirements: string[];
   preferredCertifications: string[];
   suggestedPrograms: string[];
@@ -20,6 +23,15 @@ type Job = {
   employer?: { companyName: string; contactEmail: string; contactName: string | null } | null;
   applications?: { id: string; student: { fullName: string; email: string } }[];
 };
+
+function formatImportMethod(importMethod?: string | null) {
+  if (!importMethod) return null;
+  return importMethod
+    .split(/[-_]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
 
 export default function AdminJobReview({ job }: { job: Job }) {
   const router = useRouter();
@@ -38,6 +50,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
 
   const canApprove = job.status === 'pending';
   const canReject = job.status === 'pending';
+  const hasProvenance = !!(job.sourceUrl || job.importProvider || job.importMethod);
 
   async function handleApprove() {
     setApproving(true);
@@ -116,6 +129,42 @@ export default function AdminJobReview({ job }: { job: Job }) {
       <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
         {job.employer?.companyName ?? 'Unknown'} · {job.employer?.contactName ?? job.employer?.contactEmail ?? '—'} · Status: {job.status}
       </p>
+
+      {hasProvenance && (
+        <section
+          style={{
+            marginBottom: '1.5rem',
+            padding: '1rem',
+            background: 'var(--color-light)',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--color-border)',
+          }}
+        >
+          <h2 style={{ fontSize: '1rem', marginBottom: '0.75rem' }}>Import provenance</h2>
+          <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.5rem 1rem', fontSize: '0.95rem' }}>
+            {job.importProvider && (
+              <>
+                <dt style={{ color: 'var(--color-gray-500)' }}>Provider</dt>
+                <dd>{job.importProvider}</dd>
+              </>
+            )}
+            {job.importMethod && (
+              <>
+                <dt style={{ color: 'var(--color-gray-500)' }}>Method</dt>
+                <dd>{formatImportMethod(job.importMethod)}</dd>
+              </>
+            )}
+            {job.sourceUrl && (
+              <>
+                <dt style={{ color: 'var(--color-gray-500)' }}>Source</dt>
+                <dd>
+                  <a href={job.sourceUrl} target="_blank" rel="noreferrer">{job.sourceUrl}</a>
+                </dd>
+              </>
+            )}
+          </dl>
+        </section>
+      )}
 
       {(canApprove || canReject) && (
         <div
@@ -260,7 +309,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
                     onClick={handleSuggestMatches}
                     disabled={suggesting}
                   >
-                    {suggesting ? 'Sending…' : 'Suggest Matches to Employer'}
+                    {suggesting ? 'Sending…' : 'Send Match Suggestions to Employer'}
                   </button>
                 )}
               </>

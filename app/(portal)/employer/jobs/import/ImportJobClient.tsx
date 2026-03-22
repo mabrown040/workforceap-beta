@@ -38,6 +38,9 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
     requirements?: string[];
     preferredCertifications?: string[];
     suggestedPrograms?: string[];
+    sourceUrl?: string;
+    importProvider?: string;
+    importMethod?: string;
   } | null>(null);
   const [pasteSectionOpen, setPasteSectionOpen] = useState(false);
   const successCardRef = useRef<HTMLDivElement>(null);
@@ -195,6 +198,9 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
             requirements: extracted.requirements ?? [],
             preferredCertifications: extracted.preferredCertifications ?? [],
             suggestedPrograms: extracted.suggestedPrograms ?? [],
+            sourceUrl: extracted.sourceUrl,
+            importProvider: extracted.importProvider,
+            importMethod: extracted.importMethod,
           }}
           companyName={extracted.company ?? companyName}
           programSlugs={programSlugs}

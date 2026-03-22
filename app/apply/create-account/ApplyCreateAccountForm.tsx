@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { trackApplyFunnel } from '@/lib/analytics/events';
 
 const PROGRAM_STORAGE_KEY = 'apply_program_slug';
 
 export default function ApplyCreateAccountForm() {
-  const router = useRouter();
+  const [init, setInit] = useState<'loading' | 'missing' | 'ready'>('loading');
   const [programSlug, setProgramSlug] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -24,10 +24,11 @@ export default function ApplyCreateAccountForm() {
     if (typeof window === 'undefined') return;
     const slug = sessionStorage.getItem(PROGRAM_STORAGE_KEY);
     if (!slug) {
-      window.location.href = '/apply/results';
+      setInit('missing');
       return;
     }
     setProgramSlug(slug);
+    setInit('ready');
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -80,12 +81,34 @@ export default function ApplyCreateAccountForm() {
     }
   };
 
-  if (programSlug === null) {
-    return <p>Loading...</p>;
+  if (init === 'loading') {
+    return <p>Loading…</p>;
+  }
+
+  if (init === 'missing') {
+    return (
+      <div className="apply-form-missing-session">
+        <p role="alert" style={{ marginBottom: '1rem', lineHeight: 1.5 }}>
+          We couldn&apos;t find your program choice. That usually means this tab skipped step 2, you bookmarked this page,
+          or your browser cleared site data.
+        </p>
+        <p style={{ marginBottom: '0.75rem' }}>
+          <Link href="/apply/results" className="btn btn-primary">
+            Back to program selection (step 2)
+          </Link>
+        </p>
+        <p>
+          <Link href="/apply">Start apply from the beginning</Link>
+        </p>
+      </div>
+    );
   }
 
   return (
     <form onSubmit={handleSubmit} className="apply-form">
+      <p className="apply-step-back-nav" style={{ marginBottom: '1rem' }}>
+        <Link href="/apply/results">← Back to program selection</Link>
+      </p>
       <div className="form-group">
         <label htmlFor="firstName">First Name *</label>
         <input id="firstName" type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
@@ -118,7 +141,7 @@ export default function ApplyCreateAccountForm() {
       </div>
       {error && <p className="form-error" role="alert">{error}</p>}
       <button type="submit" className="btn btn-primary btn-submit-full" disabled={loading}>
-        {loading ? 'Creating account...' : 'Create My Account'}
+        {loading ? 'Creating account…' : 'Create My Account'}
       </button>
     </form>
   );

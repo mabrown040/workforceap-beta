@@ -89,7 +89,10 @@ export default function ContactFormClient() {
             fontSize: '0.9rem',
           }}
         >
-          {errorMsg}
+          <p style={{ margin: '0 0 0.75rem' }}>{errorMsg}</p>
+          <button type="button" className="btn btn-outline btn-sm" onClick={() => { setStatus('idle'); setErrorMsg(null); }}>
+            Try again
+          </button>
         </div>
       )}
       <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>

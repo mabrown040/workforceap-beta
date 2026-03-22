@@ -48,6 +48,8 @@ export default function ApplicationTrackerTable() {
   const [editAppliedAt, setEditAppliedAt] = useState('');
   const [editUrl, setEditUrl] = useState('');
   const [addError, setAddError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const formRef = useRef<HTMLFormElement>(null);
@@ -132,18 +134,42 @@ export default function ApplicationTrackerTable() {
   };
 
   const handleStatusChange = async (id: string, newStatus: string) => {
-    await fetch(`/api/member/applications/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: newStatus }),
-    });
-    fetchApplications();
+    setActionError(null);
+    try {
+      const res = await fetch(`/api/member/applications/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setActionError((data as { error?: string }).error ?? 'Could not update status. Try again.');
+        await fetchApplications();
+        return;
+      }
+      await fetchApplications();
+    } catch {
+      setActionError('Network error while updating status.');
+      await fetchApplications();
+    }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this application?')) return;
-    await fetch(`/api/member/applications/${id}`, { method: 'DELETE' });
-    fetchApplications();
+  const confirmDelete = async () => {
+    if (!pendingDeleteId) return;
+    const id = pendingDeleteId;
+    setActionError(null);
+    setPendingDeleteId(null);
+    try {
+      const res = await fetch(`/api/member/applications/${id}`, { method: 'DELETE' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setActionError((data as { error?: string }).error ?? 'Could not delete. Try again.');
+        return;
+      }
+      await fetchApplications();
+    } catch {
+      setActionError('Network error while deleting.');
+    }
   };
 
   const startEdit = (app: JobApplication) => {
@@ -160,17 +186,27 @@ export default function ApplicationTrackerTable() {
 
   const saveEdit = async () => {
     if (!editingId) return;
+    setActionError(null);
     const payload: Record<string, unknown> = {};
     if (editAppliedAt.trim()) payload.appliedAt = `${editAppliedAt}T12:00:00.000Z`;
     else payload.appliedAt = null;
     payload.url = editUrl.trim() || null;
-    await fetch(`/api/member/applications/${editingId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    setEditingId(null);
-    fetchApplications();
+    try {
+      const res = await fetch(`/api/member/applications/${editingId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setActionError((data as { error?: string }).error ?? 'Could not save changes. Try again.');
+        return;
+      }
+      setEditingId(null);
+      await fetchApplications();
+    } catch {
+      setActionError('Network error while saving.');
+    }
   };
 
   if (loading) return <TableSkeleton rows={6} cols={5} />;
@@ -284,6 +320,12 @@ export default function ApplicationTrackerTable() {
               aria-label="Search applications"
             />
           </div>
+          {actionError && (
+            <p className="form-error application-tracker-action-error" role="alert">
+              {actionError}
+            </p>
+          )}
+          <p className="application-tracker-scroll-hint">On a small screen, scroll sideways to see all columns.</p>
           <div className="application-tracker-table-wrap">
           <table className="application-tracker-table">
             <thead>
@@ -364,7 +406,7 @@ export default function ApplicationTrackerTable() {
                         <button
                           type="button"
                           className="btn btn-outline btn-sm"
-                          onClick={() => handleDelete(app.id)}
+                          onClick={() => setPendingDeleteId(app.id)}
                           aria-label="Delete"
                         >
                           Delete
@@ -387,6 +429,23 @@ export default function ApplicationTrackerTable() {
         <strong>{applications.length}</strong> application{applications.length !== 1 ? 's' : ''} tracked
         {statusFilter !== 'all' || searchQuery.trim() ? ` (${filteredApplications.length} shown)` : ''}
       </p>
+
+      {pendingDeleteId && (
+        <div className="application-tracker-delete-modal" role="dialog" aria-modal="true" aria-labelledby="tracker-delete-title">
+          <div className="application-tracker-delete-modal__panel">
+            <h3 id="tracker-delete-title">Delete this application?</h3>
+            <p>This removes it from your tracker. You can add it again later.</p>
+            <div className="application-tracker-delete-modal__actions">
+              <button type="button" className="btn btn-outline" onClick={() => setPendingDeleteId(null)}>
+                Cancel
+              </button>
+              <button type="button" className="btn btn-primary" onClick={() => void confirmDelete()}>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

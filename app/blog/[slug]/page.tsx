@@ -98,7 +98,7 @@ export default async function BlogPostPage({ params }: Props) {
           >
             <Image
               src={post.coverImage}
-              alt=""
+              alt={`Cover image for ${post.title}`}
               width={680}
               height={383}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
@@ -120,7 +120,7 @@ export default async function BlogPostPage({ params }: Props) {
           >
             <Image
               src="/images/logo-tight.png"
-              alt=""
+              alt="Workforce Advancement Project"
               width={272}
               height={153}
               style={{ width: '40%', height: 'auto', opacity: 0.9, objectFit: 'contain' }}

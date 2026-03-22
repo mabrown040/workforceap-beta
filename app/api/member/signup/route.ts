@@ -35,11 +35,12 @@ export async function POST(request: NextRequest) {
 
   const parsed = memberSignupSchema.safeParse(body);
   if (!parsed.success) {
-    const first = parsed.error.errors[0];
-    return NextResponse.json(
-      { error: first?.message ?? 'Validation failed' },
-      { status: 400 }
-    );
+    const messages = parsed.error.errors.map((e) => e.message).filter(Boolean);
+    const error =
+      messages.length <= 1
+        ? (messages[0] ?? 'Validation failed')
+        : messages.slice(0, 6).join(' · ');
+    return NextResponse.json({ error }, { status: 400 });
   }
 
   const data = parsed.data;

@@ -36,6 +36,12 @@ export function useFocusTrap(active: boolean, onEscape?: () => void): RefObject<
       const first = list[0];
       const last = list[list.length - 1];
       const activeEl = document.activeElement as HTMLElement | null;
+      const contained = activeEl ? root.contains(activeEl) : false;
+      if (!contained) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus();
+        return;
+      }
       if (e.shiftKey) {
         if (activeEl === first) {
           e.preventDefault();

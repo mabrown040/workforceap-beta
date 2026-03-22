@@ -14,6 +14,7 @@ const PROGRAM_STORAGE_KEY = 'apply_program_slug';
 export default function ApplyResultsClient() {
   const searchParams = useSearchParams();
   const programParam = searchParams.get('program');
+  const [pageState, setPageState] = useState<'loading' | 'ready' | 'missing'>('loading');
   const [qualifies, setQualifies] = useState<boolean | null>(null);
   const [selectedSlug, setSelectedSlug] = useState<string>(programParam ?? '');
 
@@ -22,25 +23,27 @@ export default function ApplyResultsClient() {
     if (programParam && getProgramBySlug(programParam)) {
       setSelectedSlug(programParam);
       setQualifies(true);
+      setPageState('ready');
       return;
     }
     try {
       const stored = sessionStorage.getItem(APPLY_STORAGE_KEY);
       if (!stored) {
-        window.location.href = '/apply';
+        setPageState('missing');
         return;
       }
-      const data = JSON.parse(stored);
+      const data = JSON.parse(stored) as { qualifies?: boolean };
       setQualifies(data.qualifies === true);
+      setPageState('ready');
     } catch {
-      window.location.href = '/apply';
+      setPageState('missing');
     }
   }, [programParam]);
 
   useEffect(() => {
-    if (qualifies === null) return;
+    if (pageState !== 'ready' || qualifies === null) return;
     trackApplyFunnel(2, 'results_view', { qualifies });
-  }, [qualifies]);
+  }, [qualifies, pageState]);
 
   const handleContinue = () => {
     if (!selectedSlug) return;
@@ -52,18 +55,16 @@ export default function ApplyResultsClient() {
   };
 
   const programsOrdered =
-    qualifies === null
+    qualifies === true
       ? PROGRAMS
-      : qualifies
-        ? PROGRAMS
-        : [...PROGRAMS].sort((a, b) => {
-            const dig = 'digital-literacy-empowerment-class';
-            if (a.slug === dig) return -1;
-            if (b.slug === dig) return 1;
-            return 0;
-          });
+      : [...PROGRAMS].sort((a, b) => {
+          const dig = 'digital-literacy-empowerment-class';
+          if (a.slug === dig) return -1;
+          if (b.slug === dig) return 1;
+          return 0;
+        });
 
-  if (qualifies === null) {
+  if (pageState === 'loading') {
     return (
       <div className="apply-flow">
         <div className="apply-progress-bar">
@@ -71,6 +72,33 @@ export default function ApplyResultsClient() {
         </div>
         <div className="apply-step-content" style={{ marginTop: '1.5rem' }}>
           <CardSkeleton />
+        </div>
+      </div>
+    );
+  }
+
+  if (pageState === 'missing') {
+    return (
+      <div className="apply-flow">
+        <div className="apply-progress-bar">
+          <div className="apply-progress-fill" style={{ width: '66%' }} />
+          <p className="apply-progress-label">Step 2 of 3</p>
+        </div>
+        <div className="apply-step-content apply-missing-session">
+          <h2 className="apply-step-title">We need your answers from step 1</h2>
+          <p className="apply-step-desc">
+            This page expects eligibility answers saved in your browser. That can be missing if you bookmarked this link,
+            opened it on another device, or cleared site data.
+          </p>
+          <p style={{ marginBottom: '1.25rem' }}>
+            <Link href="/apply" className="btn btn-primary">
+              Go to step 1 — eligibility
+            </Link>
+          </p>
+          <p className="apply-step-desc" style={{ fontSize: '0.9rem' }}>
+            Already completed step 1 in this browser?{' '}
+            <Link href="/apply">Return to step 1</Link> — your previous answers will be replaced when you submit again.
+          </p>
         </div>
       </div>
     );
@@ -84,16 +112,31 @@ export default function ApplyResultsClient() {
       </div>
 
       <div className="apply-step-content">
+        <p className="apply-step-back-nav">
+          <Link href="/apply">← Back to eligibility (step 1)</Link>
+        </p>
         {qualifies ? (
           <>
             <div className={`funding-banner funding-banner-qualify`} style={{ marginBottom: '1.5rem' }}>
-              <p><strong>Looks like a good fit.</strong> We&rsquo;ll connect within 24–48 hours to walk through next steps. First, pick the program that interests you most:</p>
+              <p>
+                <strong>Looks like a good fit.</strong> We&rsquo;ll connect within 24–48 hours to walk through next steps.
+                First, pick the program that interests you most:
+              </p>
             </div>
             <h2 className="apply-step-title">Choose the program you&apos;re most interested in:</h2>
           </>
         ) : (
           <>
-            <div className="apply-results-anyway" style={{ marginBottom: '1rem', padding: '1rem 1.25rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+            <div
+              className="apply-results-anyway"
+              style={{
+                marginBottom: '1rem',
+                padding: '1rem 1.25rem',
+                background: '#f8fafc',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+              }}
+            >
               <p style={{ margin: 0 }}>
                 <strong>Your answers don&apos;t match our standard funding profile right now.</strong> That is not a
                 &quot;no&quot; to you — it means we may need a different path or timing. We still review every application
@@ -149,7 +192,9 @@ export default function ApplyResultsClient() {
                 background: selectedSlug === p.slug ? 'rgba(74, 155, 79, 0.05)' : 'white',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+              <div
+                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}
+              >
                 <span
                   style={{
                     background: p.categoryColor,
@@ -162,7 +207,9 @@ export default function ApplyResultsClient() {
                 >
                   {p.categoryLabel}
                 </span>
-                <span style={{ display: 'flex', alignItems: 'center' }}><ProgramIcon program={p} size={24} /></span>
+                <span style={{ display: 'flex', alignItems: 'center' }}>
+                  <ProgramIcon program={p} size={24} />
+                </span>
               </div>
               <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>{p.title}</h3>
               <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>
@@ -173,12 +220,7 @@ export default function ApplyResultsClient() {
           ))}
         </div>
 
-        <button
-          type="button"
-          className="btn btn-primary"
-          disabled={!selectedSlug}
-          onClick={handleContinue}
-        >
+        <button type="button" className="btn btn-primary" disabled={!selectedSlug} onClick={handleContinue}>
           Continue to Create Your Account →
         </button>
       </div>

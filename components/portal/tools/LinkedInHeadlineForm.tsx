@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
 
 export default function LinkedInHeadlineForm() {
@@ -11,6 +12,7 @@ export default function LinkedInHeadlineForm() {
   const [headlines, setHeadlines] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,12 +41,18 @@ export default function LinkedInHeadlineForm() {
     }
   };
 
-  const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text);
+  const handleCopy = async (text: string, idx: number) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedIdx(idx);
+      window.setTimeout(() => setCopiedIdx((c) => (c === idx ? null : c)), 2000);
+    } catch {
+      /* ignore */
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="resume-rewriter-form">
+    <form onSubmit={handleSubmit} className="portal-ai-tool-form">
       <div className="form-group">
         <label htmlFor="role">Target role</label>
         <input
@@ -81,8 +89,15 @@ export default function LinkedInHeadlineForm() {
         />
       </div>
       {error && <div className="form-error" role="alert">{error}</div>}
-      <button type="submit" className="btn btn-primary" disabled={loading}>
-        {loading ? 'Generating...' : 'Generate headlines'}
+      <button type="submit" className="btn btn-primary" disabled={loading} aria-busy={loading}>
+        {loading ? (
+          <>
+            <Loader2 className="ai-tool-submit-spinner" size={18} aria-hidden />
+            Generating headlines…
+          </>
+        ) : (
+          'Generate headlines'
+        )}
       </button>
       {headlines.length > 0 && (
         <div className="resume-rewriter-output">
@@ -94,9 +109,9 @@ export default function LinkedInHeadlineForm() {
                 <button
                   type="button"
                   className="btn btn-outline btn-sm"
-                  onClick={() => handleCopy(h)}
+                  onClick={() => void handleCopy(h, i)}
                 >
-                  Copy
+                  {copiedIdx === i ? 'Copied!' : 'Copy'}
                 </button>
               </li>
             ))}

@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
+import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 
 type Question = {
   question: string;
@@ -18,6 +20,7 @@ export default function InterviewPracticeForm() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const { copy, copied } = useCopyToClipboard();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +58,7 @@ export default function InterviewPracticeForm() {
           `${q.question}\nType: ${q.type}\nTip: ${q.tip}${q.starHint ? `\nSTAR hint: ${q.starHint}` : ''}${q.exampleAnswer ? `\nExample answer: ${q.exampleAnswer}` : ''}\n`
       )
       .join('\n');
-    navigator.clipboard.writeText(text);
+    void copy(text);
   };
 
   return (
@@ -90,8 +93,15 @@ export default function InterviewPracticeForm() {
           {error}
         </div>
       )}
-      <button type="submit" className="btn btn-primary" disabled={loading}>
-        {loading ? 'Generating questions...' : 'Generate questions'}
+      <button type="submit" className="btn btn-primary" disabled={loading} aria-busy={loading}>
+        {loading ? (
+          <>
+            <Loader2 className="ai-tool-submit-spinner" size={18} aria-hidden />
+            Generating questions…
+          </>
+        ) : (
+          'Generate questions'
+        )}
       </button>
 
       {questions.length > 0 && (
@@ -99,7 +109,7 @@ export default function InterviewPracticeForm() {
           <div className="interview-practice-output-header">
             <h3>Interview questions</h3>
             <button type="button" className="btn btn-outline btn-sm" onClick={handleCopy}>
-              Copy all
+              {copied ? 'Copied!' : 'Copy all'}
             </button>
           </div>
           <ol className="interview-practice-list">

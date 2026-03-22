@@ -14,7 +14,12 @@ type SkillMatchKind = 'phrase' | 'token' | 'short-token';
 
 type MatchableText = {
   haystackNorm: string;
+  compactHaystack: string;
   tokenSet: Set<string>;
+};
+
+const LOW_SIGNAL_SKILL_WEIGHTS: Record<string, number> = {
+  html: 1,
 };
 
 function normalizeHaystack(s: string): string {
@@ -56,12 +61,12 @@ function buildMatchableText(haystack: string): MatchableText {
   const haystackNorm = normalizeHaystack(haystack);
   return {
     haystackNorm,
+    compactHaystack: haystackNorm.replace(/\s+/g, ' ').trim(),
     tokenSet: new Set(tokenizeAll(haystackNorm)),
   };
 }
 
-function hasPhraseBoundaryMatch(haystackNorm: string, phraseNorm: string): boolean {
-  const compactHaystack = haystackNorm.replace(/\s+/g, ' ').trim();
+function hasPhraseBoundaryMatch(compactHaystack: string, phraseNorm: string): boolean {
   if (!compactHaystack || !phraseNorm) return false;
   const pattern = new RegExp(`(?:^|\\s)${escapeRegExp(phraseNorm)}(?:$|\\s)`);
   return pattern.test(compactHaystack);
@@ -76,10 +81,15 @@ function skillMatchesText(skill: string, matchableText: MatchableText): boolean 
     case 'token':
       return matchableText.tokenSet.has(skillNorm);
     case 'phrase':
-      return hasPhraseBoundaryMatch(matchableText.haystackNorm, skillNorm);
+      return hasPhraseBoundaryMatch(matchableText.compactHaystack, skillNorm);
     default:
       return false;
   }
+}
+
+function scoreSkillMatch(skill: string): number {
+  const skillNorm = normalizeHaystack(skill).replace(/\s+/g, ' ').trim();
+  return LOW_SIGNAL_SKILL_WEIGHTS[skillNorm] ?? 2;
 }
 
 function scoreProgram(program: Program, matchableText: MatchableText, tokens: Set<string>): number {
@@ -91,7 +101,7 @@ function scoreProgram(program: Program, matchableText: MatchableText, tokens: Se
     if (blob.includes(t)) score += 1;
   }
   for (const skill of program.skills) {
-    if (skillMatchesText(skill, matchableText)) score += 2;
+    if (skillMatchesText(skill, matchableText)) score += scoreSkillMatch(skill);
   }
   return score;
 }
@@ -166,4 +176,5 @@ export const __rankProgramsForEmployerJob = {
   buildMatchableText,
   classifySkillMatch,
   skillMatchesText,
+  scoreSkillMatch,
 };

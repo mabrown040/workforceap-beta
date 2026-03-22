@@ -64,7 +64,19 @@ export default function EmployerPortalShell({
           <Link href="/admin/employers">Switch company</Link>
         </div>
       )}
-      <main className="employer-portal-main">{children}</main>
+      <div style={{ display: 'grid', gridTemplateColumns: '240px minmax(0, 1fr)', gap: '1.5rem', alignItems: 'start', maxWidth: 1400, margin: '0 auto', padding: '1.5rem' }}>
+        <aside style={{ position: 'sticky', top: '1rem', alignSelf: 'start', background: 'white', border: '1px solid var(--color-border, #e5e5e5)', borderRadius: 12, padding: '1rem' }}>
+          <p style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--color-gray-500)', marginBottom: '0.75rem' }}>Employer workspace</p>
+          <div style={{ display: 'grid', gap: '0.35rem' }}>
+            {NAV_LINKS.map(({ href, label }) => (
+              <Link key={href} href={href} style={{ padding: '0.65rem 0.75rem', borderRadius: 8, background: activeHref === href ? 'var(--color-light)' : 'transparent', fontWeight: activeHref === href ? 700 : 500 }}>
+                {label}
+              </Link>
+            ))}
+          </div>
+        </aside>
+        <main className="employer-portal-main">{children}</main>
+      </div>
     </div>
   );
 }

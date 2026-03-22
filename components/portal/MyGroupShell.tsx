@@ -12,6 +12,7 @@ export default function MyGroupShell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname() ?? '';
+  const active = pathname === '/my-group';
 
   return (
     <div className="employer-portal-shell">

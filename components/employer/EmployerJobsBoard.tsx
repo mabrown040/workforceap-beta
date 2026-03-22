@@ -385,12 +385,14 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
         <div className="employer-jobs-board__empty-state" role="status">
           <h2 className="employer-jobs-board__empty-title">No postings yet</h2>
           <p className="employer-jobs-board__empty-desc">
-            Create a posting to start hiring. Everything stays private until you submit for WorkforceAP
-            review — nothing goes live by surprise.
+            Paste your careers URL to get clean drafts, or create a posting from scratch. Everything stays private until you submit for review.
           </p>
           <div className="employer-jobs-board__empty-actions">
-            <Link href="/employer/jobs/new" className="btn btn-primary">
-              Create your first posting
+            <Link href="/employer/jobs/import" className="btn btn-primary">
+              Import from careers page
+            </Link>
+            <Link href="/employer/jobs/new" className="btn btn-secondary">
+              Create posting manually
             </Link>
           </div>
         </div>

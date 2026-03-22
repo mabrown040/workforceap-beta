@@ -141,8 +141,7 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
         </div>
         <h1 className="import-review-heading">Review before saving</h1>
         <p className="import-review-intro">
-          This is still private. Adjust anything that does not sound like your team, then save as a draft or send for
-          WorkforceAP review.
+          Still private. Edit what you want, then save as a draft or send for review when ready.
         </p>
 
         <div className="import-review-summary">

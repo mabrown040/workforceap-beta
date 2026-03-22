@@ -70,9 +70,9 @@ export default async function EmployerDashboardPage() {
       <section className="employer-dash-overview employer-dash-panel">
         <div className="employer-dash-overview-copy">
           <p className="employer-dash-eyebrow">Hiring overview</p>
-          <h2>See what needs attention before you publish or hire.</h2>
+          <h2>Paste your careers URL, review clean drafts, fix what you want, then publish.</h2>
           <p>
-            Draft imports, live postings, and incoming applications stay in one workflow so your team can move from URL to published job without bouncing between views.
+            Drafts stay private. Live postings and applications flow in one place — from URL to published job in minutes.
           </p>
         </div>
         <div className="employer-dash-stats" aria-label="Employer dashboard summary">
@@ -91,27 +91,34 @@ export default async function EmployerDashboardPage() {
       <section className="employer-dash-actions-panel employer-dash-panel">
         <div>
           <p className="employer-dash-eyebrow">Next move</p>
-          <h2>Hire in three steps: create, review, place.</h2>
+          <h2>Import, review, publish.</h2>
         </div>
         <div className="employer-dash-actions">
+          <Link href="/employer/jobs/import" className="employer-dash-action-link">
+            <span className="employer-dash-action-copy">
+              <strong>Import from careers page</strong>
+              <span>Paste one URL, get clean drafts. Edit, then send for review when ready.</span>
+            </span>
+            <ArrowRight size={18} aria-hidden />
+          </Link>
           <Link href="/employer/jobs/new" className="employer-dash-action-link">
             <span className="employer-dash-action-copy">
               <strong>Create a posting</strong>
-              <span>Add a role, set pay and location, then submit for WorkforceAP review.</span>
+              <span>Add a role manually — pay, location, requirements — then submit for review.</span>
             </span>
             <ArrowRight size={18} aria-hidden />
           </Link>
           <Link href="/employer/jobs" className="employer-dash-action-link">
             <span className="employer-dash-action-copy">
               <strong>Manage postings</strong>
-              <span>Edit drafts, track what is live, and close roles once filled.</span>
+              <span>Edit drafts, track what is live, close roles when filled.</span>
             </span>
             <ArrowRight size={18} aria-hidden />
           </Link>
           <Link href="/employer/applications" className="employer-dash-action-link">
             <span className="employer-dash-action-copy">
               <strong>Review applicants</strong>
-              <span>See recent submissions, respond quickly, and keep placements moving.</span>
+              <span>See submissions, respond quickly, keep placements moving.</span>
             </span>
             <ArrowRight size={18} aria-hidden />
           </Link>

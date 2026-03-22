@@ -21,9 +21,9 @@ function readHaystack(form: HTMLFormElement | null): string {
 }
 
 function confidenceLabel(c: RankedProgramMatch['confidence']): string {
-  if (c === 'strong') return 'Strong match';
-  if (c === 'good') return 'Good match';
-  return 'Consider';
+  if (c === 'strong') return 'Likely relevant';
+  if (c === 'good') return 'Possible fit';
+  return 'Optional review';
 }
 
 export default function SuggestedProgramsRanked({
@@ -51,9 +51,13 @@ export default function SuggestedProgramsRanked({
     <fieldset className="employer-job-form-fieldset employer-job-form-programs employer-suggested-programs">
       <legend>Training matches for this role</legend>
       <p className="employer-job-form-hint">
-        Rankings reflect keywords in your title, description, and requirements — a practical map to our training
-        tracks, not a guarantee. Select tracks that match real roles you hire for; we use them to surface
-        certification-aligned candidates for your review.
+        These suggestions are generated from signals in your job title, description, and requirements. They help map
+        your posting to related training tracks, but they do not reflect exact job-role understanding or a validated
+        fit.
+      </p>
+      <p className="employer-job-form-hint">
+        Please treat the ranking as a starting point for review and select only the tracks that align with the real
+        responsibilities and credentials you hire for.
       </p>
       <div className="employer-suggested-programs__toolbar">
         <button type="button" className="btn btn-ghost btn-sm" onClick={rerankFromForm} disabled={disabled}>

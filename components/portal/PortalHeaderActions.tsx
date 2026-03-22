@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect, useCallback } from 'react';
 import { Menu, X } from 'lucide-react';
 import DevViewToggle from './DevViewToggle';
@@ -11,14 +12,9 @@ function ActionItems({ onItemClick }: { onItemClick?: () => void }) {
     <>
       <SuperAdminViewSwitcher />
       <DevViewToggle />
-      <a
-        href="https://www.workforceap.org/"
-        className="btn btn-outline btn-sm"
-        rel="noopener noreferrer"
-        onClick={onItemClick}
-      >
-        Return to Homepage
-      </a>
+      <Link href="/" className="btn btn-outline btn-sm" onClick={onItemClick}>
+        Site home
+      </Link>
       <SignOutButton className="btn btn-outline btn-sm" onSignOutStart={onItemClick} />
     </>
   );

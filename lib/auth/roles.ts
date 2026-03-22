@@ -1,23 +1,24 @@
+import { cache } from 'react';
 import { cookies } from 'next/headers';
 import { prisma } from '@/lib/db/prisma';
 
 export const SUPER_ADMIN_EMPLOYER_COOKIE = 'wa_super_admin_employer_id';
 
-export async function getUserRoles(userId: string): Promise<string[]> {
+export const getUserRoles = cache(async function getUserRoles(userId: string): Promise<string[]> {
   const userRoles = await prisma.userRole.findMany({
     where: { userId },
     include: { role: true },
   });
   return userRoles.map((ur) => ur.role.name);
-}
+});
 
-export async function getProfileRole(userId: string): Promise<string> {
+export const getProfileRole = cache(async function getProfileRole(userId: string): Promise<string> {
   const profile = await prisma.profile.findUnique({
     where: { userId },
     select: { role: true },
   });
   return profile?.role ?? 'member';
-}
+});
 
 export async function isSuperAdmin(userId: string): Promise<boolean> {
   const profileRole = await getProfileRole(userId);

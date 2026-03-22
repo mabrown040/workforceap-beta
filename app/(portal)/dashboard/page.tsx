@@ -1,11 +1,9 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
-import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
+import { loadMemberCareerBriefBundle } from '@/lib/content/careerBriefPersonalization';
 import DashboardHomeClient from '@/components/portal/DashboardHomeClient';
 import MatchedRoles from '@/components/portal/MatchedRoles';
 
@@ -19,11 +17,7 @@ export default async function DashboardPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard');
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: user.id, deletedAt: null },
-    include: { profile: true },
-  });
-
+  const { user: dbUser, careerBrief } = await loadMemberCareerBriefBundle(user.id, { activeMemberOnly: true });
   if (!dbUser) redirect('/login');
 
   const firstName = dbUser.fullName?.split(' ')[0] ?? 'there';
@@ -61,18 +55,8 @@ export default async function DashboardPage() {
     ? program.courses.find((c) => !coursesCompleted.includes(c.slug))
     : null;
 
-  let recommendedActions: Array<{ label: string; href: string }> = [];
-  let jobSearchUrl: string | null = null;
-  try {
-    const briefContext = await getCareerBriefContext(user.id);
-    recommendedActions = briefContext.recommendedActions;
-    jobSearchUrl = briefContext.jobSearchUrl;
-  } catch {
-    recommendedActions = [
-      { label: 'Build your resume', href: '/dashboard/ai-tools/resume-rewriter' },
-      { label: 'Log your first application', href: '/dashboard/ai-tools/application-tracker' },
-    ];
-  }
+  const recommendedActions = careerBrief.recommendedActions;
+  const jobSearchUrl = careerBrief.jobSearchUrl;
 
   const showMatchedRoles = assessmentCompleted;
 

@@ -7111,6 +7111,25 @@ body { animation: fadeIn 0.4s ease; }
     margin-top: 0.75rem;
     border-top: 1px solid var(--color-gray-200);
 }
+.dashboard-sidebar-home-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.55rem 1rem;
+    border-radius: var(--radius-sm);
+    color: var(--color-gray-600);
+    font-weight: 500;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: color var(--transition-fast), background var(--transition-fast);
+    margin-bottom: 0.4rem;
+}
+.dashboard-sidebar-home-link:hover {
+    color: var(--color-primary);
+    background: rgba(173, 44, 77, 0.06);
+}
 .dashboard-sidebar-signout {
     display: flex;
     align-items: center;
@@ -9225,7 +9244,6 @@ body { animation: fadeIn 0.4s ease; }
 }
 .dashboard-menu-btn,
 .admin-menu-btn {
-    display: inline-flex;
     align-items: center;
     justify-content: center;
 }

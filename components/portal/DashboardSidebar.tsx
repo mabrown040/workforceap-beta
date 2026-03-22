@@ -66,7 +66,7 @@ export default function DashboardSidebar({ open = false, onClose }: DashboardSid
           </ul>
         </nav>
         <div className="dashboard-sidebar-footer">
-          <Link href="/" className="dashboard-sidebar-signout" onClick={() => onClose?.()}>
+          <Link href="/" className="dashboard-sidebar-home-link" onClick={() => onClose?.()}>
             Site home
           </Link>
           <SignOutButton className="dashboard-sidebar-signout" onSignOutStart={onClose}>

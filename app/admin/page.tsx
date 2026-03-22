@@ -8,6 +8,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { Users, ClipboardList, GraduationCap, BookOpen, Trophy } from 'lucide-react';
 import RecentSignupsTable from '@/components/admin/RecentSignupsTable';
+import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin',
@@ -72,8 +73,7 @@ export default async function AdminPage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Admin Overview</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>Manage members and view metrics.</p>
+      <PageHeader title="Admin Overview" subtitle="Manage members and view metrics." />
 
       <div className="admin-stat-cards">
         <div className="admin-stat-card">

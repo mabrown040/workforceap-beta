@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import NewPartnerForm from './NewPartnerForm';
+import PageHeader from '@/components/portal/PageHeader';
 
 export default function NewPartnerPage() {
   return (
@@ -7,7 +8,7 @@ export default function NewPartnerPage() {
       <Link href="/admin/partners" style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'inline-block' }}>
         ← Back to Partners
       </Link>
-      <h1 style={{ marginBottom: '1.5rem' }}>Add Partner Organization</h1>
+      <PageHeader title="Add Partner Organization" />
       <NewPartnerForm />
     </div>
   );

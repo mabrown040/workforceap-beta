@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Mail, Send, Users, Clock, CheckCircle } from 'lucide-react';
 import InviteForm from '@/components/admin/InviteForm';
 import InvitesTable from '@/components/admin/InvitesTable';
+import PageHeader from '@/components/portal/PageHeader';
 
 type Invite = {
   id: string;
@@ -88,32 +89,21 @@ export default function AdminInvitesPage() {
 
   return (
     <div style={{ paddingTop: '1.5rem' }}>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '1rem',
-          marginBottom: '1.5rem',
-        }}
-      >
-        <div>
-          <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Invitations</h1>
-          <p style={{ color: 'var(--color-gray-600)', marginTop: '0.25rem' }}>
-            Invite admins, partners, or students to the platform.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => setModalOpen(true)}
-          className="btn btn-primary"
-          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-        >
-          <Send size={18} />
-          Send New Invite
-        </button>
-      </div>
+      <PageHeader
+        title="Invitations"
+        subtitle="Invite admins, partners, or students to the platform."
+        action={
+          <button
+            type="button"
+            onClick={() => setModalOpen(true)}
+            className="btn btn-primary"
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+          >
+            <Send size={18} />
+            Send New Invite
+          </button>
+        }
+      />
 
       <div className="admin-stat-cards" style={{ marginBottom: '0.5rem' }}>
         <div className="admin-stat-card">

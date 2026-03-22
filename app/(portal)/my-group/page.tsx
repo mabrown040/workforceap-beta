@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
@@ -8,7 +7,8 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
 import { prisma } from '@/lib/db/prisma';
-import MyGroupExportButton from '@/components/portal/MyGroupExportButton';
+import MyGroupMembersTable from '@/components/portal/MyGroupMembersTable';
+import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'My Group',
@@ -84,6 +84,7 @@ export default async function MyGroupPage() {
         enrolledProgram: program?.title ?? m.enrolledProgram,
         enrolledAt: m.enrolledAt,
         progressPct: pct,
+        stageKey: stage,
         stage: PIPELINE_STAGE_LABELS[stage],
         placementRecord: m.placementRecord,
         updatedAt: m.updatedAt,
@@ -93,15 +94,16 @@ export default async function MyGroupPage() {
 
   const total = members.length;
   const enrolled = members.filter((m) => m.enrolledAt).length;
+  const inTraining = members.filter((m) => m.stageKey === 'in_training' || m.stageKey === 'certified').length;
   const completed = members.filter((m) => m.isCompleted).length;
   const placed = members.filter((m) => m.placementRecord).length;
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>My Group</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
-        Members assigned to your subgroup. View progress and placement status.
-      </p>
+      <PageHeader
+        title="My Group"
+        subtitle="Members assigned to your subgroup. View progress and placement status."
+      />
 
       <div
         style={{
@@ -114,7 +116,7 @@ export default async function MyGroupPage() {
         {[
           { label: 'Total members', value: total },
           { label: 'Enrolled', value: enrolled },
-          { label: 'In progress', value: total - placed },
+          { label: 'In training', value: inTraining },
           { label: 'Completed', value: completed },
           { label: 'Placed', value: placed },
         ].map((s) => (
@@ -133,39 +135,15 @@ export default async function MyGroupPage() {
         ))}
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-        <h2 style={{ fontSize: '1.15rem', margin: 0 }}>Members</h2>
-        <MyGroupExportButton members={members} />
-      </div>
-
-      <div style={{ overflowX: 'auto', marginBottom: '2rem' }}>
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Program</th>
-              <th>Progress</th>
-              <th>Last active</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {members.map((m) => (
-              <tr key={m.id}>
-                <td>
-                  <Link href={`/my-group/members/${m.id}`} style={{ fontWeight: 600, color: 'var(--color-accent)' }}>
-                    {m.fullName}
-                  </Link>
-                </td>
-                <td>{m.enrolledProgram ?? '—'}</td>
-                <td>{m.progressPct}%</td>
-                <td>{m.updatedAt ? new Date(m.updatedAt).toLocaleDateString() : '—'}</td>
-                <td>{m.stage}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <MyGroupMembersTable
+        members={members.map((m) => ({
+          ...m,
+          updatedAtLabel: m.updatedAt ? new Date(m.updatedAt).toLocaleDateString() : '—',
+          placementRecord: m.placementRecord
+            ? { ...m.placementRecord, placedAt: m.placementRecord.placedAt.toISOString() }
+            : null,
+        }))}
+      />
 
       {members.length === 0 && (
         <p style={{ color: 'var(--color-gray-500)', marginBottom: '2rem' }}>No members in your subgroup yet.</p>

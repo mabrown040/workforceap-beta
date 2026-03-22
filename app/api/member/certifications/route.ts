@@ -62,9 +62,9 @@ export async function POST(request: Request) {
       update: {},
     });
     if (!existing) {
-      await sendPartnerMilestoneEmail(user.id, 'Certification earned', {
+      sendPartnerMilestoneEmail(user.id, 'Certification earned', {
         Certification: certName,
-      });
+      }).catch((err) => console.error('Partner milestone email failed:', err));
     }
   } else {
     await prisma.userCertification.deleteMany({

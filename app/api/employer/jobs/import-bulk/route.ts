@@ -213,18 +213,63 @@ export async function POST(request: NextRequest) {
   // regular fetch to save credits; Firecrawl fallback only if direct fetch fails.
   if (listingsText.length >= 80 && !careersPageProcessed) {
     const subUrls = extractSubJobUrlsFromPageText(listingsText);
+    const listingFallbacks = (await parseJobListingsFromPageText(listingsText)) ?? [];
+    const listingFallbackByUrl = new Map(
+      listingFallbacks
+        .filter((listing) => listing.sourceUrl)
+        .map((listing) => [listing.sourceUrl as string, listing])
+    );
     const isJsRenderedAts = careersPageUrl && /rippling|workday|icims/i.test(careersPageUrl);
 
     if (subUrls.length > 0) {
       for (const { url, title: listingTitle } of subUrls) {
+        const listingFallback = listingFallbackByUrl.get(url);
         const pageText = await fetchSubJobPageText(url, { waitFor: isJsRenderedAts ? 4500 : 2000 });
         if (!pageText || pageText.length < 80) {
+          if (listingFallback) {
+            const cleanDesc = stripUrlsFromDescription(listingFallback.description.trim());
+            const suffix = `
+
+---
+Imported from: ${url}`;
+            const job = await prisma.job.create({
+              data: buildEmployerJobCreateData(ctx.employerId, {
+                title: listingFallback.title.trim(),
+                description: cleanDesc ? `${cleanDesc}${suffix}` : `Imported listing.${suffix}`,
+                requirements: [],
+                preferredCertifications: [],
+                suggestedPrograms: [],
+                status: 'draft',
+              }),
+            });
+            created.push({ id: job.id, title: job.title, provider: 'listing-fallback' });
+            continue;
+          }
           errors.push({ source: url, error: 'Could not fetch job page.' });
           continue;
         }
         const parsed = await parseJobFromText(pageText);
         const extracted = parsed ?? buildFallbackParsedJobFromScrape(listingTitle, pageText);
         if (!extracted) {
+          if (listingFallback) {
+            const cleanDesc = stripUrlsFromDescription(listingFallback.description.trim());
+            const suffix = `
+
+---
+Imported from: ${url}`;
+            const job = await prisma.job.create({
+              data: buildEmployerJobCreateData(ctx.employerId, {
+                title: listingFallback.title.trim(),
+                description: cleanDesc ? `${cleanDesc}${suffix}` : `Imported listing.${suffix}`,
+                requirements: [],
+                preferredCertifications: [],
+                suggestedPrograms: [],
+                status: 'draft',
+              }),
+            });
+            created.push({ id: job.id, title: job.title, provider: 'listing-fallback' });
+            continue;
+          }
           errors.push({
             source: url,
             error: !isAIConfigured()
@@ -233,7 +278,10 @@ export async function POST(request: NextRequest) {
           });
           continue;
         }
-        const suffix = `\n\n---\nImported from: ${url}`;
+        const suffix = `
+
+---
+Imported from: ${url}`;
         const job = await prisma.job.create({
           data: buildEmployerJobCreateData(ctx.employerId, {
             title: extracted.title,

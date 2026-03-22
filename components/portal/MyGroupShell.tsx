@@ -12,28 +12,37 @@ export default function MyGroupShell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname() ?? '';
+  const active = pathname === '/my-group';
 
   return (
-    <div>
-      <nav className="portal-nav" aria-label="My group navigation">
-        <div className="portal-nav-inner">
-          <ul className="portal-nav-links">
-            <li>
-              <Link href="/my-group" className={pathname === '/my-group' ? 'active' : undefined}>
-                My Group
+    <div className="employer-portal-shell">
+      <header className="employer-portal-header">
+        <div className="employer-portal-header-inner">
+          <div className="employer-portal-brand-row">
+            <div className="employer-portal-brand-block">
+              <Link href="/my-group" className="employer-portal-brand">
+                WorkforceAP
               </Link>
-            </li>
-          </ul>
-          <div className="portal-nav-actions">
-            <span style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', marginRight: '0.5rem' }}>{groupNames}</span>
-            <Link href="/" className="portal-nav-home">
-              WorkforceAP
+              <span className="employer-portal-tagline">Group leader view</span>
+            </div>
+            <Link href="/" className="employer-portal-home-link">
+              Site home
             </Link>
-            <SignOutButton />
+          </div>
+          <nav className="employer-portal-nav" aria-label="My group navigation">
+            <Link href="/my-group" className={pathname === '/my-group' ? 'active' : undefined}>
+              My Group
+            </Link>
+          </nav>
+          <div className="employer-portal-actions">
+            <span className="employer-portal-company" title={groupNames}>
+              {groupNames}
+            </span>
+            <SignOutButton className="btn btn-outline btn-sm">Sign out</SignOutButton>
           </div>
         </div>
-      </nav>
-      <div style={{ padding: '1.5rem', maxWidth: 1200, margin: '0 auto' }}>{children}</div>
+      </header>
+      <main className="employer-portal-main">{children}</main>
     </div>
   );
 }

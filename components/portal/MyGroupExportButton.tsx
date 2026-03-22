@@ -5,10 +5,10 @@ type Member = {
   fullName: string;
   email: string;
   enrolledProgram: string | null;
-  enrolledAt: Date | null;
+  enrolledAt?: Date | string | null;
   progressPct: number;
   stage: string;
-  placementRecord?: { employerName: string; jobTitle: string; salaryOffered: number | null; placedAt: Date } | null;
+  placementRecord?: { employerName: string; jobTitle: string; salaryOffered: number | null; placedAt: Date | string } | null;
 };
 
 export default function MyGroupExportButton({ members }: { members: Member[] }) {

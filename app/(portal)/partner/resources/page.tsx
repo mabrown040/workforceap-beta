@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
+import PageHeader from '@/components/portal/PageHeader';
 import { prisma } from '@/lib/db/prisma';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -33,10 +34,10 @@ export default async function PartnerResourcesPage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Resources</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.75rem' }}>
-        Quick links for {ctx.partner.name} and your internal team.
-      </p>
+      <PageHeader
+        title="Resources"
+        subtitle={`Quick links for ${ctx.partner.name} and your internal team.`}
+      />
 
       {(partner?.contactEmail || partner?.contactPhone || partner?.contactName) && (
         <section

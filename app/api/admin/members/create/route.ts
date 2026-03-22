@@ -209,9 +209,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Failed to create member. Please try again.' }, { status: 500 });
   }
 
-  await sendPartnerMilestoneEmail(authUser.id, 'Program enrollment', {
+  sendPartnerMilestoneEmail(authUser.id, 'Program enrollment', {
     Program: program.title,
-  });
+  }).catch((err) => console.error('Partner milestone email failed:', err));
 
   return NextResponse.json({
     ok: true,

@@ -132,3 +132,8 @@ ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_role_id_fkey" FOREIGN KEY ("
 
 -- AddForeignKey
 ALTER TABLE "audit_logs" ADD CONSTRAINT "audit_logs_actor_user_id_fkey" FOREIGN KEY ("actor_user_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- Restrict PII access by default (Supabase/Postgres): require explicit policies.
+ALTER TABLE "users" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "profiles" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "applications" ENABLE ROW LEVEL SECURITY;

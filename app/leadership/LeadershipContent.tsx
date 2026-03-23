@@ -28,6 +28,7 @@ export default function LeadershipContent() {
               <Link href={`/leadership/${leader.slug}`} className="leader-card-overlay-link">
                 <span className="sr-only">View full profile: {leader.name}</span>
               </Link>
+              {leader.founder && <span className="leader-card-badge">Founder</span>}
               <div className="leader-card-photo">
                 <Image
                   src={leader.image}
@@ -38,7 +39,6 @@ export default function LeadershipContent() {
                   priority={index === 0}
                   loading={index === 0 ? undefined : 'lazy'}
                 />
-                {leader.founder && <span className="leader-card-badge">Founder</span>}
               </div>
               <div className="leader-card-body">
                 <div className="leader-card-name">{leader.name}</div>

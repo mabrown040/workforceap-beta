@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import ApplicationTrackerTable from '@/components/portal/ApplicationTrackerTable';
+import MemberJobPostingTransparency from '@/components/portal/MemberJobPostingTransparency';
 
 export const metadata = buildPageMetadata({
   title: 'Application Tracker',
@@ -26,6 +27,7 @@ export default async function ApplicationTrackerPage() {
       </section>
       <section className="content-section">
         <div className="container">
+          <MemberJobPostingTransparency userId={user.id} />
           <ApplicationTrackerTable />
         </div>
       </section>

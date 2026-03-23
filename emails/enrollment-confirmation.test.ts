@@ -1,0 +1,99 @@
+/**
+ * Tests for enrollment confirmation email template.
+ * Verifies correct HTML output, escaping, and nonprofit language.
+ */
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
+import { enrollmentConfirmationHtml } from './enrollment-confirmation';
+
+describe('enrollmentConfirmationHtml', () => {
+  it('includes the member first name', () => {
+    const html = enrollmentConfirmationHtml({
+      firstName: 'Sarah',
+      programName: 'Google Cybersecurity Certificate',
+      counselorContact: 'counselor@workforceap.org',
+    });
+    assert.ok(html.includes('Sarah'), 'should include first name');
+  });
+
+  it('includes the program name', () => {
+    const html = enrollmentConfirmationHtml({
+      firstName: 'Sarah',
+      programName: 'Google Cybersecurity Certificate',
+      counselorContact: 'counselor@workforceap.org',
+    });
+    assert.ok(html.includes('Google Cybersecurity Certificate'), 'should include program name');
+  });
+
+  it('includes counselor contact', () => {
+    const html = enrollmentConfirmationHtml({
+      firstName: 'Sarah',
+      programName: 'Google Cybersecurity Certificate',
+      counselorContact: 'counselor@workforceap.org',
+    });
+    assert.ok(html.includes('counselor@workforceap.org'), 'should include counselor contact');
+  });
+
+  it('uses "accepted member" language — not "student"', () => {
+    const html = enrollmentConfirmationHtml({
+      firstName: 'Sarah',
+      programName: 'Any Program',
+      counselorContact: 'counselor@workforceap.org',
+    });
+    assert.ok(html.includes('accepted member'), 'should use accepted member language');
+    assert.ok(!html.toLowerCase().includes('student'), 'should not use student language');
+  });
+
+  it('uses "no-cost training for members" language', () => {
+    const html = enrollmentConfirmationHtml({
+      firstName: 'Sarah',
+      programName: 'Any Program',
+      counselorContact: 'counselor@workforceap.org',
+    });
+    assert.ok(
+      html.includes('no-cost training for members'),
+      'should use correct nonprofit language'
+    );
+    assert.ok(
+      !html.includes('qualifying participants'),
+      'should not use qualifying participants language'
+    );
+  });
+
+  it('escapes HTML in firstName to prevent XSS', () => {
+    const html = enrollmentConfirmationHtml({
+      firstName: '<script>alert(1)</script>',
+      programName: 'Test Program',
+      counselorContact: 'counselor@workforceap.org',
+    });
+    assert.ok(!html.includes('<script>'), 'should escape script tags in firstName');
+    assert.ok(html.includes('&lt;script&gt;'), 'should HTML-encode the script tag');
+  });
+
+  it('escapes HTML in programName to prevent XSS', () => {
+    const html = enrollmentConfirmationHtml({
+      firstName: 'Sarah',
+      programName: '<img onerror=alert(1) src=x>',
+      counselorContact: 'counselor@workforceap.org',
+    });
+    assert.ok(!html.includes('<img'), 'should escape img tag in programName');
+  });
+
+  it('escapes HTML in counselorContact to prevent XSS', () => {
+    const html = enrollmentConfirmationHtml({
+      firstName: 'Sarah',
+      programName: 'Test',
+      counselorContact: '"><script>steal()</script>',
+    });
+    assert.ok(!html.includes('<script>'), 'should escape script in counselorContact');
+  });
+
+  it('returns non-empty string', () => {
+    const html = enrollmentConfirmationHtml({
+      firstName: 'Sarah',
+      programName: 'Test Program',
+      counselorContact: 'counselor@workforceap.org',
+    });
+    assert.ok(html.length > 100, 'should return substantial HTML content');
+  });
+});

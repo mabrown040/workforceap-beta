@@ -4,6 +4,7 @@ import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { canTransitionJobApplicationStatus } from '@/lib/employer/applicationStatus';
+import { recordEmployerWorkflowEvent } from '@/lib/portal/workflowEvents';
 import type { JobPostingApplicationStatus } from '@prisma/client';
 
 const patchSchema = z.object({
@@ -51,6 +52,28 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: s
       student: { select: { id: true, fullName: true, email: true } },
     },
   });
+
+  if (nextStatus !== undefined && nextStatus !== existing.status) {
+    await recordEmployerWorkflowEvent({
+      employerId: employerCtx.employerId,
+      actorUserId: user.id,
+      kind: 'application_status',
+      headline: `Candidate status → ${nextStatus} · ${updated.job.title}`,
+      detail: updated.student.fullName,
+      entityType: 'JobPostingApplication',
+      entityId: id,
+    });
+  } else if (employerNotes !== undefined && employerNotes !== existing.employerNotes) {
+    await recordEmployerWorkflowEvent({
+      employerId: employerCtx.employerId,
+      actorUserId: user.id,
+      kind: 'application_note',
+      headline: `Notes updated · ${updated.job.title}`,
+      detail: updated.student.fullName,
+      entityType: 'JobPostingApplication',
+      entityId: id,
+    });
+  }
 
   return NextResponse.json(updated);
 }

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { recordPartnerWorkflowEvent } from '@/lib/portal/workflowEvents';
 
 const postSchema = z.object({
   memberId: z.string().uuid(),
@@ -71,6 +72,16 @@ export async function POST(request: NextRequest) {
     include: {
       member: { select: { fullName: true } },
     },
+  });
+
+  await recordPartnerWorkflowEvent({
+    partnerId: ctx.partnerId,
+    actorUserId: user.id,
+    kind: 'outreach',
+    headline: `Outreach (${parsed.data.channel}) · ${log.member.fullName}`,
+    detail: parsed.data.note.slice(0, 500),
+    entityType: 'PartnerOutreachLog',
+    entityId: log.id,
   });
 
   return NextResponse.json({

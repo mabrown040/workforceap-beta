@@ -1,16 +1,20 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 
-type StaleMember = {
-  id: string;
+type AttentionMember = {
+  memberId: string;
   fullName: string;
   stage: string;
   stageLabel: string;
   programTitle: string;
-  lastUpdatedAt: string;
   staleDays: number;
+  riskTier: 'high' | 'medium' | 'low' | 'watch';
+  nextBestAction: string;
+  assignedPartnerUserId: string | null;
+  assignedToName: string | null;
+  lastTouchName: string | null;
 };
 
 type LogRow = {
@@ -24,26 +28,33 @@ type LogRow = {
 };
 
 type MemberOption = { id: string; fullName: string };
+type TeamUser = { id: string; fullName: string; email: string };
 
-export default function PartnerAttentionClient() {
-  const [stale, setStale] = useState<StaleMember[] | null>(null);
+type TierFilter = 'all' | 'high' | 'medium' | 'low' | 'watch';
+
+export default function PartnerAttentionClient({ initialTier = 'all' as TierFilter }) {
+  const [rows, setRows] = useState<AttentionMember[] | null>(null);
+  const [tierFilter, setTierFilter] = useState<TierFilter>(initialTier);
+  const [team, setTeam] = useState<TeamUser[] | null>(null);
   const [allMembers, setAllMembers] = useState<MemberOption[] | null>(null);
   const [logs, setLogs] = useState<LogRow[] | null>(null);
   const [memberId, setMemberId] = useState('');
   const [channel, setChannel] = useState<'email' | 'call' | 'text' | 'other'>('email');
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
+  const [assignBusy, setAssignBusy] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
-    const [r1, r2, r3] = await Promise.all([
+    const [r1, r2, r3, r4] = await Promise.all([
       fetch('/api/partner/members/needs-attention', { credentials: 'include' }),
       fetch('/api/partner/outreach', { credentials: 'include' }),
       fetch('/api/partner/referral-members', { credentials: 'include' }),
+      fetch('/api/partner/team-assign', { credentials: 'include' }),
     ]);
     if (r1.ok) {
-      const d = (await r1.json()) as { members: StaleMember[] };
-      setStale(d.members);
+      const d = (await r1.json()) as { members: AttentionMember[] };
+      setRows(d.members);
     }
     if (r2.ok) {
       const d = (await r2.json()) as { logs: LogRow[] };
@@ -53,11 +64,21 @@ export default function PartnerAttentionClient() {
       const d = (await r3.json()) as { members: MemberOption[] };
       setAllMembers(d.members);
     }
+    if (r4.ok) {
+      const d = (await r4.json()) as { users: TeamUser[] };
+      setTeam(d.users);
+    }
   }, []);
 
   useEffect(() => {
     void reload();
   }, [reload]);
+
+  const filtered = useMemo(() => {
+    if (!rows) return [];
+    if (tierFilter === 'all') return rows;
+    return rows.filter((r) => r.riskTier === tierFilter);
+  }, [rows, tierFilter]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,48 +103,92 @@ export default function PartnerAttentionClient() {
       setNote('');
       setMessage('Outreach logged.');
       await reload();
+      window.location.reload();
     } finally {
       setSaving(false);
     }
   };
 
+  const assign = async (memberIdTarget: string, userId: string | null) => {
+    setAssignBusy(memberIdTarget);
+    try {
+      const r = await fetch(`/api/partner/referrals/${memberIdTarget}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ assignedPartnerUserId: userId }),
+      });
+      if (r.ok) window.location.reload();
+    } finally {
+      setAssignBusy(null);
+    }
+  };
+
   return (
     <div className="partner-attention-console">
-      <section className="partner-panel" style={{ padding: '1.25rem', marginBottom: '1.25rem' }}>
-        <h2 style={{ fontSize: '1rem', marginBottom: '0.75rem' }}>Members needing a check-in</h2>
+      <section className="partner-panel partner-attention-queue" style={{ padding: '1.25rem', marginBottom: '1.25rem' }}>
+        <h2 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>Risk-tiered attention queue</h2>
         <p style={{ color: 'var(--color-gray-600)', fontSize: '0.9rem', marginBottom: '1rem' }}>
-          Applied or enrolled referrals with no profile update in 7+ days.
+          Tier from days since last profile update. Use next actions and owner assignment to keep referrals moving.
         </p>
-        {!stale ? (
+        <div className="partner-tier-filters" role="tablist" aria-label="Risk tier">
+          {(['all', 'high', 'medium', 'low', 'watch'] as const).map((t) => (
+            <button
+              key={t}
+              type="button"
+              className={`partner-tier-filter${tierFilter === t ? ' is-active' : ''}`}
+              onClick={() => setTierFilter(t)}
+            >
+              {t === 'all' ? 'All' : t}
+            </button>
+          ))}
+        </div>
+        {!rows ? (
           <p>Loading…</p>
-        ) : stale.length === 0 ? (
-          <p style={{ color: 'var(--color-gray-600)' }}>No one is stale right now.</p>
+        ) : filtered.length === 0 ? (
+          <p style={{ color: 'var(--color-gray-600)' }}>No members in this filter.</p>
         ) : (
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {stale.map((m) => (
-              <li
-                key={m.id}
-                style={{
-                  padding: '0.75rem 0',
-                  borderBottom: '1px solid var(--color-border)',
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: '0.5rem',
-                  justifyContent: 'space-between',
-                  alignItems: 'baseline',
-                }}
-              >
-                <div>
-                  <Link href={`/partner/members/${m.id}`} style={{ fontWeight: 600 }}>
+          <ul className="partner-attention-list">
+            {filtered.map((m) => (
+              <li key={m.memberId} className={`partner-attention-row tier-${m.riskTier}`}>
+                <div className="partner-attention-main">
+                  <span className={`partner-risk-pill tier-${m.riskTier}`}>{m.riskTier}</span>
+                  <Link href={`/partner/members/${m.memberId}`} className="partner-attention-name">
                     {m.fullName}
                   </Link>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>
-                    {m.stageLabel} · {m.programTitle} · no update {m.staleDays}d
+                  <div className="partner-attention-meta">
+                    {m.stageLabel} · {m.programTitle} · quiet {m.staleDays}d
+                  </div>
+                  <div className="partner-attention-next">
+                    <strong>Next:</strong> {m.nextBestAction}
+                  </div>
+                  <div className="partner-attention-owners">
+                    <span>Owner: {m.assignedToName ?? '—'}</span>
+                    <span> · Last touch: {m.lastTouchName ?? '—'}</span>
                   </div>
                 </div>
-                <button type="button" className="btn btn-outline btn-sm" onClick={() => setMemberId(m.id)}>
-                  Log outreach
-                </button>
+                <div className="partner-attention-side">
+                  <select
+                    className="partner-assign-select"
+                    aria-label={`Assign owner for ${m.fullName}`}
+                    value={m.assignedPartnerUserId ?? ''}
+                    disabled={assignBusy === m.memberId || !team}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      void assign(m.memberId, v === '' ? null : v);
+                    }}
+                  >
+                    <option value="">Unassigned</option>
+                    {(team ?? []).map((u) => (
+                      <option key={u.id} value={u.id}>
+                        {u.fullName}
+                      </option>
+                    ))}
+                  </select>
+                  <button type="button" className="btn btn-outline btn-sm" onClick={() => setMemberId(m.memberId)}>
+                    Log outreach
+                  </button>
+                </div>
               </li>
             ))}
           </ul>

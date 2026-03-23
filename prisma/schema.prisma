@@ -70,8 +70,10 @@ model User {
   jobPostingApplications JobPostingApplication[]
   aiJobMatches       AIJobMatch[]
   jobsApproved       Job[]            @relation("JobApprover")
-  partnerOutreachAbout   PartnerOutreachLog[] @relation("PartnerOutreachMember")
-  partnerOutreachAuthored PartnerOutreachLog[] @relation("PartnerOutreachAuthor")
+  partnerOutreachAbout    PartnerOutreachLog[] @relation("PartnerOutreachMember")
+  partnerOutreachAuthored   PartnerOutreachLog[] @relation("PartnerOutreachAuthor")
+  assignedPartnerReferrals  PartnerReferral[]    @relation("PartnerReferralAssignee")
+  portalWorkflowEvents      PortalWorkflowEvent[]
 
   subgroupsLed       Subgroup[]       @relation("SubgroupLeader")
   subgroupsCreated   Subgroup[]       @relation("SubgroupCreator")
@@ -529,7 +531,8 @@ model Partner {
   referrals     PartnerReferral[]
   partnerUsers  PartnerUser[]
   subgroups     Subgroup[]
-  outreachLogs  PartnerOutreachLog[]
+  outreachLogs    PartnerOutreachLog[]
+  workflowEvents  PortalWorkflowEvent[]
 
   @@map("partners")
 }
@@ -582,16 +585,19 @@ model CounselorAssignment {
 }
 
 model PartnerReferral {
-  id         String   @id @default(uuid())
-  partnerId  String   @map("partner_id")
-  memberId   String   @map("member_id")
-  referredAt DateTime @default(now()) @map("referred_at")
+  id                      String   @id @default(uuid())
+  partnerId               String   @map("partner_id")
+  memberId                String   @map("member_id")
+  referredAt              DateTime @default(now()) @map("referred_at")
+  assignedPartnerUserId   String?  @map("assigned_partner_user_id")
 
-  partner Partner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
-  member  User    @relation("MemberReferrals", fields: [memberId], references: [id], onDelete: Cascade)
+  partner             Partner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  member              User    @relation("MemberReferrals", fields: [memberId], references: [id], onDelete: Cascade)
+  assignedPartnerUser User?   @relation("PartnerReferralAssignee", fields: [assignedPartnerUserId], references: [id], onDelete: SetNull)
 
   @@unique([partnerId, memberId])
   @@index([partnerId])
+  @@index([assignedPartnerUserId])
   @@map("partner_referrals")
 }
 
@@ -779,6 +785,7 @@ model Employer {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   jobs Job[]
+  workflowEvents PortalWorkflowEvent[]
 
   @@map("employers")
 }
@@ -890,6 +897,28 @@ model PartnerOutreachLog {
   @@index([partnerId])
   @@index([memberId])
   @@map("partner_outreach_logs")
+}
+
+model PortalWorkflowEvent {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now()) @map("created_at")
+  scope       String
+  employerId  String?  @map("employer_id")
+  partnerId   String?  @map("partner_id")
+  actorUserId String?  @map("actor_user_id")
+  kind        String
+  headline    String   @db.Text
+  detail      String?  @db.Text
+  entityType  String?  @map("entity_type")
+  entityId    String?  @map("entity_id")
+
+  employer Employer? @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  partner  Partner?  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  actor    User?     @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([employerId, createdAt])
+  @@index([partnerId, createdAt])
+  @@map("portal_workflow_events")
 }
 
 enum AIJobMatchStatus {

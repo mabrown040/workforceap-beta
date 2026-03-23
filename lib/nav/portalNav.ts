@@ -17,6 +17,7 @@ import {
   Layers,
   LayoutDashboard,
   Library,
+  ListChecks,
   MessageSquare,
   PlusCircle,
   Settings,
@@ -37,7 +38,10 @@ export type NavBadgeKey =
   | 'applications_new'
   | 'partner_needs_attention'
   | 'milestones_new'
-  | 'readiness_incomplete';
+  | 'readiness_incomplete'
+  | 'employer_queue_review_today'
+  | 'employer_queue_stale_48h'
+  | 'employer_queue_interview';
 
 export type PortalNavItem = {
   href: string;
@@ -92,6 +96,13 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
 
 export const EMPLOYER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/employer', label: 'Overview', group: 'primary', Icon: LayoutDashboard },
+  {
+    href: '/employer/work-queue',
+    label: 'Work queue',
+    group: 'workflows',
+    Icon: ListChecks,
+    badgeKeys: ['employer_queue_review_today', 'employer_queue_stale_48h', 'employer_queue_interview'],
+  },
   {
     href: '/employer/jobs',
     label: 'Jobs',

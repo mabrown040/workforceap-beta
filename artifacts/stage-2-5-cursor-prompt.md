@@ -15,7 +15,7 @@
 
 ## Ordered task list
 
-1. **Discover:** Read `artifacts/stage-2-5-cursor-prompt.md`, recent merges (`cursor/p0-blocker-fixes-prelaunch`), and grep marketing routes for employer/job-posting “free” wording (`app/employers`, `app/partners`, shared components). Exclude `node_modules` from searches.
+1. **Discover:** Read this artifact, recent merges (`cursor/p0-blocker-fixes-prelaunch`), and grep marketing routes for employer/job-posting “free” wording (`app/employers`, `app/partners`, shared components). Exclude `node_modules` from searches.
 2. **Stage 2 — copy:** Update employer/partner **marketing** surfaces only where language implies **employers** get free job posting; do not rewrite participant program SEO (`programs`, `apply`, FAQ participant answers) unless it is clearly the same employer-facing bug.
 3. **Stage 2 — portal UI:** If `/employer` or `/partner` authenticated shells look broken (unstyled layout, header overflow), add minimal CSS in `css/main.css` for the React class names used by `WorkspaceShell`, employer dashboard, and shared `PageHeader` — match existing portal tokens (`--color-*`, `--radius-*`, `var(--shadow-sm)`).
 4. **Stage 3 — verify:** Run validation commands below; fix only regressions tied to this rollout.
@@ -52,10 +52,19 @@ npm run build
 - **Force-push:** Splitting or rewriting commits on `master` may require `--force-with-lease`; confirm with repo owners before rewriting shared history.
 - **Search noise:** Restrict greps to `app`, `components`, `lib` so unrelated docs don’t drive churn.
 
+## Guardrails
+
+- No broad refactors.
+- No auth, portal-routing, or role-scope changes unless required to fix a verified regression.
+- No generic marketing-copy rewrites.
+- Keep Austin framed as the launch wedge, not the long-term ceiling.
+- Preserve credible salary/outcome framing.
+
 ## Rollback notes
 
 - **Copy only:** Revert the commit that touches `app/employers/page.tsx` / `app/partners/page.tsx` (or restore prior strings from `git show <parent>:path`).
 - **CSS only:** Revert the commit that touches `css/main.css` for workspace/employer-dash blocks.
+- **Ranking logic:** Revert the commit that touches `lib/employer/rankProgramsForEmployerJob.ts` if employer job form suggestions regress.
 - **Artifact only:** Delete or restore `artifacts/stage-2-5-cursor-prompt.md` from previous revision — no runtime impact.
 
 ## Context (frozen)

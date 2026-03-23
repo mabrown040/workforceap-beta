@@ -18,7 +18,7 @@ const PARTNER_TYPES = [
     icon: Briefcase,
     type: 'Employers',
     who: 'Companies hiring for IT, cyber, data, project management, healthcare, trades.',
-    why: 'Access pre-screened, certified talent. Post jobs free or become a hiring partner for first access to cohorts.',
+    why: 'Access pre-screened, certified talent. Post jobs or become a hiring partner for first access to cohorts.',
     nextStep: { text: 'Visit Employer Page', href: '/employers' },
   },
   {

@@ -24,7 +24,7 @@ import {
 export const metadata: Metadata = buildPageMetadata({
   title: 'Hire WorkforceAP Graduates | Pre-Screened Tech Talent',
   description:
-    'Access pre-screened, certified tech talent. WorkforceAP graduates hold industry credentials from Google, IBM, AWS, CompTIA. Post jobs free or become a hiring partner. Currently serving Austin with plans to expand.',
+    'Access pre-screened, certified tech talent. WorkforceAP graduates hold industry credentials from Google, IBM, AWS, CompTIA. Post jobs or become a hiring partner. Currently serving Austin with plans to expand.',
   path: '/employers',
 });
 
@@ -57,7 +57,7 @@ const PROGRAMS = [
 ];
 
 const HOW_IT_WORKS = [
-  { num: 1, title: 'Post Your Opening', desc: 'Add your job to our employer portal. Free. We match it to our pipeline.', icon: FileText },
+  { num: 1, title: 'Post Your Opening', desc: 'Add your job to our employer portal. We match it to our pipeline.', icon: FileText },
   { num: 2, title: 'Review Matched Candidates', desc: 'Receive pre-screened applicants who hold relevant certifications and fit your requirements.', icon: Search },
   { num: 3, title: 'Interview & Hire', desc: 'You conduct interviews and make the hire. No placement fees.', icon: UserCheck },
   { num: 4, title: '90-Day Support', desc: "We support your new hire's onboarding. You get a team member who's set up to succeed.", icon: Handshake },
@@ -83,7 +83,7 @@ const EMPLOYER_COMMITMENTS = [
 
 const PARTNERSHIP_OPTIONS = [
   {
-    title: 'Job Postings (Free)',
+    title: 'Job Postings',
     features: ['Post unlimited jobs', 'Access to active students and alumni', 'Direct candidate introductions'],
     cta: 'Get Started',
     href: '#employer-contact',
@@ -117,7 +117,7 @@ export default function EmployersPage() {
           </p>
           <div className="hero-actions" style={{ marginTop: '1.5rem', marginBottom: 0 }}>
             <Link href="/employer" className="btn btn-accent btn-large">
-              Post a Job (Free)
+              Post a Job
             </Link>
             <Link href="#employer-contact" className="btn btn-ghost btn-large">
               Become a Hiring Partner

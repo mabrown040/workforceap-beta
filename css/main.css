@@ -9797,6 +9797,41 @@ body { animation: fadeIn 0.4s ease; }
     color: var(--color-gray-500);
     font-size: 0.85rem;
 }
+.contact-form-field-error {
+    margin: 0.35rem 0 0;
+    font-size: 0.85rem;
+    color: #b91c1c;
+    font-weight: 600;
+    line-height: 1.35;
+}
+.apply-eligibility-fieldset {
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+.apply-eligibility-legend {
+    font-weight: 700;
+    font-size: 1rem;
+    margin: 0 0 0.35rem;
+    padding: 0;
+    color: var(--color-primary);
+}
+.apply-eligibility-prompt {
+    margin: 0 0 0.75rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--color-gray-800);
+}
+.apply-eligibility-field-error {
+    margin: 0.5rem 0 0;
+    font-size: 0.875rem;
+    color: var(--color-accent-dark);
+    font-weight: 600;
+    line-height: 1.4;
+}
+.apply-continue-hint[role='status'] {
+    color: var(--color-gray-600);
+}
 
 /* =============================================
    SALARY GUIDE MOBILE — must override all table styles

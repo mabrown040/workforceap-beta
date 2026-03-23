@@ -7,6 +7,26 @@ import { trackApplyFunnel } from '@/lib/analytics/events';
 
 const APPLY_STORAGE_KEY = 'apply_eligibility';
 
+const ELIGIBILITY_QUESTIONS = [
+  {
+    id: 'q1' as const,
+    legend: 'Employment status',
+    prompt:
+      'Are you currently unemployed, working part-time when you want full-time work, or in a job that pays below what your skills or training should command (underemployed)?',
+  },
+  {
+    id: 'q2' as const,
+    legend: 'Household income',
+    prompt: "Is your household's total annual income below $60,000 before taxes?",
+  },
+  {
+    id: 'q3' as const,
+    legend: 'Work authorization',
+    prompt:
+      'Are you in the United States with permission to work here (for example, U.S. citizen, permanent resident, or other valid work authorization)?',
+  },
+] as const;
+
 export default function ApplyEligibilityClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -86,9 +106,15 @@ export default function ApplyEligibilityClient() {
         </div>
 
         <div className="funding-questions">
-          <div className="form-group">
-            <label>Are you currently unemployed or underemployed?</label>
-            <div className="form-radio-cards">
+          <fieldset className="form-group apply-eligibility-fieldset">
+            <legend className="apply-eligibility-legend">{ELIGIBILITY_QUESTIONS[0].legend}</legend>
+            <p className="apply-eligibility-prompt">{ELIGIBILITY_QUESTIONS[0].prompt}</p>
+            <div
+              className="form-radio-cards"
+              role="group"
+              aria-invalid={attemptedContinue && q1 === null}
+              aria-describedby={attemptedContinue && q1 === null ? 'apply-eligibility-q1-error' : undefined}
+            >
               <label className={`form-radio-card ${q1 === 'yes' ? 'selected' : ''}`}>
                 <input type="radio" name="q1" value="yes" checked={q1 === 'yes'} onChange={() => setQ1('yes')} />
                 <span className="radio-dot" />
@@ -100,10 +126,21 @@ export default function ApplyEligibilityClient() {
                 <span>No</span>
               </label>
             </div>
-          </div>
-          <div className="form-group">
-            <label>Is your household income below $60,000 per year?</label>
-            <div className="form-radio-cards">
+            {attemptedContinue && q1 === null && (
+              <p id="apply-eligibility-q1-error" className="apply-eligibility-field-error" role="alert">
+                Choose Yes or No for this question to continue.
+              </p>
+            )}
+          </fieldset>
+          <fieldset className="form-group apply-eligibility-fieldset">
+            <legend className="apply-eligibility-legend">{ELIGIBILITY_QUESTIONS[1].legend}</legend>
+            <p className="apply-eligibility-prompt">{ELIGIBILITY_QUESTIONS[1].prompt}</p>
+            <div
+              className="form-radio-cards"
+              role="group"
+              aria-invalid={attemptedContinue && q2 === null}
+              aria-describedby={attemptedContinue && q2 === null ? 'apply-eligibility-q2-error' : undefined}
+            >
               <label className={`form-radio-card ${q2 === 'yes' ? 'selected' : ''}`}>
                 <input type="radio" name="q2" value="yes" checked={q2 === 'yes'} onChange={() => setQ2('yes')} />
                 <span className="radio-dot" />
@@ -115,10 +152,21 @@ export default function ApplyEligibilityClient() {
                 <span>No</span>
               </label>
             </div>
-          </div>
-          <div className="form-group">
-            <label>Are you a U.S. resident?</label>
-            <div className="form-radio-cards">
+            {attemptedContinue && q2 === null && (
+              <p id="apply-eligibility-q2-error" className="apply-eligibility-field-error" role="alert">
+                Choose Yes or No for this question to continue.
+              </p>
+            )}
+          </fieldset>
+          <fieldset className="form-group apply-eligibility-fieldset">
+            <legend className="apply-eligibility-legend">{ELIGIBILITY_QUESTIONS[2].legend}</legend>
+            <p className="apply-eligibility-prompt">{ELIGIBILITY_QUESTIONS[2].prompt}</p>
+            <div
+              className="form-radio-cards"
+              role="group"
+              aria-invalid={attemptedContinue && q3 === null}
+              aria-describedby={attemptedContinue && q3 === null ? 'apply-eligibility-q3-error' : undefined}
+            >
               <label className={`form-radio-card ${q3 === 'yes' ? 'selected' : ''}`}>
                 <input type="radio" name="q3" value="yes" checked={q3 === 'yes'} onChange={() => setQ3('yes')} />
                 <span className="radio-dot" />
@@ -130,7 +178,12 @@ export default function ApplyEligibilityClient() {
                 <span>No</span>
               </label>
             </div>
-          </div>
+            {attemptedContinue && q3 === null && (
+              <p id="apply-eligibility-q3-error" className="apply-eligibility-field-error" role="alert">
+                Choose Yes or No for this question to continue.
+              </p>
+            )}
+          </fieldset>
         </div>
 
         {canContinue && (
@@ -157,8 +210,8 @@ export default function ApplyEligibilityClient() {
           Continue to step 2 — choose a program →
         </button>
         {(!canContinue || attemptedContinue) && (
-          <p id="apply-eligibility-continue-hint" className="apply-continue-hint" role={attemptedContinue ? 'alert' : undefined}>
-            Please answer all 3 questions before continuing. If you&apos;re unsure, choose the closest answer — a counselor can clarify details with you later.
+          <p id="apply-eligibility-continue-hint" className="apply-continue-hint" role={attemptedContinue ? 'status' : undefined}>
+            Answer all three questions above, then continue. If you&apos;re unsure, pick the closest option — a counselor can clarify when we follow up.
           </p>
         )}
       </div>

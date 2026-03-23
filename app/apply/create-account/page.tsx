@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
 import ApplyCreateAccountForm from './ApplyCreateAccountForm';
@@ -25,7 +26,9 @@ export default function ApplyCreateAccountPage() {
       <section className="content-section">
         <div className="container">
           <div style={{ maxWidth: '560px', margin: '0 auto' }}>
-            <ApplyCreateAccountForm />
+            <Suspense fallback={<p>Loading…</p>}>
+              <ApplyCreateAccountForm />
+            </Suspense>
             <p style={{ marginTop: '1.5rem', textAlign: 'center' }}>
               Already have an account? <a href="/login">Log in</a>
             </p>

@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
+import ApplyConfirmationCta from '@/components/apply/ApplyConfirmationCta';
 
 export const metadata = buildPageMetadata({
   title: 'Application Received',
@@ -23,6 +25,10 @@ export default function ApplyConfirmationPage() {
         <div className="container">
           <div className="apply-confirmation" style={{ maxWidth: '620px', margin: '0 auto' }}>
             <div className="apply-confirmation-icon" style={{ fontSize: '3rem', marginBottom: '1.5rem', textAlign: 'center' }}>&#10003;</div>
+
+            <Suspense fallback={null}>
+              <ApplyConfirmationCta />
+            </Suspense>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '2rem' }}>
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>

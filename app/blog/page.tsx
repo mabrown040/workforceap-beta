@@ -5,6 +5,8 @@ import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
 import BlogListingClient from './BlogListingClient';
 
+export const revalidate = 3600;
+
 export const metadata: Metadata = buildPageMetadata({
   title: 'Blog',
   description:

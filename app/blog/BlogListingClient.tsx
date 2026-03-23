@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, BookOpen, HelpCircle, GraduationCap } from 'lucide-react';
+import { blogListingCardImage } from '@/lib/blog/blogListingImage';
 
 type Post = {
   id: string;
@@ -11,6 +12,7 @@ type Post = {
   title: string;
   excerpt: string | null;
   coverImage: string | null;
+  heroImage: string | null;
   authorName: string;
   publishedAt: Date | null;
   category: string | null;
@@ -126,29 +128,19 @@ export default function BlogListingClient({
         </div>
       )}
       <div className="blog-listing-grid">
-        {filtered.map((post) => (
+        {filtered.map((post) => {
+          const cardSrc = blogListingCardImage(post.heroImage, post.coverImage);
+          return (
           <article key={post.id} className="blog-card">
             <Link href={`/blog/${post.slug}`} className="blog-card-link">
               <div className="blog-card-cover">
-                {post.coverImage ? (
-                  <Image
-                    src={post.coverImage}
-                    alt={post.title ? `Cover image for ${post.title}` : 'Blog post cover image'}
-                    width={400}
-                    height={250}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                ) : (
-                  <div className="blog-card-fallback" aria-hidden>
-                    <Image
-                      src="/images/logo-tight.png"
-                      alt=""
-                      width={160}
-                      height={90}
-                      style={{ width: '40%', height: 'auto', opacity: 0.9, objectFit: 'contain' }}
-                    />
-                  </div>
-                )}
+                <Image
+                  src={cardSrc}
+                  alt={post.title ? `Cover image for ${post.title}` : 'Blog post cover image'}
+                  width={400}
+                  height={250}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
                 {post.category && (
                   <span className="blog-card-category">{post.category}</span>
                 )}
@@ -166,7 +158,8 @@ export default function BlogListingClient({
               <span className="blog-card-cta">Read More →</span>
             </Link>
           </article>
-        ))}
+        );
+        })}
       </div>
       {filtered.length === 0 && (
         <p style={{ textAlign: 'center', color: '#666', padding: '3rem' }}>

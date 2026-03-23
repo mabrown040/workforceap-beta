@@ -2,11 +2,23 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-const posts = [
+const posts: Array<{
+  slug: string;
+  title: string;
+  category: string;
+  excerpt: string;
+  authorName: string;
+  published: boolean;
+  publishedAt: Date;
+  content: string;
+  heroImage?: string;
+}> = [
   {
     slug: 'breaking-into-tech-starting-over',
     title: 'Breaking Into Tech: What No One Tells You About Starting Over',
     category: 'Career Tips',
+    heroImage:
+      'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80&auto=format&fit=crop',
     excerpt:
       "The hardest part isn't learning to code — it's believing the door is open for you.",
     authorName: 'WorkforceAP Team',
@@ -26,6 +38,8 @@ WorkforceAP exists for exactly this moment. We provide the structure, support, a
     slug: 'google-cybersecurity-certificate-worth-it',
     title: "What Is Google's Cybersecurity Certificate — And Is It Worth It?",
     category: 'Program Spotlight',
+    heroImage:
+      'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80&auto=format&fit=crop',
     excerpt:
       "Six months. No experience required. A job title that commands $75K+. Here's what you need to know.",
     authorName: 'WorkforceAP Team',
@@ -46,6 +60,8 @@ The 8-course curriculum includes hands-on labs, portfolio projects, and exam pre
     slug: 'from-warehouse-to-it-support-marcus-story',
     title: "From Warehouse to IT Support: Marcus's Story",
     category: 'Success Stories',
+    heroImage:
+      'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&q=80&auto=format&fit=crop',
     excerpt:
       "He spent 12 years in logistics. Six months later, he's a certified IT technician with a new career trajectory.",
     authorName: 'WorkforceAP Team',
@@ -336,7 +352,12 @@ export async function seedBlogPosts() {
   for (const post of posts) {
     await prisma.blogPost.upsert({
       where: { slug: post.slug },
-      update: {}, // never overwrite existing posts - preserves manual edits
+      update:
+        post.heroImage != null
+          ? {
+              heroImage: post.heroImage,
+            }
+          : {},
       create: post,
     });
     console.log(`✓ ${post.title}`);

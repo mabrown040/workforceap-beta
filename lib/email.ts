@@ -25,6 +25,7 @@ import {
   applicantFollowupHtml,
   adminPendingApplicantsHtml,
   adminWeeklyRecapHtml,
+  enrollmentConfirmationHtml,
 } from '@/emails';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
@@ -38,6 +39,44 @@ function getResend(): Resend | null {
 
 function getFrom(): string {
   return process.env.EMAIL_FROM || 'noreply@workforceap.org';
+}
+
+/** Send enrollment confirmation when admin approves an application */
+export async function sendEnrollmentConfirmationEmail(params: {
+  to: string;
+  fullName: string;
+  programName: string;
+  counselorContact?: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendEnrollmentConfirmationEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const first = params.fullName.trim().split(/\s+/)[0] || 'there';
+  const counselorContact = params.counselorContact?.trim() || 'info@workforceap.org';
+  const html = brandedEmailLayout({
+    title: 'You are approved — next steps inside your member portal',
+    bodyHtml: enrollmentConfirmationHtml({
+      firstName: first,
+      programName: params.programName,
+      counselorContact,
+    }),
+    ctaText: 'Open member portal',
+    ctaUrl: `${SITE_URL}/dashboard`,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject: 'WorkforceAP — you are approved (next steps)',
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendEnrollmentConfirmationEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
 }
 
 /** Send application accepted email to applicant */

@@ -4,6 +4,7 @@
  */
 
 export { applicationAcceptedHtml } from './application-accepted';
+export { enrollmentConfirmationHtml } from './enrollment-confirmation';
 export { applicationRejectedHtml } from './application-rejected';
 export { newApplicationAlertHtml } from './new-application-alert';
 export { courseEnrolledHtml } from './course-enrolled';

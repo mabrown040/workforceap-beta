@@ -118,3 +118,15 @@ export const PROGRAM_TITLES = PROGRAMS.map((p) => p.title) as readonly string[];
 export function getProgramBySlug(slug: string): Program | undefined {
   return PROGRAMS.find((p) => p.slug === slug);
 }
+
+/** Resolve program from stored interest (slug or full title from apply/signup lists). */
+export function getProgramByInterestValue(interest: string): Program | undefined {
+  const trimmed = interest.trim();
+  if (!trimmed) return undefined;
+  const bySlug = PROGRAMS.find((p) => p.slug === trimmed);
+  if (bySlug) return bySlug;
+  const slugGuess = slugify(trimmed);
+  const bySlugGuess = PROGRAMS.find((p) => p.slug === slugGuess);
+  if (bySlugGuess) return bySlugGuess;
+  return PROGRAMS.find((p) => p.title === trimmed);
+}

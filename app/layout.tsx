@@ -43,6 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={inter.variable}>
       <head>
         <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="preload" as="image" href="/images/logo-tight.png" />
       </head>
       <body>
         <a href="#main-content" className="skip-link">

@@ -26,6 +26,7 @@ import {
   adminPendingApplicantsHtml,
   adminWeeklyRecapHtml,
   enrollmentConfirmationHtml,
+  partnerWeeklyDigestHtml,
 } from '@/emails';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
@@ -664,6 +665,44 @@ export async function sendAdminWeeklyRecapEmail(params: {
     return { ok: true };
   } catch (err) {
     console.error('sendAdminWeeklyRecapEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Weekly referral outcomes digest for a partner org */
+export async function sendPartnerWeeklyDigestEmail(params: {
+  to: string;
+  partnerName: string;
+  weekLabel: string;
+  stageLines: string[];
+  successLines: string[];
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendPartnerWeeklyDigestEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: `Weekly referral snapshot — ${params.partnerName}`,
+    bodyHtml: partnerWeeklyDigestHtml({
+      partnerName: params.partnerName,
+      weekLabel: params.weekLabel,
+      stageLines: params.stageLines,
+      successLines: params.successLines,
+    }),
+    ctaText: 'Open partner portal',
+    ctaUrl: `${SITE_URL}/partner`,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(`WorkforceAP weekly referral update — ${params.partnerName}`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendPartnerWeeklyDigestEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
 }

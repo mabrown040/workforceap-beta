@@ -1,0 +1,86 @@
+import type { Application, ApplicationStatus } from '@prisma/client';
+
+export type MemberApplicationStage =
+  | 'applied'
+  | 'under_review'
+  | 'accepted'
+  | 'enrolled'
+  | 'active'
+  | 'rejected';
+
+export type MemberApplicationStatusView = {
+  stage: MemberApplicationStage;
+  label: string;
+  submittedAt: Date | null;
+  programInterest: string | null;
+  nextStep: string;
+  showResponseEstimate: boolean;
+};
+
+function stageFromRow(
+  app: Pick<Application, 'status' | 'programInterest' | 'submittedAt' | 'createdAt'>,
+  member: { enrolledProgram: string | null; enrolledAt: Date | null; assessmentCompleted: boolean }
+): MemberApplicationStage {
+  if (app.status === 'DENIED') return 'rejected';
+  if (app.status === 'PENDING') return 'applied';
+  if (app.status === 'NEEDS_INFO') return 'under_review';
+  if (app.status === 'APPROVED') {
+    if (!member.enrolledProgram) return 'accepted';
+    if (member.assessmentCompleted) return 'active';
+    return 'enrolled';
+  }
+  return 'applied';
+}
+
+export function buildMemberApplicationStatusView(
+  app: Pick<Application, 'status' | 'programInterest' | 'submittedAt' | 'createdAt'> | null,
+  member: { enrolledProgram: string | null; enrolledAt: Date | null; assessmentCompleted: boolean }
+): MemberApplicationStatusView | null {
+  if (!app) return null;
+
+  const stage = stageFromRow(app, member);
+  const submittedAt = app.submittedAt ?? app.createdAt;
+  const programInterest = app.programInterest ?? null;
+
+  const showResponseEstimate = app.status === 'PENDING' || app.status === 'NEEDS_INFO';
+
+  const labels: Record<MemberApplicationStage, string> = {
+    applied: 'Applied',
+    under_review: 'Under review',
+    accepted: 'Accepted member',
+    enrolled: 'Enrolled',
+    active: 'Active',
+    rejected: 'Not accepted',
+  };
+
+  const nextSteps: Record<MemberApplicationStage, string> = {
+    applied:
+      'Our team is reviewing your application. Watch your email for next steps from a counselor.',
+    under_review:
+      'We may need a bit more information. Check your email for any requests from our team.',
+    accepted:
+      'Log in to your member portal, choose your program if you have not already, and complete your profile so we can finalize enrollment.',
+    enrolled:
+      'Complete your skills assessment and start training when your counselor clears you to begin.',
+    active:
+      'Keep progressing in training and job search support. Your dashboard shows the next milestones.',
+    rejected:
+      'If you have questions about this decision, contact us at info@workforceap.org.',
+  };
+
+  return {
+    stage,
+    label: labels[stage],
+    submittedAt,
+    programInterest,
+    nextStep: nextSteps[stage],
+    showResponseEstimate,
+  };
+}
+
+export function applicationStatusForPublicLookup(status: ApplicationStatus): 'applied' | 'under_review' | 'accepted' | 'rejected' {
+  if (status === 'DENIED') return 'rejected';
+  if (status === 'APPROVED') return 'accepted';
+  if (status === 'NEEDS_INFO') return 'under_review';
+  return 'applied';
+}

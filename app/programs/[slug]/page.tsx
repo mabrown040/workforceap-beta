@@ -204,7 +204,7 @@ export default async function ProgramPage({ params }: Props) {
               <Link href={`/apply?program=${program.slug}`} className="btn btn-primary" style={{ width: '100%', padding: '1rem', marginTop: '1rem', textAlign: 'center' }}>
                 Apply for This Program
               </Link>
-              <p className="program-sidebar-note">No-cost training for qualifying participants.</p>
+              <p className="program-sidebar-note">No-cost training for members.</p>
               <Link href="/find-your-path" className="program-sidebar-quiz-link">
                 Not sure? Take the pathfinder quiz →
               </Link>

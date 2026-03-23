@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -80,7 +80,7 @@ Output ONLY the JSON array, no other text.`;
   const systemPrompt = `You are a blog writer for WorkforceAP, a no-cost career training program in Austin TX. Based on the ideas below, write a full blog post.
 
 Return a JSON object with: title, slug (URL-friendly), excerpt, category, content (markdown, 350-450 words).
-Use "no-cost training for qualifying participants" if relevant. Be authentic and specific.`;
+Use "no-cost training for members" if relevant. Be authentic and specific.`;
 
   try {
     const output = await chatCompletion(

@@ -7,6 +7,14 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import EmployerJobsBoard from '@/components/employer/EmployerJobsBoard';
 import { assessJobPostingReadiness } from '@/lib/employer/jobReadiness';
+import {
+  EMPLOYER_JOBS_PAGE_SIZE,
+  employerJobsListHref,
+  parseEmployerJobsListQuery,
+  prismaWhereClosableInListFilter,
+  prismaWhereDeletableInListFilter,
+  prismaWhereEmployerJobList,
+} from '@/lib/employer/employerJobsListQuery';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'My Jobs',
@@ -23,18 +31,51 @@ const STATUS_LABELS: Record<string, string> = {
   closed: 'Closed',
 };
 
-export default async function EmployerJobsPage() {
+type SearchProps = { searchParams: Promise<{ page?: string; filter?: string }> };
+
+export default async function EmployerJobsPage({ searchParams }: SearchProps) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/employer/jobs');
 
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect('/employers');
 
-  const jobs = await prisma.job.findMany({
-    where: { employerId: ctx.employerId },
-    orderBy: { updatedAt: 'desc' },
-    include: { _count: { select: { applications: true } } },
-  });
+  const sp = await searchParams;
+  const { filter, page } = parseEmployerJobsListQuery(sp);
+  const employerId = ctx.employerId;
+
+  const listWhere = prismaWhereEmployerJobList(employerId, filter);
+
+  const [totalInDb, totalInFilter, jobs, deletableRows, closableRows, titlesInFilter] = await Promise.all([
+    prisma.job.count({ where: { employerId } }),
+    prisma.job.count({ where: listWhere }),
+    prisma.job.findMany({
+      where: listWhere,
+      orderBy: { updatedAt: 'desc' },
+      skip: (page - 1) * EMPLOYER_JOBS_PAGE_SIZE,
+      take: EMPLOYER_JOBS_PAGE_SIZE,
+      include: { _count: { select: { applications: true } } },
+    }),
+    prisma.job.findMany({
+      where: prismaWhereDeletableInListFilter(employerId, filter),
+      select: { id: true, title: true, status: true },
+      orderBy: { updatedAt: 'desc' },
+    }),
+    prisma.job.findMany({
+      where: prismaWhereClosableInListFilter(employerId, filter),
+      select: { id: true, title: true, status: true },
+      orderBy: { updatedAt: 'desc' },
+    }),
+    prisma.job.findMany({
+      where: listWhere,
+      select: { id: true, title: true },
+    }),
+  ]);
+
+  const totalPages = Math.max(1, Math.ceil(totalInFilter / EMPLOYER_JOBS_PAGE_SIZE));
+  if (totalInFilter > 0 && page > totalPages) {
+    redirect(employerJobsListHref(filter, totalPages));
+  }
 
   const boardItems = jobs.map((j) => {
     const desc = j.description?.trim() ?? '';
@@ -62,19 +103,14 @@ export default async function EmployerJobsPage() {
       status: j.status,
       statusLabel: STATUS_LABELS[j.status] ?? j.status,
       applicationsCount: j._count.applications,
-      updatedAt: j.updatedAt,
+      updatedAt: j.updatedAt.toISOString(),
       readinessLevel: readiness.level,
       readinessIssues: readiness.issues,
     };
   });
 
-  // Group counts for the hierarchy summary
-  const counts = {
-    draft: jobs.filter((j) => j.status === 'draft').length,
-    inReview: jobs.filter((j) => j.status === 'pending' || j.status === 'approved').length,
-    live: jobs.filter((j) => j.status === 'live').length,
-    filled: jobs.filter((j) => j.status === 'filled' || j.status === 'closed').length,
-  };
+  const titleByIdInFilter: Record<string, string> = {};
+  for (const r of titlesInFilter) titleByIdInFilter[r.id] = r.title;
 
   return (
     <div className="employer-jobs-page">
@@ -89,7 +125,17 @@ export default async function EmployerJobsPage() {
           </Link>
         </div>
       </header>
-      <EmployerJobsBoard jobs={boardItems} />
+      <EmployerJobsBoard
+        jobs={boardItems}
+        filter={filter}
+        page={page}
+        pageSize={EMPLOYER_JOBS_PAGE_SIZE}
+        totalInFilter={totalInFilter}
+        totalInDb={totalInDb}
+        deletableInFilter={deletableRows}
+        closableInFilter={closableRows}
+        titleByIdInFilter={titleByIdInFilter}
+      />
     </div>
   );
 }

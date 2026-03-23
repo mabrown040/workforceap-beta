@@ -84,7 +84,7 @@ const EMPLOYER_COMMITMENTS = [
 const PARTNERSHIP_OPTIONS = [
   {
     title: 'Job Postings',
-    features: ['Post unlimited jobs', 'Access to active students and alumni', 'Direct candidate introductions'],
+    features: ['Post unlimited jobs', 'Access to active members and alumni', 'Direct candidate introductions'],
     cta: 'Get Started',
     href: '#employer-contact',
     featured: false,

@@ -16,7 +16,7 @@ export default function JobsPage() {
     <div className="inner-page">
       <PageHero
         title="Job Board"
-        subtitle="Browse openings from employers hiring WorkforceAP graduates and students."
+        subtitle="Browse openings from employers hiring WorkforceAP graduates and members."
       />
       <section className="content-section" style={{ paddingTop: '1rem' }}>
         <div className="container">

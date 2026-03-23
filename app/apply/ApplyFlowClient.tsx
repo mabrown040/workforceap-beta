@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import ApplyFormStatusBar from '@/components/ApplyFormStatusBar';
+import { trackApplyFunnel } from '@/lib/analytics/events';
 
 const FORMSPREE_ID = 'xpwzkyjo';
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
@@ -69,6 +70,15 @@ const FALLBACK_REFERRAL_SOURCES = [
 export default function ApplyFlowClient() {
   const [referralSources, setReferralSources] = useState<string[]>(FALLBACK_REFERRAL_SOURCES);
   const [step, setStep] = useState<1 | 2>(1);
+  const startedRef = useRef(false);
+
+  useEffect(() => {
+    if (!startedRef.current) {
+      startedRef.current = true;
+      trackApplyFunnel(1, 'started');
+      trackApplyFunnel(1, 'legacy_flow_view');
+    }
+  }, []);
 
   useEffect(() => {
     fetch('/api/referral-sources')
@@ -94,10 +104,13 @@ export default function ApplyFlowClient() {
     // Read fields for tracker
     const firstName = (formData.get('first_name') as string) ?? '';
     const lastName = (formData.get('last_name') as string) ?? '';
-    const program = (formData.get('program_interest') as string) ?? 'WorkforceAP Program';
+    const program = (formData.get('program') as string) ?? (formData.get('program_interest') as string) ?? 'WorkforceAP Program';
     const fullName = [firstName, lastName].filter(Boolean).join(' ') || 'Applicant';
+    const applicantEmail = ((formData.get('email') as string) ?? '').trim();
 
     try {
+      trackApplyFunnel(3, 'form_submitted', { qualifies });
+
       // Submit to Formspree
       const fsRes = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
         method: 'POST',
@@ -108,6 +121,8 @@ export default function ApplyFlowClient() {
       if (!fsRes.ok) {
         throw new Error('Form submission failed');
       }
+
+      trackApplyFunnel(4, 'application_completed', { qualifies });
 
       // Best-effort: save to Application Tracker (don't block redirect if it fails)
       try {
@@ -125,21 +140,21 @@ export default function ApplyFlowClient() {
       }
 
       // Best-effort: send confirmation email
-      const email = (formData.get('email') as string) ?? '';
-      if (email) {
+      if (applicantEmail) {
         try {
           await fetch('/api/apply/confirmation-email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, fullName }),
+            body: JSON.stringify({ email: applicantEmail, fullName }),
           });
         } catch {
           // Non-fatal
         }
       }
 
-      // Redirect to confirmation
-      window.location.href = `${SITE_URL}/apply/confirmation`;
+      // Redirect to confirmation (email for create-account CTA)
+      const emailQ = applicantEmail ? `?email=${encodeURIComponent(applicantEmail)}` : '';
+      window.location.href = `${SITE_URL}/apply/confirmation${emailQ}`;
     } catch {
       setSubmitting(false);
       setSubmitError('Something went wrong submitting your application. Please try again, or call (512) 777-1808.');
@@ -149,6 +164,12 @@ export default function ApplyFlowClient() {
   const yesCount = [q1, q2, q3].filter((a) => a === 'yes').length;
   const qualifies = yesCount >= 2;
   const canContinue = q1 !== null && q2 !== null && q3 !== null;
+
+  const goToStep2 = () => {
+    if (!canContinue) return;
+    trackApplyFunnel(2, 'qualification_completed', { qualifies });
+    setStep(2);
+  };
 
   return (
     <div className="apply-flow">
@@ -213,7 +234,7 @@ export default function ApplyFlowClient() {
             type="button"
             className="btn btn-primary"
             disabled={!canContinue}
-            onClick={() => setStep(2)}
+            onClick={goToStep2}
           >
             Continue to application
           </button>

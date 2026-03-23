@@ -231,6 +231,96 @@ if (process.env.SEED_TEST_ACCOUNTS === 'true') {
 ## Commit Format
 One atomic commit per feature: `feat(area): description` or `fix(area): description`
 
+## Testing Requirements (MANDATORY)
+
+Write a test for every feature you ship. The test goes in the same commit as the feature, or the commit immediately after. No exceptions.
+
+### Testing patterns already in this repo
+Check these for conventions before writing new tests:
+- `lib/admin/runAdminJobMatchesGet.test.ts` — integration test pattern
+- `lib/admin/applyEmployerNotifiedAfterSuggest.test.ts` — unit test pattern  
+- `lib/email/escapeHtml.test.ts` — pure function test pattern
+- `lib/employer/rankProgramsForEmployerJob.test.ts` — business logic test
+- Run tests: `node --import tsx --test <file>` or `npm run test:unit`
+
+### Required tests per feature
+
+**P0-1 (analytics wiring):**
+```
+lib/analytics/applyFunnelTracking.test.ts
+- test: trackApplyFunnel called with step=1 on apply page mount
+- test: trackApplyFunnel called with step=4 on successful submission
+- test: trackApplyFunnel NOT called if analytics disabled
+```
+
+**P0-2 (apply confirmation CTA):**
+```
+app/apply/confirmation/confirmationCta.test.ts
+- test: account creation CTA renders when email param present
+- test: CTA links to /apply/create-account with pre-filled email
+- test: confirmation renders without CTA if no email param
+```
+
+**P1-2 (enrollment confirmation email):**
+```
+lib/admin/enrollmentEmail.test.ts
+- test: Resend called with correct recipient email on status → enrolled
+- test: Resend NOT called if status change is not to enrolled/accepted
+- test: email contains member name and program title
+```
+
+**P2-1 (employer settings route):**
+```
+app/api/employer/settings/route.test.ts
+- test: PATCH /api/employer/settings returns 200 with valid payload
+- test: returns 401 if not authenticated as employer
+- test: returns 400 if required fields missing
+- test: DB record updated correctly after successful PATCH
+```
+
+**P3-2 (referral attribution):**
+```
+lib/partner/referralAttribution.test.ts
+- test: ?ref=partner-slug stored in application on submit
+- test: unknown ref code is ignored gracefully (no error)
+- test: application linked to correct partner when ref matches referralCode
+```
+
+**P4-1 (seed test accounts):**
+```
+- test: seed creates member-test account when SEED_TEST_ACCOUNTS=true
+- test: seed skips test accounts when SEED_TEST_ACCOUNTS is unset
+```
+
+### E2E smoke tests (Playwright — add to tests/e2e/)
+Expand `tests/e2e/` with portal smoke tests:
+```
+tests/e2e/portal-smoke.spec.ts
+- Member portal: login → /dashboard loads without JS error → application status card visible
+- Employer portal: login → /employer loads → jobs page loads
+- Partner portal: login → /partner loads → referrals list visible
+```
+Check `tests/e2e/member-portal-mvp.spec.ts` for existing Playwright patterns.
+
+### CI enforcement
+Verify `.github/workflows/` has a test job. If not, add one:
+```yaml
+# .github/workflows/test.yml
+name: Test
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm ci
+      - run: npm run test:unit
+```
+
+---
+
 ## Critical Rules
 - **Python only for file edits** — never PowerShell Get-Content/Set-Content (causes encoding corruption)
 - Read files before editing — never guess at schema or component structure
@@ -238,3 +328,4 @@ One atomic commit per feature: `feat(area): description` or `fix(area): descript
 - Only add new Prisma migrations forward — never modify migration history
 - `npm run build` must pass after every commit
 - All new copy uses "members" not "students" — no exceptions
+- **Write tests** — every feature gets a test, same commit or next commit

@@ -2,6 +2,8 @@
  * Invitation accepted notification email body HTML (to inviter).
  */
 
+import { escapeHtml } from '@/lib/email/escapeHtml';
+
 export function invitationAcceptedHtml(params: {
   accepterName: string;
   accepterEmail: string;
@@ -9,8 +11,8 @@ export function invitationAcceptedHtml(params: {
 }): string {
   const { accepterName, accepterEmail, role } = params;
   return `
-    <p><strong>${accepterName}</strong> (${accepterEmail}) has accepted your WorkforceAP invitation.</p>
-    <p>They have been added as a <strong>${role}</strong>.</p>
+    <p><strong>${escapeHtml(accepterName)}</strong> (${escapeHtml(accepterEmail)}) has accepted your WorkforceAP invitation.</p>
+    <p>They have been added as a <strong>${escapeHtml(role)}</strong>.</p>
     <p>You can view and manage them in the admin panel.</p>
   `.trim();
 }

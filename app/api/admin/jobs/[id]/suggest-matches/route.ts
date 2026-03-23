@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { sendAIMatchSuggestionEmail } from '@/lib/email';
+import { sendMatchActionEmail } from '@/lib/email';
 import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
 
 export async function POST(
@@ -31,20 +31,27 @@ export async function POST(
 
   if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
   if (job.aiMatches.length === 0) {
-    await recordWorkflowDiagnostic({
-      workflow: 'admin_match_suggestions',
-      status: 'fallback',
-      actorUserId: user.id,
-      entityType: 'job',
-      entityId: id,
-      summary: 'Attempted to send match suggestions with zero suggested matches',
-      method: 'email',
-      fallbackPath: 'no_suggested_matches',
-    });
+    try {
+      await recordWorkflowDiagnostic({
+        workflow: 'admin_match_suggestions',
+        status: 'fallback',
+        actorUserId: user.id,
+        entityType: 'job',
+        entityId: id,
+        summary: 'Attempted to send match suggestions with zero suggested matches',
+        method: 'email',
+        fallbackPath: 'no_suggested_matches',
+      });
+    } catch (err) {
+      console.error('[admin_match_suggestions] recordWorkflowDiagnostic failed', {
+        jobId: id,
+        message: err instanceof Error ? err.message : String(err),
+      });
+    }
     return NextResponse.json({ error: 'No matches to suggest. Run AI matching first.' }, { status: 400 });
   }
 
-  await sendAIMatchSuggestionEmail({
+  const sent = await sendMatchActionEmail({
     to: job.employer.contactEmail,
     jobTitle: job.title,
     companyName: job.employer.companyName,
@@ -54,23 +61,41 @@ export async function POST(
       score: m.matchScore,
     })),
   });
+  if (!sent.ok) {
+    console.error('[admin_match_suggestions] sendMatchActionEmail failed', { jobId: id, error: sent.error });
+    return NextResponse.json({ error: sent.error ?? 'Failed to send employer email' }, { status: 502 });
+  }
 
-  await prisma.aIJobMatch.updateMany({
-    where: { jobId: id, studentId: { in: job.aiMatches.map((m) => m.studentId) } },
-    data: { status: 'employer_notified' },
-  });
+  try {
+    await prisma.aIJobMatch.updateMany({
+      where: { jobId: id, studentId: { in: job.aiMatches.map((m) => m.studentId) } },
+      data: { status: 'employer_notified' },
+    });
+  } catch (err) {
+    console.error('[admin_match_suggestions] updateMany failed after email sent', {
+      jobId: id,
+      message: err instanceof Error ? err.message : String(err),
+    });
+  }
 
-  await recordWorkflowDiagnostic({
-    workflow: 'admin_match_suggestions',
-    status: 'success',
-    actorUserId: user.id,
-    entityType: 'job',
-    entityId: id,
-    summary: `Sent ${job.aiMatches.length} AI match suggestion(s) to employer`,
-    provider: 'email',
-    method: 'email',
-    metadata: { count: job.aiMatches.length },
-  });
+  try {
+    await recordWorkflowDiagnostic({
+      workflow: 'admin_match_suggestions',
+      status: 'success',
+      actorUserId: user.id,
+      entityType: 'job',
+      entityId: id,
+      summary: `Sent ${job.aiMatches.length} AI match suggestion(s) to employer`,
+      provider: 'email',
+      method: 'email',
+      metadata: { count: job.aiMatches.length },
+    });
+  } catch (err) {
+    console.error('[admin_match_suggestions] recordWorkflowDiagnostic failed', {
+      jobId: id,
+      message: err instanceof Error ? err.message : String(err),
+    });
+  }
 
   return NextResponse.json({ ok: true, count: job.aiMatches.length });
 }

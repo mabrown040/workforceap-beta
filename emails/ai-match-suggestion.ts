@@ -2,6 +2,8 @@
  * AI match suggestion - employer notification email body HTML.
  */
 
+import { escapeHtml } from '@/lib/email/escapeHtml';
+
 export function aiMatchSuggestionHtml(params: {
   jobTitle: string;
   companyName: string;
@@ -9,15 +11,15 @@ export function aiMatchSuggestionHtml(params: {
 }): string {
   const { jobTitle, companyName, matches } = params;
   const listItems = matches
-    .map(
-      (m) =>
-        `<li><strong>${m.name}</strong> — ${m.program} (match: ${m.score}%)</li>`
-    )
+    .map((m) => {
+      const score = Number.isFinite(m.score) ? Math.round(m.score) : 0;
+      return `<li><strong>${escapeHtml(m.name)}</strong> — ${escapeHtml(m.program)} (match: ${score}%)</li>`;
+    })
     .join('');
   return `
     <p>We've identified top matching students for your job posting.</p>
-    <p><strong>Job:</strong> ${jobTitle}</p>
-    <p><strong>Company:</strong> ${companyName}</p>
+    <p><strong>Job:</strong> ${escapeHtml(jobTitle)}</p>
+    <p><strong>Company:</strong> ${escapeHtml(companyName)}</p>
     <p><strong>Top matches:</strong></p>
     <ul>
       ${listItems}

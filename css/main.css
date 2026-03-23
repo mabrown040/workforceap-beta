@@ -2639,6 +2639,18 @@ body.inner-page {
     line-height: 1.5;
 }
 .apply-eligibility-note strong { display: block; margin-bottom: 0.25rem; }
+.apply-location-callout {
+    background: var(--color-white);
+    color: var(--color-gray-800);
+    border-left: 4px solid var(--color-accent);
+    padding: 0.65rem 1rem;
+    margin-top: 1rem;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+.apply-location-callout strong {
+    color: var(--color-primary);
+}
 .hero-cta-note {
     margin-top: 1.5rem;
     font-size: .95rem;

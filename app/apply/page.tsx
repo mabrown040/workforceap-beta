@@ -36,7 +36,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
               )
             )}
           </div>
-          <p className="apply-eligibility-note">
+          <p className="apply-eligibility-note apply-location-callout">
             <strong>Where we operate today:</strong> We&apos;re currently serving the Austin area. This is our launch community — we&apos;re
             building toward expansion. If you&apos;re elsewhere, apply anyway; we&apos;ll keep you in the loop.
           </p>

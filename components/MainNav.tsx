@@ -295,9 +295,10 @@ export default function MainNav() {
                   </button>
                   <ul className="dropdown-menu" id={subMenuId} role="menu" aria-labelledby={`${subMenuId}-trigger`}>
                     {item.children.map((child) => (
-                      <li key={child.href}>
+                      <li key={child.href} role="none">
                         <Link
                           href={child.href}
+                          role="menuitem"
                           className={isActive(child.href) ? 'active' : undefined}
                           onClick={closeMobile}
                         >

@@ -10328,6 +10328,21 @@ body { animation: fadeIn 0.4s ease; }
         justify-content: center;
     }
 }
+/* Ghost buttons are styled for dark hero sections; on light workspace/cards use readable outline treatment. */
+.employer-jobs-board .btn-ghost,
+.employer-bulk-modal .btn-ghost {
+    background: transparent;
+    color: var(--color-primary);
+    border: 2px solid var(--color-gray-300);
+    backdrop-filter: none;
+}
+.employer-jobs-board .btn-ghost:hover,
+.employer-bulk-modal .btn-ghost:hover {
+    background: rgba(173, 44, 77, 0.05);
+    border-color: var(--color-accent);
+    color: var(--color-accent-dark);
+    transform: translateY(-1px);
+}
 .employer-jobs-board__summary {
     display: flex;
     flex-wrap: wrap;
@@ -10533,16 +10548,45 @@ body { animation: fadeIn 0.4s ease; }
     justify-content: center;
     gap: 0.75rem 1rem;
     margin-top: 1.5rem;
-    padding: 0.75rem 0;
+    padding: 0.85rem 1rem;
+    background: var(--color-gray-50);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
 }
 .employer-jobs-board__pagination-meta {
     font-size: 0.9rem;
     color: var(--color-gray-700);
     text-align: center;
+    min-width: min(100%, 12rem);
+}
+.employer-jobs-board__pagination-meta strong {
+    color: var(--color-primary);
+    font-weight: 700;
 }
 .employer-jobs-board__pagination-count {
     color: var(--color-gray-500);
     font-weight: 400;
+}
+a.employer-jobs-board__pagination-link.btn-outline {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+a.employer-jobs-board__pagination-link.btn-outline:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent-dark);
+    background: rgba(173, 44, 77, 0.06);
+    transform: none;
+}
+.employer-jobs-board__pagination-disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+    transform: none !important;
+    box-shadow: none !important;
 }
 @media (max-width: 639px) {
     .employer-jobs-board__pagination {

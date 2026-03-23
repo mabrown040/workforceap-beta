@@ -20,7 +20,7 @@ export async function GET(request: Request) {
   const weekLabel = `${weekStart.toLocaleDateString()} – ${now.toLocaleDateString()}`;
 
   const partners = await prisma.partner.findMany({
-    where: { active: true },
+    where: { active: true, notifyOnEnrollment: true },
     select: {
       id: true,
       name: true,

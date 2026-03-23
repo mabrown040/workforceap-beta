@@ -43,6 +43,7 @@ export default function ApplyEligibilityClient() {
   const qualifies = yesCount >= 2;
 
   useEffect(() => {
+    trackApplyFunnel(1, 'started');
     trackApplyFunnel(1, 'eligibility_view');
   }, []);
 
@@ -70,6 +71,7 @@ export default function ApplyEligibilityClient() {
     }
 
     completedRef.current = true;
+    trackApplyFunnel(2, 'qualification_completed', { qualifies, yes_count: yesCount });
     trackApplyFunnel(1, 'eligibility_complete', { qualifies, yes_count: yesCount });
     if (typeof window !== 'undefined') {
       sessionStorage.setItem(APPLY_STORAGE_KEY, JSON.stringify({ q1, q2, q3, qualifies, yesCount }));

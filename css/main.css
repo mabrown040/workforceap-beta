@@ -1877,27 +1877,77 @@ a.btn-accent:hover {
     color: var(--color-gray-600);
     line-height: 1.6;
 }
-.home-for-you .wyg-grid {
-    gap: 1.5rem;
-}
-.home-for-you .wyg-card {
-    background: var(--color-white);
-    border: 1px solid var(--color-border);
-    color: inherit;
-}
-.home-for-you .wyg-card h3 {
-    color: var(--color-primary);
-}
-.home-for-you .wyg-card p {
-    color: var(--color-gray-600);
-}
-.home-for-you .wyg-card:hover {
-    background: var(--color-light);
-    border-color: var(--color-accent);
-}
 .home-for-you-cta {
     text-align: center;
     margin-top: 2rem;
+}
+
+/* Homepage — horizontal outcome journey (replaces 3-col feature grid) */
+.home-outcome-journey {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0.5rem 1.25rem;
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.home-outcome-step {
+    flex: 1 1 140px;
+    min-width: 0;
+    max-width: 200px;
+    text-align: center;
+    padding: 0.35rem 0.25rem;
+    position: relative;
+}
+@media (min-width: 900px) {
+    .home-outcome-journey {
+        flex-wrap: nowrap;
+        gap: 0;
+    }
+    .home-outcome-step {
+        flex: 1 1 0;
+        max-width: none;
+    }
+    .home-outcome-step:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        top: 1.85rem;
+        left: calc(50% + 2.25rem);
+        width: calc(100% - 4.5rem);
+        height: 2px;
+        background: linear-gradient(90deg, var(--color-gray-300), var(--color-accent));
+        opacity: 0.45;
+        pointer-events: none;
+    }
+}
+.home-outcome-step__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    margin: 0 auto 0.5rem;
+    border-radius: 50%;
+    background: rgba(173, 44, 77, 0.08);
+    color: var(--color-accent-dark);
+}
+.home-outcome-step__title {
+    margin: 0 0 0.25rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    line-height: 1.25;
+}
+.home-outcome-step__desc {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--color-gray-600);
+    line-height: 1.45;
 }
 .home-social-proof {
     padding: 3rem 0;

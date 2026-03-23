@@ -1,4 +1,4 @@
-﻿import type { Metadata } from 'next';
+import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -9,8 +9,9 @@ import {
   HeartPulse,
   Factory,
   HardHat,
-  Award,
   Laptop,
+  GraduationCap,
+  Briefcase,
   Handshake,
   Users,
   Building2,
@@ -173,23 +174,36 @@ export default function HomePage() {
           <p className="home-for-you-lead">
             Underserved individuals, adult learners, veterans. No prior tech required. We&rsquo;re currently serving the Austin area â€” our launch community â€” and building toward more. If that&rsquo;s you, here&rsquo;s what you get:
           </p>
-          <div className="wyg-grid">
-            <div className="wyg-card animate-on-scroll">
-              <span className="wyg-icon"><Award size={28} className="text-current" /></span>
-              <h3>Industry Certifications</h3>
-              <p>Google, IBM, Microsoft, Amazon, CompTIA â€” the same credentials employers hire against. Real credentials, not completion certificates.</p>
-            </div>
-            <div className="wyg-card animate-on-scroll">
-              <span className="wyg-icon"><Laptop size={28} className="text-current" /></span>
-              <h3>Loaner Laptop</h3>
-              <p>Earn a refurbished laptop on completion. Hardware is never a barrier.</p>
-            </div>
-            <div className="wyg-card animate-on-scroll">
-              <span className="wyg-icon"><Handshake size={28} className="text-current" /></span>
-              <h3>Job Placement</h3>
-              <p>Resume support, interview prep, employer connections from day one through hire. We don&rsquo;t disappear after you certify.</p>
-            </div>
-          </div>
+          <ol className="home-outcome-journey" aria-label="What you receive in sequence">
+            <li className="home-outcome-step animate-on-scroll">
+              <span className="home-outcome-step__icon" aria-hidden>
+                <Laptop size={28} strokeWidth={2} />
+              </span>
+              <p className="home-outcome-step__title">Loaner laptop</p>
+              <p className="home-outcome-step__desc">Start equipped, not behind</p>
+            </li>
+            <li className="home-outcome-step animate-on-scroll">
+              <span className="home-outcome-step__icon" aria-hidden>
+                <GraduationCap size={28} strokeWidth={2} />
+              </span>
+              <p className="home-outcome-step__title">Career training</p>
+              <p className="home-outcome-step__desc">Industry certs from Google, IBM, AWS</p>
+            </li>
+            <li className="home-outcome-step animate-on-scroll">
+              <span className="home-outcome-step__icon" aria-hidden>
+                <Briefcase size={28} strokeWidth={2} />
+              </span>
+              <p className="home-outcome-step__title">Job placement</p>
+              <p className="home-outcome-step__desc">Employer-aligned placements</p>
+            </li>
+            <li className="home-outcome-step animate-on-scroll">
+              <span className="home-outcome-step__icon" aria-hidden>
+                <Handshake size={28} strokeWidth={2} />
+              </span>
+              <p className="home-outcome-step__title">90-day support</p>
+              <p className="home-outcome-step__desc">Support after you&apos;re hired</p>
+            </li>
+          </ol>
           <div className="home-for-you-cta">
             <Link href="/find-your-path" className="btn btn-outline">Not sure which program fits? Take the 2-min quiz â†’</Link>
           </div>

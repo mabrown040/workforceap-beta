@@ -783,6 +783,8 @@ model Employer {
   companyName        String    @map("company_name")
   companyWebsite     String?   @map("company_website")
   companyDescription String?   @map("company_description")
+  companySize        String?   @map("company_size")
+  industry           String?   @map("industry")
   logoUrl            String?   @map("logo_url")
   contactName        String    @map("contact_name")
   contactEmail       String    @map("contact_email")

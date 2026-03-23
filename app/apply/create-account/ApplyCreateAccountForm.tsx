@@ -2,12 +2,14 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { trackApplyFunnel } from '@/lib/analytics/events';
 import { APPLY_REFERRAL_SESSION_KEY } from '@/lib/apply/applyReferralCapture';
 
 const PROGRAM_STORAGE_KEY = 'apply_program_slug';
 
 export default function ApplyCreateAccountForm() {
+  const searchParams = useSearchParams();
   const [init, setInit] = useState<'loading' | 'missing' | 'ready'>('loading');
   const [programSlug, setProgramSlug] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -26,6 +28,11 @@ export default function ApplyCreateAccountForm() {
   useEffect(() => {
     trackApplyFunnel(3, 'account_create_view');
   }, []);
+
+  useEffect(() => {
+    const qEmail = searchParams.get('email')?.trim();
+    if (qEmail) setEmail(qEmail);
+  }, [searchParams]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;

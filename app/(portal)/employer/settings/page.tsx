@@ -3,7 +3,9 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
+import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
+import EmployerSettingsForm from '@/components/employer/EmployerSettingsForm';
 import Link from 'next/link';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -19,12 +21,32 @@ export default async function EmployerSettingsPage() {
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect('/employers');
 
+  const employer = await prisma.employer.findUnique({
+    where: { id: ctx.employerId },
+    select: {
+      companyName: true,
+      companyDescription: true,
+      companyWebsite: true,
+      companySize: true,
+      industry: true,
+      contactName: true,
+      contactEmail: true,
+      contactPhone: true,
+    },
+  });
+  if (!employer) redirect('/employers');
+
   return (
     <div className="employer-settings-page">
       <PageHeader
         title="Company settings"
-        subtitle={`You are signed in as ${ctx.employer.companyName}. Editable company profile fields are coming next; use the options below for anything you need today.`}
+        subtitle="Update your company profile and primary hiring contact. Changes save to your employer record immediately."
       />
+
+      <section className="employer-settings-form-section employer-dash-panel" aria-label="Company profile form">
+        <EmployerSettingsForm initial={employer} />
+      </section>
+
       <div className="employer-settings-next-steps" role="region" aria-label="Where to go next">
         <h2 className="employer-settings-next-steps__title">What you can do now</h2>
         <ul className="employer-settings-next-steps__list">

@@ -346,9 +346,9 @@ export default function EmployerJobsBoard({
     setBulkBusy(true);
     setBulkError(null);
     setBulkOutcomeError(null);
+    let deletedCount = 0;
     try {
       const batches = chunkIds(selectedDeletable, EMPLOYER_JOB_BULK_MAX_IDS_PER_REQUEST);
-      let deletedCount = 0;
       for (const ids of batches) {
         const res = await fetch('/api/employer/jobs/bulk-delete', {
           method: 'POST',
@@ -361,7 +361,7 @@ export default function EmployerJobsBoard({
             typeof data.error === 'string' ? data.error : 'Could not delete selected jobs.';
           const msg =
             deletedCount > 0
-              ? `${base} (${deletedCount} posting${deletedCount === 1 ? '' : 's'} were removed before this error.)`
+              ? `${base} (${deletedCount} posting${deletedCount === 1 ? '' : 's'} ${deletedCount === 1 ? 'was' : 'were'} removed before this error.)`
               : base;
           if (deletedCount > 0) {
             setBulkOutcomeError(msg);
@@ -401,7 +401,19 @@ export default function EmployerJobsBoard({
         }
       });
     } catch {
-      setBulkError('Network error. Check your connection and try again.');
+      const base = 'Network error. Check your connection and try again.';
+      const msg =
+        deletedCount > 0
+          ? `${base} (${deletedCount} posting${deletedCount === 1 ? '' : 's'} ${deletedCount === 1 ? 'was' : 'were'} removed before this error.)`
+          : base;
+      if (deletedCount > 0) {
+        setBulkOutcomeError(msg);
+        setConfirmOpen(false);
+        clearSelection();
+      } else {
+        setBulkError(msg);
+      }
+      router.refresh();
     } finally {
       setBulkBusy(false);
     }
@@ -412,9 +424,9 @@ export default function EmployerJobsBoard({
     setBulkBusy(true);
     setBulkError(null);
     setBulkOutcomeError(null);
+    let closedCount = 0;
     try {
       const batches = chunkIds(selectedClosable, EMPLOYER_JOB_BULK_MAX_IDS_PER_REQUEST);
-      let closedCount = 0;
       for (const ids of batches) {
         const res = await fetch('/api/employer/jobs/bulk-delete', {
           method: 'POST',
@@ -427,7 +439,7 @@ export default function EmployerJobsBoard({
             typeof data.error === 'string' ? data.error : 'Could not close selected jobs.';
           const msg =
             closedCount > 0
-              ? `${base} (${closedCount} posting${closedCount === 1 ? '' : 's'} were updated before this error.)`
+              ? `${base} (${closedCount} posting${closedCount === 1 ? '' : 's'} ${closedCount === 1 ? 'was' : 'were'} updated before this error.)`
               : base;
           if (closedCount > 0) {
             setBulkOutcomeError(msg);
@@ -466,7 +478,19 @@ export default function EmployerJobsBoard({
         }
       });
     } catch {
-      setBulkError('Network error. Check your connection and try again.');
+      const base = 'Network error. Check your connection and try again.';
+      const msg =
+        closedCount > 0
+          ? `${base} (${closedCount} posting${closedCount === 1 ? '' : 's'} ${closedCount === 1 ? 'was' : 'were'} updated before this error.)`
+          : base;
+      if (closedCount > 0) {
+        setBulkOutcomeError(msg);
+        setConfirmOpen(false);
+        clearSelection();
+      } else {
+        setBulkError(msg);
+      }
+      router.refresh();
     } finally {
       setBulkBusy(false);
     }

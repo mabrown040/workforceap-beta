@@ -7,10 +7,19 @@ import { useState, useMemo, useEffect, useId, useCallback, type RefObject } from
 import { trackEmployerJobAction, trackEmployerBulkDelete } from '@/lib/analytics/events';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { readinessLabel, type JobReadinessIssue, type JobReadinessLevel } from '@/lib/employer/jobReadiness';
+import { EMPLOYER_JOB_BULK_MAX_IDS_PER_REQUEST } from '@/lib/employer/employerJobsBulk';
 import {
   employerJobsListHref,
   type EmployerJobListFilter,
 } from '@/lib/employer/employerJobsListQuery';
+
+function chunkIds<T>(items: T[], size: number): T[][] {
+  const chunks: T[][] = [];
+  for (let i = 0; i < items.length; i += size) {
+    chunks.push(items.slice(i, i + size));
+  }
+  return chunks;
+}
 
 export type EmployerJobBoardItem = {
   id: string;
@@ -124,6 +133,7 @@ export default function EmployerJobsBoard({
   const [confirmMode, setConfirmMode] = useState<'delete' | 'close'>('delete');
   const [bulkBusy, setBulkBusy] = useState(false);
   const [bulkError, setBulkError] = useState<string | null>(null);
+  const [bulkOutcomeError, setBulkOutcomeError] = useState<string | null>(null);
   const [flashBanner, setFlashBanner] = useState<{ type: 'delete' | 'close'; count: number } | null>(null);
   const [reviewActionError, setReviewActionError] = useState<string | null>(null);
   const [closeModal, setCloseModal] = useState<{ id: string; title: string; status: string } | null>(null);
@@ -162,6 +172,7 @@ export default function EmployerJobsBoard({
 
   useEffect(() => {
     setSelected(new Set());
+    setBulkOutcomeError(null);
   }, [filter, page]);
 
   useEffect(() => {
@@ -318,6 +329,7 @@ export default function EmployerJobsBoard({
     if (mode === 'close' && selectedClosable.length === 0) return;
     setConfirmMode(mode);
     setBulkError(null);
+    setBulkOutcomeError(null);
     setConfirmOpen(true);
   };
 
@@ -333,19 +345,37 @@ export default function EmployerJobsBoard({
     if (selectedDeletable.length === 0) return;
     setBulkBusy(true);
     setBulkError(null);
+    setBulkOutcomeError(null);
     try {
-      const res = await fetch('/api/employer/jobs/bulk-delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids: selectedDeletable, action: 'delete' }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setBulkError(typeof data.error === 'string' ? data.error : 'Could not delete selected jobs.');
-        return;
+      const batches = chunkIds(selectedDeletable, EMPLOYER_JOB_BULK_MAX_IDS_PER_REQUEST);
+      let deletedCount = 0;
+      for (const ids of batches) {
+        const res = await fetch('/api/employer/jobs/bulk-delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids, action: 'delete' }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          const base =
+            typeof data.error === 'string' ? data.error : 'Could not delete selected jobs.';
+          const msg =
+            deletedCount > 0
+              ? `${base} (${deletedCount} posting${deletedCount === 1 ? '' : 's'} were removed before this error.)`
+              : base;
+          if (deletedCount > 0) {
+            setBulkOutcomeError(msg);
+            setConfirmOpen(false);
+            clearSelection();
+          } else {
+            setBulkError(msg);
+          }
+          router.refresh();
+          return;
+        }
+        deletedCount += typeof data.deleted === 'number' ? data.deleted : ids.length;
       }
-      const deletedCount = typeof data.deleted === 'number' ? data.deleted : selectedDeletable.length;
-      trackEmployerBulkDelete(deletedCount, { filter });
+      trackEmployerBulkDelete(deletedCount, { filter, batches: batches.length });
       try {
         sessionStorage.setItem(BULK_DELETE_FLASH_KEY, JSON.stringify({ count: deletedCount }));
       } catch {
@@ -381,18 +411,36 @@ export default function EmployerJobsBoard({
     if (selectedClosable.length === 0) return;
     setBulkBusy(true);
     setBulkError(null);
+    setBulkOutcomeError(null);
     try {
-      const res = await fetch('/api/employer/jobs/bulk-delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids: selectedClosable, action: 'close' }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setBulkError(typeof data.error === 'string' ? data.error : 'Could not close selected jobs.');
-        return;
+      const batches = chunkIds(selectedClosable, EMPLOYER_JOB_BULK_MAX_IDS_PER_REQUEST);
+      let closedCount = 0;
+      for (const ids of batches) {
+        const res = await fetch('/api/employer/jobs/bulk-delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids, action: 'close' }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          const base =
+            typeof data.error === 'string' ? data.error : 'Could not close selected jobs.';
+          const msg =
+            closedCount > 0
+              ? `${base} (${closedCount} posting${closedCount === 1 ? '' : 's'} were updated before this error.)`
+              : base;
+          if (closedCount > 0) {
+            setBulkOutcomeError(msg);
+            setConfirmOpen(false);
+            clearSelection();
+          } else {
+            setBulkError(msg);
+          }
+          router.refresh();
+          return;
+        }
+        closedCount += typeof data.closed === 'number' ? data.closed : ids.length;
       }
-      const closedCount = typeof data.closed === 'number' ? data.closed : selectedClosable.length;
       try {
         sessionStorage.setItem(BULK_CLOSE_FLASH_KEY, JSON.stringify({ count: closedCount }));
       } catch {
@@ -462,7 +510,15 @@ export default function EmployerJobsBoard({
       {reviewActionError && (
         <div className="employer-jobs-board__action-error" role="alert">
           <p>{reviewActionError}</p>
-          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setReviewActionError(null)}>
+          <button type="button" className="btn btn-outline btn-sm" onClick={() => setReviewActionError(null)}>
+            Dismiss
+          </button>
+        </div>
+      )}
+      {bulkOutcomeError && (
+        <div className="employer-jobs-board__action-error" role="alert">
+          <p>{bulkOutcomeError}</p>
+          <button type="button" className="btn btn-outline btn-sm" onClick={() => setBulkOutcomeError(null)}>
             Dismiss
           </button>
         </div>
@@ -482,7 +538,7 @@ export default function EmployerJobsBoard({
           </p>
           <button
             type="button"
-            className="btn btn-ghost btn-sm employer-jobs-flash-banner__dismiss"
+            className="btn btn-outline btn-sm employer-jobs-flash-banner__dismiss"
             onClick={() => setFlashBanner(null)}
             aria-label="Dismiss confirmation"
           >
@@ -746,11 +802,17 @@ export default function EmployerJobsBoard({
           {totalPages > 1 && (
             <nav className="employer-jobs-board__pagination" aria-label="Job list pages">
               {page <= 1 ? (
-                <span className="btn btn-ghost btn-sm employer-jobs-board__pagination-disabled" aria-disabled>
+                <span
+                  className="btn btn-outline btn-sm employer-jobs-board__pagination-disabled"
+                  aria-disabled="true"
+                >
                   Previous
                 </span>
               ) : (
-                <Link href={employerJobsListHref(filter, page - 1)} className="btn btn-ghost btn-sm">
+                <Link
+                  href={employerJobsListHref(filter, page - 1)}
+                  className="btn btn-outline btn-sm employer-jobs-board__pagination-link"
+                >
                   Previous
                 </Link>
               )}
@@ -759,11 +821,17 @@ export default function EmployerJobsBoard({
                 <span className="employer-jobs-board__pagination-count"> ({totalInFilter} in this view)</span>
               </span>
               {page >= totalPages ? (
-                <span className="btn btn-ghost btn-sm employer-jobs-board__pagination-disabled" aria-disabled>
+                <span
+                  className="btn btn-outline btn-sm employer-jobs-board__pagination-disabled"
+                  aria-disabled="true"
+                >
                   Next
                 </span>
               ) : (
-                <Link href={employerJobsListHref(filter, page + 1)} className="btn btn-ghost btn-sm">
+                <Link
+                  href={employerJobsListHref(filter, page + 1)}
+                  className="btn btn-outline btn-sm employer-jobs-board__pagination-link"
+                >
                   Next
                 </Link>
               )}

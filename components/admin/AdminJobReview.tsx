@@ -22,9 +22,34 @@ type Job = {
   suggestedPrograms: string[];
   status: string;
   applicationsCount: number;
+  aiMatchesComputedAt?: string | Date | null;
+  matchSuggestionsLastSentAt?: string | Date | null;
+  matchSuggestionsLastStatus?: string | null;
+  matchSuggestionsLastError?: string | null;
   employer?: { companyName: string; contactEmail: string; contactName: string | null } | null;
   applications?: { id: string; student: { fullName: string; email: string } }[];
 };
+
+function formatAdminDate(value: string | Date | null | undefined): string {
+  if (value == null) return '—';
+  const d = typeof value === 'string' ? new Date(value) : value;
+  if (Number.isNaN(d.getTime())) return '—';
+  return d.toLocaleString();
+}
+
+function matchEmailBadgeStyle(status: string | null | undefined): { bg: string; color: string; label: string } {
+  switch (status) {
+    case 'success':
+    case 'test_sent':
+      return { bg: 'rgba(74, 155, 79, 0.15)', color: '#2d6a32', label: status === 'test_sent' ? 'Test sent' : 'Success' };
+    case 'failed':
+      return { bg: 'rgba(220, 38, 38, 0.12)', color: '#b91c1c', label: 'Failed' };
+    case 'dry_run':
+      return { bg: 'rgba(59, 130, 246, 0.12)', color: '#1d4ed8', label: 'Dry run' };
+    default:
+      return { bg: 'var(--color-gray-100)', color: 'var(--color-gray-700)', label: status ? status : 'None' };
+  }
+}
 
 function formatImportMethod(importMethod?: string | null) {
   if (!importMethod) return null;
@@ -53,6 +78,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
   const canApprove = job.status === 'pending';
   const canReject = job.status === 'pending';
   const hasProvenance = !!(job.sourceUrl || job.importProvider || job.importMethod);
+  const suggestionBadge = matchEmailBadgeStyle(job.matchSuggestionsLastStatus);
 
   useEffect(() => {
     trackFunnelEvent('admin_review_queue', 'job_review_opened', { job_id: job.id, status: job.status });
@@ -115,12 +141,33 @@ export default function AdminJobReview({ job }: { job: Job }) {
     trackFunnelEvent('admin_review_queue', 'match_suggestions_requested', { job_id: job.id });
     try {
       const res = await fetch(`/api/admin/jobs/${job.id}/suggest-matches`, { method: 'POST' });
+      const d = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        dryRun?: boolean;
+        testMode?: boolean;
+        employerNotifiedUpdate?: string;
+      };
       if (res.ok) {
-        setActionFeedback({ type: 'success', message: 'Match suggestions sent to employer.' });
+        if (d.dryRun) {
+          setActionFeedback({
+            type: 'success',
+            message: 'Dry run complete — no email was sent. Check audit / job timestamps.',
+          });
+        } else {
+          const parts = [
+            d.testMode ? 'Sent to test inbox (ADMIN_MATCH_SUGGESTIONS_TEST_EMAIL).' : 'Match suggestions sent to employer.',
+          ];
+          if (d.employerNotifiedUpdate === 'failed') {
+            parts.push('Warning: email may have delivered but applicant statuses did not update — see logs.');
+          }
+          setActionFeedback({ type: 'success', message: parts.join(' ') });
+        }
         router.refresh();
       } else {
-        const d = await res.json();
-        setActionFeedback({ type: 'error', message: typeof d.error === 'string' ? d.error : 'Failed to send suggestions.' });
+        setActionFeedback({
+          type: 'error',
+          message: typeof d.error === 'string' ? d.error : 'Failed to send suggestions.',
+        });
       }
     } finally {
       setSuggesting(false);
@@ -282,6 +329,44 @@ export default function AdminJobReview({ job }: { job: Job }) {
 
       <section id="matches" style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.15rem', marginBottom: '0.75rem' }}>AI Student Matches</h2>
+        <div
+          style={{
+            marginBottom: '1rem',
+            padding: '0.85rem 1rem',
+            background: 'var(--color-gray-50)',
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-md)',
+            fontSize: '0.9rem',
+          }}
+        >
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.5rem 1rem', marginBottom: '0.35rem' }}>
+            <span style={{ color: 'var(--color-gray-600)' }}>Matches calculated at</span>
+            <strong>{formatAdminDate(job.aiMatchesComputedAt)}</strong>
+            <span
+              style={{
+                marginLeft: 'auto',
+                padding: '0.2rem 0.55rem',
+                borderRadius: '999px',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
+                background: suggestionBadge.bg,
+                color: suggestionBadge.color,
+              }}
+            >
+              {suggestionBadge.label}
+            </span>
+          </div>
+          <div style={{ color: 'var(--color-gray-600)' }}>
+            Last suggestion email: <strong>{formatAdminDate(job.matchSuggestionsLastSentAt)}</strong>
+          </div>
+          {job.matchSuggestionsLastError && (
+            <p style={{ margin: '0.5rem 0 0', color: '#b91c1c', fontSize: '0.85rem' }}>
+              Last error: {job.matchSuggestionsLastError}
+            </p>
+          )}
+        </div>
         {!matches ? (
           <button
             type="button"

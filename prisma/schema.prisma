@@ -839,6 +839,10 @@ model Job {
   updatedAt              DateTime        @updatedAt @map("updated_at")
   approvedAt             DateTime?       @map("approved_at")
   approvedById            String?         @map("approved_by")
+  aiMatchesComputedAt    DateTime?       @map("ai_matches_computed_at")
+  matchSuggestionsLastSentAt DateTime?   @map("match_suggestions_last_sent_at")
+  matchSuggestionsLastStatus String?     @map("match_suggestions_last_status")
+  matchSuggestionsLastError  String?     @map("match_suggestions_last_error") @db.Text
 
   employer   Employer   @relation(fields: [employerId], references: [id], onDelete: Cascade)
   approvedBy User?      @relation("JobApprover", fields: [approvedById], references: [id], onDelete: SetNull)

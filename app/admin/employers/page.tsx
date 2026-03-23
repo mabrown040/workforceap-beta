@@ -9,6 +9,7 @@ import CreateEmployerAccountClient from './CreateEmployerAccountClient';
 import OpenEmployerPortalButton from './OpenEmployerPortalButton';
 import ClearEmployerPortalContext from './ClearEmployerPortalContext';
 import PageHeader from '@/components/portal/PageHeader';
+import AdminEmployerTierSelect from './AdminEmployerTierSelect';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin - Employers',
@@ -53,6 +54,7 @@ export default async function AdminEmployersPage() {
               <th>Contact</th>
               <th>User</th>
               <th>Jobs</th>
+              <th>Tier</th>
               {superAdmin && <th>Help</th>}
             </tr>
           </thead>
@@ -69,6 +71,9 @@ export default async function AdminEmployersPage() {
                   {e.user.fullName} · {e.user.email}
                 </td>
                 <td>{e._count.jobs}</td>
+                <td>
+                  <AdminEmployerTierSelect employerId={e.id} initialTier={e.tier} />
+                </td>
                 {superAdmin && (
                   <td>
                     <OpenEmployerPortalButton employerId={e.id} />

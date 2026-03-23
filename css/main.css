@@ -6745,6 +6745,18 @@ body { animation: fadeIn 0.4s ease; }
     border: 1px solid var(--color-border);
     max-width: min(240px, 40vw);
 }
+.workspace-shell-tier-badge {
+    flex-shrink: 0;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(173, 44, 77, 0.14), rgba(173, 44, 77, 0.06));
+    border: 1px solid rgba(173, 44, 77, 0.35);
+    color: var(--color-accent);
+}
 .workspace-sidebar-context--chip {
     padding: 0.15rem 0.45rem;
     border-radius: var(--radius-sm);

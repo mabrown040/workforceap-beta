@@ -123,6 +123,7 @@ export const EMPLOYER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     Icon: Users,
     badgeKey: 'applications_new',
   },
+  { href: '/employer/matches', label: 'Match history', group: 'workflows', Icon: Sparkles },
   { href: '/employer/pipeline', label: 'Candidate pipeline', group: 'workflows', Icon: GitBranch },
   { href: '/employer/messages', label: 'Messages / support', group: 'manage', Icon: MessageSquare },
   { href: '/employer/settings', label: 'Company settings', group: 'manage', Icon: Settings },

@@ -116,11 +116,12 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
   }, [jobs, filter]);
 
   const totalListPages = Math.max(1, Math.ceil(filtered.length / JOBS_PAGE_SIZE));
+  const clampedListPage = Math.min(listPage, totalListPages);
 
   const pageSlice = useMemo(() => {
-    const start = (listPage - 1) * JOBS_PAGE_SIZE;
+    const start = (clampedListPage - 1) * JOBS_PAGE_SIZE;
     return filtered.slice(start, start + JOBS_PAGE_SIZE);
-  }, [filtered, listPage]);
+  }, [filtered, clampedListPage]);
 
   const deletableFiltered = useMemo(
     () => filtered.filter((j) => canBulkDelete(j.status)),
@@ -155,10 +156,6 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
     setSelected(new Set());
     setListPage(1);
   }, [filter]);
-
-  useEffect(() => {
-    if (listPage > totalListPages) setListPage(totalListPages);
-  }, [listPage, totalListPages]);
 
   useEffect(() => {
     // Check for delete flash
@@ -710,20 +707,30 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
           <button
             type="button"
             className="btn btn-ghost btn-sm"
-            onClick={() => setListPage((p) => Math.max(1, p - 1))}
-            disabled={listPage <= 1}
+            onClick={() =>
+              setListPage((p) => {
+                const current = Math.min(Math.max(1, p), totalListPages);
+                return Math.max(1, current - 1);
+              })
+            }
+            disabled={clampedListPage <= 1}
           >
             Previous
           </button>
           <span className="employer-jobs-board__pagination-meta">
-            Page <strong>{listPage}</strong> of <strong>{totalListPages}</strong>
+            Page <strong>{clampedListPage}</strong> of <strong>{totalListPages}</strong>
             <span className="employer-jobs-board__pagination-count"> ({filtered.length} in this view)</span>
           </span>
           <button
             type="button"
             className="btn btn-ghost btn-sm"
-            onClick={() => setListPage((p) => Math.min(totalListPages, p + 1))}
-            disabled={listPage >= totalListPages}
+            onClick={() =>
+              setListPage((p) => {
+                const current = Math.min(Math.max(1, p), totalListPages);
+                return Math.min(totalListPages, current + 1);
+              })
+            }
+            disabled={clampedListPage >= totalListPages}
           >
             Next
           </button>

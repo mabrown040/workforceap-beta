@@ -251,9 +251,9 @@ export default function MainNav() {
           type="button"
           className={`mobile-nav-backdrop${mobileOpen ? ' visible' : ''}`}
           aria-label="Close navigation menu"
-          aria-hidden={!mobileOpen}
           tabIndex={mobileOpen ? 0 : -1}
           onClick={closeMobile}
+          {...(!mobileOpen ? { 'data-nav-hidden': 'true' } : {})}
         />
         <ul ref={menuRef} id={navMenuId} className={`nav-menu${mobileOpen ? ' mobile-open' : ''}`}>
           {navItems.flatMap((item) => {

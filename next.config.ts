@@ -54,6 +54,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [{ source: '/favicon.ico', destination: '/images/logo-tight.png' }];
+  },
   async redirects() {
     return [
       // Legacy .html redirects

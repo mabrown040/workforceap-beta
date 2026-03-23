@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadata, SITE_URL } from '@/app/seo';
 import Link from 'next/link';
 import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
@@ -8,12 +8,17 @@ import { getProgramComparisonTracks } from '@/lib/content/programComparisonTrack
 import ProgramComparisonClient from './ProgramComparisonClient';
 import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
 
-export const metadata: Metadata = buildPageMetadata({
-  title: 'Compare Programs',
-  description:
-    'Compare WorkforceAP career tracks side-by-side: duration, salary, demand, and fit. Pick programs to compare or start from recommended paths.',
-  path: '/program-comparison',
-});
+export const metadata: Metadata = {
+  ...buildPageMetadata({
+    title: 'Compare Programs',
+    description:
+      'Compare WorkforceAP career tracks side-by-side: duration, salary, demand, and fit. Pick programs to compare or start from recommended paths.',
+    path: '/program-comparison',
+  }),
+  alternates: {
+    canonical: `${SITE_URL}/program-comparison`,
+  },
+};
 
 const tracks = getProgramComparisonTracks();
 

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadata, SITE_URL } from '@/app/seo';
 import { getProgramBySlug, type Program } from '@/lib/content/programs';
 import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
 
@@ -55,11 +55,18 @@ export function buildApplyPageMetadata(programParam: string | undefined): Metada
   }
 
   const { title, description } = buildApplyProgramSeo(program);
-  return buildPageMetadata({
+  const base = buildPageMetadata({
     title,
     description,
     path: '/apply',
   });
+  return {
+    ...base,
+    alternates: {
+      ...base.alternates,
+      canonical: `${SITE_URL}/apply?program=${encodeURIComponent(program.slug)}`,
+    },
+  };
 }
 
 export { getProgramBySlug };

@@ -79,6 +79,10 @@ const nextConfig: NextConfig = {
       { source: '/programs/comptia-network-plus', destination: '/programs/comptia-network-professional-certificate', permanent: true },
       { source: '/programs/comptia-security-plus', destination: '/programs/comptia-security-professional-certificate', permanent: true },
 
+      // Short portal entry → sign-in + destination chooser (avoids 404 on shared links)
+      { source: '/portal', destination: '/login', permanent: false },
+      { source: '/portal/', destination: '/login', permanent: false },
+
       // Employer dashboard canonical redirect
       { source: '/employer/dashboard', destination: '/employer', permanent: true },
 

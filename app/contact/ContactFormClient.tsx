@@ -2,11 +2,45 @@
 
 import { useId, useState } from 'react';
 
+type FieldKey = 'first_name' | 'last_name' | 'email' | 'topic' | 'message';
+
+function validateContactFields(data: {
+  first_name: unknown;
+  last_name: unknown;
+  email: unknown;
+  topic: unknown;
+  message: unknown;
+}): Partial<Record<FieldKey, string>> {
+  const errors: Partial<Record<FieldKey, string>> = {};
+  const first = typeof data.first_name === 'string' ? data.first_name.trim() : '';
+  const last = typeof data.last_name === 'string' ? data.last_name.trim() : '';
+  const email = typeof data.email === 'string' ? data.email.trim() : '';
+  const topic = typeof data.topic === 'string' ? data.topic.trim() : '';
+  const message = typeof data.message === 'string' ? data.message.trim() : '';
+
+  if (!first) errors.first_name = 'Enter your first name.';
+  if (!last) errors.last_name = 'Enter your last name.';
+  if (!email) {
+    errors.email = 'Enter your email address.';
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errors.email = 'Enter a valid email address.';
+  }
+  if (!topic) errors.topic = 'Choose a topic so we can route your message.';
+  if (!message) {
+    errors.message = 'Enter a message.';
+  } else if (message.length < 10) {
+    errors.message = 'Please add a bit more detail (at least 10 characters).';
+  }
+
+  return errors;
+}
+
 export default function ContactFormClient() {
   const formId = useId();
   const errorId = `${formId}-error`;
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<FieldKey, string>>>({});
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -22,6 +56,15 @@ export default function ContactFormClient() {
       sms_preferred: formData.get('sms_preferred') === 'true',
     };
 
+    const clientErrors = validateContactFields(data);
+    if (Object.keys(clientErrors).length > 0) {
+      setFieldErrors(clientErrors);
+      setStatus('idle');
+      setErrorMsg(null);
+      return;
+    }
+    setFieldErrors({});
+
     setStatus('sending');
     setErrorMsg(null);
 
@@ -31,7 +74,22 @@ export default function ContactFormClient() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      const json = await res.json();
+
+      let json: { error?: string } = {};
+      try {
+        json = (await res.json()) as { error?: string };
+      } catch {
+        /* non-JSON body */
+      }
+
+      if (res.status === 429) {
+        setStatus('error');
+        setErrorMsg(
+          json.error ??
+            'You have reached the submission limit for now. Please wait about an hour before sending another message — your earlier requests are still on file.'
+        );
+        return;
+      }
 
       if (!res.ok) {
         setStatus('error');
@@ -70,12 +128,12 @@ export default function ContactFormClient() {
     );
   }
 
-  const showError = status === 'error' && errorMsg;
-  const invalid = status === 'error';
+  const showFormError = status === 'error' && errorMsg;
+  const hasFieldError = (k: FieldKey) => Boolean(fieldErrors[k]);
 
   return (
     <form className="contact-form" onSubmit={handleSubmit} noValidate>
-      {showError && (
+      {showFormError && (
         <div
           id={errorId}
           role="alert"
@@ -90,8 +148,15 @@ export default function ContactFormClient() {
           }}
         >
           <p style={{ margin: '0 0 0.75rem' }}>{errorMsg}</p>
-          <button type="button" className="btn btn-outline btn-sm" onClick={() => { setStatus('idle'); setErrorMsg(null); }}>
-            Try again
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            onClick={() => {
+              setStatus('idle');
+              setErrorMsg(null);
+            }}
+          >
+            Dismiss
           </button>
         </div>
       )}
@@ -104,10 +169,20 @@ export default function ContactFormClient() {
             name="first_name"
             required
             disabled={status === 'sending'}
-            aria-invalid={invalid}
-            aria-describedby={showError ? errorId : undefined}
+            aria-invalid={hasFieldError('first_name')}
+            aria-describedby={
+              [hasFieldError('first_name') ? `${formId}-err-first_name` : '', showFormError ? errorId : '']
+                .filter(Boolean)
+                .join(' ') || undefined
+            }
             autoComplete="given-name"
+            onChange={() => setFieldErrors((p) => ({ ...p, first_name: undefined }))}
           />
+          {fieldErrors.first_name && (
+            <p id={`${formId}-err-first_name`} className="contact-form-field-error" role="alert">
+              {fieldErrors.first_name}
+            </p>
+          )}
         </div>
         <div className="form-group">
           <label htmlFor={`${formId}-last_name`}>Last Name *</label>
@@ -117,10 +192,20 @@ export default function ContactFormClient() {
             name="last_name"
             required
             disabled={status === 'sending'}
-            aria-invalid={invalid}
-            aria-describedby={showError ? errorId : undefined}
+            aria-invalid={hasFieldError('last_name')}
+            aria-describedby={
+              [hasFieldError('last_name') ? `${formId}-err-last_name` : '', showFormError ? errorId : '']
+                .filter(Boolean)
+                .join(' ') || undefined
+            }
             autoComplete="family-name"
+            onChange={() => setFieldErrors((p) => ({ ...p, last_name: undefined }))}
           />
+          {fieldErrors.last_name && (
+            <p id={`${formId}-err-last_name`} className="contact-form-field-error" role="alert">
+              {fieldErrors.last_name}
+            </p>
+          )}
         </div>
       </div>
       <div className="form-group">
@@ -131,10 +216,20 @@ export default function ContactFormClient() {
           name="email"
           required
           disabled={status === 'sending'}
-          aria-invalid={invalid}
-          aria-describedby={showError ? errorId : undefined}
+          aria-invalid={hasFieldError('email')}
+          aria-describedby={
+            [hasFieldError('email') ? `${formId}-err-email` : '', showFormError ? errorId : '']
+              .filter(Boolean)
+              .join(' ') || undefined
+          }
           autoComplete="email"
+          onChange={() => setFieldErrors((p) => ({ ...p, email: undefined }))}
         />
+        {fieldErrors.email && (
+          <p id={`${formId}-err-email`} className="contact-form-field-error" role="alert">
+            {fieldErrors.email}
+          </p>
+        )}
       </div>
       <div className="form-group">
         <label htmlFor={`${formId}-phone`}>Phone Number</label>
@@ -169,8 +264,13 @@ export default function ContactFormClient() {
           required
           disabled={status === 'sending'}
           aria-required="true"
-          aria-invalid={invalid}
-          aria-describedby={showError ? errorId : undefined}
+          aria-invalid={hasFieldError('topic')}
+          aria-describedby={
+            [hasFieldError('topic') ? `${formId}-err-topic` : '', showFormError ? errorId : '']
+              .filter(Boolean)
+              .join(' ') || undefined
+          }
+          onChange={() => setFieldErrors((p) => ({ ...p, topic: undefined }))}
         >
           <option value="">Select a topic&hellip;</option>
           <option>Program information</option>
@@ -181,6 +281,11 @@ export default function ContactFormClient() {
           <option>Media or press inquiry</option>
           <option>Other</option>
         </select>
+        {fieldErrors.topic && (
+          <p id={`${formId}-err-topic`} className="contact-form-field-error" role="alert">
+            {fieldErrors.topic}
+          </p>
+        )}
       </div>
       <div className="form-group">
         <label htmlFor={`${formId}-message`}>Your Message *</label>
@@ -190,9 +295,19 @@ export default function ContactFormClient() {
           rows={5}
           required
           disabled={status === 'sending'}
-          aria-invalid={invalid}
-          aria-describedby={showError ? errorId : undefined}
+          aria-invalid={hasFieldError('message')}
+          aria-describedby={
+            [hasFieldError('message') ? `${formId}-err-message` : '', showFormError ? errorId : '']
+              .filter(Boolean)
+              .join(' ') || undefined
+          }
+          onChange={() => setFieldErrors((p) => ({ ...p, message: undefined }))}
         />
+        {fieldErrors.message && (
+          <p id={`${formId}-err-message`} className="contact-form-field-error" role="alert">
+            {fieldErrors.message}
+          </p>
+        )}
       </div>
       <button
         type="submit"
@@ -202,9 +317,7 @@ export default function ContactFormClient() {
       >
         {status === 'sending' ? 'Sending…' : 'Send Message'}
       </button>
-        <p className="contact-form-footnote">
-        We respond within 24–48 hours.
-      </p>
+      <p className="contact-form-footnote">We respond within 24–48 hours.</p>
     </form>
   );
 }

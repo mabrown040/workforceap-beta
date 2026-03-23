@@ -52,7 +52,7 @@ function ProgramCard({ program }: { program: Program }) {
         </p>
       )}
       <div style={{ marginBottom: '.75rem' }}>
-        <div style={{ display: 'flex', gap: '1rem', fontSize: '.85rem', color: '#666' }}>
+        <div className="program-card-meta-row" style={{ display: 'flex', gap: '1rem', fontSize: '.85rem', color: '#666' }}>
           <span>⏱ {program.duration}</span>
           <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Starting range: {salaryRangeDisplay(program)}</span>
         </div>

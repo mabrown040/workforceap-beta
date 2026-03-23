@@ -1,20 +1,17 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
 import ApplyEligibilityClient from './ApplyEligibilityClient';
 import ApplyPageSkeleton from './ApplyPageSkeleton';
 import ApplyProgramIntro from '@/components/apply/ApplyProgramIntro';
-import { getProgramBySlug, resolveApplyProgramSlug } from '@/lib/apply/applyProgramPage';
-
-export const metadata: Metadata = buildPageMetadata({
-  title: 'Apply for Free Career Training',
-  description:
-    'Apply for no-cost career certification training. CompTIA, Google, IBM, AWS, and more. Currently serving the Austin area with plans to expand. We respond within 24–48 hours.',
-  path: '/apply',
-});
+import { buildApplyPageMetadata, getProgramBySlug, resolveApplyProgramSlug } from '@/lib/apply/applyProgramPage';
 
 type PageProps = { searchParams?: Promise<{ program?: string }> };
+
+export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
+  const sp = searchParams ? await searchParams : {};
+  return buildApplyPageMetadata(sp.program);
+}
 
 export default async function ApplyPage({ searchParams }: PageProps) {
   const sp = searchParams ? await searchParams : {};

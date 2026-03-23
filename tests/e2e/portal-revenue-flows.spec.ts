@@ -7,7 +7,7 @@ import { test, expect } from '@playwright/test';
  * Cookie-based auth uses sb-workforceap-auth-token (or project-specific Supabase cookie).
  */
 function addAuthCookie(
-  context: { addCookies: (cookies: object[]) => Promise<void> },
+  context: { addCookies: (cookies: Array<{ name: string; value: string; domain?: string; path?: string; httpOnly?: boolean; secure?: boolean; sameSite?: 'Strict' | 'Lax' | 'None' }>) => Promise<void> },
   baseURL: string
 ) {
   const appUrl = new URL(baseURL || 'http://localhost:3000');

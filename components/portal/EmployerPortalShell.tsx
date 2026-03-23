@@ -22,6 +22,7 @@ export default function EmployerPortalShell({
   superAdmin?: boolean;
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
   return (
     <div className="employer-portal-shell">
       <header className="employer-portal-header">

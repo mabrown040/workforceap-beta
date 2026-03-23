@@ -166,8 +166,8 @@ Austin, TX
     throw new Error(`Expected short child page text to still produce 1 draft, got ${shortChildDraftPlan.drafts.length}`);
   }
 
-  if (shortChildDraftPlan.drafts[0]?.provider !== 'scrape+fallback') {
-    throw new Error(`Expected short child page text to prefer scrape+fallback, got ${shortChildDraftPlan.drafts[0]?.provider ?? 'missing'}`);
+  if (shortChildDraftPlan.drafts[0]?.importProvider !== 'scrape+fallback') {
+    throw new Error(`Expected short child page text to prefer scrape+fallback, got ${shortChildDraftPlan.drafts[0]?.importProvider ?? 'missing'}`);
   }
 
   if (shortChildDraftPlan.drafts[0]?.description.includes('Details to be added - imported from careers page.')) {
@@ -179,7 +179,7 @@ Austin, TX
     count: listings.length,
     urlCount: subUrls.length,
     draftCount: draftPlan.drafts.length,
-    shortChildProvider: shortChildDraftPlan.drafts[0]?.provider ?? null,
+    shortChildProvider: shortChildDraftPlan.drafts[0]?.importProvider ?? null,
     first: listings[0],
     last: listings[listings.length - 1],
   }, null, 2));

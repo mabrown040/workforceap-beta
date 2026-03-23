@@ -89,8 +89,7 @@ export default async function EmployerJobsPage() {
           </Link>
         </div>
       </header>
-      <DraftJobCards drafts={draftCards} />
-      <JobsTable jobs={items} />
+      <EmployerJobsBoard jobs={boardItems} />
     </div>
   );
 }

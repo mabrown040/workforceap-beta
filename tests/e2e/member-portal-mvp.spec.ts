@@ -5,7 +5,7 @@ import { test, expect } from '@playwright/test';
  * NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set and the
  * cookie contains a valid session. For CI without test auth, signed-in tests may fail.
  */
-function addAuthCookie(context: { addCookies: (cookies: object[]) => Promise<void> }, baseURL: string) {
+function addAuthCookie(context: { addCookies: (cookies: Array<{ name: string; value: string; domain?: string; path?: string; httpOnly?: boolean; secure?: boolean; sameSite?: 'Strict' | 'Lax' | 'None' }>) => Promise<void> }, baseURL: string) {
   const appUrl = new URL(baseURL || 'http://localhost:3000');
   return context.addCookies([
     {

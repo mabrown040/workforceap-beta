@@ -167,7 +167,7 @@ function QuizResultsView({
               </div>
               {extra?.jobOutcomes && extra.jobOutcomes.length > 0 && (
                 <p className="quiz-result-roles">
-                  <strong>Roles:</strong> {extra.jobOutcomes.join(' Â· ')}
+                  <strong>Roles:</strong> {extra.jobOutcomes.join(' · ')}
                 </p>
               )}
               <div style={{ fontSize: '0.85rem', color: '#888', marginBottom: '1rem' }}>

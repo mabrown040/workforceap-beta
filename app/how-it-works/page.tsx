@@ -57,7 +57,7 @@ export default function HowItWorksPage() {
 
       <PhotoHighlight
         imageUrl="https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=1400&q=80"
-        label="3 Phases Â· 11 Steps"
+        label="3 Phases · 11 Steps"
         title="From Application to Career"
         description="We explain what each step does for you and why it exists — so you know what to expect and can move forward with confidence."
       />

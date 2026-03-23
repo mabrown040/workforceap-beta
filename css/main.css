@@ -1187,6 +1187,74 @@ a.btn-accent:hover {
     max-width: 1100px !important;
 }
 .program-detail-main { min-width: 0; }
+
+.program-related {
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-gray-200);
+}
+.program-related__title {
+    font-size: 1.25rem;
+    margin: 0 0 0.5rem;
+    color: var(--color-primary);
+}
+.program-related__lead {
+    margin: 0 0 1.25rem;
+    font-size: 0.95rem;
+    color: var(--color-gray-600);
+    line-height: 1.55;
+    max-width: 42rem;
+}
+.program-related__grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+    gap: 1rem;
+}
+.program-related__card {
+    height: 100%;
+    padding: 1.1rem 1.2rem;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    background: var(--color-white);
+    box-shadow: var(--shadow-sm);
+}
+.program-related__cat {
+    margin: 0 0 0.35rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-gray-500);
+}
+.program-related__name {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+    line-height: 1.35;
+}
+.program-related__name a {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 700;
+}
+.program-related__name a:hover {
+    color: var(--color-accent);
+    text-decoration: underline;
+}
+.program-related__meta {
+    margin: 0 0 1rem;
+    font-size: 0.85rem;
+    color: var(--color-gray-600);
+    line-height: 1.45;
+}
+.program-related__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
 .program-detail-description {
     font-size: 1.125rem;
     line-height: 1.7;
@@ -3001,9 +3069,10 @@ fieldset.apply-fieldset {
     border-radius: var(--radius-md);
     padding: 1rem 1.1rem;
 }
-.program-comparison-starter-card h3 {
+.program-comparison-starter-name {
     margin: 0 0 0.35rem;
     font-size: 1rem;
+    font-weight: 700;
     color: var(--color-primary);
 }
 .program-comparison-starter-best {
@@ -4631,6 +4700,19 @@ body { animation: fadeIn 0.4s ease; }
     color: var(--color-gray-600);
     margin: -0.25rem 0 1rem;
     line-height: 1.5;
+}
+.apply-results-program-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+    color: var(--color-primary);
+    line-height: 1.35;
+}
+.two-col .col .apply-sidebar-section-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+    color: var(--color-primary);
+    font-weight: 700;
 }
 .apply-foundational-support {
     margin-bottom: 1.25rem;

@@ -9,7 +9,9 @@ import { getProgramDescription } from '@/lib/content/programDescriptions';
 import { getProgramExtra } from '@/lib/content/programExtras';
 import Footer from '@/components/Footer';
 import ProgramDetailClient from './ProgramDetailClient';
+import ProgramRelatedSection from '@/components/programs/ProgramRelatedSection';
 import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
+import { getRelatedPrograms } from '@/lib/content/relatedPrograms';
 import { HelpCircle, BookOpen, ArrowRight, Clock, DollarSign, Briefcase } from 'lucide-react';
 
 type Props = { params: Promise<{ slug: string }> };
@@ -48,6 +50,7 @@ export default async function ProgramPage({ params }: Props) {
       ? 'it-support-professional-certificate-ibm'
       : 'digital-literacy-empowerment-class';
   const slugInFeaturedCompare = PROGRAM_COMPARISON_FEATURED.some((f) => f.slug === program.slug);
+  const relatedPrograms = getRelatedPrograms(program.slug, 3);
 
   return (
     <div className="inner-page">
@@ -119,6 +122,8 @@ export default async function ProgramPage({ params }: Props) {
                 Apply for This Program
               </Link>
             </div>
+
+            <ProgramRelatedSection programs={relatedPrograms} />
 
             {/* Related Resources */}
             <div style={{ 

@@ -20,17 +20,46 @@ export default async function EmployerSettingsPage() {
   if (!ctx) redirect('/employers');
 
   return (
-    <div>
+    <div className="employer-settings-page">
       <PageHeader
         title="Company settings"
-        subtitle={`Portal context: ${ctx.employer.companyName}. Deeper company profile editing ships in a follow-up; contact your WorkforceAP admin for account changes today.`}
+        subtitle={`You are signed in as ${ctx.employer.companyName}. Editable company profile fields are coming next; use the options below for anything you need today.`}
       />
-      <p style={{ color: 'var(--color-gray-600)', maxWidth: '640px', lineHeight: 1.6 }}>
-        For email or contact updates, reach out via{' '}
-        <Link href="/employer/messages" style={{ color: 'var(--color-accent)' }}>
-          Messages / support
-        </Link>{' '}
-        or <a href="mailto:info@workforceap.org">info@workforceap.org</a>.
+      <div className="employer-settings-next-steps" role="region" aria-label="Where to go next">
+        <h2 className="employer-settings-next-steps__title">What you can do now</h2>
+        <ul className="employer-settings-next-steps__list">
+          <li>
+            <Link href="/employer/jobs" className="employer-settings-next-steps__link">
+              Manage job postings
+            </Link>
+            <span className="employer-settings-next-steps__desc">Create, edit, submit for review, and publish roles.</span>
+          </li>
+          <li>
+            <Link href="/employer/applications" className="employer-settings-next-steps__link">
+              Review applicants
+            </Link>
+            <span className="employer-settings-next-steps__desc">See applications and update hiring status.</span>
+          </li>
+          <li>
+            <Link href="/employer/messages" className="employer-settings-next-steps__link">
+              Messages / support
+            </Link>
+            <span className="employer-settings-next-steps__desc">Ask WorkforceAP to update billing contacts, users, or company details.</span>
+          </li>
+          <li>
+            <Link href="/contact" className="employer-settings-next-steps__link">
+              Contact form
+            </Link>
+            <span className="employer-settings-next-steps__desc">General inquiries: program partnerships, press, or other topics.</span>
+          </li>
+        </ul>
+      </div>
+      <p className="employer-settings-footnote">
+        For urgent account changes, email{' '}
+        <a href="mailto:info@workforceap.org" className="employer-settings-mailto">
+          info@workforceap.org
+        </a>
+        .
       </p>
     </div>
   );

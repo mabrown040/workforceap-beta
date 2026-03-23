@@ -18,9 +18,9 @@ import {
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Home',
+  title: 'Free Tech Career Training in Austin, TX | Workforce Advancement Project',
   description:
-    'Career training and industry certifications. Employer-aligned. No cost to qualifying participants. Launching in Austin, building toward more. Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades.',
+    'Get no-cost career certification training in Tech, Data, AI, Cybersecurity, Healthcare, and Skilled Trades. Employer-aligned programs. Apply today — WorkforceAP serves Austin and beyond.',
   path: '/',
 });
 

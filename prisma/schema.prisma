@@ -70,6 +70,8 @@ model User {
   jobPostingApplications JobPostingApplication[]
   aiJobMatches       AIJobMatch[]
   jobsApproved       Job[]            @relation("JobApprover")
+  partnerOutreachAbout   PartnerOutreachLog[] @relation("PartnerOutreachMember")
+  partnerOutreachAuthored PartnerOutreachLog[] @relation("PartnerOutreachAuthor")
 
   subgroupsLed       Subgroup[]       @relation("SubgroupLeader")
   subgroupsCreated   Subgroup[]       @relation("SubgroupCreator")
@@ -523,10 +525,11 @@ model Partner {
   notifyOnCertified    Boolean @default(true) @map("notify_on_certified")
   notifyOnPlaced       Boolean @default(true) @map("notify_on_placed")
 
-  counselors   Counselor[]
-  referrals    PartnerReferral[]
-  partnerUsers PartnerUser[]
-  subgroups    Subgroup[]
+  counselors    Counselor[]
+  referrals     PartnerReferral[]
+  partnerUsers  PartnerUser[]
+  subgroups     Subgroup[]
+  outreachLogs  PartnerOutreachLog[]
 
   @@map("partners")
 }
@@ -852,13 +855,15 @@ enum JobPostingApplicationStatus {
 }
 
 model JobPostingApplication {
-  id          String                    @id @default(uuid())
-  jobId       String                    @map("job_id")
-  studentId   String                    @map("student_id")
-  status      JobPostingApplicationStatus @default(pending)
-  coverLetter String?                   @map("cover_letter") @db.Text
-  resumeUrl   String?                   @map("resume_url")
-  appliedAt   DateTime                  @default(now()) @map("applied_at")
+  id              String                      @id @default(uuid())
+  jobId           String                      @map("job_id")
+  studentId       String                      @map("student_id")
+  status          JobPostingApplicationStatus @default(pending)
+  coverLetter     String?                     @map("cover_letter") @db.Text
+  resumeUrl       String?                     @map("resume_url")
+  appliedAt       DateTime                    @default(now()) @map("applied_at")
+  employerNotes   String?                     @map("employer_notes") @db.Text
+  statusUpdatedAt DateTime?                   @map("status_updated_at")
 
   job    Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
   student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
@@ -867,6 +872,24 @@ model JobPostingApplication {
   @@index([jobId])
   @@index([studentId])
   @@map("job_posting_applications")
+}
+
+model PartnerOutreachLog {
+  id              String   @id @default(uuid())
+  partnerId       String   @map("partner_id")
+  memberId        String   @map("member_id")
+  channel         String
+  note            String   @db.Text
+  createdByUserId String   @map("created_by_user_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  partner   Partner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  member    User    @relation("PartnerOutreachMember", fields: [memberId], references: [id], onDelete: Cascade)
+  createdBy User    @relation("PartnerOutreachAuthor", fields: [createdByUserId], references: [id], onDelete: Cascade)
+
+  @@index([partnerId])
+  @@index([memberId])
+  @@map("partner_outreach_logs")
 }
 
 enum AIJobMatchStatus {

@@ -21,22 +21,22 @@ import Footer from '@/components/Footer';
 export const metadata: Metadata = buildPageMetadata({
   title: 'Free Tech Career Training in Austin, TX | Workforce Advancement Project',
   description:
-    'Get no-cost career certification training in Tech, Data, AI, Cybersecurity, Healthcare, and Skilled Trades. Employer-aligned programs. Apply today â€” WorkforceAP serves Austin and beyond.',
+    'Get no-cost career certification training in Tech, Data, AI, Cybersecurity, Healthcare, and Skilled Trades. Employer-aligned programs. Apply today — WorkforceAP serves Austin and beyond.',
   path: '/',
 });
 
 export default function HomePage() {
   const journeySteps = [
-    { num: 1, title: 'Apply', desc: 'Short online form â€” about 10 minutes. We respond within 24â€“48 hours.' },
-    { num: 2, title: 'Overview', desc: 'Meet a counselor. Learn which program fits you â€” no exam, no gatekeeping.' },
+    { num: 1, title: 'Apply', desc: 'Short online form — about 10 minutes. We respond within 24–48 hours.' },
+    { num: 2, title: 'Overview', desc: 'Meet a counselor. Learn which program fits you — no exam, no gatekeeping.' },
     { num: 3, title: 'Interview', desc: '30 minutes. We confirm mutual fit and answer your questions.' },
-    { num: 4, title: 'Membership', desc: 'Join free â€” no cost to members.' },
+    { num: 4, title: 'Membership', desc: 'Join free — no cost to members.' },
     { num: 5, title: 'Assessment', desc: 'Skills and goals. We match you to the right path.' },
-    { num: 6, title: 'Readiness', desc: 'Soft skills and job-search basics â€” what employers expect.' },
+    { num: 6, title: 'Readiness', desc: 'Soft skills and job-search basics — what employers expect.' },
     { num: 7, title: 'Resources', desc: 'Tools, network, and loaner laptop program when you complete training (program-dependent).' },
     { num: 8, title: 'Training', desc: 'Industry certification courses. Same credentials employers hire for.' },
     { num: 9, title: 'Certify', desc: 'Earn credentials. Proof that sticks on your resume.' },
-    { num: 10, title: 'Placement', desc: 'We support you until you land â€” resume, interviews, and employer intros.' },
+    { num: 10, title: 'Placement', desc: 'We support you until you land — resume, interviews, and employer intros.' },
     {
       num: 11,
       title: 'Outcomes',
@@ -63,16 +63,16 @@ export default function HomePage() {
             Empowering People. <br />
             <span className="accent">Advancing Futures.</span>
           </h1>
-          <div className="hero-no-cost-badge">âœ¦ No-cost training for members</div>
+          <div className="hero-no-cost-badge">✦ No-cost training for members</div>
           <p className="hero-subtitle">
             Career training and certifications in Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Launching in Austin. Employer-aligned. Building toward more.
           </p>
           <div className="hero-actions hero-actions-prominent">
             <Link href="/apply" className="btn btn-accent btn-large">
-              Apply now â€” about 10 minutes
+              Apply now — about 10 minutes
             </Link>
             <Link href="/find-your-path" className="btn btn-ghost">
-              Find Your Path â†’
+              Find Your Path →
             </Link>
           </div>
           <div className="trust-strip">
@@ -88,21 +88,21 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Stats â€” trust-bearing, category-defining */}
+      {/* Stats — trust-bearing, category-defining */}
       <section className="stats-bar">
         <div className="stats-container">
           <p className="stats-trust-line">Employer-aligned. No participant debt. Success = you get hired.</p>
           <div className="stats-row">
             <div className="stat"><span className="stat-number">19</span><span className="stat-label">Programs</span></div>
             <div className="stat"><span className="stat-number">$0</span><span className="stat-label">Cost to Members</span></div>
-            <div className="stat"><span className="stat-number">16â€“20</span><span className="stat-label">Weeks to Certification</span></div>
-            <div className="stat"><span className="stat-number">24â€“48h</span><span className="stat-label">Response Time</span></div>
+            <div className="stat"><span className="stat-number">16–20</span><span className="stat-label">Weeks to Certification</span></div>
+            <div className="stat"><span className="stat-number">24–48h</span><span className="stat-label">Response Time</span></div>
             <div className="stat"><span className="stat-number">100%</span><span className="stat-label">Job Search Support</span></div>
           </div>
         </div>
       </section>
 
-      {/* Who we serve â€” members, employers, partners */}
+      {/* Who we serve — members, employers, partners */}
       <section className="home-audiences" aria-labelledby="home-audiences-heading">
         <div className="container">
           <h2 id="home-audiences-heading" className="home-section-title">
@@ -118,7 +118,7 @@ export default function HomePage() {
               </span>
               <h3>Members &amp; job seekers</h3>
               <p>
-                No-cost industry certifications and counselor support for members â€” from intake through job search.
+                No-cost industry certifications and counselor support for members — from intake through job search.
               </p>
               <div className="home-audience-links">
                 <Link href="/apply" className="btn btn-primary btn-sm">
@@ -167,12 +167,12 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* For You: fit + what you get â€” orchestrated persuasion */}
+      {/* For You: fit + what you get — orchestrated persuasion */}
       <section className="home-for-you">
         <div className="container">
           <h2 className="home-section-title">For you, if you&rsquo;re ready to launch</h2>
           <p className="home-for-you-lead">
-            Underserved individuals, adult learners, veterans. No prior tech required. We&rsquo;re currently serving the Austin area â€” our launch community â€” and building toward more. If that&rsquo;s you, here&rsquo;s what you get:
+            Underserved individuals, adult learners, veterans. No prior tech required. We&rsquo;re currently serving the Austin area — our launch community — and building toward more. If that&rsquo;s you, here&rsquo;s what you get:
           </p>
           <ol className="home-outcome-journey" aria-label="What you receive in sequence">
             <li className="home-outcome-step animate-on-scroll">
@@ -205,18 +205,18 @@ export default function HomePage() {
             </li>
           </ol>
           <div className="home-for-you-cta">
-            <Link href="/find-your-path" className="btn btn-outline">Not sure which program fits? Take the 2-min quiz â†’</Link>
+            <Link href="/find-your-path" className="btn btn-outline">Not sure which program fits? Take the 2-min quiz →</Link>
           </div>
         </div>
       </section>
 
-      {/* How it works â€” applicant-benefit-driven, confidence-building */}
+      {/* How it works — applicant-benefit-driven, confidence-building */}
       <section className="process-flow-section">
         <div className="process-flow-inner">
           <div className="process-flow-header animate-on-scroll">
             <h2>Your Journey With Us</h2>
             <p>
-              Eleven milestones from apply to outcomes â€” same path as our{' '}
+              Eleven milestones from apply to outcomes — same path as our{' '}
               <Link href="/how-it-works" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
                 full How it works
               </Link>{' '}
@@ -241,7 +241,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Social proof â€” real destinations, no placeholder quotes */}
+      {/* Social proof — real destinations, no placeholder quotes */}
       <section className="home-social-proof" aria-labelledby="home-social-proof-heading">
         <div className="container">
           <h2 id="home-social-proof-heading" className="home-section-title">
@@ -272,7 +272,7 @@ export default function HomePage() {
               <span className="section-label">Who We Are</span>
               <h2>25+ Years Breaking Barriers</h2>
               <p>
-                Founded by Michael Brown, PMP â€” a workforce leader who has trained thousands across the Austin Metro and statewide. Through Consulting Solutions.Net, Goodwill Career &amp; Technical Academy, Austin Area Urban League, Universal Tech Movement, and African American Youth Harvest Foundation, we deliver the wrap-around services that launch careers. Austin is our launch community; we&rsquo;re building toward national scale.
+                Founded by Michael Brown, PMP — a workforce leader who has trained thousands across the Austin Metro and statewide. Through Consulting Solutions.Net, Goodwill Career &amp; Technical Academy, Austin Area Urban League, Universal Tech Movement, and African American Youth Harvest Foundation, we deliver the wrap-around services that launch careers. Austin is our launch community; we&rsquo;re building toward national scale.
               </p>
               <div className="about-stats">
                 <div className="about-stat"><span className="stat-num">25+</span><span className="stat-desc">Years Experience</span></div>
@@ -293,7 +293,7 @@ export default function HomePage() {
             </div>
             <div className="programs-preview">
               <span className="section-label">Programs</span>
-              <h3>Careers That Pay â€” From $48K to $145K</h3>
+              <h3>Careers That Pay — From $48K to $145K</h3>
               <p>19 programs across Tech, Healthcare, Manufacturing, and Skilled Trades. Each path leads to real roles: IT support, cybersecurity, data analytics, project management, medical coding, and more.</p>
               <ul className="program-categories">
                 <li><span className="cat-icon"><Monitor size={20} className="text-current" /></span> Digital Literacy &amp; AI</li>
@@ -312,11 +312,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* What to do next â€” decisive, intentional */}
+      {/* What to do next — decisive, intentional */}
       <section className="footer-cta">
         <div className="container">
           <h2>Your Next Step</h2>
-          <p>Apply now â€” about 10 minutes. We respond within 24â€“48 hours. Real certifications. Employer connections. no cost to members.</p>
+          <p>Apply now — about 10 minutes. We respond within 24–48 hours. Real certifications. Employer connections. no cost to members.</p>
           <Link href="/apply" className="btn btn-primary btn-large">Start Your Application</Link>
           <p className="footer-cta-sub"><Link href="/find-your-path">Not sure yet? Take the pathfinder quiz first.</Link></p>
         </div>

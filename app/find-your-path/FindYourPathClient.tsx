@@ -22,14 +22,14 @@ const QUESTIONS = [
       { value: 'building' as const, label: 'Building and making things with your hands' },
       { value: 'managing' as const, label: 'Managing projects and teams' },
       { value: 'data' as const, label: 'Working with data and numbers' },
-      { value: 'not_sure' as const, label: "I'm not sure yet â€” show me everything" },
+      { value: 'not_sure' as const, label: "I'm not sure yet — show me everything" },
     ],
   },
   {
     id: 'q2' as const,
     question: "What's your experience level?",
     answers: [
-      { value: 'brand_new' as const, label: "I'm brand new â€” no experience in this field" },
+      { value: 'brand_new' as const, label: "I'm brand new — no experience in this field" },
       { value: 'some_knowledge' as const, label: 'I have some basic knowledge but no credentials' },
       { value: 'work_experience' as const, label: 'I have work experience but no formal certification' },
       { value: 'certifications' as const, label: 'I have certifications but want to level up' },
@@ -39,9 +39,9 @@ const QUESTIONS = [
     id: 'q3' as const,
     question: 'How quickly do you want to start working?',
     answers: [
-      { value: 'as_fast' as const, label: 'As fast as possible â€” I need a job soon' },
-      { value: '3_5_months' as const, label: 'I can invest 3â€“5 months in training' },
-      { value: 'planning_ahead' as const, label: "I'm planning ahead â€” no rush" },
+      { value: 'as_fast' as const, label: 'As fast as possible — I need a job soon' },
+      { value: '3_5_months' as const, label: 'I can invest 3–5 months in training' },
+      { value: 'planning_ahead' as const, label: "I'm planning ahead — no rush" },
       { value: 'employed_switch' as const, label: "I'm currently employed but want to switch careers" },
     ],
   },
@@ -62,7 +62,7 @@ const QUESTIONS = [
     answers: [
       { value: 'comfortable' as const, label: 'I\'m comfortable with computers, email, and the internet' },
       { value: 'basic_apps' as const, label: 'I can use a phone and basic apps but computers are tricky' },
-      { value: 'tech_savvy' as const, label: "I'm very tech-savvy â€” I just need the credential" },
+      { value: 'tech_savvy' as const, label: "I'm very tech-savvy — I just need the credential" },
       { value: 'basics' as const, label: 'I need to start from the basics' },
     ],
   },
@@ -160,7 +160,7 @@ function QuizResultsView({
                 <p className="quiz-result-ramp-note">{extra.rampNote}</p>
               )}
               <div style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '0.5rem' }}>
-                â± {program.duration}
+                ⏱ {program.duration}
               </div>
               <div style={{ fontSize: '0.9rem', color: 'var(--color-accent)', fontWeight: 600, marginBottom: '0.5rem' }}>
                 Starting range: {salaryBand} <span style={{ fontWeight: 500, color: 'var(--color-gray-600)' }}>(Austin-area framing)</span>
@@ -178,40 +178,40 @@ function QuizResultsView({
                 className="btn btn-primary"
                 style={{ width: '100%', padding: '0.75rem', fontSize: '0.9rem' }}
               >
-                Apply for This Program â†’
+                Apply for This Program →
               </Link>
               <Link
                 href={`/programs/${program.slug}`}
                 className="quiz-result-detail-link"
               >
-                View full program details â†’
+                View full program details →
               </Link>
             </div>
           );
         })}
       </div>
 
-      {/* Conversion section â€” confidence + clear next step */}
+      {/* Conversion section — confidence + clear next step */}
       {topProgram && (
         <div className="quiz-results-cta">
           <p className="quiz-results-cta-lead">
-            Your top match: <strong>{topProgram.title}</strong>. Published starting band is {salaryRangeDisplay(topProgram)} â€” your offer still depends on employer and proof.
+            Your top match: <strong>{topProgram.title}</strong>. Published starting band is {salaryRangeDisplay(topProgram)} — your offer still depends on employer and proof.
           </p>
           <p className="quiz-results-cta-sub">
-            Applications take about 10 minutes. We respond within 24â€“48 hours.
+            Applications take about 10 minutes. We respond within 24–48 hours.
           </p>
           <Link href={`/apply?program=${topProgram.slug}`} className="btn btn-primary btn-large">
             Apply for {topProgram.title}
           </Link>
           <p className="quiz-results-cta-phone">
-            <a href="tel:+15127771808">Talk to someone first â†’ (512) 777-1808</a>
+            <a href="tel:+15127771808">Talk to someone first → (512) 777-1808</a>
           </p>
         </div>
       )}
 
       <div className="quiz-results-next-steps">
         <p>
-          On the comparison page, check up to four tracks to see them side-by-side â€” time, difficulty, salary band, and best-for
+          On the comparison page, check up to four tracks to see them side-by-side — time, difficulty, salary band, and best-for
           notes. Then use the salary guide for the same published ranges.
         </p>
         <div className="quiz-results-next-links">
@@ -237,7 +237,7 @@ function QuizResultsView({
           <>
             <p>Not seeing what you expected?</p>
             <Link href="/programs" className="btn btn-outline">
-              Browse All 19 Programs â†’
+              Browse All 19 Programs →
             </Link>
           </>
         )}
@@ -342,7 +342,7 @@ export default function FindYourPathClient() {
             className="quiz-back-link"
             onClick={handleBack}
           >
-            â† Back
+            ← Back
           </button>
         )}
         <h2 className="quiz-question">{currentQ?.question}</h2>

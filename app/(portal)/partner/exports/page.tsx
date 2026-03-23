@@ -27,9 +27,14 @@ export default async function PartnerExportsPage() {
       <p style={{ color: 'var(--color-gray-600)', marginBottom: '1rem', maxWidth: 560 }}>
         The file includes only members referred by your organization. Open in Excel or Google Sheets.
       </p>
-      <a href="/api/partner/export/referrals" className="btn btn-primary">
-        Download referrals.csv
-      </a>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
+        <a href="/api/partner/export/referrals" className="btn btn-primary">
+          Download referrals.csv
+        </a>
+        <a href="/api/partner/export/referrals?preset=outcomes" className="btn btn-secondary">
+          Outcomes preset (placement columns)
+        </a>
+      </div>
     </div>
   );
 }

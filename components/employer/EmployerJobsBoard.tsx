@@ -84,12 +84,16 @@ function canBulkClose(status: string): boolean {
 const BULK_DELETE_FLASH_KEY = 'wfap_employer_bulk_delete_ok';
 const BULK_CLOSE_FLASH_KEY = 'wfap_employer_bulk_close_ok';
 
+/** Keep job list readable; bulk actions still apply to any posting in the current filter. */
+const JOBS_PAGE_SIZE = 10;
+
 export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem[] }) {
   const router = useRouter();
   const modalTitleId = useId();
   const modalDescId = useId();
   const modalPendingNoteId = useId();
   const [filter, setFilter] = useState<string>('all');
+  const [listPage, setListPage] = useState(1);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [publishingId, setPublishingId] = useState<string | null>(null);
   const [closingId, setClosingId] = useState<string | null>(null);
@@ -110,6 +114,13 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
     if (filter === 'review') return jobs.filter((j) => j.status === 'pending' || j.status === 'approved');
     return jobs.filter((j) => j.status === filter);
   }, [jobs, filter]);
+
+  const totalListPages = Math.max(1, Math.ceil(filtered.length / JOBS_PAGE_SIZE));
+
+  const pageSlice = useMemo(() => {
+    const start = (listPage - 1) * JOBS_PAGE_SIZE;
+    return filtered.slice(start, start + JOBS_PAGE_SIZE);
+  }, [filtered, listPage]);
 
   const deletableFiltered = useMemo(
     () => filtered.filter((j) => canBulkDelete(j.status)),
@@ -142,7 +153,12 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
 
   useEffect(() => {
     setSelected(new Set());
+    setListPage(1);
   }, [filter]);
+
+  useEffect(() => {
+    if (listPage > totalListPages) setListPage(totalListPages);
+  }, [listPage, totalListPages]);
 
   useEffect(() => {
     // Check for delete flash
@@ -191,6 +207,23 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
   const selectAllClosable = useCallback(() => {
     setSelected(new Set(closableFiltered.map((j) => j.id)));
   }, [closableFiltered]);
+
+  const deletableIdsOnPage = useMemo(
+    () => pageSlice.filter((j) => canBulkDelete(j.status)).map((j) => j.id),
+    [pageSlice]
+  );
+  const closableIdsOnPage = useMemo(
+    () => pageSlice.filter((j) => canBulkClose(j.status)).map((j) => j.id),
+    [pageSlice]
+  );
+
+  const selectAllDeletableOnPage = useCallback(() => {
+    setSelected(new Set(deletableIdsOnPage));
+  }, [deletableIdsOnPage]);
+
+  const selectAllClosableOnPage = useCallback(() => {
+    setSelected(new Set(closableIdsOnPage));
+  }, [closableIdsOnPage]);
 
   const clearSelection = useCallback(() => setSelected(new Set()), []);
 
@@ -364,6 +397,11 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
   const allClosableSelected =
     closableFiltered.length > 0 && closableFiltered.every((j) => selected.has(j.id));
 
+  const allDeletableOnPageSelected =
+    deletableIdsOnPage.length > 0 && deletableIdsOnPage.every((id) => selected.has(id));
+  const allClosableOnPageSelected =
+    closableIdsOnPage.length > 0 && closableIdsOnPage.every((id) => selected.has(id));
+
   const counts = useMemo(() => {
     const c = { draft: 0, inReview: 0, live: 0, filled: 0 };
     for (const j of jobs) {
@@ -462,10 +500,18 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
                 <button
                   type="button"
                   className="btn btn-ghost btn-sm"
+                  onClick={selectAllDeletableOnPage}
+                  disabled={deletableIdsOnPage.length === 0 || allDeletableOnPageSelected}
+                >
+                  All deletable (this page)
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
                   onClick={selectAllDeletable}
                   disabled={allDeletableSelected}
                 >
-                  Select deletable
+                  All deletable (entire filter)
                 </button>
                 <button
                   type="button"
@@ -482,10 +528,18 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
                 <button
                   type="button"
                   className="btn btn-ghost btn-sm"
+                  onClick={selectAllClosableOnPage}
+                  disabled={closableIdsOnPage.length === 0 || allClosableOnPageSelected}
+                >
+                  All closable (this page)
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
                   onClick={selectAllClosable}
                   disabled={allClosableSelected}
                 >
-                  Select closable
+                  All closable (entire filter)
                 </button>
                 <button
                   type="button"
@@ -519,7 +573,7 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
         </div>
       ) : (
         <ul className="employer-jobs-board__grid" role="list">
-          {filtered.map((j) => {
+          {pageSlice.map((j) => {
             const deletable = canBulkDelete(j.status);
             const closable = canBulkClose(j.status);
             const selectable = deletable || closable;
@@ -651,6 +705,31 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
         </ul>
       )}
 
+      {filtered.length > 0 && totalListPages > 1 && (
+        <nav className="employer-jobs-board__pagination" aria-label="Job list pages">
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm"
+            onClick={() => setListPage((p) => Math.max(1, p - 1))}
+            disabled={listPage <= 1}
+          >
+            Previous
+          </button>
+          <span className="employer-jobs-board__pagination-meta">
+            Page <strong>{listPage}</strong> of <strong>{totalListPages}</strong>
+            <span className="employer-jobs-board__pagination-count"> ({filtered.length} in this view)</span>
+          </span>
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm"
+            onClick={() => setListPage((p) => Math.min(totalListPages, p + 1))}
+            disabled={listPage >= totalListPages}
+          >
+            Next
+          </button>
+        </nav>
+      )}
+
       {closeModal && (
         <div className="employer-bulk-modal-overlay" role="presentation" onClick={() => !closingId && setCloseModal(null)}>
           <div
@@ -699,6 +778,12 @@ export default function EmployerJobsBoard({ jobs }: { jobs: EmployerJobBoardItem
                 <>Mark {selectedClosable.length} posting{selectedClosable.length === 1 ? '' : 's'} as filled?</>
               )}
             </h2>
+            {confirmMode === 'delete' && (
+              <p className="employer-bulk-modal__warning-lead" role="alert">
+                <strong>This cannot be undone.</strong> Postings are permanently removed from WorkforceAP and linked
+                applicant records in your portal are deleted.
+              </p>
+            )}
             <p id={modalDescId} className="employer-bulk-modal__desc">
               {confirmMode === 'delete' ? (
                 <>These postings leave WorkforceAP. Applicant records tied to them are removed too. Live and board-approved

@@ -10526,6 +10526,39 @@ body { animation: fadeIn 0.4s ease; }
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
     gap: 1.25rem;
 }
+.employer-jobs-board__pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem 1rem;
+    margin-top: 1.5rem;
+    padding: 0.75rem 0;
+}
+.employer-jobs-board__pagination-meta {
+    font-size: 0.9rem;
+    color: var(--color-gray-700);
+    text-align: center;
+}
+.employer-jobs-board__pagination-count {
+    color: var(--color-gray-500);
+    font-weight: 400;
+}
+@media (max-width: 639px) {
+    .employer-jobs-board__pagination {
+        flex-direction: column;
+    }
+}
+.employer-bulk-modal__warning-lead {
+    margin: 0 0 0.75rem;
+    padding: 0.65rem 0.75rem;
+    background: rgba(173, 44, 77, 0.08);
+    border: 1px solid rgba(173, 44, 77, 0.25);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    line-height: 1.45;
+    color: var(--color-gray-800);
+}
 .employer-job-card {
     height: 100%;
     display: flex;

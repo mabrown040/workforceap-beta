@@ -1,10 +1,12 @@
 import type { LucideIcon } from 'lucide-react';
 import {
+  Activity,
   AlertTriangle,
   Award,
   BarChart3,
   BookOpen,
   Briefcase,
+  Building2,
   CheckCircle,
   ClipboardCheck,
   ClipboardList,
@@ -13,6 +15,7 @@ import {
   Flag,
   GitBranch,
   GraduationCap,
+  Handshake,
   Home,
   Layers,
   LayoutDashboard,
@@ -25,6 +28,7 @@ import {
   Upload,
   User,
   Users,
+  UsersRound,
 } from 'lucide-react';
 
 export type PortalRole = 'member' | 'employer' | 'partner' | 'admin' | 'group';
@@ -157,11 +161,31 @@ export const GROUP_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/my-group', label: 'Members', group: 'primary', Icon: Users },
 ];
 
-export const PORTAL_NAV: Record<Exclude<PortalRole, 'admin'>, PortalNavItem[]> = {
+/** Admin ops — same WorkspaceShell grouping pattern as employer/partner/member. */
+export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
+  { href: '/admin', label: 'Overview', group: 'primary', Icon: BarChart3 },
+  { href: '/admin/members', label: 'Members', group: 'workflows', Icon: Users },
+  { href: '/admin/invites', label: 'Invites', group: 'workflows', Icon: MessageSquare },
+  { href: '/admin/assessments', label: 'Assessments', group: 'workflows', Icon: ClipboardCheck },
+  { href: '/admin/programs', label: 'Programs', group: 'workflows', Icon: BookOpen },
+  { href: '/admin/blog', label: 'Blog', group: 'workflows', Icon: FileText },
+  { href: '/admin/jobs', label: 'Jobs', group: 'workflows', Icon: Briefcase },
+  { href: '/admin/employers', label: 'Employers', group: 'workflows', Icon: Building2 },
+  { href: '/admin/partners', label: 'Partners', group: 'workflows', Icon: Handshake },
+  { href: '/admin/subgroups', label: 'Subgroups', group: 'workflows', Icon: UsersRound },
+  { href: '/admin/pipeline', label: 'Pipeline', group: 'workflows', Icon: GitBranch },
+  { href: '/admin/diagnostics', label: 'Diagnostics', group: 'insights', Icon: Activity },
+  { href: '/admin/weekly-recap', label: 'Weekly recap', group: 'insights', Icon: BarChart3 },
+  { href: '/admin/ai-tools', label: 'AI tools', group: 'insights', Icon: Sparkles },
+  { href: '/admin/certifications', label: 'Certifications', group: 'insights', Icon: Award },
+];
+
+export const PORTAL_NAV: Record<PortalRole, PortalNavItem[]> = {
   member: MEMBER_PORTAL_NAV_ITEMS,
   employer: EMPLOYER_PORTAL_NAV_ITEMS,
   partner: PARTNER_PORTAL_NAV_ITEMS,
   group: GROUP_PORTAL_NAV_ITEMS,
+  admin: ADMIN_PORTAL_NAV_ITEMS,
 };
 
 export function navItemsForActiveRoute(items: PortalNavItem[]): { href: string; aliases?: string[] }[] {

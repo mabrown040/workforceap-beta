@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { checkContactRateLimit } from '@/lib/rate-limit';
+import { verifyTurnstileResponse } from '@/lib/turnstile/verifyTurnstile';
 
 const CONTACT_EMAIL_TO = 'info@workforceap.org';
 
@@ -34,7 +35,27 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
-  const { firstName, lastName, email, phone, topic, message, smsPreferred } = parsed;
+  const { firstName, lastName, email, phone, topic, message, smsPreferred, turnstileToken } = parsed;
+
+  const captchaEnabled = process.env.NEXT_PUBLIC_CAPTCHA_ENABLED === 'true';
+  if (captchaEnabled) {
+    const secret = process.env.TURNSTILE_SECRET_KEY;
+    if (!secret?.trim()) {
+      console.error('TURNSTILE_SECRET_KEY missing while NEXT_PUBLIC_CAPTCHA_ENABLED=true');
+      return NextResponse.json(
+        { error: 'Contact form is temporarily unavailable. Please try again later.' },
+        { status: 503 }
+      );
+    }
+    const tok = turnstileToken?.trim() ?? '';
+    if (!tok) {
+      return NextResponse.json({ error: 'Please complete the security check.' }, { status: 400 });
+    }
+    const ok = await verifyTurnstileResponse(secret, tok, ip !== 'unknown' ? ip : undefined);
+    if (!ok) {
+      return NextResponse.json({ error: 'Security check failed. Please try again.' }, { status: 400 });
+    }
+  }
 
   const resendKey = process.env.RESEND_API_KEY;
   const emailFrom = process.env.EMAIL_FROM || 'noreply@workforceap.org';
@@ -89,6 +110,7 @@ function parseBody(body: unknown): {
   topic: string;
   message: string;
   smsPreferred?: boolean;
+  turnstileToken?: string;
 } | null {
   if (!body || typeof body !== 'object') return null;
   const o = body as Record<string, unknown>;
@@ -99,6 +121,8 @@ function parseBody(body: unknown): {
   const topic = typeof o.topic === 'string' ? o.topic.trim() : null;
   const message = typeof o.message === 'string' ? o.message.trim() : null;
   const smsPreferred = o.sms_preferred === true || o.sms_preferred === 'true';
+  const turnstileToken =
+    typeof o.cf_turnstile_response === 'string' ? o.cf_turnstile_response.trim() || undefined : undefined;
   if (!firstName || !lastName || !email || !topic || !message) return null;
-  return { firstName, lastName, email, phone, topic, message, smsPreferred };
+  return { firstName, lastName, email, phone, topic, message, smsPreferred, turnstileToken };
 }

@@ -1,13 +1,26 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
+
+const Turnstile = dynamic(() => import('@marsidev/react-turnstile').then((m) => m.Turnstile), { ssr: false });
+
+const CAPTCHA_ENABLED = process.env.NEXT_PUBLIC_CAPTCHA_ENABLED === 'true';
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
 export default function EmployerContactForm() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (CAPTCHA_ENABLED && TURNSTILE_SITE_KEY) {
+      if (!turnstileToken?.trim()) {
+        setErrorMsg('Please complete the security check before sending.');
+        return;
+      }
+    }
     const form = e.currentTarget;
     const formData = new FormData(form);
     const name = String(formData.get('name') || '').trim();
@@ -26,7 +39,7 @@ export default function EmployerContactForm() {
       .filter(Boolean)
       .join('\n');
 
-    const data = {
+    const data: Record<string, unknown> = {
       first_name,
       last_name,
       email: formData.get('email'),
@@ -35,6 +48,9 @@ export default function EmployerContactForm() {
       message,
       sms_preferred: false,
     };
+    if (CAPTCHA_ENABLED && turnstileToken) {
+      data.cf_turnstile_response = turnstileToken;
+    }
 
     setStatus('sending');
     setErrorMsg(null);
@@ -118,6 +134,17 @@ export default function EmployerContactForm() {
         <label htmlFor="employer-hiring-needs">Hiring Needs *</label>
         <textarea id="employer-hiring-needs" name="hiring_needs" rows={5} required disabled={status === 'sending'} aria-required="true" placeholder="Tell us about the roles you're hiring for, timeline, and any specific requirements..." />
       </div>
+      {CAPTCHA_ENABLED && TURNSTILE_SITE_KEY ? (
+        <div className="form-group employer-contact-turnstile">
+          <Turnstile
+            siteKey={TURNSTILE_SITE_KEY}
+            onSuccess={(t) => setTurnstileToken(t)}
+            onExpire={() => setTurnstileToken(null)}
+            onError={() => setTurnstileToken(null)}
+            options={{ theme: 'light', size: 'normal' }}
+          />
+        </div>
+      ) : null}
       <button
         type="submit"
         className="btn btn-primary"

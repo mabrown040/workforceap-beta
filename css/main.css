@@ -3553,6 +3553,8 @@ fieldset.apply-fieldset {
     border-left: 4px solid var(--color-gray-300);
     transition: all var(--transition-base);
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 .program-card::before {
     content: '';

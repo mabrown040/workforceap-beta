@@ -69,14 +69,15 @@ export default function ProgramDetailClient({ program }: { program: Program }) {
                   {isOpen ? '−' : '+'}
                 </span>
               </button>
-              {isOpen ? (
-                <div
-                  id={panelId}
-                  style={{ padding: '0 1rem 1rem 1rem', paddingLeft: '2rem', fontSize: '0.9rem', color: 'var(--color-gray-600)' }}
-                >
-                  Part of the {program.title} program.
-                </div>
-              ) : null}
+              <div
+                id={panelId}
+                hidden={!isOpen}
+                role="region"
+                aria-label={`${c.name} details`}
+                style={{ padding: '0 1rem 1rem 1rem', paddingLeft: '2rem', fontSize: '0.9rem', color: 'var(--color-gray-600)' }}
+              >
+                Part of the {program.title} program.
+              </div>
             </div>
           );
         })}

@@ -46,8 +46,10 @@ export default async function DashboardPage() {
         programInterest: applicationStatusView.programInterest,
         nextStep: applicationStatusView.nextStep,
         showResponseEstimate: applicationStatusView.showResponseEstimate,
+        progressIndex: applicationStatusView.progressIndex,
       }
     : null;
+  const noApplicationOnFile = !latestApplication;
 
   const firstName = dbUser.fullName?.split(' ')[0] ?? 'there';
   const enrolledProgram = dbUser.enrolledProgram ?? null;
@@ -114,6 +116,7 @@ export default async function DashboardPage() {
         checklist={checklist}
         checklistAllDone={checklistAllDone}
         applicationStatus={applicationStatus}
+        noApplicationOnFile={noApplicationOnFile}
       />
       {showMatchedRoles && <MatchedRoles />}
     </>

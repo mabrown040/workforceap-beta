@@ -8,6 +8,14 @@ export type MemberApplicationStage =
   | 'active'
   | 'rejected';
 
+export const MEMBER_APPLICATION_PROGRESS_STEPS = [
+  'Applied',
+  'Under review',
+  'Accepted',
+  'Enrolled',
+  'Active',
+] as const;
+
 export type MemberApplicationStatusView = {
   stage: MemberApplicationStage;
   label: string;
@@ -15,6 +23,8 @@ export type MemberApplicationStatusView = {
   programInterest: string | null;
   nextStep: string;
   showResponseEstimate: boolean;
+  /** 1–5 = index in MEMBER_APPLICATION_PROGRESS_STEPS; null when not on linear path (e.g. rejected) */
+  progressIndex: number | null;
 };
 
 function stageFromRow(
@@ -68,6 +78,19 @@ export function buildMemberApplicationStatusView(
       'If you have questions about this decision, contact us at info@workforceap.org.',
   };
 
+  const progressIndex: number | null =
+    stage === 'applied'
+      ? 1
+      : stage === 'under_review'
+        ? 2
+        : stage === 'accepted'
+          ? 3
+          : stage === 'enrolled'
+            ? 4
+            : stage === 'active'
+              ? 5
+              : null;
+
   return {
     stage,
     label: labels[stage],
@@ -75,6 +98,7 @@ export function buildMemberApplicationStatusView(
     programInterest,
     nextStep: nextSteps[stage],
     showResponseEstimate,
+    progressIndex,
   };
 }
 

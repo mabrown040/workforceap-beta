@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { BookOpen, Calendar, BarChart3, Target, PartyPopper, ChevronRight } from 'lucide-react';
+import { MEMBER_APPLICATION_PROGRESS_STEPS } from '@/lib/member/memberApplicationStatus';
 import { trackFunnelEvent } from '@/lib/analytics/events';
 import { postMemberEvent } from '@/lib/events/client';
 
@@ -14,6 +15,7 @@ export type DashboardApplicationStatusProps = {
   programInterest: string | null;
   nextStep: string;
   showResponseEstimate: boolean;
+  progressIndex: number | null;
 };
 
 type DashboardHomeClientProps = {
@@ -37,6 +39,8 @@ type DashboardHomeClientProps = {
   recommendedActions: Array<{ label: string; href: string }>;
   jobSearchUrl?: string | null;
   applicationStatus?: DashboardApplicationStatusProps | null;
+  /** True when member has no Application row — prompt to apply */
+  noApplicationOnFile?: boolean;
 };
 
 export default function DashboardHomeClient({
@@ -54,6 +58,7 @@ export default function DashboardHomeClient({
   recommendedActions,
   jobSearchUrl,
   applicationStatus,
+  noApplicationOnFile,
 }: DashboardHomeClientProps) {
   const primaryAction = recommendedActions[0];
   const secondaryAction = recommendedActions[1];
@@ -94,12 +99,48 @@ export default function DashboardHomeClient({
         </p>
       </header>
 
-      {applicationStatus ? (
+      {noApplicationOnFile ? (
         <section className="dashboard-application-status" aria-labelledby="dashboard-application-status-heading">
           <h2 id="dashboard-application-status-heading" className="dashboard-today-label">
             Your application
           </h2>
           <div className="dashboard-application-status-card">
+            <p className="dashboard-application-status-next" style={{ marginTop: 0 }}>
+              We do not have an application on file for this account yet.
+            </p>
+            <Link href="/apply" className="btn btn-primary" style={{ marginTop: '0.75rem', display: 'inline-flex' }}>
+              Start your application
+            </Link>
+          </div>
+        </section>
+      ) : applicationStatus ? (
+        <section className="dashboard-application-status" aria-labelledby="dashboard-application-status-heading">
+          <h2 id="dashboard-application-status-heading" className="dashboard-today-label">
+            Your application
+          </h2>
+          <div className="dashboard-application-status-card">
+            {applicationStatus.progressIndex !== null ? (
+              <div className="dashboard-application-progress" aria-hidden>
+                <div className="dashboard-application-progress-track">
+                  {MEMBER_APPLICATION_PROGRESS_STEPS.map((stepLabel, i) => {
+                    const stepNum = i + 1;
+                    const done = stepNum < applicationStatus.progressIndex!;
+                    const current = stepNum === applicationStatus.progressIndex;
+                    return (
+                      <div
+                        key={stepLabel}
+                        className={`dashboard-application-progress-step${done ? ' is-done' : ''}${
+                          current ? ' is-current' : ''
+                        }`}
+                      >
+                        <span className="dashboard-application-progress-dot" />
+                        <span className="dashboard-application-progress-label">{stepLabel}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
             <div className="dashboard-application-status-row">
               <div>
                 <p className="dashboard-application-status-label">Current status</p>

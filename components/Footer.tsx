@@ -18,7 +18,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
           <div className="footer-bottom">
             <p>&copy; {new Date().getFullYear()} Workforce Advancement Project. Empowering People. Advancing Futures.</p>
             <div className="social-links">
-              <a href="https://www.linkedin.com/company/workforce-advancement-project" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+              <a href="https://www.linkedin.com/company/workforce-advancement-project" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
               <a href="mailto:info@workforceap.org">Email</a>
               <Link href="/privacy">Privacy Policy</Link>
               <Link href="/terms">Terms of Use</Link>
@@ -50,7 +50,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
         <FooterLinks />
       </div>
       <div className="footer-bottom">
-        <p>&copy; {new Date().getFullYear()} Workforce Advancement Project. Empowering People. Advancing Futures. &nbsp;|&nbsp; <a href="https://www.linkedin.com/company/workforce-advancement-project" target="_blank" rel="noopener noreferrer">LinkedIn</a> &nbsp;|&nbsp; <a href="mailto:info@workforceap.org">info@workforceap.org</a> &nbsp;|&nbsp; <Link href="/privacy">Privacy</Link> &nbsp;|&nbsp; <Link href="/terms">Terms</Link></p>
+        <p>&copy; {new Date().getFullYear()} Workforce Advancement Project. Empowering People. Advancing Futures. &nbsp;|&nbsp; <a href="https://www.linkedin.com/company/workforce-advancement-project" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a> &nbsp;|&nbsp; <a href="mailto:info@workforceap.org">info@workforceap.org</a> &nbsp;|&nbsp; <Link href="/privacy">Privacy</Link> &nbsp;|&nbsp; <Link href="/terms">Terms</Link></p>
       </div>
     </footer>
   );

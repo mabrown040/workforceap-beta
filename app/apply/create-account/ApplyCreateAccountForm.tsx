@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { trackApplyFunnel } from '@/lib/analytics/events';
+import { APPLY_REFERRAL_SESSION_KEY } from '@/lib/apply/applyReferralCapture';
 
 const PROGRAM_STORAGE_KEY = 'apply_program_slug';
 
@@ -95,6 +96,15 @@ export default function ApplyCreateAccountForm() {
     trackApplyFunnel(3, 'account_create_submit', { program_slug: programSlug, sms_opt_in: smsOptIn });
 
     try {
+      let referralRef: string | null = null;
+      if (typeof window !== 'undefined') {
+        try {
+          referralRef = sessionStorage.getItem(APPLY_REFERRAL_SESSION_KEY);
+        } catch {
+          /* ignore */
+        }
+      }
+
       const res = await fetch('/api/apply/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -107,6 +117,7 @@ export default function ApplyCreateAccountForm() {
           smsOptIn,
           password,
           programSlug,
+          referralRef: referralRef?.trim() || undefined,
         }),
       });
       const data = await res.json();
@@ -120,6 +131,11 @@ export default function ApplyCreateAccountForm() {
 
       sessionStorage.removeItem(PROGRAM_STORAGE_KEY);
       sessionStorage.removeItem('apply_eligibility');
+      try {
+        sessionStorage.removeItem(APPLY_REFERRAL_SESSION_KEY);
+      } catch {
+        /* ignore */
+      }
       completedRef.current = true;
       trackApplyFunnel(3, 'account_created', { program_slug: programSlug, redirect_to: data.redirectTo ?? '/dashboard' });
       window.location.href = data.redirectTo ?? '/dashboard';

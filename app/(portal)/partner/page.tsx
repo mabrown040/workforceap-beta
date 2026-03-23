@@ -26,6 +26,20 @@ export default async function PartnerDashboardPage() {
   const ctx = await getPartnerForUser(user.id);
   if (!ctx) redirect('/dashboard');
 
+  const [appliedViaReferralLink, partnerCodes] = await Promise.all([
+    prisma.application.count({
+      where: { referralPartnerId: ctx.partnerId },
+    }),
+    prisma.partner.findUnique({
+      where: { id: ctx.partnerId },
+      select: { referralCode: true, slug: true },
+    }),
+  ]);
+
+  const applyLinkBase = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
+  const refParam = partnerCodes?.referralCode ?? partnerCodes?.slug ?? ctx.partner.slug;
+  const referralApplyUrl = `${applyLinkBase}/apply?ref=${encodeURIComponent(refParam)}`;
+
   const referrals = await prisma.partnerReferral.findMany({
     where: { partnerId: ctx.partnerId, member: { deletedAt: null } },
     include: {
@@ -128,6 +142,17 @@ export default async function PartnerDashboardPage() {
           </Link>
         }
       />
+
+      <section className="partner-referral-attribution partner-panel" aria-label="Referral link applications">
+        <p className="partner-section-eyebrow">Referral link</p>
+        <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--color-gray-700)' }}>
+          Applied via your referral link: <strong>{appliedViaReferralLink}</strong> — members who used your{' '}
+          <code style={{ fontSize: '0.85em' }}>?ref=</code> link and created an account.
+        </p>
+        <p style={{ margin: '0.75rem 0 0', fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>
+          Share: <strong style={{ wordBreak: 'break-all' }}>{referralApplyUrl}</strong>
+        </p>
+      </section>
 
       {total === 0 ? (
         <section className="partner-empty-state partner-panel">

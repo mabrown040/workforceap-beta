@@ -57,6 +57,8 @@ export const memberSignupSchema = z.object({
     errorMap: () => ({ message: 'You must agree to the terms and privacy policy' }),
   }),
   consentCommunications: z.boolean().optional(),
+  /** Partner referral code from apply link (?ref=), stored on Application */
+  referralRef: z.string().max(100).optional().nullable(),
 });
 
 export type MemberSignupInput = z.infer<typeof memberSignupSchema>;

@@ -45,6 +45,23 @@ export async function POST(request: NextRequest) {
 
   const data = parsed.data;
 
+  let referralPartnerId: string | null = null;
+  let referralSource: string | null = null;
+  const refRaw = data.referralRef?.trim().toLowerCase();
+  if (refRaw) {
+    const partner = await prisma.partner.findFirst({
+      where: {
+        active: true,
+        OR: [{ referralCode: refRaw }, { slug: refRaw }],
+      },
+      select: { id: true },
+    });
+    if (partner) {
+      referralPartnerId = partner.id;
+      referralSource = `partner_ref:${refRaw}`;
+    }
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const databaseUrl =
@@ -165,6 +182,8 @@ export async function POST(request: NextRequest) {
           status: ApplicationStatus.PENDING,
           programInterest: data.programInterest,
           submittedAt: new Date(),
+          referralSource,
+          referralPartnerId,
         },
       });
 

@@ -4,6 +4,7 @@ import Footer from '@/components/Footer';
 import ApplyEligibilityClient from './ApplyEligibilityClient';
 import ApplyPageSkeleton from './ApplyPageSkeleton';
 import ApplyProgramIntro from '@/components/apply/ApplyProgramIntro';
+import ApplyRefCapture from '@/components/apply/ApplyRefCapture';
 import { buildApplyPageMetadata, getProgramBySlug, resolveApplyProgramSlug } from '@/lib/apply/applyProgramPage';
 
 type PageProps = { searchParams?: Promise<{ program?: string }> };
@@ -55,6 +56,9 @@ export default async function ApplyPage({ searchParams }: PageProps) {
 
           {program ? <ApplyProgramIntro programSlug={program.slug} /> : null}
 
+          <Suspense fallback={null}>
+            <ApplyRefCapture />
+          </Suspense>
           <Suspense fallback={<ApplyPageSkeleton />}>
             <ApplyEligibilityClient />
           </Suspense>

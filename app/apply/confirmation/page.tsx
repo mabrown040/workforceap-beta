@@ -48,9 +48,9 @@ export default function ApplyConfirmationPage() {
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
                 <span style={{ background: '#4a9b4f', color: 'white', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.9rem', flexShrink: 0 }}>3</span>
                 <div>
-                  <strong>If accepted, you will get access to your student portal</strong>
+                  <strong>If accepted, you will get access to your member portal</strong>
                   <p style={{ margin: '0.25rem 0 0', color: 'var(--color-gray-600)', fontSize: '0.95rem' }}>
-                    Your portal gives you access to training, AI career tools, and your counselor &mdash; all in one place.
+                    Your portal gives you access to no-cost training for members, AI career tools, and your counselor &mdash; all in one place.
                   </p>
                 </div>
               </div>
@@ -69,6 +69,9 @@ export default function ApplyConfirmationPage() {
               <p style={{ margin: 0, fontSize: '0.95rem' }}>
                 <strong>While you wait:</strong> Bookmark your portal login at{' '}
                 <Link href="/login" style={{ color: '#2563eb', fontWeight: 600 }}>workforceap.org/login</Link>
+                . You can also{' '}
+                <Link href="/apply/status" style={{ color: '#2563eb', fontWeight: 600 }}>check your application status</Link>
+                {' '}with the email you used — no password required.
               </p>
             </div>
 

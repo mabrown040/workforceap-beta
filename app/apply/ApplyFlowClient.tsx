@@ -232,7 +232,7 @@ export default function ApplyFlowClient() {
 
           <div className="two-col">
             <div className="col">
-              <h3>Who Can Apply?</h3>
+              <h2 className="apply-sidebar-section-title">Who Can Apply?</h2>
               <ul className="eligibility-list">
                 {eligibility.map((item, i) => (
                   <li key={i} className="eligibility-item">

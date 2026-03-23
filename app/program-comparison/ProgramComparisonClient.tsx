@@ -148,7 +148,7 @@ export default function ProgramComparisonClient({ tracks }: Props) {
             return (
               <li key={t.slug}>
                 <article className="program-comparison-starter-card">
-                  <h3>{t.shortName}</h3>
+                  <p className="program-comparison-starter-name">{t.shortName}</p>
                   {extra?.bestFor && <p className="program-comparison-starter-best">{extra.bestFor}</p>}
                   <p className="program-comparison-starter-meta">
                     {t.duration} · {t.difficulty} · {t.salary}

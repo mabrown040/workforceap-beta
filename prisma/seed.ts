@@ -38,7 +38,8 @@ async function main() {
       console.log('Created employer for', email);
     }
   }
-  const adminEmails = ['michael.brown@workforceap.org'];
+  // example.com — reserved documentation domain; not a real inbox (replaces a workforceap.org-looking seed).
+  const adminEmails = ['admin-seed@example.com'];
   for (const email of adminEmails) {
     const user = await prisma.user.findUnique({ where: { email }, include: { profile: true } });
     if (user?.profile) {

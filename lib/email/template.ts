@@ -3,8 +3,23 @@
  * Dark header, white body, footer. Use with Resend.
  */
 
+import { escapeHtml } from '@/lib/email/escapeHtml';
+
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
 const LOGO_URL = `${SITE_URL}/images/logo-tight.png`;
+
+/** Restrict mail CTA links to same origin as SITE_URL to avoid open redirects in href. */
+export function safeEmailCtaHref(url: string): string {
+  try {
+    const u = new URL(url, SITE_URL);
+    const base = new URL(SITE_URL);
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') return `${base.origin}/`;
+    if (u.origin !== base.origin) return `${base.origin}/`;
+    return u.href;
+  } catch {
+    return `${new URL(SITE_URL).origin}/`;
+  }
+}
 
 export function brandedEmailLayout(options: {
   title: string;
@@ -12,12 +27,15 @@ export function brandedEmailLayout(options: {
   ctaText?: string;
   ctaUrl?: string;
 }) {
-  const { title, bodyHtml, ctaText, ctaUrl } = options;
+  const { bodyHtml } = options;
+  const title = escapeHtml(options.title);
+  const ctaText = options.ctaText ? escapeHtml(options.ctaText) : undefined;
+  const ctaUrl = options.ctaUrl ? safeEmailCtaHref(options.ctaUrl) : undefined;
   const ctaBlock =
     ctaText && ctaUrl
       ? `
     <p style="margin: 1.5rem 0;">
-      <a href="${ctaUrl}" style="display: inline-block; padding: 0.75rem 1.5rem; background: #4a9b4f; color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">
+      <a href="${escapeHtml(ctaUrl)}" style="display: inline-block; padding: 0.75rem 1.5rem; background: #4a9b4f; color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">
         ${ctaText}
       </a>
     </p>

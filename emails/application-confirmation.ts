@@ -2,10 +2,12 @@
  * Application confirmation email body HTML — sent to applicant after form submit.
  */
 
+import { escapeHtml } from '@/lib/email/escapeHtml';
+
 export function applicationConfirmationHtml(params: { firstName: string }): string {
   const { firstName } = params;
   return `
-    <p>Hi ${firstName},</p>
+    <p>Hi ${escapeHtml(firstName)},</p>
     <p>We&rsquo;ve received your application to the Workforce Advancement Project. Here is what happens next:</p>
     <ol>
       <li><strong>Our team reviews your application</strong> &mdash; within 5 business days</li>

@@ -5,6 +5,7 @@
 
 import { Resend } from 'resend';
 import { brandedEmailLayout } from '@/lib/email/template';
+import { sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
 import {
   applicationAcceptedHtml,
   applicationRejectedHtml,
@@ -117,13 +118,13 @@ export async function sendNewApplicationAdminEmail(params: {
     title: `New Application: ${params.applicantName}`,
     bodyHtml: newApplicationAlertHtml(params),
     ctaText: 'Review Application',
-    ctaUrl: `${SITE_URL}/admin/members?highlight=${params.applicationId}`,
+    ctaUrl: `${SITE_URL}/admin/members?highlight=${encodeURIComponent(params.applicationId)}`,
   });
   try {
     await resend.emails.send({
       from: getFrom(),
       to: ADMIN_EMAIL,
-      subject: `New Application: ${params.applicantName}`,
+      subject: sanitizeEmailSubjectLine(`New Application: ${params.applicantName}`),
       html,
     });
     return { ok: true };
@@ -155,7 +156,7 @@ export async function sendCourseEnrolledEmail(params: {
     await resend.emails.send({
       from: getFrom(),
       to: params.to,
-      subject: `You're Enrolled: ${params.programName}`,
+      subject: sanitizeEmailSubjectLine(`You're Enrolled: ${params.programName}`),
       html,
     });
     return { ok: true };
@@ -187,7 +188,7 @@ export async function sendCourseCompletedEmail(params: {
     await resend.emails.send({
       from: getFrom(),
       to: params.to,
-      subject: `Congratulations! You Completed ${params.courseName}`,
+      subject: sanitizeEmailSubjectLine(`Congratulations! You Completed ${params.courseName}`),
       html,
     });
     return { ok: true };
@@ -256,7 +257,7 @@ export async function sendInvitationEmail(params: {
     await resend.emails.send({
       from: getFrom(),
       to: params.to,
-      subject: `${params.inviterName} invited you to join WorkforceAP`,
+      subject: sanitizeEmailSubjectLine(`${params.inviterName} invited you to join WorkforceAP`),
       html,
     });
     return { ok: true };
@@ -292,7 +293,7 @@ export async function sendInvitationAcceptedEmail(params: {
     await resend.emails.send({
       from: getFrom(),
       to: params.to,
-      subject: `${params.accepterName} accepted your WorkforceAP invitation`,
+      subject: sanitizeEmailSubjectLine(`${params.accepterName} accepted your WorkforceAP invitation`),
       html,
     });
     return { ok: true };
@@ -355,7 +356,7 @@ export async function sendJobSubmittedEmail(params: {
     await resend.emails.send({
       from: getFrom(),
       to: ADMIN_EMAIL,
-      subject: `New Job Submitted: ${params.jobTitle} - ${params.companyName}`,
+      subject: sanitizeEmailSubjectLine(`New Job Submitted: ${params.jobTitle} - ${params.companyName}`),
       html,
     });
     return { ok: true };
@@ -386,7 +387,7 @@ export async function sendJobApprovedEmail(params: {
     await resend.emails.send({
       from: getFrom(),
       to: params.to,
-      subject: `Your job "${params.jobTitle}" is now live on WorkforceAP`,
+      subject: sanitizeEmailSubjectLine(`Your job "${params.jobTitle}" is now live on WorkforceAP`),
       html,
     });
     return { ok: true };
@@ -418,7 +419,7 @@ export async function sendJobRejectedEmail(params: {
     await resend.emails.send({
       from: getFrom(),
       to: params.to,
-      subject: `Job posting "${params.jobTitle}" - Update`,
+      subject: sanitizeEmailSubjectLine(`Job posting "${params.jobTitle}" - Update`),
       html,
     });
     return { ok: true };
@@ -451,7 +452,7 @@ export async function sendNewJobApplicationEmail(params: {
     await resend.emails.send({
       from: getFrom(),
       to: params.to,
-      subject: `New applicant for "${params.jobTitle}"`,
+      subject: sanitizeEmailSubjectLine(`New applicant for "${params.jobTitle}"`),
       html,
     });
     return { ok: true };
@@ -483,7 +484,7 @@ export async function sendAIMatchSuggestionEmail(params: {
     await resend.emails.send({
       from: getFrom(),
       to: params.to,
-      subject: `Top candidate matches for "${params.jobTitle}"`,
+      subject: sanitizeEmailSubjectLine(`Top candidate matches for "${params.jobTitle}"`),
       html,
     });
     return { ok: true };
@@ -491,6 +492,15 @@ export async function sendAIMatchSuggestionEmail(params: {
     console.error('sendAIMatchSuggestionEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
+}
+
+/**
+ * Same as {@link sendAIMatchSuggestionEmail} — employer AI match notification with HTML-escaped fields.
+ */
+export async function sendMatchActionEmail(
+  params: Parameters<typeof sendAIMatchSuggestionEmail>[0]
+): Promise<{ ok: boolean; error?: string }> {
+  return sendAIMatchSuggestionEmail(params);
 }
 
 /** Send application confirmation to applicant after form submit */
@@ -575,7 +585,7 @@ export async function sendAdminPendingApplicantsEmail(params: {
     await resend.emails.send({
       from: getFrom(),
       to: ADMIN_EMAIL,
-      subject: `Action Needed: ${params.pendingCount} pending applications over 3 days old`,
+      subject: sanitizeEmailSubjectLine(`Action Needed: ${params.pendingCount} pending applications over 3 days old`),
       html,
     });
     return { ok: true };
@@ -607,7 +617,9 @@ export async function sendAdminWeeklyRecapEmail(params: {
     await resend.emails.send({
       from: getFrom(),
       to: ADMIN_EMAIL,
-      subject: `Weekly Recap: ${params.newApplicants} new applicants, ${params.placements} placements`,
+      subject: sanitizeEmailSubjectLine(
+        `Weekly Recap: ${params.newApplicants} new applicants, ${params.placements} placements`
+      ),
       html,
     });
     return { ok: true };

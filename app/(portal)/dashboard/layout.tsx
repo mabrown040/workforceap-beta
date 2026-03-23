@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
-import DashboardShell from '@/components/portal/DashboardShell';
+import MemberWorkspaceShell from '@/components/portal/MemberWorkspaceShell';
 
 export default async function DashboardLayout({
   children,
@@ -34,12 +34,12 @@ export default async function DashboardLayout({
     : 0;
 
   return (
-    <DashboardShell
+    <MemberWorkspaceShell
       programTitle={program?.title}
       completedCount={completedCount}
       totalCount={totalCourses}
     >
       {children}
-    </DashboardShell>
+    </MemberWorkspaceShell>
   );
 }

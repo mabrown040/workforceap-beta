@@ -1,7 +1,8 @@
 'use client';
 
 import WorkspaceShell from './WorkspaceShell';
-import { GROUP_PORTAL_NAV, PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
+import { GROUP_PORTAL_NAV_ITEMS } from '@/lib/nav/portalNav';
+import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
 
 export default function MyGroupShell({
   groupNames,
@@ -12,7 +13,8 @@ export default function MyGroupShell({
 }) {
   return (
     <WorkspaceShell
-      navLinks={[...GROUP_PORTAL_NAV]}
+      portalRole="group"
+      navItems={GROUP_PORTAL_NAV_ITEMS}
       workspaceLabel={PRODUCT_COPY.groupWorkspace}
       contextLabel={groupNames}
     >

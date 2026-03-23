@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
+import type { TurnstileInstance } from '@marsidev/react-turnstile';
 
 const Turnstile = dynamic(() => import('@marsidev/react-turnstile').then((m) => m.Turnstile), { ssr: false });
 
@@ -12,6 +13,7 @@ export default function EmployerContactForm() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileInstance | null>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -64,6 +66,8 @@ export default function EmployerContactForm() {
       const json = await res.json();
 
       if (!res.ok) {
+        setTurnstileToken(null);
+        turnstileRef.current?.reset();
         setStatus('error');
         setErrorMsg(json.error ?? 'Something went wrong. Please try again.');
         return;
@@ -72,6 +76,8 @@ export default function EmployerContactForm() {
       setStatus('success');
       form.reset();
     } catch {
+      setTurnstileToken(null);
+      turnstileRef.current?.reset();
       setStatus('error');
       setErrorMsg('Network error. Please try again.');
     }
@@ -137,6 +143,7 @@ export default function EmployerContactForm() {
       {CAPTCHA_ENABLED && TURNSTILE_SITE_KEY ? (
         <div className="form-group employer-contact-turnstile">
           <Turnstile
+            ref={turnstileRef}
             siteKey={TURNSTILE_SITE_KEY}
             onSuccess={(t) => setTurnstileToken(t)}
             onExpire={() => setTurnstileToken(null)}

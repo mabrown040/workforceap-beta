@@ -51,8 +51,17 @@ export async function POST(request: NextRequest) {
     if (!tok) {
       return NextResponse.json({ error: 'Please complete the security check.' }, { status: 400 });
     }
-    const ok = await verifyTurnstileResponse(secret, tok, ip !== 'unknown' ? ip : undefined);
-    if (!ok) {
+    let turnstileOk: boolean;
+    try {
+      turnstileOk = await verifyTurnstileResponse(secret, tok, ip !== 'unknown' ? ip : undefined);
+    } catch (err) {
+      console.error('Turnstile verification request failed:', err);
+      return NextResponse.json(
+        { error: 'Security verification is temporarily unavailable. Please try again in a moment.' },
+        { status: 503 }
+      );
+    }
+    if (!turnstileOk) {
       return NextResponse.json({ error: 'Security check failed. Please try again.' }, { status: 400 });
     }
   }

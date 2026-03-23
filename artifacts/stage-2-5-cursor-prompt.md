@@ -1,69 +1,73 @@
-# WorkforceAP Cursor Prompt - Stages 2-5 Rollout Follow-Through
+# WorkforceAP Cursor Prompt — Stages 2–5 Rollout
 
-Use the latest current `master`.
+## Repository and branch
 
-Repo: `C:\Users\mabro\.openclaw\workspace\projects\workforceap-beta`
-Base branch: `master`
+- **Repo path (local):** `C:\Users\mabro\.openclaw\workspace\projects\workforceap-beta` (or CI clone path)
+- **Target branch:** `master`
+- **Working branch (if used):** `cursor/rollout-stages-2-5-c624`
 
-## Context
-- The major Phase 2 and Phase 2.5 product work is already merged into `master`.
-- A prelaunch blocker merge from `cursor/p0-blocker-fixes-prelaunch` is also already merged.
-- Local rollout follow-through removed employer-facing "free" job-posting wording from the marketing site so Mike's approved copy direction is reflected consistently.
-- `npm run build` is already known to succeed locally, with expected Prisma static-generation warnings when Postgres is unavailable at `127.0.0.1:5432`.
+## Exact goals
 
-## Stage 2: Finish remaining rollout cleanup
-Audit the already-merged experience and complete only the small remaining launch-alignment changes that Mike explicitly requested.
+1. Finish **Stage 2** launch-alignment: employer-facing job-posting copy on public marketing must not use casual **“free”** framing; keep participant-truth copy such as homepage hero and **“$0 Cost to Qualifying Participants”** intact.
+2. **Stage 3:** Run TypeScript check and production build; capture pass/fail.
+3. **Stage 4:** Ship a short operator-facing summary (this artifact + execution report): files touched, commands, results, risks.
+4. **Stage 5:** Git handoff — scoped commits, push to `origin/master` (or open/update PR per team process).
 
-Required focus:
-- Keep employer job-posting copy free of "free" language on public employer/partner marketing surfaces unless product approval reintroduces it.
-- Preserve existing protected copy:
-  - homepage hero headline `"Breaking systemic barriers through education, technology, and opportunity"`
-  - `"$0 Cost to Qualifying Participants"`
-- Do not reopen broader Phase 2 scope unless a real regression is discovered.
-- Keep changes tight and launch-oriented, not exploratory.
+## Ordered task list
 
-## Stage 3: Local verification
-Run the relevant local checks against the final staged result.
+1. **Discover:** Read this artifact, recent merges (`cursor/p0-blocker-fixes-prelaunch`), and grep marketing routes for employer/job-posting “free” wording (`app/employers`, `app/partners`, shared components). Exclude `node_modules` from searches.
+2. **Stage 2 — copy:** Update employer/partner **marketing** surfaces only where language implies **employers** get free job posting; do not rewrite participant program SEO (`programs`, `apply`, FAQ participant answers) unless it is clearly the same employer-facing bug.
+3. **Stage 2 — portal UI:** If `/employer` or `/partner` authenticated shells look broken (unstyled layout, header overflow), add minimal CSS in `css/main.css` for the React class names used by `WorkspaceShell`, employer dashboard, and shared `PageHeader` — match existing portal tokens (`--color-*`, `--radius-*`, `var(--shadow-sm)`).
+4. **Stage 3 — verify:** Run validation commands below; fix only regressions tied to this rollout.
+5. **Stage 4:** Refresh this artifact if process or commands change; keep it the single “prompt + checklist” source.
+6. **Stage 5:** Commit in logical slices (e.g. copy vs. styling/artifact), push to `origin/master`, note commit SHAs in the execution report.
 
-Minimum verification:
-- `npm run test:unit`
-- `npm run build`
-- Review results for regressions in:
-  - public marketing routes
-  - portal entry labels/navigation
-  - employer marketing copy
+## Validation commands (run from repo root)
 
-Expected note:
-- Prisma static-generation warnings about `127.0.0.1:5432` during build are expected in this local environment if the DB is unreachable, as long as the build completes successfully.
+PowerShell-safe (run one line at a time):
 
-## Stage 4: Delivery packaging
-Prepare a concise ship artifact for the next operator.
+```powershell
+git status --short
+git grep -n -i "free" -- app components lib
+npx tsc --noEmit
+npm run test:unit
+npm run build
+```
 
-Include:
-- exact files changed
-- commands run
-- outcomes/results
-- remaining risks or follow-up checks
+**Note:** `npm run build` may log Prisma/static-generation warnings when Postgres is not reachable at `127.0.0.1:5432`; that is acceptable locally if the build **exits 0**.
 
-## Stage 5: Git handoff
-If verification passes:
-- commit the rollout follow-through on `master` with a clear, scoped message
-- push to `origin/master`
+## Completion criteria
 
-If verification fails:
-- fix only launch-blocking issues directly related to this rollout
-- rerun the failed checks
-- report unresolved blockers with evidence instead of pushing blindly
+- [ ] No employer **job-posting** “free” positioning on intended public surfaces (`/employers`, `/partners` employer blurbs, metadata where it promised “post free”).
+- [ ] `/employer` and `/partner` portal chrome is usable on mobile and desktop (header, sidebar/drawer, main padding).
+- [ ] `npx tsc --noEmit` passes.
+- [ ] `npm run build` passes.
+- [ ] `npm run test:unit` passes (when present in `package.json`).
+- [ ] Changes committed and pushed per team branch policy; execution report lists SHAs and commands.
+
+## Risk checks
+
+- **Scope creep:** Avoid portal auth, RLS, or routing changes unless fixing a verified regression from this rollout.
+- **Copy drift:** Do not remove truthful **no cost to participants** messaging where it is not employer job-posting.
+- **Force-push:** Splitting or rewriting commits on `master` may require `--force-with-lease`; confirm with repo owners before rewriting shared history.
+- **Search noise:** Restrict greps to `app`, `components`, `lib` so unrelated docs don’t drive churn.
 
 ## Guardrails
-- No broad refactors
-- No auth, portal-routing, or role-scope changes unless required to fix a verified regression
-- No generic marketing-copy rewrites
-- Keep Austin framed as the launch wedge, not the long-term ceiling
-- Preserve credible salary/outcome framing
 
-## Definition of done
-- Employer-facing "free" job-posting wording is removed from the intended public marketing surfaces.
-- Local verification is run and results are captured.
-- Changes are committed and pushed to `origin/master` if checks pass.
-- The final report clearly states what shipped, how it was verified, and any remaining risks.
+- No broad refactors.
+- No auth, portal-routing, or role-scope changes unless required to fix a verified regression.
+- No generic marketing-copy rewrites.
+- Keep Austin framed as the launch wedge, not the long-term ceiling.
+- Preserve credible salary/outcome framing.
+
+## Rollback notes
+
+- **Copy only:** Revert the commit that touches `app/employers/page.tsx` / `app/partners/page.tsx` (or restore prior strings from `git show <parent>:path`).
+- **CSS only:** Revert the commit that touches `css/main.css` for workspace/employer-dash blocks.
+- **Ranking logic:** Revert the commit that touches `lib/employer/rankProgramsForEmployerJob.ts` if employer job form suggestions regress.
+- **Artifact only:** Delete or restore `artifacts/stage-2-5-cursor-prompt.md` from previous revision — no runtime impact.
+
+## Context (frozen)
+
+- Phase 2 / 2.5 product work and prelaunch blocker merge are already on `master`.
+- This prompt is the checklist for **remaining** Stage 2–5 follow-through, not a full Phase 2 re-audit.

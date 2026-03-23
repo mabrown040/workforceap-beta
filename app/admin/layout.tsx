@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
-import AdminShell from '@/components/admin/AdminShell';
+import AdminPortalShell from '@/components/portal/AdminPortalShell';
 
 export default async function AdminLayout({
   children,
@@ -14,5 +14,5 @@ export default async function AdminLayout({
   const hasAdmin = await isAdmin(user.id);
   if (!hasAdmin) redirect('/dashboard');
 
-  return <AdminShell>{children}</AdminShell>;
+  return <AdminPortalShell>{children}</AdminPortalShell>;
 }

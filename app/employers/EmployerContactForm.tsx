@@ -99,24 +99,24 @@ export default function EmployerContactForm() {
         </div>
       )}
       <div className="form-group">
-        <label>Name *</label>
-        <input type="text" name="name" required disabled={status === 'sending'} />
+        <label htmlFor="employer-name">Name *</label>
+        <input id="employer-name" type="text" name="name" required disabled={status === 'sending'} aria-required="true" />
       </div>
       <div className="form-group">
-        <label>Company *</label>
-        <input type="text" name="company" required disabled={status === 'sending'} />
+        <label htmlFor="employer-company">Company *</label>
+        <input id="employer-company" type="text" name="company" required disabled={status === 'sending'} aria-required="true" />
       </div>
       <div className="form-group">
-        <label>Email *</label>
-        <input type="email" name="email" required disabled={status === 'sending'} />
+        <label htmlFor="employer-email">Email *</label>
+        <input id="employer-email" type="email" name="email" required disabled={status === 'sending'} aria-required="true" />
       </div>
       <div className="form-group">
-        <label>Phone</label>
-        <input type="tel" name="phone" disabled={status === 'sending'} />
+        <label htmlFor="employer-phone">Phone</label>
+        <input id="employer-phone" type="tel" name="phone" disabled={status === 'sending'} />
       </div>
       <div className="form-group">
-        <label>Hiring Needs *</label>
-        <textarea name="hiring_needs" rows={5} required disabled={status === 'sending'} placeholder="Tell us about the roles you're hiring for, timeline, and any specific requirements..." />
+        <label htmlFor="employer-hiring-needs">Hiring Needs *</label>
+        <textarea id="employer-hiring-needs" name="hiring_needs" rows={5} required disabled={status === 'sending'} aria-required="true" placeholder="Tell us about the roles you're hiring for, timeline, and any specific requirements..." />
       </div>
       <button
         type="submit"

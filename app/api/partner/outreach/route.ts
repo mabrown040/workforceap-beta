@@ -1,0 +1,84 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { getUser } from '@/lib/auth/server';
+import { getPartnerForUser } from '@/lib/auth/roles';
+import { prisma } from '@/lib/db/prisma';
+
+const postSchema = z.object({
+  memberId: z.string().uuid(),
+  channel: z.enum(['email', 'call', 'text', 'other']),
+  note: z.string().min(1).max(10000),
+});
+
+export async function GET() {
+  const user = await getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const ctx = await getPartnerForUser(user.id);
+  if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  const logs = await prisma.partnerOutreachLog.findMany({
+    where: { partnerId: ctx.partnerId },
+    orderBy: { createdAt: 'desc' },
+    take: 80,
+    include: {
+      member: { select: { fullName: true } },
+      createdBy: { select: { fullName: true } },
+    },
+  });
+
+  return NextResponse.json({
+    logs: logs.map((l) => ({
+      id: l.id,
+      memberId: l.memberId,
+      memberName: l.member.fullName,
+      channel: l.channel,
+      note: l.note,
+      createdAt: l.createdAt.toISOString(),
+      createdByName: l.createdBy.fullName,
+    })),
+  });
+}
+
+export async function POST(request: NextRequest) {
+  const user = await getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const ctx = await getPartnerForUser(user.id);
+  if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  const body = await request.json().catch(() => null);
+  const parsed = postSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Invalid body' }, { status: 400 });
+  }
+
+  const referral = await prisma.partnerReferral.findFirst({
+    where: { partnerId: ctx.partnerId, memberId: parsed.data.memberId },
+  });
+  if (!referral) {
+    return NextResponse.json({ error: 'Member not referred by this partner' }, { status: 400 });
+  }
+
+  const log = await prisma.partnerOutreachLog.create({
+    data: {
+      partnerId: ctx.partnerId,
+      memberId: parsed.data.memberId,
+      channel: parsed.data.channel,
+      note: parsed.data.note,
+      createdByUserId: user.id,
+    },
+    include: {
+      member: { select: { fullName: true } },
+    },
+  });
+
+  return NextResponse.json({
+    id: log.id,
+    memberId: log.memberId,
+    memberName: log.member.fullName,
+    channel: log.channel,
+    note: log.note,
+    createdAt: log.createdAt.toISOString(),
+  });
+}

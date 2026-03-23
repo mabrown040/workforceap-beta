@@ -8,6 +8,7 @@ import {
   markAiJobMatchEmptyCooldown,
   clearAiJobMatchEmptyCooldown,
 } from '@/lib/admin/aiJobMatchCompute';
+import { runAdminJobMatchesGet } from '@/lib/admin/runAdminJobMatchesGet';
 
 export async function GET(
   _request: NextRequest,
@@ -17,132 +18,87 @@ export async function GET(
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const { id } = await params;
-  const job = await prisma.job.findUnique({
-    where: { id },
-    select: { id: true, title: true, requirements: true, suggestedPrograms: true, preferredCertifications: true },
-  });
+  const { id: jobId } = await params;
 
-  if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
-
-  const cached = await prisma.aIJobMatch.findMany({
-    where: { jobId: id },
-    include: {
-      student: {
-        select: {
-          id: true,
-          fullName: true,
-          email: true,
-          enrolledProgram: true,
-          assessmentScorePct: true,
-          profile: { select: { city: true, state: true } },
-          userCertifications: { select: { certName: true } },
+  const result = await runAdminJobMatchesGet(jobId, {
+    findJobForMatch: (jid) =>
+      prisma.job.findUnique({
+        where: { id: jid },
+        select: { id: true, title: true, requirements: true, suggestedPrograms: true, preferredCertifications: true },
+      }),
+    findCachedRows: (jid) =>
+      prisma.aIJobMatch.findMany({
+        where: { jobId: jid },
+        include: {
+          student: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+              enrolledProgram: true,
+              assessmentScorePct: true,
+              profile: { select: { city: true, state: true } },
+              userCertifications: { select: { certName: true } },
+            },
+          },
         },
-      },
-    },
-    orderBy: { matchScore: 'desc' },
-    take: 10,
-  });
-
-  if (cached.length > 0) {
-    try {
-      await recordWorkflowDiagnostic({
+        orderBy: { matchScore: 'desc' },
+        take: 10,
+      }),
+    computeMatches: (jid, job) => getOrComputeAiJobMatches(jid, job),
+    persistMatches: (jid, matches) =>
+      prisma.aIJobMatch.createMany({
+        data: matches.map((m) => ({
+          jobId: jid,
+          studentId: m.studentId,
+          matchScore: m.matchScore,
+          matchReasons: m.matchReasons,
+        })),
+        skipDuplicates: true,
+      }),
+    markMatchesComputedAt: (jid) =>
+      prisma.job.update({
+        where: { id: jid },
+        data: { aiMatchesComputedAt: new Date() },
+      }),
+    reloadRows: (jid) =>
+      prisma.aIJobMatch.findMany({
+        where: { jobId: jid },
+        include: {
+          student: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+              enrolledProgram: true,
+              assessmentScorePct: true,
+              profile: { select: { city: true, state: true } },
+              userCertifications: { select: { certName: true } },
+            },
+          },
+        },
+        orderBy: { matchScore: 'desc' },
+        take: 10,
+      }),
+    markEmptyCooldown: markAiJobMatchEmptyCooldown,
+    clearEmptyCooldown: clearAiJobMatchEmptyCooldown,
+    logDiagnostic: (input) =>
+      recordWorkflowDiagnostic({
         workflow: 'admin_job_matches',
-        status: 'inspection',
         actorUserId: user.id,
         entityType: 'job',
-        entityId: id,
-        summary: `Admin opened cached AI matches (${cached.length})`,
-        method: 'cache',
-        metadata: { count: cached.length },
-      });
-    } catch (err) {
-      console.error('[admin_job_matches] recordWorkflowDiagnostic failed', {
-        jobId: id,
-        message: err instanceof Error ? err.message : String(err),
-      });
-    }
-    return NextResponse.json(
-      cached.map((m) => ({
-        studentId: m.studentId,
-        matchScore: m.matchScore,
-        matchReasons: m.matchReasons,
-        status: m.status,
-        student: m.student,
-      }))
-    );
-  }
-
-  const matches = await getOrComputeAiJobMatches(id, job);
-  try {
-    await recordWorkflowDiagnostic({
-      workflow: 'admin_job_matches',
-      status: matches.length > 0 ? 'success' : 'fallback',
-      actorUserId: user.id,
-      entityType: 'job',
-      entityId: id,
-      summary: matches.length > 0 ? `Generated ${matches.length} AI matches` : 'AI matching returned zero matches',
-      method: 'generated',
-      fallbackPath: matches.length > 0 ? null : 'no_matches',
-      metadata: { count: matches.length },
-    });
-  } catch (err) {
-    console.error('[admin_job_matches] recordWorkflowDiagnostic failed', {
-      jobId: id,
-      message: err instanceof Error ? err.message : String(err),
-    });
-  }
-
-  if (matches.length === 0) {
-    markAiJobMatchEmptyCooldown(id);
-    return NextResponse.json([]);
-  }
-
-  clearAiJobMatchEmptyCooldown(id);
-
-  try {
-    await prisma.aIJobMatch.createMany({
-      data: matches.map((m) => ({
-        jobId: id,
-        studentId: m.studentId,
-        matchScore: m.matchScore,
-        matchReasons: m.matchReasons,
-      })),
-      skipDuplicates: true,
-    });
-  } catch (err) {
-    console.error('[admin_job_matches] createMany failed', {
-      jobId: id,
-      message: err instanceof Error ? err.message : String(err),
-    });
-  }
-
-  const updated = await prisma.aIJobMatch.findMany({
-    where: { jobId: id },
-    include: {
-      student: {
-        select: {
-          id: true,
-          fullName: true,
-          email: true,
-          enrolledProgram: true,
-          assessmentScorePct: true,
-          profile: { select: { city: true, state: true } },
-          userCertifications: { select: { certName: true } },
-        },
-      },
-    },
-    orderBy: { matchScore: 'desc' },
-    take: 10,
+        entityId: jobId,
+        status: input.status,
+        summary: input.summary,
+        method: input.method,
+        fallbackPath: input.fallbackPath ?? null,
+        metadata: input.metadata ?? null,
+      }),
   });
 
-  return NextResponse.json(
-    updated.map((m) => ({
-      studentId: m.studentId,
-      matchScore: m.matchScore,
-      matchReasons: m.matchReasons,
-      status: m.status,
-      student: m.student,
-    }))
-  );
+  if ('notFound' in result && result.notFound) {
+    return NextResponse.json({ error: 'Job not found' }, { status: 404 });
+  }
+  const ok = result as { status: 200; body: unknown };
+  return NextResponse.json(ok.body);
 }

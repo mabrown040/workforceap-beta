@@ -14,9 +14,13 @@ type EventPayload = {
 };
 
 function pushEvent(payload: EventPayload) {
-  if (typeof window === 'undefined') return;
-  window.dataLayer = window.dataLayer ?? [];
-  window.dataLayer.push(payload);
+  try {
+    if (typeof window === 'undefined') return;
+    window.dataLayer = window.dataLayer ?? [];
+    window.dataLayer.push(payload);
+  } catch (err) {
+    console.warn('[analytics] dataLayer push failed', err instanceof Error ? err.message : err);
+  }
 }
 
 export function trackFunnelEvent(

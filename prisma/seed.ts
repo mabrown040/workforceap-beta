@@ -63,8 +63,8 @@ async function main() {
   for (const p of partnerSeeds) {
     await prisma.partner.upsert({
       where: { slug: p.slug },
-      update: {},
-      create: p,
+      update: { referralCode: p.slug },
+      create: { ...p, referralCode: p.slug },
     });
   }
   console.log('Seeded partners:', partnerSeeds.length);

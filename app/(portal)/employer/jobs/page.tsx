@@ -46,7 +46,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
 
   const listWhere = prismaWhereEmployerJobList(employerId, filter);
 
-  const [totalInDb, totalInFilter, jobs, deletableRows, closableRows, titlesInFilter] = await Promise.all([
+  const [totalInDb, totalInFilter, jobs, deletableRows, closableRows] = await Promise.all([
     prisma.job.count({ where: { employerId } }),
     prisma.job.count({ where: listWhere }),
     prisma.job.findMany({
@@ -66,14 +66,10 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
       select: { id: true, title: true, status: true },
       orderBy: { updatedAt: 'desc' },
     }),
-    prisma.job.findMany({
-      where: listWhere,
-      select: { id: true, title: true },
-    }),
   ]);
 
   const totalPages = Math.max(1, Math.ceil(totalInFilter / EMPLOYER_JOBS_PAGE_SIZE));
-  if (totalInFilter > 0 && page > totalPages) {
+  if (page > totalPages) {
     redirect(employerJobsListHref(filter, totalPages));
   }
 
@@ -110,7 +106,8 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
   });
 
   const titleByIdInFilter: Record<string, string> = {};
-  for (const r of titlesInFilter) titleByIdInFilter[r.id] = r.title;
+  for (const r of deletableRows) titleByIdInFilter[r.id] = r.title;
+  for (const r of closableRows) titleByIdInFilter[r.id] = r.title;
 
   return (
     <div className="employer-jobs-page">

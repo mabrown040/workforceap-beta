@@ -30,6 +30,7 @@ export default function WorkspaceShell({
   superAdminBackLabel,
   topBanner,
   footer,
+  headerBadge,
   children,
 }: {
   portalRole: PortalRole;
@@ -41,6 +42,8 @@ export default function WorkspaceShell({
   superAdminBackLabel?: string;
   topBanner?: React.ReactNode;
   footer?: React.ReactNode;
+  /** Optional pill next to context (e.g. Hiring Partner tier) */
+  headerBadge?: string;
   children: React.ReactNode;
 }) {
   const pathname = usePathname() ?? '';
@@ -137,6 +140,11 @@ export default function WorkspaceShell({
           <span className="workspace-shell-context workspace-shell-context--chip" title={contextLabel}>
             {contextLabel}
           </span>
+          {headerBadge ? (
+            <span className="workspace-shell-tier-badge" title={headerBadge}>
+              {headerBadge}
+            </span>
+          ) : null}
           <PortalHeaderActions />
         </div>
       </header>

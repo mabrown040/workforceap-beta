@@ -147,13 +147,17 @@ model Application {
   programInterest String  @map("program_interest")
   notes          String?  @db.Text
   submittedAt    DateTime? @map("submitted_at")
+  referralSource   String?   @map("referral_source")
+  referralPartnerId String?  @map("referral_partner_id")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referralPartner Partner? @relation(fields: [referralPartnerId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([status])
+  @@index([referralPartnerId])
   @@map("applications")
 }
 
@@ -514,6 +518,7 @@ model Partner {
   id           String    @id @default(uuid())
   name         String
   slug         String    @unique  // e.g. "workforce-solutions-austin"
+  referralCode String    @unique @map("referral_code")
   logoUrl      String?   @map("logo_url")
   contactName  String?   @map("contact_name")
   contactEmail String?   @map("contact_email")
@@ -534,6 +539,7 @@ model Partner {
   subgroups     Subgroup[]
   outreachLogs    PartnerOutreachLog[]
   workflowEvents  PortalWorkflowEvent[]
+  referredApplications Application[]
 
   @@map("partners")
 }
@@ -773,6 +779,7 @@ model Invitation {
 model Employer {
   id                 String    @id @default(uuid())
   userId             String    @unique @map("user_id")
+  tier               String    @default("basic") @map("tier")
   companyName        String    @map("company_name")
   companyWebsite     String?   @map("company_website")
   companyDescription String?   @map("company_description")
@@ -931,6 +938,9 @@ enum AIJobMatchStatus {
   employer_notified
   student_notified
   rejected
+  contacted
+  interviewing
+  hired
 
   @@map("ai_job_match_status")
 }
@@ -942,6 +952,7 @@ model AIJobMatch {
   matchScore  Int            @map("match_score")
   matchReasons String[]      @default([]) @map("match_reasons")
   status      AIJobMatchStatus @default(suggested)
+  statusUpdatedAt DateTime?  @map("status_updated_at")
   createdAt   DateTime       @default(now()) @map("created_at")
 
   job    Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)

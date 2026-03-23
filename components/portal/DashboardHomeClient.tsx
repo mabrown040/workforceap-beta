@@ -8,6 +8,14 @@ import { postMemberEvent } from '@/lib/events/client';
 
 type State = 'A' | 'B' | 'C' | 'D';
 
+export type DashboardApplicationStatusProps = {
+  label: string;
+  submittedAt: string | null;
+  programInterest: string | null;
+  nextStep: string;
+  showResponseEstimate: boolean;
+};
+
 type DashboardHomeClientProps = {
   firstName: string;
   state: State;
@@ -28,6 +36,7 @@ type DashboardHomeClientProps = {
   checklistAllDone: boolean;
   recommendedActions: Array<{ label: string; href: string }>;
   jobSearchUrl?: string | null;
+  applicationStatus?: DashboardApplicationStatusProps | null;
 };
 
 export default function DashboardHomeClient({
@@ -44,6 +53,7 @@ export default function DashboardHomeClient({
   checklistAllDone,
   recommendedActions,
   jobSearchUrl,
+  applicationStatus,
 }: DashboardHomeClientProps) {
   const primaryAction = recommendedActions[0];
   const secondaryAction = recommendedActions[1];
@@ -83,6 +93,46 @@ export default function DashboardHomeClient({
           {state === 'D' && "All courses complete. Focus on job outcomes."}
         </p>
       </header>
+
+      {applicationStatus ? (
+        <section className="dashboard-application-status" aria-labelledby="dashboard-application-status-heading">
+          <h2 id="dashboard-application-status-heading" className="dashboard-today-label">
+            Your application
+          </h2>
+          <div className="dashboard-application-status-card">
+            <div className="dashboard-application-status-row">
+              <div>
+                <p className="dashboard-application-status-label">Current status</p>
+                <p className="dashboard-application-status-value">{applicationStatus.label}</p>
+              </div>
+              {applicationStatus.submittedAt ? (
+                <div className="dashboard-application-status-meta">
+                  <p className="dashboard-application-status-label">Submitted</p>
+                  <p className="dashboard-application-status-date">
+                    {new Date(applicationStatus.submittedAt).toLocaleDateString(undefined, {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </p>
+                </div>
+              ) : null}
+            </div>
+            {applicationStatus.programInterest ? (
+              <p className="dashboard-application-status-program">
+                <span className="dashboard-application-status-label">Program interest</span>{' '}
+                {applicationStatus.programInterest}
+              </p>
+            ) : null}
+            <p className="dashboard-application-status-next">{applicationStatus.nextStep}</p>
+            {applicationStatus.showResponseEstimate ? (
+              <p className="dashboard-application-status-estimate">
+                We typically respond within 24–48 hours on business days.
+              </p>
+            ) : null}
+          </div>
+        </section>
+      ) : null}
 
       {/* Today / Next Step — one primary, one secondary */}
       <section className="dashboard-today">

@@ -17,7 +17,11 @@ export default async function EmployerPortalLayout({
   const superAdmin = await isSuperAdmin(user.id);
 
   return (
-    <EmployerPortalShell companyName={ctx.employer.companyName} superAdmin={superAdmin}>
+    <EmployerPortalShell
+      companyName={ctx.employer.companyName}
+      employerTier={ctx.employer.tier}
+      superAdmin={superAdmin}
+    >
       {children}
     </EmployerPortalShell>
   );

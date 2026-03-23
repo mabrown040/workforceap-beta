@@ -6,6 +6,12 @@ import { z } from 'zod';
 
 const patchSchema = z.object({
   name: z.string().min(1).max(200).optional(),
+  referralCode: z
+    .string()
+    .min(1)
+    .max(100)
+    .regex(/^[a-z0-9-]+$/, 'Referral code must be lowercase letters, numbers, and hyphens only')
+    .optional(),
   contactName: z.string().max(200).optional().nullable(),
   contactEmail: z.string().email().optional().nullable(),
   contactPhone: z.string().max(50).optional().nullable(),
@@ -35,6 +41,19 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
   const data = parsed.data;
 
+  if (data.referralCode !== undefined) {
+    const code = data.referralCode.trim().toLowerCase();
+    const slugConflict = await prisma.partner.findFirst({
+      where: { slug: code, id: { not: partnerId } },
+    });
+    const codeConflict = await prisma.partner.findFirst({
+      where: { referralCode: code, id: { not: partnerId } },
+    });
+    if (slugConflict || codeConflict) {
+      return NextResponse.json({ error: 'Referral code conflicts with another partner slug or code' }, { status: 400 });
+    }
+  }
+
   // Check for duplicate contact email if changing
   if (data.contactEmail !== undefined && data.contactEmail) {
     const existing = await prisma.partner.findFirst({
@@ -50,6 +69,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
   const updateData: Record<string, unknown> = {};
   if (data.name !== undefined) updateData.name = data.name.trim();
+  if (data.referralCode !== undefined) updateData.referralCode = data.referralCode.trim().toLowerCase();
   if (data.contactName !== undefined) updateData.contactName = data.contactName?.trim() || null;
   if (data.contactEmail !== undefined) updateData.contactEmail = data.contactEmail?.trim().toLowerCase() || null;
   if (data.contactPhone !== undefined) updateData.contactPhone = data.contactPhone?.trim() || null;

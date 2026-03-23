@@ -4,6 +4,8 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { loadMemberCareerBriefBundle } from '@/lib/content/careerBriefPersonalization';
+import { prisma } from '@/lib/db/prisma';
+import { buildMemberApplicationStatusView } from '@/lib/member/memberApplicationStatus';
 import DashboardHomeClient from '@/components/portal/DashboardHomeClient';
 import MatchedRoles from '@/components/portal/MatchedRoles';
 
@@ -19,6 +21,33 @@ export default async function DashboardPage() {
 
   const { user: dbUser, careerBrief } = await loadMemberCareerBriefBundle(user.id, { activeMemberOnly: true });
   if (!dbUser) redirect('/login');
+
+  const latestApplication = await prisma.application.findFirst({
+    where: { userId: user.id },
+    orderBy: { createdAt: 'desc' },
+    select: {
+      status: true,
+      programInterest: true,
+      submittedAt: true,
+      createdAt: true,
+    },
+  });
+
+  const applicationStatusView = buildMemberApplicationStatusView(latestApplication, {
+    enrolledProgram: dbUser.enrolledProgram ?? null,
+    enrolledAt: dbUser.enrolledAt ?? null,
+    assessmentCompleted: dbUser.assessmentCompleted ?? false,
+  });
+
+  const applicationStatus = applicationStatusView
+    ? {
+        label: applicationStatusView.label,
+        submittedAt: applicationStatusView.submittedAt?.toISOString() ?? null,
+        programInterest: applicationStatusView.programInterest,
+        nextStep: applicationStatusView.nextStep,
+        showResponseEstimate: applicationStatusView.showResponseEstimate,
+      }
+    : null;
 
   const firstName = dbUser.fullName?.split(' ')[0] ?? 'there';
   const enrolledProgram = dbUser.enrolledProgram ?? null;
@@ -84,6 +113,7 @@ export default async function DashboardPage() {
         recentActivity={lastThree}
         checklist={checklist}
         checklistAllDone={checklistAllDone}
+        applicationStatus={applicationStatus}
       />
       {showMatchedRoles && <MatchedRoles />}
     </>

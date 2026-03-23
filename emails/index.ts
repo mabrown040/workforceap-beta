@@ -4,6 +4,7 @@
  */
 
 export { applicationAcceptedHtml } from './application-accepted';
+export { enrollmentConfirmationHtml } from './enrollment-confirmation';
 export { applicationRejectedHtml } from './application-rejected';
 export { newApplicationAlertHtml } from './new-application-alert';
 export { courseEnrolledHtml } from './course-enrolled';
@@ -21,3 +22,4 @@ export { applicationConfirmationHtml } from './application-confirmation';
 export { applicantFollowupHtml } from './applicant-followup';
 export { adminPendingApplicantsHtml } from './admin-pending-applicants';
 export { adminWeeklyRecapHtml } from './admin-weekly-recap';
+export { partnerWeeklyDigestHtml } from './partner-weekly-digest';

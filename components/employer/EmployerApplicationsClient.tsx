@@ -73,7 +73,7 @@ export default function EmployerApplicationsClient({ initialRows }: { initialRow
           </thead>
           <tbody>
             {rows.map((app) => (
-              <tr key={app.id}>
+              <tr key={app.id} id={app.id}>
                 <td>
                   <div>
                     <strong>{app.student.fullName}</strong>

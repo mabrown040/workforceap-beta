@@ -5,7 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { Briefcase, FilePlus, Upload, Users, CheckCircle, Clock, ArrowRight } from 'lucide-react';
+import { Briefcase, FilePlus, Upload, Users, CheckCircle, Clock, ArrowRight, Sparkles, Calendar, UserCheck, Timer } from 'lucide-react';
 import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -41,11 +41,71 @@ export default async function EmployerDashboardPage() {
     },
   });
 
+  const jobIds = jobs.map((j) => j.id);
+
+  const [totalMatches, interviewPipelineCount, hiredApplications, filledJobsCount] = await Promise.all([
+    jobIds.length === 0
+      ? Promise.resolve(0)
+      : prisma.aIJobMatch.count({ where: { jobId: { in: jobIds } } }),
+    prisma.jobPostingApplication.count({
+      where: {
+        job: { employerId: ctx.employerId },
+        status: { in: ['interview', 'offered', 'hired'] },
+      },
+    }),
+    prisma.jobPostingApplication.findMany({
+      where: { job: { employerId: ctx.employerId }, status: 'hired' },
+      select: {
+        jobId: true,
+        studentId: true,
+        statusUpdatedAt: true,
+        appliedAt: true,
+      },
+    }),
+    prisma.job.count({ where: { employerId: ctx.employerId, status: 'filled' } }),
+  ]);
+
+  const hiresFromApplications = hiredApplications.length;
+  const hiresTotal = hiresFromApplications + filledJobsCount;
+
+  let avgMatchToHireDays: number | null = null;
+  if (hiredApplications.length > 0) {
+    const matchRows = await prisma.aIJobMatch.findMany({
+      where: {
+        OR: hiredApplications.map((h) => ({ jobId: h.jobId, studentId: h.studentId })),
+      },
+      select: { jobId: true, studentId: true, createdAt: true },
+    });
+    const matchMap = new Map(matchRows.map((m) => [`${m.jobId}:${m.studentId}`, m.createdAt]));
+    const deltas: number[] = [];
+    for (const h of hiredApplications) {
+      const start = matchMap.get(`${h.jobId}:${h.studentId}`);
+      const end = h.statusUpdatedAt ?? h.appliedAt;
+      if (start && end && end.getTime() >= start.getTime()) {
+        deltas.push(end.getTime() - start.getTime());
+      }
+    }
+    if (deltas.length > 0) {
+      avgMatchToHireDays = Math.round(deltas.reduce((a, b) => a + b, 0) / deltas.length / (1000 * 60 * 60 * 24));
+    }
+  }
+
   const stats = [
     { label: 'Active Postings', value: activeJobs, Icon: Briefcase },
     { label: 'Total Applications', value: totalApplications, Icon: Users },
     { label: 'In Review', value: inReview, Icon: Clock },
     { label: 'Filled/Closed', value: filledPositions, Icon: CheckCircle },
+  ];
+
+  const placementStats = [
+    { label: 'Members matched to your roles', value: totalMatches, Icon: Sparkles },
+    { label: 'Interviews or later (pipeline)', value: interviewPipelineCount, Icon: Calendar },
+    { label: 'Hires (apps + filled roles)', value: hiresTotal, Icon: UserCheck },
+    {
+      label: 'Avg. days match → hire',
+      value: avgMatchToHireDays === null ? '—' : avgMatchToHireDays,
+      Icon: Timer,
+    },
   ];
 
   return (
@@ -77,6 +137,27 @@ export default async function EmployerDashboardPage() {
         </div>
         <div className="employer-dash-stats" aria-label="Employer dashboard summary">
           {stats.map(({ label, value, Icon }) => (
+            <div key={label} className="employer-dash-stat">
+              <div className="employer-dash-stat-icon" aria-hidden>
+                <Icon size={18} />
+              </div>
+              <div className="employer-dash-stat-value">{value}</div>
+              <div className="employer-dash-stat-label">{label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="employer-dash-placements employer-dash-panel" aria-label="Placement statistics">
+        <div className="employer-dash-overview-copy">
+          <p className="employer-dash-eyebrow">Placement snapshot</p>
+          <h2>How WorkforceAP candidates are moving through your pipeline.</h2>
+          <p>
+            Totals include suggested matches, interview-stage applications, and hires. Filled job postings count toward hires when you mark a role filled.
+          </p>
+        </div>
+        <div className="employer-dash-stats employer-dash-stats--placement">
+          {placementStats.map(({ label, value, Icon }) => (
             <div key={label} className="employer-dash-stat">
               <div className="employer-dash-stat-icon" aria-hidden>
                 <Icon size={18} />

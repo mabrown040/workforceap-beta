@@ -6745,6 +6745,18 @@ body { animation: fadeIn 0.4s ease; }
     border: 1px solid var(--color-border);
     max-width: min(240px, 40vw);
 }
+.workspace-shell-tier-badge {
+    flex-shrink: 0;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(173, 44, 77, 0.14), rgba(173, 44, 77, 0.06));
+    border: 1px solid rgba(173, 44, 77, 0.35);
+    color: var(--color-accent);
+}
 .workspace-sidebar-context--chip {
     padding: 0.15rem 0.45rem;
     border-radius: var(--radius-sm);
@@ -8469,6 +8481,60 @@ body { animation: fadeIn 0.4s ease; }
     color: var(--color-gray-600);
     font-size: 0.95rem;
     margin: 0 0 1.5rem;
+}
+.dashboard-application-status {
+    margin-bottom: 1.5rem;
+}
+.dashboard-application-status-card {
+    background: var(--color-white);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1.5rem;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+.dashboard-application-status-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 1.5rem;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+.dashboard-application-status-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-gray-500);
+    margin: 0 0 0.2rem;
+}
+.dashboard-application-status-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--color-gray-900);
+}
+.dashboard-application-status-meta .dashboard-application-status-date {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--color-gray-700);
+}
+.dashboard-application-status-program {
+    margin: 0.85rem 0 0;
+    font-size: 0.9rem;
+    color: var(--color-gray-700);
+    line-height: 1.45;
+}
+.dashboard-application-status-next {
+    margin: 0.75rem 0 0;
+    font-size: 0.92rem;
+    color: var(--color-gray-700);
+    line-height: 1.5;
+}
+.dashboard-application-status-estimate {
+    margin: 0.65rem 0 0;
+    font-size: 0.85rem;
+    color: var(--color-gray-600);
+    line-height: 1.45;
 }
 .dashboard-today {
     margin-bottom: 1.5rem;

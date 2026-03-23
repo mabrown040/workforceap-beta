@@ -10,6 +10,7 @@ import {
   PROGRAM_INTEREST_OPTIONS,
 } from '@/lib/validation/member';
 import { trackFunnelEvent } from '@/lib/analytics/events';
+import { APPLY_REFERRAL_SESSION_KEY } from '@/lib/apply/applyReferralCapture';
 
 const EMPLOYMENT_OPTIONS = [
   'Employed full-time',
@@ -46,10 +47,17 @@ export default function MemberSignupForm() {
     });
 
     try {
+      let referralRef: string | undefined;
+      try {
+        referralRef = sessionStorage.getItem(APPLY_REFERRAL_SESSION_KEY)?.trim() || undefined;
+      } catch {
+        /* ignore */
+      }
+
       const res = await fetch('/api/member/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, referralRef }),
       });
 
       const json = await res.json();
@@ -62,6 +70,11 @@ export default function MemberSignupForm() {
       }
 
       trackFunnelEvent('member_signup', 'signup_completed', { program_interest: data.programInterest });
+      try {
+        sessionStorage.removeItem(APPLY_REFERRAL_SESSION_KEY);
+      } catch {
+        /* ignore */
+      }
       setSubmitStatus('success');
     } catch {
       trackFunnelEvent('member_signup', 'signup_network_error', { program_interest: data.programInterest });

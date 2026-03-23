@@ -6,7 +6,8 @@ import { prisma } from '@/lib/db/prisma';
 import { auditLog } from '@/lib/audit';
 import { checkAuthRateLimit } from '@/lib/rate-limit';
 import { ApplicationStatus } from '@prisma/client';
-import { sendApplicationAcceptedEmail, sendApplicationRejectedEmail } from '@/lib/email';
+import { sendEnrollmentConfirmationEmail, sendApplicationRejectedEmail } from '@/lib/email';
+import { getProgramByInterestValue } from '@/lib/content/programs';
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -60,7 +61,7 @@ export async function PATCH(
 
   const application = await prisma.application.findUnique({
     where: { id },
-    include: { user: true },
+    include: { user: { select: { email: true, fullName: true, programInterest: true } } },
   });
 
   if (!application) {
@@ -74,12 +75,16 @@ export async function PATCH(
     data: { status, notes: notes ?? application.notes },
   });
 
-  // Best-effort: send accept/reject emails to applicant
+  // Best-effort: send enrollment confirmation / rejection emails to member
   if (status === 'APPROVED') {
-    sendApplicationAcceptedEmail({
+    const interest = application.user.programInterest ?? application.programInterest;
+    const program = interest ? getProgramByInterestValue(interest) : undefined;
+    const programName = program?.title ?? application.programInterest ?? 'your selected program';
+    sendEnrollmentConfirmationEmail({
       to: application.user.email,
       fullName: application.user.fullName,
-    }).catch((err) => console.error('Application accepted email failed:', err));
+      programName,
+    }).catch((err) => console.error('Enrollment confirmation email failed:', err));
   } else if (status === 'DENIED') {
     sendApplicationRejectedEmail({
       to: application.user.email,

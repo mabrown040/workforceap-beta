@@ -40,6 +40,26 @@ async function recordSuggestAudit(input: {
   }
 }
 
+async function safeUpdateJobMatchSuggestionFields(
+  jobId: string,
+  context: string,
+  data: {
+    matchSuggestionsLastSentAt: Date;
+    matchSuggestionsLastStatus: string;
+    matchSuggestionsLastError: string | null;
+  }
+) {
+  try {
+    await prisma.job.update({ where: { id: jobId }, data });
+  } catch (err) {
+    console.error('[admin_match_suggestions] matchSuggestions job fields update failed', {
+      jobId,
+      context,
+      message: err instanceof Error ? err.message : String(err),
+    });
+  }
+}
+
 export async function POST(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -97,13 +117,10 @@ export async function POST(
   };
 
   if (dryRun) {
-    await prisma.job.update({
-      where: { id },
-      data: {
-        matchSuggestionsLastSentAt: now,
-        matchSuggestionsLastStatus: 'dry_run',
-        matchSuggestionsLastError: null,
-      },
+    await safeUpdateJobMatchSuggestionFields(id, 'dry_run', {
+      matchSuggestionsLastSentAt: now,
+      matchSuggestionsLastStatus: 'dry_run',
+      matchSuggestionsLastError: null,
     });
     await recordSuggestAudit({
       actorUserId: user.id,
@@ -125,13 +142,10 @@ export async function POST(
 
   const sent = await sendMatchActionEmail(emailPayload);
   if (!sent.ok) {
-    await prisma.job.update({
-      where: { id },
-      data: {
-        matchSuggestionsLastSentAt: now,
-        matchSuggestionsLastStatus: 'failed',
-        matchSuggestionsLastError: sent.error ?? 'send failed',
-      },
+    await safeUpdateJobMatchSuggestionFields(id, 'send_failed', {
+      matchSuggestionsLastSentAt: now,
+      matchSuggestionsLastStatus: 'failed',
+      matchSuggestionsLastError: sent.error ?? 'send failed',
     });
     await recordSuggestAudit({
       actorUserId: user.id,
@@ -152,13 +166,10 @@ export async function POST(
   }
 
   const lastStatus = testMode ? 'test_sent' : 'success';
-  await prisma.job.update({
-    where: { id },
-    data: {
-      matchSuggestionsLastSentAt: now,
-      matchSuggestionsLastStatus: lastStatus,
-      matchSuggestionsLastError: null,
-    },
+  await safeUpdateJobMatchSuggestionFields(id, 'after_email_sent', {
+    matchSuggestionsLastSentAt: now,
+    matchSuggestionsLastStatus: lastStatus,
+    matchSuggestionsLastError: null,
   });
 
   const studentIds = job.aiMatches.map((m) => m.studentId);

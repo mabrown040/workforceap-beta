@@ -1,7 +1,18 @@
+import type { Prisma } from '@prisma/client';
+import type { JobPostingApplicationStatus } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+
+const STATUSES: JobPostingApplicationStatus[] = [
+  'pending',
+  'reviewing',
+  'interview',
+  'offered',
+  'hired',
+  'rejected',
+];
 
 export async function GET(request: NextRequest) {
   const user = await getUser();
@@ -12,11 +23,22 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url);
   const jobId = searchParams.get('jobId');
+  const status = searchParams.get('status');
+  const q = searchParams.get('q')?.trim();
 
-  const where: { job: { employerId: string }; jobId?: string } = {
+  const where: Prisma.JobPostingApplicationWhereInput = {
     job: { employerId: ctx.employerId },
   };
   if (jobId) where.jobId = jobId;
+  if (status && STATUSES.includes(status as JobPostingApplicationStatus)) {
+    where.status = status as JobPostingApplicationStatus;
+  }
+  if (q) {
+    where.OR = [
+      { student: { fullName: { contains: q, mode: 'insensitive' } } },
+      { student: { email: { contains: q, mode: 'insensitive' } } },
+    ];
+  }
 
   const applications = await prisma.jobPostingApplication.findMany({
     where,

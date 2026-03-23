@@ -1,0 +1,46 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { getUser } from '@/lib/auth/server';
+import { getEmployerForUser } from '@/lib/auth/roles';
+import { prisma } from '@/lib/db/prisma';
+import type { AIJobMatchStatus } from '@prisma/client';
+
+const patchSchema = z.object({
+  status: z.enum(['suggested', 'employer_notified', 'student_notified', 'rejected']),
+});
+
+export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: string; studentId: string }> }) {
+  const user = await getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const employerCtx = await getEmployerForUser(user.id);
+  if (!employerCtx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  const { id: jobId, studentId } = await ctx.params;
+  const body = await request.json().catch(() => null);
+  const parsed = patchSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Invalid body' }, { status: 400 });
+  }
+
+  const job = await prisma.job.findFirst({
+    where: { id: jobId, employerId: employerCtx.employerId },
+    select: { id: true },
+  });
+  if (!job) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+  const match = await prisma.aIJobMatch.findFirst({
+    where: { jobId, studentId },
+  });
+  if (!match) return NextResponse.json({ error: 'Match not found' }, { status: 404 });
+
+  const updated = await prisma.aIJobMatch.update({
+    where: { id: match.id },
+    data: { status: parsed.data.status as AIJobMatchStatus },
+    include: {
+      student: { select: { id: true, fullName: true, email: true } },
+    },
+  });
+
+  return NextResponse.json(updated);
+}

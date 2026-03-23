@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
-import { getPartnerForUser } from '@/lib/auth/roles';
+import { getPartnerForUser, isSuperAdmin } from '@/lib/auth/roles';
+import { prisma } from '@/lib/db/prisma';
 import PartnerPortalShell from '@/components/portal/PartnerPortalShell';
 
 export default async function PartnerPortalLayout({ children }: { children: React.ReactNode }) {
@@ -10,5 +11,16 @@ export default async function PartnerPortalLayout({ children }: { children: Reac
   const ctx = await getPartnerForUser(user.id);
   if (!ctx) redirect('/dashboard');
 
-  return <PartnerPortalShell partnerName={ctx.partner.name}>{children}</PartnerPortalShell>;
+  const directPartnerUser = await prisma.partnerUser.findUnique({
+    where: { userId: user.id },
+    select: { id: true },
+  });
+  const superUser = await isSuperAdmin(user.id);
+  const superBanner = superUser && !directPartnerUser;
+
+  return (
+    <PartnerPortalShell partnerName={ctx.partner.name} superAdmin={superBanner}>
+      {children}
+    </PartnerPortalShell>
+  );
 }

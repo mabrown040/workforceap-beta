@@ -1,24 +1,27 @@
 'use client';
 
 import WorkspaceShell from './WorkspaceShell';
-import { PARTNER_PORTAL_NAV, PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
+import { PARTNER_PORTAL_NAV_ITEMS } from '@/lib/nav/portalNav';
+import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
 
-/**
- * Same light tool-portal chrome as the employer portal (white header, gray page bg),
- * not the dark marketing-style `portal-nav` strip used for legacy member routes.
- */
 export default function PartnerPortalShell({
   partnerName,
+  superAdmin,
   children,
 }: {
   partnerName: string;
+  superAdmin?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <WorkspaceShell
-      navLinks={[...PARTNER_PORTAL_NAV]}
+      portalRole="partner"
+      navItems={PARTNER_PORTAL_NAV_ITEMS}
       workspaceLabel={PRODUCT_COPY.partnerWorkspace}
       contextLabel={partnerName}
+      superAdmin={superAdmin}
+      superAdminBackHref={superAdmin ? '/admin/partners' : undefined}
+      superAdminBackLabel="Switch partner"
     >
       {children}
     </WorkspaceShell>

@@ -10,7 +10,9 @@ import { loadPartnerReferralBundle, toPartnerMembersListRows } from '@/lib/partn
 import { PIPELINE_STAGE_LABELS } from '@/lib/pipeline/stage';
 import PartnerMembersList from '@/components/portal/PartnerMembersList';
 import PageHeader from '@/components/portal/PageHeader';
-import PartnerOnboardingWizard from '@/components/onboarding/PartnerOnboardingWizard';
+import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
+import { isSuperAdmin } from '@/lib/auth/roles';
+import { PARTNER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Partner Portal',
@@ -41,6 +43,7 @@ export default async function PartnerDashboardPage() {
         organizationType: true,
         contactName: true,
         contactPhone: true,
+        tourCompletedAt: true,
       },
     }),
   ]);
@@ -95,17 +98,27 @@ export default async function PartnerDashboardPage() {
 
   const nearCompletion = pipelineMembers.filter((p) => p.stage === 'in_training' && p.progress >= 70);
 
+  const showPartnerOnboarding = partnerRow.onboardingCompletedAt == null;
+  const showPartnerTour =
+    partnerRow.onboardingCompletedAt != null && partnerRow.tourCompletedAt == null;
+  const superAdmin = await isSuperAdmin(user.id);
+
   return (
+    <PortalEntryClient
+      portal="partner"
+      showOnboardingWizard={showPartnerOnboarding}
+      showTour={showPartnerTour}
+      isSuperAdmin={superAdmin}
+      tourSteps={PARTNER_PORTAL_TOUR_STEPS}
+      wizardProps={{
+        partnerName: partnerRow.name,
+        organizationType: partnerRow.organizationType ?? '',
+        contactName: partnerRow.contactName ?? '',
+        contactPhone: partnerRow.contactPhone ?? '',
+        referralApplyUrl,
+      }}
+    >
     <div className="partner-impact-console">
-      {partnerRow.onboardingCompletedAt == null ? (
-        <PartnerOnboardingWizard
-          partnerName={partnerRow.name}
-          organizationType={partnerRow.organizationType ?? ''}
-          contactName={partnerRow.contactName ?? ''}
-          contactPhone={partnerRow.contactPhone ?? ''}
-          referralApplyUrl={referralApplyUrl}
-        />
-      ) : null}
       <PageHeader
         title="Partner overview"
         subtitle={`${ctx.partner.name} referrals, progress, and placement outcomes in one place.`}
@@ -116,7 +129,11 @@ export default async function PartnerDashboardPage() {
         }
       />
 
-      <section className="partner-referral-attribution partner-panel" aria-label="Referral link applications">
+      <section
+        className="partner-referral-attribution partner-panel"
+        aria-label="Referral link applications"
+        data-tour="tour-referral-link"
+      >
         <p className="partner-section-eyebrow">Referral link</p>
         <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--color-gray-700)' }}>
           Applied via your referral link: <strong>{appliedViaReferralLink}</strong> — members who used your{' '}
@@ -246,5 +263,6 @@ export default async function PartnerDashboardPage() {
         </>
       )}
     </div>
+    </PortalEntryClient>
   );
 }

@@ -161,7 +161,7 @@ export default function EmployerOnboardingWizard({
                 router.push('/employer/jobs/new');
               })
             }
-            className="wa-rounded-lg wa-bg-brand-primary wa-py-3 wa-text-center wa-text-sm wa-font-semibold wa-text-white"
+            className="wa-rounded-lg wa-bg-brand-accent wa-py-3 wa-text-center wa-text-sm wa-font-semibold wa-text-white hover:wa-bg-brand-accent-dark"
           >
             Post a job now
           </button>

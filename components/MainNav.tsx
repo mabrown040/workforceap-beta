@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
+import ThemeToggle from '@/components/theme/ThemeToggle';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect, useCallback, useRef, useId } from 'react';
 
@@ -236,6 +237,9 @@ export default function MainNav() {
             priority
           />
         </Link>
+        <span className="nav-theme-slot">
+          <ThemeToggle />
+        </span>
         <button
           ref={toggleRef}
           type="button"

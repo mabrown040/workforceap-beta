@@ -7,7 +7,9 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { Briefcase, FilePlus, Upload, Users, CheckCircle, Clock, ArrowRight, Sparkles, Calendar, UserCheck, Timer } from 'lucide-react';
 import PageHeader from '@/components/portal/PageHeader';
-import EmployerOnboardingWizard from '@/components/onboarding/EmployerOnboardingWizard';
+import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
+import { isSuperAdmin } from '@/lib/auth/roles';
+import { EMPLOYER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Employer overview',
@@ -26,6 +28,7 @@ export default async function EmployerDashboardPage() {
     where: { id: ctx.employerId },
     select: {
       onboardingCompletedAt: true,
+      tourCompletedAt: true,
       companyName: true,
       industry: true,
       companySize: true,
@@ -110,6 +113,11 @@ export default async function EmployerDashboardPage() {
     { label: 'Filled/Closed', value: filledPositions, Icon: CheckCircle },
   ];
 
+  const showEmployerOnboarding = employerRow.onboardingCompletedAt == null;
+  const showEmployerTour =
+    employerRow.onboardingCompletedAt != null && employerRow.tourCompletedAt == null;
+  const superAdmin = await isSuperAdmin(user.id);
+
   const placementStats = [
     { label: 'Members matched to your roles', value: totalMatches, Icon: Sparkles },
     { label: 'Interviews or later (pipeline)', value: interviewPipelineCount, Icon: Calendar },
@@ -122,15 +130,20 @@ export default async function EmployerDashboardPage() {
   ];
 
   return (
+    <PortalEntryClient
+      portal="employer"
+      showOnboardingWizard={showEmployerOnboarding}
+      showTour={showEmployerTour}
+      isSuperAdmin={superAdmin}
+      tourSteps={EMPLOYER_PORTAL_TOUR_STEPS}
+      wizardProps={{
+        companyName: employerRow.companyName,
+        industry: employerRow.industry ?? '',
+        companySize: employerRow.companySize ?? '',
+        companyWebsite: employerRow.companyWebsite ?? '',
+      }}
+    >
     <div className="employer-dash-page">
-      {employerRow.onboardingCompletedAt == null ? (
-        <EmployerOnboardingWizard
-          companyName={employerRow.companyName}
-          industry={employerRow.industry ?? ''}
-          companySize={employerRow.companySize ?? ''}
-          companyWebsite={employerRow.companyWebsite ?? ''}
-        />
-      ) : null}
       <PageHeader
         title="Employer overview"
         subtitle="One place to post jobs, review applicants, and keep your hiring pipeline moving."
@@ -140,7 +153,7 @@ export default async function EmployerDashboardPage() {
               <Upload size={18} aria-hidden />
               Import jobs
             </Link>
-            <Link href="/employer/jobs/new" className="btn btn-primary">
+            <Link href="/employer/jobs/new" className="btn btn-primary" data-tour="tour-post-job">
               <FilePlus size={18} aria-hidden />
               Post a job
             </Link>
@@ -252,5 +265,6 @@ export default async function EmployerDashboardPage() {
         )}
       </section>
     </div>
+    </PortalEntryClient>
   );
 }

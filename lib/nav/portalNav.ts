@@ -54,6 +54,8 @@ export type PortalNavItem = {
   group: NavGroup;
   Icon?: LucideIcon;
   aliases?: string[];
+  /** `data-tour` id for first-login tooltip tour (Sprint 8c) */
+  tourTarget?: string;
   /** Single badge key from server map */
   badgeKey?: NavBadgeKey;
   /** Sum multiple keys (e.g. draft + pending on Jobs) */
@@ -71,8 +73,8 @@ export const NAV_GROUP_LABELS: Record<NavGroup, string | null> = {
 export const GROUP_ORDER: NavGroup[] = ['primary', 'workflows', 'insights', 'manage'];
 
 export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
-  { href: '/dashboard', label: 'Overview', group: 'primary', Icon: Home },
-  { href: '/dashboard/program', label: 'My Program', group: 'primary', Icon: BookOpen },
+  { href: '/dashboard', label: 'Overview', group: 'primary', Icon: Home, tourTarget: 'tour-dashboard' },
+  { href: '/dashboard/program', label: 'My Program', group: 'primary', Icon: BookOpen, tourTarget: 'tour-programs' },
   { href: '/dashboard/training', label: 'Training', group: 'primary', Icon: GraduationCap },
   {
     href: '/dashboard/learning',
@@ -81,7 +83,14 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     Icon: Library,
     aliases: ['/resources'],
   },
-  { href: '/dashboard/resources', label: 'Program resources', group: 'workflows', Icon: Layers },
+  {
+    href: '/jobs',
+    label: 'Job board',
+    group: 'workflows',
+    Icon: Briefcase,
+    tourTarget: 'tour-jobs',
+  },
+  { href: '/dashboard/resources', label: 'Program resources', group: 'workflows', Icon: Layers, tourTarget: 'tour-resources' },
   { href: '/dashboard/ai-tools', label: 'AI tools', group: 'workflows', Icon: Sparkles },
   {
     href: '/dashboard/ai-tools/application-tracker',
@@ -102,17 +111,25 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/dashboard/weekly-recap', label: 'Weekly recap', group: 'insights', Icon: BarChart3 },
   { href: '/dashboard/career-brief', label: 'Career Brief', group: 'insights', Icon: ClipboardList },
   { href: '/dashboard/certifications', label: 'Certifications', group: 'manage', Icon: Award, aliases: ['/certifications'] },
-  { href: '/dashboard/profile', label: 'Profile', group: 'manage', Icon: User, aliases: ['/profile'] },
+  {
+    href: '/dashboard/profile',
+    label: 'Profile',
+    group: 'manage',
+    Icon: User,
+    aliases: ['/profile'],
+    tourTarget: 'tour-profile',
+  },
   { href: '/dashboard/settings', label: 'Settings', group: 'manage', Icon: Settings },
 ];
 
 export const EMPLOYER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
-  { href: '/employer', label: 'Overview', group: 'primary', Icon: LayoutDashboard },
+  { href: '/employer', label: 'Overview', group: 'primary', Icon: LayoutDashboard, tourTarget: 'tour-overview' },
   {
     href: '/employer/work-queue',
     label: 'Work queue',
     group: 'workflows',
     Icon: ListChecks,
+    tourTarget: 'tour-work-queue',
     badgeKeys: ['employer_queue_review_today', 'employer_queue_stale_48h', 'employer_queue_interview'],
   },
   {
@@ -120,6 +137,7 @@ export const EMPLOYER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     label: 'Jobs',
     group: 'workflows',
     Icon: Briefcase,
+    tourTarget: 'tour-jobs',
     badgeKeys: ['jobs_draft', 'jobs_pending'],
   },
   { href: '/employer/jobs/new', label: 'Post job', group: 'workflows', Icon: PlusCircle },
@@ -129,21 +147,23 @@ export const EMPLOYER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     label: 'Applicants',
     group: 'workflows',
     Icon: Users,
+    tourTarget: 'tour-applicants',
     badgeKey: 'applications_new',
   },
-  { href: '/employer/matches', label: 'Match history', group: 'workflows', Icon: Sparkles },
-  { href: '/employer/pipeline', label: 'Candidate pipeline', group: 'workflows', Icon: GitBranch },
+  { href: '/employer/matches', label: 'Match history', group: 'workflows', Icon: Sparkles, tourTarget: 'tour-matches' },
+  { href: '/employer/pipeline', label: 'Candidate pipeline', group: 'workflows', Icon: GitBranch, tourTarget: 'tour-pipeline' },
   { href: '/employer/messages', label: 'Messages / support', group: 'manage', Icon: MessageSquare },
   { href: '/employer/settings', label: 'Company settings', group: 'manage', Icon: Settings },
 ];
 
 export const PARTNER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
-  { href: '/partner', label: 'Overview', group: 'primary', Icon: LayoutDashboard },
+  { href: '/partner', label: 'Overview', group: 'primary', Icon: LayoutDashboard, tourTarget: 'tour-overview' },
   {
     href: '/partner/members',
     label: 'Referred members',
     group: 'workflows',
     Icon: Users,
+    tourTarget: 'tour-members',
     badgeKey: 'partner_needs_attention',
   },
   {
@@ -151,6 +171,7 @@ export const PARTNER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     label: 'Attention queue',
     group: 'workflows',
     Icon: AlertTriangle,
+    tourTarget: 'tour-attention',
   },
   {
     href: '/partner/milestones',
@@ -160,7 +181,7 @@ export const PARTNER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     badgeKey: 'milestones_new',
   },
   { href: '/partner/guide', label: 'Referral guide', group: 'workflows', Icon: ClipboardList },
-  { href: '/partner/outcomes', label: 'Outcomes snapshot', group: 'insights', Icon: BarChart3 },
+  { href: '/partner/outcomes', label: 'Outcomes snapshot', group: 'insights', Icon: BarChart3, tourTarget: 'tour-outcomes' },
   { href: '/partner/resources', label: 'Partner resources', group: 'manage', Icon: Layers },
   { href: '/partner/exports', label: 'Exports', group: 'manage', Icon: Download },
   { href: '/partner/settings', label: 'Settings', group: 'manage', Icon: Settings },

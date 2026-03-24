@@ -223,6 +223,7 @@ export default function WorkspaceShell({
                                 className={`workspace-sidebar-link${isActive ? ' active' : ''}`}
                                 onClick={closeDrawer}
                                 title={isCollapsedDesktop ? item.label : undefined}
+                                {...(item.tourTarget ? { 'data-tour': item.tourTarget } : {})}
                               >
                                 {Icon ? (
                                   <span className="workspace-sidebar-icon" aria-hidden>

@@ -8,7 +8,9 @@ import { prisma } from '@/lib/db/prisma';
 import { buildMemberApplicationStatusView } from '@/lib/member/memberApplicationStatus';
 import DashboardHomeClient from '@/components/portal/DashboardHomeClient';
 import MatchedRoles from '@/components/portal/MatchedRoles';
-import MemberOnboardingWizard from '@/components/onboarding/MemberOnboardingWizard';
+import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
+import { isSuperAdmin } from '@/lib/auth/roles';
+import { MEMBER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Member overview',
@@ -31,6 +33,7 @@ export default async function DashboardPage() {
       interviewCompletedAt: true,
       preScreeningResponse: { select: { id: true } },
       onboardingCompletedAt: true,
+      tourCompletedAt: true,
       fullName: true,
       phone: true,
       programInterest: true,
@@ -58,6 +61,8 @@ export default async function DashboardPage() {
   });
 
   const showMemberOnboarding = intakeExtra?.onboardingCompletedAt == null;
+  const showMemberTour =
+    intakeExtra?.onboardingCompletedAt != null && intakeExtra?.tourCompletedAt == null;
   const wizardProgramInterest =
     latestApplication?.programInterest ?? intakeExtra?.programInterest ?? '';
 
@@ -118,20 +123,25 @@ export default async function DashboardPage() {
   const jobSearchUrl = careerBrief.jobSearchUrl;
 
   const showMatchedRoles = assessmentCompleted;
+  const superAdmin = await isSuperAdmin(user.id);
 
   return (
-    <>
-      {showMemberOnboarding ? (
-        <MemberOnboardingWizard
-          initialFullName={intakeExtra?.fullName ?? ''}
-          initialPhone={intakeExtra?.profile?.profilePhone ?? intakeExtra?.phone ?? ''}
-          initialCity={intakeExtra?.profile?.city ?? ''}
-          initialState={intakeExtra?.profile?.state ?? ''}
-          initialZip={intakeExtra?.profile?.zip ?? ''}
-          initialProgramInterest={wizardProgramInterest}
-          initialReferralSource={intakeExtra?.profile?.referralSource ?? ''}
-        />
-      ) : null}
+    <PortalEntryClient
+      portal="member"
+      showOnboardingWizard={showMemberOnboarding}
+      showTour={showMemberTour}
+      isSuperAdmin={superAdmin}
+      tourSteps={MEMBER_PORTAL_TOUR_STEPS}
+      wizardProps={{
+        initialFullName: intakeExtra?.fullName ?? '',
+        initialPhone: intakeExtra?.profile?.profilePhone ?? intakeExtra?.phone ?? '',
+        initialCity: intakeExtra?.profile?.city ?? '',
+        initialState: intakeExtra?.profile?.state ?? '',
+        initialZip: intakeExtra?.profile?.zip ?? '',
+        initialProgramInterest: wizardProgramInterest,
+        initialReferralSource: intakeExtra?.profile?.referralSource ?? '',
+      }}
+    >
       <DashboardHomeClient
         recommendedActions={recommendedActions}
         jobSearchUrl={jobSearchUrl}
@@ -163,6 +173,6 @@ export default async function DashboardPage() {
         noApplicationOnFile={noApplicationOnFile}
       />
       {showMatchedRoles && <MatchedRoles />}
-    </>
+    </PortalEntryClient>
   );
 }

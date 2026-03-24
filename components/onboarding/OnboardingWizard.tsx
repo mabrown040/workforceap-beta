@@ -116,53 +116,53 @@ export default function OnboardingWizard({
     >
       <div
         ref={panelRef}
-        className={`wa-relative wa-w-full wa-max-w-lg wa-max-h-[90vh] wa-overflow-y-auto wa-rounded-xl wa-bg-white wa-shadow-xl wa-ring-1 wa-ring-black/5 wa-transition-opacity wa-duration-200 ${exiting ? 'wa-opacity-0' : 'wa-opacity-100'}`}
+        className={`wa-relative wa-w-full wa-max-w-lg wa-max-h-[90vh] wa-overflow-y-auto wa-rounded-xl wa-bg-white wa-shadow-xl wa-ring-1 wa-ring-black/5 wa-transition-opacity wa-duration-200 dark:wa-bg-slate-900 dark:wa-ring-slate-700 ${exiting ? 'wa-opacity-0' : 'wa-opacity-100'}`}
       >
-        <div className="wa-sticky wa-top-0 wa-z-10 wa-bg-white wa-border-b wa-border-slate-100 wa-px-6 wa-pt-5 wa-pb-3">
+        <div className="wa-sticky wa-top-0 wa-z-10 wa-bg-white wa-border-b wa-border-slate-100 wa-px-6 wa-pt-5 wa-pb-3 dark:wa-border-slate-700 dark:wa-bg-slate-900">
           <div className="wa-flex wa-gap-1.5 wa-justify-center wa-mb-3">
             {steps.map((_, i) => (
               <span
                 key={i}
-                className={`wa-h-2 wa-w-2 wa-rounded-full ${i === step ? 'wa-bg-brand-primary' : 'wa-bg-slate-200'}`}
+                className={`wa-h-2 wa-w-2 wa-rounded-full ${i === step ? 'wa-bg-brand-accent' : 'wa-bg-slate-200'}`}
                 aria-hidden
               />
             ))}
           </div>
-          <h2 id="wa-onboarding-title" className="wa-text-lg wa-font-semibold wa-text-slate-900">
+          <h2 id="wa-onboarding-title" className="wa-text-lg wa-font-semibold wa-text-slate-900 dark:wa-text-slate-100">
             {current.title}
           </h2>
           {current.subtitle ? (
-            <p className="wa-mt-1 wa-text-sm wa-text-slate-600">{current.subtitle}</p>
+            <p className="wa-mt-1 wa-text-sm wa-text-slate-600 dark:wa-text-slate-300">{current.subtitle}</p>
           ) : null}
         </div>
 
-        <div className="wa-px-6 wa-py-4 wa-text-slate-700">{current.content}</div>
+        <div className="wa-px-6 wa-py-4 wa-text-slate-800 dark:wa-text-slate-200">{current.content}</div>
 
         {!(hideFooterOnLastStep && last) ? (
-          <div className="wa-flex wa-items-center wa-justify-between wa-gap-3 wa-border-t wa-border-slate-100 wa-px-6 wa-py-4">
+          <div className="wa-flex wa-items-center wa-justify-between wa-gap-3 wa-border-t wa-border-slate-100 wa-px-6 wa-py-4 dark:wa-border-slate-700">
             <button
               type="button"
               onClick={goBack}
               disabled={step === 0}
-              className="wa-rounded-lg wa-border wa-border-slate-200 wa-bg-white wa-px-4 wa-py-2 wa-text-sm wa-font-medium wa-text-slate-700 disabled:wa-opacity-40"
+              className="wa-rounded-lg wa-border wa-border-slate-200 wa-bg-white wa-px-4 wa-py-2 wa-text-sm wa-font-medium wa-text-slate-800 disabled:wa-opacity-40 dark:wa-border-slate-600 dark:wa-bg-slate-800 dark:wa-text-slate-100"
             >
               Back
             </button>
             <button
               type="button"
               onClick={goNext}
-              className="wa-rounded-lg wa-bg-brand-primary wa-px-4 wa-py-2 wa-text-sm wa-font-semibold wa-text-white hover:wa-bg-neutral-800"
+              className="wa-rounded-lg wa-bg-brand-accent wa-px-4 wa-py-2 wa-text-sm wa-font-semibold wa-text-white hover:wa-bg-brand-accent-dark"
             >
               {last ? 'Finish' : 'Next'}
             </button>
           </div>
         ) : (
-          <div className="wa-border-t wa-border-slate-100 wa-px-6 wa-py-3">
+          <div className="wa-border-t wa-border-slate-100 wa-px-6 wa-py-3 dark:wa-border-slate-700">
             <button
               type="button"
               onClick={goBack}
               disabled={step === 0}
-              className="wa-rounded-lg wa-border wa-border-slate-200 wa-bg-white wa-px-4 wa-py-2 wa-text-sm wa-font-medium wa-text-slate-700 disabled:wa-opacity-40"
+              className="wa-rounded-lg wa-border wa-border-slate-200 wa-bg-white wa-px-4 wa-py-2 wa-text-sm wa-font-medium wa-text-slate-800 disabled:wa-opacity-40 dark:wa-border-slate-600 dark:wa-bg-slate-800 dark:wa-text-slate-100"
             >
               Back
             </button>
@@ -173,7 +173,7 @@ export default function OnboardingWizard({
           <button
             type="button"
             onClick={() => void skip()}
-            className="wa-absolute wa-bottom-3 wa-right-4 wa-text-xs wa-text-slate-500 hover:wa-text-slate-700 wa-underline"
+            className="wa-absolute wa-bottom-3 wa-right-4 wa-text-xs wa-text-slate-500 hover:wa-text-slate-700 wa-underline dark:wa-text-slate-400 dark:hover:wa-text-slate-200"
           >
             Skip setup
           </button>

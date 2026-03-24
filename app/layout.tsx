@@ -5,6 +5,7 @@ import JsonLd from '@/components/JsonLd';
 import ConditionalMarketingNav from '@/components/ConditionalMarketingNav';
 import ScrollAnimationsWrapper from '@/components/ScrollAnimationsWrapper';
 import OrgBrandingStyle from '@/components/platform/OrgBrandingStyle';
+import ThemeInitScript from '@/components/theme/ThemeInitScript';
 import { getDefaultOrgBranding } from '@/lib/platform/defaultOrgTheme';
 import '@/css/main.css';
 import '@/app/globals-onboarding.css';
@@ -46,6 +47,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className={inter.variable}>
       <head>
+        <ThemeInitScript />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="preload" as="image" href="/images/logo-tight.png" />
       </head>

@@ -1,0 +1,56 @@
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
+import { getUser } from '@/lib/auth/server';
+import { getEmployerForUser, getPartnerForUser, isSuperAdmin } from '@/lib/auth/roles';
+import { prisma } from '@/lib/db/prisma';
+
+const bodySchema = z.object({
+  portal: z.enum(['member', 'employer', 'partner']),
+});
+
+export async function POST(request: Request) {
+  const user = await getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const superUser = await isSuperAdmin(user.id);
+  if (process.env.NODE_ENV === 'production' && !superUser) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+  }
+
+  const parsed = bodySchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Invalid body' }, { status: 400 });
+  }
+
+  const { portal } = parsed.data;
+
+  if (portal === 'member') {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { onboardingCompletedAt: null, onboardingPortal: null, tourCompletedAt: null },
+    });
+  } else if (portal === 'employer') {
+    const ctx = await getEmployerForUser(user.id);
+    if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    await prisma.employer.update({
+      where: { id: ctx.employerId },
+      data: { onboardingCompletedAt: null, tourCompletedAt: null },
+    });
+  } else {
+    const ctx = await getPartnerForUser(user.id);
+    if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    await prisma.partner.update({
+      where: { id: ctx.partnerId },
+      data: { onboardingCompletedAt: null, tourCompletedAt: null },
+    });
+  }
+
+  return NextResponse.json({ ok: true });
+}

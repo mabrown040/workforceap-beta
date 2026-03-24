@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect, useCallback } from 'react';
 import { Menu, X } from 'lucide-react';
 import DevViewToggle from './DevViewToggle';
+import ThemeToggle from '@/components/theme/ThemeToggle';
 import SuperAdminViewSwitcher from '@/components/super-admin-view-switcher';
 import { SignOutButton } from './SignOutButton';
 import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
@@ -12,6 +13,7 @@ function ActionItems({ onItemClick }: { onItemClick?: () => void }) {
   return (
     <>
       <SuperAdminViewSwitcher />
+      <ThemeToggle variant="portal" />
       <DevViewToggle />
       <Link href="/" className="btn btn-outline btn-sm" onClick={onItemClick}>
         {PRODUCT_COPY.publicSiteLabel}

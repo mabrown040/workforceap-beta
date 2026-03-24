@@ -102,12 +102,231 @@ body {
     color: var(--color-primary);
     background: var(--color-white);
     overflow-x: clip;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 body.mobile-nav-open {
     overflow: hidden;
 }
 body.homepage { background: var(--color-primary); }
 img { max-width: 100%; height: auto; display: block; }
+
+/* =============================================
+   LIGHT / DARK MODE (class "dark" on <html>)
+   ============================================= */
+html.dark {
+    color-scheme: dark;
+}
+html.dark body {
+    --color-primary: #f3f4f6;
+    --color-white: #121417;
+    --color-light: #161a1f;
+    --color-gray-50: #1a1f26;
+    --color-gray-100: #222830;
+    --color-gray-200: #2d3540;
+    --color-gray-300: #3d4654;
+    --color-gray-400: #8b93a1;
+    --color-gray-500: #9ca3af;
+    --color-gray-600: #b8bec8;
+    --color-gray-700: #d1d5db;
+    --color-gray-800: #e5e7eb;
+    --color-border: #2d3540;
+    color: var(--color-primary);
+    background: var(--color-white);
+}
+html.dark body.homepage {
+    background: #0b0d10;
+}
+html.dark .main-nav {
+    background: rgba(8, 10, 12, 0.98);
+    border-bottom-color: rgba(255,255,255,0.08);
+}
+html.dark .main-nav.scrolled {
+    background: rgba(6, 8, 10, 0.99);
+}
+html.dark .nav-menu a {
+    color: rgba(243,244,246,0.92);
+}
+html.dark .nav-menu .dropdown .dropdown-trigger {
+    color: rgba(243,244,246,0.92);
+}
+html.dark .mobile-nav-toggle {
+    border-color: rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.08);
+}
+html.dark .stats-bar {
+    background: #0b0d10;
+    border-bottom-color: rgba(255,255,255,0.08);
+}
+html.dark .stats-trust-line {
+    color: rgba(243,244,246,0.92);
+}
+html.dark .stat {
+    color: #f9fafb;
+}
+html.dark .stat-label {
+    color: rgba(249,250,251,0.65);
+}
+html.dark .home-audiences {
+    background: var(--color-light);
+    border-color: var(--color-border);
+}
+html.dark .home-audience-card {
+    background: #161a1f;
+    border-color: var(--color-border);
+}
+html.dark .home-audience-card h3 {
+    color: var(--color-gray-800);
+}
+html.dark .home-audience-card p {
+    color: var(--color-gray-600);
+}
+html.dark .home-partners-cta {
+    background: #161a1f;
+    border-color: var(--color-border);
+}
+html.dark .home-partners-cta__title {
+    color: var(--color-gray-800);
+}
+html.dark .home-partners-cta__text {
+    color: var(--color-gray-600);
+}
+html.dark .home-for-you-lead,
+html.dark .home-social-proof-lead {
+    color: var(--color-gray-600);
+}
+html.dark .home-section-title {
+    color: var(--color-gray-800);
+}
+html.dark .content-section {
+    background: var(--color-white);
+    color: var(--color-primary);
+}
+html.dark .section-title,
+html.dark .section-intro {
+    color: var(--color-gray-700);
+}
+html.dark .section-subtitle {
+    color: var(--color-gray-500);
+}
+html.dark .footer-cta {
+    background: #0b0d10;
+    color: #f9fafb;
+}
+html.dark .footer-cta h2,
+html.dark .footer-cta p {
+    color: #f9fafb;
+}
+html.dark .footer-cta .btn-primary {
+    background: var(--color-accent);
+    color: #ffffff;
+}
+html.dark .footer-cta .btn-primary:hover {
+    background: var(--color-accent-dark);
+    color: #ffffff;
+}
+html.dark .employer-dash-page,
+html.dark .partner-impact-console {
+    color: var(--color-primary);
+}
+html.dark .employer-dash-panel,
+html.dark .partner-panel {
+    background: #161a1f;
+    border-color: var(--color-border);
+    color: var(--color-primary);
+}
+html.dark .employer-dash-overview-copy h2,
+html.dark .employer-dash-section-heading h2,
+html.dark .partner-section-eyebrow {
+    color: var(--color-gray-800);
+}
+html.dark .employer-dash-overview-copy p,
+html.dark .partner-panel p {
+    color: var(--color-gray-600);
+}
+html.dark .workspace-shell-root {
+    background: var(--color-light);
+}
+html.dark .workspace-shell-header {
+    background: #161a1f;
+    border-bottom-color: var(--color-border);
+}
+html.dark .workspace-shell-brand {
+    color: var(--color-gray-800);
+}
+html.dark .workspace-sidebar {
+    background: #161a1f;
+    border-right-color: var(--color-border);
+}
+html.dark .workspace-sidebar-link {
+    color: var(--color-gray-600);
+}
+html.dark .workspace-sidebar-link.active {
+    color: var(--color-accent);
+}
+html.dark .workspace-shell-main-inner {
+    color: var(--color-primary);
+}
+html.dark .portal-page-header h1,
+html.dark .portal-page-header .portal-page-header-main h1 {
+    color: var(--color-gray-800);
+}
+html.dark .portal-page-header p,
+html.dark .portal-page-header .portal-page-header-main p {
+    color: var(--color-gray-600);
+}
+html.dark .btn-outline {
+    border-color: var(--color-gray-300);
+    color: var(--color-primary);
+}
+html.dark .btn-secondary {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+html.dark .app-system-page {
+    background: var(--color-white);
+    color: var(--color-primary);
+}
+html.dark .app-system-page__title {
+    color: var(--color-gray-800);
+}
+html.dark .app-system-page__text {
+    color: var(--color-gray-600);
+}
+html.dark .nav-theme-slot .theme-toggle-btn {
+    border-color: rgba(255,255,255,0.2) !important;
+    background: rgba(255,255,255,0.08) !important;
+    color: #f9fafb !important;
+}
+html.dark .nav-theme-slot .theme-toggle-btn:hover {
+    background: rgba(255,255,255,0.14) !important;
+}
+html.dark .process-flow-section {
+    background: var(--color-light);
+    color: var(--color-primary);
+}
+html.dark .process-flow-header h2,
+html.dark .process-flow-header p {
+    color: var(--color-gray-800);
+}
+html.dark .process-item h3,
+html.dark .process-item p {
+    color: var(--color-gray-700);
+}
+html.dark .about-section {
+    background: var(--color-white);
+    color: var(--color-primary);
+}
+html.dark .about-content h2,
+html.dark .about-content p {
+    color: var(--color-gray-700);
+}
+html.dark .programs-preview {
+    background: #161a1f;
+    border-color: var(--color-border);
+}
+html.dark .home-social-proof {
+    background: var(--color-light);
+}
 a { text-decoration: none; color: inherit; transition: color var(--transition-fast); }
 ul { list-style: none; }
 
@@ -276,6 +495,11 @@ body.mobile-nav-open .main-nav::after {
     background: rgba(12,12,12,0.99);
     box-shadow: 0 4px 30px rgba(0,0,0,0.3);
     border-bottom-color: rgba(255,255,255,0.03);
+}
+.nav-theme-slot {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
 }
 .nav-container {
     max-width: var(--max-width);

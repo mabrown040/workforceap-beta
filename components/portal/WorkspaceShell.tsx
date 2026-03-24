@@ -88,7 +88,7 @@ export default function WorkspaceShell({
 
   useEffect(() => {
     let cancelled = false;
-    void (async () => {
+    const load = async () => {
       try {
         const r = await fetch(`/api/portal/nav-badges?role=${encodeURIComponent(portalRole)}`, {
           credentials: 'include',
@@ -99,9 +99,13 @@ export default function WorkspaceShell({
       } catch {
         /* ignore */
       }
-    })();
+    };
+    void load();
+    const onRefresh = () => void load();
+    window.addEventListener('wa-nav-badges-refresh', onRefresh);
     return () => {
       cancelled = true;
+      window.removeEventListener('wa-nav-badges-refresh', onRefresh);
     };
   }, [portalRole]);
 

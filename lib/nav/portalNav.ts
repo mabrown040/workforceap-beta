@@ -43,6 +43,7 @@ export type NavBadgeKey =
   | 'partner_needs_attention'
   | 'milestones_new'
   | 'readiness_incomplete'
+  | 'counselor_messages_unread'
   | 'employer_queue_review_today'
   | 'employer_queue_stale_48h'
   | 'employer_queue_interview';
@@ -88,6 +89,13 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     group: 'workflows',
     Icon: FileText,
     badgeKey: 'applications_new',
+  },
+  {
+    href: '/dashboard/messages',
+    label: 'Messages',
+    group: 'workflows',
+    Icon: MessageSquare,
+    badgeKey: 'counselor_messages_unread',
   },
   { href: '/dashboard/readiness', label: 'Career readiness', group: 'insights', Icon: CheckCircle, badgeKey: 'readiness_incomplete' },
   { href: '/dashboard/assessments', label: 'Skills assessment', group: 'insights', Icon: ClipboardCheck },

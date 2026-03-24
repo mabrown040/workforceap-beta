@@ -4,20 +4,45 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PROGRAMS } from '@/lib/content/programs';
 
+export type ProgramOption = { slug: string; name: string; status?: string };
+
 type MemberDetailActionsProps = {
   userId: string;
+  memberName: string;
+  profileIncomplete: boolean;
   currentProgramSlug: string | null;
   assessmentCompleted: boolean;
+  programOptions: ProgramOption[];
 };
 
-export default function MemberDetailActions({ userId, currentProgramSlug, assessmentCompleted }: MemberDetailActionsProps) {
+export default function MemberDetailActions({
+  userId,
+  memberName,
+  profileIncomplete,
+  currentProgramSlug,
+  assessmentCompleted,
+  programOptions,
+}: MemberDetailActionsProps) {
   const router = useRouter();
   const [programSlug, setProgramSlug] = useState(currentProgramSlug ?? '');
   const [loading, setLoading] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
 
+  const options =
+    programOptions.length > 0
+      ? programOptions
+      : PROGRAMS.map((p) => ({ slug: p.slug, name: p.title }));
+
   const handleChangeProgram = async () => {
     if (!programSlug) return;
+    const selected = options.find((o) => o.slug === programSlug);
+    const label = selected?.name ?? programSlug;
+    if (profileIncomplete) {
+      const ok = window.confirm(
+        `Enroll ${memberName} in ${label}?\n\nTheir profile is incomplete (phone, address, and/or financial aid). They will be prompted to complete it after enrollment.`
+      );
+      if (!ok) return;
+    }
     setLoading('program');
     try {
       const res = await fetch(`/api/admin/members/${userId}/program`, {
@@ -54,6 +79,11 @@ export default function MemberDetailActions({ userId, currentProgramSlug, assess
 
   return (
     <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      {profileIncomplete && (
+        <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-700)', margin: 0 }}>
+          Profile incomplete for self-serve training enrollment — admin program changes still apply and set an admin enrollment bypass.
+        </p>
+      )}
       <div>
         <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem' }}>Change program (admin only)</label>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
@@ -63,14 +93,17 @@ export default function MemberDetailActions({ userId, currentProgramSlug, assess
             style={{ flex: 1, maxWidth: '300px', padding: '0.5rem' }}
           >
             <option value="">— Select —</option>
-            {PROGRAMS.map((p) => (
-              <option key={p.slug} value={p.slug}>{p.title}</option>
+            {options.map((p) => (
+              <option key={p.slug} value={p.slug}>
+                {p.name}
+                {'status' in p && p.status && p.status !== 'active' ? ` (${p.status})` : ''}
+              </option>
             ))}
           </select>
           <button
             type="button"
             className="btn btn-outline"
-            onClick={handleChangeProgram}
+            onClick={() => void handleChangeProgram()}
             disabled={!programSlug || loading === 'program'}
           >
             {loading === 'program' ? '...' : 'Save'}

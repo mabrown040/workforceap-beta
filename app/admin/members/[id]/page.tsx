@@ -7,6 +7,8 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { memberTrainingProfileComplete } from '@/lib/platform/trainingEnrollmentGate';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
 import MemberDetailActions from '@/components/admin/MemberDetailActions';
@@ -103,6 +105,29 @@ export default async function AdminMemberDetailPage({
 
   if (!member || member.deletedAt) notFound();
 
+  const preScreening = await prisma.preScreeningResponse.findUnique({
+    where: { userId: member.id },
+  });
+
+  const organizationId = await getDefaultOrganizationId();
+  const catalogPrograms = await prisma.organizationProgramCatalog.findMany({
+    where: { organizationId },
+    orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
+    select: { programSlug: true, name: true, status: true },
+  });
+  const programOptions =
+    catalogPrograms.length > 0
+      ? catalogPrograms.map((r) => ({ slug: r.programSlug, name: r.name, status: r.status }))
+      : null;
+
+  const gate = memberTrainingProfileComplete({
+    phone: member.phone,
+    profilePhone: member.profile?.profilePhone,
+    profileAddress: member.profile?.profileAddress,
+    financialAidInterest: member.profile?.financialAidInterest,
+  });
+  const profileIncomplete = !gate.ok;
+
   const program = member.enrolledProgram ? getProgramBySlug(member.enrolledProgram) : null;
   const coursesCompleted = (member.coursesCompleted as string[] | null) ?? [];
   const completedCount = program ? coursesCompleted.filter((s) => program.courses.some((c) => c.slug === s)).length : 0;
@@ -167,9 +192,37 @@ export default async function AdminMemberDetailPage({
           <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Profile</h2>
           <p><strong>Phone:</strong> {formatPhone(member.phone ?? member.profile?.profilePhone)}</p>
           <p><strong>Address:</strong> {member.profile?.profileAddress ?? member.profile?.address ?? '—'}</p>
+          <p>
+            <strong>Financial aid interest:</strong>{' '}
+            {member.profile?.financialAidInterest === true
+              ? 'Yes'
+              : member.profile?.financialAidInterest === false
+                ? 'No'
+                : '—'}
+          </p>
           <p><strong>LinkedIn:</strong> {member.profile?.profileLinkedin ? <a href={member.profile.profileLinkedin} target="_blank" rel="noopener noreferrer">{member.profile.profileLinkedin}</a> : '—'}</p>
           <p><strong>Bio:</strong> {member.profile?.profileBio ?? '—'}</p>
         </section>
+
+        {preScreening && (
+          <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
+            <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Pre-screening</h2>
+            <p><strong>Employment:</strong> {preScreening.employmentStatus}</p>
+            <p><strong>Primary goal:</strong> {preScreening.primaryGoal}</p>
+            <p><strong>Weekly hours:</strong> {preScreening.weeklyHours}</p>
+            <p><strong>Barrier:</strong> {preScreening.barrier}</p>
+            <p><strong>Heard about us:</strong> {preScreening.hearAbout}{preScreening.hearAboutOther ? ` — ${preScreening.hearAboutOther}` : ''}</p>
+            <p><strong>Workforce assistance:</strong> {preScreening.workforceAssistance ? 'Yes' : 'No'}</p>
+            <p><strong>Submitted:</strong> {preScreening.createdAt.toLocaleString()}</p>
+            <p><strong>Interview eligible:</strong> {member.interviewEligible ? 'Yes' : 'No'}</p>
+            {member.interviewRequestedAt && (
+              <p><strong>Interview requested:</strong> {member.interviewRequestedAt.toLocaleString()}</p>
+            )}
+            {member.interviewCompletedAt && (
+              <p><strong>Interview completed:</strong> {member.interviewCompletedAt.toLocaleString()}</p>
+            )}
+          </section>
+        )}
 
         <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
           <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Program</h2>
@@ -186,8 +239,11 @@ export default async function AdminMemberDetailPage({
           </ul>
           <MemberDetailActions
             userId={member.id}
+            memberName={member.fullName}
+            profileIncomplete={profileIncomplete}
             currentProgramSlug={member.enrolledProgram}
             assessmentCompleted={member.assessmentCompleted}
+            programOptions={programOptions ?? []}
           />
         </section>
 

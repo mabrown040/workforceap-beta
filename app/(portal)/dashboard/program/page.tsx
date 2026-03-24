@@ -5,6 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
+import { getActivePrograms } from '@/lib/platform/programCatalog';
 import ProgramPicker from '@/components/portal/ProgramPicker';
 import { ProgramIcon } from '@/components/ProgramIcon';
 
@@ -17,6 +18,12 @@ export const metadata: Metadata = buildPageMetadata({
 export default async function ProgramPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/program');
+
+  const activeViews = await getActivePrograms();
+  let pickerPrograms = activeViews
+    .map((v) => v.static)
+    .filter((p): p is NonNullable<typeof p> => !!p);
+  if (pickerPrograms.length === 0) pickerPrograms = PROGRAMS;
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
@@ -34,7 +41,7 @@ export default async function ProgramPage() {
         <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
           Select one program. This is a one-time choice — funding is tied to a single program enrollment.
         </p>
-        <ProgramPicker programs={PROGRAMS} />
+        <ProgramPicker programs={pickerPrograms.length ? pickerPrograms : []} />
       </>
     );
   }

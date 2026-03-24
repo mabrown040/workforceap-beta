@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { checkSignupRateLimit } from '@/lib/rate-limit';
 import { trackEvent } from '@/lib/events/track';
 import { ApplicationStatus } from '@prisma/client';
+import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -118,12 +119,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Your account could not be created. Please try again.' }, { status: 500 });
   }
 
+  const organizationId = await getDefaultOrganizationId();
+
   try {
     await prisma.$transaction(async (tx) => {
       await tx.user.upsert({
         where: { id: user.id },
         create: {
           id: user.id,
+          organizationId,
           email: user.email!,
           fullName,
           phone,

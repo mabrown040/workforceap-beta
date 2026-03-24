@@ -48,6 +48,7 @@ export default async function DashboardProfilePage() {
           defaultAddress={dbUser.profile?.profileAddress ?? ''}
           defaultLinkedin={dbUser.profile?.profileLinkedin ?? ''}
           defaultBio={dbUser.profile?.profileBio ?? ''}
+          defaultFinancialAidInterest={dbUser.profile?.financialAidInterest ?? null}
         />
       </div>
 

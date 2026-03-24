@@ -11,6 +11,7 @@
 
 import { PrismaClient } from '@prisma/client';
 import { createClient } from '@supabase/supabase-js';
+import { getDefaultOrganizationId } from '../lib/tenant/organization';
 
 const prisma = new PrismaClient();
 const EMAIL = 'michael.brown@workforceap.org';
@@ -93,10 +94,12 @@ async function main() {
     userId = authData.user!.id;
     console.log('Created user in Supabase Auth:', EMAIL);
 
+    const organizationId = await getDefaultOrganizationId();
     await prisma.$transaction(async (tx) => {
       await tx.user.create({
         data: {
           id: userId,
+          organizationId,
           email: EMAIL,
           fullName: FULL_NAME,
           phone: PHONE,
@@ -116,6 +119,8 @@ async function main() {
     console.log('Password reset email sent');
   }
 
+  const orgId = await getDefaultOrganizationId();
+
   // Create or update employer record
   const employer = await prisma.employer.upsert({
     where: { userId },
@@ -127,6 +132,7 @@ async function main() {
       status: 'active',
     },
     create: {
+      organizationId: orgId,
       userId,
       companyName: COMPANY_NAME,
       contactName: FULL_NAME,

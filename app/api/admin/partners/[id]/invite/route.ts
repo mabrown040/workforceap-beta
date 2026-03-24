@@ -70,6 +70,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       where: { id: authUserId },
       create: {
         id: authUserId,
+        organizationId: partner.organizationId,
         email,
         fullName: displayName,
       },

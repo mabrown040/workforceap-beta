@@ -14,6 +14,15 @@ Employer logo uploads use a dedicated public bucket so company logos can appear 
 
 If the bucket is missing, `POST /api/employer/logo` returns a 500 with a message to create the bucket.
 
+## `organization-branding` bucket
+
+Admin **Organization settings** can upload a tenant logo (`POST /api/admin/organization/logo`).
+
+1. Create a public bucket named **`organization-branding`** (same steps as above).
+2. Objects are stored at `{organizationId}/logo.{ext}`.
+
+If the bucket is missing, the API returns 500 with instructions to create it.
+
 ## Realtime (member ↔ counselor chat)
 
 Chat uses **Supabase Realtime** `postgres_changes` on `messages` and `message_threads`. After migrations, add both tables to the publication if they are not already included:

@@ -4,6 +4,8 @@ import SafeVercelMetrics from '@/components/SafeVercelMetrics';
 import JsonLd from '@/components/JsonLd';
 import ConditionalMarketingNav from '@/components/ConditionalMarketingNav';
 import ScrollAnimationsWrapper from '@/components/ScrollAnimationsWrapper';
+import OrgBrandingStyle from '@/components/platform/OrgBrandingStyle';
+import { getDefaultOrgBranding } from '@/lib/platform/defaultOrgTheme';
 import '@/css/main.css';
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID ?? 'GTM-53JCT6WN';
@@ -38,7 +40,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const orgBranding = await getDefaultOrgBranding();
   return (
     <html lang="en" className={inter.variable}>
       <head>
@@ -46,6 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preload" as="image" href="/images/logo-tight.png" />
       </head>
       <body>
+        <OrgBrandingStyle branding={orgBranding} />
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>

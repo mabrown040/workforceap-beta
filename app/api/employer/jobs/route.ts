@@ -84,14 +84,14 @@ export async function POST(request: NextRequest) {
 
     const employer = await prisma.employer.findUnique({
       where: { id: ctx.employerId },
-      select: { companyName: true, contactEmail: true },
+      select: { companyName: true, contactEmail: true, organizationId: true },
     });
     if (!employer) {
       return NextResponse.json({ error: 'Selected employer record was not found.' }, { status: 400 });
     }
 
     const job = await prisma.job.create({
-      data: buildEmployerJobCreateData(ctx.employerId, parsed.data),
+      data: buildEmployerJobCreateData(employer.organizationId, ctx.employerId, parsed.data),
     });
 
     if (parsed.data.status === 'pending') {

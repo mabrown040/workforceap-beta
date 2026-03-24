@@ -6,6 +6,8 @@ import { BookOpen, Calendar, BarChart3, Target, PartyPopper, ChevronRight } from
 import { MEMBER_APPLICATION_PROGRESS_STEPS } from '@/lib/member/memberApplicationStatus';
 import { trackFunnelEvent } from '@/lib/analytics/events';
 import { postMemberEvent } from '@/lib/events/client';
+import MemberPreScreeningForm from '@/components/portal/MemberPreScreeningForm';
+import MemberInterviewRequestButton from '@/components/portal/MemberInterviewRequestButton';
 
 type State = 'A' | 'B' | 'C' | 'D';
 
@@ -41,6 +43,11 @@ type DashboardHomeClientProps = {
   applicationStatus?: DashboardApplicationStatusProps | null;
   /** True when member has no Application row — prompt to apply */
   noApplicationOnFile?: boolean;
+  assessmentDone?: boolean;
+  preScreeningDone?: boolean;
+  interviewEligible?: boolean;
+  interviewRequestedAt?: Date | null;
+  interviewCompletedAt?: Date | null;
 };
 
 export default function DashboardHomeClient({
@@ -59,6 +66,11 @@ export default function DashboardHomeClient({
   jobSearchUrl,
   applicationStatus,
   noApplicationOnFile,
+  assessmentDone = false,
+  preScreeningDone = false,
+  interviewEligible = false,
+  interviewRequestedAt = null,
+  interviewCompletedAt = null,
 }: DashboardHomeClientProps) {
   const primaryAction = recommendedActions[0];
   const secondaryAction = recommendedActions[1];
@@ -171,6 +183,35 @@ export default function DashboardHomeClient({
                 We typically respond within 24–48 hours on business days.
               </p>
             ) : null}
+          </div>
+        </section>
+      ) : null}
+
+      {assessmentDone && !preScreeningDone ? (
+        <section className="dashboard-application-status" aria-labelledby="dashboard-prescreen-heading">
+          <h2 id="dashboard-prescreen-heading" className="dashboard-today-label">
+            Pre-screening (before your interview)
+          </h2>
+          <div className="dashboard-application-status-card">
+            <MemberPreScreeningForm />
+          </div>
+        </section>
+      ) : null}
+
+      {assessmentDone && preScreeningDone && interviewEligible && !interviewCompletedAt ? (
+        <section className="dashboard-application-status" aria-labelledby="dashboard-interview-heading">
+          <h2 id="dashboard-interview-heading" className="dashboard-today-label">
+            Interview
+          </h2>
+          <div className="dashboard-application-status-card">
+            {interviewRequestedAt ? (
+              <p style={{ margin: 0, color: 'var(--color-gray-700)' }}>
+                We received your interview request on{' '}
+                {new Date(interviewRequestedAt).toLocaleString()}. A counselor will reach out by email.
+              </p>
+            ) : (
+              <MemberInterviewRequestButton />
+            )}
           </div>
         </section>
       ) : null}

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { z } from 'zod';
 
 const employerSchema = z.object({
@@ -53,8 +54,10 @@ export async function POST(request: NextRequest) {
   });
   if (existingEmployer) return NextResponse.json({ error: 'User is already an employer' }, { status: 400 });
 
+  const organizationId = await getDefaultOrganizationId();
   const employer = await prisma.employer.create({
     data: {
+      organizationId,
       userId: parsed.data.userId,
       companyName: parsed.data.companyName,
       companyWebsite: parsed.data.companyWebsite ?? undefined,

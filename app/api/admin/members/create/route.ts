@@ -6,6 +6,7 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { ADMIN_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
+import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 
 const EMPLOYMENT_OPTIONS = ['Unemployed', 'Underemployed', 'Employed', 'Self-Employed'];
 const VETERAN_OPTIONS = ['Not a Veteran', 'Veteran', 'Disabled Veteran'];
@@ -132,11 +133,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Account creation failed' }, { status: 500 });
   }
 
+  const organizationId = await getDefaultOrganizationId();
+
   try {
     await prisma.$transaction(async (tx) => {
       await tx.user.create({
         data: {
           id: authUser.id,
+          organizationId,
           email: authUser.email!,
           fullName,
           phone: phone || null,

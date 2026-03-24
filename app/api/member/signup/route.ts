@@ -6,6 +6,7 @@ import { memberSignupSchema } from '@/lib/validation/member';
 import { checkSignupRateLimit } from '@/lib/rate-limit';
 import { ApplicationStatus } from '@prisma/client';
 import { sendNewApplicationAdminEmail } from '@/lib/email';
+import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -145,6 +146,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const organizationId = await getDefaultOrganizationId();
+
   try {
     await prisma.$transaction(async (tx) => {
       let memberRole = await tx.role.findUnique({ where: { name: 'member' } });
@@ -155,6 +158,7 @@ export async function POST(request: NextRequest) {
       await tx.user.create({
         data: {
           id: user.id,
+          organizationId,
           email: data.email,
           fullName: data.fullName,
           phone: data.phone,

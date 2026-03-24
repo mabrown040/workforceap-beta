@@ -1,0 +1,157 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+const EMPLOYMENT = ['Employed', 'Unemployed', 'Underemployed', 'Student'] as const;
+const GOALS = ['New career', 'Promotion', 'Certification', 'Exploring options'] as const;
+const HOURS = ['<5 hrs', '5-10 hrs', '10-20 hrs', '20+ hrs'] as const;
+const HEAR = [
+  'Partner / community org',
+  'Social media',
+  'Search engine',
+  'Friend or family',
+  'Employer',
+  'Other',
+] as const;
+
+export default function MemberPreScreeningForm() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [employmentStatus, setEmploymentStatus] = useState<string>(EMPLOYMENT[1]);
+  const [primaryGoal, setPrimaryGoal] = useState<string>(GOALS[0]);
+  const [weeklyHours, setWeeklyHours] = useState<string>(HOURS[2]);
+  const [barrier, setBarrier] = useState('');
+  const [hearAbout, setHearAbout] = useState<string>(HEAR[0]);
+  const [hearAboutOther, setHearAboutOther] = useState('');
+  const [workforceAssistance, setWorkforceAssistance] = useState<'yes' | 'no' | ''>('');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      const res = await fetch('/api/member/pre-screening', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          employmentStatus,
+          primaryGoal,
+          weeklyHours,
+          barrier: barrier.trim(),
+          hearAbout: hearAbout === 'Other' ? 'Other' : hearAbout,
+          hearAboutOther: hearAbout === 'Other' ? hearAboutOther.trim() || null : null,
+          workforceAssistance: workforceAssistance === 'yes',
+          phone: phone.trim(),
+          address: address.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? 'Submit failed');
+        setLoading(false);
+        return;
+      }
+      router.refresh();
+    } catch {
+      setError('Submit failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="member-prescreen-form">
+      {error && <p className="form-error" role="alert">{error}</p>}
+      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1rem', fontSize: '0.95rem' }}>
+        A few questions so your counselor can prepare for your interview. All fields are required.
+      </p>
+      <div className="form-group">
+        <label htmlFor="emp">Current employment status</label>
+        <select id="emp" value={employmentStatus} onChange={(e) => setEmploymentStatus(e.target.value)} required>
+          {EMPLOYMENT.map((x) => (
+            <option key={x} value={x}>{x}</option>
+          ))}
+        </select>
+      </div>
+      <div className="form-group">
+        <label htmlFor="goal">Primary goal</label>
+        <select id="goal" value={primaryGoal} onChange={(e) => setPrimaryGoal(e.target.value)} required>
+          {GOALS.map((x) => (
+            <option key={x} value={x}>{x}</option>
+          ))}
+        </select>
+      </div>
+      <div className="form-group">
+        <label htmlFor="hrs">Time you can commit weekly</label>
+        <select id="hrs" value={weeklyHours} onChange={(e) => setWeeklyHours(e.target.value)} required>
+          {HOURS.map((x) => (
+            <option key={x} value={x}>{x}</option>
+          ))}
+        </select>
+      </div>
+      <div className="form-group">
+        <label htmlFor="barrier">Biggest barrier right now (max 200 characters)</label>
+        <textarea
+          id="barrier"
+          rows={3}
+          maxLength={200}
+          value={barrier}
+          onChange={(e) => setBarrier(e.target.value)}
+          required
+        />
+      </div>
+      <div className="form-group">
+        <label htmlFor="hear">How did you hear about us?</label>
+        <select id="hear" value={hearAbout} onChange={(e) => setHearAbout(e.target.value)} required>
+          {HEAR.map((x) => (
+            <option key={x} value={x}>{x}</option>
+          ))}
+        </select>
+      </div>
+      {hearAbout === 'Other' && (
+        <div className="form-group">
+          <label htmlFor="hearOther">Please specify</label>
+          <input id="hearOther" value={hearAboutOther} onChange={(e) => setHearAboutOther(e.target.value)} required />
+        </div>
+      )}
+      <div className="form-group">
+        <label htmlFor="phone">Phone number</label>
+        <input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required minLength={10} />
+      </div>
+      <div className="form-group">
+        <label htmlFor="addr">Physical address (street, city, state)</label>
+        <input id="addr" value={address} onChange={(e) => setAddress(e.target.value)} required minLength={5} />
+      </div>
+      <fieldset className="form-group">
+        <legend style={{ fontWeight: 600, marginBottom: '0.35rem' }}>Are you currently receiving any workforce assistance?</legend>
+        <label style={{ display: 'inline-flex', gap: '0.35rem', marginRight: '1rem' }}>
+          <input
+            type="radio"
+            name="wa"
+            checked={workforceAssistance === 'yes'}
+            onChange={() => setWorkforceAssistance('yes')}
+            required
+          />
+          Yes
+        </label>
+        <label style={{ display: 'inline-flex', gap: '0.35rem' }}>
+          <input
+            type="radio"
+            name="wa"
+            checked={workforceAssistance === 'no'}
+            onChange={() => setWorkforceAssistance('no')}
+            required
+          />
+          No
+        </label>
+      </fieldset>
+      <button type="submit" className="btn btn-primary" disabled={loading || workforceAssistance === ''}>
+        {loading ? 'Submitting…' : 'Submit & become interview eligible'}
+      </button>
+    </form>
+  );
+}

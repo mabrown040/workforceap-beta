@@ -5,7 +5,7 @@
 
 import { Resend } from 'resend';
 import { brandedEmailLayout } from '@/lib/email/template';
-import { sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
+import { escapeHtml, sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
 import {
   applicationAcceptedHtml,
   applicationRejectedHtml,
@@ -181,6 +181,49 @@ export async function sendApplicationRejectedEmail(params: {
 }
 
 /** Send new application admin alert */
+export async function sendPreScreeningReadyEmail(params: {
+  memberName?: string;
+  memberEmail: string;
+  goal: string;
+  weeklyHours: string;
+  barrierSummary: string;
+  memberId: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendPreScreeningReadyEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const name = params.memberName?.trim() || 'Member';
+  const bodyHtml = `
+    <p><strong>${escapeHtml(name)}</strong> completed pre-screening and is <strong>interview eligible</strong>.</p>
+    <ul>
+      <li><strong>Email:</strong> ${escapeHtml(params.memberEmail)}</li>
+      <li><strong>Primary goal:</strong> ${escapeHtml(params.goal)}</li>
+      <li><strong>Weekly time:</strong> ${escapeHtml(params.weeklyHours)}</li>
+      <li><strong>Barrier (preview):</strong> ${escapeHtml(params.barrierSummary)}</li>
+    </ul>
+  `;
+  const html = brandedEmailLayout({
+    title: 'Member ready for interview (pre-screening)',
+    bodyHtml,
+    ctaText: 'Open member in admin',
+    ctaUrl: `${SITE_URL}/admin/members/${encodeURIComponent(params.memberId)}`,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: ADMIN_EMAIL,
+      subject: sanitizeEmailSubjectLine(`Interview ready: ${name}`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendPreScreeningReadyEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
 export async function sendNewApplicationAdminEmail(params: {
   applicantName: string;
   applicantEmail: string;

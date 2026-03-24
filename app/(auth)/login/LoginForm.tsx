@@ -41,9 +41,17 @@ export default function LoginForm() {
 
   const destinationActive = (target: string) => {
     if (target === '/dashboard') {
-      return redirectParam == null || redirectParam === '' || redirectTo === '/dashboard';
+      if (
+        redirectTo === '/partner' ||
+        redirectTo.startsWith('/partner/') ||
+        redirectTo === '/employer' ||
+        redirectTo.startsWith('/employer/')
+      ) {
+        return false;
+      }
+      return true;
     }
-    return redirectTo === target;
+    return redirectTo === target || redirectTo.startsWith(`${target}/`);
   };
 
   const [email, setEmail] = useState('');

@@ -6,8 +6,8 @@ import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
-import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
-import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
+import { loadPartnerReferralBundle, toPartnerMembersListRows } from '@/lib/partner/referralBundle';
+import { PIPELINE_STAGE_LABELS } from '@/lib/pipeline/stage';
 import PartnerMembersList from '@/components/portal/PartnerMembersList';
 import PageHeader from '@/components/portal/PageHeader';
 
@@ -40,31 +40,7 @@ export default async function PartnerDashboardPage() {
   const refParam = partnerCodes?.referralCode ?? partnerCodes?.slug ?? ctx.partner.slug;
   const referralApplyUrl = `${applyLinkBase}/apply?ref=${encodeURIComponent(refParam)}`;
 
-  const referrals = await prisma.partnerReferral.findMany({
-    where: { partnerId: ctx.partnerId, member: { deletedAt: null } },
-    include: {
-      member: {
-        select: {
-          id: true,
-          fullName: true,
-          enrolledProgram: true,
-          enrolledAt: true,
-          coursesCompleted: true,
-          updatedAt: true,
-          deletedAt: true,
-          assessmentCompleted: true,
-          placementRecord: {
-            select: { employerName: true, jobTitle: true, salaryOffered: true, placedAt: true },
-          },
-          userCertifications: { select: { certName: true, earnedAt: true } },
-          applications: { select: { status: true, submittedAt: true } },
-        },
-      },
-    },
-    orderBy: { referredAt: 'desc' },
-  });
-
-  const members = referrals.map((r) => ({ ...r.member, referredAt: r.referredAt }));
+  const { members, pipelineMembers } = await loadPartnerReferralBundle(ctx.partnerId);
   const memberIds = members.map((m) => m.id);
 
   const events =
@@ -82,33 +58,10 @@ export default async function PartnerDashboardPage() {
     stageCounts[s] = 0;
   }
 
-  const pipelineMembers: { member: (typeof members)[0]; stage: string; progress: number; programTitle: string }[] = [];
-
-  for (const m of members) {
-    const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram) : null;
-    const student: PipelineStudent = {
-      id: m.id,
-      fullName: m.fullName,
-      email: '',
-      enrolledProgram: m.enrolledProgram,
-      enrolledAt: m.enrolledAt,
-      assessmentCompleted: m.assessmentCompleted,
-      coursesCompleted: m.coursesCompleted,
-      deletedAt: m.deletedAt,
-      placementRecord: m.placementRecord,
-      userCertifications: m.userCertifications,
-      applications: m.applications,
-    };
-    const stage = getPipelineStage(student);
-    if (stage !== 'closed') {
-      stageCounts[stage] = (stageCounts[stage] ?? 0) + 1;
+  for (const p of pipelineMembers) {
+    if (p.stage !== 'closed') {
+      stageCounts[p.stage] = (stageCounts[p.stage] ?? 0) + 1;
     }
-    pipelineMembers.push({
-      member: m,
-      stage,
-      progress: memberProgramProgressPct(m.enrolledProgram, m.coursesCompleted),
-      programTitle: program?.title ?? '—',
-    });
   }
 
   const placements = members.filter((m) => m.placementRecord).length;
@@ -246,31 +199,7 @@ export default async function PartnerDashboardPage() {
                 <h2>Who you referred and where they are now.</h2>
               </div>
             </div>
-            <PartnerMembersList
-              members={pipelineMembers.map(({ member: m, stage, progress, programTitle }) => {
-                const stageLabel = PIPELINE_STAGE_LABELS[stage as keyof typeof PIPELINE_STAGE_LABELS];
-                const story = m.placementRecord
-                  ? `Placed at ${m.placementRecord.employerName} as ${m.placementRecord.jobTitle}`
-                  : progress >= 100
-                    ? `Completed ${programTitle}`
-                    : progress > 0
-                      ? `${progress}% through ${programTitle}`
-                      : stage === 'enrolled'
-                        ? `Enrolled in ${programTitle}`
-                        : stageLabel;
-
-                return {
-                  id: m.id,
-                  fullName: m.fullName,
-                  stage,
-                  stageLabel,
-                  progress,
-                  programTitle,
-                  story,
-                  referredAtLabel: m.referredAt.toLocaleDateString(),
-                };
-              })}
-            />
+            <PartnerMembersList members={toPartnerMembersListRows(pipelineMembers)} />
           </section>
 
           <section className="partner-activity partner-panel">

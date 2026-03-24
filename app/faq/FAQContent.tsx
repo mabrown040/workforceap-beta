@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -82,78 +82,37 @@ export default function FAQContent() {
     <section className="content-section">
       <div className="container">
         {/* Last Updated Badge */}
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: '0.5rem', 
-          marginBottom: '1.5rem',
-          padding: '0.75rem 1rem',
-          background: '#f8f9fa',
-          borderRadius: '8px',
-          fontSize: '0.875rem',
-          color: '#666'
-        }}>
-          <Calendar size={16} />
+        <div className="faq-updated-badge">
+          <Calendar size={16} aria-hidden />
           <span>Last updated: March 20, 2026</span>
           <span style={{ marginLeft: 'auto' }}>
-            <Link href="/contact" style={{ color: '#ad2c4d', textDecoration: 'none' }}>
+            <Link href="/contact" style={{ color: 'var(--color-accent)', textDecoration: 'none' }}>
               Suggest an update →
             </Link>
           </span>
         </div>
 
         {/* Quick Links */}
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-          gap: '1rem',
-          marginBottom: '2.5rem' 
-        }}>
+        <div className="faq-quick-links">
           {quickLinks.map(({ title, href, icon: Icon }) => (
-            <Link 
-              key={href}
-              href={href}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem',
-                padding: '1rem 1.25rem',
-                background: 'white',
-                border: '1px solid #e5e5e5',
-                borderRadius: '10px',
-                textDecoration: 'none',
-                color: '#1a1a1a',
-                transition: 'all 0.2s',
-              }}
-            >
-              <Icon size={20} style={{ color: '#ad2c4d' }} />
+            <Link key={href} href={href} className="faq-quick-link">
+              <Icon size={20} style={{ color: 'var(--color-accent)' }} aria-hidden />
               <span style={{ fontWeight: 500 }}>{title}</span>
-              <ArrowRight size={16} style={{ marginLeft: 'auto', opacity: 0.5 }} />
+              <ArrowRight size={16} style={{ marginLeft: 'auto', opacity: 0.5 }} aria-hidden />
             </Link>
           ))}
         </div>
 
         {/* Category Tabs */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.5rem', marginBottom: '2.5rem' }}>
+        <div className="faq-category-tabs">
           {categories.map(({ key, Icon }) => (
             <button
               key={key}
+              type="button"
               onClick={() => setActiveCategory(key)}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                background: activeCategory === key ? '#ad2c4d' : '#f0f0f0',
-                color: activeCategory === key ? 'white' : '#1a1a1a',
-                border: 'none',
-                padding: '.6rem 1.2rem',
-                borderRadius: '50px',
-                fontSize: '.9rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
+              className={`faq-category-tab${activeCategory === key ? ' faq-category-tab--active' : ''}`}
             >
-              <Icon size={18} className="text-current" />
+              <Icon size={18} className="text-current" aria-hidden />
               {key}
             </button>
           ))}
@@ -166,8 +125,8 @@ export default function FAQContent() {
             className="faq-section"
             style={{ display: activeCategory === key ? 'block' : 'none' }}
           >
-            <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.3rem', fontWeight: 700, color: '#ad2c4d', marginBottom: '1.5rem', paddingBottom: '.75rem', borderBottom: '2px solid #f0f0f0' }}>
-              <Icon size={22} className="text-current" />
+            <h2 className="faq-section-heading">
+              <Icon size={22} className="text-current" aria-hidden />
               {key}
             </h2>
             <div className="faq-list">
@@ -199,11 +158,15 @@ export default function FAQContent() {
         ))}
 
         {/* CTA Section */}
-        <div style={{ background: 'linear-gradient(135deg,#1a1a1a,#2d2d2d)', color: 'white', borderRadius: '12px', padding: '3rem', textAlign: 'center', marginTop: '4rem' }}>
-          <h2 style={{ color: 'white', marginBottom: '.75rem' }}>Still have questions?</h2>
-          <p style={{ color: 'rgba(255,255,255,.8)', marginBottom: '1.5rem' }}>Our team responds within 24–48 hours — reach out any time.</p>
-          <Link href="/contact" className="btn btn-primary" style={{ marginRight: '1rem' }}>Contact Us</Link>
-          <Link href="/apply" className="btn" style={{ background: 'white', color: '#1a1a1a' }}>Apply Now</Link>
+        <div className="faq-bottom-cta">
+          <h2>Still have questions?</h2>
+          <p>Our team responds within 24–48 hours — reach out any time.</p>
+          <Link href="/contact" className="btn btn-primary" style={{ marginRight: '1rem' }}>
+            Contact Us
+          </Link>
+          <Link href="/apply" className="btn btn-on-dark-secondary">
+            Apply Now
+          </Link>
         </div>
       </div>
     </section>

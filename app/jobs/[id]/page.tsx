@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
@@ -35,7 +35,6 @@ async function getJob(id: string) {
 export default async function JobDetailPage({ params }: Props) {
   const user = await getUser();
   const { id } = await params;
-  if (!user) redirect(`/login?redirectTo=${encodeURIComponent(`/jobs/${id}`)}`);
 
   const job = await getJob(id);
   if (!job) notFound();
@@ -102,7 +101,7 @@ export default async function JobDetailPage({ params }: Props) {
             </div>
           )}
 
-          <JobApplyButton jobId={job.id} />
+          <JobApplyButton jobId={job.id} authenticated={!!user} />
         </div>
       </section>
       <Footer />

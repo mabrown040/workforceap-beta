@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
-export default function JobApplyButton({ jobId }: { jobId: string }) {
+export default function JobApplyButton({ jobId, authenticated = true }: { jobId: string; authenticated?: boolean }) {
   const [applying, setApplying] = useState(false);
   const [applied, setApplied] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,6 +34,25 @@ export default function JobApplyButton({ jobId }: { jobId: string }) {
     }
   }
 
+  if (!authenticated) {
+    return (
+      <div className="job-apply-guest">
+        <Link href={`/login?redirectTo=${encodeURIComponent(`/jobs/${jobId}`)}`} className="btn btn-primary btn-large">
+          Log in to apply
+        </Link>
+        <p style={{ marginTop: '0.75rem', fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>
+          You need a WorkforceAP member account to submit an application to this role.
+        </p>
+        <p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: 'var(--color-gray-500)' }}>
+          New here?{' '}
+          <Link href="/apply" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+            Start your application
+          </Link>
+        </p>
+      </div>
+    );
+  }
+
   if (applied) {
     return (
       <div
@@ -58,15 +77,7 @@ export default function JobApplyButton({ jobId }: { jobId: string }) {
   return (
     <div>
       {error && (
-        <div
-          style={{
-            padding: '0.75rem',
-            marginBottom: '1rem',
-            background: '#fee',
-            borderRadius: 'var(--radius-sm)',
-            color: '#c00',
-          }}
-        >
+        <div className="admin-error-banner" style={{ padding: '0.75rem', marginBottom: '1rem', borderRadius: 'var(--radius-sm)' }}>
           {error}
           {error === 'Please log in to apply.' && (
             <Link href={`/login?redirectTo=/jobs/${jobId}`} style={{ marginLeft: '0.5rem', textDecoration: 'underline' }}>

@@ -1,3 +1,54 @@
+# Sprint 10 â€” Dark mode fixes
+
+## Fix 1: Token remap on `html.dark` (not only `body`)
+
+`--color-primary` and the neutral scale are remapped on **`html.dark`** so every descendant (including portaled or nested trees) resolves the dark palette. Previously variables on `html.dark body` did not apply to arbitrary subtrees still inheriting `:root` `#1a1a1a` as text color.
+
+## Fix 2: `--color-gray-900`
+
+Added `--color-gray-900` in dark mode so `.blog-card-title` and similar patterns resolve to a light heading color.
+
+## Fix 3: Page coverage (CSS)
+
+`html.dark` overrides for:
+
+- Salary / comparison tables (header background, row hover, link color)
+- Salary guide intros / legends / mobile card program title
+- Program comparison decision guide panel
+- Active program filter chip (readable on dark)
+- Program card icon, skills pills, details panel
+- Blog listing cards (cover placeholder, category pill)
+- Markdown body on legal-style pages
+- Contact / apply form panels
+- Shared **admin** utility classes (`.admin-form-input`, `.admin-error-banner`, `.admin-blog-ai-section`, etc.)
+
+## Fix 4: TSX hardcoded colors
+
+- `ProgramsContent.tsx` â€” meta / footnote / partner line use `var(--color-gray-*)`
+- `BlogPostEditor.tsx`, `BlogAIClient.tsx` â€” admin utility classes + token borders
+- `AddMemberWizard.tsx`, `NewPartnerForm.tsx` â€” error banner class; inputs/hints; secondary buttons
+
+## Fix 5: Public `/jobs` landing
+
+- **`/jobs`** is a **public** marketing page: no login redirect; banner explains log in / apply to submit applications.
+- **`JobsListingClient`**: when logged out, job cards link to **`/login?redirectTo=/jobs/{id}`** instead of detail.
+- **`/jobs/[id]`**: public view of live jobs; **`JobApplyButton`** shows â€œLog in to applyâ€ when unauthenticated (apply API still requires auth).
+- **`css/main.css`**: `html.dark` rules scoped under `.jobs-listing` for cards, filters, drawer, empty states, plus `.jobs-public-cta` light + dark.
+
+## Fix 6: Viewport meta
+
+- Root layout exports Next.js **`viewport`** (`width=device-width`, `initialScale: 1`, `viewportFit: 'cover'`) so mobile scaling is explicit.
+
+## Note: `/program-comparison`
+
+Client-rendered (`ProgramComparisonClient`); static fetch tools without JS can look â€œemptyâ€ â€” not a runtime bug.
+
+## Verification
+
+```bash
+npx tsc --noEmit
+npm run build
+```
 # Sprint 10: Dark Mode + Light Mode UI/UX Bug Fixes
 
 Comprehensive visual audit fixes for both light and dark mode. All issues are from code review + pre-demo audit.
@@ -6,13 +57,13 @@ Comprehensive visual audit fixes for both light and dark mode. All issues are fr
 
 ## Category 1: Hardcoded Colors Breaking Dark Mode
 
-### Fix 1A: Programs page — hardcoded `color: '#666'` and `'#888'` in ProgramsContent.tsx
+### Fix 1A: Programs page â€” hardcoded `color: '#666'` and `'#888'` in ProgramsContent.tsx
 
 **File:** `app/programs/ProgramsContent.tsx`
 
 **Problem:** Two inline style hardcodes are invisible in dark mode:
 ```tsx
-// BAD — #666 and #888 disappear on dark backgrounds
+// BAD â€” #666 and #888 disappear on dark backgrounds
 <div className="program-card-meta-row" style={{ color: '#666' }}>
 <small style={{ color: '#888' }}>*Austin-area median based on industry data</small>
 ```
@@ -36,29 +87,29 @@ html.dark .programs-decision-cta { background: #1a1a1a; border-color: #333; colo
 html.dark .programs-decision-lead { color: #a0a0a0; }
 ```
 
-### Fix 1B: Admin Blog AI page — hardcoded colors
+### Fix 1B: Admin Blog AI page â€” hardcoded colors
 
 **File:** `app/admin/blog/ai/BlogAIClient.tsx`
 
-Replace all inline `color: '#666'`, `color: '#555'`, `color: '#888'` with `color: 'var(--color-gray-500)'` or use a CSS class. Also fix `color: '#c00'` → `color: 'var(--color-accent)'`.
+Replace all inline `color: '#666'`, `color: '#555'`, `color: '#888'` with `color: 'var(--color-gray-500)'` or use a CSS class. Also fix `color: '#c00'` â†’ `color: 'var(--color-accent)'`.
 
-### Fix 1C: Admin Blog Editor — hardcoded colors
+### Fix 1C: Admin Blog Editor â€” hardcoded colors
 
 **File:** `app/admin/blog/BlogPostEditor.tsx`
 
-Same pattern — replace `#666`, `#999`, `#444`, `#333`, `#555` with CSS vars or semantic classes. The blue `#2563eb` should be `var(--color-blue)`.
+Same pattern â€” replace `#666`, `#999`, `#444`, `#333`, `#555` with CSS vars or semantic classes. The blue `#2563eb` should be `var(--color-blue)`.
 
 ### Fix 1D: Program Resources page
 
 **File:** `app/(portal)/dashboard/resources/page.tsx`
 
-`color: '#999'` → `color: 'var(--color-gray-400)'`
+`color: '#999'` â†’ `color: 'var(--color-gray-400)'`
 
 ### Fix 1E: Resume client error messages
 
 **File:** `app/(portal)/dashboard/resume/ResumeClient.tsx`
 
-`color: '#c00'` → `color: 'var(--color-accent)'` (reuses crimson semantic color)
+`color: '#c00'` â†’ `color: 'var(--color-accent)'` (reuses crimson semantic color)
 
 ### Fix 1F: Admin member/partner new forms
 
@@ -66,7 +117,7 @@ Same pattern — replace `#666`, `#999`, `#444`, `#333`, `#555` with CSS vars or
 - `app/admin/members/new/AddMemberWizard.tsx`
 - `app/admin/partners/new/NewPartnerForm.tsx`
 
-Error banners: `background: '#fee', color: '#c00'` → use a semantic error class or CSS vars:
+Error banners: `background: '#fee', color: '#c00'` â†’ use a semantic error class or CSS vars:
 ```tsx
 style={{ background: 'var(--color-error-bg, #fee)', color: 'var(--color-accent)' }}
 ```
@@ -82,7 +133,7 @@ html.dark .error-banner { background: #2d1515; color: #ff8080; }
 
 ### Fix 2A: Programs page cards (`.program-card`)
 
-Already covered in Fix 1A above. The `.program-card` class has NO dark mode override — cards render with white background in dark mode.
+Already covered in Fix 1A above. The `.program-card` class has NO dark mode override â€” cards render with white background in dark mode.
 
 ### Fix 2B: Salary Guide page
 
@@ -170,16 +221,16 @@ This is the root fix that cascades to all elements using CSS variables.
 
 ## Category 4: UX Issues (Both Modes)
 
-### Fix 4A: Apply page — "Where we operate today" box
+### Fix 4A: Apply page â€” "Where we operate today" box
 
 **Verify** the fix from Sprint 9 landed. Check `css/main.css` for:
 ```css
 html.dark .apply-location-callout { ... }
 ```
-If it exists and has light-colored text + dark background → confirmed fixed.
-If missing → add it.
+If it exists and has light-colored text + dark background â†’ confirmed fixed.
+If missing â†’ add it.
 
-### Fix 4B: Apply page — step indicators pre-checked
+### Fix 4B: Apply page â€” step indicators pre-checked
 
 **Verify** from Sprint 9. The step progress bar for steps 2+3 should show as INACTIVE (gray/outlined) before the user reaches them. Look in `components/ApplyFormStatusBar.tsx` for the completion logic.
 
@@ -187,7 +238,7 @@ If missing → add it.
 
 **Verify** from Sprint 9. Search `app/programs/ProgramsContent.tsx` for the plural render logic. Ensure it's `${count} ${count === 1 ? 'course' : 'courses'}` with no line breaks.
 
-### Fix 4D: Find Your Path — add question counter ("1 of 5")
+### Fix 4D: Find Your Path â€” add question counter ("1 of 5")
 
 **File:** `app/find-your-path/FindYourPathClient.tsx`
 
@@ -197,7 +248,7 @@ The quiz shows a progress bar but no text counter. Add:
 ```
 Near the top of the quiz, below the progress bar. Style: `font-size: 0.875rem; color: var(--color-gray-500)`.
 
-### Fix 4E: Admin Job filter tabs — very low contrast
+### Fix 4E: Admin Job filter tabs â€” very low contrast
 
 **File:** `components/admin/AdminJobsFilterTabs.tsx`
 
@@ -210,32 +261,32 @@ html.dark .admin-filter-tabs .tab.active { color: var(--color-accent); border-co
 ---
 
 ## File Checklist
-- [ ] `app/programs/ProgramsContent.tsx` — replace hardcoded colors
-- [ ] `app/admin/blog/ai/BlogAIClient.tsx` — replace hardcoded colors
-- [ ] `app/admin/blog/BlogPostEditor.tsx` — replace hardcoded colors
-- [ ] `app/(portal)/dashboard/resources/page.tsx` — replace #999
-- [ ] `app/(portal)/dashboard/resume/ResumeClient.tsx` — replace #c00
-- [ ] `app/admin/members/new/AddMemberWizard.tsx` — error banner colors
-- [ ] `app/admin/partners/new/NewPartnerForm.tsx` — error banner colors
-- [ ] `css/main.css` — add `html.dark { }` CSS variable remap block
-- [ ] `css/main.css` — add dark overrides for: program-card, salary-guide, program-comparison, blog-card, contact-form, legal-page
+- [ ] `app/programs/ProgramsContent.tsx` â€” replace hardcoded colors
+- [ ] `app/admin/blog/ai/BlogAIClient.tsx` â€” replace hardcoded colors
+- [ ] `app/admin/blog/BlogPostEditor.tsx` â€” replace hardcoded colors
+- [ ] `app/(portal)/dashboard/resources/page.tsx` â€” replace #999
+- [ ] `app/(portal)/dashboard/resume/ResumeClient.tsx` â€” replace #c00
+- [ ] `app/admin/members/new/AddMemberWizard.tsx` â€” error banner colors
+- [ ] `app/admin/partners/new/NewPartnerForm.tsx` â€” error banner colors
+- [ ] `css/main.css` â€” add `html.dark { }` CSS variable remap block
+- [ ] `css/main.css` â€” add dark overrides for: program-card, salary-guide, program-comparison, blog-card, contact-form, legal-page
 - [ ] Verify: `apply-location-callout` dark mode (Sprint 9)
 - [ ] Verify: apply step indicators (Sprint 9)
 - [ ] Verify: plural string fix (Sprint 9)
-- [ ] `app/find-your-path/FindYourPathClient.tsx` — add "X of Y" quiz counter
-- [ ] `components/admin/AdminJobsFilterTabs.tsx` — contrast fix
+- [ ] `app/find-your-path/FindYourPathClient.tsx` â€” add "X of Y" quiz counter
+- [ ] `components/admin/AdminJobsFilterTabs.tsx` â€” contrast fix
 
 ## Quality Bar
 - `npx tsc --noEmit` must pass
-- Test toggle: switch dark ↔ light on each page — no flash of invisible text
+- Test toggle: switch dark â†” light on each page â€” no flash of invisible text
 - No new external dependencies
 - CSS changes only in `css/main.css` (no new files)
 
 ---
 
-## Category 5: UX � Public Pages
+## Category 5: UX — Public Pages
 
-### Fix 5A: /jobs page � add explanation for unauthenticated visitors
+### Fix 5A: /jobs page — add explanation for unauthenticated visitors
 
 **Problem:** Public users clicking "Jobs" in the nav are silently redirected to the login page with no explanation. This kills trust.
 
@@ -251,7 +302,7 @@ html.dark .admin-filter-tabs .tab.active { color: var(--color-accent); border-co
   <section className="content-section">
     <div className="container" style={{ maxWidth: '600px', textAlign: 'center' }}>
       <p style={{ fontSize: '1.125rem', marginBottom: '1.5rem', color: 'var(--color-gray-600)' }}>
-        Our job board features curated roles from Austin employer partners � matched to your program and skills.
+        Our job board features curated roles from Austin employer partners — matched to your program and skills.
         Enroll to access job listings, apply to openings, and get AI-powered career matching.
       </p>
       <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -266,9 +317,9 @@ html.dark .admin-filter-tabs .tab.active { color: var(--color-accent); border-co
 </div>
 `
 
-Check pp/jobs/page.tsx � if it already calls getUser() and redirects on null, replace the redirect with the landing page content above.
+Check pp/jobs/page.tsx — if it already calls getUser() and redirects on null, replace the redirect with the landing page content above.
 
-### Fix 5B: Viewport meta tag � verify it exists
+### Fix 5B: Viewport meta tag — verify it exists
 
 **Check:** In pp/layout.tsx, confirm Next.js is outputting the viewport meta tag. Next.js 13+ adds it automatically if metadata.viewport is set.
 

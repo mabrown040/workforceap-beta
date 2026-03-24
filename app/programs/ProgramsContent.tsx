@@ -53,7 +53,10 @@ function ProgramCard({ program }: { program: Program }) {
         </p>
       )}
       <div style={{ marginBottom: '.75rem' }}>
-        <div className="program-card-meta-row" style={{ display: 'flex', gap: '1rem', fontSize: '.85rem', color: '#666' }}>
+        <div
+          className="program-card-meta-row"
+          style={{ display: 'flex', gap: '1rem', fontSize: '.85rem', color: 'var(--color-gray-600)' }}
+        >
           <span>⏱ {program.duration}</span>
           <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Starting range: {salaryRangeDisplay(program)}</span>
         </div>
@@ -62,7 +65,9 @@ function ProgramCard({ program }: { program: Program }) {
             <strong>Roles:</strong> {extra.jobOutcomes.join(' · ')}
           </p>
         )}
-        <small style={{ display: 'block', fontSize: '.75rem', color: '#888', marginTop: '.25rem' }}>*Austin-area median based on industry data</small>
+        <small style={{ display: 'block', fontSize: '.75rem', color: 'var(--color-gray-500)', marginTop: '.25rem' }}>
+          *Austin-area median based on industry data
+        </small>
       </div>
       {nonEmptySkills.length > 0 ? (
         <div style={{ marginBottom: '1rem', display: 'flex', flexWrap: 'wrap', gap: '.35rem' }}>
@@ -100,12 +105,12 @@ function ProgramCard({ program }: { program: Program }) {
         </div>
       ) : null}
       <details style={{ marginBottom: '1rem' }} open={open} onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
-        <summary style={{ cursor: 'pointer', fontWeight: 600, fontSize: '.9rem', color: '#1a1a1a' }}>
+        <summary className="program-card-courses-summary">
           {open ? 'Hide' : 'View'} {count} {count === 1 ? 'course' : 'courses'}
         </summary>
-        <ul style={{ listStyle: 'none', padding: '.75rem 0 0', margin: 0 }}>
+        <ul className="program-card-courses-list">
           {program.courses.map((c) => (
-            <li key={c.slug} style={{ fontSize: '.85rem', color: '#555', padding: '.3rem 0', borderBottom: '1px solid #f0f0f0' }}>{c.name}</li>
+            <li key={c.slug}>{c.name}</li>
           ))}
         </ul>
       </details>
@@ -113,7 +118,7 @@ function ProgramCard({ program }: { program: Program }) {
         className="program-card-footer"
         style={{ display: 'flex', flexWrap: 'wrap', gap: '.5rem', justifyContent: 'space-between', alignItems: 'center' }}
       >
-        <span style={{ fontSize: '.8rem', color: '#888' }}>Partner: {program.partner}</span>
+        <span style={{ fontSize: '.8rem', color: 'var(--color-gray-500)' }}>Partner: {program.partner}</span>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.5rem' }}>
           <Link href={`/programs/${program.slug}`} className="btn btn-outline" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>
             View Program

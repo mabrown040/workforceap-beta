@@ -216,7 +216,7 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
       </div>
 
       {error && (
-        <div style={{ padding: '0.75rem', marginBottom: '1rem', background: '#fee', borderRadius: '6px', color: '#c00' }}>
+        <div className="admin-error-banner" style={{ padding: '0.75rem', marginBottom: '1rem', borderRadius: '6px' }}>
           {error}
         </div>
       )}

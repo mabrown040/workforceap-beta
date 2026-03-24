@@ -110,10 +110,7 @@ body.mobile-nav-open {
 body.homepage { background: var(--color-primary); }
 
 /* Dark mode — class on <html> (ThemeToggle + ThemeInitScript). Uses localStorage key wa_color_mode (same as WorkforceAP app for cross-surface preference when both are deployed). */
-html.dark body {
-    background: #0f1114;
-    color: #e5e7eb;
-}
+/* Token remap lives on html.dark so every subtree (not only body) resolves remapped vars — fixes components that inherited :root --color-primary (#1a1a1a) on dark surfaces. */
 html.dark body.homepage {
     background: #0b0d10;
 }
@@ -236,6 +233,38 @@ html.dark .inner-page {
 }
 html.dark .page-hero p {
     color: rgba(255, 255, 255, 0.95);
+}
+/* Dark site mode remaps --color-white to a dark surface; keep real white on intentional dark bands. */
+html.dark .page-hero,
+html.dark .page-hero h1 {
+    color: #ffffff;
+}
+html.dark .btn-hero-ghost,
+html.dark .btn-hero-ghost:hover {
+    color: #ffffff;
+}
+html.dark .main-footer .footer-brand h3,
+html.dark .main-footer .footer-col h3,
+html.dark .main-footer .footer-links h4,
+html.dark .main-footer .footer-col h4 {
+    color: #ffffff;
+}
+html.dark .legacy-section,
+html.dark .legacy-section h2 {
+    color: #ffffff;
+}
+html.dark .process-final,
+html.dark .process-final .step-content h3,
+html.dark .process-final .step-content p {
+    color: #ffffff;
+}
+html.dark .blog-cta-card,
+html.dark .blog-cta-card h3 {
+    color: #ffffff;
+}
+html.dark .blog-cta-buttons .btn-accent,
+html.dark .blog-cta-buttons .btn-ghost {
+    color: #ffffff;
 }
 html.dark .apply-location-callout,
 html.dark .apply-eligibility-note.apply-location-callout {
@@ -534,8 +563,6 @@ img { max-width: 100%; height: auto; display: block; }
    ============================================= */
 html.dark {
     color-scheme: dark;
-}
-html.dark body {
     --color-primary: #f3f4f6;
     --color-white: #121417;
     --color-light: #161a1f;
@@ -548,7 +575,10 @@ html.dark body {
     --color-gray-600: #b8bec8;
     --color-gray-700: #d1d5db;
     --color-gray-800: #e5e7eb;
+    --color-gray-900: #f1f5f9;
     --color-border: #2d3540;
+}
+html.dark body {
     color: var(--color-primary);
     background: var(--color-white);
 }
@@ -627,6 +657,244 @@ html.dark .section-intro {
 html.dark .section-subtitle {
     color: var(--color-gray-500);
 }
+
+/* Sprint 10 — marketing / inner pages: tables, program cards, blog, contact, legal prose */
+html.dark .salary-table th,
+html.dark .comparison-table th {
+    background: #1a1f27;
+    color: #f9fafb;
+}
+html.dark .salary-table td,
+html.dark .comparison-table td {
+    border-bottom-color: var(--color-gray-200);
+    color: var(--color-gray-600);
+}
+html.dark .salary-table tr:nth-child(even) td,
+html.dark .comparison-table tr:nth-child(even) td {
+    background: var(--color-gray-50);
+}
+html.dark .salary-table tr:hover td,
+html.dark .comparison-table tr:hover td {
+    background: rgba(173, 44, 77, 0.12);
+}
+html.dark .comparison-table td a {
+    color: #fda4af;
+}
+html.dark .salary-guide-table-intro,
+html.dark .salary-guide-stat-sub {
+    color: var(--color-gray-500);
+}
+html.dark .salary-guide-ramp-legend {
+    color: var(--color-gray-500);
+}
+html.dark .salary-guide-card__program {
+    color: var(--color-gray-800);
+}
+html.dark .program-comparison-decision-guide {
+    background: #161a1f;
+    border-color: var(--color-border);
+}
+html.dark .program-comparison-guide-title {
+    color: var(--color-gray-800);
+}
+html.dark .filter-chip.active {
+    background: #e5e7eb;
+    color: #111827;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+}
+html.dark .program-card-icon {
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+html.dark .program-card-skills span {
+    background: linear-gradient(180deg, #222830, #1a1f26) !important;
+    border-color: var(--color-gray-200);
+    color: var(--color-gray-700);
+}
+html.dark .program-card-details {
+    background: linear-gradient(180deg, #1a1f26, #161a1f);
+    border-color: var(--color-gray-200);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+html.dark .blog-card-cover {
+    background: #222830;
+}
+html.dark .blog-card-category {
+    background: #161a1f;
+    color: var(--color-accent);
+}
+html.dark .markdown-body h1,
+html.dark .markdown-body h2,
+html.dark .markdown-body h3 {
+    color: var(--color-gray-800);
+}
+html.dark .markdown-body p,
+html.dark .markdown-body li {
+    color: var(--color-gray-600);
+}
+html.dark .markdown-body th {
+    background: var(--color-gray-100);
+    color: var(--color-gray-800);
+}
+html.dark .contact-form,
+html.dark .apply-form {
+    background: var(--color-light);
+    border-color: var(--color-border);
+}
+
+/* Public job board (/jobs) — filters, drawer, cards, empty states */
+html.dark .job-filters-toggle {
+    background: var(--color-gray-100);
+    border-color: var(--color-gray-300);
+    color: var(--color-primary);
+}
+html.dark .job-filters-toggle:hover {
+    background: var(--color-gray-200);
+}
+html.dark .job-filter-select,
+html.dark .job-filter-input,
+html.dark .job-search-input {
+    background: #161a1f;
+    border-color: var(--color-gray-300);
+    color: var(--color-primary);
+}
+html.dark .job-filter-label,
+html.dark .job-filter-hint,
+html.dark .job-count,
+html.dark .job-loading {
+    color: var(--color-gray-500);
+}
+html.dark .job-filter-clear {
+    border-color: var(--color-gray-300);
+    color: var(--color-gray-600);
+}
+html.dark .job-filters-drawer-inner {
+    background: #161a1f;
+    border-left: 1px solid var(--color-border);
+    box-shadow: -8px 0 24px rgba(0, 0, 0, 0.45);
+}
+html.dark .job-filters-drawer-header h3 {
+    color: var(--color-gray-800);
+}
+html.dark .job-filters-drawer-close {
+    color: var(--color-gray-600);
+}
+html.dark .job-filters-drawer-close:hover {
+    color: var(--color-gray-800);
+}
+html.dark .jobs-listing .job-card {
+    background: #161a1f;
+    border-color: var(--color-gray-200);
+}
+html.dark .jobs-listing .job-card:hover {
+    border-color: var(--color-gray-400);
+    box-shadow: var(--shadow-md);
+}
+html.dark .jobs-listing .job-card:focus-visible {
+    box-shadow: 0 0 0 2px #0f1114, 0 0 0 4px var(--color-accent);
+}
+html.dark .jobs-listing .job-card__logo {
+    background: var(--color-gray-100);
+}
+html.dark .jobs-empty-state {
+    background: var(--color-gray-50);
+    border-color: var(--color-gray-300);
+}
+html.dark .jobs-empty-state__title {
+    color: var(--color-gray-800);
+}
+html.dark .jobs-empty-state__text {
+    color: var(--color-gray-600);
+}
+html.dark .jobs-empty-state .btn-ghost {
+    border-color: rgba(255, 255, 255, 0.25);
+    color: #f9fafb;
+}
+html.dark .jobs-empty-state .btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+.jobs-public-cta {
+    background: var(--color-gray-50);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.25rem;
+    color: var(--color-gray-700);
+}
+html.dark .jobs-public-cta {
+    background: var(--color-gray-50);
+    border-color: var(--color-border);
+    color: var(--color-gray-700);
+}
+
+/* Admin: shared surfaces (inline forms still use many hex colors in TSX) */
+.admin-form-panel {
+    border: 1px solid var(--color-gray-200);
+    background: var(--color-light);
+}
+.admin-blog-ai-section {
+    border: 1px solid var(--color-gray-200);
+    background: var(--color-light);
+}
+html.dark .admin-form-panel,
+html.dark .admin-blog-ai-section {
+    border-color: var(--color-border) !important;
+    background: var(--color-light) !important;
+}
+html.dark .admin-blog-ai-section p,
+html.dark .admin-form-hint {
+    color: var(--color-gray-500) !important;
+}
+html.dark .admin-form-input,
+html.dark .admin-blog-ai-section textarea {
+    background: #161a1f !important;
+    border-color: var(--color-gray-300) !important;
+    color: var(--color-primary) !important;
+}
+html.dark .admin-error-banner {
+    background: rgba(220, 38, 38, 0.18) !important;
+    color: #fecaca !important;
+    border: 1px solid rgba(248, 113, 113, 0.35);
+}
+html.dark .admin-suggestion-card {
+    background: #161a1f !important;
+    border-color: var(--color-border) !important;
+}
+html.dark .admin-suggestion-card h3,
+html.dark .admin-suggestion-card h4 {
+    color: var(--color-gray-800) !important;
+}
+html.dark .admin-topic-pill {
+    background: var(--color-gray-200) !important;
+    color: var(--color-gray-800) !important;
+}
+html.dark .admin-muted-text {
+    color: var(--color-gray-500) !important;
+}
+html.dark .admin-body-text {
+    color: var(--color-gray-600) !important;
+}
+html.dark .admin-subtle-text {
+    color: var(--color-gray-500) !important;
+}
+html.dark .admin-ghost-button {
+    background: transparent !important;
+    border-color: var(--color-gray-300) !important;
+    color: var(--color-primary) !important;
+}
+html.dark .admin-secondary-button {
+    background: var(--color-gray-100) !important;
+    color: var(--color-primary) !important;
+    border-color: var(--color-gray-300) !important;
+}
+html.dark .admin-ai-panel {
+    background: var(--color-light) !important;
+    border-color: var(--color-border) !important;
+}
+html.dark .admin-preview-placeholder {
+    color: var(--color-gray-500) !important;
+}
+
 html.dark .footer-cta {
     background: #0b0d10;
     color: #f9fafb;
@@ -1336,6 +1604,46 @@ html.dark .homepage .hero-overlay {
         radial-gradient(ellipse at 20% 80%, rgba(164,127,56,0.1) 0%, transparent 52%),
         radial-gradient(ellipse at 80% 20%, rgba(173,44,77,0.08) 0%, transparent 52%);
 }
+/* Site dark mode inverts --color-white to a dark gray; hero sits on a photo and must stay true white. */
+html.dark .homepage .hero {
+    color: #ffffff;
+}
+html.dark .homepage .hero-title {
+    color: #ffffff;
+}
+html.dark .homepage .hero-subtitle {
+    color: rgba(255, 255, 255, 0.95);
+}
+html.dark .homepage .hero-no-cost-badge {
+    color: #ffffff;
+}
+html.dark .homepage .trust-strip {
+    color: rgba(255, 255, 255, 0.92);
+}
+html.dark .homepage .hero .btn-accent,
+html.dark .homepage .hero a.btn-accent {
+    color: #ffffff;
+}
+html.dark .homepage .hero .btn-ghost,
+html.dark .homepage .hero a.btn-ghost {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.35);
+}
+html.dark .homepage .trust-logos img {
+    filter: brightness(0) invert(1);
+    opacity: 0.92;
+}
+html.dark .homepage .trust-logos img:hover {
+    filter: brightness(0) invert(1);
+    opacity: 1;
+}
+html.dark .homepage .stats-bar .stat {
+    color: #ffffff;
+}
+html.dark .homepage .hero-badge {
+    color: #ffffff;
+}
+
 .hero-container {
     position: relative;
     z-index: 1;
@@ -2028,6 +2336,26 @@ a.btn-accent:hover {
     font-size: 0.8rem;
     color: var(--color-gray-600);
     margin: 0.25rem 0 0.5rem;
+}
+.program-card-courses-summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--color-primary);
+}
+.program-card-courses-list {
+    list-style: none;
+    padding: 0.75rem 0 0;
+    margin: 0;
+}
+.program-card-courses-list li {
+    font-size: 0.85rem;
+    color: var(--color-gray-600);
+    padding: 0.3rem 0;
+    border-bottom: 1px solid var(--color-gray-200);
+}
+html.dark .program-card-courses-list li {
+    border-bottom-color: #2d3540;
 }
 .programs-decision-cta {
     margin-top: 1rem;
@@ -4203,6 +4531,119 @@ fieldset.apply-fieldset {
     color: var(--color-gray-600);
     line-height: 1.8;
     font-size: 0.9375rem;
+}
+html.dark .faq-item[open] {
+    background: var(--color-gray-50);
+}
+
+/* FAQ page (/faq) — inline layout blocks use tokens so dark mode stays readable */
+.faq-updated-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem;
+    background: var(--color-gray-50);
+    border: 1px solid var(--color-gray-200);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: var(--color-gray-600);
+}
+html.dark .faq-updated-badge {
+    background: #161a1f;
+    border-color: #2d3540;
+    color: #94a3b8;
+}
+.faq-quick-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+}
+.faq-quick-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--color-primary);
+    transition: background 0.2s, border-color 0.2s;
+}
+.faq-quick-link:hover {
+    border-color: var(--color-accent);
+}
+html.dark .faq-quick-link {
+    background: #161a1f;
+    color: #e5e7eb;
+}
+.faq-category-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2.5rem;
+}
+.faq-category-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--color-gray-200);
+    color: var(--color-primary);
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+.faq-category-tab--active {
+    background: var(--color-accent);
+    color: #ffffff;
+}
+html.dark .faq-category-tab:not(.faq-category-tab--active) {
+    background: #222830;
+    color: #e5e7eb;
+}
+.faq-section-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--color-accent);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--color-gray-200);
+}
+html.dark .faq-section-heading {
+    border-bottom-color: #2d3540;
+}
+.faq-bottom-cta {
+    background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+    color: #ffffff;
+    border-radius: 12px;
+    padding: 3rem;
+    text-align: center;
+    margin-top: 4rem;
+}
+.faq-bottom-cta h2 {
+    color: #ffffff;
+    margin-bottom: 0.75rem;
+}
+.faq-bottom-cta > p {
+    color: rgba(255, 255, 255, 0.85);
+    margin-bottom: 1.5rem;
+}
+.faq-bottom-cta .btn-on-dark-secondary {
+    background: #ffffff;
+    color: #111827;
+    border: none;
+}
+.faq-bottom-cta .btn-on-dark-secondary:hover {
+    background: #f3f4f6;
+    color: #111827;
 }
 
 /* =============================================

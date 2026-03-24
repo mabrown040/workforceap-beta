@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { BookOpen, Calendar, BarChart3, Target, PartyPopper, ChevronRight } from 'lucide-react';
+import { BookOpen, Calendar, BarChart3, Target, PartyPopper, ChevronRight, CheckCircle2, Circle } from 'lucide-react';
 import { MEMBER_APPLICATION_PROGRESS_STEPS } from '@/lib/member/memberApplicationStatus';
 import { trackFunnelEvent } from '@/lib/analytics/events';
 import { postMemberEvent } from '@/lib/events/client';
@@ -411,11 +411,20 @@ export default function DashboardHomeClient({
         <details className="dashboard-checklist-collapsed">
           <summary>Onboarding checklist</summary>
           <ul>
-            <li>{checklist.createAccount ? '✅' : '⬜'} Create account</li>
-            <li>{checklist.chooseProgram ? '✅' : '⬜'} Choose program</li>
-            <li>{checklist.completeAssessment ? '✅' : '⬜'} Complete assessment</li>
-            <li>{checklist.startFirstCourse ? '✅' : '⬜'} Start first course</li>
-            <li>{checklist.completeFirstCourse ? '✅' : '⬜'} Complete first course</li>
+            {([
+              { done: checklist.createAccount, label: 'Create account' },
+              { done: checklist.chooseProgram, label: 'Choose program' },
+              { done: checklist.completeAssessment, label: 'Complete assessment' },
+              { done: checklist.startFirstCourse, label: 'Start first course' },
+              { done: checklist.completeFirstCourse, label: 'Complete first course' },
+            ] as { done: boolean; label: string }[]).map(({ done, label }) => (
+              <li key={label} style={{ color: done ? 'var(--color-gray-500)' : 'var(--color-primary)' }}>
+                {done
+                  ? <CheckCircle2 size={15} style={{ color: 'var(--color-green)', flexShrink: 0 }} aria-hidden />
+                  : <Circle size={15} style={{ color: 'var(--color-gray-300)', flexShrink: 0 }} aria-hidden />}
+                <span style={{ textDecoration: done ? 'line-through' : 'none' }}>{label}</span>
+              </li>
+            ))}
           </ul>
         </details>
       )}

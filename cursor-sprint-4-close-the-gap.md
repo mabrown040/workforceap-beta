@@ -188,6 +188,27 @@ Read `lib/portal/workflowEvents.ts` and `app/(portal)/partner/milestones/page.ts
 
 ---
 
+## P4 — Member-Only Job Board
+
+### P4-1: Gate /jobs to logged-in members only
+**Problem:** The `/jobs` page is currently public. Job postings should only be visible to accepted/enrolled WorkforceAP members. This creates a value incentive to apply and enroll, and prevents employers' job postings from being scraped publicly.
+
+**Fix:**
+1. In `app/jobs/page.tsx` (server component): check auth with `getUser()`. If no session, redirect to `/login?redirectTo=/jobs`.
+2. In `middleware.ts`: add `/jobs` and `/jobs/[id]` to the protected routes array (same pattern as `/dashboard`, `/employer`, `/partner`).
+3. On `app/page.tsx` homepage — update the jobs board section/CTA. Instead of linking directly to `/jobs`, show: *"Exclusive job opportunities for WorkforceAP members — [Apply now to access →](/apply)"*. This turns the private job board into a conversion tool.
+4. On `app/employers/page.tsx` — update copy in the job postings section to say: *"Job postings are shared exclusively with WorkforceAP members"* (emphasizes the quality audience to employers).
+5. Do NOT remove the `/jobs` page — just gate it. The page still exists for authenticated members.
+
+**Commit:** `feat(jobs): gate /jobs to authenticated members only — redirect unauthenticated visitors to login`
+
+**Test:**
+- Unauthenticated `GET /jobs` → redirects to `/login?redirectTo=/jobs`
+- Authenticated member → `/jobs` loads normally
+- Homepage CTA updated — no broken links
+
+---
+
 ## Definition of Done
 
 1. `npm run build` passes with zero errors
@@ -198,7 +219,8 @@ Read `lib/portal/workflowEvents.ts` and `app/(portal)/partner/milestones/page.ts
 6. `/platform` page exists and is in sitemap
 7. Admin can mark a member as placed and see the count on the admin dashboard
 8. Partner self-registration form exists at `/partner-signup`
-9. All new features have at least one test
+9. `/jobs` page requires login — unauthenticated visitors are redirected to `/login?redirectTo=/jobs`
+10. All new features have at least one test
 
 ---
 

@@ -37,6 +37,7 @@ model Organization {
   jobs           Job[]
   programCatalog OrganizationProgramCatalog[]
   preScreenings  PreScreeningResponse[]
+  courseEnrollments CourseEnrollment[]
 
   @@map("organizations")
 }
@@ -115,6 +116,8 @@ model User {
   messageThreadsAsCounselor MessageThread[] @relation("CounselorMessageThreads")
   messagesAuthored          Message[]
   preScreeningResponse      PreScreeningResponse?
+  courseEnrollment          CourseEnrollment?
+  adminCourseEnrollments    CourseEnrollment[] @relation("AdminCourseEnrollments")
 
   @@index([organizationId])
   @@map("users")
@@ -999,6 +1002,8 @@ model OrganizationProgramCatalog {
   status           String   @default("active")
   displayOrder     Int      @default(0) @map("display_order")
   featured         Boolean  @default(false)
+  programStartDate DateTime? @map("program_start_date") @db.Date
+  programEndDate   DateTime? @map("program_end_date") @db.Date
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
 
@@ -1007,6 +1012,25 @@ model OrganizationProgramCatalog {
   @@unique([organizationId, programSlug])
   @@index([organizationId, displayOrder])
   @@map("organization_program_catalog")
+}
+
+// One row per member enrollment (mirrors User.enrolledProgram); enrolledByAdminId skips self-serve profile gate.
+model CourseEnrollment {
+  id                 String   @id @default(uuid())
+  organizationId     String   @map("organization_id")
+  userId             String   @unique @map("user_id")
+  programSlug        String   @map("program_slug")
+  enrolledAt         DateTime @default(now()) @map("enrolled_at")
+  enrolledByAdminId  String?  @map("enrolled_by_admin_id")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  enrolledByAdmin  User?        @relation("AdminCourseEnrollments", fields: [enrolledByAdminId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@map("course_enrollments")
 }
 
 model PreScreeningResponse {

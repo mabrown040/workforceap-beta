@@ -742,6 +742,91 @@ html.dark .apply-form {
     border-color: var(--color-border);
 }
 
+/* Public job board (/jobs) — filters, drawer, cards, empty states */
+html.dark .job-filters-toggle {
+    background: var(--color-gray-100);
+    border-color: var(--color-gray-300);
+    color: var(--color-primary);
+}
+html.dark .job-filters-toggle:hover {
+    background: var(--color-gray-200);
+}
+html.dark .job-filter-select,
+html.dark .job-filter-input,
+html.dark .job-search-input {
+    background: #161a1f;
+    border-color: var(--color-gray-300);
+    color: var(--color-primary);
+}
+html.dark .job-filter-label,
+html.dark .job-filter-hint,
+html.dark .job-count,
+html.dark .job-loading {
+    color: var(--color-gray-500);
+}
+html.dark .job-filter-clear {
+    border-color: var(--color-gray-300);
+    color: var(--color-gray-600);
+}
+html.dark .job-filters-drawer-inner {
+    background: #161a1f;
+    border-left: 1px solid var(--color-border);
+    box-shadow: -8px 0 24px rgba(0, 0, 0, 0.45);
+}
+html.dark .job-filters-drawer-header h3 {
+    color: var(--color-gray-800);
+}
+html.dark .job-filters-drawer-close {
+    color: var(--color-gray-600);
+}
+html.dark .job-filters-drawer-close:hover {
+    color: var(--color-gray-800);
+}
+html.dark .jobs-listing .job-card {
+    background: #161a1f;
+    border-color: var(--color-gray-200);
+}
+html.dark .jobs-listing .job-card:hover {
+    border-color: var(--color-gray-400);
+    box-shadow: var(--shadow-md);
+}
+html.dark .jobs-listing .job-card:focus-visible {
+    box-shadow: 0 0 0 2px #0f1114, 0 0 0 4px var(--color-accent);
+}
+html.dark .jobs-listing .job-card__logo {
+    background: var(--color-gray-100);
+}
+html.dark .jobs-empty-state {
+    background: var(--color-gray-50);
+    border-color: var(--color-gray-300);
+}
+html.dark .jobs-empty-state__title {
+    color: var(--color-gray-800);
+}
+html.dark .jobs-empty-state__text {
+    color: var(--color-gray-600);
+}
+html.dark .jobs-empty-state .btn-ghost {
+    border-color: rgba(255, 255, 255, 0.25);
+    color: #f9fafb;
+}
+html.dark .jobs-empty-state .btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+.jobs-public-cta {
+    background: var(--color-gray-50);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.25rem;
+    color: var(--color-gray-700);
+}
+html.dark .jobs-public-cta {
+    background: var(--color-gray-50);
+    border-color: var(--color-border);
+    color: var(--color-gray-700);
+}
+
 /* Admin: shared surfaces (inline forms still use many hex colors in TSX) */
 .admin-form-panel {
     border: 1px solid var(--color-gray-200);

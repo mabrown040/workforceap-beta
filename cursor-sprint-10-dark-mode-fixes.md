@@ -28,6 +28,21 @@ Added `--color-gray-900` in dark mode so `.blog-card-title` and similar patterns
 - `BlogPostEditor.tsx`, `BlogAIClient.tsx` — admin utility classes + token borders
 - `AddMemberWizard.tsx`, `NewPartnerForm.tsx` — error banner class; inputs/hints; secondary buttons
 
+## Fix 5: Public `/jobs` landing
+
+- **`/jobs`** is a **public** marketing page: no login redirect; banner explains log in / apply to submit applications.
+- **`JobsListingClient`**: when logged out, job cards link to **`/login?redirectTo=/jobs/{id}`** instead of detail.
+- **`/jobs/[id]`**: public view of live jobs; **`JobApplyButton`** shows “Log in to apply” when unauthenticated (apply API still requires auth).
+- **`css/main.css`**: `html.dark` rules scoped under `.jobs-listing` for cards, filters, drawer, empty states, plus `.jobs-public-cta` light + dark.
+
+## Fix 6: Viewport meta
+
+- Root layout exports Next.js **`viewport`** (`width=device-width`, `initialScale: 1`, `viewportFit: 'cover'`) so mobile scaling is explicit.
+
+## Note: `/program-comparison`
+
+Client-rendered (`ProgramComparisonClient`); static fetch tools without JS can look “empty” — not a runtime bug.
+
 ## Verification
 
 ```bash

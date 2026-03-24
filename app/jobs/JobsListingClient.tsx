@@ -58,12 +58,15 @@ function JobCardSkeleton() {
   );
 }
 
-function JobCard({ job }: { job: Job }) {
+function JobCard({ job, isAuthenticated }: { job: Job; isAuthenticated: boolean }) {
   const locationDisplay = job.location ?? LOCATION_LABELS[job.locationType] ?? job.locationType;
   const salaryStr = formatSalary(job.salaryMin, job.salaryMax);
 
   return (
-    <Link href={`/jobs/${job.id}`} className="job-card">
+    <Link
+      href={isAuthenticated ? `/jobs/${job.id}` : `/login?redirectTo=${encodeURIComponent(`/jobs/${job.id}`)}`}
+      className="job-card"
+    >
       <div className="job-card__logo">
         {job.employer.logoUrl ? (
           <img
@@ -149,7 +152,7 @@ function JobsNoResultsState() {
   );
 }
 
-export default function JobsListingClient() {
+export default function JobsListingClient({ isAuthenticated = true }: { isAuthenticated?: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -433,7 +436,7 @@ export default function JobsListingClient() {
           </p>
           <div className="jobs-grid">
             {jobs.map((j) => (
-              <JobCard key={j.id} job={j} />
+              <JobCard key={j.id} job={j} isAuthenticated={isAuthenticated} />
             ))}
           </div>
         </>

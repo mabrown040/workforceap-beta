@@ -8,6 +8,14 @@ const Turnstile = dynamic(() => import('@marsidev/react-turnstile').then((m) => 
 const CAPTCHA_ENABLED = process.env.NEXT_PUBLIC_CAPTCHA_ENABLED === 'true';
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
+const HIRE_VOLUME = [
+  { value: '', label: 'Select…' },
+  { value: '1-2', label: '1–2' },
+  { value: '3-5', label: '3–5' },
+  { value: '6-10', label: '6–10' },
+  { value: '10+', label: '10+' },
+];
+
 export default function EmployerContactForm() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -23,18 +31,24 @@ export default function EmployerContactForm() {
     }
     const form = e.currentTarget;
     const formData = new FormData(form);
-    const name = String(formData.get('name') || '').trim();
-    const nameParts = name.split(/\s+/).filter(Boolean);
-    const first_name = nameParts[0] || name;
+    const contactName = String(formData.get('contact_name') || '').trim();
+    const nameParts = contactName.split(/\s+/).filter(Boolean);
+    const first_name = nameParts[0] || contactName;
     const last_name = nameParts.slice(1).join(' ') || '(Contact)';
     const company = String(formData.get('company') || '').trim();
-    const hiring_needs = String(formData.get('hiring_needs') || '').trim();
+    const roleTitle = String(formData.get('role_title') || '').trim();
+    const rolesHiring = String(formData.get('roles_hiring') || '').trim();
+    const hireVolume = String(formData.get('hire_volume') || '').trim();
 
     const message = [
       company ? `Company: ${company}` : '',
+      roleTitle ? `Role / title: ${roleTitle}` : '',
       '',
-      'Hiring Needs:',
-      hiring_needs || '(Not specified)',
+      'What roles are you hiring for?',
+      rolesHiring || '(Not specified)',
+      '',
+      'Hires in the next 6 months (estimate):',
+      hireVolume || '(Not specified)',
     ]
       .filter(Boolean)
       .join('\n');
@@ -44,7 +58,7 @@ export default function EmployerContactForm() {
       last_name,
       email: formData.get('email'),
       phone: formData.get('phone') || '',
-      topic: 'Employer / Hiring Inquiry',
+      topic: 'Employer Inquiry',
       message,
       sms_preferred: false,
     };
@@ -89,17 +103,17 @@ export default function EmployerContactForm() {
         }}
       >
         <p style={{ fontWeight: 600, color: 'var(--color-accent)', marginBottom: '0.5rem' }}>
-          Message sent successfully
+          Thank you — we received your inquiry
         </p>
         <p style={{ color: 'var(--color-gray-600)' }}>
-          We&rsquo;ll get back to you within 24–48 hours to discuss your hiring needs.
+          We&rsquo;ll reach out within 24–48 hours.
         </p>
       </div>
     );
   }
 
   return (
-    <form className="contact-form" onSubmit={handleSubmit}>
+    <form className="contact-form employer-contact-form" onSubmit={handleSubmit} id="employer-contact-form">
       {status === 'error' && errorMsg && (
         <div
           style={{
@@ -115,12 +129,16 @@ export default function EmployerContactForm() {
         </div>
       )}
       <div className="form-group">
-        <label htmlFor="employer-name">Name *</label>
-        <input id="employer-name" type="text" name="name" required disabled={status === 'sending'} aria-required="true" />
+        <label htmlFor="employer-company">Company name *</label>
+        <input id="employer-company" type="text" name="company" required disabled={status === 'sending'} aria-required="true" />
       </div>
       <div className="form-group">
-        <label htmlFor="employer-company">Company *</label>
-        <input id="employer-company" type="text" name="company" required disabled={status === 'sending'} aria-required="true" />
+        <label htmlFor="employer-contact-name">Contact name *</label>
+        <input id="employer-contact-name" type="text" name="contact_name" required disabled={status === 'sending'} aria-required="true" />
+      </div>
+      <div className="form-group">
+        <label htmlFor="employer-role-title">Role / title</label>
+        <input id="employer-role-title" type="text" name="role_title" disabled={status === 'sending'} placeholder="e.g. Director of Talent" />
       </div>
       <div className="form-group">
         <label htmlFor="employer-email">Email *</label>
@@ -131,8 +149,26 @@ export default function EmployerContactForm() {
         <input id="employer-phone" type="tel" name="phone" disabled={status === 'sending'} />
       </div>
       <div className="form-group">
-        <label htmlFor="employer-hiring-needs">Hiring Needs *</label>
-        <textarea id="employer-hiring-needs" name="hiring_needs" rows={5} required disabled={status === 'sending'} aria-required="true" placeholder="Tell us about the roles you're hiring for, timeline, and any specific requirements..." />
+        <label htmlFor="employer-roles-hiring">What roles are you hiring for? *</label>
+        <textarea
+          id="employer-roles-hiring"
+          name="roles_hiring"
+          rows={4}
+          required
+          disabled={status === 'sending'}
+          aria-required="true"
+          placeholder="Titles, locations, full-time or contract, timeline…"
+        />
+      </div>
+      <div className="form-group">
+        <label htmlFor="employer-hire-volume">How many hires are you looking for in the next 6 months? *</label>
+        <select id="employer-hire-volume" name="hire_volume" className="form-control" required disabled={status === 'sending'} aria-required="true">
+          {HIRE_VOLUME.map((o) => (
+            <option key={o.value || 'empty'} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
       </div>
       {CAPTCHA_ENABLED && TURNSTILE_SITE_KEY ? (
         <div className="form-group employer-contact-turnstile">
@@ -151,7 +187,7 @@ export default function EmployerContactForm() {
         style={{ width: '100%', padding: '1rem' }}
         disabled={status === 'sending'}
       >
-        {status === 'sending' ? 'Sending…' : 'Send Message'}
+        {status === 'sending' ? 'Sending…' : 'Submit inquiry'}
       </button>
       <p style={{ textAlign: 'center', marginTop: '1rem', color: 'var(--color-gray-400)', fontSize: '.85rem' }}>
         We respond within 24–48 hours.

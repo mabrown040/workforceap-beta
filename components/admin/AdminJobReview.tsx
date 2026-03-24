@@ -65,6 +65,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
   const [approving, setApproving] = useState(false);
   const [rejecting, setRejecting] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
+  const [rejectReasonError, setRejectReasonError] = useState('');
   const [loadingMatches, setLoadingMatches] = useState(false);
   const [matches, setMatches] = useState<Array<{
     studentId: string;
@@ -105,9 +106,10 @@ export default function AdminJobReview({ job }: { job: Job }) {
 
   async function handleReject() {
     if (!rejectReason.trim()) {
-      setActionFeedback({ type: 'error', message: 'Please enter a rejection reason.' });
+      setRejectReasonError('Please enter a rejection reason before rejecting.');
       return;
     }
+    setRejectReasonError('');
     setRejecting(true);
     setActionFeedback(null);
     try {
@@ -251,22 +253,29 @@ export default function AdminJobReview({ job }: { job: Job }) {
             </button>
           )}
           {canReject && (
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flex: 1 }}>
-              <input
-                type="text"
-                placeholder="Rejection reason"
-                value={rejectReason}
-                onChange={(e) => setRejectReason(e.target.value)}
-                style={{ flex: 1, padding: '0.5rem' }}
-              />
-              <button
-                type="button"
-                className="btn btn-ghost"
-                onClick={handleReject}
-                disabled={rejecting || !rejectReason.trim()}
-              >
-                {rejecting ? 'Rejecting…' : 'Reject'}
-              </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                <input
+                  type="text"
+                  placeholder="Rejection reason"
+                  value={rejectReason}
+                  onChange={(e) => {
+                    setRejectReason(e.target.value);
+                    if (rejectReasonError) setRejectReasonError('');
+                  }}
+                  aria-invalid={!!rejectReasonError}
+                  aria-describedby={rejectReasonError ? 'admin-job-reject-reason-error' : undefined}
+                  style={{ flex: 1, minWidth: '12rem', padding: '0.5rem' }}
+                />
+                <button type="button" className="btn btn-ghost" onClick={handleReject} disabled={rejecting}>
+                  {rejecting ? 'Rejecting…' : 'Reject'}
+                </button>
+              </div>
+              {rejectReasonError ? (
+                <p id="admin-job-reject-reason-error" style={{ margin: 0, fontSize: '0.85rem', color: '#b91c1c' }}>
+                  {rejectReasonError}
+                </p>
+              ) : null}
             </div>
           )}
         </div>
@@ -339,6 +348,11 @@ export default function AdminJobReview({ job }: { job: Job }) {
             fontSize: '0.9rem',
           }}
         >
+          {job.status === 'pending' && !job.aiMatchesComputedAt && (
+            <p style={{ margin: '0 0 0.65rem', color: 'var(--color-gray-700)', fontSize: '0.88rem' }}>
+              Student matches are calculated automatically when you approve this job (they may show as &quot;None&quot; until then).
+            </p>
+          )}
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.5rem 1rem', marginBottom: '0.35rem' }}>
             <span style={{ color: 'var(--color-gray-600)' }}>Matches calculated at</span>
             <strong>{formatAdminDate(job.aiMatchesComputedAt)}</strong>

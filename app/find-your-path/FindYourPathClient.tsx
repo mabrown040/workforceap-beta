@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -9,6 +9,7 @@ import { scoreQuiz, type QuizAnswers, type CategoryWeights } from '@/lib/content
 import { getFitReasoning, getTopFitSummary } from '@/lib/content/quizReasoning';
 import { getProgramExtra } from '@/lib/content/programExtras';
 import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
+import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
 
 const QUIZ_STORAGE_KEY = 'find_your_path_results';
 
@@ -276,7 +277,7 @@ export default function FindYourPathClient() {
   const currentQ = QUESTIONS[step];
   const currentAnswer = currentQ ? answers[currentQ.id] : undefined;
 
-  const handleSelect = (value: QuizAnswers[keyof QuizAnswers]) => {
+  const advanceFromAnswer = (value: QuizAnswers[keyof QuizAnswers]) => {
     if (!currentQ) return;
     const newAnswers = { ...answers, [currentQ.id]: value };
     setAnswers(newAnswers);
@@ -297,6 +298,10 @@ export default function FindYourPathClient() {
     }
   };
 
+  const handleSelect = (value: QuizAnswers[keyof QuizAnswers]) => {
+    advanceFromAnswer(value);
+  };
+
   const handleBack = () => {
     setDirection('prev');
     if (step > 0) {
@@ -305,28 +310,38 @@ export default function FindYourPathClient() {
   };
 
   if (storedResults && step === QUESTIONS.length - 1 && currentAnswer) {
-    return <QuizResultsView programs={storedResults} answers={answers as QuizAnswers} />;
+    return (
+      <>
+        <ProgramsDecisionJourneyNav current="quiz" quizPhase="results" />
+        <QuizResultsView programs={storedResults} answers={answers as QuizAnswers} />
+      </>
+    );
   }
 
   if (storedResults && step === 0 && Object.keys(answers).length === 0) {
     return (
-      <QuizResultsView
-        programs={storedResults}
-        isPrevious
-        onRetake={() => {
-          setStoredResults(null);
-          setAnswers({});
-          setStep(0);
-          try {
-            localStorage.removeItem(QUIZ_STORAGE_KEY);
-          } catch {}
-        }}
-      />
+      <>
+        <ProgramsDecisionJourneyNav current="quiz" quizPhase="results" />
+        <QuizResultsView
+          programs={storedResults}
+          isPrevious
+          onRetake={() => {
+            setStoredResults(null);
+            setAnswers({});
+            setStep(0);
+            try {
+              localStorage.removeItem(QUIZ_STORAGE_KEY);
+            } catch {}
+          }}
+        />
+      </>
     );
   }
 
   return (
-    <div className={`quiz-flow ${direction === 'prev' ? 'quiz-slide-prev' : 'quiz-slide-next'}`}>
+    <>
+      <ProgramsDecisionJourneyNav current="quiz" quizPhase="in_progress" />
+      <div className={`quiz-flow ${direction === 'prev' ? 'quiz-slide-prev' : 'quiz-slide-next'}`}>
       <div className="quiz-progress-bar">
         <div
           className="quiz-progress-fill"
@@ -347,24 +362,43 @@ export default function FindYourPathClient() {
         )}
         <h2 className="quiz-question">{currentQ?.question}</h2>
         <div className="quiz-answers">
-          {currentQ?.answers.map((a) => (
-            <label
-              key={a.value}
-              className={`quiz-answer-card ${currentAnswer === a.value ? 'selected' : ''}`}
-            >
-              <input
-                type="radio"
-                name={currentQ.id}
-                value={a.value}
-                checked={currentAnswer === a.value}
-                onChange={() => handleSelect(a.value)}
-              />
-              <span className="radio-dot" />
-              <span>{a.label}</span>
-            </label>
-          ))}
+          {currentQ?.answers.map((a) => {
+            const inputId = `${currentQ.id}-${a.value}`;
+            return (
+              <label
+                key={a.value}
+                htmlFor={inputId}
+                className={`quiz-answer-card ${currentAnswer === a.value ? 'selected' : ''}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleSelect(a.value);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleSelect(a.value);
+                  }
+                }}
+                tabIndex={0}
+              >
+                <input
+                  id={inputId}
+                  type="radio"
+                  name={currentQ.id}
+                  value={a.value}
+                  checked={currentAnswer === a.value}
+                  readOnly
+                  tabIndex={-1}
+                  aria-hidden="true"
+                />
+                <span className="radio-dot" aria-hidden />
+                <span>{a.label}</span>
+              </label>
+            );
+          })}
         </div>
       </div>
     </div>
+    </>
   );
 }

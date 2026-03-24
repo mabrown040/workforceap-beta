@@ -142,7 +142,11 @@ export default function EmployerSettingsForm({ initial }: { initial: EmployerSet
               onChange={handleLogoChange}
               disabled={logoUploading}
             />
-            {logoUploading ? <span style={{ fontSize: '0.9rem' }}>Uploading…</span> : null}
+            {logoUploading ? (
+              <span style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)' }} aria-live="polite">
+                Uploading logo… Save is disabled until this finishes.
+              </span>
+            ) : null}
           </div>
         </div>
         <div className="form-group">
@@ -251,8 +255,8 @@ export default function EmployerSettingsForm({ initial }: { initial: EmployerSet
         </div>
       </fieldset>
 
-      <button type="submit" className="btn btn-primary" disabled={saving}>
-        {saving ? 'Saving…' : 'Save changes'}
+      <button type="submit" className="btn btn-primary" disabled={saving || logoUploading}>
+        {saving ? 'Saving…' : logoUploading ? 'Wait for logo upload…' : 'Save changes'}
       </button>
     </form>
   );

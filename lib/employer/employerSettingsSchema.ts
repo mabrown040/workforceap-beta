@@ -16,6 +16,8 @@ export const employerSettingsPatchSchema = z.object({
   contactName: z.string().min(1).max(200).trim(),
   contactEmail: z.string().email().max(320).toLowerCase().trim(),
   contactPhone: z.string().max(50).optional().nullable(),
+  /** Public URL (e.g. Supabase storage) — usually set via logo upload, not typed manually */
+  logoUrl: z.string().url().max(2000).optional().nullable(),
 });
 
 export type EmployerSettingsPatchInput = z.infer<typeof employerSettingsPatchSchema>;

@@ -12,8 +12,10 @@ import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
 import MemberDetailActions from '@/components/admin/MemberDetailActions';
 import MemberPartnerSection from '@/components/admin/MemberPartnerSection';
 import MemberSubgroupSection from '@/components/admin/MemberSubgroupSection';
+import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounselorChatClient';
 import CreateSuccessToast from './CreateSuccessToast';
 import { formatPhone } from '@/lib/formatPhone';
+import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
 import { ClipboardList, CheckCircle } from 'lucide-react';
 import PageHeader from '@/components/portal/PageHeader';
 import '@/css/counselor.css';
@@ -94,6 +96,37 @@ export default async function AdminMemberDetailPage({
     member.profile?.resumeEnhancedPath ?? null
   );
 
+  const chatThread = await getOrCreateMemberCounselorThread(member.id);
+  const chatMsgs = await prisma.message.findMany({
+    where: { threadId: chatThread.id },
+    orderBy: { createdAt: 'asc' },
+  });
+  const chatAuthorIds = [...new Set(chatMsgs.map((m) => m.authorId))];
+  const chatAuthors =
+    chatAuthorIds.length > 0
+      ? await prisma.user.findMany({
+          where: { id: { in: chatAuthorIds } },
+          select: { id: true, fullName: true },
+        })
+      : [];
+  const chatNameById = new Map(chatAuthors.map((n) => [n.id, n.fullName]));
+
+  const counselorChatInitial = {
+    staffUserId: user.id,
+    member: { id: member.id, fullName: member.fullName },
+    thread: {
+      id: chatThread.id,
+      memberId: chatThread.memberId,
+      counselorUserId: chatThread.counselorUserId,
+      memberLastReadAt: chatThread.memberLastReadAt?.toISOString() ?? null,
+      counselorLastReadAt: chatThread.counselorLastReadAt?.toISOString() ?? null,
+    },
+    messages: chatMsgs.map((m) => ({
+      ...serializeMessage(m),
+      authorName: chatNameById.get(m.authorId) ?? 'User',
+    })),
+  };
+
   return (
     <div>
       <Suspense fallback={null}>
@@ -153,6 +186,11 @@ export default async function AdminMemberDetailPage({
           subgroups={subgroups}
           currentSubgroupIds={memberSubgroups.map((ms) => ms.subgroupId)}
         />
+
+        <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
+          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Counselor chat</h2>
+          <AdminMemberCounselorChatClient initial={counselorChatInitial} />
+        </section>
 
         {(member.profile?.resumeOriginalPath || member.profile?.resumeEnhancedPath) && (
           <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>

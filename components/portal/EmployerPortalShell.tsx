@@ -6,11 +6,13 @@ import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
 
 export default function EmployerPortalShell({
   companyName,
+  companyLogoUrl,
   employerTier,
   superAdmin,
   children,
 }: {
   companyName: string;
+  companyLogoUrl?: string | null;
   employerTier?: string;
   superAdmin?: boolean;
   children: React.ReactNode;
@@ -22,6 +24,7 @@ export default function EmployerPortalShell({
       navItems={EMPLOYER_PORTAL_NAV_ITEMS}
       workspaceLabel={PRODUCT_COPY.employerWorkspace}
       contextLabel={companyName}
+      contextLogoUrl={companyLogoUrl}
       headerBadge={headerBadge}
       superAdmin={superAdmin}
       superAdminBackHref={superAdmin ? '/admin/employers' : undefined}

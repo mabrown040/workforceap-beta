@@ -130,9 +130,10 @@ function mapEmployerRow(row: {
   companyName: string;
   contactEmail: string;
   tier: string;
+  logoUrl: string | null;
 }): {
   employerId: string;
-  employer: { id: string; companyName: string; contactEmail: string; tier: string };
+  employer: { id: string; companyName: string; contactEmail: string; tier: string; logoUrl: string | null };
 } {
   return {
     employerId: row.id,
@@ -141,6 +142,7 @@ function mapEmployerRow(row: {
       companyName: row.companyName,
       contactEmail: row.contactEmail,
       tier: row.tier,
+      logoUrl: row.logoUrl,
     },
   };
 }
@@ -153,7 +155,7 @@ export async function getEmployerForUser(
   userId: string
 ): Promise<{
   employerId: string;
-  employer: { id: string; companyName: string; contactEmail: string; tier: string };
+  employer: { id: string; companyName: string; contactEmail: string; tier: string; logoUrl: string | null };
 } | null> {
   const superUser = await isSuperAdmin(userId);
 
@@ -163,7 +165,7 @@ export async function getEmployerForUser(
     if (fromCookie) {
       const byCookie = await prisma.employer.findFirst({
         where: { id: fromCookie, status: 'active' },
-        select: { id: true, companyName: true, contactEmail: true, tier: true },
+        select: { id: true, companyName: true, contactEmail: true, tier: true, logoUrl: true },
       });
       if (byCookie) return mapEmployerRow(byCookie);
     }
@@ -171,7 +173,7 @@ export async function getEmployerForUser(
 
   const row = await prisma.employer.findUnique({
     where: { userId },
-    select: { id: true, companyName: true, contactEmail: true, status: true, tier: true },
+    select: { id: true, companyName: true, contactEmail: true, status: true, tier: true, logoUrl: true },
   });
   if (row && row.status === 'active') {
     return mapEmployerRow(row);
@@ -181,7 +183,7 @@ export async function getEmployerForUser(
     const first = await prisma.employer.findFirst({
       where: { status: 'active' },
       orderBy: { companyName: 'asc' },
-      select: { id: true, companyName: true, contactEmail: true, tier: true },
+      select: { id: true, companyName: true, contactEmail: true, tier: true, logoUrl: true },
     });
     if (first) return mapEmployerRow(first);
   }

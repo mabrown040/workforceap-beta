@@ -6,12 +6,11 @@ const PORTAL_PATHS = [
   '/resources',
   '/help',
   '/applications',
-  '/certifications',
-  '/profile',
   '/account',
   '/partner',
   '/employer',
   '/my-group',
+  '/jobs',
 ];
 const ADMIN_PATHS = ['/admin'];
 

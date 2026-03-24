@@ -96,3 +96,10 @@ CREATE POLICY "roles_select_all" ON roles
 
 -- Service role bypass: Supabase service role bypasses RLS by default.
 -- Ensure app uses service role only for admin operations and never exposes it.
+
+-- --- Realtime: member ↔ counselor chat ---
+-- After migration creates message_threads and messages, enable postgres_changes:
+-- ALTER PUBLICATION supabase_realtime ADD TABLE message_threads;
+-- ALTER PUBLICATION supabase_realtime ADD TABLE messages;
+-- (Migration sets REPLICA IDENTITY FULL on both tables for complete payloads.)
+-- Optional RLS for direct client access; app primarily uses API + service role for writes.

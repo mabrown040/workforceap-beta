@@ -19,6 +19,7 @@ export default async function EmployerPortalLayout({
   return (
     <EmployerPortalShell
       companyName={ctx.employer.companyName}
+      companyLogoUrl={ctx.employer.logoUrl}
       employerTier={ctx.employer.tier}
       superAdmin={superAdmin}
     >

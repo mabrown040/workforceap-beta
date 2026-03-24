@@ -31,12 +31,15 @@ export default function WorkspaceShell({
   topBanner,
   footer,
   headerBadge,
+  contextLogoUrl,
   children,
 }: {
   portalRole: PortalRole;
   navItems: PortalNavItem[];
   workspaceLabel: string;
   contextLabel: string;
+  /** Optional square logo next to company name (employer portal). */
+  contextLogoUrl?: string | null;
   superAdmin?: boolean;
   superAdminBackHref?: string;
   superAdminBackLabel?: string;
@@ -85,7 +88,7 @@ export default function WorkspaceShell({
 
   useEffect(() => {
     let cancelled = false;
-    void (async () => {
+    const load = async () => {
       try {
         const r = await fetch(`/api/portal/nav-badges?role=${encodeURIComponent(portalRole)}`, {
           credentials: 'include',
@@ -96,9 +99,13 @@ export default function WorkspaceShell({
       } catch {
         /* ignore */
       }
-    })();
+    };
+    void load();
+    const onRefresh = () => void load();
+    window.addEventListener('wa-nav-badges-refresh', onRefresh);
     return () => {
       cancelled = true;
+      window.removeEventListener('wa-nav-badges-refresh', onRefresh);
     };
   }, [portalRole]);
 
@@ -137,6 +144,12 @@ export default function WorkspaceShell({
           </div>
         </div>
         <div className="workspace-shell-header__meta">
+          {contextLogoUrl ? (
+            <span className="workspace-shell-context-logo-wrap" aria-hidden>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={contextLogoUrl} alt="" className="workspace-shell-context-logo" width={32} height={32} />
+            </span>
+          ) : null}
           <span className="workspace-shell-context workspace-shell-context--chip" title={contextLabel}>
             {contextLabel}
           </span>

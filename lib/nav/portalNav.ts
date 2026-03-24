@@ -43,6 +43,7 @@ export type NavBadgeKey =
   | 'partner_needs_attention'
   | 'milestones_new'
   | 'readiness_incomplete'
+  | 'counselor_messages_unread'
   | 'employer_queue_review_today'
   | 'employer_queue_stale_48h'
   | 'employer_queue_interview';
@@ -89,12 +90,19 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     Icon: FileText,
     badgeKey: 'applications_new',
   },
+  {
+    href: '/dashboard/messages',
+    label: 'Messages',
+    group: 'workflows',
+    Icon: MessageSquare,
+    badgeKey: 'counselor_messages_unread',
+  },
   { href: '/dashboard/readiness', label: 'Career readiness', group: 'insights', Icon: CheckCircle, badgeKey: 'readiness_incomplete' },
   { href: '/dashboard/assessments', label: 'Skills assessment', group: 'insights', Icon: ClipboardCheck },
   { href: '/dashboard/weekly-recap', label: 'Weekly recap', group: 'insights', Icon: BarChart3 },
   { href: '/dashboard/career-brief', label: 'Career Brief', group: 'insights', Icon: ClipboardList },
-  { href: '/certifications', label: 'Certifications', group: 'manage', Icon: Award },
-  { href: '/profile', label: 'Profile', group: 'manage', Icon: User },
+  { href: '/dashboard/certifications', label: 'Certifications', group: 'manage', Icon: Award, aliases: ['/certifications'] },
+  { href: '/dashboard/profile', label: 'Profile', group: 'manage', Icon: User, aliases: ['/profile'] },
   { href: '/dashboard/settings', label: 'Settings', group: 'manage', Icon: Settings },
 ];
 

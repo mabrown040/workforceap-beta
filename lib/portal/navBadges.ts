@@ -36,18 +36,34 @@ export async function getNavBadgeCountsForUser(
 }
 
 async function getMemberBadgeCounts(userId: string): Promise<NavBadgeCounts> {
-  const [incompleteReadiness, pendingJobApps] = await Promise.all([
+  const [incompleteReadiness, pendingJobApps, thread] = await Promise.all([
     prisma.readinessChecklist.count({
       where: { userId, completed: false },
     }),
     prisma.jobPostingApplication.count({
       where: { studentId: userId, status: 'pending' },
     }),
+    prisma.messageThread.findUnique({
+      where: { memberId: userId },
+      select: { id: true, memberLastReadAt: true },
+    }),
   ]);
+
+  let counselor_messages_unread = 0;
+  if (thread) {
+    counselor_messages_unread = await prisma.message.count({
+      where: {
+        threadId: thread.id,
+        authorId: { not: userId },
+        ...(thread.memberLastReadAt ? { createdAt: { gt: thread.memberLastReadAt } } : {}),
+      },
+    });
+  }
 
   return {
     readiness_incomplete: incompleteReadiness,
     applications_new: pendingJobApps,
+    counselor_messages_unread,
   };
 }
 

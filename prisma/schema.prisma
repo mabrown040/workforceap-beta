@@ -764,6 +764,8 @@ model PartnerSignupRequest {
   contactPhone     String?  @map("contact_phone")
   orgType          String   @map("org_type")
   expectedMonthly  String?  @map("expected_monthly")
+  serveArea        String?  @map("serve_area")
+  hearAbout        String?  @map("hear_about")
   status           String   @default("pending")
   createdAt        DateTime @default(now()) @map("created_at")
 

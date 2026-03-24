@@ -164,6 +164,23 @@ export default function HomePage() {
               </div>
             </div>
           </div>
+
+          <div className="home-partners-cta animate-on-scroll" style={{ marginTop: '2.5rem' }}>
+            <h3 className="home-partners-cta__title">Refer your community</h3>
+            <p className="home-partners-cta__text">
+              Do you work with job-seekers at a church, community center, or workforce program? WorkforceAP partners refer
+              clients and track their progress through a dedicated partner portal. No cost, no paperwork — just outcomes
+              you can report.
+            </p>
+            <div className="home-audience-links" style={{ marginTop: '1rem' }}>
+              <Link href="/partner-signup" className="btn btn-primary btn-sm">
+                Register your organization →
+              </Link>
+              <Link href="/login?redirectTo=/partner" className="btn btn-outline btn-sm">
+                Already a partner? Sign in →
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 

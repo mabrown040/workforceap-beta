@@ -15,6 +15,7 @@ let aiToolRateLimiter: Ratelimit | null = null;
 let contactRateLimiter: Ratelimit | null = null;
 let adminInviteRateLimiter: Ratelimit | null = null;
 let employerJobImportRateLimiter: Ratelimit | null = null;
+let partnerSignupRateLimiter: Ratelimit | null = null;
 
 if (redisUrl && redisToken) {
   const redis = new Redis({ url: redisUrl, token: redisToken });
@@ -54,6 +55,11 @@ if (redisUrl && redisToken) {
     limiter: Ratelimit.slidingWindow(8, '1 h'),
     prefix: 'ratelimit:employer-job-import',
   });
+  partnerSignupRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(5, '1 h'),
+    prefix: 'ratelimit:partner-signup',
+  });
 }
 
 export async function checkSignupRateLimit(identifier: string): Promise<{ success: boolean; remaining?: number }> {
@@ -84,6 +90,13 @@ export async function checkContactRateLimit(ip: string): Promise<{ success: bool
   if (FAIL_CLOSED) return { success: false };
   const result = await contactRateLimiter!.limit(ip);
   return { success: result.success, remaining: result.remaining };
+}
+
+/** Public partner self-registration — fail-open when Upstash is not configured (unlike contact). */
+export async function checkPartnerSignupRateLimit(identifier: string): Promise<{ success: boolean }> {
+  if (!partnerSignupRateLimiter) return { success: true };
+  const result = await partnerSignupRateLimiter.limit(identifier);
+  return { success: result.success };
 }
 
 export async function checkAdminInviteRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {

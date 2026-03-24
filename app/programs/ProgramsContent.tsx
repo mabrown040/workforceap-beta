@@ -35,8 +35,9 @@ function ProgramCard({ program }: { program: Program }) {
   const [open, setOpen] = useState(false);
   const extra = getProgramExtra(program.slug);
   const count = program.courses.length;
-  const skills = program.skills.slice(0, 3);
-  const moreSkills = program.skills.length - 3;
+  const nonEmptySkills = program.skills.filter((s) => s.trim().length > 0);
+  const skills = nonEmptySkills.slice(0, 3);
+  const moreSkills = nonEmptySkills.length - 3;
   const borderColor = CATEGORY_BORDER[program.category] ?? program.borderColor;
 
   return (
@@ -63,14 +64,41 @@ function ProgramCard({ program }: { program: Program }) {
         )}
         <small style={{ display: 'block', fontSize: '.75rem', color: '#888', marginTop: '.25rem' }}>*Austin-area median based on industry data</small>
       </div>
-      <div style={{ marginBottom: '1rem', display: 'flex', flexWrap: 'wrap', gap: '.35rem' }}>
-        {skills.map((s) => (
-          <span key={s} style={{ background: '#f0f0f0', padding: '.25rem .6rem', borderRadius: '4px', fontSize: '.8rem', display: 'inline-block' }}>{s}</span>
-        ))}
-        {moreSkills > 0 && (
-          <span style={{ background: '#e5e5e5', color: '#737373', padding: '.25rem .6rem', borderRadius: '4px', fontSize: '.8rem', display: 'inline-block' }}>+{moreSkills} more</span>
-        )}
-      </div>
+      {nonEmptySkills.length > 0 ? (
+        <div style={{ marginBottom: '1rem', display: 'flex', flexWrap: 'wrap', gap: '.35rem' }}>
+          {skills.map((s) => (
+            <span
+              key={s}
+              className="program-card-skill-tag"
+              style={{
+                background: 'var(--color-gray-100, #f0f0f0)',
+                color: 'var(--color-gray-800, #1a1a1a)',
+                border: '1px solid var(--color-border, #e5e5e5)',
+                padding: '.25rem .6rem',
+                borderRadius: '4px',
+                fontSize: '.8rem',
+                display: 'inline-block',
+              }}
+            >
+              {s}
+            </span>
+          ))}
+          {moreSkills > 0 && (
+            <span
+              style={{
+                background: 'var(--color-gray-200, #e5e5e5)',
+                color: 'var(--color-gray-600, #737373)',
+                padding: '.25rem .6rem',
+                borderRadius: '4px',
+                fontSize: '.8rem',
+                display: 'inline-block',
+              }}
+            >
+              +{moreSkills} more
+            </span>
+          )}
+        </div>
+      ) : null}
       <details style={{ marginBottom: '1rem' }} open={open} onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
         <summary style={{ cursor: 'pointer', fontWeight: 600, fontSize: '.9rem', color: '#1a1a1a' }}>
           {open ? 'Hide' : 'View'} {count} {count === 1 ? 'course' : 'courses'}

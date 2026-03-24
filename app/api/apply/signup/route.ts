@@ -120,6 +120,10 @@ export async function POST(request: NextRequest) {
   }
 
   const organizationId = await getDefaultOrganizationId();
+  const priorUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { enrolledAt: true },
+  });
 
   try {
     await prisma.$transaction(async (tx) => {
@@ -134,7 +138,12 @@ export async function POST(request: NextRequest) {
           enrolledProgram: programSlug,
           enrolledAt: new Date(),
         },
-        update: {},
+        update: {
+          fullName,
+          phone,
+          enrolledProgram: programSlug,
+          ...(priorUser && !priorUser.enrolledAt ? { enrolledAt: new Date() } : {}),
+        },
       });
 
       await tx.profile.upsert({

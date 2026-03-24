@@ -74,18 +74,20 @@ export default function WeeklyRecapClient({ recap, recapData, weekStart }: Props
       <div className="weekly-recap-section">
         <h3>Recommended actions for next week</h3>
         <ul className="weekly-recap-actions">
-          {(recapData.recommendedActions ?? []).map((action, i) => (
-            <li key={i}>
-              <Link href={
-                action.includes('Resume') ? '/dashboard/ai-tools/resume-rewriter' :
-                action.includes('interview') ? '/dashboard/ai-tools/interview-practice' :
-                action.includes('application') ? '/dashboard/ai-tools/application-tracker' :
-                '/dashboard'
-              }>
-                {action}
-              </Link>
-            </li>
-          ))}
+          {(recapData.recommendedActions ?? []).map((action, i) => {
+            const lower = action.toLowerCase();
+            const href =
+              lower.includes('resume') ? '/dashboard/ai-tools/resume-rewriter' :
+              lower.includes('interview') ? '/dashboard/ai-tools/interview-practice' :
+              lower.includes('application') ? '/dashboard/ai-tools/application-tracker' :
+              lower.includes('resource') ? '/dashboard/resources' :
+              '/dashboard';
+            return (
+              <li key={i}>
+                <Link href={href}>{action}</Link>
+              </li>
+            );
+          })}
         </ul>
       </div>
 

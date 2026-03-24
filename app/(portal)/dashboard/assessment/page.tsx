@@ -22,6 +22,10 @@ export default async function AssessmentPage({
     redirect('/dashboard');
   }
 
+  if (dbUser && dbUser.interviewCompletedAt == null) {
+    redirect('/dashboard/assessments');
+  }
+
   const nameParts = dbUser?.fullName?.split(' ') ?? [];
   const firstName = nameParts[0] ?? '';
   const lastName = nameParts.slice(1).join(' ') ?? '';

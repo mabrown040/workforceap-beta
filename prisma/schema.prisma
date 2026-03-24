@@ -119,6 +119,7 @@ model User {
   messageThreadsAsCounselor MessageThread[] @relation("CounselorMessageThreads")
   messagesAuthored          Message[]
   preScreeningResponse      PreScreeningResponse?
+  preScreeningDraft         PreScreeningDraft?
   courseEnrollment          CourseEnrollment?
   adminCourseEnrollments    CourseEnrollment[] @relation("AdminCourseEnrollments")
 
@@ -1059,6 +1060,26 @@ model PreScreeningResponse {
 
   @@index([organizationId])
   @@map("pre_screening_responses")
+}
+
+// Unsubmitted pre-screening answers (dashboard draft; cleared on submit).
+model PreScreeningDraft {
+  id                  String   @id @default(uuid())
+  userId              String   @unique @map("user_id")
+  employmentStatus    String?  @map("employment_status")
+  primaryGoal         String?  @map("primary_goal")
+  weeklyHours         String?  @map("weekly_hours")
+  barrier             String?  @db.Text
+  hearAbout           String?  @map("hear_about")
+  hearAboutOther      String?  @map("hear_about_other")
+  workforceAssistance Boolean? @map("workforce_assistance")
+  phone               String?  @map("phone")
+  address             String?  @map("address")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("pre_screening_drafts")
 }
 
 enum JobPostingApplicationStatus {

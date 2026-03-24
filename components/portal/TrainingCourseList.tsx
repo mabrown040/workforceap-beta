@@ -35,15 +35,18 @@ export default function TrainingCourseList({ courses, completedSlugs }: Training
     }
   };
 
+  const firstNotStartedSlug = courses.find((c) => !completedSet.has(c.slug))?.slug ?? null;
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {courses.map((c) => {
         const status = getStatus(c.slug);
         const isComplete = status === 'complete';
+        const isUpNext = !isComplete && c.slug === firstNotStartedSlug;
         return (
           <div
             key={c.slug}
-            className="training-course-card"
+            className={`training-course-card${isUpNext ? ' training-course-card--up-next' : ''}`}
             style={{
               padding: '1.25rem',
               border: '1px solid var(--color-border, #e5e5e5)',
@@ -60,6 +63,11 @@ export default function TrainingCourseList({ courses, completedSlugs }: Training
                 {c.name}
               </h3>
               <span style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>~{c.estimatedHours} hrs</span>
+              {isUpNext ? (
+                <span className="training-course-up-next" style={{ display: 'block', marginTop: '0.35rem' }}>
+                  Up next →
+                </span>
+              ) : null}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <span
@@ -67,8 +75,13 @@ export default function TrainingCourseList({ courses, completedSlugs }: Training
                   fontSize: '0.8rem',
                   padding: '0.25rem 0.6rem',
                   borderRadius: '4px',
-                  background: isComplete ? 'rgba(74, 155, 79, 0.15)' : '#f0f0f0',
-                  color: isComplete ? 'var(--color-accent)' : 'var(--color-gray-600)',
+                  background: isComplete
+                    ? 'rgba(74, 155, 79, 0.15)'
+                    : isUpNext
+                      ? 'rgba(173, 44, 77, 0.12)'
+                      : '#f0f0f0',
+                  color: isComplete ? 'var(--color-accent)' : isUpNext ? 'var(--color-accent)' : 'var(--color-gray-600)',
+                  fontWeight: isUpNext ? 600 : 400,
                 }}
               >
                 {isComplete ? 'Complete' : 'Not Started'}

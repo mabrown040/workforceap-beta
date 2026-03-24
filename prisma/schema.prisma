@@ -570,7 +570,7 @@ model Partner {
   updatedAt    DateTime  @updatedAt @map("updated_at")
 
   notifyOnEnrollment   Boolean @default(true) @map("notify_on_enrollment")
-  notifyOnCourse       Boolean @default(true) @map("notify_on_course")
+  notifyOnCourse       Boolean @default(false) @map("notify_on_course")
   notifyOnCertified    Boolean @default(true) @map("notify_on_certified")
   notifyOnPlaced       Boolean @default(true) @map("notify_on_placed")
 

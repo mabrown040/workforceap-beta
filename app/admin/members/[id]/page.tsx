@@ -15,6 +15,8 @@ import MemberDetailActions from '@/components/admin/MemberDetailActions';
 import MemberPartnerSection from '@/components/admin/MemberPartnerSection';
 import MemberSubgroupSection from '@/components/admin/MemberSubgroupSection';
 import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounselorChatClient';
+import AdminMemberCounselorAssign from '@/components/admin/AdminMemberCounselorAssign';
+import AdminMemberPlacedOutcomeForm from '@/components/admin/AdminMemberPlacedOutcomeForm';
 import CreateSuccessToast from './CreateSuccessToast';
 import { formatPhone } from '@/lib/formatPhone';
 import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
@@ -63,7 +65,8 @@ export default async function AdminMemberDetailPage({
 
   const { id } = await params;
 
-  const [member, partners, partnerReferral, subgroups, memberSubgroups] = await Promise.all([
+  const [member, partners, partnerReferral, subgroups, memberSubgroups, counselorRows, activeCounselorAssign, placedOutcomeRow] =
+    await Promise.all([
     prisma.user.findUnique({
       where: { id },
       include: { profile: true },
@@ -85,6 +88,19 @@ export default async function AdminMemberDetailPage({
       where: { memberId: id },
       select: { subgroupId: true },
     }),
+    prisma.counselor.findMany({
+      where: { active: true },
+      orderBy: [{ partner: { name: 'asc' } }, { user: { fullName: 'asc' } }],
+      include: {
+        user: { select: { fullName: true } },
+        partner: { select: { name: true } },
+      },
+    }),
+    prisma.counselorAssignment.findFirst({
+      where: { memberId: id, active: true },
+      include: { counselor: { select: { userId: true, user: { select: { fullName: true } } } } },
+    }),
+    prisma.placedOutcome.findUnique({ where: { userId: id } }),
   ]);
 
   if (!member || member.deletedAt) notFound();
@@ -242,6 +258,47 @@ export default async function AdminMemberDetailPage({
           subgroups={subgroups}
           currentSubgroupIds={memberSubgroups.map((ms) => ms.subgroupId)}
         />
+
+        <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
+          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Counselor assignment</h2>
+          {activeCounselorAssign?.counselor ? (
+            <p style={{ marginBottom: '0.75rem', fontSize: '0.95rem' }}>
+              Current: <strong>{activeCounselorAssign.counselor.user.fullName}</strong>
+            </p>
+          ) : (
+            <p style={{ marginBottom: '0.75rem', fontSize: '0.95rem', color: 'var(--color-gray-600)' }}>
+              No active counselor assignment.
+            </p>
+          )}
+          <AdminMemberCounselorAssign
+            memberId={member.id}
+            counselors={counselorRows.map((c) => ({
+              userId: c.userId,
+              fullName: c.user.fullName,
+              partnerName: c.partner.name,
+            }))}
+            currentCounselorUserId={activeCounselorAssign?.counselor.userId ?? null}
+          />
+        </section>
+
+        <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
+          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>WorkforceAP placement (grants)</h2>
+          <AdminMemberPlacedOutcomeForm
+            memberId={member.id}
+            initial={
+              placedOutcomeRow
+                ? {
+                    employerName: placedOutcomeRow.employerName,
+                    jobTitle: placedOutcomeRow.jobTitle,
+                    startingSalary: placedOutcomeRow.startingSalary,
+                    placedAt: placedOutcomeRow.placedAt.toISOString(),
+                    programSlug: placedOutcomeRow.programSlug,
+                    notes: placedOutcomeRow.notes,
+                  }
+                : null
+            }
+          />
+        </section>
 
         <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
           <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Counselor chat</h2>

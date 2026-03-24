@@ -1089,6 +1089,20 @@ a.nav-cta {
     font-weight: 600 !important;
     font-size: 0.875rem !important;
     transition: all var(--transition-fast) !important;
+    white-space: nowrap !important;
+}
+@media (max-width: 1024px) {
+    .nav-container {
+        gap: 1rem;
+    }
+    .nav-menu {
+        gap: 1rem;
+    }
+    .nav-cta,
+    a.nav-cta {
+        padding: 6px 14px !important;
+        font-size: 0.8125rem !important;
+    }
 }
 .nav-cta:hover,
 a.nav-cta:hover {
@@ -1303,6 +1317,13 @@ a.btn-white {
         linear-gradient(160deg, rgba(26,26,26,0.9) 0%, rgba(26,26,26,0.65) 40%, rgba(173,44,77,0.35) 100%),
         radial-gradient(ellipse at 20% 80%, rgba(164,127,56,0.15) 0%, transparent 50%),
         radial-gradient(ellipse at 80% 20%, rgba(173,44,77,0.1) 0%, transparent 50%);
+}
+/* Dark site mode: let more of the hero image show through (avoid stacking an extra heavy veil). */
+html.dark .homepage .hero-overlay {
+    background:
+        linear-gradient(160deg, rgba(26,26,26,0.42) 0%, rgba(26,26,26,0.28) 45%, rgba(173,44,77,0.22) 100%),
+        radial-gradient(ellipse at 20% 80%, rgba(164,127,56,0.1) 0%, transparent 52%),
+        radial-gradient(ellipse at 80% 20%, rgba(173,44,77,0.08) 0%, transparent 52%);
 }
 .hero-container {
     position: relative;

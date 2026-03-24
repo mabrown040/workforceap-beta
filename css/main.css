@@ -8885,6 +8885,7 @@ body { animation: fadeIn 0.4s ease; }
 }
 .dashboard-recent-collapsed li {
     justify-content: space-between;
+    gap: 1rem;
 }
 @media (max-width: 639px) {
     .dashboard-today-actions {

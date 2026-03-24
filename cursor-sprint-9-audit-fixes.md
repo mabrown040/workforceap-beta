@@ -215,3 +215,114 @@ title: 'WorkforceAP Applicants'
 - `npx tsc --noEmit` must pass
 - No new dependencies
 - All fixes are surgical â€” do not refactor surrounding code
+
+---
+
+## Fix 10: Admin Programs Catalog — empty table (seed not called)
+
+**Root cause:** lib/platform/seedProgramCatalog.ts has seedOrganizationProgramCatalog() which upserts all 19 programs into OrganizationProgramCatalog, but it was never called. The table is empty so the admin catalog shows zero rows.
+
+**Fix A — One-time DB seed via API route** (preferred — works in production without deploy):
+
+Create pp/api/admin/programs/seed-catalog/route.ts:
+`	s
+import { NextResponse } from 'next/server';
+import { getUser } from '@/lib/auth/server';
+import { isAdmin } from '@/lib/auth/roles';
+import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { seedOrganizationProgramCatalog } from '@/lib/platform/seedProgramCatalog';
+
+export async function POST() {
+  const user = await getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  const orgId = await getDefaultOrganizationId();
+  await seedOrganizationProgramCatalog(orgId);
+  return NextResponse.json({ ok: true });
+}
+`
+
+Then add a "Seed catalog from static programs" button on pp/admin/programs/page.tsx (visible only when ows.length === 0):
+`	sx
+{rows.length === 0 && (
+  <button onClick={async () => {
+    await fetch('/api/admin/programs/seed-catalog', { method: 'POST' });
+    window.location.reload();
+  }} className="btn btn-primary">
+    Seed catalog from 19 static programs
+  </button>
+)}
+`
+
+**Fix B — Auto-seed on catalog GET** (fallback in the API route):
+In pp/api/admin/programs/catalog/route.ts, after fetching rows, if ows.length === 0, call seedOrganizationProgramCatalog(organizationId) automatically and re-fetch.
+
+Use Fix B — it's invisible and automatic. Admin just loads the page and programs appear.
+
+---
+
+## Fix 11: Admin pages missing <title> metadata (wrong title in browser tab)
+
+**Problem:** These admin pages have no export const metadata — Next.js falls back to the root layout title ("? Virtual and Hybrid Occupation and Career Programs..."):
+- pp/admin/blog/page.tsx
+- pp/admin/invites/page.tsx
+- pp/admin/partners/page.tsx
+- pp/admin/pipeline/page.tsx
+- pp/admin/subgroups/page.tsx
+
+**Fix:** Add uildPageMetadata to each missing page. Pattern to follow:
+`	s
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Admin – Blog Posts',          // change per page
+  description: 'Manage blog content.',  // change per page
+  path: '/admin/blog',                   // change per page
+});
+`
+
+Titles to use:
+- dmin/blog ? "Admin – Blog Posts"
+- dmin/invites ? "Admin – Invitations"
+- dmin/partners ? "Admin – Partners"
+- dmin/pipeline ? "Admin – Hiring Pipeline"
+- dmin/subgroups ? "Admin – Subgroups"
+
+---
+
+## Fix 12: Admin — "Soft Delete" and "Reset Assessment" need confirmation dialogs
+
+**File:** Find the component rendering these buttons (likely in pp/admin/members/[id]/ page or an admin member actions component).
+
+**Soft Delete:** Wrap in a confirmation modal. Must require typing the member's name or clicking a clearly labeled "Yes, delete" button:
+`	sx
+// Replace direct delete button with:
+<AdminConfirmAction
+  label="Soft Delete Account"
+  confirmText={Type "" to confirm}
+  expectedValue={memberName}
+  destructive
+  onConfirm={() => handleSoftDelete(memberId)}
+/>
+`
+
+Create components/admin/AdminConfirmAction.tsx — reusable destructive action component with:
+- Red trigger button
+- Modal overlay
+- Explanation text
+- Text input that must match expectedValue
+- Disabled confirm button until match
+- Cancel button
+
+**Reset Assessment:** Same pattern, but confirmText="Type 'reset' to confirm" and expectedValue="reset".
+
+---
+
+## Updated File Checklist
+All items from the original Sprint 9 list, plus:
+- [ ] pp/api/admin/programs/catalog/route.ts — auto-seed when rows = 0 (Fix 10B)
+- [ ] pp/admin/blog/page.tsx — add metadata (Fix 11)
+- [ ] pp/admin/invites/page.tsx — add metadata (Fix 11)
+- [ ] pp/admin/partners/page.tsx — add metadata (Fix 11)
+- [ ] pp/admin/pipeline/page.tsx — add metadata (Fix 11)
+- [ ] pp/admin/subgroups/page.tsx — add metadata (Fix 11)
+- [ ] components/admin/AdminConfirmAction.tsx — new reusable destructive confirm (Fix 12)
+- [ ] Admin member detail page — use AdminConfirmAction for Soft Delete + Reset Assessment (Fix 12)

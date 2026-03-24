@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { DEFAULT_BRAND_ACCENT } from '@/lib/platform/brandColors';
 
 type Props = {
   defaultName: string;
@@ -19,7 +20,7 @@ export default function AdminOrgSettingsForm({
   const router = useRouter();
   const [name, setName] = useState(defaultName);
   const [overviewVideoUrl, setOverviewVideoUrl] = useState(defaultOverviewVideoUrl);
-  const [primaryColor, setPrimaryColor] = useState(defaultPrimaryColor || '#2563eb');
+  const [primaryColor, setPrimaryColor] = useState(defaultPrimaryColor || DEFAULT_BRAND_ACCENT);
   const [logoUrl, setLogoUrl] = useState(defaultLogoUrl);
   const [logoUploading, setLogoUploading] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -99,7 +100,7 @@ export default function AdminOrgSettingsForm({
           <input
             id="pc"
             type="color"
-            value={/^#[0-9A-Fa-f]{6}$/.test(primaryColor) ? primaryColor : '#2563eb'}
+            value={/^#[0-9A-Fa-f]{6}$/.test(primaryColor) ? primaryColor : DEFAULT_BRAND_ACCENT}
             onChange={(e) => setPrimaryColor(e.target.value)}
             style={{ width: 48, height: 36, padding: 0, border: 'none', cursor: 'pointer' }}
             aria-label="Color picker"
@@ -108,7 +109,7 @@ export default function AdminOrgSettingsForm({
             type="text"
             value={primaryColor}
             onChange={(e) => setPrimaryColor(e.target.value)}
-            placeholder="#2563eb"
+            placeholder={DEFAULT_BRAND_ACCENT}
             pattern="^#[0-9A-Fa-f]{6}$"
             style={{ maxWidth: '120px', fontFamily: 'monospace' }}
           />

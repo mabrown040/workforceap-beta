@@ -6,7 +6,7 @@ export type OrgBranding = {
   logo: string | null;
 };
 
-const FALLBACK_ACCENT = '#2563eb';
+export { DEFAULT_BRAND_ACCENT, DEFAULT_BRAND_ACCENT_DARK } from '@/lib/platform/brandColors';
 
 export async function getDefaultOrgBranding(): Promise<OrgBranding> {
   if (process.env.__PRISMA_PLACEHOLDER_DB === '1') {
@@ -25,9 +25,9 @@ export async function getDefaultOrgBranding(): Promise<OrgBranding> {
   }
 }
 
-/** CSS value for --org-accent (validated hex or fallback). */
-export function orgAccentCss(branding: OrgBranding): string {
+/** Validated custom accent only; callers that need CSS vars should use OrgBrandingStyle. */
+export function orgAccentCss(branding: OrgBranding): string | null {
   const c = branding.primaryColor?.trim();
   if (c && /^#[0-9A-Fa-f]{6}$/.test(c)) return c;
-  return FALLBACK_ACCENT;
+  return null;
 }

@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto';
 import { PrismaClient, ApplicationStatus } from '@prisma/client';
 import { seedBlogPosts } from './seed-blog';
 import { seedOrganizationProgramCatalog } from '../lib/platform/seedProgramCatalog';
+import { DEFAULT_BRAND_ACCENT } from '../lib/platform/brandColors';
 
 const prisma = new PrismaClient();
 
@@ -14,6 +15,7 @@ async function ensureDefaultOrgId(): Promise<string> {
       billingType: 'flat',
       plan: 'nonprofit',
       active: true,
+      primaryColor: DEFAULT_BRAND_ACCENT,
     },
     update: {},
   });

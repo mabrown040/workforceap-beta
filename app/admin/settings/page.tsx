@@ -22,13 +22,18 @@ export default async function AdminSettingsPage() {
   const organizationId = await getDefaultOrganizationId();
   const org = await prisma.organization.findUnique({
     where: { id: organizationId },
-    select: { name: true, overviewVideoUrl: true },
+    select: { name: true, overviewVideoUrl: true, logo: true, primaryColor: true },
   });
 
   return (
     <div>
       <PageHeader title="Organization settings" subtitle="Platform-wide options for the default tenant." />
-      <AdminOrgSettingsForm defaultName={org?.name ?? 'WorkforceAP'} defaultOverviewVideoUrl={org?.overviewVideoUrl ?? ''} />
+      <AdminOrgSettingsForm
+        defaultName={org?.name ?? 'WorkforceAP'}
+        defaultOverviewVideoUrl={org?.overviewVideoUrl ?? ''}
+        defaultLogoUrl={org?.logo ?? ''}
+        defaultPrimaryColor={org?.primaryColor ?? ''}
+      />
     </div>
   );
 }

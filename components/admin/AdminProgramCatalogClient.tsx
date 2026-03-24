@@ -16,6 +16,8 @@ type CatalogRow = {
   status: string;
   displayOrder: number;
   featured: boolean;
+  programStartDate: string | null;
+  programEndDate: string | null;
 };
 
 const DELIVERY = ['external_lms', 'youtube', 'in_person', 'virtual', 'internal'] as const;
@@ -237,6 +239,34 @@ export default function AdminProgramCatalogClient() {
                           onBlur={(e) => {
                             const v = e.target.value.trim() || null;
                             if (v !== r.duration) void patchRow(r.id, { duration: v });
+                          }}
+                        />
+                      </label>
+                      <label className="form-group" style={{ display: 'block', marginBottom: '0.75rem' }}>
+                        <span>Program start (TWC export; optional)</span>
+                        <input
+                          type="date"
+                          style={{ width: '100%', fontSize: '0.875rem' }}
+                          defaultValue={r.programStartDate ? r.programStartDate.slice(0, 10) : ''}
+                          key={`${r.id}-sd`}
+                          onBlur={(e) => {
+                            const v = e.target.value.trim() || null;
+                            const prev = r.programStartDate ? r.programStartDate.slice(0, 10) : '';
+                            if (v !== prev) void patchRow(r.id, { programStartDate: v });
+                          }}
+                        />
+                      </label>
+                      <label className="form-group" style={{ display: 'block' }}>
+                        <span>Program end (TWC export; optional)</span>
+                        <input
+                          type="date"
+                          style={{ width: '100%', fontSize: '0.875rem' }}
+                          defaultValue={r.programEndDate ? r.programEndDate.slice(0, 10) : ''}
+                          key={`${r.id}-ed`}
+                          onBlur={(e) => {
+                            const v = e.target.value.trim() || null;
+                            const prev = r.programEndDate ? r.programEndDate.slice(0, 10) : '';
+                            if (v !== prev) void patchRow(r.id, { programEndDate: v });
                           }}
                         />
                       </label>

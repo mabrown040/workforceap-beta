@@ -48,7 +48,12 @@ export default async function AdminProgramsPage() {
       />
 
       <section style={{ marginBottom: '2.5rem' }}>
-        <h2 style={{ fontSize: '1.15rem', marginBottom: '0.75rem' }}>Program catalog</h2>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.75rem' }}>
+          <h2 style={{ fontSize: '1.15rem', margin: 0 }}>Program catalog</h2>
+          <a href="/api/admin/programs/export-twc" className="btn btn-outline btn-sm">
+            Export for TX state approval (CSV)
+          </a>
+        </div>
         <AdminProgramCatalogClient />
       </section>
 

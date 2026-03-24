@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import CertificationRoadmap from '@/components/portal/CertificationRoadmap';
+import CertificationReferenceSection from '@/components/portal/CertificationReferenceSection';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Certification Roadmap',
@@ -21,6 +22,7 @@ export default async function DashboardCertificationsPage() {
         Track your progress toward industry-recognized certifications across IT, healthcare, and skilled trades.
       </p>
       <div style={{ maxWidth: '800px' }}>
+        <CertificationReferenceSection />
         <CertificationRoadmap />
       </div>
     </div>

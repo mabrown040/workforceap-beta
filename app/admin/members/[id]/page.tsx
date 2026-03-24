@@ -7,6 +7,8 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { memberTrainingProfileComplete } from '@/lib/platform/trainingEnrollmentGate';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
 import MemberDetailActions from '@/components/admin/MemberDetailActions';
@@ -90,6 +92,25 @@ export default async function AdminMemberDetailPage({
   const preScreening = await prisma.preScreeningResponse.findUnique({
     where: { userId: member.id },
   });
+
+  const organizationId = await getDefaultOrganizationId();
+  const catalogPrograms = await prisma.organizationProgramCatalog.findMany({
+    where: { organizationId },
+    orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
+    select: { programSlug: true, name: true, status: true },
+  });
+  const programOptions =
+    catalogPrograms.length > 0
+      ? catalogPrograms.map((r) => ({ slug: r.programSlug, name: r.name, status: r.status }))
+      : null;
+
+  const gate = memberTrainingProfileComplete({
+    phone: member.phone,
+    profilePhone: member.profile?.profilePhone,
+    profileAddress: member.profile?.profileAddress,
+    financialAidInterest: member.profile?.financialAidInterest,
+  });
+  const profileIncomplete = !gate.ok;
 
   const program = member.enrolledProgram ? getProgramBySlug(member.enrolledProgram) : null;
   const coursesCompleted = (member.coursesCompleted as string[] | null) ?? [];
@@ -202,8 +223,11 @@ export default async function AdminMemberDetailPage({
           </ul>
           <MemberDetailActions
             userId={member.id}
+            memberName={member.fullName}
+            profileIncomplete={profileIncomplete}
             currentProgramSlug={member.enrolledProgram}
             assessmentCompleted={member.assessmentCompleted}
+            programOptions={programOptions ?? []}
           />
         </section>
 

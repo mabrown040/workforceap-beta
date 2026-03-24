@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { z } from 'zod';
 
 const partnerSchema = z.object({
@@ -56,6 +57,7 @@ export async function POST(request: NextRequest) {
   }
 
   const { referralCode: _rc, ...rest } = parsed.data;
-  const partner = await prisma.partner.create({ data: { ...rest, referralCode } });
+  const organizationId = await getDefaultOrganizationId();
+  const partner = await prisma.partner.create({ data: { ...rest, referralCode, organizationId } });
   return NextResponse.json(partner, { status: 201 });
 }

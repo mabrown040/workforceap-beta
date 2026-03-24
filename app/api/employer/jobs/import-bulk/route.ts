@@ -33,6 +33,7 @@ const bulkSchema = z
   });
 
 async function createDraftFromParsedJob(
+  organizationId: string,
   employerId: string,
   extracted: ParsedJob,
   sourceUrl: string,
@@ -41,7 +42,7 @@ async function createDraftFromParsedJob(
 ) {
   const normalized = normalizeImportedParsedJob(extracted);
   const job = await prisma.job.create({
-    data: buildEmployerJobCreateData(employerId, {
+    data: buildEmployerJobCreateData(organizationId, employerId, {
       title: normalized.title,
       location: normalized.location,
       locationType: normalized.locationType ?? 'onsite',
@@ -62,11 +63,12 @@ async function createDraftFromParsedJob(
 }
 
 async function createDraftFromImportedInput(
+  organizationId: string,
   employerId: string,
   draft: ImportedDraftInput
 ) {
   const job = await prisma.job.create({
-    data: buildEmployerJobCreateData(employerId, {
+    data: buildEmployerJobCreateData(organizationId, employerId, {
       title: draft.title,
       location: draft.location,
       locationType: draft.locationType,
@@ -108,11 +110,12 @@ export async function POST(request: NextRequest) {
 
     const employerExists = await prisma.employer.findUnique({
       where: { id: ctx.employerId },
-      select: { id: true },
+      select: { id: true, organizationId: true },
     });
     if (!employerExists) {
       return NextResponse.json({ error: 'Selected employer record was not found.' }, { status: 400 });
     }
+    const { organizationId } = employerExists;
 
     const { success: importAllowed, remaining: importRemaining } = await checkEmployerJobImportRateLimit(user.id);
     if (!importAllowed) {
@@ -164,7 +167,7 @@ export async function POST(request: NextRequest) {
         if (atsResult.jobs.length > 0) {
           for (const atsJob of atsResult.jobs) {
             const job = await prisma.job.create({
-              data: buildEmployerJobCreateData(ctx.employerId, {
+              data: buildEmployerJobCreateData(organizationId, ctx.employerId, {
                 title: atsJob.title,
                 location: atsJob.location,
                 locationType: atsJob.locationType ?? 'onsite',
@@ -190,7 +193,7 @@ export async function POST(request: NextRequest) {
           const collected = await collectDraftInputsFromPageText(atsResult.rawText, { baseUrl: url });
           if (collected.handled) {
             for (const draft of collected.drafts) {
-              created.push(await createDraftFromImportedInput(ctx.employerId, draft));
+              created.push(await createDraftFromImportedInput(organizationId, ctx.employerId, draft));
             }
             errors.push(...collected.errors);
             continue;
@@ -202,6 +205,7 @@ export async function POST(request: NextRequest) {
           const extractedRaw = parsedJob ?? buildFallbackParsedJobFromScrape(undefined, atsResult.rawText);
           if (extractedRaw) {
             created.push(await createDraftFromParsedJob(
+              organizationId,
               ctx.employerId,
               extractedRaw,
               url,
@@ -220,6 +224,7 @@ export async function POST(request: NextRequest) {
         const directResult = await parseSingleJobUrl(url);
         if (directResult) {
           created.push(await createDraftFromParsedJob(
+            organizationId,
             ctx.employerId,
             directResult.extracted,
             url,
@@ -247,7 +252,7 @@ export async function POST(request: NextRequest) {
       if (atsResult.jobs.length > 0) {
         for (const atsJob of atsResult.jobs) {
           const job = await prisma.job.create({
-            data: buildEmployerJobCreateData(ctx.employerId, {
+            data: buildEmployerJobCreateData(organizationId, ctx.employerId, {
               title: atsJob.title,
               location: atsJob.location,
               locationType: atsJob.locationType ?? 'onsite',
@@ -282,7 +287,7 @@ export async function POST(request: NextRequest) {
       const collected = await collectDraftInputsFromPageText(listingsText, { baseUrl: careersPageUrl });
       if (collected.handled) {
         for (const draft of collected.drafts) {
-          created.push(await createDraftFromImportedInput(ctx.employerId, draft));
+          created.push(await createDraftFromImportedInput(organizationId, ctx.employerId, draft));
         }
         errors.push(...collected.errors);
         careersPageProcessed = true;

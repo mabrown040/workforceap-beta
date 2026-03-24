@@ -1,12 +1,34 @@
 import { randomUUID } from 'crypto';
 import { PrismaClient, ApplicationStatus } from '@prisma/client';
 import { seedBlogPosts } from './seed-blog';
+import { seedOrganizationProgramCatalog } from '../lib/platform/seedProgramCatalog';
 
 const prisma = new PrismaClient();
+
+async function ensureDefaultOrgId(): Promise<string> {
+  await prisma.organization.upsert({
+    where: { slug: 'workforceap' },
+    create: {
+      name: 'WorkforceAP',
+      slug: 'workforceap',
+      billingType: 'flat',
+      plan: 'nonprofit',
+      active: true,
+    },
+    update: {},
+  });
+  const row = await prisma.organization.findUniqueOrThrow({
+    where: { slug: 'workforceap' },
+    select: { id: true },
+  });
+  return row.id;
+}
 
 /** Dev/staging QA only — set SEED_TEST_ACCOUNTS=true. Supabase passwords (create users in Dashboard): TestWfAP2026! */
 
 async function main() {
+  const defaultOrgId = await ensureDefaultOrgId();
+
   const roles = ['member', 'admin', 'case_manager', 'counselor', 'partner', 'employer'];
   for (const name of roles) {
     await prisma.role.upsert({
@@ -16,6 +38,9 @@ async function main() {
     });
   }
   console.log('Seeded roles:', roles);
+
+  await seedOrganizationProgramCatalog(defaultOrgId);
+  console.log('Seeded organization program catalog from static PROGRAMS list');
 
   // Seed admin users (mabrown040 is super_admin for testing all portal views)
   const superAdminEmails = ['mabrown040@gmail.com'];
@@ -32,6 +57,7 @@ async function main() {
         where: { userId: user.id },
         update: {},
         create: {
+          organizationId: defaultOrgId,
           userId: user.id,
           companyName: 'Demo Employer',
           contactName: user.fullName ?? 'Admin',
@@ -67,7 +93,7 @@ async function main() {
     await prisma.partner.upsert({
       where: { slug: p.slug },
       update: { referralCode: p.slug },
-      create: { ...p, referralCode: p.slug },
+      create: { ...p, referralCode: p.slug, organizationId: defaultOrgId },
     });
   }
   console.log('Seeded partners:', partnerSeeds.length);
@@ -105,6 +131,7 @@ async function main() {
         where: { email: 'member-test@workforceap.org' },
         create: {
           id: memberTestId,
+          organizationId: defaultOrgId,
           email: 'member-test@workforceap.org',
           fullName: 'Portal QA Member',
           phone: '5125550100',
@@ -136,6 +163,7 @@ async function main() {
         where: { email: 'partner-test@workforceap.org' },
         create: {
           id: partnerTestId,
+          organizationId: defaultOrgId,
           email: 'partner-test@workforceap.org',
           fullName: 'Portal QA Partner',
           phone: '5125550101',
@@ -159,6 +187,7 @@ async function main() {
           where: { email: 'referral-member-a@workforceap.org' },
           create: {
             id: refA,
+            organizationId: defaultOrgId,
             email: 'referral-member-a@workforceap.org',
             fullName: 'Referral Member A',
           },
@@ -168,6 +197,7 @@ async function main() {
           where: { email: 'referral-member-b@workforceap.org' },
           create: {
             id: refB,
+            organizationId: defaultOrgId,
             email: 'referral-member-b@workforceap.org',
             fullName: 'Referral Member B',
           },
@@ -190,6 +220,7 @@ async function main() {
         where: { email: 'employer-test@workforceap.org' },
         create: {
           id: employerTestId,
+          organizationId: defaultOrgId,
           email: 'employer-test@workforceap.org',
           fullName: 'Portal QA Employer',
           phone: '5125550102',
@@ -204,6 +235,7 @@ async function main() {
       const empRow = await prisma.employer.upsert({
         where: { userId: employerTestId },
         create: {
+          organizationId: defaultOrgId,
           userId: employerTestId,
           companyName: 'QA Employer Co',
           contactName: 'Portal QA Employer',
@@ -217,6 +249,7 @@ async function main() {
         where: { email: 'match-candidate@workforceap.org' },
         create: {
           id: matchMemberId,
+          organizationId: defaultOrgId,
           email: 'match-candidate@workforceap.org',
           fullName: 'Match Candidate',
         },
@@ -225,6 +258,7 @@ async function main() {
       await prisma.job.deleteMany({ where: { employerId: empRow.id, title: { startsWith: '[QA] ' } } });
       const j1 = await prisma.job.create({
         data: {
+          organizationId: defaultOrgId,
           employerId: empRow.id,
           title: '[QA] Software Engineer',
           description: 'QA seed job for employer portal.',
@@ -234,6 +268,7 @@ async function main() {
       });
       const j2 = await prisma.job.create({
         data: {
+          organizationId: defaultOrgId,
           employerId: empRow.id,
           title: '[QA] Data Analyst',
           description: 'QA seed job for employer portal.',
@@ -267,6 +302,7 @@ async function main() {
         where: { email: 'admin-test@workforceap.org' },
         create: {
           id: adminTestId,
+          organizationId: defaultOrgId,
           email: 'admin-test@workforceap.org',
           fullName: 'Portal QA Admin',
           phone: '5125550103',

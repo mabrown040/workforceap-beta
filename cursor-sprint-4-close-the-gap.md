@@ -94,20 +94,25 @@ This is the first time WorkforceAP is publicly asking employers for money. The p
 
 ---
 
-### P1-2: Homepage placement counter (live from DB)
-**Problem:** The homepage has static copy. We need a live "X members placed in jobs" counter to build trust with both members and employers.
+### P1-2: Homepage live stats (enrolled + programs + partners — NOT placements)
+**Problem:** The homepage has static copy. We need live stats from the WorkforceAP DB.
+
+**IMPORTANT:** Do NOT show a "members placed" counter on the public site. The historical placement data (from before WorkforceAP was founded) belongs to the founder's prior work and cannot be attributed to WorkforceAP. Only show stats that are genuinely WorkforceAP numbers.
 
 **Fix:**
 1. Create `app/api/stats/route.ts` — public endpoint returning:
    ```json
-   { "membersPlaced": 12, "programsOffered": 19, "partnersActive": 8 }
+   { "membersEnrolled": 0, "programsOffered": 19, "partnersActive": 8 }
    ```
-   Query from `prisma.placedOutcome.count()`, `PROGRAMS.length`, and `prisma.partner.count({ where: { active: true } })`
-2. In `app/page.tsx`, fetch this endpoint client-side and replace the hardcoded stat values with live DB values
-3. Cache: `revalidate = 3600` (update hourly)
-4. Fallback to hardcoded values if fetch fails
+   - `membersEnrolled`: `prisma.profile.count({ where: { enrolledProgram: { not: null } } })`
+   - `programsOffered`: `PROGRAMS.length` from lib/content/programs.ts (static — 19)
+   - `partnersActive`: `prisma.partner.count({ where: { active: true } })`
+2. In `app/page.tsx`, fetch this endpoint and update stat values with live DB values
+3. Change the stat labels to: "Members Enrolled", "Programs Available", "Partner Organizations" (remove any "Members Placed" stat)
+4. Cache: `revalidate = 3600`
+5. Fallback to reasonable defaults (0, 19, 0) if fetch fails
 
-**Commit:** `feat(homepage): replace static stats with live DB counters for members placed, programs, partners`
+**Commit:** `feat(homepage): add live stats API for enrolled members, programs, partners — no fake placement numbers`
 
 ---
 
@@ -118,7 +123,8 @@ This is the first time WorkforceAP is publicly asking employers for money. The p
 
 **Fix:** Create `app/impact/page.tsx`:
 - Page title: "Member Outcomes — WorkforceAP Impact"
-- Hero stat row: members enrolled (from DB), certifications earned (from DB), members placed (from PlacedOutcome table)
+- Hero stat row: members enrolled (from DB), certifications earned (from DB), partner organizations (from DB)
+- NOTE: Do NOT show historical placement numbers from pre-WorkforceAP data. Only show genuine WorkforceAP outcomes. If PlacedOutcome table is empty, show "First placements coming soon" or omit the stat.
 - "Programs that have placed members" — list programs with at least 1 placement
 - Placeholder section: "Member Stories — coming soon" (blank for now, ready for testimonials)
 - SEO metadata: target "Austin workforce training outcomes" keywords

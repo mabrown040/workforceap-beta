@@ -5947,7 +5947,7 @@ body { animation: fadeIn 0.4s ease; }
     margin-bottom: 1rem;
 }
 .resume-rewriter-output-header h3 { font-size: 1.1rem; margin: 0; }
-.btn-sm { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+.btn-sm { padding: 0.4rem 0.8rem; font-size: 0.85rem; min-height: 36px; }
 .headline-list { list-style: none; padding: 0; margin: 0; }
 .headline-item {
   display: flex;
@@ -6809,8 +6809,10 @@ body { animation: fadeIn 0.4s ease; }
     color: var(--color-primary);
 }
 .workspace-sidebar-link.active {
-    background: var(--color-gray-100);
-    color: var(--color-primary);
+    background: rgba(173, 44, 77, 0.07);
+    color: var(--color-accent);
+    font-weight: 600;
+    box-shadow: inset 2px 0 0 var(--color-accent);
 }
 .workspace-sidebar-footer {
     margin-top: 1.5rem;
@@ -6898,6 +6900,9 @@ body { animation: fadeIn 0.4s ease; }
         justify-content: center;
         padding-left: 0.35rem;
         padding-right: 0.35rem;
+    }
+    .workspace-sidebar--collapsed .workspace-sidebar-link.active {
+        box-shadow: none;
     }
     .workspace-sidebar--collapsed .workspace-nav-badge {
         position: absolute;
@@ -8526,6 +8531,7 @@ body { animation: fadeIn 0.4s ease; }
 .dashboard-stat-icon {
     font-size: 1.25rem;
     margin-bottom: 0.35rem;
+    color: var(--color-accent);
 }
 
 /* Student dashboard — Today / Next Step (student-success coach) */
@@ -8704,9 +8710,15 @@ body { animation: fadeIn 0.4s ease; }
     padding: 0.6rem 1rem;
     font-size: 0.9rem;
     color: var(--color-gray-600);
+    background: transparent !important;
+    border: 1px solid var(--color-gray-300) !important;
+    backdrop-filter: none !important;
 }
 .dashboard-today-secondary:hover {
     color: var(--color-primary);
+    background: var(--color-gray-100) !important;
+    border-color: var(--color-gray-400) !important;
+    transform: none !important;
 }
 .dashboard-today-card-highlight {
     background: linear-gradient(135deg, rgba(173, 44, 77, 0.1), rgba(173, 44, 77, 0.04));
@@ -8825,24 +8837,54 @@ body { animation: fadeIn 0.4s ease; }
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
 }
-.dashboard-recent-collapsed summary,
-.dashboard-checklist-collapsed summary {
+.dashboard-recent-collapsed > summary,
+.dashboard-checklist-collapsed > summary {
     cursor: pointer;
     font-size: 0.9rem;
     font-weight: 500;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    user-select: none;
+}
+.dashboard-recent-collapsed > summary::-webkit-details-marker,
+.dashboard-checklist-collapsed > summary::-webkit-details-marker {
+    display: none;
+}
+.dashboard-recent-collapsed > summary::after,
+.dashboard-checklist-collapsed > summary::after {
+    content: '';
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid var(--color-gray-400);
+    transition: transform var(--transition-fast);
+    flex-shrink: 0;
+}
+.dashboard-recent-collapsed[open] > summary::after,
+.dashboard-checklist-collapsed[open] > summary::after {
+    transform: rotate(180deg);
 }
 .dashboard-recent-collapsed ul,
 .dashboard-checklist-collapsed ul {
-    margin: 0.5rem 0 0;
-    padding-left: 1.25rem;
+    margin: 0.75rem 0 0;
+    padding-left: 0;
     font-size: 0.9rem;
+    list-style: none;
 }
 .dashboard-recent-collapsed li,
 .dashboard-checklist-collapsed li {
     margin-bottom: 0.35rem;
     display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.dashboard-recent-collapsed li {
     justify-content: space-between;
-    gap: 1rem;
 }
 @media (max-width: 639px) {
     .dashboard-today-actions {

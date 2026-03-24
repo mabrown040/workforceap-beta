@@ -206,13 +206,68 @@ This queue replaces the ad-hoc process. Your dad works the queue.
 
 ---
 
-## What NOT to Build Tonight
+## Part 5: Org Settings Admin Page
+
+Needed for multi-tenant — each licensed org must configure their own branding without touching code.
+
+**Page:** `/admin/settings`
+
+Fields:
+- Org name
+- Logo upload (reuse existing Supabase storage pattern)
+- Primary color (hex input with preview)
+- Overview video URL (Loom/YouTube/Vimeo — used in member onboarding Step 2)
+
+Store on `Organization` model. Any org-scoped page reads `org.primaryColor` and `org.logo` for branding. The overview video URL replaces the hardcoded embed in the onboarding flow.
+
+---
+
+## Part 6: Texas State Funding Export
+
+Your dad needs to submit 18 class records to TWC for state exemption approval. The Program model already has all the required fields. Add a one-click export.
+
+**Page:** `/admin/programs` → "Export for TX State Approval" button
+
+**Output:** CSV (or printable page) with one row per active program:
+- Program name
+- Short description (first 200 chars)
+- Duration
+- Tuition cost
+- Certification exam cost
+- Book/materials cost
+- Miscellaneous fees
+- Total cost (sum of above)
+- Start date (if set, else "Rolling")
+- End date (if set, else "Rolling")
+- Certifications earned (comma-separated)
+
+This saves hours on the TWC application. The data is already in the DB — this is purely a view layer.
+
+---
+
+## Part 7: Admin Enrollment Bypass
+
+The profile-required gate (phone + address before training enrollment) must have an admin override. If your dad manually enrolls someone from his network, he shouldn't hit the same gate as a self-serve member.
+
+**Implementation:**
+- Add `enrolledByAdminId String?` to `CourseEnrollment` model (nullable — null = self-enrolled)
+- When admin enrolls a member from the admin portal, set this field to the admin's user ID
+- Skip the profile-required gate when `enrolledByAdminId` is set
+- Member still sees a "Complete your profile" prompt after enrollment — soft nudge, not a hard block
+- Admin dashboard enrollment action: shows a confirmation modal "Enroll [Name] in [Program]? Their profile is incomplete — they'll be prompted to complete it after enrollment."
+
+---
+
+## What NOT to Build in This Sprint
 
 - Calendly integration (AI agent intake planned for next month)
 - Coursera API integration (tomorrow — need creds first)
 - Google Workspace provisioning (Sprint 8)
 - Custom domain routing for tenant orgs (Sprint 9+)
 - Billing/payments (post-launch)
+- Member post-hire check-ins (Sprint 8)
+- Partner referral attribution loop (Sprint 8)
+- Employer co-funder tier (Sprint 9+)
 
 ---
 

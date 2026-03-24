@@ -251,8 +251,8 @@ export default function EmployerSettingsForm({ initial }: { initial: EmployerSet
         </div>
       </fieldset>
 
-      <button type="submit" className="btn btn-primary" disabled={saving}>
-        {saving ? 'Saving…' : 'Save changes'}
+      <button type="submit" className="btn btn-primary" disabled={saving || logoUploading}>
+        {saving ? 'Saving…' : logoUploading ? 'Uploading logo…' : 'Save changes'}
       </button>
     </form>
   );

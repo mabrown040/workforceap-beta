@@ -7,6 +7,7 @@ import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
+import { toPartnerMembersListRows } from '@/lib/partner/referralBundle';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
 import PartnerMembersList from '@/components/portal/PartnerMembersList';
 import PageHeader from '@/components/portal/PageHeader';
@@ -247,29 +248,15 @@ export default async function PartnerDashboardPage() {
               </div>
             </div>
             <PartnerMembersList
-              members={pipelineMembers.map(({ member: m, stage, progress, programTitle }) => {
-                const stageLabel = PIPELINE_STAGE_LABELS[stage as keyof typeof PIPELINE_STAGE_LABELS];
-                const story = m.placementRecord
-                  ? `Placed at ${m.placementRecord.employerName} as ${m.placementRecord.jobTitle}`
-                  : progress >= 100
-                    ? `Completed ${programTitle}`
-                    : progress > 0
-                      ? `${progress}% through ${programTitle}`
-                      : stage === 'enrolled'
-                        ? `Enrolled in ${programTitle}`
-                        : stageLabel;
-
-                return {
-                  id: m.id,
-                  fullName: m.fullName,
-                  stage,
-                  stageLabel,
-                  progress,
-                  programTitle,
-                  story,
-                  referredAtLabel: m.referredAt.toLocaleDateString(),
-                };
-              })}
+              members={toPartnerMembersListRows(
+                pipelineMembers.map((p) => ({
+                  member: p.member,
+                  referredAt: p.member.referredAt,
+                  stage: p.stage,
+                  progress: p.progress,
+                  programTitle: p.programTitle,
+                })),
+              )}
             />
           </section>
 

@@ -82,6 +82,10 @@ model User {
   memberSubgroupsAssigned MemberSubgroup[] @relation("MemberSubgroupAssigner")
   subgroupLeaderRows SubgroupLeader[]
 
+  messageThreadsAsMember    MessageThread[] @relation("MemberMessageThreads")
+  messageThreadsAsCounselor MessageThread[] @relation("CounselorMessageThreads")
+  messagesAuthored          Message[]
+
   @@map("users")
 }
 
@@ -590,6 +594,38 @@ model CounselorAssignment {
   @@index([counselorId])
   @@index([memberId])
   @@map("counselor_assignments")
+}
+
+// Member <-> assigned counselor chat (Supabase Realtime on messages + message_threads)
+model MessageThread {
+  id                   String    @id @default(uuid())
+  memberId             String    @unique @map("member_id")
+  counselorUserId      String?   @map("counselor_user_id")
+  memberLastReadAt     DateTime? @map("member_last_read_at")
+  counselorLastReadAt  DateTime? @map("counselor_last_read_at")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  member    User @relation("MemberMessageThreads", fields: [memberId], references: [id], onDelete: Cascade)
+  counselor User?      @relation("CounselorMessageThreads", fields: [counselorUserId], references: [id], onDelete: SetNull)
+  messages  Message[]
+
+  @@index([counselorUserId])
+  @@map("message_threads")
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  threadId  String   @map("thread_id")
+  authorId  String   @map("author_id")
+  body      String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  thread MessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  author User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([threadId, createdAt])
+  @@map("messages")
 }
 
 model PartnerReferral {

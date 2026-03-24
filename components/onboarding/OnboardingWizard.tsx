@@ -173,7 +173,7 @@ export default function OnboardingWizard({
           <button
             type="button"
             onClick={() => void skip()}
-            className="wa-absolute wa-bottom-3 wa-right-4 wa-text-xs wa-text-slate-500 hover:wa-text-slate-700 wa-underline dark:wa-text-slate-400 dark:hover:wa-text-slate-200"
+            className="wa-text-xs wa-text-slate-500 hover:wa-text-slate-700 wa-underline dark:wa-text-slate-400 dark:hover:wa-text-slate-200 wa-mt-2 wa-block wa-text-center"
           >
             Skip setup
           </button>

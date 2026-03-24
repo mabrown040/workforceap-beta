@@ -62,6 +62,7 @@ model User {
   counselorAssignments CounselorAssignment[] @relation("MemberAssignments")
   partnerReferrals     PartnerReferral[]     @relation("MemberReferrals")
   placementRecord    PlacementRecord?
+  placedOutcome      PlacedOutcome?
   counselorNotes     CounselorNote[]  @relation("MemberNotes")
   notesAuthored      CounselorNote[]  @relation("NoteAuthor")
   partnerUser        PartnerUser?
@@ -698,6 +699,40 @@ model PlacementRecord {
 
   @@index([placedAt])
   @@map("placement_records")
+}
+
+// WorkforceAP-reported placements for grant metrics (separate from counselor PlacementRecord).
+model PlacedOutcome {
+  id             String   @id @default(uuid())
+  userId         String   @unique @map("user_id")
+  employerName   String   @map("employer_name")
+  jobTitle       String   @map("job_title")
+  startingSalary Int?     @map("starting_salary")
+  placedAt       DateTime @default(now()) @map("placed_at")
+  programSlug    String?  @map("program_slug")
+  notes          String?
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([placedAt])
+  @@map("placed_outcomes")
+}
+
+model PartnerSignupRequest {
+  id               String   @id @default(uuid())
+  organizationName String   @map("organization_name")
+  contactName      String   @map("contact_name")
+  contactEmail     String   @map("contact_email")
+  contactPhone     String?  @map("contact_phone")
+  orgType          String   @map("org_type")
+  expectedMonthly  String?  @map("expected_monthly")
+  status           String   @default("pending")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  @@index([status])
+  @@map("partner_signup_requests")
 }
 
 model CounselorNote {

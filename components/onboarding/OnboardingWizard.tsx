@@ -151,7 +151,7 @@ export default function OnboardingWizard({
             <button
               type="button"
               onClick={goNext}
-              className="wa-rounded-lg wa-bg-brand-primary wa-px-4 wa-py-2 wa-text-sm wa-font-semibold wa-text-white hover:wa-bg-blue-800"
+              className="wa-rounded-lg wa-bg-brand-primary wa-px-4 wa-py-2 wa-text-sm wa-font-semibold wa-text-white hover:wa-bg-neutral-800"
             >
               {last ? 'Finish' : 'Next'}
             </button>
@@ -182,3 +182,4 @@ export default function OnboardingWizard({
     </div>
   );
 }
+

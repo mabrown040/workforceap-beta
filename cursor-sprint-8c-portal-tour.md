@@ -197,15 +197,16 @@ The Tailwind config uses prefix wa- and these custom brand tokens:
 
 | Element | Class |
 |---------|-------|
-| Primary CTA button (Next, Done, Finish) | wa-bg-brand-primary wa-text-white hover:wa-bg-blue-800 |
+| Primary CTA button (Next, Done, Finish) | wa-bg-brand-accent wa-text-white hover:wa-bg-brand-accent-dark |
 | Active step dot | wa-bg-brand-primary |
 | Inactive step dot | wa-bg-slate-200 |
 | Tour popover header | wa-bg-brand-primary wa-text-white |
 | Tour highlight ring | wa-ring-brand-primary |
 | Skip / secondary link | wa-text-slate-500 hover:wa-text-brand-primary |
 | Tour "X of N" counter | wa-text-brand-primary wa-font-medium |
-| Error boundary "Try again" button | wa-bg-brand-primary wa-text-white hover:wa-bg-blue-800 |
+| Error boundary "Try again" button | wa-bg-brand-accent wa-text-white hover:wa-bg-brand-accent-dark |
 | Dev reset button | wa-bg-slate-800 wa-text-white (intentionally muted) |
 
 **Do NOT use generic lue-600, indigo-*, or iolet-*** — always use brand tokens.
 All classes must use the wa- prefix. Standard Tailwind classes without wa- will not apply.
+

@@ -1336,6 +1336,39 @@ html.dark .homepage .hero-overlay {
         radial-gradient(ellipse at 20% 80%, rgba(164,127,56,0.1) 0%, transparent 52%),
         radial-gradient(ellipse at 80% 20%, rgba(173,44,77,0.08) 0%, transparent 52%);
 }
+/* Site dark mode inverts --color-white to a dark gray; hero sits on a photo and must stay true white. */
+html.dark .homepage .hero {
+    color: #ffffff;
+}
+html.dark .homepage .hero-title {
+    color: #ffffff;
+}
+html.dark .homepage .hero-subtitle {
+    color: rgba(255, 255, 255, 0.95);
+}
+html.dark .homepage .hero-no-cost-badge {
+    color: #ffffff;
+}
+html.dark .homepage .trust-strip {
+    color: rgba(255, 255, 255, 0.92);
+}
+html.dark .homepage .hero .btn-accent,
+html.dark .homepage .hero a.btn-accent {
+    color: #ffffff;
+}
+html.dark .homepage .hero .btn-ghost,
+html.dark .homepage .hero a.btn-ghost {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.35);
+}
+html.dark .homepage .trust-logos img {
+    filter: brightness(0) invert(1);
+    opacity: 0.92;
+}
+html.dark .homepage .trust-logos img:hover {
+    filter: brightness(0) invert(1);
+    opacity: 1;
+}
 .hero-container {
     position: relative;
     z-index: 1;

@@ -19,6 +19,7 @@ const routes = [
   '/jobs',
   '/leadership',
   '/partners',
+  '/partner-signup',
   '/program-comparison',
   '/programs',
   '/salary-guide',

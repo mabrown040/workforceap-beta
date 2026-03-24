@@ -1,24 +1,22 @@
 #!/usr/bin/env node
 /**
  * Cross-platform migration runner.
- * 1. Resolves any known failed migrations (ignores errors — migration may already be clean)
+ * 1. Optionally resolves failed migrations (rolled-back) from migrate status output
  * 2. Runs prisma migrate deploy
  * 3. Exits with deploy exit code
+ *
+ * Do NOT call `migrate resolve --applied` here for migrations already in history:
+ * Prisma P3008 if they are already recorded — breaks Vercel/CI on every deploy.
  */
 const { spawnSync } = require('child_process');
 
 // Load prisma env vars
 require('./ensure-prisma-env.cjs');
 
-// Migrations to mark as APPLIED (tables already exist in prod DB)
-const MARK_APPLIED = [
-  '20260319100000_add_partner_users',
-  '20260320100001_employer_portal_jobs',
-];
+// One-off `resolve --applied` for legacy DBs caused P3008 on Supabase once rows exist — keep empty.
+const MARK_APPLIED = [];
 
-// Migrations to mark as ROLLED BACK (never applied, safe to skip)
-const MARK_ROLLED_BACK = [
-];
+const MARK_ROLLED_BACK = [];
 
 function run(args, ignoreError = false) {
   const result = spawnSync(process.execPath, [require.resolve('./prisma-env.js'), ...args], {
@@ -49,7 +47,7 @@ for (const migration of MARK_ROLLED_BACK) {
   run(['prisma', 'migrate', 'resolve', '--rolled-back', migration], true);
 }
 
-// Before migrate deploy: mark any DB-recorded failed migrations as rolled-back so P3009 does not block deploy
+// Before migrate deploy: clear P3009 failed state (parse migrate status; ignore failures)
 try {
   const statusResult = spawnSync(
     process.execPath,

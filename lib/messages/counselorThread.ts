@@ -1,0 +1,110 @@
+import { prisma } from '@/lib/db/prisma';
+
+const MAX_BODY = 8000;
+
+export type ThreadMessageRow = {
+  id: string;
+  threadId: string;
+  authorId: string;
+  body: string;
+  createdAt: Date;
+};
+
+export async function resolveAssignedCounselorUserId(memberId: string): Promise<string | null> {
+  const row = await prisma.counselorAssignment.findFirst({
+    where: { memberId, active: true },
+    orderBy: { assignedAt: 'desc' },
+    select: { counselor: { select: { userId: true, active: true } } },
+  });
+  if (!row?.counselor?.active) return null;
+  return row.counselor.userId;
+}
+
+export async function getOrCreateMemberCounselorThread(memberId: string) {
+  const existing = await prisma.messageThread.findUnique({
+    where: { memberId },
+  });
+  if (existing) {
+    if (!existing.counselorUserId) {
+      const cid = await resolveAssignedCounselorUserId(memberId);
+      if (cid) {
+        return prisma.messageThread.update({
+          where: { id: existing.id },
+          data: { counselorUserId: cid },
+        });
+      }
+    }
+    return existing;
+  }
+
+  const counselorUserId = await resolveAssignedCounselorUserId(memberId);
+
+  return prisma.messageThread.create({
+    data: {
+      memberId,
+      counselorUserId,
+    },
+  });
+}
+
+export async function assertMemberCanAccessThread(userId: string, threadId: string) {
+  const thread = await prisma.messageThread.findFirst({
+    where: { id: threadId, memberId: userId },
+  });
+  return thread;
+}
+
+export async function assertStaffCanAccessThread(staffUserId: string, threadId: string) {
+  const thread = await prisma.messageThread.findUnique({
+    where: { id: threadId },
+    select: {
+      id: true,
+      memberId: true,
+      counselorUserId: true,
+    },
+  });
+  if (!thread) return null;
+  if (thread.counselorUserId === staffUserId) return thread;
+
+  const hasAdmin = await prisma.userRole.findFirst({
+    where: {
+      userId: staffUserId,
+      role: { name: { in: ['admin', 'case_manager'] } },
+    },
+    select: { userId: true },
+  });
+  if (hasAdmin) return thread;
+
+  const assigned = await prisma.counselorAssignment.findFirst({
+    where: { memberId: thread.memberId, active: true, counselor: { userId: staffUserId, active: true } },
+    select: { id: true },
+  });
+  if (assigned) return thread;
+
+  return null;
+}
+
+export async function assertMemberCanPost(userId: string, threadId: string) {
+  return assertMemberCanAccessThread(userId, threadId);
+}
+
+export async function assertStaffCanPost(staffUserId: string, threadId: string) {
+  return assertStaffCanAccessThread(staffUserId, threadId);
+}
+
+export function normalizeMessageBody(raw: string): { ok: true; body: string } | { ok: false; error: string } {
+  const body = raw.trim();
+  if (!body) return { ok: false, error: 'Message cannot be empty' };
+  if (body.length > MAX_BODY) return { ok: false, error: `Message too long (max ${MAX_BODY} characters)` };
+  return { ok: true, body };
+}
+
+export function serializeMessage(m: ThreadMessageRow) {
+  return {
+    id: m.id,
+    threadId: m.threadId,
+    authorId: m.authorId,
+    body: m.body,
+    createdAt: m.createdAt.toISOString(),
+  };
+}

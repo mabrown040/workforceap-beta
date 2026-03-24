@@ -42,7 +42,6 @@ export type NavBadgeKey =
   | 'applications_new'
   | 'partner_needs_attention'
   | 'milestones_new'
-  | 'readiness_incomplete'
   | 'counselor_messages_unread'
   | 'employer_queue_review_today'
   | 'employer_queue_stale_48h'
@@ -106,7 +105,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     Icon: MessageSquare,
     badgeKey: 'counselor_messages_unread',
   },
-  { href: '/dashboard/readiness', label: 'Career readiness', group: 'insights', Icon: CheckCircle, badgeKey: 'readiness_incomplete' },
+  { href: '/dashboard/readiness', label: 'Career readiness', group: 'insights', Icon: CheckCircle },
   { href: '/dashboard/assessments', label: 'Skills assessment', group: 'insights', Icon: ClipboardCheck },
   { href: '/dashboard/weekly-recap', label: 'Weekly recap', group: 'insights', Icon: BarChart3 },
   { href: '/dashboard/career-brief', label: 'Career Brief', group: 'insights', Icon: ClipboardList },

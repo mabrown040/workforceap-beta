@@ -36,10 +36,7 @@ export async function getNavBadgeCountsForUser(
 }
 
 async function getMemberBadgeCounts(userId: string): Promise<NavBadgeCounts> {
-  const [incompleteReadiness, pendingJobApps, thread] = await Promise.all([
-    prisma.readinessChecklist.count({
-      where: { userId, completed: false },
-    }),
+  const [pendingJobApps, thread] = await Promise.all([
     prisma.jobPostingApplication.count({
       where: { studentId: userId, status: 'pending' },
     }),
@@ -61,7 +58,7 @@ async function getMemberBadgeCounts(userId: string): Promise<NavBadgeCounts> {
   }
 
   return {
-    readiness_incomplete: incompleteReadiness,
+    // Career readiness is counselor-maintained; incomplete checklist items are not member action items.
     applications_new: pendingJobApps,
     counselor_messages_unread,
   };

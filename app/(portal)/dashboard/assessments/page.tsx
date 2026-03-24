@@ -5,7 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
-import { CheckCircle, FileQuestion, ArrowRight } from 'lucide-react';
+import { CheckCircle, FileQuestion, ArrowRight, Lock } from 'lucide-react';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Skills Assessment',
@@ -25,12 +25,14 @@ export default async function AssessmentsPage() {
       assessmentScorePct: true,
       assessmentScore: true,
       enrolledProgram: true,
+      interviewCompletedAt: true,
     },
   });
 
   if (!dbUser) redirect('/login');
 
   const completed = dbUser.assessmentCompleted ?? false;
+  const assessmentGated = !completed && dbUser.interviewCompletedAt == null;
 
   return (
     <div className="assessments-page">
@@ -49,7 +51,22 @@ export default async function AssessmentsPage() {
           maxWidth: 560,
         }}
       >
-        {completed ? (
+        {assessmentGated ? (
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+              <Lock size={28} style={{ color: 'var(--color-gray-500)', flexShrink: 0 }} aria-hidden />
+              <h2 style={{ fontSize: '1.15rem', margin: 0 }}>Assessment opens after your intake interview</h2>
+            </div>
+            <p style={{ marginBottom: '1rem', color: 'var(--color-gray-600)', lineHeight: 1.55 }}>
+              Your counselor uses the interview to confirm fit and next steps. After that conversation is complete, you
+              can take the skills snapshot here. If you believe your interview is already done and you still see this
+              message, contact your counselor or email support.
+            </p>
+            <Link href="/dashboard" className="btn btn-outline">
+              Back to overview
+            </Link>
+          </>
+        ) : completed ? (
           <>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
               <CheckCircle size={28} style={{ color: 'var(--color-accent)', flexShrink: 0 }} aria-hidden />

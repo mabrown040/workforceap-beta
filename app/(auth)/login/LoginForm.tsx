@@ -128,6 +128,18 @@ export default function LoginForm() {
 
           <div style={{ maxWidth: '420px', margin: '0 auto' }}>
             <div className="apply-form">
+              <p
+                className="login-form-context"
+                style={{
+                  margin: '0 0 1rem',
+                  fontSize: '0.9rem',
+                  color: 'var(--color-gray-600)',
+                  lineHeight: 1.45,
+                }}
+              >
+                <strong style={{ color: 'var(--color-primary)' }}>Logging in as:</strong>{' '}
+                {PORTAL_DESTINATIONS.find((o) => o.redirectTo === redirectTo)?.title ?? 'Member (student) portal'}
+              </p>
               <form onSubmit={handleSubmit} noValidate>
                 <div className="form-group">
                   <label htmlFor="email">Email *</label>

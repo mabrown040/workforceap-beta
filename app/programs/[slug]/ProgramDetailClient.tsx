@@ -6,26 +6,33 @@ import type { Program } from '@/lib/content/programs';
 export default function ProgramDetailClient({ program }: { program: Program }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
+  const skills = program.skills.filter((s) => s.trim().length > 0);
+
   return (
     <div>
-      <div style={{ marginBottom: '1.5rem' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Skills you&apos;ll learn</h2>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-          {program.skills.map((s) => (
-            <span
-              key={s}
-              style={{
-                background: '#f0f0f0',
-                padding: '0.25rem 0.6rem',
-                borderRadius: '4px',
-                fontSize: '0.9rem',
-              }}
-            >
-              {s}
-            </span>
-          ))}
+      {skills.length > 0 ? (
+        <div style={{ marginBottom: '1.5rem' }}>
+          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Skills you&apos;ll learn</h2>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+            {skills.map((s) => (
+              <span
+                key={s}
+                className="program-skill-tag"
+                style={{
+                  background: 'var(--color-gray-100, #f0f0f0)',
+                  color: 'var(--color-gray-800, #1a1a1a)',
+                  border: '1px solid var(--color-border, #e5e5e5)',
+                  padding: '0.25rem 0.6rem',
+                  borderRadius: '4px',
+                  fontSize: '0.9rem',
+                }}
+              >
+                {s}
+              </span>
+            ))}
+          </div>
         </div>
-      </div>
+      ) : null}
 
       <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Course list</h2>
       <div style={{ border: '1px solid var(--color-border, #e5e5e5)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>

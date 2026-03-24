@@ -11,7 +11,7 @@ export default function DeleteAccountButton() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const handleDelete = async () => {
-    if (confirmText.toLowerCase() !== 'delete') return;
+    if (confirmText.trim().toUpperCase() !== 'DELETE') return;
     setLoading(true);
     setDeleteError(null);
     try {
@@ -66,15 +66,18 @@ export default function DeleteAccountButton() {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 style={{ marginBottom: '0.75rem' }}>Delete Account</h3>
-            <p style={{ marginBottom: '1rem', fontSize: '0.95rem', color: 'var(--color-gray-600)' }}>
-              This will deactivate your account. Type &quot;delete&quot; to confirm.
+            <h3 style={{ marginBottom: '0.75rem' }}>Delete account permanently?</h3>
+            <p style={{ marginBottom: '1rem', fontSize: '0.95rem', color: 'var(--color-gray-600)', lineHeight: 1.5 }}>
+              This deactivates your WorkforceAP member account. You may lose access to training progress, messages, and
+              applications tied to this login. This cannot be undone from the app. Type{' '}
+              <strong style={{ color: 'var(--color-primary)' }}>DELETE</strong> in the box below to confirm.
             </p>
             <input
               type="text"
               value={confirmText}
               onChange={(e) => setConfirmText(e.target.value)}
-              placeholder="Type delete to confirm"
+              placeholder="Type DELETE to confirm"
+              autoComplete="off"
               style={{ width: '100%', marginBottom: '1rem', padding: '0.5rem' }}
             />
             {deleteError && (
@@ -91,7 +94,7 @@ export default function DeleteAccountButton() {
                 className="btn"
                 style={{ background: 'var(--color-error)', color: 'white' }}
                 onClick={handleDelete}
-                disabled={confirmText.toLowerCase() !== 'delete' || loading}
+                disabled={confirmText.trim().toUpperCase() !== 'DELETE' || loading}
               >
                 {loading ? 'Deleting...' : 'Delete'}
               </button>

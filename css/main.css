@@ -295,6 +295,17 @@ html.dark .training-course-card {
 html.dark .training-course-card__title {
     color: #f1f5f9;
 }
+html.dark .training-course-card.training-course-card--up-next {
+    box-shadow: 0 0 0 2px rgba(173, 44, 77, 0.45);
+}
+html.dark .training-course-up-next {
+    color: #fda4af;
+    font-weight: 600;
+    font-size: 0.8125rem;
+}
+html.dark .member-prescreen-draft-hint {
+    color: #94a3b8 !important;
+}
 html.dark .workspace-shell-root {
     background: #0f1114;
 }
@@ -2993,6 +3004,25 @@ a.btn-accent:hover {
     line-height: 1.7;
     margin-bottom: 2rem;
     color: var(--color-white);
+}
+html.dark .photo-highlight-overlay {
+    background:
+        linear-gradient(135deg, rgba(10,10,10,0.88) 0%, rgba(10,10,10,0.72) 50%, rgba(173,44,77,0.42) 100%),
+        radial-gradient(ellipse at 80% 50%, rgba(164,127,56,0.12), transparent 60%);
+}
+html.dark .photo-highlight-content h2,
+html.dark .photo-highlight-content p,
+html.dark .photo-highlight-content .section-label {
+    text-shadow: 0 1px 2px rgba(0,0,0,0.85);
+}
+html.dark .photo-highlight-content p {
+    opacity: 1;
+}
+html.dark .program-card-skill-tag,
+html.dark .program-skill-tag {
+    background: #1e2329 !important;
+    color: #e5e7eb !important;
+    border-color: #3d4450 !important;
 }
 
 /* =============================================
@@ -9693,6 +9723,14 @@ body { animation: fadeIn 0.4s ease; }
 
 .training-course-card {
     background: var(--color-white);
+}
+.training-course-card.training-course-card--up-next {
+    box-shadow: 0 0 0 2px rgba(173, 44, 77, 0.25);
+}
+.training-course-up-next {
+    color: var(--color-accent);
+    font-weight: 600;
+    font-size: 0.8125rem;
 }
 
 /* Partner portal — impact console */

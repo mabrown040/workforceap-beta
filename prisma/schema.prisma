@@ -17,8 +17,33 @@ datasource db {
 
 // --- Core tables ---
 
+model Organization {
+  id             String   @id @default(uuid())
+  name           String
+  slug           String   @unique
+  customDomain   String?  @unique @map("custom_domain")
+  logo           String?
+  primaryColor   String?  @map("primary_color")
+  billingType    String   @default("flat") @map("billing_type")
+  plan           String   @default("nonprofit")
+  active         Boolean  @default(true)
+  overviewVideoUrl String? @map("overview_video_url")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  users          User[]
+  partners       Partner[]
+  employers      Employer[]
+  jobs           Job[]
+  programCatalog OrganizationProgramCatalog[]
+  preScreenings  PreScreeningResponse[]
+
+  @@map("organizations")
+}
+
 model User {
   id                     String    @id @default(uuid())
+  organizationId         String    @map("organization_id")
   email                  String    @unique
   fullName               String    @map("full_name")
   phone                  String?
@@ -37,7 +62,11 @@ model User {
   deletedAt              DateTime? @map("deleted_at")
   createdAt              DateTime  @default(now()) @map("created_at")
   updatedAt              DateTime  @updatedAt @map("updated_at")
+  interviewEligible      Boolean   @default(false) @map("interview_eligible")
+  interviewRequestedAt   DateTime? @map("interview_requested_at")
+  interviewCompletedAt   DateTime? @map("interview_completed_at")
 
+  organization         Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   profile              Profile?
   readinessChecklist   ReadinessChecklist[]
   applications         Application[]
@@ -85,7 +114,9 @@ model User {
   messageThreadsAsMember    MessageThread[] @relation("MemberMessageThreads")
   messageThreadsAsCounselor MessageThread[] @relation("CounselorMessageThreads")
   messagesAuthored          Message[]
+  preScreeningResponse      PreScreeningResponse?
 
+  @@index([organizationId])
   @@map("users")
 }
 
@@ -116,6 +147,7 @@ model Profile {
   consentTerms          Boolean   @default(false) @map("consent_terms")
   consentCommunications Boolean   @default(false) @map("consent_communications")
   smsOptIn              Boolean   @default(false) @map("sms_opt_in")
+  financialAidInterest Boolean?  @map("financial_aid_interest")
   role                  String    @default("member")
   createdAt             DateTime  @default(now()) @map("created_at")
   updatedAt             DateTime  @updatedAt @map("updated_at")
@@ -521,6 +553,7 @@ model BlogPost {
 
 model Partner {
   id           String    @id @default(uuid())
+  organizationId String  @map("organization_id")
   name         String
   slug         String    @unique  // e.g. "workforce-solutions-austin"
   referralCode String    @unique @map("referral_code")
@@ -546,6 +579,9 @@ model Partner {
   workflowEvents  PortalWorkflowEvent[]
   referredApplications Application[]
 
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([organizationId])
   @@map("partners")
 }
 
@@ -851,6 +887,7 @@ model Invitation {
 
 model Employer {
   id                 String    @id @default(uuid())
+  organizationId     String    @map("organization_id")
   userId             String    @unique @map("user_id")
   tier               String    @default("basic") @map("tier")
   companyName        String    @map("company_name")
@@ -867,9 +904,11 @@ model Employer {
   updatedAt          DateTime  @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   jobs Job[]
   workflowEvents PortalWorkflowEvent[]
 
+  @@index([organizationId])
   @@map("employers")
 }
 
@@ -902,6 +941,7 @@ enum JobStatusEnum {
 
 model Job {
   id                     String          @id @default(uuid())
+  organizationId         String          @map("organization_id")
   employerId             String          @map("employer_id")
   title                  String
   location               String?
@@ -928,13 +968,65 @@ model Job {
   matchSuggestionsLastError  String?     @map("match_suggestions_last_error") @db.Text
 
   employer   Employer   @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   approvedBy User?      @relation("JobApprover", fields: [approvedById], references: [id], onDelete: SetNull)
   applications JobPostingApplication[]
   aiMatches  AIJobMatch[]
 
   @@index([employerId])
+  @@index([organizationId])
   @@index([status])
   @@map("jobs")
+}
+
+// Admin-managed program catalog (org-scoped); syncs with static slugs in lib/content/programs for enroll path.
+model OrganizationProgramCatalog {
+  id               String   @id @default(uuid())
+  organizationId   String   @map("organization_id")
+  programSlug      String   @map("program_slug")
+  name             String
+  description      String?  @db.Text
+  category         String
+  deliveryType     String   @map("delivery_type")
+  deliveryUrl      String?  @map("delivery_url")
+  deliveryDetails  String?  @map("delivery_details") @db.Text
+  certifications   String[] @default([])
+  duration         String?
+  cost             Float?
+  certCost         Float?   @map("cert_cost")
+  bookCost         Float?   @map("book_cost")
+  miscCost         Float?   @map("misc_cost")
+  status           String   @default("active")
+  displayOrder     Int      @default(0) @map("display_order")
+  featured         Boolean  @default(false)
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, programSlug])
+  @@index([organizationId, displayOrder])
+  @@map("organization_program_catalog")
+}
+
+model PreScreeningResponse {
+  id                  String   @id @default(uuid())
+  userId              String   @unique @map("user_id")
+  organizationId      String   @map("organization_id")
+  employmentStatus    String   @map("employment_status")
+  primaryGoal         String   @map("primary_goal")
+  weeklyHours         String   @map("weekly_hours")
+  barrier             String   @db.Text
+  hearAbout           String   @map("hear_about")
+  hearAboutOther      String?  @map("hear_about_other")
+  workforceAssistance Boolean  @map("workforce_assistance")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("pre_screening_responses")
 }
 
 enum JobPostingApplicationStatus {

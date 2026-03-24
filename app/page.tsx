@@ -2,20 +2,8 @@ import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import Image from 'next/image';
-import {
-  Monitor,
-  Wifi,
-  ClipboardList,
-  HeartPulse,
-  Factory,
-  HardHat,
-  Laptop,
-  GraduationCap,
-  Briefcase,
-  Handshake,
-  Users,
-  Building2,
-} from 'lucide-react';
+import { getActivePrograms } from '@/lib/platform/programCatalog';
+import { Laptop, GraduationCap, Briefcase, Handshake, Users, Building2 } from 'lucide-react';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -25,7 +13,12 @@ export const metadata: Metadata = buildPageMetadata({
   path: '/',
 });
 
-export default function HomePage() {
+export default async function HomePage() {
+  const activePrograms = await getActivePrograms();
+  const featured = activePrograms.filter((p) => p.featured);
+  const homeProgramShowcase = (featured.length ? featured : activePrograms).slice(0, 8);
+  const programCount = activePrograms.length;
+
   const journeySteps = [
     { num: 1, title: 'Apply', desc: 'Short online form — about 10 minutes. We respond within 24–48 hours.' },
     { num: 2, title: 'Overview', desc: 'Meet a counselor. Learn which program fits you — no exam, no gatekeeping.' },
@@ -309,20 +302,37 @@ export default function HomePage() {
               </div>
             </div>
             <div className="programs-preview">
-              <span className="section-label">Programs</span>
-              <h3>Careers That Pay — From $48K to $145K</h3>
-              <p>19 programs across Tech, Healthcare, Manufacturing, and Skilled Trades. Each path leads to real roles: IT support, cybersecurity, data analytics, project management, medical coding, and more.</p>
-              <ul className="program-categories">
-                <li><span className="cat-icon"><Monitor size={20} className="text-current" /></span> Digital Literacy &amp; AI</li>
-                <li><span className="cat-icon"><Wifi size={20} className="text-current" /></span> Information Technology</li>
-                <li><span className="cat-icon"><ClipboardList size={20} className="text-current" /></span> Project Management</li>
-                <li><span className="cat-icon"><HeartPulse size={20} className="text-current" /></span> Medical Coding</li>
-                <li><span className="cat-icon"><Factory size={20} className="text-current" /></span> Manufacturing</li>
-                <li><span className="cat-icon"><HardHat size={20} className="text-current" /></span> Core Construction</li>
+              <span className="section-label">Available talent</span>
+              <h3>Programs we certify members on</h3>
+              <p>
+                {programCount} active program{programCount === 1 ? '' : 's'} — Tech, Healthcare, Manufacturing, and Skilled Trades.
+                Paths are managed in admin and stay aligned with what employers see.
+              </p>
+              <ul className="home-program-showcase" style={{ listStyle: 'none', padding: 0, margin: '0 0 1rem' }}>
+                {homeProgramShowcase.map((p) => (
+                  <li
+                    key={p.slug}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      gap: '0.75rem',
+                      padding: '0.45rem 0',
+                      borderBottom: '1px solid rgba(0,0,0,0.06)',
+                      fontSize: '0.9rem',
+                    }}
+                  >
+                    <Link href={`/programs/${p.slug}`} style={{ fontWeight: 600, color: 'inherit', textDecoration: 'none' }}>
+                      {p.static?.title ?? p.name}
+                    </Link>
+                    <span style={{ color: 'var(--color-gray-600)', whiteSpace: 'nowrap' }}>{p.category}</span>
+                  </li>
+                ))}
               </ul>
               <div className="programs-preview-actions">
                 <Link href="/find-your-path" className="btn btn-primary btn-sm">Find Your Fit (2-min quiz)</Link>
-                <Link href="/programs" className="btn btn-outline btn-sm">View All 19 Programs</Link>
+                <Link href="/programs" className="btn btn-outline btn-sm">
+                  View all {programCount} program{programCount === 1 ? '' : 's'}
+                </Link>
               </div>
             </div>
           </div>

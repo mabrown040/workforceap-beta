@@ -32,7 +32,13 @@ export default function ProgramPicker({ programs }: ProgramPickerProps) {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? 'Failed to enroll');
+        if (data.code === 'PROFILE_INCOMPLETE') {
+          setError(
+            `${data.error ?? 'Complete your profile first.'} Update phone, address, and financial aid interest on your profile, then try again.`
+          );
+        } else {
+          setError(data.error ?? 'Failed to enroll');
+        }
         setLoading(null);
         return;
       }

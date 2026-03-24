@@ -22,6 +22,16 @@ export default async function DashboardPage() {
   const { user: dbUser, careerBrief } = await loadMemberCareerBriefBundle(user.id, { activeMemberOnly: true });
   if (!dbUser) redirect('/login');
 
+  const intakeExtra = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: {
+      interviewEligible: true,
+      interviewRequestedAt: true,
+      interviewCompletedAt: true,
+      preScreeningResponse: { select: { id: true } },
+    },
+  });
+
   const latestApplication = await prisma.application.findFirst({
     where: { userId: user.id },
     orderBy: { createdAt: 'desc' },
@@ -97,6 +107,11 @@ export default async function DashboardPage() {
         recommendedActions={recommendedActions}
         jobSearchUrl={jobSearchUrl}
         firstName={firstName}
+        assessmentDone={assessmentCompleted}
+        preScreeningDone={!!intakeExtra?.preScreeningResponse}
+        interviewEligible={intakeExtra?.interviewEligible ?? false}
+        interviewRequestedAt={intakeExtra?.interviewRequestedAt ?? null}
+        interviewCompletedAt={intakeExtra?.interviewCompletedAt ?? null}
         state={
           !enrolledProgram
             ? 'A'

@@ -174,9 +174,11 @@ export const GROUP_PORTAL_NAV_ITEMS: PortalNavItem[] = [
 export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin', label: 'Overview', group: 'primary', Icon: BarChart3 },
   { href: '/admin/members', label: 'Members', group: 'workflows', Icon: Users },
+  { href: '/admin/members/interview-ready', label: 'Interview ready', group: 'workflows', Icon: ListChecks },
   { href: '/admin/invites', label: 'Invites', group: 'workflows', Icon: MessageSquare },
   { href: '/admin/assessments', label: 'Assessments', group: 'workflows', Icon: ClipboardCheck },
   { href: '/admin/programs', label: 'Programs', group: 'workflows', Icon: BookOpen },
+  { href: '/admin/settings', label: 'Settings', group: 'manage', Icon: Settings },
   { href: '/admin/blog', label: 'Blog', group: 'workflows', Icon: FileText },
   { href: '/admin/jobs', label: 'Jobs', group: 'workflows', Icon: Briefcase },
   { href: '/admin/employers', label: 'Employers', group: 'workflows', Icon: Building2 },

@@ -21,7 +21,7 @@ const catalogRowSchema = z.object({
   bookCost: z.number().optional().nullable(),
   miscCost: z.number().optional().nullable(),
   status: z.enum(['active', 'coming_soon', 'inactive']).optional().default('active'),
-  displayOrder: z.number().int().optional().default(0),
+  displayOrder: z.number().int().optional(),
   featured: z.boolean().optional().default(false),
 });
 
@@ -58,6 +58,12 @@ export async function POST(request: NextRequest) {
   }
 
   const organizationId = await getDefaultOrganizationId();
+  const maxOrder = await prisma.organizationProgramCatalog.aggregate({
+    where: { organizationId },
+    _max: { displayOrder: true },
+  });
+  const displayOrder =
+    parsed.data.displayOrder ?? (maxOrder._max.displayOrder ?? -1) + 1;
   try {
     const row = await prisma.organizationProgramCatalog.create({
       data: {
@@ -76,7 +82,7 @@ export async function POST(request: NextRequest) {
         bookCost: parsed.data.bookCost ?? null,
         miscCost: parsed.data.miscCost ?? null,
         status: parsed.data.status ?? 'active',
-        displayOrder: parsed.data.displayOrder ?? 0,
+        displayOrder,
         featured: parsed.data.featured ?? false,
       },
     });

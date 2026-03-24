@@ -74,8 +74,16 @@ export default function AdminProgramCatalogClient() {
     if (next < 0 || next >= sorted.length) return;
     const a = sorted[index];
     const b = sorted[next];
-    await patchRow(a.id, { displayOrder: b.displayOrder });
-    await patchRow(b.id, { displayOrder: a.displayOrder });
+    if (a.displayOrder === b.displayOrder) {
+      for (let i = 0; i < sorted.length; i++) {
+        await patchRow(sorted[i].id, { displayOrder: i });
+      }
+      await patchRow(a.id, { displayOrder: next });
+      await patchRow(b.id, { displayOrder: index });
+    } else {
+      await patchRow(a.id, { displayOrder: b.displayOrder });
+      await patchRow(b.id, { displayOrder: a.displayOrder });
+    }
     await load();
   };
 

@@ -32,7 +32,7 @@ export async function getActivePrograms(organizationId?: string): Promise<Active
   });
 
   if (rows.length === 0) {
-    return PROGRAMS.filter(() => true).map((p, i) => ({
+    return PROGRAMS.map((p, i) => ({
       slug: p.slug,
       name: p.title,
       description: null,

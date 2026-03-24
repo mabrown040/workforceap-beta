@@ -66,7 +66,7 @@ export default function RecentSignupsTable({ users }: RecentSignupsTableProps) {
                   {u.assessmentScorePct ?? '—'}%
                 </span>
               </td>
-              <td>{u.assessmentCompleted ? 'Assessment done' : 'Pending'}</td>
+              <td>{u.assessmentCompleted ? 'Assessed' : 'Pending'}</td>
             </tr>
           ))}
         </tbody>

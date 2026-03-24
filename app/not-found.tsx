@@ -35,7 +35,7 @@ export default function NotFound() {
           <Link href="/apply" className="btn btn-outline">
             Apply for training
           </Link>
-          <Link href="/contact" className="btn btn-ghost">
+          <Link href="/contact" className="btn btn-app-system-ghost">
             Contact us
           </Link>
         </div>

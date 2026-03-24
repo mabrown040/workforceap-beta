@@ -11,7 +11,10 @@ type Props = {
 
 export default function AdminJobsFilterTabs({ currentFilter, tabs }: Props) {
   return (
-    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+    <div
+      className="admin-jobs-filter-tabs"
+      style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}
+    >
       {tabs.map(({ value, label, count }) => {
         const isActive = currentFilter === value;
         return (

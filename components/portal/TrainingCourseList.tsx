@@ -43,11 +43,11 @@ export default function TrainingCourseList({ courses, completedSlugs }: Training
         return (
           <div
             key={c.slug}
+            className="training-course-card"
             style={{
               padding: '1.25rem',
               border: '1px solid var(--color-border, #e5e5e5)',
               borderRadius: 'var(--radius-md)',
-              background: 'white',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
@@ -56,7 +56,9 @@ export default function TrainingCourseList({ courses, completedSlugs }: Training
             }}
           >
             <div>
-              <h3 style={{ fontSize: '1rem', marginBottom: '0.25rem' }}>{c.name}</h3>
+              <h3 className="training-course-card__title" style={{ fontSize: '1rem', marginBottom: '0.25rem' }}>
+                {c.name}
+              </h3>
               <span style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>~{c.estimatedHours} hrs</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>

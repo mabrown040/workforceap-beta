@@ -12,8 +12,8 @@ import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
 function ActionItems({ onItemClick }: { onItemClick?: () => void }) {
   return (
     <>
-      <SuperAdminViewSwitcher />
       <ThemeToggle variant="portal" />
+      <SuperAdminViewSwitcher />
       <DevViewToggle />
       <Link href="/" className="btn btn-outline btn-sm" onClick={onItemClick}>
         {PRODUCT_COPY.publicSiteLabel}

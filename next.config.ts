@@ -1,4 +1,5 @@
 import { createRequire } from 'module';
+import { withSentryConfig } from '@sentry/nextjs';
 import type { NextConfig } from 'next';
 
 // Same POSTGRES_* defaults as scripts/prisma-env.js so `next build` can run Prisma without errors
@@ -20,7 +21,7 @@ const nextConfig: NextConfig = {
             value: [
               "default-src 'self'",
               `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://va.vercel-insights.com https://challenges.cloudflare.com`,
-              "connect-src 'self' https://*.supabase.co https://api.zippopotam.us https://www.google-analytics.com https://www.googletagmanager.com https://va.vercel-insights.com https://vitals.vercel-insights.com https://challenges.cloudflare.com",
+              "connect-src 'self' https://*.supabase.co https://api.zippopotam.us https://www.google-analytics.com https://www.googletagmanager.com https://va.vercel-insights.com https://vitals.vercel-insights.com https://challenges.cloudflare.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io",
               "img-src 'self' data: https: blob:",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
@@ -100,4 +101,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  silent: true,
+});

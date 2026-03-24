@@ -1,140 +1,51 @@
 # Sprint 8b: Production Hardening
 
-Three targeted fixes from the pre-production audit. All changes are isolated, non-breaking, and TypeScript-strict.
+Three targeted fixes: batched bulk job import, portal-scoped error boundaries, and Sentry. Spec below; **implementation is complete** in the repo.
 
 ---
 
-## Fix 1: Batch N+1 in Bulk Job Import
+## 1. Batch N+1 in bulk job import
 
-**File:** `app/api/employer/jobs/import-bulk/route.ts`
+**Intent:** Avoid serial `prisma.job.create()` inside loops when ATS or text parsing returns many drafts.
 
-**Problem:** Every imported job calls `prisma.job.create()` inside a loop. With 20+ jobs this hammers the DB serially and risks timeout.
-
-**Fix:** Collect all job data objects first, then call `prisma.job.createMany()` once. Handle the `importJobCount` metric update after the batch.
-
-**Pattern to change:**
-```ts
-// BEFORE (N+1):
-for (const atsJob of atsResult.jobs) {
-  const job = await prisma.job.create({ data: buildEmployerJobCreateData(...) });
-  // ... per-job side effects
-}
-
-// AFTER (batch):
-const jobDataArray = atsResult.jobs.map(atsJob =>
-  buildEmployerJobCreateData(organizationId, ctx.employerId, { ...atsJob })
-);
-await prisma.job.createMany({ data: jobDataArray, skipDuplicates: true });
-```
-
-If `buildEmployerJobCreateData` returns nested relations (e.g. `requirements` as a related model), and `createMany` doesn't support nested creates, use `prisma.$transaction(jobDataArray.map(d => prisma.job.create({ data: d })))` as the batch instead — this is still a single round-trip.
-
-Apply the same batching pattern anywhere else in this file where `prisma.job.create` is called inside a loop (check lines ~164, ~168, ~253).
+**Shipped:** `lib/employer/bulkJobInsert.ts` uses `prisma.job.createManyAndReturn({ data })` so each batch is one round-trip. `app/api/employer/jobs/import-bulk/route.ts` builds arrays of `Prisma.JobUncheckedCreateInput` via `buildEmployerJobCreateData` and inserts in batch (ATS job lists, multi-draft text paths, careers page).
 
 ---
 
-## Fix 2: Portal-Level Error Boundaries
+## 2. Portal-level error boundaries
 
-**Problem:** Crashes inside the employer or partner portal bubble up to the top-level `app/error.tsx` which has no portal context. Members see a generic error with no way back to their portal.
+**Intent:** Recover from client errors inside member / employer / partner shells without losing portal context.
 
-**Create these three files** (model them after `app/error.tsx` but with portal-specific back links):
+**Shipped:**
 
-### `app/(portal)/employer/error.tsx`
-```tsx
-'use client';
-import { useEffect } from 'react';
-import Link from 'next/link';
+- `app/(portal)/dashboard/error.tsx` — Try again, Back to dashboard (`/dashboard`), WorkforceAP home
+- `app/(portal)/employer/error.tsx` — Try again, Employer overview (`/employer`), `/employers`
+- `app/(portal)/partner/error.tsx` — Try again, Partner overview (`/partner`), home
 
-export default function EmployerError({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
-  useEffect(() => { console.error(error); }, [error]);
-
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center">
-      <h1 className="text-2xl font-bold text-gray-900 mb-2">Something went wrong</h1>
-      <p className="text-gray-500 mb-6">An error occurred in your employer portal.</p>
-      <div className="flex gap-3">
-        <button onClick={reset} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
-          Try again
-        </button>
-        <Link href="/employer" className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50">
-          Back to dashboard
-        </Link>
-      </div>
-      {process.env.NODE_ENV === 'development' && (
-        <pre className="mt-6 text-xs text-left bg-gray-100 p-4 rounded max-w-xl overflow-auto">{error.message}</pre>
-      )}
-    </div>
-  );
-}
-```
-
-### `app/(portal)/partner/error.tsx`
-Same pattern as above but:
-- Message: "An error occurred in your partner portal."
-- Back link: `/partner`
-
-### `app/(portal)/dashboard/error.tsx`
-Same pattern:
-- Message: "An error occurred in your member portal."
-- Back link: `/dashboard`
+Each calls `Sentry.captureException` in `useEffect` when Sentry is enabled.
 
 ---
 
-## Fix 3: Sentry Error Monitoring
+## 3. Sentry
 
-**Install:**
-```bash
-npm install @sentry/nextjs
-```
+**Shipped:**
 
-**Run the Sentry wizard:**
-```bash
-npx @sentry/wizard@latest -i nextjs
-```
+- `@sentry/nextjs` + `withSentryConfig` in `next.config.ts` (CSP `connect-src` extended for Sentry ingest)
+- `instrumentation.ts` — `register()` loads `sentry.server.config` / `sentry.edge.config`; exports `onRequestError` → `captureRequestError`
+- `instrumentation-client.ts` — `Sentry.init` + `export const onRouterTransitionStart = Sentry.captureRouterTransitionStart`
+- `sentry.server.config.ts`, `sentry.edge.config.ts` — init when `SENTRY_DSN` is set (production only)
 
-This will:
-- Create `sentry.client.config.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`
-- Update `next.config.js` with `withSentryConfig`
-- Add `instrumentation.ts`
+**Vercel / env**
 
-**After wizard runs:**
-1. Add `SENTRY_DSN` to `.env.example` with a real DSN placeholder comment
-2. Add `SENTRY_AUTH_TOKEN` to `.env.example`
-3. Do NOT commit `.env.local` — only commit the Sentry config files and updated `next.config.js`
-4. In `app/error.tsx` (and the three new portal error files above), add:
-```ts
-import * as Sentry from '@sentry/nextjs';
-// In useEffect:
-useEffect(() => { Sentry.captureException(error); }, [error]);
-```
+- `SENTRY_DSN` — server and edge
+- `NEXT_PUBLIC_SENTRY_DSN` — browser (same project DSN; optional but recommended for client errors)
+- `SENTRY_AUTH_TOKEN` (+ `SENTRY_ORG`, `SENTRY_PROJECT`) — source maps at build time
 
-**Vercel env vars needed** (add manually in Vercel dashboard):
-- `SENTRY_DSN` — from Sentry project settings
-- `SENTRY_AUTH_TOKEN` — for source map upload (generate in Sentry → Settings → Auth Tokens)
+See `.env.example` for placeholders.
 
 ---
 
-## File Checklist
-- [ ] `app/api/employer/jobs/import-bulk/route.ts` — batch job creates
-- [ ] `app/(portal)/employer/error.tsx` — new file
-- [ ] `app/(portal)/partner/error.tsx` — new file
-- [ ] `app/(portal)/dashboard/error.tsx` — new file
-- [ ] `sentry.client.config.ts` — generated by wizard
-- [ ] `sentry.server.config.ts` — generated by wizard
-- [ ] `sentry.edge.config.ts` — generated by wizard
-- [ ] `instrumentation.ts` — generated by wizard
-- [ ] `next.config.js` — updated by wizard
-- [ ] `app/error.tsx` — add Sentry.captureException
-- [ ] `.env.example` — add SENTRY_DSN + SENTRY_AUTH_TOKEN
+## Quality bar
 
-## Quality Bar
-- `npx tsc --noEmit` must pass
-- `npx next build` must pass
-- No new dependencies beyond `@sentry/nextjs`
-- Error boundaries must render correctly at 375px mobile width
+- `npx tsc --noEmit` passes
+- `npm run build` passes

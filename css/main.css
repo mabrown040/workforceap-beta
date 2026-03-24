@@ -110,10 +110,7 @@ body.mobile-nav-open {
 body.homepage { background: var(--color-primary); }
 
 /* Dark mode — class on <html> (ThemeToggle + ThemeInitScript). Uses localStorage key wa_color_mode (same as WorkforceAP app for cross-surface preference when both are deployed). */
-html.dark body {
-    background: #0f1114;
-    color: #e5e7eb;
-}
+/* Token remap lives on html.dark so every subtree (not only body) resolves remapped vars — fixes components that inherited :root --color-primary (#1a1a1a) on dark surfaces. */
 html.dark body.homepage {
     background: #0b0d10;
 }
@@ -566,8 +563,6 @@ img { max-width: 100%; height: auto; display: block; }
    ============================================= */
 html.dark {
     color-scheme: dark;
-}
-html.dark body {
     --color-primary: #f3f4f6;
     --color-white: #121417;
     --color-light: #161a1f;
@@ -580,7 +575,10 @@ html.dark body {
     --color-gray-600: #b8bec8;
     --color-gray-700: #d1d5db;
     --color-gray-800: #e5e7eb;
+    --color-gray-900: #f1f5f9;
     --color-border: #2d3540;
+}
+html.dark body {
     color: var(--color-primary);
     background: var(--color-white);
 }
@@ -659,6 +657,159 @@ html.dark .section-intro {
 html.dark .section-subtitle {
     color: var(--color-gray-500);
 }
+
+/* Sprint 10 — marketing / inner pages: tables, program cards, blog, contact, legal prose */
+html.dark .salary-table th,
+html.dark .comparison-table th {
+    background: #1a1f27;
+    color: #f9fafb;
+}
+html.dark .salary-table td,
+html.dark .comparison-table td {
+    border-bottom-color: var(--color-gray-200);
+    color: var(--color-gray-600);
+}
+html.dark .salary-table tr:nth-child(even) td,
+html.dark .comparison-table tr:nth-child(even) td {
+    background: var(--color-gray-50);
+}
+html.dark .salary-table tr:hover td,
+html.dark .comparison-table tr:hover td {
+    background: rgba(173, 44, 77, 0.12);
+}
+html.dark .comparison-table td a {
+    color: #fda4af;
+}
+html.dark .salary-guide-table-intro,
+html.dark .salary-guide-stat-sub {
+    color: var(--color-gray-500);
+}
+html.dark .salary-guide-ramp-legend {
+    color: var(--color-gray-500);
+}
+html.dark .salary-guide-card__program {
+    color: var(--color-gray-800);
+}
+html.dark .program-comparison-decision-guide {
+    background: #161a1f;
+    border-color: var(--color-border);
+}
+html.dark .program-comparison-guide-title {
+    color: var(--color-gray-800);
+}
+html.dark .filter-chip.active {
+    background: #e5e7eb;
+    color: #111827;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+}
+html.dark .program-card-icon {
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+html.dark .program-card-skills span {
+    background: linear-gradient(180deg, #222830, #1a1f26) !important;
+    border-color: var(--color-gray-200);
+    color: var(--color-gray-700);
+}
+html.dark .program-card-details {
+    background: linear-gradient(180deg, #1a1f26, #161a1f);
+    border-color: var(--color-gray-200);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+html.dark .blog-card-cover {
+    background: #222830;
+}
+html.dark .blog-card-category {
+    background: #161a1f;
+    color: var(--color-accent);
+}
+html.dark .markdown-body h1,
+html.dark .markdown-body h2,
+html.dark .markdown-body h3 {
+    color: var(--color-gray-800);
+}
+html.dark .markdown-body p,
+html.dark .markdown-body li {
+    color: var(--color-gray-600);
+}
+html.dark .markdown-body th {
+    background: var(--color-gray-100);
+    color: var(--color-gray-800);
+}
+html.dark .contact-form,
+html.dark .apply-form {
+    background: var(--color-light);
+    border-color: var(--color-border);
+}
+
+/* Admin: shared surfaces (inline forms still use many hex colors in TSX) */
+.admin-form-panel {
+    border: 1px solid var(--color-gray-200);
+    background: var(--color-light);
+}
+.admin-blog-ai-section {
+    border: 1px solid var(--color-gray-200);
+    background: var(--color-light);
+}
+html.dark .admin-form-panel,
+html.dark .admin-blog-ai-section {
+    border-color: var(--color-border) !important;
+    background: var(--color-light) !important;
+}
+html.dark .admin-blog-ai-section p,
+html.dark .admin-form-hint {
+    color: var(--color-gray-500) !important;
+}
+html.dark .admin-form-input,
+html.dark .admin-blog-ai-section textarea {
+    background: #161a1f !important;
+    border-color: var(--color-gray-300) !important;
+    color: var(--color-primary) !important;
+}
+html.dark .admin-error-banner {
+    background: rgba(220, 38, 38, 0.18) !important;
+    color: #fecaca !important;
+    border: 1px solid rgba(248, 113, 113, 0.35);
+}
+html.dark .admin-suggestion-card {
+    background: #161a1f !important;
+    border-color: var(--color-border) !important;
+}
+html.dark .admin-suggestion-card h3,
+html.dark .admin-suggestion-card h4 {
+    color: var(--color-gray-800) !important;
+}
+html.dark .admin-topic-pill {
+    background: var(--color-gray-200) !important;
+    color: var(--color-gray-800) !important;
+}
+html.dark .admin-muted-text {
+    color: var(--color-gray-500) !important;
+}
+html.dark .admin-body-text {
+    color: var(--color-gray-600) !important;
+}
+html.dark .admin-subtle-text {
+    color: var(--color-gray-500) !important;
+}
+html.dark .admin-ghost-button {
+    background: transparent !important;
+    border-color: var(--color-gray-300) !important;
+    color: var(--color-primary) !important;
+}
+html.dark .admin-secondary-button {
+    background: var(--color-gray-100) !important;
+    color: var(--color-primary) !important;
+    border-color: var(--color-gray-300) !important;
+}
+html.dark .admin-ai-panel {
+    background: var(--color-light) !important;
+    border-color: var(--color-border) !important;
+}
+html.dark .admin-preview-placeholder {
+    color: var(--color-gray-500) !important;
+}
+
 html.dark .footer-cta {
     background: #0b0d10;
     color: #f9fafb;

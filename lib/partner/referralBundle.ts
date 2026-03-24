@@ -40,6 +40,7 @@ export type ReferralMember = {
 
 export type PipelineRow = {
   member: ReferralMember;
+  referredAt: Date;
   stage: string;
   progress: number;
   programTitle: string;
@@ -54,10 +55,10 @@ export async function loadPartnerReferralBundle(partnerId: string) {
     orderBy: { referredAt: 'desc' },
   });
 
-  const members = referrals.map((r) => r.member as ReferralMember);
   const pipelineMembers: PipelineRow[] = [];
 
-  for (const m of members) {
+  for (const r of referrals) {
+    const m = r.member as ReferralMember;
     const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram) : null;
     const student: PipelineStudent = {
       id: m.id,
@@ -75,17 +76,20 @@ export async function loadPartnerReferralBundle(partnerId: string) {
     const stage = getPipelineStage(student);
     pipelineMembers.push({
       member: m,
+      referredAt: r.referredAt,
       stage,
       progress: memberProgramProgressPct(m.enrolledProgram, m.coursesCompleted),
       programTitle: program?.title ?? '—',
     });
   }
 
+  const members = pipelineMembers.map((p) => p.member);
+
   return { referrals, members, pipelineMembers };
 }
 
 export function toPartnerMembersListRows(pipelineMembers: PipelineRow[]) {
-  return pipelineMembers.map(({ member: m, stage, progress, programTitle }) => {
+  return pipelineMembers.map(({ member: m, referredAt, stage, progress, programTitle }) => {
     const stageLabel = PIPELINE_STAGE_LABELS[stage as keyof typeof PIPELINE_STAGE_LABELS] ?? stage;
     const story = m.placementRecord
       ? `Placed at ${m.placementRecord.employerName} as ${m.placementRecord.jobTitle}`
@@ -105,7 +109,7 @@ export function toPartnerMembersListRows(pipelineMembers: PipelineRow[]) {
       progress,
       programTitle,
       story,
-      updatedAtLabel: m.updatedAt.toLocaleDateString(),
+      referredAtLabel: referredAt.toLocaleDateString(),
     };
   });
 }

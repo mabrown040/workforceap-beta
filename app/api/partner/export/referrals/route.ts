@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     'Program',
     'Progress pct',
     'Story',
-    'Last updated',
+    'Referred date',
   ];
 
   const outcomesHeaders = [...baseHeaders, 'Placed employer', 'Job title', 'Placed date'];
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
         csvEscape(r.programTitle),
         String(r.progress),
         csvEscape(r.story),
-        csvEscape(r.updatedAtLabel),
+        csvEscape(r.referredAtLabel),
       ];
       if (preset === 'outcomes') {
         base.push(

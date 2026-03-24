@@ -183,3 +183,29 @@ Dev/admin reset:
 - Tour works on mobile (375px) â€” popover repositions below target if no room above/right
 - `npx tsc --noEmit` must pass
 - Reset button only visible to super_admin users
+
+---
+
+## Addendum: Brand Color Consistency (applies to all onboarding components)
+
+The Tailwind config uses prefix wa- and these custom brand tokens:
+- wa-bg-brand-primary / wa-text-brand-primary = #1e40af (deep blue — primary CTAs, active dots, highlights)
+- wa-bg-brand-accent / wa-text-brand-accent = #ad2c4d (crimson — destructive/alert accents, avoid for primary actions)
+- wa-bg-brand-gold / wa-text-brand-gold = #a47f38 (gold — milestone/achievement accents)
+
+**Apply consistently to ALL onboarding components** (wizard + tour + error boundaries):
+
+| Element | Class |
+|---------|-------|
+| Primary CTA button (Next, Done, Finish) | wa-bg-brand-primary wa-text-white hover:wa-bg-blue-800 |
+| Active step dot | wa-bg-brand-primary |
+| Inactive step dot | wa-bg-slate-200 |
+| Tour popover header | wa-bg-brand-primary wa-text-white |
+| Tour highlight ring | wa-ring-brand-primary |
+| Skip / secondary link | wa-text-slate-500 hover:wa-text-brand-primary |
+| Tour "X of N" counter | wa-text-brand-primary wa-font-medium |
+| Error boundary "Try again" button | wa-bg-brand-primary wa-text-white hover:wa-bg-blue-800 |
+| Dev reset button | wa-bg-slate-800 wa-text-white (intentionally muted) |
+
+**Do NOT use generic lue-600, indigo-*, or iolet-*** — always use brand tokens.
+All classes must use the wa- prefix. Standard Tailwind classes without wa- will not apply.

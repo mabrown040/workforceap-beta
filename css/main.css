@@ -281,6 +281,12 @@ html.dark .apply-foundational-support__list {
 html.dark .apply-results-program-hint {
     color: #94a3b8;
 }
+html.dark .quiz-results-next-links a {
+    color: #f472b6;
+}
+html.dark .quiz-results-next-links a:hover {
+    color: #fda4af;
+}
 html.dark .training-course-card {
     background: #161a1f !important;
     border-color: #2d3540 !important;
@@ -1083,6 +1089,20 @@ a.nav-cta {
     font-weight: 600 !important;
     font-size: 0.875rem !important;
     transition: all var(--transition-fast) !important;
+    white-space: nowrap !important;
+}
+@media (max-width: 1024px) {
+    .nav-container {
+        gap: 1rem;
+    }
+    .nav-menu {
+        gap: 1rem;
+    }
+    .nav-cta,
+    a.nav-cta {
+        padding: 6px 14px !important;
+        font-size: 0.8125rem !important;
+    }
 }
 .nav-cta:hover,
 a.nav-cta:hover {
@@ -1297,6 +1317,13 @@ a.btn-white {
         linear-gradient(160deg, rgba(26,26,26,0.9) 0%, rgba(26,26,26,0.65) 40%, rgba(173,44,77,0.35) 100%),
         radial-gradient(ellipse at 20% 80%, rgba(164,127,56,0.15) 0%, transparent 50%),
         radial-gradient(ellipse at 80% 20%, rgba(173,44,77,0.1) 0%, transparent 50%);
+}
+/* Dark site mode: let more of the hero image show through (avoid stacking an extra heavy veil). */
+html.dark .homepage .hero-overlay {
+    background:
+        linear-gradient(160deg, rgba(26,26,26,0.42) 0%, rgba(26,26,26,0.28) 45%, rgba(173,44,77,0.22) 100%),
+        radial-gradient(ellipse at 20% 80%, rgba(164,127,56,0.1) 0%, transparent 52%),
+        radial-gradient(ellipse at 80% 20%, rgba(173,44,77,0.08) 0%, transparent 52%);
 }
 .hero-container {
     position: relative;
@@ -2077,6 +2104,17 @@ a.btn-accent:hover {
     flex-wrap: wrap;
     align-items: stretch;
     gap: 0.35rem 0.5rem;
+}
+@media (max-width: 480px) {
+    .programs-journey-nav {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 0.35rem;
+    }
+    .programs-journey-nav__list {
+        flex-wrap: nowrap;
+        min-width: min-content;
+    }
 }
 .programs-journey-nav__link {
     display: inline-flex;
@@ -5716,8 +5754,13 @@ body { animation: fadeIn 0.4s ease; }
 }
 .quiz-results-next-steps p { margin: 0 0 0.75rem; color: var(--color-gray-600); font-size: 0.95rem; }
 .quiz-results-next-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-.quiz-results-next-links a { color: var(--color-primary); font-weight: 600; text-decoration: none; }
-.quiz-results-next-links a:hover { text-decoration: underline; }
+.quiz-results-next-links a {
+    color: var(--color-accent);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.quiz-results-next-links a:hover { color: var(--color-accent-dark); }
 .quiz-results-footer {
     text-align: center;
     margin-bottom: 1rem;
@@ -11356,6 +11399,10 @@ body { animation: fadeIn 0.4s ease; }
 }
 .employer-jobs-flash-banner__dismiss {
     flex-shrink: 0;
+}
+.employer-jobs-flash-banner--info {
+    background: rgba(43, 123, 185, 0.1);
+    border-color: rgba(43, 123, 185, 0.35);
 }
 @media (max-width: 639px) {
     .employer-jobs-flash-banner {

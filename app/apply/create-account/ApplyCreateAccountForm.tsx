@@ -22,6 +22,14 @@ export default function ApplyCreateAccountForm() {
   const [smsOptIn, setSmsOptIn] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<{
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string;
+    password?: string;
+    confirmPassword?: string;
+  }>({});
   const completedRef = useRef(false);
   const dropoffRef = useRef({ startedFields: 0, smsOptIn: false, programSlug: null as string | null });
 
@@ -66,34 +74,51 @@ export default function ApplyCreateAccountForm() {
     };
   }, [init]);
 
+  const emailLooksValid = (value: string) => {
+    const v = value.trim();
+    if (!v.includes('@')) return false;
+    const [local, domain] = v.split('@');
+    if (!local || !domain || !domain.includes('.')) return false;
+    const tld = domain.split('.').pop() ?? '';
+    return tld.length >= 2;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setFieldErrors({});
 
+    const nextFieldErrors: typeof fieldErrors = {};
     if (!firstName.trim()) {
-      setError('Please enter your first name so we know what to call you.');
-      return;
+      nextFieldErrors.firstName = 'Enter your first name.';
     }
     if (!lastName.trim()) {
-      setError('Please enter your last name.');
-      return;
+      nextFieldErrors.lastName = 'Enter your last name.';
     }
     if (!email.trim()) {
-      setError('Please enter an email address so we can send your next steps.');
-      return;
+      nextFieldErrors.email = 'Enter an email address.';
+    } else if (!emailLooksValid(email)) {
+      nextFieldErrors.email = 'Use a valid email address (include @ and a domain like .com).';
     }
+    const phoneDigits = phone.replace(/\D/g, '');
     if (!phone.trim()) {
-      setError('Please enter a phone number in case we need to reach you quickly about your application.');
-      return;
+      nextFieldErrors.phone = 'Enter a phone number.';
+    } else if (phoneDigits.length < 10) {
+      nextFieldErrors.phone = 'Use a phone number with at least 10 digits.';
     }
     if (password.length < 8) {
-      setError('Create a password with at least 8 characters so you can return to your account later.');
+      nextFieldErrors.password = 'Use at least 8 characters.';
+    }
+    if (password.length >= 8 && confirmPassword !== password) {
+      nextFieldErrors.confirmPassword = 'Passwords do not match.';
+    }
+
+    if (Object.keys(nextFieldErrors).length > 0) {
+      setFieldErrors(nextFieldErrors);
+      setError('Please fix the highlighted fields and try again.');
       return;
     }
-    if (password !== confirmPassword) {
-      setError('Your passwords do not match yet. Re-enter them and try again.');
-      return;
-    }
+
     if (!programSlug) {
       setError('We lost your selected program. Go back to step 2 and choose the program you want to discuss first.');
       return;
@@ -120,7 +145,7 @@ export default function ApplyCreateAccountForm() {
           firstName: firstName.trim(),
           lastName: lastName.trim(),
           email: email.trim().toLowerCase(),
-          phone: phone.trim(),
+          phone: phoneDigits,
           smsOptIn,
           password,
           programSlug,
@@ -177,7 +202,7 @@ export default function ApplyCreateAccountForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="apply-form">
+    <form onSubmit={handleSubmit} className="apply-form" noValidate>
       <div className="apply-progress-bar" style={{ marginBottom: '1.25rem' }}>
         <div className="apply-progress-fill" style={{ width: '100%' }} />
         <p className="apply-progress-label">Step 3 of 3 — create your account</p>
@@ -198,19 +223,63 @@ export default function ApplyCreateAccountForm() {
 
       <div className="form-group">
         <label htmlFor="firstName">First Name *</label>
-        <input id="firstName" type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} required autoComplete="given-name" />
+        <input
+          id="firstName"
+          type="text"
+          value={firstName}
+          onChange={(e) => {
+            setFirstName(e.target.value);
+            if (fieldErrors.firstName) setFieldErrors((f) => ({ ...f, firstName: undefined }));
+          }}
+          autoComplete="given-name"
+          aria-invalid={!!fieldErrors.firstName}
+        />
+        {fieldErrors.firstName ? <p className="form-error">{fieldErrors.firstName}</p> : null}
       </div>
       <div className="form-group">
         <label htmlFor="lastName">Last Name *</label>
-        <input id="lastName" type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} required autoComplete="family-name" />
+        <input
+          id="lastName"
+          type="text"
+          value={lastName}
+          onChange={(e) => {
+            setLastName(e.target.value);
+            if (fieldErrors.lastName) setFieldErrors((f) => ({ ...f, lastName: undefined }));
+          }}
+          autoComplete="family-name"
+          aria-invalid={!!fieldErrors.lastName}
+        />
+        {fieldErrors.lastName ? <p className="form-error">{fieldErrors.lastName}</p> : null}
       </div>
       <div className="form-group">
         <label htmlFor="email">Email *</label>
-        <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
+        <input
+          id="email"
+          type="email"
+          value={email}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            if (fieldErrors.email) setFieldErrors((f) => ({ ...f, email: undefined }));
+          }}
+          autoComplete="email"
+          aria-invalid={!!fieldErrors.email}
+        />
+        {fieldErrors.email ? <p className="form-error">{fieldErrors.email}</p> : null}
       </div>
       <div className="form-group">
         <label htmlFor="phone">Phone *</label>
-        <input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required autoComplete="tel" />
+        <input
+          id="phone"
+          type="tel"
+          value={phone}
+          onChange={(e) => {
+            setPhone(e.target.value);
+            if (fieldErrors.phone) setFieldErrors((f) => ({ ...f, phone: undefined }));
+          }}
+          autoComplete="tel"
+          aria-invalid={!!fieldErrors.phone}
+        />
+        {fieldErrors.phone ? <p className="form-error">{fieldErrors.phone}</p> : null}
       </div>
       <div className="form-group">
         <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
@@ -220,12 +289,34 @@ export default function ApplyCreateAccountForm() {
       </div>
       <div className="form-group">
         <label htmlFor="password">Password *</label>
-        <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} autoComplete="new-password" />
+        <input
+          id="password"
+          type="password"
+          value={password}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            if (fieldErrors.password) setFieldErrors((f) => ({ ...f, password: undefined }));
+          }}
+          autoComplete="new-password"
+          aria-invalid={!!fieldErrors.password}
+        />
         <p className="apply-field-hint">Use at least 8 characters. You&apos;ll use this password to come back and check your status.</p>
+        {fieldErrors.password ? <p className="form-error">{fieldErrors.password}</p> : null}
       </div>
       <div className="form-group">
         <label htmlFor="confirmPassword">Confirm Password *</label>
-        <input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required minLength={8} autoComplete="new-password" />
+        <input
+          id="confirmPassword"
+          type="password"
+          value={confirmPassword}
+          onChange={(e) => {
+            setConfirmPassword(e.target.value);
+            if (fieldErrors.confirmPassword) setFieldErrors((f) => ({ ...f, confirmPassword: undefined }));
+          }}
+          autoComplete="new-password"
+          aria-invalid={!!fieldErrors.confirmPassword}
+        />
+        {fieldErrors.confirmPassword ? <p className="form-error">{fieldErrors.confirmPassword}</p> : null}
       </div>
       {error && <p className="form-error" role="alert">{error}</p>}
       <button type="submit" className="btn btn-primary btn-submit-full" disabled={loading}>

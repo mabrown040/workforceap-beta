@@ -24,6 +24,8 @@ Three targeted fixes: batched bulk job import, portal-scoped error boundaries, a
 
 Each calls `Sentry.captureException` in `useEffect` when Sentry is enabled.
 
+`app/error.tsx` (global) also reports via `Sentry.captureException`.
+
 ---
 
 ## 3. Sentry

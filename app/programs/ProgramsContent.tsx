@@ -100,12 +100,12 @@ function ProgramCard({ program }: { program: Program }) {
         </div>
       ) : null}
       <details style={{ marginBottom: '1rem' }} open={open} onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
-        <summary style={{ cursor: 'pointer', fontWeight: 600, fontSize: '.9rem', color: '#1a1a1a' }}>
+        <summary className="program-card-courses-summary">
           {open ? 'Hide' : 'View'} {count} {count === 1 ? 'course' : 'courses'}
         </summary>
-        <ul style={{ listStyle: 'none', padding: '.75rem 0 0', margin: 0 }}>
+        <ul className="program-card-courses-list">
           {program.courses.map((c) => (
-            <li key={c.slug} style={{ fontSize: '.85rem', color: '#555', padding: '.3rem 0', borderBottom: '1px solid #f0f0f0' }}>{c.name}</li>
+            <li key={c.slug}>{c.name}</li>
           ))}
         </ul>
       </details>

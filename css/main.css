@@ -237,6 +237,38 @@ html.dark .inner-page {
 html.dark .page-hero p {
     color: rgba(255, 255, 255, 0.95);
 }
+/* Dark site mode remaps --color-white to a dark surface; keep real white on intentional dark bands. */
+html.dark .page-hero,
+html.dark .page-hero h1 {
+    color: #ffffff;
+}
+html.dark .btn-hero-ghost,
+html.dark .btn-hero-ghost:hover {
+    color: #ffffff;
+}
+html.dark .main-footer .footer-brand h3,
+html.dark .main-footer .footer-col h3,
+html.dark .main-footer .footer-links h4,
+html.dark .main-footer .footer-col h4 {
+    color: #ffffff;
+}
+html.dark .legacy-section,
+html.dark .legacy-section h2 {
+    color: #ffffff;
+}
+html.dark .process-final,
+html.dark .process-final .step-content h3,
+html.dark .process-final .step-content p {
+    color: #ffffff;
+}
+html.dark .blog-cta-card,
+html.dark .blog-cta-card h3 {
+    color: #ffffff;
+}
+html.dark .blog-cta-buttons .btn-accent,
+html.dark .blog-cta-buttons .btn-ghost {
+    color: #ffffff;
+}
 html.dark .apply-location-callout,
 html.dark .apply-eligibility-note.apply-location-callout {
     background: #161a1f;
@@ -1369,6 +1401,13 @@ html.dark .homepage .trust-logos img:hover {
     filter: brightness(0) invert(1);
     opacity: 1;
 }
+html.dark .homepage .stats-bar .stat {
+    color: #ffffff;
+}
+html.dark .homepage .hero-badge {
+    color: #ffffff;
+}
+
 .hero-container {
     position: relative;
     z-index: 1;
@@ -2061,6 +2100,26 @@ a.btn-accent:hover {
     font-size: 0.8rem;
     color: var(--color-gray-600);
     margin: 0.25rem 0 0.5rem;
+}
+.program-card-courses-summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--color-primary);
+}
+.program-card-courses-list {
+    list-style: none;
+    padding: 0.75rem 0 0;
+    margin: 0;
+}
+.program-card-courses-list li {
+    font-size: 0.85rem;
+    color: var(--color-gray-600);
+    padding: 0.3rem 0;
+    border-bottom: 1px solid var(--color-gray-200);
+}
+html.dark .program-card-courses-list li {
+    border-bottom-color: #2d3540;
 }
 .programs-decision-cta {
     margin-top: 1rem;
@@ -4236,6 +4295,119 @@ fieldset.apply-fieldset {
     color: var(--color-gray-600);
     line-height: 1.8;
     font-size: 0.9375rem;
+}
+html.dark .faq-item[open] {
+    background: var(--color-gray-50);
+}
+
+/* FAQ page (/faq) — inline layout blocks use tokens so dark mode stays readable */
+.faq-updated-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem;
+    background: var(--color-gray-50);
+    border: 1px solid var(--color-gray-200);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: var(--color-gray-600);
+}
+html.dark .faq-updated-badge {
+    background: #161a1f;
+    border-color: #2d3540;
+    color: #94a3b8;
+}
+.faq-quick-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+}
+.faq-quick-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--color-primary);
+    transition: background 0.2s, border-color 0.2s;
+}
+.faq-quick-link:hover {
+    border-color: var(--color-accent);
+}
+html.dark .faq-quick-link {
+    background: #161a1f;
+    color: #e5e7eb;
+}
+.faq-category-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2.5rem;
+}
+.faq-category-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--color-gray-200);
+    color: var(--color-primary);
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+.faq-category-tab--active {
+    background: var(--color-accent);
+    color: #ffffff;
+}
+html.dark .faq-category-tab:not(.faq-category-tab--active) {
+    background: #222830;
+    color: #e5e7eb;
+}
+.faq-section-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--color-accent);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--color-gray-200);
+}
+html.dark .faq-section-heading {
+    border-bottom-color: #2d3540;
+}
+.faq-bottom-cta {
+    background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+    color: #ffffff;
+    border-radius: 12px;
+    padding: 3rem;
+    text-align: center;
+    margin-top: 4rem;
+}
+.faq-bottom-cta h2 {
+    color: #ffffff;
+    margin-bottom: 0.75rem;
+}
+.faq-bottom-cta > p {
+    color: rgba(255, 255, 255, 0.85);
+    margin-bottom: 1.5rem;
+}
+.faq-bottom-cta .btn-on-dark-secondary {
+    background: #ffffff;
+    color: #111827;
+    border: none;
+}
+.faq-bottom-cta .btn-on-dark-secondary:hover {
+    background: #f3f4f6;
+    color: #111827;
 }
 
 /* =============================================

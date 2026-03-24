@@ -6,6 +6,7 @@ import { sendJobSubmittedEmail } from '@/lib/email';
 import { z } from 'zod';
 import { trackEvent } from '@/lib/events/track';
 import { recordEmployerWorkflowEvent } from '@/lib/portal/workflowEvents';
+import { resolveEmployerJobPendingSubmission } from '@/lib/employer/employerJobSubmitReviewGates';
 
 const jobUpdateSchema = z.object({
   title: z.string().min(1).max(200).optional(),
@@ -72,15 +73,39 @@ export async function PATCH(
     return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
   }
 
-  const data = parsed.data as Record<string, unknown>;
-  const status = data.status as string | undefined;
-  if (status === 'pending' && existing.status === 'draft') {
-    data.status = 'pending';
-  }
+  const status = parsed.data.status;
   if (status === 'filled' || status === 'closed') {
     if (existing.status !== 'live' && existing.status !== 'approved') {
       return NextResponse.json({ error: 'Only live jobs can be marked filled/closed' }, { status: 400 });
     }
+  }
+
+  const mergedLocation =
+    parsed.data.location !== undefined ? parsed.data.location : existing.location;
+  const mergedRequirements =
+    parsed.data.requirements !== undefined ? parsed.data.requirements : existing.requirements;
+  const mergedSalaryMin =
+    parsed.data.salaryMin !== undefined ? parsed.data.salaryMin : existing.salaryMin;
+  const mergedSalaryMax =
+    parsed.data.salaryMax !== undefined ? parsed.data.salaryMax : existing.salaryMax;
+  const mergedDescription =
+    parsed.data.description !== undefined ? parsed.data.description : existing.description;
+  const mergedSuggestedPrograms =
+    parsed.data.suggestedPrograms !== undefined ? parsed.data.suggestedPrograms : existing.suggestedPrograms;
+
+  let reviewDowngradeReasons: string[] = [];
+  let effectiveStatus = parsed.data.status;
+  if (parsed.data.status === 'pending' && (existing.status === 'draft' || existing.status === 'closed')) {
+    const resolved = resolveEmployerJobPendingSubmission({
+      location: mergedLocation,
+      requirements: mergedRequirements,
+      salaryMin: mergedSalaryMin,
+      salaryMax: mergedSalaryMax,
+      description: mergedDescription,
+      suggestedPrograms: mergedSuggestedPrograms,
+    });
+    reviewDowngradeReasons = resolved.reviewDowngradeReasons;
+    effectiveStatus = resolved.status;
   }
 
   const job = await prisma.job.update({
@@ -99,12 +124,12 @@ export async function PATCH(
       ...(parsed.data.requirements && { requirements: parsed.data.requirements }),
       ...(parsed.data.preferredCertifications && { preferredCertifications: parsed.data.preferredCertifications }),
       ...(parsed.data.suggestedPrograms && { suggestedPrograms: parsed.data.suggestedPrograms }),
-      ...(parsed.data.status && { status: parsed.data.status }),
+      ...(effectiveStatus && { status: effectiveStatus }),
     },
   });
 
   // Notify admin when job is submitted for review (draft/closed → pending)
-  if (parsed.data.status === 'pending' && (existing.status === 'draft' || existing.status === 'closed')) {
+  if (job.status === 'pending' && (existing.status === 'draft' || existing.status === 'closed')) {
     const employer = await prisma.employer.findUnique({
       where: { id: ctx.employerId },
       select: { companyName: true, contactEmail: true },
@@ -119,7 +144,8 @@ export async function PATCH(
     }
   }
 
-  if (parsed.data.status && parsed.data.status !== existing.status) {
+  const statusForEvents = effectiveStatus ?? parsed.data.status;
+  if (statusForEvents && statusForEvents !== existing.status) {
     await recordEmployerWorkflowEvent({
       employerId: ctx.employerId,
       actorUserId: user.id,
@@ -130,10 +156,10 @@ export async function PATCH(
     });
   }
 
-  if (parsed.data.status === 'pending' || parsed.data.status === 'draft' || parsed.data.status === undefined) {
+  if (statusForEvents === 'pending' || statusForEvents === 'draft' || statusForEvents === undefined) {
     await trackEvent({
       userId: user.id,
-      eventName: parsed.data.status === 'pending' ? 'employer_job_submitted_for_review' : 'employer_job_draft_saved',
+      eventName: statusForEvents === 'pending' ? 'employer_job_submitted_for_review' : 'employer_job_draft_saved',
       entityType: 'job',
       entityId: job.id,
       metadata: { isCreate: false, previousStatus: existing.status, nextStatus: job.status },
@@ -141,5 +167,7 @@ export async function PATCH(
     });
   }
 
-  return NextResponse.json(job);
+  return NextResponse.json(
+    reviewDowngradeReasons.length > 0 ? { ...job, reviewDowngradeReasons } : job
+  );
 }

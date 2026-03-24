@@ -5,6 +5,7 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import { sendJobSubmittedEmail } from '@/lib/email';
 import { buildEmployerJobCreateData, getRouteErrorDetails } from '@/lib/employer/jobCreate';
+import { resolveEmployerJobPendingSubmission } from '@/lib/employer/employerJobSubmitReviewGates';
 import { z } from 'zod';
 import { trackEvent } from '@/lib/events/track';
 
@@ -90,11 +91,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Selected employer record was not found.' }, { status: 400 });
     }
 
+    const fieldsForReview = {
+      location: parsed.data.location ?? null,
+      requirements: parsed.data.requirements,
+      salaryMin: parsed.data.salaryMin ?? null,
+      salaryMax: parsed.data.salaryMax ?? null,
+      description: parsed.data.description,
+      suggestedPrograms: parsed.data.suggestedPrograms,
+    };
+    const resolved =
+      parsed.data.status === 'pending'
+        ? resolveEmployerJobPendingSubmission(fieldsForReview)
+        : { status: parsed.data.status, reviewDowngradeReasons: [] as string[] };
+    const createPayload = { ...parsed.data, status: resolved.status };
+
     const job = await prisma.job.create({
-      data: buildEmployerJobCreateData(employer.organizationId, ctx.employerId, parsed.data),
+      data: buildEmployerJobCreateData(employer.organizationId, ctx.employerId, createPayload),
     });
 
-    if (parsed.data.status === 'pending') {
+    if (job.status === 'pending') {
       await sendJobSubmittedEmail({
         jobTitle: job.title,
         companyName: employer.companyName,
@@ -105,14 +120,19 @@ export async function POST(request: NextRequest) {
 
     await trackEvent({
       userId: user.id,
-      eventName: parsed.data.status === 'pending' ? 'employer_job_submitted_for_review' : 'employer_job_draft_saved',
+      eventName: job.status === 'pending' ? 'employer_job_submitted_for_review' : 'employer_job_draft_saved',
       entityType: 'job',
       entityId: job.id,
-      metadata: { isCreate: true, status: parsed.data.status },
-      sourcePage: parsed.data.status === 'pending' ? '/employer/jobs/new?submit=review' : '/employer/jobs/new',
+      metadata: { isCreate: true, status: job.status },
+      sourcePage: job.status === 'pending' ? '/employer/jobs/new?submit=review' : '/employer/jobs/new',
     });
 
-    return NextResponse.json(job, { status: 201 });
+    return NextResponse.json(
+      resolved.reviewDowngradeReasons.length > 0
+        ? { ...job, reviewDowngradeReasons: resolved.reviewDowngradeReasons }
+        : job,
+      { status: 201 }
+    );
   } catch (error) {
     const detail = getRouteErrorDetails(error);
     console.error('Employer job create failed', detail);

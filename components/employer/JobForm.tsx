@@ -191,20 +191,17 @@ export default function JobForm({ job, initialData, companyName, programSlugs, i
         return;
       }
 
-      const saved = data as { status?: string };
-      if (submitForReview && saved.status === 'draft') {
+      const saved = data as { status?: string; reviewDowngradeReasons?: unknown };
+      const reasons = Array.isArray(saved.reviewDowngradeReasons)
+        ? saved.reviewDowngradeReasons.filter((r): r is string => typeof r === 'string' && r.length > 0)
+        : [];
+      if (submitForReview && saved.status === 'draft' && reasons.length > 0) {
         try {
           sessionStorage.setItem(
             EMPLOYER_JOB_SUBMIT_REVIEW_DRAFT_FLASH,
             JSON.stringify({
               title: payload.title,
-              reasons: [
-                !payload.location ? 'work location' : null,
-                requirements.length < 2 ? 'at least two requirement lines' : null,
-                payload.salaryMin == null && payload.salaryMax == null ? 'salary range' : null,
-                payload.description.length < 140 ? 'a fuller job description' : null,
-                programs.length < 1 ? 'at least one training track match' : null,
-              ].filter(Boolean),
+              reasons,
             })
           );
         } catch {

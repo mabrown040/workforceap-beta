@@ -16,7 +16,8 @@ require('./ensure-prisma-env.cjs');
 // One-off `resolve --applied` for legacy DBs caused P3008 on Supabase once rows exist — keep empty.
 const MARK_APPLIED = [];
 
-const MARK_ROLLED_BACK = [];
+// Removed from repo / replaced by 20260324000001; prod DB may still list this as *failed* → blocks P3009.
+const MARK_ROLLED_BACK = ['20260323999999_add_missing_partner_notify_columns'];
 
 function run(args, ignoreError = false) {
   const result = spawnSync(process.execPath, [require.resolve('./prisma-env.js'), ...args], {
@@ -55,7 +56,8 @@ try {
     { encoding: 'utf8', env: process.env }
   );
   const output = `${statusResult.stdout || ''}${statusResult.stderr || ''}`;
-  const failedPattern = /migration `([^`]+)`[^\n]*failed/gi;
+  // e.g. "The `20260323999999_...` migration started at ... failed"
+  const failedPattern = /The `([^`]+)` migration[^\n]*failed/gi;
   let match;
   const seen = new Set();
   while ((match = failedPattern.exec(output)) !== null) {

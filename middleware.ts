@@ -10,7 +10,7 @@ const PORTAL_PATHS = [
   '/partner',
   '/employer',
   '/my-group',
-  '/jobs',
+  // '/jobs' is intentionally public — page handles auth state inline
 ];
 const ADMIN_PATHS = ['/admin'];
 

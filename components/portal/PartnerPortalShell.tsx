@@ -7,10 +7,12 @@ import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
 export default function PartnerPortalShell({
   partnerName,
   superAdmin,
+  superAdminImpersonating,
   children,
 }: {
   partnerName: string;
   superAdmin?: boolean;
+  superAdminImpersonating?: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -20,6 +22,7 @@ export default function PartnerPortalShell({
       workspaceLabel={PRODUCT_COPY.partnerWorkspace}
       contextLabel={partnerName}
       superAdmin={superAdmin}
+      superAdminImpersonating={superAdminImpersonating}
       superAdminBackHref={superAdmin ? '/admin/partners' : undefined}
       superAdminBackLabel="Switch partner"
     >

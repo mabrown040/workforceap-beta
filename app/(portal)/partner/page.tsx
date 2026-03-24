@@ -8,6 +8,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { loadPartnerReferralBundle, toPartnerMembersListRows } from '@/lib/partner/referralBundle';
 import { PIPELINE_STAGE_LABELS } from '@/lib/pipeline/stage';
+import CopyReferralLink from '@/components/partner/CopyReferralLink';
 import PartnerMembersList from '@/components/portal/PartnerMembersList';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
@@ -143,6 +144,7 @@ export default async function PartnerDashboardPage() {
         <p style={{ margin: '0.75rem 0 0', fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>
           Share: <strong style={{ wordBreak: 'break-all' }}>{referralApplyUrl}</strong>
         </p>
+        <CopyReferralLink url={referralApplyUrl} />
       </section>
 
       {total === 0 ? (

@@ -19,7 +19,11 @@ export default async function PartnerPortalLayout({ children }: { children: Reac
   const superBanner = superUser && !directPartnerUser;
 
   return (
-    <PartnerPortalShell partnerName={ctx.partner.name} superAdmin={superBanner}>
+    <PartnerPortalShell
+      partnerName={ctx.partner.name}
+      superAdmin={superBanner}
+      superAdminImpersonating={superBanner}
+    >
       {children}
     </PartnerPortalShell>
   );

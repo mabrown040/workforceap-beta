@@ -243,6 +243,36 @@ html.dark .employer-dash-overview-copy p,
 html.dark .partner-panel p {
     color: var(--color-gray-600);
 }
+html.dark .apply-location-callout,
+html.dark .apply-eligibility-note {
+    background: #161a1f;
+    border: 1px solid var(--color-border);
+    color: var(--color-gray-700);
+    box-shadow: none;
+}
+html.dark .apply-location-callout strong {
+    color: var(--color-gray-800);
+}
+html.dark .inner-page .form-group label,
+html.dark .apply-flow .form-group label,
+html.dark fieldset.apply-fieldset label {
+    color: var(--color-gray-700);
+}
+html.dark .inner-page input:not([type="checkbox"]):not([type="radio"]),
+html.dark .inner-page textarea,
+html.dark .inner-page select,
+html.dark .apply-flow input:not([type="checkbox"]):not([type="radio"]),
+html.dark .apply-flow textarea,
+html.dark .apply-flow select {
+    background: #161a1f;
+    border-color: var(--color-gray-300);
+    color: var(--color-primary);
+}
+html.dark .form-radio-card {
+    background: #161a1f;
+    border-color: var(--color-border);
+    color: var(--color-primary);
+}
 html.dark .workspace-shell-root {
     background: var(--color-light);
 }

@@ -10,6 +10,7 @@ const updateSchema = z.object({
   address: z.string().max(500).nullable(),
   linkedin: z.string().max(500).nullable(),
   bio: z.string().max(2000).nullable(),
+  financialAidInterest: z.boolean().optional(),
 });
 
 export async function PATCH(request: Request) {
@@ -28,7 +29,7 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
   }
 
-  const { firstName, lastName, phone, address, linkedin, bio } = parsed.data;
+  const { firstName, lastName, phone, address, linkedin, bio, financialAidInterest } = parsed.data;
   const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
 
   await prisma.$transaction(async (tx) => {
@@ -44,12 +45,14 @@ export async function PATCH(request: Request) {
         profileAddress: address || null,
         profileLinkedin: linkedin?.trim() ? linkedin.trim() : null,
         profileBio: bio || null,
+        ...(financialAidInterest !== undefined ? { financialAidInterest } : {}),
       },
       update: {
         profilePhone: phone || null,
         profileAddress: address || null,
         profileLinkedin: linkedin?.trim() ? linkedin.trim() : null,
         profileBio: bio || null,
+        ...(financialAidInterest !== undefined ? { financialAidInterest } : {}),
       },
     });
   });

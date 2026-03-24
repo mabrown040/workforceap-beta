@@ -27,6 +27,7 @@ import {
   adminWeeklyRecapHtml,
   enrollmentConfirmationHtml,
   partnerWeeklyDigestHtml,
+  counselorAssignedHtml,
 } from '@/emails';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
@@ -40,6 +41,43 @@ function getResend(): Resend | null {
 
 function getFrom(): string {
   return process.env.EMAIL_FROM || 'noreply@workforceap.org';
+}
+
+/** Notify member when a counselor is assigned (member portal Messages) */
+export async function sendCounselorAssignedEmail(params: {
+  to: string;
+  memberFullName: string;
+  counselorFullName: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendCounselorAssignedEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const first = params.memberFullName.trim().split(/\s+/)[0] || 'there';
+  const messagesUrl = `${SITE_URL}/dashboard/messages`;
+  const html = brandedEmailLayout({
+    title: 'Your WorkforceAP counselor is assigned',
+    bodyHtml: counselorAssignedHtml({
+      firstName: first,
+      counselorName: params.counselorFullName,
+      messagesUrl,
+    }),
+    ctaText: 'Message your counselor',
+    ctaUrl: messagesUrl,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(`WorkforceAP — ${params.counselorFullName} is your counselor`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendCounselorAssignedEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
 }
 
 /** Send enrollment confirmation when admin approves an application */

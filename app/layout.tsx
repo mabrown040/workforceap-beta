@@ -7,6 +7,7 @@ import ScrollAnimationsWrapper from '@/components/ScrollAnimationsWrapper';
 import OrgBrandingStyle from '@/components/platform/OrgBrandingStyle';
 import { getDefaultOrgBranding } from '@/lib/platform/defaultOrgTheme';
 import '@/css/main.css';
+import '@/app/globals-onboarding.css';
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID ?? 'GTM-53JCT6WN';
 

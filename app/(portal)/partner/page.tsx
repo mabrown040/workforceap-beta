@@ -10,6 +10,7 @@ import { loadPartnerReferralBundle, toPartnerMembersListRows } from '@/lib/partn
 import { PIPELINE_STAGE_LABELS } from '@/lib/pipeline/stage';
 import PartnerMembersList from '@/components/portal/PartnerMembersList';
 import PageHeader from '@/components/portal/PageHeader';
+import PartnerOnboardingWizard from '@/components/onboarding/PartnerOnboardingWizard';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Partner Portal',
@@ -26,18 +27,28 @@ export default async function PartnerDashboardPage() {
   const ctx = await getPartnerForUser(user.id);
   if (!ctx) redirect('/dashboard');
 
-  const [appliedViaReferralLink, partnerCodes] = await Promise.all([
+  const [appliedViaReferralLink, partnerRow] = await Promise.all([
     prisma.application.count({
       where: { referralPartnerId: ctx.partnerId },
     }),
     prisma.partner.findUnique({
       where: { id: ctx.partnerId },
-      select: { referralCode: true, slug: true },
+      select: {
+        referralCode: true,
+        slug: true,
+        onboardingCompletedAt: true,
+        name: true,
+        organizationType: true,
+        contactName: true,
+        contactPhone: true,
+      },
     }),
   ]);
 
+  if (!partnerRow) redirect('/dashboard');
+
   const applyLinkBase = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
-  const refParam = partnerCodes?.referralCode ?? partnerCodes?.slug ?? ctx.partner.slug;
+  const refParam = partnerRow.referralCode ?? partnerRow.slug ?? ctx.partner.slug;
   const referralApplyUrl = `${applyLinkBase}/apply?ref=${encodeURIComponent(refParam)}`;
 
   const { members, pipelineMembers } = await loadPartnerReferralBundle(ctx.partnerId);
@@ -86,6 +97,15 @@ export default async function PartnerDashboardPage() {
 
   return (
     <div className="partner-impact-console">
+      {partnerRow.onboardingCompletedAt == null ? (
+        <PartnerOnboardingWizard
+          partnerName={partnerRow.name}
+          organizationType={partnerRow.organizationType ?? ''}
+          contactName={partnerRow.contactName ?? ''}
+          contactPhone={partnerRow.contactPhone ?? ''}
+          referralApplyUrl={referralApplyUrl}
+        />
+      ) : null}
       <PageHeader
         title="Partner overview"
         subtitle={`${ctx.partner.name} referrals, progress, and placement outcomes in one place.`}

@@ -7,6 +7,7 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { Briefcase, FilePlus, Upload, Users, CheckCircle, Clock, ArrowRight, Sparkles, Calendar, UserCheck, Timer } from 'lucide-react';
 import PageHeader from '@/components/portal/PageHeader';
+import EmployerOnboardingWizard from '@/components/onboarding/EmployerOnboardingWizard';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Employer overview',
@@ -20,6 +21,18 @@ export default async function EmployerDashboardPage() {
 
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect('/employers');
+
+  const employerRow = await prisma.employer.findUnique({
+    where: { id: ctx.employerId },
+    select: {
+      onboardingCompletedAt: true,
+      companyName: true,
+      industry: true,
+      companySize: true,
+      companyWebsite: true,
+    },
+  });
+  if (!employerRow) redirect('/employers');
 
   const jobs = await prisma.job.findMany({
     where: { employerId: ctx.employerId },
@@ -110,6 +123,14 @@ export default async function EmployerDashboardPage() {
 
   return (
     <div className="employer-dash-page">
+      {employerRow.onboardingCompletedAt == null ? (
+        <EmployerOnboardingWizard
+          companyName={employerRow.companyName}
+          industry={employerRow.industry ?? ''}
+          companySize={employerRow.companySize ?? ''}
+          companyWebsite={employerRow.companyWebsite ?? ''}
+        />
+      ) : null}
       <PageHeader
         title="Employer overview"
         subtitle="One place to post jobs, review applicants, and keep your hiring pipeline moving."

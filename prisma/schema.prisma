@@ -66,6 +66,8 @@ model User {
   interviewEligible      Boolean   @default(false) @map("interview_eligible")
   interviewRequestedAt   DateTime? @map("interview_requested_at")
   interviewCompletedAt   DateTime? @map("interview_completed_at")
+  onboardingCompletedAt  DateTime? @map("onboarding_completed_at")
+  onboardingPortal       String?   @map("onboarding_portal")
 
   organization         Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   profile              Profile?
@@ -573,6 +575,8 @@ model Partner {
   notifyOnCourse       Boolean @default(false) @map("notify_on_course")
   notifyOnCertified    Boolean @default(true) @map("notify_on_certified")
   notifyOnPlaced       Boolean @default(true) @map("notify_on_placed")
+  onboardingCompletedAt DateTime? @map("onboarding_completed_at")
+  organizationType    String?   @map("organization_type")
 
   counselors    Counselor[]
   referrals     PartnerReferral[]
@@ -905,6 +909,7 @@ model Employer {
   status             String    @default("active") // active, inactive
   createdAt          DateTime  @default(now()) @map("created_at")
   updatedAt          DateTime  @updatedAt @map("updated_at")
+  onboardingCompletedAt DateTime? @map("onboarding_completed_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)

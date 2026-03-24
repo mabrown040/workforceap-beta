@@ -8,6 +8,7 @@ import { prisma } from '@/lib/db/prisma';
 import { buildMemberApplicationStatusView } from '@/lib/member/memberApplicationStatus';
 import DashboardHomeClient from '@/components/portal/DashboardHomeClient';
 import MatchedRoles from '@/components/portal/MatchedRoles';
+import MemberOnboardingWizard from '@/components/onboarding/MemberOnboardingWizard';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Member overview',
@@ -29,6 +30,19 @@ export default async function DashboardPage() {
       interviewRequestedAt: true,
       interviewCompletedAt: true,
       preScreeningResponse: { select: { id: true } },
+      onboardingCompletedAt: true,
+      fullName: true,
+      phone: true,
+      programInterest: true,
+      profile: {
+        select: {
+          city: true,
+          state: true,
+          zip: true,
+          profilePhone: true,
+          referralSource: true,
+        },
+      },
     },
   });
 
@@ -42,6 +56,10 @@ export default async function DashboardPage() {
       createdAt: true,
     },
   });
+
+  const showMemberOnboarding = intakeExtra?.onboardingCompletedAt == null;
+  const wizardProgramInterest =
+    latestApplication?.programInterest ?? intakeExtra?.programInterest ?? '';
 
   const applicationStatusView = buildMemberApplicationStatusView(latestApplication, {
     enrolledProgram: dbUser.enrolledProgram ?? null,
@@ -103,6 +121,17 @@ export default async function DashboardPage() {
 
   return (
     <>
+      {showMemberOnboarding ? (
+        <MemberOnboardingWizard
+          initialFullName={intakeExtra?.fullName ?? ''}
+          initialPhone={intakeExtra?.profile?.profilePhone ?? intakeExtra?.phone ?? ''}
+          initialCity={intakeExtra?.profile?.city ?? ''}
+          initialState={intakeExtra?.profile?.state ?? ''}
+          initialZip={intakeExtra?.profile?.zip ?? ''}
+          initialProgramInterest={wizardProgramInterest}
+          initialReferralSource={intakeExtra?.profile?.referralSource ?? ''}
+        />
+      ) : null}
       <DashboardHomeClient
         recommendedActions={recommendedActions}
         jobSearchUrl={jobSearchUrl}

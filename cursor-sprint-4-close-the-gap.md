@@ -188,9 +188,99 @@ Read `lib/portal/workflowEvents.ts` and `app/(portal)/partner/milestones/page.ts
 
 ---
 
-## P4 — Member-Only Job Board
+## P4 — Internal Messaging (Member ↔ Counselor)
 
-### P4-1: Gate /jobs to logged-in members only
+### P4-1: Real-time member ↔ counselor chat via Supabase Realtime
+**Problem:** Member communication with counselors currently goes through email (slow, no history, no accountability). We need in-platform messaging so members can reach their counselor without leaving the portal.
+
+**Stack:** Supabase Realtime (already in the project). No new paid services needed.
+
+**Step 1 — Data model:**
+Add to `prisma/schema.prisma`:
+```prisma
+model Message {
+  id          String   @id @default(uuid())
+  threadId    String   @map("thread_id")
+  senderId    String   @map("sender_id")
+  senderRole  String   @map("sender_role") // "member" | "counselor" | "admin"
+  content     String   @db.Text
+  readAt      DateTime? @map("read_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  thread      MessageThread @relation(fields: [threadId], references: [id])
+  sender      User          @relation(fields: [senderId], references: [id])
+  
+  @@map("messages")
+}
+
+model MessageThread {
+  id         String    @id @default(uuid())
+  memberId   String    @unique @map("member_id")
+  subject    String    @default("General")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  
+  member     User      @relation(fields: [memberId], references: [id])
+  messages   Message[]
+  
+  @@map("message_threads")
+}
+```
+Migration: `prisma migrate dev --name add_messaging`
+
+**Step 2 — API routes:**
+- `GET /api/messages/thread` — get or create the member's thread + all messages
+- `POST /api/messages/send` — send a message (validates sender is member or counselor/admin for this thread)
+- `PATCH /api/messages/[id]/read` — mark messages as read
+
+**Step 3 — Member UI:**
+In `app/(portal)/dashboard/` — add a "Messages" tab or card:
+- Show thread with counselor
+- Message input at bottom
+- Messages display with timestamp + sender name
+- Unread count badge on the nav icon
+- Subscribe to Supabase Realtime on the `messages` table filtered by `thread_id` — new messages appear without refresh
+
+Check `lib/db/supabase.ts` (or equivalent) for the existing Supabase client. Use the same client for Realtime subscription.
+
+```typescript
+// Example Realtime subscription pattern
+const supabase = createClient(...)
+supabase
+  .channel('messages')
+  .on('postgres_changes', { 
+    event: 'INSERT', 
+    schema: 'public', 
+    table: 'messages',
+    filter: `thread_id=eq.${threadId}`
+  }, (payload) => {
+    setMessages(prev => [...prev, payload.new])
+  })
+  .subscribe()
+```
+
+**Step 4 — Admin/Counselor UI:**
+In `app/admin/members/[id]/page.tsx` — add a "Messages" tab:
+- Show all messages in the member's thread
+- Reply box at bottom
+- Replies sent as `senderRole: "counselor"` with the admin's user ID
+- Realtime subscription same as above — new messages from the member appear live
+
+**Step 5 — Navigation badge:**
+In the member dashboard sidebar/nav, show an unread message count badge. Query: `prisma.message.count({ where: { thread: { memberId: userId }, readAt: null, senderRole: { not: 'member' } } })`
+
+**Commit sequence:**
+1. `feat(messaging): add Message and MessageThread models with migration`
+2. `feat(messaging): add /api/messages routes (thread get, send, read)`
+3. `feat(messaging): add member dashboard Messages tab with Supabase Realtime`
+4. `feat(messaging): add admin member Messages tab for counselor replies`
+5. `feat(messaging): add unread message badge to member nav`
+
+---
+
+## P5 — Member-Only Job Board
+
+### P5-1: Gate /jobs to logged-in members only
 **Problem:** The `/jobs` page is currently public. Job postings should only be visible to accepted/enrolled WorkforceAP members. This creates a value incentive to apply and enroll, and prevents employers' job postings from being scraped publicly.
 
 **Fix:**
@@ -220,7 +310,8 @@ Read `lib/portal/workflowEvents.ts` and `app/(portal)/partner/milestones/page.ts
 7. Admin can mark a member as placed and see the count on the admin dashboard
 8. Partner self-registration form exists at `/partner-signup`
 9. `/jobs` page requires login — unauthenticated visitors are redirected to `/login?redirectTo=/jobs`
-10. All new features have at least one test
+10. Member ↔ counselor chat is live — member can send a message and counselor can reply from admin
+11. All new features have at least one test
 
 ---
 

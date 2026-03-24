@@ -1,16 +1,16 @@
+ï»¿import Link from 'next/link';
+import { prisma } from '@/lib/db/prisma';
+import PartnersTableClient from '@/components/admin/PartnersTableClient';
+import PageHeader from '@/components/portal/PageHeader';
+
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Admin – Partners',
+  title: 'Admin - Partners',
   description: 'Manage partner organizations.',
   path: '/admin/partners',
 });
-
-import Link from 'next/link';
-import { prisma } from '@/lib/db/prisma';
-import PartnersTableClient from '@/components/admin/PartnersTableClient';
-import PageHeader from '@/components/portal/PageHeader';
 
 async function loadAdminPartnersData() {
   return Promise.all([
@@ -105,4 +105,3 @@ export default async function AdminPartnersPage() {
     </div>
   );
 }
-

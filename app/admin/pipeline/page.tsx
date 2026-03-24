@@ -1,16 +1,16 @@
+﻿import { prisma } from '@/lib/db/prisma';
+import { getPipelineStage, PIPELINE_STAGE_LABELS, PIPELINE_STAGE_COLORS, PIPELINE_STAGES_ORDERED, type PipelineStage } from '@/lib/pipeline/stage';
+import Link from 'next/link';
+import PageHeader from '@/components/portal/PageHeader';
+
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Admin � Hiring Pipeline',
+  title: 'Admin - Hiring Pipeline',
   description: 'View and manage the hiring pipeline.',
   path: '/admin/pipeline',
 });
-
-import { prisma } from '@/lib/db/prisma';
-import { getPipelineStage, PIPELINE_STAGE_LABELS, PIPELINE_STAGE_COLORS, PIPELINE_STAGES_ORDERED, type PipelineStage } from '@/lib/pipeline/stage';
-import Link from 'next/link';
-import PageHeader from '@/components/portal/PageHeader';
 
 export default async function AdminPipelinePage() {
   const students = await prisma.user.findMany({
@@ -76,8 +76,8 @@ export default async function AdminPipelinePage() {
         {[
           { label: 'Total Active', value: totalActive },
           { label: 'Placed', value: totalPlaced },
-          { label: 'Placement Rate', value: totalActive > 0 ? `${Math.round((totalPlaced / totalActive) * 100)}%` : '—' },
-          { label: 'Avg Salary', value: avgSalary ? `$${avgSalary.toLocaleString()}` : '—' },
+          { label: 'Placement Rate', value: totalActive > 0 ? `${Math.round((totalPlaced / totalActive) * 100)}%` : 'â€”' },
+          { label: 'Avg Salary', value: avgSalary ? `$${avgSalary.toLocaleString()}` : 'â€”' },
         ].map((stat) => (
           <div
             key={stat.label}
@@ -118,7 +118,7 @@ export default async function AdminPipelinePage() {
                   >
                     <div style={{ fontWeight: 500, fontSize: '0.85rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.fullName}</div>
                     <div style={{ fontSize: '0.72rem', color: 'var(--color-gray-500)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '0.2rem' }}>
-                      {s.email || s.phone || '—'}
+                      {s.email || s.phone || 'â€”'}
                     </div>
                     {s.enrolledProgram && (
                       <div style={{ fontSize: '0.75rem', color: 'var(--color-gray-500)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '0.15rem' }}>

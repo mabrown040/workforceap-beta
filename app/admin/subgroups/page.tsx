@@ -1,15 +1,15 @@
+﻿import Link from 'next/link';
+import { prisma } from '@/lib/db/prisma';
+import PageHeader from '@/components/portal/PageHeader';
+
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Admin � Subgroups',
+  title: 'Admin - Subgroups',
   description: 'Manage member subgroups.',
   path: '/admin/subgroups',
 });
-
-import Link from 'next/link';
-import { prisma } from '@/lib/db/prisma';
-import PageHeader from '@/components/portal/PageHeader';
 
 export default async function AdminSubgroupsPage() {
   const subgroups = await prisma.subgroup.findMany({
@@ -76,7 +76,7 @@ export default async function AdminSubgroupsPage() {
                   {sg.leader.fullName}
                   <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)' }}>{sg.leader.email}</div>
                 </td>
-                <td>{sg.partner?.name ?? '—'}</td>
+                <td>{sg.partner?.name ?? 'â€”'}</td>
                 <td style={{ textAlign: 'center' }}>{sg._count.members}</td>
                 <td>
                   <Link
@@ -94,4 +94,3 @@ export default async function AdminSubgroupsPage() {
     </div>
   );
 }
-

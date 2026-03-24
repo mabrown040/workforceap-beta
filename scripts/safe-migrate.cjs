@@ -47,7 +47,7 @@ for (const migration of MARK_ROLLED_BACK) {
   run(['prisma', 'migrate', 'resolve', '--rolled-back', migration], true);
 }
 
-// Clear P3009-style failed state before deploy (parse migrate status; ignore failures)
+// Before migrate deploy: clear P3009 failed state (parse migrate status; ignore failures)
 try {
   const statusResult = spawnSync(
     process.execPath,

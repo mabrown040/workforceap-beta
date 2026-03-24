@@ -33,13 +33,33 @@ export async function PATCH(
     return NextResponse.json({ error: 'Invalid program' }, { status: 400 });
   }
 
-  await prisma.user.update({
-    where: { id },
-    data: {
-      enrolledProgram: programSlug,
-      programChangedAt: new Date(),
-      coursesCompleted: [],
-    },
+  const now = new Date();
+  await prisma.$transaction(async (tx) => {
+    const member = await tx.user.update({
+      where: { id },
+      data: {
+        enrolledProgram: programSlug,
+        programChangedAt: now,
+        coursesCompleted: [],
+        enrolledAt: now,
+      },
+      select: { organizationId: true },
+    });
+    await tx.courseEnrollment.upsert({
+      where: { userId: id },
+      create: {
+        organizationId: member.organizationId,
+        userId: id,
+        programSlug,
+        enrolledAt: now,
+        enrolledByAdminId: user.id,
+      },
+      update: {
+        programSlug,
+        enrolledAt: now,
+        enrolledByAdminId: user.id,
+      },
+    });
   });
 
   await sendPartnerMilestoneEmail(id, 'Program enrollment', {

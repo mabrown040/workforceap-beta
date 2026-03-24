@@ -23,6 +23,8 @@ const catalogRowSchema = z.object({
   status: z.enum(['active', 'coming_soon', 'inactive']).optional().default('active'),
   displayOrder: z.number().int().optional().default(0),
   featured: z.boolean().optional().default(false),
+  programStartDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
+  programEndDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
 });
 
 export async function GET() {
@@ -78,6 +80,12 @@ export async function POST(request: NextRequest) {
         status: parsed.data.status ?? 'active',
         displayOrder: parsed.data.displayOrder ?? 0,
         featured: parsed.data.featured ?? false,
+        programStartDate: parsed.data.programStartDate
+          ? new Date(`${parsed.data.programStartDate}T12:00:00.000Z`)
+          : null,
+        programEndDate: parsed.data.programEndDate
+          ? new Date(`${parsed.data.programEndDate}T12:00:00.000Z`)
+          : null,
       },
     });
     return NextResponse.json(row, { status: 201 });
@@ -135,6 +143,20 @@ export async function PATCH(request: NextRequest) {
       ...(rest.status !== undefined ? { status: rest.status } : {}),
       ...(rest.displayOrder !== undefined ? { displayOrder: rest.displayOrder } : {}),
       ...(rest.featured !== undefined ? { featured: rest.featured } : {}),
+      ...(rest.programStartDate !== undefined
+        ? {
+            programStartDate: rest.programStartDate
+              ? new Date(`${rest.programStartDate}T12:00:00.000Z`)
+              : null,
+          }
+        : {}),
+      ...(rest.programEndDate !== undefined
+        ? {
+            programEndDate: rest.programEndDate
+              ? new Date(`${rest.programEndDate}T12:00:00.000Z`)
+              : null,
+          }
+        : {}),
     },
   });
 

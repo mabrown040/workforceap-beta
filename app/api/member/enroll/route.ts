@@ -37,8 +37,11 @@ export async function POST(request: Request) {
       enrolledProgram: true,
       phone: true,
       profile: { select: { profilePhone: true, profileAddress: true, financialAidInterest: true } },
+      courseEnrollment: { select: { enrolledByAdminId: true } },
     },
   });
+
+  const adminBypass = !!existing?.courseEnrollment?.enrolledByAdminId;
 
   const gate = memberTrainingProfileComplete({
     phone: existing?.phone,
@@ -46,7 +49,7 @@ export async function POST(request: Request) {
     profileAddress: existing?.profile?.profileAddress,
     financialAidInterest: existing?.profile?.financialAidInterest,
   });
-  if (!gate.ok) {
+  if (!adminBypass && !gate.ok) {
     return NextResponse.json(
       {
         error: 'Complete your profile to enroll in training',
@@ -61,13 +64,32 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Already enrolled in a program. Changes require admin.' }, { status: 400 });
   }
 
-  const updatedUser = await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      enrolledProgram: slug,
-      enrolledAt: new Date(),
-    },
-    select: { email: true, fullName: true },
+  const now = new Date();
+  const updatedUser = await prisma.$transaction(async (tx) => {
+    const u = await tx.user.update({
+      where: { id: user.id },
+      data: {
+        enrolledProgram: slug,
+        enrolledAt: now,
+      },
+      select: { email: true, fullName: true, organizationId: true },
+    });
+    await tx.courseEnrollment.upsert({
+      where: { userId: user.id },
+      create: {
+        organizationId: u.organizationId,
+        userId: user.id,
+        programSlug: slug,
+        enrolledAt: now,
+        enrolledByAdminId: null,
+      },
+      update: {
+        programSlug: slug,
+        enrolledAt: now,
+        enrolledByAdminId: null,
+      },
+    });
+    return u;
   });
 
   sendPartnerMilestoneEmail(user.id, 'Program enrollment', {

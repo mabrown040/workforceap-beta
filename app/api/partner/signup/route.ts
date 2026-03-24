@@ -81,11 +81,11 @@ export async function POST(request: NextRequest) {
       `Organization type: ${d.orgType}`,
       `City / county served: ${d.serveArea}`,
       `Estimated monthly referrals: ${d.expectedMonthly}`,
-      hear ? `How they heard about WorkforceAP: ${hear}` : '',
+      hear ? `How they heard about WorkforceAP: ${hear}` : undefined,
       '',
       `Submitted: ${new Date().toISOString()}`,
     ]
-      .filter(Boolean)
+      .filter((line) => line !== undefined)
       .join('\n');
 
     try {

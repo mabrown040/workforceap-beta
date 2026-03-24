@@ -41,8 +41,8 @@ export default function EmployerContactForm() {
     const hireVolume = String(formData.get('hire_volume') || '').trim();
 
     const message = [
-      company ? `Company: ${company}` : '',
-      roleTitle ? `Role / title: ${roleTitle}` : '',
+      company ? `Company: ${company}` : undefined,
+      roleTitle ? `Role / title: ${roleTitle}` : undefined,
       '',
       'What roles are you hiring for?',
       rolesHiring || '(Not specified)',
@@ -50,7 +50,7 @@ export default function EmployerContactForm() {
       'Hires in the next 6 months (estimate):',
       hireVolume || '(Not specified)',
     ]
-      .filter(Boolean)
+      .filter((line) => line !== undefined)
       .join('\n');
 
     const data: Record<string, unknown> = {

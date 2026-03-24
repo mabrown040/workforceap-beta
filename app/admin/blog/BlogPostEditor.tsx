@@ -179,7 +179,7 @@ export default function BlogPostEditor({
     width: '100%',
     maxWidth: '600px',
     padding: '0.5rem 0.75rem',
-    border: '1px solid #ccc',
+    border: '1px solid var(--color-gray-300)',
     borderRadius: '6px',
     fontSize: '1rem',
   } as const;
@@ -194,19 +194,7 @@ export default function BlogPostEditor({
       }}
       style={{ maxWidth: '800px' }}
     >
-      {error && (
-        <div
-          style={{
-            padding: '0.75rem',
-            marginBottom: '1rem',
-            background: '#fee',
-            borderRadius: '6px',
-            color: '#c00',
-          }}
-        >
-          {error}
-        </div>
-      )}
+      {error && <div className="admin-error-banner" style={{ padding: '0.75rem', marginBottom: '1rem', borderRadius: '6px' }}>{error}</div>}
       <div style={{ marginBottom: '1rem' }}>
         <label style={labelStyle}>Title</label>
         <input
@@ -214,6 +202,7 @@ export default function BlogPostEditor({
           value={title}
           onChange={(e) => handleTitleChange(e.target.value)}
           required
+          className="admin-form-input"
           style={inputStyle}
           placeholder="Post title"
         />
@@ -225,10 +214,11 @@ export default function BlogPostEditor({
           value={slug}
           onChange={(e) => setSlug(e.target.value)}
           required
+          className="admin-form-input"
           style={inputStyle}
           placeholder="url-friendly-slug"
         />
-        <small style={{ color: '#666', marginTop: '0.25rem', display: 'block' }}>
+        <small className="admin-form-hint" style={{ marginTop: '0.25rem', display: 'block' }}>
           Preview: /blog/{slug || 'your-slug'}
         </small>
       </div>
@@ -238,6 +228,7 @@ export default function BlogPostEditor({
           type="text"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
+          className="admin-form-input"
           style={inputStyle}
           placeholder="e.g. Career Tips, Success Stories"
         />
@@ -248,6 +239,7 @@ export default function BlogPostEditor({
           value={excerpt}
           onChange={(e) => setExcerpt(e.target.value)}
           rows={2}
+          className="admin-form-input"
           style={{ ...inputStyle, resize: 'vertical' }}
           placeholder="Short summary for listing page"
         />
@@ -258,6 +250,7 @@ export default function BlogPostEditor({
           type="url"
           value={coverImage}
           onChange={(e) => setCoverImage(e.target.value)}
+          className="admin-form-input"
           style={inputStyle}
           placeholder="https://..."
         />
@@ -268,6 +261,7 @@ export default function BlogPostEditor({
           type="text"
           value={authorName}
           onChange={(e) => setAuthorName(e.target.value)}
+          className="admin-form-input"
           style={inputStyle}
           placeholder="WorkforceAP Team"
         />
@@ -288,13 +282,12 @@ export default function BlogPostEditor({
             {BLOG_TOPIC_SUGGESTIONS.map((s, i) => (
               <div
                 key={i}
+                className="admin-suggestion-card"
                 style={{
                   flexShrink: 0,
                   width: '220px',
                   padding: '0.75rem',
-                  border: '1px solid #e5e5e5',
                   borderRadius: '8px',
-                  background: 'white',
                 }}
               >
                 <span
@@ -308,7 +301,7 @@ export default function BlogPostEditor({
                 >
                   {s.category}
                 </span>
-                <h4 style={{ margin: '0.5rem 0', fontSize: '0.9rem', lineHeight: 1.3 }}>{s.title}</h4>
+                <h4 style={{ margin: '0.5rem 0', fontSize: '0.9rem', lineHeight: 1.3, color: 'var(--color-primary)' }}>{s.title}</h4>
                 <button
                   type="button"
                   onClick={() => handleUseSuggestion(s.title, s.topic, s.category)}
@@ -331,12 +324,11 @@ export default function BlogPostEditor({
           <button
             type="button"
             onClick={() => setGenerateExpanded(!generateExpanded)}
+            className="admin-ghost-button"
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
-              background: 'none',
-              border: '1px solid #ccc',
               borderRadius: '6px',
               padding: '0.5rem 1rem',
               cursor: 'pointer',
@@ -344,17 +336,16 @@ export default function BlogPostEditor({
             }}
           >
             <Sparkles size={16} /> Generate with AI
-            {generateExpanded ? <ChevronDown size={14} style={{ color: '#666' }} /> : <ChevronRight size={14} style={{ color: '#666' }} />}
+            {generateExpanded ? <ChevronDown size={14} className="admin-muted-text" /> : <ChevronRight size={14} className="admin-muted-text" />}
           </button>
           {generateExpanded && (
             <div
               ref={generatorRef}
+              className="admin-ai-panel"
               style={{
                 marginTop: '0.75rem',
                 padding: '1rem',
-                border: '1px solid #e5e5e5',
                 borderRadius: '6px',
-                background: '#fafafa',
               }}
             >
               <div style={{ marginBottom: '0.75rem' }}>
@@ -363,6 +354,7 @@ export default function BlogPostEditor({
                   type="text"
                   value={aiTitle}
                   onChange={(e) => setAiTitle(e.target.value)}
+                  className="admin-form-input"
                   style={inputStyle}
                   placeholder="e.g. Why Veterans Are Built for Tech Careers"
                 />
@@ -373,6 +365,7 @@ export default function BlogPostEditor({
                   type="text"
                   value={aiTopic}
                   onChange={(e) => setAiTopic(e.target.value)}
+                  className="admin-form-input"
                   style={inputStyle}
                   placeholder="e.g. Military discipline translates to IT certifications, highlight CompTIA Security+"
                 />
@@ -383,6 +376,7 @@ export default function BlogPostEditor({
                   <select
                     value={aiTone}
                     onChange={(e) => setAiTone(e.target.value)}
+                    className="admin-form-input"
                     style={inputStyle}
                   >
                     <option>Informative</option>
@@ -396,7 +390,8 @@ export default function BlogPostEditor({
                     type="text"
                     value={category || 'Career Tips'}
                     readOnly
-                    style={{ ...inputStyle, background: '#eee', maxWidth: '200px' }}
+                    className="admin-form-input admin-topic-pill"
+                    style={{ ...inputStyle, maxWidth: '200px' }}
                   />
                 </div>
               </div>
@@ -441,6 +436,7 @@ export default function BlogPostEditor({
             onChange={(e) => setContent(e.target.value)}
             required
             rows={18}
+            className="admin-form-input"
             style={{
               ...inputStyle,
               maxWidth: '100%',
@@ -452,21 +448,19 @@ export default function BlogPostEditor({
             placeholder="Write your post in Markdown. Use **bold**, ## headings, etc."
           />
           <div
+            className="markdown-body admin-form-panel"
             style={{
-              border: '1px solid #ccc',
               borderRadius: '6px',
               padding: '1rem',
-              background: '#fafafa',
               minHeight: '400px',
               overflow: 'auto',
             }}
-            className="markdown-body"
           >
             <div style={{ fontSize: '0.95rem', lineHeight: 1.6 }}>
               {content ? (
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
               ) : (
-                <span style={{ color: '#999' }}>Live preview appears here…</span>
+                <span className="admin-preview-placeholder">Live preview appears here…</span>
               )}
             </div>
           </div>
@@ -487,7 +481,7 @@ export default function BlogPostEditor({
           Published
         </label>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-          <label style={{ fontSize: '0.9rem', fontWeight: 500, color: '#444' }}>Schedule for later (optional)</label>
+          <label style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--color-gray-700)' }}>Schedule for later (optional)</label>
           <input
             type="datetime-local"
             value={scheduledAt}
@@ -495,7 +489,8 @@ export default function BlogPostEditor({
               setScheduledAt(e.target.value);
               if (e.target.value) setPublished(false);
             }}
-            style={{ padding: '0.4rem 0.6rem', border: '1px solid #ccc', borderRadius: '6px', fontSize: '0.9rem', maxWidth: '240px' }}
+            className="admin-form-input"
+            style={{ padding: '0.4rem 0.6rem', borderRadius: '6px', fontSize: '0.9rem', maxWidth: '240px' }}
           />
           {scheduledAt && (
             <small style={{ color: '#2563eb', fontSize: '0.8rem' }}>
@@ -507,11 +502,9 @@ export default function BlogPostEditor({
           type="button"
           onClick={handleReview}
           disabled={reviewLoading || !content.trim()}
+          className="admin-secondary-button"
           style={{
             padding: '0.4rem 0.9rem',
-            background: '#f0f0f0',
-            color: '#333',
-            border: '1px solid #ccc',
             borderRadius: '6px',
             fontWeight: 500,
             cursor: reviewLoading || !content.trim() ? 'not-allowed' : 'pointer',
@@ -522,15 +515,7 @@ export default function BlogPostEditor({
         </button>
       </div>
       {review && (
-        <div
-          style={{
-            marginBottom: '1.5rem',
-            padding: '1rem',
-            border: '1px solid #e5e5e5',
-            borderRadius: '8px',
-            background: '#fafafa',
-          }}
-        >
+        <div className="admin-form-panel" style={{ marginBottom: '1.5rem', padding: '1rem', borderRadius: '8px' }}>
           <h4 style={{ margin: '0 0 0.75rem', fontSize: '1rem' }}>
             AI review {review.overallScore != null && `— ${review.overallScore}/10`}
           </h4>
@@ -566,7 +551,7 @@ export default function BlogPostEditor({
             </div>
           )}
           {review.toneNote && (
-            <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', color: '#666' }}>
+            <p className="admin-muted-text" style={{ margin: '0.5rem 0 0', fontSize: '0.9rem' }}>
               <strong>Tone:</strong> {review.toneNote}
             </p>
           )}
@@ -592,11 +577,9 @@ export default function BlogPostEditor({
         <button
           type="submit"
           disabled={saving}
+          className="admin-secondary-button"
           style={{
             padding: '0.5rem 1.25rem',
-            background: '#f0f0f0',
-            color: '#333',
-            border: '1px solid #ccc',
             borderRadius: '6px',
             fontWeight: 600,
             cursor: saving ? 'not-allowed' : 'pointer',

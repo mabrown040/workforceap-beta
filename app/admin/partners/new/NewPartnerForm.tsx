@@ -50,20 +50,36 @@ export default function NewPartnerForm() {
     }
   };
 
-  const inputStyle = { width: '100%', maxWidth: '480px', padding: '0.5rem 0.75rem', border: '1px solid #ccc', borderRadius: '6px', fontSize: '1rem' } as const;
+  const inputStyle = {
+    width: '100%',
+    maxWidth: '480px',
+    padding: '0.5rem 0.75rem',
+    border: '1px solid var(--color-gray-300)',
+    borderRadius: '6px',
+    fontSize: '1rem',
+  } as const;
   const labelStyle = { display: 'block', marginBottom: '0.25rem', fontWeight: 500 } as const;
 
   return (
     <form onSubmit={handleSubmit} style={{ maxWidth: '560px' }}>
       {error && (
-        <div style={{ padding: '0.75rem', marginBottom: '1rem', background: '#fee', borderRadius: '6px', color: '#c00' }}>
+        <div className="admin-error-banner" style={{ padding: '0.75rem', marginBottom: '1rem', borderRadius: '6px' }}>
           {error}
         </div>
       )}
 
       <div style={{ marginBottom: '1rem' }}>
         <label style={labelStyle}>Organization Name *</label>
-        <input type="text" value={name} onChange={(e) => handleNameChange(e.target.value)} required style={inputStyle} placeholder="e.g. Workforce Solutions Capital Area" disabled={saving} />
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => handleNameChange(e.target.value)}
+          required
+          className="admin-form-input"
+          style={inputStyle}
+          placeholder="e.g. Workforce Solutions Capital Area"
+          disabled={saving}
+        />
       </div>
 
       <div style={{ marginBottom: '1.5rem' }}>
@@ -75,27 +91,57 @@ export default function NewPartnerForm() {
           required
           pattern="[a-z0-9-]+"
           title="Lowercase letters, numbers, and hyphens only"
+          className="admin-form-input"
           style={inputStyle}
           placeholder="e.g. workforce-solutions-austin"
           disabled={saving}
         />
-        <small style={{ color: '#666', display: 'block', marginTop: '0.25rem' }}>Used in referral tracking. Lowercase, hyphens only.</small>
+        <small className="admin-form-hint" style={{ display: 'block', marginTop: '0.25rem' }}>
+          Used in referral tracking. Lowercase, hyphens only.
+        </small>
       </div>
 
-      <fieldset style={{ border: '1px solid #e5e5e5', borderRadius: '8px', padding: '1rem', marginBottom: '1.5rem' }}>
+      <fieldset
+        className="admin-form-panel"
+        style={{ borderRadius: '8px', padding: '1rem', marginBottom: '1.5rem' }}
+      >
         <legend style={{ fontWeight: 600, padding: '0 0.5rem', fontSize: '0.9rem' }}>Contact Info (optional)</legend>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.5rem' }}>
           <div>
             <label style={labelStyle}>Contact Name</label>
-            <input type="text" value={contactName} onChange={(e) => setContactName(e.target.value)} style={inputStyle} placeholder="Jane Smith" disabled={saving} />
+            <input
+              type="text"
+              value={contactName}
+              onChange={(e) => setContactName(e.target.value)}
+              className="admin-form-input"
+              style={inputStyle}
+              placeholder="Jane Smith"
+              disabled={saving}
+            />
           </div>
           <div>
             <label style={labelStyle}>Contact Email</label>
-            <input type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} style={inputStyle} placeholder="jane@org.org" disabled={saving} />
+            <input
+              type="email"
+              value={contactEmail}
+              onChange={(e) => setContactEmail(e.target.value)}
+              className="admin-form-input"
+              style={inputStyle}
+              placeholder="jane@org.org"
+              disabled={saving}
+            />
           </div>
           <div>
             <label style={labelStyle}>Contact Phone</label>
-            <input type="tel" value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} style={inputStyle} placeholder="(512) 555-0100" disabled={saving} />
+            <input
+              type="tel"
+              value={contactPhone}
+              onChange={(e) => setContactPhone(e.target.value)}
+              className="admin-form-input"
+              style={inputStyle}
+              placeholder="(512) 555-0100"
+              disabled={saving}
+            />
           </div>
         </div>
       </fieldset>
@@ -104,7 +150,13 @@ export default function NewPartnerForm() {
         <button type="submit" disabled={saving} style={{ padding: '0.5rem 1.25rem', background: 'var(--color-accent)', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer' }}>
           {saving ? 'Creating...' : 'Create Partner'}
         </button>
-        <button type="button" onClick={() => router.back()} disabled={saving} style={{ padding: '0.5rem 1rem', background: '#f0f0f0', border: '1px solid #ccc', borderRadius: '6px', cursor: 'pointer' }}>
+        <button
+          type="button"
+          onClick={() => router.back()}
+          disabled={saving}
+          className="admin-secondary-button"
+          style={{ padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer' }}
+        >
           Cancel
         </button>
       </div>

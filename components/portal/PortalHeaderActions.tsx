@@ -7,10 +7,12 @@ import DevViewToggle from './DevViewToggle';
 import SuperAdminViewSwitcher from '@/components/super-admin-view-switcher';
 import { SignOutButton } from './SignOutButton';
 import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
+import ThemeToggle from '@/components/theme/ThemeToggle';
 
 function ActionItems({ onItemClick }: { onItemClick?: () => void }) {
   return (
     <>
+      <ThemeToggle variant="portal" />
       <SuperAdminViewSwitcher />
       <DevViewToggle />
       <Link href="/" className="btn btn-outline btn-sm" onClick={onItemClick}>

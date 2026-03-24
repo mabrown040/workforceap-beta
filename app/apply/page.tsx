@@ -24,7 +24,7 @@ export default function ApplyPage() {
               <span key={t} className="hero-badge-item">&#10003; {t}</span>
             ))}
           </div>
-          <p className="apply-eligibility-note">
+          <p className="apply-eligibility-note apply-location-callout">
             <strong>Where we operate today:</strong> We&apos;re currently serving the Austin area. This is our launch community — we&apos;re building toward expansion. If you&apos;re elsewhere, apply anyway; we&apos;ll keep you in the loop.
           </p>
           <p className="hero-cta-note">

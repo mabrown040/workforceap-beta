@@ -182,6 +182,7 @@ export default function ApplyResultsClient() {
         )}
 
         <div
+          className="apply-results-program-grid"
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
@@ -193,6 +194,7 @@ export default function ApplyResultsClient() {
           {programsOrdered.map((p) => (
             <div
               key={p.slug}
+              className="apply-results-program-card"
               onClick={() => setSelectedSlug(p.slug)}
               role="button"
               tabIndex={0}
@@ -205,10 +207,11 @@ export default function ApplyResultsClient() {
               aria-pressed={selectedSlug === p.slug}
               style={{
                 padding: '1.25rem',
-                border: selectedSlug === p.slug ? '2px solid var(--color-accent)' : '1px solid #e5e5e5',
+                border: selectedSlug === p.slug ? '2px solid var(--color-accent)' : '1px solid var(--color-gray-200)',
                 borderRadius: 'var(--radius-md)',
                 cursor: 'pointer',
-                background: selectedSlug === p.slug ? 'rgba(74, 155, 79, 0.05)' : 'white',
+                background:
+                  selectedSlug === p.slug ? 'rgba(74, 155, 79, 0.08)' : 'var(--color-white)',
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>

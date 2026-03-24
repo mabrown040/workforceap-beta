@@ -5,6 +5,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import JsonLd from '@/components/JsonLd';
 import ConditionalMarketingNav from '@/components/ConditionalMarketingNav';
 import ScrollAnimationsWrapper from '@/components/ScrollAnimationsWrapper';
+import ThemeInitScript from '@/components/theme/ThemeInitScript';
 import '@/css/main.css';
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID ?? 'GTM-53JCT6WN';
@@ -43,6 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={inter.variable}>
       <head>
+        <ThemeInitScript />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
       </head>
       <body>

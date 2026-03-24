@@ -24,6 +24,16 @@ const PORTAL_DESTINATIONS: { redirectTo: string; title: string; desc: string }[]
   },
 ];
 
+function portalTitleForPath(path: string): string {
+  for (const o of PORTAL_DESTINATIONS) {
+    if (o.redirectTo === '/dashboard') continue;
+    if (path === o.redirectTo || path.startsWith(`${o.redirectTo}/`)) {
+      return o.title;
+    }
+  }
+  return PORTAL_DESTINATIONS.find((o) => o.redirectTo === '/dashboard')!.title;
+}
+
 export default function LoginForm() {
   const searchParams = useSearchParams();
   const redirectParam = searchParams.get('redirectTo');
@@ -138,7 +148,7 @@ export default function LoginForm() {
                 }}
               >
                 <strong style={{ color: 'var(--color-primary)' }}>Logging in as:</strong>{' '}
-                {PORTAL_DESTINATIONS.find((o) => o.redirectTo === redirectTo)?.title ?? 'Member (student) portal'}
+                {portalTitleForPath(redirectTo)}
               </p>
               <form onSubmit={handleSubmit} noValidate>
                 <div className="form-group">

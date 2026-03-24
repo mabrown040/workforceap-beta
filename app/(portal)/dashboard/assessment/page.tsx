@@ -18,15 +18,17 @@ export default async function AssessmentPage({
     include: { profile: true },
   });
 
-  if (dbUser?.assessmentCompleted) {
+  if (!dbUser) redirect('/login');
+
+  if (dbUser.assessmentCompleted) {
     redirect('/dashboard');
   }
 
-  if (dbUser && dbUser.interviewCompletedAt == null) {
+  if (dbUser.interviewCompletedAt == null) {
     redirect('/dashboard/assessments');
   }
 
-  const nameParts = dbUser?.fullName?.split(' ') ?? [];
+  const nameParts = dbUser.fullName?.split(' ') ?? [];
   const firstName = nameParts[0] ?? '';
   const lastName = nameParts.slice(1).join(' ') ?? '';
 
@@ -47,7 +49,7 @@ export default async function AssessmentPage({
           <AssessmentForm
             defaultFirstName={firstName}
             defaultLastName={lastName}
-            defaultPhone={dbUser?.profile?.profilePhone ?? dbUser?.phone ?? ''}
+            defaultPhone={dbUser.profile?.profilePhone ?? dbUser.phone ?? ''}
             defaultRedirectTo={redirectTo || undefined}
           />
         </div>

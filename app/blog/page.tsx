@@ -5,7 +5,7 @@ import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
 import BlogListingClient from './BlogListingClient';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Blog',
@@ -29,6 +29,7 @@ export default async function BlogPage() {
       title: true,
       excerpt: true,
       coverImage: true,
+      heroImage: true,
       authorName: true,
       publishedAt: true,
       scheduledAt: true,

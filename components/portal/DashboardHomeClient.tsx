@@ -2,11 +2,23 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { BookOpen, Calendar, BarChart3, Target, PartyPopper, ChevronRight } from 'lucide-react';
+import { BookOpen, Calendar, BarChart3, Target, PartyPopper, ChevronRight, CheckCircle2, Circle } from 'lucide-react';
+import { MEMBER_APPLICATION_PROGRESS_STEPS } from '@/lib/member/memberApplicationStatus';
 import { trackFunnelEvent } from '@/lib/analytics/events';
 import { postMemberEvent } from '@/lib/events/client';
+import MemberPreScreeningForm from '@/components/portal/MemberPreScreeningForm';
+import MemberInterviewRequestButton from '@/components/portal/MemberInterviewRequestButton';
 
 type State = 'A' | 'B' | 'C' | 'D';
+
+export type DashboardApplicationStatusProps = {
+  label: string;
+  submittedAt: string | null;
+  programInterest: string | null;
+  nextStep: string;
+  showResponseEstimate: boolean;
+  progressIndex: number | null;
+};
 
 type DashboardHomeClientProps = {
   firstName: string;
@@ -28,6 +40,14 @@ type DashboardHomeClientProps = {
   checklistAllDone: boolean;
   recommendedActions: Array<{ label: string; href: string }>;
   jobSearchUrl?: string | null;
+  applicationStatus?: DashboardApplicationStatusProps | null;
+  /** True when member has no Application row — prompt to apply */
+  noApplicationOnFile?: boolean;
+  assessmentDone?: boolean;
+  preScreeningDone?: boolean;
+  interviewEligible?: boolean;
+  interviewRequestedAt?: Date | null;
+  interviewCompletedAt?: Date | null;
 };
 
 export default function DashboardHomeClient({
@@ -44,6 +64,13 @@ export default function DashboardHomeClient({
   checklistAllDone,
   recommendedActions,
   jobSearchUrl,
+  applicationStatus,
+  noApplicationOnFile,
+  assessmentDone = false,
+  preScreeningDone = false,
+  interviewEligible = false,
+  interviewRequestedAt = null,
+  interviewCompletedAt = null,
 }: DashboardHomeClientProps) {
   const primaryAction = recommendedActions[0];
   const secondaryAction = recommendedActions[1];
@@ -83,6 +110,111 @@ export default function DashboardHomeClient({
           {state === 'D' && "All courses complete. Focus on job outcomes."}
         </p>
       </header>
+
+      {noApplicationOnFile ? (
+        <section className="dashboard-application-status" aria-labelledby="dashboard-application-status-heading">
+          <h2 id="dashboard-application-status-heading" className="dashboard-today-label">
+            Your application
+          </h2>
+          <div className="dashboard-application-status-card">
+            <p className="dashboard-application-status-next" style={{ marginTop: 0 }}>
+              We do not have an application on file for this account yet.
+            </p>
+            <Link href="/apply" className="btn btn-primary" style={{ marginTop: '0.75rem', display: 'inline-flex' }}>
+              Start your application
+            </Link>
+          </div>
+        </section>
+      ) : applicationStatus ? (
+        <section className="dashboard-application-status" aria-labelledby="dashboard-application-status-heading">
+          <h2 id="dashboard-application-status-heading" className="dashboard-today-label">
+            Your application
+          </h2>
+          <div className="dashboard-application-status-card">
+            {applicationStatus.progressIndex !== null ? (
+              <div className="dashboard-application-progress" aria-hidden>
+                <div className="dashboard-application-progress-track">
+                  {MEMBER_APPLICATION_PROGRESS_STEPS.map((stepLabel, i) => {
+                    const stepNum = i + 1;
+                    const done = stepNum < applicationStatus.progressIndex!;
+                    const current = stepNum === applicationStatus.progressIndex;
+                    return (
+                      <div
+                        key={stepLabel}
+                        className={`dashboard-application-progress-step${done ? ' is-done' : ''}${
+                          current ? ' is-current' : ''
+                        }`}
+                      >
+                        <span className="dashboard-application-progress-dot" />
+                        <span className="dashboard-application-progress-label">{stepLabel}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
+            <div className="dashboard-application-status-row">
+              <div>
+                <p className="dashboard-application-status-label">Current status</p>
+                <p className="dashboard-application-status-value">{applicationStatus.label}</p>
+              </div>
+              {applicationStatus.submittedAt ? (
+                <div className="dashboard-application-status-meta">
+                  <p className="dashboard-application-status-label">Submitted</p>
+                  <p className="dashboard-application-status-date">
+                    {new Date(applicationStatus.submittedAt).toLocaleDateString(undefined, {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </p>
+                </div>
+              ) : null}
+            </div>
+            {applicationStatus.programInterest ? (
+              <p className="dashboard-application-status-program">
+                <span className="dashboard-application-status-label">Program interest</span>{' '}
+                {applicationStatus.programInterest}
+              </p>
+            ) : null}
+            <p className="dashboard-application-status-next">{applicationStatus.nextStep}</p>
+            {applicationStatus.showResponseEstimate ? (
+              <p className="dashboard-application-status-estimate">
+                We typically respond within 24–48 hours on business days.
+              </p>
+            ) : null}
+          </div>
+        </section>
+      ) : null}
+
+      {assessmentDone && !preScreeningDone ? (
+        <section className="dashboard-application-status" aria-labelledby="dashboard-prescreen-heading">
+          <h2 id="dashboard-prescreen-heading" className="dashboard-today-label">
+            Pre-screening (before your interview)
+          </h2>
+          <div className="dashboard-application-status-card">
+            <MemberPreScreeningForm />
+          </div>
+        </section>
+      ) : null}
+
+      {assessmentDone && preScreeningDone && interviewEligible && !interviewCompletedAt ? (
+        <section className="dashboard-application-status" aria-labelledby="dashboard-interview-heading">
+          <h2 id="dashboard-interview-heading" className="dashboard-today-label">
+            Interview
+          </h2>
+          <div className="dashboard-application-status-card">
+            {interviewRequestedAt ? (
+              <p style={{ margin: 0, color: 'var(--color-gray-700)' }}>
+                We received your interview request on{' '}
+                {new Date(interviewRequestedAt).toLocaleString()}. A counselor will reach out by email.
+              </p>
+            ) : (
+              <MemberInterviewRequestButton />
+            )}
+          </div>
+        </section>
+      ) : null}
 
       {/* Today / Next Step — one primary, one secondary */}
       <section className="dashboard-today">
@@ -279,11 +411,20 @@ export default function DashboardHomeClient({
         <details className="dashboard-checklist-collapsed">
           <summary>Onboarding checklist</summary>
           <ul>
-            <li>{checklist.createAccount ? '✅' : '⬜'} Create account</li>
-            <li>{checklist.chooseProgram ? '✅' : '⬜'} Choose program</li>
-            <li>{checklist.completeAssessment ? '✅' : '⬜'} Complete assessment</li>
-            <li>{checklist.startFirstCourse ? '✅' : '⬜'} Start first course</li>
-            <li>{checklist.completeFirstCourse ? '✅' : '⬜'} Complete first course</li>
+            {([
+              { done: checklist.createAccount, label: 'Create account' },
+              { done: checklist.chooseProgram, label: 'Choose program' },
+              { done: checklist.completeAssessment, label: 'Complete assessment' },
+              { done: checklist.startFirstCourse, label: 'Start first course' },
+              { done: checklist.completeFirstCourse, label: 'Complete first course' },
+            ] as { done: boolean; label: string }[]).map(({ done, label }) => (
+              <li key={label} style={{ color: done ? 'var(--color-gray-500)' : 'var(--color-primary)' }}>
+                {done
+                  ? <CheckCircle2 size={15} style={{ color: 'var(--color-green)', flexShrink: 0 }} aria-hidden />
+                  : <Circle size={15} style={{ color: 'var(--color-gray-300)', flexShrink: 0 }} aria-hidden />}
+                <span style={{ textDecoration: done ? 'line-through' : 'none' }}>{label}</span>
+              </li>
+            ))}
           </ul>
         </details>
       )}

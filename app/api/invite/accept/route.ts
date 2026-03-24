@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { sendInvitationAcceptedEmail } from '@/lib/email';
+import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 
 export async function POST(request: NextRequest) {
   let body: unknown;
@@ -216,6 +217,8 @@ async function createNewUserAndAccept(
     return NextResponse.json({ error: 'Account creation failed' }, { status: 500 });
   }
 
+  const organizationId = await getDefaultOrganizationId();
+
   try {
     await prisma.$transaction(async (tx) => {
       let memberRole = await tx.role.findUnique({ where: { name: 'member' } });
@@ -226,6 +229,7 @@ async function createNewUserAndAccept(
       await tx.user.create({
         data: {
           id: authUser.id,
+          organizationId,
           email: invitation.email,
           fullName,
           phone,

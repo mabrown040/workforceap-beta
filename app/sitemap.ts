@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { PROGRAMS } from '@/lib/content/programs';
+import { LEADERS } from '@/lib/content/leadership';
 import { prisma } from '@/lib/db/prisma';
 
 const SITE_URL = 'https://www.workforceap.org';
@@ -17,9 +18,12 @@ const routes = [
   '/how-it-works',
   '/jobs',
   '/leadership',
+  '/partners',
+  '/partner-signup',
   '/program-comparison',
   '/programs',
   '/salary-guide',
+  '/terms',
   '/what-we-do',
   '/privacy',
 ] as const;
@@ -57,5 +61,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // DB unavailable at build time (e.g. CI)
   }
 
-  return [...mainPages, ...programPages, ...blogPages];
+  const leadershipPages = LEADERS.map((l) => ({
+    url: `${SITE_URL}/leadership/${l.slug}`,
+    lastModified: now,
+    changeFrequency: 'monthly' as const,
+    priority: 0.6,
+  }));
+
+  return [...mainPages, ...programPages, ...leadershipPages, ...blogPages];
 }

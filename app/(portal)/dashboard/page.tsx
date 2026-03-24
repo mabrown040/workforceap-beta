@@ -4,8 +4,13 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { loadMemberCareerBriefBundle } from '@/lib/content/careerBriefPersonalization';
+import { prisma } from '@/lib/db/prisma';
+import { buildMemberApplicationStatusView } from '@/lib/member/memberApplicationStatus';
 import DashboardHomeClient from '@/components/portal/DashboardHomeClient';
 import MatchedRoles from '@/components/portal/MatchedRoles';
+import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
+import { isSuperAdmin } from '@/lib/auth/roles';
+import { MEMBER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Member overview',
@@ -19,6 +24,65 @@ export default async function DashboardPage() {
 
   const { user: dbUser, careerBrief } = await loadMemberCareerBriefBundle(user.id, { activeMemberOnly: true });
   if (!dbUser) redirect('/login');
+
+  const intakeExtra = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: {
+      interviewEligible: true,
+      interviewRequestedAt: true,
+      interviewCompletedAt: true,
+      preScreeningResponse: { select: { id: true } },
+      onboardingCompletedAt: true,
+      tourCompletedAt: true,
+      fullName: true,
+      phone: true,
+      programInterest: true,
+      profile: {
+        select: {
+          city: true,
+          state: true,
+          zip: true,
+          profilePhone: true,
+          referralSource: true,
+        },
+      },
+    },
+  });
+
+  const latestApplication = await prisma.application.findFirst({
+    where: { userId: user.id },
+    orderBy: { createdAt: 'desc' },
+    select: {
+      status: true,
+      programInterest: true,
+      submittedAt: true,
+      createdAt: true,
+    },
+  });
+
+  const showMemberOnboarding = intakeExtra?.onboardingCompletedAt == null;
+  const showMemberTour =
+    intakeExtra?.onboardingCompletedAt != null && intakeExtra?.tourCompletedAt == null;
+  const wizardProgramInterest =
+    latestApplication?.programInterest ?? intakeExtra?.programInterest ?? '';
+
+  const applicationStatusView = buildMemberApplicationStatusView(latestApplication, {
+    enrolledProgram: dbUser.enrolledProgram ?? null,
+    enrolledAt: dbUser.enrolledAt ?? null,
+    assessmentCompleted: dbUser.assessmentCompleted ?? false,
+  });
+
+  const applicationStatus = applicationStatusView
+    ? {
+        label: applicationStatusView.label,
+        submittedAt: applicationStatusView.submittedAt?.toISOString() ?? null,
+        programInterest: applicationStatusView.programInterest,
+        nextStep: applicationStatusView.nextStep,
+        showResponseEstimate: applicationStatusView.showResponseEstimate,
+        progressIndex: applicationStatusView.progressIndex,
+      }
+    : null;
+  const noApplicationOnFile = !latestApplication;
 
   const firstName = dbUser.fullName?.split(' ')[0] ?? 'there';
   const enrolledProgram = dbUser.enrolledProgram ?? null;
@@ -59,13 +123,34 @@ export default async function DashboardPage() {
   const jobSearchUrl = careerBrief.jobSearchUrl;
 
   const showMatchedRoles = assessmentCompleted;
+  const superAdmin = await isSuperAdmin(user.id);
 
   return (
-    <>
+    <PortalEntryClient
+      portal="member"
+      showOnboardingWizard={showMemberOnboarding}
+      showTour={showMemberTour}
+      isSuperAdmin={superAdmin}
+      tourSteps={MEMBER_PORTAL_TOUR_STEPS}
+      wizardProps={{
+        initialFullName: intakeExtra?.fullName ?? '',
+        initialPhone: intakeExtra?.profile?.profilePhone ?? intakeExtra?.phone ?? '',
+        initialCity: intakeExtra?.profile?.city ?? '',
+        initialState: intakeExtra?.profile?.state ?? '',
+        initialZip: intakeExtra?.profile?.zip ?? '',
+        initialProgramInterest: wizardProgramInterest,
+        initialReferralSource: intakeExtra?.profile?.referralSource ?? '',
+      }}
+    >
       <DashboardHomeClient
         recommendedActions={recommendedActions}
         jobSearchUrl={jobSearchUrl}
         firstName={firstName}
+        assessmentDone={assessmentCompleted}
+        preScreeningDone={!!intakeExtra?.preScreeningResponse}
+        interviewEligible={intakeExtra?.interviewEligible ?? false}
+        interviewRequestedAt={intakeExtra?.interviewRequestedAt ?? null}
+        interviewCompletedAt={intakeExtra?.interviewCompletedAt ?? null}
         state={
           !enrolledProgram
             ? 'A'
@@ -84,8 +169,10 @@ export default async function DashboardPage() {
         recentActivity={lastThree}
         checklist={checklist}
         checklistAllDone={checklistAllDone}
+        applicationStatus={applicationStatus}
+        noApplicationOnFile={noApplicationOnFile}
       />
       {showMatchedRoles && <MatchedRoles />}
-    </>
+    </PortalEntryClient>
   );
 }

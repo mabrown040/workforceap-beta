@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { after } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { sendJobApprovedEmail } from '@/lib/email';
+import { runAiMatchForLiveJob } from '@/lib/employer/triggerEmployerJobAiMatch';
 
 export async function POST(
   _request: NextRequest,
@@ -37,6 +39,8 @@ export async function POST(
     jobTitle: job.title,
     companyName: job.employer.companyName,
   });
+
+  after(() => runAiMatchForLiveJob(id));
 
   return NextResponse.json({ ok: true });
 }

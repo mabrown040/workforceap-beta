@@ -6,6 +6,8 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { z } from 'zod';
 import { checkSignupRateLimit } from '@/lib/rate-limit';
 import { trackEvent } from '@/lib/events/track';
+import { ApplicationStatus } from '@prisma/client';
+import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -23,6 +25,7 @@ const applySignupSchema = z.object({
   smsOptIn: z.boolean().optional().default(false),
   password: z.string().min(8, 'Create a password with at least 8 characters.'),
   programSlug: z.string().min(1, 'Please choose a program before creating your account.'),
+  referralRef: z.string().max(100).optional().nullable(),
 });
 
 export async function POST(request: NextRequest) {
@@ -47,11 +50,28 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Please review your information and try again.' }, { status: 400 });
   }
 
-  const { firstName, lastName, email, phone, smsOptIn, password, programSlug } = parsed.data;
+  const { firstName, lastName, email, phone, smsOptIn, password, programSlug, referralRef } = parsed.data;
 
   const program = getProgramBySlug(programSlug);
   if (!program) {
     return NextResponse.json({ error: 'We could not match that program choice. Please go back and choose your program again.' }, { status: 400 });
+  }
+
+  let referralPartnerId: string | null = null;
+  let referralSource: string | null = null;
+  const refRaw = referralRef?.trim().toLowerCase();
+  if (refRaw) {
+    const partner = await prisma.partner.findFirst({
+      where: {
+        active: true,
+        OR: [{ referralCode: refRaw }, { slug: refRaw }],
+      },
+      select: { id: true },
+    });
+    if (partner) {
+      referralPartnerId = partner.id;
+      referralSource = `partner_ref:${refRaw}`;
+    }
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -99,12 +119,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Your account could not be created. Please try again.' }, { status: 500 });
   }
 
+  const organizationId = await getDefaultOrganizationId();
+
   try {
     await prisma.$transaction(async (tx) => {
       await tx.user.upsert({
         where: { id: user.id },
         create: {
           id: user.id,
+          organizationId,
           email: user.email!,
           fullName,
           phone,
@@ -124,6 +147,17 @@ export async function POST(request: NextRequest) {
         update: {
           profilePhone: phone,
           smsOptIn: smsOptIn ?? false,
+        },
+      });
+
+      await tx.application.create({
+        data: {
+          userId: user.id,
+          status: ApplicationStatus.PENDING,
+          programInterest: program.title,
+          submittedAt: new Date(),
+          referralSource,
+          referralPartnerId,
         },
       });
     });

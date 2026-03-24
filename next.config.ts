@@ -1,4 +1,5 @@
 import { createRequire } from 'module';
+import { withSentryConfig } from '@sentry/nextjs';
 import type { NextConfig } from 'next';
 
 // Same POSTGRES_* defaults as scripts/prisma-env.js so `next build` can run Prisma without errors
@@ -19,12 +20,12 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://va.vercel-insights.com`,
-              "connect-src 'self' https://*.supabase.co https://api.zippopotam.us https://www.google-analytics.com https://www.googletagmanager.com https://va.vercel-insights.com https://vitals.vercel-insights.com",
+              `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://va.vercel-insights.com https://challenges.cloudflare.com`,
+              "connect-src 'self' https://*.supabase.co https://api.zippopotam.us https://www.google-analytics.com https://www.googletagmanager.com https://va.vercel-insights.com https://vitals.vercel-insights.com https://challenges.cloudflare.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io",
               "img-src 'self' data: https: blob:",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
-              "frame-src https://www.googletagmanager.com",
+              "frame-src https://www.googletagmanager.com https://challenges.cloudflare.com",
               "form-action 'self' https://formspree.io",
             ].join('; '),
           },
@@ -54,6 +55,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [{ source: '/favicon.ico', destination: '/images/logo-tight.png' }];
+  },
   async redirects() {
     return [
       // Legacy .html redirects
@@ -79,6 +83,10 @@ const nextConfig: NextConfig = {
       { source: '/programs/comptia-network-plus', destination: '/programs/comptia-network-professional-certificate', permanent: true },
       { source: '/programs/comptia-security-plus', destination: '/programs/comptia-security-professional-certificate', permanent: true },
 
+      // Short portal entry → sign-in + destination chooser (avoids 404 on shared links)
+      { source: '/portal', destination: '/login', permanent: false },
+      { source: '/portal/', destination: '/login', permanent: false },
+
       // Employer dashboard canonical redirect
       { source: '/employer/dashboard', destination: '/employer', permanent: true },
 
@@ -93,4 +101,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  silent: true,
+});

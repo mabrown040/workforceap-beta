@@ -5,7 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { PROGRAMS } from '@/lib/content/programs';
+import { getActivePrograms } from '@/lib/platform/programCatalog';
 import JobForm from '@/components/employer/JobForm';
 import JobReadinessIssueList from '@/components/employer/JobReadinessIssueList';
 import { assessJobPostingReadiness, readinessLabel } from '@/lib/employer/jobReadiness';
@@ -43,6 +43,9 @@ export default async function EmployerJobDetailPage({ params }: Props) {
     where: { id: ctx.employerId },
     select: { companyName: true },
   });
+
+  const active = await getActivePrograms();
+  const programSlugs = active.map((p) => p.slug);
 
   const editReadiness = assessJobPostingReadiness({
     location: job.location?.trim() || '—',
@@ -84,7 +87,7 @@ export default async function EmployerJobDetailPage({ params }: Props) {
           importMethod: job.importMethod,
         }}
         companyName={employer?.companyName ?? ''}
-        programSlugs={PROGRAMS.map((p) => p.slug)}
+        programSlugs={programSlugs}
       />
     </article>
   );

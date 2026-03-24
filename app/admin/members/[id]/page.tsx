@@ -7,13 +7,19 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { memberTrainingProfileComplete } from '@/lib/platform/trainingEnrollmentGate';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
 import MemberDetailActions from '@/components/admin/MemberDetailActions';
 import MemberPartnerSection from '@/components/admin/MemberPartnerSection';
 import MemberSubgroupSection from '@/components/admin/MemberSubgroupSection';
+import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounselorChatClient';
+import AdminMemberCounselorAssign from '@/components/admin/AdminMemberCounselorAssign';
+import AdminMemberPlacedOutcomeForm from '@/components/admin/AdminMemberPlacedOutcomeForm';
 import CreateSuccessToast from './CreateSuccessToast';
 import { formatPhone } from '@/lib/formatPhone';
+import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
 import { ClipboardList, CheckCircle } from 'lucide-react';
 import PageHeader from '@/components/portal/PageHeader';
 import '@/css/counselor.css';
@@ -59,7 +65,8 @@ export default async function AdminMemberDetailPage({
 
   const { id } = await params;
 
-  const [member, partners, partnerReferral, subgroups, memberSubgroups] = await Promise.all([
+  const [member, partners, partnerReferral, subgroups, memberSubgroups, counselorRows, activeCounselorAssign, placedOutcomeRow] =
+    await Promise.all([
     prisma.user.findUnique({
       where: { id },
       include: { profile: true },
@@ -81,9 +88,45 @@ export default async function AdminMemberDetailPage({
       where: { memberId: id },
       select: { subgroupId: true },
     }),
+    prisma.counselor.findMany({
+      where: { active: true },
+      orderBy: [{ partner: { name: 'asc' } }, { user: { fullName: 'asc' } }],
+      include: {
+        user: { select: { fullName: true } },
+        partner: { select: { name: true } },
+      },
+    }),
+    prisma.counselorAssignment.findFirst({
+      where: { memberId: id, active: true },
+      include: { counselor: { select: { userId: true, user: { select: { fullName: true } } } } },
+    }),
+    prisma.placedOutcome.findUnique({ where: { userId: id } }),
   ]);
 
   if (!member || member.deletedAt) notFound();
+
+  const preScreening = await prisma.preScreeningResponse.findUnique({
+    where: { userId: member.id },
+  });
+
+  const organizationId = await getDefaultOrganizationId();
+  const catalogPrograms = await prisma.organizationProgramCatalog.findMany({
+    where: { organizationId },
+    orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
+    select: { programSlug: true, name: true, status: true },
+  });
+  const programOptions =
+    catalogPrograms.length > 0
+      ? catalogPrograms.map((r) => ({ slug: r.programSlug, name: r.name, status: r.status }))
+      : null;
+
+  const gate = memberTrainingProfileComplete({
+    phone: member.phone,
+    profilePhone: member.profile?.profilePhone,
+    profileAddress: member.profile?.profileAddress,
+    financialAidInterest: member.profile?.financialAidInterest,
+  });
+  const profileIncomplete = !gate.ok;
 
   const program = member.enrolledProgram ? getProgramBySlug(member.enrolledProgram) : null;
   const coursesCompleted = (member.coursesCompleted as string[] | null) ?? [];
@@ -93,6 +136,37 @@ export default async function AdminMemberDetailPage({
     member.profile?.resumeOriginalPath ?? null,
     member.profile?.resumeEnhancedPath ?? null
   );
+
+  const chatThread = await getOrCreateMemberCounselorThread(member.id);
+  const chatMsgs = await prisma.message.findMany({
+    where: { threadId: chatThread.id },
+    orderBy: { createdAt: 'asc' },
+  });
+  const chatAuthorIds = [...new Set(chatMsgs.map((m) => m.authorId))];
+  const chatAuthors =
+    chatAuthorIds.length > 0
+      ? await prisma.user.findMany({
+          where: { id: { in: chatAuthorIds } },
+          select: { id: true, fullName: true },
+        })
+      : [];
+  const chatNameById = new Map(chatAuthors.map((n) => [n.id, n.fullName]));
+
+  const counselorChatInitial = {
+    staffUserId: user.id,
+    member: { id: member.id, fullName: member.fullName },
+    thread: {
+      id: chatThread.id,
+      memberId: chatThread.memberId,
+      counselorUserId: chatThread.counselorUserId,
+      memberLastReadAt: chatThread.memberLastReadAt?.toISOString() ?? null,
+      counselorLastReadAt: chatThread.counselorLastReadAt?.toISOString() ?? null,
+    },
+    messages: chatMsgs.map((m) => ({
+      ...serializeMessage(m),
+      authorName: chatNameById.get(m.authorId) ?? 'User',
+    })),
+  };
 
   return (
     <div>
@@ -118,9 +192,37 @@ export default async function AdminMemberDetailPage({
           <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Profile</h2>
           <p><strong>Phone:</strong> {formatPhone(member.phone ?? member.profile?.profilePhone)}</p>
           <p><strong>Address:</strong> {member.profile?.profileAddress ?? member.profile?.address ?? '—'}</p>
+          <p>
+            <strong>Financial aid interest:</strong>{' '}
+            {member.profile?.financialAidInterest === true
+              ? 'Yes'
+              : member.profile?.financialAidInterest === false
+                ? 'No'
+                : '—'}
+          </p>
           <p><strong>LinkedIn:</strong> {member.profile?.profileLinkedin ? <a href={member.profile.profileLinkedin} target="_blank" rel="noopener noreferrer">{member.profile.profileLinkedin}</a> : '—'}</p>
           <p><strong>Bio:</strong> {member.profile?.profileBio ?? '—'}</p>
         </section>
+
+        {preScreening && (
+          <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
+            <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Pre-screening</h2>
+            <p><strong>Employment:</strong> {preScreening.employmentStatus}</p>
+            <p><strong>Primary goal:</strong> {preScreening.primaryGoal}</p>
+            <p><strong>Weekly hours:</strong> {preScreening.weeklyHours}</p>
+            <p><strong>Barrier:</strong> {preScreening.barrier}</p>
+            <p><strong>Heard about us:</strong> {preScreening.hearAbout}{preScreening.hearAboutOther ? ` — ${preScreening.hearAboutOther}` : ''}</p>
+            <p><strong>Workforce assistance:</strong> {preScreening.workforceAssistance ? 'Yes' : 'No'}</p>
+            <p><strong>Submitted:</strong> {preScreening.createdAt.toLocaleString()}</p>
+            <p><strong>Interview eligible:</strong> {member.interviewEligible ? 'Yes' : 'No'}</p>
+            {member.interviewRequestedAt && (
+              <p><strong>Interview requested:</strong> {member.interviewRequestedAt.toLocaleString()}</p>
+            )}
+            {member.interviewCompletedAt && (
+              <p><strong>Interview completed:</strong> {member.interviewCompletedAt.toLocaleString()}</p>
+            )}
+          </section>
+        )}
 
         <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
           <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Program</h2>
@@ -137,8 +239,11 @@ export default async function AdminMemberDetailPage({
           </ul>
           <MemberDetailActions
             userId={member.id}
+            memberName={member.fullName}
+            profileIncomplete={profileIncomplete}
             currentProgramSlug={member.enrolledProgram}
             assessmentCompleted={member.assessmentCompleted}
+            programOptions={programOptions ?? []}
           />
         </section>
 
@@ -153,6 +258,52 @@ export default async function AdminMemberDetailPage({
           subgroups={subgroups}
           currentSubgroupIds={memberSubgroups.map((ms) => ms.subgroupId)}
         />
+
+        <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
+          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Counselor assignment</h2>
+          {activeCounselorAssign?.counselor ? (
+            <p style={{ marginBottom: '0.75rem', fontSize: '0.95rem' }}>
+              Current: <strong>{activeCounselorAssign.counselor.user.fullName}</strong>
+            </p>
+          ) : (
+            <p style={{ marginBottom: '0.75rem', fontSize: '0.95rem', color: 'var(--color-gray-600)' }}>
+              No active counselor assignment.
+            </p>
+          )}
+          <AdminMemberCounselorAssign
+            memberId={member.id}
+            counselors={counselorRows.map((c) => ({
+              userId: c.userId,
+              fullName: c.user.fullName,
+              partnerName: c.partner.name,
+            }))}
+            currentCounselorUserId={activeCounselorAssign?.counselor.userId ?? null}
+          />
+        </section>
+
+        <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
+          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>WorkforceAP placement (grants)</h2>
+          <AdminMemberPlacedOutcomeForm
+            memberId={member.id}
+            initial={
+              placedOutcomeRow
+                ? {
+                    employerName: placedOutcomeRow.employerName,
+                    jobTitle: placedOutcomeRow.jobTitle,
+                    startingSalary: placedOutcomeRow.startingSalary,
+                    placedAt: placedOutcomeRow.placedAt.toISOString(),
+                    programSlug: placedOutcomeRow.programSlug,
+                    notes: placedOutcomeRow.notes,
+                  }
+                : null
+            }
+          />
+        </section>
+
+        <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
+          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Counselor chat</h2>
+          <AdminMemberCounselorChatClient initial={counselorChatInitial} />
+        </section>
 
         {(member.profile?.resumeOriginalPath || member.profile?.resumeEnhancedPath) && (
           <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>

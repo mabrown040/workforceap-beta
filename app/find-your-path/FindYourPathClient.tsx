@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -242,7 +242,7 @@ function QuizResultsView({
           </>
         )}
       </div>
-      <p className="quiz-results-note">All programs are available at no cost to qualifying participants.</p>
+      <p className="quiz-results-note">All programs are available at no cost to members.</p>
     </div>
   );
 }

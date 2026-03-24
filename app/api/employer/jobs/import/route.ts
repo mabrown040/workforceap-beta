@@ -49,11 +49,12 @@ export async function POST(request: NextRequest) {
 
     const employerExists = await prisma.employer.findUnique({
       where: { id: ctx.employerId },
-      select: { id: true },
+      select: { id: true, organizationId: true },
     });
     if (!employerExists) {
       return NextResponse.json({ error: 'Selected employer record was not found.' }, { status: 400 });
     }
+    const { organizationId } = employerExists;
 
     const { success: importAllowed, remaining: importRemaining } = await checkEmployerJobImportRateLimit(user.id);
     if (!importAllowed) {
@@ -99,7 +100,7 @@ export async function POST(request: NextRequest) {
         if (directResult) {
           if (parsed.data.createDraft) {
             const job = await prisma.job.create({
-              data: buildEmployerJobCreateData(ctx.employerId, {
+              data: buildEmployerJobCreateData(organizationId, ctx.employerId, {
                 title: directResult.extracted.title,
                 location: directResult.extracted.location,
                 locationType: directResult.extracted.locationType ?? 'onsite',
@@ -141,7 +142,7 @@ export async function POST(request: NextRequest) {
           const created = [];
           for (const atsJob of atsResult.jobs) {
             const job = await prisma.job.create({
-              data: buildEmployerJobCreateData(ctx.employerId, {
+              data: buildEmployerJobCreateData(organizationId, ctx.employerId, {
                 title: atsJob.title,
                 location: atsJob.location,
                 locationType: atsJob.locationType ?? 'onsite',
@@ -199,7 +200,7 @@ export async function POST(request: NextRequest) {
             const provider = parsedJob ? 'ai' : 'scrape+fallback';
             if (parsed.data.createDraft) {
               const job = await prisma.job.create({
-                data: buildEmployerJobCreateData(ctx.employerId, {
+                data: buildEmployerJobCreateData(organizationId, ctx.employerId, {
                   title: extracted.title,
                   location: extracted.location,
                   locationType: extracted.locationType ?? 'onsite',
@@ -262,7 +263,7 @@ export async function POST(request: NextRequest) {
     const importMethod = parsed.data.url ? 'raw-text-with-url' : 'raw-text';
     if (parsed.data.createDraft === true) {
       const job = await prisma.job.create({
-        data: buildEmployerJobCreateData(ctx.employerId, {
+        data: buildEmployerJobCreateData(organizationId, ctx.employerId, {
           title: extracted.title,
           location: extracted.location,
           locationType: extracted.locationType ?? 'onsite',

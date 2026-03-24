@@ -4,6 +4,9 @@ import Link from 'next/link';
 import PageHero from '@/components/PageHero';
 import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
+import { prisma } from '@/lib/db/prisma';
+import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { toVideoEmbedUrl } from '@/lib/platform/videoEmbed';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'How It Works',
@@ -28,7 +31,7 @@ const PHASES = [
     label: 'Phase 2 — Build Your Future',
     title: 'Build Your Future',
     steps: [
-      { num: 4, title: 'Membership', desc: 'Join at no cost. All accepted members get free access to resources, support, and training. No hidden fees, ever.', why: 'We remove money as a barrier so you can focus on learning.' },
+      { num: 4, title: 'Membership', desc: 'Join at no cost. All members get free access to resources, support, and training. No hidden fees, ever.', why: 'We remove money as a barrier so you can focus on learning.' },
       { num: 5, title: 'Assessment', desc: 'Skills and goals evaluation so we can match you with the right career path. Not a pass/fail test — a way to personalize your journey.', why: 'The right program for you is the one that fits your situation and goals.' },
       { num: 6, title: 'Workforce Readiness', desc: 'Soft skills, job search basics, and workplace expectations — the foundation employers actually require. Often the part that gets people hired.', why: 'Credentials open doors; readiness gets you through them.' },
       { num: 7, title: 'Resources', desc: 'Loaner laptop program, resume support, community network, and on-demand tools. We back you up so you can focus on training.', why: 'You shouldn\'t have to figure it all out alone.' },
@@ -47,7 +50,19 @@ const PHASES = [
   },
 ];
 
-export default function HowItWorksPage() {
+export default async function HowItWorksPage() {
+  let overviewVideoEmbed: string | null = null;
+  try {
+    const orgId = await getDefaultOrganizationId();
+    const org = await prisma.organization.findUnique({
+      where: { id: orgId },
+      select: { overviewVideoUrl: true },
+    });
+    if (org?.overviewVideoUrl) overviewVideoEmbed = toVideoEmbedUrl(org.overviewVideoUrl);
+  } catch {
+    overviewVideoEmbed = null;
+  }
+
   return (
     <div className="inner-page">
       <PageHero
@@ -78,6 +93,31 @@ export default function HowItWorksPage() {
                     <span className="phase-step-num">{step.num}</span>
                     <div>
                       <h3>{step.title}</h3>
+                      {step.num === 2 && overviewVideoEmbed ? (
+                        <div className="how-it-works-overview-video" style={{ margin: '1rem 0' }}>
+                          <div
+                            style={{
+                              position: 'relative',
+                              paddingBottom: '56.25%',
+                              height: 0,
+                              overflow: 'hidden',
+                              borderRadius: 'var(--radius-md, 8px)',
+                              background: '#111',
+                            }}
+                          >
+                            <iframe
+                              title="Overview — counselor introduction"
+                              src={overviewVideoEmbed}
+                              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
+                          </div>
+                          <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)', marginTop: '0.5rem' }}>
+                            Prefer to read? The summary below is always available.
+                          </p>
+                        </div>
+                      ) : null}
                       <p>{step.desc}</p>
                       {'why' in step && step.why && (
                         <p className="phase-step-why">Why we do this: {step.why}</p>

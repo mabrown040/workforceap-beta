@@ -4,7 +4,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { PROGRAMS } from '@/lib/content/programs';
+import { getActivePrograms } from '@/lib/platform/programCatalog';
 import ImportJobClient from './ImportJobClient';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -25,10 +25,13 @@ export default async function ImportJobPage() {
     select: { companyName: true },
   });
 
+  const active = await getActivePrograms();
+  const programSlugs = active.map((p) => p.slug);
+
   return (
     <ImportJobClient
       companyName={employer?.companyName ?? ''}
-      programSlugs={PROGRAMS.map((p) => p.slug)}
+      programSlugs={programSlugs}
     />
   );
 }

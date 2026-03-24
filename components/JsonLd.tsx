@@ -1,6 +1,12 @@
+import { headers } from 'next/headers';
 import { SITE_URL } from '@/app/seo';
 
-export default function JsonLd() {
+export default async function JsonLd() {
+  const h = await headers();
+  if (h.get('x-suppress-jsonld') === '1') {
+    return null;
+  }
+
   const organizationSchema = {
     '@context': 'https://schema.org',
     '@type': 'Organization',

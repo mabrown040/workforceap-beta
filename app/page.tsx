@@ -2,34 +2,28 @@ import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import Image from 'next/image';
-import {
-  Monitor,
-  Wifi,
-  ClipboardList,
-  HeartPulse,
-  Factory,
-  HardHat,
-  Award,
-  Laptop,
-  Handshake,
-  Users,
-  Building2,
-} from 'lucide-react';
+import { getActivePrograms } from '@/lib/platform/programCatalog';
+import { Laptop, GraduationCap, Briefcase, Handshake, Users, Building2 } from 'lucide-react';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Home',
+  title: 'Free Tech Career Training in Austin, TX | Workforce Advancement Project',
   description:
-    'Career training and industry certifications. Employer-aligned. No cost to qualifying participants. Launching in Austin, building toward more. Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades.',
+    'Get no-cost career certification training in Tech, Data, AI, Cybersecurity, Healthcare, and Skilled Trades. Employer-aligned programs. Apply today — WorkforceAP serves Austin and beyond.',
   path: '/',
 });
 
-export default function HomePage() {
+export default async function HomePage() {
+  const activePrograms = await getActivePrograms();
+  const featured = activePrograms.filter((p) => p.featured);
+  const homeProgramShowcase = (featured.length ? featured : activePrograms).slice(0, 8);
+  const programCount = activePrograms.length;
+
   const journeySteps = [
     { num: 1, title: 'Apply', desc: 'Short online form — about 10 minutes. We respond within 24–48 hours.' },
     { num: 2, title: 'Overview', desc: 'Meet a counselor. Learn which program fits you — no exam, no gatekeeping.' },
     { num: 3, title: 'Interview', desc: '30 minutes. We confirm mutual fit and answer your questions.' },
-    { num: 4, title: 'Membership', desc: 'Join free — no cost to qualifying participants.' },
+    { num: 4, title: 'Membership', desc: 'Join free — no cost to members.' },
     { num: 5, title: 'Assessment', desc: 'Skills and goals. We match you to the right path.' },
     { num: 6, title: 'Readiness', desc: 'Soft skills and job-search basics — what employers expect.' },
     { num: 7, title: 'Resources', desc: 'Tools, network, and loaner laptop program when you complete training (program-dependent).' },
@@ -62,7 +56,7 @@ export default function HomePage() {
             Empowering People. <br />
             <span className="accent">Advancing Futures.</span>
           </h1>
-          <div className="hero-no-cost-badge">✦ No-cost training for qualifying participants</div>
+          <div className="hero-no-cost-badge">✦ No-cost training for members</div>
           <p className="hero-subtitle">
             Career training and certifications in Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Launching in Austin. Employer-aligned. Building toward more.
           </p>
@@ -93,7 +87,7 @@ export default function HomePage() {
           <p className="stats-trust-line">Employer-aligned. No participant debt. Success = you get hired.</p>
           <div className="stats-row">
             <div className="stat"><span className="stat-number">19</span><span className="stat-label">Programs</span></div>
-            <div className="stat"><span className="stat-number">$0</span><span className="stat-label">Cost to Qualifying Participants</span></div>
+            <div className="stat"><span className="stat-number">$0</span><span className="stat-label">Cost to Members</span></div>
             <div className="stat"><span className="stat-number">16–20</span><span className="stat-label">Weeks to Certification</span></div>
             <div className="stat"><span className="stat-number">24–48h</span><span className="stat-label">Response Time</span></div>
             <div className="stat"><span className="stat-number">100%</span><span className="stat-label">Job Search Support</span></div>
@@ -117,7 +111,7 @@ export default function HomePage() {
               </span>
               <h3>Members &amp; job seekers</h3>
               <p>
-                No-cost industry certifications and counselor support for qualifying participants — from intake through job search.
+                No-cost industry certifications and counselor support for members — from intake through job search.
               </p>
               <div className="home-audience-links">
                 <Link href="/apply" className="btn btn-primary btn-sm">
@@ -163,6 +157,23 @@ export default function HomePage() {
               </div>
             </div>
           </div>
+
+          <div className="home-partners-cta animate-on-scroll" style={{ marginTop: '2.5rem' }}>
+            <h3 className="home-partners-cta__title">Refer your community</h3>
+            <p className="home-partners-cta__text">
+              Do you work with job-seekers at a church, community center, or workforce program? WorkforceAP partners refer
+              clients and track their progress through a dedicated partner portal. No cost, no paperwork — just outcomes
+              you can report.
+            </p>
+            <div className="home-audience-links" style={{ marginTop: '1rem' }}>
+              <Link href="/partner-signup" className="btn btn-primary btn-sm">
+                Register your organization →
+              </Link>
+              <Link href="/login?redirectTo=/partner" className="btn btn-outline btn-sm">
+                Already a partner? Sign in →
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -173,23 +184,36 @@ export default function HomePage() {
           <p className="home-for-you-lead">
             Underserved individuals, adult learners, veterans. No prior tech required. We&rsquo;re currently serving the Austin area — our launch community — and building toward more. If that&rsquo;s you, here&rsquo;s what you get:
           </p>
-          <div className="wyg-grid">
-            <div className="wyg-card animate-on-scroll">
-              <span className="wyg-icon"><Award size={28} className="text-current" /></span>
-              <h3>Industry Certifications</h3>
-              <p>Google, IBM, Microsoft, Amazon, CompTIA — the same credentials employers hire against. Real credentials, not completion certificates.</p>
-            </div>
-            <div className="wyg-card animate-on-scroll">
-              <span className="wyg-icon"><Laptop size={28} className="text-current" /></span>
-              <h3>Loaner Laptop</h3>
-              <p>Earn a refurbished laptop on completion. Hardware is never a barrier.</p>
-            </div>
-            <div className="wyg-card animate-on-scroll">
-              <span className="wyg-icon"><Handshake size={28} className="text-current" /></span>
-              <h3>Job Placement</h3>
-              <p>Resume support, interview prep, employer connections from day one through hire. We don&rsquo;t disappear after you certify.</p>
-            </div>
-          </div>
+          <ol className="home-outcome-journey" aria-label="What you receive in sequence">
+            <li className="home-outcome-step animate-on-scroll">
+              <span className="home-outcome-step__icon" aria-hidden>
+                <Laptop size={28} strokeWidth={2} />
+              </span>
+              <p className="home-outcome-step__title">Loaner laptop</p>
+              <p className="home-outcome-step__desc">Start equipped, not behind</p>
+            </li>
+            <li className="home-outcome-step animate-on-scroll">
+              <span className="home-outcome-step__icon" aria-hidden>
+                <GraduationCap size={28} strokeWidth={2} />
+              </span>
+              <p className="home-outcome-step__title">Career training</p>
+              <p className="home-outcome-step__desc">Industry certs from Google, IBM, AWS</p>
+            </li>
+            <li className="home-outcome-step animate-on-scroll">
+              <span className="home-outcome-step__icon" aria-hidden>
+                <Briefcase size={28} strokeWidth={2} />
+              </span>
+              <p className="home-outcome-step__title">Job placement</p>
+              <p className="home-outcome-step__desc">Employer-aligned placements</p>
+            </li>
+            <li className="home-outcome-step animate-on-scroll">
+              <span className="home-outcome-step__icon" aria-hidden>
+                <Handshake size={28} strokeWidth={2} />
+              </span>
+              <p className="home-outcome-step__title">90-day support</p>
+              <p className="home-outcome-step__desc">Support after you&apos;re hired</p>
+            </li>
+          </ol>
           <div className="home-for-you-cta">
             <Link href="/find-your-path" className="btn btn-outline">Not sure which program fits? Take the 2-min quiz →</Link>
           </div>
@@ -278,20 +302,37 @@ export default function HomePage() {
               </div>
             </div>
             <div className="programs-preview">
-              <span className="section-label">Programs</span>
-              <h3>Careers That Pay — From $48K to $145K</h3>
-              <p>19 programs across Tech, Healthcare, Manufacturing, and Skilled Trades. Each path leads to real roles: IT support, cybersecurity, data analytics, project management, medical coding, and more.</p>
-              <ul className="program-categories">
-                <li><span className="cat-icon"><Monitor size={20} className="text-current" /></span> Digital Literacy &amp; AI</li>
-                <li><span className="cat-icon"><Wifi size={20} className="text-current" /></span> Information Technology</li>
-                <li><span className="cat-icon"><ClipboardList size={20} className="text-current" /></span> Project Management</li>
-                <li><span className="cat-icon"><HeartPulse size={20} className="text-current" /></span> Medical Coding</li>
-                <li><span className="cat-icon"><Factory size={20} className="text-current" /></span> Manufacturing</li>
-                <li><span className="cat-icon"><HardHat size={20} className="text-current" /></span> Core Construction</li>
+              <span className="section-label">Available talent</span>
+              <h3>Programs we certify members on</h3>
+              <p>
+                {programCount} active program{programCount === 1 ? '' : 's'} — Tech, Healthcare, Manufacturing, and Skilled Trades.
+                Paths are managed in admin and stay aligned with what employers see.
+              </p>
+              <ul className="home-program-showcase" style={{ listStyle: 'none', padding: 0, margin: '0 0 1rem' }}>
+                {homeProgramShowcase.map((p) => (
+                  <li
+                    key={p.slug}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      gap: '0.75rem',
+                      padding: '0.45rem 0',
+                      borderBottom: '1px solid rgba(0,0,0,0.06)',
+                      fontSize: '0.9rem',
+                    }}
+                  >
+                    <Link href={`/programs/${p.slug}`} style={{ fontWeight: 600, color: 'inherit', textDecoration: 'none' }}>
+                      {p.static?.title ?? p.name}
+                    </Link>
+                    <span style={{ color: 'var(--color-gray-600)', whiteSpace: 'nowrap' }}>{p.category}</span>
+                  </li>
+                ))}
               </ul>
               <div className="programs-preview-actions">
                 <Link href="/find-your-path" className="btn btn-primary btn-sm">Find Your Fit (2-min quiz)</Link>
-                <Link href="/programs" className="btn btn-outline btn-sm">View All 19 Programs</Link>
+                <Link href="/programs" className="btn btn-outline btn-sm">
+                  View all {programCount} program{programCount === 1 ? '' : 's'}
+                </Link>
               </div>
             </div>
           </div>
@@ -302,7 +343,7 @@ export default function HomePage() {
       <section className="footer-cta">
         <div className="container">
           <h2>Your Next Step</h2>
-          <p>Apply now — about 10 minutes. We respond within 24–48 hours. Real certifications. Employer connections. No cost to qualifying participants.</p>
+          <p>Apply now — about 10 minutes. We respond within 24–48 hours. Real certifications. Employer connections. no cost to members.</p>
           <Link href="/apply" className="btn btn-primary btn-large">Start Your Application</Link>
           <p className="footer-cta-sub"><Link href="/find-your-path">Not sure yet? Take the pathfinder quiz first.</Link></p>
         </div>

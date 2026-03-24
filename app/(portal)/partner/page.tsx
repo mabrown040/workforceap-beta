@@ -6,10 +6,14 @@ import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
-import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
-import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
+import { loadPartnerReferralBundle, toPartnerMembersListRows } from '@/lib/partner/referralBundle';
+import { PIPELINE_STAGE_LABELS } from '@/lib/pipeline/stage';
+import CopyReferralLink from '@/components/partner/CopyReferralLink';
 import PartnerMembersList from '@/components/portal/PartnerMembersList';
 import PageHeader from '@/components/portal/PageHeader';
+import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
+import { isSuperAdmin } from '@/lib/auth/roles';
+import { PARTNER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Partner Portal',
@@ -26,31 +30,32 @@ export default async function PartnerDashboardPage() {
   const ctx = await getPartnerForUser(user.id);
   if (!ctx) redirect('/dashboard');
 
-  const referrals = await prisma.partnerReferral.findMany({
-    where: { partnerId: ctx.partnerId, member: { deletedAt: null } },
-    include: {
-      member: {
-        select: {
-          id: true,
-          fullName: true,
-          enrolledProgram: true,
-          enrolledAt: true,
-          coursesCompleted: true,
-          updatedAt: true,
-          deletedAt: true,
-          assessmentCompleted: true,
-          placementRecord: {
-            select: { employerName: true, jobTitle: true, salaryOffered: true, placedAt: true },
-          },
-          userCertifications: { select: { certName: true, earnedAt: true } },
-          applications: { select: { status: true, submittedAt: true } },
-        },
+  const [appliedViaReferralLink, partnerRow] = await Promise.all([
+    prisma.application.count({
+      where: { referralPartnerId: ctx.partnerId },
+    }),
+    prisma.partner.findUnique({
+      where: { id: ctx.partnerId },
+      select: {
+        referralCode: true,
+        slug: true,
+        onboardingCompletedAt: true,
+        name: true,
+        organizationType: true,
+        contactName: true,
+        contactPhone: true,
+        tourCompletedAt: true,
       },
-    },
-    orderBy: { referredAt: 'desc' },
-  });
+    }),
+  ]);
 
-  const members = referrals.map((r) => r.member);
+  if (!partnerRow) redirect('/dashboard');
+
+  const applyLinkBase = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
+  const refParam = partnerRow.referralCode ?? partnerRow.slug ?? ctx.partner.slug;
+  const referralApplyUrl = `${applyLinkBase}/apply?ref=${encodeURIComponent(refParam)}`;
+
+  const { members, pipelineMembers } = await loadPartnerReferralBundle(ctx.partnerId);
   const memberIds = members.map((m) => m.id);
 
   const events =
@@ -68,33 +73,10 @@ export default async function PartnerDashboardPage() {
     stageCounts[s] = 0;
   }
 
-  const pipelineMembers: { member: (typeof members)[0]; stage: string; progress: number; programTitle: string }[] = [];
-
-  for (const m of members) {
-    const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram) : null;
-    const student: PipelineStudent = {
-      id: m.id,
-      fullName: m.fullName,
-      email: '',
-      enrolledProgram: m.enrolledProgram,
-      enrolledAt: m.enrolledAt,
-      assessmentCompleted: m.assessmentCompleted,
-      coursesCompleted: m.coursesCompleted,
-      deletedAt: m.deletedAt,
-      placementRecord: m.placementRecord,
-      userCertifications: m.userCertifications,
-      applications: m.applications,
-    };
-    const stage = getPipelineStage(student);
-    if (stage !== 'closed') {
-      stageCounts[stage] = (stageCounts[stage] ?? 0) + 1;
+  for (const p of pipelineMembers) {
+    if (p.stage !== 'closed') {
+      stageCounts[p.stage] = (stageCounts[p.stage] ?? 0) + 1;
     }
-    pipelineMembers.push({
-      member: m,
-      stage,
-      progress: memberProgramProgressPct(m.enrolledProgram, m.coursesCompleted),
-      programTitle: program?.title ?? '—',
-    });
   }
 
   const placements = members.filter((m) => m.placementRecord).length;
@@ -117,7 +99,26 @@ export default async function PartnerDashboardPage() {
 
   const nearCompletion = pipelineMembers.filter((p) => p.stage === 'in_training' && p.progress >= 70);
 
+  const showPartnerOnboarding = partnerRow.onboardingCompletedAt == null;
+  const showPartnerTour =
+    partnerRow.onboardingCompletedAt != null && partnerRow.tourCompletedAt == null;
+  const superAdmin = await isSuperAdmin(user.id);
+
   return (
+    <PortalEntryClient
+      portal="partner"
+      showOnboardingWizard={showPartnerOnboarding}
+      showTour={showPartnerTour}
+      isSuperAdmin={superAdmin}
+      tourSteps={PARTNER_PORTAL_TOUR_STEPS}
+      wizardProps={{
+        partnerName: partnerRow.name,
+        organizationType: partnerRow.organizationType ?? '',
+        contactName: partnerRow.contactName ?? '',
+        contactPhone: partnerRow.contactPhone ?? '',
+        referralApplyUrl,
+      }}
+    >
     <div className="partner-impact-console">
       <PageHeader
         title="Partner overview"
@@ -128,6 +129,23 @@ export default async function PartnerDashboardPage() {
           </Link>
         }
       />
+
+      <section
+        className="partner-referral-attribution partner-panel"
+        aria-label="Referral link applications"
+        data-tour="tour-referral-link"
+      >
+        <p className="partner-section-eyebrow">Referral link</p>
+        <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--color-gray-700)' }}>
+          Applied via your referral link: <strong>{appliedViaReferralLink}</strong> — members who used your{' '}
+          <code style={{ fontSize: '0.85em' }}>?ref=</code> link when they created an account. Members who apply without{' '}
+          <code style={{ fontSize: '0.85em' }}>?ref=</code> still appear in your pipeline below but are not counted here.
+        </p>
+        <p style={{ margin: '0.75rem 0 0', fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>
+          Share: <strong style={{ wordBreak: 'break-all' }}>{referralApplyUrl}</strong>
+        </p>
+        <CopyReferralLink url={referralApplyUrl} />
+      </section>
 
       {total === 0 ? (
         <section className="partner-empty-state partner-panel">
@@ -220,31 +238,7 @@ export default async function PartnerDashboardPage() {
                 <h2>Who you referred and where they are now.</h2>
               </div>
             </div>
-            <PartnerMembersList
-              members={pipelineMembers.map(({ member: m, stage, progress, programTitle }) => {
-                const stageLabel = PIPELINE_STAGE_LABELS[stage as keyof typeof PIPELINE_STAGE_LABELS];
-                const story = m.placementRecord
-                  ? `Placed at ${m.placementRecord.employerName} as ${m.placementRecord.jobTitle}`
-                  : progress >= 100
-                    ? `Completed ${programTitle}`
-                    : progress > 0
-                      ? `${progress}% through ${programTitle}`
-                      : stage === 'enrolled'
-                        ? `Enrolled in ${programTitle}`
-                        : stageLabel;
-
-                return {
-                  id: m.id,
-                  fullName: m.fullName,
-                  stage,
-                  stageLabel,
-                  progress,
-                  programTitle,
-                  story,
-                  updatedAtLabel: m.updatedAt.toLocaleDateString(),
-                };
-              })}
-            />
+            <PartnerMembersList members={toPartnerMembersListRows(pipelineMembers)} />
           </section>
 
           <section className="partner-activity partner-panel">
@@ -271,5 +265,6 @@ export default async function PartnerDashboardPage() {
         </>
       )}
     </div>
+    </PortalEntryClient>
   );
 }

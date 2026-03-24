@@ -8,8 +8,13 @@ const updateSchema = z.object({
   lastName: z.string().max(100),
   phone: z.string().max(50).nullable(),
   address: z.string().max(500).nullable(),
+  city: z.string().max(100).optional().nullable(),
+  state: z.string().max(50).optional().nullable(),
+  zip: z.string().max(20).optional().nullable(),
   linkedin: z.string().max(500).nullable(),
   bio: z.string().max(2000).nullable(),
+  financialAidInterest: z.boolean().optional(),
+  referralSource: z.string().max(200).optional().nullable(),
 });
 
 export async function PATCH(request: Request) {
@@ -28,7 +33,8 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
   }
 
-  const { firstName, lastName, phone, address, linkedin, bio } = parsed.data;
+  const { firstName, lastName, phone, address, city, state, zip, linkedin, bio, financialAidInterest, referralSource } =
+    parsed.data;
   const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
 
   await prisma.$transaction(async (tx) => {
@@ -42,14 +48,24 @@ export async function PATCH(request: Request) {
         userId: user.id,
         profilePhone: phone || null,
         profileAddress: address || null,
+        city: city?.trim() || null,
+        state: state?.trim() || null,
+        zip: zip?.trim() || null,
         profileLinkedin: linkedin?.trim() ? linkedin.trim() : null,
         profileBio: bio || null,
+        ...(financialAidInterest !== undefined ? { financialAidInterest } : {}),
+        ...(referralSource !== undefined ? { referralSource: referralSource?.trim() || null } : {}),
       },
       update: {
         profilePhone: phone || null,
         profileAddress: address || null,
+        ...(city !== undefined ? { city: city?.trim() || null } : {}),
+        ...(state !== undefined ? { state: state?.trim() || null } : {}),
+        ...(zip !== undefined ? { zip: zip?.trim() || null } : {}),
         profileLinkedin: linkedin?.trim() ? linkedin.trim() : null,
         profileBio: bio || null,
+        ...(financialAidInterest !== undefined ? { financialAidInterest } : {}),
+        ...(referralSource !== undefined ? { referralSource: referralSource?.trim() || null } : {}),
       },
     });
   });

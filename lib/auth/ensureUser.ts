@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db/prisma';
+import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 
 type SupabaseUser = {
   id: string;
@@ -14,11 +15,14 @@ export async function ensureUserInDb(supabaseUser: SupabaseUser) {
   const email = supabaseUser.email ?? `${supabaseUser.id}@placeholder.local`;
   const fullName = (supabaseUser.user_metadata?.full_name as string) ?? 'Member';
 
+  const organizationId = await getDefaultOrganizationId();
+
   try {
     await prisma.user.upsert({
       where: { id: supabaseUser.id },
       create: {
         id: supabaseUser.id,
+        organizationId,
         email,
         fullName,
       },
@@ -37,7 +41,7 @@ export async function ensureUserInDb(supabaseUser: SupabaseUser) {
       // Try to find by email and update the id to match auth
       await prisma.user.upsert({
         where: { email },
-        create: { id: supabaseUser.id, email, fullName },
+        create: { id: supabaseUser.id, organizationId, email, fullName },
         update: { id: supabaseUser.id },
       });
     } else {

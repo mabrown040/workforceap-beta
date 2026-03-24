@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
 
   const { title, topic, tone, category } = parsed;
 
-  const systemPrompt = `You are a content writer for WorkforceAP, a no-cost career training program in Austin, TX serving underserved communities, adult learners, and veterans. Write a blog post that is ${tone}, approximately 400 words, in the ${category} category. The post should be authentic, specific, and avoid generic filler. Do not mention cost or pricing — use "no-cost training for qualifying participants" if relevant. Return a JSON object with exactly these keys: title (string), excerpt (1-2 sentences), content (markdown string).`;
+  const systemPrompt = `You are a content writer for WorkforceAP, a no-cost career training program in Austin, TX serving underserved communities, adult learners, and veterans. Write a blog post that is ${tone}, approximately 400 words, in the ${category} category. The post should be authentic, specific, and avoid generic filler. Do not mention cost or pricing — use "no-cost training for members" if relevant. Return a JSON object with exactly these keys: title (string), excerpt (1-2 sentences), content (markdown string).`;
 
   const userPrompt = title
     ? `Write a blog post titled "${title}" about the following topic/angle: ${topic}`

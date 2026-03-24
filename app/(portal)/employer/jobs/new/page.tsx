@@ -5,7 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { PROGRAMS } from '@/lib/content/programs';
+import { getActivePrograms } from '@/lib/platform/programCatalog';
 import JobForm from '@/components/employer/JobForm';
 import PageHeader from '@/components/portal/PageHeader';
 
@@ -27,6 +27,9 @@ export default async function NewJobPage() {
     select: { companyName: true },
   });
 
+  const active = await getActivePrograms();
+  const programSlugs = active.map((p) => p.slug);
+
   return (
     <div>
       <div style={{ marginBottom: '1.5rem' }}>
@@ -40,7 +43,7 @@ export default async function NewJobPage() {
       />
       <JobForm
         companyName={employer?.companyName ?? ''}
-        programSlugs={PROGRAMS.map((p) => p.slug)}
+        programSlugs={programSlugs}
       />
     </div>
   );

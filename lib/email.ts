@@ -5,6 +5,7 @@
 
 import { Resend } from 'resend';
 import { brandedEmailLayout } from '@/lib/email/template';
+import { escapeHtml, sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
 import {
   applicationAcceptedHtml,
   applicationRejectedHtml,
@@ -24,6 +25,9 @@ import {
   applicantFollowupHtml,
   adminPendingApplicantsHtml,
   adminWeeklyRecapHtml,
+  enrollmentConfirmationHtml,
+  partnerWeeklyDigestHtml,
+  counselorAssignedHtml,
 } from '@/emails';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
@@ -37,6 +41,81 @@ function getResend(): Resend | null {
 
 function getFrom(): string {
   return process.env.EMAIL_FROM || 'noreply@workforceap.org';
+}
+
+/** Notify member when a counselor is assigned (member portal Messages) */
+export async function sendCounselorAssignedEmail(params: {
+  to: string;
+  memberFullName: string;
+  counselorFullName: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendCounselorAssignedEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const first = params.memberFullName.trim().split(/\s+/)[0] || 'there';
+  const messagesUrl = `${SITE_URL}/dashboard/messages`;
+  const html = brandedEmailLayout({
+    title: 'Your WorkforceAP counselor is assigned',
+    bodyHtml: counselorAssignedHtml({
+      firstName: first,
+      counselorName: params.counselorFullName,
+      messagesUrl,
+    }),
+    ctaText: 'Message your counselor',
+    ctaUrl: messagesUrl,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(`WorkforceAP — ${params.counselorFullName} is your counselor`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendCounselorAssignedEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Send enrollment confirmation when admin approves an application */
+export async function sendEnrollmentConfirmationEmail(params: {
+  to: string;
+  fullName: string;
+  programName: string;
+  counselorContact?: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendEnrollmentConfirmationEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const first = params.fullName.trim().split(/\s+/)[0] || 'there';
+  const counselorContact = params.counselorContact?.trim() || 'info@workforceap.org';
+  const html = brandedEmailLayout({
+    title: 'You are approved — next steps inside your member portal',
+    bodyHtml: enrollmentConfirmationHtml({
+      firstName: first,
+      programName: params.programName,
+      counselorContact,
+    }),
+    ctaText: 'Open member portal',
+    ctaUrl: `${SITE_URL}/dashboard`,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject: 'WorkforceAP — you are approved (next steps)',
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendEnrollmentConfirmationEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
 }
 
 /** Send application accepted email to applicant */
@@ -102,6 +181,49 @@ export async function sendApplicationRejectedEmail(params: {
 }
 
 /** Send new application admin alert */
+export async function sendPreScreeningReadyEmail(params: {
+  memberName?: string;
+  memberEmail: string;
+  goal: string;
+  weeklyHours: string;
+  barrierSummary: string;
+  memberId: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendPreScreeningReadyEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const name = params.memberName?.trim() || 'Member';
+  const bodyHtml = `
+    <p><strong>${escapeHtml(name)}</strong> completed pre-screening and is <strong>interview eligible</strong>.</p>
+    <ul>
+      <li><strong>Email:</strong> ${escapeHtml(params.memberEmail)}</li>
+      <li><strong>Primary goal:</strong> ${escapeHtml(params.goal)}</li>
+      <li><strong>Weekly time:</strong> ${escapeHtml(params.weeklyHours)}</li>
+      <li><strong>Barrier (preview):</strong> ${escapeHtml(params.barrierSummary)}</li>
+    </ul>
+  `;
+  const html = brandedEmailLayout({
+    title: 'Member ready for interview (pre-screening)',
+    bodyHtml,
+    ctaText: 'Open member in admin',
+    ctaUrl: `${SITE_URL}/admin/members/${encodeURIComponent(params.memberId)}`,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: ADMIN_EMAIL,
+      subject: sanitizeEmailSubjectLine(`Interview ready: ${name}`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendPreScreeningReadyEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
 export async function sendNewApplicationAdminEmail(params: {
   applicantName: string;
   applicantEmail: string;
@@ -117,13 +239,13 @@ export async function sendNewApplicationAdminEmail(params: {
     title: `New Application: ${params.applicantName}`,
     bodyHtml: newApplicationAlertHtml(params),
     ctaText: 'Review Application',
-    ctaUrl: `${SITE_URL}/admin/members?highlight=${params.applicationId}`,
+    ctaUrl: `${SITE_URL}/admin/members?highlight=${encodeURIComponent(params.applicationId)}`,
   });
   try {
     await resend.emails.send({
       from: getFrom(),
       to: ADMIN_EMAIL,
-      subject: `New Application: ${params.applicantName}`,
+      subject: sanitizeEmailSubjectLine(`New Application: ${params.applicantName}`),
       html,
     });
     return { ok: true };
@@ -155,7 +277,7 @@ export async function sendCourseEnrolledEmail(params: {
     await resend.emails.send({
       from: getFrom(),
       to: params.to,
-      subject: `You're Enrolled: ${params.programName}`,
+      subject: sanitizeEmailSubjectLine(`You're Enrolled: ${params.programName}`),
       html,
     });
     return { ok: true };
@@ -187,7 +309,7 @@ export async function sendCourseCompletedEmail(params: {
     await resend.emails.send({
       from: getFrom(),
       to: params.to,
-      subject: `Congratulations! You Completed ${params.courseName}`,
+      subject: sanitizeEmailSubjectLine(`Congratulations! You Completed ${params.courseName}`),
       html,
     });
     return { ok: true };
@@ -256,7 +378,7 @@ export async function sendInvitationEmail(params: {
     await resend.emails.send({
       from: getFrom(),
       to: params.to,
-      subject: `${params.inviterName} invited you to join WorkforceAP`,
+      subject: sanitizeEmailSubjectLine(`${params.inviterName} invited you to join WorkforceAP`),
       html,
     });
     return { ok: true };
@@ -292,7 +414,7 @@ export async function sendInvitationAcceptedEmail(params: {
     await resend.emails.send({
       from: getFrom(),
       to: params.to,
-      subject: `${params.accepterName} accepted your WorkforceAP invitation`,
+      subject: sanitizeEmailSubjectLine(`${params.accepterName} accepted your WorkforceAP invitation`),
       html,
     });
     return { ok: true };
@@ -355,7 +477,7 @@ export async function sendJobSubmittedEmail(params: {
     await resend.emails.send({
       from: getFrom(),
       to: ADMIN_EMAIL,
-      subject: `New Job Submitted: ${params.jobTitle} - ${params.companyName}`,
+      subject: sanitizeEmailSubjectLine(`New Job Submitted: ${params.jobTitle} - ${params.companyName}`),
       html,
     });
     return { ok: true };
@@ -386,7 +508,7 @@ export async function sendJobApprovedEmail(params: {
     await resend.emails.send({
       from: getFrom(),
       to: params.to,
-      subject: `Your job "${params.jobTitle}" is now live on WorkforceAP`,
+      subject: sanitizeEmailSubjectLine(`Your job "${params.jobTitle}" is now live on WorkforceAP`),
       html,
     });
     return { ok: true };
@@ -418,7 +540,7 @@ export async function sendJobRejectedEmail(params: {
     await resend.emails.send({
       from: getFrom(),
       to: params.to,
-      subject: `Job posting "${params.jobTitle}" - Update`,
+      subject: sanitizeEmailSubjectLine(`Job posting "${params.jobTitle}" - Update`),
       html,
     });
     return { ok: true };
@@ -451,7 +573,7 @@ export async function sendNewJobApplicationEmail(params: {
     await resend.emails.send({
       from: getFrom(),
       to: params.to,
-      subject: `New applicant for "${params.jobTitle}"`,
+      subject: sanitizeEmailSubjectLine(`New applicant for "${params.jobTitle}"`),
       html,
     });
     return { ok: true };
@@ -483,7 +605,7 @@ export async function sendAIMatchSuggestionEmail(params: {
     await resend.emails.send({
       from: getFrom(),
       to: params.to,
-      subject: `Top candidate matches for "${params.jobTitle}"`,
+      subject: sanitizeEmailSubjectLine(`Top candidate matches for "${params.jobTitle}"`),
       html,
     });
     return { ok: true };
@@ -491,6 +613,15 @@ export async function sendAIMatchSuggestionEmail(params: {
     console.error('sendAIMatchSuggestionEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
+}
+
+/**
+ * Same as {@link sendAIMatchSuggestionEmail} — employer AI match notification with HTML-escaped fields.
+ */
+export async function sendMatchActionEmail(
+  params: Parameters<typeof sendAIMatchSuggestionEmail>[0]
+): Promise<{ ok: boolean; error?: string }> {
+  return sendAIMatchSuggestionEmail(params);
 }
 
 /** Send application confirmation to applicant after form submit */
@@ -575,7 +706,7 @@ export async function sendAdminPendingApplicantsEmail(params: {
     await resend.emails.send({
       from: getFrom(),
       to: ADMIN_EMAIL,
-      subject: `Action Needed: ${params.pendingCount} pending applications over 3 days old`,
+      subject: sanitizeEmailSubjectLine(`Action Needed: ${params.pendingCount} pending applications over 3 days old`),
       html,
     });
     return { ok: true };
@@ -607,12 +738,52 @@ export async function sendAdminWeeklyRecapEmail(params: {
     await resend.emails.send({
       from: getFrom(),
       to: ADMIN_EMAIL,
-      subject: `Weekly Recap: ${params.newApplicants} new applicants, ${params.placements} placements`,
+      subject: sanitizeEmailSubjectLine(
+        `Weekly Recap: ${params.newApplicants} new applicants, ${params.placements} placements`
+      ),
       html,
     });
     return { ok: true };
   } catch (err) {
     console.error('sendAdminWeeklyRecapEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Weekly referral outcomes digest for a partner org */
+export async function sendPartnerWeeklyDigestEmail(params: {
+  to: string;
+  partnerName: string;
+  weekLabel: string;
+  stageLines: string[];
+  successLines: string[];
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendPartnerWeeklyDigestEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: `Weekly referral snapshot — ${params.partnerName}`,
+    bodyHtml: partnerWeeklyDigestHtml({
+      partnerName: params.partnerName,
+      weekLabel: params.weekLabel,
+      stageLines: params.stageLines,
+      successLines: params.successLines,
+    }),
+    ctaText: 'Open partner portal',
+    ctaUrl: `${SITE_URL}/partner`,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(`WorkforceAP weekly referral update — ${params.partnerName}`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendPartnerWeeklyDigestEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
 }

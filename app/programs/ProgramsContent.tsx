@@ -52,7 +52,7 @@ function ProgramCard({ program }: { program: Program }) {
         </p>
       )}
       <div style={{ marginBottom: '.75rem' }}>
-        <div style={{ display: 'flex', gap: '1rem', fontSize: '.85rem', color: '#666' }}>
+        <div className="program-card-meta-row" style={{ display: 'flex', gap: '1rem', fontSize: '.85rem', color: '#666' }}>
           <span>⏱ {program.duration}</span>
           <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Starting range: {salaryRangeDisplay(program)}</span>
         </div>
@@ -73,7 +73,7 @@ function ProgramCard({ program }: { program: Program }) {
       </div>
       <details style={{ marginBottom: '1rem' }} open={open} onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
         <summary style={{ cursor: 'pointer', fontWeight: 600, fontSize: '.9rem', color: '#1a1a1a' }}>
-          {open ? 'Hide' : 'View'} {count} course{count !== 1 ? 's' : ''}
+          {open ? 'Hide' : 'View'} {count} {count === 1 ? 'course' : 'courses'}
         </summary>
         <ul style={{ listStyle: 'none', padding: '.75rem 0 0', margin: 0 }}>
           {program.courses.map((c) => (

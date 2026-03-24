@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { sendJobSubmittedEmail } from '@/lib/email';
 import { z } from 'zod';
 import { trackEvent } from '@/lib/events/track';
+import { recordEmployerWorkflowEvent } from '@/lib/portal/workflowEvents';
 
 const jobUpdateSchema = z.object({
   title: z.string().min(1).max(200).optional(),
@@ -116,6 +117,17 @@ export async function PATCH(
         jobId: job.id,
       });
     }
+  }
+
+  if (parsed.data.status && parsed.data.status !== existing.status) {
+    await recordEmployerWorkflowEvent({
+      employerId: ctx.employerId,
+      actorUserId: user.id,
+      kind: 'job_status',
+      headline: `Job status → ${job.status}: ${job.title}`,
+      entityType: 'Job',
+      entityId: job.id,
+    });
   }
 
   if (parsed.data.status === 'pending' || parsed.data.status === 'draft' || parsed.data.status === undefined) {

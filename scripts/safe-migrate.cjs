@@ -1,24 +1,23 @@
 #!/usr/bin/env node
 /**
  * Cross-platform migration runner.
- * 1. Resolves any known failed migrations (ignores errors — migration may already be clean)
+ * 1. Optionally resolves failed migrations (rolled-back) from migrate status output
  * 2. Runs prisma migrate deploy
  * 3. Exits with deploy exit code
+ *
+ * Do NOT call `migrate resolve --applied` here for migrations already in history:
+ * Prisma P3008 if they are already recorded — breaks Vercel/CI on every deploy.
  */
 const { spawnSync } = require('child_process');
 
 // Load prisma env vars
 require('./ensure-prisma-env.cjs');
 
-// Migrations to mark as APPLIED (tables already exist in prod DB)
-const MARK_APPLIED = [
-  '20260319100000_add_partner_users',
-  '20260320100001_employer_portal_jobs',
-];
+// One-off `resolve --applied` for legacy DBs caused P3008 on Supabase once rows exist — keep empty.
+const MARK_APPLIED = [];
 
-// Migrations to mark as ROLLED BACK (never applied, safe to skip)
-const MARK_ROLLED_BACK = [
-];
+// Removed from repo / replaced by 20260324000001; prod DB may still list this as *failed* → blocks P3009.
+const MARK_ROLLED_BACK = ['20260323999999_add_missing_partner_notify_columns'];
 
 function run(args, ignoreError = false) {
   const result = spawnSync(process.execPath, [require.resolve('./prisma-env.js'), ...args], {
@@ -47,6 +46,29 @@ for (const migration of MARK_APPLIED) {
 for (const migration of MARK_ROLLED_BACK) {
   console.log(`Marking migration as rolled back: ${migration}`);
   run(['prisma', 'migrate', 'resolve', '--rolled-back', migration], true);
+}
+
+// Before migrate deploy: clear P3009 failed state (parse migrate status; ignore failures)
+try {
+  const statusResult = spawnSync(
+    process.execPath,
+    [require.resolve('./prisma-env.js'), 'prisma', 'migrate', 'status'],
+    { encoding: 'utf8', env: process.env }
+  );
+  const output = `${statusResult.stdout || ''}${statusResult.stderr || ''}`;
+  // e.g. "The `20260323999999_...` migration started at ... failed"
+  const failedPattern = /The `([^`]+)` migration[^\n]*failed/gi;
+  let match;
+  const seen = new Set();
+  while ((match = failedPattern.exec(output)) !== null) {
+    const migrationName = match[1];
+    if (seen.has(migrationName)) continue;
+    seen.add(migrationName);
+    console.log(`safe-migrate: resolving failed migration as rolled-back: ${migrationName}`);
+    run(['prisma', 'migrate', 'resolve', '--rolled-back', migrationName], true);
+  }
+} catch (e) {
+  console.warn('safe-migrate: migrate status check failed (non-fatal):', e && e.message ? e.message : e);
 }
 
 // Now deploy

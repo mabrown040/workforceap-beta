@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
+import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
@@ -27,12 +28,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 async function getJob(id: string) {
   return prisma.job.findFirst({
     where: { id, status: 'live' },
-    include: { employer: { select: { companyName: true } } },
+    include: { employer: { select: { companyName: true, logoUrl: true } } },
   });
 }
 
 export default async function JobDetailPage({ params }: Props) {
+  const user = await getUser();
   const { id } = await params;
+  if (!user) redirect(`/login?redirectTo=${encodeURIComponent(`/jobs/${id}`)}`);
+
   const job = await getJob(id);
   if (!job) notFound();
 
@@ -54,7 +58,20 @@ export default async function JobDetailPage({ params }: Props) {
       <PageHero
         title={job.title}
         subtitle={`${job.employer.companyName} · ${job.location ?? LOCATION_LABELS[job.locationType] ?? job.locationType} · ${JOB_TYPE_LABELS[job.jobType] ?? job.jobType}`}
-      />
+      >
+        {job.employer.logoUrl ? (
+          <div style={{ marginTop: '0.75rem' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={job.employer.logoUrl}
+              alt=""
+              width={72}
+              height={72}
+              style={{ objectFit: 'contain', borderRadius: 8, background: 'rgba(255,255,255,0.2)' }}
+            />
+          </div>
+        ) : null}
+      </PageHero>
       <section className="content-section" style={{ paddingTop: '1rem' }}>
         <div className="container" style={{ maxWidth: 720 }}>
           <div style={{ marginBottom: '1.5rem' }}>

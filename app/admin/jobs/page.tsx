@@ -69,9 +69,11 @@ export default async function AdminJobsPage({
     }
   }
 
+  const totalJobsInDb = Object.values(countByStatus).reduce((a, b) => a + b, 0);
+
   const tabs = [
     { value: 'pending', label: 'Pending', count: countByStatus['pending'] ?? 0 },
-    { value: 'all', label: 'All', count: Object.values(countByStatus).reduce((a, b) => a + b, 0) },
+    { value: 'all', label: 'All', count: totalJobsInDb },
     { value: 'live', label: 'Live', count: countByStatus['live'] ?? 0 },
     { value: 'draft', label: 'Draft', count: countByStatus['draft'] ?? 0 },
     { value: 'filled', label: 'Filled / Closed', count: countByStatus['filled'] ?? 0 },
@@ -145,7 +147,18 @@ export default async function AdminJobsPage({
       </div>
 
       {jobs.length === 0 && (
-        <p style={{ color: 'var(--color-gray-500)', marginTop: '1rem' }}>No jobs yet.</p>
+        <p style={{ color: 'var(--color-gray-500)', marginTop: '1rem' }}>
+          {totalJobsInDb === 0 ? (
+            'No jobs yet.'
+          ) : (
+            <>
+              No jobs in this view ({currentFilter}).{' '}
+              <Link href="/admin/jobs?filter=all" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+                Show all ({totalJobsInDb})
+              </Link>
+            </>
+          )}
+        </p>
       )}
     </div>
   );

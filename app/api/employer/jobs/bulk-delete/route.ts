@@ -3,9 +3,10 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { EMPLOYER_JOB_BULK_MAX_IDS_PER_REQUEST } from '@/lib/employer/employerJobsBulk';
 
 const bodySchema = z.object({
-  ids: z.array(z.string().uuid()).min(1).max(40),
+  ids: z.array(z.string().uuid()).min(1).max(EMPLOYER_JOB_BULK_MAX_IDS_PER_REQUEST),
   action: z.enum(['delete', 'close']).default('delete'),
 });
 
@@ -25,7 +26,17 @@ export async function POST(request: NextRequest) {
   const json = await request.json().catch(() => null);
   const parsed = bodySchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+    const tooMany = parsed.error.issues.some(
+      (issue) => issue.code === 'too_big' && issue.path.length === 1 && issue.path[0] === 'ids'
+    );
+    return NextResponse.json(
+      {
+        error: tooMany
+          ? `Too many postings in one request (max ${EMPLOYER_JOB_BULK_MAX_IDS_PER_REQUEST}). Try again — the portal sends multiple batches automatically.`
+          : 'Invalid request',
+      },
+      { status: 400 }
+    );
   }
 
   const { ids, action } = parsed.data;

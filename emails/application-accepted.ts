@@ -2,10 +2,12 @@
  * Application accepted email body HTML.
  */
 
+import { escapeHtml } from '@/lib/email/escapeHtml';
+
 export function applicationAcceptedHtml(params: { firstName: string }): string {
   const { firstName } = params;
   return `
-    <p>Congratulations, ${firstName}!</p>
+    <p>Congratulations, ${escapeHtml(firstName)}!</p>
     <p>Your application to WorkforceAP has been accepted. We're excited to have you join our program.</p>
     <p><strong>Next steps:</strong></p>
     <ul>

@@ -255,9 +255,9 @@ export default function MainNav() {
           type="button"
           className={`mobile-nav-backdrop${mobileOpen ? ' visible' : ''}`}
           aria-label="Close navigation menu"
-          aria-hidden={!mobileOpen}
           tabIndex={mobileOpen ? 0 : -1}
           onClick={closeMobile}
+          {...(!mobileOpen ? { 'data-nav-hidden': 'true' } : {})}
         />
         <ul ref={menuRef} id={navMenuId} className={`nav-menu${mobileOpen ? ' mobile-open' : ''}`}>
           {navItems.flatMap((item) => {
@@ -299,9 +299,10 @@ export default function MainNav() {
                   </button>
                   <ul className="dropdown-menu" id={subMenuId} role="menu" aria-labelledby={`${subMenuId}-trigger`}>
                     {item.children.map((child) => (
-                      <li key={child.href}>
+                      <li key={child.href} role="none">
                         <Link
                           href={child.href}
+                          role="menuitem"
                           className={isActive(child.href) ? 'active' : undefined}
                           onClick={closeMobile}
                         >

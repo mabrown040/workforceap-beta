@@ -7,6 +7,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { PROGRAMS } from '@/lib/content/programs';
 import PageHeader from '@/components/portal/PageHeader';
+import AdminProgramCatalogClient from '@/components/admin/AdminProgramCatalogClient';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin – Programs',
@@ -41,8 +42,22 @@ export default async function AdminProgramsPage() {
 
   return (
     <div>
-      <PageHeader title="Program Overview" subtitle="Read-only enrollment and progress stats." />
+      <PageHeader
+        title="Programs"
+        subtitle="Manage the program catalog (homepage, enrollment, employer filters). Enrollment stats below."
+      />
 
+      <section style={{ marginBottom: '2.5rem' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.75rem' }}>
+          <h2 style={{ fontSize: '1.15rem', margin: 0 }}>Program catalog</h2>
+          <a href="/api/admin/programs/export-twc" className="btn btn-outline btn-sm">
+            Export for TX state approval (CSV)
+          </a>
+        </div>
+        <AdminProgramCatalogClient />
+      </section>
+
+      <h2 style={{ fontSize: '1.15rem', marginBottom: '0.75rem' }}>Enrollment stats</h2>
       {totalEnrollments === 0 ? (
         <div className="admin-empty-state">
           <h3>No enrollments yet</h3>

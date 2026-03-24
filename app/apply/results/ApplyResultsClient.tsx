@@ -231,7 +231,7 @@ export default function ApplyResultsClient() {
                   <ProgramIcon program={p} size={24} />
                 </span>
               </div>
-              <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>{p.title}</h3>
+              <p className="apply-results-program-card-title">{p.title}</p>
               <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>
                 <div>⏱ {p.duration}</div>
                 <div style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{p.salary}</div>

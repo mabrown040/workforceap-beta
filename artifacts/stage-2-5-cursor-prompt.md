@@ -1,73 +1,57 @@
-# WorkforceAP Cursor Prompt — Stages 2–5 Rollout
+# Portal selective-expansion sprint — execution report
 
-## Repository and branch
+**Repo:** `mabrown040/workforceap-beta`  
+**Branch at delivery:** `cursor/rollout-stages-2-5-c624` (merge to `master` per release process)
 
-- **Repo path (local):** `C:\Users\mabro\.openclaw\workspace\projects\workforceap-beta` (or CI clone path)
-- **Target branch:** `master`
-- **Working branch (if used):** `cursor/rollout-stages-2-5-c624`
+## P0 / P1 checklist
 
-## Exact goals
+| Item | Status |
+|------|--------|
+| P0 Employer work queue (Needs review today, Stale >48h, Interview pending, urgency, one-click actions, responsive) | ✅ |
+| P0 Partner attention queue v2 (risk tier, next action, owner assign) | ✅ |
+| P0 Shared sidebar badges v2 (counts from queue queries) | ✅ |
+| P0 Workflow activity timeline (employer + partner, events on status/notes/job/outreach/assign) | ✅ |
+| P1 Saved views + quick filters (employer role/stage, partner cohort/milestone) | ❌ (partial: `?focus=` on work queue, `?tier=` on attention only) |
+| P1 Outcome ops export preset | ✅ (`?preset=outcomes`) |
+| P1 Member transparency (application status + what’s next) | ✅ (Application Tracker page) |
 
-1. Finish **Stage 2** launch-alignment: employer-facing job-posting copy on public marketing must not use casual **“free”** framing; keep participant-truth copy such as homepage hero and **“$0 Cost to Qualifying Participants”** intact.
-2. **Stage 3:** Run TypeScript check and production build; capture pass/fail.
-3. **Stage 4:** Ship a short operator-facing summary (this artifact + execution report): files touched, commands, results, risks.
-4. **Stage 5:** Git handoff — scoped commits, push to `origin/master` (or open/update PR per team process).
+## Migrations / deploy
 
-## Ordered task list
+Apply in order on each environment:
 
-1. **Discover:** Read this artifact, recent merges (`cursor/p0-blocker-fixes-prelaunch`), and grep marketing routes for employer/job-posting “free” wording (`app/employers`, `app/partners`, shared components). Exclude `node_modules` from searches.
-2. **Stage 2 — copy:** Update employer/partner **marketing** surfaces only where language implies **employers** get free job posting; do not rewrite participant program SEO (`programs`, `apply`, FAQ participant answers) unless it is clearly the same employer-facing bug.
-3. **Stage 2 — portal UI:** If `/employer` or `/partner` authenticated shells look broken (unstyled layout, header overflow), add minimal CSS in `css/main.css` for the React class names used by `WorkspaceShell`, employer dashboard, and shared `PageHeader` — match existing portal tokens (`--color-*`, `--radius-*`, `var(--shadow-sm)`).
-4. **Stage 3 — verify:** Run validation commands below; fix only regressions tied to this rollout.
-5. **Stage 4:** Refresh this artifact if process or commands change; keep it the single “prompt + checklist” source.
-6. **Stage 5:** Commit in logical slices (e.g. copy vs. styling/artifact), push to `origin/master`, note commit SHAs in the execution report.
+1. `20260323180000_portal_expansion_outreach` (if not yet applied) — `employer_notes`, `status_updated_at`, `partner_outreach_logs`
+2. **`20260324120000_portal_workflow_events`** — `portal_workflow_events`, `partner_referrals.assigned_partner_user_id`
 
-## Validation commands (run from repo root)
+**Command:** `npm run db:migrate:deploy` (or your CI equivalent).  
+Until migrations run, workflow timeline writes and assignee column will fail at runtime.
 
-PowerShell-safe (run one line at a time):
+## Commands run (validation)
 
-```powershell
-git status --short
-git grep -n -i "free" -- app components lib
-npx tsc --noEmit
-npm run test:unit
-npm run build
-```
+| Command | Result |
+|---------|--------|
+| `npx prisma generate` | Pass |
+| `npx tsc --noEmit` | Pass |
+| `npm run test:unit` | Pass |
+| `npm run build` | Pass (expected Prisma `127.0.0.1:5432` noise without DB) |
 
-**Note:** `npm run build` may log Prisma/static-generation warnings when Postgres is not reachable at `127.0.0.1:5432`; that is acceptable locally if the build **exits 0**.
+## Changed files (this sprint)
 
-## Completion criteria
+- `prisma/schema.prisma`, `prisma/migrations/20260324120000_portal_workflow_events/migration.sql`
+- `lib/portal/workflowEvents.ts`, `lib/employer/workQueue.ts`, `lib/partner/attentionQueue.ts`, `lib/portal/navBadges.ts`, `lib/nav/portalNav.ts`
+- `app/api/employer/applications/[id]/route.ts`, `app/api/employer/jobs/[id]/route.ts`, `app/api/partner/outreach/route.ts`, `app/api/partner/members/needs-attention/route.ts`, `app/api/partner/referrals/[memberId]/route.ts`, `app/api/partner/team-assign/route.ts`, `app/api/partner/export/referrals/route.ts`
+- `app/(portal)/employer/work-queue/page.tsx`, `app/(portal)/partner/attention/page.tsx`, `app/(portal)/partner/exports/page.tsx`, `app/(portal)/dashboard/ai-tools/application-tracker/page.tsx`
+- `components/employer/EmployerWorkQueueClient.tsx`, `EmployerWorkflowTimeline.tsx`, `components/partner/PartnerAttentionClient.tsx`, `PartnerWorkflowTimeline.tsx`, `components/portal/MemberJobPostingTransparency.tsx`
+- `css/main.css`
 
-- [ ] No employer **job-posting** “free” positioning on intended public surfaces (`/employers`, `/partners` employer blurbs, metadata where it promised “post free”).
-- [ ] `/employer` and `/partner` portal chrome is usable on mobile and desktop (header, sidebar/drawer, main padding).
-- [ ] `npx tsc --noEmit` passes.
-- [ ] `npm run build` passes.
-- [ ] `npm run test:unit` passes (when present in `package.json`).
-- [ ] Changes committed and pushed per team branch policy; execution report lists SHAs and commands.
+## Remaining risks / follow-ups
 
-## Risk checks
+- **History:** Timeline only records events from this release forward (no backfill of old application changes).
+- **Employer “review today”:** Uses UTC day boundary for “today” on `appliedAt`.
+- **Partner badge:** `partner_needs_attention` counts referrals with risk tier ≠ `watch` (stale ≥ 3 days in applied/enrolled); may differ from older 7-day-only semantics.
+- **P1 gaps:** Deeper saved views (persisted filters, cohort exports) not built; consider follow-up task.
+- **Super-admin partner assign:** Assignee list is partner users on the same partner; super-admin without `PartnerUser` row may have empty assign list until modeled.
 
-- **Scope creep:** Avoid portal auth, RLS, or routing changes unless fixing a verified regression from this rollout.
-- **Copy drift:** Do not remove truthful **no cost to participants** messaging where it is not employer job-posting.
-- **Force-push:** Splitting or rewriting commits on `master` may require `--force-with-lease`; confirm with repo owners before rewriting shared history.
-- **Search noise:** Restrict greps to `app`, `components`, `lib` so unrelated docs don’t drive churn.
+## Commit hashes
 
-## Guardrails
-
-- No broad refactors.
-- No auth, portal-routing, or role-scope changes unless required to fix a verified regression.
-- No generic marketing-copy rewrites.
-- Keep Austin framed as the launch wedge, not the long-term ceiling.
-- Preserve credible salary/outcome framing.
-
-## Rollback notes
-
-- **Copy only:** Revert the commit that touches `app/employers/page.tsx` / `app/partners/page.tsx` (or restore prior strings from `git show <parent>:path`).
-- **CSS only:** Revert the commit that touches `css/main.css` for workspace/employer-dash blocks.
-- **Ranking logic:** Revert the commit that touches `lib/employer/rankProgramsForEmployerJob.ts` if employer job form suggestions regress.
-- **Artifact only:** Delete or restore `artifacts/stage-2-5-cursor-prompt.md` from previous revision — no runtime impact.
-
-## Context (frozen)
-
-- Phase 2 / 2.5 product work and prelaunch blocker merge are already on `master`.
-- This prompt is the checklist for **remaining** Stage 2–5 follow-through, not a full Phase 2 re-audit.
+- **Commit A (P0):** `062d547` — `Portal sprint P0: employer work queue, partner attention v2, workflow timeline, badges`
+- **Commit B (P1 + artifact):** tip commit with subject `Portal sprint P1: outcomes export preset, member job transparency, sprint artifact` (run `git log -2 --oneline` on this branch)

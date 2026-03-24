@@ -138,3 +138,9 @@
 - Reduce top chrome on mobile: compress page-hero and PhotoHighlight padding
 
 **Note:** Homepage, Programs, Program Comparison, Employers, What We Do, Partners, Leadership, Find Your Path, How It Works — master already includes the 10-star upgrades from prior PRs. This PR focuses on the salary guide mobile defect and last-mile polish.
+
+---
+
+## Supabase Storage (employer logos)
+
+Employer logo uploads require a public **`employer-logos`** bucket in Supabase. See **[SUPABASE-STORAGE-SETUP.md](./SUPABASE-STORAGE-SETUP.md)** for step-by-step setup and the public URL format.

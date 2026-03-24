@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WorkforceAP — Brand &amp; Design System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #1a1a1a;
+      --accent: #ad2c4d;
+      --accent-dark: #8b1f38;
+      --blue: #2b7bb9;
+      --gold: #a47f38;
+      --gold-light: #c49a4a;
+      --green: #4a9b4f;
+      --white: #ffffff;
+      --g50: #fafafa;
+      --g100: #f5f5f5;
+      --g200: #e8e8e8;
+      --g300: #d4d4d4;
+      --g400: #a3a3a3;
+      --g500: #737373;
+      --g600: #525252;
+      --g700: #404040;
+      --g800: #262626;
+      --light: #f7f8fa;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 40px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.06);
+      --shadow-xl: 0 20px 60px rgba(0,0,0,0.14), 0 8px 20px rgba(0,0,0,0.08);
+      --shadow-glow-accent: 0 0 30px rgba(173,44,77,0.2), 0 0 60px rgba(173,44,77,0.08);
+      --shadow-glow-gold: 0 0 30px rgba(164,127,56,0.2), 0 0 60px rgba(164,127,56,0.08);
+      --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+      /* Light mode surface tokens */
+      --bg-page: #ffffff;
+      --bg-section: #f7f8fa;
+      --bg-card: #ffffff;
+      --text-body: #1a1a1a;
+      --text-muted: #525252;
+      --border-color: #e8e8e8;
+    }
+    html[data-theme="dark"] {
+      --bg-page: #111111;
+      --bg-section: #1a1a1a;
+      --bg-card: #242424;
+      --text-body: #f5f5f5;
+      --text-muted: #a3a3a3;
+      --border-color: #333333;
+      --white: #f5f5f5;
+      --g50: #1e1e1e;
+      --g100: #242424;
+      --g200: #2e2e2e;
+      --g300: #404040;
+      --light: #1a1a1a;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--text-body);
+      background: var(--bg-page);
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    /* ============================================
+       DARK MODE — comprehensive text + surface fixes
+       ============================================ */
+    html[data-theme="dark"] {
+      color-scheme: dark;
+    }
+    /* Page & section backgrounds */
+    html[data-theme="dark"] body { background: #111111; color: #f0f0f0; }
+    html[data-theme="dark"] main { background: #111111; }
+    html[data-theme="dark"] section { background: #111111; }
+
+    /* All headings */
+    html[data-theme="dark"] h1,
+    html[data-theme="dark"] h2,
+    html[data-theme="dark"] h3,
+    html[data-theme="dark"] h4,
+    html[data-theme="dark"] h5,
+    html[data-theme="dark"] h6 { color: #f0f0f0; }
+
+    /* All body text */
+    html[data-theme="dark"] p { color: #c0c0c0; }
+    html[data-theme="dark"] span:not(.badge):not(.site-header__brand span) { color: inherit; }
+
+    /* Section titles with left border */
+    html[data-theme="dark"] .section-title { color: #f0f0f0; }
+    html[data-theme="dark"] .section-lede { color: #a0a0a0; }
+
+    /* Cards */
+    html[data-theme="dark"] .card { background: #1e1e1e; border-color: #333; color: #f0f0f0; }
+    html[data-theme="dark"] .card--stat { background: #1a1a1a; border-left-color: #ad2c4d; }
+    html[data-theme="dark"] .card h3,
+    html[data-theme="dark"] .card h4 { color: #f0f0f0; }
+    html[data-theme="dark"] .card p { color: #a0a0a0; }
+    html[data-theme="dark"] .card__meta { color: #a0a0a0; }
+
+    /* Swatches */
+    html[data-theme="dark"] .swatch { border-color: #333; }
+    html[data-theme="dark"] .swatch__meta { background: #1e1e1e; color: #f0f0f0; }
+    html[data-theme="dark"] .swatch__meta strong { color: #f0f0f0; }
+
+    /* Typography samples */
+    html[data-theme="dark"] .type-h1,
+    html[data-theme="dark"] .type-h2,
+    html[data-theme="dark"] .type-h3,
+    html[data-theme="dark"] .type-h4 { color: #f0f0f0; }
+    html[data-theme="dark"] .type-body { color: #c0c0c0; }
+    html[data-theme="dark"] .type-sm { color: #a0a0a0; }
+    html[data-theme="dark"] .weight-row span { color: #f0f0f0; }
+
+    /* Forms */
+    html[data-theme="dark"] .form-label { color: #f0f0f0; }
+    html[data-theme="dark"] .form-input { background: #1e1e1e; border-color: #444; color: #f0f0f0; }
+    html[data-theme="dark"] .form-input:disabled { background: #161616; color: #666; }
+    html[data-theme="dark"] .form-helper { color: #888; }
+    html[data-theme="dark"] .form-error { color: #e05a73; }
+
+    /* Contrast table */
+    html[data-theme="dark"] .contrast-table th { background: #1e1e1e; color: #f0f0f0; }
+    html[data-theme="dark"] .contrast-table td { color: #c0c0c0; }
+    html[data-theme="dark"] .contrast-table th,
+    html[data-theme="dark"] .contrast-table td { border-color: #333; }
+
+    /* Shadow boxes */
+    html[data-theme="dark"] .shadow-box { background: #1e1e1e; color: #a0a0a0; }
+    html[data-theme="dark"] .shadow-box--glow-a { border-color: #333; }
+    html[data-theme="dark"] .shadow-box--glow-g { border-color: #333; }
+
+    /* Motion cards */
+    html[data-theme="dark"] .motion-card { background: #1e1e1e; border-color: #333; color: #f0f0f0; }
+    html[data-theme="dark"] .motion-card h4 { color: #f0f0f0; }
+    html[data-theme="dark"] .motion-card p { color: #a0a0a0; }
+    html[data-theme="dark"] .motion-card .type-sm { color: #888; }
+
+    /* Portal mock */
+    html[data-theme="dark"] .portal-mock { background: #1a1a1a; border-color: #333; color: #f0f0f0; }
+    html[data-theme="dark"] .portal-mock h3 { color: #f0f0f0; }
+    html[data-theme="dark"] .portal-mock__meta { color: #888; }
+    html[data-theme="dark"] .progress-bar { background: #333; }
+
+    /* Secondary button on light bg in dark mode */
+    html[data-theme="dark"] .btn--secondary {
+      border-color: #f0f0f0;
+      color: #f0f0f0;
+    }
+    html[data-theme="dark"] .btn--secondary:hover {
+      background: #f0f0f0;
+      color: #111111;
+    }
+    html[data-theme="dark"] .btn--ghost { color: #e05a73; }
+
+    /* Do/Don't section */
+    html[data-theme="dark"] .do { background: #0d1f0d; border-color: #4a9b4f; color: #f0f0f0; }
+    html[data-theme="dark"] .dont { background: #1f0d0d; border-color: #8b1f38; color: #f0f0f0; }
+    html[data-theme="dark"] .do h4,
+    html[data-theme="dark"] .dont h4 { color: #f0f0f0; }
+    html[data-theme="dark"] .do p,
+    html[data-theme="dark"] .dont p { color: #c0c0c0; }
+
+    /* Footer */
+    html[data-theme="dark"] footer { background: #0a0a0a; color: #666; }
+    /* Toggle button */
+    .theme-toggle {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff;
+      border-radius: 50px;
+      padding: 0.375rem 0.875rem;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      transition: background 0.15s ease;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .theme-toggle:hover { background: rgba(255,255,255,0.25); }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+    .site-header {
+      background: var(--primary);
+      color: var(--white);
+      padding: 1rem clamp(1rem, 4vw, 2rem);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 3px solid var(--accent);
+      box-shadow: var(--shadow-md);
+    }
+    .site-header__inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .site-header__brand {
+      font-weight: 700;
+      font-size: 1.125rem;
+      letter-spacing: -0.02em;
+    }
+    .site-header__brand span { color: var(--accent); }
+    .site-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.25rem;
+      list-style: none;
+    }
+    .site-nav a {
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color var(--transition-fast);
+    }
+    .site-nav a:hover { color: var(--white); }
+    .site-nav a:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px var(--white), 0 0 0 4px var(--accent);
+      border-radius: 4px;
+    }
+    main { max-width: 1100px; margin: 0 auto; padding: clamp(1.5rem, 4vw, 3rem); }
+    section {
+      margin-bottom: 4rem;
+      scroll-margin-top: 5rem;
+    }
+    .section-title {
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+      border-left: 4px solid var(--accent);
+      padding-left: 1rem;
+    }
+    .section-lede {
+      color: var(--g600);
+      margin-bottom: 1.5rem;
+      max-width: 65ch;
+    }
+
+    /* Hero */
+    .hero {
+      background: var(--primary);
+      color: var(--white);
+      margin: 0 0 3rem;
+      padding: clamp(2.5rem, 6vw, 4rem) clamp(1.5rem, 4vw, 2rem);
+      border-radius: 12px;
+      box-shadow: var(--shadow-lg);
+    }
+    .hero__eyebrow {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.75rem;
+    }
+    .hero h1 {
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 700;
+      line-height: 1.2;
+      max-width: 18ch;
+      margin-bottom: 1rem;
+    }
+    .hero__tagline {
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.9);
+      margin-bottom: 1.5rem;
+    }
+    .hero__accent-bar {
+      height: 4px;
+      width: 120px;
+      background: linear-gradient(90deg, var(--accent), var(--gold));
+      border-radius: 2px;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 14px 32px;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background var(--transition-base), color var(--transition-base), transform var(--transition-fast), box-shadow var(--transition-base);
+    }
+    .btn--primary {
+      background: var(--accent);
+      color: var(--white);
+      border-radius: 50px;
+    }
+    .btn--primary:hover { background: var(--accent-dark); }
+    .btn--primary:active { transform: scale(0.97); }
+    .btn--primary:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px var(--white), 0 0 0 4px var(--accent);
+    }
+    .btn--secondary {
+      background: transparent;
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+      border-radius: 50px;
+    }
+    .btn--secondary:hover {
+      background: var(--primary);
+      color: var(--white);
+    }
+    .btn--ghost {
+      background: transparent;
+      color: var(--accent);
+      border-radius: 8px;
+      padding: 12px 16px;
+      min-height: 48px;
+    }
+    .btn--ghost:hover { text-decoration: underline; }
+    .btn--disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin: 1rem 0; }
+    .dark-panel {
+      background: var(--primary);
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-top: 1rem;
+    }
+    .dark-panel .btn--secondary {
+      border-color: var(--white);
+      color: var(--white);
+    }
+    .dark-panel .btn--secondary:hover {
+      background: var(--white);
+      color: var(--primary);
+    }
+
+    /* Swatches */
+    .swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 1rem;
+    }
+    .swatch {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--g200);
+      box-shadow: var(--shadow-sm);
+    }
+    .swatch__color { height: 72px; }
+    .swatch__meta { padding: 12px; background: var(--white); font-size: 0.75rem; }
+    .swatch__meta strong { display: block; font-size: 0.8125rem; margin-bottom: 4px; }
+    .contrast-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+      margin-top: 1.5rem;
+    }
+    .contrast-table th, .contrast-table td {
+      border: 1px solid var(--g200);
+      padding: 10px 12px;
+      text-align: left;
+    }
+    .contrast-table th { background: var(--g50); font-weight: 600; }
+
+    /* Typography samples */
+    .type-h1 { font-size: 2.5rem; font-weight: 700; line-height: 1.2; margin: 0.5rem 0; }
+    .type-h2 { font-size: 2rem; font-weight: 600; line-height: 1.2; margin: 0.5rem 0; }
+    .type-h3 { font-size: 1.5rem; font-weight: 600; line-height: 1.2; margin: 0.5rem 0; }
+    .type-h4 { font-size: 1.25rem; font-weight: 600; line-height: 1.2; margin: 0.5rem 0; }
+    .type-body { font-size: 1rem; font-weight: 400; line-height: 1.6; max-width: 65ch; }
+    .type-sm { font-size: 0.875rem; }
+    .weight-row { display: flex; flex-wrap: wrap; gap: 1.5rem; margin: 1rem 0; }
+    .weight-row span { font-size: 1rem; }
+
+    /* Cards */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--g200);
+      border-radius: 12px;
+      padding: 24px;
+      transition: box-shadow var(--transition-base), transform var(--transition-base);
+    }
+    .card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .card--stat {
+      border-left: 3px solid var(--accent);
+      background: var(--g50);
+    }
+    .card--dark {
+      background: var(--g800);
+      color: var(--white);
+      border: none;
+    }
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--white);
+    }
+    .badge--success { background: var(--green); }
+    .badge--warn { background: var(--gold); }
+    .badge--err { background: var(--accent); }
+    .badge--info { background: var(--blue); }
+    .badge--neutral { background: var(--g200); color: var(--g600); }
+    .badge--gold { background: var(--gold); }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+
+    /* Forms */
+    .form-group { margin-bottom: 1rem; max-width: 360px; }
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+    .form-input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--g300);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 1rem;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(173,44,77,0.15);
+    }
+    .form-input--error {
+      border-color: var(--accent);
+    }
+    .form-input:disabled {
+      background: var(--g100);
+      color: var(--g500);
+      cursor: not-allowed;
+    }
+    .form-helper { font-size: 0.75rem; color: var(--g500); margin-top: 4px; }
+    .form-error { font-size: 0.75rem; color: var(--accent); margin-top: 4px; }
+
+    /* Shadow demos */
+    .shadow-demos {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1.25rem;
+    }
+    .shadow-box {
+      height: 100px;
+      background: var(--white);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--g600);
+    }
+    .shadow-box--sm { box-shadow: var(--shadow-sm); }
+    .shadow-box--md { box-shadow: var(--shadow-md); }
+    .shadow-box--lg { box-shadow: var(--shadow-lg); }
+    .shadow-box--xl { box-shadow: var(--shadow-xl); }
+    .shadow-box--glow-a { box-shadow: var(--shadow-glow-accent); border: 1px solid var(--g200); }
+    .shadow-box--glow-g { box-shadow: var(--shadow-glow-gold); border: 1px solid var(--g200); }
+
+    /* Motion demo */
+    .motion-demo {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .motion-card {
+      background: var(--g50);
+      border: 1px solid var(--g200);
+      border-radius: 12px;
+      padding: 1.25rem;
+      animation: fadeInUp 0.6s ease backwards;
+    }
+    .motion-card:nth-child(2) { animation-delay: 0.1s; }
+    .motion-card:nth-child(3) { animation-delay: 0.2s; }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .motion-btn-demo {
+      margin-top: 1rem;
+    }
+    .motion-btn-demo button {
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+      padding: 14px 28px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .motion-btn-demo button:active { transform: scale(0.97); }
+
+    /* Progress */
+    .progress-bar {
+      height: 8px;
+      background: var(--g200);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 0.75rem 0;
+    }
+    .progress-bar__fill {
+      height: 100%;
+      width: 62%;
+      background: var(--accent);
+      border-radius: 4px;
+    }
+
+    /* Portal mock */
+    .portal-mock {
+      background: var(--light);
+      border: 1px solid var(--g200);
+      border-radius: 12px;
+      padding: 1.5rem;
+      max-width: 420px;
+    }
+    .portal-mock h3 { font-size: 1.125rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .portal-mock__meta { font-size: 0.875rem; color: var(--g500); margin-bottom: 1rem; }
+
+    /* Marketing mock */
+    .marketing-mock {
+      background: var(--primary);
+      color: var(--white);
+      border-radius: 12px;
+      padding: 2rem;
+      overflow: hidden;
+      position: relative;
+    }
+    .marketing-mock::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 40%;
+      height: 100%;
+      background: radial-gradient(circle at 100% 0%, rgba(173,44,77,0.25), transparent 55%);
+      pointer-events: none;
+    }
+    .marketing-mock h2 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      line-height: 1.2;
+      max-width: 20ch;
+      position: relative;
+      margin-bottom: 1rem;
+    }
+    .marketing-mock p {
+      color: rgba(255,255,255,0.85);
+      max-width: 42ch;
+      margin-bottom: 1.25rem;
+      position: relative;
+      font-size: 0.9375rem;
+    }
+    .stat-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+      position: relative;
+    }
+    .stat-row__item strong {
+      display: block;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .stat-row__item span { font-size: 0.75rem; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* Do / Don't */
+    .dodont {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+    .dodont__box {
+      border-radius: 12px;
+      padding: 1.25rem;
+      border: 1px solid var(--g200);
+    }
+    .dodont__box--do { border-left: 4px solid var(--green); background: var(--g50); }
+    .dodont__box--dont { border-left: 4px solid var(--accent); background: #fff5f7; }
+    .dodont__label { font-weight: 700; font-size: 0.875rem; margin-bottom: 0.75rem; }
+    .dodont__box--do .dodont__label { color: var(--green); }
+    .dodont__box--dont .dodont__label { color: var(--accent); }
+    .fake-blue-cta {
+      display: inline-block;
+      padding: 12px 24px;
+      background: #2563eb;
+      color: white;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+    .fake-square-cta {
+      display: inline-block;
+      padding: 12px 24px;
+      background: var(--accent);
+      color: white;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+
+    footer {
+      margin-top: 4rem;
+      padding: 2rem;
+      background: var(--g50);
+      border-top: 1px solid var(--g200);
+      text-align: center;
+      font-size: 0.875rem;
+      color: var(--g500);
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header__inner">
+      <div class="site-header__brand">Workforce<span>AP</span> — Brand guide</div>
+      <nav aria-label="On this page">
+        <ul class="site-nav">
+          <li><a href="#colors">Colors</a></li>
+          <li><a href="#type">Typography</a></li>
+          <li><a href="#buttons">Buttons</a></li>
+          <li><a href="#cards">Cards</a></li>
+          <li><a href="#badges">Badges</a></li>
+          <li><a href="#forms">Forms</a></li>
+          <li><a href="#shadows">Shadows</a></li>
+          <li><a href="#motion">Motion</a></li>
+          <li><a href="#portal">Portal</a></li>
+          <li><a href="#marketing">Marketing</a></li>
+          <li><a href="#dodont">Do / Don&apos;t</a></li>
+        </ul>
+      </nav>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" onclick="(function(){const h=document.documentElement;const isDark=h.getAttribute('data-theme')==='dark';h.setAttribute('data-theme',isDark?'light':'dark');document.getElementById('themeToggle').innerHTML=isDark?'🌙 Dark mode':'☀️ Light mode';localStorage.setItem('wap-theme',isDark?'light':'dark');})()">🌙 Dark mode</button>
+    </div>
+  </header>
+  <script>
+    // Restore saved theme preference on load
+    (function(){
+      const saved = localStorage.getItem('wap-theme');
+      if (saved === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.addEventListener('DOMContentLoaded', function() {
+          const btn = document.getElementById('themeToggle');
+          if (btn) btn.innerHTML = '☀️ Light mode';
+        });
+      }
+    })();
+  </script>
+
+  <main>
+    <div class="hero">
+      <p class="hero__eyebrow">Design system</p>
+      <div class="hero__accent-bar" aria-hidden="true"></div>
+      <h1>Workforce Advancement Project</h1>
+      <p class="hero__tagline">Empowering People. Advancing Futures.</p>
+      <p style="opacity:0.85; max-width:50ch; font-size:0.9375rem;">
+        Visual reference for colors, type, components, and patterns. Primary actions are always crimson—not default blue.
+      </p>
+    </div>
+
+    <section id="colors" aria-labelledby="colors-heading">
+      <h2 id="colors-heading" class="section-title">Color palette</h2>
+      <p class="section-lede">Canonical hex values. Blue is for info and supporting UI only, never the main CTA.</p>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch__color" style="background:#1a1a1a"></div><div class="swatch__meta"><strong>Primary</strong>#1a1a1a — Text, dark UI</div></div>
+        <div class="swatch"><div class="swatch__color" style="background:#ad2c4d"></div><div class="swatch__meta"><strong>Accent</strong>#ad2c4d — CTAs, focus</div></div>
+        <div class="swatch"><div class="swatch__color" style="background:#8b1f38"></div><div class="swatch__meta"><strong>Accent dark</strong>#8b1f38 — Hover</div></div>
+        <div class="swatch"><div class="swatch__color" style="background:#2b7bb9"></div><div class="swatch__meta"><strong>Blue</strong>#2b7bb9 — Info, links in copy</div></div>
+        <div class="swatch"><div class="swatch__color" style="background:#a47f38"></div><div class="swatch__meta"><strong>Gold</strong>#a47f38 — Milestones</div></div>
+        <div class="swatch"><div class="swatch__color" style="background:#c49a4a"></div><div class="swatch__meta"><strong>Gold light</strong>#c49a4a — Gold hover</div></div>
+        <div class="swatch"><div class="swatch__color" style="background:#4a9b4f"></div><div class="swatch__meta"><strong>Green</strong>#4a9b4f — Success</div></div>
+        <div class="swatch"><div class="swatch__color" style="background:#fafafa;border-bottom:1px solid #e8e8e8"></div><div class="swatch__meta"><strong>Gray 50</strong>#fafafa</div></div>
+        <div class="swatch"><div class="swatch__color" style="background:#e8e8e8"></div><div class="swatch__meta"><strong>Gray 200</strong>#e8e8e8 — Borders</div></div>
+        <div class="swatch"><div class="swatch__color" style="background:#262626"></div><div class="swatch__meta"><strong>Gray 800</strong>#262626 — Dark cards</div></div>
+      </div>
+      <table class="contrast-table">
+        <caption style="caption-side:top; text-align:left; font-weight:600; margin-bottom:0.5rem;">Contrast ratios (approximate)</caption>
+        <thead>
+          <tr><th>Foreground</th><th>Background</th><th>Ratio</th><th>WCAG AA</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>#1a1a1a</td><td>#ffffff</td><td>~16.1:1</td><td>AAA normal</td></tr>
+          <tr><td>#ffffff</td><td>#1a1a1a</td><td>~16.1:1</td><td>AAA normal</td></tr>
+          <tr><td>#ffffff</td><td>#ad2c4d</td><td>~4.6:1</td><td>AA normal</td></tr>
+          <tr><td>#ad2c4d</td><td>#ffffff</td><td>~4.6:1</td><td>AA normal (check small text)</td></tr>
+          <tr><td>#ffffff</td><td>#2b7bb9</td><td>~4.5:1</td><td>AA normal (info badges)</td></tr>
+          <tr><td>#525252</td><td>#ffffff</td><td>~7:1</td><td>AAA normal</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="type" aria-labelledby="type-heading">
+      <h2 id="type-heading" class="section-title">Typography</h2>
+      <p class="section-lede">Inter, weights 400–700. Scale matches DESIGN.md.</p>
+      <p class="type-h1">Free Tech Career Training in Austin</p>
+      <p class="type-h2">Section heading (H2)</p>
+      <p class="type-h3">Subsection (H3)</p>
+      <p class="type-h4">Card title (H4)</p>
+      <p class="type-body">
+        WorkforceAP offers no-cost industry certifications and counselor support—from intake through job search. Employers post roles; partners track referrals; members build real credentials employers recognize.
+      </p>
+      <p class="type-sm" style="margin-top:1rem;color:var(--g500);">Small / meta — 0.875rem for stat labels and secondary lines.</p>
+      <div class="weight-row">
+        <span style="font-weight:400">400 Regular</span>
+        <span style="font-weight:500">500 Medium</span>
+        <span style="font-weight:600">600 Semibold</span>
+        <span style="font-weight:700">700 Bold</span>
+      </div>
+    </section>
+
+    <section id="buttons" aria-labelledby="buttons-heading">
+      <h2 id="buttons-heading" class="section-title">Buttons</h2>
+      <p class="section-lede">Primary = crimson pill. Secondary = outline. Ghost = crimson text.</p>
+      <div class="btn-row">
+        <button type="button" class="btn btn--primary">Primary CTA</button>
+        <button type="button" class="btn btn--secondary">Secondary</button>
+        <button type="button" class="btn btn--ghost">Ghost link style</button>
+        <button type="button" class="btn btn--primary btn--disabled" disabled>Disabled</button>
+      </div>
+      <p class="type-sm" style="margin-top:1rem;color:var(--g600);">On dark backgrounds:</p>
+      <div class="dark-panel">
+        <div class="btn-row" style="margin:0">
+          <button type="button" class="btn btn--primary">Post a job</button>
+          <button type="button" class="btn btn--secondary">Learn more</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="cards" aria-labelledby="cards-heading">
+      <h2 id="cards-heading" class="section-title">Cards</h2>
+      <div class="card-grid">
+        <div class="card">
+          <h3 class="type-h4" style="margin-bottom:0.5rem">Standard card</h3>
+          <p class="type-sm" style="color:var(--g600)">White surface, 1px border, 12px radius, lift on hover.</p>
+        </div>
+        <div class="card card--stat">
+          <h3 class="type-h4" style="margin-bottom:0.5rem">Stat card</h3>
+          <p class="type-sm" style="color:var(--g600)">Left border crimson, gray-50 background.</p>
+        </div>
+        <div class="card card--dark">
+          <h3 class="type-h4" style="margin-bottom:0.5rem;color:inherit">Dark card</h3>
+          <p class="type-sm" style="color:rgba(255,255,255,0.75)">Gray 800 fill for emphasis blocks.</p>
+        </div>
+      </div>
+      <h3 class="type-h4" style="margin:2rem 0 1rem">Member progress (mock)</h3>
+      <div class="card card--stat" style="max-width:400px">
+        <span class="badge badge--success">In training</span>
+        <h3 class="type-h4" style="margin-top:0.75rem">AWS Cloud Technology</h3>
+        <p class="type-sm" style="color:var(--g600);margin-bottom:0.5rem">Module progress</p>
+        <div class="progress-bar"><div class="progress-bar__fill"></div></div>
+        <p class="type-sm" style="color:var(--g500)">62% complete · Next: Security labs</p>
+        <button type="button" class="btn btn--primary" style="margin-top:1rem">Continue learning</button>
+      </div>
+    </section>
+
+    <section id="badges" aria-labelledby="badges-heading">
+      <h2 id="badges-heading" class="section-title">Badges</h2>
+      <div class="badge-row">
+        <span class="badge badge--success">Success</span>
+        <span class="badge badge--warn">Warning</span>
+        <span class="badge badge--err">Error</span>
+        <span class="badge badge--info">Info</span>
+        <span class="badge badge--neutral">Neutral</span>
+        <span class="badge badge--gold">Placed</span>
+      </div>
+    </section>
+
+    <section id="forms" aria-labelledby="forms-heading">
+      <h2 id="forms-heading" class="section-title">Form elements</h2>
+      <div class="form-group">
+        <label class="form-label" for="demo-email">Work email</label>
+        <input class="form-input" id="demo-email" type="email" placeholder="you@company.com" autocomplete="email" />
+        <p class="form-helper">We never sell your address.</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="demo-error">Field with error</label>
+        <input class="form-input form-input--error" id="demo-error" type="text" value="" aria-invalid="true" />
+        <p class="form-error">Please enter your full name.</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="demo-dis">Disabled</label>
+        <input class="form-input" id="demo-dis" type="text" value="Locked value" disabled />
+      </div>
+    </section>
+
+    <section id="shadows" aria-labelledby="shadows-heading">
+      <h2 id="shadows-heading" class="section-title">Shadows</h2>
+      <div class="shadow-demos">
+        <div class="shadow-box shadow-box--sm">SM</div>
+        <div class="shadow-box shadow-box--md">MD</div>
+        <div class="shadow-box shadow-box--lg">LG</div>
+        <div class="shadow-box shadow-box--xl">XL</div>
+        <div class="shadow-box shadow-box--glow-a">Glow accent</div>
+        <div class="shadow-box shadow-box--glow-g">Glow gold</div>
+      </div>
+    </section>
+
+    <section id="motion" aria-labelledby="motion-heading">
+      <h2 id="motion-heading" class="section-title">Motion reference</h2>
+      <p class="section-lede">Staggered fade-in cards; button uses 0.97 scale on press. Respects <code>prefers-reduced-motion</code>.</p>
+      <div class="motion-demo">
+        <div class="motion-card">Card A</div>
+        <div class="motion-card">Card B</div>
+        <div class="motion-card">Card C</div>
+      </div>
+      <div class="motion-btn-demo">
+        <button type="button">Press me (scale)</button>
+      </div>
+    </section>
+
+    <section id="portal" aria-labelledby="portal-heading">
+      <h2 id="portal-heading" class="section-title">Portal mockup</h2>
+      <p class="section-lede">Authenticated app: light shell, dense, functional.</p>
+      <div class="portal-mock">
+        <h3>My program</h3>
+        <p class="portal-mock__meta">Member dashboard · Signed in</p>
+        <div class="card" style="box-shadow:none;margin:0;padding:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+            <strong style="font-size:0.9375rem">Data Analytics (Google)</strong>
+            <span class="badge badge--info">Active</span>
+          </div>
+          <div class="progress-bar"><div class="progress-bar__fill" style="width:45%"></div></div>
+          <p class="type-sm" style="color:var(--g500);margin:0">45% · Next: Share data through visualization</p>
+          <button type="button" class="btn btn--primary" style="margin-top:12px;padding:10px 24px;font-size:0.875rem;min-height:44px">Open course</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="marketing" aria-labelledby="marketing-heading">
+      <h2 id="marketing-heading" class="section-title">Marketing mockup</h2>
+      <p class="section-lede">Public site: dark hero, crimson CTA, stat row.</p>
+      <div class="marketing-mock">
+        <h2>No-cost training. Real certifications.</h2>
+        <p>Industry-aligned programs in Tech, Data, and Healthcare—plus counselor support from day one to hire.</p>
+        <button type="button" class="btn btn--primary">Apply now</button>
+        <div class="stat-row">
+          <div class="stat-row__item"><strong>19</strong><span>Programs</span></div>
+          <div class="stat-row__item"><strong>$0</strong><span>Cost to members</span></div>
+          <div class="stat-row__item"><strong>16–20</strong><span>Weeks typical</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="dodont" aria-labelledby="dodont-heading">
+      <h2 id="dodont-heading" class="section-title">Do / Don&apos;t</h2>
+      <div class="dodont">
+        <div class="dodont__box dodont__box--do">
+          <div class="dodont__label">Do</div>
+          <p class="type-sm">Crimson CTA on dark background.</p>
+          <button type="button" class="btn btn--primary" style="margin-top:0.5rem">Get started</button>
+        </div>
+        <div class="dodont__box dodont__box--dont">
+          <div class="dodont__label">Don&apos;t</div>
+          <p class="type-sm">Default blue CTA — not our brand.</p>
+          <span class="fake-blue-cta">Bad example</span>
+        </div>
+        <div class="dodont__box dodont__box--do">
+          <div class="dodont__label">Do</div>
+          <p class="type-sm">Pill-shaped primary button.</p>
+          <button type="button" class="btn btn--primary" style="margin-top:0.5rem">Correct shape</button>
+        </div>
+        <div class="dodont__box dodont__box--dont">
+          <div class="dodont__label">Don&apos;t</div>
+          <p class="type-sm">Square primary (wrong for main CTA).</p>
+          <span class="fake-square-cta">Avoid</span>
+        </div>
+        <div class="dodont__box dodont__box--do">
+          <div class="dodont__label">Do</div>
+          <p class="type-sm">Crimson focus ring (tab to verify).</p>
+          <button type="button" class="btn btn--secondary" style="margin-top:0.5rem">Focus me</button>
+        </div>
+        <div class="dodont__box dodont__box--dont">
+          <div class="dodont__label">Don&apos;t</div>
+          <p class="type-sm">Mix many font families — stick to Inter.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>WorkforceAP brand guide · Align with <strong>DESIGN.md</strong> and <strong>css/main.css</strong></p>
+  </footer>
+</body>
+</html>

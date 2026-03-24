@@ -23,7 +23,8 @@ export default async function AdminPage() {
   const hasAdmin = await isAdmin(user.id);
   if (!hasAdmin) redirect('/dashboard');
 
-  const [totalMembers, assessmentsCompleted, recentUsers, recentPlacements, pendingApplications] = await Promise.all([
+  const [totalMembers, assessmentsCompleted, recentUsers, recentPlacements, pendingApplications, workforcePlacements] =
+    await Promise.all([
     prisma.user.count({ where: { deletedAt: null } }),
     prisma.user.count({ where: { assessmentCompleted: true, deletedAt: null } }),
     prisma.user.findMany({
@@ -51,6 +52,7 @@ export default async function AdminPage() {
       },
     }),
     prisma.application.count({ where: { status: 'PENDING' } }),
+    prisma.placedOutcome.count(),
   ]);
 
   const activeInTraining = await prisma.user.count({
@@ -98,8 +100,13 @@ export default async function AdminPage() {
         </div>
         <div className="admin-stat-card">
           <div className="admin-stat-card-icon"><Trophy size={24} className="text-current" /></div>
-          <div className="admin-stat-card-label">Total Placements</div>
+          <div className="admin-stat-card-label">Counselor placements</div>
           <div className="admin-stat-card-value">{totalPlacements}</div>
+        </div>
+        <div className="admin-stat-card">
+          <div className="admin-stat-card-icon"><Trophy size={24} className="text-current" /></div>
+          <div className="admin-stat-card-label">WorkforceAP placements (reported)</div>
+          <div className="admin-stat-card-value">{workforcePlacements}</div>
         </div>
       </div>
 

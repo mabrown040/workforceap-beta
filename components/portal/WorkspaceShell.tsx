@@ -26,21 +26,30 @@ export default function WorkspaceShell({
   workspaceLabel,
   contextLabel,
   superAdmin,
+  superAdminImpersonating,
   superAdminBackHref,
   superAdminBackLabel,
   topBanner,
   footer,
+  headerBadge,
+  contextLogoUrl,
   children,
 }: {
   portalRole: PortalRole;
   navItems: PortalNavItem[];
   workspaceLabel: string;
   contextLabel: string;
+  /** Optional square logo next to company name (employer portal). */
+  contextLogoUrl?: string | null;
   superAdmin?: boolean;
+  /** True when super_admin is viewing another org (cookie), not their own portal row */
+  superAdminImpersonating?: boolean;
   superAdminBackHref?: string;
   superAdminBackLabel?: string;
   topBanner?: React.ReactNode;
   footer?: React.ReactNode;
+  /** Optional pill next to context (e.g. Hiring Partner tier) */
+  headerBadge?: string;
   children: React.ReactNode;
 }) {
   const pathname = usePathname() ?? '';
@@ -82,7 +91,7 @@ export default function WorkspaceShell({
 
   useEffect(() => {
     let cancelled = false;
-    void (async () => {
+    const load = async () => {
       try {
         const r = await fetch(`/api/portal/nav-badges?role=${encodeURIComponent(portalRole)}`, {
           credentials: 'include',
@@ -93,9 +102,13 @@ export default function WorkspaceShell({
       } catch {
         /* ignore */
       }
-    })();
+    };
+    void load();
+    const onRefresh = () => void load();
+    window.addEventListener('wa-nav-badges-refresh', onRefresh);
     return () => {
       cancelled = true;
+      window.removeEventListener('wa-nav-badges-refresh', onRefresh);
     };
   }, [portalRole]);
 
@@ -134,14 +147,25 @@ export default function WorkspaceShell({
           </div>
         </div>
         <div className="workspace-shell-header__meta">
+          {contextLogoUrl ? (
+            <span className="workspace-shell-context-logo-wrap" aria-hidden>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={contextLogoUrl} alt="" className="workspace-shell-context-logo" width={32} height={32} />
+            </span>
+          ) : null}
           <span className="workspace-shell-context workspace-shell-context--chip" title={contextLabel}>
             {contextLabel}
           </span>
+          {headerBadge ? (
+            <span className="workspace-shell-tier-badge" title={headerBadge}>
+              {headerBadge}
+            </span>
+          ) : null}
           <PortalHeaderActions />
         </div>
       </header>
 
-      {superAdmin && superAdminBackHref && (
+      {superAdmin && superAdminImpersonating && superAdminBackHref && (
         <div className="workspace-super-admin-banner">
           Viewing as <strong>{contextLabel}</strong>.{' '}
           <Link href={superAdminBackHref}>{superAdminBackLabel ?? 'Switch'}</Link>
@@ -202,6 +226,7 @@ export default function WorkspaceShell({
                                 className={`workspace-sidebar-link${isActive ? ' active' : ''}`}
                                 onClick={closeDrawer}
                                 title={isCollapsedDesktop ? item.label : undefined}
+                                {...(item.tourTarget ? { 'data-tour': item.tourTarget } : {})}
                               >
                                 {Icon ? (
                                   <span className="workspace-sidebar-icon" aria-hidden>

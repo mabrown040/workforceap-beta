@@ -11,7 +11,8 @@ type PartnerMember = {
   progress: number;
   programTitle: string;
   story: string;
-  updatedAtLabel: string;
+  /** When this member was referred to WorkforceAP (shown instead of generic profile update date). */
+  referredAtLabel: string;
 };
 
 export default function PartnerMembersList({ members }: { members: PartnerMember[] }) {
@@ -23,7 +24,10 @@ export default function PartnerMembersList({ members }: { members: PartnerMember
     return members.filter((member) => {
       if (stage !== 'all' && member.stage !== stage) return false;
       if (!q) return true;
-      return [member.fullName, member.programTitle, member.story, member.stageLabel].join(' ').toLowerCase().includes(q);
+      return [member.fullName, member.programTitle, member.story, member.stageLabel, member.referredAtLabel]
+        .join(' ')
+        .toLowerCase()
+        .includes(q);
     });
   }, [members, search, stage]);
 
@@ -56,7 +60,7 @@ export default function PartnerMembersList({ members }: { members: PartnerMember
             </div>
             <div className="partner-member-meta">
               <span className={`partner-member-stage stage-${member.stage}`}>{member.stageLabel}</span>
-              <span className="partner-member-date">{member.updatedAtLabel}</span>
+              <span className="partner-member-date">Referred {member.referredAtLabel}</span>
             </div>
           </Link>
         ))}

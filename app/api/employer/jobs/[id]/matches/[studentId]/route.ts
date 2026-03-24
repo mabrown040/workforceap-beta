@@ -6,7 +6,15 @@ import { prisma } from '@/lib/db/prisma';
 import type { AIJobMatchStatus } from '@prisma/client';
 
 const patchSchema = z.object({
-  status: z.enum(['suggested', 'employer_notified', 'student_notified', 'rejected']),
+  status: z.enum([
+    'suggested',
+    'employer_notified',
+    'student_notified',
+    'rejected',
+    'contacted',
+    'interviewing',
+    'hired',
+  ]),
 });
 
 export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: string; studentId: string }> }) {
@@ -36,7 +44,7 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: s
 
   const updated = await prisma.aIJobMatch.update({
     where: { id: match.id },
-    data: { status: parsed.data.status as AIJobMatchStatus },
+    data: { status: parsed.data.status as AIJobMatchStatus, statusUpdatedAt: new Date() },
     include: {
       student: { select: { id: true, fullName: true, email: true } },
     },

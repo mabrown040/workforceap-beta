@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
 import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
@@ -7,7 +7,7 @@ import FindYourPathClient from './FindYourPathClient';
 export const metadata: Metadata = buildPageMetadata({
   title: 'Find Your Path — Career Quiz',
   description:
-    'Take our 2-minute quiz to discover which WorkforceAP program best fits your interests, experience, and goals. No-cost training for qualifying participants.',
+    'Take our 2-minute quiz to discover which WorkforceAP program best fits your interests, experience, and goals. No-cost training for members.',
   path: '/find-your-path',
 });
 

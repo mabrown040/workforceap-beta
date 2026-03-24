@@ -1,12 +1,13 @@
 import { prisma } from '@/lib/db/prisma';
 import { getEmployerForUser, getPartnerForUser } from '@/lib/auth/roles';
-import { getPipelineStage, type PipelineStudent } from '@/lib/pipeline/stage';
+import { countEmployerQueueBadges } from '@/lib/employer/workQueue';
+import { buildPartnerAttentionQueue, countActionablePartnerAttention } from '@/lib/partner/attentionQueue';
 import type { NavBadgeKey } from '@/lib/nav/portalNav';
 import type { PortalRole } from '@/lib/nav/portalNav';
 
 export type NavBadgeCounts = Partial<Record<NavBadgeKey, number>>;
 
-const STALE_DAYS = 7;
+const MILESTONE_LOOKBACK_DAYS = 7;
 
 export async function getNavBadgeCountsForUser(
   role: PortalRole,
@@ -35,23 +36,39 @@ export async function getNavBadgeCountsForUser(
 }
 
 async function getMemberBadgeCounts(userId: string): Promise<NavBadgeCounts> {
-  const [incompleteReadiness, pendingJobApps] = await Promise.all([
+  const [incompleteReadiness, pendingJobApps, thread] = await Promise.all([
     prisma.readinessChecklist.count({
       where: { userId, completed: false },
     }),
     prisma.jobPostingApplication.count({
       where: { studentId: userId, status: 'pending' },
     }),
+    prisma.messageThread.findUnique({
+      where: { memberId: userId },
+      select: { id: true, memberLastReadAt: true },
+    }),
   ]);
+
+  let counselor_messages_unread = 0;
+  if (thread) {
+    counselor_messages_unread = await prisma.message.count({
+      where: {
+        threadId: thread.id,
+        authorId: { not: userId },
+        ...(thread.memberLastReadAt ? { createdAt: { gt: thread.memberLastReadAt } } : {}),
+      },
+    });
+  }
 
   return {
     readiness_incomplete: incompleteReadiness,
     applications_new: pendingJobApps,
+    counselor_messages_unread,
   };
 }
 
 async function getEmployerBadgeCounts(employerId: string): Promise<NavBadgeCounts> {
-  const [draft, pendingReview, live, newApplications] = await Promise.all([
+  const [draft, pendingReview, live, newApplications, queueBadges] = await Promise.all([
     prisma.job.count({ where: { employerId, status: 'draft' } }),
     prisma.job.count({
       where: { employerId, status: { in: ['pending', 'approved'] } },
@@ -63,6 +80,7 @@ async function getEmployerBadgeCounts(employerId: string): Promise<NavBadgeCount
         status: 'pending',
       },
     }),
+    countEmployerQueueBadges(employerId),
   ]);
 
   return {
@@ -70,59 +88,23 @@ async function getEmployerBadgeCounts(employerId: string): Promise<NavBadgeCount
     jobs_pending: pendingReview,
     jobs_live: live,
     applications_new: newApplications,
+    ...queueBadges,
   };
 }
 
 async function getPartnerBadgeCounts(partnerId: string): Promise<NavBadgeCounts> {
   const since = new Date();
-  since.setDate(since.getDate() - STALE_DAYS);
+  since.setDate(since.getDate() - MILESTONE_LOOKBACK_DAYS);
 
-  const referrals = await prisma.partnerReferral.findMany({
-    where: { partnerId, member: { deletedAt: null } },
-    include: {
-      member: {
-        select: {
-          id: true,
-          fullName: true,
-          enrolledProgram: true,
-          enrolledAt: true,
-          coursesCompleted: true,
-          updatedAt: true,
-          deletedAt: true,
-          assessmentCompleted: true,
-          placementRecord: {
-            select: { employerName: true, jobTitle: true, salaryOffered: true, placedAt: true },
-          },
-          userCertifications: { select: { certName: true, earnedAt: true } },
-          applications: { select: { status: true, submittedAt: true } },
-        },
-      },
-    },
-  });
+  const [attentionRows, referralIds] = await Promise.all([
+    buildPartnerAttentionQueue(partnerId),
+    prisma.partnerReferral.findMany({
+      where: { partnerId, member: { deletedAt: null } },
+      select: { memberId: true },
+    }),
+  ]);
 
-  let needsAttention = 0;
-  for (const r of referrals) {
-    const m = r.member;
-    const student: PipelineStudent = {
-      id: m.id,
-      fullName: m.fullName,
-      email: '',
-      enrolledProgram: m.enrolledProgram,
-      enrolledAt: m.enrolledAt,
-      assessmentCompleted: m.assessmentCompleted,
-      coursesCompleted: m.coursesCompleted,
-      deletedAt: m.deletedAt,
-      placementRecord: m.placementRecord,
-      userCertifications: m.userCertifications,
-      applications: m.applications,
-    };
-    const stage = getPipelineStage(student);
-    if (stage !== 'applied' && stage !== 'enrolled') continue;
-    if (m.updatedAt >= since) continue;
-    needsAttention += 1;
-  }
-
-  const memberIds = referrals.map((r) => r.member.id);
+  const memberIds = referralIds.map((r) => r.memberId);
   let milestonesNew = 0;
   if (memberIds.length > 0) {
     milestonesNew = await prisma.memberEvent.count({
@@ -134,7 +116,7 @@ async function getPartnerBadgeCounts(partnerId: string): Promise<NavBadgeCounts>
   }
 
   return {
-    partner_needs_attention: needsAttention,
+    partner_needs_attention: countActionablePartnerAttention(attentionRows),
     milestones_new: milestonesNew,
   };
 }

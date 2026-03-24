@@ -33,15 +33,19 @@ export default function ApplyFormStatusBar() {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (visible.length === 0) return;
 
-        if (visible.length > 0) {
-          const id = visible[0].target.id.replace('section-', '');
-          const idx = steps.findIndex((s) => s.id === id);
-          if (idx !== -1) setActiveIndex(idx);
-        }
+        const indices = visible
+          .map((e) => {
+            const id = e.target.id.replace('section-', '');
+            return steps.findIndex((s) => s.id === id);
+          })
+          .filter((idx) => idx !== -1);
+
+        if (indices.length === 0) return;
+        const next = Math.min(...indices);
+        setActiveIndex(next);
       },
       { rootMargin: '-120px 0px -50% 0px', threshold: 0 },
     );
@@ -63,8 +67,9 @@ export default function ApplyFormStatusBar() {
             key={step.id}
             type="button"
             className={`apply-status-step${i === activeIndex ? ' active' : ''}${i < activeIndex ? ' completed' : ''}`}
-            onClick={() => scrollToSection(step.id)}
             aria-current={i === activeIndex ? 'step' : undefined}
+            aria-label={`${step.label}${i < activeIndex ? ', completed' : i === activeIndex ? ', current' : ', not started'}`}
+            onClick={() => scrollToSection(step.id)}
           >
             <span className="apply-status-dot">
               {i < activeIndex ? (

@@ -24,6 +24,7 @@ function cleanStringArray(values?: string[]): string[] | undefined {
 }
 
 export function buildEmployerJobCreateData(
+  organizationId: string,
   employerId: string,
   fields: JobCreateFields
 ): Prisma.JobUncheckedCreateInput {
@@ -32,6 +33,7 @@ export function buildEmployerJobCreateData(
   const suggestedPrograms = cleanStringArray(fields.suggestedPrograms);
 
   return {
+    organizationId,
     employerId,
     title: fields.title.trim(),
     description: fields.description.trim(),

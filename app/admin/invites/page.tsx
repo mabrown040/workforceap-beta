@@ -7,6 +7,8 @@ import InviteForm from '@/components/admin/InviteForm';
 import InvitesTable from '@/components/admin/InvitesTable';
 import PageHeader from '@/components/portal/PageHeader';
 
+// Page title set via layout — client component cannot export metadata
+
 type Invite = {
   id: string;
   email: string;

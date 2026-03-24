@@ -1,3 +1,12 @@
+import type { Metadata } from 'next';
+import { buildPageMetadata } from '@/app/seo';
+
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Admin – Subgroups',
+  description: 'Manage member subgroups.',
+  path: '/admin/subgroups',
+});
+
 import Link from 'next/link';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
@@ -85,3 +94,4 @@ export default async function AdminSubgroupsPage() {
     </div>
   );
 }
+

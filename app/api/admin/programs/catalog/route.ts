@@ -5,6 +5,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { seedOrganizationProgramCatalog } from '@/lib/platform/seedProgramCatalog';
 
 const catalogRowSchema = z.object({
   programSlug: z.string().min(1).max(200),
@@ -33,10 +34,18 @@ export async function GET() {
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const organizationId = await getDefaultOrganizationId();
-  const rows = await prisma.organizationProgramCatalog.findMany({
+  let rows = await prisma.organizationProgramCatalog.findMany({
     where: { organizationId },
     orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
   });
+  // Auto-seed from static PROGRAMS list if catalog is empty (first load)
+  if (rows.length === 0) {
+    await seedOrganizationProgramCatalog(organizationId);
+    rows = await prisma.organizationProgramCatalog.findMany({
+      where: { organizationId },
+      orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
+    });
+  }
   return NextResponse.json({ programs: rows });
 }
 

@@ -1,3 +1,12 @@
+import type { Metadata } from 'next';
+import { buildPageMetadata } from '@/app/seo';
+
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Admin – Partners',
+  description: 'Manage partner organizations.',
+  path: '/admin/partners',
+});
+
 import Link from 'next/link';
 import { prisma } from '@/lib/db/prisma';
 import PartnersTableClient from '@/components/admin/PartnersTableClient';
@@ -96,3 +105,4 @@ export default async function AdminPartnersPage() {
     </div>
   );
 }
+

@@ -1,8 +1,16 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Clock } from 'lucide-react';
 import { prisma } from '@/lib/db/prisma';
+import { buildPageMetadata } from '@/app/seo';
 import BlogPostActions from '@/components/admin/BlogPostActions';
 import PageHeader from '@/components/portal/PageHeader';
+
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Admin – Blog Posts',
+  description: 'Manage blog content.',
+  path: '/admin/blog',
+});
 
 export default async function AdminBlogPage() {
   const posts = await prisma.blogPost.findMany({

@@ -1,3 +1,12 @@
+import type { Metadata } from 'next';
+import { buildPageMetadata } from '@/app/seo';
+
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Admin – Hiring Pipeline',
+  description: 'View and manage the hiring pipeline.',
+  path: '/admin/pipeline',
+});
+
 import { prisma } from '@/lib/db/prisma';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, PIPELINE_STAGE_COLORS, PIPELINE_STAGES_ORDERED, type PipelineStage } from '@/lib/pipeline/stage';
 import Link from 'next/link';

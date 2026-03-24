@@ -37,12 +37,14 @@ export async function PATCH(request: NextRequest) {
       contactName: d.contactName,
       contactEmail: d.contactEmail,
       contactPhone: d.contactPhone?.trim() || null,
+      ...(d.logoUrl !== undefined && { logoUrl: d.logoUrl?.trim() || null }),
     },
   });
 
   return NextResponse.json({
     id: updated.id,
     companyName: updated.companyName,
+    logoUrl: updated.logoUrl,
     companyDescription: updated.companyDescription,
     companyWebsite: updated.companyWebsite,
     companySize: updated.companySize,

@@ -32,6 +32,7 @@ export default async function EmployerSettingsPage() {
       contactName: true,
       contactEmail: true,
       contactPhone: true,
+      logoUrl: true,
     },
   });
   if (!employer) redirect('/employers');

@@ -35,6 +35,7 @@ export type EmployerSettingsInitial = {
   contactName: string;
   contactEmail: string;
   contactPhone: string | null;
+  logoUrl: string | null;
 };
 
 export default function EmployerSettingsForm({ initial }: { initial: EmployerSettingsInitial }) {
@@ -46,8 +47,35 @@ export default function EmployerSettingsForm({ initial }: { initial: EmployerSet
   const [contactName, setContactName] = useState(initial.contactName);
   const [contactEmail, setContactEmail] = useState(initial.contactEmail);
   const [contactPhone, setContactPhone] = useState(initial.contactPhone ?? '');
+  const [logoUrl, setLogoUrl] = useState(initial.logoUrl ?? '');
+  const [logoUploading, setLogoUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
+
+  const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLogoUploading(true);
+    setMessage(null);
+    try {
+      const fd = new FormData();
+      fd.set('file', file);
+      const r = await fetch('/api/employer/logo', { method: 'POST', body: fd });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        setMessage({ type: 'err', text: typeof data.error === 'string' ? data.error : 'Logo upload failed' });
+        return;
+      }
+      const url = typeof data.logoUrl === 'string' ? data.logoUrl : '';
+      setLogoUrl(url);
+      setMessage({ type: 'ok', text: 'Logo updated. It may take a moment to appear on job postings.' });
+    } catch {
+      setMessage({ type: 'err', text: 'Logo upload failed' });
+    } finally {
+      setLogoUploading(false);
+      e.target.value = '';
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,6 +94,7 @@ export default function EmployerSettingsForm({ initial }: { initial: EmployerSet
           contactName,
           contactEmail,
           contactPhone: contactPhone.trim() || null,
+          logoUrl: logoUrl.trim() || null,
         }),
       });
       const data = await r.json().catch(() => ({}));
@@ -94,6 +123,28 @@ export default function EmployerSettingsForm({ initial }: { initial: EmployerSet
 
       <fieldset className="employer-settings-form__fieldset">
         <legend className="employer-settings-form__legend">Company</legend>
+        <div className="form-group">
+          <label htmlFor="emp-logo">Company logo</label>
+          <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)', margin: '0 0 0.5rem' }}>
+            Shown in your employer portal header and on your live job cards for members. PNG or JPG, max 2MB.
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            {logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={logoUrl} alt="" width={72} height={72} style={{ objectFit: 'contain', borderRadius: 8, border: '1px solid var(--color-gray-200)' }} />
+            ) : (
+              <div style={{ width: 72, height: 72, borderRadius: 8, background: 'var(--color-gray-100)', border: '1px dashed var(--color-gray-300)' }} aria-hidden />
+            )}
+            <input
+              id="emp-logo"
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/svg+xml,image/gif"
+              onChange={handleLogoChange}
+              disabled={logoUploading}
+            />
+            {logoUploading ? <span style={{ fontSize: '0.9rem' }}>Uploading…</span> : null}
+          </div>
+        </div>
         <div className="form-group">
           <label htmlFor="emp-co-name">Company name</label>
           <input

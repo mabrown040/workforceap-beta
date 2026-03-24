@@ -6745,6 +6745,17 @@ body { animation: fadeIn 0.4s ease; }
     border: 1px solid var(--color-border);
     max-width: min(240px, 40vw);
 }
+.workspace-shell-context-logo-wrap {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+.workspace-shell-context-logo {
+    border-radius: 6px;
+    object-fit: contain;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+}
 .workspace-shell-tier-badge {
     flex-shrink: 0;
     font-size: 0.68rem;

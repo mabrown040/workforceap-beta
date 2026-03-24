@@ -62,6 +62,7 @@ export async function POST(request: Request) {
   const organizationId = await getDefaultOrganizationId();
 
   await prisma.$transaction(async (tx) => {
+    await tx.preScreeningDraft.deleteMany({ where: { userId: user.id } });
     await tx.preScreeningResponse.create({
       data: {
         userId: user.id,

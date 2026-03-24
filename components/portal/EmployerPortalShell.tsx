@@ -9,12 +9,14 @@ export default function EmployerPortalShell({
   companyLogoUrl,
   employerTier,
   superAdmin,
+  superAdminImpersonating,
   children,
 }: {
   companyName: string;
   companyLogoUrl?: string | null;
   employerTier?: string;
   superAdmin?: boolean;
+  superAdminImpersonating?: boolean;
   children: React.ReactNode;
 }) {
   const headerBadge = employerTier === 'partner' ? 'Hiring Partner' : undefined;
@@ -27,6 +29,7 @@ export default function EmployerPortalShell({
       contextLogoUrl={companyLogoUrl}
       headerBadge={headerBadge}
       superAdmin={superAdmin}
+      superAdminImpersonating={superAdminImpersonating}
       superAdminBackHref={superAdmin ? '/admin/employers' : undefined}
       superAdminBackLabel="Switch company"
     >

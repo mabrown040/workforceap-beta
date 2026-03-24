@@ -26,6 +26,7 @@ export default function WorkspaceShell({
   workspaceLabel,
   contextLabel,
   superAdmin,
+  superAdminImpersonating,
   superAdminBackHref,
   superAdminBackLabel,
   topBanner,
@@ -41,6 +42,8 @@ export default function WorkspaceShell({
   /** Optional square logo next to company name (employer portal). */
   contextLogoUrl?: string | null;
   superAdmin?: boolean;
+  /** True when super_admin is viewing another org (cookie), not their own portal row */
+  superAdminImpersonating?: boolean;
   superAdminBackHref?: string;
   superAdminBackLabel?: string;
   topBanner?: React.ReactNode;
@@ -162,7 +165,7 @@ export default function WorkspaceShell({
         </div>
       </header>
 
-      {superAdmin && superAdminBackHref && (
+      {superAdmin && superAdminImpersonating && superAdminBackHref && (
         <div className="workspace-super-admin-banner">
           Viewing as <strong>{contextLabel}</strong>.{' '}
           <Link href={superAdminBackHref}>{superAdminBackLabel ?? 'Switch'}</Link>

@@ -12,6 +12,7 @@ import {
   employerJobsListHref,
   type EmployerJobListFilter,
 } from '@/lib/employer/employerJobsListQuery';
+import { EMPLOYER_JOB_SUBMIT_REVIEW_DRAFT_FLASH } from '@/lib/employer/employerJobFormFlash';
 
 function chunkIds<T>(items: T[], size: number): T[][] {
   const chunks: T[][] = [];
@@ -135,6 +136,10 @@ export default function EmployerJobsBoard({
   const [bulkError, setBulkError] = useState<string | null>(null);
   const [bulkOutcomeError, setBulkOutcomeError] = useState<string | null>(null);
   const [flashBanner, setFlashBanner] = useState<{ type: 'delete' | 'close'; count: number } | null>(null);
+  const [submitReviewDraftNotice, setSubmitReviewDraftNotice] = useState<{
+    title: string;
+    reasons: string[];
+  } | null>(null);
   const [reviewActionError, setReviewActionError] = useState<string | null>(null);
   const [closeModal, setCloseModal] = useState<{ id: string; title: string; status: string } | null>(null);
   const closeModalTitleId = useId();
@@ -203,6 +208,29 @@ export default function EmployerJobsBoard({
     } catch {
       try {
         sessionStorage.removeItem(BULK_CLOSE_FLASH_KEY);
+      } catch {
+        /* ignore */
+      }
+    }
+
+    try {
+      const rawDraft = sessionStorage.getItem(EMPLOYER_JOB_SUBMIT_REVIEW_DRAFT_FLASH);
+      if (rawDraft) {
+        sessionStorage.removeItem(EMPLOYER_JOB_SUBMIT_REVIEW_DRAFT_FLASH);
+        const parsed = JSON.parse(rawDraft) as { title?: unknown; reasons?: unknown };
+        const reasons = Array.isArray(parsed.reasons)
+          ? parsed.reasons.filter((r): r is string => typeof r === 'string' && r.length > 0)
+          : [];
+        if (reasons.length > 0) {
+          setSubmitReviewDraftNotice({
+            title: typeof parsed.title === 'string' && parsed.title.trim() ? parsed.title.trim() : 'Your posting',
+            reasons,
+          });
+        }
+      }
+    } catch {
+      try {
+        sessionStorage.removeItem(EMPLOYER_JOB_SUBMIT_REVIEW_DRAFT_FLASH);
       } catch {
         /* ignore */
       }
@@ -541,6 +569,23 @@ export default function EmployerJobsBoard({
             className="btn btn-outline btn-sm employer-jobs-flash-banner__dismiss"
             onClick={() => setFlashBanner(null)}
             aria-label="Dismiss confirmation"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+      {submitReviewDraftNotice && (
+        <div className="employer-jobs-flash-banner employer-jobs-flash-banner--info" role="status">
+          <p className="employer-jobs-flash-banner__text">
+            <strong>{submitReviewDraftNotice.title}</strong> was saved as a <strong>draft</strong> instead of being sent for
+            review. Complete the following, then use &quot;Send for review&quot; from My Jobs:{' '}
+            {submitReviewDraftNotice.reasons.join('; ')}.
+          </p>
+          <button
+            type="button"
+            className="btn btn-outline btn-sm employer-jobs-flash-banner__dismiss"
+            onClick={() => setSubmitReviewDraftNotice(null)}
+            aria-label="Dismiss notice"
           >
             Dismiss
           </button>

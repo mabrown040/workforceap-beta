@@ -76,6 +76,7 @@ function layoutPopover(
 
 export default function PortalTour({ steps, portal, onComplete }: PortalTourProps) {
   const [index, setIndex] = useState(0);
+  const [done, setDone] = useState(false);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [popover, setPopover] = useState<PopoverLayout | null>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -92,11 +93,15 @@ export default function PortalTour({ steps, portal, onComplete }: PortalTourProp
   }, [onComplete, portal]);
 
   const dismiss = useCallback(() => {
+    setDone(true);
+    setTargetRect(null);
     void finishAll();
   }, [finishAll]);
 
   useLayoutEffect(() => {
+    if (done) return;
     if (steps.length === 0) {
+      setDone(true);
       void finishAll();
       return;
     }
@@ -107,6 +112,7 @@ export default function PortalTour({ steps, portal, onComplete }: PortalTourProp
       resolved++;
     }
     if (resolved >= steps.length) {
+      setDone(true);
       void finishAll();
       return;
     }
@@ -123,9 +129,10 @@ export default function PortalTour({ steps, portal, onComplete }: PortalTourProp
     const popW = Math.min(320, window.innerWidth - 24);
     const popH = popoverRef.current?.offsetHeight ?? 220;
     setPopover(layoutPopover(rect, current.placement, popW, popH));
-  }, [steps, index, finishAll]);
+  }, [steps, index, finishAll, done]);
 
   useEffect(() => {
+    if (done) return;
     const onResize = () => {
       if (!step) return;
       const el = document.querySelector<HTMLElement>(`[data-tour="${step.targetId}"]`);
@@ -142,20 +149,23 @@ export default function PortalTour({ steps, portal, onComplete }: PortalTourProp
       window.removeEventListener('scroll', onResize, true);
       window.removeEventListener('resize', onResize);
     };
-  }, [step]);
+  }, [step, done]);
 
   useEffect(() => {
+    if (done) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') dismiss();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [dismiss]);
+  }, [dismiss, done]);
 
-  if (!step || total === 0) return null;
+  if (done || !step || total === 0) return null;
 
   const goNext = async () => {
     if (index >= total - 1) {
+      setDone(true);
+      setTargetRect(null);
       await finishAll();
       return;
     }
@@ -219,21 +229,30 @@ export default function PortalTour({ steps, portal, onComplete }: PortalTourProp
         <div className="wa-px-4 wa-py-3 wa-text-sm wa-leading-relaxed wa-text-slate-800 dark:wa-text-slate-100">
           {step.body}
         </div>
-        <div className="wa-flex wa-items-center wa-justify-between wa-gap-2 wa-border-t wa-border-slate-100 wa-px-4 wa-py-3 dark:wa-border-slate-700">
+        <div className="wa-flex wa-flex-col wa-gap-2 wa-border-t wa-border-slate-100 wa-px-4 wa-py-3 dark:wa-border-slate-700 sm:wa-flex-row sm:wa-items-center sm:wa-justify-between">
+          <div className="wa-flex wa-items-center wa-gap-2">
+            <button
+              type="button"
+              onClick={goBack}
+              disabled={index === 0}
+              className="wa-rounded-lg wa-border wa-border-slate-200 wa-bg-white wa-px-3 wa-py-2 wa-text-sm wa-font-medium wa-text-slate-800 disabled:wa-opacity-40 dark:wa-border-slate-600 dark:wa-bg-slate-800 dark:wa-text-slate-100"
+            >
+              Back
+            </button>
+            <button
+              type="button"
+              onClick={() => void goNext()}
+              className="wa-rounded-lg wa-bg-brand-accent wa-px-4 wa-py-2 wa-text-sm wa-font-semibold wa-text-white hover:wa-bg-brand-accent-dark"
+            >
+              {index >= total - 1 ? 'Done' : 'Next'}
+            </button>
+          </div>
           <button
             type="button"
-            onClick={goBack}
-            disabled={index === 0}
-            className="wa-rounded-lg wa-border wa-border-slate-200 wa-bg-white wa-px-3 wa-py-2 wa-text-sm wa-font-medium wa-text-slate-800 disabled:wa-opacity-40 dark:wa-border-slate-600 dark:wa-bg-slate-800 dark:wa-text-slate-100"
+            onClick={() => dismiss()}
+            className="wa-text-left wa-text-sm wa-text-slate-500 wa-underline hover:wa-text-brand-primary dark:wa-text-slate-400 dark:hover:wa-text-slate-200 sm:wa-text-right"
           >
-            Back
-          </button>
-          <button
-            type="button"
-            onClick={() => void goNext()}
-            className="wa-rounded-lg wa-bg-brand-accent wa-px-4 wa-py-2 wa-text-sm wa-font-semibold wa-text-white hover:wa-bg-brand-accent-dark"
-          >
-            {index >= total - 1 ? 'Done' : 'Next'}
+            Skip tour
           </button>
         </div>
       </div>

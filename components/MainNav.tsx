@@ -237,9 +237,9 @@ export default function MainNav() {
             priority
           />
         </Link>
-        <span className="nav-theme-slot">
-          <ThemeToggle />
-        </span>
+        <div className="nav-theme-slot">
+          <ThemeToggle variant="marketing" />
+        </div>
         <button
           ref={toggleRef}
           type="button"

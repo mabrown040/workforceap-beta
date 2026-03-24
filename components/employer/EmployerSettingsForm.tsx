@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const COMPANY_SIZES = [
   { value: '', label: 'Select…' },
@@ -51,6 +51,14 @@ export default function EmployerSettingsForm({ initial }: { initial: EmployerSet
   const [logoUploading, setLogoUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+    };
+  }, []);
 
   const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -103,6 +111,9 @@ export default function EmployerSettingsForm({ initial }: { initial: EmployerSet
         return;
       }
       setMessage({ type: 'ok', text: 'Saved.' });
+      setToast('Company settings saved.');
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+      toastTimer.current = setTimeout(() => setToast(null), 4000);
     } catch {
       setMessage({ type: 'err', text: 'Network error. Try again.' });
     } finally {
@@ -112,6 +123,28 @@ export default function EmployerSettingsForm({ initial }: { initial: EmployerSet
 
   return (
     <form className="employer-settings-form" onSubmit={handleSubmit}>
+      {toast ? (
+        <div
+          className="employer-settings-save-toast"
+          role="status"
+          style={{
+            position: 'fixed',
+            bottom: '1.25rem',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 200,
+            padding: '0.65rem 1.25rem',
+            borderRadius: '999px',
+            background: 'var(--color-primary)',
+            color: '#fff',
+            fontSize: '0.9rem',
+            fontWeight: 600,
+            boxShadow: 'var(--shadow-lg)',
+          }}
+        >
+          {toast}
+        </div>
+      ) : null}
       {message ? (
         <p
           className={message.type === 'ok' ? 'employer-settings-form__success' : 'employer-settings-form__error'}

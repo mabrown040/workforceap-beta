@@ -8,7 +8,7 @@ import { prisma } from '@/lib/db/prisma';
 import EmployerApplicationsClient from '@/components/employer/EmployerApplicationsClient';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Workforce AP Applicants',
+  title: 'WorkforceAP Applicants',
   description: 'View applications from WorkforceAP members to your job postings.',
   path: '/employer/applications',
 });

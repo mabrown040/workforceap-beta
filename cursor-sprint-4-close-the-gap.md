@@ -94,25 +94,31 @@ This is the first time WorkforceAP is publicly asking employers for money. The p
 
 ---
 
-### P1-2: Homepage live stats (enrolled + programs + partners — NOT placements)
-**Problem:** The homepage has static copy. We need live stats from the WorkforceAP DB.
+### P1-2: Homepage live stats with correct placement attribution
+**Problem:** The homepage has static copy. We need live stats — but must be honest about attribution. The founder (Dr. Brown) has 15+ years of workforce training and 200+ placements. That history belongs to him personally, not WorkforceAP as an org. WorkforceAP's own placements start from $0 and will grow.
 
-**IMPORTANT:** Do NOT show a "members placed" counter on the public site. The historical placement data (from before WorkforceAP was founded) belongs to the founder's prior work and cannot be attributed to WorkforceAP. Only show stats that are genuinely WorkforceAP numbers.
+**Attribution rules:**
+- WorkforceAP's OWN placement count: only from the `PlacedOutcome` table (new records going forward). Show this once it's ≥10; hide or show as "growing" until then.
+- Founder's history: use as a team credibility signal only, attributed to "our team" not "WorkforceAP." Example copy: "Built by a team with 200+ career placements and 15 years of workforce experience."
+- Never conflate the two. Never show historical data as WorkforceAP outcomes.
 
 **Fix:**
 1. Create `app/api/stats/route.ts` — public endpoint returning:
    ```json
-   { "membersEnrolled": 0, "programsOffered": 19, "partnersActive": 8 }
+   { "membersEnrolled": 0, "programsOffered": 19, "partnersActive": 8, "membersPlaced": 0 }
    ```
    - `membersEnrolled`: `prisma.profile.count({ where: { enrolledProgram: { not: null } } })`
-   - `programsOffered`: `PROGRAMS.length` from lib/content/programs.ts (static — 19)
+   - `programsOffered`: `PROGRAMS.length` (static 19)
    - `partnersActive`: `prisma.partner.count({ where: { active: true } })`
+   - `membersPlaced`: `prisma.placedOutcome.count()` (starts at 0, grows as admin logs placements)
 2. In `app/page.tsx`, fetch this endpoint and update stat values with live DB values
-3. Change the stat labels to: "Members Enrolled", "Programs Available", "Partner Organizations" (remove any "Members Placed" stat)
-4. Cache: `revalidate = 3600`
-5. Fallback to reasonable defaults (0, 19, 0) if fetch fails
+3. Stat display logic:
+   - Always show: "Members Enrolled", "Programs Available", "Partner Organizations"
+   - Show "Members Placed" only when `membersPlaced >= 10`, otherwise show nothing for that stat (don't show 0 — it looks bad)
+4. On the team/about section (or homepage founder callout): add copy like: *"Our leadership team has 15+ years of workforce training experience and has directly supported 200+ career transitions — now channeled into the WorkforceAP platform."* This is founder credibility, not org metrics.
+5. Cache: `revalidate = 3600`. Fallback to defaults if fetch fails.
 
-**Commit:** `feat(homepage): add live stats API for enrolled members, programs, partners — no fake placement numbers`
+**Commit:** `feat(homepage): add live stats API with honest placement attribution — founder history vs WorkforceAP outcomes`
 
 ---
 

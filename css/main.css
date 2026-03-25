@@ -386,6 +386,28 @@ html.dark .portal-header-actions-dropdown {
     background: #161a1f;
     border-color: #2d3540;
 }
+html.dark .portal-header-actions-dropdown .btn {
+    color: #f3f4f6;
+    border-color: #3d4450;
+}
+html.dark .portal-header-actions-dropdown .btn-outline {
+    background: transparent;
+}
+html.dark .portal-header-actions-dropdown .btn-outline:hover {
+    background: #252a33;
+    border-color: #525a66;
+    color: #ffffff;
+}
+html.dark .super-admin-view-switcher__dropdown {
+    background: #161a1f;
+    border-color: #2d3540;
+}
+html.dark .super-admin-view-switcher__option {
+    color: #e5e7eb;
+}
+html.dark .super-admin-view-switcher__option:hover {
+    background: #252a33;
+}
 html.dark .dashboard-main-content {
     color: #e5e7eb;
 }
@@ -1306,7 +1328,8 @@ body.mobile-nav-open .main-nav::after {
     background: var(--color-gold);
     transition: width var(--transition-base);
 }
-.nav-menu a:hover { color: var(--color-white); }
+/* literal white: --color-white remaps in html.dark to a dark surface */
+.nav-menu a:hover { color: #ffffff; }
 .nav-menu a:hover::after { width: 100%; }
 .nav-menu a.active { color: #f0cd83; }
 .nav-menu a.active::after { width: 100%; }
@@ -1338,7 +1361,7 @@ body.mobile-nav-open .main-nav::after {
 }
 .nav-menu .dropdown:hover .dropdown-trigger::after { transform: rotate(180deg); opacity: 0.8; }
 .nav-menu .dropdown .dropdown-trigger.active { color: #f0cd83; }
-.nav-menu .dropdown:hover .dropdown-trigger { color: var(--color-white); }
+.nav-menu .dropdown:hover .dropdown-trigger { color: #ffffff; }
 .dropdown-menu {
     visibility: hidden;
     opacity: 0;
@@ -1346,7 +1369,8 @@ body.mobile-nav-open .main-nav::after {
     top: 100%;
     right: -12px;
     left: auto;
-    background: var(--color-gray-800);
+    /* literal: in html.dark --color-gray-800 is remapped to a light gray */
+    background: #262626;
     border: 1px solid rgba(255,255,255,0.1);
     border-radius: var(--radius-md);
     padding: 8px 0;
@@ -1378,7 +1402,7 @@ body.mobile-nav-open .main-nav::after {
     transition: background var(--transition-fast), color var(--transition-fast), padding-left var(--transition-fast);
 }
 .dropdown-menu a::after { display: none; }
-.dropdown-menu a:hover { background: rgba(255,255,255,0.06); color: var(--color-white); padding-left: 22px; }
+.dropdown-menu a:hover { background: rgba(255,255,255,0.06); color: #ffffff; padding-left: 22px; }
 .nav-cta,
 a.nav-cta {
     background: #d4af61 !important;
@@ -5508,7 +5532,7 @@ img.img-fade.loaded { opacity: 1; }
     .dropdown-menu a:hover,
     .dropdown-menu a:active {
         background: rgba(255,255,255,0.08);
-        color: var(--color-white);
+        color: #ffffff;
         padding-left: 1.25rem;
     }
     .dropdown-menu a.active {

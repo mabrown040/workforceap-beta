@@ -937,6 +937,10 @@ html.dark .apply-eligibility-note {
     color: var(--color-gray-300);
     box-shadow: none;
 }
+html.dark .apply-location-callout,
+html.dark .apply-location-callout * {
+    color: var(--color-gray-300);
+}
 html.dark .apply-location-callout strong {
     color: var(--color-gray-100);
 }
@@ -3721,11 +3725,11 @@ body.inner-page {
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-sm);
 }
-.apply-location-callout,
-.apply-location-callout * {
+html:not(.dark) .apply-location-callout,
+html:not(.dark) .apply-location-callout * {
     color: var(--color-gray-800);
 }
-.apply-location-callout strong {
+html:not(.dark) .apply-location-callout strong {
     color: var(--color-primary);
 }
 .hero-cta-note {

@@ -3721,12 +3721,19 @@ body.inner-page {
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-sm);
 }
-.apply-location-callout,
-.apply-location-callout * {
+.page-hero .apply-location-callout,
+.page-hero .apply-location-callout * {
     color: var(--color-gray-800);
 }
-.apply-location-callout strong {
+.page-hero .apply-location-callout strong {
     color: var(--color-primary);
+}
+html.dark .page-hero .apply-location-callout,
+html.dark .page-hero .apply-location-callout * {
+    color: var(--color-gray-300);
+}
+html.dark .page-hero .apply-location-callout strong {
+    color: var(--color-gray-100);
 }
 .hero-cta-note {
     margin-top: 1.5rem;

@@ -132,10 +132,10 @@ function JobsNoResultsState() {
       <div className="jobs-empty-state__icon" aria-hidden>
         <Briefcase size={48} strokeWidth={1.5} />
       </div>
-      <h3 className="jobs-empty-state__title">No jobs available at the moment</h3>
+      <h3 className="jobs-empty-state__title">Partner roles coming soon</h3>
       <p className="jobs-empty-state__text">
-        New roles appear as employer partners post them. In the meantime, explore programs or start your application—we
-        will help you get job-ready.
+        There are no live listings on the board right now. New roles appear as employer partners publish them. In the
+        meantime, explore programs or start your application — we will help you get job-ready.
       </p>
       <div className="jobs-empty-state__actions">
         <Link href="/programs" className="btn btn-primary">

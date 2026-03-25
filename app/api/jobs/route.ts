@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
+import { isExcludedPublicEmployerName } from '@/lib/jobs/publicJobFilters';
 
 /** Public jobs listing - only live jobs for students */
 export async function GET(request: NextRequest) {
@@ -81,5 +82,7 @@ export async function GET(request: NextRequest) {
     },
   });
 
-  return NextResponse.json(jobs);
+  const visible = jobs.filter((j) => !isExcludedPublicEmployerName(j.employer.companyName));
+
+  return NextResponse.json(visible);
 }

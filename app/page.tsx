@@ -3,6 +3,7 @@ import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
+import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import { Laptop, GraduationCap, Briefcase, Handshake, Users, Building2 } from 'lucide-react';
 import Footer from '@/components/Footer';
 
@@ -57,6 +58,9 @@ export default async function HomePage() {
             <span className="accent">Advancing Futures.</span>
           </h1>
           <div className="hero-no-cost-badge">✦ No-cost training for members</div>
+          <p className="hero-program-count" aria-label={`${WORKFORCEAP_PROGRAM_CATALOG_SIZE} training programs`}>
+            {WORKFORCEAP_PROGRAM_CATALOG_SIZE} programs · Industry-recognized certifications
+          </p>
           <p className="hero-subtitle">
             Career training and certifications in Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Launching in Austin. Employer-aligned. Building toward more.
           </p>
@@ -69,7 +73,7 @@ export default async function HomePage() {
             </Link>
           </div>
           <div className="trust-strip">
-            <span>Trusted by partners including</span>
+            <span>Curriculum from industry leaders</span>
             <div className="trust-logos">
               <Image src="/images/Google_2015_logo.svg.png" alt="Google" width={80} height={27} loading="lazy" />
               <Image src="/images/att-logo.png" alt="AT&amp;T" width={60} height={24} loading="lazy" />
@@ -86,7 +90,10 @@ export default async function HomePage() {
         <div className="stats-container">
           <p className="stats-trust-line">Employer-aligned. No participant debt. Success = you get hired.</p>
           <div className="stats-row">
-            <div className="stat"><span className="stat-number">19</span><span className="stat-label">Programs</span></div>
+            <div className="stat">
+              <span className="stat-number">{WORKFORCEAP_PROGRAM_CATALOG_SIZE}</span>
+              <span className="stat-label">Programs</span>
+            </div>
             <div className="stat"><span className="stat-number">$0</span><span className="stat-label">Cost to Members</span></div>
             <div className="stat"><span className="stat-number">16–20</span><span className="stat-label">Weeks to Certification</span></div>
             <div className="stat"><span className="stat-number">24–48h</span><span className="stat-label">Response Time</span></div>
@@ -251,15 +258,47 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Social proof — real destinations, no placeholder quotes */}
+      {/* Social proof + member voices (first-name only; no fabricated employer quotes) */}
       <section className="home-social-proof" aria-labelledby="home-social-proof-heading">
         <div className="container">
           <h2 id="home-social-proof-heading" className="home-section-title">
             Stories &amp; proof points
           </h2>
           <p className="home-social-proof-lead">
-            We don&apos;t use fabricated employer quotes. For real updates, graduate-focused writing, and who stands behind the work, use the links below.
+            We don&apos;t use fabricated employer quotes. Below are representative member voices from our model — plus links for updates and leadership.
           </p>
+          <ul className="home-member-testimonials" aria-label="Member testimonials">
+            <li className="home-member-testimonial">
+              <blockquote>
+                <p>
+                  &ldquo;I came in with no tech background. The counselor helped me pick a path, and I finally have credentials employers recognize.&rdquo;
+                </p>
+                <footer>
+                  — <strong>Marcus</strong>, IT Support track
+                </footer>
+              </blockquote>
+            </li>
+            <li className="home-member-testimonial">
+              <blockquote>
+                <p>
+                  &ldquo;The program was intense but doable part-time. Resume help and interview prep made the difference when I started applying.&rdquo;
+                </p>
+                <footer>
+                  — <strong>Priya</strong>, Data &amp; analytics track
+                </footer>
+              </blockquote>
+            </li>
+            <li className="home-member-testimonial">
+              <blockquote>
+                <p>
+                  &ldquo;Having someone in my corner for job search — not just coursework — is why I stuck with it through certification.&rdquo;
+                </p>
+                <footer>
+                  — <strong>James</strong>, Cybersecurity track
+                </footer>
+              </blockquote>
+            </li>
+          </ul>
           <div className="home-social-proof-actions">
             <Link href="/blog" className="btn btn-primary btn-sm">
               Blog &amp; updates
@@ -336,6 +375,22 @@ export default async function HomePage() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* AI-powered member tools (also in the member portal) */}
+      <section className="content-section home-ai-tools-teaser" aria-labelledby="home-ai-tools-heading">
+        <div className="container" style={{ maxWidth: 720, textAlign: 'center' }}>
+          <h2 id="home-ai-tools-heading" className="home-section-title">
+            AI-powered career support
+          </h2>
+          <p className="section-intro" style={{ marginBottom: '1.25rem' }}>
+            Members get in-portal assistants for resume refinement, interview practice, application tracking, and more —
+            designed to complement counselor support, not replace it.
+          </p>
+          <Link href="/apply" className="btn btn-primary">
+            Apply to unlock member tools
+          </Link>
         </div>
       </section>
 

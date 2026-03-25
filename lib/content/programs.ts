@@ -113,6 +113,9 @@ export const PROGRAMS: Program[] = [
   mkProgram('Software Developer Professional Certificate (IBM)', 'ai-software', 'AI & Software Dev', '#8b4a9b', '💻', '4-6 months, 10 hrs/week', 'Starting salary: $78K-$98K', ['HTML', 'CSS', 'JavaScript', 'Python', 'Databases'], ['Introduction to Software Engineering', 'Introduction to HTML, CSS, & JavaScript', 'Getting Started with Git and GitHub', 'Python for Data Science, AI & Development', 'Developing Front-End Apps with React', 'Developing Back-End Apps with Node.js and Express', 'Django Application Development with SQL and Databases', 'Introduction to Containers w/ Docker, Kubernetes & OpenShift', 'Application Development using Microservices and Serverless', 'Software Developer Career Guide & Interview Preparation'], 'IBM'),
 ];
 
+/** Canonical number of training tracks in the public catalog (keep stats + hero aligned). */
+export const WORKFORCEAP_PROGRAM_CATALOG_SIZE = PROGRAMS.length;
+
 export const PROGRAM_TITLES = PROGRAMS.map((p) => p.title) as readonly string[];
 
 export function getProgramBySlug(slug: string): Program | undefined {

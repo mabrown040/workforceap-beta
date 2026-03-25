@@ -24,7 +24,7 @@ const PARTNER_TYPES = [
   {
     icon: Users,
     type: 'Referral & Community Orgs',
-    who: 'Nonprofits, social services, churches, reentry programs, community centers.',
+    who: 'Nonprofits, social services, churches, reentry programs, community centers, workforce centers, federal one-stop centers.',
     why: 'Refer clients who need career training. We follow up within 24–48 hours. No cost to refer. You get updates when referred individuals complete programs.',
     nextStep: { text: 'Contact to Refer', href: '/contact?topic=partnership' },
   },
@@ -32,7 +32,7 @@ const PARTNER_TYPES = [
     icon: Landmark,
     type: 'Workforce Boards & Agencies',
     who: 'Workforce Solutions, TWC, WIOA providers, government workforce programs.',
-    why: 'Align your participants with employer-recognized certifications. We handle training and placement; you strengthen outcomes for your population.',
+    why: 'Align your participants with employer-recognized in-demand certifications. We handle training and placement; you strengthen outcomes for your population.',
     nextStep: { text: 'Discuss Alignment', href: '/contact?topic=partnership' },
   },
   {
@@ -79,7 +79,7 @@ export default function PartnersPage() {
           <h2 className="section-title animate-on-scroll" style={{ marginTop: '3rem' }}>How Referrals Work</h2>
           <div className="two-col" style={{ marginBottom: '3rem' }}>
             <div>
-              <p>Referral partners send us candidates who may benefit from free career training. We reach out within 24–48 hours and walk them through the process.</p>
+              <p>Referral partners send us candidates who may benefit from complimentary career training. We reach out within 24–48 hours and walk them through the process.</p>
               <ul style={{ marginTop: '1rem', paddingLeft: '1.25rem' }}>
                 <li style={{ marginBottom: '0.5rem' }}>Submit a referral via our contact form or partner portal</li>
                 <li style={{ marginBottom: '0.5rem' }}>We contact the candidate within 24–48 hours</li>

@@ -162,7 +162,7 @@ export default function ProgramsContent() {
           Bands are Austin-first, grounded in Lightcast/BLS-style data (Jan 2026). Your offer still depends on proof, role, and employer.
         </p>
         <div className="programs-bottom-actions">
-          <Link href="/find-your-path" className="btn btn-primary">Not sure? Take the pathfinder quiz</Link>
+          <Link href="/find-your-path" className="btn btn-primary">Not sure? Find Your Career</Link>
           <Link href="/program-comparison" className="btn btn-outline">Compare programs</Link>
           <Link href="/salary-guide" className="btn btn-ghost">Salary guide</Link>
         </div>

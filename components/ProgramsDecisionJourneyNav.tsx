@@ -14,7 +14,7 @@ export default function ProgramsDecisionJourneyNav({
   quizPhase?: 'in_progress' | 'results';
 }) {
   const steps: { id: ProgramsJourneyStep; label: string; short: string; href: string }[] = [
-    { id: 'quiz', label: 'Find fit', short: 'Quiz', href: '/find-your-path' },
+    { id: 'quiz', label: 'Find Your Career', short: 'Career', href: '/find-your-path' },
     { id: 'programs', label: 'Browse programs', short: 'Browse', href: '/programs' },
     { id: 'compare', label: 'Compare tracks', short: 'Compare', href: '/program-comparison' },
     { id: 'salary', label: 'Salary context', short: 'Salaries', href: '/salary-guide' },

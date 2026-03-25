@@ -23,7 +23,7 @@ const navItems = [
     label: 'Programs',
     children: [
       { href: '/programs', label: 'All Programs' },
-      { href: '/find-your-path', label: 'Find Your Path' },
+      { href: '/find-your-path', label: 'Find Your Career' },
       { href: '/program-comparison', label: 'Program Comparison' },
       { href: '/salary-guide', label: 'Salary Guide' },
     ],

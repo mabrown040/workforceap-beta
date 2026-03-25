@@ -56,7 +56,7 @@ function formatCompensation(min: number | null, max: number | null): string {
   }
   if (min != null) return `From $${Math.round(min / 1000)}K`;
   if (max != null) return `Up to $${Math.round(max / 1000)}K`;
-  return 'Compensation not set';
+  return 'Not set';
 }
 
 function formatWorkStyle(locationType: string, jobType: string): string {

@@ -33,6 +33,14 @@ export default function ProgramsPage() {
           <ProgramsDecisionJourneyNav current="programs" />
         </div>
       </section>
+      <section className="content-section" style={{ paddingTop: '1rem', paddingBottom: 0 }}>
+        <div className="container" style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
+          <p className="section-subtitle" style={{ marginBottom: 0 }}>
+            <strong>AI-powered support:</strong> After you enroll, the member portal includes guided tools for resumes,
+            interviews, and applications — alongside counselor coaching.
+          </p>
+        </div>
+      </section>
       <ProgramsContent />
       <Footer />
     </div>

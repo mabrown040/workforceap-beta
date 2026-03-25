@@ -42,7 +42,7 @@ const WHY_HIRE = [
   {
     icon: Headphones,
     title: 'Ongoing Support',
-    desc: 'We provide 90-day post-hire support to ensure successful onboarding.',
+    desc: 'We provide 180-day (6 months) post-hire support to ensure successful onboarding.',
   },
 ];
 
@@ -60,7 +60,7 @@ const HOW_IT_WORKS = [
   { num: 1, title: 'Post Your Opening', desc: 'Add your job to our employer portal. We match it to our pipeline.', icon: FileText },
   { num: 2, title: 'Review Matched Candidates', desc: 'Receive pre-screened applicants who hold relevant certifications and fit your requirements.', icon: Search },
   { num: 3, title: 'Interview & Hire', desc: 'You conduct interviews and make the hire. No placement fees.', icon: UserCheck },
-  { num: 4, title: '90-Day Support', desc: "We support your new hire's onboarding. You get a team member who's set up to succeed.", icon: Handshake },
+  { num: 4, title: '180-Day (6 Months) Support', desc: "We support your new hire's onboarding. You get a team member who's set up to succeed.", icon: Handshake },
 ];
 
 const EMPLOYER_COMMITMENTS = [
@@ -76,7 +76,7 @@ const EMPLOYER_COMMITMENTS = [
   },
   {
     icon: Handshake,
-    title: '90-Day Post-Hire Support',
+    title: '180-Day (6 Months) Post-Hire Support',
     desc: 'We stay involved after the hire. Onboarding, check-ins, and support so your new team member succeeds.',
   },
 ];
@@ -113,7 +113,7 @@ export default function EmployersPage() {
         <div className="page-hero-content">
           <h1>Hire Certified, Job-Ready Tech Talent</h1>
           <p>
-            Pre-screened graduates with industry credentials — Google, IBM, AWS, CompTIA. Workforce readiness built in. 90-day post-hire support so your hire succeeds.
+            Pre-screened graduates with industry credentials — Google, IBM, AWS, CompTIA. Workforce readiness built in. 180-day (6 months) post-hire support so your hire succeeds.
           </p>
           <div className="hero-actions" style={{ marginTop: '1.5rem', marginBottom: 0 }}>
             <Link href="/employer" className="btn btn-accent btn-large">
@@ -157,7 +157,7 @@ export default function EmployersPage() {
         imageUrl="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1400&q=80"
         label="Employer Partnerships"
         title="Job-Ready Tech Talent"
-        description="Our graduates hold industry certifications, complete workforce readiness training, and are backed by 90-day post-hire support. We're currently serving the Austin area and building toward expansion."
+        description="Our graduates hold industry certifications, complete workforce readiness training, and are backed by 180-day (6 months) post-hire support. We're currently serving the Austin area and building toward expansion."
       />
 
       {/* AI + counselor model */}

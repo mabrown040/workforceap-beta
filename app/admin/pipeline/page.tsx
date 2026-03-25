@@ -76,8 +76,8 @@ export default async function AdminPipelinePage() {
         {[
           { label: 'Total Active', value: totalActive },
           { label: 'Placed', value: totalPlaced },
-          { label: 'Placement Rate', value: totalActive > 0 ? `${Math.round((totalPlaced / totalActive) * 100)}%` : 'â€”' },
-          { label: 'Avg Salary', value: avgSalary ? `$${avgSalary.toLocaleString()}` : 'â€”' },
+          { label: 'Placement Rate', value: totalActive > 0 ? `${Math.round((totalPlaced / totalActive) * 100)}%` : '—' },
+          { label: 'Avg Salary', value: avgSalary ? `$${avgSalary.toLocaleString()}` : '—' },
         ].map((stat) => (
           <div
             key={stat.label}
@@ -118,7 +118,7 @@ export default async function AdminPipelinePage() {
                   >
                     <div style={{ fontWeight: 500, fontSize: '0.85rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.fullName}</div>
                     <div style={{ fontSize: '0.72rem', color: 'var(--color-gray-500)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '0.2rem' }}>
-                      {s.email || s.phone || 'â€”'}
+                      {s.email || s.phone || '—'}
                     </div>
                     {s.enrolledProgram && (
                       <div style={{ fontSize: '0.75rem', color: 'var(--color-gray-500)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '0.15rem' }}>

@@ -598,21 +598,24 @@ html.dark .nav-menu a {
 html.dark .nav-menu .dropdown .dropdown-trigger {
     color: rgba(243,244,246,0.92);
 }
-/* Flyout uses var(--color-gray-800); in dark mode that token is remapped to a LIGHT gray — fix contrast. */
-html.dark .main-nav .dropdown-menu {
-    background: #1a1f27;
-    border-color: rgba(255, 255, 255, 0.14);
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
-}
-html.dark .main-nav .dropdown-menu a {
-    color: #f3f4f6;
-}
-html.dark .main-nav .dropdown-menu a:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
-}
-html.dark .main-nav .dropdown-menu a.active {
-    color: #f0cd83;
+/* Flyout uses var(--color-gray-800); in dark mode that token is remapped to a LIGHT gray — fix contrast.
+   Scoped to desktop only so mobile drawer .dropdown-menu (max-width: 900px) is not overridden. */
+@media (min-width: 901px) {
+    html.dark .main-nav .dropdown-menu {
+        background: #1a1f27;
+        border-color: rgba(255, 255, 255, 0.14);
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+    }
+    html.dark .main-nav .dropdown-menu a {
+        color: #f3f4f6;
+    }
+    html.dark .main-nav .dropdown-menu a:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+    }
+    html.dark .main-nav .dropdown-menu a.active {
+        color: #f0cd83;
+    }
 }
 html.dark .mobile-nav-toggle {
     border-color: rgba(255,255,255,0.12);

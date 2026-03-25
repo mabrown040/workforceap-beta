@@ -934,11 +934,11 @@ html.dark .apply-location-callout,
 html.dark .apply-eligibility-note {
     background: #161a1f;
     border: 1px solid var(--color-border);
-    color: var(--color-gray-700);
+    color: var(--color-gray-300);
     box-shadow: none;
 }
 html.dark .apply-location-callout strong {
-    color: var(--color-gray-800);
+    color: var(--color-gray-100);
 }
 html.dark .inner-page .form-group label,
 html.dark .apply-flow .form-group label,
@@ -3720,6 +3720,10 @@ body.inner-page {
     margin-top: 1rem;
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-sm);
+}
+.apply-location-callout,
+.apply-location-callout * {
+    color: var(--color-gray-800);
 }
 .apply-location-callout strong {
     color: var(--color-primary);

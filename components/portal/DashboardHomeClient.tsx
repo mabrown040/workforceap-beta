@@ -114,7 +114,7 @@ export default function DashboardHomeClient({
       {noApplicationOnFile ? (
         <section className="dashboard-application-status" aria-labelledby="dashboard-application-status-heading">
           <h2 id="dashboard-application-status-heading" className="dashboard-today-label">
-            Your application
+            Program application
           </h2>
           <div className="dashboard-application-status-card">
             <p className="dashboard-application-status-next" style={{ marginTop: 0 }}>
@@ -128,7 +128,7 @@ export default function DashboardHomeClient({
       ) : applicationStatus ? (
         <section className="dashboard-application-status" aria-labelledby="dashboard-application-status-heading">
           <h2 id="dashboard-application-status-heading" className="dashboard-today-label">
-            Your application
+            Program application
           </h2>
           <div className="dashboard-application-status-card">
             {applicationStatus.progressIndex !== null ? (

@@ -19,6 +19,11 @@ export default function ApplyCreateAccountForm() {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [addressLine1, setAddressLine1] = useState('');
+  const [addressLine2, setAddressLine2] = useState('');
+  const [city, setCity] = useState('');
+  const [stateVal, setStateVal] = useState('');
+  const [zip, setZip] = useState('');
   const [smsOptIn, setSmsOptIn] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -27,6 +32,10 @@ export default function ApplyCreateAccountForm() {
     lastName?: string;
     email?: string;
     phone?: string;
+    addressLine1?: string;
+    city?: string;
+    state?: string;
+    zip?: string;
     password?: string;
     confirmPassword?: string;
   }>({});
@@ -56,11 +65,12 @@ export default function ApplyCreateAccountForm() {
 
   useEffect(() => {
     dropoffRef.current = {
-      startedFields: [firstName, lastName, email, phone, password, confirmPassword].filter(Boolean).length,
+      startedFields: [firstName, lastName, email, phone, addressLine1, city, stateVal, zip, password, confirmPassword].filter(Boolean)
+        .length,
       smsOptIn,
       programSlug,
     };
-  }, [confirmPassword, email, firstName, lastName, password, phone, programSlug, smsOptIn]);
+  }, [addressLine1, city, confirmPassword, email, firstName, lastName, password, phone, programSlug, smsOptIn, stateVal, zip]);
 
   useEffect(() => {
     return () => {
@@ -106,6 +116,18 @@ export default function ApplyCreateAccountForm() {
     } else if (phoneDigits.length < 10) {
       nextFieldErrors.phone = 'Use a phone number with at least 10 digits.';
     }
+    if (!addressLine1.trim()) {
+      nextFieldErrors.addressLine1 = 'Enter your street address.';
+    }
+    if (!city.trim()) {
+      nextFieldErrors.city = 'Enter your city.';
+    }
+    if (!stateVal.trim()) {
+      nextFieldErrors.state = 'Enter your state.';
+    }
+    if (!zip.trim()) {
+      nextFieldErrors.zip = 'Enter your ZIP code.';
+    }
     if (password.length < 8) {
       nextFieldErrors.password = 'Use at least 8 characters.';
     }
@@ -115,7 +137,17 @@ export default function ApplyCreateAccountForm() {
 
     if (Object.keys(nextFieldErrors).length > 0) {
       setFieldErrors(nextFieldErrors);
-      setError('Please fix the highlighted fields and try again.');
+      const needsContact =
+        nextFieldErrors.phone ||
+        nextFieldErrors.addressLine1 ||
+        nextFieldErrors.city ||
+        nextFieldErrors.state ||
+        nextFieldErrors.zip;
+      setError(
+        needsContact
+          ? 'Phone and address are required for membership.'
+          : 'Please fix the highlighted fields and try again.'
+      );
       return;
     }
 
@@ -146,6 +178,11 @@ export default function ApplyCreateAccountForm() {
           lastName: lastName.trim(),
           email: email.trim().toLowerCase(),
           phone: phoneDigits,
+          addressLine1: addressLine1.trim(),
+          addressLine2: addressLine2.trim() || undefined,
+          city: city.trim(),
+          state: stateVal.trim(),
+          zip: zip.trim(),
           smsOptIn,
           password,
           programSlug,
@@ -277,9 +314,89 @@ export default function ApplyCreateAccountForm() {
             if (fieldErrors.phone) setFieldErrors((f) => ({ ...f, phone: undefined }));
           }}
           autoComplete="tel"
+          required
           aria-invalid={!!fieldErrors.phone}
         />
         {fieldErrors.phone ? <p className="form-error">{fieldErrors.phone}</p> : null}
+      </div>
+      <div className="form-group">
+        <label htmlFor="addressLine1">Street address *</label>
+        <input
+          id="addressLine1"
+          type="text"
+          value={addressLine1}
+          onChange={(e) => {
+            setAddressLine1(e.target.value);
+            if (fieldErrors.addressLine1) setFieldErrors((f) => ({ ...f, addressLine1: undefined }));
+          }}
+          autoComplete="address-line1"
+          required
+          aria-invalid={!!fieldErrors.addressLine1}
+        />
+        {fieldErrors.addressLine1 ? <p className="form-error">{fieldErrors.addressLine1}</p> : null}
+      </div>
+      <div className="form-group">
+        <label htmlFor="addressLine2">Apt / suite (optional)</label>
+        <input
+          id="addressLine2"
+          type="text"
+          value={addressLine2}
+          onChange={(e) => setAddressLine2(e.target.value)}
+          autoComplete="address-line2"
+        />
+      </div>
+      <div className="form-group">
+        <label htmlFor="city">City *</label>
+        <input
+          id="city"
+          type="text"
+          value={city}
+          onChange={(e) => {
+            setCity(e.target.value);
+            if (fieldErrors.city) setFieldErrors((f) => ({ ...f, city: undefined }));
+          }}
+          autoComplete="address-level2"
+          required
+          aria-invalid={!!fieldErrors.city}
+        />
+        {fieldErrors.city ? <p className="form-error">{fieldErrors.city}</p> : null}
+      </div>
+      <div
+        className="form-group apply-create-account-state-zip"
+        style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '0.75rem' }}
+      >
+        <div>
+          <label htmlFor="state">State *</label>
+          <input
+            id="state"
+            type="text"
+            value={stateVal}
+            onChange={(e) => {
+              setStateVal(e.target.value);
+              if (fieldErrors.state) setFieldErrors((f) => ({ ...f, state: undefined }));
+            }}
+            autoComplete="address-level1"
+            required
+            aria-invalid={!!fieldErrors.state}
+          />
+          {fieldErrors.state ? <p className="form-error">{fieldErrors.state}</p> : null}
+        </div>
+        <div>
+          <label htmlFor="zip">ZIP *</label>
+          <input
+            id="zip"
+            type="text"
+            value={zip}
+            onChange={(e) => {
+              setZip(e.target.value);
+              if (fieldErrors.zip) setFieldErrors((f) => ({ ...f, zip: undefined }));
+            }}
+            autoComplete="postal-code"
+            required
+            aria-invalid={!!fieldErrors.zip}
+          />
+          {fieldErrors.zip ? <p className="form-error">{fieldErrors.zip}</p> : null}
+        </div>
       </div>
       <div className="form-group">
         <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>

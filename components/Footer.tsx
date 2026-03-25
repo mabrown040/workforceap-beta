@@ -63,7 +63,7 @@ function FooterLinks() {
         <h4>Programs</h4>
         <ul>
           <li><Link href="/programs">All Programs</Link></li>
-          <li><Link href="/find-your-path">Find Your Path (quiz)</Link></li>
+          <li><Link href="/find-your-path">Find Your Career</Link></li>
           <li><Link href="/program-comparison">Compare Programs</Link></li>
           <li><Link href="/salary-guide">Salary Guide</Link></li>
           <li><Link href="/apply">Apply Now</Link></li>

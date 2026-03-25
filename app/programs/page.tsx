@@ -23,7 +23,7 @@ export default function ProgramsPage() {
         <div className="programs-decision-cta">
           <p className="programs-decision-lead">Not sure which program fits you?</p>
           <Link href="/find-your-path" className="btn btn-primary">
-            Take the 2-minute pathfinder quiz →
+            Find Your Career →
           </Link>
           <Link href="/program-comparison" className="programs-compare-link">Or compare programs side-by-side</Link>
         </div>

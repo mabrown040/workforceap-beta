@@ -23,10 +23,10 @@ export default async function HomePage() {
   const journeySteps = [
     { num: 1, title: 'Apply', desc: 'Short online form — about 10 minutes. We respond within 24–48 hours.' },
     { num: 2, title: 'Overview', desc: 'Meet a counselor. Learn which program fits you — no exam, no gatekeeping.' },
-    { num: 3, title: 'Interview', desc: '30 minutes. We confirm mutual fit and answer your questions.' },
-    { num: 4, title: 'Membership', desc: 'Join free — no cost to members.' },
-    { num: 5, title: 'Assessment', desc: 'Skills and goals. We match you to the right path.' },
-    { num: 6, title: 'Readiness', desc: 'Soft skills and job-search basics — what employers expect.' },
+    { num: 3, title: 'Membership', desc: 'Join free — no cost to members.' },
+    { num: 4, title: 'Assessment', desc: 'Skills and goals. We match you to the right path.' },
+    { num: 5, title: 'Interview', desc: '30 minutes. We confirm mutual fit and answer your questions.' },
+    { num: 6, title: 'Workforce Readiness', desc: 'Soft skills and job-search basics — what employers expect.' },
     { num: 7, title: 'Resources', desc: 'Tools, network, and loaner laptop program when you complete training (program-dependent).' },
     { num: 8, title: 'Training', desc: 'Industry certification courses. Same credentials employers hire for.' },
     { num: 9, title: 'Certify', desc: 'Earn credentials. Proof that sticks on your resume.' },
@@ -88,7 +88,7 @@ export default async function HomePage() {
       {/* Stats — trust-bearing, category-defining */}
       <section className="stats-bar">
         <div className="stats-container">
-          <p className="stats-trust-line">Employer-aligned. No participant debt. Success = you get hired.</p>
+          <p className="stats-trust-line">Employer-aligned. No participant debt. When you land a new role, we&apos;ve done our job.</p>
           <div className="stats-row">
             <div className="stat">
               <span className="stat-number">{WORKFORCEAP_PROGRAM_CATALOG_SIZE}</span>
@@ -106,7 +106,7 @@ export default async function HomePage() {
       <section className="home-audiences" aria-labelledby="home-audiences-heading">
         <div className="container">
           <h2 id="home-audiences-heading" className="home-section-title">
-            Who WorkforceAP is for
+            Who Workforce Advancement Project (WorkforceAP) is for
           </h2>
           <p className="home-audiences-lead">
             One training-and-placement operating model with clear front doors. Austin is where we are proving it first.
@@ -189,7 +189,7 @@ export default async function HomePage() {
         <div className="container">
           <h2 className="home-section-title">For you, if you&rsquo;re ready to launch</h2>
           <p className="home-for-you-lead">
-            Underserved individuals, adult learners, veterans. No prior tech required. We&rsquo;re currently serving the Austin area — our launch community — and building toward more. If that&rsquo;s you, here&rsquo;s what you get:
+            Underserved individuals, adult learners, veterans. No prior technical knowledge is required. We&rsquo;re currently serving the Austin area — our launch community — and building toward more. If that&rsquo;s you, here&rsquo;s what you get:
           </p>
           <ol className="home-outcome-journey" aria-label="What you receive in sequence">
             <li className="home-outcome-step animate-on-scroll">
@@ -217,7 +217,7 @@ export default async function HomePage() {
               <span className="home-outcome-step__icon" aria-hidden>
                 <Handshake size={28} strokeWidth={2} />
               </span>
-              <p className="home-outcome-step__title">90-day support</p>
+              <p className="home-outcome-step__title">180-day (6 months) post-hire support</p>
               <p className="home-outcome-step__desc">Support after you&apos;re hired</p>
             </li>
           </ol>
@@ -301,10 +301,10 @@ export default async function HomePage() {
           </ul>
           <div className="home-social-proof-actions">
             <Link href="/blog" className="btn btn-primary btn-sm">
-              Blog &amp; updates
+              Blog &amp; Updates
             </Link>
             <Link href="/leadership" className="btn btn-outline btn-sm">
-              Leadership &amp; board
+              Leadership &amp; Board
             </Link>
             <Link href="/what-we-do" className="btn btn-outline btn-sm">
               What we do
@@ -321,7 +321,7 @@ export default async function HomePage() {
               <span className="section-label">Who We Are</span>
               <h2>25+ Years Breaking Barriers</h2>
               <p>
-                Founded by Michael Brown, PMP — a workforce leader who has trained thousands across the Austin Metro and statewide. Through Consulting Solutions.Net, Goodwill Career &amp; Technical Academy, Austin Area Urban League, Universal Tech Movement, and African American Youth Harvest Foundation, we deliver the wrap-around services that launch careers. Austin is our launch community; we&rsquo;re building toward national scale.
+                Founded by Michael Brown, PMP — a workforce leader who has trained thousands across the Austin Metro and statewide. Through partnerships with the State of Texas, Texas Workforce Commission, Consultings.net, Goodwill Career &amp; Technical Academy, Austin Area Urban League, Universal Tech Movement, and African American Youth Harvest Foundation, we deliver the wrap-around services that launch careers. Austin is our launch community; we&rsquo;re building toward national scale.
               </p>
               <div className="about-stats">
                 <div className="about-stat"><span className="stat-num">25+</span><span className="stat-desc">Years Experience</span></div>

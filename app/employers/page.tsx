@@ -72,7 +72,7 @@ const EMPLOYER_COMMITMENTS = [
   {
     icon: Award,
     title: 'Industry Credentials',
-    desc: 'Google, IBM, AWS, Microsoft, CompTIA — the same certifications you hire against. No generic certificates.',
+    desc: 'Google, IBM, AWS, Microsoft, CompTIA — the same employer-recognized in-demand certifications you hire against. No generic certificates.',
   },
   {
     icon: Handshake,

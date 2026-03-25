@@ -161,6 +161,24 @@ export default async function EmployerDashboardPage() {
         }
       />
 
+      {jobs.length === 0 ? (
+        <section className="employer-dash-empty-jobs employer-dash-panel" aria-labelledby="employer-empty-jobs-heading">
+          <h3 id="employer-empty-jobs-heading">Welcome — start with your first posting</h3>
+          <p>
+            You do not have any job drafts or live roles yet. Post a single role, or import a list from a spreadsheet or
+            careers URL. WorkforceAP reviews submissions before they go live on the public board.
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+            <Link href="/employer/jobs/new" className="btn btn-primary">
+              Post your first job
+            </Link>
+            <Link href="/employer/jobs/import" className="btn btn-outline">
+              Import jobs
+            </Link>
+          </div>
+        </section>
+      ) : null}
+
       <section className="employer-dash-overview employer-dash-panel">
         <div className="employer-dash-overview-copy">
           <p className="employer-dash-eyebrow">Hiring overview</p>

@@ -1688,6 +1688,18 @@ html.dark .homepage .hero-badge {
     color: var(--color-white);
     animation: fadeInUp 0.8s ease 0.25s both;
 }
+.hero-program-count {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.92);
+    margin: -0.5rem auto 1rem;
+    animation: fadeInUp 0.8s ease 0.32s both;
+}
+html.dark .homepage .hero-program-count {
+    color: rgba(255, 255, 255, 0.94);
+}
 .hero-title .accent {
     background: linear-gradient(135deg, var(--color-gold), var(--color-gold-light), #dbb85c);
     background-size: 200% auto;
@@ -3020,6 +3032,78 @@ html.dark .program-card-courses-list li {
     flex-wrap: wrap;
     gap: 0.75rem;
     justify-content: center;
+}
+.home-member-testimonials {
+    list-style: none;
+    margin: 0 auto 2rem;
+    padding: 0;
+    max-width: 960px;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+}
+@media (min-width: 768px) {
+    .home-member-testimonials {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.25rem;
+    }
+}
+.home-member-testimonial {
+    margin: 0;
+}
+.home-member-testimonial blockquote {
+    margin: 0;
+    padding: 1.25rem 1.35rem;
+    background: var(--color-white);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    height: 100%;
+}
+.home-member-testimonial blockquote p {
+    margin: 0 0 0.85rem;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--color-gray-700);
+    font-style: italic;
+}
+.home-member-testimonial blockquote footer {
+    font-size: 0.8125rem;
+    color: var(--color-gray-600);
+}
+html.dark .home-member-testimonial blockquote {
+    background: #161a1f;
+    border-color: #2d3540;
+}
+html.dark .home-member-testimonial blockquote p {
+    color: #cbd5e1;
+}
+html.dark .home-member-testimonial blockquote footer {
+    color: #94a3b8;
+}
+.employer-dash-empty-jobs {
+    margin-bottom: 1.5rem;
+    padding: 1.5rem 1.75rem;
+    border-radius: var(--radius-lg);
+    border: 1px dashed var(--color-gray-300);
+    background: var(--color-gray-50);
+}
+.employer-dash-empty-jobs h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1.15rem;
+}
+.employer-dash-empty-jobs p {
+    margin: 0 0 1rem;
+    color: var(--color-gray-600);
+    line-height: 1.55;
+    max-width: 40rem;
+}
+html.dark .employer-dash-empty-jobs {
+    background: #161a1f;
+    border-color: #3d4450;
+}
+html.dark .employer-dash-empty-jobs p {
+    color: #94a3b8;
 }
 .apply-info-banner {
     background: var(--color-light);

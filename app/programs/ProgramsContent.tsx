@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { PROGRAMS } from '@/lib/content/programs';
+import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import type { Program } from '@/lib/content/programs';
 import { getProgramExtra } from '@/lib/content/programExtras';
 import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
@@ -11,7 +11,7 @@ import { ProgramIcon } from '@/components/ProgramIcon';
 const programs = PROGRAMS;
 
 const filters = [
-  { key: 'all', label: 'All Programs (19)' },
+  { key: 'all', label: `All Programs (${WORKFORCEAP_PROGRAM_CATALOG_SIZE})` },
   { key: 'digital-literacy', label: 'Digital Literacy (1)' },
   { key: 'ai-software', label: 'AI & Software (2)' },
   { key: 'cloud-data', label: 'Cloud & Data (3)' },

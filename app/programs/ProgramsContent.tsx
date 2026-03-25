@@ -10,15 +10,27 @@ import { ProgramIcon } from '@/components/ProgramIcon';
 
 const programs = PROGRAMS;
 
+const CATEGORY_FILTER_ORDER: { key: string; label: string }[] = [
+  { key: 'digital-literacy', label: 'Digital Literacy' },
+  { key: 'ai-software', label: 'AI & Software' },
+  { key: 'cloud-data', label: 'Cloud & Data' },
+  { key: 'it-cyber', label: 'IT & Cyber' },
+  { key: 'business', label: 'Business' },
+  { key: 'healthcare', label: 'Healthcare' },
+  { key: 'manufacturing', label: 'Manufacturing' },
+];
+
+const categoryProgramCounts = PROGRAMS.reduce<Record<string, number>>((acc, p) => {
+  acc[p.category] = (acc[p.category] ?? 0) + 1;
+  return acc;
+}, {});
+
 const filters = [
   { key: 'all', label: `All Programs (${WORKFORCEAP_PROGRAM_CATALOG_SIZE})` },
-  { key: 'digital-literacy', label: 'Digital Literacy (1)' },
-  { key: 'ai-software', label: 'AI & Software (2)' },
-  { key: 'cloud-data', label: 'Cloud & Data (3)' },
-  { key: 'it-cyber', label: 'IT & Cyber (6)' },
-  { key: 'business', label: 'Business (3)' },
-  { key: 'healthcare', label: 'Healthcare (1)' },
-  { key: 'manufacturing', label: 'Manufacturing (3)' },
+  ...CATEGORY_FILTER_ORDER.map(({ key, label }) => ({
+    key,
+    label: `${label} (${categoryProgramCounts[key] ?? 0})`,
+  })),
 ];
 
 const CATEGORY_BORDER: Record<string, string> = {

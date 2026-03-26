@@ -258,47 +258,15 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Social proof + member voices (first-name only; no fabricated employer quotes) */}
+      {/* Social proof — real destinations, no placeholder quotes */}
       <section className="home-social-proof" aria-labelledby="home-social-proof-heading">
         <div className="container">
           <h2 id="home-social-proof-heading" className="home-section-title">
             Stories &amp; proof points
           </h2>
           <p className="home-social-proof-lead">
-            We don&apos;t use fabricated employer quotes. Below are representative member voices from our model — plus links for updates and leadership.
+            We don&apos;t use fabricated employer quotes. For real updates, graduate-focused writing, and who stands behind the work, use the links below.
           </p>
-          <ul className="home-member-testimonials" aria-label="Member testimonials">
-            <li className="home-member-testimonial">
-              <blockquote>
-                <p>
-                  &ldquo;I came in with no tech background. The counselor helped me pick a path, and I finally have credentials employers recognize.&rdquo;
-                </p>
-                <footer>
-                  — <strong>Marcus</strong>, IT Support track
-                </footer>
-              </blockquote>
-            </li>
-            <li className="home-member-testimonial">
-              <blockquote>
-                <p>
-                  &ldquo;The program was intense but doable part-time. Resume help and interview prep made the difference when I started applying.&rdquo;
-                </p>
-                <footer>
-                  — <strong>Priya</strong>, Data &amp; analytics track
-                </footer>
-              </blockquote>
-            </li>
-            <li className="home-member-testimonial">
-              <blockquote>
-                <p>
-                  &ldquo;Having someone in my corner for job search — not just coursework — is why I stuck with it through certification.&rdquo;
-                </p>
-                <footer>
-                  — <strong>James</strong>, Cybersecurity track
-                </footer>
-              </blockquote>
-            </li>
-          </ul>
           <div className="home-social-proof-actions">
             <Link href="/blog" className="btn btn-primary btn-sm">
               Blog &amp; Updates

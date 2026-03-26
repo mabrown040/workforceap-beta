@@ -124,7 +124,14 @@ export default function ProfileForm({ initialUser, initialProfile }: ProfileForm
       </div>
       <div className="form-row">
         <div className="form-group">
-          <label htmlFor="city">City</label>
+          <label htmlFor="city">
+            City
+            {zipLookupLoading ? (
+              <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', color: 'var(--color-gray-500)' }}>
+                (auto-filling...)
+              </span>
+            ) : null}
+          </label>
           <input
             id="city"
             type="text"

@@ -91,6 +91,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     tourTarget: 'tour-jobs',
   },
   { href: '/dashboard/resources', label: 'Program resources', group: 'workflows', Icon: Layers, tourTarget: 'tour-resources' },
+  { href: '/dashboard/resume', label: 'Resume', group: 'workflows', Icon: FileText },
   { href: '/dashboard/ai-tools', label: 'AI tools', group: 'workflows', Icon: Sparkles },
   {
     href: '/dashboard/ai-tools/application-tracker',

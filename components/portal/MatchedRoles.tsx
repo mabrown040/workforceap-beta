@@ -26,8 +26,28 @@ export default function MatchedRoles() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return null;
-  if (jobs.length === 0) return null;
+  if (loading) {
+    return (
+      <section className="dashboard-matched-roles" style={{ marginTop: '1.5rem' }}>
+        <h2 className="dashboard-today-label">Roles that match you</h2>
+        <p style={{ color: 'var(--color-gray-600)', fontSize: '0.9rem' }}>
+          Finding jobs that match your skills...
+        </p>
+      </section>
+    );
+  }
+
+  if (jobs.length === 0) {
+    return (
+      <section className="dashboard-matched-roles" style={{ marginTop: '1.5rem' }}>
+        <h2 className="dashboard-today-label">Roles that match you</h2>
+        <p style={{ color: 'var(--color-gray-600)', fontSize: '0.9rem', marginBottom: '1rem' }}>
+          No matched jobs available yet. Check back soon as we add new employer opportunities, 
+          or visit the <Link href="/jobs" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>job board</Link> to browse all openings.
+        </p>
+      </section>
+    );
+  }
 
   return (
     <section className="dashboard-matched-roles" style={{ marginTop: '1.5rem' }}>

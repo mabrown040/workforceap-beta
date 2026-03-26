@@ -71,8 +71,39 @@ export default function PrivacyPage() {
             <h2>7. Cookies and Tracking</h2>
             <p>We use cookies and similar technologies to maintain your session, remember your preferences, and understand how our platform is used. We use Google Tag Manager for analytics. You can control cookie settings through your browser, though disabling cookies may affect platform functionality.</p>
 
-            <h2>8. Children&rsquo;s Privacy</h2>
-            <p>Our platform is intended for users 16 years of age and older. We do not knowingly collect personal information from children under 13. If we become aware that we have collected information from a child under 13, we will delete it promptly.</p>
+            <h2>8. Children&rsquo;s Privacy and Minor Consent</h2>
+            
+            <h3>8.1 Age Requirements</h3>
+            <p>Our platform is intended for users 16 years of age and older. We do not knowingly collect personal information from children under 13 without verifiable parental consent, as required by the Children&rsquo;s Online Privacy Protection Act (COPPA).</p>
+            
+            <h3>8.2 Minors (Ages 13-17)</h3>
+            <p>For users between 13 and 17 years of age (minors), we require:</p>
+            <ul>
+              <li><strong>Parental or guardian consent:</strong> A parent or legal guardian must review and consent to our Terms of Service and this Privacy Policy before the minor can access our services</li>
+              <li><strong>Guardian contact information:</strong> We collect parent/guardian name, email, and phone number for communication about the minor&rsquo;s participation</li>
+              <li><strong>Educational records consent:</strong> If applicable, consent to share educational progress with schools or districts under FERPA guidelines</li>
+            </ul>
+            
+            <h3>8.3 High School Partnerships</h3>
+            <p>When partnering with high schools and educational institutions, we:</p>
+            <ul>
+              <li>Comply with the Family Educational Rights and Privacy Act (FERPA) for student education records</li>
+              <li>Collect only necessary information with appropriate consent</li>
+              <li>Provide parents/guardians access to their minor&rsquo;s information upon request</li>
+              <li>Allow parents/guardians to revoke consent and request deletion at any time</li>
+              <li>Maintain secure storage of minor student information with enhanced access controls</li>
+              <li>Share student progress with authorized school officials only when consent is provided</li>
+            </ul>
+            
+            <h3>8.4 Parental Rights</h3>
+            <p>Parents and guardians of minors have the right to:</p>
+            <ul>
+              <li>Review their child&rsquo;s personal information collected by us</li>
+              <li>Request correction or deletion of their child&rsquo;s information</li>
+              <li>Refuse to permit further collection or use of their child&rsquo;s information</li>
+              <li>Receive notification of significant changes to our minor data practices</li>
+            </ul>
+            <p>To exercise these rights or if you believe we have collected information from a child under 13 without proper consent, contact us immediately at <a href="mailto:info@workforceap.org">info@workforceap.org</a>.</p>
 
             <h2>9. Changes to This Policy</h2>
             <p>We may update this Privacy Policy from time to time. We will notify you of significant changes by posting the new policy on this page and updating the &ldquo;Last updated&rdquo; date. Your continued use of our services after changes are posted constitutes acceptance of the revised policy.</p>

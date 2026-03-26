@@ -237,20 +237,22 @@ export default function MainNav() {
             priority
           />
         </Link>
-        <div className="nav-theme-slot">
-          <ThemeToggle variant="marketing" />
+        <div className="nav-actions-mobile">
+          <div className="nav-theme-slot">
+            <ThemeToggle variant="marketing" />
+          </div>
+          <button
+            ref={toggleRef}
+            type="button"
+            className="mobile-nav-toggle"
+            aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'}
+            aria-expanded={mobileOpen}
+            aria-controls={navMenuId}
+            onClick={toggleMobile}
+          >
+            {mobileOpen ? <X size={26} strokeWidth={2} aria-hidden /> : <Menu size={26} strokeWidth={2} aria-hidden />}
+          </button>
         </div>
-        <button
-          ref={toggleRef}
-          type="button"
-          className="mobile-nav-toggle"
-          aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'}
-          aria-expanded={mobileOpen}
-          aria-controls={navMenuId}
-          onClick={toggleMobile}
-        >
-          {mobileOpen ? <X size={26} strokeWidth={2} aria-hidden /> : <Menu size={26} strokeWidth={2} aria-hidden />}
-        </button>
         <button
           type="button"
           className={`mobile-nav-backdrop${mobileOpen ? ' visible' : ''}`}

@@ -32,6 +32,7 @@ export async function getSlaStatusForThreads(threadIds: string[]): Promise<Map<s
       FROM messages m
       INNER JOIN message_threads mt ON mt.id = m.thread_id
       WHERE m.thread_id IN (${Prisma.join(threadIds)})
+        AND mt.kind = 'member'
         AND m.author_id = mt.member_id
       GROUP BY m.thread_id
     )
@@ -77,7 +78,8 @@ export async function countThreadsWithSlaBreach(minHours: 48 | 72): Promise<numb
       SELECT m.thread_id, MAX(m.created_at) AS member_last_at
       FROM messages m
       INNER JOIN message_threads mt ON mt.id = m.thread_id
-      WHERE m.author_id = mt.member_id
+      WHERE mt.kind = 'member'
+        AND m.author_id = mt.member_id
       GROUP BY m.thread_id
     )
     SELECT COUNT(*)::bigint AS count
@@ -96,7 +98,7 @@ export async function countThreadsWithSlaBreach(minHours: 48 | 72): Promise<numb
 
 export async function countMessageThreadsWithActivity(): Promise<number> {
   return prisma.messageThread.count({
-    where: { messages: { some: {} } },
+    where: { kind: 'member', messages: { some: {} } },
   });
 }
 
@@ -107,7 +109,8 @@ export async function getThreadIdsBreachingSla(threshold: Date, limit: number): 
       SELECT m.thread_id, MAX(m.created_at) AS member_last_at
       FROM messages m
       INNER JOIN message_threads mt ON mt.id = m.thread_id
-      WHERE m.author_id = mt.member_id
+      WHERE mt.kind = 'member'
+        AND m.author_id = mt.member_id
       GROUP BY m.thread_id
     )
     SELECT mt.id AS thread_id

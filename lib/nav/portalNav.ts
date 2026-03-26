@@ -46,7 +46,9 @@ export type NavBadgeKey =
   | 'counselor_sla_breach_48h'
   | 'employer_queue_review_today'
   | 'employer_queue_stale_48h'
-  | 'employer_queue_interview';
+  | 'employer_queue_interview'
+  | 'employer_messages_unread'
+  | 'partner_messages_unread';
 
 export type PortalNavItem = {
   href: string;
@@ -153,7 +155,14 @@ export const EMPLOYER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   },
   { href: '/employer/matches', label: 'Match history', group: 'workflows', Icon: Sparkles, tourTarget: 'tour-matches' },
   { href: '/employer/pipeline', label: 'Candidate pipeline', group: 'workflows', Icon: GitBranch, tourTarget: 'tour-pipeline' },
-  { href: '/employer/messages', label: 'Messages / support', group: 'manage', Icon: MessageSquare },
+  {
+    href: '/employer/messages',
+    label: 'Messages',
+    group: 'manage',
+    Icon: MessageSquare,
+    tourTarget: 'tour-messages',
+    badgeKey: 'employer_messages_unread',
+  },
   { href: '/employer/settings', label: 'Company settings', group: 'manage', Icon: Settings },
 ];
 
@@ -185,6 +194,14 @@ export const PARTNER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/partner/outcomes', label: 'Outcomes snapshot', group: 'insights', Icon: BarChart3, tourTarget: 'tour-outcomes' },
   { href: '/partner/resources', label: 'Partner resources', group: 'manage', Icon: Layers },
   { href: '/partner/exports', label: 'Exports', group: 'manage', Icon: Download },
+  {
+    href: '/partner/messages',
+    label: 'Messages',
+    group: 'manage',
+    Icon: MessageSquare,
+    tourTarget: 'tour-messages',
+    badgeKey: 'partner_messages_unread',
+  },
   { href: '/partner/settings', label: 'Settings', group: 'manage', Icon: Settings },
 ];
 

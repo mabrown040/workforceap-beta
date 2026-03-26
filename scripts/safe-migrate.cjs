@@ -16,8 +16,11 @@ require('./ensure-prisma-env.cjs');
 // One-off `resolve --applied` for legacy DBs caused P3008 on Supabase once rows exist — keep empty.
 const MARK_APPLIED = [];
 
-// Removed from repo / replaced by 20260324000001; prod DB may still list this as *failed* → blocks P3009.
-const MARK_ROLLED_BACK = ['20260323999999_add_missing_partner_notify_columns'];
+// Prod DB may list these as *failed* after a partial apply → P3009 blocks deploy until resolved.
+const MARK_ROLLED_BACK = [
+  '20260323999999_add_missing_partner_notify_columns',
+  '20260326120000_portal_message_threads_kind',
+];
 
 function run(args, ignoreError = false) {
   const result = spawnSync(process.execPath, [require.resolve('./prisma-env.js'), ...args], {

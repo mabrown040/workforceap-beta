@@ -2,27 +2,27 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { getEmployerForUser } from '@/lib/auth/roles';
+import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalTeamChatClient from '@/components/portal/PortalTeamChatClient';
-import { getOrCreateEmployerMessageThread } from '@/lib/messages/portalThreads';
+import { getOrCreatePartnerMessageThread } from '@/lib/messages/portalThreads';
 import { serializeMessage } from '@/lib/messages/counselorThread';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Messages',
   description: 'Message the WorkforceAP team.',
-  path: '/employer/messages',
+  path: '/partner/messages',
 });
 
-export default async function EmployerMessagesPage() {
+export default async function PartnerMessagesPage() {
   const user = await getUser();
-  if (!user) redirect('/login?redirectTo=/employer/messages');
+  if (!user) redirect('/login?redirectTo=/partner/messages');
 
-  const ctx = await getEmployerForUser(user.id);
-  if (!ctx) redirect('/employers');
+  const ctx = await getPartnerForUser(user.id);
+  if (!ctx) redirect('/dashboard');
 
-  const thread = await getOrCreateEmployerMessageThread(ctx.employerId);
+  const thread = await getOrCreatePartnerMessageThread(ctx.partnerId);
 
   const messages = await prisma.message.findMany({
     where: { threadId: thread.id },
@@ -33,10 +33,10 @@ export default async function EmployerMessagesPage() {
     <div>
       <PageHeader
         title="Messages"
-        subtitle="Chat with the WorkforceAP team about your jobs, applicants, and hiring pipeline."
+        subtitle="Chat with the WorkforceAP team about referrals, member progress, and partner resources."
       />
       <PortalTeamChatClient
-        apiPath="/api/employer/messages"
+        apiPath="/api/partner/messages"
         initial={{
           thread: {
             id: thread.id,
@@ -46,7 +46,7 @@ export default async function EmployerMessagesPage() {
           portalUserId: user.id,
         }}
         subtitle="We typically reply within one business day."
-        emptyHint="No messages yet. Ask a question about job postings, applications, or candidate matches."
+        emptyHint="No messages yet. Reach out about referrals, milestones, or program questions."
       />
     </div>
   );

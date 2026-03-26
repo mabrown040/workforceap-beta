@@ -36,28 +36,19 @@ export default async function AssessmentsPage() {
 
   return (
     <div className="assessments-page">
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Skills Assessment</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
+      <h1 className="portal-page-title">Skills Assessment</h1>
+      <p className="portal-assessments-lead">
         Your skills snapshot helps us personalize your learning path and connect you with career support.
       </p>
 
-      <div
-        className="assessments-card"
-        style={{
-          padding: '1.5rem',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--color-border, #e5e5e5)',
-          background: 'var(--color-light)',
-          maxWidth: 560,
-        }}
-      >
+      <div className="assessments-card">
         {assessmentGated ? (
           <>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-              <Lock size={28} style={{ color: 'var(--color-gray-500)', flexShrink: 0 }} aria-hidden />
-              <h2 style={{ fontSize: '1.15rem', margin: 0 }}>Assessment opens after your intake interview</h2>
+            <div className="assessments-card__row">
+              <Lock size={28} className="assessments-card__icon assessments-card__icon--muted" aria-hidden />
+              <h2 className="assessments-card__title">Assessment opens after your intake interview</h2>
             </div>
-            <p style={{ marginBottom: '1rem', color: 'var(--color-gray-600)', lineHeight: 1.55 }}>
+            <p className="assessments-card__body">
               Your counselor uses the interview to confirm fit and next steps. After that conversation is complete, you
               can take the skills snapshot here. If you believe your interview is already done and you still see this
               message, contact your counselor or email support.
@@ -68,13 +59,13 @@ export default async function AssessmentsPage() {
           </>
         ) : completed ? (
           <>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-              <CheckCircle size={28} style={{ color: 'var(--color-accent)', flexShrink: 0 }} aria-hidden />
-              <h2 style={{ fontSize: '1.15rem', margin: 0 }}>Assessment complete</h2>
+            <div className="assessments-card__row">
+              <CheckCircle size={28} className="assessments-card__icon assessments-card__icon--accent" aria-hidden />
+              <h2 className="assessments-card__title">Assessment complete</h2>
             </div>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            <ul className="assessments-card__list">
               {dbUser.assessmentCompletedAt && (
-                <li style={{ marginBottom: '0.5rem' }}>
+                <li>
                   <strong>Completed:</strong>{' '}
                   {new Date(dbUser.assessmentCompletedAt).toLocaleDateString(undefined, {
                     year: 'numeric',
@@ -84,20 +75,20 @@ export default async function AssessmentsPage() {
                 </li>
               )}
               {dbUser.assessmentScorePct != null && (
-                <li style={{ marginBottom: '0.5rem' }}>
+                <li>
                   <strong>Score:</strong> {dbUser.assessmentScorePct}%
                 </li>
               )}
               {dbUser.enrolledProgram && (
-                <li style={{ marginBottom: '0.5rem' }}>
+                <li>
                   <strong>Program:</strong>{' '}
                   {getProgramBySlug(dbUser.enrolledProgram)?.title ?? dbUser.enrolledProgram}
                 </li>
               )}
             </ul>
-            <div style={{ marginTop: '1.25rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+            <div className="assessments-card__actions">
               <Link href="/dashboard/readiness" className="btn btn-primary">
-                View Career Readiness <ArrowRight size={16} style={{ marginLeft: '0.25rem', verticalAlign: 'middle' }} />
+                View Career Readiness <ArrowRight size={16} />
               </Link>
               <Link href="/dashboard/training" className="btn btn-outline">
                 Go to Training
@@ -106,12 +97,13 @@ export default async function AssessmentsPage() {
           </>
         ) : (
           <>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-              <FileQuestion size={28} style={{ color: 'var(--color-gray-500)', flexShrink: 0 }} aria-hidden />
-              <h2 style={{ fontSize: '1.15rem', margin: 0 }}>Assessment not yet completed</h2>
+            <div className="assessments-card__row">
+              <FileQuestion size={28} className="assessments-card__icon assessments-card__icon--muted" aria-hidden />
+              <h2 className="assessments-card__title">Assessment not yet completed</h2>
             </div>
-            <p style={{ marginBottom: '1rem', color: 'var(--color-gray-600)' }}>
-              Complete a quick 10-minute skills snapshot so we can tailor your learning path and identify support resources. This step is required before you can access your training courses.
+            <p className="assessments-card__body--tight">
+              Complete a quick 10-minute skills snapshot so we can tailor your learning path and identify support resources.
+              This step is required before you can access your training courses.
             </p>
             <Link href="/dashboard/assessment" className="btn btn-primary">
               Take Assessment
@@ -120,10 +112,11 @@ export default async function AssessmentsPage() {
         )}
       </div>
 
-      <div style={{ marginTop: '2rem' }}>
-        <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>Why we ask</h3>
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', maxWidth: 560 }}>
-          Your answers help counselors personalize your learning path, recommend certifications, and connect you with job placement resources. Results are used only to support your success.
+      <div className="assessments-why">
+        <h3 className="assessments-why__title">Why we ask</h3>
+        <p className="assessments-why__text">
+          Your answers help counselors personalize your learning path, recommend certifications, and connect you with job
+          placement resources. Results are used only to support your success.
         </p>
       </div>
     </div>

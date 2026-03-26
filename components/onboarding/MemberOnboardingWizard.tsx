@@ -142,7 +142,9 @@ export default function MemberOnboardingWizard({
             <Sparkles className="wa-h-12 wa-w-12 wa-text-brand-gold" aria-hidden />
           </div>
           <p className="wa-text-sm wa-leading-relaxed">
-            This quick setup (about 2 minutes) gets you on the path to training and job placement. You can skip anytime.
+            This quick setup (about 2 minutes) gets you on the path to training and job placement. Use{' '}
+            <span className="wa-font-medium wa-text-slate-700 dark:wa-text-slate-200">Skip setup</span> below if you
+            prefer to explore the portal first; you can finish your profile anytime from the dashboard.
           </p>
         </div>
       ),

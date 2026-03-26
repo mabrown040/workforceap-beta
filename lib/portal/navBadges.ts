@@ -72,7 +72,7 @@ async function getMemberBadgeCounts(userId: string): Promise<NavBadgeCounts> {
 }
 
 async function getEmployerBadgeCounts(employerId: string): Promise<NavBadgeCounts> {
-  const [draft, pendingReview, live, newApplications, queueBadges] = await Promise.all([
+  const [draft, pendingReview, live, newApplications, queueBadges, employerRow, thread] = await Promise.all([
     prisma.job.count({ where: { employerId, status: 'draft' } }),
     prisma.job.count({
       where: { employerId, status: { in: ['pending', 'approved'] } },
@@ -85,13 +85,34 @@ async function getEmployerBadgeCounts(employerId: string): Promise<NavBadgeCount
       },
     }),
     countEmployerQueueBadges(employerId),
+    prisma.employer.findUnique({
+      where: { id: employerId },
+      select: { userId: true },
+    }),
+    prisma.messageThread.findUnique({
+      where: { employerId },
+      select: { id: true, portalUserLastReadAt: true },
+    }),
   ]);
+
+  let employer_messages_unread = 0;
+  if (thread && employerRow) {
+    const staffUserId = employerRow.userId;
+    employer_messages_unread = await prisma.message.count({
+      where: {
+        threadId: thread.id,
+        authorId: { not: staffUserId },
+        ...(thread.portalUserLastReadAt ? { createdAt: { gt: thread.portalUserLastReadAt } } : {}),
+      },
+    });
+  }
 
   return {
     jobs_draft: draft,
     jobs_pending: pendingReview,
     jobs_live: live,
     applications_new: newApplications,
+    employer_messages_unread,
     ...queueBadges,
   };
 }
@@ -100,11 +121,19 @@ async function getPartnerBadgeCounts(partnerId: string): Promise<NavBadgeCounts>
   const since = new Date();
   since.setDate(since.getDate() - MILESTONE_LOOKBACK_DAYS);
 
-  const [attentionRows, referralIds] = await Promise.all([
+  const [attentionRows, referralIds, partnerUsers, thread] = await Promise.all([
     buildPartnerAttentionQueue(partnerId),
     prisma.partnerReferral.findMany({
       where: { partnerId, member: { deletedAt: null } },
       select: { memberId: true },
+    }),
+    prisma.partnerUser.findMany({
+      where: { partnerId },
+      select: { userId: true },
+    }),
+    prisma.messageThread.findUnique({
+      where: { partnerId },
+      select: { id: true, portalUserLastReadAt: true },
     }),
   ]);
 
@@ -119,9 +148,22 @@ async function getPartnerBadgeCounts(partnerId: string): Promise<NavBadgeCounts>
     });
   }
 
+  const partnerUserIds = partnerUsers.map((p) => p.userId);
+  let partner_messages_unread = 0;
+  if (thread && partnerUserIds.length > 0) {
+    partner_messages_unread = await prisma.message.count({
+      where: {
+        threadId: thread.id,
+        authorId: { notIn: partnerUserIds },
+        ...(thread.portalUserLastReadAt ? { createdAt: { gt: thread.portalUserLastReadAt } } : {}),
+      },
+    });
+  }
+
   return {
     partner_needs_attention: countActionablePartnerAttention(attentionRows),
     milestones_new: milestonesNew,
+    partner_messages_unread,
   };
 }
 

@@ -229,31 +229,33 @@ export default function PortalTour({ steps, portal, onComplete }: PortalTourProp
         <div className="wa-px-4 wa-py-3 wa-text-sm wa-leading-relaxed wa-text-slate-800 dark:wa-text-slate-100">
           {step.body}
         </div>
-        <div className="wa-flex wa-flex-col wa-gap-2 wa-border-t wa-border-slate-100 wa-px-4 wa-py-3 dark:wa-border-slate-700 sm:wa-flex-row sm:wa-items-center sm:wa-justify-between">
-          <div className="wa-flex wa-items-center wa-gap-2">
+        <div className="wa-border-t wa-border-slate-100 wa-px-4 wa-py-3 dark:wa-border-slate-700">
+          <div className="wa-flex wa-flex-col wa-gap-3 sm:wa-flex-row sm:wa-items-center sm:wa-justify-between">
             <button
               type="button"
               onClick={goBack}
               disabled={index === 0}
-              className="wa-rounded-lg wa-border wa-border-slate-200 wa-bg-white wa-px-3 wa-py-2 wa-text-sm wa-font-medium wa-text-slate-800 disabled:wa-opacity-40 dark:wa-border-slate-600 dark:wa-bg-slate-800 dark:wa-text-slate-100"
+              className="wa-order-1 wa-rounded-lg wa-border wa-border-slate-200 wa-bg-white wa-px-3 wa-py-2 wa-text-sm wa-font-medium wa-text-slate-800 disabled:wa-opacity-40 dark:wa-border-slate-600 dark:wa-bg-slate-800 dark:wa-text-slate-100 sm:wa-order-none"
             >
               Back
             </button>
-            <button
-              type="button"
-              onClick={() => void goNext()}
-              className="wa-rounded-lg wa-bg-brand-accent wa-px-4 wa-py-2 wa-text-sm wa-font-semibold wa-text-white hover:wa-bg-brand-accent-dark"
-            >
-              {index >= total - 1 ? 'Done' : 'Next'}
-            </button>
+            <div className="wa-order-3 wa-flex wa-w-full wa-flex-wrap wa-items-center wa-justify-stretch wa-gap-2 sm:wa-order-2 sm:wa-w-auto sm:wa-justify-end">
+              <button
+                type="button"
+                onClick={() => dismiss()}
+                className="wa-min-h-[40px] wa-flex-1 wa-rounded-lg wa-border wa-border-slate-200 wa-bg-slate-50 wa-px-3 wa-py-2 wa-text-sm wa-font-medium wa-text-slate-600 wa-transition-colors hover:wa-bg-slate-100 hover:wa-text-slate-800 dark:wa-border-slate-600 dark:wa-bg-slate-800/80 dark:wa-text-slate-300 dark:hover:wa-bg-slate-800 dark:hover:wa-text-slate-100 sm:wa-flex-initial"
+              >
+                Skip tour
+              </button>
+              <button
+                type="button"
+                onClick={() => void goNext()}
+                className="wa-min-h-[40px] wa-flex-1 wa-rounded-lg wa-bg-brand-accent wa-px-4 wa-py-2 wa-text-sm wa-font-semibold wa-text-white hover:wa-bg-brand-accent-dark sm:wa-flex-initial"
+              >
+                {index >= total - 1 ? 'Done' : 'Next'}
+              </button>
+            </div>
           </div>
-          <button
-            type="button"
-            onClick={() => dismiss()}
-            className="wa-text-left wa-text-sm wa-text-slate-500 wa-underline hover:wa-text-brand-primary dark:wa-text-slate-400 dark:hover:wa-text-slate-200 sm:wa-text-right"
-          >
-            Skip tour
-          </button>
         </div>
       </div>
     </>

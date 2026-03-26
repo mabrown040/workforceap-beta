@@ -3,10 +3,18 @@ import { getUser } from '@/lib/auth/server';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSlaStatusForThreads, getThreadIdsBreachingSla } from '@/lib/messages/superAdminMessageQueries';
+import type { MessageThreadKind, Prisma } from '@prisma/client';
 
 const DEFAULT_LIMIT = 30;
 const MAX_LIMIT = 50;
 const HOURS_48_MS = 48 * 60 * 60 * 1000;
+
+type InboxFilter = 'member' | 'employer' | 'partner' | 'all';
+
+function parseInbox(raw: string | null): InboxFilter {
+  if (raw === 'employer' || raw === 'partner' || raw === 'all') return raw;
+  return 'member';
+}
 
 export async function GET(request: NextRequest) {
   const user = await getUser();
@@ -18,23 +26,108 @@ export async function GET(request: NextRequest) {
   const limit = Math.min(Math.max(Number(sp.get('limit')) || DEFAULT_LIMIT, 1), MAX_LIMIT);
   const search = (sp.get('search') ?? '').trim();
   const alertsOnly = sp.get('alertsOnly') === '1' || sp.get('alertsOnly') === 'true';
+  const inbox = alertsOnly ? 'member' : parseInbox(sp.get('inbox'));
 
-  const searchWhere =
+  const memberSearchClause =
     search.length > 0
-      ? {
+      ? ({
           OR: [
-            { member: { fullName: { contains: search, mode: 'insensitive' as const } } },
-            { member: { email: { contains: search, mode: 'insensitive' as const } } },
-            { messages: { some: { body: { contains: search, mode: 'insensitive' as const } } } },
+            { member: { fullName: { contains: search, mode: 'insensitive' } } },
+            { member: { email: { contains: search, mode: 'insensitive' } } },
+            { messages: { some: { body: { contains: search, mode: 'insensitive' } } } },
           ],
-        }
-      : {};
+        } satisfies Prisma.MessageThreadWhereInput)
+      : null;
 
-  const baseWhere = {
-    messages: { some: {} },
-    member: { deletedAt: null },
-    ...searchWhere,
+  const employerSearchClause =
+    search.length > 0
+      ? ({
+          OR: [
+            { employer: { companyName: { contains: search, mode: 'insensitive' } } },
+            { employer: { contactEmail: { contains: search, mode: 'insensitive' } } },
+            { messages: { some: { body: { contains: search, mode: 'insensitive' } } } },
+          ],
+        } satisfies Prisma.MessageThreadWhereInput)
+      : null;
+
+  const partnerSearchClause =
+    search.length > 0
+      ? ({
+          OR: [
+            { partner: { name: { contains: search, mode: 'insensitive' } } },
+            { messages: { some: { body: { contains: search, mode: 'insensitive' } } } },
+          ],
+        } satisfies Prisma.MessageThreadWhereInput)
+      : null;
+
+  const baseWhereForInbox = (): Prisma.MessageThreadWhereInput => {
+    const hasMsg = { messages: { some: {} } };
+    if (inbox === 'member') {
+      return {
+        kind: 'member',
+        member: { deletedAt: null },
+        ...hasMsg,
+        ...(memberSearchClause ? { AND: [memberSearchClause] } : {}),
+      };
+    }
+    if (inbox === 'employer') {
+      return {
+        kind: 'employer',
+        ...hasMsg,
+        ...(employerSearchClause ? { AND: [employerSearchClause] } : {}),
+      };
+    }
+    if (inbox === 'partner') {
+      return {
+        kind: 'partner',
+        ...hasMsg,
+        ...(partnerSearchClause ? { AND: [partnerSearchClause] } : {}),
+      };
+    }
+    if (search.length > 0) {
+      return {
+        ...hasMsg,
+        OR: [
+          {
+            kind: 'member',
+            member: { deletedAt: null },
+            ...(memberSearchClause ? { AND: [memberSearchClause] } : {}),
+          },
+          {
+            kind: 'employer',
+            ...(employerSearchClause ? { AND: [employerSearchClause] } : {}),
+          },
+          {
+            kind: 'partner',
+            ...(partnerSearchClause ? { AND: [partnerSearchClause] } : {}),
+          },
+        ],
+      };
+    }
+    return {
+      ...hasMsg,
+      OR: [{ kind: 'member', member: { deletedAt: null } }, { kind: 'employer' }, { kind: 'partner' }],
+    };
   };
+
+  const selectList = {
+    id: true,
+    kind: true,
+    memberId: true,
+    employerId: true,
+    partnerId: true,
+    counselorUserId: true,
+    updatedAt: true,
+    member: { select: { id: true, fullName: true, email: true } },
+    employer: { select: { id: true, companyName: true, contactEmail: true, userId: true } },
+    partner: { select: { id: true, name: true, partnerUsers: { select: { userId: true } } } },
+    counselor: { select: { id: true, fullName: true } },
+    messages: {
+      orderBy: { createdAt: 'desc' as const },
+      take: 1,
+      select: { id: true, body: true, createdAt: true, authorId: true },
+    },
+  } satisfies Prisma.MessageThreadSelect;
 
   if (alertsOnly) {
     const threshold = new Date(Date.now() - HOURS_48_MS);
@@ -42,7 +135,7 @@ export async function GET(request: NextRequest) {
 
     if (search.length > 0) {
       const matching = await prisma.messageThread.findMany({
-        where: { id: { in: breachIds }, ...baseWhere },
+        where: { id: { in: breachIds }, ...baseWhereForInbox() },
         select: { id: true },
       });
       const allow = new Set(matching.map((m) => m.id));
@@ -56,81 +149,29 @@ export async function GET(request: NextRequest) {
     const nextCursor = hasMore && pageIds.length > 0 ? pageIds[pageIds.length - 1]! : null;
 
     if (pageIds.length === 0) {
-      return NextResponse.json({ threads: [], nextCursor: null, alertsOnly: true });
+      return NextResponse.json({ threads: [], nextCursor: null, alertsOnly: true, inbox: 'member' });
     }
 
     const threads = await prisma.messageThread.findMany({
-      where: { id: { in: pageIds }, member: { deletedAt: null } },
-      select: {
-        id: true,
-        memberId: true,
-        counselorUserId: true,
-        updatedAt: true,
-        member: { select: { id: true, fullName: true, email: true } },
-        counselor: { select: { id: true, fullName: true } },
-        messages: {
-          orderBy: { createdAt: 'desc' },
-          take: 1,
-          select: { id: true, body: true, createdAt: true, authorId: true },
-        },
-      },
+      where: { id: { in: pageIds } },
+      select: selectList,
     });
     const order = new Map(pageIds.map((id, i) => [id, i]));
     threads.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
 
-    const slaMap = await getSlaStatusForThreads(threads.map((t) => t.id));
-    const rows = threads.map((t) => {
-      const last = t.messages[0];
-      const sla = slaMap.get(t.id);
-      const preview = last ? (last.body.length > 140 ? `${last.body.slice(0, 137)}…` : last.body) : '';
-      return {
-        id: t.id,
-        memberId: t.memberId,
-        memberName: t.member.fullName,
-        memberEmail: t.member.email,
-        counselorUserId: t.counselorUserId,
-        counselorName: t.counselor?.fullName ?? null,
-        updatedAt: t.updatedAt.toISOString(),
-        lastMessagePreview: preview,
-        lastMessageAt: last?.createdAt.toISOString() ?? null,
-        lastMessageAuthorId: last?.authorId ?? null,
-        sla: sla
-          ? {
-              needsCounselorReply: sla.needsCounselorReply,
-              memberLastMessageAt: sla.memberLastMessageAt?.toISOString() ?? null,
-              breached48h: sla.breached48h,
-              breached72h: sla.breached72h,
-            }
-          : {
-              needsCounselorReply: false,
-              memberLastMessageAt: null,
-              breached48h: false,
-              breached72h: false,
-            },
-      };
-    });
+    const memberIds = threads.filter((t) => t.kind === 'member').map((t) => t.id);
+    const slaMap = memberIds.length ? await getSlaStatusForThreads(memberIds) : new Map();
 
-    return NextResponse.json({ threads: rows, nextCursor, alertsOnly: true });
+    const rows = threads.map((t) => mapThreadRow(t, slaMap));
+    return NextResponse.json({ threads: rows, nextCursor, alertsOnly: true, inbox: 'member' });
   }
 
   const threads = await prisma.messageThread.findMany({
-    where: baseWhere,
+    where: baseWhereForInbox(),
     orderBy: { updatedAt: 'desc' },
     take: limit + 1,
     ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
-    select: {
-      id: true,
-      memberId: true,
-      counselorUserId: true,
-      updatedAt: true,
-      member: { select: { id: true, fullName: true, email: true } },
-      counselor: { select: { id: true, fullName: true } },
-      messages: {
-        orderBy: { createdAt: 'desc' },
-        take: 1,
-        select: { id: true, body: true, createdAt: true, authorId: true },
-      },
-    },
+    select: selectList,
   });
 
   let page = threads;
@@ -140,23 +181,57 @@ export async function GET(request: NextRequest) {
     nextCursor = page[page.length - 1]?.id ?? null;
   }
 
-  const slaMap = await getSlaStatusForThreads(page.map((t) => t.id));
+  const memberThreadIds = page.filter((t) => t.kind === 'member').map((t) => t.id);
+  const slaMap = memberThreadIds.length ? await getSlaStatusForThreads(memberThreadIds) : new Map();
 
-  const rows = page.map((t) => {
-    const last = t.messages[0];
+  const rows = page.map((t) => mapThreadRow(t, slaMap));
+
+  return NextResponse.json({
+    threads: rows,
+    nextCursor,
+    alertsOnly: false,
+    inbox,
+  });
+}
+
+function mapThreadRow(
+  t: {
+    id: string;
+    kind: MessageThreadKind;
+    memberId: string | null;
+    employerId: string | null;
+    partnerId: string | null;
+    counselorUserId: string | null;
+    updatedAt: Date;
+    member: { id: string; fullName: string; email: string } | null;
+    employer: { id: string; companyName: string; contactEmail: string; userId: string } | null;
+    partner: { id: string; name: string; partnerUsers: { userId: string }[] } | null;
+    counselor: { id: string; fullName: string } | null;
+    messages: Array<{ id: string; body: string; createdAt: Date; authorId: string }>;
+  },
+  slaMap: Map<string, import('@/lib/messages/superAdminMessageQueries').ThreadSlaRow>
+) {
+  const last = t.messages[0];
+  const preview = last ? (last.body.length > 140 ? `${last.body.slice(0, 137)}…` : last.body) : '';
+
+  const base = {
+    id: t.id,
+    kind: t.kind,
+    updatedAt: t.updatedAt.toISOString(),
+    lastMessagePreview: preview,
+    lastMessageAt: last?.createdAt.toISOString() ?? null,
+    lastMessageAuthorId: last?.authorId ?? null,
+  };
+
+  if (t.kind === 'member' && t.member) {
     const sla = slaMap.get(t.id);
-    const preview = last ? (last.body.length > 140 ? `${last.body.slice(0, 137)}…` : last.body) : '';
     return {
-      id: t.id,
+      ...base,
       memberId: t.memberId,
       memberName: t.member.fullName,
       memberEmail: t.member.email,
       counselorUserId: t.counselorUserId,
       counselorName: t.counselor?.fullName ?? null,
-      updatedAt: t.updatedAt.toISOString(),
-      lastMessagePreview: preview,
-      lastMessageAt: last?.createdAt.toISOString() ?? null,
-      lastMessageAuthorId: last?.authorId ?? null,
       sla: sla
         ? {
             needsCounselorReply: sla.needsCounselorReply,
@@ -171,11 +246,43 @@ export async function GET(request: NextRequest) {
             breached72h: false,
           },
     };
-  });
+  }
 
-  return NextResponse.json({
-    threads: rows,
-    nextCursor,
-    alertsOnly: false,
-  });
+  if (t.kind === 'employer' && t.employer) {
+    const portalUid = t.employer.userId;
+    const needsStaffReply = last ? last.authorId === portalUid : false;
+    return {
+      ...base,
+      employerId: t.employerId,
+      employerCompanyName: t.employer.companyName,
+      employerContactEmail: t.employer.contactEmail,
+      needsStaffReply,
+    };
+  }
+
+  if (t.kind === 'partner' && t.partner) {
+    const partnerUserIds = t.partner.partnerUsers.map((p) => p.userId);
+    const needsStaffReply = last ? partnerUserIds.includes(last.authorId) : false;
+    return {
+      ...base,
+      partnerId: t.partnerId,
+      partnerName: t.partner.name,
+      needsStaffReply,
+    };
+  }
+
+  return {
+    ...base,
+    memberId: null,
+    memberName: 'Unknown',
+    memberEmail: '',
+    counselorUserId: null,
+    counselorName: null,
+    sla: {
+      needsCounselorReply: false,
+      memberLastMessageAt: null,
+      breached48h: false,
+      breached72h: false,
+    },
+  };
 }

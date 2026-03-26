@@ -117,6 +117,7 @@ model User {
 
   messageThreadsAsMember    MessageThread[] @relation("MemberMessageThreads")
   messageThreadsAsCounselor MessageThread[] @relation("CounselorMessageThreads")
+  messageThreadsAsStaff     MessageThread[] @relation("StaffPortalMessageThreads")
   messagesAuthored          Message[]
   applicationMessagesAuthored ApplicationMessage[]
   preScreeningResponse      PreScreeningResponse?
@@ -603,6 +604,7 @@ model Partner {
   outreachLogs    PartnerOutreachLog[]
   workflowEvents  PortalWorkflowEvent[]
   referredApplications Application[]
+  messageThread MessageThread?
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
 
@@ -657,21 +659,39 @@ model CounselorAssignment {
   @@map("counselor_assignments")
 }
 
-// Member <-> assigned counselor chat (Supabase Realtime on messages + message_threads)
-model MessageThread {
-  id                   String    @id @default(uuid())
-  memberId             String    @unique @map("member_id")
-  counselorUserId      String?   @map("counselor_user_id")
-  memberLastReadAt     DateTime? @map("member_last_read_at")
-  counselorLastReadAt  DateTime? @map("counselor_last_read_at")
-  createdAt            DateTime  @default(now()) @map("created_at")
-  updatedAt            DateTime  @updatedAt @map("updated_at")
+enum MessageThreadKind {
+  member
+  employer
+  partner
 
-  member    User @relation("MemberMessageThreads", fields: [memberId], references: [id], onDelete: Cascade)
-  counselor User?      @relation("CounselorMessageThreads", fields: [counselorUserId], references: [id], onDelete: SetNull)
-  messages  Message[]
+  @@map("message_thread_kind")
+}
+
+// Portal ↔ team chat: member–counselor, employer–admin, partner–admin (Realtime on messages + message_threads)
+model MessageThread {
+  id                   String             @id @default(uuid())
+  kind                 MessageThreadKind  @default(member) @map("kind")
+  memberId             String?            @unique @map("member_id")
+  employerId           String?            @unique @map("employer_id")
+  partnerId            String?            @unique @map("partner_id")
+  counselorUserId      String?            @map("counselor_user_id")
+  memberLastReadAt     DateTime?          @map("member_last_read_at")
+  counselorLastReadAt  DateTime?          @map("counselor_last_read_at")
+  portalUserLastReadAt DateTime?          @map("portal_user_last_read_at")
+  staffLastReadAt      DateTime?          @map("staff_last_read_at")
+  createdAt            DateTime           @default(now()) @map("created_at")
+  updatedAt            DateTime           @updatedAt @map("updated_at")
+
+  member   User?     @relation("MemberMessageThreads", fields: [memberId], references: [id], onDelete: Cascade)
+  employer Employer? @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  partner  Partner?  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  counselor   User?    @relation("CounselorMessageThreads", fields: [counselorUserId], references: [id], onDelete: SetNull)
+  staffUserId String?  @map("staff_user_id")
+  staffUser   User?    @relation("StaffPortalMessageThreads", fields: [staffUserId], references: [id], onDelete: SetNull)
+  messages    Message[]
 
   @@index([counselorUserId])
+  @@index([kind])
   @@map("message_threads")
 }
 
@@ -934,6 +954,7 @@ model Employer {
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   jobs Job[]
   workflowEvents PortalWorkflowEvent[]
+  messageThread MessageThread?
 
   @@index([organizationId])
   @@map("employers")

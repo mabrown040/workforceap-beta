@@ -1,24 +1,11 @@
 import { test, expect } from '@playwright/test';
+import { addAuthCookie } from './auth-helpers';
 
 /**
  * Signed-in tests require valid Supabase auth. The cookie approach works when
  * NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set and the
  * cookie contains a valid session. For CI without test auth, signed-in tests may fail.
  */
-function addAuthCookie(context: { addCookies: (cookies: Array<{ name: string; value: string; domain?: string; path?: string; httpOnly?: boolean; secure?: boolean; sameSite?: 'Strict' | 'Lax' | 'None' }>) => Promise<void> }, baseURL: string) {
-  const appUrl = new URL(baseURL || 'http://localhost:3000');
-  return context.addCookies([
-    {
-      name: 'sb-workforceap-auth-token',
-      value: 'beta-session',
-      domain: appUrl.hostname,
-      path: '/',
-      httpOnly: false,
-      secure: false,
-      sameSite: 'Lax',
-    },
-  ]);
-}
 
 test.describe('Member Portal MVP', () => {
   test('unauthenticated user cannot access dashboard', async ({ page }) => {
@@ -72,10 +59,14 @@ test.describe('Member Portal MVP', () => {
     await expect(page.getByRole('button', { name: /request access/i }).first()).toBeVisible();
   });
 
-  test('signed-in member sees Career Brief with first post', async ({ context, page, baseURL }) => {
+  test('signed-in member sees Career Brief list with dated rows', async ({ context, page, baseURL }) => {
     await addAuthCookie(context, baseURL || 'http://localhost:3000');
     await page.goto('/dashboard/career-brief');
     await expect(page.getByRole('heading', { name: /weekly career brief/i })).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText(/2026-03-14/)).toBeVisible();
+    const list = page.getByTestId('career-brief-list');
+    await expect(list).toBeVisible();
+    const firstRow = list.getByTestId('career-brief-row').first();
+    await expect(firstRow).toBeVisible();
+    await expect(firstRow.locator('.career-brief-date')).toHaveText(/\d{4}-\d{2}-\d{2}/);
   });
 });

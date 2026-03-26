@@ -42,6 +42,7 @@ export async function getOrCreateMemberCounselorThread(memberId: string) {
 
   return prisma.messageThread.create({
     data: {
+      kind: 'member',
       memberId,
       counselorUserId,
     },
@@ -60,16 +61,23 @@ export async function assertStaffCanAccessThread(staffUserId: string, threadId: 
     where: { id: threadId },
     select: {
       id: true,
+      kind: true,
       memberId: true,
       counselorUserId: true,
     },
   });
   if (!thread) return null;
+
+  if (thread.kind === 'employer' || thread.kind === 'partner') {
+    return (await isAdmin(staffUserId)) ? thread : null;
+  }
+
   if (thread.counselorUserId === staffUserId) return thread;
 
-  // Check both profile.role (admin/super_admin) and userRole table (admin/case_manager)
   const hasAdmin = await isAdmin(staffUserId);
   if (hasAdmin) return thread;
+
+  if (!thread.memberId) return null;
 
   const assigned = await prisma.counselorAssignment.findFirst({
     where: { memberId: thread.memberId, active: true, counselor: { userId: staffUserId, active: true } },

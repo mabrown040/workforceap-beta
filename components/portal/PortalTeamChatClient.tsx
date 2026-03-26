@@ -3,14 +3,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 
-type ThreadDto = {
-  id: string;
-  memberId: string | null;
-  counselorUserId: string | null;
-  memberLastReadAt: string | null;
-  counselorLastReadAt: string | null;
-};
-
 type MessageDto = {
   id: string;
   threadId: string;
@@ -19,11 +11,15 @@ type MessageDto = {
   createdAt: string;
 };
 
+type ThreadDto = {
+  id: string;
+  portalUserLastReadAt: string | null;
+};
+
 type InitialPayload = {
   thread: ThreadDto;
-  counselorName: string | null;
   messages: MessageDto[];
-  memberUserId: string;
+  portalUserId: string;
 };
 
 function dispatchBadgeRefresh() {
@@ -34,15 +30,17 @@ function dispatchBadgeRefresh() {
   }
 }
 
-export default function MemberCounselorChatClient({
-  initial,
-}: {
+type PortalTeamChatClientProps = {
+  apiPath: string;
   initial: InitialPayload;
-}) {
-  const { memberUserId } = initial;
+  subtitle: string;
+  emptyHint: string;
+};
+
+export default function PortalTeamChatClient({ apiPath, initial, subtitle, emptyHint }: PortalTeamChatClientProps) {
+  const { portalUserId } = initial;
   const [thread, setThread] = useState(initial.thread);
-  const [messages, setMessages] = useState<MessageDto[]>(initial.messages);
-  const [counselorName] = useState(initial.counselorName);
+  const [messages, setMessages] = useState(initial.messages);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,18 +52,18 @@ export default function MemberCounselorChatClient({
 
   const markRead = useCallback(async () => {
     try {
-      const r = await fetch('/api/member/messages', { method: 'PATCH', credentials: 'include' });
+      const r = await fetch(apiPath, { method: 'PATCH', credentials: 'include' });
       if (r.ok) {
-        const d = (await r.json()) as { memberLastReadAt?: string };
-        if (d.memberLastReadAt) {
-          setThread((t) => ({ ...t, memberLastReadAt: d.memberLastReadAt! }));
+        const d = (await r.json()) as { portalUserLastReadAt?: string };
+        if (d.portalUserLastReadAt) {
+          setThread((t) => ({ ...t, portalUserLastReadAt: d.portalUserLastReadAt! }));
         }
         dispatchBadgeRefresh();
       }
     } catch {
       /* ignore */
     }
-  }, []);
+  }, [apiPath]);
 
   useEffect(() => {
     scrollToBottom();
@@ -85,7 +83,7 @@ export default function MemberCounselorChatClient({
     try {
       const supabase = createSupabaseBrowserClient();
       const channel = supabase
-        .channel(`member-thread:${threadId}`)
+        .channel(`portal-thread:${threadId}`)
         .on(
           'postgres_changes',
           { event: 'INSERT', schema: 'public', table: 'messages', filter: `thread_id=eq.${threadId}` },
@@ -101,27 +99,7 @@ export default function MemberCounselorChatClient({
               if (prev.some((m) => m.id === id)) return prev;
               return [...prev, { id, threadId, authorId, body, createdAt }];
             });
-            if (authorId !== memberUserId) void markRead();
-          }
-        )
-        .on(
-          'postgres_changes',
-          { event: 'UPDATE', schema: 'public', table: 'message_threads', filter: `id=eq.${threadId}` },
-          (payload) => {
-            if (cancelled) return;
-            const row = payload.new as Record<string, unknown>;
-            setThread((t) => ({
-              ...t,
-              counselorUserId: row.counselor_user_id != null ? String(row.counselor_user_id) : t.counselorUserId,
-              memberLastReadAt:
-                row.member_last_read_at != null
-                  ? new Date(String(row.member_last_read_at)).toISOString()
-                  : t.memberLastReadAt,
-              counselorLastReadAt:
-                row.counselor_last_read_at != null
-                  ? new Date(String(row.counselor_last_read_at)).toISOString()
-                  : t.counselorLastReadAt,
-            }));
+            if (authorId !== portalUserId) void markRead();
           }
         )
         .subscribe();
@@ -131,10 +109,10 @@ export default function MemberCounselorChatClient({
         void supabase.removeChannel(channel);
       };
     } catch (e) {
-      console.warn('[MemberCounselorChat] Realtime unavailable', e);
+      console.warn('[PortalTeamChat] Realtime unavailable', e);
       return undefined;
     }
-  }, [threadId, memberUserId, markRead]);
+  }, [threadId, portalUserId, markRead]);
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,7 +121,7 @@ export default function MemberCounselorChatClient({
     setSending(true);
     setError(null);
     try {
-      const r = await fetch('/api/member/messages', {
+      const r = await fetch(apiPath, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -167,15 +145,11 @@ export default function MemberCounselorChatClient({
     }
   };
 
-  const subtitle = useMemo(() => {
-    if (counselorName) return `Chat with ${counselorName}`;
-    if (thread.counselorUserId) return 'Your counselor will reply here.';
-    return 'A counselor will be assigned to you — you can leave a message anytime.';
-  }, [counselorName, thread.counselorUserId]);
+  const hint = useMemo(() => subtitle, [subtitle]);
 
   return (
     <div className="member-counselor-chat">
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1rem', fontSize: '0.95rem' }}>{subtitle}</p>
+      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1rem', fontSize: '0.95rem' }}>{hint}</p>
       {error ? (
         <p className="member-counselor-chat__error" role="alert">
           {error}
@@ -183,10 +157,10 @@ export default function MemberCounselorChatClient({
       ) : null}
       <div className="member-counselor-chat__scroll" role="log" aria-live="polite" aria-relevant="additions">
         {messages.length === 0 ? (
-          <p style={{ color: 'var(--color-gray-500)' }}>No messages yet. Say hello to your counselor.</p>
+          <p style={{ color: 'var(--color-gray-500)' }}>{emptyHint}</p>
         ) : (
           messages.map((m) => {
-            const mine = m.authorId === memberUserId;
+            const mine = m.authorId === portalUserId;
             return (
               <div
                 key={m.id}
@@ -203,11 +177,11 @@ export default function MemberCounselorChatClient({
         <div ref={bottomRef} />
       </div>
       <form className="member-counselor-chat__form" onSubmit={send}>
-        <label htmlFor="member-chat-input" className="sr-only">
+        <label htmlFor="portal-team-chat-input" className="sr-only">
           Message
         </label>
         <textarea
-          id="member-chat-input"
+          id="portal-team-chat-input"
           className="member-counselor-chat__input"
           rows={3}
           value={draft}

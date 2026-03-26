@@ -32,18 +32,14 @@ export default async function ApplyPage({ searchParams }: PageProps) {
             <strong> No experience required.</strong>
           </p>
           
-          <div style={{ 
-            padding: '1.25rem 1.5rem', 
-            background: 'rgba(74, 155, 79, 0.12)', 
-            border: '2px solid rgba(74, 155, 79, 0.35)',
-            borderRadius: 'var(--radius-md)',
-            marginBottom: '2rem',
-            maxWidth: '600px'
-          }}>
-            <p style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: '#166534' }}>
-              ✓ No cost to members.
+          <div
+            className="apply-hero-no-cost-callout"
+            style={{ marginBottom: '2rem', maxWidth: '600px' }}
+          >
+            <p style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0 }}>
+              <strong>✓ No cost to members.</strong>
             </p>
-            <p style={{ fontSize: '0.95rem', margin: '0.35rem 0 0', color: '#065f46' }}>
+            <p style={{ fontSize: '0.95rem', margin: '0.35rem 0 0' }}>
               Training and support are provided at no charge to qualifying participants.
             </p>
           </div>
@@ -102,14 +98,17 @@ export default async function ApplyPage({ searchParams }: PageProps) {
 
       <section className="content-section" style={{ paddingTop: '3rem' }}>
         <div className="container">
-          <div style={{
-            padding: '2rem 2.5rem',
-            background: 'white',
-            border: '2px solid var(--color-accent)',
-            borderRadius: 'var(--radius-lg)',
-            marginBottom: '2rem',
-            boxShadow: '0 10px 40px rgba(0,0,0,0.08)'
-          }} aria-labelledby="apply-expectations-heading">
+          <div
+            className="expectations-box"
+            style={{
+              padding: '2rem 2.5rem',
+              border: '2px solid var(--color-accent)',
+              borderRadius: 'var(--radius-lg)',
+              marginBottom: '2rem',
+              boxShadow: '0 10px 40px rgba(0,0,0,0.08)',
+            }}
+            aria-labelledby="apply-expectations-heading"
+          >
             <h3 id="apply-expectations-heading" style={{ 
               fontSize: '1.5rem', 
               fontWeight: 700, 

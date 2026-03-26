@@ -11,6 +11,7 @@ type InviteData = {
   roleLabel?: string;
   inviterName?: string;
   subgroup?: { id: string; name: string } | null;
+  partner?: { id: string; name: string } | null;
   program?: { slug: string; title: string } | null;
   error?: string;
 };
@@ -24,6 +25,7 @@ function InviteContent() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [postAcceptRedirect, setPostAcceptRedirect] = useState('/login?redirectTo=/dashboard');
 
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -68,6 +70,11 @@ function InviteContent() {
       if (!res.ok) {
         throw new Error(result.error ?? 'Failed to accept invitation');
       }
+      const next =
+        typeof result.redirectTo === 'string' && result.redirectTo.startsWith('/')
+          ? result.redirectTo
+          : '/login?redirectTo=/dashboard';
+      setPostAcceptRedirect(next);
       setSuccess(true);
       if (result.redirectTo) {
         window.location.href = result.redirectTo;
@@ -134,9 +141,9 @@ function InviteContent() {
             Invitation Accepted!
           </h1>
           <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
-            Redirecting you to the dashboard...
+            Redirecting you to sign in...
           </p>
-          <Link href="/login?redirectTo=/dashboard" className="btn btn-primary">
+          <Link href={postAcceptRedirect} className="btn btn-primary">
             Log In
           </Link>
         </div>
@@ -162,6 +169,12 @@ function InviteContent() {
         {data.subgroup && (
           <p style={{ fontSize: '0.95rem', marginBottom: '0.5rem' }}>
             Subgroup: <strong>{data.subgroup.name}</strong>
+          </p>
+        )}
+        {data.role === 'counselor' && (
+          <p style={{ fontSize: '0.95rem', marginBottom: '0.5rem' }}>
+            Affiliation:{' '}
+            <strong>{data.partner ? data.partner.name : 'WorkforceAP (organization counselor)'}</strong>
           </p>
         )}
         {data.program && (

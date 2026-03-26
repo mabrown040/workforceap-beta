@@ -62,7 +62,13 @@ export async function POST(
 
   const inviteUrl = `${SITE_URL}/invite?token=${newToken}`;
   const roleLabel =
-    invitation.role === 'admin' ? 'Admin' : invitation.role === 'partner' ? 'Partner' : 'Student';
+    invitation.role === 'admin'
+      ? 'Admin'
+      : invitation.role === 'partner'
+        ? 'Partner'
+        : invitation.role === 'counselor'
+          ? 'Counselor'
+          : 'Student';
 
   const emailResult = await sendInvitationEmail({
     to: invitation.email,

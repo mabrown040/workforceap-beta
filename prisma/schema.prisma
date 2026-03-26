@@ -605,6 +605,7 @@ model Partner {
   workflowEvents  PortalWorkflowEvent[]
   referredApplications Application[]
   messageThread MessageThread?
+  invitations Invitation[]
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
 
@@ -893,6 +894,7 @@ enum InvitationRole {
   admin
   partner
   member
+  counselor
 }
 
 enum InvitationStatus {
@@ -907,6 +909,8 @@ model Invitation {
   email           String           @db.Text
   role            InvitationRole
   subgroupId      String?          @map("subgroup_id")
+  // Partner org for counselor invites; null = WorkforceAP counselor
+  partnerId       String?          @map("partner_id")
   programSlug     String?          @map("program_slug")
   invitedById     String           @map("invited_by")
   token           String           @unique
@@ -920,6 +924,7 @@ model Invitation {
   invitedBy  User  @relation("InvitationInviter", fields: [invitedById], references: [id], onDelete: Cascade)
   acceptedBy User? @relation("InvitationAccepter", fields: [acceptedById], references: [id], onDelete: SetNull)
   subgroup   Subgroup? @relation(fields: [subgroupId], references: [id], onDelete: SetNull)
+  partner    Partner? @relation(fields: [partnerId], references: [id], onDelete: SetNull)
 
   @@index([email])
   @@index([token])

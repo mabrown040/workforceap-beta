@@ -5,18 +5,21 @@ import { useRouter } from 'next/navigation';
 
 type SubgroupOpt = { id: string; name: string };
 type ProgramOpt = { slug: string; title: string };
+type PartnerOpt = { id: string; name: string };
 
 type Props = {
   subgroups: SubgroupOpt[];
   programs: ProgramOpt[];
+  partners: PartnerOpt[];
   onClose: () => void;
 };
 
-export default function InviteForm({ subgroups, programs, onClose }: Props) {
+export default function InviteForm({ subgroups, programs, partners, onClose }: Props) {
   const router = useRouter();
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState<'admin' | 'partner' | 'member'>('member');
+  const [role, setRole] = useState<'admin' | 'partner' | 'member' | 'counselor'>('member');
   const [subgroupId, setSubgroupId] = useState('');
+  const [partnerId, setPartnerId] = useState('');
   const [programSlug, setProgramSlug] = useState('');
   const [personalMessage, setPersonalMessage] = useState('');
   const [sending, setSending] = useState(false);
@@ -34,6 +37,7 @@ export default function InviteForm({ subgroups, programs, onClose }: Props) {
           email: email.trim().toLowerCase(),
           role,
           subgroupId: role === 'partner' && subgroupId ? subgroupId : null,
+          partnerId: role === 'counselor' && partnerId ? partnerId : null,
           programSlug: role === 'member' && programSlug ? programSlug : null,
           personalMessage: personalMessage.trim() || null,
         }),
@@ -131,8 +135,9 @@ export default function InviteForm({ subgroups, programs, onClose }: Props) {
                 id="invite-role"
                 value={role}
                 onChange={(e) => {
-                  setRole(e.target.value as 'admin' | 'partner' | 'member');
+                  setRole(e.target.value as 'admin' | 'partner' | 'member' | 'counselor');
                   setSubgroupId('');
+                  setPartnerId('');
                   setProgramSlug('');
                 }}
                 style={inputStyle}
@@ -140,8 +145,33 @@ export default function InviteForm({ subgroups, programs, onClose }: Props) {
                 <option value="admin">Admin</option>
                 <option value="partner">Partner</option>
                 <option value="member">Student</option>
+                <option value="counselor">Counselor</option>
               </select>
             </div>
+
+            {role === 'counselor' && partners.length > 0 && (
+              <div style={{ marginBottom: '1rem' }}>
+                <label htmlFor="invite-counselor-partner" style={labelStyle}>
+                  Partner affiliation (optional)
+                </label>
+                <select
+                  id="invite-counselor-partner"
+                  value={partnerId}
+                  onChange={(e) => setPartnerId(e.target.value)}
+                  style={inputStyle}
+                >
+                  <option value="">WorkforceAP (organization counselor)</option>
+                  {partners.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)', marginTop: '0.35rem' }}>
+                  Leave as WorkforceAP for internal staff, or choose a partner for partner-affiliated counselors.
+                </p>
+              </div>
+            )}
 
             {role === 'partner' && subgroups.length > 0 && (
               <div style={{ marginBottom: '1rem' }}>

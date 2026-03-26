@@ -15,6 +15,7 @@ export async function GET(request: NextRequest) {
     include: {
       invitedBy: { select: { fullName: true } },
       subgroup: { select: { id: true, name: true } },
+      partner: { select: { id: true, name: true } },
     },
   });
 
@@ -38,7 +39,13 @@ export async function GET(request: NextRequest) {
   }
 
   const roleLabel =
-    invitation.role === 'admin' ? 'Admin' : invitation.role === 'partner' ? 'Partner' : 'Student';
+    invitation.role === 'admin'
+      ? 'Admin'
+      : invitation.role === 'partner'
+        ? 'Partner'
+        : invitation.role === 'counselor'
+          ? 'Counselor'
+          : 'Student';
 
   const programSlug = invitation.programSlug;
   const program = programSlug ? getProgramBySlug(programSlug) : null;
@@ -53,5 +60,8 @@ export async function GET(request: NextRequest) {
       ? { id: invitation.subgroup.id, name: invitation.subgroup.name }
       : null,
     program: program ? { slug: program.slug, title: program.title } : null,
+    partner: invitation.partner
+      ? { id: invitation.partner.id, name: invitation.partner.name }
+      : null,
   });
 }

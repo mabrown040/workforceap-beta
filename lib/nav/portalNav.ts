@@ -93,7 +93,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/dashboard/ai-tools', label: 'AI tools', group: 'workflows', Icon: Sparkles },
   {
     href: '/dashboard/ai-tools/application-tracker',
-    label: 'Applications',
+    label: 'Job Applications',
     group: 'workflows',
     Icon: FileText,
     badgeKey: 'applications_new',

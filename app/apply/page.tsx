@@ -28,6 +28,9 @@ export default async function ApplyPage({ searchParams }: PageProps) {
             Answer 3 quick questions, choose a program, then create your account so we can follow up with your next steps. No
             experience required.
           </p>
+          <p className="apply-hero-no-cost-callout" role="note">
+            <strong>No cost to members.</strong> Training and support are provided at no charge to qualifying participants.
+          </p>
           <div className="hero-badges">
             {['Step 1: quick eligibility check', 'Step 2: choose a program', 'Step 3: create your account', 'We respond within 24–48 hours'].map(
               (t) => (
@@ -49,6 +52,17 @@ export default async function ApplyPage({ searchParams }: PageProps) {
 
       <section className="content-section">
         <div className="container">
+          <div className="expectations-box" aria-labelledby="apply-expectations-heading">
+            <h3 id="apply-expectations-heading">What happens after you apply?</h3>
+            <ol>
+              <li>We review your application within 24–48 hours</li>
+              <li>Schedule an overview call with a counselor</li>
+              <li>Complete a brief skills assessment (not a test — helps us match you)</li>
+              <li>30-minute interview to confirm mutual fit</li>
+              <li>Start your program — at no cost to you</li>
+            </ol>
+          </div>
+
           <div className="apply-info-banner" role="note">
             <strong>What to expect:</strong> this intake starts with a short eligibility check before account creation, so you can see your
             likely options first. After you create an account, a counselor reviews your selection and follows up within 24–48 hours.

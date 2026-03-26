@@ -22,6 +22,11 @@ const applySignupSchema = z.object({
   lastName: z.string().trim().min(1, 'Please enter your last name.').max(100),
   email: z.string().trim().email('Please enter a valid email address.'),
   phone: z.string().trim().min(10, 'Please enter a valid phone number with area code.').max(50),
+  addressLine1: z.string().trim().min(1, 'Enter your street address.').max(200),
+  addressLine2: z.string().trim().max(200).optional().nullable(),
+  city: z.string().trim().min(1, 'Enter your city.').max(100),
+  state: z.string().trim().min(1, 'Enter your state.').max(50),
+  zip: z.string().trim().min(1, 'Enter your ZIP code.').max(20),
   smsOptIn: z.boolean().optional().default(false),
   password: z.string().min(8, 'Create a password with at least 8 characters.'),
   programSlug: z.string().min(1, 'Please choose a program before creating your account.'),
@@ -50,7 +55,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Please review your information and try again.' }, { status: 400 });
   }
 
-  const { firstName, lastName, email, phone, smsOptIn, password, programSlug, referralRef } = parsed.data;
+  const { firstName, lastName, email, phone, addressLine1, addressLine2, city, state, zip, smsOptIn, password, programSlug, referralRef } =
+    parsed.data;
+
+  const profileAddress = [addressLine1, addressLine2?.trim()].filter(Boolean).join(', ');
 
   const program = getProgramBySlug(programSlug);
   if (!program) {
@@ -151,10 +159,18 @@ export async function POST(request: NextRequest) {
         create: {
           userId: user.id,
           profilePhone: phone,
+          profileAddress,
+          city: city.trim(),
+          state: state.trim(),
+          zip: zip.trim(),
           smsOptIn: smsOptIn ?? false,
         },
         update: {
           profilePhone: phone,
+          profileAddress,
+          city: city.trim(),
+          state: state.trim(),
+          zip: zip.trim(),
           smsOptIn: smsOptIn ?? false,
         },
       });

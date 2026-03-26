@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Sparkles } from 'lucide-react';
 import OnboardingWizard, { type OnboardingStep } from '@/components/onboarding/OnboardingWizard';
@@ -35,9 +35,12 @@ export default function MemberOnboardingWizard({
   const [firstName, setFirstName] = useState(nameParts[0] ?? '');
   const [lastName, setLastName] = useState(nameParts.slice(1).join(' ') ?? '');
   const [phone, setPhone] = useState(initialPhone);
+  const [addressLine1, setAddressLine1] = useState('');
   const [city, setCity] = useState(initialCity);
   const [stateVal, setStateVal] = useState(initialState);
   const [zip, setZip] = useState(initialZip);
+  const [profileStepError, setProfileStepError] = useState<string | null>(null);
+  const profileErrorRef = useRef<HTMLParagraphElement>(null);
   const topPrograms = useMemo(() => PROGRAMS.slice(0, 4), []);
   const [programInterest, setProgramInterest] = useState(
     () => initialProgramInterest.trim() || topPrograms[0]?.title || ''
@@ -51,6 +54,23 @@ export default function MemberOnboardingWizard({
         : ''
   );
 
+  useEffect(() => {
+    if (profileStepError && profileErrorRef.current) {
+      profileErrorRef.current.focus();
+    }
+  }, [profileStepError]);
+
+  const validateProfileForMembership = () => {
+    const phoneDigits = phone.replace(/\D/g, '');
+    const phoneOk = phone.trim().length > 0 && phoneDigits.length >= 10;
+    const addressOk =
+      addressLine1.trim().length > 0 && city.trim().length > 0 && stateVal.trim().length > 0 && zip.trim().length > 0;
+    if (!phoneOk || !addressOk) {
+      return 'Phone and address are required for membership.';
+    }
+    return null;
+  };
+
   const saveProfileStep = async () => {
     try {
       await fetch('/api/member/dashboard-profile', {
@@ -60,7 +80,7 @@ export default function MemberOnboardingWizard({
           firstName: firstName.trim(),
           lastName: lastName.trim(),
           phone: phone.trim() || null,
-          address: null,
+          address: addressLine1.trim() || null,
           city: city.trim() || null,
           state: stateVal.trim() || null,
           zip: zip.trim() || null,
@@ -97,7 +117,7 @@ export default function MemberOnboardingWizard({
           firstName: firstName.trim() || 'Member',
           lastName: lastName.trim(),
           phone: phone.trim() || null,
-          address: null,
+          address: addressLine1.trim() || null,
           city: city.trim() || null,
           state: stateVal.trim() || null,
           zip: zip.trim() || null,
@@ -132,6 +152,16 @@ export default function MemberOnboardingWizard({
       subtitle: 'We use this to match you with programs and employers.',
       content: (
         <div className="wa-space-y-3">
+          {profileStepError ? (
+            <p
+              ref={profileErrorRef}
+              tabIndex={-1}
+              role="alert"
+              className="wa-rounded-lg wa-border wa-border-red-200 wa-bg-red-50 wa-px-3 wa-py-2 wa-text-sm wa-text-red-800 dark:wa-border-red-900 dark:wa-bg-red-950/40 dark:wa-text-red-200"
+            >
+              {profileStepError}
+            </p>
+          ) : null}
           <div className="wa-grid wa-grid-cols-1 wa-gap-3 sm:wa-grid-cols-2">
             <label className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
               First name
@@ -152,36 +182,66 @@ export default function MemberOnboardingWizard({
             </label>
           </div>
           <label className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
-            Phone
+            Phone *
             <input
               type="tel"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={(e) => {
+                setPhone(e.target.value);
+                setProfileStepError(null);
+              }}
+              required
+              className="wa-mt-1 wa-w-full wa-rounded-lg wa-border wa-border-slate-200 wa-px-3 wa-py-2 wa-text-sm"
+            />
+          </label>
+          <label className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
+            Street address *
+            <input
+              type="text"
+              value={addressLine1}
+              onChange={(e) => {
+                setAddressLine1(e.target.value);
+                setProfileStepError(null);
+              }}
+              autoComplete="street-address"
+              required
               className="wa-mt-1 wa-w-full wa-rounded-lg wa-border wa-border-slate-200 wa-px-3 wa-py-2 wa-text-sm"
             />
           </label>
           <div className="wa-grid wa-grid-cols-1 wa-gap-3 sm:wa-grid-cols-3">
             <label className="wa-block wa-text-xs wa-font-medium wa-text-slate-600 sm:wa-col-span-1">
-              City
+              City *
               <input
                 value={city}
-                onChange={(e) => setCity(e.target.value)}
+                onChange={(e) => {
+                  setCity(e.target.value);
+                  setProfileStepError(null);
+                }}
+                required
                 className="wa-mt-1 wa-w-full wa-rounded-lg wa-border wa-border-slate-200 wa-px-3 wa-py-2 wa-text-sm"
               />
             </label>
             <label className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
-              State
+              State *
               <input
                 value={stateVal}
-                onChange={(e) => setStateVal(e.target.value)}
+                onChange={(e) => {
+                  setStateVal(e.target.value);
+                  setProfileStepError(null);
+                }}
+                required
                 className="wa-mt-1 wa-w-full wa-rounded-lg wa-border wa-border-slate-200 wa-px-3 wa-py-2 wa-text-sm"
               />
             </label>
             <label className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
-              ZIP
+              ZIP *
               <input
                 value={zip}
-                onChange={(e) => setZip(e.target.value)}
+                onChange={(e) => {
+                  setZip(e.target.value);
+                  setProfileStepError(null);
+                }}
+                required
                 className="wa-mt-1 wa-w-full wa-rounded-lg wa-border wa-border-slate-200 wa-px-3 wa-py-2 wa-text-sm"
               />
             </label>
@@ -265,9 +325,9 @@ export default function MemberOnboardingWizard({
         <div className="wa-space-y-3 wa-text-sm">
           <p>What happens next:</p>
           <ul className="wa-list-disc wa-space-y-1 wa-pl-5 wa-text-slate-600">
-            <li>Apply and confirm your path</li>
-            <li>Enroll in your program</li>
-            <li>Work toward placement with support</li>
+            <li>We review your application within 24–48 hours</li>
+            <li>Overview call with a counselor, then a brief skills assessment</li>
+            <li>Interview to confirm mutual fit, then start your program at no cost to you</li>
           </ul>
         </div>
       ),
@@ -281,7 +341,15 @@ export default function MemberOnboardingWizard({
       onComplete={onComplete}
       stepHooks={{
         beforeNext: async (index) => {
-          if (index === 1) await saveProfileStep();
+          if (index === 1) {
+            const err = validateProfileForMembership();
+            if (err) {
+              setProfileStepError(err);
+              return false;
+            }
+            setProfileStepError(null);
+            await saveProfileStep();
+          }
           if (index === 2) await saveProgramStep();
           if (index === 3) await saveQuestionsStep();
         },

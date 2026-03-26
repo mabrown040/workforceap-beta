@@ -12,9 +12,9 @@ export interface OnboardingWizardProps {
   portal: 'member' | 'employer' | 'partner';
   steps: OnboardingStep[];
   onComplete: () => void;
-  /** Called before leaving step `index` (after Back/Next; index is current step). */
+  /** Called before leaving step `index` (current step). Return false to stay on the step (e.g. validation failed). */
   stepHooks?: {
-    beforeNext?: (stepIndex: number) => void | Promise<void>;
+    beforeNext?: (stepIndex: number) => void | boolean | Promise<void | boolean>;
   };
   /** Last step provides its own actions (e.g. employer dual CTA). */
   hideFooterOnLastStep?: boolean;
@@ -93,7 +93,8 @@ export default function OnboardingWizard({
 
   const goNext = () => {
     void (async () => {
-      await stepHooks?.beforeNext?.(step);
+      const hookResult = await stepHooks?.beforeNext?.(step);
+      if (hookResult === false) return;
       if (last && !(hideFooterOnLastStep && step === steps.length - 1)) {
         await finish();
       } else if (!last) {

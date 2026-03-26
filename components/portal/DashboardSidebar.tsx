@@ -52,7 +52,7 @@ export default function DashboardSidebar({ open = false, onClose }: DashboardSid
                           }}
                         >
                           {Lucide ? (
-                            <span className="dashboard-sidebar-icon">
+                            <span className="dashboard-sidebar-icon" aria-hidden="true">
                               <Lucide size={20} className="text-current" />
                             </span>
                           ) : null}

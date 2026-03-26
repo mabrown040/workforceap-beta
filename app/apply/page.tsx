@@ -70,7 +70,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
 
           {program ? <ApplyProgramIntro programSlug={program.slug} /> : null}
 
-          <Suspense fallback={null}>
+          <Suspense fallback={<div style={{ padding: '1rem', color: 'var(--color-gray-600)' }}>Loading...</div>}>
             <ApplyRefCapture />
           </Suspense>
           <Suspense fallback={<ApplyPageSkeleton />}>

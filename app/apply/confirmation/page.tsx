@@ -26,7 +26,7 @@ export default function ApplyConfirmationPage() {
           <div className="apply-confirmation" style={{ maxWidth: '620px', margin: '0 auto' }}>
             <div className="apply-confirmation-icon" style={{ fontSize: '3rem', marginBottom: '1.5rem', textAlign: 'center' }}>&#10003;</div>
 
-            <Suspense fallback={null}>
+            <Suspense fallback={<div style={{ padding: '1rem', textAlign: 'center', color: 'var(--color-gray-600)' }}>Loading next steps...</div>}>
               <ApplyConfirmationCta />
             </Suspense>
 

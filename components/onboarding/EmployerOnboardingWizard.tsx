@@ -65,13 +65,34 @@ export default function EmployerOnboardingWizard({
       title: 'Welcome to the Employer Portal',
       subtitle: 'Hire pre-screened talent from WorkforceAP programs.',
       content: (
-        <div className="wa-space-y-3">
+        <div className="wa-space-y-4">
           <div className="wa-flex wa-justify-center wa-py-2">
-            <Building2 className="wa-h-12 wa-w-12 wa-text-brand-primary" aria-hidden />
+            <Building2 className="wa-h-16 wa-w-16 wa-text-brand-primary" aria-hidden />
           </div>
-          <p className="wa-text-sm wa-leading-relaxed">
+          <p className="wa-text-base wa-leading-relaxed wa-text-center">
             Post jobs, review AI-matched candidates, and move applicants through your pipeline — all in one place.
           </p>
+          <div className="wa-bg-slate-50 wa-border wa-border-slate-200 wa-rounded-lg wa-p-4 wa-space-y-2 dark:wa-bg-slate-800 dark:wa-border-slate-700">
+            <h4 className="wa-font-semibold wa-text-sm wa-mb-2">What you can do:</h4>
+            <ul className="wa-space-y-1.5 wa-text-sm wa-text-slate-700 dark:wa-text-slate-300">
+              <li className="wa-flex wa-items-start wa-gap-2">
+                <span className="wa-text-green-600 wa-mt-0.5">✓</span>
+                <span>Post unlimited job openings</span>
+              </li>
+              <li className="wa-flex wa-items-start wa-gap-2">
+                <span className="wa-text-green-600 wa-mt-0.5">✓</span>
+                <span>Get AI-matched candidates based on skills and program fit</span>
+              </li>
+              <li className="wa-flex wa-items-start wa-gap-2">
+                <span className="wa-text-green-600 wa-mt-0.5">✓</span>
+                <span>Track applicants through your hiring pipeline</span>
+              </li>
+              <li className="wa-flex wa-items-start wa-gap-2">
+                <span className="wa-text-green-600 wa-mt-0.5">✓</span>
+                <span>Access pre-screened, career-ready candidates</span>
+              </li>
+            </ul>
+          </div>
         </div>
       ),
     },

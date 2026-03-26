@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
+import { prisma } from '@/lib/db/prisma';
+import { getAgeGroup } from '@/lib/util/ageCalculation';
 import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
 import JobsListingClient from './JobsListingClient';
@@ -14,6 +16,17 @@ export const metadata: Metadata = buildPageMetadata({
 
 export default async function JobsPage() {
   const user = await getUser();
+  
+  let ageGroup: 'under14' | 'youth14to17' | 'adult18plus' = 'adult18plus';
+  if (user) {
+    const profile = await prisma.profile.findUnique({
+      where: { userId: user.id },
+      select: { dob: true, isMinor: true },
+    });
+    if (profile?.dob) {
+      ageGroup = getAgeGroup(profile.dob);
+    }
+  }
 
   return (
     <div className="inner-page">
@@ -36,9 +49,48 @@ export default async function JobsPage() {
               to submit your profile to roles you choose.
             </p>
           ) : null}
-          <Suspense fallback={<p className="job-loading">Loading jobs…</p>}>
-            <JobsListingClient isAuthenticated={!!user} />
-          </Suspense>
+          {ageGroup === 'under14' ? (
+            <div style={{
+              padding: '2rem',
+              background: 'var(--color-gray-50)',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--color-gray-200)',
+              textAlign: 'center'
+            }}>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '0.75rem' }}>
+                Career Exploration for Young Learners
+              </h3>
+              <p style={{ color: 'var(--color-gray-700)', lineHeight: 1.6, marginBottom: '1rem' }}>
+                Job applications are available for members 14 and older. For now, focus on exploring 
+                career paths and building skills through our training programs.
+              </p>
+              <a href="/programs" className="btn btn-primary">
+                Explore Training Programs
+              </a>
+            </div>
+          ) : ageGroup === 'youth14to17' ? (
+            <>
+              <div style={{
+                padding: '1rem',
+                background: 'rgba(240, 205, 131, 0.15)',
+                border: '1px solid rgba(240, 205, 131, 0.3)',
+                borderRadius: 'var(--radius-md)',
+                marginBottom: '1.5rem'
+              }}>
+                <p style={{ fontSize: '0.9rem', lineHeight: 1.5, margin: 0 }}>
+                  <strong>Youth Job Board:</strong> Showing jobs appropriate for ages 14-17. 
+                  These positions comply with youth labor laws and work permit requirements.
+                </p>
+              </div>
+              <Suspense fallback={<p className="job-loading">Loading youth-appropriate jobs…</p>}>
+                <JobsListingClient isAuthenticated={!!user} ageGroup={ageGroup} />
+              </Suspense>
+            </>
+          ) : (
+            <Suspense fallback={<p className="job-loading">Loading jobs…</p>}>
+              <JobsListingClient isAuthenticated={!!user} ageGroup={ageGroup} />
+            </Suspense>
+          )}
         </div>
       </section>
       <Footer />

@@ -132,10 +132,10 @@ function JobsNoResultsState() {
       <div className="jobs-empty-state__icon" aria-hidden>
         <Briefcase size={48} strokeWidth={1.5} />
       </div>
-      <h3 className="jobs-empty-state__title">Partner roles coming soon</h3>
+      <h3 className="jobs-empty-state__title">No jobs available right now</h3>
       <p className="jobs-empty-state__text">
-        There are no live listings on the board right now. New roles appear as employer partners publish them. In the
-        meantime, explore programs or start your application — we will help you get job-ready.
+        New job opportunities are added regularly as our employer partners post openings. While you wait, 
+        explore our training programs and get job-ready — we'll help you find the right role when new positions become available.
       </p>
       <div className="jobs-empty-state__actions">
         <Link href="/programs" className="btn btn-primary">
@@ -152,7 +152,13 @@ function JobsNoResultsState() {
   );
 }
 
-export default function JobsListingClient({ isAuthenticated = true }: { isAuthenticated?: boolean }) {
+export default function JobsListingClient({ 
+  isAuthenticated = true, 
+  ageGroup = 'adult18plus' as 'under14' | 'youth14to17' | 'adult18plus'
+}: { 
+  isAuthenticated?: boolean;
+  ageGroup?: 'under14' | 'youth14to17' | 'adult18plus';
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -224,12 +230,14 @@ export default function JobsListingClient({ isAuthenticated = true }: { isAuthen
     if (salaryMax) params.set('salaryMax', salaryMax);
     if (sort && sort !== 'newest') params.set('sort', sort);
 
+    if (ageGroup) params.set('ageGroup', ageGroup);
+    
     setLoading(true);
     fetch(`/api/jobs?${params}`)
       .then((r) => r.json())
       .then(setJobs)
       .finally(() => setLoading(false));
-  }, [q, locationType, jobType, program, salaryMin, salaryMax, sort]);
+  }, [q, locationType, jobType, program, salaryMin, salaryMax, sort, ageGroup]);
 
   const filterPanel = (
     <div className="job-filters-panel">

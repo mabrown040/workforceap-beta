@@ -118,6 +118,7 @@ model User {
   messageThreadsAsMember    MessageThread[] @relation("MemberMessageThreads")
   messageThreadsAsCounselor MessageThread[] @relation("CounselorMessageThreads")
   messagesAuthored          Message[]
+  applicationMessagesAuthored ApplicationMessage[]
   preScreeningResponse      PreScreeningResponse?
   preScreeningDraft         PreScreeningDraft?
   courseEnrollment          CourseEnrollment?
@@ -155,6 +156,20 @@ model Profile {
   consentCommunications Boolean   @default(false) @map("consent_communications")
   smsOptIn              Boolean   @default(false) @map("sms_opt_in")
   financialAidInterest Boolean?  @map("financial_aid_interest")
+  
+  // Minor (under 18) data handling for high school partnerships
+  isMinor               Boolean   @default(false) @map("is_minor")
+  parentGuardianName    String?   @map("parent_guardian_name")
+  parentGuardianEmail   String?   @map("parent_guardian_email")
+  parentGuardianPhone   String?   @map("parent_guardian_phone")
+  parentalConsentGiven  Boolean   @default(false) @map("parental_consent_given")
+  parentalConsentDate   DateTime? @map("parental_consent_date")
+  schoolName            String?   @map("school_name")
+  schoolDistrict        String?   @map("school_district")
+  gradeLevel            String?   @map("grade_level")
+  studentId             String?   @map("student_id")
+  ferpaConsentGiven     Boolean   @default(false) @map("ferpa_consent_given")
+  
   role                  String    @default("member")
   createdAt             DateTime  @default(now()) @map("created_at")
   updatedAt             DateTime  @updatedAt @map("updated_at")
@@ -968,6 +983,9 @@ model Job {
   requirements           String[]        @default([])
   preferredCertifications String[]       @default([]) @map("preferred_certifications")
   suggestedPrograms      String[]        @default([]) @map("suggested_programs")
+  minimumAge             Int?            @map("minimum_age")
+  youthAppropriate       Boolean         @default(false) @map("youth_appropriate")
+  requiresWorkPermit     Boolean         @default(false) @map("requires_work_permit")
   status                 JobStatusEnum   @default(draft)
   applicationsCount      Int             @default(0) @map("applications_count")
   createdAt              DateTime        @default(now()) @map("created_at")
@@ -1100,17 +1118,41 @@ model JobPostingApplication {
   status          JobPostingApplicationStatus @default(pending)
   coverLetter     String?                     @map("cover_letter") @db.Text
   resumeUrl       String?                     @map("resume_url")
+  resumePath      String?                     @map("resume_path")
+  profileShared   Boolean                     @default(false) @map("profile_shared")
   appliedAt       DateTime                    @default(now()) @map("applied_at")
   employerNotes   String?                     @map("employer_notes") @db.Text
   statusUpdatedAt DateTime?                   @map("status_updated_at")
+  interviewScheduledAt DateTime?              @map("interview_scheduled_at")
+  interviewNotes  String?                     @map("interview_notes") @db.Text
+  lastEmployerMessageAt DateTime?             @map("last_employer_message_at")
+  lastApplicantMessageAt DateTime?            @map("last_applicant_message_at")
 
   job    Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
   student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  messages ApplicationMessage[]
 
   @@unique([jobId, studentId])
   @@index([jobId])
   @@index([studentId])
+  @@index([status])
   @@map("job_posting_applications")
+}
+
+model ApplicationMessage {
+  id            String   @id @default(uuid())
+  applicationId String   @map("application_id")
+  authorId      String   @map("author_id")
+  body          String   @db.Text
+  createdAt     DateTime @default(now()) @map("created_at")
+  readAt        DateTime? @map("read_at")
+
+  application JobPostingApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  author      User                  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+  @@index([authorId])
+  @@map("application_messages")
 }
 
 model PartnerOutreachLog {

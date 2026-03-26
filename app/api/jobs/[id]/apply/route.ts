@@ -8,6 +8,8 @@ import { trackEvent } from '@/lib/events/track';
 const applySchema = z.object({
   coverLetter: z.string().max(5000).optional(),
   resumeUrl: z.string().url().optional(),
+  shareProfile: z.boolean(),
+  shareResume: z.boolean().optional(),
 });
 
 export async function POST(
@@ -17,10 +19,16 @@ export async function POST(
   const authUser = await getUser();
   if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: authUser.id },
-    select: { fullName: true, email: true },
-  });
+  const [dbUser, profile] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: authUser.id },
+      select: { fullName: true, email: true },
+    }),
+    prisma.profile.findUnique({
+      where: { userId: authUser.id },
+      select: { resumeOriginalPath: true, resumeEnhancedPath: true },
+    }),
+  ]);
   if (!dbUser) return NextResponse.json({ error: 'User not found' }, { status: 401 });
 
   const { id } = await params;
@@ -33,18 +41,28 @@ export async function POST(
 
   const body = await request.json().catch(() => null);
   const parsed = applySchema.safeParse(body ?? {});
+  
+  if (!parsed.success || !parsed.data.shareProfile) {
+    return NextResponse.json({ error: 'Profile sharing consent required' }, { status: 400 });
+  }
 
   const existing = await prisma.jobPostingApplication.findUnique({
     where: { jobId_studentId: { jobId: id, studentId: authUser.id } },
   });
   if (existing) return NextResponse.json({ error: 'Already applied' }, { status: 400 });
 
+  const resumePath = parsed.data.shareResume 
+    ? (profile?.resumeEnhancedPath || profile?.resumeOriginalPath)
+    : undefined;
+
   const app = await prisma.jobPostingApplication.create({
     data: {
       jobId: id,
       studentId: authUser.id,
-      coverLetter: parsed.success ? parsed.data.coverLetter : undefined,
-      resumeUrl: parsed.success ? parsed.data.resumeUrl : undefined,
+      coverLetter: parsed.data.coverLetter,
+      resumeUrl: parsed.data.resumeUrl,
+      resumePath: resumePath,
+      profileShared: true,
     },
   });
 

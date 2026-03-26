@@ -161,7 +161,7 @@ export default function LoginForm() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     aria-invalid={!!error}
-                    aria-describedby={error ? 'login-error' : undefined}
+                    aria-describedby="login-error"
                   />
                 </div>
                 <div className="form-group">
@@ -175,7 +175,7 @@ export default function LoginForm() {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       aria-invalid={!!error}
-                      aria-describedby={error ? 'login-error' : undefined}
+                      aria-describedby="login-error"
                     />
                     <button
                       type="button"

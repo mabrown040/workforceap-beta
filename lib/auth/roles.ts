@@ -39,6 +39,15 @@ export async function requireAdmin(userId: string): Promise<void> {
   }
 }
 
+export async function isCounselor(userId: string): Promise<boolean> {
+  const row = await prisma.counselor.findFirst({
+    where: { userId, active: true },
+    select: { id: true },
+  });
+  if (row) return true;
+  return isSuperAdmin(userId);
+}
+
 export async function isPartner(userId: string): Promise<boolean> {
   const row = await prisma.partnerUser.findUnique({
     where: { userId },
@@ -68,6 +77,42 @@ export async function getPartnerForUser(
     if (first) return { partnerId: first.id, partner: first };
   }
   return null;
+}
+
+export async function getCounselorForUser(
+  userId: string
+): Promise<{ counselorId: string; partnerId: string; partnerName: string } | null> {
+  const counselor = await prisma.counselor.findFirst({
+    where: { userId, active: true },
+    include: { partner: { select: { id: true, name: true } } },
+  });
+  if (!counselor) return null;
+  return {
+    counselorId: counselor.id,
+    partnerId: counselor.partnerId,
+    partnerName: counselor.partner.name,
+  };
+}
+
+export async function hasMultiplePortalRoles(userId: string): Promise<{
+  isCounselor: boolean;
+  isPartner: boolean;
+  isEmployer: boolean;
+  isAdmin: boolean;
+}> {
+  const [counselor, partner, employer, admin] = await Promise.all([
+    isCounselor(userId),
+    isPartner(userId),
+    isEmployer(userId),
+    isAdmin(userId),
+  ]);
+  
+  return {
+    isCounselor: counselor,
+    isPartner: partner,
+    isEmployer: employer,
+    isAdmin: admin,
+  };
 }
 
 /** Subgroup leader: user is leader_id of a subgroup or in subgroup_leaders */

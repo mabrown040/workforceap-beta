@@ -10,6 +10,8 @@ import type { JobPostingApplicationStatus } from '@prisma/client';
 const patchSchema = z.object({
   status: z.enum(['pending', 'reviewing', 'interview', 'offered', 'hired', 'rejected']).optional(),
   employerNotes: z.string().max(20000).nullable().optional(),
+  interviewScheduledAt: z.string().datetime().nullable().optional(),
+  interviewNotes: z.string().max(2000).nullable().optional(),
 });
 
 export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
@@ -31,7 +33,7 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: s
   });
   if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  const { status: nextStatus, employerNotes } = parsed.data;
+  const { status: nextStatus, employerNotes, interviewScheduledAt, interviewNotes } = parsed.data;
   if (nextStatus !== undefined && nextStatus !== existing.status) {
     if (!canTransitionJobApplicationStatus(existing.status, nextStatus as JobPostingApplicationStatus)) {
       return NextResponse.json({ error: 'Invalid status transition' }, { status: 400 });
@@ -43,6 +45,8 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: s
     data: {
       ...(nextStatus !== undefined ? { status: nextStatus as JobPostingApplicationStatus } : {}),
       ...(employerNotes !== undefined ? { employerNotes } : {}),
+      ...(interviewScheduledAt !== undefined ? { interviewScheduledAt } : {}),
+      ...(interviewNotes !== undefined ? { interviewNotes } : {}),
       ...(nextStatus !== undefined && nextStatus !== existing.status
         ? { statusUpdatedAt: new Date() }
         : {}),

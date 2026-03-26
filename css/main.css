@@ -494,9 +494,23 @@ html.dark .app-system-page__text a {
     align-items: center;
     flex-shrink: 0;
 }
+
+/* Mobile: wrapper for theme toggle + hamburger on right side */
+.nav-actions-mobile {
+    display: none;
+}
+
 @media (max-width: 900px) {
-    .nav-theme-slot {
+    .nav-actions-mobile {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
         margin-left: auto;
+    }
+    
+    .nav-theme-slot {
+        /* Remove margin since it's now in nav-actions-mobile wrapper */
+        margin-left: 0;
     }
 }
 .theme-toggle-btn {
@@ -636,6 +650,16 @@ html.dark .main-nav .dropdown-menu a.active {
 html.dark .mobile-nav-toggle {
     border-color: rgba(255,255,255,0.12);
     background: rgba(255,255,255,0.08);
+}
+
+html.dark .nav-actions-mobile .nav-theme-slot button {
+    border-color: rgba(255,255,255,0.12) !important;
+    background: rgba(255,255,255,0.08) !important;
+}
+
+html.dark .nav-actions-mobile .nav-theme-slot button:hover {
+    background: rgba(255,255,255,0.14) !important;
+    border-color: rgba(255,255,255,0.2) !important;
 }
 html.dark .stats-bar {
     background: #0b0d10;
@@ -1256,6 +1280,13 @@ body.mobile-nav-open .main-nav::after {
     flex-shrink: 0;
     display: flex;
     align-items: center;
+}
+
+/* Desktop: theme toggle appears before nav menu */
+@media (min-width: 901px) {
+    .nav-actions-mobile {
+        display: none !important;
+    }
 }
 .nav-container {
     max-width: var(--max-width);
@@ -5435,6 +5466,7 @@ img.img-fade.loaded { opacity: 1; }
    RESPONSIVE
    ============================================= */
 @media (max-width: 900px) {
+    /* Mobile actions container removed margin-left: auto since wrapper handles it */
     .mobile-nav-toggle {
         display: flex !important;
         align-items: center;
@@ -5448,14 +5480,50 @@ img.img-fade.loaded { opacity: 1; }
         transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
         position: relative;
         z-index: 1002;
-        margin-left: auto;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
     }
     .mobile-nav-toggle:hover {
         background: rgba(255,255,255,0.12);
         border-color: rgba(255,255,255,0.16);
         transform: translateY(-1px);
     }
-    .mobile-nav-toggle:active { transform: scale(0.92); }
+    .mobile-nav-toggle:active { 
+        transform: scale(0.92);
+        background: rgba(255,255,255,0.09);
+    }
+    
+    /* Enhanced mobile theme toggle - matches hamburger style */
+    .nav-actions-mobile .nav-theme-slot button {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px !important;
+        border: 1px solid rgba(255,255,255,0.08) !important;
+        background: rgba(255,255,255,0.06) !important;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.18) !important;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    .nav-actions-mobile .nav-theme-slot button:hover {
+        background: rgba(255,255,255,0.12) !important;
+        border-color: rgba(255,255,255,0.16) !important;
+        transform: translateY(-1px) !important;
+    }
+    
+    .nav-actions-mobile .nav-theme-slot button:active {
+        transform: scale(0.92) !important;
+        background: rgba(255,255,255,0.09) !important;
+    }
+    
+    /* Larger touch target for better accessibility (44x44 is iOS/Android standard) */
+    .nav-actions-mobile .nav-theme-slot button::before {
+        content: '';
+        position: absolute;
+        inset: -4px;
+        border-radius: 18px;
+    }
     .nav-menu {
         position: fixed;
         top: calc(var(--nav-height-default) + 0.75rem);

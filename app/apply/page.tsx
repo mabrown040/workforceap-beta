@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
+import { CheckCircle, ClipboardList, UserPlus, Clock } from 'lucide-react';
 import Footer from '@/components/Footer';
 import ApplyEligibilityClient from './ApplyEligibilityClient';
 import ApplyPageSkeleton from './ApplyPageSkeleton';
@@ -55,13 +56,13 @@ export default async function ApplyPage({ searchParams }: PageProps) {
             maxWidth: '900px'
           }}>
             {[
-              { icon: '1️⃣', text: 'Quick eligibility check' },
-              { icon: '2️⃣', text: 'Choose a program' },
-              { icon: '3️⃣', text: 'Create your account' },
-              { icon: '⏱️', text: 'We respond within 24–48 hours' }
+              { Icon: CheckCircle, text: 'Quick eligibility check', label: 'Step 1' },
+              { Icon: ClipboardList, text: 'Choose a program', label: 'Step 2' },
+              { Icon: UserPlus, text: 'Create your account', label: 'Step 3' },
+              { Icon: Clock, text: 'We respond within 24–48 hours', label: 'Timeline' }
             ].map((step) => (
               <div key={step.text} style={{
-                padding: '0.75rem 1rem',
+                padding: '0.85rem 1.1rem',
                 background: 'rgba(255,255,255,0.1)',
                 backdropFilter: 'blur(10px)',
                 border: '1px solid rgba(255,255,255,0.2)',
@@ -70,9 +71,9 @@ export default async function ApplyPage({ searchParams }: PageProps) {
                 fontWeight: 500,
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem'
+                gap: '0.65rem'
               }}>
-                <span aria-hidden="true">{step.icon}</span>
+                <step.Icon size={20} strokeWidth={2.5} aria-label={step.label} style={{ flexShrink: 0, opacity: 0.9 }} />
                 <span>{step.text}</span>
               </div>
             ))}

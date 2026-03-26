@@ -627,14 +627,15 @@ model PartnerUser {
 
 model Counselor {
   id        String   @id @default(uuid())
-  partnerId String   @map("partner_id")
+  // Null partnerId = WorkforceAP org counselor; set when tied to a partner org
+  partnerId String?  @map("partner_id")
   userId    String   @unique @map("user_id")  // links to User (must have role = counselor)
   title     String?
   active    Boolean  @default(true)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  partner     Partner               @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  partner     Partner?              @relation(fields: [partnerId], references: [id], onDelete: Cascade)
   user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   assignments CounselorAssignment[]
 

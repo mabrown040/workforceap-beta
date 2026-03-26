@@ -5,7 +5,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 
 type ThreadDto = {
   id: string;
-  memberId: string;
+  memberId: string | null;
   counselorUserId: string | null;
   memberLastReadAt: string | null;
   counselorLastReadAt: string | null;

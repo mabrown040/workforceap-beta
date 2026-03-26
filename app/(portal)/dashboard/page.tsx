@@ -44,6 +44,8 @@ export default async function DashboardPage() {
           zip: true,
           profilePhone: true,
           referralSource: true,
+          dob: true,
+          isMinor: true,
         },
       },
     },
@@ -88,6 +90,11 @@ export default async function DashboardPage() {
   const enrolledProgram = dbUser.enrolledProgram ?? null;
   const assessmentCompleted = dbUser.assessmentCompleted ?? false;
   const coursesCompleted = (dbUser.coursesCompleted as string[] | null) ?? [];
+  
+  const userAge = intakeExtra?.profile?.dob 
+    ? Math.floor((Date.now() - new Date(intakeExtra.profile.dob).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
+    : null;
+  const isMinor = intakeExtra?.profile?.isMinor || (userAge !== null && userAge < 18);
 
   const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
   const totalCourses = program?.courses.length ?? 0;
@@ -171,8 +178,10 @@ export default async function DashboardPage() {
         checklistAllDone={checklistAllDone}
         applicationStatus={applicationStatus}
         noApplicationOnFile={noApplicationOnFile}
+        age={userAge}
+        isMinor={isMinor}
       />
-      {showMatchedRoles && <MatchedRoles />}
+      {showMatchedRoles && userAge !== null && userAge < 14 ? null : <MatchedRoles />}
     </PortalEntryClient>
   );
 }

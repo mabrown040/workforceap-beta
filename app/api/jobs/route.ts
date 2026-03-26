@@ -13,8 +13,27 @@ export async function GET(request: NextRequest) {
   const salaryMinParam = searchParams.get('salaryMin');
   const salaryMaxParam = searchParams.get('salaryMax');
   const sort = searchParams.get('sort') || 'newest';
+  const ageGroup = searchParams.get('ageGroup') as 'under14' | 'youth14to17' | 'adult18plus' | null;
 
   const andConditions: Prisma.JobWhereInput[] = [];
+  
+  // Age-based filtering
+  if (ageGroup === 'under14') {
+    // No jobs for under 14 (COPPA compliance)
+    andConditions.push({ id: 'impossible-match' });
+  } else if (ageGroup === 'youth14to17') {
+    // Only youth-appropriate jobs for 14-17 year olds
+    andConditions.push({ 
+      youthAppropriate: true,
+      OR: [
+        { minimumAge: null },
+        { minimumAge: { lte: 17 } },
+      ],
+    });
+  } else {
+    // Adults: exclude youth-only jobs if they have high minimum age
+    // (Most jobs are available, but some might be 21+ like alcohol service)
+  }
 
   if (locationType && ['remote', 'hybrid', 'onsite'].includes(locationType)) {
     andConditions.push({ locationType: locationType as 'remote' | 'hybrid' | 'onsite' });

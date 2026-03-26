@@ -152,7 +152,13 @@ function JobsNoResultsState() {
   );
 }
 
-export default function JobsListingClient({ isAuthenticated = true }: { isAuthenticated?: boolean }) {
+export default function JobsListingClient({ 
+  isAuthenticated = true, 
+  ageGroup = 'adult18plus' as 'under14' | 'youth14to17' | 'adult18plus'
+}: { 
+  isAuthenticated?: boolean;
+  ageGroup?: 'under14' | 'youth14to17' | 'adult18plus';
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -224,12 +230,14 @@ export default function JobsListingClient({ isAuthenticated = true }: { isAuthen
     if (salaryMax) params.set('salaryMax', salaryMax);
     if (sort && sort !== 'newest') params.set('sort', sort);
 
+    if (ageGroup) params.set('ageGroup', ageGroup);
+    
     setLoading(true);
     fetch(`/api/jobs?${params}`)
       .then((r) => r.json())
       .then(setJobs)
       .finally(() => setLoading(false));
-  }, [q, locationType, jobType, program, salaryMin, salaryMax, sort]);
+  }, [q, locationType, jobType, program, salaryMin, salaryMax, sort, ageGroup]);
 
   const filterPanel = (
     <div className="job-filters-panel">

@@ -8,6 +8,7 @@ import { trackFunnelEvent } from '@/lib/analytics/events';
 import { postMemberEvent } from '@/lib/events/client';
 import MemberPreScreeningForm from '@/components/portal/MemberPreScreeningForm';
 import MemberInterviewRequestButton from '@/components/portal/MemberInterviewRequestButton';
+import YouthDashboardNotice from '@/components/portal/YouthDashboardNotice';
 
 type State = 'A' | 'B' | 'C' | 'D';
 
@@ -40,6 +41,8 @@ type DashboardHomeClientProps = {
   checklistAllDone: boolean;
   recommendedActions: Array<{ label: string; href: string }>;
   jobSearchUrl?: string | null;
+  age?: number | null;
+  isMinor?: boolean;
   applicationStatus?: DashboardApplicationStatusProps | null;
   /** True when member has no Application row — prompt to apply */
   noApplicationOnFile?: boolean;
@@ -71,6 +74,8 @@ export default function DashboardHomeClient({
   interviewEligible = false,
   interviewRequestedAt = null,
   interviewCompletedAt = null,
+  age = null,
+  isMinor = false,
 }: DashboardHomeClientProps) {
   const primaryAction = recommendedActions[0];
   const secondaryAction = recommendedActions[1];
@@ -95,6 +100,8 @@ export default function DashboardHomeClient({
 
   return (
     <div className="dashboard-home-coach">
+      {age !== null && age < 18 ? <YouthDashboardNotice age={age} /> : null}
+      
       <header className="dashboard-home-header">
         <h1>
           {state === 'A' ? (
@@ -104,7 +111,7 @@ export default function DashboardHomeClient({
           )}
         </h1>
         <p className="dashboard-home-subtitle">
-          {state === 'A' && "Let's build your career path."}
+          {state === 'A' && (isMinor && age ? `Let's explore career paths and build skills.` : "Let's build your career path.")}
           {state === 'B' && "You're enrolled. One step before training."}
           {state === 'C' && "You're making progress toward job-ready."}
           {state === 'D' && "All courses complete. Focus on job outcomes."}

@@ -3066,6 +3066,9 @@ html.dark .program-card-courses-list li {
     line-height: 1.55;
     text-align: center;
 }
+.home-social-proof-lead-followup {
+    margin-top: 0.75rem;
+}
 .home-social-proof-actions {
     display: flex;
     flex-wrap: wrap;

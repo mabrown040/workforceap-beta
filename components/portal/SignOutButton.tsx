@@ -19,11 +19,18 @@ export function SignOutButton({ className, children, onSignOutStart }: SignOutBu
     router.refresh();
   };
 
+  const mergedClass =
+    className != null && className !== ''
+      ? /\bbtn\b/.test(className)
+        ? className
+        : `btn ${className}`.trim()
+      : 'btn';
+
   return (
     <button
       type="button"
       onClick={handleSignOut}
-      className={className ?? 'btn'}
+      className={mergedClass}
       style={
         className
           ? undefined

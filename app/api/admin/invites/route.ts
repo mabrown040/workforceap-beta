@@ -37,6 +37,7 @@ export async function GET(request: NextRequest) {
     include: {
       invitedBy: { select: { id: true, fullName: true, email: true } },
       subgroup: { select: { id: true, name: true } },
+      partner: { select: { id: true, name: true } },
     },
   });
 
@@ -72,17 +73,24 @@ export async function POST(request: NextRequest) {
       ? o.subgroupId.trim()
       : null;
   const programSlug = typeof o.programSlug === 'string' ? o.programSlug.trim() || null : null;
+  const partnerId =
+    typeof o.partnerId === 'string' && /^[0-9a-f-]{36}$/i.test(o.partnerId.trim())
+      ? o.partnerId.trim()
+      : null;
   const personalMessage =
     typeof o.personalMessage === 'string' ? o.personalMessage.trim() || null : null;
 
   if (!email) {
     return NextResponse.json({ error: 'Email is required' }, { status: 400 });
   }
-  if (!['admin', 'partner', 'member'].includes(role)) {
-    return NextResponse.json({ error: 'Invalid role. Must be admin, partner, or member' }, { status: 400 });
+  if (!['admin', 'partner', 'member', 'counselor'].includes(role)) {
+    return NextResponse.json(
+      { error: 'Invalid role. Must be admin, partner, member, or counselor' },
+      { status: 400 }
+    );
   }
 
-  const validRoles = ['admin', 'partner', 'member'] as const;
+  const validRoles = ['admin', 'partner', 'member', 'counselor'] as const;
   const inviteRole = validRoles.includes(role as (typeof validRoles)[number])
     ? (role as (typeof validRoles)[number])
     : 'member';
@@ -91,6 +99,13 @@ export async function POST(request: NextRequest) {
     const subgroup = await prisma.subgroup.findUnique({ where: { id: subgroupId } });
     if (!subgroup) {
       return NextResponse.json({ error: 'Invalid subgroup' }, { status: 400 });
+    }
+  }
+
+  if (inviteRole === 'counselor' && partnerId) {
+    const p = await prisma.partner.findUnique({ where: { id: partnerId } });
+    if (!p) {
+      return NextResponse.json({ error: 'Invalid partner' }, { status: 400 });
     }
   }
 
@@ -120,6 +135,7 @@ export async function POST(request: NextRequest) {
       email,
       role: inviteRole,
       subgroupId: inviteRole === 'partner' ? subgroupId : null,
+      partnerId: inviteRole === 'counselor' ? partnerId : null,
       programSlug: inviteRole === 'member' ? programSlug : null,
       invitedById: user.id,
       token,
@@ -133,7 +149,14 @@ export async function POST(request: NextRequest) {
   });
 
   const inviteUrl = `${SITE_URL}/invite?token=${token}`;
-  const roleLabel = inviteRole === 'admin' ? 'Admin' : inviteRole === 'partner' ? 'Partner' : 'Student';
+  const roleLabel =
+    inviteRole === 'admin'
+      ? 'Admin'
+      : inviteRole === 'partner'
+        ? 'Partner'
+        : inviteRole === 'counselor'
+          ? 'Counselor'
+          : 'Student';
 
   const emailResult = await sendInvitationEmail({
     to: email,

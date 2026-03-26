@@ -1,0 +1,20 @@
+/** Human-readable labels for invitation roles (emails, UI). */
+export function invitationRoleLabel(role: string): string {
+  switch (role) {
+    case 'admin':
+      return 'Admin';
+    case 'partner':
+      return 'Partner';
+    case 'member':
+      return 'Student';
+    case 'counselor':
+      return 'Counselor';
+    default:
+      return role;
+  }
+}
+
+export function inviteAcceptLoginRedirect(role: string): string {
+  if (role === 'counselor') return '/login?redirectTo=/counselor';
+  return '/login?redirectTo=/dashboard';
+}

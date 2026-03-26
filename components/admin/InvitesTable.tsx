@@ -14,6 +14,7 @@ type Invite = {
   acceptedAt: string | null;
   invitedBy: { id: string; fullName: string; email: string };
   subgroup: { id: string; name: string } | null;
+  partner: { id: string; name: string } | null;
 };
 
 type Props = {
@@ -24,6 +25,7 @@ const ROLE_LABELS: Record<string, string> = {
   admin: 'Admin',
   partner: 'Partner',
   member: 'Student',
+  counselor: 'Counselor',
 };
 
 const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
@@ -114,7 +116,7 @@ export default function InvitesTable({ invites }: Props) {
           <h3>No invitations</h3>
           <p>
             {filter === 'all'
-              ? 'Send invites to add admins, partners, or students to the platform.'
+              ? 'Send invites to add admins, partners, students, or counselors to the platform.'
               : `No ${filter} invitations.`}
           </p>
         </div>
@@ -141,6 +143,11 @@ export default function InvitesTable({ invites }: Props) {
                       {inv.subgroup && (
                         <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)' }}>
                           Subgroup: {inv.subgroup.name}
+                        </div>
+                      )}
+                      {inv.role === 'counselor' && (
+                        <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)' }}>
+                          {inv.partner ? `Partner: ${inv.partner.name}` : 'WorkforceAP counselor'}
                         </div>
                       )}
                     </td>
@@ -225,6 +232,11 @@ export default function InvitesTable({ invites }: Props) {
                 </span>
               </div>
               {inv.subgroup && <p className="admin-portal-card__meta">Subgroup: {inv.subgroup.name}</p>}
+              {inv.role === 'counselor' && (
+                <p className="admin-portal-card__meta">
+                  {inv.partner ? `Partner: ${inv.partner.name}` : 'WorkforceAP counselor'}
+                </p>
+              )}
               <p className="admin-portal-card__row">
                 <span className="admin-portal-card__label">Role</span> {ROLE_LABELS[inv.role] ?? inv.role}
               </p>

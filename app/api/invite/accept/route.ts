@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { sendInvitationAcceptedEmail } from '@/lib/email';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { invitationRoleLabel, inviteAcceptLoginRedirect } from '@/lib/invitations/inviteRoleLabels';
 
 export async function POST(request: NextRequest) {
   let body: unknown;
@@ -73,7 +74,15 @@ export async function POST(request: NextRequest) {
 
 async function acceptExistingUser(
   user: { id: string; fullName: string; email: string; profile: { role: string } | null; userRoles: { role: { name: string } }[] },
-  invitation: { id: string; role: string; invitedById: string; subgroupId: string | null; programSlug: string | null; invitedBy: { fullName: string; email: string } },
+  invitation: {
+    id: string;
+    role: string;
+    invitedById: string;
+    subgroupId: string | null;
+    partnerId: string | null;
+    programSlug: string | null;
+    invitedBy: { fullName: string; email: string };
+  },
   fullName: string,
   _request: NextRequest
 ) {
@@ -138,6 +147,37 @@ async function acceptExistingUser(
       });
     }
 
+    if (invitation.role === 'counselor') {
+      await tx.profile.upsert({
+        where: { userId: user.id },
+        create: {
+          userId: user.id,
+          role: 'counselor',
+          consentTerms: false,
+          consentCommunications: false,
+        },
+        update: { role: 'counselor' },
+      });
+      const counselorRoleRow = await tx.role.findUnique({ where: { name: 'counselor' } });
+      if (counselorRoleRow) {
+        await tx.userRole.upsert({
+          where: { userId_roleId: { userId: user.id, roleId: counselorRoleRow.id } },
+          create: { userId: user.id, roleId: counselorRoleRow.id },
+          update: {},
+        });
+      }
+      const existingCounselor = await tx.counselor.findUnique({ where: { userId: user.id } });
+      if (!existingCounselor) {
+        await tx.counselor.create({
+          data: {
+            userId: user.id,
+            partnerId: invitation.partnerId ?? null,
+            active: true,
+          },
+        });
+      }
+    }
+
     await tx.invitation.update({
       where: { id: invitation.id },
       data: {
@@ -148,8 +188,7 @@ async function acceptExistingUser(
     });
   });
 
-  const roleLabel =
-    invitation.role === 'admin' ? 'Admin' : invitation.role === 'partner' ? 'Partner' : 'Student';
+  const roleLabel = invitationRoleLabel(invitation.role);
 
   sendInvitationAcceptedEmail({
     to: invitation.invitedBy.email,
@@ -161,7 +200,7 @@ async function acceptExistingUser(
   return NextResponse.json({
     ok: true,
     message: 'Invitation accepted. You can now log in.',
-    redirectTo: '/login?redirectTo=/dashboard',
+    redirectTo: inviteAcceptLoginRedirect(invitation.role),
   });
 }
 
@@ -172,6 +211,7 @@ async function createNewUserAndAccept(
     role: string;
     invitedById: string;
     subgroupId: string | null;
+    partnerId: string | null;
     programSlug: string | null;
     invitedBy: { fullName: string; email: string };
   },
@@ -238,15 +278,22 @@ async function createNewUserAndAccept(
         },
       });
 
-      await tx.userRole.create({
-        data: { userId: authUser.id, roleId: memberRole.id },
-      });
+      if (invitation.role !== 'counselor') {
+        await tx.userRole.create({
+          data: { userId: authUser.id, roleId: memberRole.id },
+        });
+      }
 
       await tx.profile.create({
         data: {
           userId: authUser.id,
           profilePhone: phone,
-          role: invitation.role === 'member' ? 'member' : invitation.role,
+          role:
+            invitation.role === 'member'
+              ? 'member'
+              : invitation.role === 'counselor'
+                ? 'counselor'
+                : invitation.role,
         },
       });
 
@@ -283,6 +330,22 @@ async function createNewUserAndAccept(
         });
       }
 
+      if (invitation.role === 'counselor') {
+        const counselorRoleRow = await tx.role.findUnique({ where: { name: 'counselor' } });
+        if (counselorRoleRow) {
+          await tx.userRole.create({
+            data: { userId: authUser.id, roleId: counselorRoleRow.id },
+          });
+        }
+        await tx.counselor.create({
+          data: {
+            userId: authUser.id,
+            partnerId: invitation.partnerId ?? null,
+            active: true,
+          },
+        });
+      }
+
       await tx.invitation.update({
         where: { id: invitation.id },
         data: {
@@ -300,8 +363,7 @@ async function createNewUserAndAccept(
     );
   }
 
-  const roleLabel =
-    invitation.role === 'admin' ? 'Admin' : invitation.role === 'partner' ? 'Partner' : 'Student';
+  const roleLabel = invitationRoleLabel(invitation.role);
 
   sendInvitationAcceptedEmail({
     to: invitation.invitedBy.email,
@@ -313,6 +375,6 @@ async function createNewUserAndAccept(
   return NextResponse.json({
     ok: true,
     message: 'Account created. You can now log in.',
-    redirectTo: '/login?redirectTo=/dashboard',
+    redirectTo: inviteAcceptLoginRedirect(invitation.role),
   });
 }

@@ -20,14 +20,17 @@ type Invite = {
   acceptedAt: string | null;
   invitedBy: { id: string; fullName: string; email: string };
   subgroup: { id: string; name: string } | null;
+  partner: { id: string; name: string } | null;
 };
 
 type Subgroup = { id: string; name: string };
 type Program = { slug: string; title: string };
+type Partner = { id: string; name: string };
 
 export default function AdminInvitesPage() {
   const [invites, setInvites] = useState<Invite[]>([]);
   const [subgroups, setSubgroups] = useState<Subgroup[]>([]);
+  const [partners, setPartners] = useState<Partner[]>([]);
   const [programs, setPrograms] = useState<Program[]>([]);
   const [stats, setStats] = useState({
     total: 0,
@@ -53,6 +56,22 @@ export default function AdminInvitesPage() {
           // ignore
         }
         setSubgroups(sgData);
+
+        try {
+          const prRes = await fetch('/api/admin/partners');
+          if (prRes.ok) {
+            const raw = await prRes.json();
+            const arr = Array.isArray(raw) ? raw : [];
+            setPartners(
+              arr
+                .filter((p: { active?: boolean }) => p.active !== false)
+                .map((p: { id: string; name: string }) => ({ id: p.id, name: p.name }))
+                .sort((a: Partner, b: Partner) => a.name.localeCompare(b.name))
+            );
+          }
+        } catch {
+          // ignore
+        }
 
         if (invRes.ok) {
           const invData = await invRes.json();
@@ -93,7 +112,7 @@ export default function AdminInvitesPage() {
     <div style={{ paddingTop: '1.5rem' }}>
       <PageHeader
         title="Invitations"
-        subtitle="Invite admins, partners, or students to the platform."
+        subtitle="Invite admins, partners, students, or counselors to the platform."
         action={
           <button
             type="button"
@@ -145,6 +164,7 @@ export default function AdminInvitesPage() {
         <InviteForm
           subgroups={subgroups}
           programs={programs}
+          partners={partners}
           onClose={() => setModalOpen(false)}
         />
       )}

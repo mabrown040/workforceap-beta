@@ -20,6 +20,7 @@ const MARK_APPLIED = [];
 const MARK_ROLLED_BACK = [
   '20260323999999_add_missing_partner_notify_columns',
   '20260326120000_portal_message_threads_kind',
+  '20260327100000_counselor_optional_partner',
 ];
 
 function run(args, ignoreError = false) {

@@ -12,46 +12,19 @@ export default function ProgressBanner({ programTitle, completedCount, totalCoun
   const pct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   return (
-    <div
-      style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 10,
-        background: 'var(--color-light)',
-        borderBottom: '1px solid var(--color-border, #e5e5e5)',
-        padding: '0.75rem 1.5rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '0.75rem',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1, minWidth: 0 }}>
-        <span style={{ fontWeight: 600, fontSize: '0.95rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          {programTitle}
-        </span>
-        <div style={{ flex: 1, minWidth: '120px', maxWidth: '200px' }}>
-          <div style={{ height: '6px', background: '#e5e5e5', borderRadius: '3px', overflow: 'hidden' }}>
-            <div
-              style={{
-                height: '100%',
-                width: `${pct}%`,
-                background: 'var(--color-accent, #4a9b4f)',
-                borderRadius: '3px',
-              }}
-            />
+    <div className="progress-banner">
+      <div className="progress-banner-main">
+        <span className="progress-banner-title">{programTitle}</span>
+        <div className="progress-banner-track-wrap">
+          <div className="progress-banner-track" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
+            <div className="progress-banner-fill" style={{ width: `${pct}%` }} />
           </div>
         </div>
-        <span style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)', whiteSpace: 'nowrap' }}>
+        <span className="progress-banner-meta">
           {completedCount} of {totalCount} courses
         </span>
       </div>
-      <Link
-        href="/dashboard/training"
-        className="btn btn-primary progress-banner-cta"
-        style={{ padding: '0.5rem 1rem', fontSize: '0.9rem', minHeight: '44px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
-      >
+      <Link href="/dashboard/training" className="btn btn-primary progress-banner-cta">
         <span className="progress-banner-cta-text">Continue Training →</span>
       </Link>
     </div>

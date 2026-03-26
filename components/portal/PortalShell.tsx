@@ -4,8 +4,8 @@ import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import PortalNav from './PortalNav';
 
-const MEMBER_PORTAL_PREFIXES = ['/dashboard', '/programs', '/my-group', '/apply', '/certifications', '/profile'];
-const DEDICATED_SHELL_PREFIXES = ['/employer', '/partner', '/my-group'];
+const MEMBER_PORTAL_PREFIXES = ['/dashboard', '/programs', '/apply', '/certifications', '/profile'];
+const DEDICATED_SHELL_PREFIXES = ['/employer', '/partner', '/counselor'];
 
 function isMemberPortalPath(path: string) {
   return MEMBER_PORTAL_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`));

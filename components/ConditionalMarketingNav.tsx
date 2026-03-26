@@ -5,7 +5,7 @@ import { isMarketingChromeHidden } from '@/lib/nav/marketing-chrome';
 import TopBanner from './TopBanner';
 import MainNav from './MainNav';
 
-const PORTAL_PREFIXES = ['/dashboard', '/admin', '/employer', '/partner', '/my-group', '/resources', '/help', '/applications', '/certifications', '/profile', '/account'];
+const PORTAL_PREFIXES = ['/dashboard', '/admin', '/employer', '/partner', '/counselor', '/resources', '/help', '/applications', '/certifications', '/profile', '/account'];
 
 /**
  * Renders MainNav only on public marketing routes.

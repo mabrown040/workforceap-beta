@@ -275,7 +275,7 @@ export default async function AdminMemberDetailPage({
             counselors={counselorRows.map((c) => ({
               userId: c.userId,
               fullName: c.user.fullName,
-              partnerName: c.partner.name,
+              partnerName: c.partner?.name ?? 'WorkforceAP',
             }))}
             currentCounselorUserId={activeCounselorAssign?.counselor.userId ?? null}
           />

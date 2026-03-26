@@ -66,7 +66,7 @@ export default function AdminMemberCounselorAssign({
           <option value="">Select…</option>
           {counselors.map((c) => (
             <option key={c.userId} value={c.userId}>
-              {c.fullName} ({c.partnerName})
+              {c.fullName} ({c.partnerName === 'WorkforceAP' || !c.partnerName ? 'WorkforceAP' : c.partnerName})
             </option>
           ))}
         </select>
@@ -76,7 +76,7 @@ export default function AdminMemberCounselorAssign({
       </button>
       {counselors.length === 0 ? (
         <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)' }}>
-          Add active counselors under a partner organization first.
+          Add counselors under <strong>Admin → Counselors</strong> (WorkforceAP or a partner).
         </p>
       ) : null}
     </form>

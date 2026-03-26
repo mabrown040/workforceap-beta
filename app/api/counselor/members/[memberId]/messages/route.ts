@@ -1,0 +1,142 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getUser } from '@/lib/auth/server';
+import { isAdmin, isCounselor } from '@/lib/auth/roles';
+import { prisma } from '@/lib/db/prisma';
+import {
+  getOrCreateMemberCounselorThread,
+  assertStaffCanAccessThread,
+  assertStaffCanPost,
+  normalizeMessageBody,
+  serializeMessage,
+} from '@/lib/messages/counselorThread';
+
+type Props = { params: Promise<{ memberId: string }> };
+
+async function canUseCounselorMessaging(userId: string): Promise<boolean> {
+  if (await isAdmin(userId)) return true;
+  return isCounselor(userId);
+}
+
+export async function GET(_request: NextRequest, { params }: Props) {
+  const user = await getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!(await canUseCounselorMessaging(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  const { memberId } = await params;
+
+  const member = await prisma.user.findFirst({
+    where: { id: memberId, deletedAt: null },
+    select: { id: true, fullName: true },
+  });
+  if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+
+  const thread = await getOrCreateMemberCounselorThread(memberId);
+  const access = await assertStaffCanAccessThread(user.id, thread.id);
+  if (!access) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  const messages = await prisma.message.findMany({
+    where: { threadId: thread.id },
+    orderBy: { createdAt: 'asc' },
+  });
+
+  const names = await prisma.user.findMany({
+    where: { id: { in: [...new Set(messages.map((m) => m.authorId))] } },
+    select: { id: true, fullName: true },
+  });
+  const nameById = new Map(names.map((n) => [n.id, n.fullName]));
+
+  return NextResponse.json({
+    member: { id: member.id, fullName: member.fullName },
+    thread: {
+      id: thread.id,
+      memberId: thread.memberId,
+      counselorUserId: thread.counselorUserId,
+      memberLastReadAt: thread.memberLastReadAt?.toISOString() ?? null,
+      counselorLastReadAt: thread.counselorLastReadAt?.toISOString() ?? null,
+    },
+    messages: messages.map((m) => ({
+      ...serializeMessage(m),
+      authorName: nameById.get(m.authorId) ?? 'User',
+    })),
+  });
+}
+
+export async function POST(request: NextRequest, { params }: Props) {
+  const user = await getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!(await canUseCounselorMessaging(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  const { memberId } = await params;
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+  }
+
+  const text = typeof (body as { body?: unknown }).body === 'string' ? (body as { body: string }).body : '';
+  const normalized = normalizeMessageBody(text);
+  if (!normalized.ok) {
+    return NextResponse.json({ error: normalized.error }, { status: 400 });
+  }
+
+  const member = await prisma.user.findFirst({
+    where: { id: memberId, deletedAt: null },
+    select: { id: true },
+  });
+  if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+
+  const thread = await getOrCreateMemberCounselorThread(memberId);
+  const canPost = await assertStaffCanPost(user.id, thread.id);
+  if (!canPost) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  const msg = await prisma.$transaction(async (tx) => {
+    const m = await tx.message.create({
+      data: {
+        threadId: thread.id,
+        authorId: user.id,
+        body: normalized.body,
+      },
+    });
+    await tx.messageThread.update({
+      where: { id: thread.id },
+      data: {
+        updatedAt: new Date(),
+        counselorUserId: thread.counselorUserId ?? user.id,
+      },
+    });
+    return m;
+  });
+
+  return NextResponse.json({ message: serializeMessage(msg) });
+}
+
+export async function PATCH(_request: NextRequest, { params }: Props) {
+  const user = await getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!(await canUseCounselorMessaging(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  const { memberId } = await params;
+
+  const member = await prisma.user.findFirst({
+    where: { id: memberId, deletedAt: null },
+    select: { id: true },
+  });
+  if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+
+  const thread = await getOrCreateMemberCounselorThread(memberId);
+  const access = await assertStaffCanAccessThread(user.id, thread.id);
+  if (!access) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  const now = new Date();
+  await prisma.messageThread.update({
+    where: { id: thread.id },
+    data: {
+      counselorLastReadAt: now,
+      counselorUserId: thread.counselorUserId ?? user.id,
+    },
+  });
+
+  return NextResponse.json({ ok: true, counselorLastReadAt: now.toISOString() });
+}

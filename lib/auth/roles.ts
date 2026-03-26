@@ -81,7 +81,7 @@ export async function getPartnerForUser(
 
 export async function getCounselorForUser(
   userId: string
-): Promise<{ counselorId: string; partnerId: string; partnerName: string } | null> {
+): Promise<{ counselorId: string; partnerId: string | null; partnerName: string } | null> {
   const counselor = await prisma.counselor.findFirst({
     where: { userId, active: true },
     include: { partner: { select: { id: true, name: true } } },
@@ -90,7 +90,7 @@ export async function getCounselorForUser(
   return {
     counselorId: counselor.id,
     partnerId: counselor.partnerId,
-    partnerName: counselor.partner.name,
+    partnerName: counselor.partner?.name ?? 'WorkforceAP',
   };
 }
 

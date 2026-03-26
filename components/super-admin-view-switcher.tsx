@@ -9,14 +9,14 @@ const VIEWS = [
   { id: 'partner', label: 'Partner Portal', path: '/partner' },
   { id: 'student', label: 'Member Portal', path: '/dashboard' },
   { id: 'employer', label: 'Employer Portal', path: '/employer' },
-  { id: 'my-group', label: 'My Group Portal', path: '/my-group' },
+  { id: 'counselor', label: 'Counselor Portal', path: '/counselor' },
 ] as const;
 
 function getCurrentView(pathname: string): (typeof VIEWS)[number]['id'] {
   if (pathname?.startsWith('/admin')) return 'admin';
   if (pathname?.startsWith('/partner')) return 'partner';
   if (pathname?.startsWith('/employer')) return 'employer';
-  if (pathname?.startsWith('/my-group')) return 'my-group';
+  if (pathname?.startsWith('/counselor')) return 'counselor';
   return 'student';
 }
 
@@ -58,7 +58,13 @@ export default function SuperAdminViewSwitcher() {
   if (!isSuperAdmin) return null;
 
   const currentLabel = VIEWS.find((v) => v.id === currentView)?.label ?? 'Student Portal';
-  const shortLabel = { admin: 'Admin', partner: 'Partner', student: 'Student', employer: 'Employer', 'my-group': 'My Group' }[currentView] ?? currentLabel;
+  const shortLabel = {
+    admin: 'Admin',
+    partner: 'Partner',
+    student: 'Student',
+    employer: 'Employer',
+    counselor: 'Counselor',
+  }[currentView] ?? currentLabel;
 
   return (
     <div className="super-admin-view-switcher" onClick={(e) => e.stopPropagation()}>

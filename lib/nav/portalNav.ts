@@ -205,9 +205,8 @@ export const PARTNER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/partner/settings', label: 'Settings', group: 'manage', Icon: Settings },
 ];
 
-export const GROUP_PORTAL_NAV_ITEMS: PortalNavItem[] = [
-  { href: '/my-group', label: 'Members', group: 'primary', Icon: Users },
-];
+/** @deprecated Subgroup leader UI removed; keep empty for typing */
+export const GROUP_PORTAL_NAV_ITEMS: PortalNavItem[] = [];
 
 /** Admin ops — same WorkspaceShell grouping pattern as employer/partner/member. */
 export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
@@ -229,6 +228,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin/blog', label: 'Blog', group: 'workflows', Icon: FileText },
   { href: '/admin/jobs', label: 'Jobs', group: 'workflows', Icon: Briefcase },
   { href: '/admin/employers', label: 'Employers', group: 'workflows', Icon: Building2 },
+  { href: '/admin/counselors', label: 'Counselors', group: 'workflows', Icon: Users },
   { href: '/admin/partners', label: 'Partners', group: 'workflows', Icon: Handshake },
   { href: '/admin/subgroups', label: 'Subgroups', group: 'workflows', Icon: UsersRound },
   { href: '/admin/pipeline', label: 'Pipeline', group: 'workflows', Icon: GitBranch },
@@ -240,9 +240,8 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
 
 export const COUNSELOR_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/counselor', label: 'Overview', group: 'primary', Icon: Home },
-  { href: '/counselor/students', label: 'My Students', group: 'workflows', Icon: Users },
+  { href: '/counselor/students', label: 'My students', group: 'workflows', Icon: Users },
   { href: '/counselor/messages', label: 'Messages', group: 'workflows', Icon: MessageSquare },
-  { href: '/counselor/caseload', label: 'Caseload', group: 'insights', Icon: BarChart3 },
   { href: '/counselor/resources', label: 'Resources', group: 'manage', Icon: BookOpen },
 ];
 

@@ -71,7 +71,7 @@ export async function GET(_request: NextRequest, { params }: Props) {
   const counselors = counselorRows.map((c) => ({
     userId: c.user.id,
     fullName: c.user.fullName,
-    partnerName: c.partner.name,
+    partnerName: c.partner?.name ?? 'WorkforceAP',
   }));
 
   if (thread.kind === 'member' && thread.member) {

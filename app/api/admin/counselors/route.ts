@@ -1,0 +1,98 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { getUser } from '@/lib/auth/server';
+import { isAdmin } from '@/lib/auth/roles';
+import { prisma } from '@/lib/db/prisma';
+
+export async function GET() {
+  const user = await getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  const rows = await prisma.counselor.findMany({
+    orderBy: [{ partner: { name: 'asc' } }, { user: { fullName: 'asc' } }],
+    include: {
+      user: { select: { id: true, fullName: true, email: true } },
+      partner: { select: { id: true, name: true } },
+    },
+  });
+
+  return NextResponse.json({
+    counselors: rows.map((c) => ({
+      id: c.id,
+      userId: c.userId,
+      fullName: c.user.fullName,
+      email: c.user.email,
+      title: c.title,
+      active: c.active,
+      partnerId: c.partnerId,
+      partnerName: c.partner?.name ?? null,
+    })),
+  });
+}
+
+const createBody = z.object({
+  userId: z.string().uuid(),
+  partnerId: z.string().uuid().nullable().optional(),
+  title: z.string().max(120).optional().nullable(),
+});
+
+export async function POST(request: NextRequest) {
+  const user = await getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  let json: unknown;
+  try {
+    json = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+  }
+  const parsed = createBody.safeParse(json);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  }
+
+  const { userId, partnerId, title } = parsed.data;
+
+  const existing = await prisma.counselor.findUnique({ where: { userId } });
+  if (existing) {
+    return NextResponse.json({ error: 'This user is already a counselor' }, { status: 400 });
+  }
+
+  const targetUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true },
+  });
+  if (!targetUser) return NextResponse.json({ error: 'User not found' }, { status: 404 });
+
+  if (partnerId) {
+    const p = await prisma.partner.findUnique({ where: { id: partnerId }, select: { id: true } });
+    if (!p) return NextResponse.json({ error: 'Partner not found' }, { status: 400 });
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.counselor.create({
+      data: {
+        userId,
+        partnerId: partnerId ?? null,
+        title: title?.trim() || null,
+        active: true,
+      },
+    });
+    await tx.profile.upsert({
+      where: { userId },
+      create: {
+        userId,
+        role: 'counselor',
+        consentTerms: false,
+        consentCommunications: false,
+      },
+      update: {
+        role: 'counselor',
+      },
+    });
+  });
+
+  return NextResponse.json({ ok: true });
+}

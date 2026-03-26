@@ -258,14 +258,19 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Social proof — real destinations, no placeholder quotes */}
+      {/* Prelaunch: no member quotes yet; credibility from CSN / Consulting Solutions.Net track record */}
       <section className="home-social-proof" aria-labelledby="home-social-proof-heading">
         <div className="container">
           <h2 id="home-social-proof-heading" className="home-section-title">
-            Stories &amp; proof points
+            Experience behind WorkforceAP
           </h2>
           <p className="home-social-proof-lead">
-            We don&apos;t use fabricated employer quotes. For real updates, graduate-focused writing, and who stands behind the work, use the links below.
+            WorkforceAP is still prelaunch — we don&apos;t have graduate stories on this site yet. What we do have is a long run of workforce outcomes through{' '}
+            <strong>Consulting Solutions.Net (CSN)</strong>: Austin-area training aligned to real job requirements, strong completion and placement support, and
+            thousands of people coached into industry credentials and work. That same leadership team is building WorkforceAP for scale.
+          </p>
+          <p className="home-social-proof-lead home-social-proof-lead-followup">
+            Follow updates and dig into our mission, partners, and board below.
           </p>
           <div className="home-social-proof-actions">
             <Link href="/blog" className="btn btn-primary btn-sm">

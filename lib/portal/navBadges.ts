@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db/prisma';
-import { getEmployerForUser, getPartnerForUser } from '@/lib/auth/roles';
+import { getEmployerForUser, getPartnerForUser, isSuperAdmin } from '@/lib/auth/roles';
+import { countThreadsWithSlaBreach } from '@/lib/messages/superAdminMessageQueries';
 import { countEmployerQueueBadges } from '@/lib/employer/workQueue';
 import { buildPartnerAttentionQueue, countActionablePartnerAttention } from '@/lib/partner/attentionQueue';
 import type { NavBadgeKey } from '@/lib/nav/portalNav';
@@ -13,7 +14,13 @@ export async function getNavBadgeCountsForUser(
   role: PortalRole,
   userId: string
 ): Promise<NavBadgeCounts> {
-  if (role === 'admin') return {};
+  if (role === 'admin') {
+    if (await isSuperAdmin(userId)) {
+      const counselor_sla_breach_48h = await countThreadsWithSlaBreach(48);
+      return { counselor_sla_breach_48h };
+    }
+    return {};
+  }
 
   if (role === 'member' || role === 'group') {
     if (role === 'group') return {};

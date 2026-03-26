@@ -43,6 +43,7 @@ export type NavBadgeKey =
   | 'partner_needs_attention'
   | 'milestones_new'
   | 'counselor_messages_unread'
+  | 'counselor_sla_breach_48h'
   | 'employer_queue_review_today'
   | 'employer_queue_stale_48h'
   | 'employer_queue_interview';
@@ -193,6 +194,14 @@ export const GROUP_PORTAL_NAV_ITEMS: PortalNavItem[] = [
 /** Admin ops — same WorkspaceShell grouping pattern as employer/partner/member. */
 export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin', label: 'Overview', group: 'primary', Icon: BarChart3 },
+  {
+    href: '/admin/messages',
+    label: 'Counselor messages',
+    group: 'workflows',
+    Icon: MessageSquare,
+    requiresSuperAdminContext: true,
+    badgeKey: 'counselor_sla_breach_48h',
+  },
   { href: '/admin/members', label: 'Members', group: 'workflows', Icon: Users },
   { href: '/admin/members/interview-ready', label: 'Interview ready', group: 'workflows', Icon: ListChecks },
   { href: '/admin/invites', label: 'Invites', group: 'workflows', Icon: MessageSquare },

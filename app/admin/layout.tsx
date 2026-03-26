@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import AdminPortalShell from '@/components/portal/AdminPortalShell';
 import OrgBrandingBar from '@/components/platform/OrgBrandingBar';
 import { getDefaultOrgBranding } from '@/lib/platform/defaultOrgTheme';
@@ -17,11 +17,12 @@ export default async function AdminLayout({
   if (!hasAdmin) redirect('/dashboard');
 
   const branding = await getDefaultOrgBranding();
+  const superAdmin = await isSuperAdmin(user.id);
 
   return (
     <>
       <OrgBrandingBar branding={branding} />
-      <AdminPortalShell>{children}</AdminPortalShell>
+      <AdminPortalShell superAdmin={superAdmin}>{children}</AdminPortalShell>
     </>
   );
 }

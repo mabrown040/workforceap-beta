@@ -494,6 +494,14 @@ html.dark .app-system-page__text a {
     align-items: center;
     flex-shrink: 0;
 }
+.nav-theme-slot.nav-theme-slot--desktop {
+    display: none;
+}
+@media (min-width: 901px) {
+    .nav-theme-slot.nav-theme-slot--desktop {
+        display: flex;
+    }
+}
 
 /* Mobile: wrapper for theme toggle + hamburger on right side */
 .nav-actions-mobile {
@@ -5504,6 +5512,9 @@ img.img-fade.loaded { opacity: 1; }
         -webkit-tap-highlight-color: transparent;
         touch-action: manipulation;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    .nav-actions-mobile .nav-theme-slot button svg {
+        color: rgba(255, 255, 255, 0.95) !important;
     }
     
     .nav-actions-mobile .nav-theme-slot button:hover {

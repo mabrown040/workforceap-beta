@@ -237,6 +237,9 @@ export default function MainNav() {
             priority
           />
         </Link>
+        <div className="nav-theme-slot nav-theme-slot--desktop">
+          <ThemeToggle variant="marketing" />
+        </div>
         <div className="nav-actions-mobile">
           <div className="nav-theme-slot">
             <ThemeToggle variant="marketing" />

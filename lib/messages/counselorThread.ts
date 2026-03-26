@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db/prisma';
+import { isAdmin } from '@/lib/auth/roles';
 
 const MAX_BODY = 8000;
 
@@ -66,13 +67,8 @@ export async function assertStaffCanAccessThread(staffUserId: string, threadId: 
   if (!thread) return null;
   if (thread.counselorUserId === staffUserId) return thread;
 
-  const hasAdmin = await prisma.userRole.findFirst({
-    where: {
-      userId: staffUserId,
-      role: { name: { in: ['admin', 'case_manager'] } },
-    },
-    select: { userId: true },
-  });
+  // Check both profile.role (admin/super_admin) and userRole table (admin/case_manager)
+  const hasAdmin = await isAdmin(staffUserId);
   if (hasAdmin) return thread;
 
   const assigned = await prisma.counselorAssignment.findFirst({

@@ -25,9 +25,9 @@ const CATEGORY_LABELS: Record<string, string> = {
   'ai-software': 'AI & Software Dev',
   'cloud-data': 'Cloud & Data',
   'it-cyber': 'IT & Cybersecurity',
-  'business': 'Business',
-  'healthcare': 'Healthcare',
-  'manufacturing': 'Manufacturing',
+  business: 'Business',
+  healthcare: 'Healthcare',
+  manufacturing: 'Manufacturing',
 };
 
 export default async function DashboardResourcesPage() {
@@ -72,7 +72,7 @@ export default async function DashboardResourcesPage() {
     .slice(0, 4);
 
   return (
-    <>
+    <div className="portal-resources-page">
       <nav className="learning-hub-breadcrumb" aria-label="Learning hub">
         <Link href="/dashboard/learning">Learning hub</Link>
         <span className="learning-hub-breadcrumb-sep" aria-hidden>
@@ -80,34 +80,20 @@ export default async function DashboardResourcesPage() {
         </span>
         <span className="learning-hub-breadcrumb-current">Program resources</span>
       </nav>
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Program resources &amp; tools</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '2rem' }}>
+      <h1 className="portal-resources-title">Program resources &amp; tools</h1>
+      <p className="portal-resources-lead">
         AI tools, career tips, and links matched to your program category — plus ways to reach the team.
       </p>
 
       {suggestedAiTools.length > 0 && (
-        <section style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Suggested for you</h2>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '1rem' }}>
+        <section className="portal-resources-section">
+          <h2 className="portal-resources-section-title">Suggested for you</h2>
+          <p className="portal-resources-section-lead">
             Based on your progress — try these AI tools next:
           </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <div className="portal-resources-suggested-row">
             {suggestedAiTools.map((a) => (
-              <Link
-                key={a.href + a.label}
-                href={a.href}
-                style={{
-                  display: 'inline-block',
-                  padding: '0.6rem 1rem',
-                  background: 'rgba(74, 155, 79, 0.1)',
-                  border: '1px solid var(--color-accent)',
-                  borderRadius: '6px',
-                  textDecoration: 'none',
-                  color: 'var(--color-accent)',
-                  fontWeight: 600,
-                  fontSize: '0.9rem',
-                }}
-              >
+              <Link key={a.href + a.label} href={a.href} className="portal-resources-pill-link">
                 {a.label} →
               </Link>
             ))}
@@ -115,86 +101,61 @@ export default async function DashboardResourcesPage() {
         </section>
       )}
 
-      <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>All AI Career Tools</h2>
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '1rem' }}>
+      <section className="portal-resources-section">
+        <h2 className="portal-resources-section-title portal-resources-section-title--tight">
+          All AI Career Tools
+        </h2>
+        <p className="portal-resources-section-lead">
           Resume builder, LinkedIn headline, cover letter, interview practice, and more — powered by AI.
         </p>
-        <Link
-          href="/dashboard/ai-tools"
-          style={{
-            display: 'inline-block',
-            padding: '0.75rem 1.25rem',
-            background: 'var(--color-accent)',
-            color: 'white',
-            borderRadius: '6px',
-            textDecoration: 'none',
-            fontWeight: 600,
-            marginBottom: '1.5rem',
-          }}
-        >
+        <Link href="/dashboard/ai-tools" className="portal-resources-cta-primary">
           Open AI Tools →
         </Link>
       </section>
 
-      <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>Career Tips</h2>
-        <div style={{ display: 'grid', gap: '1rem' }}>
+      <section className="portal-resources-section">
+        <h2 className="portal-resources-section-title portal-resources-section-title--tight">
+          Career Tips
+        </h2>
+        <div className="portal-resources-link-grid">
           {CAREER_TOOLS.map((t) => (
-            <a
-              key={t.title}
-              href={t.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: 'block',
-                padding: '1rem',
-                border: '1px solid var(--color-border, #e5e5e5)',
-                borderRadius: 'var(--radius-md)',
-                textDecoration: 'none',
-                color: 'inherit',
-              }}
-            >
+            <a key={t.title} href={t.url} target="_blank" rel="noopener noreferrer" className="portal-resources-link-card">
               <strong>{t.title}</strong>
-              <span style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)', marginLeft: '0.5rem' }}>— {t.description}</span>
+              <span className="portal-resources-link-card-meta">— {t.description}</span>
             </a>
           ))}
         </div>
       </section>
 
-      <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>Program Resources</h2>
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '1rem' }}>
+      <section className="portal-resources-section">
+        <h2 className="portal-resources-section-title portal-resources-section-title--tight">
+          Program Resources
+        </h2>
+        <p className="portal-resources-section-lead">
           Filtered for your program category: {CATEGORY_LABELS[category] ?? category}
         </p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+        <div className="portal-resources-grid-cards">
           {getResourcesForCategory(category).map((r) => (
             <a
               key={r.url}
               href={r.url}
               target="_blank"
               rel="noopener noreferrer"
-              style={{
-                display: 'block',
-                padding: '1rem',
-                border: '1px solid var(--color-border, #e5e5e5)',
-                borderRadius: 'var(--radius-md)',
-                background: 'var(--color-light)',
-                textDecoration: 'none',
-                color: 'inherit',
-              }}
+              className="portal-resources-link-card portal-resources-link-card--filled"
             >
-              <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{r.title}</div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)', marginBottom: '0.5rem' }}>{r.description}</div>
-              <span style={{ fontSize: '0.85rem', color: 'var(--color-accent)', fontWeight: 500 }}>Visit Resource →</span>
+              <div className="portal-resources-link-card-title">{r.title}</div>
+              <div className="portal-resources-link-card-desc">{r.description}</div>
+              <span className="portal-resources-link-card-cta">Visit Resource →</span>
             </a>
           ))}
         </div>
       </section>
 
-      <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>Support</h2>
-        <div style={{ display: 'grid', gap: '0.75rem' }}>
+      <section className="portal-resources-section">
+        <h2 className="portal-resources-section-title portal-resources-section-title--tight">
+          Support
+        </h2>
+        <div className="portal-resources-support-grid">
           <p>
             <strong>Email:</strong>{' '}
             <a href="mailto:info@workforceap.org">info@workforceap.org</a>
@@ -202,52 +163,43 @@ export default async function DashboardResourcesPage() {
           <p>
             <strong>Phone:</strong> (512) 777-1808
           </p>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>
+          <p className="portal-resources-support-text">
             <strong>Loaner Laptop:</strong> Earned upon successful program completion — see{' '}
             <Link href="/how-it-works">How It Works</Link>
           </p>
         </div>
       </section>
 
-      <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>Your counselor</h2>
-        <div
-          style={{
-            padding: '1.5rem',
-            border: '1px solid var(--color-border, #e5e5e5)',
-            borderRadius: 'var(--radius-md)',
-            background: 'var(--color-light)',
-          }}
-        >
+      <section className="portal-resources-section">
+        <h2 className="portal-resources-section-title portal-resources-section-title--tight">
+          Your counselor
+        </h2>
+        <div className="portal-resources-counselor-card">
           {counselorContact ? (
             <>
-              <p style={{ marginBottom: '0.35rem', fontWeight: 600 }}>{counselorContact.fullName}</p>
-              <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '1rem' }}>
+              <p className="portal-resources-counselor-name">{counselorContact.fullName}</p>
+              <p className="portal-resources-counselor-email">
                 <a href={`mailto:${counselorContact.email}`}>{counselorContact.email}</a>
               </p>
-              <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-700)', marginBottom: '0.75rem', lineHeight: 1.5 }}>
+              <p className="portal-resources-counselor-body">
                 Message your counselor anytime from{' '}
-                <Link href="/dashboard/messages" style={{ fontWeight: 600 }}>
+                <Link href="/dashboard/messages" className="portal-resources-inline-em">
                   Messages
                 </Link>
                 . Scheduling tools will be added here when available.
               </p>
             </>
           ) : (
-            <>
-              <p style={{ marginBottom: '0.75rem', lineHeight: 1.55 }}>
-                A counselor will be assigned as you move through enrollment. For now, reach the team through{' '}
-                <Link href="/dashboard/messages" style={{ fontWeight: 600 }}>
-                  Messages
-                </Link>{' '}
-                or{' '}
-                <a href="mailto:info@workforceap.org">info@workforceap.org</a>.
-              </p>
-            </>
+            <p className="portal-resources-counselor-body--plain">
+              A counselor will be assigned as you move through enrollment. For now, reach the team through{' '}
+              <Link href="/dashboard/messages" className="portal-resources-inline-em">
+                Messages
+              </Link>{' '}
+              or <a href="mailto:info@workforceap.org">info@workforceap.org</a>.
+            </p>
           )}
         </div>
       </section>
-
-    </>
+    </div>
   );
 }

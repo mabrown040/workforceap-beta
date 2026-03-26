@@ -13372,3 +13372,284 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
     resize: vertical;
     min-height: 4rem;
 }
+
+/* Program resources (learning hub) — class-based layout */
+.portal-resources-page {
+    max-width: 900px;
+}
+.portal-resources-title {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+.portal-resources-lead {
+    color: var(--color-gray-600);
+    margin-bottom: 2rem;
+    line-height: 1.55;
+}
+.portal-resources-section {
+    margin-bottom: 2rem;
+}
+.portal-resources-section-title {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--color-primary);
+}
+.portal-resources-section-title--tight {
+    margin-bottom: 1rem;
+}
+.portal-resources-section-lead {
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+.portal-resources-suggested-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+.portal-resources-pill-link {
+    display: inline-block;
+    padding: 0.6rem 1rem;
+    background: rgba(74, 155, 79, 0.1);
+    border: 1px solid var(--color-accent);
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--color-accent);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+.portal-resources-pill-link:hover {
+    background: rgba(74, 155, 79, 0.16);
+}
+.portal-resources-cta-primary {
+    display: inline-block;
+    padding: 0.75rem 1.25rem;
+    background: var(--color-accent);
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+.portal-resources-cta-primary:hover {
+    filter: brightness(0.95);
+}
+.portal-resources-link-grid {
+    display: grid;
+    gap: 1rem;
+}
+.portal-resources-link-card {
+    display: block;
+    padding: 1rem;
+    border: 1px solid var(--color-border, #e5e5e5);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.portal-resources-link-card:hover {
+    border-color: var(--color-accent);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+.portal-resources-link-card--filled {
+    background: var(--color-light);
+}
+.portal-resources-link-card-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+.portal-resources-link-card-desc {
+    font-size: 0.85rem;
+    color: var(--color-gray-600);
+    margin-bottom: 0.5rem;
+}
+.portal-resources-link-card-meta {
+    font-size: 0.85rem;
+    color: var(--color-gray-600);
+    margin-left: 0.5rem;
+}
+.portal-resources-link-card-cta {
+    font-size: 0.85rem;
+    color: var(--color-accent);
+    font-weight: 500;
+}
+.portal-resources-grid-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+.portal-resources-support-text {
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+}
+.portal-resources-support-grid {
+    display: grid;
+    gap: 0.75rem;
+}
+.portal-resources-counselor-card {
+    padding: 1.5rem;
+    border: 1px solid var(--color-border, #e5e5e5);
+    border-radius: var(--radius-md);
+    background: var(--color-light);
+}
+.portal-resources-counselor-name {
+    margin-bottom: 0.35rem;
+    font-weight: 600;
+}
+.portal-resources-counselor-email {
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+    margin-bottom: 1rem;
+}
+.portal-resources-counselor-body {
+    font-size: 0.9rem;
+    color: var(--color-gray-700);
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+}
+.portal-resources-counselor-body--plain {
+    margin-bottom: 0.75rem;
+    line-height: 1.55;
+}
+.portal-resources-inline-em {
+    font-weight: 600;
+}
+
+/* Assessments hub */
+.portal-assessments-lead {
+    color: var(--color-gray-600);
+    margin-bottom: 1.5rem;
+    line-height: 1.55;
+}
+.assessments-card {
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border, #e5e5e5);
+    background: var(--color-light);
+    max-width: 560px;
+}
+.assessments-card__row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+.assessments-card__icon {
+    flex-shrink: 0;
+}
+.assessments-card__icon--muted {
+    color: var(--color-gray-500);
+}
+.assessments-card__icon--accent {
+    color: var(--color-accent);
+}
+.assessments-card__title {
+    font-size: 1.15rem;
+    margin: 0;
+}
+.assessments-card__body {
+    margin-bottom: 1rem;
+    color: var(--color-gray-600);
+    line-height: 1.55;
+}
+.assessments-card__body--tight {
+    margin-bottom: 1rem;
+    color: var(--color-gray-600);
+}
+.assessments-card__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.assessments-card__list li {
+    margin-bottom: 0.5rem;
+}
+.assessments-card__actions {
+    margin-top: 1.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+.assessments-card__actions .btn .lucide {
+    margin-left: 0.25rem;
+    vertical-align: middle;
+}
+.assessments-why {
+    margin-top: 2rem;
+}
+.assessments-why__title {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+.assessments-why__text {
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+    max-width: 560px;
+    line-height: 1.55;
+}
+
+/* Coursera */
+.coursera-panel {
+    margin-bottom: 1.5rem;
+}
+.coursera-panel__title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+.coursera-enrolled-lead {
+    color: var(--color-gray-700);
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+.coursera-callout {
+    padding: 1.25rem;
+    background: var(--color-light, #f8fafc);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border, #e5e7eb);
+    margin-bottom: 1.25rem;
+}
+.coursera-callout__title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--color-gray-900);
+}
+.coursera-callout__text {
+    font-size: 0.95rem;
+    color: var(--color-gray-600);
+    line-height: 1.6;
+    margin-bottom: 0.75rem;
+}
+.coursera-callout__list {
+    margin: 0;
+    padding-left: 1.25rem;
+    font-size: 0.9rem;
+    color: var(--color-gray-700);
+    line-height: 1.6;
+}
+.coursera-btn-external {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.coursera-footnote {
+    font-size: 0.85rem;
+    color: var(--color-gray-500);
+    margin-top: 0.75rem;
+}
+.coursera-empty-lead {
+    color: var(--color-gray-600);
+    margin-bottom: 1rem;
+}
+.coursera-footer-note {
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+}
+.coursera-footer-note a {
+    color: var(--color-accent);
+}

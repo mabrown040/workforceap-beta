@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { addAuthCookie } from './auth-helpers';
 
 /**
  * Revenue workflow E2E tests.
@@ -6,23 +7,6 @@ import { test, expect } from '@playwright/test';
  * - Authenticated users can access portal routes when authorized
  * Cookie-based auth uses sb-workforceap-auth-token (or project-specific Supabase cookie).
  */
-function addAuthCookie(
-  context: { addCookies: (cookies: Array<{ name: string; value: string; domain?: string; path?: string; httpOnly?: boolean; secure?: boolean; sameSite?: 'Strict' | 'Lax' | 'None' }>) => Promise<void> },
-  baseURL: string
-) {
-  const appUrl = new URL(baseURL || 'http://localhost:3000');
-  return context.addCookies([
-    {
-      name: 'sb-workforceap-auth-token',
-      value: 'beta-session',
-      domain: appUrl.hostname,
-      path: '/',
-      httpOnly: false,
-      secure: false,
-      sameSite: 'Lax',
-    },
-  ]);
-}
 
 test.describe('Portal access control', () => {
   test('unauthenticated user cannot access employer portal', async ({ page }) => {

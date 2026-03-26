@@ -18,12 +18,13 @@ export default function CareerBriefList({ briefs }: CareerBriefListProps) {
   }
 
   return (
-    <ul className="career-brief-list">
+    <ul className="career-brief-list" data-testid="career-brief-list">
       {briefs.map((brief) => (
         <li key={brief.id}>
           <Link
             href={`/dashboard/career-brief/${brief.slug}`}
             className="career-brief-item"
+            data-testid="career-brief-row"
             onClick={() => trackBriefOpen(brief.id, brief.title)}
           >
             <span className="career-brief-date">{brief.date}</span>

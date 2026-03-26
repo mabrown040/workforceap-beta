@@ -9,8 +9,9 @@ ALTER TABLE "message_threads" ADD COLUMN "portal_user_last_read_at" TIMESTAMP(3)
 ALTER TABLE "message_threads" ADD COLUMN "staff_last_read_at" TIMESTAMP(3);
 ALTER TABLE "message_threads" ADD COLUMN "staff_user_id" TEXT;
 
--- Drop unique on member_id, make nullable for non-member threads
-ALTER TABLE "message_threads" DROP CONSTRAINT IF EXISTS "message_threads_member_id_key";
+-- member_id uniqueness was created as a UNIQUE INDEX (see 20260329120000), not a table constraint.
+-- Drop the index so we can make member_id nullable and recreate the partial unique index.
+DROP INDEX IF EXISTS "message_threads_member_id_key";
 
 ALTER TABLE "message_threads" ALTER COLUMN "member_id" DROP NOT NULL;
 

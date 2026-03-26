@@ -22,10 +22,18 @@ type ThreadRow = {
   };
 };
 
+type CounselorOpt = {
+  userId: string;
+  fullName: string;
+  partnerName: string;
+};
+
 type ThreadDetail = {
   thread: { id: string; memberId: string; counselorUserId: string | null; updatedAt: string };
   member: { id: string; fullName: string; email: string };
   counselorName: string | null;
+  counselors: CounselorOpt[];
+  currentCounselorUserId: string | null;
   messages: Array<{
     id: string;
     body: string;
@@ -56,6 +64,8 @@ export default function AdminSuperMessagesClient() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detail, setDetail] = useState<ThreadDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [assigningCounselor, setAssigningCounselor] = useState(false);
+  const [assignmentMsg, setAssignmentMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search.trim()), 300);
@@ -138,6 +148,39 @@ export default function AdminSuperMessagesClient() {
       window.dispatchEvent(new Event('wa-nav-badges-refresh'));
     } catch {
       /* ignore */
+    }
+  };
+
+  const assignCounselor = async (counselorUserId: string) => {
+    if (!detail) return;
+    setAssigningCounselor(true);
+    setAssignmentMsg(null);
+    try {
+      const r = await fetch(`/api/admin/members/${detail.member.id}/counselor`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ counselorUserId }),
+        credentials: 'include',
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        setAssignmentMsg({ type: 'err', text: typeof data.error === 'string' ? data.error : 'Assignment failed' });
+        return;
+      }
+      setAssignmentMsg({ type: 'ok', text: 'Counselor assigned. Member was notified via email.' });
+      setTimeout(() => setAssignmentMsg(null), 5000);
+      if (selectedId) {
+        const detailRes = await fetch(`/api/admin/messages/thread/${selectedId}`, { credentials: 'include' });
+        if (detailRes.ok) {
+          const updated = (await detailRes.json()) as ThreadDetail;
+          setDetail(updated);
+        }
+      }
+      refreshList();
+    } catch {
+      setAssignmentMsg({ type: 'err', text: 'Network error' });
+    } finally {
+      setAssigningCounselor(false);
     }
   };
 
@@ -250,7 +293,7 @@ export default function AdminSuperMessagesClient() {
               <div style={{ marginBottom: '1rem' }}>
                 <h2 style={{ fontSize: '1.15rem', fontWeight: 600 }}>{detail.member.fullName}</h2>
                 <p className="admin-muted-text" style={{ fontSize: '0.9rem' }}>
-                  {detail.member.email} · Counselor: {detail.counselorName ?? '—'}
+                  {detail.member.email} · Counselor: {detail.counselorName ?? 'Not assigned'}
                 </p>
                 {detail.sla?.breached48h ? (
                   <p className="admin-error-banner" style={{ marginTop: '0.75rem', fontSize: '0.9rem' }}>
@@ -258,12 +301,53 @@ export default function AdminSuperMessagesClient() {
                     {detail.sla.breached72h ? ' (over 72 hours)' : ' (over 48 hours)'}.
                   </p>
                 ) : null}
-                <p className="admin-muted-text" style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}>
+
+                {assignmentMsg ? (
+                  <p style={{ marginTop: '0.75rem', fontSize: '0.9rem', color: assignmentMsg.type === 'ok' ? '#166534' : '#b91c1c' }} role="status">
+                    {assignmentMsg.text}
+                  </p>
+                ) : null}
+
+                <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
+                    <div style={{ flex: 1 }}>
+                      <label htmlFor="assign-counselor" className="admin-form-hint" style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem' }}>
+                        Assign counselor
+                      </label>
+                      <select
+                        id="assign-counselor"
+                        className="admin-form-input"
+                        defaultValue={detail.currentCounselorUserId ?? ''}
+                        onChange={(e) => {
+                          if (e.target.value) void assignCounselor(e.target.value);
+                        }}
+                        disabled={assigningCounselor || detail.counselors.length === 0}
+                        style={{ width: '100%' }}
+                      >
+                        <option value="">Select counselor…</option>
+                        {detail.counselors.map((c) => (
+                          <option key={c.userId} value={c.userId}>
+                            {c.fullName} ({c.partnerName})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {detail.counselors.length === 0 ? (
+                    <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)' }}>
+                      Add active counselors under a partner organization first.
+                    </p>
+                  ) : null}
+
+                  <Link href={`/admin/members/${detail.member.id}`} className="btn btn-outline btn-sm" style={{ display: 'inline-flex', alignSelf: 'flex-start' }}>
+                    Open member detail page
+                  </Link>
+                </div>
+
+                <p className="admin-muted-text" style={{ marginTop: '1rem', fontSize: '0.85rem' }}>
                   {detail.readOnlyNote}
                 </p>
-                <Link href={`/admin/members/${detail.member.id}`} className="btn btn-primary btn-sm" style={{ marginTop: '0.75rem', display: 'inline-flex' }}>
-                  Open member (counselor chat)
-                </Link>
               </div>
               <ul className="admin-super-messages-bubbles">
                 {detail.messages.map((m) => (

@@ -21,7 +21,24 @@ export async function GET(_request: NextRequest, { params }: Props) {
       counselor: { select: { id: true, fullName: true } },
     },
   });
+
   if (!thread) return NextResponse.json({ error: 'Thread not found' }, { status: 404 });
+
+  const [counselorRows, activeCounselorAssignment] = await Promise.all([
+    prisma.counselor.findMany({
+      where: { active: true },
+      orderBy: [{ partner: { name: 'asc' } }, { user: { fullName: 'asc' } }],
+      select: {
+        userId: true,
+        user: { select: { id: true, fullName: true } },
+        partner: { select: { name: true } },
+      },
+    }),
+    prisma.counselorAssignment.findFirst({
+      where: { memberId: thread.memberId, active: true },
+      select: { counselor: { select: { userId: true } } },
+    }),
+  ]);
 
   const messages = await prisma.message.findMany({
     where: { threadId: thread.id },
@@ -38,6 +55,12 @@ export async function GET(_request: NextRequest, { params }: Props) {
   const slaMap = await getSlaStatusForThreads([thread.id]);
   const sla = slaMap.get(thread.id);
 
+  const counselors = counselorRows.map((c) => ({
+    userId: c.user.id,
+    fullName: c.user.fullName,
+    partnerName: c.partner.name,
+  }));
+
   return NextResponse.json({
     thread: {
       id: thread.id,
@@ -49,6 +72,8 @@ export async function GET(_request: NextRequest, { params }: Props) {
     },
     member: thread.member,
     counselorName: thread.counselor?.fullName ?? null,
+    counselors,
+    currentCounselorUserId: activeCounselorAssignment?.counselor.userId ?? thread.counselorUserId,
     messages: messages.map((m) => ({
       ...serializeMessage(m),
       authorName: nameById.get(m.authorId) ?? 'User',
@@ -62,6 +87,6 @@ export async function GET(_request: NextRequest, { params }: Props) {
           breached72h: sla.breached72h,
         }
       : null,
-    readOnlyNote: 'Super admin oversight is read-only. Counselors reply from the member record.',
+    readOnlyNote: 'View all messages and assign counselors. Counselors can reply from the member detail page.',
   });
 }

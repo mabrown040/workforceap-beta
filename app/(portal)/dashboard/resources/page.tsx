@@ -39,6 +39,19 @@ export default async function DashboardResourcesPage() {
     select: { enrolledProgram: true },
   });
 
+  const counselorAssignment = await prisma.counselorAssignment.findFirst({
+    where: { memberId: user.id, active: true },
+    orderBy: { assignedAt: 'desc' },
+    select: {
+      counselor: {
+        select: {
+          user: { select: { fullName: true, email: true } },
+        },
+      },
+    },
+  });
+  const counselorContact = counselorAssignment?.counselor.user ?? null;
+
   const program = dbUser?.enrolledProgram ? getProgramBySlug(dbUser.enrolledProgram) : null;
   const category = program?.category ?? 'ai-software';
 
@@ -196,52 +209,42 @@ export default async function DashboardResourcesPage() {
         </div>
       </section>
 
-      {/* COUNSELOR_DEFERRED — wire to counselor assignment system */}
       <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>Your Counselor</h2>
+        <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>Your counselor</h2>
         <div
           style={{
             padding: '1.5rem',
             border: '1px solid var(--color-border, #e5e5e5)',
             borderRadius: 'var(--radius-md)',
             background: 'var(--color-light)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem',
           }}
         >
-          <div
-            style={{
-              width: '60px',
-              height: '60px',
-              borderRadius: '50%',
-              background: '#ddd',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#999',
-              fontSize: '1.5rem',
-            }}
-          >
-            ?
-          </div>
-          <div>
-            <p style={{ marginBottom: '0.5rem' }}>
-              Your counselor will be assigned when your program begins.
-            </p>
-            <button
-              type="button"
-              className="btn btn-outline"
-              disabled
-              style={{ opacity: 0.6, cursor: 'not-allowed' }}
-              title="Coming soon — your counselor will be available after assignment."
-            >
-              Schedule meeting <span className="sr-only">(coming soon)</span>
-              <span aria-hidden style={{ fontSize: '0.75rem', fontWeight: 600, marginLeft: '0.35rem' }}>
-                (soon)
-              </span>
-            </button>
-          </div>
+          {counselorContact ? (
+            <>
+              <p style={{ marginBottom: '0.35rem', fontWeight: 600 }}>{counselorContact.fullName}</p>
+              <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '1rem' }}>
+                <a href={`mailto:${counselorContact.email}`}>{counselorContact.email}</a>
+              </p>
+              <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-700)', marginBottom: '0.75rem', lineHeight: 1.5 }}>
+                Message your counselor anytime from{' '}
+                <Link href="/dashboard/messages" style={{ fontWeight: 600 }}>
+                  Messages
+                </Link>
+                . Scheduling tools will be added here when available.
+              </p>
+            </>
+          ) : (
+            <>
+              <p style={{ marginBottom: '0.75rem', lineHeight: 1.55 }}>
+                A counselor will be assigned as you move through enrollment. For now, reach the team through{' '}
+                <Link href="/dashboard/messages" style={{ fontWeight: 600 }}>
+                  Messages
+                </Link>{' '}
+                or{' '}
+                <a href="mailto:info@workforceap.org">info@workforceap.org</a>.
+              </p>
+            </>
+          )}
         </div>
       </section>
 

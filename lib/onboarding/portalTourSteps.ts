@@ -71,6 +71,12 @@ export const EMPLOYER_PORTAL_TOUR_STEPS: TourStep[] = [
     placement: 'right',
   },
   {
+    targetId: 'tour-messages',
+    title: 'Messages',
+    body: 'Chat with the WorkforceAP team about postings, applicants, and hiring.',
+    placement: 'right',
+  },
+  {
     targetId: 'tour-post-job',
     title: 'Post your first job',
     body: "Takes about 2 minutes. We'll match you with qualified candidates automatically.",
@@ -101,6 +107,12 @@ export const PARTNER_PORTAL_TOUR_STEPS: TourStep[] = [
     targetId: 'tour-outcomes',
     title: 'Outcomes',
     body: 'Track placements and employment outcomes for your referrals.',
+    placement: 'right',
+  },
+  {
+    targetId: 'tour-messages',
+    title: 'Messages',
+    body: 'Reach the WorkforceAP team about referrals, milestones, and partner support.',
     placement: 'right',
   },
   {

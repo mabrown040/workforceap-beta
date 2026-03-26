@@ -6,8 +6,8 @@ import { isSuperAdmin } from '@/lib/auth/roles';
 import AdminSuperMessagesClient from '@/components/admin/AdminSuperMessagesClient';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Counselor messages (super admin)',
-  description: 'Read-only oversight of member–counselor message threads and SLA alerts.',
+  title: 'Portal messages (super admin)',
+  description: 'Member, employer, and partner message threads with WorkforceAP staff.',
   path: '/admin/messages',
 });
 

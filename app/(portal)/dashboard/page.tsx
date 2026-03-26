@@ -10,6 +10,7 @@ import DashboardHomeClient from '@/components/portal/DashboardHomeClient';
 import MatchedRoles from '@/components/portal/MatchedRoles';
 import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
 import { isSuperAdmin } from '@/lib/auth/roles';
+import { calculateAge } from '@/lib/util/ageCalculation';
 import { MEMBER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -91,9 +92,7 @@ export default async function DashboardPage() {
   const assessmentCompleted = dbUser.assessmentCompleted ?? false;
   const coursesCompleted = (dbUser.coursesCompleted as string[] | null) ?? [];
   
-  const userAge = intakeExtra?.profile?.dob 
-    ? Math.floor((Date.now() - new Date(intakeExtra.profile.dob).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
-    : null;
+  const userAge = intakeExtra?.profile?.dob ? calculateAge(intakeExtra.profile.dob) : null;
   const isMinor = intakeExtra?.profile?.isMinor || (userAge !== null && userAge < 18);
 
   const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
@@ -181,7 +180,7 @@ export default async function DashboardPage() {
         age={userAge}
         isMinor={isMinor}
       />
-      {showMatchedRoles && userAge !== null && userAge < 14 ? null : <MatchedRoles />}
+      {showMatchedRoles ? userAge !== null && userAge < 14 ? null : <MatchedRoles /> : null}
     </PortalEntryClient>
   );
 }

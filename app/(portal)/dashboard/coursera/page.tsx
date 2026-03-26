@@ -94,33 +94,6 @@ export default async function CourseraIntegrationPage() {
           </div>
         )}
       </div>
-
-      <div style={{
-        padding: '1.5rem',
-        background: 'white',
-        borderRadius: 'var(--radius-md)',
-        border: '1px solid var(--color-gray-200)'
-      }}>
-        <h3 style={{ fontSize: '1.05rem', fontWeight: 600, marginBottom: '0.75rem' }}>
-          Integration Technical Details (For Development)
-        </h3>
-        <div style={{ fontSize: '0.9rem', color: 'var(--color-gray-700)', lineHeight: 1.6 }}>
-          <p style={{ marginBottom: '0.75rem' }}>
-            <strong>Coursera Enterprise 500 Integration Plan:</strong>
-          </p>
-          <ul style={{ paddingLeft: '1.5rem', marginBottom: '0.75rem' }}>
-            <li>Obtain Enterprise 500 license keys and API credentials</li>
-            <li>Configure Coursera LTI (Learning Tools Interoperability) integration</li>
-            <li>Embed courses via secure iframe with SSO authentication</li>
-            <li>Sync progress via Coursera API webhooks</li>
-            <li>Map WorkforceAP programs to Coursera course collections</li>
-            <li>Auto-enroll students when assigned to programs</li>
-          </ul>
-          <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)' }}>
-            Environment variables needed: COURSERA_CLIENT_ID, COURSERA_CLIENT_SECRET, COURSERA_ENTERPRISE_ID
-          </p>
-        </div>
-      </div>
     </div>
   );
 }

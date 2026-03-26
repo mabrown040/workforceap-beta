@@ -54,14 +54,16 @@ export function getAgeGroupLabel(ageGroup: AgeGroup): string {
 }
 
 /**
- * Determine if a job is appropriate for a given age group
+ * Determine if a job is appropriate for a given age group.
+ * Pass `dob` when available so adult minimum-age rules (e.g. 21+) can be applied accurately.
  */
 export function isJobAgeAppropriate(
   ageGroup: AgeGroup,
   job: {
     minimumAge?: number | null;
     youthAppropriate?: boolean;
-  }
+  },
+  dob?: Date | string | null
 ): boolean {
   // Under 14 - no jobs (COPPA compliance)
   if (ageGroup === 'under14') return false;
@@ -73,9 +75,10 @@ export function isJobAgeAppropriate(
     return true;
   }
   
-  // Adult (18+) - check minimum age if specified
+  // Adult (18+) — jobs may require 21+ (e.g. alcohol service); use dob when present
   if (job.minimumAge) {
-    return job.minimumAge <= 18;
+    if (dob != null) return meetsMinimumAge(dob, job.minimumAge);
+    return true;
   }
   
   return true;

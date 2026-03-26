@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import {
   getOrCreateMemberCounselorThread,
@@ -14,6 +15,8 @@ type Props = { params: Promise<{ id: string }> };
 export async function GET(_request: NextRequest, { params }: Props) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!(await isCounselor(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
   const { id: memberId } = await params;
 
   const member = await prisma.user.findFirst({
@@ -56,6 +59,7 @@ export async function GET(_request: NextRequest, { params }: Props) {
 export async function POST(request: NextRequest, { params }: Props) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!(await isCounselor(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { id: memberId } = await params;
 
@@ -106,6 +110,7 @@ export async function POST(request: NextRequest, { params }: Props) {
 export async function PATCH(_request: NextRequest, { params }: Props) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!(await isCounselor(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { id: memberId } = await params;
 

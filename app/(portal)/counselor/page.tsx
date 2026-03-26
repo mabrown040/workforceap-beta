@@ -1,16 +1,9 @@
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
+import { isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import { Users, MessageSquare, CheckCircle, AlertCircle } from 'lucide-react';
-
-async function isCounselor(userId: string): Promise<boolean> {
-  const counselor = await prisma.counselor.findFirst({
-    where: { userId, active: true },
-    select: { id: true },
-  });
-  return !!counselor;
-}
 
 export default async function CounselorPortalPage() {
   const user = await getUser();
@@ -19,7 +12,7 @@ export default async function CounselorPortalPage() {
   const canAccess = await isCounselor(user.id);
   if (!canAccess) redirect('/dashboard');
 
-  const [counselor, assignments, messagesNeedingReply, dbUser] = await Promise.all([
+  const [counselor, assignments, dbUser, counselorThreads] = await Promise.all([
     prisma.counselor.findFirst({
       where: { userId: user.id, active: true },
       include: { partner: { select: { name: true } } },
@@ -42,27 +35,28 @@ export default async function CounselorPortalPage() {
       },
       orderBy: { assignedAt: 'desc' },
     }),
-    prisma.messageThread.count({
-      where: {
-        counselorUserId: user.id,
-        messages: {
-          some: {
-            authorId: { not: user.id },
-            createdAt: {
-              gt: await prisma.messageThread.findFirst({
-                where: { counselorUserId: user.id },
-                select: { counselorLastReadAt: true },
-              }).then((t) => t?.counselorLastReadAt || new Date(0)),
-            },
-          },
-        },
-      },
-    }),
     prisma.user.findUnique({
       where: { id: user.id },
       select: { fullName: true },
     }),
+    prisma.messageThread.findMany({
+      where: { counselorUserId: user.id },
+      select: { id: true, counselorLastReadAt: true },
+    }),
   ]);
+
+  const messageCounts = await Promise.all(
+    counselorThreads.map((t) =>
+      prisma.message.count({
+        where: {
+          threadId: t.id,
+          authorId: { not: user.id },
+          createdAt: { gt: t.counselorLastReadAt ?? new Date(0) },
+        },
+      })
+    )
+  );
+  const messagesNeedingReply = messageCounts.reduce((a, b) => a + b, 0);
 
   if (!counselor || !dbUser) redirect('/dashboard');
 
@@ -141,7 +135,7 @@ export default async function CounselorPortalPage() {
             {assignments.map((assignment) => (
               <a
                 key={assignment.id}
-                href={`/admin/members/${assignment.member.id}`}
+                href={`/counselor/students/${assignment.member.id}`}
                 style={{
                   display: 'block',
                   padding: '1.25rem',

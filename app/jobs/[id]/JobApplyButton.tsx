@@ -7,15 +7,25 @@ export default function JobApplyButton({ jobId, authenticated = true }: { jobId:
   const [applying, setApplying] = useState(false);
   const [applied, setApplied] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [profileShareConsent, setProfileShareConsent] = useState(false);
+  const [resumeShareConsent, setResumeShareConsent] = useState(false);
 
   async function handleApply() {
+    if (!profileShareConsent) {
+      setError('You must consent to share your profile with the employer.');
+      return;
+    }
+
     setApplying(true);
     setError(null);
     try {
       const res = await fetch(`/api/jobs/${jobId}/apply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
+        body: JSON.stringify({
+          shareProfile: true,
+          shareResume: resumeShareConsent,
+        }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -77,7 +87,7 @@ export default function JobApplyButton({ jobId, authenticated = true }: { jobId:
   return (
     <div>
       {error && (
-        <div className="admin-error-banner" style={{ padding: '0.75rem', marginBottom: '1rem', borderRadius: 'var(--radius-sm)' }}>
+        <div className="admin-error-banner" style={{ padding: '0.75rem', marginBottom: '1rem', borderRadius: 'var(--radius-sm)' }} role="alert">
           {error}
           {error === 'Please log in to apply.' && (
             <Link href={`/login?redirectTo=/jobs/${jobId}`} style={{ marginLeft: '0.5rem', textDecoration: 'underline' }}>
@@ -86,17 +96,56 @@ export default function JobApplyButton({ jobId, authenticated = true }: { jobId:
           )}
         </div>
       )}
+      
+      <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'var(--color-gray-50)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-gray-200)' }}>
+        <h4 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.75rem' }}>Application Consent</h4>
+        
+        <label style={{ display: 'flex', alignItems: 'start', gap: '0.5rem', cursor: 'pointer', marginBottom: '0.75rem' }}>
+          <input
+            type="checkbox"
+            checked={profileShareConsent}
+            onChange={(e) => setProfileShareConsent(e.target.checked)}
+            style={{ marginTop: '0.15rem', flexShrink: 0 }}
+          />
+          <span style={{ fontSize: '0.9rem', lineHeight: 1.5 }}>
+            I consent to share my profile information (name, contact, program, skills) with this employer. 
+            <span style={{ color: 'var(--color-accent)' }}> *</span>
+          </span>
+        </label>
+
+        <label style={{ display: 'flex', alignItems: 'start', gap: '0.5rem', cursor: 'pointer' }}>
+          <input
+            type="checkbox"
+            checked={resumeShareConsent}
+            onChange={(e) => setResumeShareConsent(e.target.checked)}
+            style={{ marginTop: '0.15rem', flexShrink: 0 }}
+          />
+          <span style={{ fontSize: '0.9rem', lineHeight: 1.5 }}>
+            Also share my resume with this employer (if available)
+          </span>
+        </label>
+        
+        <p style={{ fontSize: '0.8rem', color: 'var(--color-gray-600)', marginTop: '0.75rem', lineHeight: 1.4 }}>
+          Your information will only be shared with this employer for this specific job application. 
+          You can manage your applications in your <Link href="/dashboard/ai-tools/application-tracker" style={{ color: 'var(--color-accent)' }}>dashboard</Link>.
+        </p>
+      </div>
+
       <button
         type="button"
         className="btn btn-accent btn-large"
         onClick={handleApply}
-        disabled={applying}
+        disabled={applying || !profileShareConsent}
+        style={{ width: '100%' }}
       >
-        {applying ? 'Applying…' : 'Apply for this job'}
+        {applying ? 'Submitting application…' : 'Submit Application'}
       </button>
-      <p style={{ marginTop: '0.75rem', fontSize: '0.9rem', color: 'var(--color-gray-500)' }}>
-        You must be logged in as a WorkforceAP member to apply.
-      </p>
+      
+      {!profileShareConsent && (
+        <p style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: 'var(--color-gray-600)', textAlign: 'center' }}>
+          Please consent to share your profile to apply
+        </p>
+      )}
     </div>
   );
 }

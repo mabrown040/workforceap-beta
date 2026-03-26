@@ -118,6 +118,7 @@ model User {
   messageThreadsAsMember    MessageThread[] @relation("MemberMessageThreads")
   messageThreadsAsCounselor MessageThread[] @relation("CounselorMessageThreads")
   messagesAuthored          Message[]
+  applicationMessagesAuthored ApplicationMessage[]
   preScreeningResponse      PreScreeningResponse?
   preScreeningDraft         PreScreeningDraft?
   courseEnrollment          CourseEnrollment?
@@ -1114,17 +1115,41 @@ model JobPostingApplication {
   status          JobPostingApplicationStatus @default(pending)
   coverLetter     String?                     @map("cover_letter") @db.Text
   resumeUrl       String?                     @map("resume_url")
+  resumePath      String?                     @map("resume_path")
+  profileShared   Boolean                     @default(false) @map("profile_shared")
   appliedAt       DateTime                    @default(now()) @map("applied_at")
   employerNotes   String?                     @map("employer_notes") @db.Text
   statusUpdatedAt DateTime?                   @map("status_updated_at")
+  interviewScheduledAt DateTime?              @map("interview_scheduled_at")
+  interviewNotes  String?                     @map("interview_notes") @db.Text
+  lastEmployerMessageAt DateTime?             @map("last_employer_message_at")
+  lastApplicantMessageAt DateTime?            @map("last_applicant_message_at")
 
   job    Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
   student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  messages ApplicationMessage[]
 
   @@unique([jobId, studentId])
   @@index([jobId])
   @@index([studentId])
+  @@index([status])
   @@map("job_posting_applications")
+}
+
+model ApplicationMessage {
+  id            String   @id @default(uuid())
+  applicationId String   @map("application_id")
+  authorId      String   @map("author_id")
+  body          String   @db.Text
+  createdAt     DateTime @default(now()) @map("created_at")
+  readAt        DateTime? @map("read_at")
+
+  application JobPostingApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  author      User                  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+  @@index([authorId])
+  @@map("application_messages")
 }
 
 model PartnerOutreachLog {

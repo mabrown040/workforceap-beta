@@ -31,7 +31,7 @@ import {
   UsersRound,
 } from 'lucide-react';
 
-export type PortalRole = 'member' | 'employer' | 'partner' | 'admin' | 'group';
+export type PortalRole = 'member' | 'employer' | 'partner' | 'admin' | 'group' | 'counselor';
 
 export type NavGroup = 'primary' | 'workflows' | 'insights' | 'manage';
 
@@ -221,12 +221,21 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin/certifications', label: 'Certifications', group: 'insights', Icon: Award },
 ];
 
+export const COUNSELOR_PORTAL_NAV_ITEMS: PortalNavItem[] = [
+  { href: '/counselor', label: 'Overview', group: 'primary', Icon: Home },
+  { href: '/counselor/students', label: 'My Students', group: 'workflows', Icon: Users },
+  { href: '/counselor/messages', label: 'Messages', group: 'workflows', Icon: MessageSquare },
+  { href: '/counselor/caseload', label: 'Caseload', group: 'insights', Icon: BarChart3 },
+  { href: '/counselor/resources', label: 'Resources', group: 'manage', Icon: BookOpen },
+];
+
 export const PORTAL_NAV: Record<PortalRole, PortalNavItem[]> = {
   member: MEMBER_PORTAL_NAV_ITEMS,
   employer: EMPLOYER_PORTAL_NAV_ITEMS,
   partner: PARTNER_PORTAL_NAV_ITEMS,
   group: GROUP_PORTAL_NAV_ITEMS,
   admin: ADMIN_PORTAL_NAV_ITEMS,
+  counselor: COUNSELOR_PORTAL_NAV_ITEMS,
 };
 
 export function navItemsForActiveRoute(items: PortalNavItem[]): { href: string; aliases?: string[] }[] {

@@ -7,7 +7,7 @@ const HIDE_MARKETING_CHROME_PREFIXES = [
   '/admin',
   '/employer',
   '/partner',
-  '/my-group',
+  '/counselor',
   '/resources',
   '/help',
   '/applications',

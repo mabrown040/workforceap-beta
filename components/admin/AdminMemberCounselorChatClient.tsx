@@ -27,8 +27,16 @@ type InitialPayload = {
   staffUserId: string;
 };
 
-export default function AdminMemberCounselorChatClient({ initial }: { initial: InitialPayload }) {
+/** Base path for GET/POST/PATCH (e.g. /api/admin/members/:id/messages or /api/counselor/members/:id/messages) */
+export default function AdminMemberCounselorChatClient({
+  initial,
+  messagesApiBase,
+}: {
+  initial: InitialPayload;
+  messagesApiBase?: string;
+}) {
   const { staffUserId, member } = initial;
+  const apiBase = messagesApiBase ?? `/api/admin/members/${member.id}/messages`;
   const [thread, setThread] = useState(initial.thread);
   const [messages, setMessages] = useState<MessageDto[]>(initial.messages);
   const [draft, setDraft] = useState('');
@@ -38,11 +46,11 @@ export default function AdminMemberCounselorChatClient({ initial }: { initial: I
 
   const markRead = useCallback(async () => {
     try {
-      await fetch(`/api/admin/members/${member.id}/messages`, { method: 'PATCH', credentials: 'include' });
+      await fetch(apiBase, { method: 'PATCH', credentials: 'include' });
     } catch {
       /* ignore */
     }
-  }, [member.id]);
+  }, [apiBase]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -56,7 +64,7 @@ export default function AdminMemberCounselorChatClient({ initial }: { initial: I
     try {
       const supabase = createSupabaseBrowserClient();
       const channel = supabase
-        .channel(`admin-thread:${threadId}`)
+        .channel(`staff-thread:${threadId}`)
         .on(
           'postgres_changes',
           { event: 'INSERT', schema: 'public', table: 'messages', filter: `thread_id=eq.${threadId}` },
@@ -111,7 +119,7 @@ export default function AdminMemberCounselorChatClient({ initial }: { initial: I
       console.warn('[AdminMemberCounselorChat] Realtime unavailable', e);
       return undefined;
     }
-  }, [threadId, member.id, member.fullName, staffUserId, markRead]);
+  }, [threadId, member.id, member.fullName, staffUserId, markRead, apiBase]);
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,7 +128,7 @@ export default function AdminMemberCounselorChatClient({ initial }: { initial: I
     setSending(true);
     setError(null);
     try {
-      const r = await fetch(`/api/admin/members/${member.id}/messages`, {
+      const r = await fetch(apiBase, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

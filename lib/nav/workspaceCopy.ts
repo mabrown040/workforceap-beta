@@ -3,6 +3,7 @@ export const PRODUCT_COPY = {
   memberWorkspace: 'Member portal',
   employerWorkspace: 'Employer portal',
   partnerWorkspace: 'Partner portal',
+  counselorWorkspace: 'Counselor portal',
   groupWorkspace: 'Group portal',
   adminWorkspace: 'Admin workspace',
 } as const;
@@ -20,9 +21,7 @@ export const PARTNER_PORTAL_NAV = [
   { href: '/partner/resources', label: 'Partner resources' },
 ] as const;
 
-export const GROUP_PORTAL_NAV = [
-  { href: '/my-group', label: 'Members' },
-] as const;
+export const GROUP_PORTAL_NAV = [] as const;
 
 export const ADMIN_NAV = [
   { href: '/admin', label: 'Overview' },

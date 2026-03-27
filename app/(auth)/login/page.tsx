@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
+import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
+import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 import LoginForm from './LoginForm';
 
 export const metadata: Metadata = {
@@ -13,7 +15,19 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ redirectTo?: string }>;
+}) {
+  const sp = await searchParams;
+  const rawRedirect = typeof sp?.redirectTo === 'string' ? sp.redirectTo : undefined;
+  const normalizedRedirect = sanitizeRedirectPath(rawRedirect, '/dashboard');
+
+  if (rawRedirect && rawRedirect !== normalizedRedirect) {
+    redirect(`/login?redirectTo=${encodeURIComponent(normalizedRedirect)}`);
+  }
+
   return (
     <Suspense fallback={<div className="inner-page" style={{ padding: '4rem 2rem', textAlign: 'center' }}>Loading…</div>}>
       <LoginForm />

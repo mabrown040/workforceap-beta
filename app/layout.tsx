@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import SafeVercelMetrics from '@/components/SafeVercelMetrics';
 import JsonLd from '@/components/JsonLd';
 import ConditionalMarketingNav from '@/components/ConditionalMarketingNav';
@@ -14,13 +13,6 @@ import '@/css/portal.css';
 import '@/app/globals-onboarding.css';
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID ?? 'GTM-53JCT6WN';
-
-const inter = Inter({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-inter',
-  display: 'swap',
-});
 
 export const viewport = {
   width: 'device-width',
@@ -54,7 +46,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const orgBranding = await getDefaultOrgBranding();
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en">
       <head>
         <ThemeInitScript />
         <link rel="preconnect" href="https://www.googletagmanager.com" />

@@ -18,7 +18,7 @@ export const metadata: Metadata = buildPageMetadata({
 
 export default async function AdminPage() {
   const user = await getUser();
-  if (!user) redirect('/login?redirectTo=/admin');
+  if (!user) redirect('/login');
 
   const hasAdmin = await isAdmin(user.id);
   if (!hasAdmin) redirect('/dashboard');

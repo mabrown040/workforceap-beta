@@ -161,10 +161,10 @@ export default function EmployersPage() {
       />
 
       {/* AI + counselor model */}
-      <section className="content-section" style={{ paddingBottom: 0 }}>
+      <section className="content-section employers-ai-support-section" style={{ paddingBottom: 0 }}>
         <div className="container" style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
           <h2 className="section-title animate-on-scroll">AI-powered career support</h2>
-          <p className="section-subtitle animate-on-scroll" style={{ marginBottom: 0 }}>
+          <p className="section-subtitle animate-on-scroll employers-ai-support-copy" style={{ marginBottom: 0 }}>
             Members use guided AI tools for resumes, interviews, and applications while your WorkforceAP counselor keeps
             the human layer — so candidates arrive prepared without losing accountability.
           </p>

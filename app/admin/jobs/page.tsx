@@ -24,6 +24,12 @@ const STATUS_LABELS: Record<string, string> = {
   closed: 'Closed',
 };
 
+function getJobStatusPillClass(status: string): string {
+  if (status === 'live') return 'admin-job-status-pill admin-job-status-pill--live';
+  if (status === 'pending') return 'admin-job-status-pill admin-job-status-pill--pending';
+  return 'admin-job-status-pill';
+}
+
 export default async function AdminJobsPage({
   searchParams,
 }: {
@@ -95,7 +101,7 @@ export default async function AdminJobsPage({
       <AdminJobsFilterTabs currentFilter={currentFilter} tabs={tabs} />
 
       <div style={{ overflowX: 'auto' }}>
-        <table className="admin-table">
+        <table className="admin-table admin-jobs-table">
           <thead>
             <tr>
               <th>Job</th>
@@ -112,27 +118,27 @@ export default async function AdminJobsPage({
                   <Link href={`/admin/jobs/${j.id}`} style={{ fontWeight: 600, color: 'var(--color-accent)' }}>
                     {j.title}
                   </Link>
+                  <div className="admin-jobs-mobile-company">{j.employer?.companyName ?? 'Unknown'}</div>
+                  <div className="admin-jobs-mobile-meta">
+                    <span>Applications: {j._count?.applications ?? 0}</span>
+                    <span>
+                      <Link href={`/admin/jobs/${j.id}`} style={{ marginRight: '0.5rem', fontSize: '0.9rem' }}>
+                        Review
+                      </Link>
+                      <Link href={`/admin/jobs/${j.id}#matches`} style={{ fontSize: '0.9rem' }}>
+                        AI Matches
+                      </Link>
+                    </span>
+                  </div>
                 </td>
-                <td>{j.employer?.companyName ?? 'Unknown'}</td>
+                <td className="admin-jobs-col-company">{j.employer?.companyName ?? 'Unknown'}</td>
                 <td>
-                  <span
-                    style={{
-                      padding: '0.25rem 0.5rem',
-                      borderRadius: '4px',
-                      fontSize: '0.8rem',
-                      background:
-                        j.status === 'live'
-                          ? 'rgba(74, 155, 79, 0.15)'
-                          : j.status === 'pending'
-                            ? 'rgba(255, 165, 0, 0.15)'
-                            : 'var(--color-gray-100)',
-                    }}
-                  >
+                  <span className={getJobStatusPillClass(j.status)}>
                     {STATUS_LABELS[j.status] ?? j.status}
                   </span>
                 </td>
-                <td>{j._count?.applications ?? 0}</td>
-                <td>
+                <td className="admin-jobs-col-apps">{j._count?.applications ?? 0}</td>
+                <td className="admin-jobs-col-actions">
                   <Link href={`/admin/jobs/${j.id}`} style={{ marginRight: '0.5rem', fontSize: '0.9rem' }}>
                     Review
                   </Link>

@@ -11319,6 +11319,101 @@ html.dark .admin-super-messages-bubble.is-staff {
     color: var(--color-accent);
 }
 
+.employers-ai-support-section .container {
+    padding-inline: clamp(1rem, 4vw, 1.5rem);
+}
+
+.employers-ai-support-copy {
+    text-wrap: pretty;
+    overflow-wrap: break-word;
+}
+
+.admin-jobs-table {
+    table-layout: fixed;
+}
+
+.admin-jobs-table td {
+    color: var(--color-primary);
+    vertical-align: top;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.admin-job-status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: var(--color-gray-100);
+    color: var(--color-gray-700);
+}
+
+.admin-job-status-pill--live {
+    background: rgba(74, 155, 79, 0.15);
+    color: var(--color-green);
+}
+
+.admin-job-status-pill--pending {
+    background: rgba(255, 165, 0, 0.15);
+    color: #8a5a00;
+}
+
+.admin-jobs-mobile-company,
+.admin-jobs-mobile-meta {
+    display: none;
+}
+
+.admin-jobs-table th:nth-child(1),
+.admin-jobs-table td:nth-child(1) {
+    width: 36%;
+}
+
+.admin-jobs-table th:nth-child(2),
+.admin-jobs-table td:nth-child(2) {
+    width: 24%;
+}
+
+.admin-jobs-table th:nth-child(5),
+.admin-jobs-table td:nth-child(5) {
+    width: 18%;
+    white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+    .admin-jobs-table th:nth-child(2),
+    .admin-jobs-table th:nth-child(4),
+    .admin-jobs-table th:nth-child(5),
+    .admin-jobs-table td.admin-jobs-col-company,
+    .admin-jobs-table td.admin-jobs-col-apps,
+    .admin-jobs-table td.admin-jobs-col-actions {
+        display: none;
+    }
+
+    .admin-jobs-table th:nth-child(1),
+    .admin-jobs-table td:nth-child(1) {
+        width: 70%;
+    }
+
+    .admin-jobs-mobile-company {
+        display: block;
+        margin-top: 0.35rem;
+        color: var(--color-gray-600);
+        font-size: 0.85rem;
+    }
+
+    .admin-jobs-mobile-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-top: 0.6rem;
+        font-size: 0.85rem;
+        color: var(--color-gray-600);
+    }
+}
+
 .employers-how-steps {
     display: grid;
     grid-template-columns: repeat(4, 1fr);

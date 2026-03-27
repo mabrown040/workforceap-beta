@@ -195,6 +195,22 @@ export default function MemberPreScreeningForm() {
           ? `Draft saved ${draftSavedAt.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}`
           : 'Draft saves automatically as you type.';
 
+  // Count completed required fields for progress indicator
+  const totalFields = hearAbout === 'Other' ? 9 : 8;
+  const adjustedCompleted = [
+    !!employmentStatus,
+    !!primaryGoal,
+    !!weeklyHours,
+    !!barrier.trim(),
+    !!hearAbout,
+    hearAbout === 'Other' ? !!hearAboutOther.trim() : null,
+    !!phone.trim(),
+    !!address.trim(),
+    workforceAssistance !== '',
+  ].filter((v) => v === true).length;
+  const progressPct = Math.round((adjustedCompleted / totalFields) * 100);
+  const isComplete = adjustedCompleted >= totalFields;
+
   return (
     <form onSubmit={handleSubmit} className="member-prescreen-form">
       {error && (
@@ -205,6 +221,29 @@ export default function MemberPreScreeningForm() {
       <p style={{ color: 'var(--color-gray-600)', marginBottom: '0.5rem', fontSize: '0.95rem' }}>
         A few questions so your counselor can prepare for your interview. All fields are required to submit.
       </p>
+      <div style={{ marginBottom: '1rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+          <span style={{ fontSize: '0.8rem', color: 'var(--color-gray-600)' }}>
+            {isComplete ? '✓ All fields complete — ready to submit' : `${adjustedCompleted} of ${totalFields} fields complete`}
+          </span>
+          <span style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)' }}>{progressPct}%</span>
+        </div>
+        <div style={{ height: 4, background: 'var(--color-gray-200)', borderRadius: 4, overflow: 'hidden' }}>
+          <div
+            style={{
+              height: '100%',
+              width: `${progressPct}%`,
+              background: isComplete ? 'var(--color-success, #16a34a)' : 'var(--color-accent)',
+              borderRadius: 4,
+              transition: 'width 0.3s ease',
+            }}
+            role="progressbar"
+            aria-valuenow={progressPct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+          />
+        </div>
+      </div>
       <p
         className="member-prescreen-draft-hint"
         style={{ marginBottom: '1rem', fontSize: '0.875rem', color: 'var(--color-gray-600)' }}

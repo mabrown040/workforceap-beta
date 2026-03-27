@@ -202,6 +202,7 @@ export default function EmployerSettingsForm({ initial }: { initial: EmployerSet
             value={companyDescription}
             onChange={(e) => setCompanyDescription(e.target.value)}
             maxLength={8000}
+            placeholder="Briefly describe your company — what you do, your industry focus, and what makes working there unique. This appears on your employer profile and helps members understand who you are."
           />
         </div>
         <div className="form-group">

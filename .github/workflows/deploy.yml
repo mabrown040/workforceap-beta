@@ -21,6 +21,8 @@ jobs:
           npm ci
 
       - name: Build Next.js
+        env:
+          NODE_OPTIONS: "--max-old-space-size=4096"
         run: |
           cd /var/www/workforceap
           ./node_modules/.bin/next build

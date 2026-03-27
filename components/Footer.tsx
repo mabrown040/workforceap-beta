@@ -34,7 +34,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
       <div className="footer-container">
         <div className="footer-col">
           <Image
-            src="/images/logo.svg"
+            src="/images/logo.png"
             alt="WorkforceAP"
             className="footer-logo"
             width={1600}

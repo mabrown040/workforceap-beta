@@ -227,7 +227,7 @@ export default function MainNav() {
       <div className="nav-container" ref={navContainerRef}>
         <Link href="/" className="logo" aria-label="Workforce Advancement Project home" onClick={closeMobile}>
           <Image
-            src="/images/logo-tight.svg"
+            src="/images/logo-tight.png"
             alt="Workforce Advancement Project"
             width={1930}
             height={985}

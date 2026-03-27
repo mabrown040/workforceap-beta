@@ -58,7 +58,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <head>
         <ThemeInitScript />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
-        <link rel="preload" as="image" href="/images/logo-tight.svg" />
+        <link rel="preload" as="image" href="/images/logo-tight.png" />
       </head>
       <body>
         <OrgBrandingStyle branding={orgBranding} />

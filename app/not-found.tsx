@@ -13,7 +13,7 @@ export default function NotFound() {
       <div className="app-system-page__inner container">
         <Link href="/" className="app-system-page__logo-link" aria-label="Workforce Advancement Project home">
           <Image
-            src="/images/logo-tight.svg"
+            src="/images/logo-tight.png"
             alt=""
             width={1930}
             height={985}

@@ -11,7 +11,7 @@ import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 export const metadata: Metadata = buildPageMetadata({
   title: 'Free Tech Career Training in Austin, TX | Workforce Advancement Project',
   description:
-    'Get no-cost career certification training in Tech, Data, AI, Cybersecurity, Healthcare, and Skilled Trades. Employer-aligned programs. Apply today — WorkforceAP serves Austin and beyond.',
+    'Get no-cost career certification training in Digital Literacy, Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Employer-aligned programs. Apply today — WorkforceAP serves Austin and beyond.',
   path: '/',
 });
 
@@ -63,7 +63,7 @@ export default async function HomePage() {
             {WORKFORCEAP_PROGRAM_CATALOG_SIZE} programs · Industry-recognized certifications
           </p>
           <p className="hero-subtitle">
-            Career training and certifications in Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Launching in Austin. Employer-aligned. Building toward more.
+            Career training and certifications in Digital Literacy, Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Launching in Austin. Employer-aligned. Building toward more.
           </p>
           <div className="hero-actions hero-actions-prominent">
             <ExperimentedCtaLink

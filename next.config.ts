@@ -53,10 +53,18 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.public.blob.vercel-storage.com',
+      },
     ],
   },
   async rewrites() {
-    return [{ source: '/favicon.ico', destination: '/images/logo-tight.png' }];
+    return [{ source: '/favicon.ico', destination: '/images/logo-tight.svg' }];
   },
   async redirects() {
     return [

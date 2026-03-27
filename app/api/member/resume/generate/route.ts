@@ -8,13 +8,69 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 
 const BUCKET = 'member-resumes';
 
+function buildFallbackResume(params: {
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+  linkedin: string;
+  bio: string;
+  employment: string;
+  education: string;
+  targetProgram: string;
+  category: string;
+}) {
+  const {
+    fullName,
+    email,
+    phone,
+    address,
+    linkedin,
+    bio,
+    employment,
+    education,
+    targetProgram,
+    category,
+  } = params;
+
+  return [
+    `# ${fullName}`,
+    `${email} | ${phone} | ${address}`,
+    linkedin !== 'N/A' ? `LinkedIn: ${linkedin}` : '',
+    '',
+    '## Professional Summary',
+    bio !== 'N/A'
+      ? bio
+      : `Motivated career-builder pursuing ${targetProgram}. Strong commitment to learning, consistency, and employer-ready execution.`,
+    '',
+    '## Career Objective',
+    `Seeking an entry-level role aligned with ${targetProgram} (${category}).`,
+    '',
+    '## Core Skills',
+    `- Employment status: ${employment}`,
+    `- Education level: ${education}`,
+    '- Communication and collaboration',
+    '- Time management and reliability',
+    '',
+    '## Experience',
+    '- Build this section with your latest role, measurable outcomes, and impact.',
+    '- Add 3-5 bullets per role using action verbs and concrete results.',
+    '',
+    '## Education',
+    `- ${education}`,
+    '',
+    '## Certifications In Progress',
+    `- ${targetProgram}`,
+    '',
+    '_Auto-generated fallback resume. Update details before applying._',
+  ]
+    .filter(Boolean)
+    .join('\n');
+}
+
 export async function POST(request: Request) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!isAIConfigured()) return NextResponse.json({ error: 'AI not configured' }, { status: 503 });
-
-  const { success } = await checkAIToolRateLimit(user.id);
-  if (!success) return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
@@ -79,16 +135,46 @@ export async function POST(request: Request) {
     ? `Base resume to improve:\n\n${resumeText}\n\n---\nProfile context:\n${context}`
     : `Create a resume from this profile:\n\n${context}`;
 
-  try {
-    const output = await chatCompletion(
-      [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userContent },
-      ],
-      { maxTokens: 2000, temperature: 0.5 }
-    );
+  const fallbackResume = buildFallbackResume({
+    fullName: dbUser.fullName ?? 'WorkforceAP Member',
+    email: dbUser.email,
+    phone: profile?.profilePhone ?? dbUser.phone ?? 'N/A',
+    address: profile?.profileAddress ?? profile?.address ?? 'N/A',
+    linkedin: profile?.profileLinkedin ?? 'N/A',
+    bio: profile?.profileBio ?? 'N/A',
+    employment: profile?.employmentStatus ?? 'N/A',
+    education: profile?.educationLevel ?? 'N/A',
+    targetProgram: program?.title ?? dbUser.enrolledProgram ?? 'Career training',
+    category: program?.categoryLabel ?? 'General',
+  });
 
-    if (!output) return NextResponse.json({ error: 'No response from AI' }, { status: 500 });
+  try {
+    let output = '';
+    let fallbackUsed = false;
+    if (!isAIConfigured()) {
+      fallbackUsed = true;
+      output = fallbackResume;
+    } else {
+      const { success } = await checkAIToolRateLimit(user.id);
+      if (!success) {
+        fallbackUsed = true;
+        output = fallbackResume;
+      } else {
+        const aiOutput = await chatCompletion(
+          [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userContent },
+          ],
+          { maxTokens: 2000, temperature: 0.5 }
+        );
+        if (!aiOutput) {
+          fallbackUsed = true;
+          output = fallbackResume;
+        } else {
+          output = aiOutput;
+        }
+      }
+    }
 
     const supabase = getSupabaseAdmin();
     const path = `${user.id}/resume-enhanced.txt`;
@@ -108,9 +194,33 @@ export async function POST(request: Request) {
       update: { resumeEnhancedPath: path },
     });
 
-    return NextResponse.json({ ok: true, resume: output, path });
+    return NextResponse.json({ ok: true, resume: output, path, fallbackUsed });
   } catch (err) {
     console.error('Generate resume error:', err);
-    return NextResponse.json({ error: 'Failed to generate resume' }, { status: 500 });
+    const output = fallbackResume;
+    try {
+      const supabase = getSupabaseAdmin();
+      const path = `${user.id}/resume-enhanced.txt`;
+      const { error } = await supabase.storage.from(BUCKET).upload(path, output, {
+        upsert: true,
+        contentType: 'text/plain',
+      });
+
+      if (error) {
+        console.error('Fallback resume save error:', error);
+        return NextResponse.json({ error: 'Failed to save resume' }, { status: 500 });
+      }
+
+      await prisma.profile.upsert({
+        where: { userId: user.id },
+        create: { userId: user.id, resumeEnhancedPath: path, role: 'member' },
+        update: { resumeEnhancedPath: path },
+      });
+
+      return NextResponse.json({ ok: true, resume: output, path, fallbackUsed: true });
+    } catch (fallbackErr) {
+      console.error('Generate resume fallback error:', fallbackErr);
+      return NextResponse.json({ error: 'Failed to generate resume' }, { status: 500 });
+    }
   }
 }

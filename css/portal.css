@@ -1,0 +1,40 @@
+/*
+ * Stage 1 of CSS split: portal/admin styles migrate here.
+ * Keep in sync with css/main.css until full extraction is complete.
+ */
+
+.member-prescreen-progress {
+  margin-bottom: 1rem;
+}
+
+.member-prescreen-progress-title {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-gray-700);
+}
+
+.member-prescreen-progress-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.35rem;
+}
+
+.member-prescreen-progress-text {
+  font-size: 0.8rem;
+  color: var(--color-gray-600);
+}
+
+.member-prescreen-progress-track {
+  height: 4px;
+  background: var(--color-gray-200);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.member-prescreen-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}

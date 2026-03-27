@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import { getProgramComparisonTracks } from '@/lib/content/programComparisonTracks';
 import ProgramComparisonClient from './ProgramComparisonClient';
 import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
+import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 
 export const metadata: Metadata = {
   ...buildPageMetadata({
@@ -30,9 +31,13 @@ export default function ProgramComparisonPage() {
         subtitle="One decision journey: narrow your options, then put 2–4 tracks side-by-side to see tradeoffs — time, difficulty, salary band, and best-fit."
       >
         <div className="programs-decision-cta" style={{ marginTop: '1rem' }}>
-          <Link href="/find-your-path" className="btn btn-primary">
-            Not sure? Take the 2-minute pathfinder quiz →
-          </Link>
+          <ExperimentedCtaLink
+            experiment="program_compare_quiz_cta"
+            variants={[
+              { id: 'control', label: 'Not sure? Take the 2-minute pathfinder quiz →', className: 'btn btn-primary', href: '/find-your-path' },
+              { id: 'outcome_copy', label: 'See your top-fit track in 2 minutes →', className: 'btn btn-primary', href: '/find-your-path' },
+            ]}
+          />
         </div>
       </PageHero>
 

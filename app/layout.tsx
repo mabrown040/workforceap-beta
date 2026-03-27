@@ -4,10 +4,13 @@ import SafeVercelMetrics from '@/components/SafeVercelMetrics';
 import JsonLd from '@/components/JsonLd';
 import ConditionalMarketingNav from '@/components/ConditionalMarketingNav';
 import ScrollAnimationsWrapper from '@/components/ScrollAnimationsWrapper';
+import ConversionMetrics from '@/components/analytics/ConversionMetrics';
 import OrgBrandingStyle from '@/components/platform/OrgBrandingStyle';
 import ThemeInitScript from '@/components/theme/ThemeInitScript';
 import { getDefaultOrgBranding } from '@/lib/platform/defaultOrgTheme';
 import '@/css/main.css';
+import '@/css/marketing.css';
+import '@/css/portal.css';
 import '@/app/globals-onboarding.css';
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID ?? 'GTM-53JCT6WN';
@@ -55,7 +58,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <head>
         <ThemeInitScript />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
-        <link rel="preload" as="image" href="/images/logo-tight.png" />
+        <link rel="preload" as="image" href="/images/logo-tight.svg" />
       </head>
       <body>
         <OrgBrandingStyle branding={orgBranding} />
@@ -83,6 +86,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <ConditionalMarketingNav />
         <main id="main-content">{children}</main>
         <ScrollAnimationsWrapper />
+        <ConversionMetrics />
         <SafeVercelMetrics />
       </body>
     </html>

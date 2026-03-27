@@ -119,7 +119,7 @@ export default async function BlogPostPage({ params }: Props) {
             }}
           >
             <Image
-              src="/images/logo-tight.png"
+              src="/images/logo-tight.svg"
               alt="Workforce Advancement Project"
               width={272}
               height={153}

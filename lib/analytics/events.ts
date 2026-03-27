@@ -137,3 +137,51 @@ export function trackApplicationTrackerOpen() {
     event: 'application_tracker_open',
   });
 }
+
+export function trackConversionRouteView(route: string) {
+  pushEvent({
+    event: 'conversion_route_view',
+    conversion_route: route,
+  });
+}
+
+export function trackWebVitalMetric(
+  name: string,
+  value: number,
+  id: string,
+  rating: 'good' | 'needs-improvement' | 'poor',
+  route?: string
+) {
+  pushEvent({
+    event: 'web_vital',
+    metric_name: name,
+    metric_value: Number(value.toFixed(2)),
+    metric_id: id,
+    metric_rating: rating,
+    ...(route ? { conversion_route: route } : {}),
+  });
+}
+
+export function trackCtaExperimentExposure(experiment: string, variant: string, route: string) {
+  pushEvent({
+    event: 'cta_experiment_exposure',
+    experiment_name: experiment,
+    experiment_variant: variant,
+    conversion_route: route,
+  });
+}
+
+export function trackCtaExperimentClick(
+  experiment: string,
+  variant: string,
+  route: string,
+  targetHref: string
+) {
+  pushEvent({
+    event: 'cta_experiment_click',
+    experiment_name: experiment,
+    experiment_variant: variant,
+    conversion_route: route,
+    cta_target_href: targetHref,
+  });
+}

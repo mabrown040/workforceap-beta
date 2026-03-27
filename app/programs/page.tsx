@@ -5,6 +5,7 @@ import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
 import ProgramsContent from './ProgramsContent';
 import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
+import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -22,9 +23,13 @@ export default function ProgramsPage() {
       >
         <div className="programs-decision-cta">
           <p className="programs-decision-lead">Not sure which program fits you?</p>
-          <Link href="/find-your-path" className="btn btn-primary">
-            Find Your Career →
-          </Link>
+          <ExperimentedCtaLink
+            experiment="programs_primary_cta"
+            variants={[
+              { id: 'control', label: 'Find Your Career →', className: 'btn btn-primary', href: '/find-your-path' },
+              { id: 'quiz_first', label: 'Take 2-Min Quiz →', className: 'btn btn-primary', href: '/find-your-path' },
+            ]}
+          />
           <Link href="/program-comparison" className="programs-compare-link">Or compare programs side-by-side</Link>
         </div>
       </PageHero>

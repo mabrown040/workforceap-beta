@@ -6,6 +6,7 @@ import { getActivePrograms } from '@/lib/platform/programCatalog';
 import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import { Laptop, GraduationCap, Briefcase, Handshake, Users, Building2 } from 'lucide-react';
 import Footer from '@/components/Footer';
+import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Free Tech Career Training in Austin, TX | Workforce Advancement Project',
@@ -43,7 +44,7 @@ export default async function HomePage() {
       {/* Hero */}
       <section className="hero" aria-label="Hero">
         <Image
-          src="/images/austin-skyline.jpg"
+          src="https://images.unsplash.com/photo-1531218150217-54595bc2b934?auto=format&fit=crop&w=1920&q=80"
           alt="Austin skyline at sunset"
           fill
           priority
@@ -65,9 +66,13 @@ export default async function HomePage() {
             Career training and certifications in Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Launching in Austin. Employer-aligned. Building toward more.
           </p>
           <div className="hero-actions hero-actions-prominent">
-            <Link href="/apply" className="btn btn-accent btn-large">
-              Apply now — about 10 minutes
-            </Link>
+            <ExperimentedCtaLink
+              experiment="home_apply_primary_cta"
+              variants={[
+                { id: 'control', label: 'Apply now — about 10 minutes', className: 'btn btn-accent btn-large', href: '/apply' },
+                { id: 'urgency', label: 'Start your application now', className: 'btn btn-accent btn-large', href: '/apply' },
+              ]}
+            />
             <Link href="/find-your-path" className="btn btn-ghost">
               Find Your Path →
             </Link>
@@ -75,9 +80,9 @@ export default async function HomePage() {
           <div className="trust-strip">
             <span>Curriculum from industry leaders</span>
             <div className="trust-logos">
-              <Image src="/images/Google_2015_logo.svg.png" alt="Google" width={80} height={27} loading="lazy" />
-              <Image src="/images/att-logo.png" alt="AT&amp;T" width={60} height={24} loading="lazy" />
-              <Image src="/images/coursera.png" alt="Coursera" width={100} height={24} loading="lazy" />
+              <span>Google</span>
+              <span>AT&amp;T</span>
+              <span>Coursera</span>
               <Image src="/images/microsoft-logo.svg" alt="Microsoft" width={100} height={24} loading="lazy" />
               <Image src="/images/ibm-logo.svg" alt="IBM" width={60} height={24} loading="lazy" />
             </div>
@@ -302,9 +307,9 @@ export default async function HomePage() {
                 <div className="about-stat"><span className="stat-num">Austin</span><span className="stat-desc">Launch Community</span></div>
               </div>
               <div className="partner-logos-small">
-                <Image src="/images/Google_2015_logo.svg.png" alt="Google" width={80} height={27} />
-                <Image src="/images/att-logo.png" alt="AT&amp;T" width={60} height={24} />
-                <Image src="/images/coursera.png" alt="Coursera" width={100} height={24} />
+                <span>Google</span>
+                <span>AT&amp;T</span>
+                <span>Coursera</span>
                 <Image src="/images/microsoft-logo.svg" alt="Microsoft" width={100} height={24} />
                 <Image src="/images/ibm-logo.svg" alt="IBM" width={60} height={24} />
               </div>

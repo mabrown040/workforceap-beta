@@ -49,6 +49,9 @@ export default function ApplyEligibilityClient() {
 
   useEffect(() => {
     answeredCountRef.current = [q1, q2, q3].filter(Boolean).length;
+    trackApplyFunnel(1, 'eligibility_progress', {
+      answered_count: answeredCountRef.current,
+    });
   }, [q1, q2, q3]);
 
   useEffect(() => {

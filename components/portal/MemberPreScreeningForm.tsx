@@ -221,23 +221,23 @@ export default function MemberPreScreeningForm() {
       <p style={{ color: 'var(--color-gray-600)', marginBottom: '0.5rem', fontSize: '0.95rem' }}>
         A few questions so your counselor can prepare for your interview. All fields are required to submit.
       </p>
-      <div style={{ marginBottom: '1rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-          <span style={{ fontSize: '0.8rem', color: 'var(--color-gray-600)' }}>
+      <div className="member-prescreen-progress" aria-live="polite">
+        <p className="member-prescreen-progress-title">Form progress</p>
+        <div className="member-prescreen-progress-row">
+          <span className="member-prescreen-progress-text">
             {isComplete ? '✓ All fields complete — ready to submit' : `${adjustedCompleted} of ${totalFields} fields complete`}
           </span>
-          <span style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)' }}>{progressPct}%</span>
+          <span className="member-prescreen-progress-text">{progressPct}%</span>
         </div>
-        <div style={{ height: 4, background: 'var(--color-gray-200)', borderRadius: 4, overflow: 'hidden' }}>
+        <div className="member-prescreen-progress-track">
           <div
+            className="member-prescreen-progress-fill"
             style={{
-              height: '100%',
               width: `${progressPct}%`,
               background: isComplete ? 'var(--color-success, #16a34a)' : 'var(--color-accent)',
-              borderRadius: 4,
-              transition: 'width 0.3s ease',
             }}
             role="progressbar"
+            aria-label="Pre-screening completion"
             aria-valuenow={progressPct}
             aria-valuemin={0}
             aria-valuemax={100}

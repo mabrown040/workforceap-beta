@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
 import FindYourPathClient from './FindYourPathClient';
+import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Find Your Path — Career Quiz',
@@ -25,6 +26,15 @@ export default function FindYourPathPage() {
 
       <section className="content-section">
         <div className="container">
+          <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
+            <ExperimentedCtaLink
+              experiment="find_path_apply_cta"
+              variants={[
+                { id: 'control', label: 'Ready now? Start your application', className: 'btn btn-primary', href: '/apply' },
+                { id: 'urgency', label: 'Apply now (10 minutes)', className: 'btn btn-primary', href: '/apply' },
+              ]}
+            />
+          </div>
           <FindYourPathClient />
         </div>
       </section>

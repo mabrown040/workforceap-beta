@@ -4,6 +4,7 @@ import { Moon, Sun } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
 const STORAGE_KEY = 'wa_color_mode';
+const LEGACY_STORAGE_KEYS = ['wap-theme', 'theme'];
 const SYNC_EVENT = 'wa-color-mode';
 
 function applyMode(dark: boolean) {
@@ -11,7 +12,11 @@ function applyMode(dark: boolean) {
   if (dark) root.classList.add('dark');
   else root.classList.remove('dark');
   try {
-    localStorage.setItem(STORAGE_KEY, dark ? 'dark' : 'light');
+    const value = dark ? 'dark' : 'light';
+    localStorage.setItem(STORAGE_KEY, value);
+    for (const legacyKey of LEGACY_STORAGE_KEYS) {
+      localStorage.setItem(legacyKey, value);
+    }
   } catch {
     /* ignore */
   }
@@ -27,9 +32,24 @@ export default function ThemeToggle({
   const [dark, setDark] = useState(false);
 
   useEffect(() => {
-    setDark(document.documentElement.classList.contains('dark'));
+    try {
+      const stored =
+        localStorage.getItem(STORAGE_KEY) ??
+        localStorage.getItem(LEGACY_STORAGE_KEYS[0]) ??
+        localStorage.getItem(LEGACY_STORAGE_KEYS[1]);
+      if (stored === 'dark' || stored === 'light') {
+        const next = stored === 'dark';
+        applyMode(next);
+        setDark(next);
+      } else {
+        setDark(document.documentElement.classList.contains('dark'));
+      }
+    } catch {
+      setDark(document.documentElement.classList.contains('dark'));
+    }
     const onStorage = (e: StorageEvent) => {
-      if (e.key !== STORAGE_KEY || e.storageArea !== localStorage) return;
+      if (e.storageArea !== localStorage) return;
+      if (e.key !== STORAGE_KEY && !LEGACY_STORAGE_KEYS.includes(e.key ?? '')) return;
       const next = e.newValue === 'dark';
       applyMode(next);
       setDark(next);

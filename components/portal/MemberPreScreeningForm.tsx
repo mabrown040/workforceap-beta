@@ -195,6 +195,22 @@ export default function MemberPreScreeningForm() {
           ? `Draft saved ${draftSavedAt.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}`
           : 'Draft saves automatically as you type.';
 
+  // Count completed required fields for progress indicator
+  const totalFields = hearAbout === 'Other' ? 9 : 8;
+  const adjustedCompleted = [
+    !!employmentStatus,
+    !!primaryGoal,
+    !!weeklyHours,
+    !!barrier.trim(),
+    !!hearAbout,
+    hearAbout === 'Other' ? !!hearAboutOther.trim() : null,
+    !!phone.trim(),
+    !!address.trim(),
+    workforceAssistance !== '',
+  ].filter((v) => v === true).length;
+  const progressPct = Math.round((adjustedCompleted / totalFields) * 100);
+  const isComplete = adjustedCompleted >= totalFields;
+
   return (
     <form onSubmit={handleSubmit} className="member-prescreen-form">
       {error && (
@@ -205,6 +221,29 @@ export default function MemberPreScreeningForm() {
       <p style={{ color: 'var(--color-gray-600)', marginBottom: '0.5rem', fontSize: '0.95rem' }}>
         A few questions so your counselor can prepare for your interview. All fields are required to submit.
       </p>
+      <div className="member-prescreen-progress" aria-live="polite">
+        <p className="member-prescreen-progress-title">Form progress</p>
+        <div className="member-prescreen-progress-row">
+          <span className="member-prescreen-progress-text">
+            {isComplete ? '✓ All fields complete — ready to submit' : `${adjustedCompleted} of ${totalFields} fields complete`}
+          </span>
+          <span className="member-prescreen-progress-text">{progressPct}%</span>
+        </div>
+        <div className="member-prescreen-progress-track">
+          <div
+            className="member-prescreen-progress-fill"
+            style={{
+              width: `${progressPct}%`,
+              background: isComplete ? 'var(--color-success, #16a34a)' : 'var(--color-accent)',
+            }}
+            role="progressbar"
+            aria-label="Pre-screening completion"
+            aria-valuenow={progressPct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+          />
+        </div>
+      </div>
       <p
         className="member-prescreen-draft-hint"
         style={{ marginBottom: '1rem', fontSize: '0.875rem', color: 'var(--color-gray-600)' }}

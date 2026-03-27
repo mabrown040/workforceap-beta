@@ -26,6 +26,7 @@ export default function ResumeClient({
   hasOriginal: initialHasOriginal,
   hasEnhanced: initialHasEnhanced,
 }: ResumeClientProps) {
+  const recommendedProfileCompleteness = 50;
   const [resumeData, setResumeData] = useState<{
     originalUrl: string | null;
     enhancedUrl: string | null;
@@ -178,12 +179,12 @@ export default function ResumeClient({
             <div className="counselor-profile-bar-fill" style={{ width: `${completeness}%` }} />
           </div>
         </div>
-        {completeness < 80 && (
+        {completeness < recommendedProfileCompleteness && (
           <p style={{ marginBottom: '0.75rem' }}>
             <Link href="/dashboard/profile" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
               Complete My Profile
             </Link>
-            {' '}for a better resume.
+            {' '}for a better resume. You can still generate now.
           </p>
         )}
         <button

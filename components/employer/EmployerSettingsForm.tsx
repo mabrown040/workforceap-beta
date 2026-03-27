@@ -202,6 +202,7 @@ export default function EmployerSettingsForm({ initial }: { initial: EmployerSet
             value={companyDescription}
             onChange={(e) => setCompanyDescription(e.target.value)}
             maxLength={8000}
+            placeholder="Example: We are a Tulsa-based managed IT provider serving healthcare and legal clients. We hire entry-level IT support and junior cybersecurity talent, and we value coachability, customer service, and certification progress."
           />
         </div>
         <div className="form-group">

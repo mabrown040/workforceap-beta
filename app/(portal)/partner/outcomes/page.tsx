@@ -46,32 +46,26 @@ export default async function PartnerOutcomesPage() {
           </Link>
         }
       />
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-          gap: '1rem',
-        }}
-      >
-        <div className="partner-panel" style={{ padding: '1.25rem' }}>
-          <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-accent)' }}>{members.length}</div>
-          <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>Total referrals</div>
+      <div className="partner-outcomes-grid">
+        <div className="partner-panel partner-outcome-card">
+          <div className="partner-outcome-value partner-outcome-value--accent">{members.length}</div>
+          <div className="partner-outcome-label">Total referrals</div>
         </div>
-        <div className="partner-panel" style={{ padding: '1.25rem' }}>
-          <div style={{ fontSize: '2rem', fontWeight: 800 }}>{placements}</div>
-          <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>Placed</div>
+        <div className="partner-panel partner-outcome-card">
+          <div className="partner-outcome-value">{placements}</div>
+          <div className="partner-outcome-label">Placed</div>
         </div>
-        <div className="partner-panel" style={{ padding: '1.25rem' }}>
-          <div style={{ fontSize: '2rem', fontWeight: 800 }}>{certified}</div>
-          <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>With certification</div>
+        <div className="partner-panel partner-outcome-card">
+          <div className="partner-outcome-value">{certified}</div>
+          <div className="partner-outcome-label">With certification</div>
         </div>
-        <div className="partner-panel" style={{ padding: '1.25rem' }}>
-          <div style={{ fontSize: '2rem', fontWeight: 800 }}>{inTraining}</div>
-          <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>In training / certified stage</div>
+        <div className="partner-panel partner-outcome-card">
+          <div className="partner-outcome-value">{inTraining}</div>
+          <div className="partner-outcome-label">In training / certified stage</div>
         </div>
-        <div className="partner-panel" style={{ padding: '1.25rem' }}>
-          <div style={{ fontSize: '2rem', fontWeight: 800 }}>{completions}</div>
-          <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>Program completions</div>
+        <div className="partner-panel partner-outcome-card">
+          <div className="partner-outcome-value">{completions}</div>
+          <div className="partner-outcome-label">Program completions</div>
         </div>
       </div>
     </div>

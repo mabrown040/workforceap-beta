@@ -59,9 +59,9 @@ export default async function EmployerPipelinePage() {
       />
 
       {jobs.length === 0 ? (
-        <p style={{ color: 'var(--color-gray-600)' }}>Post a job to receive suggested candidates here.</p>
+        <p className="portal-page-description">Post a job to receive suggested candidates here.</p>
       ) : allMatches.length === 0 ? (
-        <p style={{ color: 'var(--color-gray-600)' }}>
+        <p className="portal-page-description">
           No AI-suggested matches yet. Matches appear here after admin runs job–candidate matching.
         </p>
       ) : (

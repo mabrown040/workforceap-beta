@@ -33,18 +33,17 @@ export default async function CounselorStudentsPage() {
       <PageHeader title="My students" subtitle="Members assigned to you for coaching and messaging." />
 
       {assignments.length === 0 ? (
-        <p style={{ color: 'var(--color-gray-600)' }}>No assigned students yet.</p>
+        <p className="counselor-empty-state">No assigned students yet.</p>
       ) : (
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.5rem' }}>
+        <ul className="counselor-member-list">
           {assignments.map((a) => (
             <li key={a.id}>
               <Link
                 href={`/counselor/students/${a.member.id}`}
-                className="btn btn-outline"
-                style={{ display: 'inline-flex', width: '100%', justifyContent: 'space-between' }}
+                className="btn btn-outline counselor-member-list-btn"
               >
                 <span>{a.member.fullName}</span>
-                <span style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>{a.member.email}</span>
+                <span className="counselor-member-sub">{a.member.email}</span>
               </Link>
             </li>
           ))}

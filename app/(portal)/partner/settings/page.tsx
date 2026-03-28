@@ -25,10 +25,10 @@ export default async function PartnerSettingsPage() {
         title="Settings"
         subtitle={`Portal context: ${ctx.partner.name}. Contact WorkforceAP to update partner contact details or notification preferences.`}
       />
-      <p style={{ color: 'var(--color-gray-600)', maxWidth: 560, lineHeight: 1.6 }}>
+      <p className="partner-settings-body">
         For changes to your organization profile, email{' '}
         <a href="mailto:info@workforceap.org">info@workforceap.org</a> or use the{' '}
-        <Link href="/contact" style={{ color: 'var(--color-accent)' }}>
+        <Link href="/contact" className="link-accent">
           contact form
         </Link>
         .

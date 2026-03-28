@@ -40,61 +40,33 @@ export default async function PartnerResourcesPage() {
       />
 
       {(partner?.contactEmail || partner?.contactPhone || partner?.contactName) && (
-        <section
-          style={{
-            marginBottom: '2rem',
-            padding: '1.25rem',
-            borderRadius: 10,
-            border: '1px solid var(--color-border)',
-            background: 'var(--color-light)',
-            maxWidth: 560,
-          }}
-        >
-          <h2 style={{ fontSize: '1.05rem', marginBottom: '0.75rem' }}>Partner contacts (on file)</h2>
-          {partner.contactName && <p style={{ margin: '0 0 0.35rem' }}>{partner.contactName}</p>}
+        <section className="partner-contact-section">
+          <h2>Partner contacts (on file)</h2>
+          {partner.contactName && <p>{partner.contactName}</p>}
           {partner.contactEmail && (
-            <p style={{ margin: '0 0 0.35rem' }}>
-              <a href={`mailto:${partner.contactEmail}`} style={{ color: 'var(--color-accent)' }}>
+            <p>
+              <a href={`mailto:${partner.contactEmail}`} className="link-accent">
                 {partner.contactEmail}
               </a>
             </p>
           )}
-          {partner.contactPhone && <p style={{ margin: 0 }}>{partner.contactPhone}</p>}
+          {partner.contactPhone && <p>{partner.contactPhone}</p>}
         </section>
       )}
 
-      <h2 style={{ fontSize: '1.05rem', marginBottom: '1rem' }}>WorkforceAP</h2>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-          gap: '1rem',
-          marginBottom: '2rem',
-        }}
-      >
+      <h2 className="partner-resources-heading">WorkforceAP</h2>
+      <div className="partner-resources-grid">
         {PUBLIC_LINKS.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            style={{
-              display: 'block',
-              padding: '1rem',
-              borderRadius: 10,
-              border: '1px solid var(--color-border)',
-              textDecoration: 'none',
-              color: 'inherit',
-              background: 'var(--color-white)',
-            }}
-          >
-            <strong style={{ color: 'var(--color-accent)' }}>{item.label}</strong>
-            <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>{item.desc}</p>
+          <Link key={item.href} href={item.href} className="partner-resource-link">
+            <strong className="partner-resource-title">{item.label}</strong>
+            <p className="partner-resource-desc">{item.desc}</p>
           </Link>
         ))}
       </div>
 
-      <p style={{ color: 'var(--color-gray-600)', fontSize: '0.9rem' }}>
+      <p className="partner-resource-note">
         Member-facing tools (resume, learning, assessments) live in the{' '}
-        <Link href="/dashboard" style={{ color: 'var(--color-accent)' }}>
+        <Link href="/dashboard" className="link-accent">
           member portal
         </Link>{' '}
         after they enroll.

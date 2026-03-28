@@ -168,7 +168,7 @@ export default async function EmployerDashboardPage() {
             You do not have any job drafts or live roles yet. Post a single role, or import a list from a spreadsheet or
             careers URL. WorkforceAP reviews submissions before they go live on the public board.
           </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <div className="employer-dash-empty-actions">
             <Link href="/employer/jobs/new" className="btn btn-primary">
               Post your first job
             </Link>

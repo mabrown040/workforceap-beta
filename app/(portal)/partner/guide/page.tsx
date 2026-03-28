@@ -33,14 +33,14 @@ export default async function PartnerGuidePage() {
         </li>
         <li>
           <strong>Point them to Apply</strong> — Direct applicants to{' '}
-          <Link href="/apply" style={{ color: 'var(--color-accent)' }}>
+          <Link href="/apply" className="link-accent">
             workforceap.org/apply
           </Link>
           . Ask them to list your organization when asked how they heard about us so the referral is attributed.
         </li>
         <li>
           <strong>Track in this portal</strong> — Referred members appear on your{' '}
-          <Link href="/partner" style={{ color: 'var(--color-accent)' }}>
+          <Link href="/partner" className="link-accent">
             dashboard
           </Link>{' '}
           with program progress and milestones. Open a member row for more detail.
@@ -53,7 +53,7 @@ export default async function PartnerGuidePage() {
 
       <p className="partner-guide-note">
         Questions? Contact WorkforceAP at{' '}
-        <a href="mailto:info@workforceap.org" style={{ color: 'var(--color-accent)' }}>
+        <a href="mailto:info@workforceap.org" className="link-accent">
           info@workforceap.org
         </a>
         .

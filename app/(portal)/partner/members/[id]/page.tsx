@@ -64,7 +64,7 @@ export default async function PartnerMemberDetailPage({ params }: Props) {
 
   return (
     <div>
-      <Link href="/partner" style={{ color: 'var(--color-accent)', display: 'inline-block', marginBottom: '1rem' }}>
+      <Link href="/partner" className="partner-nav-back">
         ← Back to partner overview
       </Link>
       <PageHeader
@@ -72,8 +72,8 @@ export default async function PartnerMemberDetailPage({ params }: Props) {
         subtitle="Read-only overview. Contact information, assessments, and benefit requests are not shown in the partner portal."
       />
 
-      <section style={{ marginBottom: '1.5rem', padding: '1rem', background: 'var(--color-light)', borderRadius: '8px' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Program</h2>
+      <section className="partner-info-panel">
+        <h2>Program</h2>
         <p>
           <strong>Enrolled:</strong> {program?.title ?? '—'}
         </p>
@@ -86,15 +86,15 @@ export default async function PartnerMemberDetailPage({ params }: Props) {
       </section>
 
       {program && (
-        <section style={{ marginBottom: '1.5rem', padding: '1rem', background: 'var(--color-light)', borderRadius: '8px' }}>
-          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Course completions</h2>
-          <ul style={{ margin: 0, paddingLeft: '1.25rem', listStyle: 'none' }}>
+        <section className="partner-info-panel">
+          <h2>Course completions</h2>
+          <ul className="partner-course-list">
             {program.courses.map((c) => (
-              <li key={c.slug} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
+              <li key={c.slug} className="partner-course-item">
                 {coursesDone.includes(c.slug) ? (
-                  <CheckCircle size={18} style={{ color: 'var(--color-green)', flexShrink: 0 }} />
+                  <CheckCircle size={18} className="partner-course-icon-done" />
                 ) : (
-                  <span style={{ display: 'inline-block', width: 18, height: 18, border: '2px solid #ccc', borderRadius: 4, flexShrink: 0 }} />
+                  <span className="partner-course-icon-pending" />
                 )}
                 {c.name}
               </li>
@@ -103,10 +103,10 @@ export default async function PartnerMemberDetailPage({ params }: Props) {
         </section>
       )}
 
-      <section style={{ marginBottom: '1.5rem', padding: '1rem', background: 'var(--color-light)', borderRadius: '8px' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Certifications</h2>
+      <section className="partner-info-panel">
+        <h2>Certifications</h2>
         {member.userCertifications.length === 0 ? (
-          <p style={{ color: 'var(--color-gray-500)', margin: 0 }}>None on file yet.</p>
+          <p className="partner-info-panel-empty">None on file yet.</p>
         ) : (
           <ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
             {member.userCertifications.map((c) => (
@@ -118,8 +118,8 @@ export default async function PartnerMemberDetailPage({ params }: Props) {
         )}
       </section>
 
-      <section style={{ marginBottom: '1.5rem', padding: '1rem', background: 'var(--color-light)', borderRadius: '8px' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Placement</h2>
+      <section className="partner-info-panel">
+        <h2>Placement</h2>
         {member.placementRecord ? (
           <>
             <p>
@@ -138,7 +138,7 @@ export default async function PartnerMemberDetailPage({ params }: Props) {
             )}
           </>
         ) : (
-          <p style={{ color: 'var(--color-gray-500)', margin: 0 }}>Not placed yet.</p>
+          <p className="partner-info-panel-empty">Not placed yet.</p>
         )}
       </section>
     </div>

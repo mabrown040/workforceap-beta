@@ -54,13 +54,13 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
 
   return (
     <div className="portal-main-content">
-      <Link href="/counselor/students" style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'inline-block' }}>
+      <Link href="/counselor/students" className="counselor-nav-back">
         ← Back to students
       </Link>
       <PageHeader title={member.fullName} subtitle={member.email} />
 
-      <section style={{ marginTop: '1.5rem' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Messages</h2>
+      <section className="counselor-section-messages">
+        <h2>Messages</h2>
         <AdminMemberCounselorChatClient
           messagesApiBase={`/api/counselor/members/${member.id}/messages`}
           initial={{
@@ -82,7 +82,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
       </section>
 
       {adminUser ? (
-        <p style={{ marginTop: '1rem', fontSize: '0.9rem' }}>
+        <p className="counselor-admin-link">
           <Link href={`/admin/members/${member.id}`} className="btn btn-outline btn-sm">
             Open full member record (admin)
           </Link>

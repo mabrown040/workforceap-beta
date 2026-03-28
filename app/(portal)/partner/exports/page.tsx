@@ -24,10 +24,10 @@ export default async function PartnerExportsPage() {
         title="Exports"
         subtitle="Download a CSV of every referred member, stage, program progress, and last update (partner-scoped)."
       />
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1rem', maxWidth: 560 }}>
+      <p className="partner-exports-desc">
         The file includes only members referred by your organization. Open in Excel or Google Sheets.
       </p>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
+      <div className="partner-exports-actions">
         <a href="/api/partner/export/referrals" className="btn btn-primary">
           Download referrals.csv
         </a>

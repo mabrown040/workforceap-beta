@@ -29,20 +29,17 @@ export default async function CounselorMessagesHubPage() {
       <PageHeader title="Messages" subtitle="Open a conversation with an assigned member." />
 
       {assignments.length === 0 ? (
-        <p style={{ color: 'var(--color-gray-600)' }}>No assigned members yet.</p>
+        <p className="counselor-empty-state">No assigned members yet.</p>
       ) : (
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.75rem' }}>
+        <ul className="counselor-member-list counselor-member-list--wide">
           {assignments.map((a) => (
             <li key={a.id}>
               <Link
                 href={`/counselor/students/${a.member.id}`}
-                className="btn btn-outline"
-                style={{ display: 'block', textAlign: 'left' }}
+                className="btn btn-outline counselor-member-list-btn--block"
               >
                 <strong>{a.member.fullName}</strong>
-                <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-gray-600)', fontWeight: 400 }}>
-                  {a.member.email}
-                </span>
+                <span className="counselor-member-sub">{a.member.email}</span>
               </Link>
             </li>
           ))}

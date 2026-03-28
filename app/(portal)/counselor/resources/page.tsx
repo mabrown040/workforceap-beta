@@ -16,7 +16,7 @@ export default async function CounselorResourcesPage() {
     <div className="portal-main-content">
       <PageHeader title="Resources" subtitle="Quick links for counselors." />
 
-      <ul style={{ lineHeight: 1.8, paddingLeft: '1.25rem' }}>
+      <ul className="counselor-resources-list">
         {admin ? (
           <>
             <li>

@@ -3416,6 +3416,11 @@ html.dark .employer-dash-empty-jobs {
 html.dark .employer-dash-empty-jobs p {
     color: var(--dark-muted);
 }
+.employer-dash-empty-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
 .expectations-box {
     background: var(--color-light);
     border: 1px solid var(--color-gray-200);
@@ -11044,8 +11049,22 @@ html.dark .admin-super-messages-bubble.is-staff {
 .partner-next-action,
 .partner-momentum,
 .partner-activity,
-.partner-panel .partner-members {
+.partner-panel .partner-members,
+.partner-referral-attribution {
     padding: 1.5rem;
+}
+.partner-referral-body {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--color-gray-700);
+}
+.partner-referral-share {
+    margin: 0.75rem 0 0;
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+}
+.partner-referral-url {
+    word-break: break-all;
 }
 .partner-impact-hero {
     display: grid;
@@ -11353,6 +11372,352 @@ html.dark .admin-super-messages-bubble.is-staff {
 .dashboard-profile-section h3 {
     font-size: 1rem;
     margin-bottom: 1rem;
+}
+
+/* =============================================
+   COUNSELOR PORTAL
+   ============================================= */
+.counselor-stat-cards-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    margin-bottom: 2rem;
+}
+.portal-main-content .stat-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-align: left;
+    background: var(--color-surface);
+    border: 1px solid var(--color-surface-variant);
+    box-shadow: 0 1px 3px rgba(28,27,27,0.06);
+    padding: 1.25rem;
+}
+.stat-card__icon {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.stat-card__icon--accent {
+    background: rgba(173, 44, 77, 0.1);
+    color: var(--color-accent);
+}
+.stat-card__icon--gold {
+    background: rgba(240, 205, 131, 0.2);
+    color: var(--color-gold);
+}
+.stat-card__icon--green {
+    background: rgba(74, 155, 79, 0.1);
+    color: var(--color-green);
+}
+.stat-card__icon--warning {
+    background: rgba(164, 127, 56, 0.1);
+    color: var(--color-gold);
+}
+.stat-card__value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    line-height: 1;
+}
+.stat-card__label {
+    font-size: 0.8125rem;
+    color: var(--color-gray-600);
+    margin-top: 0.25rem;
+}
+.counselor-section-heading {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+.counselor-empty-state {
+    padding: 2rem;
+    text-align: center;
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-surface-variant);
+    color: var(--color-gray-600);
+}
+.counselor-students-list {
+    display: grid;
+    gap: 0.75rem;
+}
+.counselor-student-card {
+    display: block;
+    padding: 1.25rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-surface-variant);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.counselor-student-card:hover {
+    border-color: var(--color-accent);
+    box-shadow: 0 4px 12px rgba(28,27,27,0.08);
+}
+.counselor-student-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+.counselor-student-card__name {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+.counselor-student-card__email {
+    font-size: 0.85rem;
+    color: var(--color-gray-600);
+}
+.counselor-student-card__program {
+    font-size: 0.9rem;
+    color: var(--color-gray-700);
+}
+html.dark .counselor-student-card {
+    background: var(--dark-surface);
+    border-color: var(--dark-outline);
+}
+html.dark .counselor-student-card:hover {
+    border-color: var(--color-accent);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+html.dark .counselor-empty-state {
+    background: var(--dark-surface);
+    border-color: var(--dark-outline);
+}
+html.dark .portal-main-content .stat-card {
+    background: var(--dark-surface);
+    border-color: var(--dark-outline);
+}
+.counselor-nav-back {
+    color: var(--color-accent);
+    margin-bottom: 1rem;
+    display: inline-block;
+    font-size: 0.9rem;
+}
+.counselor-member-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.5rem;
+}
+.counselor-member-list--wide {
+    gap: 0.75rem;
+}
+.counselor-member-list-btn {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+}
+.counselor-member-list-btn--block {
+    display: block;
+    text-align: left;
+}
+.counselor-member-sub {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--color-gray-600);
+    font-weight: 400;
+}
+.counselor-section-messages {
+    margin-top: 1.5rem;
+}
+.counselor-section-messages h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+}
+.counselor-admin-link {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+.counselor-resources-list {
+    line-height: 1.8;
+    padding-left: 1.25rem;
+}
+
+/* =============================================
+   PARTNER MEMBER DETAIL + OUTCOMES + RESOURCES
+   ============================================= */
+.partner-nav-back {
+    color: var(--color-accent);
+    display: inline-block;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+.partner-info-panel {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-surface-variant);
+    border-radius: var(--radius-md);
+}
+.partner-info-panel h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+}
+.partner-info-panel-empty {
+    color: var(--color-gray-500);
+    margin: 0;
+}
+.partner-course-list {
+    margin: 0;
+    padding-left: 1.25rem;
+    list-style: none;
+}
+.partner-course-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+}
+.partner-course-icon-done {
+    color: var(--color-green);
+    flex-shrink: 0;
+}
+.partner-course-icon-pending {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--color-surface-variant);
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+.partner-outcomes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+}
+.partner-outcome-card {
+    padding: 1.25rem;
+}
+.partner-outcome-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+.partner-outcome-value--accent {
+    color: var(--color-accent);
+}
+.partner-outcome-label {
+    font-size: 0.85rem;
+    color: var(--color-gray-600);
+}
+.partner-contact-section {
+    margin-bottom: 2rem;
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-surface-variant);
+    background: var(--color-surface);
+    max-width: 560px;
+}
+.partner-contact-section h2 {
+    font-size: 1.05rem;
+    margin-bottom: 0.75rem;
+}
+.partner-contact-section p {
+    margin: 0 0 0.35rem;
+}
+.partner-contact-section p:last-child {
+    margin: 0;
+}
+.partner-resources-heading {
+    font-size: 1.05rem;
+    margin-bottom: 1rem;
+}
+.partner-resources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+.partner-resource-link {
+    display: block;
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-surface-variant);
+    text-decoration: none;
+    color: inherit;
+    background: var(--color-surface);
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.partner-resource-link:hover {
+    border-color: var(--color-accent);
+    box-shadow: 0 4px 12px rgba(28,27,27,0.08);
+}
+.partner-resource-title {
+    color: var(--color-accent);
+    font-weight: 600;
+}
+.partner-resource-desc {
+    margin: 0.5rem 0 0;
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+}
+.partner-resource-note {
+    color: var(--color-gray-600);
+    font-size: 0.9rem;
+}
+.partner-settings-body {
+    color: var(--color-gray-600);
+    max-width: 560px;
+    line-height: 1.6;
+}
+.partner-exports-desc {
+    color: var(--color-gray-600);
+    margin-bottom: 1rem;
+    max-width: 560px;
+}
+.partner-exports-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+}
+html.dark .partner-info-panel {
+    background: var(--dark-surface);
+    border-color: var(--dark-outline);
+}
+html.dark .partner-contact-section {
+    background: var(--dark-surface);
+    border-color: var(--dark-outline);
+}
+html.dark .partner-resource-link {
+    background: var(--dark-surface);
+    border-color: var(--dark-outline);
+}
+html.dark .partner-resource-link:hover {
+    border-color: var(--color-accent);
+}
+
+/* =============================================
+   SHARED PORTAL UTILITIES
+   ============================================= */
+.link-accent {
+    color: var(--color-accent);
+}
+.portal-nav-back {
+    color: var(--color-accent);
+    display: inline-block;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+.portal-nav-back--muted {
+    color: var(--color-gray-600);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+}
+.portal-page-description {
+    color: var(--color-gray-600);
+    font-size: 0.9rem;
 }
 
 /* =============================================

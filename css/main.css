@@ -1603,6 +1603,32 @@ body.mobile-nav-open {
 }
 
 /* =============================================
+   BADGES — Editorial Catalyst semantic variants
+   ============================================= */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+.badge-sm {
+    padding: 0.125rem 0.5rem;
+    font-size: 0.6875rem;
+}
+.badge-success  { background: #4a9b4f; color: #ffffff; }
+.badge-warning  { background: #a47f38; color: #ffffff; }
+.badge-error    { background: var(--color-accent); color: #ffffff; }
+.badge-info     { background: #2b7bb9; color: #ffffff; }
+.badge-neutral  { background: var(--color-surface-variant); color: var(--color-gray-600); }
+.badge-gold     { background: #a47f38; color: #ffffff; }
+.badge-accent   { background: var(--color-accent-deep); color: #ffffff; }
+
+/* =============================================
    BUTTONS
    ============================================= */
 .btn {
@@ -1639,17 +1665,18 @@ body.mobile-nav-open {
 a.btn-primary,
 button.btn-primary {
     background: var(--color-accent);
-    color: var(--color-white);
+    color: #ffffff;
+    border-radius: var(--radius-full);
 }
 .btn-primary:hover {
     background: var(--color-accent-dark);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(173, 44, 77, 0.35);
+    box-shadow: 0 4px 12px rgba(140, 15, 55, 0.35);
 }
 .btn-primary:focus-visible {
     outline: 3px solid var(--color-accent);
     outline-offset: 2px;
-    box-shadow: 0 0 0 2px var(--color-white), 0 0 0 4px var(--color-accent);
+    box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px var(--color-accent);
 }
 .btn-secondary,
 a.btn-secondary {
@@ -1914,14 +1941,15 @@ html.dark .homepage .hero-program-count {
 .btn-accent,
 a.btn-accent {
     background: var(--color-accent);
-    color: var(--color-white);
+    color: #ffffff;
     border: none;
-    box-shadow: var(--shadow-glow-accent);
+    border-radius: var(--radius-full);
+    box-shadow: 0 4px 20px rgba(140, 15, 55, 0.25);
 }
 .btn-accent:hover,
 a.btn-accent:hover {
     background: var(--color-accent-dark);
-    box-shadow: 0 8px 40px rgba(173,44,77,0.5);
+    box-shadow: 0 8px 40px rgba(140, 15, 55, 0.4);
     transform: translateY(-2px);
 }
 .hero-actions-prominent .btn-accent.btn-large {
@@ -3936,7 +3964,7 @@ body.inner-page {
 .form-group textarea {
     width: 100%;
     padding: 0.875rem 1rem;
-    border: 2px solid var(--color-gray-200);
+    border: 1px solid var(--color-surface-variant);
     border-radius: var(--radius-md);
     font-family: inherit;
     font-size: 0.9375rem;
@@ -3947,15 +3975,15 @@ body.inner-page {
 .form-group input:hover,
 .form-group select:hover,
 .form-group textarea:hover {
-    border-color: var(--color-gray-300);
+    border-color: var(--color-outline);
 }
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
     border-color: var(--color-accent);
-    box-shadow: 0 0 0 4px rgba(173,44,77,0.08);
-    background: #fffbfc;
+    box-shadow: 0 0 0 3px rgba(140, 15, 55, 0.15);
+    background: var(--color-surface);
 }
 .form-group textarea { min-height: 120px; resize: vertical; }
 .form-error { display: block; color: var(--color-accent); font-size: 0.8125rem; margin-top: 0.35rem; }
@@ -6779,16 +6807,16 @@ body { animation: fadeIn 0.4s ease; }
    ============================================= */
 .ui-card {
     background: var(--color-white);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-lg);
     transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
 .ui-card-default {
     background: var(--color-white);
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 20px 40px rgba(28, 27, 27, 0.06);
 }
 .ui-card-bordered {
     background: var(--color-white);
-    border: 1px solid var(--color-gray-200);
+    border: 1px solid var(--color-surface-variant);
 }
 .ui-card-elevated {
     background: var(--color-white);

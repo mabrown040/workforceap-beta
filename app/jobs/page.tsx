@@ -36,8 +36,8 @@ export default async function JobsPage() {
   return (
     <div className="inner-page stitch-dark">
       <PageHero
-        title="Job Opportunities"
-        subtitle="These roles are actively hiring WorkforceAP graduates. Create a free account or log in to apply."
+        title="Job Opportunities — Hiring WorkforceAP Graduates"
+        subtitle="These roles are actively hiring WorkforceAP graduates. Training is free for members — create an account or log in to apply."
       />
       <section className="content-section stitch-section" style={{ paddingTop: '1rem' }}>
         <div className="container">

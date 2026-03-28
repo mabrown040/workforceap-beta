@@ -66,19 +66,35 @@ function FooterLinks() {
           <li><Link href="/find-your-path">Find Your Career</Link></li>
           <li><Link href="/program-comparison">Compare Programs</Link></li>
           <li><Link href="/salary-guide">Salary Guide</Link></li>
-          <li><Link href="/apply">Apply Now</Link></li>
+          <li><Link href="/apply">Apply Now — Free for Members</Link></li>
         </ul>
       </div>
       <div className="footer-links footer-col">
-        <h4>About</h4>
+        <h4>Company</h4>
         <ul>
           <li><Link href="/what-we-do">What We Do</Link></li>
           <li><Link href="/how-it-works">How It Works</Link></li>
           <li><Link href="/partners">Partners</Link></li>
           <li><Link href="/leadership">Leadership Team</Link></li>
           <li><Link href="/employers">For Employers</Link></li>
+        </ul>
+      </div>
+      <div className="footer-links footer-col">
+        <h4>Support</h4>
+        <ul>
           <li><Link href="/faq">FAQ</Link></li>
           <li><Link href="/contact">Contact Us</Link></li>
+          <li><Link href="/privacy">Privacy Policy</Link></li>
+          <li><Link href="/terms">Terms of Use</Link></li>
+        </ul>
+      </div>
+      <div className="footer-links footer-col">
+        <h4>Connect</h4>
+        <ul>
+          <li><a href="https://www.linkedin.com/company/workforce-advancement-project" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a></li>
+          <li><a href="mailto:info@workforceap.org">Email Us</a></li>
+          <li><a href="tel:5127771808">(512) 777-1808</a></li>
+          <li><Link href="/jobs">Jobs Board</Link></li>
         </ul>
       </div>
     </>

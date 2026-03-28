@@ -53,7 +53,7 @@ export default function SalaryGuidePage() {
   const guideStats = salaryGuideSummaryStats(salaryRows);
 
   return (
-    <div className="inner-page salary-guide-page">
+    <div className="inner-page stitch-dark salary-guide-page">
       <PageHero
         title="WorkforceAP Salary Guide"
         subtitle="Starting salary ranges by program — same numbers you see on /programs. Use this with fit, timeline, and ramp; Austin is our launch wedge, not a ceiling on where you can work."
@@ -168,7 +168,7 @@ export default function SalaryGuidePage() {
             <div className="salary-guide-cta-buttons">
               <Link href="/find-your-path" className="btn btn-outline salary-guide-cta-btn">Find your fit (2-min quiz)</Link>
               <Link href="/program-comparison" className="btn btn-outline salary-guide-cta-btn">Compare programs</Link>
-              <Link href="/apply" className="btn btn-primary btn-large salary-guide-cta-btn">Apply Now</Link>
+              <Link href="/apply" className="btn btn-primary btn-large salary-guide-cta-btn">Start training — free for members</Link>
             </div>
           </div>
         </div>

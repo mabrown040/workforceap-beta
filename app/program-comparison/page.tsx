@@ -25,7 +25,7 @@ const tracks = getProgramComparisonTracks();
 
 export default function ProgramComparisonPage() {
   return (
-    <div className="inner-page">
+    <div className="inner-page stitch-dark">
       <PageHero
         title="Compare Programs"
         subtitle="One decision journey: narrow your options, then put 2–4 tracks side-by-side to see tradeoffs — time, difficulty, salary band, and best-fit."

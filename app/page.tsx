@@ -7,7 +7,7 @@ import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import Footer from '@/components/Footer';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 import StatsBar from '@/components/home/StatsBar';
-import GraduateStoryCard from '@/components/home/GraduateStoryCard';
+
 import EmailCaptureWidget from '@/components/home/EmailCaptureWidget';
 import MobileBottomNav from '@/components/home/MobileBottomNav';
 
@@ -36,10 +36,6 @@ export default async function HomePage() {
     { num: '11', title: 'Get Hired', desc: 'Connect directly with Austin\'s top employers through our hiring partner network. 84% placement rate within 6 months of graduation.', gradient: true },
   ];
 
-  const graduates = [
-    { name: 'Samira', role: 'Cybersecurity Specialist', imageSrc: '/images/adriane-brown.jpg', beforePay: '$15/hr', afterPay: '$38/hr' },
-    { name: 'Marcus', role: 'Cloud Operations', imageSrc: '/images/brandon-frye.jpg', beforePay: '$17/hr', afterPay: '$42/hr' },
-  ];
 
   const partnerLogos = [
     { src: '/images/Google_2015_logo.svg.png', alt: 'Google', width: 120, height: 40 },
@@ -141,25 +137,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Graduate Stories */}
-      <section className="wa-py-24 wa-px-8 wa-bg-white dark:wa-bg-[#1c1b1b]">
-        <div className="wa-max-w-7xl wa-mx-auto">
-          <div className="wa-flex wa-flex-wrap wa-justify-between wa-items-end wa-mb-16 wa-gap-6">
-            <div>
-              <h2 className="wa-text-4xl wa-font-bold wa-tracking-tight wa-text-gray-900 dark:wa-text-[#e6e1e1] wa-mb-4">Life-Changing Outcomes</h2>
-              <p className="wa-text-gray-600 dark:wa-text-[#debfc2] wa-max-w-lg">Real graduates from the Austin area who transitioned into high-growth tech careers.</p>
-            </div>
-            <Link href="/find-your-path" className="wa-text-[#ad2c4d] dark:wa-text-[#ffb2bc] wa-font-bold wa-text-sm wa-flex wa-items-center wa-gap-2 wa-no-underline">
-              WHAT COULD YOU EARN? →
-            </Link>
-          </div>
-          <div className="wa-grid wa-gap-8 md:wa-grid-cols-2">
-            {graduates.map((g) => (
-              <GraduateStoryCard key={g.name} {...g} />
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Graduate Stories — placeholder: will add when we have real testimonials */}
 
       {/* Journey Bento Grid */}
       <section className="wa-py-24 wa-px-8 wa-bg-gray-50 dark:wa-bg-[#141313]">

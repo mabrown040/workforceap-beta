@@ -29,45 +29,59 @@ export async function GET(request: Request) {
     select: { id: true, email: true, fullName: true },
   });
 
-  let generated = 0;
-  let emailed = 0;
+  const results = await Promise.all(
+    members.map(async (member) => {
+      try {
+        const recap = await generateWeeklyRecap(member.id, weekStart, weekEnd);
 
-  for (const member of members) {
-    try {
-      const recap = await generateWeeklyRecap(member.id, weekStart, weekEnd);
-      generated++;
+        const recapJson = recap.recapJson as {
+          weekInReview?: {
+            applicationsAdded?: number;
+            resourcesCompleted?: number;
+            aiToolsUsed?: number;
+            pathwayStepsCompleted?: number;
+          };
+          recommendedActions?: string[];
+        };
+        const review = recapJson?.weekInReview ?? {};
+        const lines: string[] = [];
+        lines.push(`Applications added: ${review.applicationsAdded ?? 0}`);
+        lines.push(`Resources completed: ${review.resourcesCompleted ?? 0}`);
+        lines.push(`AI tools used: ${review.aiToolsUsed ?? 0}`);
+        lines.push(`Pathway steps completed: ${review.pathwayStepsCompleted ?? 0}`);
+        if (recapJson?.recommendedActions?.length) {
+          lines.push(`Next: ${recapJson.recommendedActions[0]}`);
+        }
+        const recapSummary = lines.join('. ');
 
-      const recapJson = recap.recapJson as {
-        weekInReview?: { applicationsAdded?: number; resourcesCompleted?: number; aiToolsUsed?: number; pathwayStepsCompleted?: number };
-        recommendedActions?: string[];
-      };
-      const review = recapJson?.weekInReview ?? {};
-      const lines: string[] = [];
-      lines.push(`Applications added: ${review.applicationsAdded ?? 0}`);
-      lines.push(`Resources completed: ${review.resourcesCompleted ?? 0}`);
-      lines.push(`AI tools used: ${review.aiToolsUsed ?? 0}`);
-      lines.push(`Pathway steps completed: ${review.pathwayStepsCompleted ?? 0}`);
-      if (recapJson?.recommendedActions?.length) {
-        lines.push(`Next: ${recapJson.recommendedActions[0]}`);
-      }
-      const recapSummary = lines.join('. ');
-
-      const result = await sendWeeklyRecapEmail({
-        to: member.email,
-        fullName: member.fullName,
-        recapSummary,
-      });
-      if (result.ok) {
-        emailed++;
-        await prisma.weeklyRecap.update({
-          where: { id: recap.id },
-          data: { emailedAt: new Date() },
+        const result = await sendWeeklyRecapEmail({
+          to: member.email,
+          fullName: member.fullName,
+          recapSummary,
         });
+
+        let emailSent = false;
+        if (result.ok) {
+          emailSent = true;
+          try {
+            await prisma.weeklyRecap.update({
+              where: { id: recap.id },
+              data: { emailedAt: new Date() },
+            });
+          } catch (dbErr) {
+            console.error(`Failed to update emailedAt for user ${member.id}:`, dbErr);
+          }
+        }
+        return { generated: true, emailed: emailSent };
+      } catch (err) {
+        console.error(`Weekly recap failed for user ${member.id}:`, err);
+        return { generated: false, emailed: false };
       }
-    } catch (err) {
-      console.error(`Weekly recap failed for user ${member.id}:`, err);
-    }
-  }
+    })
+  );
+
+  const generated = results.filter((r) => r.generated).length;
+  const emailed = results.filter((r) => r.emailed).length;
 
   return NextResponse.json({
     ok: true,

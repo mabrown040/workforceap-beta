@@ -18,9 +18,12 @@ export default async function ApplicationTrackerPage() {
 
   return (
     <div className="inner-page">
-      <section className="page-hero">
+      <section className="ai-tool-header page-hero">
         <div className="page-hero-content">
-          <Link href="/dashboard/ai-tools" className="resource-back-link">← Back to AI Tools</Link>
+          <Link href="/dashboard/ai-tools" className="ai-tool-back-link">← Back to AI Tools</Link>
+          <div className="ai-tool-icon-ring" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          </div>
           <h1>Application Tracker</h1>
           <p>Track your job applications. Add applications, update status, and see your progress.</p>
         </div>

@@ -31,75 +31,37 @@ export default function BlogListingClient({
     : posts;
 
   return (
-    <section
-      style={{
-        maxWidth: '1100px',
-        margin: '0 auto',
-        padding: '2rem 1.5rem',
-      }}
-    >
+    <section className="blog-listing-wrapper">
       {/* Quick Resources */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-        gap: '1rem',
-        marginBottom: '2.5rem',
-      }}>
-        <Link href="/programs" style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1rem',
-          padding: '1.25rem',
-          background: 'linear-gradient(135deg, #f8f9fa, #e9ecef)',
-          borderRadius: '12px',
-          textDecoration: 'none',
-          color: '#1a1a1a',
-          border: '1px solid #dee2e6',
-        }}>
-          <GraduationCap size={28} style={{ color: '#ad2c4d' }} />
+      <div className="blog-listing-resources-grid">
+        <Link href="/programs" className="blog-listing-resource-link">
+          <GraduationCap size={28} style={{ color: 'var(--color-accent)' }} />
           <div>
             <div style={{ fontWeight: 600 }}>Explore Programs</div>
-            <div style={{ fontSize: '0.875rem', color: '#666' }}>19 career training options</div>
+            <div className="blog-listing-resource-link__sub">19 career training options</div>
           </div>
           <ArrowRight size={20} style={{ marginLeft: 'auto', opacity: 0.5 }} />
         </Link>
-        <Link href="/faq" style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1rem',
-          padding: '1.25rem',
-          background: 'linear-gradient(135deg, #f8f9fa, #e9ecef)',
-          borderRadius: '12px',
-          textDecoration: 'none',
-          color: '#1a1a1a',
-          border: '1px solid #dee2e6',
-        }}>
-          <HelpCircle size={28} style={{ color: '#ad2c4d' }} />
+        <Link href="/faq" className="blog-listing-resource-link">
+          <HelpCircle size={28} style={{ color: 'var(--color-accent)' }} />
           <div>
             <div style={{ fontWeight: 600 }}>Read FAQ</div>
-            <div style={{ fontSize: '0.875rem', color: '#666' }}>Common questions answered</div>
+            <div className="blog-listing-resource-link__sub">Common questions answered</div>
           </div>
           <ArrowRight size={20} style={{ marginLeft: 'auto', opacity: 0.5 }} />
         </Link>
       </div>
 
       {categories.length > 0 && (
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '0.5rem',
-            marginBottom: '2rem',
-          }}
-        >
+        <div className="blog-listing-filters">
           <button
             type="button"
             onClick={() => setFilter(null)}
             style={{
               padding: '0.4rem 0.9rem',
               borderRadius: '999px',
-              border: `1px solid ${filter === null ? 'var(--color-accent)' : '#ccc'}`,
-              background: filter === null ? 'rgba(74, 155, 79, 0.1)' : 'transparent',
+              border: `1px solid ${filter === null ? 'var(--color-accent)' : 'var(--color-border)'}`,
+              background: filter === null ? 'rgba(173, 44, 77, 0.1)' : 'transparent',
               color: filter === null ? 'var(--color-accent)' : 'inherit',
               cursor: 'pointer',
               fontSize: '0.9rem',
@@ -115,8 +77,8 @@ export default function BlogListingClient({
               style={{
                 padding: '0.4rem 0.9rem',
                 borderRadius: '999px',
-                border: `1px solid ${filter === cat ? 'var(--color-accent)' : '#ccc'}`,
-                background: filter === cat ? 'rgba(74, 155, 79, 0.1)' : 'transparent',
+                border: `1px solid ${filter === cat ? 'var(--color-accent)' : 'var(--color-border)'}`,
+                background: filter === cat ? 'rgba(173, 44, 77, 0.1)' : 'transparent',
                 color: filter === cat ? 'var(--color-accent)' : 'inherit',
                 cursor: 'pointer',
                 fontSize: '0.9rem',
@@ -162,34 +124,19 @@ export default function BlogListingClient({
         })}
       </div>
       {filtered.length === 0 && (
-        <p style={{ textAlign: 'center', color: '#666', padding: '3rem' }}>
-          No posts found.
-        </p>
+        <p className="blog-listing-empty">No posts found.</p>
       )}
 
       {/* Bottom CTA */}
-      <div style={{
-        marginTop: '4rem',
-        padding: '2.5rem',
-        background: 'linear-gradient(135deg, #1a1a1a, #2d2d2d)',
-        borderRadius: '16px',
-        textAlign: 'center',
-        color: 'white',
-      }}>
+      <div className="blog-listing-cta">
         <BookOpen size={40} style={{ margin: '0 auto 1rem', opacity: 0.8 }} />
-        <h3 style={{ color: 'white', fontSize: '1.5rem', marginBottom: '0.75rem' }}>
-          Want personalized career guidance?
-        </h3>
-        <p style={{ color: 'rgba(255,255,255,0.8)', marginBottom: '1.5rem', maxWidth: '500px', margin: '0 auto 1.5rem' }}>
+        <h3 className="blog-listing-cta__title">Want personalized career guidance?</h3>
+        <p className="blog-listing-cta__desc">
           Read our blog for tips, or get started finding the right program for your goals.
         </p>
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link href="/find-your-path" className="btn btn-primary">
-            Take Career Quiz
-          </Link>
-          <Link href="/programs" className="btn" style={{ background: 'white', color: '#1a1a1a' }}>
-            Browse Programs
-          </Link>
+        <div className="blog-listing-cta__actions">
+          <Link href="/find-your-path" className="btn btn-primary">Take Career Quiz</Link>
+          <Link href="/programs" className="btn btn-white">Browse Programs</Link>
         </div>
       </div>
     </section>

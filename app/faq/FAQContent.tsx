@@ -138,11 +138,11 @@ export default function FAQContent() {
                     <p style={{ marginTop: '1rem' }}>
                       <Link 
                         href={item.link.href}
-                        style={{ 
-                          display: 'inline-flex', 
-                          alignItems: 'center', 
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
                           gap: '0.5rem',
-                          color: '#ad2c4d',
+                          color: 'var(--color-accent)',
                           fontWeight: 500,
                           textDecoration: 'none'
                         }}

@@ -102,7 +102,7 @@ export default async function HowItWorksPage() {
                               height: 0,
                               overflow: 'hidden',
                               borderRadius: 'var(--radius-md, 8px)',
-                              background: '#111',
+                              background: 'var(--dark-bg)',
                             }}
                           >
                             <iframe

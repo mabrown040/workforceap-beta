@@ -193,13 +193,6 @@ export default function LoginForm() {
                     id="login-error"
                     className="form-error-banner"
                     role="alert"
-                    style={{
-                      background: '#fff3f5',
-                      borderLeft: '4px solid var(--color-accent)',
-                      padding: '1rem',
-                      marginBottom: '1rem',
-                      borderRadius: '0 8px 8px 0',
-                    }}
                   >
                     {error}
                   </div>

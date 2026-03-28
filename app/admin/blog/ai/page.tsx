@@ -21,12 +21,7 @@ export default async function AdminBlogAIPage() {
       <PageHeader title="Blog AI Tools" subtitle={`Suggest topics, draft posts, and review content.${hasWebSearch ? ' Web search enabled for current info.' : ''}`} />
       {!hasAI ? (
         <div
-          style={{
-            padding: '1rem',
-            background: '#fef3c7',
-            borderRadius: '6px',
-            color: '#92400e',
-          }}
+          className="admin-warning-banner"
         >
           GROQ_API_KEY not configured. Set it in your environment to use AI tools.
         </div>

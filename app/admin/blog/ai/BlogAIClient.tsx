@@ -127,7 +127,7 @@ export default function BlogAIClient({ postCount }: { postCount: number }) {
             disabled={!!loading || !ideas.trim()}
             style={{
               padding: '0.5rem 1rem',
-              background: '#4a9b4f',
+              background: 'var(--color-green)',
               color: 'white',
               border: 'none',
               borderRadius: '6px',
@@ -213,7 +213,7 @@ export default function BlogAIClient({ postCount }: { postCount: number }) {
                     disabled={!!loading}
                     style={{
                       padding: '0.5rem 1rem',
-                      background: '#4a9b4f',
+                      background: 'var(--color-green)',
                       color: 'white',
                       border: 'none',
                       borderRadius: '6px',

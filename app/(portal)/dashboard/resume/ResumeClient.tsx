@@ -168,7 +168,7 @@ export default function ResumeClient({
             PDF, DOC, DOCX — max 5MB
           </p>
         </div>
-        {uploadError && <p style={{ color: '#c00', marginTop: '0.5rem' }}>{uploadError}</p>}
+        {uploadError && <p style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{uploadError}</p>}
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
@@ -195,7 +195,7 @@ export default function ResumeClient({
         >
           {generating ? 'Generating…' : 'Generate Resume'}
         </button>
-        {generateError && <p style={{ color: '#c00', marginTop: '0.5rem' }}>{generateError}</p>}
+        {generateError && <p style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{generateError}</p>}
       </section>
 
       {(hasOriginal || hasEnhanced) && (

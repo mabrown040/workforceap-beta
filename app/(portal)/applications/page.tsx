@@ -20,13 +20,13 @@ export default async function ApplicationsPage() {
   return (
     <div className="inner-page">
       <section className="page-hero">
-        <div className="page-hero-content" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+        <div className="page-hero-content--split">
           <div>
             <h1>Job Applications</h1>
             <p>Track your applications and interview progress.</p>
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <Link href="/dashboard" className="btn" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.4)' }}>
+          <div className="page-hero-actions">
+            <Link href="/dashboard" className="btn btn-ghost">
               Dashboard
             </Link>
             <SignOutButton />

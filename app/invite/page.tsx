@@ -192,9 +192,9 @@ function InviteContent() {
               style={{
                 padding: '0.75rem',
                 marginBottom: '1rem',
-                background: '#fee',
+                background: 'rgba(173, 44, 77, 0.06)',
                 borderRadius: '6px',
-                color: '#c00',
+                color: 'var(--color-accent)',
                 fontSize: '0.9rem',
               }}
             >

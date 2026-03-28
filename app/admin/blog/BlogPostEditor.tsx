@@ -493,7 +493,7 @@ export default function BlogPostEditor({
             style={{ padding: '0.4rem 0.6rem', borderRadius: '6px', fontSize: '0.9rem', maxWidth: '240px' }}
           />
           {scheduledAt && (
-            <small style={{ color: '#2563eb', fontSize: '0.8rem' }}>
+            <small style={{ color: 'var(--color-blue)', fontSize: '0.8rem' }}>
               Will auto-publish on {new Date(scheduledAt).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
             </small>
           )}

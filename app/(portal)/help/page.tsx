@@ -19,13 +19,13 @@ export default async function HelpPage() {
   return (
     <div className="inner-page">
       <section className="page-hero">
-        <div className="page-hero-content" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+        <div className="page-hero-content--split">
           <div>
             <h1>Help & Support</h1>
             <p>Request access to member benefits or get assistance.</p>
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <Link href="/dashboard" className="btn" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.4)' }}>
+          <div className="page-hero-actions">
+            <Link href="/dashboard" className="btn btn-ghost">
               Dashboard
             </Link>
             <SignOutButton />

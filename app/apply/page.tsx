@@ -32,64 +32,31 @@ export default async function ApplyPage({ searchParams }: PageProps) {
             <strong> No experience required.</strong>
           </p>
           
-          <div style={{ 
-            padding: '1.25rem 1.5rem', 
-            background: 'rgba(74, 155, 79, 0.12)', 
-            border: '2px solid rgba(74, 155, 79, 0.35)',
-            borderRadius: 'var(--radius-md)',
-            marginBottom: '2rem',
-            maxWidth: '600px'
-          }}>
-            <p style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: '#166534' }}>
-              ✓ No cost to members.
-            </p>
-            <p style={{ fontSize: '0.95rem', margin: '0.35rem 0 0', color: '#065f46' }}>
+          <div className="apply-hero-nocost">
+            <p className="apply-hero-nocost__title">✓ No cost to members.</p>
+            <p className="apply-hero-nocost__desc">
               Training and support are provided at no charge to qualifying participants.
             </p>
           </div>
 
-          <div style={{ 
-            display: 'grid', 
-            gap: '0.75rem', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            marginBottom: '2rem',
-            maxWidth: '900px'
-          }}>
+          <div className="apply-hero-step-cards">
             {[
               { Icon: CheckCircle, text: 'Quick eligibility check', label: 'Step 1' },
               { Icon: ClipboardList, text: 'Choose a program', label: 'Step 2' },
               { Icon: UserPlus, text: 'Create your account', label: 'Step 3' },
               { Icon: Clock, text: 'We respond within 24–48 hours', label: 'Timeline' }
             ].map((step) => (
-              <div key={step.text} style={{
-                padding: '0.85rem 1.1rem',
-                background: 'rgba(255,255,255,0.1)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '8px',
-                fontSize: '0.9rem',
-                fontWeight: 500,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.65rem'
-              }}>
+              <div key={step.text} className="apply-hero-step-card">
                 <step.Icon size={20} strokeWidth={2.5} aria-label={step.label} style={{ flexShrink: 0, opacity: 0.9 }} />
                 <span>{step.text}</span>
               </div>
             ))}
           </div>
 
-          <div style={{
-            padding: '1rem 1.25rem',
-            background: 'rgba(240, 205, 131, 0.2)',
-            border: '1px solid rgba(240, 205, 131, 0.4)',
-            borderRadius: 'var(--radius-md)',
-            marginBottom: '1.5rem',
-            maxWidth: '700px'
-          }}>
-            <p style={{ fontSize: '0.95rem', lineHeight: 1.6, margin: 0 }}>
-              <strong>Where we operate today:</strong> We&apos;re currently serving the Austin area. 
-              This is our launch community — we&apos;re building toward expansion. 
+          <div className="apply-hero-geo-note">
+            <p style={{ margin: 0 }}>
+              <strong>Where we operate today:</strong> We&apos;re currently serving the Austin area.
+              This is our launch community — we&apos;re building toward expansion.
               If you&apos;re elsewhere, apply anyway; we&apos;ll keep you in the loop.
             </p>
           </div>
@@ -102,30 +69,11 @@ export default async function ApplyPage({ searchParams }: PageProps) {
 
       <section className="content-section" style={{ paddingTop: '3rem' }}>
         <div className="container">
-          <div style={{
-            padding: '2rem 2.5rem',
-            background: 'white',
-            border: '2px solid var(--color-accent)',
-            borderRadius: 'var(--radius-lg)',
-            marginBottom: '2rem',
-            boxShadow: '0 10px 40px rgba(0,0,0,0.08)'
-          }} aria-labelledby="apply-expectations-heading">
-            <h3 id="apply-expectations-heading" style={{ 
-              fontSize: '1.5rem', 
-              fontWeight: 700, 
-              marginBottom: '1.5rem',
-              color: 'var(--color-primary)',
-              textAlign: 'center'
-            }}>
+          <div className="apply-process-box" aria-labelledby="apply-expectations-heading">
+            <h3 id="apply-expectations-heading" className="apply-process-box__heading">
               What happens after you apply?
             </h3>
-            <ol style={{
-              display: 'grid',
-              gap: '1.25rem',
-              listStyle: 'none',
-              padding: 0,
-              counterReset: 'step-counter'
-            }}>
+            <ol className="apply-process-steps">
               {[
                 'We review your application within 24–48 hours',
                 'Schedule an overview call with a counselor',
@@ -133,46 +81,18 @@ export default async function ApplyPage({ searchParams }: PageProps) {
                 '30-minute interview to confirm mutual fit',
                 'Start your program — at no cost to you'
               ].map((step, idx) => (
-                <li key={idx} style={{
-                  display: 'flex',
-                  gap: '1rem',
-                  alignItems: 'flex-start',
-                  fontSize: '1.05rem',
-                  lineHeight: 1.6
-                }}>
-                  <span style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    background: 'var(--color-accent)',
-                    color: 'white',
-                    fontWeight: 700,
-                    fontSize: '0.9rem',
-                    flexShrink: 0
-                  }}>
-                    {idx + 1}
-                  </span>
-                  <span style={{ paddingTop: '0.25rem' }}>{step}</span>
+                <li key={idx} className="apply-process-step">
+                  <span className="apply-process-step-num">{idx + 1}</span>
+                  <span className="apply-process-step-text">{step}</span>
                 </li>
               ))}
             </ol>
           </div>
 
-          <div style={{
-            padding: '1.5rem 2rem',
-            background: 'rgba(173, 44, 77, 0.06)',
-            border: '1px solid rgba(173, 44, 77, 0.2)',
-            borderRadius: 'var(--radius-md)',
-            marginBottom: '2rem',
-            fontSize: '0.95rem',
-            lineHeight: 1.7
-          }} role="note">
+          <div className="apply-what-to-expect" role="note">
             <p style={{ margin: 0 }}>
-              <strong style={{ color: 'var(--color-accent)', fontSize: '1rem' }}>What to expect:</strong> This intake starts with a short eligibility check before account creation, 
-              so you can see your likely options first. After you create an account, a counselor reviews your selection 
+              <strong style={{ color: 'var(--color-accent)', fontSize: '1rem' }}>What to expect:</strong> This intake starts with a short eligibility check before account creation,
+              so you can see your likely options first. After you create an account, a counselor reviews your selection
               and follows up within 24–48 hours.
             </p>
           </div>

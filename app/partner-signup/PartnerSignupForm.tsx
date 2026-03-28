@@ -88,14 +88,7 @@ export default function PartnerSignupForm() {
     <form className="contact-form partner-signup-form" onSubmit={handleSubmit}>
       {status === 'error' && errorMsg ? (
         <div
-          style={{
-            padding: '0.75rem',
-            marginBottom: '1rem',
-            background: '#fee',
-            borderRadius: 'var(--radius-sm)',
-            color: '#c00',
-            fontSize: '0.9rem',
-          }}
+          className="form-error-box"
           role="alert"
         >
           {errorMsg}

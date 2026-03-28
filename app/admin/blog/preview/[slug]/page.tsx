@@ -31,14 +31,8 @@ export default async function AdminBlogPreviewPage({ params }: Props) {
     <div className="inner-page">
       {!post.published && (
         <div
-          style={{
-            background: '#fef3c7',
-            color: '#92400e',
-            padding: '0.5rem 1rem',
-            textAlign: 'center',
-            fontWeight: 600,
-            fontSize: '0.9rem',
-          }}
+          className="admin-warning-banner"
+          style={{ textAlign: 'center', fontWeight: 600 }}
         >
           Draft preview — not visible to the public
         </div>
@@ -78,7 +72,7 @@ export default async function AdminBlogPreviewPage({ params }: Props) {
               borderRadius: '8px',
               overflow: 'hidden',
               aspectRatio: '16/9',
-              background: '#0f172a',
+              background: 'var(--dark-bg)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -106,16 +100,8 @@ export default async function AdminBlogPreviewPage({ params }: Props) {
         >
           <Link
             href={`/admin/blog/${post.id}/edit`}
-            style={{
-              display: 'inline-block',
-              padding: '0.5rem 1rem',
-              background: '#f0f0f0',
-              color: '#333',
-              borderRadius: '6px',
-              textDecoration: 'none',
-              fontWeight: 600,
-              marginRight: '0.75rem',
-            }}
+            className="btn btn-sm btn-outline"
+            style={{ marginRight: '0.75rem' }}
           >
             ← Back to Edit
           </Link>

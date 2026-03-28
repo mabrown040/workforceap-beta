@@ -171,7 +171,7 @@ function QuizResultsView({
                   <strong>Roles:</strong> {extra.jobOutcomes.join(' · ')}
                 </p>
               )}
-              <div style={{ fontSize: '0.85rem', color: '#888', marginBottom: '1rem' }}>
+              <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', marginBottom: '1rem' }}>
                 Partner: {program.partner}
               </div>
               <Link

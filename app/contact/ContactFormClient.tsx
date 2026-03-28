@@ -138,14 +138,7 @@ export default function ContactFormClient() {
           id={errorId}
           role="alert"
           aria-live="assertive"
-          style={{
-            padding: '0.75rem',
-            marginBottom: '1rem',
-            background: '#fee',
-            borderRadius: 'var(--radius-sm)',
-            color: '#c00',
-            fontSize: '0.9rem',
-          }}
+          className="form-error-box"
         >
           <p style={{ margin: '0 0 0.75rem' }}>{errorMsg}</p>
           <button

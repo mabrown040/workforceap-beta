@@ -116,14 +116,7 @@ export default function EmployerContactForm() {
     <form className="contact-form employer-contact-form" onSubmit={handleSubmit} id="employer-contact-form">
       {status === 'error' && errorMsg && (
         <div
-          style={{
-            padding: '0.75rem',
-            marginBottom: '1rem',
-            background: '#fee',
-            borderRadius: 'var(--radius-sm)',
-            color: '#c00',
-            fontSize: '0.9rem',
-          }}
+          className="form-error-box"
         >
           {errorMsg}
         </div>

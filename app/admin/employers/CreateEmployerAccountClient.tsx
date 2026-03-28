@@ -101,14 +101,7 @@ export default function CreateEmployerAccountClient() {
 
       {error && (
         <div
-          style={{
-            padding: '0.75rem',
-            marginBottom: '1rem',
-            background: '#fee',
-            borderRadius: 'var(--radius-sm)',
-            color: '#c00',
-            fontSize: '0.9rem',
-          }}
+          className="form-error-box"
         >
           {error}
         </div>

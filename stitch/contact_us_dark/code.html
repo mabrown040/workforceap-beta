@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "inverse-primary": "#ad2c4d",
+              "surface-dim": "#121416",
+              "error": "#ffb4ab",
+              "surface": "#121416",
+              "outline-variant": "#584144",
+              "on-secondary-fixed-variant": "#71333e",
+              "primary-fixed-dim": "#ffb2bc",
+              "secondary-container": "#71333e",
+              "outline": "#a68a8d",
+              "on-tertiary-fixed-variant": "#00522d",
+              "secondary-fixed-dim": "#ffb2bc",
+              "on-primary": "#670024",
+              "on-primary-container": "#ffcbd1",
+              "on-secondary": "#551d29",
+              "error-container": "#93000a",
+              "on-secondary-container": "#f29eaa",
+              "on-error-container": "#ffdad6",
+              "background": "#121416",
+              "on-surface": "#e2e2e5",
+              "tertiary": "#80d99f",
+              "on-tertiary-fixed": "#00210f",
+              "surface-container-lowest": "#0c0e10",
+              "surface-container-low": "#1a1c1e",
+              "surface-container-high": "#282a2c",
+              "tertiary-fixed-dim": "#80d99f",
+              "primary-container": "#ad2c4d",
+              "on-surface-variant": "#debfc2",
+              "on-primary-fixed-variant": "#8c0f37",
+              "tertiary-container": "#006d3e",
+              "inverse-on-surface": "#2f3133",
+              "surface-variant": "#333537",
+              "secondary": "#ffb2bc",
+              "primary-fixed": "#ffd9dd",
+              "inverse-surface": "#e2e2e5",
+              "surface-container": "#1e2022",
+              "primary": "#ffb2bc",
+              "surface-tint": "#ffb2bc",
+              "tertiary-fixed": "#9cf6ba",
+              "on-error": "#690005",
+              "on-tertiary-container": "#92ecb1",
+              "secondary-fixed": "#ffd9dd",
+              "surface-container-highest": "#333537",
+              "surface-bright": "#37393b",
+              "on-background": "#e2e2e5",
+              "on-tertiary": "#00391e",
+              "on-secondary-fixed": "#3a0815",
+              "on-primary-fixed": "#400013"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-header {
+        border-top: 0.5px solid rgba(255, 255, 255, 0.1);
+      }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary/30 min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-sm dark:shadow-none">
+<div class="flex justify-between items-center px-8 py-4 max-w-screen-2xl mx-auto">
+<div class="text-2xl font-black tracking-tighter text-[#AD2C4D] dark:text-[#E6395D]">
+                Civic Bridge
+            </div>
+<div class="hidden md:flex items-center space-x-8 font-['Inter'] tracking-tight font-medium">
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] transition-colors" href="#">Members</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] transition-colors" href="#">Employers</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] transition-colors" href="#">Partners</a>
+<a class="bg-primary-container text-on-primary px-6 py-2 rounded-lg active:scale-95 transition-transform hover:opacity-80" href="#">Sign In</a>
+</div>
+<!-- Mobile Toggle Placeholder -->
+<div class="md:hidden text-[#AD2C4D] dark:text-[#E6395D]">
+<span class="material-symbols-outlined">menu</span>
+</div>
+</div>
+<div class="bg-slate-100 dark:bg-slate-800 h-[1px] w-full absolute bottom-0 opacity-20"></div>
+</nav>
+<main class="flex-grow pt-32 pb-16 px-6 lg:px-12 max-w-screen-2xl mx-auto w-full">
+<!-- Hero Section -->
+<div class="mb-16">
+<span class="text-primary font-label text-sm tracking-[0.2em] font-semibold uppercase mb-4 block">Connect with Authority</span>
+<h1 class="text-5xl md:text-7xl font-headline font-bold tracking-tighter leading-[1.1] mb-6 max-w-3xl">
+                The bridge between <span class="text-primary">ambition</span> and institutional impact.
+            </h1>
+<p class="text-lg text-on-surface-variant max-w-2xl leading-relaxed">
+                Whether you are a civic leader, a workforce innovator, or a potential partner, our doors are open to those seeking to define the future of workforce development.
+            </p>
+</div>
+<!-- Content Grid: Asymmetric Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+<!-- Contact Form Section (Left 7 Columns) -->
+<div class="lg:col-span-7 space-y-12">
+<div class="bg-surface-container p-8 md:p-12 rounded-xl relative overflow-hidden">
+<div class="relative z-10">
+<h2 class="text-2xl font-headline font-semibold mb-8">Direct Correspondence</h2>
+<form class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-xs font-semibold tracking-wider text-on-surface-variant uppercase">Full Name</label>
+<input class="w-full bg-surface-container-lowest border-none focus:ring-2 focus:ring-primary/20 rounded-lg py-4 px-5 text-on-surface placeholder:text-on-surface-variant/40 transition-all border-b-2 border-transparent focus:border-primary" placeholder="Dr. Julian Thorne" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-semibold tracking-wider text-on-surface-variant uppercase">Institutional Email</label>
+<input class="w-full bg-surface-container-lowest border-none focus:ring-2 focus:ring-primary/20 rounded-lg py-4 px-5 text-on-surface placeholder:text-on-surface-variant/40 transition-all border-b-2 border-transparent focus:border-primary" placeholder="thorne@civicbridge.org" type="email"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-semibold tracking-wider text-on-surface-variant uppercase">Subject of Inquiry</label>
+<select class="w-full bg-surface-container-lowest border-none focus:ring-2 focus:ring-primary/20 rounded-lg py-4 px-5 text-on-surface appearance-none transition-all border-b-2 border-transparent focus:border-primary">
+<option>Workforce Development Research</option>
+<option>Institutional Partnership</option>
+<option>Media &amp; Editorial Inquiry</option>
+<option>General Support</option>
+</select>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-semibold tracking-wider text-on-surface-variant uppercase">Message</label>
+<textarea class="w-full bg-surface-container-lowest border-none focus:ring-2 focus:ring-primary/20 rounded-lg py-4 px-5 text-on-surface placeholder:text-on-surface-variant/40 transition-all border-b-2 border-transparent focus:border-primary resize-none" placeholder="Your inquiry details..." rows="6"></textarea>
+</div>
+<button class="w-full md:w-auto bg-gradient-to-r from-primary to-primary-container text-on-primary font-label px-12 py-4 rounded-lg font-bold tracking-wide active:scale-95 transition-all shadow-lg shadow-primary/10" type="submit">
+                                Dispatch Message
+                            </button>
+</form>
+</div>
+</div>
+</div>
+<!-- Info & Map Section (Right 5 Columns) -->
+<div class="lg:col-span-5 space-y-8">
+<!-- Contact Info Cards -->
+<div class="grid grid-cols-1 gap-6">
+<div class="bg-surface-container-high p-8 rounded-xl flex items-start space-x-6 hover:bg-surface-container-highest transition-colors">
+<div class="bg-primary/10 p-3 rounded-lg text-primary">
+<span class="material-symbols-outlined">location_on</span>
+</div>
+<div>
+<h3 class="text-lg font-semibold mb-2">The Civic Center</h3>
+<p class="text-on-surface-variant leading-relaxed">
+                                420 Academic Plaza, Suite 900<br/>
+                                Cambridge, MA 02138
+                            </p>
+</div>
+</div>
+<div class="bg-surface-container-high p-8 rounded-xl flex items-start space-x-6 hover:bg-surface-container-highest transition-colors">
+<div class="bg-primary/10 p-3 rounded-lg text-primary">
+<span class="material-symbols-outlined">alternate_email</span>
+</div>
+<div>
+<h3 class="text-lg font-semibold mb-2">Electronic Mailing</h3>
+<p class="text-on-surface-variant">inquiry@civicbridge.org</p>
+<p class="text-on-surface-variant">press@civicbridge.org</p>
+</div>
+</div>
+<div class="bg-surface-container-high p-8 rounded-xl flex items-start space-x-6 hover:bg-surface-container-highest transition-colors">
+<div class="bg-primary/10 p-3 rounded-lg text-primary">
+<span class="material-symbols-outlined">call</span>
+</div>
+<div>
+<h3 class="text-lg font-semibold mb-2">Telephony</h3>
+<p class="text-on-surface-variant font-mono">+1 (617) 555-0192</p>
+<p class="text-on-surface-variant text-sm mt-1">Mon–Fri, 9:00 AM – 5:00 PM EST</p>
+</div>
+</div>
+</div>
+<!-- Map Placeholder -->
+<div class="aspect-square w-full rounded-xl overflow-hidden grayscale contrast-125 opacity-70 hover:opacity-100 transition-opacity relative group">
+<div class="absolute inset-0 bg-surface/40 group-hover:bg-transparent transition-colors z-10 pointer-events-none"></div>
+<img class="w-full h-full object-cover" data-alt="stylized architectural map of Cambridge Massachusetts with dark aesthetic and high contrast building outlines" data-location="Cambridge" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzQ-kxFRlpSFjmxjQJALgLf5E_rIS4xHhZ0EvDIBH14Spg4Axw0V7uSlzfs59LiafiLAZ6ED6tExngbJxya-OttvvbSvBAvwLbtQYlG09Bnu6DqVVCo0pws3o9Fg6PoEnFRpYPZboH8effGMe7QhbVK_FG80GXYTzBbYD8Nv9X2wuHEiusHGEspP9snl4wLoWMIKSLyvKigqIoGChs1StgZyano8zwe4ymBJL91hKCewmUq2YILkNlarJkYEMmTCOY9wcuAJF7fG03"/>
+<div class="absolute bottom-4 right-4 z-20">
+<button class="bg-surface/90 backdrop-blur text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full text-on-surface shadow-xl">
+                            Open in Maps
+                        </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Editorial Quote Section -->
+<div class="mt-24 pt-24 border-t border-outline-variant/10 text-center max-w-4xl mx-auto">
+<span class="material-symbols-outlined text-primary text-4xl mb-6" style="font-variation-settings: 'FILL' 1;">format_quote</span>
+<p class="text-3xl font-headline font-light italic text-on-surface-variant leading-relaxed">
+                "True innovation occurs at the intersection of public trust and private agility. We are the stewards of that dialogue."
+            </p>
+<div class="mt-8">
+<p class="font-bold tracking-widest uppercase text-xs text-primary">Civic Bridge Editorial Board</p>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full mt-auto bg-[#fcf9f8] dark:bg-slate-950 font-['Inter'] text-sm tracking-wide">
+<div class="bg-slate-200 dark:bg-slate-800 h-[1px] w-full mb-8"></div>
+<div class="flex flex-col items-center py-12 px-8 max-w-screen-2xl mx-auto">
+<div class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-8">Civic Bridge</div>
+<div class="flex flex-wrap justify-center gap-x-12 gap-y-4 mb-8">
+<a class="text-slate-500 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] underline-offset-4 hover:underline transition-all duration-300" href="#">About Us</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] underline-offset-4 hover:underline transition-all duration-300" href="#">Research</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] underline-offset-4 hover:underline transition-all duration-300" href="#">Impact Report</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] underline-offset-4 hover:underline transition-all duration-300" href="#">Privacy Policy</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] underline-offset-4 hover:underline transition-all duration-300" href="#">Terms of Service</a>
+<a class="text-[#AD2C4D] font-semibold underline-offset-4 hover:underline transition-all duration-300" href="#">Contact</a>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-center opacity-60">
+                © 2024 Civic Bridge. Editorial Excellence for Workforce Development.
+            </p>
+</div>
+</footer>
+</body></html>

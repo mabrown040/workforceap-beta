@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Civic Bridge | Workforce Advancement Program</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-highest": "#343739",
+              "on-primary-fixed": "#ffd9dd",
+              "outline-variant": "#584144",
+              "secondary-fixed": "#ffdea4",
+              "background": "#121416",
+              "surface-tint": "#ffb2bc",
+              "tertiary-fixed-dim": "#c8c6c5",
+              "primary-fixed": "#ffd9dd",
+              "on-secondary-fixed-variant": "#5d4200",
+              "on-primary-container": "#ffcbd1",
+              "primary-fixed-dim": "#ffb2bc",
+              "secondary-fixed-dim": "#ffbb00",
+              "on-tertiary-container": "#dbd8d7",
+              "on-tertiary-fixed-variant": "#c8c6c5",
+              "inverse-on-surface": "#1c1b1b",
+              "primary": "#ffb2bc",
+              "on-error": "#690005",
+              "on-surface": "#fcf9f8",
+              "tertiary": "#c8c6c5",
+              "surface-container-high": "#2a2d2f",
+              "primary-container": "#ad2c4d",
+              "on-background": "#fcf9f8",
+              "tertiary-container": "#474646",
+              "on-primary-fixed-variant": "#8c0f37",
+              "surface-bright": "#383a3c",
+              "secondary": "#ffbb00",
+              "on-primary": "#600021",
+              "on-secondary-container": "#ffdea4",
+              "on-error-container": "#ffdad6",
+              "on-tertiary": "#2e3132",
+              "surface-dim": "#121416",
+              "inverse-surface": "#fcf9f8",
+              "surface-variant": "#514345",
+              "error": "#ffb4ab",
+              "error-container": "#93000a",
+              "outline": "#a08c8e",
+              "tertiary-fixed": "#e5e2e1",
+              "on-secondary-fixed": "#261900",
+              "on-surface-variant": "#debfc2",
+              "on-secondary": "#422c00",
+              "surface": "#121416",
+              "surface-container-low": "#1a1c1e",
+              "inverse-primary": "#8c0f37",
+              "secondary-container": "#6c4d00",
+              "on-tertiary-fixed": "#1c1b1b",
+              "surface-container": "#212325",
+              "surface-container-lowest": "#0c0e10"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-nav {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .editorial-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar (Dark Variant) -->
+<nav class="fixed top-0 w-full z-50 bg-[#121416]/80 backdrop-blur-xl border-b border-surface-container-highest">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-7xl mx-auto">
+<div class="text-2xl font-black tracking-tighter text-[#AD2C4D]">
+            Civic Bridge
+        </div>
+<div class="hidden md:flex items-center space-x-8">
+<a class="text-[#AD2C4D] font-bold border-b-2 border-[#AD2C4D] pb-1 font-['Inter'] tracking-tight text-sm" href="#">Members</a>
+<a class="text-on-surface-variant hover:text-[#AD2C4D] transition-colors font-['Inter'] tracking-tight font-medium text-sm" href="#">Employers</a>
+<a class="text-on-surface-variant hover:text-[#AD2C4D] transition-colors font-['Inter'] tracking-tight font-medium text-sm" href="#">Partners</a>
+<a class="text-on-surface-variant hover:text-[#AD2C4D] transition-colors font-['Inter'] tracking-tight font-medium text-sm" href="#">About Us</a>
+</div>
+<div class="flex items-center space-x-4">
+<button class="text-on-surface font-medium text-sm px-4 py-2 hover:opacity-80 transition-all duration-300">Login</button>
+<button class="bg-[#AD2C4D] text-white px-6 py-2 rounded-md font-bold text-sm scale-95 active:scale-90 transition-transform shadow-sm">
+                Apply Now
+            </button>
+</div>
+</div>
+</nav>
+<main class="pt-24">
+<!-- Hero Section -->
+<section class="relative px-8 py-20 max-w-7xl mx-auto overflow-hidden">
+<div class="editorial-grid items-center">
+<div class="col-span-12 lg:col-span-7">
+<span class="inline-block text-[#AD2C4D] font-bold tracking-[0.05em] uppercase text-xs mb-4">Empowering the Workforce</span>
+<h1 class="text-6xl md:text-7xl font-black tracking-tighter text-on-surface leading-[0.95] mb-8">
+                    The Bridge to Your <span class="text-[#AD2C4D]">Next Career.</span>
+</h1>
+<p class="text-xl text-on-surface-variant max-w-xl mb-10 leading-relaxed">
+                    Intentional education designed for modern industry. We connect talented members with employers through 19 specialized programs and AI-powered support.
+                </p>
+<div class="flex flex-wrap gap-4">
+<button class="bg-[#AD2C4D] text-white px-8 py-4 rounded-md font-bold transition-all hover:translate-y-[-2px] hover:shadow-lg">Start Your Journey</button>
+<button class="bg-secondary-container text-on-secondary-container px-8 py-4 rounded-md font-bold transition-all hover:bg-opacity-90">Partner With Us</button>
+</div>
+</div>
+<div class="hidden lg:block col-span-5 relative">
+<div class="aspect-[4/5] rounded-xl overflow-hidden bg-surface-container-high relative z-10">
+<img alt="Collaborative workspace" class="w-full h-full object-cover grayscale-[20%] contrast-[1.2] brightness-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDo-s2zS9QrkRwjAnXC-wl8oQxd8ta0AzVpsO9wq02yoyCLfR3JUVwNDrtZWdjQOVZA0OEvDvbp4IjHbmWiAW5MyzgrnmM3r8JRjB2mxJSgy_2pGr56WDWkwtgRE7Xs59_cMG9AFCbDOyUuq18aVJZ4kbBO7nxp3-EN97pxgGVkiZjd8uAlaSVgwn5g8MNVrjOKOI2wsIKA3gs4CcWkumZ2H9LZNkuA7VqDejogaIc1Tl2cLX7sPadTWv7CPzBun-msYPda2_a1Ae7"/>
+</div>
+<!-- Decorative Element -->
+<div class="absolute -bottom-6 -right-6 w-full h-full bg-primary-container -z-10 rounded-xl opacity-20"></div>
+</div>
+</div>
+</section>
+<!-- Stakeholder Roles -->
+<section class="bg-surface-container-low py-24">
+<div class="max-w-7xl mx-auto px-8">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="p-8 bg-surface-container-lowest rounded-xl group hover:shadow-xl transition-all duration-500 border border-surface-container">
+<div class="w-12 h-12 bg-[#AD2C4D]/20 rounded-lg flex items-center justify-center text-[#AD2C4D] mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</div>
+<h3 class="text-2xl font-bold mb-4">For Members</h3>
+<ul class="space-y-3 text-on-surface-variant text-sm">
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-[#AD2C4D]" data-icon="check_circle">check_circle</span> No upfront costs for training</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-[#AD2C4D]" data-icon="check_circle">check_circle</span> 19 high-demand career tracks</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-[#AD2C4D]" data-icon="check_circle">check_circle</span> Dedicated placement support</li>
+</ul>
+</div>
+<div class="p-8 bg-surface-container-lowest rounded-xl group hover:shadow-xl transition-all duration-500 border border-surface-container">
+<div class="w-12 h-12 bg-secondary/20 rounded-lg flex items-center justify-center text-secondary mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="business">business</span>
+</div>
+<h3 class="text-2xl font-bold mb-4">For Employers</h3>
+<ul class="space-y-3 text-on-surface-variant text-sm">
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-secondary" data-icon="check_circle">check_circle</span> Vetted talent ready for work</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-secondary" data-icon="check_circle">check_circle</span> Customized curriculum options</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-secondary" data-icon="check_circle">check_circle</span> Direct pipeline management</li>
+</ul>
+</div>
+<div class="p-8 bg-surface-container-lowest rounded-xl group hover:shadow-xl transition-all duration-500 border border-surface-container">
+<div class="w-12 h-12 bg-tertiary/20 rounded-lg flex items-center justify-center text-tertiary mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="handshake">handshake</span>
+</div>
+<h3 class="text-2xl font-bold mb-4">For Partners</h3>
+<ul class="space-y-3 text-on-surface-variant text-sm">
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-tertiary" data-icon="check_circle">check_circle</span> Educational resource sharing</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-tertiary" data-icon="check_circle">check_circle</span> Scalable workforce solutions</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-tertiary" data-icon="check_circle">check_circle</span> Community impact analytics</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<!-- 19 Programs Bento Grid -->
+<section class="py-24 max-w-7xl mx-auto px-8">
+<div class="mb-16">
+<h2 class="text-4xl font-black tracking-tighter mb-4">Explore Our 19 Programs</h2>
+<p class="text-on-surface-variant max-w-2xl">Specialized career paths designed to bridge the skills gap in high-growth industries.</p>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+<div class="col-span-2 row-span-2 bg-[#AD2C4D] rounded-xl p-8 flex flex-col justify-between text-white group cursor-pointer overflow-hidden relative">
+<div class="relative z-10">
+<span class="material-symbols-outlined text-4xl mb-4" data-icon="terminal">terminal</span>
+<h4 class="text-2xl font-bold">Software Engineering</h4>
+<p class="text-sm opacity-80 mt-2">Full-stack development with modern frameworks and AI integration.</p>
+</div>
+<div class="mt-8 flex items-center gap-2 font-bold text-sm relative z-10">
+                    Learn More <span class="material-symbols-outlined text-sm group-hover:translate-x-2 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</div>
+<div class="absolute inset-0 bg-gradient-to-br from-black/0 to-black/30 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</div>
+<div class="col-span-2 bg-surface-container-high rounded-xl p-6 flex items-center justify-between group hover:bg-surface-container-highest transition-colors cursor-pointer border border-surface-container">
+<div>
+<h4 class="font-bold">Healthcare Systems</h4>
+<p class="text-xs text-on-surface-variant">Medical billing &amp; tech</p>
+</div>
+<span class="material-symbols-outlined text-[#AD2C4D]" data-icon="medical_services">medical_services</span>
+</div>
+<div class="col-span-2 bg-surface-container-high rounded-xl p-6 flex items-center justify-between group hover:bg-surface-container-highest transition-colors cursor-pointer border border-surface-container">
+<div>
+<h4 class="font-bold">Digital Marketing</h4>
+<p class="text-xs text-on-surface-variant">Growth &amp; Analytics</p>
+</div>
+<span class="material-symbols-outlined text-[#AD2C4D]" data-icon="trending_up">trending_up</span>
+</div>
+<div class="bg-surface-container-low rounded-xl p-6 flex flex-col justify-center items-center text-center gap-2 border border-surface-container">
+<span class="material-symbols-outlined text-tertiary" data-icon="account_balance">account_balance</span>
+<span class="text-xs font-bold uppercase tracking-wider">Finance</span>
+</div>
+<div class="bg-surface-container-low rounded-xl p-6 flex flex-col justify-center items-center text-center gap-2 border border-surface-container">
+<span class="material-symbols-outlined text-tertiary" data-icon="shield">shield</span>
+<span class="text-xs font-bold uppercase tracking-wider">Cyber</span>
+</div>
+<div class="bg-surface-container-low rounded-xl p-6 flex flex-col justify-center items-center text-center gap-2 border border-surface-container">
+<span class="material-symbols-outlined text-tertiary" data-icon="construction">construction</span>
+<span class="text-xs font-bold uppercase tracking-wider">Logistics</span>
+</div>
+<div class="bg-surface-container-low rounded-xl p-6 flex flex-col justify-center items-center text-center gap-2 border border-surface-container">
+<span class="material-symbols-outlined text-tertiary" data-icon="biotech">biotech</span>
+<span class="text-xs font-bold uppercase tracking-wider">BioTech</span>
+</div>
+<div class="col-span-2 bg-secondary-container rounded-xl p-6 flex items-center justify-center font-bold text-on-secondary-container cursor-pointer hover:bg-opacity-90">
+                View All Programs
+            </div>
+</div>
+</section>
+<!-- The Cost Section -->
+<section class="bg-surface-container-lowest py-24 border-y border-surface-container">
+<div class="max-w-7xl mx-auto px-8 flex flex-col md:flex-row items-center gap-16">
+<div class="flex-1">
+<h2 class="text-4xl font-black tracking-tighter mb-6">Zero Upfront Cost. <br/>Infinite Potential.</h2>
+<p class="text-on-surface-variant mb-8 leading-relaxed">
+                    We believe education should be an investment in the future, not a debt for the present. Our program is funded through partnerships and successful placements.
+                </p>
+<div class="space-y-6">
+<div class="flex items-start gap-4">
+<div class="text-[#AD2C4D] mt-1">
+<span class="material-symbols-outlined" data-icon="savings">savings</span>
+</div>
+<div>
+<h5 class="font-bold">No Tuition Fees</h5>
+<p class="text-sm text-on-surface-variant">Members never pay out-of-pocket for their core curriculum.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="text-[#AD2C4D] mt-1">
+<span class="material-symbols-outlined" data-icon="laptop_mac">laptop_mac</span>
+</div>
+<div>
+<h5 class="font-bold">Resources Included</h5>
+<p class="text-sm text-on-surface-variant">Access to all software, tools, and platforms is provided.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="flex-1 w-full">
+<div class="bg-surface-container p-10 rounded-2xl relative border border-surface-container-highest">
+<div class="absolute -top-4 -left-4 bg-[#AD2C4D] text-white px-4 py-1 text-xs font-bold uppercase tracking-widest rounded">The Promise</div>
+<div class="text-center">
+<span class="text-sm text-on-surface-variant uppercase font-bold tracking-widest block mb-2">Member Cost</span>
+<span class="text-8xl font-black tracking-tighter text-[#AD2C4D]">$0</span>
+<div class="mt-8 pt-8 border-t border-surface-container-highest text-sm text-on-surface-variant italic">
+                            "Our mission is to remove financial barriers to professional success through intentional corporate partnership."
+                        </div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Journey Milestones -->
+<section class="py-24 max-w-7xl mx-auto px-8">
+<h2 class="text-4xl font-black tracking-tighter mb-16 text-center">Your Journey to Success</h2>
+<div class="relative flex flex-col md:flex-row justify-between items-start gap-12">
+<div class="hidden md:block absolute top-12 left-0 w-full h-1 bg-surface-container-highest -z-10"></div>
+<div class="flex-1 flex flex-col items-center text-center group">
+<div class="w-24 h-24 rounded-full bg-surface-container-low border-4 border-secondary-container flex items-center justify-center mb-6 group-hover:bg-secondary-container transition-all">
+<span class="text-2xl font-black text-secondary group-hover:text-on-secondary-container">01</span>
+</div>
+<h4 class="font-bold mb-2">Apply</h4>
+<p class="text-sm text-on-surface-variant">Submit your application and choose your specialized track.</p>
+</div>
+<div class="flex-1 flex flex-col items-center text-center group">
+<div class="w-24 h-24 rounded-full bg-surface-container-low border-4 border-secondary-container flex items-center justify-center mb-6 group-hover:bg-secondary-container transition-all">
+<span class="text-2xl font-black text-secondary group-hover:text-on-secondary-container">02</span>
+</div>
+<h4 class="font-bold mb-2">Train</h4>
+<p class="text-sm text-on-surface-variant">Intensive skill-building with industry-expert mentorship.</p>
+</div>
+<div class="flex-1 flex flex-col items-center text-center group">
+<div class="w-24 h-24 rounded-full bg-surface-container-low border-4 border-secondary-container flex items-center justify-center mb-6 group-hover:bg-secondary-container transition-all">
+<span class="text-2xl font-black text-secondary group-hover:text-on-secondary-container">03</span>
+</div>
+<h4 class="font-bold mb-2">Certify</h4>
+<p class="text-sm text-on-surface-variant">Gain recognized credentials that employers value.</p>
+</div>
+<div class="flex-1 flex flex-col items-center text-center group">
+<div class="w-24 h-24 rounded-full bg-surface-container-low border-4 border-primary-container flex items-center justify-center mb-6 group-hover:bg-[#AD2C4D] transition-all">
+<span class="material-symbols-outlined text-[#AD2C4D] group-hover:text-white" data-icon="stars">stars</span>
+</div>
+<h4 class="font-bold mb-2">Placed</h4>
+<p class="text-sm text-on-surface-variant">Direct introductions to our network of employer partners.</p>
+</div>
+</div>
+</section>
+<!-- AI-Powered Support -->
+<section class="bg-surface-container py-24 rounded-3xl mx-8 mb-24 overflow-hidden relative border border-surface-container-highest">
+<div class="absolute top-0 right-0 w-1/2 h-full bg-[#AD2C4D]/5 -skew-x-12 transform translate-x-1/4"></div>
+<div class="max-w-7xl mx-auto px-12 relative z-10 flex flex-col lg:flex-row items-center gap-16">
+<div class="lg:w-1/2">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#AD2C4D]/20 text-[#AD2C4D] font-bold text-xs uppercase tracking-widest mb-6 border border-[#AD2C4D]/30">
+<span class="material-symbols-outlined text-xs" data-icon="bolt">bolt</span> Next-Gen Support
+                </div>
+<h2 class="text-5xl font-black tracking-tighter mb-8 leading-tight">AI-Powered Career Intelligence.</h2>
+<p class="text-lg text-on-surface-variant mb-10">
+                    Every member is paired with our proprietary AI assistant that provides 24/7 resume auditing, interview simulation, and skill-gap analysis tailored to your chosen industry.
+                </p>
+<div class="grid grid-cols-2 gap-6">
+<div class="p-6 bg-surface-container-lowest rounded-xl border border-surface-container-highest">
+<h5 class="font-bold mb-2">Interview Prep</h5>
+<p class="text-sm text-on-surface-variant">Real-time feedback on your mock interview performance.</p>
+</div>
+<div class="p-6 bg-surface-container-lowest rounded-xl border border-surface-container-highest">
+<h5 class="font-bold mb-2">Skill Mapping</h5>
+<p class="text-sm text-on-surface-variant">Dynamic course recommendations based on market trends.</p>
+</div>
+</div>
+</div>
+<div class="lg:w-1/2 w-full">
+<div class="bg-surface-container-low p-8 rounded-2xl shadow-2xl border border-surface-container-highest">
+<div class="flex items-center justify-between mb-8">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-[#AD2C4D] flex items-center justify-center text-white">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+</div>
+<div>
+<div class="text-sm font-bold">CivicBot AI</div>
+<div class="text-xs text-green-400 font-medium">Online &amp; Ready</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="more_vert">more_vert</span>
+</div>
+<div class="space-y-4">
+<div class="bg-surface-container-high p-4 rounded-lg rounded-tl-none text-sm max-w-[80%] text-on-surface">
+                            Hi there! Based on your progress in the Software Engineering track, I've identified 3 open roles at our partner firms that match your React skills.
+                        </div>
+<div class="bg-[#AD2C4D]/20 border border-[#AD2C4D]/30 p-4 rounded-lg rounded-tr-none text-sm max-w-[80%] ml-auto text-primary font-medium">
+                            That's great! Can you help me prep for those interviews?
+                        </div>
+<div class="bg-surface-container-high p-4 rounded-lg rounded-tl-none text-sm max-w-[80%] text-on-surface">
+                            Absolutely. Let's start with a technical walkthrough of your latest project. Ready?
+                        </div>
+</div>
+<div class="mt-8 pt-4 border-t border-surface-container-highest flex gap-4">
+<div class="flex-1 h-10 bg-surface-container-lowest rounded-md border border-surface-container-highest"></div>
+<div class="w-10 h-10 bg-[#AD2C4D] rounded-md flex items-center justify-center text-white">
+<span class="material-symbols-outlined" data-icon="send">send</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer (Dark) -->
+<footer class="bg-[#121416] border-t border-surface-container-highest pt-16 pb-8">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 px-8 py-16 max-w-7xl mx-auto">
+<div class="col-span-1 md:col-span-1">
+<div class="text-lg font-bold text-[#AD2C4D] mb-6">Civic Bridge</div>
+<p class="font-['Inter'] text-sm leading-relaxed text-on-surface-variant">
+                Empowering the workforce through intentional education and industry-leading partnerships.
+            </p>
+<div class="mt-8 flex gap-4">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-[#AD2C4D] transition-colors" data-icon="public">public</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-[#AD2C4D] transition-colors" data-icon="alternate_email">alternate_email</span>
+</div>
+</div>
+<div>
+<h6 class="font-bold text-xs uppercase tracking-widest mb-6 text-on-surface">Services</h6>
+<ul class="space-y-4">
+<li><a class="font-['Inter'] text-sm text-on-surface-variant hover:text-[#AD2C4D] transition-colors" href="#">Member Services</a></li>
+<li><a class="font-['Inter'] text-sm text-on-surface-variant hover:text-[#AD2C4D] transition-colors" href="#">Employer Solutions</a></li>
+<li><a class="font-['Inter'] text-sm text-on-surface-variant hover:text-[#AD2C4D] transition-colors" href="#">Partner Programs</a></li>
+</ul>
+</div>
+<div>
+<h6 class="font-bold text-xs uppercase tracking-widest mb-6 text-on-surface">Support</h6>
+<ul class="space-y-4">
+<li><a class="font-['Inter'] text-sm text-on-surface-variant hover:text-[#AD2C4D] transition-colors" href="#">Contact Us</a></li>
+<li><a class="font-['Inter'] text-sm text-on-surface-variant hover:text-[#AD2C4D] transition-colors" href="#">Privacy Policy</a></li>
+<li><a class="font-['Inter'] text-sm text-on-surface-variant hover:text-[#AD2C4D] transition-colors" href="#">Terms of Service</a></li>
+</ul>
+</div>
+<div>
+<h6 class="font-bold text-xs uppercase tracking-widest mb-6 text-on-surface">Newsletter</h6>
+<p class="text-sm text-on-surface-variant mb-4">Get the latest updates on program launches.</p>
+<div class="flex">
+<input class="flex-1 bg-surface-container-high border-none text-sm p-3 rounded-l-md focus:ring-1 focus:ring-[#AD2C4D]/40 text-on-surface placeholder-on-surface-variant" placeholder="Email" type="email"/>
+<button class="bg-[#AD2C4D] text-white p-3 rounded-r-md">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<div class="max-w-7xl mx-auto px-8 pt-8 border-t border-surface-container-highest text-center">
+<p class="font-['Inter'] text-xs text-on-surface-variant">© 2024 Civic Bridge. Empowering the workforce through intentional education.</p>
+</div>
+</footer>
+</body></html>

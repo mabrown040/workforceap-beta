@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container": "#f0edec",
+              "primary": "#8c0f37",
+              "inverse-surface": "#313030",
+              "surface-tint": "#ad2c4d",
+              "surface-variant": "#e5e2e1",
+              "tertiary-container": "#5f5e5e",
+              "inverse-on-surface": "#f3f0ef",
+              "primary-fixed": "#ffd9dd",
+              "secondary": "#7b5800",
+              "tertiary-fixed-dim": "#c8c6c5",
+              "primary-container": "#ad2c4d",
+              "on-surface-variant": "#584144",
+              "on-primary-fixed-variant": "#8c0f37",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-low": "#f6f3f2",
+              "surface-container-high": "#ebe7e7",
+              "on-tertiary": "#ffffff",
+              "on-secondary-fixed": "#261900",
+              "on-primary-fixed": "#400013",
+              "surface-bright": "#fcf9f8",
+              "on-background": "#1c1b1b",
+              "secondary-fixed": "#ffdea4",
+              "surface-container-highest": "#e5e2e1",
+              "tertiary-fixed": "#e5e2e1",
+              "on-error": "#ffffff",
+              "on-tertiary-container": "#dbd8d7",
+              "on-tertiary-fixed-variant": "#474646",
+              "outline": "#8b7073",
+              "on-secondary-fixed-variant": "#5d4200",
+              "outline-variant": "#debfc2",
+              "secondary-container": "#ffbb00",
+              "primary-fixed-dim": "#ffb2bc",
+              "error": "#ba1a1a",
+              "surface": "#fcf9f8",
+              "inverse-primary": "#ffb2bc",
+              "surface-dim": "#dcd9d9",
+              "on-surface": "#1c1b1b",
+              "on-tertiary-fixed": "#1c1b1b",
+              "tertiary": "#474646",
+              "background": "#fcf9f8",
+              "on-secondary-container": "#6c4d00",
+              "on-error-container": "#93000a",
+              "on-secondary": "#ffffff",
+              "on-primary-container": "#ffcbd1",
+              "error-container": "#ffdad6",
+              "secondary-fixed-dim": "#ffbb00",
+              "on-primary": "#ffffff"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-sm dark:shadow-none">
+<div class="flex justify-between items-center px-8 py-4 max-w-screen-2xl mx-auto">
+<div class="text-2xl font-black tracking-tighter text-[#AD2C4D] dark:text-[#E6395D]">
+                Civic Bridge
+            </div>
+<div class="hidden md:flex space-x-8 items-center">
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] transition-colors font-['Inter'] tracking-tight font-medium" href="#">Members</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] transition-colors font-['Inter'] tracking-tight font-medium" href="#">Employers</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] transition-colors font-['Inter'] tracking-tight font-medium" href="#">Partners</a>
+<a class="text-[#AD2C4D] dark:text-[#FFBB00] font-bold border-b-2 border-[#AD2C4D] dark:border-[#FFBB00] pb-1 font-['Inter'] tracking-tight" href="#">Contact</a>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-slate-600 dark:text-slate-400 hover:opacity-80 transition-opacity duration-200">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="bg-[#AD2C4D] text-white px-5 py-2 rounded-md font-medium active:scale-95 transition-transform">
+                    Sign In
+                </button>
+</div>
+</div>
+<div class="bg-slate-100 dark:bg-slate-800 h-[1px] w-full absolute bottom-0 opacity-20"></div>
+</nav>
+<main class="pt-32 pb-24 px-8 max-w-screen-2xl mx-auto">
+<!-- Header Section -->
+<header class="mb-20 max-w-3xl">
+<span class="text-primary font-bold tracking-[0.2em] text-xs uppercase mb-4 block">Get In Touch</span>
+<h1 class="text-5xl md:text-7xl font-bold tracking-tight text-on-surface mb-6 leading-[1.1]">
+                Let's bridge the gap between <span class="text-primary italic">potential</span> and <span class="text-secondary italic">opportunity</span>.
+            </h1>
+<p class="text-xl text-on-surface-variant leading-relaxed">
+                Whether you're looking to scale your workforce or advance your professional journey, our team is ready to provide the editorial guidance and strategic support you need.
+            </p>
+</header>
+<!-- Bento Layout for Content -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- Contact Form Section -->
+<section class="lg:col-span-7 bg-surface-container-low rounded-xl p-8 md:p-12">
+<form class="space-y-8">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="flex flex-col gap-2">
+<label class="text-sm font-bold tracking-wider text-on-surface-variant uppercase">Full Name</label>
+<input class="bg-surface-container-high border-none rounded-md px-4 py-4 text-on-surface focus:ring-2 focus:ring-primary/40 transition-all outline-none" placeholder="John Doe" type="text"/>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-sm font-bold tracking-wider text-on-surface-variant uppercase">Email Address</label>
+<input class="bg-surface-container-high border-none rounded-md px-4 py-4 text-on-surface focus:ring-2 focus:ring-primary/40 transition-all outline-none" placeholder="john@university.edu" type="email"/>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-sm font-bold tracking-wider text-on-surface-variant uppercase">Organization</label>
+<input class="bg-surface-container-high border-none rounded-md px-4 py-4 text-on-surface focus:ring-2 focus:ring-primary/40 transition-all outline-none" placeholder="Institution or Company Name" type="text"/>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-sm font-bold tracking-wider text-on-surface-variant uppercase">Subject of Inquiry</label>
+<select class="bg-surface-container-high border-none rounded-md px-4 py-4 text-on-surface focus:ring-2 focus:ring-primary/40 transition-all outline-none appearance-none cursor-pointer">
+<option>Workforce Development Partnership</option>
+<option>Employer Solutions</option>
+<option>Member Support</option>
+<option>Research Collaboration</option>
+<option>Other</option>
+</select>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-sm font-bold tracking-wider text-on-surface-variant uppercase">Your Message</label>
+<textarea class="bg-surface-container-high border-none rounded-md px-4 py-4 text-on-surface focus:ring-2 focus:ring-primary/40 transition-all outline-none resize-none" placeholder="How can we assist your professional goals?" rows="6"></textarea>
+</div>
+<button class="w-full md:w-max px-12 py-4 bg-gradient-to-r from-primary to-primary-container text-white font-bold rounded-md hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-primary/10" type="submit">
+                        Send Message
+                    </button>
+</form>
+</section>
+<!-- Info & Map Sidebar -->
+<aside class="lg:col-span-5 space-y-8">
+<!-- Communication Cards -->
+<div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/15 flex flex-col gap-6">
+<div class="flex items-start gap-4">
+<div class="bg-primary/10 p-3 rounded-lg text-primary">
+<span class="material-symbols-outlined">mail</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">Email Us</h4>
+<p class="text-on-surface-variant">inquiry@civicbridge.org</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="bg-secondary/10 p-3 rounded-lg text-secondary">
+<span class="material-symbols-outlined">call</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">Call Us</h4>
+<p class="text-on-surface-variant">+1 (555) 890-2432</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="bg-inverse-surface/10 p-3 rounded-lg text-inverse-surface">
+<span class="material-symbols-outlined">location_on</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">Headquarters</h4>
+<p class="text-on-surface-variant leading-relaxed">
+                                1200 Innovation Way, Suite 400<br/>
+                                Academic District, Cambridge, MA 02139
+                            </p>
+</div>
+</div>
+</div>
+<!-- Map Placeholder -->
+<div class="relative h-[400px] w-full rounded-xl overflow-hidden group">
+<div class="absolute inset-0 bg-surface-dim flex items-center justify-center">
+<img class="w-full h-full object-cover opacity-60 grayscale hover:grayscale-0 transition-all duration-700" data-alt="minimalist architectural map of a city center with clean geometric lines and muted tones of grey and white" data-location="Cambridge, MA" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVW6FGWboBYW36jh9buL9KZ_Sw4gs9iBeGKSe9j9frqL9cxEeiW_s7WCfnm5LYJVpI7hbZSdLHz-6f2acFe4LP9E320m6fo6ehfkjbHAS5ERIgxiUv49MOVBMaZAmGpa0iHcxpMaZPtmHvQAVy8e8NE1zgM3Z27kXS5QON26OG6v6AC6pgJ_-wNJYQcBuwUEZqstwUWvOiZeB7gSUyfiEwOfz3Rpm4CPaAHSETg8-4CHp0O09Ol4CHjcRYQpmVIYGiDX4WOlsZNYaZ"/>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+<div class="absolute bottom-6 left-6 text-white">
+<p class="text-sm font-bold tracking-widest uppercase">Visit the Bridge</p>
+<p class="text-xs opacity-80">Monday — Friday, 9:00 AM — 6:00 PM EST</p>
+</div>
+<!-- Marker -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+<div class="relative flex items-center justify-center">
+<div class="absolute w-12 h-12 bg-primary/20 rounded-full animate-ping"></div>
+<div class="relative bg-primary text-white p-2 rounded-full shadow-xl">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">location_on</span>
+</div>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-[#fcf9f8] dark:bg-slate-950 w-full mt-auto">
+<div class="bg-slate-200 dark:bg-slate-800 h-[1px] w-full mb-8"></div>
+<div class="flex flex-col items-center py-12 px-8 max-w-screen-2xl mx-auto">
+<div class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6">Civic Bridge</div>
+<div class="flex flex-wrap justify-center gap-8 mb-8 font-['Inter'] text-sm tracking-wide">
+<a class="text-slate-500 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] underline-offset-4 hover:underline transition-all duration-300" href="#">About Us</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] underline-offset-4 hover:underline transition-all duration-300" href="#">Research</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] underline-offset-4 hover:underline transition-all duration-300" href="#">Impact Report</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] underline-offset-4 hover:underline transition-all duration-300" href="#">Privacy Policy</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] underline-offset-4 hover:underline transition-all duration-300" href="#">Terms of Service</a>
+<a class="text-[#AD2C4D] font-semibold underline-offset-4 hover:underline transition-all duration-300" href="#">Contact</a>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-xs text-center">
+                © 2024 Civic Bridge. Editorial Excellence for Workforce Development.
+            </p>
+</div>
+</footer>
+</body></html>

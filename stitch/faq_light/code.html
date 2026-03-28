@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FAQ | Civic Bridge</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container": "#f0edec",
+            "primary": "#8c0f37",
+            "inverse-surface": "#313030",
+            "surface-tint": "#ad2c4d",
+            "surface-variant": "#e5e2e1",
+            "tertiary-container": "#5f5e5e",
+            "inverse-on-surface": "#f3f0ef",
+            "primary-fixed": "#ffd9dd",
+            "secondary": "#7b5800",
+            "tertiary-fixed-dim": "#c8c6c5",
+            "primary-container": "#ad2c4d",
+            "on-surface-variant": "#584144",
+            "on-primary-fixed-variant": "#8c0f37",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f6f3f2",
+            "surface-container-high": "#ebe7e7",
+            "on-tertiary": "#ffffff",
+            "on-secondary-fixed": "#261900",
+            "on-primary-fixed": "#400013",
+            "surface-bright": "#fcf9f8",
+            "on-background": "#1c1b1b",
+            "secondary-fixed": "#ffdea4",
+            "surface-container-highest": "#e5e2e1",
+            "tertiary-fixed": "#e5e2e1",
+            "on-error": "#ffffff",
+            "on-tertiary-container": "#dbd8d7",
+            "on-tertiary-fixed-variant": "#474646",
+            "outline": "#8b7073",
+            "on-secondary-fixed-variant": "#5d4200",
+            "outline-variant": "#debfc2",
+            "secondary-container": "#ffbb00",
+            "primary-fixed-dim": "#ffb2bc",
+            "error": "#ba1a1a",
+            "surface": "#fcf9f8",
+            "inverse-primary": "#ffb2bc",
+            "surface-dim": "#dcd9d9",
+            "on-surface": "#1c1b1b",
+            "on-tertiary-fixed": "#1c1b1b",
+            "tertiary": "#474646",
+            "background": "#fcf9f8",
+            "on-secondary-container": "#6c4d00",
+            "on-error-container": "#93000a",
+            "on-secondary": "#ffffff",
+            "on-primary-container": "#ffcbd1",
+            "error-container": "#ffdad6",
+            "secondary-fixed-dim": "#ffbb00",
+            "on-primary": "#ffffff"
+          },
+          fontFamily: {
+            "headline": ["Inter"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          },
+          borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      line-height: 1;
+      text-transform: none;
+      letter-spacing: normal;
+      word-wrap: normal;
+      white-space: nowrap;
+      direction: ltr;
+    }
+    .editorial-grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 4rem;
+    }
+    @media (max-width: 768px) {
+      .editorial-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+    }
+    details summary::-webkit-details-marker {
+      display: none;
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar Anchor -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-sm">
+<div class="flex justify-between items-center px-8 py-4 max-w-screen-2xl mx-auto">
+<div class="text-2xl font-black tracking-tighter text-[#AD2C4D]">Civic Bridge</div>
+<div class="hidden md:flex items-center space-x-8 font-['Inter'] tracking-tight font-medium">
+<a class="text-slate-600 hover:text-[#AD2C4D] transition-colors" href="#">Members</a>
+<a class="text-slate-600 hover:text-[#AD2C4D] transition-colors" href="#">Employers</a>
+<a class="text-slate-600 hover:text-[#AD2C4D] transition-colors" href="#">Partners</a>
+</div>
+<div class="flex items-center space-x-6">
+<div class="hidden lg:block relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="bg-surface-container-high rounded-full py-2 pl-10 pr-4 text-sm focus:ring-1 focus:ring-primary/40 border-none w-64 outline-none" placeholder="Search resources..." type="text"/>
+</div>
+<button class="bg-[#AD2C4D] text-white px-6 py-2 rounded-md font-medium active:scale-95 transition-transform">Sign In</button>
+</div>
+</div>
+<div class="bg-slate-100 h-[1px] w-full absolute bottom-0 opacity-20"></div>
+</nav>
+<main class="pt-32 pb-24 px-8 max-w-screen-2xl mx-auto">
+<!-- Hero / Title -->
+<header class="mb-24 max-w-4xl">
+<span class="label-md uppercase tracking-[0.2em] text-primary font-bold mb-4 block">Knowledge Base</span>
+<h1 class="text-6xl md:text-7xl font-black tracking-tight text-on-surface mb-8">How can we help you bridge the gap?</h1>
+<p class="text-xl text-on-surface-variant leading-relaxed max-w-2xl">
+        Explore our curated directory of common inquiries. Designed for clarity, authority, and academic precision in workforce development.
+      </p>
+</header>
+<div class="editorial-grid">
+<!-- Sidebar Navigation for FAQ -->
+<aside class="sticky top-40 h-fit hidden md:block">
+<nav class="space-y-6">
+<a class="group flex items-center justify-between py-2 border-b border-transparent hover:border-primary transition-all" href="#general">
+<span class="text-lg font-semibold text-on-surface">General Questions</span>
+<span class="material-symbols-outlined text-primary opacity-0 group-hover:opacity-100 transition-opacity">arrow_forward</span>
+</a>
+<a class="group flex items-center justify-between py-2 border-b border-transparent hover:border-primary transition-all" href="#members">
+<span class="text-lg font-semibold text-on-surface">For Members</span>
+<span class="material-symbols-outlined text-primary opacity-0 group-hover:opacity-100 transition-opacity">arrow_forward</span>
+</a>
+<a class="group flex items-center justify-between py-2 border-b border-transparent hover:border-primary transition-all" href="#employers">
+<span class="text-lg font-semibold text-on-surface">For Employers</span>
+<span class="material-symbols-outlined text-primary opacity-0 group-hover:opacity-100 transition-opacity">arrow_forward</span>
+</a>
+</nav>
+<div class="mt-16 p-8 bg-surface-container-low rounded-xl relative overflow-hidden group">
+<div class="relative z-10">
+<h4 class="font-bold text-lg mb-2">Still need support?</h4>
+<p class="text-sm text-on-surface-variant mb-6">Our academic advisors are available for 1-on-1 consultations.</p>
+<button class="text-primary font-bold flex items-center gap-2 group-hover:underline transition-all">
+              Contact Support <span class="material-symbols-outlined text-sm">open_in_new</span>
+</button>
+</div>
+<div class="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-9xl">school</span>
+</div>
+</div>
+</aside>
+<!-- FAQ Content -->
+<section class="space-y-32">
+<!-- General Questions -->
+<div class="scroll-mt-40" id="general">
+<h2 class="text-3xl font-bold tracking-tight mb-12 flex items-center gap-4">
+<span class="w-12 h-[1px] bg-primary"></span>
+            General Questions
+          </h2>
+<div class="space-y-2">
+<details class="group bg-surface-container-low rounded-xl transition-all duration-300 open:bg-surface-container-high">
+<summary class="flex justify-between items-center p-6 cursor-pointer list-none">
+<span class="text-lg font-medium pr-8">What exactly is Civic Bridge?</span>
+<span class="material-symbols-outlined text-primary group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="px-6 pb-8 text-on-surface-variant leading-relaxed">
+                Civic Bridge is a premium workforce development ecosystem that connects motivated individuals with industry-leading employers through academic-grade training and intentional professional networking.
+              </div>
+</details>
+<details class="group bg-surface-container-low rounded-xl transition-all duration-300 open:bg-surface-container-high">
+<summary class="flex justify-between items-center p-6 cursor-pointer list-none">
+<span class="text-lg font-medium pr-8">How does the certification process work?</span>
+<span class="material-symbols-outlined text-primary group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="px-6 pb-8 text-on-surface-variant leading-relaxed">
+                Our certifications are co-developed with partner employers to ensure real-world relevance. Upon completion of a course track, members undergo a rigorous assessment to earn a "Civic Bridge Excellence" badge recognized by our employer network.
+              </div>
+</details>
+</div>
+</div>
+<!-- For Members -->
+<div class="scroll-mt-40" id="members">
+<h2 class="text-3xl font-bold tracking-tight mb-12 flex items-center gap-4">
+<span class="w-12 h-[1px] bg-primary"></span>
+            For Members
+          </h2>
+<div class="space-y-2">
+<details class="group bg-surface-container-low rounded-xl transition-all duration-300 open:bg-surface-container-high">
+<summary class="flex justify-between items-center p-6 cursor-pointer list-none">
+<span class="text-lg font-medium pr-8">Are there any costs associated with joining as a member?</span>
+<span class="material-symbols-outlined text-primary group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="px-6 pb-8 text-on-surface-variant leading-relaxed">
+                Basic membership is free for all qualified applicants. Advanced professional tracks and 1-on-1 mentorship programs may involve a sliding-scale fee based on current employment status.
+              </div>
+</details>
+<details class="group bg-surface-container-low rounded-xl transition-all duration-300 open:bg-surface-container-high">
+<summary class="flex justify-between items-center p-6 cursor-pointer list-none">
+<span class="text-lg font-medium pr-8">How do I track my learning progress?</span>
+<span class="material-symbols-outlined text-primary group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="px-6 pb-8 text-on-surface-variant leading-relaxed">
+                Members have access to a personal "Learning Ivory Tower" dashboard. This editorial-style portal tracks course completion, assessment scores, and upcoming networking opportunities with employers.
+              </div>
+</details>
+<details class="group bg-surface-container-low rounded-xl transition-all duration-300 open:bg-surface-container-high">
+<summary class="flex justify-between items-center p-6 cursor-pointer list-none">
+<span class="text-lg font-medium pr-8">Can I apply for multiple job openings simultaneously?</span>
+<span class="material-symbols-outlined text-primary group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="px-6 pb-8 text-on-surface-variant leading-relaxed">
+                Yes. Our system encourages broad exploration while maintaining a high quality of application. We recommend tailoring your professional profile for each unique opportunity.
+              </div>
+</details>
+</div>
+</div>
+<!-- For Employers -->
+<div class="scroll-mt-40" id="employers">
+<div class="p-12 bg-primary rounded-xl mb-12 text-on-primary relative overflow-hidden">
+<h2 class="text-3xl font-bold tracking-tight mb-4 relative z-10">For Employers</h2>
+<p class="text-primary-container font-medium max-w-lg relative z-10">Unlock elite talent pipelines designed with your industry's specific challenges in mind.</p>
+<span class="material-symbols-outlined absolute -right-8 -top-8 text-[12rem] opacity-10" data-weight="fill">corporate_fare</span>
+</div>
+<div class="space-y-2">
+<details class="group bg-surface-container-low rounded-xl transition-all duration-300 open:bg-surface-container-high">
+<summary class="flex justify-between items-center p-6 cursor-pointer list-none">
+<span class="text-lg font-medium pr-8">How does Civic Bridge vet its members?</span>
+<span class="material-symbols-outlined text-primary group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="px-6 pb-8 text-on-surface-variant leading-relaxed">
+                We employ a multi-stage validation process including technical skill assessments, soft-skill evaluations, and background verification to ensure our pipeline meets the highest professional standards.
+              </div>
+</details>
+<details class="group bg-surface-container-low rounded-xl transition-all duration-300 open:bg-surface-container-high">
+<summary class="flex justify-between items-center p-6 cursor-pointer list-none">
+<span class="text-lg font-medium pr-8">Can we co-create custom training modules?</span>
+<span class="material-symbols-outlined text-primary group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="px-6 pb-8 text-on-surface-variant leading-relaxed">
+                Absolutely. Partner employers can work directly with our curriculum designers to build bespoke learning tracks that address specific skill gaps within your organization.
+              </div>
+</details>
+</div>
+</div>
+</section>
+</div>
+<!-- Asymmetric CTA Section -->
+<section class="mt-32 editorial-grid items-center bg-surface-container-lowest p-12 rounded-xl">
+<div class="relative aspect-square md:aspect-auto h-64 md:h-full overflow-hidden rounded-lg">
+<img alt="Professional meeting" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" data-alt="Close-up of diverse professional hands stacking together in a bright modern office, minimalist composition, soft morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvw3SiKYIh_XD2dd4xLZW0aLNJp8lO0QumsWw3_Xwy_jkFLvxuF5U63Vmf06hUJHwoXq9AchjZrrjKc4deGlISgxqwqFqZ3tA0Fzi09P5yeF82Z3WuUKLr1AOIB06c5Y7rPL-gXaqRteiX3twABnI-tiExQDY1UTnzpvNqbS5QnwPy1EbZVWO3uMKuIWdFIP3sqImHNxGHX7CnQ1OBzNCntnZEqgvCkFffpQ4-gByXBM2txdObI4VT2gQH5MsWUHyMmD7j335U-fqI"/>
+<div class="absolute inset-0 bg-primary/10 mix-blend-multiply"></div>
+</div>
+<div class="py-8">
+<h3 class="text-4xl font-bold tracking-tight mb-6">Didn't find your answer?</h3>
+<p class="text-lg text-on-surface-variant mb-8 leading-relaxed">Our editorial team and workforce specialists are standing by to provide the clarity you need to move forward.</p>
+<div class="flex flex-wrap gap-4">
+<button class="bg-primary text-white px-8 py-4 rounded-md font-bold text-lg active:scale-95 transition-all">Submit a Ticket</button>
+<button class="border-2 border-primary text-primary px-8 py-4 rounded-md font-bold text-lg hover:bg-primary/5 active:scale-95 transition-all">Live Chat</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Anchor -->
+<footer class="w-full mt-auto bg-[#fcf9f8] font-['Inter'] text-sm tracking-wide">
+<div class="bg-slate-200 h-[1px] w-full mb-8"></div>
+<div class="flex flex-col items-center py-12 px-8 max-w-screen-2xl mx-auto text-center">
+<div class="text-xl font-bold text-slate-900 mb-8">Civic Bridge</div>
+<div class="flex flex-wrap justify-center gap-8 mb-8">
+<a class="text-slate-500 hover:text-[#AD2C4D] underline-offset-4 hover:underline transition-all" href="#">About Us</a>
+<a class="text-slate-500 hover:text-[#AD2C4D] underline-offset-4 hover:underline transition-all" href="#">Research</a>
+<a class="text-slate-500 hover:text-[#AD2C4D] underline-offset-4 hover:underline transition-all" href="#">Impact Report</a>
+<a class="text-slate-500 hover:text-[#AD2C4D] underline-offset-4 hover:underline transition-all" href="#">Privacy Policy</a>
+<a class="text-slate-500 hover:text-[#AD2C4D] underline-offset-4 hover:underline transition-all" href="#">Terms of Service</a>
+<a class="text-slate-500 hover:text-[#AD2C4D] underline-offset-4 hover:underline transition-all" href="#">Contact</a>
+</div>
+<p class="text-slate-400 max-w-md">© 2024 Civic Bridge. Editorial Excellence for Workforce Development.</p>
+</div>
+</footer>
+</body></html>

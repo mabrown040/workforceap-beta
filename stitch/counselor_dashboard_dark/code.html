@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Civic Bridge | Counselor Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "outline-variant": "#584144",
+              "on-primary-container": "#ffcbd1",
+              "on-tertiary-container": "#92ecb1",
+              "inverse-on-surface": "#2f3133",
+              "secondary-container": "#71333e",
+              "secondary-fixed-dim": "#ffb2bc",
+              "surface-container-lowest": "#0c0e10",
+              "on-error-container": "#ffdad6",
+              "inverse-surface": "#e2e2e5",
+              "on-secondary-fixed-variant": "#71333e",
+              "on-background": "#e2e2e5",
+              "tertiary-container": "#006d3e",
+              "surface": "#121416",
+              "inverse-primary": "#ad2c4d",
+              "error-container": "#93000a",
+              "surface-variant": "#333537",
+              "tertiary-fixed-dim": "#80d99f",
+              "on-surface-variant": "#debfc2",
+              "on-primary-fixed-variant": "#8c0f37",
+              "on-secondary": "#551d29",
+              "outline": "#a68a8d",
+              "on-tertiary": "#00391e",
+              "error": "#ffb4ab",
+              "surface-container-high": "#282a2c",
+              "surface-container-low": "#1a1c1e",
+              "surface-tint": "#ffb2bc",
+              "secondary-fixed": "#ffd9dd",
+              "primary-fixed-dim": "#ffb2bc",
+              "on-tertiary-fixed-variant": "#00522d",
+              "on-primary-fixed": "#400013",
+              "on-primary": "#670024",
+              "on-error": "#690005",
+              "primary-container": "#ad2c4d",
+              "surface-container-highest": "#333537",
+              "surface-container": "#1e2022",
+              "on-secondary-fixed": "#3a0815",
+              "primary-fixed": "#ffd9dd",
+              "background": "#121416",
+              "surface-dim": "#121416",
+              "tertiary": "#80d99f",
+              "secondary": "#ffb2bc",
+              "on-surface": "#e2e2e5",
+              "tertiary-fixed": "#9cf6ba",
+              "primary": "#ffb2bc",
+              "on-tertiary-fixed": "#00210f",
+              "on-secondary-container": "#f29eaa",
+              "surface-bright": "#37393b"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #121416;
+            color: #e2e2e5;
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-header {
+            background: rgba(18, 20, 22, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(226, 226, 229, 0.1);
+        }
+        .text-gradient {
+            background: linear-gradient(to right, #ffb2bc, #ad2c4d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#121416]/80 backdrop-blur-xl border-b border-[#E2E2E5]/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+<div class="flex items-center gap-4">
+<span class="text-xl font-bold tracking-tighter text-[#E2E2E5] font-['Inter']">Civic Bridge</span>
+<div class="hidden md:flex gap-6 ml-8">
+<a class="text-[#AD2C4D] font-semibold text-sm tracking-tight transition-colors duration-200" href="#">Dashboard</a>
+<a class="text-[#E2E2E5]/60 hover:text-[#AD2C4D] text-sm tracking-tight transition-colors duration-200" href="#">Cohorts</a>
+<a class="text-[#E2E2E5]/60 hover:text-[#AD2C4D] text-sm tracking-tight transition-colors duration-200" href="#">Reports</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#E2E2E5]/40 text-sm">search</span>
+<input class="bg-surface-container-lowest border-none rounded-lg pl-10 pr-4 py-1.5 text-sm w-64 focus:ring-1 focus:ring-primary-container" placeholder="Search members..." type="text"/>
+</div>
+<button class="active:scale-95 transition-transform text-[#E2E2E5]/60 hover:text-[#AD2C4D]">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="active:scale-95 transition-transform text-[#E2E2E5]/60 hover:text-[#AD2C4D]">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<img alt="User profile avatar" class="w-8 h-8 rounded-full border border-primary/20" data-alt="professional headshot of a mature counselor with a kind expression in a modern office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGd-Ee8qeJzUSSFLz_JcroTvsJ68AG6-e23K_WQwrvwtRwnBwdYJ98urCX0A7l1VJ_3KWns1cbqU2aObVHpcmLq7yaXjKWtM5KWkSxg_GHztmH0aEPOltLDSnQI4EJgbXnUbS57lHf_NCHbcCnXAsmaczXUcYK-MAtJTpDC5QjcazHkvD1fDNXwFdxoiOQ5ec21HBks0hB4ZV4aPpmy4AjijbKtQR7bt0BEF5yDHVQEDATTnIOXqfFbsV9ltCSfXrWVEBAjMngjQRZ"/>
+</div>
+</nav>
+<!-- Sidebar & Content Wrapper -->
+<div class="flex flex-1 pt-16">
+<!-- SideNavBar -->
+<aside class="h-[calc(100vh-64px)] w-64 fixed left-0 top-16 bg-[#121416] flex flex-col gap-2 px-4 py-6 border-r border-white/5">
+<div class="px-4 mb-6">
+<h2 class="text-[#AD2C4D] font-bold text-lg font-['Inter']">Civic Bridge</h2>
+<p class="text-[#E2E2E5]/50 text-xs font-['Inter']">Learning Dashboard</p>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#E2E2E5]/50 hover:bg-[#E2E2E5]/5 hover:text-[#E2E2E5] transition-all text-sm font-medium font-['Inter']" href="#">
+<span class="material-symbols-outlined">work</span>
+                    Job Seekers
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-[#AD2C4D]/10 text-[#AD2C4D] border-r-2 border-[#AD2C4D] transition-all text-sm font-medium font-['Inter']" href="#">
+<span class="material-symbols-outlined">group</span>
+                    Cohorts
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#E2E2E5]/50 hover:bg-[#E2E2E5]/5 hover:text-[#E2E2E5] transition-all text-sm font-medium font-['Inter']" href="#">
+<span class="material-symbols-outlined">business_center</span>
+                    Employer Portal
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#E2E2E5]/50 hover:bg-[#E2E2E5]/5 hover:text-[#E2E2E5] transition-all text-sm font-medium font-['Inter']" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">assistant_direction</span>
+                    Advising
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#E2E2E5]/50 hover:bg-[#E2E2E5]/5 hover:text-[#E2E2E5] transition-all text-sm font-medium font-['Inter']" href="#">
+<span class="material-symbols-outlined">library_books</span>
+                    Resources
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#E2E2E5]/50 hover:bg-[#E2E2E5]/5 hover:text-[#E2E2E5] transition-all text-sm font-medium font-['Inter']" href="#">
+<span class="material-symbols-outlined">contact_support</span>
+                    Support
+                </a>
+</nav>
+<div class="mt-auto p-4 bg-surface-container-low rounded-xl">
+<p class="text-xs text-on-surface-variant/60 mb-2 uppercase tracking-widest font-bold">Account Level</p>
+<p class="text-sm font-semibold mb-3">Senior Counselor</p>
+<button class="w-full py-2 bg-primary-container text-on-primary-container text-xs font-bold rounded-lg hover:brightness-110 transition-all">
+                    Upgrade Access
+                </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 flex-1 p-8 space-y-10">
+<!-- Header Section -->
+<header class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-end gap-6">
+<div class="space-y-2">
+<nav class="flex items-center gap-2 text-[10px] uppercase tracking-widest font-semibold text-primary/60">
+<span>Dashboard</span>
+<span class="material-symbols-outlined text-[10px]">chevron_right</span>
+<span>Cohort Management</span>
+</nav>
+<h1 class="text-5xl font-bold tracking-tight text-white leading-[1.1]">Active Cohorts <span class="text-[#AD2C4D]">Overview</span></h1>
+<p class="text-on-surface-variant text-lg max-w-2xl leading-relaxed">Tracking progress for 124 active members across 4 specialized civic tech tracks.</p>
+</div>
+<div class="flex gap-4">
+<button class="px-6 py-3 bg-surface-container-high text-primary font-semibold rounded-lg hover:brightness-125 transition-all text-sm">Download Report</button>
+<button class="px-6 py-3 bg-gradient-to-r from-primary to-primary-container text-on-primary font-semibold rounded-lg shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all text-sm">Add New Member</button>
+</div>
+</header>
+<!-- Metrics Bento Grid -->
+<section class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="bg-surface-container-low p-6 rounded-xl space-y-4">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary">groups</span>
+<span class="text-xs font-bold text-tertiary">+12%</span>
+</div>
+<div>
+<p class="text-3xl font-bold">124</p>
+<p class="text-xs uppercase tracking-widest text-on-surface-variant font-bold mt-1">Total Members</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl space-y-4">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary">timer</span>
+<span class="text-xs font-bold text-primary">-4%</span>
+</div>
+<div>
+<p class="text-3xl font-bold">82%</p>
+<p class="text-xs uppercase tracking-widest text-on-surface-variant font-bold mt-1">Avg. Completion</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl space-y-4">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary">verified_user</span>
+<span class="text-xs font-bold text-tertiary">+8</span>
+</div>
+<div>
+<p class="text-3xl font-bold">45</p>
+<p class="text-xs uppercase tracking-widest text-on-surface-variant font-bold mt-1">Certified Today</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl space-y-4">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary">handshake</span>
+<span class="text-xs font-bold text-white">Target: 50</span>
+</div>
+<div>
+<p class="text-3xl font-bold">38</p>
+<p class="text-xs uppercase tracking-widest text-on-surface-variant font-bold mt-1">Pending Placement</p>
+</div>
+</div>
+</section>
+<!-- Main Content Grid -->
+<div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Member Progress List (Span 2) -->
+<section class="lg:col-span-2 space-y-6">
+<div class="flex items-center justify-between">
+<h3 class="text-xl font-semibold tracking-tight">Recent Member Activity</h3>
+<div class="flex gap-2">
+<button class="p-2 bg-surface-container rounded-lg text-on-surface-variant hover:text-white transition-colors">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+</button>
+<button class="p-2 bg-surface-container rounded-lg text-on-surface-variant hover:text-white transition-colors">
+<span class="material-symbols-outlined text-sm">sort</span>
+</button>
+</div>
+</div>
+<div class="space-y-4">
+<!-- Member Item 1 -->
+<div class="bg-surface-container hover:bg-surface-container-high transition-all p-5 rounded-xl flex items-center justify-between group">
+<div class="flex items-center gap-4">
+<img alt="Member Avatar" class="w-12 h-12 rounded-lg object-cover" data-alt="portrait of a young black woman with short hair wearing professional glasses and a minimalist white blazer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuApuWVt3gUNE2MViyit_g-OlgpGzwC9PqXSV5pf1VS9vrleJOc-AZ9_nnc-1dpV9GBE9huaHZPYJJF5JEUwBqIVNuGQhlYYw93BbQ37iuyaUP3onNSOa_nKCpZEHCCZEHg3kVAP_Nrm0zoMD93Orj1vDkc_fILZk9sMJB14Jo_Tx_4-Y2X6ItLVz2qZhXXMfF48XvlNvNT6UpnyTsISlJFaqS3BiPi2nt8FWMeixE6CrTrXgeFNmfjr-ccQMip0bmEMNdpoRZHZWcR2"/>
+<div>
+<h4 class="font-bold text-white group-hover:text-primary transition-colors">Elena Rodriguez</h4>
+<p class="text-xs text-on-surface-variant font-medium">Civic UI/UX Cohort • Batch 12</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:block">
+<div class="h-1.5 w-24 bg-surface-container-lowest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-3/4 rounded-full"></div>
+</div>
+<p class="text-[10px] text-right mt-1 font-bold text-on-surface-variant">75% Complete</p>
+</div>
+<span class="px-3 py-1 bg-tertiary/10 text-tertiary text-[10px] font-bold uppercase tracking-wider rounded-full border border-tertiary/20">Certifying</span>
+<button class="p-1 text-on-surface-variant hover:text-white transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Member Item 2 -->
+<div class="bg-surface-container hover:bg-surface-container-high transition-all p-5 rounded-xl flex items-center justify-between group">
+<div class="flex items-center gap-4">
+<img alt="Member Avatar" class="w-12 h-12 rounded-lg object-cover" data-alt="headshot of a hispanic man with a neatly trimmed beard and thoughtful expression against a dark textured background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9d5mQkG-p76Oquu04a2nKOpR6fNDCb-ce2vdLZrBCo2LUF-8uLC_QFXLjn7JC_jTWo-GlO35boenDLjyPOrHV5Ih_lxYNqq3KFv2jGJMFIuyK1-tOCtcGTpTC_YwkEWbsuGsO0GyqGPNSPOa1ctclWfGmCnhq0vgfk_YdbNCpyQgG5rGhKzAy22B4rkj376xb7NxRs69PIszOAnWbrED6Ets_N6f4TexdvYjrSyjCfKZAWpBTyiUStLmCV--TYdIaB1DkfGJnpXyu"/>
+<div>
+<h4 class="font-bold text-white group-hover:text-primary transition-colors">Marcus Chen</h4>
+<p class="text-xs text-on-surface-variant font-medium">GovTech Data Science • Batch 09</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:block">
+<div class="h-1.5 w-24 bg-surface-container-lowest rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-full rounded-full"></div>
+</div>
+<p class="text-[10px] text-right mt-1 font-bold text-on-surface-variant">100% Complete</p>
+</div>
+<span class="px-3 py-1 bg-secondary/10 text-secondary text-[10px] font-bold uppercase tracking-wider rounded-full border border-secondary/20">Placed</span>
+<button class="p-1 text-on-surface-variant hover:text-white transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Member Item 3 -->
+<div class="bg-surface-container hover:bg-surface-container-high transition-all p-5 rounded-xl flex items-center justify-between group">
+<div class="flex items-center gap-4">
+<img alt="Member Avatar" class="w-12 h-12 rounded-lg object-cover" data-alt="professional image of an asian woman in a light blue shirt smiling confidently in a modern bright workspace" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbDN5GmyvVfkB2Aq3STV9JG4fQ3pdudQCeTEEfm6oF6A4JXq1n_Uc25SXMrRiWFVC438M-syo9pqtAxI3OgHELscjbalYlpMsotyShEGdYcHusEOKFav5cD6Br6AVe7upW1mOu2iIp8NRSAN59CEHMSmvozDFq3C-Ze9WY5gh7DEn1qBLbwCQm2LiKt7NmWn9Ei0c2XgtrW555REf-P6JZJ5n-_LGTjkCsZY3n4glWHBvtL_aXc8v-lWdXvT1zFI5hz1CraQQQBSgn"/>
+<div>
+<h4 class="font-bold text-white group-hover:text-primary transition-colors">Sarah Al-Farsi</h4>
+<p class="text-xs text-on-surface-variant font-medium">Public Policy Analytics • Batch 12</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:block">
+<div class="h-1.5 w-24 bg-surface-container-lowest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-1/4 rounded-full"></div>
+</div>
+<p class="text-[10px] text-right mt-1 font-bold text-on-surface-variant">25% Complete</p>
+</div>
+<span class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider rounded-full border border-primary/20">Training</span>
+<button class="p-1 text-on-surface-variant hover:text-white transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Member Item 4 -->
+<div class="bg-surface-container hover:bg-surface-container-high transition-all p-5 rounded-xl flex items-center justify-between group">
+<div class="flex items-center gap-4">
+<img alt="Member Avatar" class="w-12 h-12 rounded-lg object-cover" data-alt="portrait of a middle-aged caucasian man with graying hair wearing a charcoal sweater and a professional look" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtdLM4F7cwqe54XywAL70xb4IdOGg0tL180DBcr4hRCYDW74Kox8mT8nucvOK5acCAGJoZZd1rJdLmTKLpDXhaENeiZu_dyCQWRcKbgnukrUjPVh0x9pWSd3--Db8JBy-wT9Jx4ggFSIF6yaOsZ4UpS6aYQofd4ePJSHZwOoPKqzxV2DKyf-55n13bWk9o7AEUhSeALi5JhJz6Rwt8_9aROe86U4WA3EtIAnvSEj_6MDky-woL8vZV_9L-cd9nR7-v6N5-olbDBROL"/>
+<div>
+<h4 class="font-bold text-white group-hover:text-primary transition-colors">James Wilson</h4>
+<p class="text-xs text-on-surface-variant font-medium">Open Data Engineering • Batch 13</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:block">
+<div class="h-1.5 w-24 bg-surface-container-lowest rounded-full overflow-hidden">
+<div class="h-full bg-on-surface-variant w-1/12 rounded-full"></div>
+</div>
+<p class="text-[10px] text-right mt-1 font-bold text-on-surface-variant">5% Complete</p>
+</div>
+<span class="px-3 py-1 bg-outline/10 text-outline text-[10px] font-bold uppercase tracking-wider rounded-full border border-outline/20">Intake</span>
+<button class="p-1 text-on-surface-variant hover:text-white transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Sidebar Content (Sessions & Feed) -->
+<aside class="space-y-8">
+<!-- Upcoming Sessions -->
+<section class="space-y-6">
+<h3 class="text-xl font-semibold tracking-tight">Coaching Sessions</h3>
+<div class="bg-surface-container-low rounded-xl overflow-hidden">
+<div class="p-5 border-b border-white/5 space-y-4">
+<div class="flex items-start gap-3">
+<div class="p-2 bg-primary/10 rounded text-primary">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+</div>
+<div>
+<p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Today, 2:30 PM</p>
+<p class="text-sm font-bold mt-1">Portfolio Review: Elena R.</p>
+<p class="text-xs text-on-surface-variant mt-1">Zoom • Meeting ID: 882-102</p>
+</div>
+</div>
+<button class="w-full py-2 bg-primary-container text-on-primary-container text-xs font-bold rounded-lg hover:brightness-110 transition-all">
+                                    Join Meeting
+                                </button>
+</div>
+<div class="p-5 space-y-4 opacity-60">
+<div class="flex items-start gap-3">
+<div class="p-2 bg-surface-container-highest rounded text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+</div>
+<div>
+<p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Tomorrow, 10:00 AM</p>
+<p class="text-sm font-bold mt-1">Mock Interview: David L.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Notifications Feed -->
+<section class="space-y-6">
+<div class="flex items-center justify-between">
+<h3 class="text-xl font-semibold tracking-tight">Counselor Actions</h3>
+<span class="text-[10px] font-bold text-primary cursor-pointer hover:underline">Mark All Read</span>
+</div>
+<div class="space-y-5">
+<div class="flex gap-4 items-start">
+<div class="w-2 h-2 mt-1.5 rounded-full bg-primary shrink-0"></div>
+<div>
+<p class="text-sm font-medium"><span class="font-bold">Marcus Chen</span> requested final certification review.</p>
+<p class="text-[10px] text-on-surface-variant mt-1 font-bold">24 MINUTES AGO</p>
+</div>
+</div>
+<div class="flex gap-4 items-start">
+<div class="w-2 h-2 mt-1.5 rounded-full bg-tertiary shrink-0"></div>
+<div>
+<p class="text-sm font-medium"><span class="font-bold">System:</span> Batch 12 Capstone projects are ready for grading.</p>
+<p class="text-[10px] text-on-surface-variant mt-1 font-bold">2 HOURS AGO</p>
+</div>
+</div>
+<div class="flex gap-4 items-start opacity-50">
+<div class="w-2 h-2 mt-1.5 rounded-full bg-outline shrink-0"></div>
+<div>
+<p class="text-sm font-medium">New intake interview scheduled for next Tuesday.</p>
+<p class="text-[10px] text-on-surface-variant mt-1 font-bold">5 HOURS AGO</p>
+</div>
+</div>
+</div>
+</section>
+</aside>
+</div>
+</main>
+</div>
+<!-- Footer -->
+<footer class="w-full py-8 mt-auto bg-[#121416] border-t border-[#E2E2E5]/5">
+<div class="flex flex-col md:flex-row justify-between items-center px-10 ml-64">
+<div class="flex gap-8 mb-4 md:mb-0">
+<a class="text-[10px] uppercase tracking-widest font-semibold font-['Inter'] text-[#E2E2E5]/40 hover:text-[#E2E2E5] transition-colors" href="#">Privacy Policy</a>
+<a class="text-[10px] uppercase tracking-widest font-semibold font-['Inter'] text-[#E2E2E5]/40 hover:text-[#E2E2E5] transition-colors" href="#">Terms of Service</a>
+<a class="text-[10px] uppercase tracking-widest font-semibold font-['Inter'] text-[#E2E2E5]/40 hover:text-[#E2E2E5] transition-colors" href="#">Accessibility</a>
+<a class="text-[10px] uppercase tracking-widest font-semibold font-['Inter'] text-[#E2E2E5]/40 hover:text-[#E2E2E5] transition-colors" href="#">Contact</a>
+</div>
+<p class="text-[10px] uppercase tracking-widest font-semibold font-['Inter'] text-[#E2E2E5]/40">© 2024 Civic Bridge. Digital Archive for the Modern Citizen.</p>
+</div>
+</footer>
+</body></html>

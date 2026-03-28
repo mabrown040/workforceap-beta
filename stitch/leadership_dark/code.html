@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "inverse-primary": "#ad2c4d",
+              "surface-dim": "#121416",
+              "error": "#ffb4ab",
+              "surface": "#121416",
+              "outline-variant": "#584144",
+              "on-secondary-fixed-variant": "#71333e",
+              "primary-fixed-dim": "#ffb2bc",
+              "secondary-container": "#71333e",
+              "outline": "#a68a8d",
+              "on-tertiary-fixed-variant": "#00522d",
+              "secondary-fixed-dim": "#ffb2bc",
+              "on-primary": "#670024",
+              "on-primary-container": "#ffcbd1",
+              "on-secondary": "#551d29",
+              "error-container": "#93000a",
+              "on-secondary-container": "#f29eaa",
+              "on-error-container": "#ffdad6",
+              "background": "#121416",
+              "on-surface": "#e2e2e5",
+              "tertiary": "#80d99f",
+              "on-tertiary-fixed": "#00210f",
+              "surface-container-lowest": "#0c0e10",
+              "surface-container-low": "#1a1c1e",
+              "surface-container-high": "#282a2c",
+              "tertiary-fixed-dim": "#80d99f",
+              "primary-container": "#ad2c4d",
+              "on-surface-variant": "#debfc2",
+              "on-primary-fixed-variant": "#8c0f37",
+              "tertiary-container": "#006d3e",
+              "inverse-on-surface": "#2f3133",
+              "surface-variant": "#333537",
+              "secondary": "#ffb2bc",
+              "primary-fixed": "#ffd9dd",
+              "inverse-surface": "#e2e2e5",
+              "surface-container": "#1e2022",
+              "primary": "#ffb2bc",
+              "surface-tint": "#ffb2bc",
+              "tertiary-fixed": "#9cf6ba",
+              "on-error": "#690005",
+              "on-tertiary-container": "#92ecb1",
+              "secondary-fixed": "#ffd9dd",
+              "surface-container-highest": "#333537",
+              "surface-bright": "#37393b",
+              "on-background": "#e2e2e5",
+              "on-tertiary": "#00391e",
+              "on-secondary-fixed": "#3a0815",
+              "on-primary-fixed": "#400013"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-nav {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary/30">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-sm dark:shadow-none transition-all duration-300">
+<div class="max-w-screen-2xl mx-auto flex justify-between items-center px-8 py-4">
+<div class="text-2xl font-black tracking-tighter text-[#AD2C4D] dark:text-[#E6395D]">
+                Civic Bridge
+            </div>
+<div class="hidden md:flex space-x-8 items-center font-['Inter'] tracking-tight font-medium">
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] transition-colors" href="#">Members</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] transition-colors" href="#">Employers</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] transition-colors" href="#">Partners</a>
+<a class="text-[#AD2C4D] dark:text-[#FFBB00] font-bold border-b-2 border-[#AD2C4D] dark:border-[#FFBB00] pb-1" href="#">Leadership</a>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden lg:flex items-center bg-surface-container-lowest px-4 py-2 rounded-lg border border-outline-variant/10 text-on-surface-variant/40">
+<span class="material-symbols-outlined text-sm mr-2">search</span>
+<span class="text-sm">Search the archive...</span>
+</div>
+<button class="bg-[#AD2C4D] text-white px-6 py-2 rounded-lg font-bold active:scale-95 transition-transform hover:opacity-80">
+                    Sign In
+                </button>
+</div>
+</div>
+<div class="bg-slate-100 dark:bg-slate-800 h-[1px] w-full absolute bottom-0 opacity-20"></div>
+</nav>
+<main class="pt-24">
+<!-- Hero / Mission Section -->
+<section class="relative px-8 py-24 md:py-32 max-w-screen-2xl mx-auto">
+<div class="flex flex-col md:flex-row gap-16 items-start">
+<div class="w-full md:w-2/3">
+<span class="inline-block px-3 py-1 bg-primary/10 text-primary text-[0.75rem] font-bold tracking-[0.04em] rounded-full mb-6">INSTITUTIONAL GOVERNANCE</span>
+<h1 class="text-5xl md:text-7xl font-bold tracking-[-0.02em] leading-[1.1] mb-8 text-on-surface">
+                        Stewards of the <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">Future Workforce.</span>
+</h1>
+<p class="text-lg md:text-xl leading-[1.6] text-on-surface-variant max-w-2xl">
+                        Civic Bridge is governed by a distinguished assembly of academic luminaries, industry architects, and civic visionaries. Our mission is to dismantle the barriers between talent and opportunity through rigorous research and ethical advocacy.
+                    </p>
+</div>
+<div class="w-full md:w-1/3 flex flex-col gap-4 p-8 rounded-xl bg-surface-container-low">
+<div class="flex items-center gap-4 text-primary">
+<span class="material-symbols-outlined">verified</span>
+<span class="text-[0.75rem] font-bold tracking-[0.04em]">ESTABLISHED 2024</span>
+</div>
+<div class="text-sm text-on-surface-variant italic border-l-2 border-primary/20 pl-4 py-1">
+                        "The strength of a bridge is defined not by its span, but by the integrity of its foundations."
+                    </div>
+</div>
+</div>
+</section>
+<!-- Executive Leadership Section -->
+<section class="px-8 py-16 max-w-screen-2xl mx-auto">
+<div class="flex items-baseline justify-between mb-16 border-b border-outline-variant/10 pb-4">
+<h2 class="text-3xl font-semibold tracking-[-0.01em]">Executive Council</h2>
+<div class="text-[0.75rem] font-bold tracking-[0.04em] text-primary">03 KEY OFFICERS</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Leader 1 -->
+<div class="group flex flex-col bg-surface-container rounded-xl overflow-hidden hover:bg-surface-container-high transition-colors duration-300">
+<div class="aspect-[4/5] overflow-hidden">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 scale-105 group-hover:scale-100" data-alt="professional portrait of an African American woman executive in a dark tailored blazer, soft studio lighting, neutral grey background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyZObwQ1MTcVDXczuL0EDRZPupR5f0ZIX5cAXJQg0tk6iZHn7v5ikAle8lk5ISd5EAEt0i03l7evcFrJNIbWPt7H6cSeHSAZt93IqJec9bLPoOJx-ODmUm0SEyZlY8T9ak0qgbM25UcJEmcQol7nN869bEyer9EGjFq_LXNWIyycoMem0lvmZISmjEX3m5Z0mXxhRe9l4AMq-moHKRhsf8tz-xDBwkL4h8twQrGVL3g1YjfZvsZ2qxgI-qzi8tkWu6wDlg6MRla8g_"/>
+</div>
+<div class="p-8">
+<div class="text-primary text-[0.75rem] font-bold tracking-[0.04em] mb-2">CHIEF EXECUTIVE</div>
+<h3 class="text-xl font-bold mb-1">Dr. Elena Vance</h3>
+<p class="text-on-surface-variant text-sm mb-4">Former Provost, Stanford University</p>
+<p class="text-sm leading-relaxed text-on-surface/70">
+                            Dr. Vance spearheads our strategic expansion, bridging the gap between higher education policy and private sector labor demands.
+                        </p>
+</div>
+</div>
+<!-- Leader 2 -->
+<div class="group flex flex-col bg-surface-container rounded-xl overflow-hidden hover:bg-surface-container-high transition-colors duration-300">
+<div class="aspect-[4/5] overflow-hidden">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 scale-105 group-hover:scale-100" data-alt="professional portrait of a middle-aged man with graying hair, wearing glasses and a navy sweater, warm indoor lighting, sophisticated atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIKT5nFDkLAQpn0kyLFuNXdyRrKSfYatopoikymmabInwKGETMfdxGusIYktuBcB_OuJGpPQPljHgj4g_5ATYgs4XI7aTJopHB-JIXGA0kRMQB9B4XMCeFl7lFVZ7sPehr_59iPBSSTD1yCymLl5TSRvLqVb4eOYCRmB5t8a0jsP-yAnPPUVWRV0-n5peSlCesZJgxu3MMWyIbo00e2UYxue0xdL6DBA0Sh2YIuFuhnNxzcsCstwoicrX2MUMh6AT3Zf_WRdgf1l6P"/>
+</div>
+<div class="p-8">
+<div class="text-primary text-[0.75rem] font-bold tracking-[0.04em] mb-2">CHIEF OPERATING OFFICER</div>
+<h3 class="text-xl font-bold mb-1">Marcus Thorne</h3>
+<p class="text-on-surface-variant text-sm mb-4">Lead Architect, Global Workforce Initiatives</p>
+<p class="text-sm leading-relaxed text-on-surface/70">
+                            Marcus oversees the operational integrity of our partnership network, ensuring seamless integration between employers and talent pipelines.
+                        </p>
+</div>
+</div>
+<!-- Leader 3 -->
+<div class="group flex flex-col bg-surface-container rounded-xl overflow-hidden hover:bg-surface-container-high transition-colors duration-300">
+<div class="aspect-[4/5] overflow-hidden">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 scale-105 group-hover:scale-100" data-alt="close-up portrait of a South Asian woman executive with a confident smile, bright natural lighting, professional office window background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPBhNEJazkuufNP7jffEeMxo-0idOEaCFy3sS5BfOlwvenPUyDLlQaDr3p9GLKZGZAmyfnFxoDQ5D4LxT7sMAW0IzgZDVYaiz7mI4XHIA07cuhlCRsd5MtX5UVjewEljGgJKBA3RHFz-99kAqF5V7P2u3uGjqE5t90QkB-qVTCzDsM0OX5_0ip2oW3HW_3df0aOcyQbO8A3BKRLKfQftNZv5lh3I3nSV95vb6XWowb8yHCm6N2sJqlcQ9nhRfP0oFpfrpFVxSYXydv"/>
+</div>
+<div class="p-8">
+<div class="text-primary text-[0.75rem] font-bold tracking-[0.04em] mb-2">CHIEF OF RESEARCH</div>
+<h3 class="text-xl font-bold mb-1">Dr. Ananya Ray</h3>
+<p class="text-on-surface-variant text-sm mb-4">Principal Researcher, Economics of Labor</p>
+<p class="text-sm leading-relaxed text-on-surface/70">
+                            Ananya leads our data-driven approach to workforce development, publishing seminal reports on the future of civic employment.
+                        </p>
+</div>
+</div>
+</div>
+</section>
+<!-- Board of Directors Section (Bento Style) -->
+<section class="px-8 py-24 max-w-screen-2xl mx-auto bg-surface-container-low/50">
+<div class="flex items-baseline justify-between mb-16 border-b border-outline-variant/10 pb-4">
+<h2 class="text-3xl font-semibold tracking-[-0.01em]">Board of Trustees</h2>
+<div class="text-[0.75rem] font-bold tracking-[0.04em] text-primary">FISCAL YEAR 2024</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<!-- Board Member 1 -->
+<div class="md:col-span-2 bg-surface-container-lowest p-8 rounded-xl flex gap-8 items-center border border-outline-variant/5">
+<img class="w-32 h-32 rounded-full object-cover grayscale" data-alt="portrait of a senior male executive in a charcoal suit, high contrast black and white, dramatic lighting, sharp detail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDT7CrTnLrnVtf0x6TqVUbQt1rHjzJC--55sneZa3Vcv14yxouawm7imHTPMFRp4OIsEe-C9gEQYSfNUxwIcfZKv4TbkAgNMh5ZEA5gYgeFeojdyY6XkFxW8ecJJD8i_YO6U91bn0g-LbDO_NOkVmXA1k-_ZYbf7CryDTrcEVkgGWaT0uSjemQ8Sqqf3VRzlOB5wcl3EKduxb77zvsCCcYGPVoT-BhqYlC2tOa0EPU8YRzJ9D1FYsA6xTJonKy3Z5rGL42GLh6sPBm"/>
+<div>
+<h4 class="text-lg font-bold">Theodore Whitmore</h4>
+<p class="text-primary text-[0.75rem] font-bold tracking-[0.04em] mb-2">CHAIRMAN</p>
+<p class="text-sm text-on-surface-variant leading-relaxed">
+                            Managing Partner at Global Equity Partners. Theodore provides oversight on our fiscal responsibility and long-term sustainability models.
+                        </p>
+</div>
+</div>
+<!-- Board Member 2 -->
+<div class="bg-surface-container-high p-8 rounded-xl flex flex-col justify-between border border-outline-variant/5">
+<h4 class="text-lg font-bold">Sarah Jenkins</h4>
+<p class="text-on-surface-variant text-sm mb-4">VP of Human Capital, TechCorp</p>
+<p class="text-[0.75rem] text-on-surface/60 leading-relaxed mb-6">
+                        Expert in large-scale talent acquisition and retention strategies for emerging industries.
+                    </p>
+<div class="text-primary text-[0.75rem] font-bold tracking-[0.04em]">TRUSTEE</div>
+</div>
+<!-- Board Member 3 -->
+<div class="bg-surface-container-high p-8 rounded-xl flex flex-col justify-between border border-outline-variant/5">
+<h4 class="text-lg font-bold">Dr. Leo Martinez</h4>
+<p class="text-on-surface-variant text-sm mb-4">Dean, School of Public Policy</p>
+<p class="text-[0.75rem] text-on-surface/60 leading-relaxed mb-6">
+                        A leading voice in urban development and the socioeconomic impact of workforce displacement.
+                    </p>
+<div class="text-primary text-[0.75rem] font-bold tracking-[0.04em]">TRUSTEE</div>
+</div>
+<!-- Board Member 4 -->
+<div class="bg-surface-container-high p-8 rounded-xl flex flex-col justify-between border border-outline-variant/5">
+<h4 class="text-lg font-bold">Linda Zhao</h4>
+<p class="text-on-surface-variant text-sm mb-4">Founder, Civic Lab</p>
+<p class="text-[0.75rem] text-on-surface/60 leading-relaxed mb-6">
+                        Pioneer in utilizing blockchain for verified credentialing and transparent hiring practices.
+                    </p>
+<div class="text-primary text-[0.75rem] font-bold tracking-[0.04em]">TRUSTEE</div>
+</div>
+<!-- Board Member 5 -->
+<div class="md:col-span-2 bg-surface-container-lowest p-8 rounded-xl flex gap-8 items-center border border-outline-variant/5">
+<img class="w-32 h-32 rounded-full object-cover grayscale" data-alt="portrait of a young female executive with a warm smile, natural hair, soft evening sun lighting, blurred library background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuByeiU-VWIjbVFcC8KJuOqwacb0Z0gOCRLXy1l6m2hhGm8a9DQYPJmFyN851uAMiFoiyLcFgfsxcRSw0LFIJQvvAKffDVHBoePpHlzoJsvOLara-ij0CsQqcJ9MD-9HPIHFQrdfxf4FD5fL-aR-pb2icUtWI9WQzn9Z5ciLpJwVhIv8Z7OnbfGW6pKGqLoIzLG9ahPA0t92pqWt6JdB0tbYPXL5voGOf85IYsSvdBvkqtR0mhSclBw4oain0HFLIprHgDm6wj-7o-b2"/>
+<div>
+<h4 class="text-lg font-bold">Kaitlyn Rivera</h4>
+<p class="text-primary text-[0.75rem] font-bold tracking-[0.04em] mb-2">COMMUNITY LIAISON</p>
+<p class="text-sm text-on-surface-variant leading-relaxed">
+                            Ensures our initiatives remain grounded in the lived experiences of the workers we aim to serve.
+                        </p>
+</div>
+</div>
+<!-- Board Member 6 -->
+<div class="bg-surface-container-high p-8 rounded-xl flex flex-col justify-between border border-outline-variant/5">
+<h4 class="text-lg font-bold">Jameson Cole</h4>
+<p class="text-on-surface-variant text-sm mb-4">General Counsel</p>
+<p class="text-[0.75rem] text-on-surface/60 leading-relaxed mb-6">
+                        Specializes in labor law and regulatory compliance across international markets.
+                    </p>
+<div class="text-primary text-[0.75rem] font-bold tracking-[0.04em]">TRUSTEE</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="px-8 py-24 max-w-screen-2xl mx-auto text-center">
+<div class="bg-gradient-to-br from-surface-container-high to-surface-container-lowest p-16 rounded-2xl border border-outline-variant/5 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
+<h2 class="text-4xl font-bold mb-6 tracking-tight">Join the Mission</h2>
+<p class="text-on-surface-variant max-w-xl mx-auto mb-10">
+                    We are always seeking partners who share our commitment to architectural workforce integrity and civic growth.
+                </p>
+<div class="flex flex-col sm:flex-row gap-4 justify-center">
+<button class="bg-primary text-on-primary px-8 py-4 rounded-lg font-bold transition-all active:scale-95 hover:shadow-lg hover:shadow-primary/10">Partner With Us</button>
+<button class="bg-surface-container-highest text-primary px-8 py-4 rounded-lg font-bold transition-all active:scale-95 hover:bg-surface-bright">View Careers</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full mt-auto bg-[#fcf9f8] dark:bg-slate-950 font-['Inter'] text-sm tracking-wide">
+<div class="flex flex-col items-center py-12 px-8 max-w-screen-2xl mx-auto">
+<div class="bg-slate-200 dark:bg-slate-800 h-[1px] w-full mb-8"></div>
+<div class="w-full grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+<div class="col-span-1 md:col-span-2">
+<div class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-4">Civic Bridge</div>
+<p class="text-slate-500 dark:text-slate-400 max-w-sm mb-6">
+                        Editorial Excellence for Workforce Development. Our work is dedicated to the advancement of high-trust civic institutions.
+                    </p>
+</div>
+<div>
+<h5 class="font-bold text-slate-900 dark:text-slate-100 mb-4">Resources</h5>
+<ul class="space-y-3">
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] transition-all" href="#">Research</a></li>
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] transition-all" href="#">Impact Report</a></li>
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] transition-all" href="#">Archive</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-bold text-slate-900 dark:text-slate-100 mb-4">Legal</h5>
+<ul class="space-y-3">
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] transition-all" href="#">Privacy Policy</a></li>
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] transition-all" href="#">Terms of Service</a></li>
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] transition-all" href="#">Governance</a></li>
+</ul>
+</div>
+</div>
+<div class="w-full flex flex-col md:flex-row justify-between items-center pt-8 border-t border-slate-200 dark:border-slate-800">
+<p class="text-slate-500 dark:text-slate-400 text-xs mb-4 md:mb-0">
+                    © 2024 Civic Bridge. Editorial Excellence for Workforce Development.
+                </p>
+<div class="flex gap-6">
+<a class="text-slate-500 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] transition-all" href="#"><span class="material-symbols-outlined">public</span></a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] transition-all" href="#"><span class="material-symbols-outlined">share</span></a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-[#AD2C4D] dark:hover:text-[#FFBB00] transition-all" href="#"><span class="material-symbols-outlined">mail</span></a>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

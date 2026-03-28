@@ -9,8 +9,8 @@ import Footer from '@/components/Footer';
 import JobsListingClient from './JobsListingClient';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Job Board',
-  description: 'Browse job openings from WorkforceAP employer partners. Log in to apply.',
+  title: 'Job Opportunities',
+  description: 'Browse job openings from WorkforceAP employer partners. These roles are actively hiring WorkforceAP graduates. Log in to apply.',
   path: '/jobs',
 });
 
@@ -19,48 +19,49 @@ export default async function JobsPage() {
   
   let ageGroup: 'under14' | 'youth14to17' | 'adult18plus' = 'adult18plus';
   if (user) {
-    const profile = await prisma.profile.findUnique({
-      where: { userId: user.id },
-      select: { dob: true, isMinor: true },
-    });
-    if (profile?.dob) {
-      ageGroup = getAgeGroup(profile.dob);
+    try {
+      const profile = await prisma.profile.findUnique({
+        where: { userId: user.id },
+        select: { dob: true, isMinor: true },
+      });
+      if (profile?.dob) {
+        ageGroup = getAgeGroup(profile.dob);
+      }
+    } catch (e) {
+      // Fallback to adult if DB query fails
+      ageGroup = 'adult18plus';
     }
   }
 
   return (
-    <div className="inner-page">
+    <div className="inner-page stitch-dark">
       <PageHero
-        title="Job Board"
-        subtitle="Browse openings from employers hiring WorkforceAP graduates and members. Create a free account or log in to apply."
+        title="Job Opportunities"
+        subtitle="These roles are actively hiring WorkforceAP graduates. Create a free account or log in to apply."
       />
-      <section className="content-section" style={{ paddingTop: '1rem' }}>
+      <section className="content-section stitch-section" style={{ paddingTop: '1rem' }}>
         <div className="container">
           {!user ? (
-            <p className="jobs-public-cta" style={{ marginBottom: '1.25rem', fontSize: '0.95rem', lineHeight: 1.5 }}>
-              <strong>Applying is for members.</strong>{' '}
-              <a href="/login?redirectTo=/jobs" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-                Log in
-              </a>{' '}
-              or{' '}
-              <a href="/apply" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-                start an application
-              </a>{' '}
-              to submit your profile to roles you choose.
-            </p>
+            <div className="stitch-card stitch-card-muted" style={{ marginBottom: '1.5rem' }}>
+              <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: 1.5 }}>
+                <strong>Applying is for members.</strong>{' '}
+                <a href="/login?redirectTo=/jobs" className="stitch-link">
+                  Log in
+                </a>{' '}
+                or{' '}
+                <a href="/apply" className="stitch-link">
+                  start an application
+                </a>{' '}
+                to submit your profile to roles you choose.
+              </p>
+            </div>
           ) : null}
           {ageGroup === 'under14' ? (
-            <div style={{
-              padding: '2rem',
-              background: 'var(--color-gray-50)',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--color-gray-200)',
-              textAlign: 'center'
-            }}>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '0.75rem' }}>
+            <div className="stitch-card stitch-card-highlight">
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.75rem', color: '#fff' }}>
                 Career Exploration for Young Learners
               </h3>
-              <p style={{ color: 'var(--color-gray-700)', lineHeight: 1.6, marginBottom: '1rem' }}>
+              <p style={{ color: 'rgba(255,255,255,0.8)', lineHeight: 1.6, marginBottom: '1rem' }}>
                 Job applications are available for members 14 and older. For now, focus on exploring 
                 career paths and building skills through our training programs.
               </p>
@@ -70,17 +71,9 @@ export default async function JobsPage() {
             </div>
           ) : ageGroup === 'youth14to17' ? (
             <>
-              <div style={{
-                padding: '1rem',
-                background: 'rgba(240, 205, 131, 0.15)',
-                border: '1px solid rgba(240, 205, 131, 0.3)',
-                borderRadius: 'var(--radius-md)',
-                marginBottom: '1.5rem'
-              }}>
-                <p style={{ fontSize: '0.9rem', lineHeight: 1.5, margin: 0 }}>
-                  <strong>Youth Job Board:</strong> Showing jobs appropriate for ages 14-17. 
-                  These positions comply with youth labor laws and work permit requirements.
-                </p>
+              <div className="stitch-badge stitch-badge-youth" style={{ marginBottom: '1.5rem' }}>
+                <strong>Youth Job Board:</strong> Showing jobs appropriate for ages 14-17. 
+                These positions comply with youth labor laws and work permit requirements.
               </div>
               <Suspense fallback={<p className="job-loading">Loading youth-appropriate jobs…</p>}>
                 <JobsListingClient isAuthenticated={!!user} ageGroup={ageGroup} />

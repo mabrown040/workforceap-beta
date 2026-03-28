@@ -79,40 +79,103 @@ export default function FAQContent() {
   const [activeCategory, setActiveCategory] = useState('Admissions');
 
   return (
-    <section className="content-section">
+    <section
+      className="content-section"
+      style={{ backgroundColor: '#141313', color: '#e6e1e1' }}
+    >
       <div className="container">
         {/* Last Updated Badge */}
-        <div className="faq-updated-badge">
+        <div
+          className="faq-updated-badge"
+          style={{
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: '8px',
+            padding: '10px 16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginBottom: '1.5rem',
+            color: '#a68a8d',
+            fontSize: '0.875rem',
+          }}
+        >
           <Calendar size={16} aria-hidden />
           <span>Last updated: March 20, 2026</span>
           <span style={{ marginLeft: 'auto' }}>
-            <Link href="/contact" style={{ color: 'var(--color-accent)', textDecoration: 'none' }}>
+            <Link href="/contact" style={{ color: '#ad2c4d', textDecoration: 'none' }}>
               Suggest an update →
             </Link>
           </span>
         </div>
 
         {/* Quick Links */}
-        <div className="faq-quick-links">
+        <div
+          className="faq-quick-links"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            gap: '12px',
+            marginBottom: '2rem',
+          }}
+        >
           {quickLinks.map(({ title, href, icon: Icon }) => (
-            <Link key={href} href={href} className="faq-quick-link">
-              <Icon size={20} style={{ color: 'var(--color-accent)' }} aria-hidden />
+            <Link
+              key={href}
+              href={href}
+              className="faq-quick-link"
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: '10px',
+                padding: '14px 16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                color: '#e6e1e1',
+                textDecoration: 'none',
+                fontSize: '0.9rem',
+                transition: 'border-color 0.15s',
+              }}
+            >
+              <Icon size={20} style={{ color: '#ad2c4d' }} aria-hidden />
               <span style={{ fontWeight: 500 }}>{title}</span>
-              <ArrowRight size={16} style={{ marginLeft: 'auto', opacity: 0.5 }} aria-hidden />
+              <ArrowRight size={16} style={{ marginLeft: 'auto', opacity: 0.4 }} aria-hidden />
             </Link>
           ))}
         </div>
 
         {/* Category Tabs */}
-        <div className="faq-category-tabs">
+        <div
+          className="faq-category-tabs"
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '8px',
+            marginBottom: '2rem',
+          }}
+        >
           {categories.map(({ key, Icon }) => (
             <button
               key={key}
               type="button"
               onClick={() => setActiveCategory(key)}
-              className={`faq-category-tab${activeCategory === key ? ' faq-category-tab--active' : ''}`}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                border: activeCategory === key ? '1px solid #ad2c4d' : '1px solid rgba(255,255,255,0.1)',
+                background: activeCategory === key ? 'rgba(173,44,77,0.12)' : 'rgba(255,255,255,0.03)',
+                color: activeCategory === key ? '#ffb2bc' : '#debfc2',
+                fontWeight: activeCategory === key ? 600 : 400,
+                fontSize: '0.875rem',
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
             >
-              <Icon size={18} className="text-current" aria-hidden />
+              <Icon size={16} aria-hidden />
               {key}
             </button>
           ))}
@@ -125,32 +188,71 @@ export default function FAQContent() {
             className="faq-section"
             style={{ display: activeCategory === key ? 'block' : 'none' }}
           >
-            <h2 className="faq-section-heading">
-              <Icon size={22} className="text-current" aria-hidden />
+            <h2
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                color: '#ad2c4d',
+                fontSize: '1.1rem',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '1.25rem',
+              }}
+            >
+              <Icon size={20} aria-hidden />
               {key}
             </h2>
-            <div className="faq-list">
+            <div className="faq-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {faqData[key]?.map((item) => (
-                <details key={item.q} className="faq-item">
-                  <summary>{item.q}</summary>
-                  <p>{item.a}</p>
-                  {item.link && (
-                    <p style={{ marginTop: '1rem' }}>
-                      <Link 
-                        href={item.link.href}
-                        style={{ 
-                          display: 'inline-flex', 
-                          alignItems: 'center', 
-                          gap: '0.5rem',
-                          color: '#ad2c4d',
-                          fontWeight: 500,
-                          textDecoration: 'none'
-                        }}
-                      >
-                        {item.link.text} <ArrowRight size={16} />
-                      </Link>
-                    </p>
-                  )}
+                <details
+                  key={item.q}
+                  className="faq-item"
+                  style={{
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    borderRadius: '10px',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <summary
+                    style={{
+                      padding: '16px 20px',
+                      cursor: 'pointer',
+                      color: '#e6e1e1',
+                      fontWeight: 600,
+                      fontSize: '0.95rem',
+                      listStyle: 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    {item.q}
+                    <span style={{ color: '#ad2c4d', fontSize: '1.25rem', lineHeight: 1 }}>+</span>
+                  </summary>
+                  <div style={{ padding: '0 20px 20px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                    <p style={{ color: '#debfc2', lineHeight: 1.7, marginTop: '14px', fontSize: '0.95rem' }}>{item.a}</p>
+                    {item.link && (
+                      <p style={{ marginTop: '1rem' }}>
+                        <Link
+                          href={item.link.href}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            color: '#ad2c4d',
+                            fontWeight: 500,
+                            textDecoration: 'none',
+                            fontSize: '0.9rem',
+                          }}
+                        >
+                          {item.link.text} <ArrowRight size={14} />
+                        </Link>
+                      </p>
+                    )}
+                  </div>
                 </details>
               ))}
             </div>
@@ -158,13 +260,42 @@ export default function FAQContent() {
         ))}
 
         {/* CTA Section */}
-        <div className="faq-bottom-cta">
-          <h2>Still have questions?</h2>
-          <p>Our team responds within 24–48 hours — reach out any time.</p>
-          <Link href="/contact" className="btn btn-primary" style={{ marginRight: '1rem' }}>
+        <div
+          className="faq-bottom-cta"
+          style={{
+            marginTop: '3rem',
+            background: 'rgba(173,44,77,0.08)',
+            border: '1px solid rgba(173,44,77,0.2)',
+            borderRadius: '12px',
+            padding: '40px',
+            textAlign: 'center',
+          }}
+        >
+          <h2 style={{ color: '#e6e1e1', fontSize: '1.5rem', fontWeight: 700, marginBottom: '8px' }}>
+            Still have questions?
+          </h2>
+          <p style={{ color: '#debfc2', marginBottom: '24px' }}>
+            Our team responds within 24–48 hours — reach out any time.
+          </p>
+          <Link
+            href="/contact"
+            className="btn btn-primary"
+            style={{ marginRight: '1rem', background: '#ad2c4d', color: '#fff', borderRadius: '8px', padding: '12px 24px', fontWeight: 700, textDecoration: 'none' }}
+          >
             Contact Us
           </Link>
-          <Link href="/apply" className="btn btn-on-dark-secondary">
+          <Link
+            href="/apply"
+            style={{
+              border: '1px solid rgba(173,44,77,0.5)',
+              color: '#ffb2bc',
+              borderRadius: '8px',
+              padding: '12px 24px',
+              fontWeight: 600,
+              textDecoration: 'none',
+              display: 'inline-block',
+            }}
+          >
             Apply Now
           </Link>
         </div>

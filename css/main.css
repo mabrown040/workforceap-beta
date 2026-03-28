@@ -5194,9 +5194,8 @@ html.dark .faq-section-heading {
     background: var(--color-white);
     border-radius: var(--radius-lg);
     padding: 1.75rem;
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--color-gray-200);
-    border-left: 4px solid var(--color-gray-300);
+    box-shadow: 0 20px 40px rgba(28, 27, 27, 0.06);
+    border: 1px solid var(--color-surface-variant);
     transition: all var(--transition-base);
     position: relative;
     display: flex;
@@ -5324,11 +5323,91 @@ html.dark .faq-section-heading {
 }
 .program-card-footer {
     margin-top: auto;
-    gap: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+.program-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 .program-card-partner {
-    color: var(--color-gray-500) !important;
+    font-size: 0.8rem;
+    color: var(--color-gray-500);
     font-weight: 500;
+}
+.program-card-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.875rem;
+}
+.program-card-category-badge {
+    color: #ffffff;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.program-card-icon-slot {
+    display: flex;
+    align-items: center;
+    color: var(--color-gray-400);
+}
+.program-card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--color-primary);
+}
+.program-card-meta {
+    margin-bottom: 0.75rem;
+}
+.program-card-duration {
+    font-size: 0.85rem;
+    color: var(--color-gray-600);
+}
+.program-card-salary {
+    font-size: 0.85rem;
+    color: var(--color-accent);
+    font-weight: 600;
+}
+.program-card-salary-note {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--color-gray-500);
+    margin-top: 0.25rem;
+}
+.program-card-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-bottom: 1rem;
+}
+.program-card-skill-tag {
+    background: var(--color-surface-variant);
+    color: var(--color-gray-700);
+    border: 1px solid var(--color-outline);
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+}
+.program-card-skill-more {
+    background: var(--color-gray-200);
+    color: var(--color-gray-600);
+    border-color: transparent;
+}
+.programs-salary-disclaimer {
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 0.85rem;
+    color: var(--color-gray-500);
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .program-card details {

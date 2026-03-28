@@ -42,65 +42,35 @@ function ProgramCard({ program }: { program: Program }) {
 
   return (
     <div className="program-card" data-category={program.category} style={{ borderLeft: `4px solid ${borderColor}` }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-        <span style={{ background: program.categoryColor, color: 'white', padding: '.3rem .75rem', borderRadius: '50px', fontSize: '.75rem', fontWeight: 600 }}>{program.categoryLabel}</span>
-        <span style={{ display: 'flex', alignItems: 'center' }}><ProgramIcon program={program} size={28} /></span>
+      <div className="program-card-header-row">
+        <span className="program-card-category-badge" style={{ background: program.categoryColor }}>{program.categoryLabel}</span>
+        <span className="program-card-icon-slot"><ProgramIcon program={program} size={28} /></span>
       </div>
-      <h3 style={{ fontSize: '1.1rem', marginBottom: '.5rem' }}>{program.title}</h3>
+      <h3 className="program-card-title">{program.title}</h3>
       {extra?.bestFor && (
         <p className="program-card-best-for">
           <strong>Best for:</strong> {extra.bestFor}
         </p>
       )}
-      <div style={{ marginBottom: '.75rem' }}>
-        <div
-          className="program-card-meta-row"
-          style={{ display: 'flex', gap: '1rem', fontSize: '.85rem', color: 'var(--color-gray-600)' }}
-        >
-          <span>⏱ {program.duration}</span>
-          <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Starting range: {salaryRangeDisplay(program)}</span>
+      <div className="program-card-meta">
+        <div className="program-card-meta-row">
+          <span className="program-card-duration">⏱ {program.duration}</span>
+          <span className="program-card-salary">Starting range: {salaryRangeDisplay(program)}</span>
         </div>
         {extra?.jobOutcomes && extra.jobOutcomes.length > 0 && (
           <p className="program-card-outcomes">
             <strong>Roles:</strong> {extra.jobOutcomes.join(' · ')}
           </p>
         )}
-        <small style={{ display: 'block', fontSize: '.75rem', color: 'var(--color-gray-500)', marginTop: '.25rem' }}>
-          *Austin-area median based on industry data
-        </small>
+        <small className="program-card-salary-note">*Austin-area median based on industry data</small>
       </div>
       {nonEmptySkills.length > 0 ? (
-        <div style={{ marginBottom: '1rem', display: 'flex', flexWrap: 'wrap', gap: '.35rem' }}>
+        <div className="program-card-skills">
           {skills.map((s) => (
-            <span
-              key={s}
-              className="program-card-skill-tag"
-              style={{
-                background: 'var(--color-gray-100, #f0f0f0)',
-                color: 'var(--color-gray-800, #1a1a1a)',
-                border: '1px solid var(--color-border, #e5e5e5)',
-                padding: '.25rem .6rem',
-                borderRadius: '4px',
-                fontSize: '.8rem',
-                display: 'inline-block',
-              }}
-            >
-              {s}
-            </span>
+            <span key={s} className="program-card-skill-tag">{s}</span>
           ))}
           {moreSkills > 0 && (
-            <span
-              style={{
-                background: 'var(--color-gray-200, #e5e5e5)',
-                color: 'var(--color-gray-600, #737373)',
-                padding: '.25rem .6rem',
-                borderRadius: '4px',
-                fontSize: '.8rem',
-                display: 'inline-block',
-              }}
-            >
-              +{moreSkills} more
-            </span>
+            <span className="program-card-skill-tag program-card-skill-more">+{moreSkills} more</span>
           )}
         </div>
       ) : null}
@@ -114,18 +84,11 @@ function ProgramCard({ program }: { program: Program }) {
           ))}
         </ul>
       </details>
-      <div
-        className="program-card-footer"
-        style={{ display: 'flex', flexWrap: 'wrap', gap: '.5rem', justifyContent: 'space-between', alignItems: 'center' }}
-      >
-        <span style={{ fontSize: '.8rem', color: 'var(--color-gray-500)' }}>Partner: {program.partner}</span>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.5rem' }}>
-          <Link href={`/programs/${program.slug}`} className="btn btn-outline" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>
-            View Program
-          </Link>
-          <Link href={`/apply?program=${program.slug}`} className="btn btn-primary" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>
-            Apply →
-          </Link>
+      <div className="program-card-footer">
+        <span className="program-card-partner">Partner: {program.partner}</span>
+        <div className="program-card-actions">
+          <Link href={`/programs/${program.slug}`} className="btn btn-outline btn-sm">View Program</Link>
+          <Link href={`/apply?program=${program.slug}`} className="btn btn-primary btn-sm">Apply →</Link>
         </div>
       </div>
     </div>
@@ -158,7 +121,7 @@ export default function ProgramsContent() {
             <ProgramCard key={p.title} program={p} />
           ))}
         </div>
-        <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '.85rem', color: '#666', maxWidth: '640px', marginLeft: 'auto', marginRight: 'auto' }}>
+        <p className="programs-salary-disclaimer">
           Bands are Austin-first, grounded in Lightcast/BLS-style data (Jan 2026). Your offer still depends on proof, role, and employer.
         </p>
         <div className="programs-bottom-actions">

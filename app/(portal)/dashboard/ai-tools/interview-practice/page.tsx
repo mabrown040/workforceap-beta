@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import InterviewPracticeForm from '@/components/portal/tools/InterviewPracticeForm';
 import InterviewPracticeSaved from '@/components/portal/tools/InterviewPracticeSaved';
+import { ArrowLeft } from 'lucide-react';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Interview Practice Generator',
@@ -25,26 +26,32 @@ export default async function InterviewPracticePage() {
   });
 
   return (
-    <div className="inner-page">
-      <section className="page-hero">
-        <div className="page-hero-content">
-            <Link href="/dashboard/ai-tools" className="resource-back-link">
-              ← Back to AI Tools
-            </Link>
-            <h1>Interview Practice Generator</h1>
-            <p>Generate role-specific interview questions with answer frameworks. Practice behavioral and technical questions.</p>
-        </div>
-      </section>
+    <div className="wa-space-y-8">
+      {/* ── Header ── */}
+      <header>
+        <Link
+          href="/dashboard/ai-tools"
+          className="wa-inline-flex wa-items-center wa-gap-1.5 wa-text-sm wa-font-medium wa-text-m3-primary hover:wa-underline wa-mb-4"
+        >
+          <ArrowLeft size={14} aria-hidden />
+          Back to AI Tools
+        </Link>
+        <p className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest wa-text-m3-primary wa-mb-1">
+          AI Career Optimization
+        </p>
+        <h1 className="wa-text-3xl wa-font-extrabold wa-tracking-tight wa-text-m3-on-surface">
+          Interview Practice Generator
+        </h1>
+        <p className="wa-mt-1 wa-text-sm wa-text-m3-on-surface-variant wa-max-w-2xl">
+          Generate role-specific interview questions with answer frameworks. Practice behavioral and technical questions.
+        </p>
+      </header>
 
-      <section className="content-section">
-        <div className="container">
-          <div className="ai-tool-page" style={{ maxWidth: '720px' }}>
-            <InterviewPracticeForm />
-            <InterviewPracticeSaved results={savedResults} />
-          </div>
-        </div>
-      </section>
-
+      {/* ── Form card ── */}
+      <div className="wa-rounded-2xl wa-border wa-border-m3-outline-variant/30 wa-bg-m3-surface-container-lowest wa-p-6 wa-max-w-3xl">
+        <InterviewPracticeForm />
+        <InterviewPracticeSaved results={savedResults} />
+      </div>
     </div>
   );
 }

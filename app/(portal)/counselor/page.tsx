@@ -2,8 +2,7 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import PageHeader from '@/components/portal/PageHeader';
-import { Users, MessageSquare, CheckCircle, AlertCircle } from 'lucide-react';
+import { Users, MessageSquare, CheckCircle, AlertCircle, ArrowRight, Calendar, BookOpen } from 'lucide-react';
 import Link from 'next/link';
 import { counselorAffiliationLabel } from '@/lib/counselor/counselorLabels';
 
@@ -68,156 +67,148 @@ export default async function CounselorPortalPage() {
 
   const affiliation = counselor ? counselorAffiliationLabel(counselor.partner?.name) : 'WorkforceAP';
 
+  const enrolledCount = assignments.filter((a) => a.member.enrolledProgram).length;
+  const needsAttentionCount = assignments.filter(
+    (a) => !a.member.enrolledProgram && !a.member.programInterest,
+  ).length;
+
+  const statCards = [
+    { label: 'Active Students', value: assignments.length, icon: Users, color: 'wa-bg-m3-primary-container wa-text-m3-on-primary-container' },
+    { label: 'Threads Needing Reply', value: messagesNeedingReply, icon: MessageSquare, color: 'wa-bg-m3-tertiary-container wa-text-m3-on-tertiary-container' },
+    { label: 'Enrolled', value: enrolledCount, icon: CheckCircle, color: 'wa-bg-m3-secondary-container wa-text-m3-on-secondary-container' },
+    { label: 'Needs Attention', value: needsAttentionCount, icon: AlertCircle, color: 'wa-bg-yellow-100 wa-text-yellow-800' },
+  ];
+
   return (
-    <div className="portal-main-content">
-      <PageHeader
-        title={`Welcome, ${dbUser.fullName}`}
-        subtitle={`${affiliation} · ${assignments.length} active student${assignments.length === 1 ? '' : 's'}`}
-      />
+    <div className="wa-space-y-8">
+      {/* ── Header ── */}
+      <header>
+        <h1 className="wa-text-3xl wa-font-extrabold wa-tracking-tight wa-text-m3-on-surface">
+          Welcome, {dbUser.fullName}
+        </h1>
+        <p className="wa-mt-1 wa-text-sm wa-text-m3-on-surface-variant">
+          {affiliation} &middot; {assignments.length} active student{assignments.length === 1 ? '' : 's'}
+        </p>
+      </header>
 
-      <div
-        style={{
-          display: 'grid',
-          gap: '1.5rem',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-          marginBottom: '2rem',
-        }}
-      >
-        <div className="stat-card">
-          <div className="stat-card__icon" style={{ background: 'rgba(173, 44, 77, 0.1)' }}>
-            <Users size={24} style={{ color: 'var(--color-accent)' }} aria-hidden />
-          </div>
-          <div>
-            <div className="stat-card__value">{assignments.length}</div>
-            <div className="stat-card__label">Active students</div>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-card__icon" style={{ background: 'rgba(240, 205, 131, 0.2)' }}>
-            <MessageSquare size={24} style={{ color: 'var(--color-gold)' }} aria-hidden />
-          </div>
-          <div>
-            <div className="stat-card__value">{messagesNeedingReply}</div>
-            <div className="stat-card__label">Threads with new member messages</div>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-card__icon" style={{ background: 'rgba(74, 155, 79, 0.1)' }}>
-            <CheckCircle size={24} style={{ color: '#4a9b4f' }} aria-hidden />
-          </div>
-          <div>
-            <div className="stat-card__value">
-              {assignments.filter((a) => a.member.enrolledProgram).length}
+      {/* ── 4-column stat cards ── */}
+      <div className="wa-grid wa-grid-cols-2 lg:wa-grid-cols-4 wa-gap-4">
+        {statCards.map(({ label, value, icon: Icon, color }) => (
+          <div
+            key={label}
+            className="wa-rounded-2xl wa-border wa-border-m3-outline-variant/30 wa-bg-m3-surface-container-lowest wa-p-5 wa-flex wa-items-start wa-gap-4"
+          >
+            <div className={`wa-rounded-xl wa-p-2.5 ${color}`}>
+              <Icon size={20} aria-hidden />
             </div>
-            <div className="stat-card__label">Enrolled in programs</div>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-card__icon" style={{ background: 'rgba(234, 179, 8, 0.1)' }}>
-            <AlertCircle size={24} style={{ color: '#eab308' }} aria-hidden />
-          </div>
-          <div>
-            <div className="stat-card__value">
-              {assignments.filter((a) => !a.member.enrolledProgram && !a.member.programInterest).length}
+            <div>
+              <p className="wa-text-2xl wa-font-bold wa-text-m3-on-surface">{value}</p>
+              <p className="wa-text-xs wa-text-m3-on-surface-variant">{label}</p>
             </div>
-            <div className="stat-card__label">Needs attention</div>
           </div>
-        </div>
+        ))}
       </div>
 
-      <section>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1rem' }}>
-          Your students ({assignments.length})
-        </h2>
+      {/* ── Main grid: Students + Quick Actions ── */}
+      <div className="wa-grid wa-grid-cols-12 wa-gap-6">
+        {/* Left: Your Students (col-span-8) */}
+        <section className="wa-col-span-12 lg:wa-col-span-8">
+          <h2 className="wa-text-lg wa-font-bold wa-text-m3-on-surface wa-mb-4">
+            Your Students ({assignments.length})
+          </h2>
 
-        {assignments.length === 0 ? (
-          <div
-            style={{
-              padding: '2rem',
-              textAlign: 'center',
-              background: 'var(--color-gray-50)',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--color-gray-200)',
-            }}
-          >
-            <p style={{ color: 'var(--color-gray-600)' }}>
-              No students assigned yet. Administrators assign members to you from the admin workspace.
+          {assignments.length === 0 ? (
+            <div className="wa-rounded-2xl wa-border wa-border-m3-outline-variant/30 wa-bg-m3-surface-container-lowest wa-p-8 wa-text-center">
+              <p className="wa-text-sm wa-text-m3-on-surface-variant">
+                No students assigned yet. Administrators assign members to you from the admin workspace.
+              </p>
+            </div>
+          ) : (
+            <div className="wa-space-y-3">
+              {assignments.map((assignment) => (
+                <div
+                  key={assignment.id}
+                  className="wa-rounded-2xl wa-border wa-border-m3-outline-variant/30 wa-bg-m3-surface-container-lowest wa-p-5 wa-transition-colors hover:wa-border-m3-outline"
+                >
+                  <div className="wa-flex wa-items-start wa-justify-between wa-mb-2">
+                    <div>
+                      <h3 className="wa-text-base wa-font-semibold wa-text-m3-on-surface">
+                        {assignment.member.fullName}
+                      </h3>
+                      <p className="wa-text-xs wa-text-m3-on-surface-variant">
+                        {assignment.member.email}
+                      </p>
+                    </div>
+                    {assignment.member.enrolledProgram ? (
+                      <span className="wa-rounded-full wa-bg-m3-secondary-container wa-text-m3-on-secondary-container wa-px-3 wa-py-1 wa-text-xs wa-font-semibold">
+                        Enrolled
+                      </span>
+                    ) : (
+                      <span className="wa-rounded-full wa-bg-yellow-100 wa-text-yellow-800 wa-px-3 wa-py-1 wa-text-xs wa-font-semibold">
+                        Not enrolled
+                      </span>
+                    )}
+                  </div>
+                  <p className="wa-text-sm wa-text-m3-on-surface-variant wa-mb-3">
+                    <span className="wa-font-medium wa-text-m3-on-surface">Program interest:</span>{' '}
+                    {assignment.member.programInterest || 'Not specified'}
+                  </p>
+                  <div className="wa-flex wa-items-center wa-gap-4">
+                    <Link
+                      href={`/counselor/students/${assignment.member.id}`}
+                      className="wa-text-xs wa-font-semibold wa-text-m3-primary hover:wa-underline wa-inline-flex wa-items-center wa-gap-1"
+                    >
+                      View Profile <ArrowRight size={12} aria-hidden />
+                    </Link>
+                    <Link
+                      href={`/counselor/students/${assignment.member.id}/messages`}
+                      className="wa-text-xs wa-font-semibold wa-text-m3-primary hover:wa-underline wa-inline-flex wa-items-center wa-gap-1"
+                    >
+                      Messages <MessageSquare size={12} aria-hidden />
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Right: Quick Actions (col-span-4) */}
+        <aside className="wa-col-span-12 lg:wa-col-span-4 wa-space-y-4">
+          <div className="wa-rounded-2xl wa-border wa-border-m3-outline-variant/30 wa-bg-m3-surface-container-lowest wa-p-5">
+            <h3 className="wa-text-sm wa-font-bold wa-uppercase wa-tracking-widest wa-text-m3-primary wa-mb-4">
+              Quick Actions
+            </h3>
+            <nav className="wa-space-y-2">
+              {[
+                { href: '/counselor/messages', label: 'Messages', icon: MessageSquare },
+                { href: '/counselor/resources', label: 'Resources', icon: BookOpen },
+                { href: '/counselor/students', label: 'All Students', icon: Users },
+              ].map(({ href, label, icon: Icon }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="wa-flex wa-items-center wa-gap-3 wa-rounded-xl wa-px-4 wa-py-3 wa-text-sm wa-font-medium wa-text-m3-on-surface wa-transition-colors hover:wa-bg-m3-surface-container-high"
+                >
+                  <Icon size={16} className="wa-text-m3-primary" aria-hidden />
+                  {label}
+                  <ArrowRight size={14} className="wa-ml-auto wa-text-m3-on-surface-variant" aria-hidden />
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          <div className="wa-rounded-2xl wa-border wa-border-dashed wa-border-m3-outline-variant/50 wa-bg-m3-surface-container-lowest wa-p-5 wa-text-center">
+            <Calendar size={24} className="wa-mx-auto wa-mb-2 wa-text-m3-on-surface-variant" aria-hidden />
+            <h3 className="wa-text-sm wa-font-semibold wa-text-m3-on-surface wa-mb-1">
+              Smart Schedule
+            </h3>
+            <p className="wa-text-xs wa-text-m3-on-surface-variant">
+              AI-powered scheduling suggestions coming soon.
             </p>
           </div>
-        ) : (
-          <div style={{ display: 'grid', gap: '0.75rem' }}>
-            {assignments.map((assignment) => (
-              <Link
-                key={assignment.id}
-                href={`/counselor/students/${assignment.member.id}`}
-                style={{
-                  display: 'block',
-                  padding: '1.25rem',
-                  background: 'white',
-                  border: '1px solid var(--color-gray-200)',
-                  borderRadius: 'var(--radius-md)',
-                  textDecoration: 'none',
-                  color: 'inherit',
-                  transition: 'border-color 0.15s, box-shadow 0.15s',
-                }}
-                className="student-card-hover"
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'start',
-                    marginBottom: '0.5rem',
-                  }}
-                >
-                  <div>
-                    <h3 style={{ fontSize: '1.05rem', fontWeight: 600, marginBottom: '0.25rem' }}>
-                      {assignment.member.fullName}
-                    </h3>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>
-                      {assignment.member.email}
-                    </p>
-                  </div>
-                  {assignment.member.enrolledProgram ? (
-                    <span
-                      style={{
-                        padding: '0.25rem 0.75rem',
-                        background: 'rgba(74, 155, 79, 0.1)',
-                        color: '#4a9b4f',
-                        borderRadius: '12px',
-                        fontSize: '0.75rem',
-                        fontWeight: 600,
-                      }}
-                    >
-                      Enrolled
-                    </span>
-                  ) : (
-                    <span
-                      style={{
-                        padding: '0.25rem 0.75rem',
-                        background: 'rgba(234, 179, 8, 0.1)',
-                        color: '#eab308',
-                        borderRadius: '12px',
-                        fontSize: '0.75rem',
-                        fontWeight: 600,
-                      }}
-                    >
-                      Not enrolled
-                    </span>
-                  )}
-                </div>
-
-                <div style={{ fontSize: '0.9rem', color: 'var(--color-gray-700)' }}>
-                  <strong>Program interest:</strong> {assignment.member.programInterest || 'Not specified'}
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </section>
+        </aside>
+      </div>
     </div>
   );
 }

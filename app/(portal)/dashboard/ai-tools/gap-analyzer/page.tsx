@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import GapAnalyzerForm from '@/components/portal/tools/GapAnalyzerForm';
+import { ArrowLeft } from 'lucide-react';
 
 export const metadata = buildPageMetadata({
   title: 'Resume Gap Analyzer',
@@ -16,21 +17,31 @@ export default async function GapAnalyzerPage() {
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools/gap-analyzer');
 
   return (
-    <div className="inner-page">
-      <section className="page-hero">
-        <div className="page-hero-content">
-          <Link href="/dashboard/ai-tools" className="resource-back-link">← Back to AI Tools</Link>
-          <h1>Resume Gap Analyzer</h1>
-          <p>Upload your resume. We&apos;ll flag employment gaps and suggest framing language for cover letters and interviews.</p>
-        </div>
-      </section>
-      <section className="content-section">
-        <div className="container">
-          <div className="ai-tool-page" style={{ maxWidth: '720px' }}>
-            <GapAnalyzerForm />
-          </div>
-        </div>
-      </section>
+    <div className="wa-space-y-8">
+      {/* ── Header ── */}
+      <header>
+        <Link
+          href="/dashboard/ai-tools"
+          className="wa-inline-flex wa-items-center wa-gap-1.5 wa-text-sm wa-font-medium wa-text-m3-primary hover:wa-underline wa-mb-4"
+        >
+          <ArrowLeft size={14} aria-hidden />
+          Back to AI Tools
+        </Link>
+        <p className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest wa-text-m3-primary wa-mb-1">
+          AI Career Optimization
+        </p>
+        <h1 className="wa-text-3xl wa-font-extrabold wa-tracking-tight wa-text-m3-on-surface">
+          Resume Gap Analyzer
+        </h1>
+        <p className="wa-mt-1 wa-text-sm wa-text-m3-on-surface-variant wa-max-w-2xl">
+          Upload your resume. We&apos;ll flag employment gaps and suggest framing language for cover letters and interviews.
+        </p>
+      </header>
+
+      {/* ── Form card ── */}
+      <div className="wa-rounded-2xl wa-border wa-border-m3-outline-variant/30 wa-bg-m3-surface-container-lowest wa-p-6 wa-max-w-3xl">
+        <GapAnalyzerForm />
+      </div>
     </div>
   );
 }

@@ -82,14 +82,10 @@ export default async function ProgramPage() {
         <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>
           Progress: {completedCount} of {program.courses.length} courses complete
         </p>
-        <div style={{ height: '6px', background: '#e5e5e5', borderRadius: '3px', marginBottom: '1.5rem', overflow: 'hidden' }}>
+        <div className="training-progress-track" style={{ marginBottom: '1.5rem' }}>
           <div
-            style={{
-              height: '100%',
-              width: `${program.courses.length > 0 ? (completedCount / program.courses.length) * 100 : 0}%`,
-              background: program.categoryColor,
-              borderRadius: '3px',
-            }}
+            className="training-progress-fill"
+            style={{ width: `${program.courses.length > 0 ? (completedCount / program.courses.length) * 100 : 0}%`, background: program.categoryColor }}
           />
         </div>
         <h3 style={{ fontSize: '1rem', marginBottom: '0.75rem' }}>Course list</h3>

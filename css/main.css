@@ -358,8 +358,8 @@ html.dark .quiz-results-next-links a:hover {
     color: #fda4af;
 }
 html.dark .training-course-card {
-    background: #1e1d1d !important;
-    border-color: #2d2b2b !important;
+    background: var(--dark-surface) !important;
+    border-color: var(--dark-surface-high) !important;
     color: var(--dark-text);
 }
 html.dark .training-course-card__title {
@@ -10969,8 +10969,21 @@ html.dark .admin-super-messages-bubble.is-staff {
     margin-top: 0.75rem;
 }
 
+.training-progress-track {
+    height: 7px;
+    background: var(--color-surface-variant);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+.training-progress-fill {
+    height: 100%;
+    background: var(--color-accent);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+}
 .training-course-card {
-    background: var(--color-white);
+    background: var(--color-surface);
 }
 .training-course-card.training-course-card--up-next {
     box-shadow: 0 0 0 2px rgba(173, 44, 77, 0.25);

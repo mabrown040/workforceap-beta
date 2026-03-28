@@ -49,14 +49,10 @@ export default async function TrainingPage() {
       <p style={{ marginBottom: '1.5rem', fontSize: '0.95rem' }}>
         {completedCount} of {program.courses.length} courses complete
       </p>
-      <div style={{ height: '8px', background: '#e5e5e5', borderRadius: '4px', marginBottom: '2rem', overflow: 'hidden' }}>
+      <div className="training-progress-track">
         <div
-          style={{
-            height: '100%',
-            width: `${program.courses.length > 0 ? (completedCount / program.courses.length) * 100 : 0}%`,
-            background: 'var(--color-accent)',
-            borderRadius: '4px',
-          }}
+          className="training-progress-fill"
+          style={{ width: `${program.courses.length > 0 ? (completedCount / program.courses.length) * 100 : 0}%` }}
         />
       </div>
       <TrainingCourseList

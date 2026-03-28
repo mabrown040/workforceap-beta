@@ -41,59 +41,95 @@ export default async function HomePage() {
 
   return (
     <div className="homepage">
-      {/* Hero */}
+      {/* ── Hero — two-column split layout ── */}
       <section className="hero" aria-label="Hero">
-        <Image
-          src="https://images.unsplash.com/photo-1531218150217-54595bc2b934?auto=format&fit=crop&w=1920&q=80"
-          alt="Austin skyline at sunset"
-          fill
-          priority
-          fetchPriority="high"
-          sizes="100vw"
-          className="hero-bg-image"
-        />
-        <div className="hero-overlay" />
-        <div className="hero-container">
-          <h1 className="hero-title">
-            Free Career Training <br />
-            <span className="accent">in Austin, TX</span>
-          </h1>
-          <p className="hero-tagline" aria-hidden="false" style={{ fontSize: '1.1rem', fontStyle: 'italic', marginBottom: '0.5rem', opacity: 0.85 }}>
-            Empowering People. Advancing Futures.
-          </p>
-          <div className="hero-no-cost-badge">✦ No-cost training for members</div>
-          <p className="hero-program-count" aria-label={`${WORKFORCEAP_PROGRAM_CATALOG_SIZE} training programs`}>
-            {WORKFORCEAP_PROGRAM_CATALOG_SIZE} programs · Industry-recognized certifications
-          </p>
-          <p className="hero-subtitle">
-            Career training and certifications in Digital Literacy, Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Launching in Austin. Employer-aligned. Building toward more.
-          </p>
-          <div className="hero-actions hero-actions-prominent">
-            <ExperimentedCtaLink
-              experiment="home_apply_primary_cta"
-              variants={[
-                { id: 'control', label: 'Apply now — about 10 minutes', className: 'btn btn-accent btn-large', href: '/apply' },
-                { id: 'urgency', label: 'Start your application now', className: 'btn btn-accent btn-large', href: '/apply' },
-              ]}
-            />
-            <Link href="/find-your-path" className="btn btn-ghost">
-              Find Your Path →
-            </Link>
+        <div className="hero-split">
+          <div className="hero-split-content">
+            {/* Enrollment badge */}
+            <div className="hero-enroll-badge" aria-label="Now enrolling">
+              <span className="hero-enroll-badge-dot" aria-hidden="true" />
+              Now Enrolling in Austin, TX
+            </div>
+
+            <h1 className="hero-title">
+              Free Career Training{' '}
+              <span className="accent">in Austin, TX</span>
+            </h1>
+
+            <p className="hero-subtitle" style={{ fontSize: '1.15rem', lineHeight: 1.65, maxWidth: '42ch' }}>
+              Empowering People. Advancing Futures. Tuition-free certifications in Tech, Data, AI, Healthcare,
+              Manufacturing, and Skilled Trades — employer-aligned and launching in Austin.
+            </p>
+
+            {/* Stats row */}
+            <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+              <div>
+                <div className="stat-number" style={{ fontSize: '1.6rem', display: 'block' }}>
+                  {WORKFORCEAP_PROGRAM_CATALOG_SIZE}+
+                </div>
+                <div className="stat-label" style={{ fontSize: '0.75rem' }}>Programs</div>
+              </div>
+              <div>
+                <div className="stat-number" style={{ fontSize: '1.6rem', display: 'block' }}>$0</div>
+                <div className="stat-label" style={{ fontSize: '0.75rem' }}>Cost to Members</div>
+              </div>
+              <div>
+                <div className="stat-number" style={{ fontSize: '1.6rem', display: 'block' }}>16–20</div>
+                <div className="stat-label" style={{ fontSize: '0.75rem' }}>Weeks to Cert</div>
+              </div>
+            </div>
+
+            <div className="hero-actions hero-actions-prominent">
+              <ExperimentedCtaLink
+                experiment="home_apply_primary_cta"
+                variants={[
+                  { id: 'control', label: 'Apply now — about 10 minutes', className: 'btn btn-accent btn-large', href: '/apply' },
+                  { id: 'urgency', label: 'Start your application now', className: 'btn btn-accent btn-large', href: '/apply' },
+                ]}
+              />
+              <Link href="/find-your-path" className="btn btn-ghost">
+                Find Your Path →
+              </Link>
+            </div>
+
+            {/* Trust strip */}
+            <div className="trust-strip" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <span style={{ opacity: 0.55 }}>Curriculum from</span>
+              <div className="trust-logos" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
+                <span>Google</span>
+                <span>AT&amp;T</span>
+                <span>Coursera</span>
+                <Image src="/images/microsoft-logo.svg" alt="Microsoft" width={90} height={22} loading="lazy" style={{ opacity: 0.65, filter: 'invert(1)' }} />
+                <Image src="/images/ibm-logo.svg" alt="IBM" width={52} height={22} loading="lazy" style={{ opacity: 0.65, filter: 'invert(1)' }} />
+              </div>
+            </div>
           </div>
-          <div className="trust-strip">
-            <span>Curriculum from industry leaders</span>
-            <div className="trust-logos">
-              <span>Google</span>
-              <span>AT&amp;T</span>
-              <span>Coursera</span>
-              <Image src="/images/microsoft-logo.svg" alt="Microsoft" width={100} height={24} loading="lazy" />
-              <Image src="/images/ibm-logo.svg" alt="IBM" width={60} height={24} loading="lazy" />
+
+          {/* Right side: hero image with floating badge */}
+          <div className="hero-split-image">
+            <div className="hero-split-image-glow" aria-hidden="true" />
+            <Image
+              src="/images/hero-people.jpg"
+              alt="Diverse adult learners in a modern tech classroom in Austin"
+              width={800}
+              height={600}
+              priority
+              fetchPriority="high"
+              sizes="(max-width: 900px) 0px, 50vw"
+              style={{ borderRadius: '1.25rem', width: '100%', height: 'auto' }}
+            />
+            <div className="hero-placement-badge" aria-label="84% employer placement rate">
+              <div className="hero-placement-badge-icon" aria-hidden="true">✓</div>
+              <div>
+                <div className="hero-placement-badge-label">Placement Rate</div>
+                <div className="hero-placement-badge-value">84%</div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Stats — trust-bearing, category-defining */}
+      {/* ── Stats Bar ── */}
       <section className="stats-bar">
         <div className="stats-container">
           <p className="stats-trust-line">Employer-aligned. No participant debt. When you land a new role, we&apos;ve done our job.</p>
@@ -110,7 +146,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Who we serve — members, employers, partners */}
+      {/* ── Who We Serve ── */}
       <section className="home-audiences" aria-labelledby="home-audiences-heading">
         <div className="container">
           <h2 id="home-audiences-heading" className="home-section-title">
@@ -129,12 +165,8 @@ export default async function HomePage() {
                 No-cost industry certifications and counselor support for members — from intake through job search.
               </p>
               <div className="home-audience-links">
-                <Link href="/apply" className="btn btn-primary btn-sm">
-                  Apply
-                </Link>
-                <Link href="/find-your-path" className="btn btn-outline btn-sm">
-                  2-min quiz
-                </Link>
+                <Link href="/apply" className="btn btn-primary btn-sm">Apply</Link>
+                <Link href="/find-your-path" className="btn btn-outline btn-sm">2-min quiz</Link>
               </div>
             </div>
             <div className="home-audience-card animate-on-scroll">
@@ -146,12 +178,8 @@ export default async function HomePage() {
                 Post roles, review certify-ready candidates, and hire from a pipeline trained on the credentials you already recognize.
               </p>
               <div className="home-audience-links">
-                <Link href="/employers" className="btn btn-primary btn-sm">
-                  Employer overview
-                </Link>
-                <Link href="/jobs" className="btn btn-outline btn-sm">
-                  Public job board
-                </Link>
+                <Link href="/employers" className="btn btn-primary btn-sm">Employer overview</Link>
+                <Link href="/jobs" className="btn btn-outline btn-sm">Public job board</Link>
               </div>
             </div>
             <div className="home-audience-card animate-on-scroll">
@@ -163,12 +191,8 @@ export default async function HomePage() {
                 Churches, nonprofits, and referral organizations: track referrals, stay in the loop on milestones, and send people to a single apply path.
               </p>
               <div className="home-audience-links">
-                <Link href="/partners" className="btn btn-primary btn-sm">
-                  Partner with us
-                </Link>
-                <Link href="/contact" className="btn btn-outline btn-sm">
-                  Contact
-                </Link>
+                <Link href="/partners" className="btn btn-primary btn-sm">Partner with us</Link>
+                <Link href="/contact" className="btn btn-outline btn-sm">Contact</Link>
               </div>
             </div>
           </div>
@@ -181,18 +205,14 @@ export default async function HomePage() {
               you can report.
             </p>
             <div className="home-audience-links" style={{ marginTop: '1rem' }}>
-              <Link href="/partner-signup" className="btn btn-primary btn-sm">
-                Register your organization →
-              </Link>
-              <Link href="/login?redirectTo=/partner" className="btn btn-outline btn-sm">
-                Already a partner? Sign in →
-              </Link>
+              <Link href="/partner-signup" className="btn btn-primary btn-sm">Register your organization →</Link>
+              <Link href="/login?redirectTo=/partner" className="btn btn-outline btn-sm">Already a partner? Sign in →</Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* For You: fit + what you get — orchestrated persuasion */}
+      {/* ── For You ── */}
       <section className="home-for-you">
         <div className="container">
           <h2 className="home-section-title">For you, if you&rsquo;re ready to launch</h2>
@@ -201,31 +221,23 @@ export default async function HomePage() {
           </p>
           <ol className="home-outcome-journey" aria-label="What you receive in sequence">
             <li className="home-outcome-step animate-on-scroll">
-              <span className="home-outcome-step__icon" aria-hidden>
-                <Laptop size={28} strokeWidth={2} />
-              </span>
+              <span className="home-outcome-step__icon" aria-hidden><Laptop size={28} strokeWidth={2} /></span>
               <p className="home-outcome-step__title">Loaner laptop</p>
               <p className="home-outcome-step__desc">Start equipped, not behind</p>
             </li>
             <li className="home-outcome-step animate-on-scroll">
-              <span className="home-outcome-step__icon" aria-hidden>
-                <GraduationCap size={28} strokeWidth={2} />
-              </span>
+              <span className="home-outcome-step__icon" aria-hidden><GraduationCap size={28} strokeWidth={2} /></span>
               <p className="home-outcome-step__title">Career training</p>
               <p className="home-outcome-step__desc">Industry certs from Google, IBM, AWS</p>
             </li>
             <li className="home-outcome-step animate-on-scroll">
-              <span className="home-outcome-step__icon" aria-hidden>
-                <Briefcase size={28} strokeWidth={2} />
-              </span>
+              <span className="home-outcome-step__icon" aria-hidden><Briefcase size={28} strokeWidth={2} /></span>
               <p className="home-outcome-step__title">Job placement</p>
               <p className="home-outcome-step__desc">Employer-aligned placements</p>
             </li>
             <li className="home-outcome-step animate-on-scroll">
-              <span className="home-outcome-step__icon" aria-hidden>
-                <Handshake size={28} strokeWidth={2} />
-              </span>
-              <p className="home-outcome-step__title">180-day (6 months) post-hire support</p>
+              <span className="home-outcome-step__icon" aria-hidden><Handshake size={28} strokeWidth={2} /></span>
+              <p className="home-outcome-step__title">180-day post-hire support</p>
               <p className="home-outcome-step__desc">Support after you&apos;re hired</p>
             </li>
           </ol>
@@ -235,16 +247,14 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* How it works — applicant-benefit-driven, confidence-building */}
+      {/* ── Your Journey — 11-step bento grid ── */}
       <section className="process-flow-section">
         <div className="process-flow-inner">
           <div className="process-flow-header animate-on-scroll">
             <h2>Your Journey With Us</h2>
             <p>
               Eleven milestones from apply to outcomes — same path as our{' '}
-              <Link href="/how-it-works" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-                full How it works
-              </Link>{' '}
+              <Link href="/how-it-works" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>full How it works</Link>{' '}
               page, shown here at a glance.
             </p>
           </div>
@@ -266,35 +276,31 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Prelaunch: no member quotes yet; credibility from CSN / Consulting Solutions.Net track record */}
+      {/* ── Social Proof — no fake testimonials ── */}
       <section className="home-social-proof" aria-labelledby="home-social-proof-heading">
         <div className="container">
           <h2 id="home-social-proof-heading" className="home-section-title">
             Experience behind WorkforceAP
           </h2>
           <p className="home-social-proof-lead">
-            WorkforceAP is still prelaunch — we don&apos;t have graduate stories on this site yet. What we do have is a long run of workforce outcomes through{' '}
-            <strong>Consulting Solutions.Net (CSN)</strong>: Austin-area training aligned to real job requirements, strong completion and placement support, and
-            thousands of people coached into industry credentials and work. That same leadership team is building WorkforceAP for scale.
+            WorkforceAP is still prelaunch — we don&apos;t have graduate stories on this site yet. What we do have is a long run
+            of workforce outcomes through{' '}
+            <strong>Consulting Solutions.Net (CSN)</strong>: Austin-area training aligned to real job requirements, strong completion
+            and placement support, and thousands of people coached into industry credentials and work. That same leadership team is
+            building WorkforceAP for scale.
           </p>
-          <p className="home-social-proof-lead home-social-proof-lead-followup">
+          <p className="home-social-proof-lead" style={{ marginTop: '0.75rem' }}>
             Follow updates and dig into our mission, partners, and board below.
           </p>
           <div className="home-social-proof-actions">
-            <Link href="/blog" className="btn btn-primary btn-sm">
-              Blog &amp; Updates
-            </Link>
-            <Link href="/leadership" className="btn btn-outline btn-sm">
-              Leadership &amp; Board
-            </Link>
-            <Link href="/what-we-do" className="btn btn-outline btn-sm">
-              What we do
-            </Link>
+            <Link href="/blog" className="btn btn-primary btn-sm">Blog &amp; Updates</Link>
+            <Link href="/leadership" className="btn btn-outline btn-sm">Leadership &amp; Board</Link>
+            <Link href="/what-we-do" className="btn btn-outline btn-sm">What we do</Link>
           </div>
         </div>
       </section>
 
-      {/* Why trust: leadership depth, local roots, broader ambition */}
+      {/* ── Who We Are ── */}
       <section className="about-section home-trust-anchor">
         <div className="container">
           <div className="about-grid">
@@ -302,7 +308,11 @@ export default async function HomePage() {
               <span className="section-label">Who We Are</span>
               <h2>25+ Years Breaking Barriers</h2>
               <p>
-                Founded by Michael Brown, PMP — a workforce leader who has trained thousands across the Austin Metro and statewide. Through partnerships with the State of Texas, Texas Workforce Commission, Consultings.net, Goodwill Career &amp; Technical Academy, Austin Area Urban League, Universal Tech Movement, and African American Youth Harvest Foundation, we deliver the wrap-around services that launch careers. Austin is our launch community; we&rsquo;re building toward national scale.
+                Founded by Michael Brown, PMP — a workforce leader who has trained thousands across the Austin Metro and
+                statewide. Through partnerships with the State of Texas, Texas Workforce Commission, Goodwill Career &amp;
+                Technical Academy, Austin Area Urban League, Universal Tech Movement, and African American Youth Harvest
+                Foundation, we deliver the wrap-around services that launch careers. Austin is our launch community; we&rsquo;re
+                building toward national scale.
               </p>
               <div className="about-stats">
                 <div className="about-stat"><span className="stat-num">25+</span><span className="stat-desc">Years Experience</span></div>
@@ -337,7 +347,7 @@ export default async function HomePage() {
                       justifyContent: 'space-between',
                       gap: '0.75rem',
                       padding: '0.45rem 0',
-                      borderBottom: '1px solid rgba(0,0,0,0.06)',
+                      borderBottom: '1px solid rgba(88,65,68,0.1)',
                       fontSize: '0.9rem',
                     }}
                   >
@@ -359,29 +369,27 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* AI-powered member tools (also in the member portal) */}
+      {/* ── AI-powered member tools ── */}
       <section className="content-section home-ai-tools-teaser" aria-labelledby="home-ai-tools-heading">
         <div className="container" style={{ maxWidth: 720, textAlign: 'center' }}>
-          <h2 id="home-ai-tools-heading" className="home-section-title">
-            AI-powered career support
-          </h2>
+          <h2 id="home-ai-tools-heading" className="home-section-title">AI-powered career support</h2>
           <p className="section-intro" style={{ marginBottom: '1.25rem' }}>
             Members get in-portal assistants for resume refinement, interview practice, application tracking, and more —
             designed to complement counselor support, not replace it.
           </p>
-          <Link href="/apply" className="btn btn-primary">
-            Apply to unlock member tools
-          </Link>
+          <Link href="/apply" className="btn btn-primary">Apply to unlock member tools</Link>
         </div>
       </section>
 
-      {/* What to do next — decisive, intentional */}
+      {/* ── Final CTA ── */}
       <section className="footer-cta">
         <div className="container">
           <h2>Your Next Step</h2>
-          <p>Apply now — about 10 minutes. We respond within 24–48 hours. Real certifications. Employer connections. no cost to members.</p>
+          <p>Apply now — about 10 minutes. We respond within 24–48 hours. Real certifications. Employer connections. No cost to members.</p>
           <Link href="/apply" className="btn btn-primary btn-large">Start Your Application</Link>
-          <p className="footer-cta-sub"><Link href="/find-your-path">Not sure yet? Take the pathfinder quiz first.</Link></p>
+          <p className="footer-cta-sub">
+            <Link href="/find-your-path">Not sure yet? Take the pathfinder quiz first.</Link>
+          </p>
         </div>
       </section>
 

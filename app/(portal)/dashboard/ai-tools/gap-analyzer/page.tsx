@@ -17,9 +17,12 @@ export default async function GapAnalyzerPage() {
 
   return (
     <div className="inner-page">
-      <section className="page-hero">
+      <section className="ai-tool-header page-hero">
         <div className="page-hero-content">
-          <Link href="/dashboard/ai-tools" className="resource-back-link">← Back to AI Tools</Link>
+          <Link href="/dashboard/ai-tools" className="ai-tool-back-link">← Back to AI Tools</Link>
+          <div className="ai-tool-icon-ring" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
           <h1>Resume Gap Analyzer</h1>
           <p>Upload your resume. We&apos;ll flag employment gaps and suggest framing language for cover letters and interviews.</p>
         </div>

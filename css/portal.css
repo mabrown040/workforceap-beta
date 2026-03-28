@@ -1,40 +1,658 @@
 /*
- * Stage 1 of CSS split: portal/admin styles migrate here.
- * Keep in sync with css/main.css until full extraction is complete.
+ * WorkforceAP — Stitch design tokens for all portal / admin pages.
+ * Applies M3 palette to existing class names via html.dark selectors.
  */
 
+/* ── Pre-screening progress (member portal) ── */
 .member-prescreen-progress {
   margin-bottom: 1rem;
 }
-
 .member-prescreen-progress-title {
   margin: 0;
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--color-gray-700);
 }
-
 .member-prescreen-progress-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.35rem;
 }
-
 .member-prescreen-progress-text {
   font-size: 0.8rem;
   color: var(--color-gray-600);
 }
-
 .member-prescreen-progress-track {
   height: 4px;
   background: var(--color-gray-200);
   border-radius: 4px;
   overflow: hidden;
 }
-
 .member-prescreen-progress-fill {
   height: 100%;
   border-radius: 4px;
   transition: width 0.3s ease;
+}
+
+/* ═══ WORKSPACE SHELL ═══ */
+.workspace-shell-main {
+  background: #fcf9f8;
+}
+html.dark .workspace-shell-main {
+  background: #141313;
+  color: #e6e1e1;
+}
+.workspace-sidebar {
+  background: #f6f3f2 !important;
+  border-right-color: rgba(222, 191, 194, 0.2) !important;
+}
+html.dark .workspace-sidebar {
+  background: #1c1b1b !important;
+  border-right-color: rgba(88, 65, 68, 0.1) !important;
+}
+.workspace-sidebar-link.active {
+  background: #fff;
+  color: #8c0f37 !important;
+  border-left: 3px solid #ad2c4d;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+html.dark .workspace-sidebar-link.active {
+  background: #201f1f;
+  color: #ffb2bc !important;
+  border-left-color: #ad2c4d;
+}
+.workspace-sidebar-link:hover {
+  background: #ebe7e7;
+}
+html.dark .workspace-sidebar-link:hover {
+  background: #201f1f;
+}
+.workspace-sidebar-group-label {
+  color: #584144;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+html.dark .workspace-sidebar-group-label {
+  color: #debfc2;
+}
+.workspace-shell-header {
+  background: #fcf9f8;
+  border-bottom: 1px solid rgba(222, 191, 194, 0.15);
+}
+html.dark .workspace-shell-header {
+  background: #141313;
+  border-bottom-color: rgba(88, 65, 68, 0.1);
+}
+.workspace-shell-brand {
+  color: #1c1b1b;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+html.dark .workspace-shell-brand {
+  color: #e6e1e1;
+}
+
+/* ═══ INNER PORTAL PAGES ═══ */
+.inner-page .page-hero {
+  background: #f6f3f2;
+  border-bottom: 1px solid rgba(222, 191, 194, 0.15);
+}
+html.dark .inner-page .page-hero {
+  background: #1c1b1b;
+  border-bottom-color: rgba(88, 65, 68, 0.1);
+  color: #e6e1e1;
+}
+.inner-page .page-hero h1 {
+  letter-spacing: -0.025em;
+  font-weight: 800;
+}
+.content-section {
+  background: #fcf9f8;
+}
+html.dark .content-section {
+  background: #141313;
+  color: #e6e1e1;
+}
+
+/* ═══ STAT CARDS ═══ */
+.stat-card {
+  background: #fff;
+  border: 1px solid rgba(222, 191, 194, 0.2);
+  border-radius: 1rem;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: box-shadow 0.15s;
+}
+html.dark .stat-card {
+  background: #1c1b1b;
+  border-color: rgba(88, 65, 68, 0.1);
+}
+.stat-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+.stat-card__icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.stat-card__value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: #1c1b1b;
+}
+html.dark .stat-card__value {
+  color: #e6e1e1;
+}
+.stat-card__label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #584144;
+  margin-top: 0.125rem;
+}
+html.dark .stat-card__label {
+  color: #debfc2;
+}
+
+/* ═══ ADMIN STATS & TABLE ═══ */
+.admin-stat-cards {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  margin-bottom: 2rem;
+}
+.admin-stat-card {
+  background: #fff;
+  border: 1px solid rgba(222, 191, 194, 0.2);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  text-align: center;
+  transition: box-shadow 0.15s;
+}
+html.dark .admin-stat-card {
+  background: #1c1b1b;
+  border-color: rgba(88, 65, 68, 0.1);
+}
+.admin-stat-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+.admin-stat-card-icon {
+  margin-bottom: 0.75rem;
+  color: #8c0f37;
+}
+html.dark .admin-stat-card-icon {
+  color: #ffb2bc;
+}
+.admin-stat-card-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #584144;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+html.dark .admin-stat-card-label {
+  color: #debfc2;
+}
+.admin-stat-card-value {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #1c1b1b;
+}
+html.dark .admin-stat-card-value {
+  color: #e6e1e1;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.admin-table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #584144;
+  border-bottom: 1px solid rgba(222, 191, 194, 0.3);
+  background: #f0edec;
+}
+html.dark .admin-table th {
+  background: #201f1f;
+  border-color: rgba(88, 65, 68, 0.15);
+  color: #debfc2;
+}
+.admin-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(222, 191, 194, 0.15);
+}
+html.dark .admin-table td {
+  border-color: rgba(88, 65, 68, 0.08);
+}
+.admin-table tr:hover td {
+  background: #f0edec;
+}
+html.dark .admin-table tr:hover td {
+  background: rgba(32, 31, 31, 0.5);
+}
+
+/* ═══ EMPLOYER DASHBOARD ═══ */
+.employer-dash-panel {
+  background: #fff;
+  border: 1px solid rgba(222, 191, 194, 0.2);
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+}
+html.dark .employer-dash-panel {
+  background: #1c1b1b;
+  border-color: rgba(88, 65, 68, 0.1);
+}
+.employer-dash-eyebrow {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #8c0f37;
+  margin-bottom: 0.5rem;
+}
+html.dark .employer-dash-eyebrow {
+  color: #ffb2bc;
+}
+.employer-dash-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.employer-dash-stat {
+  text-align: center;
+  padding: 1rem;
+  background: #f0edec;
+  border-radius: 0.75rem;
+}
+html.dark .employer-dash-stat {
+  background: #201f1f;
+}
+.employer-dash-stat-icon {
+  margin-bottom: 0.5rem;
+  color: #8c0f37;
+}
+html.dark .employer-dash-stat-icon {
+  color: #ffb2bc;
+}
+.employer-dash-stat-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.employer-dash-stat-label {
+  font-size: 0.75rem;
+  color: #584144;
+  font-weight: 500;
+}
+html.dark .employer-dash-stat-label {
+  color: #debfc2;
+}
+.employer-dash-actions {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+.employer-dash-action-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background: #f0edec;
+  border-radius: 0.75rem;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s;
+}
+html.dark .employer-dash-action-link {
+  background: #201f1f;
+}
+.employer-dash-action-link:hover {
+  background: #ebe7e7;
+}
+html.dark .employer-dash-action-link:hover {
+  background: #2b2a2a;
+}
+.employer-dash-action-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+.employer-dash-action-copy strong {
+  font-size: 0.95rem;
+}
+.employer-dash-action-copy span:last-child {
+  font-size: 0.8rem;
+  color: #584144;
+}
+html.dark .employer-dash-action-copy span:last-child {
+  color: #debfc2;
+}
+.employer-dash-section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 1rem;
+}
+.employer-dash-inline-link {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #8c0f37;
+}
+html.dark .employer-dash-inline-link {
+  color: #ffb2bc;
+}
+.employer-dash-activity-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.employer-dash-activity-item {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(222, 191, 194, 0.15);
+  font-size: 0.9rem;
+}
+html.dark .employer-dash-activity-item {
+  border-color: rgba(88, 65, 68, 0.1);
+}
+.employer-dash-activity-link {
+  color: #8c0f37;
+  font-weight: 600;
+}
+html.dark .employer-dash-activity-link {
+  color: #ffb2bc;
+}
+
+/* ═══ COUNSELOR / STUDENT CARDS ═══ */
+.student-card-hover:hover {
+  border-color: #8c0f37 !important;
+  box-shadow: 0 4px 16px rgba(140, 15, 55, 0.08);
+}
+html.dark .student-card-hover {
+  background: #1c1b1b !important;
+  border-color: rgba(88, 65, 68, 0.1) !important;
+  color: #e6e1e1;
+}
+
+/* ═══ AI TOOL PAGES ═══ */
+.ai-tool-page {
+  background: #fff;
+  border: 1px solid rgba(222, 191, 194, 0.2);
+  border-radius: 1rem;
+  padding: 2rem;
+}
+html.dark .ai-tool-page {
+  background: #1c1b1b;
+  border-color: rgba(88, 65, 68, 0.1);
+}
+
+/* AI tool page header */
+.ai-tool-header {
+  background: #f6f3f2;
+  border-bottom: 1px solid rgba(222, 191, 194, 0.15);
+  padding: 2.5rem 0 2rem;
+}
+html.dark .ai-tool-header {
+  background: #1c1b1b;
+  border-bottom-color: rgba(88, 65, 68, 0.1);
+}
+html.dark .ai-tool-header h1 {
+  color: #e6e1e1;
+}
+html.dark .ai-tool-header p {
+  color: #debfc2;
+}
+.ai-tool-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #8c0f37;
+  text-decoration: none;
+  margin-bottom: 1rem;
+}
+html.dark .ai-tool-back-link {
+  color: #ffb2bc;
+}
+.ai-tool-back-link:hover {
+  color: #ad2c4d;
+}
+.ai-tool-icon-ring {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, rgba(173, 44, 77, 0.12), rgba(173, 44, 77, 0.06));
+  border: 1px solid rgba(173, 44, 77, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  color: #ad2c4d;
+}
+html.dark .ai-tool-icon-ring {
+  background: rgba(173, 44, 77, 0.1);
+  border-color: rgba(173, 44, 77, 0.15);
+  color: #ffb2bc;
+}
+
+/* ═══ PORTAL FOOTER ═══ */
+.dashboard-site-footer {
+  background: #f6f3f2 !important;
+  border-top-color: rgba(222, 191, 194, 0.2) !important;
+}
+html.dark .dashboard-site-footer {
+  background: #1c1b1b !important;
+  border-top-color: rgba(88, 65, 68, 0.1) !important;
+  color: #debfc2;
+}
+
+/* ═══ PORTAL HEADER ═══ */
+html.dark .portal-page-header h1 {
+  color: #e6e1e1;
+}
+html.dark .portal-page-header p {
+  color: #debfc2;
+}
+
+/* ═══ PROGRESS BANNER ═══ */
+.progress-banner {
+  background: #f6f3f2;
+  border-bottom: 1px solid rgba(222, 191, 194, 0.15);
+}
+html.dark .progress-banner {
+  background: #1c1b1b;
+  border-bottom-color: rgba(88, 65, 68, 0.1);
+}
+.progress-banner-fill {
+  background: #ad2c4d;
+}
+
+/* ═══ PORTAL NAV BADGE ═══ */
+.workspace-nav-badge {
+  background: #ad2c4d;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.35rem;
+}
+
+/* ═══ SUPER ADMIN BANNER ═══ */
+.workspace-super-admin-banner {
+  background: #82550a;
+  color: #ffddb5;
+}
+
+/* ═══ FORM INPUTS (portal-wide) ═══ */
+.workspace-shell-main input[type="text"],
+.workspace-shell-main input[type="email"],
+.workspace-shell-main input[type="url"],
+.workspace-shell-main input[type="search"],
+.workspace-shell-main textarea,
+.workspace-shell-main select {
+  border-color: rgba(222, 191, 194, 0.3);
+  border-radius: 0.5rem;
+}
+html.dark .workspace-shell-main input[type="text"],
+html.dark .workspace-shell-main input[type="email"],
+html.dark .workspace-shell-main input[type="url"],
+html.dark .workspace-shell-main input[type="search"],
+html.dark .workspace-shell-main textarea,
+html.dark .workspace-shell-main select {
+  background: #201f1f;
+  border-color: rgba(88, 65, 68, 0.2);
+  color: #e6e1e1;
+}
+.workspace-shell-main input:focus,
+.workspace-shell-main textarea:focus,
+.workspace-shell-main select:focus {
+  border-color: #ad2c4d;
+  box-shadow: 0 0 0 2px rgba(173, 44, 77, 0.15);
+}
+
+/* ═══ RESOURCE / PARTNER / MESSAGE / CERT CARDS ═══ */
+.resource-card,
+.resource-list-item,
+.partner-overview-card,
+.partner-panel,
+.career-brief-card,
+.certification-card,
+.assessment-card,
+.weekly-recap-card {
+  background: #fff;
+  border: 1px solid rgba(222, 191, 194, 0.2);
+  border-radius: 1rem;
+}
+html.dark .resource-card,
+html.dark .resource-list-item,
+html.dark .partner-overview-card,
+html.dark .partner-panel,
+html.dark .career-brief-card,
+html.dark .certification-card,
+html.dark .assessment-card,
+html.dark .weekly-recap-card {
+  background: #1c1b1b;
+  border-color: rgba(88, 65, 68, 0.1);
+}
+.resource-card:hover,
+.resource-list-item:hover {
+  border-color: #ad2c4d;
+}
+.message-thread-item {
+  border-color: rgba(222, 191, 194, 0.15);
+}
+html.dark .message-thread-item {
+  border-color: rgba(88, 65, 68, 0.1);
+}
+
+/* ═══ SETTINGS ═══ */
+.settings-section {
+  background: #fff;
+  border: 1px solid rgba(222, 191, 194, 0.2);
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+}
+html.dark .settings-section {
+  background: #1c1b1b;
+  border-color: rgba(88, 65, 68, 0.1);
+}
+
+/* ═══ ONBOARDING WIZARD ═══ */
+.onboarding-wizard-overlay {
+  background: rgba(20, 19, 19, 0.6);
+  backdrop-filter: blur(8px);
+}
+.onboarding-wizard-card {
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+html.dark .onboarding-wizard-card {
+  background: #201f1f;
+}
+
+/* ═══ PORTAL TOUR TOOLTIP ═══ */
+.portal-tour-tooltip {
+  background: #ad2c4d;
+  color: #fff;
+  border-radius: 0.75rem;
+  font-size: 0.85rem;
+}
+
+/* ═══ BUTTONS ═══ */
+.btn-primary,
+.btn.btn-primary {
+  background: #ad2c4d !important;
+  border-color: #ad2c4d !important;
+}
+.btn-primary:hover,
+.btn.btn-primary:hover {
+  background: #8c0f37 !important;
+  border-color: #8c0f37 !important;
+}
+
+/* ═══ ADMIN ALERT BANNERS ═══ */
+.admin-alert-banner {
+  padding: 1rem 1.25rem;
+  background: #fffbeb;
+  border: 1px solid #fbbf24;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+html.dark .admin-alert-banner {
+  background: rgba(251, 191, 36, 0.08);
+  border-color: rgba(251, 191, 36, 0.3);
+}
+.admin-alert-banner-text {
+  font-weight: 600;
+  color: #92400e;
+}
+html.dark .admin-alert-banner-text {
+  color: #fcd34d;
+}
+.admin-alert-banner-link {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #2563eb !important;
+}
+html.dark .admin-alert-banner-link {
+  color: #93c5fd !important;
+}
+
+/* ═══ PORTAL MAIN LINKS ═══ */
+.workspace-shell-main a:not(.btn):not([class*="wa-"]) {
+  color: #8c0f37;
+}
+html.dark .workspace-shell-main a:not(.btn):not([class*="wa-"]) {
+  color: #ffb2bc;
 }

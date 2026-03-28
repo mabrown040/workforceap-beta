@@ -111,20 +111,11 @@ export default async function AdminPage() {
       </div>
 
       {pendingApplications > 0 && (
-        <div style={{
-          padding: '1rem 1.25rem',
-          background: '#fffbeb',
-          border: '1px solid #fbbf24',
-          borderRadius: '8px',
-          marginBottom: '1.5rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}>
-          <span style={{ fontWeight: 600, color: '#92400e' }}>
+        <div className="admin-alert-banner">
+          <span className="admin-alert-banner-text">
             {pendingApplications} pending application{pendingApplications === 1 ? '' : 's'} awaiting review
           </span>
-          <Link href="/admin/members" style={{ color: '#2563eb', fontWeight: 600, fontSize: '0.9rem' }}>
+          <Link href="/admin/members" className="admin-alert-banner-link">
             Review →
           </Link>
         </div>

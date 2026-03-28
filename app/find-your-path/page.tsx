@@ -14,7 +14,7 @@ export const metadata: Metadata = buildPageMetadata({
 export default function FindYourPathPage() {
   return (
     <div className="inner-page">
-      <section className="page-hero find-your-path-hero">
+      <section className="quiz-result-hero page-hero find-your-path-hero">
         <div className="page-hero-content">
           <h1>Find Your Path</h1>
           <p>

@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
-import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
 import ProgramsContent from './ProgramsContent';
 import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
@@ -17,27 +16,35 @@ export const metadata: Metadata = buildPageMetadata({
 export default function ProgramsPage() {
   return (
     <div className="inner-page programs-page">
-      <PageHero
-        title="Our Programs"
-        subtitle={`${WORKFORCEAP_PROGRAM_CATALOG_SIZE} no-cost career programs with industry certifications from Google, IBM, AWS, Microsoft, and CompTIA. Use fit, timeline, and readiness — not just the title — to choose your track.`}
-      >
-        <div className="programs-decision-cta">
-          <p className="programs-decision-lead">Not sure which program fits you?</p>
-          <ExperimentedCtaLink
-            experiment="programs_primary_cta"
-            variants={[
-              { id: 'control', label: 'Find Your Career →', className: 'btn btn-primary', href: '/find-your-path' },
-              { id: 'quiz_first', label: 'Take 2-Min Quiz →', className: 'btn btn-primary', href: '/find-your-path' },
-            ]}
-          />
-          <Link href="/program-comparison" className="programs-compare-link">Or compare programs side-by-side</Link>
+      <section className="programs-catalog-hero page-hero">
+        <div className="page-hero-content">
+          <h1>Our Programs</h1>
+          <p style={{ maxWidth: '56ch', margin: '0.75rem auto 0' }}>
+            {WORKFORCEAP_PROGRAM_CATALOG_SIZE} no-cost career programs with industry certifications from Google, IBM,
+            AWS, Microsoft, and CompTIA. Use fit, timeline, and readiness — not just the title — to choose your track.
+          </p>
+          <div className="programs-decision-cta" style={{ marginTop: '1.5rem' }}>
+            <p className="programs-decision-lead">Not sure which program fits you?</p>
+            <ExperimentedCtaLink
+              experiment="programs_primary_cta"
+              variants={[
+                { id: 'control', label: 'Find Your Career →', className: 'btn btn-primary', href: '/find-your-path' },
+                { id: 'quiz_first', label: 'Take 2-Min Quiz →', className: 'btn btn-primary', href: '/find-your-path' },
+              ]}
+            />
+            <Link href="/program-comparison" className="programs-compare-link">
+              Or compare programs side-by-side
+            </Link>
+          </div>
         </div>
-      </PageHero>
+      </section>
+
       <section className="content-section" style={{ paddingTop: '0.5rem', paddingBottom: 0 }}>
         <div className="container">
           <ProgramsDecisionJourneyNav current="programs" />
         </div>
       </section>
+
       <section className="content-section" style={{ paddingTop: '1rem', paddingBottom: 0 }}>
         <div className="container" style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
           <p className="section-subtitle" style={{ marginBottom: 0 }}>
@@ -46,6 +53,7 @@ export default function ProgramsPage() {
           </p>
         </div>
       </section>
+
       <ProgramsContent />
       <Footer />
     </div>

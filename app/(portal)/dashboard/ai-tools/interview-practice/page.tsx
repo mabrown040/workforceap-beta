@@ -26,13 +26,16 @@ export default async function InterviewPracticePage() {
 
   return (
     <div className="inner-page">
-      <section className="page-hero">
+      <section className="ai-tool-header page-hero">
         <div className="page-hero-content">
-            <Link href="/dashboard/ai-tools" className="resource-back-link">
-              ← Back to AI Tools
-            </Link>
-            <h1>Interview Practice Generator</h1>
-            <p>Generate role-specific interview questions with answer frameworks. Practice behavioral and technical questions.</p>
+          <Link href="/dashboard/ai-tools" className="ai-tool-back-link">
+            ← Back to AI Tools
+          </Link>
+          <div className="ai-tool-icon-ring" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          </div>
+          <h1>Interview Practice Generator</h1>
+          <p>Generate role-specific interview questions with answer frameworks. Practice behavioral and technical questions.</p>
         </div>
       </section>
 

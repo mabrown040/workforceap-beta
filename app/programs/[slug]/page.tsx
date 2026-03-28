@@ -56,25 +56,14 @@ export default async function ProgramPage({ params }: Props) {
     <div className="inner-page">
       <section className="page-hero">
         <div className="page-hero-content">
-          <span
-            style={{
-              background: program.categoryColor,
-              color: 'white',
-              padding: '0.3rem 0.75rem',
-              borderRadius: '50px',
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              display: 'inline-block',
-              marginBottom: '0.5rem',
-            }}
-          >
+          <span className="program-hero-category-badge" style={{ background: program.categoryColor }}>
             {program.categoryLabel}
           </span>
           <h1>{program.title}</h1>
-          <p style={{ marginTop: '0.5rem' }}>
+          <p className="program-hero-meta">
             {program.duration} • Starting range {salaryRangeDisplay(program)} (early-career, Austin-area framing)
           </p>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>
+          <p className="program-hero-partner">
             {program.partner} certified
           </p>
           {extra && (
@@ -99,26 +88,15 @@ export default async function ProgramPage({ params }: Props) {
             <ProgramDetailClient program={program} />
             
             {/* Bottom CTA Banner */}
-            <div className="program-bottom-cta" style={{ 
-              marginTop: '3rem', 
-              padding: '2rem', 
-              background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
-              borderRadius: '12px',
-              textAlign: 'center',
-              border: '1px solid #dee2e6'
-            }}>
-              <h3 style={{ fontSize: '1.5rem', marginBottom: '0.75rem', color: '#1a1a1a' }}>
+            <div className="program-bottom-cta">
+              <h3 className="program-bottom-cta-title">
                 Ready to start your career in {program.categoryLabel}?
               </h3>
-              <p style={{ fontSize: '1rem', color: '#555', marginBottom: '1.5rem', maxWidth: '500px', margin: '0 auto 1.5rem' }}>
-                Applications take about 10 minutes. No cost for qualifying Austin-area residents. 
+              <p className="program-bottom-cta-body">
+                Applications take about 10 minutes. No cost for qualifying Austin-area residents.
                 We respond within 24–48 hours.
               </p>
-              <Link 
-                href={`/apply?program=${program.slug}`} 
-                className="btn btn-primary btn-large"
-                style={{ display: 'inline-block' }}
-              >
+              <Link href={`/apply?program=${program.slug}`} className="btn btn-primary btn-large">
                 Apply for This Program
               </Link>
             </div>
@@ -126,75 +104,31 @@ export default async function ProgramPage({ params }: Props) {
             <ProgramRelatedSection programs={relatedPrograms} />
 
             {/* Related Resources */}
-            <div style={{ 
-              marginTop: '2.5rem', 
-              padding: '1.5rem',
-              background: 'white',
-              borderRadius: '12px',
-              border: '1px solid #e5e5e5'
-            }}>
-              <h3 style={{ fontSize: '1.125rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <HelpCircle size={20} style={{ color: '#ad2c4d' }} />
+            <div className="program-resources-card">
+              <h3 className="program-resources-heading">
+                <HelpCircle size={20} />
                 Have Questions?
               </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
-                <Link href="/faq" style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  padding: '1rem',
-                  background: '#f8f9fa',
-                  borderRadius: '8px',
-                  textDecoration: 'none',
-                  color: '#1a1a1a',
-                }}>
-                  <BookOpen size={18} style={{ color: '#ad2c4d' }} />
+              <div className="program-resources-grid">
+                <Link href="/faq" className="program-resource-link">
+                  <BookOpen size={18} />
                   <span>Read FAQ</span>
-                  <ArrowRight size={16} style={{ marginLeft: 'auto', opacity: 0.5 }} />
+                  <ArrowRight size={16} className="program-resource-arrow" />
                 </Link>
-                <Link href="/how-it-works" style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  padding: '1rem',
-                  background: '#f8f9fa',
-                  borderRadius: '8px',
-                  textDecoration: 'none',
-                  color: '#1a1a1a',
-                }}>
-                  <Clock size={18} style={{ color: '#ad2c4d' }} />
+                <Link href="/how-it-works" className="program-resource-link">
+                  <Clock size={18} />
                   <span>How It Works</span>
-                  <ArrowRight size={16} style={{ marginLeft: 'auto', opacity: 0.5 }} />
+                  <ArrowRight size={16} className="program-resource-arrow" />
                 </Link>
-                
-                <Link href="/salary-guide" style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  padding: '1rem',
-                  background: '#f8f9fa',
-                  borderRadius: '8px',
-                  textDecoration: 'none',
-                  color: '#1a1a1a',
-                }}>
-                  <DollarSign size={18} style={{ color: '#ad2c4d' }} />
+                <Link href="/salary-guide" className="program-resource-link">
+                  <DollarSign size={18} />
                   <span>Salary Guide</span>
-                  <ArrowRight size={16} style={{ marginLeft: 'auto', opacity: 0.5 }} />
+                  <ArrowRight size={16} className="program-resource-arrow" />
                 </Link>
-                
-                <Link href="/blog" style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  padding: '1rem',
-                  background: '#f8f9fa',
-                  borderRadius: '8px',
-                  textDecoration: 'none',
-                  color: '#1a1a1a',
-                }}>
-                  <Briefcase size={18} style={{ color: '#ad2c4d' }} />
+                <Link href="/blog" className="program-resource-link">
+                  <Briefcase size={18} />
                   <span>Career Tips</span>
-                  <ArrowRight size={16} style={{ marginLeft: 'auto', opacity: 0.5 }} />
+                  <ArrowRight size={16} className="program-resource-arrow" />
                 </Link>
               </div>
             </div>
@@ -203,10 +137,10 @@ export default async function ProgramPage({ params }: Props) {
             <div className="program-sidebar-card">
               <div className="program-sidebar-meta">
                 <span>⏱ {program.duration}</span>
-                <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{program.salary}</span>
+                <span className="program-sidebar-salary">{program.salary}</span>
               </div>
               <span className="program-sidebar-partner">{program.partner} certified</span>
-              <Link href={`/apply?program=${program.slug}`} className="btn btn-primary" style={{ width: '100%', padding: '1rem', marginTop: '1rem', textAlign: 'center' }}>
+              <Link href={`/apply?program=${program.slug}`} className="btn btn-primary program-sidebar-apply-btn">
                 Apply for This Program
               </Link>
               <p className="program-sidebar-note">No-cost training for members.</p>
@@ -221,11 +155,7 @@ export default async function ProgramPage({ params }: Props) {
                   Compare side-by-side (with a common on-ramp track)
                 </Link>
               ) : null}
-              <Link
-                href="/program-comparison"
-                className="program-sidebar-compare-link"
-                style={{ marginTop: slugInFeaturedCompare ? '0.35rem' : 0 }}
-              >
+              <Link href="/program-comparison" className="program-sidebar-compare-link">
                 Open comparison tool (featured tracks)
               </Link>
             </div>

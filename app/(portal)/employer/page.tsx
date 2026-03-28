@@ -5,8 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { Briefcase, FilePlus, Upload, Users, CheckCircle, Clock, ArrowRight, Sparkles, Calendar, UserCheck, Timer } from 'lucide-react';
-import PageHeader from '@/components/portal/PageHeader';
+import { Sparkles, Calendar, UserCheck, Timer, Briefcase, Users, Clock, CheckCircle } from 'lucide-react';
 import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { EMPLOYER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
@@ -118,17 +117,6 @@ export default async function EmployerDashboardPage() {
     employerRow.onboardingCompletedAt != null && employerRow.tourCompletedAt == null;
   const superAdmin = await isSuperAdmin(user.id);
 
-  const placementStats = [
-    { label: 'Members matched to your roles', value: totalMatches, Icon: Sparkles },
-    { label: 'Interviews or later (pipeline)', value: interviewPipelineCount, Icon: Calendar },
-    { label: 'Hires (apps + filled roles)', value: hiresTotal, Icon: UserCheck },
-    {
-      label: 'Avg. days match → hire',
-      value: avgMatchToHireDays === null ? '—' : avgMatchToHireDays,
-      Icon: Timer,
-    },
-  ];
-
   return (
     <PortalEntryClient
       portal="employer"
@@ -143,146 +131,129 @@ export default async function EmployerDashboardPage() {
         companyWebsite: employerRow.companyWebsite ?? '',
       }}
     >
-    <div className="employer-dash-page">
-      <PageHeader
-        title="Employer overview"
-        subtitle="One place to post jobs, review applicants, and keep your hiring pipeline moving."
-        action={
-          <div className="employer-dash-header-actions">
-            <Link href="/employer/jobs/import" className="btn btn-secondary">
-              <Upload size={18} aria-hidden />
-              Import jobs
-            </Link>
-            <Link href="/employer/jobs/new" className="btn btn-primary" data-tour="tour-post-job">
-              <FilePlus size={18} aria-hidden />
-              Post a job
-            </Link>
+      <div className="space-y-10 text-on-surface antialiased">
+        {/* Hero Section */}
+        <section className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+          <div>
+            <h1 className="text-4xl font-extrabold tracking-tight text-on-surface mb-2">Welcome back.</h1>
+            <p className="text-on-surface-variant leading-relaxed max-w-xl text-lg font-medium opacity-80">
+              Manage your postings and match with certified local talent.
+            </p>
           </div>
-        }
-      />
-
-      {jobs.length === 0 ? (
-        <section className="employer-dash-empty-jobs employer-dash-panel" aria-labelledby="employer-empty-jobs-heading">
-          <h3 id="employer-empty-jobs-heading">Welcome — start with your first posting</h3>
-          <p>
-            You do not have any job drafts or live roles yet. Post a single role, or import a list from a spreadsheet or
-            careers URL. WorkforceAP reviews submissions before they go live on the public board.
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-            <Link href="/employer/jobs/new" className="btn btn-primary">
-              Post your first job
+          <div className="flex gap-4">
+            <Link href="/employer/jobs/import" className="bg-zinc-100 text-zinc-900 px-6 py-3 rounded-lg font-bold flex items-center gap-2 transition-all hover:bg-zinc-200 text-sm">
+              <span className="material-symbols-outlined text-[20px]">upload</span>
+              Import Jobs
             </Link>
-            <Link href="/employer/jobs/import" className="btn btn-outline">
-              Import jobs
+            <Link href="/employer/jobs/new" className="bg-rose-900 text-white px-6 py-3 rounded-lg font-bold shadow-lg active:scale-95 transition-all text-sm flex items-center gap-2" data-tour="tour-post-job">
+              <span className="material-symbols-outlined text-[20px]">add</span>
+              Create New Posting
             </Link>
           </div>
         </section>
-      ) : null}
 
-      <section className="employer-dash-overview employer-dash-panel">
-        <div className="employer-dash-overview-copy">
-          <p className="employer-dash-eyebrow">Hiring overview</p>
-          <h2>See what needs attention before you publish or hire.</h2>
-          <p>
-            Draft imports, live postings, and incoming applications stay in one workflow so your team can move from URL to published job without bouncing between views.
-          </p>
-        </div>
-        <div className="employer-dash-stats" aria-label="Employer dashboard summary">
-          {stats.map(({ label, value, Icon }) => (
-            <div key={label} className="employer-dash-stat">
-              <div className="employer-dash-stat-icon" aria-hidden>
-                <Icon size={18} />
-              </div>
-              <div className="employer-dash-stat-value">{value}</div>
-              <div className="employer-dash-stat-label">{label}</div>
+        {jobs.length === 0 ? (
+          <div className="bg-surface-container-low rounded-xl p-8 text-center border border-zinc-200/50">
+            <span className="material-symbols-outlined text-4xl text-on-surface-variant mb-4">work_outline</span>
+            <h3 className="text-2xl font-bold mb-2">Ready to find talent?</h3>
+            <p className="text-on-surface-variant max-w-md mx-auto mb-6">
+              You do not have any job drafts or live roles yet. Post a single role, or import a list from a spreadsheet or careers URL.
+            </p>
+            <div className="flex justify-center gap-4">
+              <Link href="/employer/jobs/new" className="bg-rose-900 text-white px-6 py-3 rounded-lg font-bold shadow-lg active:scale-95 transition-all text-sm">
+                Post your first job
+              </Link>
             </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="employer-dash-placements employer-dash-panel" aria-label="Placement statistics">
-        <div className="employer-dash-overview-copy">
-          <p className="employer-dash-eyebrow">Placement snapshot</p>
-          <h2>How WorkforceAP candidates are moving through your pipeline.</h2>
-          <p>
-            Totals include suggested matches, interview-stage applications, and hires. Filled job postings count toward hires when you mark a role filled.
-          </p>
-        </div>
-        <div className="employer-dash-stats employer-dash-stats--placement">
-          {placementStats.map(({ label, value, Icon }) => (
-            <div key={label} className="employer-dash-stat">
-              <div className="employer-dash-stat-icon" aria-hidden>
-                <Icon size={18} />
-              </div>
-              <div className="employer-dash-stat-value">{value}</div>
-              <div className="employer-dash-stat-label">{label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="employer-dash-actions-panel employer-dash-panel">
-        <div>
-          <p className="employer-dash-eyebrow">Next move</p>
-          <h2>Hire in three steps: create, review, place.</h2>
-        </div>
-        <div className="employer-dash-actions">
-          <Link href="/employer/jobs/new" className="employer-dash-action-link">
-            <span className="employer-dash-action-copy">
-              <strong>Create a posting</strong>
-              <span>Add a role, set pay and location, then submit for WorkforceAP review.</span>
-            </span>
-            <ArrowRight size={18} aria-hidden />
-          </Link>
-          <Link href="/employer/jobs" className="employer-dash-action-link">
-            <span className="employer-dash-action-copy">
-              <strong>Manage postings</strong>
-              <span>Edit drafts, track what is live, and close roles once filled.</span>
-            </span>
-            <ArrowRight size={18} aria-hidden />
-          </Link>
-          <Link href="/employer/applications" className="employer-dash-action-link">
-            <span className="employer-dash-action-copy">
-              <strong>Review applicants</strong>
-              <span>See recent submissions, respond quickly, and keep placements moving.</span>
-            </span>
-            <ArrowRight size={18} aria-hidden />
-          </Link>
-        </div>
-      </section>
-
-      <section className="employer-dash-activity employer-dash-panel">
-        <div className="employer-dash-section-heading">
-          <div>
-            <p className="employer-dash-eyebrow">Recent activity</p>
-            <h2>Latest applicants</h2>
           </div>
-          <Link href="/employer/applications" className="employer-dash-inline-link">
-            View all applications
-          </Link>
+        ) : null}
+
+        {/* Bento Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+          {/* Main Stats / Operations */}
+          <div className="lg:col-span-8 space-y-6">
+            <div className="bg-surface-container-low rounded-xl p-8 relative border border-zinc-200/50 h-full flex flex-col justify-between">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-bold tracking-tight">Hiring Pipeline</h3>
+                <Link href="/employer/work-queue" className="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
+                  View Queue
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                {stats.map(({ label, value, Icon }) => (
+                  <div key={label} className="bg-white p-5 rounded-lg border border-zinc-200 shadow-sm flex flex-col items-center text-center">
+                    <Icon size={24} className="text-rose-800 mb-3" />
+                    <span className="text-3xl font-black text-zinc-900 mb-1">{value}</span>
+                    <span className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider leading-tight">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="lg:col-span-4 space-y-6">
+            <div className="bg-white rounded-xl p-8 border border-zinc-200 shadow-sm h-full flex flex-col">
+              <h3 className="text-xl font-bold tracking-tight mb-6">Next moves</h3>
+              <div className="space-y-3 flex-1 flex flex-col justify-center">
+                <Link href="/employer/jobs" className="p-4 bg-zinc-50 rounded-lg hover:bg-rose-50 transition-colors flex items-center justify-between group">
+                  <div>
+                    <h4 className="font-bold text-sm group-hover:text-rose-900">Manage Postings</h4>
+                    <p className="text-[11px] text-zinc-500 font-medium mt-1">Edit drafts & track live roles</p>
+                  </div>
+                  <span className="material-symbols-outlined text-zinc-400 group-hover:text-rose-800">arrow_forward</span>
+                </Link>
+
+                <Link href="/employer/applications" className="p-4 bg-zinc-50 rounded-lg hover:bg-rose-50 transition-colors flex items-center justify-between group">
+                  <div>
+                    <h4 className="font-bold text-sm group-hover:text-rose-900">Review Applicants</h4>
+                    <p className="text-[11px] text-zinc-500 font-medium mt-1">Respond to recent submissions</p>
+                  </div>
+                  <span className="material-symbols-outlined text-zinc-400 group-hover:text-rose-800">arrow_forward</span>
+                </Link>
+
+                <Link href="/employer/pipeline" className="p-4 bg-zinc-50 rounded-lg hover:bg-rose-50 transition-colors flex items-center justify-between group">
+                  <div>
+                    <h4 className="font-bold text-sm group-hover:text-rose-900">Candidate Pipeline</h4>
+                    <p className="text-[11px] text-zinc-500 font-medium mt-1">Track interview progression</p>
+                  </div>
+                  <span className="material-symbols-outlined text-zinc-400 group-hover:text-rose-800">arrow_forward</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-12">
+            <div className="bg-surface-container-low rounded-xl p-8 relative border border-zinc-200/50">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold tracking-tight">Recent Applications</h3>
+                <Link href="/employer/applications" className="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
+                  View All
+                </Link>
+              </div>
+              {recentApplications.length === 0 ? (
+                <p className="text-on-surface-variant max-w-md mb-6">
+                  No applications yet. Publish a job or import your current openings to start collecting candidates.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {recentApplications.map((app) => (
+                    <div key={app.id} className="p-4 bg-white rounded-lg hover:bg-rose-50 transition-colors cursor-pointer group border border-zinc-200">
+                      <div className="flex justify-between items-start mb-1">
+                        <h4 className="font-bold text-sm group-hover:text-rose-900">{app.student.fullName}</h4>
+                        <span className="text-[10px] text-zinc-500 font-medium">{app.appliedAt.toLocaleString()}</span>
+                      </div>
+                      <p className="text-[11px] text-zinc-500 font-medium">Applied to: <Link href={`/employer/jobs/${app.jobId}`} className="text-primary hover:underline">{app.job.title}</Link></p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
         </div>
-        {recentApplications.length === 0 ? (
-          <p className="employer-dash-empty">No applications yet. Publish a job or import your current openings to start collecting candidates.</p>
-        ) : (
-          <ul className="employer-dash-activity-list">
-            {recentApplications.map((app) => (
-              <li key={app.id} className="employer-dash-activity-item">
-                <div>
-                  <strong>{app.student.fullName}</strong>
-                  <span className="employer-dash-activity-separator"> applied to </span>
-                  <Link href={`/employer/jobs/${app.jobId}`} className="employer-dash-activity-link">
-                    {app.job.title}
-                  </Link>
-                </div>
-                <div className="employer-dash-activity-item-meta">
-                  {app.appliedAt.toLocaleString()}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-    </div>
+      </div>
     </PortalEntryClient>
   );
 }

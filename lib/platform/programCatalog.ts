@@ -24,12 +24,17 @@ export type ActiveProgramView = {
  * Falls back to static-only when catalog is empty (first deploy).
  */
 export async function getActivePrograms(organizationId?: string): Promise<ActiveProgramView[]> {
-  const orgId = organizationId ?? (await getDefaultOrganizationId());
-
-  const rows = await prisma.organizationProgramCatalog.findMany({
-    where: { organizationId: orgId, status: 'active' },
-    orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
-  });
+  let rows: any[] = [];
+  try {
+    const orgId = organizationId ?? (await getDefaultOrganizationId());
+    rows = await prisma.organizationProgramCatalog.findMany({
+      where: { organizationId: orgId, status: 'active' },
+      orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
+    });
+  } catch (e) {
+    // DB unavailable (local dev without DB) — fall through to static fallback
+    console.warn('[programCatalog] DB unavailable, using static fallback:', (e as Error).message?.slice(0, 80));
+  }
 
   if (rows.length === 0) {
     return PROGRAMS.filter(() => true).map((p, i) => ({

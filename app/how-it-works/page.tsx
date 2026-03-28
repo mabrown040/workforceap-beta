@@ -1,147 +1,169 @@
 import type { Metadata } from 'next';
-import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
-import PageHero from '@/components/PageHero';
-import PhotoHighlight from '@/components/PhotoHighlight';
-import Footer from '@/components/Footer';
-import { prisma } from '@/lib/db/prisma';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
-import { toVideoEmbedUrl } from '@/lib/platform/videoEmbed';
 
-export const metadata: Metadata = buildPageMetadata({
-  title: 'How It Works',
+export const metadata: Metadata = {
+  title: 'How It Works | WorkforceAP',
   description:
-    'Your path from application through certification and job placement. Eleven clear steps — each designed to set you up for success.',
-  path: '/how-it-works',
-});
+    'See the full 11-step WorkforceAP journey from application through certification, placement, and outcomes.',
+};
 
-const PHASES = [
+const cardStyle = {
+  background: 'rgba(255,255,255,0.04)',
+  border: '1px solid rgba(255,255,255,0.08)',
+  borderRadius: '12px',
+  padding: '24px',
+};
+
+const steps = [
   {
-    id: 1,
-    label: 'Phase 1 — Get Started',
-    title: 'Get Started',
-    steps: [
-      { num: 1, title: 'Apply', desc: 'Fill out a short online form — no test, no gatekeeping. We use it to understand your goals so we can help you. We reach out within 48 hours.', why: 'So we can personalize your path instead of sending you into a generic funnel.' },
-      { num: 2, title: 'Overview', desc: 'Meet with a counselor to review programs, timelines, and what to expect. This is a conversation, not an exam — we want you to feel confident before you commit.', why: 'You deserve to know exactly what you\'re signing up for.' },
-      { num: 3, title: 'Membership', desc: 'Join at no cost. All members get free access to resources, support, and training. No hidden fees, ever.', why: 'We remove money as a barrier so you can focus on learning.' },
-    ],
+    title: 'Apply',
+    description:
+      'Complete a short intake form with your goals and background. This helps our team understand where you are now and where you want to go.',
   },
   {
-    id: 2,
-    label: 'Phase 2 — Build Your Future',
-    title: 'Build Your Future',
-    steps: [
-      { num: 4, title: 'Assessment', desc: 'Skills and goals evaluation so we can match you with the right career path. Not a pass/fail test — a way to personalize your journey.', why: 'The right program for you is the one that fits your situation and goals.' },
-      { num: 5, title: 'Interview', desc: 'A 30-minute one-on-one to answer your questions and confirm fit. We\'re making sure this is right for you — and that you\'re ready for it.', why: 'Mutual fit matters. We succeed when you succeed.' },
-      { num: 6, title: 'Workforce Readiness', desc: 'Soft skills, job search basics, and workplace expectations — the foundation employers actually require. Often the part that gets people hired.', why: 'Credentials open doors; readiness gets you through them.' },
-      { num: 7, title: 'Resources', desc: 'Loaner laptop program, resume support, community network, and on-demand tools. We back you up so you can focus on training.', why: 'You shouldn\'t have to figure it all out alone.' },
-    ],
+    title: 'Overview',
+    description:
+      'Attend a program overview session to understand timelines, expectations, and support services. You get a clear picture before committing to a path.',
   },
   {
-    id: 3,
-    label: 'Phase 3 — Launch Your Career',
-    title: 'Launch Your Career',
-    steps: [
-      { num: 8, title: 'Training', desc: 'Industry certification courses — taught by certified instructors or approved online platforms. The same credentials employers hire against.', why: 'Real credentials, not certificates of attendance.' },
-      { num: 9, title: 'Certify', desc: 'Earn credentials recognized by employers — CompTIA, AWS, Google, Microsoft, and more. You walk away with proof employers trust.', why: 'Your resume needs more than "I took a class."' },
-      { num: 10, title: 'Job Placement Assistance', desc: 'Resume review, interview prep, employer connections, and job search support until you land. We don\'t disappear after you graduate.', why: 'We\'re invested in your first hire, not just your last exam.' },
-      { num: 11, title: 'Better Life', desc: 'A career that pays. Graduates average $42K+ starting in their new field — many see significant growth within 2–3 years.', why: 'This is the outcome we\'re both working toward.' },
-    ],
+    title: 'Membership',
+    description:
+      'Enroll as a WorkforceAP member and confirm program alignment. Membership gives you structured access to coaching, tools, and workforce pathways.',
+  },
+  {
+    title: 'Assessment',
+    description:
+      'Complete readiness and skills assessments used for placement into the best-fit track. The goal is alignment, not gatekeeping.',
+  },
+  {
+    title: 'Interview',
+    description:
+      'Meet with a workforce advisor for a deeper fit conversation. Together, you validate goals, barriers, and a realistic completion plan.',
+  },
+  {
+    title: 'Workforce Readiness',
+    description:
+      'Build essential employability skills including communication, professionalism, and interview preparation. This phase strengthens job retention, not just job entry.',
+  },
+  {
+    title: 'Resources',
+    description:
+      'Access support services and learning resources that help you stay on track. Workforce development is strongest when training is paired with practical support.',
+  },
+  {
+    title: 'Training',
+    description:
+      'Begin technical training in your selected pathway. Coursework is aligned to real employer demand and competency-based milestones.',
+  },
+  {
+    title: 'Certify',
+    description:
+      'Prepare for and complete industry-recognized certification exams. Credentials validate your skills with trusted employer-facing standards.',
+  },
+  {
+    title: 'Placement',
+    description:
+      'Engage in guided placement support including resume strategy, interview matching, and employer introductions. The objective is quality placement, not just application volume.',
+  },
+  {
+    title: 'Outcomes',
+    description:
+      'Transition into employment and continue with post-placement support where available. Outcomes are measured through wage lift, retention, and long-term mobility.',
   },
 ];
 
-export default async function HowItWorksPage() {
-  let overviewVideoEmbed: string | null = null;
-  try {
-    const orgId = await getDefaultOrganizationId();
-    const org = await prisma.organization.findUnique({
-      where: { id: orgId },
-      select: { overviewVideoUrl: true },
-    });
-    if (org?.overviewVideoUrl) overviewVideoEmbed = toVideoEmbedUrl(org.overviewVideoUrl);
-  } catch {
-    overviewVideoEmbed = null;
-  }
+const faqs = [
+  {
+    q: 'Is WorkforceAP really free for participants?',
+    a: 'Yes. WorkforceAP programs are supported through public workforce funding and aligned partnerships, which allows eligible participants to train at no tuition cost.',
+  },
+  {
+    q: 'How long does the full journey usually take?',
+    a: 'Most members complete their pathway in roughly 6–12 months, depending on schedule, certification track, and readiness needs.',
+  },
+  {
+    q: 'Do I need prior tech experience to apply?',
+    a: 'No. Many pathways are designed for beginners and career changers, with readiness support built into the process.',
+  },
+  {
+    q: 'What certifications can I prepare for?',
+    a: 'Program pathways include certifications aligned with providers such as Google, IBM, AWS, and CompTIA, based on track availability.',
+  },
+  {
+    q: 'Does WorkforceAP help with job placement?',
+    a: 'Yes. Placement support includes employer connection, interview prep, and job search guidance focused on real hiring outcomes.',
+  },
+  {
+    q: 'Who is WorkforceAP designed to serve?',
+    a: 'The model is built to expand opportunity for Austin job seekers, including underserved communities and adult learners seeking career mobility.',
+  },
+];
 
+export default function HowItWorksPage() {
   return (
-    <div className="inner-page">
-      <PageHero
-        title="How It Works"
-        subtitle="Your path from application through training and job placement — eleven steps, each designed to set you up for success."
-      />
+    <div style={{ backgroundColor: '#141313' }}>
+      <main className="wa-py-24 wa-px-8 wa-max-w-7xl wa-mx-auto wa-space-y-20">
+        <section className="wa-max-w-4xl wa-space-y-6">
+          <p className="wa-text-sm wa-font-semibold wa-uppercase wa-tracking-wider" style={{ color: '#ad2c4d' }}>
+            How It Works
+          </p>
+          <h1 className="wa-text-4xl md:wa-text-6xl wa-font-semibold" style={{ color: '#e6e1e1' }}>
+            The 11-Step WorkforceAP Journey
+          </h1>
+          <p className="wa-text-lg wa-leading-relaxed" style={{ color: '#debfc2' }}>
+            From first application to measurable career outcomes, each step is designed to build readiness, credentialed skills,
+            and direct connection to employment.
+          </p>
+        </section>
 
-      <PhotoHighlight
-        imageUrl="https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=1400&q=80"
-        label="3 Phases · 11 Steps"
-        title="From Application to Career"
-        description="We explain what each step does for you and why it exists — so you know what to expect and can move forward with confidence."
-      />
-
-      <section className="how-it-works-phases">
-        {PHASES.map((phase, idx) => (
-          <div
-            key={phase.id}
-            className={`how-it-works-phase ${idx % 2 === 1 ? 'phase-alt' : ''}`}
-          >
-            <div className="phase-bg-number">{String(phase.id).padStart(2, '0')}</div>
-            <div className="container">
-              <p className="how-it-works-phase-label">{phase.label}</p>
-              <h2 className="phase-title">{phase.title}</h2>
-              <div className="phase-steps">
-                {phase.steps.map((step) => (
-                  <div key={step.num} className="phase-step-item">
-                    <span className="phase-step-num">{step.num}</span>
-                    <div>
-                      <h3>{step.title}</h3>
-                      {step.num === 2 && overviewVideoEmbed ? (
-                        <div className="how-it-works-overview-video" style={{ margin: '1rem 0' }}>
-                          <div
-                            style={{
-                              position: 'relative',
-                              paddingBottom: '56.25%',
-                              height: 0,
-                              overflow: 'hidden',
-                              borderRadius: 'var(--radius-md, 8px)',
-                              background: '#111',
-                            }}
-                          >
-                            <iframe
-                              title="Overview — counselor introduction"
-                              src={overviewVideoEmbed}
-                              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                              allowFullScreen
-                            />
-                          </div>
-                          <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)', marginTop: '0.5rem' }}>
-                            Prefer to read? The summary below is always available.
-                          </p>
-                        </div>
-                      ) : null}
-                      <p>{step.desc}</p>
-                      {'why' in step && step.why && (
-                        <p className="phase-step-why">Why we do this: {step.why}</p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            {idx < PHASES.length - 1 && <div className="phase-connector" aria-hidden="true" />}
-          </div>
-        ))}
-
-        <section className="how-it-works-cta">
-          <div className="container">
-            <h2 className="how-it-works-cta-title">Ready to Start?</h2>
-            <Link href="/apply" className="btn btn-primary btn-large">
-              Apply Now
-            </Link>
+        <section className="wa-space-y-8">
+          <div className="wa-grid md:wa-grid-cols-2 wa-gap-6">
+            {steps.map((step, index) => (
+              <article key={step.title} style={cardStyle} className="wa-space-y-3">
+                <p className="wa-text-sm wa-font-semibold wa-uppercase wa-tracking-wide" style={{ color: '#ad2c4d' }}>
+                  Step {index + 1}
+                </p>
+                <h2 className="wa-text-2xl wa-font-semibold" style={{ color: '#e6e1e1' }}>
+                  {step.title}
+                </h2>
+                <p style={{ color: '#debfc2' }}>{step.description}</p>
+              </article>
+            ))}
           </div>
         </section>
-      </section>
 
-      <Footer />
+        <section className="wa-space-y-6">
+          <h2 className="wa-text-3xl wa-font-semibold" style={{ color: '#e6e1e1' }}>
+            Frequently Asked Questions
+          </h2>
+          <div className="wa-grid wa-grid-cols-1 wa-gap-4">
+            {faqs.map((item) => (
+              <article key={item.q} style={cardStyle} className="wa-space-y-2">
+                <h3 className="wa-text-xl wa-font-semibold" style={{ color: '#e6e1e1' }}>
+                  {item.q}
+                </h3>
+                <p style={{ color: '#debfc2' }}>{item.a}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section style={cardStyle} className="wa-space-y-4">
+          <h2 className="wa-text-3xl wa-font-semibold" style={{ color: '#e6e1e1' }}>
+            Ready to Begin?
+          </h2>
+          <p style={{ color: '#debfc2' }}>
+            Start your application and take the first step toward a certified, job-ready career pathway.
+          </p>
+          <Link
+            href="/apply"
+            className="wa-inline-flex wa-items-center wa-justify-center wa-px-6 wa-py-3 wa-font-medium"
+            style={{ backgroundColor: '#ad2c4d', color: '#e6e1e1', borderRadius: '10px' }}
+          >
+            Apply Now
+          </Link>
+        </section>
+      </main>
     </div>
   );
 }

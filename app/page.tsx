@@ -58,9 +58,9 @@ export default async function HomePage() {
               <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#ad2c4d] dark:wa-text-[#ffb2bc]">Now Enrolling in Austin, TX</span>
             </div>
 
-            <h1 className="wa-text-5xl md:wa-text-7xl wa-font-extrabold wa-tracking-tight wa-leading-none wa-text-gray-900 dark:wa-text-[#e6e1e1]">
+            <h1 className="wa-text-5xl md:wa-text-7xl wa-font-extrabold wa-tracking-tight wa-leading-none" style={{ color: '#e6e1e1' }}>
               Free Career Training <br />in{' '}
-              <span className="wa-bg-gradient-to-r wa-from-[#ad2c4d] wa-to-[#ffb2bc] wa-bg-clip-text" style={{ WebkitTextFillColor: 'transparent' }}>
+              <span style={{ backgroundImage: 'linear-gradient(to right, #ad2c4d, #ffb2bc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                 Austin, TX
               </span>
             </h1>

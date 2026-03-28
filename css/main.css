@@ -115,11 +115,16 @@ html.dark body.homepage {
     background: #0b0d10;
 }
 html.dark .main-nav {
-    background: rgba(8, 10, 12, 0.98);
-    border-bottom-color: rgba(255, 255, 255, 0.08);
+    background: rgba(20, 19, 19, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 8px 32px rgba(173, 44, 77, 0.08);
 }
 html.dark .main-nav.scrolled {
-    background: rgba(6, 8, 10, 0.99);
+    background: rgba(20, 19, 19, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
 }
 html.dark .stats-bar {
     background: #0b0d10;

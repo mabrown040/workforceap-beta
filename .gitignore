@@ -8,3 +8,6 @@ next-env.d.ts
 .env.*.local
 playwright-report/
 test-results/
+.stitch/
+.vercel
+.env*.local

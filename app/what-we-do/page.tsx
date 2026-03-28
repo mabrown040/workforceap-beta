@@ -1,114 +1,168 @@
 import type { Metadata } from 'next';
-import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
-import { Target, Globe, Lightbulb, Handshake, TrendingUp } from 'lucide-react';
-import PageHero from '@/components/PageHero';
-import PhotoHighlight from '@/components/PhotoHighlight';
-import Footer from '@/components/Footer';
 
-export const metadata: Metadata = buildPageMetadata({
-  title: 'Free Workforce Development Training in Austin, TX',
+export const metadata: Metadata = {
+  title: 'What We Do | WorkforceAP',
   description:
-    'How WorkforceAP works: employer-aligned training, no-cost to participants, job placement support. Operating model that scales beyond one market.',
-  path: '/what-we-do',
-});
+    "Learn how WorkforceAP bridges Austin's opportunity gap with WIOA-funded, no-cost workforce training and job placement support.",
+};
+
+const cardStyle = {
+  background: 'rgba(255,255,255,0.04)',
+  border: '1px solid rgba(255,255,255,0.08)',
+  borderRadius: '12px',
+  padding: '24px',
+};
+
+const partners = ['Google', 'IBM', 'AWS', 'CompTIA', 'Coursera'];
+
+const impactStats = [
+  { label: 'Total salary lift', value: '$14.2M' },
+  { label: 'Placement rate', value: '84%' },
+  { label: 'People served', value: '3,400+' },
+  { label: 'Tuition paid by members', value: '$0' },
+];
+
+const processSteps = [
+  {
+    title: 'Application',
+    description:
+      'Prospective members complete a short intake so we can understand goals, current barriers, and career interests in Austin’s job market.',
+  },
+  {
+    title: 'Training',
+    description:
+      'Participants enter structured workforce and technical training aligned to employer demand, with coaching and support through completion.',
+  },
+  {
+    title: 'Certification',
+    description:
+      'Members prepare for and earn industry-recognized credentials from leading providers that validate real, job-relevant skills.',
+  },
+  {
+    title: 'Placement',
+    description:
+      'Our team supports resume positioning, interview readiness, and direct employer connection to accelerate entry into quality roles.',
+  },
+];
 
 export default function WhatWeDoPage() {
   return (
-    <div className="inner-page">
-      <PageHero
-        title="What We Do"
-        subtitle="Employer-aligned training. No cost to participants. Job placement built in. A model that works — and scales."
-      />
+    <div style={{ backgroundColor: '#141313' }}>
+      <main className="wa-py-24 wa-px-8 wa-max-w-7xl wa-mx-auto wa-space-y-20">
+        <section className="wa-max-w-4xl wa-space-y-6">
+          <p className="wa-text-sm wa-font-semibold wa-uppercase wa-tracking-wider" style={{ color: '#ad2c4d' }}>
+            What We Do
+          </p>
+          <h1 className="wa-text-4xl md:wa-text-6xl wa-font-semibold" style={{ color: '#e6e1e1' }}>
+            Bridging Austin&apos;s Opportunity Gap
+          </h1>
+          <p className="wa-text-lg wa-leading-relaxed" style={{ color: '#debfc2' }}>
+            WorkforceAP delivers no-cost career training because programs are publicly funded through workforce development pathways,
+            including WIOA-aligned support. Members do not pay tuition — public investment covers access so opportunity is not limited by income.
+          </p>
+        </section>
 
-      <PhotoHighlight
-        imageUrl="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1400&q=80"
-        label="Our Approach"
-        title="How Our Model Works"
-        description="We train people for jobs employers are hiring for. Funding comes from grants and employer partnerships — not from participants. Success means graduates get hired. We're launching in Austin and building toward expansion."
-      />
-
-      <section className="content-section">
-        <div className="container">
-          <div className="mission-vision-grid">
-            <div className="mv-card animate-on-scroll">
-              <div className="mv-icon mission"><Target size={32} className="text-current" /></div>
-              <h2>Mission</h2>
-              <p>Break down systemic barriers by providing digital literacy, AI, occupational, and professional certification training to underserved individuals, adult learners, and veterans — at no cost.</p>
-            </div>
-            <div className="mv-card animate-on-scroll">
-              <div className="mv-icon vision"><Globe size={32} className="text-current" /></div>
-              <h2>Why This Model Works</h2>
-              <p>Employers fund talent pipelines. Grants fund access. We don&rsquo;t charge participants. Our success metric is your hire — when you land a job, we&rsquo;ve done our job. That alignment is why this scales beyond one local market.</p>
-            </div>
-          </div>
-
-          <div className="legacy-section animate-on-scroll">
-            <h2>Our Leadership &amp; Legacy</h2>
-            <p className="legacy-subtitle">Built on 25+ years of workforce development — Goodwill, Austin Area Urban League, state and local initiatives. We know what works.</p>
-            <div className="stats-row">
-              <div className="stat-card">
-                <div className="stat-number gold">25+</div>
-                <div className="stat-label">Years Experience</div>
-                <p>Leading successful workforce development initiatives and career training programs.</p>
-              </div>
-              <div className="stat-card">
-                <div className="stat-number gold">2,000+</div>
-                <div className="stat-label">Clients Trained &amp; Career Enhanced</div>
-                <p>Individuals empowered with the skills, certifications, and support to advance their careers.</p>
-              </div>
-              <div className="stat-card">
-                <div className="stat-number gold">$700k</div>
-                <div className="stat-label">Revenue Turnaround</div>
-                <p>Revitalized Goodwill Career &amp; Technical Academy operations in a single year.</p>
-              </div>
-              <div className="stat-card">
-                <div className="stat-number gold">$500k</div>
-                <div className="stat-label">First-Year Revenue</div>
-                <p>Established thriving workforce unit for Austin Area Urban League.</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="wioa-callout animate-on-scroll" style={{ marginBottom: '2rem', padding: '1.25rem 1.5rem', background: 'var(--color-gray-50)', borderLeft: '4px solid var(--color-accent)', borderRadius: 'var(--radius-sm)' }}>
-            <p style={{ margin: 0, lineHeight: 1.6 }}>
-              WorkforceAP programs align with <strong>WIOA (Workforce Innovation and Opportunity Act)</strong> eligibility criteria, including low-income individuals, dislocated workers, adult learners, and veterans seeking career advancement. Our employer-aligned training model is designed to serve the communities WIOA prioritizes.
+        <section className="wa-grid md:wa-grid-cols-2 wa-gap-6">
+          <div style={cardStyle} className="wa-space-y-4">
+            <h2 className="wa-text-2xl wa-font-semibold" style={{ color: '#e6e1e1' }}>
+              Mission
+            </h2>
+            <p style={{ color: '#debfc2' }}>
+              Expand economic mobility for Austin residents through rigorous training, recognized certifications, and direct pathways to employment.
             </p>
           </div>
-
-          <h2 className="section-title animate-on-scroll">What We Stand For</h2>
-          <div className="values-grid">
-            {[
-              { Icon: Target, name: 'Equity', desc: 'Fair access to opportunity — no one should pay for the training that gets them hired.' },
-              { Icon: Globe, name: 'Employer-Aligned', desc: 'We teach what employers hire for. Google, IBM, AWS, CompTIA — credentials that open doors.' },
-              { Icon: Lightbulb, name: 'Outcomes Matter', desc: 'Our success is your hire. We measure what matters: jobs landed, careers launched.' },
-              { Icon: Handshake, name: 'Partnership', desc: 'Government, employers, community orgs — we leverage collective strength so participants don\'t carry the load alone.' },
-              { Icon: TrendingUp, name: 'Scale Where It Works', desc: 'We launch where we can deliver, then expand. Austin first; more communities as we grow.' },
-            ].map((v) => {
-              const Icon = v.Icon;
-              return (
-              <div key={v.name} className="value-card animate-on-scroll">
-                <div className="value-icon"><Icon size={28} className="text-current" /></div>
-                <h3>{v.name}</h3>
-                <p>{v.desc}</p>
-              </div>
-              );
-            })}
+          <div style={cardStyle} className="wa-space-y-4">
+            <h2 className="wa-text-2xl wa-font-semibold" style={{ color: '#e6e1e1' }}>
+              Values
+            </h2>
+            <ul className="wa-space-y-2" style={{ color: '#debfc2' }}>
+              <li>• Access without tuition barriers</li>
+              <li>• Employer-aligned outcomes</li>
+              <li>• Measurable impact and accountability</li>
+              <li>• Community-first workforce development</li>
+            </ul>
           </div>
+        </section>
 
-          <div className="cta-section animate-on-scroll">
-            <h2>Ready to Jumpstart Your Career?</h2>
-            <p>Join individuals who are transforming their careers through employer-aligned training and certifications.</p>
-            <div className="cta-buttons">
-              <Link href="/apply" className="btn btn-primary">Apply Now</Link>
-              <Link href="/programs" className="btn btn-outline">Explore Programs</Link>
-              <Link href="/leadership" className="btn btn-dark">Meet Our Team</Link>
-            </div>
+        <section className="wa-space-y-8">
+          <h2 className="wa-text-3xl wa-font-semibold" style={{ color: '#e6e1e1' }}>
+            How Programs Work
+          </h2>
+          <div className="wa-grid md:wa-grid-cols-2 wa-gap-6">
+            {processSteps.map((step, index) => (
+              <article key={step.title} style={cardStyle} className="wa-space-y-3">
+                <p className="wa-text-sm wa-font-semibold wa-uppercase wa-tracking-wide" style={{ color: '#ad2c4d' }}>
+                  Step {index + 1}
+                </p>
+                <h3 className="wa-text-xl wa-font-semibold" style={{ color: '#e6e1e1' }}>
+                  {step.title}
+                </h3>
+                <p style={{ color: '#debfc2' }}>{step.description}</p>
+              </article>
+            ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      <Footer />
+        <section className="wa-space-y-6">
+          <h2 className="wa-text-3xl wa-font-semibold" style={{ color: '#e6e1e1' }}>
+            Training Partners
+          </h2>
+          <div className="wa-flex wa-flex-wrap wa-gap-3">
+            {partners.map((partner) => (
+              <span
+                key={partner}
+                className="wa-inline-flex wa-items-center wa-px-4 wa-py-2 wa-text-sm wa-font-medium"
+                style={{
+                  color: '#e6e1e1',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '999px',
+                  background: 'rgba(255,255,255,0.02)',
+                }}
+              >
+                {partner}
+              </span>
+            ))}
+          </div>
+        </section>
+
+        <section className="wa-space-y-6">
+          <h2 className="wa-text-3xl wa-font-semibold" style={{ color: '#e6e1e1' }}>
+            Impact
+          </h2>
+          <div className="wa-grid wa-grid-cols-1 sm:wa-grid-cols-2 lg:wa-grid-cols-4 wa-gap-6">
+            {impactStats.map((stat) => (
+              <article key={stat.label} style={cardStyle} className="wa-space-y-2">
+                <p className="wa-text-3xl wa-font-semibold" style={{ color: '#ad2c4d' }}>
+                  {stat.value}
+                </p>
+                <p style={{ color: '#debfc2' }}>{stat.label}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="wa-space-y-4" style={cardStyle}>
+          <h2 className="wa-text-3xl wa-font-semibold" style={{ color: '#e6e1e1' }}>
+            Our Funding
+          </h2>
+          <p style={{ color: '#debfc2' }}>
+            WorkforceAP programs are supported by public workforce funding structures under the Workforce Innovation and Opportunity Act (WIOA),
+            along with aligned community and employer partnerships. WIOA is a federal workforce development framework designed to help job seekers
+            gain skills and connect to in-demand careers.
+          </p>
+          <p style={{ color: '#debfc2' }}>
+            This is why eligible participants can train at no cost: tuition is funded so residents can focus on outcomes, not debt.
+          </p>
+          <Link
+            href="/apply"
+            className="wa-inline-flex wa-items-center wa-justify-center wa-px-6 wa-py-3 wa-font-medium"
+            style={{ backgroundColor: '#ad2c4d', color: '#e6e1e1', borderRadius: '10px' }}
+          >
+            Apply Now
+          </Link>
+        </section>
+      </main>
     </div>
   );
 }

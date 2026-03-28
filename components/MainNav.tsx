@@ -9,16 +9,16 @@ import { useState, useEffect, useCallback, useRef, useId } from 'react';
 
 const navItems = [
   { href: '/', label: 'Home' },
+  { href: '/what-we-do', label: 'What We Do' },
+  { href: '/for-employers', label: 'For Employers' },
+  { href: '/how-it-works', label: 'How It Works' },
   {
     label: 'About Us',
     children: [
-      { href: '/what-we-do', label: 'What We Do' },
       { href: '/partners', label: 'Partners' },
       { href: '/leadership', label: 'Leadership Team' },
-      { href: '/employers', label: 'For Employers' },
     ],
   },
-  { href: '/how-it-works', label: 'How It Works' },
   {
     label: 'Programs',
     children: [

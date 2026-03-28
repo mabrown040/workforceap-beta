@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
+import MainNav from '@/components/MainNav';
 import ApplyConfirmationCta from '@/components/apply/ApplyConfirmationCta';
 
 export const metadata = buildPageMetadata({
@@ -13,82 +14,106 @@ export const metadata = buildPageMetadata({
 
 export default function ApplyConfirmationPage() {
   return (
-    <div className="inner-page">
-      <section className="page-hero">
-        <div className="page-hero-content">
-          <h1>Application Received</h1>
-          <p>Your application has been received. Here is what happens next:</p>
+    <div style={{ backgroundColor: '#141313', minHeight: '100vh', color: '#e6e1e1' }}>
+      <MainNav />
+
+      <main style={{ maxWidth: '680px', margin: '0 auto', padding: '64px 24px 100px', textAlign: 'center' }}>
+        {/* Checkmark */}
+        <div style={{
+          width: '80px', height: '80px', borderRadius: '50%',
+          background: 'rgba(173,44,77,0.15)', border: '2px solid rgba(173,44,77,0.4)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          margin: '0 auto 32px', fontSize: '2.5rem'
+        }}>
+          ✅
         </div>
-      </section>
 
-      <section className="content-section">
-        <div className="container">
-          <div className="apply-confirmation" style={{ maxWidth: '620px', margin: '0 auto' }}>
-            <div className="apply-confirmation-icon" style={{ fontSize: '3rem', marginBottom: '1.5rem', textAlign: 'center' }}>&#10003;</div>
+        <h1 style={{ fontSize: 'clamp(2rem, 5vw, 2.75rem)', fontWeight: 800, color: '#fff', marginBottom: '16px' }}>
+          Application Received!
+        </h1>
+        <p style={{ fontSize: '1.1rem', color: '#a8a3a3', lineHeight: 1.6, marginBottom: '48px', maxWidth: '520px', margin: '0 auto 48px' }}>
+          We&apos;ll reach out within 2–3 business days to schedule your overview session.
+        </p>
 
-            <Suspense fallback={<div style={{ padding: '1rem', textAlign: 'center', color: 'var(--color-gray-600)' }}>Loading next steps...</div>}>
-              <ApplyConfirmationCta />
-            </Suspense>
+        <Suspense fallback={null}>
+          <ApplyConfirmationCta />
+        </Suspense>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '2rem' }}>
-              <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                <span style={{ background: '#4a9b4f', color: 'white', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.9rem', flexShrink: 0 }}>1</span>
+        {/* What happens next */}
+        <div style={{
+          background: 'rgba(255,255,255,0.04)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: '16px',
+          padding: '40px',
+          marginBottom: '32px',
+          textAlign: 'left'
+        }}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#fff', marginBottom: '28px', textAlign: 'center' }}>
+            What Happens Next
+          </h2>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {[
+              {
+                step: '1',
+                title: 'Email Confirmation',
+                desc: 'Check your inbox for a confirmation email with your application details and next steps.'
+              },
+              {
+                step: '2',
+                title: 'Overview Session',
+                desc: 'A counselor will contact you within 2–3 business days to schedule a 30-minute overview call.'
+              },
+              {
+                step: '3',
+                title: 'Assessment & Enrollment',
+                desc: 'Complete a brief skills assessment, then get matched to the right program — free for members.'
+              }
+            ].map((item) => (
+              <div key={item.step} style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                <div style={{
+                  width: '36px', height: '36px', borderRadius: '50%',
+                  background: '#ad2c4d', color: '#fff',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontWeight: 700, fontSize: '0.9rem', flexShrink: 0
+                }}>
+                  {item.step}
+                </div>
                 <div>
-                  <strong>Our team reviews your application</strong>
-                  <p style={{ margin: '0.25rem 0 0', color: 'var(--color-gray-600)', fontSize: '0.95rem' }}>
-                    We review every application within 5 business days. A counselor will look at your goals and match you with the right program.
-                  </p>
+                  <div style={{ fontWeight: 700, color: '#fff', marginBottom: '4px' }}>{item.title}</div>
+                  <div style={{ fontSize: '0.9rem', color: '#a8a3a3', lineHeight: 1.6 }}>{item.desc}</div>
                 </div>
               </div>
-
-              <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                <span style={{ background: '#4a9b4f', color: 'white', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.9rem', flexShrink: 0 }}>2</span>
-                <div>
-                  <strong>You will receive an email with next steps</strong>
-                  <p style={{ margin: '0.25rem 0 0', color: 'var(--color-gray-600)', fontSize: '0.95rem' }}>
-                    Check your inbox (and spam folder) for a message from our team with your enrollment details.
-                  </p>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                <span style={{ background: '#4a9b4f', color: 'white', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.9rem', flexShrink: 0 }}>3</span>
-                <div>
-                  <strong>If accepted, you will get access to your member portal</strong>
-                  <p style={{ margin: '0.25rem 0 0', color: 'var(--color-gray-600)', fontSize: '0.95rem' }}>
-                    Your portal gives you access to no-cost training for members, AI career tools, and your counselor &mdash; all in one place.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '1.25rem', marginBottom: '1.5rem' }}>
-              <p style={{ margin: 0, fontSize: '0.95rem' }}>
-                <strong>Questions?</strong> Call{' '}
-                <a href="tel:+15127771808" style={{ color: '#2563eb', fontWeight: 600 }}>(512) 777-1808</a>{' '}
-                or email{' '}
-                <a href="mailto:info@workforceap.org" style={{ color: '#2563eb', fontWeight: 600 }}>info@workforceap.org</a>
-              </p>
-            </div>
-
-            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '1.25rem', marginBottom: '2rem' }}>
-              <p style={{ margin: 0, fontSize: '0.95rem' }}>
-                <strong>While you wait:</strong> Bookmark your portal login at{' '}
-                <Link href="/login" style={{ color: '#2563eb', fontWeight: 600 }}>workforceap.org/login</Link>
-                . You can also{' '}
-                <Link href="/apply/status" style={{ color: '#2563eb', fontWeight: 600 }}>check your application status</Link>
-                {' '}with the email you used — no password required.
-              </p>
-            </div>
-
-            <div style={{ textAlign: 'center' }}>
-              <Link href="/" className="btn btn-primary">
-                Return to home
-              </Link>
-            </div>
+            ))}
           </div>
         </div>
-      </section>
+
+        {/* Questions box */}
+        <div style={{
+          background: 'rgba(255,255,255,0.04)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: '12px',
+          padding: '20px 24px',
+          marginBottom: '32px',
+          fontSize: '0.95rem',
+          color: '#a8a3a3',
+          textAlign: 'left'
+        }}>
+          <strong style={{ color: '#e6e1e1' }}>Questions?</strong>{' '}
+          Call <a href="tel:+15127771808" style={{ color: '#ad2c4d', fontWeight: 600 }}>(512) 777-1808</a>{' '}
+          or email <a href="mailto:info@workforceap.org" style={{ color: '#ad2c4d', fontWeight: 600 }}>info@workforceap.org</a>
+        </div>
+
+        {/* CTA */}
+        <Link href="/programs" style={{
+          display: 'inline-flex', alignItems: 'center', gap: '8px',
+          background: '#ad2c4d', color: '#fff', borderRadius: '8px',
+          padding: '14px 32px', fontWeight: 700, fontSize: '1rem',
+          textDecoration: 'none'
+        }}>
+          Explore Programs While You Wait →
+        </Link>
+      </main>
 
       <Footer />
     </div>

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { CheckCircle, ClipboardList, UserPlus, Clock } from 'lucide-react';
 import Footer from '@/components/Footer';
+import MainNav from '@/components/MainNav';
 import ApplyEligibilityClient from './ApplyEligibilityClient';
 import ApplyPageSkeleton from './ApplyPageSkeleton';
 import ApplyProgramIntro from '@/components/apply/ApplyProgramIntro';
@@ -21,172 +21,126 @@ export default async function ApplyPage({ searchParams }: PageProps) {
   const program = programSlug ? getProgramBySlug(programSlug) : undefined;
 
   return (
-    <div className="inner-page">
-      <section className="page-hero apply-hero">
-        <div className="page-hero-content">
-          <h1 style={{ fontSize: 'clamp(2rem, 5vw, 2.75rem)', fontWeight: 800, marginBottom: '1rem' }}>
-            Start your application
-          </h1>
-          <p style={{ fontSize: 'clamp(1.05rem, 2.5vw, 1.2rem)', lineHeight: 1.6, marginBottom: '1.5rem', maxWidth: '650px' }}>
-            Answer 3 quick questions, choose a program, then create your account so we can follow up with your next steps. 
-            <strong> No experience required.</strong>
-          </p>
-          
-          <div style={{ 
-            padding: '1.25rem 1.5rem', 
-            background: 'rgba(74, 155, 79, 0.12)', 
-            border: '2px solid rgba(74, 155, 79, 0.35)',
-            borderRadius: 'var(--radius-md)',
-            marginBottom: '2rem',
-            maxWidth: '600px'
-          }}>
-            <p style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: '#166534' }}>
-              ✓ No cost to members.
-            </p>
-            <p style={{ fontSize: '0.95rem', margin: '0.35rem 0 0', color: '#065f46' }}>
-              Training and support are provided at no charge to qualifying participants.
-            </p>
-          </div>
+    <div style={{ backgroundColor: '#141313', minHeight: '100vh', color: '#e6e1e1' }}>
+      <MainNav />
 
-          <div style={{ 
-            display: 'grid', 
-            gap: '0.75rem', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            marginBottom: '2rem',
-            maxWidth: '900px'
-          }}>
-            {[
-              { Icon: CheckCircle, text: 'Quick eligibility check', label: 'Step 1' },
-              { Icon: ClipboardList, text: 'Choose a program', label: 'Step 2' },
-              { Icon: UserPlus, text: 'Create your account', label: 'Step 3' },
-              { Icon: Clock, text: 'We respond within 24–48 hours', label: 'Timeline' }
-            ].map((step) => (
-              <div key={step.text} style={{
-                padding: '0.85rem 1.1rem',
-                background: 'rgba(255,255,255,0.1)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '8px',
-                fontSize: '0.9rem',
-                fontWeight: 500,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.65rem'
-              }}>
-                <step.Icon size={20} strokeWidth={2.5} aria-label={step.label} style={{ flexShrink: 0, opacity: 0.9 }} />
-                <span>{step.text}</span>
+      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '48px 24px 80px' }}>
+        {/* Page header */}
+        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+          <h1 style={{ fontSize: 'clamp(2rem, 5vw, 2.75rem)', fontWeight: 800, color: '#fff', marginBottom: '0.75rem' }}>
+            Start Your Application
+          </h1>
+          <p style={{ fontSize: '1.1rem', color: '#a8a3a3', maxWidth: '560px', margin: '0 auto' }}>
+            No experience required. Free for members.
+          </p>
+
+          {/* Step progress indicator */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '32px' }}>
+            {['Basic Info', 'Background', 'Program Interest'].map((label, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                  <div style={{
+                    width: '32px', height: '32px', borderRadius: '50%',
+                    background: i === 0 ? '#ad2c4d' : 'rgba(255,255,255,0.08)',
+                    border: `2px solid ${i === 0 ? '#ad2c4d' : 'rgba(255,255,255,0.15)'}`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontWeight: 700, fontSize: '0.85rem', color: i === 0 ? '#fff' : '#a8a3a3'
+                  }}>{i + 1}</div>
+                  <span style={{ fontSize: '0.75rem', color: i === 0 ? '#e6e1e1' : '#6b6868', whiteSpace: 'nowrap' }}>{label}</span>
+                </div>
+                {i < 2 && (
+                  <div style={{ width: '60px', height: '2px', background: 'rgba(255,255,255,0.08)', marginBottom: '20px' }} />
+                )}
               </div>
             ))}
           </div>
-
-          <div style={{
-            padding: '1rem 1.25rem',
-            background: 'rgba(240, 205, 131, 0.2)',
-            border: '1px solid rgba(240, 205, 131, 0.4)',
-            borderRadius: 'var(--radius-md)',
-            marginBottom: '1.5rem',
-            maxWidth: '700px'
-          }}>
-            <p style={{ fontSize: '0.95rem', lineHeight: 1.6, margin: 0 }}>
-              <strong>Where we operate today:</strong> We&apos;re currently serving the Austin area. 
-              This is our launch community — we&apos;re building toward expansion. 
-              If you&apos;re elsewhere, apply anyway; we&apos;ll keep you in the loop.
-            </p>
-          </div>
-
-          <p style={{ fontSize: '0.95rem', marginBottom: '0' }}>
-            <strong>Questions before you start?</strong> Call us: <a href="tel:5127771808" style={{ color: 'var(--color-gold)', fontWeight: 700, textDecoration: 'underline' }}>(512) 777-1808</a>
-          </p>
         </div>
-      </section>
 
-      <section className="content-section" style={{ paddingTop: '3rem' }}>
-        <div className="container">
-          <div style={{
-            padding: '2rem 2.5rem',
-            background: 'white',
-            border: '2px solid var(--color-accent)',
-            borderRadius: 'var(--radius-lg)',
-            marginBottom: '2rem',
-            boxShadow: '0 10px 40px rgba(0,0,0,0.08)'
-          }} aria-labelledby="apply-expectations-heading">
-            <h3 id="apply-expectations-heading" style={{ 
-              fontSize: '1.5rem', 
-              fontWeight: 700, 
-              marginBottom: '1.5rem',
-              color: 'var(--color-primary)',
-              textAlign: 'center'
+        {/* Two-column layout */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '32px' }}
+          className="apply-two-col">
+          <style>{`
+            @media (min-width: 900px) {
+              .apply-two-col { grid-template-columns: 3fr 2fr !important; }
+            }
+          `}</style>
+
+          {/* LEFT: Form */}
+          <div>
+            <div style={{
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: '16px',
+              padding: '40px'
             }}>
-              What happens after you apply?
-            </h3>
-            <ol style={{
-              display: 'grid',
-              gap: '1.25rem',
-              listStyle: 'none',
-              padding: 0,
-              counterReset: 'step-counter'
-            }}>
-              {[
-                'We review your application within 24–48 hours',
-                'Schedule an overview call with a counselor',
-                'Complete a brief skills assessment (not a test — helps us match you)',
-                '30-minute interview to confirm mutual fit',
-                'Start your program — at no cost to you'
-              ].map((step, idx) => (
-                <li key={idx} style={{
-                  display: 'flex',
-                  gap: '1rem',
-                  alignItems: 'flex-start',
-                  fontSize: '1.05rem',
-                  lineHeight: 1.6
-                }}>
-                  <span style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    background: 'var(--color-accent)',
-                    color: 'white',
-                    fontWeight: 700,
-                    fontSize: '0.9rem',
-                    flexShrink: 0
-                  }}>
-                    {idx + 1}
-                  </span>
-                  <span style={{ paddingTop: '0.25rem' }}>{step}</span>
-                </li>
-              ))}
-            </ol>
+              {program ? <ApplyProgramIntro programSlug={program.slug} /> : null}
+              <Suspense fallback={<div style={{ padding: '1rem', color: '#a8a3a3' }}>Loading...</div>}>
+                <ApplyRefCapture />
+              </Suspense>
+              <Suspense fallback={<ApplyPageSkeleton />}>
+                <ApplyEligibilityClient />
+              </Suspense>
+            </div>
           </div>
 
-          <div style={{
-            padding: '1.5rem 2rem',
-            background: 'rgba(173, 44, 77, 0.06)',
-            border: '1px solid rgba(173, 44, 77, 0.2)',
-            borderRadius: 'var(--radius-md)',
-            marginBottom: '2rem',
-            fontSize: '0.95rem',
-            lineHeight: 1.7
-          }} role="note">
-            <p style={{ margin: 0 }}>
-              <strong style={{ color: 'var(--color-accent)', fontSize: '1rem' }}>What to expect:</strong> This intake starts with a short eligibility check before account creation, 
-              so you can see your likely options first. After you create an account, a counselor reviews your selection 
-              and follows up within 24–48 hours.
-            </p>
+          {/* RIGHT: Benefits card */}
+          <div>
+            <div style={{
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: '16px',
+              padding: '40px',
+              position: 'sticky',
+              top: '24px'
+            }}>
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                background: 'rgba(173,44,77,0.15)', border: '1px solid rgba(173,44,77,0.3)',
+                borderRadius: '100px', padding: '6px 16px', marginBottom: '20px'
+              }}>
+                <span style={{ color: '#ad2c4d', fontWeight: 700, fontSize: '0.85rem' }}>✓ FREE FOR MEMBERS</span>
+              </div>
+
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', marginBottom: '12px', lineHeight: 1.3 }}>
+                No-cost training and career support
+              </h2>
+              <p style={{ color: '#a8a3a3', fontSize: '0.95rem', marginBottom: '28px', lineHeight: 1.6 }}>
+                WorkforceAP connects qualifying members with funded programs — no tuition, no hidden fees.
+              </p>
+
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                {[
+                  'Industry-recognized certifications',
+                  'Dedicated career counselor',
+                  'AI-powered resume & job tools',
+                  'Job placement support',
+                  'Flexible online or in-person options',
+                  'No prior experience required'
+                ].map((item) => (
+                  <li key={item} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '0.95rem', color: '#c8c3c3' }}>
+                    <span style={{ color: '#ad2c4d', fontWeight: 700, marginTop: '1px', flexShrink: 0 }}>✓</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+
+              {/* Stat callout */}
+              <div style={{
+                background: 'rgba(173,44,77,0.08)',
+                border: '1px solid rgba(173,44,77,0.2)',
+                borderRadius: '12px',
+                padding: '20px',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#ad2c4d', lineHeight: 1 }}>84%</div>
+                <div style={{ fontSize: '0.9rem', color: '#a8a3a3', marginTop: '6px', lineHeight: 1.4 }}>
+                  of members land jobs<br />within 90 days
+                </div>
+              </div>
+            </div>
           </div>
-
-          {program ? <ApplyProgramIntro programSlug={program.slug} /> : null}
-
-          <Suspense fallback={<div style={{ padding: '1rem', color: 'var(--color-gray-600)' }}>Loading...</div>}>
-            <ApplyRefCapture />
-          </Suspense>
-          <Suspense fallback={<ApplyPageSkeleton />}>
-            <ApplyEligibilityClient />
-          </Suspense>
         </div>
-      </section>
+      </main>
 
       <Footer />
     </div>

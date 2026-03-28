@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import { Handshake, Users, Award, ArrowRight, HelpCircle, Briefcase, Building2, Landmark, Heart } from 'lucide-react';
-import PageHero from '@/components/PageHero';
-import PhotoHighlight from '@/components/PhotoHighlight';
+import MainNav from '@/components/MainNav';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -39,83 +38,165 @@ const PARTNER_TYPES = [
     icon: Heart,
     type: 'Supporters & Funders',
     who: 'Foundations, corporate giving, impact investors, individual donors.',
-    why: 'Fund a model that works. Employer-aligned training, no participant debt, measurable job outcomes. We\'re launching in Austin and building toward expansion.',
+    why: "Fund a model that works. Employer-aligned training, no participant debt, measurable job outcomes. We're launching in Austin and building toward expansion.",
     nextStep: { text: 'Learn How to Support', href: '/contact?topic=partnership' },
   },
 ];
 
 export default function PartnersPage() {
   return (
-    <div className="inner-page">
-      <PageHero
-        title="Partner With Us"
-        subtitle="Different partners, different roles. Find yours and take the next step."
-      />
+    <div className="wa-min-h-screen wa-bg-[#141313] wa-text-[#e6e1e1]">
+      <MainNav />
 
-      <PhotoHighlight
-        imageUrl="https://images.unsplash.com/photo-1552664730-d307ca884978?w=1400&q=80"
-        label="Partnership"
-        title="Building a Skilled Workforce Together"
-        description="We partner with employers who hire, orgs who refer, workforce boards who align, and funders who scale. Each partnership type has a clear path."
-      />
+      {/* Hero */}
+      <section className="wa-pt-32 wa-pb-16 wa-px-6 md:wa-px-12">
+        <div className="wa-max-w-5xl wa-mx-auto wa-text-center">
+          <div className="wa-inline-flex wa-items-center wa-gap-2 wa-bg-[rgba(113,51,62,0.2)] wa-border wa-border-[rgba(173,44,77,0.15)] wa-px-4 wa-py-1.5 wa-rounded-full wa-mb-6">
+            <span className="wa-w-2 wa-h-2 wa-rounded-full wa-bg-[#ad2c4d] wa-inline-block" />
+            <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#ffb2bc]">Partnerships</span>
+          </div>
+          <h1 className="wa-text-5xl md:wa-text-6xl wa-font-extrabold wa-tracking-tight wa-leading-none wa-mb-4">
+            Partner{' '}
+            <span style={{ backgroundImage: 'linear-gradient(to right, #ad2c4d, #ffb2bc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              With Us
+            </span>
+          </h1>
+          <p className="wa-text-xl wa-text-[#debfc2] wa-max-w-2xl wa-mx-auto">
+            Different partners, different roles. Find yours and take the next step.
+          </p>
+        </div>
+      </section>
 
-      <section className="content-section">
-        <div className="container">
-          <h2 className="section-title animate-on-scroll">What Kind of Partner Are You?</h2>
-          <div className="partners-type-grid">
+      <section className="wa-pb-24 wa-px-6 md:wa-px-12">
+        <div className="wa-max-w-6xl wa-mx-auto">
+
+          {/* Partner type cards */}
+          <div className="wa-mb-4 wa-text-center">
+            <div className="wa-inline-flex wa-items-center wa-gap-2 wa-bg-[rgba(113,51,62,0.2)] wa-border wa-border-[rgba(173,44,77,0.15)] wa-px-4 wa-py-1.5 wa-rounded-full wa-mb-8">
+              <span className="wa-w-2 wa-h-2 wa-rounded-full wa-bg-[#ad2c4d] wa-inline-block" />
+              <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#ffb2bc]">What Kind of Partner Are You?</span>
+            </div>
+          </div>
+
+          <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 wa-gap-4 wa-mb-16">
             {PARTNER_TYPES.map(({ icon: Icon, type, who, why, nextStep }) => (
-              <div key={type} className="partners-type-card animate-on-scroll">
-                <div className="partners-type-icon"><Icon size={28} className="text-current" /></div>
-                <h3>{type}</h3>
-                <p className="partners-type-who"><strong>You are:</strong> {who}</p>
-                <p className="partners-type-why"><strong>Why partner:</strong> {why}</p>
-                <Link href={nextStep.href} className="btn btn-outline btn-sm">
-                  {nextStep.text} <ArrowRight size={16} style={{ marginLeft: '0.25rem' }} />
-                </Link>
+              <div key={type} className="wa-bg-white/5 wa-border wa-border-white/10 wa-rounded-2xl wa-backdrop-blur wa-p-7 wa-flex wa-flex-col wa-gap-3">
+                <div className="wa-text-[#ad2c4d]"><Icon size={28} /></div>
+                <h3 className="wa-text-lg wa-font-bold wa-text-[#e6e1e1]">{type}</h3>
+                <p className="wa-text-sm wa-text-[#debfc2] wa-leading-relaxed">
+                  <strong className="wa-text-[#e6e1e1]">You are:</strong> {who}
+                </p>
+                <p className="wa-text-sm wa-text-[#debfc2] wa-leading-relaxed">
+                  <strong className="wa-text-[#e6e1e1]">Why partner:</strong> {why}
+                </p>
+                <div className="wa-mt-auto wa-pt-2">
+                  <Link
+                    href={nextStep.href}
+                    className="wa-inline-flex wa-items-center wa-gap-1.5 wa-px-5 wa-py-2.5 wa-border wa-border-[rgba(173,44,77,0.5)] wa-text-[#ffb2bc] wa-rounded-xl wa-text-sm wa-font-semibold wa-no-underline hover:wa-bg-[rgba(173,44,77,0.1)] wa-transition-colors"
+                  >
+                    {nextStep.text} <ArrowRight size={14} />
+                  </Link>
+                </div>
               </div>
             ))}
           </div>
 
-          <h2 className="section-title animate-on-scroll" style={{ marginTop: '3rem' }}>How Referrals Work</h2>
-          <div className="two-col" style={{ marginBottom: '3rem' }}>
-            <div>
-              <p>Referral partners send us candidates who may benefit from complimentary career training. We reach out within 24–48 hours and walk them through the process.</p>
-              <ul style={{ marginTop: '1rem', paddingLeft: '1.25rem' }}>
-                <li style={{ marginBottom: '0.5rem' }}>Submit a referral via our contact form or partner portal</li>
-                <li style={{ marginBottom: '0.5rem' }}>We contact the candidate within 24–48 hours</li>
-                <li style={{ marginBottom: '0.5rem' }}>Accepted members receive training, certifications, and job placement support</li>
-                <li>You receive updates when referred individuals complete programs</li>
+          {/* How Referrals Work */}
+          <div className="wa-mb-4">
+            <div className="wa-inline-flex wa-items-center wa-gap-2 wa-bg-[rgba(113,51,62,0.2)] wa-border wa-border-[rgba(173,44,77,0.15)] wa-px-4 wa-py-1.5 wa-rounded-full wa-mb-8">
+              <span className="wa-w-2 wa-h-2 wa-rounded-full wa-bg-[#ad2c4d] wa-inline-block" />
+              <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#ffb2bc]">How Referrals Work</span>
+            </div>
+          </div>
+
+          <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 wa-gap-8 wa-mb-16">
+            <div className="wa-bg-white/5 wa-border wa-border-white/10 wa-rounded-2xl wa-backdrop-blur wa-p-7">
+              <p className="wa-text-[#debfc2] wa-leading-relaxed wa-mb-4">Referral partners send us candidates who may benefit from complimentary career training. We reach out within 24–48 hours and walk them through the process.</p>
+              <ul className="wa-flex wa-flex-col wa-gap-2 wa-pl-0" style={{ listStyle: 'none' }}>
+                {[
+                  'Submit a referral via our contact form or partner portal',
+                  'We contact the candidate within 24–48 hours',
+                  'Accepted members receive training, certifications, and job placement support',
+                  'You receive updates when referred individuals complete programs',
+                ].map((item) => (
+                  <li key={item} className="wa-flex wa-items-start wa-gap-2 wa-text-sm wa-text-[#debfc2]">
+                    <span className="wa-text-[#ad2c4d] wa-mt-0.5">→</span>
+                    {item}
+                  </li>
+                ))}
               </ul>
             </div>
-            <div>
-              <p>Best referrals: motivated to finish training, interested in tech, healthcare, manufacturing, or trades. Currently serving Austin area; expanding over time.</p>
-              <Link href="/contact?topic=partnership" className="link-arrow" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginTop: '1rem' }}>
-                Contact us to refer <ArrowRight size={18} />
+            <div className="wa-bg-white/5 wa-border wa-border-white/10 wa-rounded-2xl wa-backdrop-blur wa-p-7">
+              <p className="wa-text-[#debfc2] wa-leading-relaxed wa-mb-6">Best referrals: motivated to finish training, interested in tech, healthcare, manufacturing, or trades. Currently serving Austin area; expanding over time.</p>
+              <Link
+                href="/contact?topic=partnership"
+                className="wa-inline-flex wa-items-center wa-gap-2 wa-px-6 wa-py-3 wa-bg-gradient-to-r wa-from-[#ad2c4d] wa-to-[#c9364f] wa-text-white wa-rounded-xl wa-font-bold wa-no-underline hover:wa-opacity-90 wa-transition-opacity"
+              >
+                Contact us to refer <ArrowRight size={16} />
               </Link>
             </div>
           </div>
 
-          <h2 className="section-title animate-on-scroll" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '3rem' }}>
-            <HelpCircle size={24} className="text-current" />
-            Partner FAQ
-          </h2>
-          <div className="faq-list" style={{ maxWidth: '720px' }}>
-            <details className="faq-item">
-              <summary>Who can become a partner?</summary>
-              <p>Employers, workforce development boards, community organizations, social service agencies, and educational institutions can partner with WorkforceAP to refer candidates or hire graduates.</p>
-            </details>
-            <details className="faq-item">
-              <summary>Is there a cost to refer candidates?</summary>
-              <p>No. Referrals are free. We welcome partners who want to connect individuals in their network with our free career training programs.</p>
-            </details>
-            <details className="faq-item">
-              <summary>How do I refer someone?</summary>
-              <p>Contact us at info@workforceap.org or (512) 777-1808 with the candidate&apos;s name and contact information. You can also use our contact form and select &quot;Partnership&quot; as the topic.</p>
-            </details>
-            <details className="faq-item">
-              <summary>Can I hire WorkforceAP graduates?</summary>
-              <p>Yes. We actively connect employers with job-ready graduates. Reach out to discuss your hiring needs and we can share candidate profiles and schedule introductions.</p>
-            </details>
+          {/* Partner FAQ */}
+          <div className="wa-mb-4">
+            <div className="wa-inline-flex wa-items-center wa-gap-2 wa-bg-[rgba(113,51,62,0.2)] wa-border wa-border-[rgba(173,44,77,0.15)] wa-px-4 wa-py-1.5 wa-rounded-full wa-mb-8">
+              <span className="wa-w-2 wa-h-2 wa-rounded-full wa-bg-[#ad2c4d] wa-inline-block" />
+              <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#ffb2bc]">Partner FAQ</span>
+            </div>
+          </div>
+
+          <div className="wa-flex wa-flex-col wa-gap-3 wa-max-w-[720px] wa-mb-16">
+            {[
+              {
+                q: 'Who can become a partner?',
+                a: 'Employers, workforce development boards, community organizations, social service agencies, and educational institutions can partner with WorkforceAP to refer candidates or hire graduates.',
+              },
+              {
+                q: 'Is there a cost to refer candidates?',
+                a: 'No. Referrals are free. We welcome partners who want to connect individuals in their network with our free career training programs.',
+              },
+              {
+                q: 'How do I refer someone?',
+                a: "Contact us at info@workforceap.org or (512) 777-1808 with the candidate's name and contact information. You can also use our contact form and select \"Partnership\" as the topic.",
+              },
+              {
+                q: 'Can I hire WorkforceAP graduates?',
+                a: 'Yes. We actively connect employers with job-ready graduates. Reach out to discuss your hiring needs and we can share candidate profiles and schedule introductions.',
+              },
+            ].map((item) => (
+              <details
+                key={item.q}
+                className="wa-bg-white/5 wa-border wa-border-white/10 wa-rounded-2xl wa-overflow-hidden"
+              >
+                <summary className="wa-flex wa-items-center wa-justify-between wa-px-5 wa-py-4 wa-cursor-pointer wa-font-semibold wa-text-[#e6e1e1] wa-text-sm" style={{ listStyle: 'none' }}>
+                  {item.q}
+                  <span className="wa-text-[#ad2c4d] wa-text-xl wa-leading-none">+</span>
+                </summary>
+                <div className="wa-px-5 wa-pb-5 wa-border-t wa-border-white/[0.06]">
+                  <p className="wa-text-[#debfc2] wa-text-sm wa-leading-relaxed wa-mt-3">{item.a}</p>
+                </div>
+              </details>
+            ))}
+          </div>
+
+          {/* CTA */}
+          <div className="wa-bg-[rgba(173,44,77,0.08)] wa-border wa-border-[rgba(173,44,77,0.2)] wa-rounded-2xl wa-p-10 wa-text-center">
+            <h2 className="wa-text-2xl wa-font-bold wa-text-[#e6e1e1] wa-mb-2">Ready to connect?</h2>
+            <p className="wa-text-[#debfc2] wa-mb-6">Whether you hire, refer, or fund — there&rsquo;s a place for you in this work.</p>
+            <div className="wa-flex wa-flex-wrap wa-gap-3 wa-justify-center">
+              <Link
+                href="/contact?topic=partnership"
+                className="wa-inline-flex wa-items-center wa-px-6 wa-py-3 wa-bg-gradient-to-r wa-from-[#ad2c4d] wa-to-[#c9364f] wa-text-white wa-rounded-xl wa-font-bold wa-no-underline hover:wa-opacity-90 wa-transition-opacity"
+              >
+                Get in Touch
+              </Link>
+              <Link
+                href="/employers"
+                className="wa-inline-flex wa-items-center wa-px-6 wa-py-3 wa-border wa-border-[rgba(173,44,77,0.5)] wa-text-[#ffb2bc] wa-rounded-xl wa-font-semibold wa-no-underline hover:wa-bg-[rgba(173,44,77,0.1)] wa-transition-colors"
+              >
+                Employer Info
+              </Link>
+            </div>
           </div>
         </div>
       </section>

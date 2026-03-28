@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
+import MainNav from '@/components/MainNav';
 import Footer from '@/components/Footer';
 import FindYourPathClient from './FindYourPathClient';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
@@ -13,29 +14,31 @@ export const metadata: Metadata = buildPageMetadata({
 
 export default function FindYourPathPage() {
   return (
-    <div
-      className="inner-page"
-      style={{ backgroundColor: '#141313', minHeight: '100vh', color: '#e6e1e1' }}
-    >
-      <section
-        className="page-hero find-your-path-hero"
-        style={{ backgroundColor: '#141313' }}
-      >
-        <div className="page-hero-content">
-          <h1 style={{ color: '#e6e1e1' }}>Find Your Path</h1>
-          <p style={{ color: '#debfc2' }}>
-            Five questions, three ranked matches, plain-English why — tied to the same salary bands and program pages you will see
-            elsewhere. If computers feel intimidating, we prioritize the Digital Literacy track first so you build confidence before heavier tech programs. Austin is where we are proving this first.
+    <div className="wa-min-h-screen wa-bg-[#141313] wa-text-[#e6e1e1]">
+      <MainNav />
+
+      {/* Hero */}
+      <section className="wa-pt-32 wa-pb-16 wa-px-6 md:wa-px-12">
+        <div className="wa-max-w-5xl wa-mx-auto wa-text-center">
+          <div className="wa-inline-flex wa-items-center wa-gap-2 wa-bg-[rgba(113,51,62,0.2)] wa-border wa-border-[rgba(173,44,77,0.15)] wa-px-4 wa-py-1.5 wa-rounded-full wa-mb-6">
+            <span className="wa-w-2 wa-h-2 wa-rounded-full wa-bg-[#ad2c4d] wa-inline-block" />
+            <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#ffb2bc]">Career Quiz</span>
+          </div>
+          <h1 className="wa-text-5xl md:wa-text-6xl wa-font-extrabold wa-tracking-tight wa-leading-none wa-mb-4">
+            Find Your{' '}
+            <span style={{ backgroundImage: 'linear-gradient(to right, #ad2c4d, #ffb2bc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              Path
+            </span>
+          </h1>
+          <p className="wa-text-xl wa-text-[#debfc2] wa-max-w-2xl wa-mx-auto">
+            Five questions, three ranked matches, plain-English why — tied to the same salary bands and program pages you will see elsewhere. Austin is where we are proving this first.
           </p>
         </div>
       </section>
 
-      <section
-        className="content-section"
-        style={{ backgroundColor: '#141313' }}
-      >
-        <div className="container">
-          <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
+      <section className="wa-pb-24 wa-px-6 md:wa-px-12">
+        <div className="wa-max-w-3xl wa-mx-auto">
+          <div className="wa-mb-6 wa-text-center">
             <ExperimentedCtaLink
               experiment="find_path_apply_cta"
               variants={[

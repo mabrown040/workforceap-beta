@@ -4,9 +4,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import type { Program } from '@/lib/content/programs';
-import { getProgramExtra } from '@/lib/content/programExtras';
-import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
-import { ProgramIcon } from '@/components/ProgramIcon';
 
 const programs = PROGRAMS;
 
@@ -31,100 +28,64 @@ const CATEGORY_BORDER: Record<string, string> = {
   'digital-literacy': '#6b7280',
 };
 
-function ProgramCard({ program }: { program: Program }) {
-  const [open, setOpen] = useState(false);
-  const extra = getProgramExtra(program.slug);
-  const count = program.courses.length;
-  const nonEmptySkills = program.skills.filter((s) => s.trim().length > 0);
-  const skills = nonEmptySkills.slice(0, 3);
-  const moreSkills = nonEmptySkills.length - 3;
-  const borderColor = CATEGORY_BORDER[program.category] ?? program.borderColor;
+function ProgramCard({ program, index }: { program: Program; index: number }) {
+  const isFeatured = index === 0;
+
+  if (isFeatured) {
+    return (
+      <div className="md:col-span-8 bg-gradient-to-br from-primary-container to-primary-fixed-variant rounded-xl p-8 flex flex-col justify-between group relative overflow-hidden h-auto min-h-[400px]">
+        <div className="relative z-10">
+          <span className="bg-white/20 backdrop-blur-md text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-4 inline-block">
+            Highly Recommended
+          </span>
+          <h2 className="text-4xl font-black text-white mb-4">{program.title}</h2>
+          <p className="text-white/80 text-lg max-w-md">Learn the fundamentals of {program.categoryLabel} through expert-led courses.</p>
+        </div>
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between relative z-10 mt-8 gap-6">
+          <div className="flex gap-8">
+            <div>
+              <p className="text-white/60 text-[10px] uppercase font-bold tracking-widest mb-1">Duration</p>
+              <p className="text-white font-bold">{program.duration}</p>
+            </div>
+            <div>
+              <p className="text-white/60 text-[10px] uppercase font-bold tracking-widest mb-1">Cost</p>
+              <p className="text-white font-bold">$0</p>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <Link href={`/programs/${program.slug}`} className="bg-white/10 text-white border border-white/20 px-6 py-3 rounded-lg font-bold hover:bg-white/20 transition-colors">
+              Details
+            </Link>
+            <Link href={`/apply?program=${program.slug}`} className="bg-white text-primary-fixed-variant px-8 py-3 rounded-lg font-bold hover:scale-105 active:scale-95 transition-transform">
+              Apply Now
+            </Link>
+          </div>
+        </div>
+        <div className="absolute right-[-10%] bottom-[-10%] opacity-20 w-80 h-80 rounded-full bg-white blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
+      </div>
+    );
+  }
+
+  const isWide = index === 1 || index % 6 === 0;
 
   return (
-    <div className="program-card" data-category={program.category} style={{ borderLeft: `4px solid ${borderColor}` }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-        <span style={{ background: program.categoryColor, color: 'white', padding: '.3rem .75rem', borderRadius: '50px', fontSize: '.75rem', fontWeight: 600 }}>{program.categoryLabel}</span>
-        <span style={{ display: 'flex', alignItems: 'center' }}><ProgramIcon program={program} size={28} /></span>
+    <div className={`${isWide ? 'md:col-span-4' : 'md:col-span-3'} bg-surface-container rounded-xl p-6 flex flex-col justify-between hover:bg-surface-container-high transition-colors group border-l-4`} style={{ borderLeftColor: CATEGORY_BORDER[program.category] || program.categoryColor }}>
+      <div>
+        <span className="text-primary text-[10px] font-black uppercase tracking-widest mb-3 inline-block">
+          {program.categoryLabel}
+        </span>
+        <h3 className={`font-bold mb-2 text-on-surface ${isWide ? 'text-2xl' : 'text-xl'}`}>{program.title}</h3>
+        <p className="text-on-surface-variant text-sm mb-6">Learn the fundamentals of {program.categoryLabel} through expert-led courses.</p>
       </div>
-      <h3 style={{ fontSize: '1.1rem', marginBottom: '.5rem' }}>{program.title}</h3>
-      {extra?.bestFor && (
-        <p className="program-card-best-for">
-          <strong>Best for:</strong> {extra.bestFor}
-        </p>
-      )}
-      <div style={{ marginBottom: '.75rem' }}>
-        <div
-          className="program-card-meta-row"
-          style={{ display: 'flex', gap: '1rem', fontSize: '.85rem', color: 'var(--color-gray-600)' }}
-        >
-          <span>⏱ {program.duration}</span>
-          <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Starting range: {salaryRangeDisplay(program)}</span>
+      <div className="mt-auto pt-4 border-t border-outline-variant/15 flex flex-col gap-4">
+        <div className="flex justify-between items-center text-xs">
+          <span className="text-on-surface font-bold">{program.duration}</span>
+          <span className="text-on-surface-variant font-medium">$0 Cost</span>
         </div>
-        {extra?.jobOutcomes && extra.jobOutcomes.length > 0 && (
-          <p className="program-card-outcomes">
-            <strong>Roles:</strong> {extra.jobOutcomes.join(' · ')}
-          </p>
-        )}
-        <small style={{ display: 'block', fontSize: '.75rem', color: 'var(--color-gray-500)', marginTop: '.25rem' }}>
-          *Austin-area median based on industry data
-        </small>
-      </div>
-      {nonEmptySkills.length > 0 ? (
-        <div style={{ marginBottom: '1rem', display: 'flex', flexWrap: 'wrap', gap: '.35rem' }}>
-          {skills.map((s) => (
-            <span
-              key={s}
-              className="program-card-skill-tag"
-              style={{
-                background: 'var(--color-gray-100, #f0f0f0)',
-                color: 'var(--color-gray-800, #1a1a1a)',
-                border: '1px solid var(--color-border, #e5e5e5)',
-                padding: '.25rem .6rem',
-                borderRadius: '4px',
-                fontSize: '.8rem',
-                display: 'inline-block',
-              }}
-            >
-              {s}
-            </span>
-          ))}
-          {moreSkills > 0 && (
-            <span
-              style={{
-                background: 'var(--color-gray-200, #e5e5e5)',
-                color: 'var(--color-gray-600, #737373)',
-                padding: '.25rem .6rem',
-                borderRadius: '4px',
-                fontSize: '.8rem',
-                display: 'inline-block',
-              }}
-            >
-              +{moreSkills} more
-            </span>
-          )}
-        </div>
-      ) : null}
-      <details style={{ marginBottom: '1rem' }} open={open} onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
-        <summary className="program-card-courses-summary">
-          {open ? 'Hide' : 'View'} {count} {count === 1 ? 'course' : 'courses'}
-        </summary>
-        <ul className="program-card-courses-list">
-          {program.courses.map((c) => (
-            <li key={c.slug}>{c.name}</li>
-          ))}
-        </ul>
-      </details>
-      <div
-        className="program-card-footer"
-        style={{ display: 'flex', flexWrap: 'wrap', gap: '.5rem', justifyContent: 'space-between', alignItems: 'center' }}
-      >
-        <span style={{ fontSize: '.8rem', color: 'var(--color-gray-500)' }}>Partner: {program.partner}</span>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.5rem' }}>
-          <Link href={`/programs/${program.slug}`} className="btn btn-outline" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>
-            View Program
-          </Link>
-          <Link href={`/apply?program=${program.slug}`} className="btn btn-primary" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>
-            Apply →
+        <div className="flex items-center justify-between gap-2">
+          <Link href={`/programs/${program.slug}`} className="text-on-surface-variant text-xs hover:text-on-surface transition-colors">Details</Link>
+          <Link href={`/apply?program=${program.slug}`} className="text-primary font-bold text-sm flex items-center gap-1 hover:brightness-110">
+            Apply <span className="material-symbols-outlined text-sm">arrow_forward</span>
           </Link>
         </div>
       </div>
@@ -140,33 +101,37 @@ export default function ProgramsContent() {
     : programs.filter((p) => p.category === activeFilter);
 
   return (
-    <section className="content-section">
-      <div className="container">
-        <div className="program-filters">
-          {filters.map((f) => (
-            <button
-              key={f.key}
-              className={`filter-chip${activeFilter === f.key ? ' active' : ''}`}
-              onClick={() => setActiveFilter(f.key)}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
-        <div className="programs-grid">
-          {filtered.map((p) => (
-            <ProgramCard key={p.title} program={p} />
-          ))}
-        </div>
-        <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '.85rem', color: '#666', maxWidth: '640px', marginLeft: 'auto', marginRight: 'auto' }}>
-          Bands are Austin-first, grounded in Lightcast/BLS-style data (Jan 2026). Your offer still depends on proof, role, and employer.
-        </p>
-        <div className="programs-bottom-actions">
-          <Link href="/find-your-path" className="btn btn-primary">Not sure? Find Your Career</Link>
-          <Link href="/program-comparison" className="btn btn-outline">Compare programs</Link>
-          <Link href="/salary-guide" className="btn btn-ghost">Salary guide</Link>
-        </div>
+    <div>
+      <div className="flex flex-wrap gap-3 overflow-x-auto pb-4 scrollbar-hide mb-8">
+        {filters.map((f) => (
+          <button
+            key={f.key}
+            className={`px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${
+              activeFilter === f.key
+                ? 'bg-tertiary-container text-on-tertiary-container'
+                : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+            }`}
+            onClick={() => setActiveFilter(f.key)}
+          >
+            {f.label.replace(/\s\(\d+\)$/, '')}
+          </button>
+        ))}
       </div>
-    </section>
+
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        {filtered.map((p, i) => (
+          <ProgramCard key={p.title} program={p} index={i} />
+        ))}
+      </div>
+
+      <p className="text-center mt-12 text-sm text-on-surface-variant max-w-2xl mx-auto">
+        Bands are Austin-first, grounded in Lightcast/BLS-style data (Jan 2026). Your offer still depends on proof, role, and employer.
+      </p>
+
+      <div className="flex justify-center gap-4 mt-8 flex-wrap">
+        <Link href="/find-your-path" className="bg-primary text-on-primary px-6 py-3 rounded-lg font-bold text-sm">Not sure? Find Your Career</Link>
+        <Link href="/program-comparison" className="bg-surface-container text-on-surface px-6 py-3 rounded-lg font-bold text-sm border border-outline-variant/20 hover:bg-surface-container-high transition-colors">Compare programs</Link>
+      </div>
+    </div>
   );
 }

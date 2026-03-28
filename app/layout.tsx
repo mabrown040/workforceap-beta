@@ -7,6 +7,7 @@ import ConversionMetrics from '@/components/analytics/ConversionMetrics';
 import OrgBrandingStyle from '@/components/platform/OrgBrandingStyle';
 import ThemeInitScript from '@/components/theme/ThemeInitScript';
 import { getDefaultOrgBranding } from '@/lib/platform/defaultOrgTheme';
+import '@/css/tailwind.css';
 import '@/css/main.css';
 import '@/css/marketing.css';
 import '@/css/portal.css';

@@ -4,26 +4,18 @@ import Link from 'next/link';
 
 export default function MobileBottomNav() {
   return (
-    <nav
-      className="wa-fixed wa-bottom-0 wa-left-0 wa-w-full wa-flex wa-justify-around wa-items-center wa-p-3 md:wa-hidden wa-z-50"
-      style={{
-        backgroundColor: 'rgba(28, 27, 27, 0.8)',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
-        borderTop: '1px solid rgba(88, 65, 68, 0.15)',
-      }}
-    >
-      <Link href="/" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: '#ad2c4d', backgroundColor: 'rgba(113, 51, 62, 0.2)', borderRadius: '0.75rem', padding: '0.25rem 1rem', textDecoration: 'none' }}>
-        <span style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '0.25rem' }}>Home</span>
+    <nav className="wa-fixed wa-bottom-0 wa-left-0 wa-w-full wa-flex wa-justify-around wa-items-center wa-p-3 md:wa-hidden wa-z-50 wa-bg-white/80 dark:wa-bg-[rgba(28,27,27,0.8)] wa-backdrop-blur-xl wa-border-t wa-border-gray-200 dark:wa-border-[rgba(88,65,68,0.15)]">
+      <Link href="/" className="wa-flex wa-flex-col wa-items-center wa-text-[#ad2c4d] wa-bg-[rgba(113,51,62,0.1)] dark:wa-bg-[rgba(113,51,62,0.2)] wa-rounded-xl wa-px-4 wa-py-1 wa-no-underline">
+        <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-mt-1">Home</span>
       </Link>
-      <Link href="/find-your-path" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: '#debfc2', textDecoration: 'none' }}>
-        <span style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '0.25rem' }}>Quiz</span>
+      <Link href="/find-your-path" className="wa-flex wa-flex-col wa-items-center wa-text-gray-600 dark:wa-text-[#debfc2] wa-no-underline">
+        <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-mt-1">Quiz</span>
       </Link>
-      <Link href="/programs" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: '#debfc2', textDecoration: 'none' }}>
-        <span style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '0.25rem' }}>Programs</span>
+      <Link href="/programs" className="wa-flex wa-flex-col wa-items-center wa-text-gray-600 dark:wa-text-[#debfc2] wa-no-underline">
+        <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-mt-1">Programs</span>
       </Link>
-      <Link href="/apply" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: '#debfc2', textDecoration: 'none' }}>
-        <span style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '0.25rem' }}>Apply</span>
+      <Link href="/apply" className="wa-flex wa-flex-col wa-items-center wa-text-gray-600 dark:wa-text-[#debfc2] wa-no-underline">
+        <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-mt-1">Apply</span>
       </Link>
     </nav>
   );

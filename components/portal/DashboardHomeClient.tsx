@@ -2,6 +2,8 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
+import { BookOpen, Calendar, BarChart3, Target, PartyPopper, ChevronRight, CheckCircle2, Circle } from 'lucide-react';
+import { MEMBER_APPLICATION_PROGRESS_STEPS } from '@/lib/member/memberApplicationStatus';
 import { trackFunnelEvent } from '@/lib/analytics/events';
 import { postMemberEvent } from '@/lib/events/client';
 import MemberPreScreeningForm from '@/components/portal/MemberPreScreeningForm';
@@ -42,253 +44,397 @@ type DashboardHomeClientProps = {
   age?: number | null;
   isMinor?: boolean;
   applicationStatus?: DashboardApplicationStatusProps | null;
+  /** True when member has no Application row — prompt to apply */
   noApplicationOnFile?: boolean;
   assessmentDone?: boolean;
   preScreeningDone?: boolean;
+  interviewEligible?: boolean;
   interviewRequestedAt?: Date | null;
   interviewCompletedAt?: Date | null;
-  interviewEligible?: boolean;
 };
 
 export default function DashboardHomeClient({
   firstName,
   state,
   programTitle,
+  enrolledAt,
+  assessmentScorePct,
   completedCount,
   totalCourses,
   nextMilestone,
-  recommendedActions,
-  jobSearchUrl,
-  age,
-  isMinor,
-  assessmentDone,
-  preScreeningDone,
-  interviewRequestedAt,
-  interviewCompletedAt,
-  interviewEligible,
-  enrolledAt,
-  assessmentScorePct,
   recentActivity,
   checklist,
   checklistAllDone,
+  recommendedActions,
+  jobSearchUrl,
   applicationStatus,
   noApplicationOnFile,
+  assessmentDone = false,
+  preScreeningDone = false,
+  interviewEligible = false,
+  interviewRequestedAt = null,
+  interviewCompletedAt = null,
+  age = null,
+  isMinor = false,
 }: DashboardHomeClientProps) {
+  const primaryAction = recommendedActions[0];
+  const secondaryAction = recommendedActions[1];
+
   useEffect(() => {
-    trackFunnelEvent('view_dashboard_home', state, { member_state: state });
-  }, [state]);
+    trackFunnelEvent('member_dashboard', 'dashboard_viewed', { state, checklist_all_done: checklistAllDone });
+    void postMemberEvent({
+      eventName: 'member_dashboard_viewed',
+      sourcePage: '/dashboard',
+      metadata: { state, checklistAllDone },
+    });
+  }, [state, checklistAllDone]);
 
   const handleDashboardAction = (action: string) => {
-    postMemberEvent({
-      eventName: 'dashboard_action',
-      metadata: { action, member_state: state }
+    trackFunnelEvent('member_dashboard', action, { state });
+    void postMemberEvent({
+      eventName: 'member_dashboard_action_clicked',
+      sourcePage: '/dashboard',
+      metadata: { state, action },
     });
   };
 
-  const progressPercent = totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : 0;
-  const primaryAction = recommendedActions[0];
-
   return (
-    <div>
-      {age !== null && age !== undefined && age < 18 ? <YouthDashboardNotice age={age} /> : null}
+    <div className="dashboard-home-coach">
+      {age !== null && age < 18 ? <YouthDashboardNotice age={age} /> : null}
 
-      <header className="mb-12">
-        <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary-fixed text-primary text-[11px] font-bold uppercase tracking-[0.1em] mb-6">
-          Member Portal
-        </div>
-        <h1 className="text-5xl md:text-7xl font-black text-on-surface tracking-tighter leading-[0.95] mb-6">
+      <header className="dashboard-home-header">
+        <h1>
           {state === 'A' ? (
-            <>Welcome, <br /><span className="text-primary italic">{firstName}.</span></>
+            <>Welcome, {firstName} 👋</>
           ) : (
-            <>Good Morning, <br /><span className="text-primary italic">{firstName}.</span></>
+            <>Hi, {firstName}</>
           )}
         </h1>
-        <p className="text-on-surface-variant text-lg md:text-xl max-w-xl leading-relaxed font-medium">
-          Welcome to your Advancement Foundry. Your trajectory is currently at <span className="text-primary font-bold">{progressPercent}% completion</span>. Let&apos;s sharpen your next milestone.
+        <p className="dashboard-home-subtitle">
+          {state === 'A' && (isMinor && age ? `Let's explore career paths and build skills.` : "Let's build your career path.")}
+          {state === 'B' && "You're enrolled. One step before training."}
+          {state === 'C' && "You're making progress toward job-ready."}
+          {state === 'D' && "All courses complete. Focus on job outcomes."}
         </p>
       </header>
 
       {noApplicationOnFile ? (
-        <div className="bg-surface-container-low rounded-2xl p-8 border border-outline-variant/20 mb-8 editorial-shadow">
-          <h2 className="text-2xl font-bold mb-4">Start your journey</h2>
-          <p className="text-on-surface-variant mb-6">You haven&apos;t submitted an application yet. It takes about 10 minutes.</p>
-          <Link href="/apply" className="bg-primary text-on-primary px-8 py-3 rounded-lg font-bold inline-block hover:brightness-110 transition-all">
-            Apply Now
-          </Link>
-        </div>
-      ) : applicationStatus ? (
-        <div className="bg-surface-container-low rounded-2xl p-8 border border-outline-variant/20 mb-8 editorial-shadow">
-          <h2 className="text-2xl font-bold mb-6">Application Status</h2>
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-1">Current Phase</p>
-              <p className="text-xl font-bold text-primary">{applicationStatus.label}</p>
-              <p className="text-sm text-on-surface-variant mt-2">Next: {applicationStatus.nextStep}</p>
-            </div>
-
-            {applicationStatus.submittedAt && (
-              <div className="bg-surface-container-high px-4 py-3 rounded-lg text-sm">
-                <p className="font-bold text-on-surface">Submitted on {new Date(applicationStatus.submittedAt).toLocaleDateString()}</p>
-                {applicationStatus.showResponseEstimate && (
-                  <p className="text-on-surface-variant mt-1 text-xs">Expect a response within 24-48 hrs</p>
-                )}
-              </div>
-            )}
+        <section className="dashboard-application-status" aria-labelledby="dashboard-application-status-heading">
+          <h2 id="dashboard-application-status-heading" className="dashboard-today-label">
+            Program application
+          </h2>
+          <div className="dashboard-application-status-card">
+            <p className="dashboard-application-status-next" style={{ marginTop: 0 }}>
+              We do not have an application on file for this account yet.
+            </p>
+            <Link href="/apply" className="btn btn-primary" style={{ marginTop: '0.75rem', display: 'inline-flex' }}>
+              Start your application
+            </Link>
           </div>
-
-          {!preScreeningDone && (
-            <div className="mt-8 pt-8 border-t border-outline-variant/20">
-              <MemberPreScreeningForm />
+        </section>
+      ) : applicationStatus ? (
+        <section className="dashboard-application-status" aria-labelledby="dashboard-application-status-heading">
+          <h2 id="dashboard-application-status-heading" className="dashboard-today-label">
+            Program application
+          </h2>
+          <div className="dashboard-application-status-card">
+            {applicationStatus.progressIndex !== null ? (
+              <div className="dashboard-application-progress" aria-hidden>
+                <div className="dashboard-application-progress-track">
+                  {MEMBER_APPLICATION_PROGRESS_STEPS.map((stepLabel, i) => {
+                    const stepNum = i + 1;
+                    const done = stepNum < applicationStatus.progressIndex!;
+                    const current = stepNum === applicationStatus.progressIndex;
+                    return (
+                      <div
+                        key={stepLabel}
+                        className={`dashboard-application-progress-step${done ? ' is-done' : ''}${
+                          current ? ' is-current' : ''
+                        }`}
+                      >
+                        <span className="dashboard-application-progress-dot" />
+                        <span className="dashboard-application-progress-label">{stepLabel}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
+            <div className="dashboard-application-status-row">
+              <div>
+                <p className="dashboard-application-status-label">Current status</p>
+                <p className="dashboard-application-status-value">{applicationStatus.label}</p>
+              </div>
+              {applicationStatus.submittedAt ? (
+                <div className="dashboard-application-status-meta">
+                  <p className="dashboard-application-status-label">Submitted</p>
+                  <p className="dashboard-application-status-date">
+                    {new Date(applicationStatus.submittedAt).toLocaleDateString(undefined, {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </p>
+                </div>
+              ) : null}
             </div>
-          )}
-
-          {preScreeningDone && interviewEligible && !interviewRequestedAt && !interviewCompletedAt && (
-            <div className="mt-8 pt-8 border-t border-outline-variant/20">
-              <MemberInterviewRequestButton />
-            </div>
-          )}
-        </div>
+            {applicationStatus.programInterest ? (
+              <p className="dashboard-application-status-program">
+                <span className="dashboard-application-status-label">Program interest</span>{' '}
+                {applicationStatus.programInterest}
+              </p>
+            ) : null}
+            <p className="dashboard-application-status-next">{applicationStatus.nextStep}</p>
+            {applicationStatus.showResponseEstimate ? (
+              <p className="dashboard-application-status-estimate">
+                We typically respond within 24–48 hours on business days.
+              </p>
+            ) : null}
+          </div>
+        </section>
       ) : null}
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-        {/* Your Journey Tracker (Wide) */}
-        <section className="md:col-span-8 bg-white border border-outline-variant/20 rounded-2xl p-8 relative overflow-hidden flex flex-col justify-between min-h-[440px] shadow-sm">
-          <div className="relative z-10">
-            <div className="flex justify-between items-start mb-10">
-              <h2 className="text-2xl font-bold tracking-tight text-on-surface">Your Journey</h2>
-              <span className="text-sm font-semibold text-primary">{programTitle || 'Exploring Programs'}</span>
-            </div>
-            <div className="space-y-14">
-              <div className="relative">
-                {/* Step 1: Active */}
-                <div className="flex items-start gap-6 relative z-10">
-                  <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-on-primary ring-8 ring-primary-fixed">
-                    <span className="material-symbols-outlined text-base">play_arrow</span>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-xl text-on-surface">Current Milestone</h3>
-                    <p className="text-on-surface-variant text-sm mt-1">{nextMilestone || 'Begin Orientation'}</p>
-                  </div>
-                </div>
-                <div className="absolute left-6 top-12 w-px h-16 bg-outline-variant/30"></div>
-              </div>
-              <div className="relative">
-                {/* Step 2: Next */}
-                <div className="flex items-start gap-6 relative z-10">
-                  <div className="w-12 h-12 rounded-full bg-surface-container-high border border-outline-variant/20 flex items-center justify-center text-on-surface-variant">
-                    <span className="material-symbols-outlined text-base">lock</span>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-xl text-on-surface-variant opacity-70">Next Module</h3>
-                    <p className="text-on-surface-variant/70 text-sm mt-1">Unlocks after completion</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* Watermark Editorial Number */}
-          <span className="absolute bottom-[-30px] right-[-15px] text-[240px] font-black text-primary/5 leading-none select-none">
-            01
-          </span>
-          <div className="mt-8 z-10">
-            <div className="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
-              <div className="h-full bg-primary rounded-full shadow-[0_0_10px_rgba(173,44,77,0.3)]" style={{ width: `${progressPercent}%` }}></div>
-            </div>
-            <div className="flex justify-between mt-3">
-              <p className="text-xs font-bold text-primary uppercase tracking-widest">{progressPercent}% Complete</p>
-              {totalCourses > 0 && <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">{completedCount} of {totalCourses} Courses</p>}
-            </div>
+      {assessmentDone && !preScreeningDone ? (
+        <section className="dashboard-application-status" aria-labelledby="dashboard-prescreen-heading">
+          <h2 id="dashboard-prescreen-heading" className="dashboard-today-label">
+            Pre-screening (before your interview)
+          </h2>
+          <div className="dashboard-application-status-card">
+            <MemberPreScreeningForm />
           </div>
         </section>
+      ) : null}
 
-        {/* AI Career Assistant (Small Vertical) */}
-        <aside className="md:col-span-4 bg-gradient-to-br from-primary to-on-primary-fixed rounded-2xl p-8 text-white shadow-xl flex flex-col justify-between">
-          <div>
-            <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mb-8 backdrop-blur-md border border-white/10">
-              <span className="material-symbols-outlined text-white" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
-            </div>
-            <h2 className="text-2xl font-bold mb-6 tracking-tight leading-tight">Assistant Recommendations</h2>
-            <p className="text-primary-fixed/90 text-sm leading-relaxed mb-8 font-medium">
-              &quot;Based on your current progress in {programTitle || 'your program'}, I recommend exploring the **Resume Rewriter** tool to align your past experience with tech roles.&quot;
+      {assessmentDone && preScreeningDone && interviewEligible && !interviewCompletedAt ? (
+        <section className="dashboard-application-status" aria-labelledby="dashboard-interview-heading">
+          <h2 id="dashboard-interview-heading" className="dashboard-today-label">
+            Interview
+          </h2>
+          <div className="dashboard-application-status-card">
+            {interviewRequestedAt ? (
+              <p style={{ margin: 0, color: 'var(--color-gray-700)' }}>
+                We received your interview request on{' '}
+                {new Date(interviewRequestedAt).toLocaleString()}. A counselor will reach out by email.
+              </p>
+            ) : (
+              <MemberInterviewRequestButton />
+            )}
+          </div>
+        </section>
+      ) : null}
+
+      {/* Today / Next Step — one primary, one secondary */}
+      <section className="dashboard-today">
+        <h2 className="dashboard-today-label">Today</h2>
+
+        {state === 'A' && (
+          <div className="dashboard-today-card">
+            <h3>Choose your program</h3>
+            <p>
+              Select one of our no-cost career programs. Funding is tied to a single program — we'll help you pick the right fit.
             </p>
-          </div>
-          {primaryAction && (
-            <Link
-              href={primaryAction.href}
-              onClick={() => handleDashboardAction('primary_action_clicked')}
-              className="w-full py-4 bg-white text-primary text-center rounded-xl font-bold text-sm transition-all hover:shadow-lg active:scale-95 block"
-            >
-              {primaryAction.label}
-            </Link>
-          )}
-        </aside>
-
-        {/* Curated Milestones (Asymmetric) */}
-        <section className="md:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-8 mt-4">
-          <div className="md:col-span-1 flex flex-col justify-center pr-8">
-            <h2 className="text-3xl font-black tracking-tighter leading-tight mb-4 text-on-surface">Curated <br /><span className="text-on-surface-variant">Milestones.</span></h2>
-            <p className="text-on-surface-variant text-base leading-relaxed">A selective record of your professional evolution and verified capabilities.</p>
-          </div>
-          <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {/* Milestone Card 1 */}
-            <div className="bg-white rounded-2xl p-7 shadow-sm border border-outline-variant/20 group cursor-pointer hover:border-primary-container/40 transition-colors">
-              <div className="flex justify-between items-start mb-12">
-                <span className="material-symbols-outlined text-primary text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-                <span className="px-2.5 py-1 bg-tertiary-container/10 text-tertiary-container text-[10px] font-black rounded uppercase tracking-wide">
-                  {assessmentDone ? 'Earned' : 'Pending'}
-                </span>
-              </div>
-              <h4 className="text-xl font-bold mb-1 text-on-surface">Career Assessment</h4>
-              <p className="text-on-surface-variant text-xs mb-8">Foundation Mastery</p>
-              <Link href="/dashboard/assessments" className="flex items-center gap-2 text-primary font-bold text-[11px] uppercase tracking-[0.1em] group-hover:translate-x-2 transition-transform">
-                {assessmentDone ? 'View Results' : 'Take Assessment'} <span className="material-symbols-outlined text-sm">arrow_forward</span>
+            <div className="dashboard-today-actions">
+              <Link href="/dashboard/program" className="btn btn-primary dashboard-today-primary" onClick={() => handleDashboardAction('choose_program_clicked')}>
+                Choose Your Program
               </Link>
-            </div>
-
-            {/* Milestone Card 2 */}
-            <div className="bg-white rounded-2xl p-7 shadow-sm border border-outline-variant/20 group cursor-pointer hover:border-primary-container/40 transition-colors">
-              <div className="flex justify-between items-start mb-12">
-                <span className="material-symbols-outlined text-on-surface-variant text-3xl">school</span>
-                <span className="px-2.5 py-1 bg-surface-container-highest text-on-surface-variant text-[10px] font-black rounded uppercase tracking-wide">In Progress</span>
-              </div>
-              <h4 className="text-xl font-bold mb-1 text-on-surface">{programTitle || 'Program Track'}</h4>
-              <p className="text-on-surface-variant text-xs mb-8">{completedCount} of {totalCourses} Completed</p>
-              <Link href="/dashboard/learning" className="flex items-center gap-2 text-primary font-bold text-[11px] uppercase tracking-[0.1em] group-hover:translate-x-2 transition-transform">
-                Resume Training <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              <Link href="/how-it-works" className="btn btn-ghost dashboard-today-secondary" onClick={() => handleDashboardAction('how_it_works_clicked')}>
+                How It Works
               </Link>
             </div>
           </div>
-        </section>
+        )}
 
-        {/* Secondary Grid Actions */}
-        <div className="md:col-span-5 bg-white border border-outline-variant/20 rounded-2xl p-8 flex flex-col justify-between h-[320px] shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center">
-              <span className="material-symbols-outlined text-primary">analytics</span>
-            </div>
-            <h3 className="font-bold text-xl text-on-surface">Market Trends</h3>
-          </div>
-          <div>
-            <p className="text-base text-on-surface-variant mb-6 leading-relaxed">
-              Software and Tech salaries in the <span className="font-semibold text-on-surface">Austin region</span> have increased by **4.2%** this quarter. Your current skills align with top-tier vacancies.
+        {state === 'B' && (
+          <div className="dashboard-today-card">
+            <h3>Complete your skills assessment</h3>
+            <p>
+              A quick assessment tailors your {programTitle} learning path and unlocks role matching so we can surface jobs that fit.
             </p>
-            <Link href={jobSearchUrl || "/jobs"} className="text-primary font-bold text-sm border-b-2 border-primary/20 hover:border-primary transition-colors inline-flex items-center gap-1">
-              Explore Market Data <span className="material-symbols-outlined text-xs">open_in_new</span>
-            </Link>
+            <div className="dashboard-today-actions">
+              <Link href="/dashboard/assessment" className="btn btn-primary dashboard-today-primary" onClick={() => handleDashboardAction('assessment_clicked')}>
+                Take Assessment
+              </Link>
+              <Link href="/dashboard/program" className="btn btn-ghost dashboard-today-secondary" onClick={() => handleDashboardAction('view_program_clicked')}>
+                View Program
+              </Link>
+            </div>
           </div>
-        </div>
+        )}
 
-        <div className="md:col-span-7 rounded-2xl overflow-hidden relative h-[320px] group shadow-sm">
-          <div className="absolute inset-0 bg-surface-container-high"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-on-primary-fixed/90 via-on-primary-fixed/40 to-transparent flex flex-col justify-end p-8 z-10">
-            <h3 className="text-white text-2xl font-black mb-2 tracking-tight">AI Career Tools</h3>
-            <p className="text-primary-fixed-dim/80 text-sm max-w-sm font-medium mb-4">Leverage our suite of AI tools to rewrite your resume, practice interviews, and track your applications.</p>
-            <Link href="/dashboard/ai-tools" className="text-white font-bold text-sm underline underline-offset-4 w-fit">
-              Browse Tools
-            </Link>
+        {state === 'C' && (
+          <div className="dashboard-today-card">
+            <h3>{nextMilestone ? `Complete: ${nextMilestone}` : 'Continue training'}</h3>
+            <p>
+              {completedCount} of {totalCourses} courses done. Finish training to move toward job-ready — employers see your progress.
+            </p>
+            <div className="dashboard-today-actions">
+              <Link href="/dashboard/training" className="btn btn-primary dashboard-today-primary" onClick={() => handleDashboardAction('continue_training_clicked')}>
+                Continue Training
+              </Link>
+              {primaryAction && (
+                <Link href={primaryAction.href} className="btn btn-ghost dashboard-today-secondary" onClick={() => handleDashboardAction('recommended_action_clicked')}>
+                  Or: {primaryAction.label}
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
+
+        {state === 'D' && (
+          <div className="dashboard-today-card dashboard-today-card-highlight">
+            <div className="dashboard-today-celebrate">
+              <PartyPopper size={28} />
+              <span>All courses complete</span>
+            </div>
+            <h3>Focus on job outcomes</h3>
+            <p>
+              You've finished {programTitle}. Build readiness and apply — resume, applications, and interview practice move you toward offers.
+            </p>
+            <div className="dashboard-today-actions">
+              <Link href="/dashboard/readiness" className="btn btn-primary dashboard-today-primary" onClick={() => handleDashboardAction('career_readiness_clicked')}>
+                View Career Readiness
+              </Link>
+              {jobSearchUrl ? (
+                <a href={jobSearchUrl} target="_blank" rel="noopener noreferrer" className="btn btn-ghost dashboard-today-secondary" onClick={() => handleDashboardAction('job_search_clicked')}>
+                  Browse jobs in your area
+                </a>
+              ) : primaryAction ? (
+                <Link href={primaryAction.href} className="btn btn-ghost dashboard-today-secondary" onClick={() => handleDashboardAction('recommended_action_clicked')}>
+                  Or: {primaryAction.label}
+                </Link>
+              ) : null}
+            </div>
+          </div>
+        )}
+      </section>
+
+      <section className="dashboard-weekly-nudge" aria-label="This week">
+        <h2 className="dashboard-today-label">This week</h2>
+        <ul className="dashboard-weekly-links">
+          <li>
+            <Link href="/dashboard/weekly-recap" onClick={() => handleDashboardAction('weekly_recap_clicked')}>Weekly recap</Link>
+            <span className="dashboard-weekly-links-desc"> — milestones and reminders</span>
+          </li>
+          <li>
+            <Link href="/dashboard/learning" onClick={() => handleDashboardAction('learning_hub_clicked')}>Learning hub</Link>
+            <span className="dashboard-weekly-links-desc"> — resources and your paths</span>
+          </li>
+          <li>
+            <Link href="/dashboard/ai-tools" onClick={() => handleDashboardAction('ai_tools_clicked')}>Career tools</Link>
+            <span className="dashboard-weekly-links-desc"> — resume, interview practice, job match</span>
+          </li>
+        </ul>
+      </section>
+
+      {/* Compact progress — preserve what works */}
+      {(state === 'B' || state === 'C') && programTitle && (
+        <section className="dashboard-progress-compact">
+          <div className="dashboard-progress-bar-wrap">
+            <span className="dashboard-progress-label">{programTitle}</span>
+            <div className="dashboard-progress-bar">
+              <div
+                className="dashboard-progress-fill"
+                style={{ width: `${totalCourses > 0 ? (completedCount / totalCourses) * 100 : 0}%` }}
+              />
+            </div>
+            <span className="dashboard-progress-meta">{completedCount} of {totalCourses} courses</span>
+          </div>
+        </section>
+      )}
+
+      {/* One specific recommendation — when relevant, not a block of three */}
+      {state === 'C' && secondaryAction && (
+        <section className="dashboard-also">
+          <p>
+            <strong>Also:</strong> {secondaryAction.label} when you're ready.
+          </p>
+          <Link href={secondaryAction.href} className="dashboard-also-link" onClick={() => handleDashboardAction('secondary_action_clicked')}>
+            {secondaryAction.label}
+            <ChevronRight size={16} />
+          </Link>
+        </section>
+      )}
+
+      {state === 'D' && (jobSearchUrl ? primaryAction : secondaryAction) && (
+        <section className="dashboard-also">
+          <p>
+            <strong>Next:</strong> {(jobSearchUrl ? primaryAction : secondaryAction)!.label} to strengthen your readiness.
+          </p>
+          <Link href={(jobSearchUrl ? primaryAction : secondaryAction)!.href} className="dashboard-also-link" onClick={() => handleDashboardAction('next_action_clicked')}>
+            {(jobSearchUrl ? primaryAction : secondaryAction)!.label}
+            <ChevronRight size={16} />
+          </Link>
+        </section>
+      )}
+
+      {/* Stats — minimal, stage-appropriate */}
+      {state === 'B' && (
+        <div className="dashboard-stats-row dashboard-stats-minimal">
+          <div className="dashboard-stat-card">
+            <div className="dashboard-stat-icon"><BookOpen size={18} /></div>
+            <div className="dashboard-stat-value">{programTitle ?? '—'}</div>
+            <div className="dashboard-stat-label">Program</div>
+          </div>
+          <div className="dashboard-stat-card">
+            <div className="dashboard-stat-icon"><Calendar size={18} /></div>
+            <div className="dashboard-stat-value">{enrolledAt?.toLocaleDateString() ?? '—'}</div>
+            <div className="dashboard-stat-label">Enrolled</div>
           </div>
         </div>
-      </div>
+      )}
+
+      {state === 'C' && (
+        <div className="dashboard-stats-row dashboard-stats-minimal">
+          <div className="dashboard-stat-card">
+            <div className="dashboard-stat-icon"><BarChart3 size={18} /></div>
+            <div className="dashboard-stat-value">{assessmentScorePct ?? '—'}%</div>
+            <div className="dashboard-stat-label">Assessment</div>
+          </div>
+          <div className="dashboard-stat-card">
+            <div className="dashboard-stat-icon"><Target size={18} /></div>
+            <div className="dashboard-stat-value" style={{ fontSize: '0.9rem' }}>{nextMilestone ?? '—'}</div>
+            <div className="dashboard-stat-label">Next course</div>
+          </div>
+        </div>
+      )}
+
+      {/* Recent activity — compact */}
+      {recentActivity.length > 0 && (state === 'C' || state === 'D') && (
+        <details className="dashboard-recent-collapsed">
+          <summary>Recent activity</summary>
+          <ul>
+            {recentActivity.map((a, i) => (
+              <li key={i}>
+                <span>{a.label}</span>
+                <span>{a.timestamp.toLocaleDateString()}</span>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+
+      {/* Checklist — always collapsed */}
+      {!checklistAllDone && (
+        <details className="dashboard-checklist-collapsed">
+          <summary>Onboarding checklist</summary>
+          <ul>
+            {([
+              { done: checklist.createAccount, label: 'Create account' },
+              { done: checklist.chooseProgram, label: 'Choose program' },
+              { done: checklist.completeAssessment, label: 'Complete assessment' },
+              { done: checklist.startFirstCourse, label: 'Start first course' },
+              { done: checklist.completeFirstCourse, label: 'Complete first course' },
+            ] as { done: boolean; label: string }[]).map(({ done, label }) => (
+              <li key={label} style={{ color: done ? 'var(--color-gray-500)' : 'var(--color-primary)' }}>
+                {done
+                  ? <CheckCircle2 size={15} style={{ color: 'var(--color-green)', flexShrink: 0 }} aria-hidden />
+                  : <Circle size={15} style={{ color: 'var(--color-gray-300)', flexShrink: 0 }} aria-hidden />}
+                <span style={{ textDecoration: done ? 'line-through' : 'none' }}>{label}</span>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
     </div>
   );
 }

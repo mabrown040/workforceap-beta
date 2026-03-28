@@ -13862,13 +13862,3 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
 .coursera-footer-note a {
     color: var(--color-accent);
 }
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@layer base {
-  body {
-    @apply antialiased text-on-surface bg-background font-body;
-  }
-}

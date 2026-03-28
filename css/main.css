@@ -11435,15 +11435,15 @@ html.dark .admin-super-messages-bubble.is-staff {
     gap: 2rem;
 }
 .employers-why-card {
-    background: var(--color-white);
-    border: 1px solid var(--color-gray-200);
+    background: var(--color-surface);
+    border: 1px solid var(--color-surface-variant);
     border-radius: var(--radius-lg);
     padding: 2rem;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 1px 3px rgba(28,27,27,0.06);
     transition: box-shadow var(--transition-base), transform var(--transition-base);
 }
 .employers-why-card:hover {
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 4px 16px rgba(28,27,27,0.08);
     transform: translateY(-2px);
 }
 .employers-why-icon {
@@ -11452,8 +11452,8 @@ html.dark .admin-super-messages-bubble.is-staff {
     justify-content: center;
     width: 3.5rem;
     height: 3.5rem;
-    background: rgba(43, 123, 185, 0.1);
-    color: var(--color-blue);
+    background: rgba(173, 44, 77, 0.08);
+    color: var(--color-accent);
     border-radius: var(--radius-md);
     margin-bottom: 1rem;
 }
@@ -11475,15 +11475,15 @@ html.dark .admin-super-messages-bubble.is-staff {
     gap: 1.5rem;
 }
 .employers-program-card {
-    background: var(--color-white);
-    border: 1px solid var(--color-gray-200);
+    background: var(--color-surface);
+    border: 1px solid var(--color-surface-variant);
     border-radius: var(--radius-lg);
     padding: 1.5rem;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 1px 3px rgba(28,27,27,0.06);
     transition: box-shadow var(--transition-base), transform var(--transition-base);
 }
 .employers-program-card:hover {
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 4px 16px rgba(28,27,27,0.08);
     transform: translateY(-2px);
 }
 .employers-program-icon {
@@ -11492,8 +11492,8 @@ html.dark .admin-super-messages-bubble.is-staff {
     justify-content: center;
     width: 2.5rem;
     height: 2.5rem;
-    background: var(--color-light);
-    color: var(--color-blue);
+    background: rgba(173, 44, 77, 0.08);
+    color: var(--color-accent);
     border-radius: var(--radius-md);
     margin-bottom: 1rem;
 }
@@ -11714,18 +11714,18 @@ html.dark .admin-super-messages-bubble.is-staff {
     gap: 1.5rem;
 }
 .employers-partnership-card {
-    background: var(--color-white);
-    border: 1px solid var(--color-gray-200);
+    background: var(--color-surface);
+    border: 1px solid var(--color-surface-variant);
     border-radius: var(--radius-lg);
     padding: 2rem;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 1px 3px rgba(28,27,27,0.06);
     position: relative;
     display: flex;
     flex-direction: column;
     transition: box-shadow var(--transition-base), transform var(--transition-base);
 }
 .employers-partnership-card:hover {
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 4px 16px rgba(28,27,27,0.08);
     transform: translateY(-2px);
 }
 .employers-partnership-card.featured {

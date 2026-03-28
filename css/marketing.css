@@ -1,22 +1,237 @@
 /*
- * Stage 1 of CSS split: marketing-specific styles migrate here.
- * Keep in sync with css/main.css until full extraction is complete.
+ * Marketing pages M3 Stitch design tokens.
+ * Applies to all public-facing pages (home, programs, blog, jobs, etc.)
  */
 
-.trust-logos span,
-.partner-logos-small span {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 24px;
-  padding: 0 0.35rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-gray-700);
-  white-space: nowrap;
+/* ── Partner/trust logos ── */
+.trust-logos span, .partner-logos-small span {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 24px; padding: 0 0.35rem;
+  font-size: 0.875rem; font-weight: 600;
+  color: var(--color-gray-700); white-space: nowrap;
+}
+html.dark .trust-logos span, html.dark .partner-logos-small span { color: rgba(255,255,255,0.85); }
+
+/* ═══ MARKETING SURFACE — M3 tokens for all inner pages ═══ */
+.inner-page { background: #fcf9f8; color: #1c1b1b; }
+html.dark .inner-page { background: #141313; color: #e6e1e1; }
+
+.inner-page h1, .inner-page h2, .inner-page h3 { letter-spacing: -0.025em; }
+html.dark .inner-page h1, html.dark .inner-page h2, html.dark .inner-page h3 { color: #e6e1e1; }
+
+.page-hero {
+  background: #f6f3f2;
+  border-bottom: 1px solid rgba(222,191,194,0.15);
+}
+html.dark .page-hero {
+  background: #1c1b1b;
+  border-bottom-color: rgba(88,65,68,0.1);
+  color: #e6e1e1;
+}
+.page-hero h1 { font-weight: 800; letter-spacing: -0.03em; }
+html.dark .page-hero p { color: #debfc2; }
+
+.content-section { background: #fcf9f8; }
+html.dark .content-section { background: #141313; color: #e6e1e1; }
+
+/* ═══ MAIN NAV ═══ */
+.main-nav {
+  background: rgba(252,249,248,0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(222,191,194,0.12);
+}
+html.dark .main-nav {
+  background: rgba(20,19,19,0.85);
+  border-bottom-color: rgba(88,65,68,0.12);
+}
+html.dark .main-nav.scrolled {
+  background: rgba(15,14,14,0.95);
 }
 
-html.dark .trust-logos span,
-html.dark .partner-logos-small span {
-  color: rgba(255, 255, 255, 0.85);
+/* Nav links */
+.nav-menu a { color: #584144; }
+html.dark .nav-menu a { color: #debfc2; }
+.nav-menu a:hover, .nav-menu a.active { color: #8c0f37; }
+html.dark .nav-menu a:hover, html.dark .nav-menu a.active { color: #ffb2bc; }
+
+/* Nav CTA button */
+.nav-cta {
+  background: #ad2c4d !important; color: #fff !important;
+  border-radius: 0.5rem !important; padding: 0.5rem 1.25rem !important;
+  font-weight: 700 !important;
 }
+.nav-cta:hover { background: #8c0f37 !important; }
+
+/* Mobile nav overlay */
+html.dark .mobile-nav-backdrop.visible { background: rgba(20,19,19,0.7); }
+html.dark .nav-menu.mobile-open {
+  background: #1c1b1b;
+  border-color: rgba(88,65,68,0.15);
+}
+html.dark .nav-menu.mobile-open a { color: #debfc2; }
+html.dark .nav-menu.mobile-open a:hover { color: #ffb2bc; }
+
+/* ═══ FOOTER ═══ */
+.main-footer {
+  background: #f6f3f2;
+  border-top: 1px solid rgba(222,191,194,0.15);
+  color: #584144;
+}
+html.dark .main-footer {
+  background: #1c1b1b;
+  border-top-color: rgba(88,65,68,0.12);
+  color: #debfc2;
+}
+html.dark .main-footer h3, html.dark .main-footer h4 { color: #e6e1e1; }
+html.dark .main-footer a { color: #debfc2; }
+html.dark .main-footer a:hover { color: #ffb2bc; }
+.footer-bottom { border-top-color: rgba(222,191,194,0.15); }
+html.dark .footer-bottom { border-top-color: rgba(88,65,68,0.12); color: #debfc2; }
+
+/* ═══ HOMEPAGE ═══ */
+body.homepage { background: #141313; }
+.homepage h1, .homepage h2, .homepage h3 { color: #e6e1e1; }
+.homepage p { color: #debfc2; }
+
+/* Hero */
+.hero { background: #141313; }
+.hero-overlay { background: linear-gradient(135deg, rgba(20,19,19,0.95), rgba(20,19,19,0.6)); }
+.hero-title { color: #e6e1e1; letter-spacing: -0.03em; }
+.hero-title .accent {
+  background: linear-gradient(to right, #ad2c4d, #ffb2bc);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero-subtitle { color: #debfc2; }
+.hero-no-cost-badge { color: #ffddb5; }
+
+/* Stats bar */
+.stats-bar { background: #1c1b1b; border-bottom: 1px solid rgba(88,65,68,0.12); }
+.stats-trust-line { color: #debfc2; }
+.stat-number {
+  background: linear-gradient(135deg, #ad2c4d, #ffb2bc);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900;
+}
+.stat-label { color: #debfc2; }
+
+/* Home audiences */
+.home-audiences { background: #1c1b1b; border-color: rgba(88,65,68,0.12); }
+.home-audiences-lead { color: #debfc2; }
+.home-section-title { color: #e6e1e1; }
+.home-audience-card {
+  background: #201f1f; border: 1px solid rgba(88,65,68,0.12);
+  border-radius: 1rem;
+}
+.home-audience-card h3 { color: #e6e1e1; }
+.home-audience-card p { color: #debfc2; }
+
+/* Process flow */
+.process-flow-section { background: #141313; }
+.process-flow-inner { color: #e6e1e1; }
+.process-item { background: #201f1f; border: 1px solid rgba(88,65,68,0.12); border-radius: 1rem; }
+.step-number { color: rgba(173,44,77,0.3); }
+
+/* Social proof */
+.home-social-proof { background: #1c1b1b; }
+.home-social-proof-lead { color: #debfc2; }
+
+/* About section */
+.about-section { background: #141313; }
+.about-content { color: #debfc2; }
+.about-content h2 { color: #e6e1e1; }
+.about-stat .stat-num {
+  background: linear-gradient(135deg, #ad2c4d, #ffb2bc);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.about-stat .stat-desc { color: #debfc2; }
+.programs-preview { color: #debfc2; }
+.programs-preview h3 { color: #e6e1e1; }
+
+/* Footer CTA */
+.footer-cta { background: #0f0e0e; color: #e6e1e1; }
+.footer-cta h2 { color: #e6e1e1; }
+.footer-cta p { color: #debfc2; }
+
+/* For you section */
+.home-for-you { background: #141313; }
+.home-for-you-lead { color: #debfc2; }
+.home-outcome-step { color: #debfc2; }
+.home-outcome-step__title { color: #e6e1e1; }
+
+/* AI tools teaser */
+.home-ai-tools-teaser { background: #141313 !important; }
+
+/* ═══ PROGRAM CARDS ═══ */
+.program-card {
+  background: #fff; border: 1px solid rgba(222,191,194,0.2);
+  border-radius: 1rem; transition: border-color 0.15s;
+}
+html.dark .program-card { background: #201f1f; border-color: rgba(88,65,68,0.12); }
+.program-card:hover { border-color: #ad2c4d; }
+html.dark .program-card:hover { border-color: #ffb2bc; }
+
+/* ═══ BLOG ═══ */
+.blog-card {
+  background: #fff; border: 1px solid rgba(222,191,194,0.2);
+  border-radius: 1rem;
+}
+html.dark .blog-card { background: #201f1f; border-color: rgba(88,65,68,0.12); }
+
+/* ═══ JOB CARDS ═══ */
+.job-card, .job-listing-item {
+  background: #fff; border: 1px solid rgba(222,191,194,0.2);
+  border-radius: 0.75rem;
+}
+html.dark .job-card, html.dark .job-listing-item {
+  background: #201f1f; border-color: rgba(88,65,68,0.12);
+}
+
+/* ═══ FAQ ═══ */
+.faq-item { border-color: rgba(222,191,194,0.15); }
+html.dark .faq-item { border-color: rgba(88,65,68,0.12); }
+html.dark .faq-item summary { color: #e6e1e1; }
+
+/* ═══ CONTACT FORM ═══ */
+.contact-form input, .contact-form textarea, .contact-form select {
+  border-color: rgba(222,191,194,0.3); border-radius: 0.5rem;
+}
+html.dark .contact-form input, html.dark .contact-form textarea, html.dark .contact-form select {
+  background: #201f1f; border-color: rgba(88,65,68,0.2); color: #e6e1e1;
+}
+
+/* ═══ LEADERSHIP CARDS ═══ */
+.leadership-card {
+  background: #fff; border: 1px solid rgba(222,191,194,0.2);
+  border-radius: 1rem;
+}
+html.dark .leadership-card { background: #201f1f; border-color: rgba(88,65,68,0.12); }
+
+/* ═══ PARTNERS PAGE ═══ */
+.partner-card {
+  background: #fff; border: 1px solid rgba(222,191,194,0.2);
+  border-radius: 1rem;
+}
+html.dark .partner-card { background: #201f1f; border-color: rgba(88,65,68,0.12); }
+
+/* ═══ SALARY GUIDE ═══ */
+html.dark .salary-table th { background: #201f1f; color: #debfc2; }
+html.dark .salary-table td { border-color: rgba(88,65,68,0.1); }
+
+/* ═══ APPLY FLOW ═══ */
+.apply-form-card {
+  background: #fff; border: 1px solid rgba(222,191,194,0.2);
+  border-radius: 1rem;
+}
+html.dark .apply-form-card { background: #201f1f; border-color: rgba(88,65,68,0.12); }
+
+/* ═══ PROGRAM COMPARISON ═══ */
+html.dark .comparison-table th { background: #201f1f; color: #debfc2; }
+html.dark .comparison-table td { border-color: rgba(88,65,68,0.1); }
+
+/* ═══ LINKS ═══ */
+.inner-page a:not(.btn):not([class*="wa-"]) { color: #8c0f37; }
+html.dark .inner-page a:not(.btn):not([class*="wa-"]) { color: #ffb2bc; }

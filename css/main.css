@@ -5124,6 +5124,17 @@ html.dark .faq-section-heading {
     align-items: flex-start;
 }
 .contact-icon { font-size: 1.5rem; min-width: 2rem; }
+.contact-apply-cta {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: var(--color-surface-variant);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-surface-variant);
+}
+.contact-apply-cta-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
 
 /* =============================================
    STAT CARDS

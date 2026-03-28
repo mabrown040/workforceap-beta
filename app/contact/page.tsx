@@ -48,8 +48,8 @@ export default function ContactPage() {
                   <div><strong>Response Time</strong><br />Within 24–48 hours</div>
                 </div>
               </div>
-              <div style={{ marginTop: '2rem', padding: '1.5rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-gray-200)' }}>
-                <p style={{ fontWeight: 600, marginBottom: '.5rem' }}>Ready to apply instead?</p>
+              <div className="contact-apply-cta">
+                <p className="contact-apply-cta-label">Ready to apply instead?</p>
                 <Link href="/apply" className="btn btn-primary">Start Your Application</Link>
               </div>
             </div>

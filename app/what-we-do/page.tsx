@@ -7,7 +7,7 @@ import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'What We Do',
+  title: 'Free Workforce Development Training in Austin, TX',
   description:
     'How WorkforceAP works: employer-aligned training, no-cost to participants, job placement support. Operating model that scales beyond one market.',
   path: '/what-we-do',
@@ -68,6 +68,12 @@ export default function WhatWeDoPage() {
                 <p>Established thriving workforce unit for Austin Area Urban League.</p>
               </div>
             </div>
+          </div>
+
+          <div className="wioa-callout animate-on-scroll" style={{ marginBottom: '2rem', padding: '1.25rem 1.5rem', background: 'var(--color-gray-50)', borderLeft: '4px solid var(--color-accent)', borderRadius: 'var(--radius-sm)' }}>
+            <p style={{ margin: 0, lineHeight: 1.6 }}>
+              WorkforceAP programs align with <strong>WIOA (Workforce Innovation and Opportunity Act)</strong> eligibility criteria, including low-income individuals, dislocated workers, adult learners, and veterans seeking career advancement. Our employer-aligned training model is designed to serve the communities WIOA prioritizes.
+            </p>
           </div>
 
           <h2 className="section-title animate-on-scroll">What We Stand For</h2>

@@ -7,7 +7,7 @@ import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Partners',
+  title: 'Community & Employer Partners | Austin Workforce Development',
   description:
     'Partner with WorkforceAP: employers hire talent, referral orgs send candidates, workforce boards align, funders support scale. Clear next steps for each.',
   path: '/partners',

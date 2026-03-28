@@ -8,7 +8,7 @@ import BlogListingClient from './BlogListingClient';
 export const revalidate = 3600;
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Blog',
+  title: 'Workforce Development Blog | Career Tips & Training News',
   description:
     'Career tips, program spotlights, success stories, and Austin workforce insights from Workforce Advancement Project. Free tech and career training advice for Austin, TX residents.',
   path: '/blog',

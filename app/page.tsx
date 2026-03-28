@@ -55,9 +55,12 @@ export default async function HomePage() {
         <div className="hero-overlay" />
         <div className="hero-container">
           <h1 className="hero-title">
-            Empowering People. <br />
-            <span className="accent">Advancing Futures.</span>
+            Free Career Training <br />
+            <span className="accent">in Austin, TX</span>
           </h1>
+          <p className="hero-tagline" aria-hidden="false" style={{ fontSize: '1.1rem', fontStyle: 'italic', marginBottom: '0.5rem', opacity: 0.85 }}>
+            Empowering People. Advancing Futures.
+          </p>
           <div className="hero-no-cost-badge">✦ No-cost training for members</div>
           <p className="hero-program-count" aria-label={`${WORKFORCEAP_PROGRAM_CATALOG_SIZE} training programs`}>
             {WORKFORCEAP_PROGRAM_CATALOG_SIZE} programs · Industry-recognized certifications

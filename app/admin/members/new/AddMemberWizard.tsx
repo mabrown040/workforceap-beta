@@ -227,39 +227,39 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
           <h2 className="wizard-section-title"><User size={22} className="wizard-icon" /> Basic Info</h2>
           <div className="wizard-form-grid">
             <div className="wizard-field">
-              <label>First Name *</label>
-              <input type="text" value={form.firstName} onChange={(e) => update('firstName', e.target.value)} required />
+              <label htmlFor="wizard-firstName">First Name *</label>
+              <input id="wizard-firstName" type="text" value={form.firstName} onChange={(e) => update('firstName', e.target.value)} required />
             </div>
             <div className="wizard-field">
-              <label>Last Name *</label>
-              <input type="text" value={form.lastName} onChange={(e) => update('lastName', e.target.value)} />
+              <label htmlFor="wizard-lastName">Last Name *</label>
+              <input id="wizard-lastName" type="text" value={form.lastName} onChange={(e) => update('lastName', e.target.value)} />
             </div>
             <div className="wizard-field">
-              <label>Email *</label>
-              <input type="email" value={form.email} onChange={(e) => update('email', e.target.value)} required />
+              <label htmlFor="wizard-email">Email *</label>
+              <input id="wizard-email" type="email" value={form.email} onChange={(e) => update('email', e.target.value)} required />
             </div>
             <div className="wizard-field">
-              <label>Phone *</label>
-              <input type="tel" value={form.phone} onChange={(e) => update('phone', e.target.value)} />
+              <label htmlFor="wizard-phone">Phone *</label>
+              <input id="wizard-phone" type="tel" value={form.phone} onChange={(e) => update('phone', e.target.value)} />
             </div>
             <div className="wizard-field wizard-field-full">
-              <label>Address (optional)</label>
-              <input type="text" value={form.address} onChange={(e) => update('address', e.target.value)} />
+              <label htmlFor="wizard-address">Address (optional)</label>
+              <input id="wizard-address" type="text" value={form.address} onChange={(e) => update('address', e.target.value)} />
             </div>
             <div className="wizard-field">
-              <label>Date of Birth (optional)</label>
-              <input type="date" value={form.dob} onChange={(e) => update('dob', e.target.value)} />
+              <label htmlFor="wizard-dob">Date of Birth (optional)</label>
+              <input id="wizard-dob" type="date" value={form.dob} onChange={(e) => update('dob', e.target.value)} />
             </div>
             <div className="wizard-field">
-              <label>Employment Status *</label>
-              <select value={form.employmentStatus} onChange={(e) => update('employmentStatus', e.target.value)} required>
+              <label htmlFor="wizard-employmentStatus">Employment Status *</label>
+              <select id="wizard-employmentStatus" value={form.employmentStatus} onChange={(e) => update('employmentStatus', e.target.value)} required>
                 <option value="">Select…</option>
                 {EMPLOYMENT.map((o) => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
             <div className="wizard-field">
-              <label>Veteran Status</label>
-              <select value={form.veteranStatus} onChange={(e) => update('veteranStatus', e.target.value)}>
+              <label htmlFor="wizard-veteranStatus">Veteran Status</label>
+              <select id="wizard-veteranStatus" value={form.veteranStatus} onChange={(e) => update('veteranStatus', e.target.value)}>
                 <option value="">Select…</option>
                 {VETERAN.map((o) => <option key={o} value={o}>{o}</option>)}
               </select>

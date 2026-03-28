@@ -1,0 +1,8 @@
+artifacts/
+.taskmaster/
+cursor-*.json
+cursor-*.md
+SPRINT-*.md
+CEO-ANALYSIS*.md
+DEMO_SETUP.md
+wap_logo.jpg

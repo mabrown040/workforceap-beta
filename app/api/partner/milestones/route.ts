@@ -19,6 +19,14 @@ export async function GET(request: NextRequest) {
   const fromDate = from ? new Date(from) : null;
   const toDate = to ? new Date(to) : null;
 
+  if (fromDate && isNaN(fromDate.getTime())) {
+    return NextResponse.json({ error: 'Invalid from date' }, { status: 400 });
+  }
+  if (toDate && isNaN(toDate.getTime())) {
+    return NextResponse.json({ error: 'Invalid to date' }, { status: 400 });
+  }
+
+  try {
   const { members } = await loadPartnerReferralBundle(ctx.partnerId);
 
   type MilestoneRow = {
@@ -107,4 +115,8 @@ export async function GET(request: NextRequest) {
   rows.sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
 
   return NextResponse.json({ milestones: rows.slice(0, 150) });
+  } catch (err) {
+    console.error('[partner/milestones] error:', err);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

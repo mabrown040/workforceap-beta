@@ -6,7 +6,7 @@ import Footer from '@/components/Footer';
 import FAQContent from './FAQContent';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'FAQ',
+  title: 'FAQ: Free WIOA-Aligned Career Training in Austin, TX',
   description:
     'Answers about admissions, eligibility, certifications, and job placement. For applicants, parents, partners, and anyone with questions.',
   path: '/faq',

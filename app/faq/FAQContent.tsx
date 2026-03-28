@@ -142,7 +142,7 @@ export default function FAQContent() {
                           display: 'inline-flex', 
                           alignItems: 'center', 
                           gap: '0.5rem',
-                          color: '#ad2c4d',
+                          color: 'var(--color-accent)',
                           fontWeight: 500,
                           textDecoration: 'none'
                         }}

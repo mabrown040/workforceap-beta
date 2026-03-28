@@ -26,7 +26,7 @@ export default async function ApplicationsPage() {
             <p>Track your applications and interview progress.</p>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <Link href="/dashboard" className="btn" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.4)' }}>
+            <Link href="/dashboard" className="btn btn-ghost">
               Dashboard
             </Link>
             <SignOutButton />

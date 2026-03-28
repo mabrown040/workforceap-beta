@@ -113,18 +113,18 @@ export default async function AdminPage() {
       {pendingApplications > 0 && (
         <div style={{
           padding: '1rem 1.25rem',
-          background: '#fffbeb',
-          border: '1px solid #fbbf24',
+          background: 'rgba(164,127,56,0.08)',
+          border: '1px solid rgba(164,127,56,0.35)',
           borderRadius: '8px',
           marginBottom: '1.5rem',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
         }}>
-          <span style={{ fontWeight: 600, color: '#92400e' }}>
+          <span style={{ fontWeight: 600, color: 'var(--color-gold)' }}>
             {pendingApplications} pending application{pendingApplications === 1 ? '' : 's'} awaiting review
           </span>
-          <Link href="/admin/members" style={{ color: '#2563eb', fontWeight: 600, fontSize: '0.9rem' }}>
+          <Link href="/admin/members" style={{ color: 'var(--color-blue)', fontWeight: 600, fontSize: '0.9rem' }}>
             Review →
           </Link>
         </div>
@@ -163,7 +163,7 @@ export default async function AdminPage() {
                       <td>{p.jobTitle}</td>
                       <td style={{ fontSize: '0.85rem' }}>{programTitle}</td>
                       <td>{daysToPlacement != null ? `${daysToPlacement}d` : '—'}</td>
-                      <td style={{ color: '#16a34a', fontWeight: 600 }}>
+                      <td style={{ color: 'var(--color-green)', fontWeight: 600 }}>
                         {p.salaryOffered ? `$${p.salaryOffered.toLocaleString()}` : '—'}
                       </td>
                       <td>{p.placedAt.toLocaleDateString()}</td>

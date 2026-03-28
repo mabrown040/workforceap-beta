@@ -49,7 +49,7 @@ export default async function TrainingPage() {
       <p style={{ marginBottom: '1.5rem', fontSize: '0.95rem' }}>
         {completedCount} of {program.courses.length} courses complete
       </p>
-      <div style={{ height: '8px', background: '#e5e5e5', borderRadius: '4px', marginBottom: '2rem', overflow: 'hidden' }}>
+      <div style={{ height: '8px', background: 'var(--color-gray-200)', borderRadius: '4px', marginBottom: '2rem', overflow: 'hidden' }}>
         <div
           style={{
             height: '100%',

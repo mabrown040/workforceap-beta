@@ -62,12 +62,12 @@ export default async function AdminBlogPage() {
                     background: post.published
                       ? 'rgba(173, 44, 77, 0.12)'
                       : post.scheduledAt
-                      ? 'rgba(37, 99, 235, 0.1)'
+                      ? 'rgba(43, 123, 185, 0.1)'
                       : 'var(--color-gray-100)',
                     color: post.published
                       ? 'var(--color-accent)'
                       : post.scheduledAt
-                      ? '#2563eb'
+                      ? 'var(--color-blue)'
                       : 'var(--color-gray-600)',
                   }}
                 >

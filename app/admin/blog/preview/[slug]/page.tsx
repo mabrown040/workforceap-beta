@@ -32,8 +32,8 @@ export default async function AdminBlogPreviewPage({ params }: Props) {
       {!post.published && (
         <div
           style={{
-            background: '#fef3c7',
-            color: '#92400e',
+            background: 'rgba(164,127,56,0.1)',
+            color: 'var(--color-gold)',
             padding: '0.5rem 1rem',
             textAlign: 'center',
             fontWeight: 600,
@@ -78,7 +78,7 @@ export default async function AdminBlogPreviewPage({ params }: Props) {
               borderRadius: '8px',
               overflow: 'hidden',
               aspectRatio: '16/9',
-              background: '#0f172a',
+              background: 'var(--color-primary)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -101,7 +101,7 @@ export default async function AdminBlogPreviewPage({ params }: Props) {
           style={{
             marginTop: '3rem',
             paddingTop: '2rem',
-            borderTop: '1px solid #eee',
+            borderTop: '1px solid var(--color-gray-200)',
           }}
         >
           <Link
@@ -109,8 +109,8 @@ export default async function AdminBlogPreviewPage({ params }: Props) {
             style={{
               display: 'inline-block',
               padding: '0.5rem 1rem',
-              background: '#f0f0f0',
-              color: '#333',
+              background: 'var(--color-gray-100)',
+              color: 'var(--color-gray-700)',
               borderRadius: '6px',
               textDecoration: 'none',
               fontWeight: 600,
@@ -141,7 +141,7 @@ export default async function AdminBlogPreviewPage({ params }: Props) {
             style={{
               marginTop: '3rem',
               paddingTop: '2rem',
-              borderTop: '1px solid #eee',
+              borderTop: '1px solid var(--color-gray-200)',
             }}
           >
             <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>

@@ -225,7 +225,7 @@ export default function ApplyFlowClient() {
           )}
 
           {!canContinue && (
-            <p className="form-validation-hint" style={{ color: '#b91c1c', fontSize: '.9rem', marginBottom: '.75rem' }}>
+            <p className="form-validation-hint" style={{ color: 'var(--color-accent)', fontSize: '.9rem', marginBottom: '.75rem' }}>
               Please answer all questions to continue.
             </p>
           )}
@@ -239,9 +239,9 @@ export default function ApplyFlowClient() {
             Continue to application
           </button>
 
-          <p style={{ marginTop: '1.5rem', fontSize: '.85rem', color: '#666', textAlign: 'center' }}>
+          <p style={{ marginTop: '1.5rem', fontSize: '.85rem', color: 'var(--color-gray-500)', textAlign: 'center' }}>
             Having trouble? Call{' '}
-            <a href="tel:+15127771808" style={{ color: '#2563eb', fontWeight: 600 }}>(512) 777-1808</a>
+            <a href="tel:+15127771808" style={{ color: 'var(--color-blue)', fontWeight: 600 }}>(512) 777-1808</a>
           </p>
         </div>
       )}

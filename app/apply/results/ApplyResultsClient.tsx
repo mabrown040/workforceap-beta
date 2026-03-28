@@ -153,7 +153,7 @@ export default function ApplyResultsClient() {
           </>
         ) : (
           <>
-            <div className="apply-results-anyway" style={{ marginBottom: '1rem', padding: '1rem 1.25rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+            <div className="apply-results-anyway" style={{ marginBottom: '1rem', padding: '1rem 1.25rem', background: 'var(--color-light)', border: '1px solid var(--color-gray-200)', borderRadius: '8px' }}>
               <p style={{ margin: 0 }}>
                 <strong>Your answers don&apos;t match our standard funding profile right now.</strong> That is not a final decision. We still review every application,
                 suggest realistic next steps, and often start people with foundational options while we sort out timing and support.

@@ -194,7 +194,7 @@ export default function LoginForm() {
                     className="form-error-banner"
                     role="alert"
                     style={{
-                      background: '#fff3f5',
+                      background: 'rgba(173,44,77,0.06)',
                       borderLeft: '4px solid var(--color-accent)',
                       padding: '1rem',
                       marginBottom: '1rem',

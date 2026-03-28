@@ -118,7 +118,7 @@ export default function SalaryGuidePage() {
                   <tr key={row.slug}>
                     <td><strong>{row.program}</strong></td>
                     <td>{row.duration}</td>
-                    <td style={{ fontWeight: 700, color: '#1a1a1a' }}>{row.salary}</td>
+                    <td style={{ fontWeight: 700, color: 'var(--color-primary)' }}>{row.salary}</td>
                     <td><span style={{ background: row.color, color: 'white', padding: '.3rem .75rem', borderRadius: '50px', fontSize: '.8rem', fontWeight: 600 }}>{row.level}</span></td>
                     <td><span className="salary-ramp-badge">{row.ramp}</span></td>
                   </tr>
@@ -149,10 +149,10 @@ export default function SalaryGuidePage() {
             {insights.map((item) => {
               const Icon = item.Icon;
               return (
-              <div key={item.title} style={{ background: '#f8f8f8', borderRadius: '8px', padding: '1.5rem' }}>
+              <div key={item.title} style={{ background: 'var(--color-gray-100)', borderRadius: '8px', padding: '1.5rem' }}>
                 <div style={{ marginBottom: '.5rem' }}><Icon size={24} className="text-current" /></div>
                 <strong>{item.title}</strong>
-                <p style={{ color: '#555', fontSize: '.9rem', marginTop: '.4rem' }}>{item.desc}</p>
+                <p style={{ color: 'var(--color-gray-600)', fontSize: '.9rem', marginTop: '.4rem' }}>{item.desc}</p>
               </div>
               );
             })}

@@ -126,7 +126,7 @@ export default async function AdminPipelinePage() {
                       </div>
                     )}
                     {stage === 'placed' && s.placementRecord && (
-                      <div style={{ fontSize: '0.75rem', color: '#16a34a', marginTop: '0.15rem' }}>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--color-green)', marginTop: '0.15rem' }}>
                         {s.placementRecord.employerName}
                       </div>
                     )}

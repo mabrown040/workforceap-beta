@@ -82,7 +82,7 @@ export default async function ProgramPage() {
         <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>
           Progress: {completedCount} of {program.courses.length} courses complete
         </p>
-        <div style={{ height: '6px', background: '#e5e5e5', borderRadius: '3px', marginBottom: '1.5rem', overflow: 'hidden' }}>
+        <div style={{ height: '6px', background: 'var(--color-gray-200)', borderRadius: '3px', marginBottom: '1.5rem', overflow: 'hidden' }}>
           <div
             style={{
               height: '100%',

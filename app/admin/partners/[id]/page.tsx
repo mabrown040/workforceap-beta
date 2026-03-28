@@ -89,7 +89,7 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
                 borderRadius: '6px',
                 fontSize: '0.85rem',
                 background: partner.active ? 'rgba(74, 155, 79, 0.12)' : 'var(--color-gray-100)',
-                color: partner.active ? '#2d7a32' : 'var(--color-gray-600)',
+                color: partner.active ? 'var(--color-green)' : 'var(--color-gray-600)',
               }}
             >
               {partner.active ? 'Active' : 'Inactive'}

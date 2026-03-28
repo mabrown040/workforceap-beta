@@ -40,10 +40,10 @@ export default async function ApplyPage({ searchParams }: PageProps) {
             marginBottom: '2rem',
             maxWidth: '600px'
           }}>
-            <p style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: '#166534' }}>
+            <p style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: 'var(--color-green)' }}>
               ✓ No cost to members.
             </p>
-            <p style={{ fontSize: '0.95rem', margin: '0.35rem 0 0', color: '#065f46' }}>
+            <p style={{ fontSize: '0.95rem', margin: '0.35rem 0 0', color: 'var(--color-green)' }}>
               Training and support are provided at no charge to qualifying participants.
             </p>
           </div>

@@ -32,7 +32,7 @@ export default function ApplyConfirmationPage() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '2rem' }}>
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                <span style={{ background: '#4a9b4f', color: 'white', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.9rem', flexShrink: 0 }}>1</span>
+                <span style={{ background: 'var(--color-green)', color: 'white', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.9rem', flexShrink: 0 }}>1</span>
                 <div>
                   <strong>Our team reviews your application</strong>
                   <p style={{ margin: '0.25rem 0 0', color: 'var(--color-gray-600)', fontSize: '0.95rem' }}>
@@ -42,7 +42,7 @@ export default function ApplyConfirmationPage() {
               </div>
 
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                <span style={{ background: '#4a9b4f', color: 'white', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.9rem', flexShrink: 0 }}>2</span>
+                <span style={{ background: 'var(--color-green)', color: 'white', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.9rem', flexShrink: 0 }}>2</span>
                 <div>
                   <strong>You will receive an email with next steps</strong>
                   <p style={{ margin: '0.25rem 0 0', color: 'var(--color-gray-600)', fontSize: '0.95rem' }}>
@@ -52,7 +52,7 @@ export default function ApplyConfirmationPage() {
               </div>
 
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                <span style={{ background: '#4a9b4f', color: 'white', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.9rem', flexShrink: 0 }}>3</span>
+                <span style={{ background: 'var(--color-green)', color: 'white', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.9rem', flexShrink: 0 }}>3</span>
                 <div>
                   <strong>If accepted, you will get access to your member portal</strong>
                   <p style={{ margin: '0.25rem 0 0', color: 'var(--color-gray-600)', fontSize: '0.95rem' }}>
@@ -62,21 +62,21 @@ export default function ApplyConfirmationPage() {
               </div>
             </div>
 
-            <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '1.25rem', marginBottom: '1.5rem' }}>
+            <div style={{ background: 'rgba(74,155,79,0.08)', border: '1px solid rgba(74,155,79,0.25)', borderRadius: '8px', padding: '1.25rem', marginBottom: '1.5rem' }}>
               <p style={{ margin: 0, fontSize: '0.95rem' }}>
                 <strong>Questions?</strong> Call{' '}
-                <a href="tel:+15127771808" style={{ color: '#2563eb', fontWeight: 600 }}>(512) 777-1808</a>{' '}
+                <a href="tel:+15127771808" style={{ color: 'var(--color-blue)', fontWeight: 600 }}>(512) 777-1808</a>{' '}
                 or email{' '}
-                <a href="mailto:info@workforceap.org" style={{ color: '#2563eb', fontWeight: 600 }}>info@workforceap.org</a>
+                <a href="mailto:info@workforceap.org" style={{ color: 'var(--color-blue)', fontWeight: 600 }}>info@workforceap.org</a>
               </p>
             </div>
 
-            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '1.25rem', marginBottom: '2rem' }}>
+            <div style={{ background: 'var(--color-light)', border: '1px solid var(--color-gray-200)', borderRadius: '8px', padding: '1.25rem', marginBottom: '2rem' }}>
               <p style={{ margin: 0, fontSize: '0.95rem' }}>
                 <strong>While you wait:</strong> Bookmark your portal login at{' '}
-                <Link href="/login" style={{ color: '#2563eb', fontWeight: 600 }}>workforceap.org/login</Link>
+                <Link href="/login" style={{ color: 'var(--color-blue)', fontWeight: 600 }}>workforceap.org/login</Link>
                 . You can also{' '}
-                <Link href="/apply/status" style={{ color: '#2563eb', fontWeight: 600 }}>check your application status</Link>
+                <Link href="/apply/status" style={{ color: 'var(--color-blue)', fontWeight: 600 }}>check your application status</Link>
                 {' '}with the email you used — no password required.
               </p>
             </div>

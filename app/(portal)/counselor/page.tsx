@@ -105,7 +105,7 @@ export default async function CounselorPortalPage() {
 
         <div className="stat-card">
           <div className="stat-card__icon" style={{ background: 'rgba(74, 155, 79, 0.1)' }}>
-            <CheckCircle size={24} style={{ color: '#4a9b4f' }} aria-hidden />
+            <CheckCircle size={24} style={{ color: 'var(--color-green)' }} aria-hidden />
           </div>
           <div>
             <div className="stat-card__value">
@@ -186,7 +186,7 @@ export default async function CounselorPortalPage() {
                       style={{
                         padding: '0.25rem 0.75rem',
                         background: 'rgba(74, 155, 79, 0.1)',
-                        color: '#4a9b4f',
+                        color: 'var(--color-green)',
                         borderRadius: '12px',
                         fontSize: '0.75rem',
                         fontWeight: 600,

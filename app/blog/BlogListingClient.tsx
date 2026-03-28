@@ -50,16 +50,16 @@ export default function BlogListingClient({
           alignItems: 'center',
           gap: '1rem',
           padding: '1.25rem',
-          background: 'linear-gradient(135deg, #f8f9fa, #e9ecef)',
+          background: 'linear-gradient(135deg, var(--color-light), var(--color-gray-200))',
           borderRadius: '12px',
           textDecoration: 'none',
-          color: '#1a1a1a',
-          border: '1px solid #dee2e6',
+          color: 'var(--color-primary)',
+          border: '1px solid var(--color-gray-300)',
         }}>
-          <GraduationCap size={28} style={{ color: '#ad2c4d' }} />
+          <GraduationCap size={28} style={{ color: 'var(--color-accent)' }} />
           <div>
             <div style={{ fontWeight: 600 }}>Explore Programs</div>
-            <div style={{ fontSize: '0.875rem', color: '#666' }}>19 career training options</div>
+            <div style={{ fontSize: '0.875rem', color: 'var(--color-gray-500)' }}>19 career training options</div>
           </div>
           <ArrowRight size={20} style={{ marginLeft: 'auto', opacity: 0.5 }} />
         </Link>
@@ -68,16 +68,16 @@ export default function BlogListingClient({
           alignItems: 'center',
           gap: '1rem',
           padding: '1.25rem',
-          background: 'linear-gradient(135deg, #f8f9fa, #e9ecef)',
+          background: 'linear-gradient(135deg, var(--color-light), var(--color-gray-200))',
           borderRadius: '12px',
           textDecoration: 'none',
-          color: '#1a1a1a',
-          border: '1px solid #dee2e6',
+          color: 'var(--color-primary)',
+          border: '1px solid var(--color-gray-300)',
         }}>
-          <HelpCircle size={28} style={{ color: '#ad2c4d' }} />
+          <HelpCircle size={28} style={{ color: 'var(--color-accent)' }} />
           <div>
             <div style={{ fontWeight: 600 }}>Read FAQ</div>
-            <div style={{ fontSize: '0.875rem', color: '#666' }}>Common questions answered</div>
+            <div style={{ fontSize: '0.875rem', color: 'var(--color-gray-500)' }}>Common questions answered</div>
           </div>
           <ArrowRight size={20} style={{ marginLeft: 'auto', opacity: 0.5 }} />
         </Link>
@@ -98,7 +98,7 @@ export default function BlogListingClient({
             style={{
               padding: '0.4rem 0.9rem',
               borderRadius: '999px',
-              border: `1px solid ${filter === null ? 'var(--color-accent)' : '#ccc'}`,
+              border: `1px solid ${filter === null ? 'var(--color-accent)' : 'var(--color-gray-300)'}`,
               background: filter === null ? 'rgba(74, 155, 79, 0.1)' : 'transparent',
               color: filter === null ? 'var(--color-accent)' : 'inherit',
               cursor: 'pointer',
@@ -115,7 +115,7 @@ export default function BlogListingClient({
               style={{
                 padding: '0.4rem 0.9rem',
                 borderRadius: '999px',
-                border: `1px solid ${filter === cat ? 'var(--color-accent)' : '#ccc'}`,
+                border: `1px solid ${filter === cat ? 'var(--color-accent)' : 'var(--color-gray-300)'}`,
                 background: filter === cat ? 'rgba(74, 155, 79, 0.1)' : 'transparent',
                 color: filter === cat ? 'var(--color-accent)' : 'inherit',
                 cursor: 'pointer',
@@ -162,7 +162,7 @@ export default function BlogListingClient({
         })}
       </div>
       {filtered.length === 0 && (
-        <p style={{ textAlign: 'center', color: '#666', padding: '3rem' }}>
+        <p style={{ textAlign: 'center', color: 'var(--color-gray-500)', padding: '3rem' }}>
           No posts found.
         </p>
       )}
@@ -171,7 +171,7 @@ export default function BlogListingClient({
       <div style={{
         marginTop: '4rem',
         padding: '2.5rem',
-        background: 'linear-gradient(135deg, #1a1a1a, #2d2d2d)',
+        background: 'linear-gradient(135deg, var(--color-primary), var(--color-gray-800))',
         borderRadius: '16px',
         textAlign: 'center',
         color: 'white',
@@ -187,7 +187,7 @@ export default function BlogListingClient({
           <Link href="/find-your-path" className="btn btn-primary">
             Take Career Quiz
           </Link>
-          <Link href="/programs" className="btn" style={{ background: 'white', color: '#1a1a1a' }}>
+          <Link href="/programs" className="btn" style={{ background: 'var(--color-white)', color: 'var(--color-primary)' }}>
             Browse Programs
           </Link>
         </div>

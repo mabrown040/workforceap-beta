@@ -23,9 +23,9 @@ export default async function AdminBlogAIPage() {
         <div
           style={{
             padding: '1rem',
-            background: '#fef3c7',
+            background: 'rgba(164,127,56,0.1)',
             borderRadius: '6px',
-            color: '#92400e',
+            color: 'var(--color-gold)',
           }}
         >
           GROQ_API_KEY not configured. Set it in your environment to use AI tools.

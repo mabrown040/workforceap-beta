@@ -111,7 +111,7 @@ export default async function BlogPostPage({ params }: Props) {
               borderRadius: '8px',
               overflow: 'hidden',
               aspectRatio: '16/9',
-              background: '#0f172a',
+              background: 'var(--color-primary)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -133,26 +133,26 @@ export default async function BlogPostPage({ params }: Props) {
 
         {/* Related Resources Section */}
         {(relevantPrograms.length > 0 || related.length > 0) && (
-          <section style={{ 
-            marginTop: '3rem', 
-            padding: '2rem', 
-            background: '#f8f9fa', 
+          <section style={{
+            marginTop: '3rem',
+            padding: '2rem',
+            background: 'var(--color-light)',
             borderRadius: '12px',
-            border: '1px solid #e5e5e5'
+            border: '1px solid var(--color-gray-200)'
           }}>
             <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <BookOpen size={22} style={{ color: '#ad2c4d' }} />
+              <BookOpen size={22} style={{ color: 'var(--color-accent)' }} />
               Related Resources
             </h3>
-            
+
             {relevantPrograms.length > 0 && (
               <div style={{ marginBottom: '1.5rem' }}>
-                <h4 style={{ fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666', marginBottom: '0.75rem' }}>
+                <h4 style={{ fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-gray-500)', marginBottom: '0.75rem' }}>
                   Featured Programs
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   {relevantPrograms.map(program => (
-                    <Link 
+                    <Link
                       key={program.slug}
                       href={`/programs/${program.slug}`}
                       style={{
@@ -160,15 +160,15 @@ export default async function BlogPostPage({ params }: Props) {
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         padding: '0.875rem 1rem',
-                        background: 'white',
+                        background: 'var(--color-white)',
                         borderRadius: '8px',
                         textDecoration: 'none',
-                        color: '#1a1a1a',
-                        border: '1px solid #e5e5e5',
+                        color: 'var(--color-primary)',
+                        border: '1px solid var(--color-gray-200)',
                       }}
                     >
                       <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <GraduationCap size={18} style={{ color: '#ad2c4d' }} />
+                        <GraduationCap size={18} style={{ color: 'var(--color-accent)' }} />
                         {program.title}
                       </span>
                       <ArrowRight size={16} style={{ opacity: 0.5 }} />
@@ -179,33 +179,33 @@ export default async function BlogPostPage({ params }: Props) {
             )}
 
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <Link 
-                href="/faq" 
+              <Link
+                href="/faq"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.5rem',
                   padding: '0.75rem 1.25rem',
-                  background: 'white',
+                  background: 'var(--color-white)',
                   borderRadius: '8px',
                   textDecoration: 'none',
-                  color: '#1a1a1a',
-                  border: '1px solid #e5e5e5',
+                  color: 'var(--color-primary)',
+                  border: '1px solid var(--color-gray-200)',
                   fontSize: '0.9375rem',
                 }}
               >
-                <HelpCircle size={18} style={{ color: '#ad2c4d' }} />
+                <HelpCircle size={18} style={{ color: 'var(--color-accent)' }} />
                 Read FAQ
                 <ArrowRight size={16} style={{ opacity: 0.5 }} />
               </Link>
-              <Link 
-                href="/find-your-path" 
+              <Link
+                href="/find-your-path"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.5rem',
                   padding: '0.75rem 1.25rem',
-                  background: '#ad2c4d',
+                  background: 'var(--color-accent)',
                   borderRadius: '8px',
                   textDecoration: 'none',
                   color: 'white',

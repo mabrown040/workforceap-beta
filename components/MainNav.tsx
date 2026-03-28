@@ -210,6 +210,29 @@ export default function MainNav() {
   const isActive = (href: string) => pathname === href;
   const isParentActive = (children: { href: string }[]) => children.some((c) => pathname === c.href);
 
+  const handleDropdownKeyDown = useCallback(
+    (e: React.KeyboardEvent, label: string, isOpen: boolean, subMenuId: string) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        setActiveDropdown(isOpen ? null : label);
+        return;
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setActiveDropdown(null);
+        return;
+      }
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (!isOpen) setActiveDropdown(label);
+        queueMicrotask(() => {
+          document.getElementById(subMenuId)?.querySelector<HTMLElement>('a[href]')?.focus();
+        });
+      }
+    },
+    []
+  );
+
   const portalHrefActive = (href: string) => {
     if (href === '/login' || href.startsWith('/login?')) {
       return pathname === '/login';
@@ -272,25 +295,7 @@ export default function MainNav() {
                     aria-controls={subMenuId}
                     className={`dropdown-trigger${parentActive ? ' active' : ''}`}
                     onClick={() => setActiveDropdown(isOpen ? null : item.label)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        setActiveDropdown(isOpen ? null : item.label);
-                        return;
-                      }
-                      if (e.key === 'Escape') {
-                        e.preventDefault();
-                        setActiveDropdown(null);
-                        return;
-                      }
-                      if (e.key === 'ArrowDown') {
-                        e.preventDefault();
-                        if (!isOpen) setActiveDropdown(item.label);
-                        queueMicrotask(() => {
-                          document.getElementById(subMenuId)?.querySelector<HTMLElement>('a[href]')?.focus();
-                        });
-                      }
-                    }}
+                    onKeyDown={(e) => handleDropdownKeyDown(e, item.label, isOpen, subMenuId)}
                   >
                     {item.label}
                   </button>

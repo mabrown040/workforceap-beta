@@ -58,7 +58,7 @@ export default async function HomePage() {
             Free Career Training <br />
             <span className="accent">in Austin, TX</span>
           </h1>
-          <p className="hero-tagline" aria-hidden="false" style={{ fontSize: '1.1rem', fontStyle: 'italic', marginBottom: '0.5rem', opacity: 0.85 }}>
+          <p className="hero-tagline" aria-hidden="false">
             Empowering People. Advancing Futures.
           </p>
           <div className="hero-no-cost-badge">✦ No-cost training for members</div>
@@ -173,7 +173,7 @@ export default async function HomePage() {
             </div>
           </div>
 
-          <div className="home-partners-cta animate-on-scroll" style={{ marginTop: '2.5rem' }}>
+          <div className="home-partners-cta animate-on-scroll">
             <h3 className="home-partners-cta__title">Refer your community</h3>
             <p className="home-partners-cta__text">
               Do you work with job-seekers at a church, community center, or workforce program? WorkforceAP partners refer
@@ -328,23 +328,13 @@ export default async function HomePage() {
                 {programCount} active program{programCount === 1 ? '' : 's'} — Tech, Healthcare, Manufacturing, and Skilled Trades.
                 Paths are managed in admin and stay aligned with what employers see.
               </p>
-              <ul className="home-program-showcase" style={{ listStyle: 'none', padding: 0, margin: '0 0 1rem' }}>
+              <ul className="home-program-showcase">
                 {homeProgramShowcase.map((p) => (
-                  <li
-                    key={p.slug}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      gap: '0.75rem',
-                      padding: '0.45rem 0',
-                      borderBottom: '1px solid rgba(0,0,0,0.06)',
-                      fontSize: '0.9rem',
-                    }}
-                  >
-                    <Link href={`/programs/${p.slug}`} style={{ fontWeight: 600, color: 'inherit', textDecoration: 'none' }}>
+                  <li key={p.slug} className="home-program-showcase-item">
+                    <Link href={`/programs/${p.slug}`} className="home-program-showcase-link">
                       {p.static?.title ?? p.name}
                     </Link>
-                    <span style={{ color: 'var(--color-gray-600)', whiteSpace: 'nowrap' }}>{p.category}</span>
+                    <span className="home-program-showcase-category">{p.category}</span>
                   </li>
                 ))}
               </ul>

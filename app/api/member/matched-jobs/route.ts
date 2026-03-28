@@ -19,6 +19,7 @@ export async function GET() {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+  try {
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id, deletedAt: null },
     select: {
@@ -73,4 +74,8 @@ export async function GET() {
   scored.sort((a, b) => b.matchPct - a.matchPct);
 
   return NextResponse.json({ jobs: scored.slice(0, 5) });
+  } catch (err) {
+    console.error('[member/matched-jobs] error:', err);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

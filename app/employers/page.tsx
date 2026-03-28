@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Hire WorkforceAP Graduates | Pre-Screened Tech Talent',
+  title: 'Hire Certified Tech Graduates | WorkforceAP Austin',
   description:
     'Access pre-screened, certified tech talent. WorkforceAP graduates hold industry credentials from Google, IBM, AWS, CompTIA. Post jobs or become a hiring partner. Currently serving Austin with plans to expand.',
   path: '/employers',

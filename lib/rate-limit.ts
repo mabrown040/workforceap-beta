@@ -16,6 +16,7 @@ let contactRateLimiter: Ratelimit | null = null;
 let adminInviteRateLimiter: Ratelimit | null = null;
 let employerJobImportRateLimiter: Ratelimit | null = null;
 let partnerSignupRateLimiter: Ratelimit | null = null;
+let confirmationEmailRateLimiter: Ratelimit | null = null;
 
 if (redisUrl && redisToken) {
   const redis = new Redis({ url: redisUrl, token: redisToken });
@@ -59,6 +60,11 @@ if (redisUrl && redisToken) {
     redis,
     limiter: Ratelimit.slidingWindow(5, '1 h'),
     prefix: 'ratelimit:partner-signup',
+  });
+  confirmationEmailRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(5, '1 h'),
+    prefix: 'ratelimit:confirmation-email',
   });
 }
 
@@ -110,4 +116,11 @@ export async function checkEmployerJobImportRateLimit(userId: string): Promise<{
   if (!employerJobImportRateLimiter) return { success: true };
   const result = await employerJobImportRateLimiter.limit(userId);
   return { success: result.success, remaining: result.remaining };
+}
+
+/** Public confirmation-email endpoint — 5 per IP per hour. Fail-closed when Upstash not configured (security default). */
+export async function checkConfirmationEmailRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!confirmationEmailRateLimiter) return { success: false };
+  const result = await confirmationEmailRateLimiter.limit(ip);
+  return { success: result.success };
 }

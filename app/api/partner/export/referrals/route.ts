@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
 
   const preset = request.nextUrl.searchParams.get('preset');
 
+  try {
   const { pipelineMembers } = await loadPartnerReferralBundle(ctx.partnerId);
   const rows = toPartnerMembersListRows(pipelineMembers);
 
@@ -76,4 +77,8 @@ export async function GET(request: NextRequest) {
       'Content-Disposition': `attachment; filename="workforceap-${suffix}-${ctx.partner.slug}.csv"`,
     },
   });
+  } catch (err) {
+    console.error('[partner/export/referrals] error:', err);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

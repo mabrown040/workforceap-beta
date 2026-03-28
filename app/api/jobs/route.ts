@@ -93,15 +93,18 @@ export async function GET(request: NextRequest) {
           ? [{ title: 'asc' }]
           : [{ updatedAt: 'desc' }];
 
-  const jobs = await prisma.job.findMany({
-    where,
-    orderBy,
-    include: {
-      employer: { select: { companyName: true, logoUrl: true } },
-    },
-  });
-
-  const visible = jobs.filter((j) => !isExcludedPublicEmployerName(j.employer.companyName));
-
-  return NextResponse.json(visible);
+  try {
+    const jobs = await prisma.job.findMany({
+      where,
+      orderBy,
+      include: {
+        employer: { select: { companyName: true, logoUrl: true } },
+      },
+    });
+    const visible = jobs.filter((j) => !isExcludedPublicEmployerName(j.employer.companyName));
+    return NextResponse.json(visible);
+  } catch (err) {
+    console.error('[jobs] error:', err);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

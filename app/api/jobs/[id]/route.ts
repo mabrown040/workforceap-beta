@@ -7,13 +7,17 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const job = await prisma.job.findFirst({
-    where: { id, status: 'live' },
-    include: {
-      employer: { select: { companyName: true } },
-    },
-  });
-
-  if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
-  return NextResponse.json(job);
+  try {
+    const job = await prisma.job.findFirst({
+      where: { id, status: 'live' },
+      include: {
+        employer: { select: { companyName: true } },
+      },
+    });
+    if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
+    return NextResponse.json(job);
+  } catch (err) {
+    console.error('[jobs/[id]] error:', err);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

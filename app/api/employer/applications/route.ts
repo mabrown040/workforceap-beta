@@ -40,14 +40,18 @@ export async function GET(request: NextRequest) {
     ];
   }
 
-  const applications = await prisma.jobPostingApplication.findMany({
-    where,
-    orderBy: { appliedAt: 'desc' },
-    include: {
-      job: { select: { id: true, title: true } },
-      student: { select: { id: true, fullName: true, email: true } },
-    },
-  });
-
-  return NextResponse.json(applications);
+  try {
+    const applications = await prisma.jobPostingApplication.findMany({
+      where,
+      orderBy: { appliedAt: 'desc' },
+      include: {
+        job: { select: { id: true, title: true } },
+        student: { select: { id: true, fullName: true, email: true } },
+      },
+    });
+    return NextResponse.json(applications);
+  } catch (err) {
+    console.error('[employer/applications] error:', err);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

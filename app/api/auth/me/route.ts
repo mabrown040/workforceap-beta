@@ -16,21 +16,26 @@ export async function GET() {
     );
   }
 
-  const [role, partnerCtx, superAdmin, employerNav] = await Promise.all([
-    getProfileRole(user.id),
-    getPartnerForUser(user.id),
-    isSuperAdmin(user.id),
-    getEmployerAccountForNav(user.id),
-  ]);
+  try {
+    const [role, partnerCtx, superAdmin, employerNav] = await Promise.all([
+      getProfileRole(user.id),
+      getPartnerForUser(user.id),
+      isSuperAdmin(user.id),
+      getEmployerAccountForNav(user.id),
+    ]);
 
-  const partnerExclusive = !!partnerCtx && !superAdmin;
-  const canAccessMemberDashboard = !partnerExclusive;
+    const partnerExclusive = !!partnerCtx && !superAdmin;
+    const canAccessMemberDashboard = !partnerExclusive;
 
-  return NextResponse.json({
-    role: role || 'member',
-    partner: partnerCtx ? { partnerId: partnerCtx.partnerId, name: partnerCtx.partner.name } : null,
-    employer: employerNav,
-    superAdmin,
-    canAccessMemberDashboard,
-  });
+    return NextResponse.json({
+      role: role || 'member',
+      partner: partnerCtx ? { partnerId: partnerCtx.partnerId, name: partnerCtx.partner.name } : null,
+      employer: employerNav,
+      superAdmin,
+      canAccessMemberDashboard,
+    });
+  } catch (err) {
+    console.error('[auth/me] error:', err);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

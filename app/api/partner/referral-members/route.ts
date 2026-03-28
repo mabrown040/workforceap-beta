@@ -11,8 +11,13 @@ export async function GET() {
   const ctx = await getPartnerForUser(user.id);
   if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const { members } = await loadPartnerReferralBundle(ctx.partnerId);
-  return NextResponse.json({
-    members: members.map((m) => ({ id: m.id, fullName: m.fullName })),
-  });
+  try {
+    const { members } = await loadPartnerReferralBundle(ctx.partnerId);
+    return NextResponse.json({
+      members: members.map((m) => ({ id: m.id, fullName: m.fullName })),
+    });
+  } catch (err) {
+    console.error('[partner/referral-members] error:', err);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

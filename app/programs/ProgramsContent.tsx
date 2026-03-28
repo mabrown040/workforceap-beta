@@ -22,13 +22,13 @@ const filters = [
 ];
 
 const CATEGORY_BORDER: Record<string, string> = {
-  'it-cyber': '#2b7bb9',
-  'ai-software': '#8b4a9b',
+  'it-cyber': 'var(--color-blue)',
+  'ai-software': 'var(--color-purple)',
   'cloud-data': '#0d9488',
-  'business': '#4a9b4f',
+  'business': 'var(--color-green)',
   'healthcare': '#e11d48',
   'manufacturing': '#ea580c',
-  'digital-literacy': '#6b7280',
+  'digital-literacy': 'var(--color-gray-500)',
 };
 
 function ProgramCard({ program }: { program: Program }) {

@@ -36,10 +36,7 @@ export default async function AddMemberPage() {
 
   return (
     <div className="add-member-page">
-      <Link
-        href="/admin/members"
-        style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'inline-block' }}
-      >
+      <Link href="/admin/members" className="portal-nav-back">
         ← Back to Members
       </Link>
       <PageHeader title="Add Member" subtitle="Multi-step onboarding. All WIOA fields required for grant reporting." />

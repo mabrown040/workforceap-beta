@@ -33,7 +33,7 @@ export default async function MemberMessagesPage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Messages</h1>
+      <h1 className="dashboard-page-heading">Messages</h1>
       <MemberCounselorChatClient
         initial={{
           memberUserId: user.id,

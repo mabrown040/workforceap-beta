@@ -177,9 +177,9 @@ export default async function AdminMemberDetailPage({
         title={member.fullName}
         subtitle={member.email}
         action={
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <div className="admin-member-actions">
             <Link href={`/admin/members/${id}/readiness`} className="btn btn-outline">
-              <ClipboardList size={18} style={{ marginRight: '0.35rem', verticalAlign: 'middle' }} />
+              <ClipboardList size={18} className="admin-member-action-icon" />
               Readiness
             </Link>
             <Link href="/admin/members" className="btn btn-outline">← Back to Members</Link>
@@ -187,9 +187,9 @@ export default async function AdminMemberDetailPage({
         }
       />
 
-      <div style={{ display: 'grid', gap: '1.5rem', maxWidth: '800px' }}>
-        <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
-          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Profile</h2>
+      <div className="admin-member-grid">
+        <section className="portal-info-panel">
+          <h2>Profile</h2>
           <p><strong>Phone:</strong> {formatPhone(member.phone ?? member.profile?.profilePhone)}</p>
           <p><strong>Address:</strong> {member.profile?.profileAddress ?? member.profile?.address ?? '—'}</p>
           <p>
@@ -205,8 +205,8 @@ export default async function AdminMemberDetailPage({
         </section>
 
         {preScreening && (
-          <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
-            <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Pre-screening</h2>
+          <section className="portal-info-panel">
+            <h2>Pre-screening</h2>
             <p><strong>Employment:</strong> {preScreening.employmentStatus}</p>
             <p><strong>Primary goal:</strong> {preScreening.primaryGoal}</p>
             <p><strong>Weekly hours:</strong> {preScreening.weeklyHours}</p>
@@ -224,15 +224,15 @@ export default async function AdminMemberDetailPage({
           </section>
         )}
 
-        <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
-          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Program</h2>
+        <section className="portal-info-panel">
+          <h2>Program</h2>
           <p><strong>Enrolled:</strong> {program?.title ?? member.enrolledProgram ?? '—'}</p>
           <p><strong>Enrolled date:</strong> {member.enrolledAt?.toLocaleDateString() ?? '—'}</p>
           <p><strong>Course progress:</strong> {completedCount} of {program?.courses.length ?? 0} complete</p>
-          <ul style={{ marginTop: '0.5rem', paddingLeft: '1.25rem', listStyle: 'none' }}>
+          <ul className="portal-course-list">
             {program?.courses.map((c) => (
-              <li key={c.slug} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                {coursesCompleted.includes(c.slug) ? <CheckCircle size={18} style={{ color: 'var(--color-green)', flexShrink: 0 }} /> : <span style={{ display: 'inline-block', width: 18, height: 18, border: '2px solid #ccc', borderRadius: 4, flexShrink: 0 }} />}
+              <li key={c.slug} className="portal-course-item">
+                {coursesCompleted.includes(c.slug) ? <CheckCircle size={18} className="portal-course-icon-done" /> : <span className="portal-course-icon-pending" />}
                 {c.name}
               </li>
             ))}
@@ -259,14 +259,14 @@ export default async function AdminMemberDetailPage({
           currentSubgroupIds={memberSubgroups.map((ms) => ms.subgroupId)}
         />
 
-        <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
-          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Counselor assignment</h2>
+        <section className="portal-info-panel">
+          <h2>Counselor assignment</h2>
           {activeCounselorAssign?.counselor ? (
-            <p style={{ marginBottom: '0.75rem', fontSize: '0.95rem' }}>
+            <p className="admin-counselor-note">
               Current: <strong>{activeCounselorAssign.counselor.user.fullName}</strong>
             </p>
           ) : (
-            <p style={{ marginBottom: '0.75rem', fontSize: '0.95rem', color: 'var(--color-gray-600)' }}>
+            <p className="admin-counselor-note--muted">
               No active counselor assignment.
             </p>
           )}
@@ -281,8 +281,8 @@ export default async function AdminMemberDetailPage({
           />
         </section>
 
-        <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
-          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>WorkforceAP placement (grants)</h2>
+        <section className="portal-info-panel">
+          <h2>WorkforceAP placement (grants)</h2>
           <AdminMemberPlacedOutcomeForm
             memberId={member.id}
             initial={
@@ -300,14 +300,14 @@ export default async function AdminMemberDetailPage({
           />
         </section>
 
-        <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
-          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Counselor chat</h2>
+        <section className="portal-info-panel">
+          <h2>Counselor chat</h2>
           <AdminMemberCounselorChatClient initial={counselorChatInitial} />
         </section>
 
         {(member.profile?.resumeOriginalPath || member.profile?.resumeEnhancedPath) && (
-          <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
-            <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Resumes</h2>
+          <section className="portal-info-panel">
+            <h2>Resumes</h2>
             {member.profile?.resumeOriginalPath && (
               <p style={{ marginBottom: '0.5rem' }}>
                 <strong>Original:</strong>{' '}
@@ -326,15 +326,15 @@ export default async function AdminMemberDetailPage({
         )}
 
         {member.assessmentCompleted && (
-          <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
-            <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Assessment</h2>
+          <section className="portal-info-panel">
+            <h2>Assessment</h2>
             <p><strong>Score:</strong> {member.assessmentScore ?? 0}/90 ({member.assessmentScorePct ?? 0}%)</p>
             <p><strong>Date:</strong> {member.assessmentCompletedAt?.toLocaleDateString() ?? '—'}</p>
             <p><strong>Program interest:</strong> {member.programInterest ?? '—'}</p>
-            <details style={{ marginTop: '0.75rem' }}>
-              <summary style={{ cursor: 'pointer', fontWeight: 600 }}>Full Q&A</summary>
+            <details className="portal-details-panel">
+              <summary className="portal-details-summary">Full Q&A</summary>
               {assessmentAnswers && (
-                <ul style={{ marginTop: '0.5rem', paddingLeft: '1.25rem', fontSize: '0.9rem' }}>
+                <ul className="portal-qa-list">
                   {ASSESSMENT_QUESTIONS.map((q) => (
                     <li key={q.id}>Q{q.id}: {q.question} → {assessmentAnswers[q.id] ?? '—'}</li>
                   ))}

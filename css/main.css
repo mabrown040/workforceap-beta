@@ -11719,10 +11719,195 @@ html.dark .partner-resource-link:hover {
     color: var(--color-gray-600);
     font-size: 0.9rem;
 }
+/* Shared info panel (admin, partner, dashboard) */
+.portal-info-panel {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-surface-variant);
+    border-radius: var(--radius-md);
+}
+.portal-info-panel h2,
+.portal-info-panel > h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+}
+.portal-info-panel-empty {
+    color: var(--color-gray-500);
+    margin: 0;
+}
+/* Shared course completions list */
+.portal-course-list {
+    margin: 0.5rem 0 0;
+    padding-left: 1.25rem;
+    list-style: none;
+}
+.portal-course-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+.portal-course-icon-done {
+    color: var(--color-green);
+    flex-shrink: 0;
+}
+.portal-course-icon-pending {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--color-surface-variant);
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+/* Shared expandable details panel */
+.portal-details-panel {
+    margin-top: 0.75rem;
+    padding: 1rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-surface-variant);
+    border-radius: var(--radius-md);
+}
+.portal-details-summary {
+    cursor: pointer;
+    font-weight: 600;
+}
+.portal-qa-list {
+    margin-top: 0.5rem;
+    padding-left: 1.25rem;
+    font-size: 0.9rem;
+}
+.portal-qa-list li {
+    margin-bottom: 0.5rem;
+}
+.assessment-content {
+    max-width: 720px;
+}
+/* Dashboard page typography */
+.dashboard-page-heading {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+}
+.dashboard-page-subtitle {
+    color: var(--color-gray-600);
+    margin-bottom: 1.5rem;
+}
+.dashboard-field-note {
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+    margin: 0;
+}
+html.dark .portal-info-panel,
+html.dark .portal-details-panel {
+    background: var(--dark-surface);
+    border-color: var(--dark-outline);
+}
 
 /* =============================================
    ADMIN
    ============================================= */
+.admin-page-content {
+    padding-top: 1.5rem;
+}
+.admin-section-heading {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+.admin-table-scroll {
+    overflow-x: auto;
+    margin-bottom: 2rem;
+}
+.admin-pending-banner {
+    padding: 1rem 1.25rem;
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.5);
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+.admin-pending-banner-text {
+    font-weight: 600;
+    color: #92400e;
+}
+html.dark .admin-pending-banner-text {
+    color: #fcd34d;
+}
+.admin-pending-banner-link {
+    color: var(--color-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+html.dark .admin-pending-banner-link {
+    color: var(--dark-text);
+}
+.admin-salary-cell {
+    color: var(--color-green);
+    font-weight: 600;
+}
+.admin-cta-buttons {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.admin-member-grid {
+    display: grid;
+    gap: 1.5rem;
+    max-width: 800px;
+}
+.admin-member-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+.admin-member-action-icon {
+    margin-right: 0.35rem;
+    vertical-align: middle;
+}
+.admin-table-empty {
+    color: var(--color-gray-500);
+    margin-top: 1rem;
+}
+.admin-error-state {
+    border-color: rgba(185, 28, 28, 0.35);
+    background: rgba(254, 242, 242, 0.6);
+}
+html.dark .admin-error-state {
+    background: rgba(127, 29, 29, 0.15);
+    border-color: rgba(185, 28, 28, 0.4);
+}
+.admin-filter-row {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+.admin-filter-note {
+    color: var(--color-gray-500);
+}
+.admin-page-header-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+.admin-table-cell-sm {
+    font-size: 0.9rem;
+}
+.admin-counselor-note {
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+}
+.admin-counselor-note--muted {
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+    color: var(--color-gray-600);
+}
 .admin-stat-cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));

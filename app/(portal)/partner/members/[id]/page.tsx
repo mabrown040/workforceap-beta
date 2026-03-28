@@ -108,7 +108,7 @@ export default async function PartnerMemberDetailPage({ params }: Props) {
         {member.userCertifications.length === 0 ? (
           <p className="partner-info-panel-empty">None on file yet.</p>
         ) : (
-          <ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
+          <ul className="portal-course-list" style={{ paddingLeft: '1.25rem' }}>
             {member.userCertifications.map((c) => (
               <li key={c.certName}>
                 {c.certName} — {c.earnedAt.toLocaleDateString()}

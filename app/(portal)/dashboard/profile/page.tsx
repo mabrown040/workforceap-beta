@@ -34,8 +34,8 @@ export default async function DashboardProfilePage() {
 
   return (
     <>
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>My Profile</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
+      <h1 className="dashboard-page-heading">My Profile</h1>
+      <p className="dashboard-page-subtitle">
         Manage your contact information and career goals.
       </p>
 
@@ -54,7 +54,7 @@ export default async function DashboardProfilePage() {
 
       <div className="dashboard-profile-section">
         <h3>Account</h3>
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', margin: 0 }}>
+        <p className="dashboard-field-note">
           <strong>Email:</strong> {dbUser.email} (tied to account, cannot be changed here)
         </p>
       </div>
@@ -62,16 +62,16 @@ export default async function DashboardProfilePage() {
       {dbUser.assessmentCompleted && (
         <div className="dashboard-profile-section">
           <h3>Assessment</h3>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '0.75rem' }}>
+          <p className="dashboard-field-note" style={{ marginBottom: '0.75rem' }}>
             <strong>Assessment Score:</strong> {dbUser.assessmentScore ?? 0}/90 ({dbUser.assessmentScorePct ?? 0}%) — completed{' '}
             {dbUser.assessmentCompletedAt?.toLocaleDateString() ?? ''}
           </p>
-          <details style={{ marginTop: '0.75rem', padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
-            <summary style={{ cursor: 'pointer', fontWeight: 600 }}>View My Answers</summary>
+          <details className="portal-details-panel">
+            <summary className="portal-details-summary">View My Answers</summary>
             {assessmentAnswers && (
-              <ul style={{ marginTop: '1rem', paddingLeft: '1.25rem', fontSize: '0.9rem' }}>
+              <ul className="portal-qa-list">
                 {ASSESSMENT_QUESTIONS.map((q) => (
-                  <li key={q.id} style={{ marginBottom: '0.5rem' }}>
+                  <li key={q.id}>
                     Q{q.id}: {q.question} → {assessmentAnswers[q.id] ?? '—'}
                   </li>
                 ))}
@@ -84,7 +84,7 @@ export default async function DashboardProfilePage() {
       {program && (
         <div className="dashboard-profile-section">
           <h3>Program</h3>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', margin: 0 }}>
+          <p className="dashboard-field-note">
             <strong>Current Program:</strong>{' '}
             <Link href="/dashboard/program">{program.title}</Link>
             {dbUser.enrolledAt && ` — Enrolled ${dbUser.enrolledAt.toLocaleDateString()}`}

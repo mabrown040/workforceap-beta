@@ -92,7 +92,7 @@ export default async function AdminMembersPage() {
       <PageHeader
         title="Members"
         subtitle="View and manage member accounts."
-        action={<Link href="/admin/members/new" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}><Plus size={16} /> Add Member</Link>}
+        action={<Link href="/admin/members/new" className="btn btn-primary admin-member-actions"><Plus size={16} /> Add Member</Link>}
       />
 
       <MembersTable members={membersWithProgram} />

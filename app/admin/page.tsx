@@ -111,20 +111,11 @@ export default async function AdminPage() {
       </div>
 
       {pendingApplications > 0 && (
-        <div style={{
-          padding: '1rem 1.25rem',
-          background: '#fffbeb',
-          border: '1px solid #fbbf24',
-          borderRadius: '8px',
-          marginBottom: '1.5rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}>
-          <span style={{ fontWeight: 600, color: '#92400e' }}>
+        <div className="admin-pending-banner">
+          <span className="admin-pending-banner-text">
             {pendingApplications} pending application{pendingApplications === 1 ? '' : 's'} awaiting review
           </span>
-          <Link href="/admin/members" style={{ color: '#2563eb', fontWeight: 600, fontSize: '0.9rem' }}>
+          <Link href="/admin/members" className="admin-pending-banner-link">
             Review →
           </Link>
         </div>
@@ -132,8 +123,8 @@ export default async function AdminPage() {
 
       {recentPlacements.length > 0 && (
         <>
-          <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Recent Placements</h2>
-          <div style={{ overflowX: 'auto', marginBottom: '2rem' }}>
+          <h2 className="admin-section-heading">Recent Placements</h2>
+          <div className="admin-table-scroll">
             <table className="admin-table">
               <thead>
                 <tr>
@@ -161,9 +152,9 @@ export default async function AdminPage() {
                       </td>
                       <td>{p.employerName}</td>
                       <td>{p.jobTitle}</td>
-                      <td style={{ fontSize: '0.85rem' }}>{programTitle}</td>
+                      <td className="admin-table-cell-sm">{programTitle}</td>
                       <td>{daysToPlacement != null ? `${daysToPlacement}d` : '—'}</td>
-                      <td style={{ color: '#16a34a', fontWeight: 600 }}>
+                      <td className="admin-salary-cell">
                         {p.salaryOffered ? `$${p.salaryOffered.toLocaleString()}` : '—'}
                       </td>
                       <td>{p.placedAt.toLocaleDateString()}</td>
@@ -176,10 +167,10 @@ export default async function AdminPage() {
         </>
       )}
 
-      <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Recent signups</h2>
+      <h2 className="admin-section-heading">Recent signups</h2>
       <RecentSignupsTable users={recentUsers} />
 
-      <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+      <div className="admin-cta-buttons">
         <Link href="/admin/members" className="btn btn-primary">View Members</Link>
         <Link href="/admin/pipeline" className="btn btn-outline">View Pipeline</Link>
         <Link href="/admin/assessments" className="btn btn-outline">View Assessments</Link>

@@ -100,7 +100,7 @@ export default async function AdminJobsPage({
 
       <AdminJobsFilterTabs currentFilter={currentFilter} tabs={tabs} />
 
-      <div style={{ overflowX: 'auto' }}>
+      <div className="admin-table-scroll" style={{ marginBottom: 0 }}>
         <table className="admin-table admin-jobs-table">
           <thead>
             <tr>
@@ -115,17 +115,17 @@ export default async function AdminJobsPage({
             {jobs.map((j) => (
               <tr key={j.id}>
                 <td>
-                  <Link href={`/admin/jobs/${j.id}`} style={{ fontWeight: 600, color: 'var(--color-accent)' }}>
+                  <Link href={`/admin/jobs/${j.id}`} className="link-accent" style={{ fontWeight: 600 }}>
                     {j.title}
                   </Link>
                   <div className="admin-jobs-mobile-company">{j.employer?.companyName ?? 'Unknown'}</div>
                   <div className="admin-jobs-mobile-meta">
                     <span>Applications: {j._count?.applications ?? 0}</span>
                     <span>
-                      <Link href={`/admin/jobs/${j.id}`} style={{ marginRight: '0.5rem', fontSize: '0.9rem' }}>
+                      <Link href={`/admin/jobs/${j.id}`} className="admin-table-cell-sm" style={{ marginRight: '0.5rem' }}>
                         Review
                       </Link>
-                      <Link href={`/admin/jobs/${j.id}#matches`} style={{ fontSize: '0.9rem' }}>
+                      <Link href={`/admin/jobs/${j.id}#matches`} className="admin-table-cell-sm">
                         AI Matches
                       </Link>
                     </span>
@@ -139,10 +139,10 @@ export default async function AdminJobsPage({
                 </td>
                 <td className="admin-jobs-col-apps">{j._count?.applications ?? 0}</td>
                 <td className="admin-jobs-col-actions">
-                  <Link href={`/admin/jobs/${j.id}`} style={{ marginRight: '0.5rem', fontSize: '0.9rem' }}>
+                  <Link href={`/admin/jobs/${j.id}`} className="admin-table-cell-sm" style={{ marginRight: '0.5rem' }}>
                     Review
                   </Link>
-                  <Link href={`/admin/jobs/${j.id}#matches`} style={{ fontSize: '0.9rem' }}>
+                  <Link href={`/admin/jobs/${j.id}#matches`} className="admin-table-cell-sm">
                     AI Matches
                   </Link>
                 </td>
@@ -153,13 +153,13 @@ export default async function AdminJobsPage({
       </div>
 
       {jobs.length === 0 && (
-        <p style={{ color: 'var(--color-gray-500)', marginTop: '1rem' }}>
+        <p className="admin-table-empty">
           {totalJobsInDb === 0 ? (
             'No jobs yet.'
           ) : (
             <>
               No jobs in this view ({currentFilter}).{' '}
-              <Link href="/admin/jobs?filter=all" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+              <Link href="/admin/jobs?filter=all" className="link-accent" style={{ fontWeight: 600 }}>
                 Show all ({totalJobsInDb})
               </Link>
             </>

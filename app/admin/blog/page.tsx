@@ -28,11 +28,11 @@ export default async function AdminBlogPage() {
   });
 
   return (
-    <div style={{ paddingTop: '1.5rem' }}>
+    <div className="admin-page-content">
       <PageHeader
         title="Blog Posts"
         action={
-          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <div className="admin-page-header-actions">
             <Link href="/admin/blog/ai" className="btn btn-outline btn-sm">AI Writing Assistant</Link>
             <Link href="/admin/blog/new" className="btn btn-primary btn-sm">New Post</Link>
           </div>
@@ -54,23 +54,7 @@ export default async function AdminBlogPage() {
               <td>{post.title}</td>
               <td>{post.category ?? '—'}</td>
               <td>
-                <span
-                  style={{
-                    padding: '0.2rem 0.5rem',
-                    borderRadius: '4px',
-                    fontSize: '0.8rem',
-                    background: post.published
-                      ? 'rgba(173, 44, 77, 0.12)'
-                      : post.scheduledAt
-                      ? 'rgba(37, 99, 235, 0.1)'
-                      : 'var(--color-gray-100)',
-                    color: post.published
-                      ? 'var(--color-accent)'
-                      : post.scheduledAt
-                      ? '#2563eb'
-                      : 'var(--color-gray-600)',
-                  }}
-                >
+                <span className={`badge badge-sm ${post.published ? 'badge-accent' : post.scheduledAt ? 'badge-info' : 'badge-neutral'}`}>
                   {post.published ? 'Published' : post.scheduledAt ? (
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                       <Clock size={12} /> Scheduled

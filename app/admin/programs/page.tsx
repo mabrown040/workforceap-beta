@@ -48,8 +48,8 @@ export default async function AdminProgramsPage() {
       />
 
       <section style={{ marginBottom: '2.5rem' }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.75rem' }}>
-          <h2 style={{ fontSize: '1.15rem', margin: 0 }}>Program catalog</h2>
+        <div className="admin-page-header-actions" style={{ justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+          <h2 className="admin-section-heading" style={{ margin: 0 }}>Program catalog</h2>
           <a href="/api/admin/programs/export-twc" className="btn btn-outline btn-sm">
             Export for TX state approval (CSV)
           </a>
@@ -57,7 +57,7 @@ export default async function AdminProgramsPage() {
         <AdminProgramCatalogClient />
       </section>
 
-      <h2 style={{ fontSize: '1.15rem', marginBottom: '0.75rem' }}>Enrollment stats</h2>
+      <h2 className="admin-section-heading">Enrollment stats</h2>
       {totalEnrollments === 0 ? (
         <div className="admin-empty-state">
           <h3>No enrollments yet</h3>
@@ -65,7 +65,7 @@ export default async function AdminProgramsPage() {
           <Link href="/admin/members" className="btn btn-primary">View Members</Link>
         </div>
       ) : (
-      <div style={{ overflowX: 'auto' }}>
+      <div className="admin-table-scroll" style={{ marginBottom: 0 }}>
         <table className="admin-table">
           <thead>
             <tr>

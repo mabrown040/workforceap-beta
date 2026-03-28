@@ -45,7 +45,7 @@ export default async function AssessmentPage({
       </section>
 
       <section className="content-section">
-        <div className="container" style={{ maxWidth: '720px' }}>
+        <div className="container assessment-content">
           <AssessmentForm
             defaultFirstName={firstName}
             defaultLastName={lastName}

@@ -52,37 +52,21 @@ export default async function AdminPartnersPage() {
   }
 
   return (
-    <div style={{ paddingTop: '1.5rem' }}>
+    <div className="admin-page-content">
       <PageHeader
         title="Partner Organizations"
         action={
-          <Link
-            href="/admin/partners/new"
-            style={{
-              padding: '0.5rem 1rem',
-              background: 'var(--color-accent)',
-              color: 'white',
-              borderRadius: '6px',
-              textDecoration: 'none',
-              fontWeight: 600,
-            }}
-          >
+          <Link href="/admin/partners/new" className="btn btn-sm btn-primary">
             Add Partner
           </Link>
         }
       />
 
       {loadError ? (
-        <div
-          className="admin-empty-state"
-          style={{ borderColor: 'rgba(185, 28, 28, 0.35)', background: 'rgba(254, 242, 242, 0.6)' }}
-          role="alert"
-        >
+        <div className="admin-empty-state admin-error-state" role="alert">
           <h3>Could not load partners</h3>
-          <p style={{ marginBottom: '0.75rem' }}>
-            {loadError}
-          </p>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>
+          <p>{loadError}</p>
+          <p className="portal-page-description">
             Common fix: apply the latest database migration on your hosting environment, then refresh this page.
           </p>
         </div>

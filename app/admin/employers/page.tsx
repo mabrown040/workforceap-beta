@@ -38,15 +38,15 @@ export default async function AdminEmployersPage() {
       <PageHeader title="Employers" subtitle="Employers with portal access. Create accounts below, or open a company's portal as a super-admin to help them post jobs." />
 
       {superAdmin && (
-        <p style={{ fontSize: '0.9rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <p className="admin-filter-row">
           <ClearEmployerPortalContext />
-          <span style={{ color: 'var(--color-gray-500)' }}>
+          <span className="admin-filter-note">
             Stops pinning the employer portal to a specific company (falls back to default).
           </span>
         </p>
       )}
 
-      <div style={{ overflowX: 'auto' }}>
+      <div className="admin-table-scroll" style={{ marginBottom: 0 }}>
         <table className="admin-table">
           <thead>
             <tr>
@@ -86,7 +86,7 @@ export default async function AdminEmployersPage() {
       </div>
 
       {employers.length === 0 && (
-        <p style={{ color: 'var(--color-gray-500)', marginTop: '1rem' }}>
+        <p className="admin-table-empty">
           No employers yet. Create the first account using the form below.
         </p>
       )}

@@ -2,61 +2,62 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
-import MobileBottomNav from '@/components/home/MobileBottomNav';
+import StitchHero from '@/components/marketing/StitchHero';
+import StitchPage from '@/components/marketing/StitchPage';
 import ProgramsGrid from '@/components/programs/ProgramsGrid';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Free Career Training Programs in Austin, TX',
-  description: `Explore ${WORKFORCEAP_PROGRAM_CATALOG_SIZE} free career training programs in Austin, TX. CompTIA, Google Cybersecurity, AWS Cloud, IBM Data Science, medical coding, manufacturing — no-cost certifications for qualifying Austin-area residents.`,
+  description: `Explore ${WORKFORCEAP_PROGRAM_CATALOG_SIZE} free career training programs in Austin, TX.`,
   path: '/programs',
 });
 
 export default function ProgramsPage() {
   return (
-    <div className="wa-min-h-screen" style={{ background: '#141313', color: '#e6e1e1' }}>
-      <main className="wa-pt-28 md:wa-pt-32 wa-pb-20 wa-px-6 md:wa-px-12 wa-mx-auto" style={{ maxWidth: '80rem' }}>
-        <header className="wa-mb-12 md:wa-mb-14">
-          <h1 className="wa-text-4xl md:wa-text-6xl wa-font-bold wa-mb-5 wa-leading-[1.05]" style={{ color: '#e6e1e1' }}>
-            Programs Built for
-            <span className="wa-block wa-italic" style={{ color: '#ffb2bc' }}>
-              Real Job Outcomes
-            </span>
-          </h1>
-          <p className="wa-text-base md:wa-text-lg wa-mb-10 wa-max-w-3xl" style={{ color: '#debfc2' }}>
-            Browse detailed training tracks, compare skills and certifications, then expand any card to review curriculum, learner fit, and next steps.
-          </p>
+    <StitchPage>
+      <StitchHero
+        badge="Program Catalog"
+        title={
+          <>
+            Programs built for
+            <br />
+            <span className="stitch-title-highlight">real job outcomes</span>
+          </>
+        }
+        description="The catalog now sits inside the same Stitch shell as the rest of marketing: dark default, stronger hero treatment, cleaner surfaces, and tighter CTA rhythm."
+        actions={
+          <>
+            <Link href="/find-your-path" className="btn btn-primary">Find your best-fit program</Link>
+            <Link href="/program-comparison" className="btn btn-outline">Compare programs</Link>
+          </>
+        }
+      />
 
+      <section className="stitch-section">
+        <div className="stitch-surface">
+          <div className="stitch-section-heading">
+            <div className="stitch-kicker">Explore All {WORKFORCEAP_PROGRAM_CATALOG_SIZE}</div>
+            <h2>One shell, one card system, one clear decision surface</h2>
+            <p>Browse every pathway without the older broken-up visual language. Filters, cards, and actions now feel like part of the same site.</p>
+          </div>
           <ProgramsGrid programs={PROGRAMS} />
-        </header>
-
-        <div className="wa-flex wa-flex-wrap wa-gap-4 wa-justify-center wa-mt-12">
-          <Link
-            href="/find-your-path"
-            className="wa-px-6 wa-py-3 wa-font-bold wa-text-sm wa-no-underline"
-            style={{ background: '#ad2c4d', color: '#fff' }}
-          >
-            Not sure? Find Your Career
-          </Link>
-          <Link
-            href="/program-comparison"
-            className="wa-px-6 wa-py-3 wa-font-bold wa-text-sm wa-no-underline wa-border"
-            style={{ borderColor: 'rgba(255,178,188,0.35)', color: '#ffb2bc' }}
-          >
-            Compare Programs
-          </Link>
-          <Link
-            href="/salary-guide"
-            className="wa-px-6 wa-py-3 wa-font-bold wa-text-sm wa-no-underline"
-            style={{ color: '#debfc2' }}
-          >
-            Salary Guide
-          </Link>
         </div>
-      </main>
+      </section>
 
-      <MobileBottomNav />
+      <section className="stitch-section">
+        <div className="stitch-cta-band">
+          <div className="stitch-kicker">Need Direction</div>
+          <h2>Use the quiz if you want speed. Use comparison if you want precision.</h2>
+          <p>The shell stays consistent across both routes so you can move between them without falling back into legacy-looking pages.</p>
+          <div className="stitch-actions">
+            <Link href="/find-your-path" className="btn btn-primary">Take the career quiz</Link>
+            <Link href="/salary-guide" className="btn btn-outline">Review salary ranges</Link>
+          </div>
+        </div>
+      </section>
+
       <Footer />
-    </div>
+    </StitchPage>
   );
 }

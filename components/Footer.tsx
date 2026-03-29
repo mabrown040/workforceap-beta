@@ -76,7 +76,7 @@ function FooterLinks() {
           <li><Link href="/how-it-works">How It Works</Link></li>
           <li><Link href="/partners">Partners</Link></li>
           <li><Link href="/leadership">Leadership Team</Link></li>
-          <li><Link href="/employers">For Employers</Link></li>
+          <li><Link href="/for-employers">For Employers</Link></li>
         </ul>
       </div>
       <div className="footer-links footer-col">

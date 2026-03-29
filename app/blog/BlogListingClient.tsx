@@ -13,7 +13,7 @@ type Post = {
   excerpt: string | null;
   coverImage: string | null;
   heroImage: string | null;
-  authorName: string;
+  authorName: string | null;
   publishedAt: Date | null;
   category: string | null;
 };

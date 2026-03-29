@@ -81,9 +81,9 @@ export default function FAQContent() {
   return (
     <section
       className="content-section"
-      style={{ backgroundColor: '#141313', color: '#e6e1e1' }}
+      style={{ backgroundColor: 'transparent', color: '#e6e1e1', padding: 0 }}
     >
-      <div className="container">
+      <div className="container" style={{ maxWidth: '100%', padding: 0 }}>
         {/* Last Updated Badge */}
         <div
           className="faq-updated-badge"
@@ -101,7 +101,7 @@ export default function FAQContent() {
           }}
         >
           <Calendar size={16} aria-hidden />
-          <span>Last updated: March 20, 2026</span>
+          <span>Last updated: March 28, 2026</span>
           <span style={{ marginLeft: 'auto' }}>
             <Link href="/contact" style={{ color: '#ad2c4d', textDecoration: 'none' }}>
               Suggest an update →

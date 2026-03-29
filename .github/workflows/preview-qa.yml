@@ -1,0 +1,41 @@
+name: Preview QA
+
+on:
+  workflow_dispatch:
+    inputs:
+      preview_url:
+        description: Vercel preview URL to verify
+        required: true
+        type: string
+
+jobs:
+  verify-preview:
+    runs-on: ubuntu-latest
+    env:
+      PREVIEW_URL: ${{ inputs.preview_url }}
+      NEXT_PUBLIC_SITE_URL: ${{ secrets.PREVIEW_SITE_URL }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.PREVIEW_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PREVIEW_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.PREVIEW_SUPABASE_SERVICE_ROLE_KEY }}
+      POSTGRES_PRISMA_URL: ${{ secrets.PREVIEW_POSTGRES_PRISMA_URL }}
+      DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
+      CRON_SECRET: ${{ secrets.PREVIEW_CRON_SECRET }}
+      RESEND_API_KEY: ${{ secrets.PREVIEW_RESEND_API_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate preview environment contract
+        run: npm run env:check -- preview
+
+      - name: Verify preview critical routes
+        run: npm run qa:preview -- --url "${{ inputs.preview_url }}"

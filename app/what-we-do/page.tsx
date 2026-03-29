@@ -1,17 +1,13 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Footer from '@/components/Footer';
+import StitchHero from '@/components/marketing/StitchHero';
+import StitchPage from '@/components/marketing/StitchPage';
 
 export const metadata: Metadata = {
   title: 'What We Do | WorkforceAP',
   description:
     "Learn how WorkforceAP bridges Austin's opportunity gap with WIOA-funded, no-cost workforce training and job placement support.",
-};
-
-const cardStyle = {
-  background: 'rgba(255,255,255,0.04)',
-  border: '1px solid rgba(255,255,255,0.08)',
-  borderRadius: '12px',
-  padding: '24px',
 };
 
 const partners = ['Google', 'IBM', 'AWS', 'CompTIA', 'Coursera'];
@@ -27,142 +23,122 @@ const processSteps = [
   {
     title: 'Application',
     description:
-      'Prospective members complete a short intake so we can understand goals, current barriers, and career interests in Austin’s job market.',
+      'A short intake lets us understand goals, barriers, and where a member should ramp in without treating beginners like a mismatch.',
   },
   {
     title: 'Training',
     description:
-      'Participants enter structured workforce and technical training aligned to employer demand, with coaching and support through completion.',
+      'Structured training combines technical content, career readiness, and coaching so members stay on track through completion.',
   },
   {
     title: 'Certification',
     description:
-      'Members prepare for and earn industry-recognized credentials from leading providers that validate real, job-relevant skills.',
+      'Industry credentials are part of the point, not an add-on. Programs prepare learners to leave with signals employers already trust.',
   },
   {
     title: 'Placement',
     description:
-      'Our team supports resume positioning, interview readiness, and direct employer connection to accelerate entry into quality roles.',
+      'Resume support, interview prep, and employer connection keep the model focused on measurable outcomes, not enrollment vanity.',
   },
 ];
 
 export default function WhatWeDoPage() {
   return (
-    <div style={{ backgroundColor: '#141313' }}>
-      <main className="wa-py-24 wa-px-8 wa-max-w-7xl wa-mx-auto wa-space-y-20">
-        <section className="wa-max-w-4xl wa-space-y-6">
-          <p className="wa-text-sm wa-font-semibold wa-uppercase wa-tracking-wider" style={{ color: '#ad2c4d' }}>
-            What We Do
-          </p>
-          <h1 className="wa-text-4xl md:wa-text-6xl wa-font-semibold" style={{ color: '#e6e1e1' }}>
-            Bridging Austin&apos;s Opportunity Gap
-          </h1>
-          <p className="wa-text-lg wa-leading-relaxed" style={{ color: '#debfc2' }}>
-            WorkforceAP delivers no-cost career training because programs are publicly funded through workforce development pathways,
-            including WIOA-aligned support. Members do not pay tuition — public investment covers access so opportunity is not limited by income.
-          </p>
-        </section>
-
-        <section className="wa-grid md:wa-grid-cols-2 wa-gap-6">
-          <div style={cardStyle} className="wa-space-y-4">
-            <h2 className="wa-text-2xl wa-font-semibold" style={{ color: '#e6e1e1' }}>
-              Mission
-            </h2>
-            <p style={{ color: '#debfc2' }}>
-              Expand economic mobility for Austin residents through rigorous training, recognized certifications, and direct pathways to employment.
-            </p>
-          </div>
-          <div style={cardStyle} className="wa-space-y-4">
-            <h2 className="wa-text-2xl wa-font-semibold" style={{ color: '#e6e1e1' }}>
-              Values
-            </h2>
-            <ul className="wa-space-y-2" style={{ color: '#debfc2' }}>
-              <li>• Access without tuition barriers</li>
-              <li>• Employer-aligned outcomes</li>
-              <li>• Measurable impact and accountability</li>
-              <li>• Community-first workforce development</li>
-            </ul>
-          </div>
-        </section>
-
-        <section className="wa-space-y-8">
-          <h2 className="wa-text-3xl wa-font-semibold" style={{ color: '#e6e1e1' }}>
-            How Programs Work
-          </h2>
-          <div className="wa-grid md:wa-grid-cols-2 wa-gap-6">
-            {processSteps.map((step, index) => (
-              <article key={step.title} style={cardStyle} className="wa-space-y-3">
-                <p className="wa-text-sm wa-font-semibold wa-uppercase wa-tracking-wide" style={{ color: '#ad2c4d' }}>
-                  Step {index + 1}
-                </p>
-                <h3 className="wa-text-xl wa-font-semibold" style={{ color: '#e6e1e1' }}>
-                  {step.title}
-                </h3>
-                <p style={{ color: '#debfc2' }}>{step.description}</p>
-              </article>
+    <StitchPage>
+      <StitchHero
+        badge="Mission and Model"
+        title={
+          <>
+            Bridging Austin&apos;s opportunity gap
+            <br />
+            with a <span className="stitch-title-highlight">training-to-workforce engine</span>
+          </>
+        }
+        description="WorkforceAP uses publicly aligned workforce funding and employer partnerships to remove tuition barriers, deliver rigorous training, and stay accountable to actual placement outcomes."
+        actions={
+          <>
+            <Link href="/apply" className="btn btn-primary">Apply Now</Link>
+            <Link href="/how-it-works" className="btn btn-outline">See the process</Link>
+          </>
+        }
+        meta={
+          <div className="stitch-stat-grid">
+            {impactStats.map((stat) => (
+              <div key={stat.label} className="stitch-card stitch-stat-card">
+                <strong>{stat.value}</strong>
+                <span>{stat.label}</span>
+              </div>
             ))}
           </div>
-        </section>
+        }
+      />
 
-        <section className="wa-space-y-6">
-          <h2 className="wa-text-3xl wa-font-semibold" style={{ color: '#e6e1e1' }}>
-            Training Partners
-          </h2>
-          <div className="wa-flex wa-flex-wrap wa-gap-3">
+      <section className="stitch-section">
+        <div className="stitch-grid-2">
+          <article className="stitch-card">
+            <div className="stitch-kicker">Mission</div>
+            <h2 className="wa-text-3xl wa-font-bold wa-mt-3">Economic mobility through credible career pathways</h2>
+            <p className="wa-mt-4">
+              The public site now reflects the same thesis throughout: access without debt, employer relevance, credentialed outcomes, and a clearer experience from the first page visit through application.
+            </p>
+          </article>
+          <article className="stitch-card">
+            <div className="stitch-kicker">Values</div>
+            <div className="stitch-panel-list wa-mt-4">
+              <div><strong>Access first</strong><p className="wa-mt-2">Training should not require tuition risk or hidden financing gimmicks.</p></div>
+              <div><strong>Employer aligned</strong><p className="wa-mt-2">Programs stay legible to hiring teams, not just to internal stakeholders.</p></div>
+              <div><strong>Outcome accountable</strong><p className="wa-mt-2">The goal is wage lift and placement, not content volume or badge collecting.</p></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section className="stitch-section">
+        <div className="stitch-section-heading">
+          <div className="stitch-kicker">Program Flow</div>
+          <h2>How the model works in practice</h2>
+        </div>
+        <div className="stitch-grid-2">
+          {processSteps.map((step, index) => (
+            <article key={step.title} className="stitch-card">
+              <div className="stitch-step-number">{String(index + 1).padStart(2, '0')}</div>
+              <h3 className="wa-text-2xl wa-font-bold wa-mt-4">{step.title}</h3>
+              <p className="wa-mt-3">{step.description}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="stitch-section">
+        <div className="stitch-surface stitch-surface--strong">
+          <div className="stitch-kicker">Partner Network</div>
+          <h2 className="wa-text-4xl wa-font-bold wa-mt-3">The ecosystem behind the pathways</h2>
+          <p className="wa-mt-4 stitch-muted">Our marketing shell now treats partner credibility as a first-class surface instead of a leftover section.</p>
+          <div className="stitch-pill-row wa-mt-6">
             {partners.map((partner) => (
-              <span
-                key={partner}
-                className="wa-inline-flex wa-items-center wa-px-4 wa-py-2 wa-text-sm wa-font-medium"
-                style={{
-                  color: '#e6e1e1',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '999px',
-                  background: 'rgba(255,255,255,0.02)',
-                }}
-              >
+              <span key={partner} className="stitch-pill">
                 {partner}
               </span>
             ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="wa-space-y-6">
-          <h2 className="wa-text-3xl wa-font-semibold" style={{ color: '#e6e1e1' }}>
-            Impact
-          </h2>
-          <div className="wa-grid wa-grid-cols-1 sm:wa-grid-cols-2 lg:wa-grid-cols-4 wa-gap-6">
-            {impactStats.map((stat) => (
-              <article key={stat.label} style={cardStyle} className="wa-space-y-2">
-                <p className="wa-text-3xl wa-font-semibold" style={{ color: '#ad2c4d' }}>
-                  {stat.value}
-                </p>
-                <p style={{ color: '#debfc2' }}>{stat.label}</p>
-              </article>
-            ))}
+      <section className="stitch-section">
+        <div className="stitch-cta-band">
+          <div className="stitch-kicker">Funding Story</div>
+          <h2>No tuition for members. No ambiguity in the pitch.</h2>
+          <p>
+            WorkforceAP programs are supported by public workforce development structures, community backing, and employer-aligned partnerships so participants can focus on outcomes instead of financing.
+          </p>
+          <div className="stitch-actions">
+            <Link href="/apply" className="btn btn-primary">Start an application</Link>
+            <Link href="/for-employers" className="btn btn-outline">Explore employer partnerships</Link>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="wa-space-y-4" style={cardStyle}>
-          <h2 className="wa-text-3xl wa-font-semibold" style={{ color: '#e6e1e1' }}>
-            Our Funding
-          </h2>
-          <p style={{ color: '#debfc2' }}>
-            WorkforceAP programs are supported by public workforce funding structures under the Workforce Innovation and Opportunity Act (WIOA),
-            along with aligned community and employer partnerships. WIOA is a federal workforce development framework designed to help job seekers
-            gain skills and connect to in-demand careers.
-          </p>
-          <p style={{ color: '#debfc2' }}>
-            This is why eligible participants can train at no cost: tuition is funded so residents can focus on outcomes, not debt.
-          </p>
-          <Link
-            href="/apply"
-            className="wa-inline-flex wa-items-center wa-justify-center wa-px-6 wa-py-3 wa-font-medium"
-            style={{ backgroundColor: '#ad2c4d', color: '#e6e1e1', borderRadius: '10px' }}
-          >
-            Apply Now
-          </Link>
-        </section>
-      </main>
-    </div>
+      <Footer />
+    </StitchPage>
   );
 }

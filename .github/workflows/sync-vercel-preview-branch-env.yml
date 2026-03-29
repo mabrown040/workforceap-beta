@@ -1,0 +1,99 @@
+name: Sync Vercel Preview Branch Env
+
+on:
+  push:
+    branches-ignore:
+      - main
+      - master
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Preview branch to sync
+        required: false
+        type: string
+
+concurrency:
+  group: sync-vercel-preview-env-${{ github.event.pull_request.head.ref || github.ref_name || inputs.branch || 'manual' }}
+  cancel-in-progress: true
+
+jobs:
+  sync-preview-env:
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    env:
+      BRANCH_NAME: ${{ inputs.branch || github.event.pull_request.head.ref || github.ref_name }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      NEXT_PUBLIC_SITE_URL: ${{ secrets.PREVIEW_SITE_URL }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.PREVIEW_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PREVIEW_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.PREVIEW_SUPABASE_SERVICE_ROLE_KEY }}
+      POSTGRES_PRISMA_URL: ${{ secrets.PREVIEW_POSTGRES_PRISMA_URL }}
+      DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
+      CRON_SECRET: ${{ secrets.PREVIEW_CRON_SECRET }}
+      RESEND_API_KEY: ${{ secrets.PREVIEW_RESEND_API_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Ensure required automation secrets exist
+        run: |
+          for key in \
+            VERCEL_TOKEN \
+            VERCEL_ORG_ID \
+            VERCEL_PROJECT_ID \
+            NEXT_PUBLIC_SITE_URL \
+            NEXT_PUBLIC_SUPABASE_URL \
+            NEXT_PUBLIC_SUPABASE_ANON_KEY \
+            SUPABASE_SERVICE_ROLE_KEY \
+            POSTGRES_PRISMA_URL \
+            DATABASE_URL \
+            CRON_SECRET \
+            RESEND_API_KEY
+          do
+            if [ -z "${!key}" ]; then
+              echo "Missing required secret: $key" >&2
+              exit 1
+            fi
+          done
+
+      - name: Write Vercel project link
+        run: |
+          mkdir -p .vercel
+          cat > .vercel/project.json <<EOF
+          {"projectId":"${VERCEL_PROJECT_ID}","orgId":"${VERCEL_ORG_ID}","projectName":"workforceap-beta"}
+          EOF
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@50.37.3
+
+      - name: Sync preview branch environment variables
+        run: |
+          add_env() {
+            local name="$1"
+            local value="$2"
+            vercel env add "$name" preview "$BRANCH_NAME" --value "$value" --yes --force --token "$VERCEL_TOKEN"
+          }
+
+          add_env NEXT_PUBLIC_SITE_URL "$NEXT_PUBLIC_SITE_URL"
+          add_env NEXT_PUBLIC_SUPABASE_URL "$NEXT_PUBLIC_SUPABASE_URL"
+          add_env NEXT_PUBLIC_SUPABASE_ANON_KEY "$NEXT_PUBLIC_SUPABASE_ANON_KEY"
+          add_env SUPABASE_SERVICE_ROLE_KEY "$SUPABASE_SERVICE_ROLE_KEY"
+          add_env POSTGRES_PRISMA_URL "$POSTGRES_PRISMA_URL"
+          add_env DATABASE_URL "$DATABASE_URL"
+          add_env CRON_SECRET "$CRON_SECRET"
+          add_env RESEND_API_KEY "$RESEND_API_KEY"
+
+      - name: Verify preview branch environment inventory
+        run: |
+          vercel env ls preview "$BRANCH_NAME" --token "$VERCEL_TOKEN"

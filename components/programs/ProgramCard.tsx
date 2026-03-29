@@ -49,42 +49,41 @@ export default function ProgramCard({ program, featured = false }: ProgramCardPr
 
   return (
     <article
-      className="wa-relative wa-border wa-rounded-none wa-p-5 md:wa-p-6 wa-transition-all wa-duration-200 hover:wa-border-[#ad2c4d] hover:wa-shadow-[0_0_0_1px_rgba(173,44,77,0.3)]"
-      style={{ background: '#1c1b1b', borderColor: 'rgba(88,65,68,0.5)' }}
+      className="stitch-card wa-relative wa-transition-all wa-duration-200"
     >
       {featured && (
-        <div className="wa-absolute wa-top-3 wa-right-3 wa-text-[11px] wa-font-bold wa-uppercase wa-px-2 wa-py-1" style={{ color: '#ffb2bc', border: '1px solid rgba(173,44,77,0.5)' }}>
-          ⭐ Featured
+        <div className="wa-absolute wa-top-5 wa-right-5 stitch-pill wa-text-[11px] wa-font-bold wa-uppercase">
+          Featured
         </div>
       )}
 
       <div className="wa-flex wa-items-start wa-justify-between wa-gap-3 wa-pr-20">
         <div>
-          <h3 className="wa-text-xl md:wa-text-2xl wa-font-bold wa-leading-tight" style={{ color: '#e6e1e1' }}>
+          <h3 className="wa-text-xl md:wa-text-2xl wa-font-bold wa-leading-tight">
             {program.title}
           </h3>
-          <div className="wa-mt-3 wa-flex wa-flex-wrap wa-items-center wa-gap-2">
-            <span className="wa-text-[11px] wa-uppercase wa-font-bold wa-px-2 wa-py-1" style={{ color: '#debfc2', border: '1px solid rgba(222,191,194,0.35)' }}>
+          <div className="wa-mt-3 stitch-pill-row">
+            <span className="stitch-pill wa-text-[11px] wa-uppercase wa-font-bold">
               {program.categoryLabel}
             </span>
-            <span className="wa-text-sm" style={{ color: '#debfc2' }}>{program.duration}</span>
+            <span className="stitch-pill wa-text-sm">{program.duration}</span>
           </div>
         </div>
       </div>
 
-      <div className="wa-mt-4 wa-flex wa-flex-wrap wa-gap-2">
-        <span className="wa-text-xs wa-font-bold wa-px-2 wa-py-1" style={{ color: '#e6e1e1', border: '1px solid rgba(173,44,77,0.5)', background: 'rgba(173,44,77,0.14)' }}>{program.partner}</span>
-        <span className="wa-text-xs wa-font-bold wa-px-2 wa-py-1" style={{ color: '#e6e1e1', border: '1px solid rgba(173,44,77,0.35)' }}>Certificate Ready</span>
+      <div className="wa-mt-4 stitch-pill-row">
+        <span className="stitch-pill wa-text-xs wa-font-bold">{program.partner}</span>
+        <span className="stitch-pill wa-text-xs wa-font-bold">Certificate Ready</span>
       </div>
 
-      <p className="wa-mt-4 wa-text-sm wa-leading-relaxed" style={{ color: '#debfc2' }}>
+      <p className="wa-mt-4 wa-text-sm wa-leading-relaxed stitch-muted">
         {program.partner}-aligned pathway focused on practical skills, project work, and exam readiness to help you move into entry-level roles quickly.
       </p>
 
       <ul className="wa-mt-4 wa-space-y-2">
         {keySkills.map((skill) => (
-          <li key={skill} className="wa-text-sm wa-flex wa-items-start wa-gap-2" style={{ color: '#e6e1e1' }}>
-            <span style={{ color: '#ad2c4d' }}>•</span>
+          <li key={skill} className="wa-text-sm wa-flex wa-items-start wa-gap-2">
+            <span style={{ color: '#ffb2bc' }}>•</span>
             <span>{skill}</span>
           </li>
         ))}
@@ -106,14 +105,14 @@ export default function ProgramCard({ program, featured = false }: ProgramCardPr
         className={`wa-grid wa-transition-all wa-duration-300 ${expanded ? 'wa-grid-rows-[1fr] wa-opacity-100 wa-mt-2' : 'wa-grid-rows-[0fr] wa-opacity-0 wa-mt-0'}`}
       >
         <div className="wa-overflow-hidden">
-          <div className="wa-pt-3 wa-border-t wa-space-y-4" style={{ borderColor: 'rgba(88,65,68,0.5)' }}>
+          <div className="wa-pt-4 wa-border-t wa-space-y-4" style={{ borderColor: 'rgba(255,178,188,0.12)' }}>
             <div>
               <h4 className="wa-text-xs wa-font-bold wa-uppercase wa-mb-2" style={{ color: '#ffb2bc', letterSpacing: '0.12em' }}>
                 Curriculum Overview
               </h4>
               <ul className="wa-space-y-1">
                 {curriculumPreview.map((course) => (
-                  <li key={course.slug} className="wa-text-sm" style={{ color: '#debfc2' }}>
+                  <li key={course.slug} className="wa-text-sm stitch-muted">
                     {course.name}
                   </li>
                 ))}
@@ -124,7 +123,7 @@ export default function ProgramCard({ program, featured = false }: ProgramCardPr
               <h4 className="wa-text-xs wa-font-bold wa-uppercase wa-mb-1" style={{ color: '#ffb2bc', letterSpacing: '0.12em' }}>
                 Who It&apos;s For
               </h4>
-              <p className="wa-text-sm" style={{ color: '#debfc2' }}>{getAudience(program.category)}</p>
+              <p className="wa-text-sm stitch-muted">{getAudience(program.category)}</p>
             </div>
 
             {getPlacementStat(program.category) && (
@@ -132,7 +131,7 @@ export default function ProgramCard({ program, featured = false }: ProgramCardPr
                 <h4 className="wa-text-xs wa-font-bold wa-uppercase wa-mb-1" style={{ color: '#ffb2bc', letterSpacing: '0.12em' }}>
                   Placement
                 </h4>
-                <p className="wa-text-sm" style={{ color: '#debfc2' }}>{getPlacementStat(program.category)}</p>
+                <p className="wa-text-sm stitch-muted">{getPlacementStat(program.category)}</p>
               </div>
             )}
 
@@ -140,9 +139,9 @@ export default function ProgramCard({ program, featured = false }: ProgramCardPr
               <h4 className="wa-text-xs wa-font-bold wa-uppercase wa-mb-2" style={{ color: '#ffb2bc', letterSpacing: '0.12em' }}>
                 Certifications
               </h4>
-              <div className="wa-flex wa-flex-wrap wa-gap-2">
+              <div className="stitch-pill-row">
                 {certNames.map((name) => (
-                  <span key={name} className="wa-text-xs wa-px-2 wa-py-1" style={{ color: '#e6e1e1', border: '1px solid rgba(222,191,194,0.35)' }}>
+                  <span key={name} className="stitch-pill wa-text-xs">
                     {name}
                   </span>
                 ))}
@@ -151,8 +150,7 @@ export default function ProgramCard({ program, featured = false }: ProgramCardPr
 
             <Link
               href={`/apply?program=${program.slug}`}
-              className="wa-inline-flex wa-items-center wa-justify-center wa-w-full wa-font-bold wa-text-sm wa-px-4 wa-py-3 wa-no-underline"
-              style={{ background: '#ad2c4d', color: '#fff' }}
+              className="btn btn-primary wa-inline-flex wa-items-center wa-justify-center wa-w-full wa-font-bold wa-text-sm wa-px-4 wa-py-3 wa-no-underline"
             >
               Apply Free
             </Link>

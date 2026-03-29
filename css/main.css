@@ -13946,3 +13946,788 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
 .coursera-footer-note a {
     color: var(--color-accent);
 }
+
+/* =============================================
+   STITCH OVERHAUL
+   ============================================= */
+
+body {
+    background:
+        radial-gradient(circle at top, rgba(201, 54, 79, 0.12), transparent 32%),
+        linear-gradient(180deg, #141313 0%, #120f11 48%, #0e0c0d 100%);
+    color: #f5ecee;
+}
+
+html:not(.dark) body {
+    background:
+        radial-gradient(circle at top, rgba(201, 54, 79, 0.08), transparent 32%),
+        linear-gradient(180deg, #fcf7f8 0%, #f5eff1 100%);
+    color: #25161b;
+}
+
+.main-nav {
+    background: rgba(20, 19, 19, 0.76);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border-bottom-color: rgba(255, 178, 188, 0.08);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
+}
+
+.main-nav.scrolled {
+    background: rgba(20, 19, 19, 0.92);
+    border-bottom-color: rgba(255, 178, 188, 0.12);
+    box-shadow: 0 18px 54px rgba(0, 0, 0, 0.34);
+}
+
+html:not(.dark) .main-nav,
+html:not(.dark) .main-nav.scrolled {
+    background: rgba(255, 248, 249, 0.82);
+    border-bottom-color: rgba(173, 44, 77, 0.14);
+    box-shadow: 0 14px 34px rgba(84, 32, 43, 0.09);
+}
+
+.nav-container {
+    max-width: 1320px;
+}
+
+.nav-menu a,
+.nav-menu .dropdown .dropdown-trigger {
+    color: #f6dce0;
+}
+
+.nav-menu a:hover,
+.nav-menu a.active,
+.nav-menu .dropdown .dropdown-trigger:hover,
+.nav-menu .dropdown .dropdown-trigger.active,
+.nav-menu .dropdown:hover .dropdown-trigger {
+    color: #ffb2bc;
+}
+
+.main-nav .dropdown-menu {
+    background: rgba(25, 22, 23, 0.96);
+    border-color: rgba(255, 178, 188, 0.12);
+    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.42);
+}
+
+.main-nav .dropdown-menu a {
+    color: #f2d8dd;
+}
+
+.main-nav .dropdown-menu a:hover,
+.main-nav .dropdown-menu a.active {
+    background: rgba(173, 44, 77, 0.16);
+    color: #ffb2bc;
+}
+
+.mobile-nav-toggle {
+    border-color: rgba(255, 178, 188, 0.16);
+    background: rgba(255, 255, 255, 0.05);
+    color: #f6dce0;
+}
+
+.nav-cta {
+    background: linear-gradient(135deg, rgba(173, 44, 77, 0.92), rgba(201, 54, 79, 0.92));
+    border-radius: 999px;
+    padding: 0.78rem 1.25rem;
+    box-shadow: 0 14px 30px rgba(173, 44, 77, 0.24);
+}
+
+.nav-cta::after {
+    display: none;
+}
+
+html:not(.dark) .nav-menu a,
+html:not(.dark) .nav-menu .dropdown .dropdown-trigger {
+    color: #5a2a35;
+}
+
+html:not(.dark) .nav-menu a:hover,
+html:not(.dark) .nav-menu a.active,
+html:not(.dark) .nav-menu .dropdown .dropdown-trigger:hover,
+html:not(.dark) .nav-menu .dropdown .dropdown-trigger.active {
+    color: #ad2c4d;
+}
+
+html:not(.dark) .main-nav .dropdown-menu {
+    background: rgba(255, 252, 252, 0.96);
+}
+
+.stitch-page {
+    position: relative;
+    min-height: 100vh;
+    overflow: clip;
+}
+
+.stitch-page__ambient {
+    position: absolute;
+    inset: auto;
+    pointer-events: none;
+    filter: blur(70px);
+    opacity: 0.7;
+    z-index: 0;
+}
+
+.stitch-page__ambient--one {
+    top: -120px;
+    right: -80px;
+    width: 360px;
+    height: 360px;
+    background: radial-gradient(circle, rgba(201, 54, 79, 0.26) 0%, transparent 70%);
+}
+
+.stitch-page__ambient--two {
+    left: -120px;
+    top: 22rem;
+    width: 320px;
+    height: 320px;
+    background: radial-gradient(circle, rgba(255, 178, 188, 0.16) 0%, transparent 72%);
+}
+
+.stitch-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.stitch-main {
+    position: relative;
+    z-index: 1;
+    padding-top: 6.5rem;
+    padding-bottom: 6rem;
+}
+
+.stitch-hero {
+    display: grid;
+    gap: 1.75rem;
+    align-items: center;
+    padding: 2rem 0 2.75rem;
+}
+
+.stitch-hero--center {
+    justify-items: center;
+    text-align: center;
+}
+
+.stitch-hero__copy {
+    max-width: 780px;
+}
+
+.stitch-hero__aside {
+    min-width: 0;
+}
+
+.stitch-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.55rem 0.95rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 178, 188, 0.16);
+    background: rgba(255, 255, 255, 0.04);
+    color: #ffcad2;
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+}
+
+.stitch-badge::before {
+    content: '';
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #ffb2bc, #c9364f);
+    box-shadow: 0 0 18px rgba(255, 178, 188, 0.5);
+}
+
+.stitch-title {
+    margin-top: 1.35rem;
+    font-size: clamp(3rem, 7vw, 5.6rem);
+    line-height: 0.95;
+    letter-spacing: -0.06em;
+    color: #fff7f8;
+}
+
+.stitch-title-highlight,
+.stitch-title em,
+.stitch-title span[data-stitch-highlight="true"] {
+    background: linear-gradient(135deg, #ffb2bc 0%, #c9364f 46%, #ffcad2 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    font-style: normal;
+}
+
+.stitch-lead {
+    margin-top: 1.35rem;
+    max-width: 720px;
+    color: rgba(248, 225, 229, 0.82);
+    font-size: 1.08rem;
+    line-height: 1.75;
+}
+
+.stitch-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    margin-top: 1.6rem;
+}
+
+.stitch-hero__meta {
+    margin-top: 1.35rem;
+}
+
+.stitch-section {
+    padding: 1.5rem 0;
+}
+
+.stitch-section + .stitch-section {
+    margin-top: 1rem;
+}
+
+.stitch-section-heading {
+    max-width: 720px;
+    margin-bottom: 1.4rem;
+}
+
+.stitch-kicker {
+    color: #ffb2bc;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.stitch-section-heading h2,
+.stitch-section-heading h3 {
+    color: #fff7f8;
+    font-size: clamp(2rem, 3.6vw, 3.2rem);
+    line-height: 1.04;
+    letter-spacing: -0.04em;
+    margin-top: 0.65rem;
+}
+
+.stitch-section-heading p {
+    color: rgba(248, 225, 229, 0.74);
+    margin-top: 0.85rem;
+    line-height: 1.72;
+}
+
+.stitch-surface,
+.stitch-card,
+.blog-card,
+.job-card,
+.jobs-empty-state,
+.salary-guide-card,
+.salary-guide-fit-context,
+.salary-guide-table-wrap,
+.blog-post-article,
+.main-footer,
+.page-hero,
+.faq-item,
+.programs-journey-nav,
+.salary-guide-decision-steps {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.028));
+    border: 1px solid rgba(255, 178, 188, 0.12);
+    border-radius: 28px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.22);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.stitch-surface {
+    padding: 1.7rem;
+}
+
+.stitch-surface--strong,
+.stitch-cta-band {
+    background:
+        linear-gradient(135deg, rgba(173, 44, 77, 0.22), rgba(255, 178, 188, 0.08)),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
+}
+
+.stitch-cta-band {
+    padding: 2rem;
+}
+
+.stitch-cta-band h2,
+.stitch-cta-band h3 {
+    color: #fff7f8;
+    font-size: clamp(1.8rem, 3vw, 2.7rem);
+    line-height: 1.08;
+}
+
+.stitch-cta-band p {
+    color: rgba(248, 225, 229, 0.78);
+    line-height: 1.7;
+    margin-top: 0.75rem;
+}
+
+.stitch-grid-2,
+.stitch-grid-3,
+.stitch-grid-4,
+.stitch-stat-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.stitch-grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.stitch-grid-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.stitch-grid-4,
+.stitch-stat-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.stitch-card {
+    padding: 1.45rem;
+}
+
+.stitch-card h3,
+.stitch-card h4,
+.stitch-card strong {
+    color: #fff7f8;
+}
+
+.stitch-card p,
+.stitch-card li,
+.stitch-card span,
+.stitch-muted {
+    color: rgba(248, 225, 229, 0.76);
+}
+
+.stitch-card ul {
+    padding-left: 1.1rem;
+}
+
+.stitch-pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+}
+
+.stitch-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.62rem 0.9rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 178, 188, 0.14);
+    color: #f3dce0;
+    font-size: 0.86rem;
+}
+
+.stitch-stat-card {
+    padding: 1.35rem;
+}
+
+.stitch-stat-card strong,
+.stitch-stat-card .stitch-stat-value {
+    display: block;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+    background: linear-gradient(135deg, #ffb2bc 0%, #c9364f 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+.stitch-stat-card span,
+.stitch-stat-card p {
+    margin-top: 0.55rem;
+    color: rgba(248, 225, 229, 0.7);
+}
+
+.stitch-panel-list {
+    display: grid;
+    gap: 0.85rem;
+}
+
+.stitch-panel-list > div,
+.stitch-step {
+    padding: 1rem 1.05rem;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 178, 188, 0.08);
+}
+
+.stitch-step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(173, 44, 77, 0.22), rgba(255, 178, 188, 0.16));
+    border: 1px solid rgba(255, 178, 188, 0.14);
+    color: #ffb2bc;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.stitch-quick-links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
+}
+
+.stitch-quick-link {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 1rem 1.05rem;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 178, 188, 0.1);
+    color: #fff7f8;
+    text-decoration: none;
+}
+
+.stitch-quick-link:hover {
+    border-color: rgba(255, 178, 188, 0.26);
+    transform: translateY(-1px);
+}
+
+.stitch-quick-link svg {
+    color: #ffb2bc;
+}
+
+.btn,
+.btn-primary,
+.btn-accent,
+.btn-outline,
+.btn-ghost,
+.btn-hero-ghost {
+    border-radius: 999px;
+}
+
+.btn-primary,
+.btn-accent {
+    background: linear-gradient(135deg, #ad2c4d 0%, #c9364f 100%);
+    border-color: transparent;
+    box-shadow: 0 14px 28px rgba(173, 44, 77, 0.24);
+}
+
+.btn-outline,
+.btn-ghost,
+.btn-hero-ghost {
+    border-color: rgba(255, 178, 188, 0.18);
+    background: rgba(255, 255, 255, 0.04);
+    color: #fff0f3;
+}
+
+.btn-outline:hover,
+.btn-ghost:hover,
+.btn-hero-ghost:hover {
+    border-color: rgba(255, 178, 188, 0.36);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.blog-listing-grid {
+    gap: 1rem;
+}
+
+.blog-card {
+    overflow: hidden;
+    transition: transform var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.blog-card:hover,
+.job-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 178, 188, 0.24);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.3);
+}
+
+.blog-card-link {
+    padding: 1rem;
+    height: 100%;
+}
+
+.blog-card-cover {
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.blog-card-title,
+.job-card__title,
+.jobs-empty-state__title,
+.salary-guide-card__program,
+.blog-post-prose h1,
+.blog-post-prose h2,
+.blog-post-prose h3 {
+    color: #fff7f8;
+}
+
+.blog-card-excerpt,
+.blog-card-meta,
+.jobs-empty-state__text,
+.job-card__company,
+.job-card__meta,
+.job-count,
+.salary-guide-fit-lead,
+.salary-guide-methodology,
+.salary-guide-table-intro,
+.salary-guide-ramp-legend,
+.salary-guide-card__meta,
+.blog-post-prose p,
+.blog-post-prose li,
+.blog-post-prose blockquote {
+    color: rgba(248, 225, 229, 0.74);
+}
+
+.blog-card-cta,
+.blog-post-related a,
+.salary-guide-fit-links a,
+.salary-guide-card__salary,
+.job-card__salary,
+.job-card__arrow {
+    color: #ffb2bc;
+}
+
+.job-board-header,
+.job-filters-desktop .job-filters-panel,
+.job-filters-drawer-inner {
+    background: transparent;
+}
+
+.job-filters-panel,
+.job-filters-drawer-inner {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.03));
+    border: 1px solid rgba(255, 178, 188, 0.12);
+    border-radius: 28px;
+    padding: 1.1rem;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.job-filter-label,
+.job-filters-drawer-header h3 {
+    color: #fff7f8;
+}
+
+.job-filter-select,
+.job-filter-input,
+.job-search-input {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 178, 188, 0.12);
+    color: #fff0f3;
+    border-radius: 16px;
+}
+
+.job-search-input::placeholder {
+    color: rgba(248, 225, 229, 0.42);
+}
+
+.job-filter-hint {
+    color: rgba(248, 225, 229, 0.58);
+}
+
+.job-filters-toggle,
+.job-filter-clear,
+.job-filters-drawer-close {
+    border-radius: 999px;
+    border: 1px solid rgba(255, 178, 188, 0.14);
+    background: rgba(255, 255, 255, 0.045);
+    color: #fff0f3;
+}
+
+.job-card {
+    padding: 1rem;
+}
+
+.job-card__logo,
+.job-card__logo-placeholder {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 178, 188, 0.12);
+}
+
+.salary-table-wrapper {
+    overflow-x: auto;
+}
+
+.salary-table th {
+    color: #ffcad2;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.salary-table td,
+.salary-table th {
+    border-color: rgba(255, 178, 188, 0.1);
+}
+
+.salary-table td {
+    color: rgba(248, 225, 229, 0.8);
+}
+
+.salary-ramp-badge {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 178, 188, 0.12);
+    color: #fff0f3;
+}
+
+.main-footer {
+    margin-top: 2.5rem;
+    border-radius: 32px 32px 0 0;
+    border-color: rgba(255, 178, 188, 0.12);
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.025)),
+        linear-gradient(180deg, rgba(173, 44, 77, 0.08), transparent 52%);
+}
+
+.main-footer .footer-container,
+.main-footer .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 1.6rem;
+}
+
+.main-footer .footer-grid,
+.main-footer .footer-container {
+    gap: 2rem;
+}
+
+.main-footer .footer-brand h3,
+.main-footer .footer-col h3,
+.main-footer .footer-links h4,
+.main-footer .footer-col h4,
+.main-footer .footer-links a,
+.main-footer .footer-col a,
+.main-footer .footer-col p,
+.main-footer .footer-bottom p,
+.main-footer .footer-bottom a {
+    color: #f5e2e6;
+}
+
+.main-footer .footer-bottom {
+    border-top-color: rgba(255, 178, 188, 0.1);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+html:not(.dark) .stitch-title,
+html:not(.dark) .stitch-section-heading h2,
+html:not(.dark) .stitch-section-heading h3,
+html:not(.dark) .stitch-card h3,
+html:not(.dark) .stitch-card h4,
+html:not(.dark) .blog-card-title,
+html:not(.dark) .job-card__title,
+html:not(.dark) .jobs-empty-state__title,
+html:not(.dark) .main-footer .footer-brand h3,
+html:not(.dark) .main-footer .footer-col h4,
+html:not(.dark) .blog-post-prose h1,
+html:not(.dark) .blog-post-prose h2,
+html:not(.dark) .blog-post-prose h3 {
+    color: #2d171d;
+}
+
+html:not(.dark) .stitch-lead,
+html:not(.dark) .stitch-section-heading p,
+html:not(.dark) .stitch-card p,
+html:not(.dark) .stitch-card li,
+html:not(.dark) .stitch-card span,
+html:not(.dark) .blog-card-excerpt,
+html:not(.dark) .blog-card-meta,
+html:not(.dark) .job-card__company,
+html:not(.dark) .job-card__meta,
+html:not(.dark) .jobs-empty-state__text,
+html:not(.dark) .job-count,
+html:not(.dark) .main-footer .footer-col p,
+html:not(.dark) .main-footer .footer-bottom p,
+html:not(.dark) .main-footer .footer-links a,
+html:not(.dark) .blog-post-prose p,
+html:not(.dark) .blog-post-prose li,
+html:not(.dark) .blog-post-prose blockquote {
+    color: rgba(66, 34, 43, 0.82);
+}
+
+html:not(.dark) .stitch-surface,
+html:not(.dark) .stitch-card,
+html:not(.dark) .blog-card,
+html:not(.dark) .job-card,
+html:not(.dark) .jobs-empty-state,
+html:not(.dark) .salary-guide-card,
+html:not(.dark) .salary-guide-fit-context,
+html:not(.dark) .salary-guide-table-wrap,
+html:not(.dark) .blog-post-article,
+html:not(.dark) .main-footer {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(255, 245, 247, 0.78));
+    border-color: rgba(173, 44, 77, 0.12);
+    box-shadow: 0 20px 52px rgba(110, 44, 60, 0.08);
+}
+
+html:not(.dark) .btn-outline,
+html:not(.dark) .btn-ghost,
+html:not(.dark) .btn-hero-ghost {
+    background: rgba(173, 44, 77, 0.05);
+    color: #6e2438;
+    border-color: rgba(173, 44, 77, 0.16);
+}
+
+@media (min-width: 992px) {
+    .stitch-hero {
+        grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+        gap: 2rem;
+        padding-top: 3rem;
+    }
+
+    .stitch-hero--center {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 991px) {
+    .stitch-grid-2,
+    .stitch-grid-3,
+    .stitch-grid-4,
+    .stitch-stat-grid,
+    .stitch-quick-links {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 760px) {
+    .stitch-main {
+        padding-top: 5.75rem;
+        padding-bottom: 4rem;
+    }
+
+    .stitch-grid-2,
+    .stitch-grid-3,
+    .stitch-grid-4,
+    .stitch-stat-grid,
+    .stitch-quick-links {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .stitch-title {
+        font-size: clamp(2.5rem, 13vw, 4rem);
+    }
+
+    .stitch-surface,
+    .stitch-card,
+    .stitch-cta-band {
+        padding: 1.25rem;
+        border-radius: 24px;
+    }
+
+    .stitch-actions {
+        flex-direction: column;
+    }
+
+    .stitch-actions > * {
+        width: 100%;
+    }
+
+    .main-footer {
+        border-radius: 26px 26px 0 0;
+    }
+}

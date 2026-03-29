@@ -1,8 +1,6 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { isMarketingChromeHidden } from '@/lib/nav/marketing-chrome';
-import TopBanner from './TopBanner';
 import MainNav from './MainNav';
 
 const PORTAL_PREFIXES = ['/dashboard', '/admin', '/employer', '/partner', '/counselor', '/resources', '/help', '/applications', '/certifications', '/profile', '/account'];

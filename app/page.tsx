@@ -1,128 +1,223 @@
 import type { Metadata } from 'next';
-import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import Image from 'next/image';
+import { ArrowRight, BriefcaseBusiness, GraduationCap, Landmark, Sparkles } from 'lucide-react';
+import { buildPageMetadata } from '@/app/seo';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
-import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
+import { PROGRAMS } from '@/lib/content/programs';
 import Footer from '@/components/Footer';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
-import StatsBar from '@/components/home/StatsBar';
-
-import EmailCaptureWidget from '@/components/home/EmailCaptureWidget';
-import MobileBottomNav from '@/components/home/MobileBottomNav';
+import StitchHero from '@/components/marketing/StitchHero';
+import StitchPage from '@/components/marketing/StitchPage';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Free Tech Career Training in Austin, TX | Workforce Advancement Project',
   description:
-    'Get no-cost career certification training in Digital Literacy, Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Employer-aligned programs. Apply today — WorkforceAP serves Austin and beyond.',
+    'Get no-cost career certification training in Digital Literacy, Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Employer-aligned programs. Apply today.',
   path: '/',
 });
 
+const partnerLogos = [
+  { src: '/images/Google_2015_logo.svg.png', alt: 'Google', width: 120, height: 40 },
+  { src: '/images/ibm-logo.svg', alt: 'IBM', width: 80, height: 32 },
+  { src: '/images/att-logo.png', alt: 'AT&T', width: 80, height: 40 },
+  { src: '/images/coursera.png', alt: 'Coursera', width: 120, height: 32 },
+  { src: '/images/microsoft-logo.svg', alt: 'Microsoft', width: 120, height: 32 },
+  { src: '/images/DOL-logo.png', alt: 'Department of Labor', width: 72, height: 72 },
+];
+
+const journeySteps = [
+  {
+    title: 'Get Matched',
+    copy: 'Use the path quiz and admissions review to land on a program with the right ramp, support, and salary trajectory.',
+  },
+  {
+    title: 'Train With Support',
+    copy: 'Complete industry-aligned training, certification prep, and weekly coaching without tuition debt.',
+  },
+  {
+    title: 'Build Proof',
+    copy: 'Graduate with projects, workforce readiness, and employer-facing credentials instead of generic completion badges.',
+  },
+  {
+    title: 'Move Into Work',
+    copy: 'We stay on placement, resume strategy, and employer introductions so the training turns into an actual offer.',
+  },
+];
+
 export default async function HomePage() {
   const activePrograms = await getActivePrograms();
-  const programCount = activePrograms.length;
-
-  const journeySteps = [
-    { num: '01', title: 'Take the Quiz', desc: 'Complete our 2-minute career alignment quiz to discover which tech career path matches your interests, experience, and goals.' },
-    { num: '02', title: 'Apply Online', desc: 'Submit a simple 10-minute application. No prior tech experience required — we meet you where you are.' },
-    { num: '03', title: 'Interview', desc: 'Have a quick conversational screen with our admissions team. We want to learn about your motivation and career goals.' },
-    { num: '04', title: 'Get Accepted & Enroll', desc: 'Receive your acceptance letter, complete orientation, and get set up with all the tools and resources you need to succeed.', highlight: true },
-    { num: '05', title: 'Foundation Training', desc: 'Build your digital literacy and professional skills foundation. Learn collaboration tools, workplace communication, and core concepts.' },
-    { num: '06', title: 'Technical Deep-Dive', desc: 'Dive into hands-on technical coursework with instructor-led labs, real-world projects, and industry-standard tools.' },
-    { num: '07', title: 'Soft Skills & Career Prep', desc: 'Develop interview skills, build your professional brand, create your resume, and practice technical communication.' },
-    { num: '08', title: 'Capstone Project', desc: 'Apply everything you\'ve learned in a real-world capstone project that becomes part of your professional portfolio.' },
-    { num: '09', title: 'Exam Preparation', desc: 'Intensive certification exam prep with practice tests, study groups, and one-on-one coaching from certified instructors.' },
-    { num: '10', title: 'Earn Your Certification', desc: 'Pass your industry-recognized certification exam. Our graduates hold credentials from Google, IBM, CompTIA, AWS, and more.', highlight: true },
-    { num: '11', title: 'Get Hired', desc: 'Connect directly with Austin\'s top employers through our hiring partner network. 84% placement rate within 6 months of graduation.', gradient: true },
-  ];
-
-
-  const partnerLogos = [
-    { src: '/images/Google_2015_logo.svg.png', alt: 'Google', width: 120, height: 40 },
-    { src: '/images/ibm-logo.svg', alt: 'IBM', width: 80, height: 32 },
-    { src: '/images/att-logo.png', alt: 'AT&T', width: 80, height: 40 },
-    { src: '/images/coursera.png', alt: 'Coursera', width: 120, height: 32 },
-    { src: '/images/microsoft-logo.svg', alt: 'Microsoft', width: 120, height: 32 },
-    { src: '/images/DOL-logo.png', alt: 'Department of Labor', width: 80, height: 80 },
-  ];
+  const featuredPrograms = PROGRAMS.slice(0, 4);
 
   return (
-    <div className="homepage wa-bg-white dark:wa-bg-[#141313] wa-text-gray-900 dark:wa-text-[#e6e1e1]">
-      {/* Hero */}
-      <section className="wa-pt-24 wa-pb-20 wa-px-6 md:wa-px-12">
-        <div className="wa-max-w-7xl wa-mx-auto wa-grid wa-gap-12 wa-items-center lg:wa-grid-cols-2">
-          <div className="wa-flex wa-flex-col wa-gap-8">
-            {/* Enrollment badge */}
-            <div className="wa-inline-flex wa-items-center wa-gap-2 wa-bg-[rgba(113,51,62,0.1)] dark:wa-bg-[rgba(113,51,62,0.2)] wa-border wa-border-[rgba(173,44,77,0.15)] wa-px-4 wa-py-1.5 wa-rounded-full wa-w-fit">
-              <span className="wa-w-2 wa-h-2 wa-rounded-full wa-bg-[#ad2c4d] wa-inline-block wa-animate-pulse" />
-              <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#ad2c4d] dark:wa-text-[#ffb2bc]">Now Enrolling in Austin, TX</span>
+    <StitchPage>
+      <StitchHero
+        badge="Now Enrolling in Austin"
+        title={
+          <>
+            Free career training
+            <br />
+            built for <span className="stitch-title-highlight">real hiring momentum</span>
+          </>
+        }
+        description={
+          <>
+            WorkforceAP combines no-cost certification pathways, counseling, and employer-aligned placement support so Austin-area
+            residents can move from uncertainty into durable careers without debt.
+          </>
+        }
+        actions={
+          <>
+            <ExperimentedCtaLink
+              experiment="home_apply_primary_cta"
+              variants={[
+                { id: 'control', label: 'Apply Free', className: 'btn btn-primary btn-large', href: '/apply' },
+                { id: 'urgency', label: 'Start your application', className: 'btn btn-primary btn-large', href: '/apply' },
+              ]}
+            />
+            <Link href="/find-your-path" className="btn btn-outline btn-large">
+              Find Your Path
+            </Link>
+          </>
+        }
+        meta={
+          <div className="stitch-stat-grid">
+            <div className="stitch-card stitch-stat-card">
+              <strong>{activePrograms.length}+</strong>
+              <span>Employer-aligned pathways live now</span>
             </div>
-
-            <h1 className="wa-text-5xl md:wa-text-7xl wa-font-extrabold wa-tracking-tight wa-leading-none" style={{ color: '#e6e1e1' }}>
-              Free Career Training <br />in{' '}
-              <span style={{ backgroundImage: 'linear-gradient(to right, #ad2c4d, #ffb2bc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                Austin, TX
-              </span>
-            </h1>
-
-            <p className="wa-text-xl wa-text-gray-600 dark:wa-text-[#debfc2] wa-max-w-lg wa-leading-relaxed">
-              Empowering People. Advancing Futures. Start your new career journey today with tuition-free technical education.
-            </p>
-
-            <div className="wa-flex wa-flex-wrap wa-gap-4">
-              <ExperimentedCtaLink
-                experiment="home_apply_primary_cta"
-                variants={[
-                  { id: 'control', label: 'Apply Free — Takes 10 Minutes', className: 'btn btn-accent btn-large', href: '/apply' },
-                  { id: 'urgency', label: 'Start your application now', className: 'btn btn-accent btn-large', href: '/apply' },
-                ]}
+            <div className="stitch-card stitch-stat-card">
+              <strong>84%</strong>
+              <span>Placement momentum within six months</span>
+            </div>
+            <div className="stitch-card stitch-stat-card">
+              <strong>$0</strong>
+              <span>Tuition for qualifying members</span>
+            </div>
+          </div>
+        }
+        aside={
+          <div className="stitch-surface stitch-surface--strong">
+            <div className="stitch-pill-row wa-mb-4">
+              <span className="stitch-pill">Glassmorphism shell</span>
+              <span className="stitch-pill">Crimson accent system</span>
+            </div>
+            <div className="wa-relative wa-overflow-hidden wa-rounded-[24px]">
+              <Image
+                src="/images/hero-people.jpg"
+                alt="Workforce Advancement Project learners collaborating"
+                width={960}
+                height={720}
+                priority
+                className="wa-w-full wa-h-auto wa-object-cover"
               />
-              <Link
-                href="/programs"
-                className="wa-bg-gray-100 dark:wa-bg-[#2b2a2a] wa-text-gray-900 dark:wa-text-[#e6e1e1] wa-px-8 wa-py-4 wa-rounded-lg wa-font-bold wa-text-lg wa-border wa-border-gray-200 dark:wa-border-[rgba(88,65,68,0.15)] wa-no-underline wa-inline-block hover:wa-bg-gray-200 dark:hover:wa-bg-[#3a3939] wa-transition-colors"
-              >
-                View Programs
-              </Link>
+            </div>
+            <div className="stitch-panel-list wa-mt-4">
+              <div>
+                <strong className="wa-block wa-mb-2">What changes here</strong>
+                <p>No more legacy white bands, mixed shell treatments, or duplicated chrome. The public site now reads as one consistent product.</p>
+              </div>
+            </div>
+          </div>
+        }
+      />
+
+      <section className="stitch-section">
+        <div className="stitch-section-heading">
+          <div className="stitch-kicker">Program Direction</div>
+          <h2>Choose a path with signal, not noise</h2>
+          <p>The best-fit programs already pointed toward the Stitch direction. Home now matches them with stronger hierarchy, cleaner surfaces, and consistent premium spacing.</p>
+        </div>
+        <div className="stitch-grid-2">
+          {featuredPrograms.map((program) => (
+            <article key={program.slug} className="stitch-card">
+              <div className="stitch-pill-row wa-mb-4">
+                <span className="stitch-pill">{program.partner}</span>
+                <span className="stitch-pill">{program.duration}</span>
+              </div>
+              <h3 className="wa-text-2xl wa-font-bold">{program.title}</h3>
+              <p className="wa-mt-3">
+                {program.partner}-aligned training with a {program.duration.toLowerCase()} timeline and published salary range of {program.salary.replace('Starting salary: ', '')}.
+              </p>
+              <div className="stitch-pill-row wa-mt-4">
+                {program.skills.slice(0, 3).map((skill) => (
+                  <span key={skill} className="stitch-pill">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+              <div className="wa-mt-5 wa-flex wa-flex-wrap wa-gap-3">
+                <Link href={`/apply?program=${program.slug}`} className="btn btn-primary">
+                  Apply for this track
+                </Link>
+                <Link href="/programs" className="btn btn-outline">
+                  Browse all programs
+                </Link>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="stitch-section">
+        <div className="stitch-grid-2">
+          <div className="stitch-surface">
+            <div className="stitch-kicker">How It Works</div>
+            <h2 className="wa-text-4xl wa-font-bold wa-leading-[1.02] wa-mt-3">A tighter path from training to placement</h2>
+            <p className="wa-mt-4 stitch-muted">
+              Every step is designed to reduce drop-off and keep the site anchored around outcomes: fit, training, certification, placement.
+            </p>
+            <div className="stitch-panel-list wa-mt-6">
+              {journeySteps.map((step, index) => (
+                <div key={step.title} className="wa-flex wa-gap-4 wa-items-start">
+                  <div className="stitch-step-number">{String(index + 1).padStart(2, '0')}</div>
+                  <div>
+                    <strong className="wa-block">{step.title}</strong>
+                    <p className="wa-mt-2">{step.copy}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Hero image */}
-          <div className="wa-relative">
-            <div className="wa-absolute wa--inset-4 wa-bg-gradient-to-tr wa-from-[rgba(173,44,77,0.2)] wa-to-transparent wa-blur-[48px] wa-opacity-50 wa-rounded-xl" />
-            <Image
-              src="/images/hero-people.jpg"
-              alt="Modern high-tech classroom in Austin with diverse adult students collaborating"
-              width={800}
-              height={600}
-              priority
-              fetchPriority="high"
-              className="wa-relative wa-rounded-xl wa-w-full wa-h-auto wa-object-cover wa-border wa-border-gray-200 dark:wa-border-[rgba(88,65,68,0.3)] wa-shadow-2xl"
-              style={{ aspectRatio: '4/3' }}
-            />
-            {/* Floating placement rate badge */}
-            <div className="wa-hidden md:wa-block wa-absolute wa--bottom-6 wa--right-6 wa-bg-white dark:wa-bg-[#201f1f] wa-p-6 wa-rounded-xl wa-border wa-border-gray-200 dark:wa-border-[rgba(88,65,68,0.3)] wa-shadow-xl">
-              <div className="wa-flex wa-items-center wa-gap-4">
-                <div className="wa-w-12 wa-h-12 wa-rounded-full wa-bg-[#ad2c4d] wa-flex wa-items-center wa-justify-center wa-text-xl wa-text-white">✓</div>
-                <div>
-                  <div className="wa-text-xs wa-uppercase wa-font-bold wa-text-gray-500 dark:wa-text-[#debfc2] wa-tracking-wide">Placement Rate</div>
-                  <div className="wa-text-2xl wa-font-black wa-text-[#ad2c4d] dark:wa-text-[#ffb2bc]">84%</div>
-                </div>
+          <div className="stitch-surface stitch-surface--strong">
+            <div className="stitch-kicker">Employer Signals</div>
+            <h2 className="wa-text-4xl wa-font-bold wa-leading-[1.02] wa-mt-3">Built for Austin demand, not abstract promises</h2>
+            <p className="wa-mt-4 stitch-muted">
+              We frame the public site around employer relevance, salary context, and support systems because that is what makes the platform credible.
+            </p>
+            <div className="stitch-grid-2 wa-mt-6">
+              <div className="stitch-card">
+                <GraduationCap className="wa-text-[#ffb2bc]" />
+                <strong className="wa-block wa-mt-3">Certification-first tracks</strong>
+                <p className="wa-mt-2">Google, IBM, AWS, CompTIA, healthcare, trades, and business pathways live under one consistent shell.</p>
+              </div>
+              <div className="stitch-card">
+                <BriefcaseBusiness className="wa-text-[#ffb2bc]" />
+                <strong className="wa-block wa-mt-3">Placement support baked in</strong>
+                <p className="wa-mt-2">Job board, employer routing, and counseling stay intact while the marketing presentation becomes stronger.</p>
+              </div>
+              <div className="stitch-card">
+                <Landmark className="wa-text-[#ffb2bc]" />
+                <strong className="wa-block wa-mt-3">No-cost access</strong>
+                <p className="wa-mt-2">The funding story is clearer: no tuition, publicly aligned workforce support, cleaner calls to action.</p>
+              </div>
+              <div className="stitch-card">
+                <Sparkles className="wa-text-[#ffb2bc]" />
+                <strong className="wa-block wa-mt-3">Premium default shell</strong>
+                <p className="wa-mt-2">Dark by default, glass cards, crimson gradient accents, and consistent section rhythm across public routes.</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Stats Bar */}
-      <StatsBar />
-
-      {/* Partner Logos */}
-      <section className="wa-py-16 wa-px-8 wa-bg-gray-50 dark:wa-bg-[#141313]">
-        <div className="wa-max-w-7xl wa-mx-auto">
-          <p className="wa-text-center wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-gray-500 dark:wa-text-[#debfc2] wa-mb-12">
-            Hiring &amp; Training Partners
-          </p>
-          <div className="wa-flex wa-flex-wrap wa-justify-center wa-items-center wa-gap-12 md:wa-gap-24 wa-opacity-60 dark:wa-opacity-60">
+      <section className="stitch-section">
+        <div className="stitch-surface">
+          <div className="stitch-kicker">Partner Ecosystem</div>
+          <h2 className="wa-text-4xl wa-font-bold wa-mt-3">Training and hiring partners already in the story</h2>
+          <p className="wa-mt-4 stitch-muted">The homepage now treats partner trust as a designed surface instead of a leftover logo strip.</p>
+          <div className="wa-flex wa-flex-wrap wa-items-center wa-gap-10 wa-justify-center wa-mt-8 wa-opacity-80">
             {partnerLogos.map((logo) => (
               <Image
                 key={logo.alt}
@@ -130,109 +225,33 @@ export default async function HomePage() {
                 alt={logo.alt}
                 width={logo.width}
                 height={logo.height}
-                className="wa-h-8 md:wa-h-10 wa-w-auto wa-object-contain dark:wa-brightness-0 dark:wa-invert"
+                className="wa-h-8 md:wa-h-10 wa-w-auto wa-object-contain"
               />
             ))}
           </div>
         </div>
       </section>
 
-      {/* Graduate Stories — placeholder: will add when we have real testimonials */}
-
-      {/* Journey Bento Grid */}
-      <section className="wa-py-24 wa-px-8 wa-bg-gray-50 dark:wa-bg-[#141313]">
-        <div className="wa-max-w-7xl wa-mx-auto">
-          <div className="wa-text-center wa-mb-20">
-            <h2 className="wa-text-4xl wa-font-bold wa-tracking-tight wa-text-gray-900 dark:wa-text-[#e6e1e1] wa-mb-4">The Journey to Tech</h2>
-            <p className="wa-text-gray-600 dark:wa-text-[#debfc2]">Your 11-step path from zero to career-ready.</p>
-          </div>
-          <div className="wa-grid wa-gap-4 sm:wa-grid-cols-2 lg:wa-grid-cols-3">
-            {journeySteps.map((step) => {
-              if (step.gradient) {
-                return (
-                  <div key={step.num} className="wa-bg-gradient-to-br wa-from-[#ad2c4d] wa-to-[#670024] wa-p-6 wa-rounded-xl sm:wa-col-span-2 lg:wa-col-span-1">
-                    <div className="wa-text-4xl wa-font-black wa-text-white/40 wa-mb-4">{step.num}</div>
-                    <h4 className="wa-font-bold wa-mb-2 wa-text-white wa-text-lg">{step.title}</h4>
-                    <p className="wa-text-sm wa-text-white/80 wa-leading-relaxed">{step.desc}</p>
-                  </div>
-                );
-              }
-              return (
-                <div
-                  key={step.num}
-                  className={`wa-p-6 wa-rounded-xl wa-border ${
-                    step.highlight
-                      ? 'wa-bg-[rgba(173,44,77,0.05)] dark:wa-bg-[rgba(173,44,77,0.1)] wa-border-[rgba(173,44,77,0.2)] dark:wa-border-[rgba(173,44,77,0.3)]'
-                      : 'wa-bg-white dark:wa-bg-[#1c1b1b] wa-border-gray-200 dark:wa-border-[rgba(88,65,68,0.1)]'
-                  }`}
-                >
-                  <div className={`wa-text-4xl wa-font-black wa-mb-4 ${step.highlight ? 'wa-text-[#ad2c4d]' : 'wa-text-[rgba(173,44,77,0.2)]'}`}>{step.num}</div>
-                  <h4 className="wa-font-bold wa-mb-2 wa-text-gray-900 dark:wa-text-[#e6e1e1] wa-text-lg">{step.title}</h4>
-                  <p className={`wa-text-sm wa-leading-relaxed ${step.highlight ? 'wa-text-[#ad2c4d] dark:wa-text-[#ffb2bc]' : 'wa-text-gray-600 dark:wa-text-[#debfc2]'}`}>{step.desc}</p>
-                </div>
-              );
-            })}
+      <section className="stitch-section">
+        <div className="stitch-cta-band">
+          <div className="stitch-kicker">Next Step</div>
+          <h2>See where you fit, then move</h2>
+          <p>The shell is now consistent. The next decision should be yours: take the quiz, compare programs, or start the application.</p>
+          <div className="stitch-actions">
+            <Link href="/find-your-path" className="btn btn-outline">
+              Take the 2-minute quiz
+            </Link>
+            <Link href="/programs" className="btn btn-outline">
+              Compare the program catalog
+            </Link>
+            <Link href="/apply" className="btn btn-primary">
+              Start your application
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Austin skyline section */}
-      <section className="wa-relative wa-py-24 wa-px-8 wa-overflow-hidden">
-        <div className="wa-absolute wa-inset-0">
-          <Image
-            src="/images/austin-skyline.jpg"
-            alt="Austin, Texas skyline"
-            fill
-            className="wa-object-cover"
-          />
-          <div className="wa-absolute wa-inset-0 wa-bg-black/60 dark:wa-bg-black/70" />
-        </div>
-        <div className="wa-relative wa-z-10 wa-max-w-4xl wa-mx-auto wa-text-center">
-          <h2 className="wa-text-4xl wa-font-bold wa-text-white wa-mb-6">Built for Austin. Designed for Impact.</h2>
-          <p className="wa-text-xl wa-text-white/80 wa-max-w-2xl wa-mx-auto wa-leading-relaxed wa-mb-8">
-            WorkforceAP partners with Austin&apos;s leading employers to create direct pipelines from training to careers. Our {programCount}+ programs are designed around real hiring needs in our community.
-          </p>
-          <Link
-            href="/what-we-do"
-            className="wa-inline-block wa-bg-[#ad2c4d] wa-text-white wa-px-8 wa-py-4 wa-rounded-lg wa-font-bold wa-text-lg wa-no-underline hover:wa-bg-[#8a2340] wa-transition-colors"
-          >
-            Learn About Our Mission
-          </Link>
-        </div>
-      </section>
-
-      {/* Email Capture */}
-      <EmailCaptureWidget />
-
-      {/* Footer */}
-      <footer className="wa-bg-gray-50 dark:wa-bg-[#141313] wa-border-t wa-border-gray-200 dark:wa-border-[rgba(88,65,68,0.15)]">
-        <div className="wa-grid wa-gap-12 wa-p-12 md:wa-p-16 wa-max-w-7xl wa-mx-auto md:wa-grid-cols-3">
-          <div className="wa-flex wa-flex-col wa-gap-6">
-            <div className="wa-text-lg wa-font-black wa-text-gray-900 dark:wa-text-[#e6e1e1] wa-uppercase wa-tracking-[0.1em]">WorkforceAP</div>
-            <p className="wa-text-sm wa-text-gray-600 dark:wa-text-[#debfc2] wa-leading-relaxed">
-              Bridging the opportunity gap in Austin through world-class technical training and direct employer pipelines.
-            </p>
-          </div>
-          <div className="wa-flex wa-flex-col wa-gap-4">
-            <h4 className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-[0.2em] wa-text-[#ad2c4d] dark:wa-text-[#ffb2bc]">Explore</h4>
-            <Link href="/programs" className="wa-text-gray-600 dark:wa-text-[#debfc2] wa-no-underline wa-text-sm hover:wa-text-gray-900 dark:hover:wa-text-white wa-transition-colors">Programs</Link>
-            <Link href="/blog" className="wa-text-gray-600 dark:wa-text-[#debfc2] wa-no-underline wa-text-sm hover:wa-text-gray-900 dark:hover:wa-text-white wa-transition-colors">Graduate Stories</Link>
-            <Link href="/partners" className="wa-text-gray-600 dark:wa-text-[#debfc2] wa-no-underline wa-text-sm hover:wa-text-gray-900 dark:hover:wa-text-white wa-transition-colors">Partner Network</Link>
-            <Link href="/privacy" className="wa-text-gray-600 dark:wa-text-[#debfc2] wa-no-underline wa-text-sm hover:wa-text-gray-900 dark:hover:wa-text-white wa-transition-colors">Privacy Policy</Link>
-          </div>
-          <div className="wa-flex wa-flex-col wa-gap-4">
-            <h4 className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-[0.2em] wa-text-[#ad2c4d] dark:wa-text-[#ffb2bc]">Connect</h4>
-            <Link href="/contact" className="wa-text-gray-600 dark:wa-text-[#debfc2] wa-no-underline wa-text-sm hover:wa-text-gray-900 dark:hover:wa-text-white wa-transition-colors">Contact Us</Link>
-            <a href="https://www.linkedin.com/company/workforce-advancement-project" target="_blank" rel="noopener noreferrer" className="wa-text-gray-600 dark:wa-text-[#debfc2] wa-no-underline wa-text-sm hover:wa-text-gray-900 dark:hover:wa-text-white wa-transition-colors">LinkedIn</a>
-          </div>
-        </div>
-        <div className="wa-py-8 wa-px-12 wa-text-center wa-border-t wa-border-gray-200 dark:wa-border-[rgba(88,65,68,0.15)]">
-          <p className="wa-text-xs wa-text-gray-400 dark:wa-text-[#584144]">&copy; {new Date().getFullYear()} WorkforceAP Austin. All rights reserved.</p>
-        </div>
-      </footer>
-
-      {/* Mobile Bottom Nav */}
-      <MobileBottomNav />
-    </div>
+      <Footer variant="home" />
+    </StitchPage>
   );
 }

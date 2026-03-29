@@ -1,49 +1,50 @@
 import type { Metadata } from 'next';
-import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import { Lightbulb, TrendingUp, MapPin, CheckCircle, Handshake, DollarSign } from 'lucide-react';
-import MainNav from '@/components/MainNav';
+import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
+import StitchHero from '@/components/marketing/StitchHero';
+import StitchPage from '@/components/marketing/StitchPage';
 import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
 import { buildSalaryGuideRows, salaryGuideSummaryStats } from '@/lib/content/programSalaryOutcomes';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Salary Guide',
   description:
-    'Program-by-program starting salary ranges (aligned with our /programs catalog). Austin-first framing: understand fit, ramp, and realistic outcomes — not just the biggest number.',
+    'Program-by-program starting salary ranges aligned with our programs catalog. Austin-first framing: understand fit, ramp, and realistic outcomes.',
   path: '/salary-guide',
 });
 
 const insights = [
   {
     Icon: Lightbulb,
-    title: 'Higher ranges = deeper programs',
-    desc: 'Cloud, AI engineering, and data science tracks sit at the top of the range for a reason — more depth, more commitment. Worth it if you will finish.',
+    title: 'Higher ranges usually mean a steeper ramp',
+    desc: 'Cloud, AI engineering, and data science tracks sit higher because they demand deeper technical completion.',
   },
   {
     Icon: CheckCircle,
-    title: 'Entry ranges are not "lesser" options',
-    desc: 'IT Support, Digital Literacy, and several CompTIA paths get you credentialed faster. Plenty of people stack from there. The win is momentum.',
+    title: 'Entry ranges still move careers forward',
+    desc: 'IT support, Digital Literacy, and early CompTIA paths can be the fastest route to real job momentum.',
   },
   {
     Icon: TrendingUp,
-    title: 'Career growth',
-    desc: 'Most graduates see meaningful increases inside 2–3 years once they are in-role. Pick a track you can complete; we help match ramp to your life.',
+    title: 'Salary is not the only filter',
+    desc: 'Use this guide with fit, timeline, readiness, and support. Finished programs outperform stalled ambition.',
   },
   {
     Icon: MapPin,
-    title: 'Austin is the wedge',
-    desc: 'We anchor examples to Austin hiring and cost-of-living reality. National data is a starting point; your offer depends on employer, proof, and fit.',
+    title: 'Austin-first framing',
+    desc: 'We ground the guide in Austin reality while acknowledging employer, location, and proof still shape actual offers.',
   },
   {
     Icon: Handshake,
-    title: 'Job placement support',
-    desc: 'Resume support, interview prep, employer intros. We do not disappear after you certify.',
+    title: 'Placement support matters',
+    desc: 'Resume coaching, interview prep, and employer connection all change the eventual salary conversation.',
   },
   {
     Icon: DollarSign,
-    title: 'Total compensation',
-    desc: 'Beyond base pay: bonuses, equity at some firms, benefits. Negotiate with the full picture.',
+    title: 'Compensation is bigger than base',
+    desc: 'Benefits, bonuses, and growth potential still matter. The clean shell now leaves space to make that case clearly.',
   },
 ];
 
@@ -52,68 +53,50 @@ export default function SalaryGuidePage() {
   const guideStats = salaryGuideSummaryStats(salaryRows);
 
   return (
-    <div className="wa-min-h-screen wa-bg-white dark:wa-bg-[#141313] wa-text-gray-900 dark:wa-text-[#e6e1e1] salary-guide-page">
-      <MainNav />
-
-      {/* Hero */}
-      <section className="wa-pt-32 wa-pb-16 wa-px-6 md:wa-px-12">
-        <div className="wa-max-w-5xl wa-mx-auto wa-text-center">
-          <div className="wa-inline-flex wa-items-center wa-gap-2 wa-bg-[rgba(113,51,62,0.1)] dark:wa-bg-[rgba(113,51,62,0.2)] wa-border wa-border-[rgba(173,44,77,0.15)] wa-px-4 wa-py-1.5 wa-rounded-full wa-mb-6">
-            <span className="wa-w-2 wa-h-2 wa-rounded-full wa-bg-[#ad2c4d] wa-inline-block" />
-            <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#ad2c4d] dark:wa-text-[#ffb2bc]">Career Outcomes</span>
+    <StitchPage>
+      <StitchHero
+        badge="Career Outcomes"
+        title={
+          <>
+            Salary guidance with
+            <br />
+            <span className="stitch-title-highlight">real context, not just big numbers</span>
+          </>
+        }
+        description="This route now matches the rest of the Stitch system while preserving the same data logic and salary ranges."
+        meta={
+          <div className="stitch-stat-grid">
+            <div className="stitch-card stitch-stat-card"><strong>{guideStats.highestSalary}</strong><span>{guideStats.highestProgram}</span></div>
+            <div className="stitch-card stitch-stat-card"><strong>{guideStats.avgMidpointLabel}</strong><span>Typical midpoint</span></div>
+            <div className="stitch-card stitch-stat-card"><strong>{String(guideStats.over100Count)}</strong><span>Tracks topping ~$100K</span></div>
           </div>
-          <h1 className="wa-text-5xl md:wa-text-6xl wa-font-extrabold wa-tracking-tight wa-leading-none wa-mb-4">
-            WorkforceAP{' '}
-            <span style={{ backgroundImage: 'linear-gradient(to right, #ad2c4d, #ffb2bc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-              Salary Guide
-            </span>
-          </h1>
-          <p className="wa-text-xl wa-text-gray-600 dark:wa-text-[#debfc2] wa-max-w-2xl wa-mx-auto">
-            Starting salary ranges by program — same numbers you see on /programs. Use this with fit, timeline, and ramp; Austin is our launch wedge, not a ceiling on where you can work.
-          </p>
-        </div>
-      </section>
+        }
+      />
 
-      <section className="wa-pb-24 wa-px-6 md:wa-px-12">
-        <div className="container">
+      <section className="stitch-section">
+        <div className="stitch-surface">
           <ProgramsDecisionJourneyNav current="salary" />
 
-          <div className="salary-guide-fit-context">
+          <div className="salary-guide-fit-context wa-mt-6">
             <p className="salary-guide-fit-lead">
-              Salary is one factor. The right program fits your timeline, readiness, and tech comfort — not just the top of the range. Higher bands usually mean a steeper ramp. Faster, lower-band credentials still move hiring conversations forward; a finished program beats a stalled one.
+              Salary is one factor. The right program fits your timeline, readiness, and tech comfort, not just the top of the range.
             </p>
             <div className="salary-guide-decision-steps">
-              <p><strong>How to use this guide:</strong> Take the pathfinder quiz to narrow your fit → compare programs side-by-side → apply when ready.</p>
+              <p><strong>Use this sequence:</strong> take the pathfinder quiz, compare programs side by side, then apply when ready.</p>
             </div>
-            <div className="salary-guide-fit-links">
-              <Link href="/find-your-path" className="btn btn-primary btn-sm">Find your best-fit programs (2-min quiz)</Link>
+            <div className="salary-guide-fit-links stitch-actions">
+              <Link href="/find-your-path" className="btn btn-primary btn-sm">Find your best-fit programs</Link>
               <Link href="/program-comparison" className="btn btn-outline btn-sm">Compare programs</Link>
             </div>
           </div>
 
-          {/* Stats row */}
-          <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-3 wa-gap-4 wa-my-8">
-            {[
-              { value: guideStats.highestSalary, label: 'Top of published range', sub: guideStats.highestProgram },
-              { value: guideStats.avgMidpointLabel, label: 'Typical midpoint (all 19)', sub: 'Average of range midpoints' },
-              { value: String(guideStats.over100Count), label: 'Tracks topping ~$100K', sub: 'High end of range at/above $100K' },
-            ].map((s) => (
-              <div key={s.label} className="wa-bg-white/5 wa-border wa-border-white/10 wa-rounded-2xl wa-backdrop-blur wa-p-6 wa-text-center">
-                <div className="wa-text-3xl wa-font-extrabold" style={{ backgroundImage: 'linear-gradient(to right, #ad2c4d, #ffb2bc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{s.value}</div>
-                <div className="wa-text-sm wa-font-semibold dark:wa-text-[#e6e1e1] wa-mt-1">{s.label}</div>
-                <div className="wa-text-xs dark:wa-text-[#a68a8d] wa-mt-0.5">{s.sub}</div>
-              </div>
-            ))}
-          </div>
-
-          <h2 style={{ marginBottom: '.5rem' }}>Program starting ranges (all 19)</h2>
+          <h2 className="wa-text-3xl wa-font-bold wa-mt-8 wa-mb-3">Program starting ranges</h2>
           <p className="salary-guide-table-intro">
-            Same published ranges as each program card on /programs. Framed for early-career (roughly 0–1 year in-role). Austin-area offers often land a little higher than the U.S. midpoint — use this table to compare tracks, not to predict your exact offer.
+            Same published ranges as each program card on /programs. Framed for early-career use so you can compare tracks without switching visual systems.
           </p>
-          <p className="salary-guide-ramp-legend"><strong>Ramp:</strong> Easier = quicker, good first credential. Steeper = more depth, higher payoff.</p>
+          <p className="salary-guide-ramp-legend"><strong>Ramp:</strong> Easier = quicker first credential. Steeper = more depth, higher payoff.</p>
 
-          {/* Desktop: table | Mobile: hidden (cards shown instead) */}
-          <div className="salary-guide-table-wrap">
+          <div className="salary-guide-table-wrap wa-mt-6">
             <div className="salary-table-wrapper">
               <table className="salary-table">
                 <thead>
@@ -124,7 +107,7 @@ export default function SalaryGuidePage() {
                     <tr key={row.slug}>
                       <td><strong>{row.program}</strong></td>
                       <td>{row.duration}</td>
-                      <td style={{ fontWeight: 700, color: '#1a1a1a' }}>{row.salary}</td>
+                      <td>{row.salary}</td>
                       <td><span style={{ background: row.color, color: 'white', padding: '.3rem .75rem', borderRadius: '50px', fontSize: '.8rem', fontWeight: 600 }}>{row.level}</span></td>
                       <td><span className="salary-ramp-badge">{row.ramp}</span></td>
                     </tr>
@@ -134,8 +117,7 @@ export default function SalaryGuidePage() {
             </div>
           </div>
 
-          {/* Mobile only: card layout — no horizontal scroll */}
-          <div className="salary-guide-cards">
+          <div className="salary-guide-cards wa-mt-6">
             {salaryRows.map((row) => (
               <article key={row.slug} className="salary-guide-card">
                 <div className="salary-guide-card__main">
@@ -151,38 +133,39 @@ export default function SalaryGuidePage() {
             ))}
           </div>
 
-          {/* Insight cards — glassmorphism */}
-          <div className="wa-grid wa-grid-cols-1 sm:wa-grid-cols-2 lg:wa-grid-cols-3 wa-gap-4 wa-my-8">
+          <div className="stitch-grid-3 wa-mt-8">
             {insights.map((item) => {
               const Icon = item.Icon;
               return (
-                <div key={item.title} className="wa-bg-white/5 wa-border wa-border-white/10 wa-rounded-2xl wa-backdrop-blur wa-p-6">
-                  <div className="wa-mb-3 wa-text-[#ad2c4d]"><Icon size={24} /></div>
-                  <strong className="dark:wa-text-[#e6e1e1]">{item.title}</strong>
-                  <p className="wa-text-sm dark:wa-text-[#debfc2] wa-mt-1 wa-leading-relaxed">{item.desc}</p>
+                <div key={item.title} className="stitch-card">
+                  <Icon className="wa-text-[#ffb2bc]" size={24} />
+                  <strong className="wa-block wa-mt-3">{item.title}</strong>
+                  <p className="wa-mt-2">{item.desc}</p>
                 </div>
               );
             })}
           </div>
 
-          <p className="salary-guide-methodology">
-            <strong>How we set the ranges:</strong> We start from Lightcast / BLS-style market data and employer conversations, then publish conservative bands on each program page. This guide copies those bands so you are never comparing a &quot;marketing number&quot; here against a different number there.
+          <p className="salary-guide-methodology wa-mt-8">
+            <strong>How we set the ranges:</strong> We start from market data and employer conversations, then publish conservative bands on each program page.
           </p>
+        </div>
+      </section>
 
-          {/* Bottom CTA */}
-          <div className="wa-bg-[rgba(173,44,77,0.08)] wa-border wa-border-[rgba(173,44,77,0.2)] wa-rounded-2xl wa-p-10 wa-text-center wa-mt-12">
-            <h3 className="wa-text-2xl wa-font-bold dark:wa-text-[#e6e1e1] wa-mb-2">Your Next Step</h3>
-            <p className="dark:wa-text-[#debfc2] wa-mb-6">You now have the numbers. Use the pathfinder to find your fit, or compare programs. When you&rsquo;re ready — apply.</p>
-            <div className="wa-flex wa-flex-wrap wa-gap-3 wa-justify-center">
-              <Link href="/find-your-path" className="wa-inline-flex wa-items-center wa-px-6 wa-py-3 wa-border wa-border-[rgba(173,44,77,0.5)] wa-text-[#ffb2bc] wa-rounded-xl wa-font-semibold wa-no-underline hover:wa-bg-[rgba(173,44,77,0.1)] wa-transition-colors">Find your fit (2-min quiz)</Link>
-              <Link href="/program-comparison" className="wa-inline-flex wa-items-center wa-px-6 wa-py-3 wa-border wa-border-[rgba(173,44,77,0.5)] wa-text-[#ffb2bc] wa-rounded-xl wa-font-semibold wa-no-underline hover:wa-bg-[rgba(173,44,77,0.1)] wa-transition-colors">Compare programs</Link>
-              <Link href="/apply" className="wa-inline-flex wa-items-center wa-px-6 wa-py-3 wa-bg-gradient-to-r wa-from-[#ad2c4d] wa-to-[#c9364f] wa-text-white wa-rounded-xl wa-font-bold wa-no-underline hover:wa-opacity-90 wa-transition-opacity">Start training — free for members</Link>
-            </div>
+      <section className="stitch-section">
+        <div className="stitch-cta-band">
+          <div className="stitch-kicker">Your Next Step</div>
+          <h2>You have the numbers. Now use the fit tools.</h2>
+          <p>Move from salary curiosity into program selection without dropping out of the same visual system.</p>
+          <div className="stitch-actions">
+            <Link href="/find-your-path" className="btn btn-outline">Find your fit</Link>
+            <Link href="/program-comparison" className="btn btn-outline">Compare programs</Link>
+            <Link href="/apply" className="btn btn-primary">Start training</Link>
           </div>
         </div>
       </section>
 
       <Footer />
-    </div>
+    </StitchPage>
   );
 }

@@ -84,52 +84,49 @@ export default async function CounselorPortalPage() {
       {/* ── Mobile Counselor View (≤640px) ── */}
       <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Hero */}
-        <div className="px-6 pt-6 pb-2">
-          <p className="text-[10px] uppercase tracking-[0.15em] font-semibold text-[#8c0f37] mb-2">Academic Overview</p>
+        <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingTop:"1.5rem", paddingBottom:"0.5rem" }}>
+          <p className="text-[10px] uppercase tracking-[0.15em] font-semibold text-[#8c0f37]" style={{ marginBottom:"0.5rem" }}>Academic Overview</p>
           <h2 className="text-3xl font-extrabold tracking-tight text-on-surface leading-tight">
             Morning,<br /><span style={{ color: '#ad2c4d' }}>Counselor</span>
           </h2>
         </div>
         {/* Stats grid */}
-        <div className="px-6 mt-4 grid grid-cols-2 gap-4 mb-6">
-          <div className="col-span-2 rounded-xl p-5 text-white relative overflow-hidden"
-            style={{ background: '#ad2c4d' }}>
-            <div className="relative z-10">
-              <p className="text-[10px] uppercase tracking-widest opacity-80 mb-1">Active Students</p>
+        <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem", marginTop:"1rem", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"1rem", marginBottom:"1.5rem" }}>
+          <div className="text-white" style={{gridColumn:"span 2", borderRadius:"0.75rem", padding:"1.25rem", position:"relative", overflow:"hidden", background: '#ad2c4d'}}>
+            <div style={{ position:"relative", zIndex:10 }}>
+              <p className="text-[10px] uppercase tracking-widest" style={{ opacity:0.8, marginBottom:"0.25rem" }}>Active Students</p>
               <p className="text-4xl font-bold tracking-tighter">{assignments.length}</p>
             </div>
-            <span className="material-symbols-outlined absolute -right-2 -bottom-2 opacity-10"
-              style={{ fontSize: '100px' }}>group</span>
+            <span className="material-symbols-outlined -right-2 -bottom-2" style={{position:"absolute", opacity:0.1, fontSize: '100px'}}>group</span>
           </div>
-          <div className="bg-surface-container-low rounded-xl p-4">
-            <p className="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Enrolled</p>
+          <div className="bg-surface-container-low" style={{ borderRadius:"0.75rem", padding:"1rem" }}>
+            <p className="text-[10px] uppercase tracking-widest text-on-surface-variant" style={{ marginBottom:"0.25rem" }}>Enrolled</p>
             <p className="text-2xl font-bold text-on-surface">{enrolledCount}</p>
-            <div className="mt-2 w-8 h-1 rounded-full" style={{ background: '#7b5800' }} />
+            <div style={{marginTop:"0.5rem", width:"2rem", height:"0.25rem", borderRadius:"9999px", background: '#7b5800'}} />
           </div>
-          <div className="bg-surface-container-low rounded-xl p-4">
-            <p className="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Messages</p>
+          <div className="bg-surface-container-low" style={{ borderRadius:"0.75rem", padding:"1rem" }}>
+            <p className="text-[10px] uppercase tracking-widest text-on-surface-variant" style={{ marginBottom:"0.25rem" }}>Messages</p>
             <p className="text-2xl font-bold text-on-surface">{messagesNeedingReply}</p>
-            <div className="mt-2 w-8 h-1 rounded-full" style={{ background: '#8c0f37' }} />
+            <div style={{marginTop:"0.5rem", width:"2rem", height:"0.25rem", borderRadius:"9999px", background: '#8c0f37'}} />
           </div>
         </div>
         {/* Filter chips */}
-        <div className="flex gap-2 overflow-x-auto px-6 pb-3 hide-scrollbar">
+        <div style={{ display:"flex", gap:"0.5rem", overflowX:"auto", scrollbarWidth:"none", paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingBottom:"0.75rem" }}>
           {['All', 'At Risk', 'Upcoming Session', 'New'].map((f, i) => (
-            <span key={f} className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-semibold cursor-pointer"
-              style={i === 0 ? { background: '#8c0f37', color: '#fff' } : { background: 'var(--surface-container-highest)', color: 'var(--on-surface)' }}>
+            <span key={f} className="text-xs font-semibold" style={Object.assign({ flexShrink:0, paddingLeft:"1rem", paddingRight:"1rem", paddingTop:"0.5rem", paddingBottom:"0.5rem", borderRadius:"9999px", cursor:"pointer" }, i === 0 ? { background: '#8c0f37', color: '#fff' } : { background: 'var(--surface-container-highest)', color: 'var(--on-surface)' })}>
               {f}
             </span>
           ))}
         </div>
         {/* Student roster */}
-        <div className="px-6">
-          <div className="flex justify-between items-center mb-4">
+        <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem" }}>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1rem" }}>
             <h3 className="text-lg font-bold tracking-tight">Active Roster</h3>
             <span className="material-symbols-outlined text-on-surface-variant text-xl">sort</span>
           </div>
-          <div className="space-y-3">
+          <div style={{ display:"flex", flexDirection:"column", gap:"0.75rem" }}>
             {assignments.length === 0 ? (
-              <div className="bg-white rounded-xl p-6 text-center">
+              <div className="bg-white" style={{ borderRadius:"0.75rem", padding:"1.5rem", textAlign:"center" }}>
                 <p className="text-sm text-on-surface-variant">No students assigned yet.</p>
               </div>
             ) : (
@@ -144,23 +141,22 @@ export default async function CounselorPortalPage() {
                   : { background: '#fee2e2', color: '#991b1b' };
                 return (
                   <Link key={a.id} href={`/counselor/students/${a.memberId}`}
-                    className="bg-white rounded-xl p-4 flex items-center gap-3 no-underline active:scale-[0.98] transition-all">
-                    <div className="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center flex-shrink-0">
+                    className="bg-white active:scale-[0.98] transition-all" style={{ borderRadius:"0.75rem", padding:"1rem", display:"flex", alignItems:"center", gap:"0.75rem", textDecoration:"none" }}>
+                    <div className="bg-surface-container-high" style={{ width:"3rem", height:"3rem", borderRadius:"0.75rem", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                       <span className="material-symbols-outlined text-on-surface-variant">person</span>
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <div style={{ flex:1, minWidth:0 }}>
                       <h4 className="font-bold text-on-surface text-base truncate">{a.member.fullName}</h4>
-                      <p className="text-[10px] font-bold uppercase tracking-wider mb-1 truncate" style={{ color: '#ad2c4d' }}>{prog}</p>
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 h-1 bg-surface-container rounded-full overflow-hidden">
-                          <div className="h-full rounded-full" style={{ width: `${progressPct}%`, background: '#ad2c4d' }} />
+                      <p className="text-[10px] font-bold uppercase tracking-wider truncate" style={{marginBottom:"0.25rem", color: '#ad2c4d'}}>{prog}</p>
+                      <div style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
+                        <div className="bg-surface-container" style={{ flex:1, height:"0.25rem", borderRadius:"9999px", overflow:"hidden" }}>
+                          <div style={{height:"100%", borderRadius:"9999px", width: `${progressPct}%`, background: '#ad2c4d'}} />
                         </div>
                         <span className="text-[10px] font-bold text-on-surface-variant">{progressPct}%</span>
                       </div>
                     </div>
-                    <div className="flex flex-col items-end gap-2">
-                      <span className="px-2 py-0.5 text-[9px] font-bold rounded uppercase tracking-wider"
-                        style={statusStyle}>{statusLabel}</span>
+                    <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:"0.5rem" }}>
+                      <span className="text-[9px] font-bold uppercase tracking-wider" style={Object.assign({ paddingLeft:"0.5rem", paddingRight:"0.5rem", paddingTop:"0.125rem", paddingBottom:"0.125rem", borderRadius:"0.25rem" }, statusStyle)}>{statusLabel}</span>
                       <span className="material-symbols-outlined text-surface-container-highest">chevron_right</span>
                     </div>
                   </Link>

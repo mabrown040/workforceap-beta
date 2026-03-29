@@ -25,11 +25,11 @@ const STATUS_ACTIONS: Record<string, string[]> = {
 function statusColor(status: string): { bg: string; color: string } {
   if (status === 'hired') return { bg: '#dcfce7', color: '#166534' };
   if (status === 'rejected') return { bg: '#fee2e2', color: '#991b1b' };
-  if (status === 'pending') return { bg: '#fff1f2', color: '#8c0f37' };
-  if (status === 'reviewing') return { bg: '#fef3c7', color: '#7b5800' };
+  if (status === 'pending') return { bg: '#fff1f2', color: 'var(--color-accent)' };
+  if (status === 'reviewing') return { bg: '#fef3c7', color: 'var(--color-gold)' };
   if (status === 'interview') return { bg: '#dbeafe', color: '#1e3a8a' };
   if (status === 'offered') return { bg: '#f3e8ff', color: '#6b21a8' };
-  return { bg: '#f0edec', color: '#584144' };
+  return { bg: 'var(--surface-container)', color: 'var(--color-on-surface-variant)' };
 }
 
 function statusLabel(status: string): string {
@@ -105,7 +105,7 @@ export default function MobileApplicationsClient({
               className="text-xs font-semibold transition-colors"
               style={Object.assign(
                 { flexShrink: 0, padding: "0.375rem 1rem", borderRadius: "9999px" },
-                active ? { background: '#ad2c4d', color: '#ffffff' } : { background: '#f0edec', color: '#584144' }
+                active ? { background: 'var(--color-accent)', color: '#ffffff' } : { background: 'var(--surface-container)', color: 'var(--color-on-surface-variant)' }
               )}
             >
               {f.label}
@@ -122,8 +122,8 @@ export default function MobileApplicationsClient({
       <div style={{ padding: "0 1rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
         {visible.length === 0 ? (
           <div style={{ background: "white", borderRadius: "0.75rem", padding: "1.5rem", textAlign: "center" }}>
-            <span className="material-symbols-outlined text-3xl block mb-2" style={{ color: '#debfc2' }}>inbox</span>
-            <p className="text-sm" style={{ color: '#584144' }}>No applications found.</p>
+            <span className="material-symbols-outlined text-3xl block mb-2" style={{ color: 'var(--outline-variant)' }}>inbox</span>
+            <p className="text-sm" style={{ color: 'var(--color-on-surface-variant)' }}>No applications found.</p>
           </div>
         ) : (
           visible.map((app) => {
@@ -143,13 +143,13 @@ export default function MobileApplicationsClient({
                 >
                   {/* Avatar */}
                   <div
-                    className="text-white font-bold text-base" style={{ width: "3.5rem", height: "3.5rem", borderRadius: "9999px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: '#ad2c4d' }}
+                    className="text-white font-bold text-base" style={{ width: "3.5rem", height: "3.5rem", borderRadius: "9999px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: 'var(--color-accent)' }}
                   >
                     {initials(app.student.fullName)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.5rem" }}>
-                      <h4 className="font-bold text-sm truncate" style={{ color: '#1c1b1b' }}>
+                      <h4 className="font-bold text-sm truncate" style={{ color: 'var(--color-on-surface)' }}>
                         {app.student.fullName}
                       </h4>
                       <span
@@ -159,16 +159,16 @@ export default function MobileApplicationsClient({
                         {statusLabel(app.status)}
                       </span>
                     </div>
-                    <p className="text-xs font-semibold uppercase tracking-wider truncate mt-0.5" style={{ color: '#7b5800' }}>
+                    <p className="text-xs font-semibold uppercase tracking-wider truncate mt-0.5" style={{ color: 'var(--color-gold)' }}>
                       {app.job.title}
                     </p>
-                    <p className="text-[10px] mt-1" style={{ color: '#584144' }}>
+                    <p className="text-[10px] mt-1" style={{ color: 'var(--color-on-surface-variant)' }}>
                       Applied {new Date(app.appliedAt).toLocaleDateString()}
                     </p>
                   </div>
                   <span
                     className="material-symbols-outlined text-[18px] flex-shrink-0 mt-1 transition-transform"
-                    style={{ color: '#8c0f37', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                    style={{ color: 'var(--color-accent)', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
                   >
                     expand_more
                   </span>
@@ -176,10 +176,10 @@ export default function MobileApplicationsClient({
 
                 {/* Expandable detail */}
                 {isExpanded && (
-                  <div className="px-4 pb-4 border-t" style={{ borderColor: '#f0edec' }}>
+                  <div className="px-4 pb-4 border-t" style={{ borderColor: 'var(--surface-container)' }}>
                     <div className="pt-4 mb-4">
-                      <p className="text-[10px] uppercase tracking-widest font-bold mb-1" style={{ color: '#8b7073' }}>Email</p>
-                      <p className="text-sm font-semibold" style={{ color: '#1c1b1b' }}>{app.student.email}</p>
+                      <p className="text-[10px] uppercase tracking-widest font-bold mb-1" style={{ color: 'var(--color-on-surface-variant)' }}>Email</p>
+                      <p className="text-sm font-semibold" style={{ color: 'var(--color-on-surface)' }}>{app.student.email}</p>
                     </div>
 
                     {/* Status action buttons */}
@@ -196,7 +196,7 @@ export default function MobileApplicationsClient({
                               style={
                                 isReject
                                   ? { background: '#ffdad6', color: '#93000a' }
-                                  : { background: '#8c0f37', color: '#ffffff' }
+                                  : { background: 'var(--color-accent)', color: '#ffffff' }
                               }
                             >
                               {busyId === app.id ? '…' : statusLabel(s)}
@@ -206,7 +206,7 @@ export default function MobileApplicationsClient({
                       </div>
                     )}
                     {nextStatuses.length === 0 && (
-                      <p className="text-xs text-center" style={{ color: '#584144' }}>No further actions available.</p>
+                      <p className="text-xs text-center" style={{ color: 'var(--color-on-surface-variant)' }}>No further actions available.</p>
                     )}
                   </div>
                 )}

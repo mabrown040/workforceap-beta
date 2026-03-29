@@ -45,14 +45,14 @@ export default async function CounselorMessagesHubPage() {
             style={{
               fontSize: '1.25rem',
               fontWeight: 800,
-              color: '#1c1b1b',
+              color: 'var(--color-on-surface)',
               letterSpacing: '-0.02em',
               margin: 0,
             }}
           >
             Messages
           </h1>
-          <p style={{ fontSize: '0.8rem', color: '#584144', margin: '0.25rem 0 0' }}>
+          <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>
             Conversations with your students
           </p>
         </div>
@@ -60,7 +60,7 @@ export default async function CounselorMessagesHubPage() {
         {/* Conversation list */}
         <div style={{ padding: '0.75rem 1rem 0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {assignments.length === 0 ? (
-            <p style={{ color: '#584144', fontSize: '0.875rem', padding: '1rem 0' }}>
+            <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem', padding: '1rem 0' }}>
               No assigned members yet.
             </p>
           ) : (
@@ -90,7 +90,7 @@ export default async function CounselorMessagesHubPage() {
                         width: 44,
                         height: 44,
                         borderRadius: '9999px',
-                        background: 'linear-gradient(135deg,#8c0f37,#ad2c4d)',
+                        background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent))',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -104,20 +104,20 @@ export default async function CounselorMessagesHubPage() {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p
                         className="truncate"
-                        style={{ fontWeight: 700, color: '#1c1b1b', fontSize: '0.9rem', margin: '0 0 0.125rem' }}
+                        style={{ fontWeight: 700, color: 'var(--color-on-surface)', fontSize: '0.9rem', margin: '0 0 0.125rem' }}
                       >
                         {a.member.fullName}
                       </p>
                       <p
                         className="truncate"
-                        style={{ fontSize: '0.75rem', color: '#584144', margin: 0 }}
+                        style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: 0 }}
                       >
                         Tap to open conversation
                       </p>
                     </div>
 
                     {/* Chevron */}
-                    <span className="material-symbols-outlined" style={{ color: '#e5e2e1', fontSize: '18px', flexShrink: 0 }}>
+                    <span className="material-symbols-outlined" style={{ color: 'var(--outline-variant)', fontSize: '18px', flexShrink: 0 }}>
                       chevron_right
                     </span>
                   </div>

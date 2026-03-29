@@ -73,7 +73,7 @@ export default async function CounselorPortalPage() {
   const firstName = (dbUser.fullName ?? 'Counselor').split(' ')[0];
 
   const statCards = [
-    { icon: 'groups', label: 'Active Students', value: assignments.length, bg: 'rgba(173,44,77,0.1)', iconColor: 'var(--color-accent)' },
+    { icon: 'groups', label: 'Active Students', value: assignments.length, bg: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', iconColor: 'var(--color-accent)' },
     { icon: 'mark_email_unread', label: 'Unread Messages', value: messagesNeedingReply, bg: 'rgba(59,130,246,0.1)', iconColor: '#3b82f6' },
     { icon: 'school', label: 'Enrolled Modules', value: enrolledCount, bg: 'rgba(128,217,159,0.1)', iconColor: '#80d99f' },
     { icon: 'warning', label: 'Needs Attention', value: needsAttentionCount, bg: 'rgba(251,191,36,0.1)', iconColor: '#fbbf24' },
@@ -87,12 +87,12 @@ export default async function CounselorPortalPage() {
         <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingTop:"1.5rem", paddingBottom:"0.5rem" }}>
           <p className="text-[10px] uppercase tracking-[0.15em] font-semibold text-[#8c0f37]" style={{ marginBottom:"0.5rem" }}>Academic Overview</p>
           <h2 className="text-3xl font-extrabold tracking-tight text-on-surface leading-tight">
-            Morning,<br /><span style={{ color: '#ad2c4d' }}>Counselor</span>
+            Morning,<br /><span style={{ color: 'var(--color-accent)' }}>Counselor</span>
           </h2>
         </div>
         {/* Stats grid */}
         <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem", marginTop:"1rem", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"1rem", marginBottom:"1.5rem" }}>
-          <div className="text-white" style={{gridColumn:"span 2", borderRadius:"0.75rem", padding:"1.25rem", position:"relative", overflow:"hidden", background: '#ad2c4d'}}>
+          <div className="text-white" style={{gridColumn:"span 2", borderRadius:"0.75rem", padding:"1.25rem", position:"relative", overflow:"hidden", background: 'var(--color-accent)'}}>
             <div style={{ position:"relative", zIndex:10 }}>
               <p className="text-[10px] uppercase tracking-widest" style={{ opacity:0.8, marginBottom:"0.25rem" }}>Active Students</p>
               <p className="text-4xl font-bold tracking-tighter">{assignments.length}</p>
@@ -102,18 +102,18 @@ export default async function CounselorPortalPage() {
           <div className="bg-surface-container-low" style={{ borderRadius:"0.75rem", padding:"1rem" }}>
             <p className="text-[10px] uppercase tracking-widest text-on-surface-variant" style={{ marginBottom:"0.25rem" }}>Enrolled</p>
             <p className="text-2xl font-bold text-on-surface">{enrolledCount}</p>
-            <div style={{marginTop:"0.5rem", width:"2rem", height:"0.25rem", borderRadius:"9999px", background: '#7b5800'}} />
+            <div style={{marginTop:"0.5rem", width:"2rem", height:"0.25rem", borderRadius:"9999px", background: 'var(--color-gold)'}} />
           </div>
           <div className="bg-surface-container-low" style={{ borderRadius:"0.75rem", padding:"1rem" }}>
             <p className="text-[10px] uppercase tracking-widest text-on-surface-variant" style={{ marginBottom:"0.25rem" }}>Messages</p>
             <p className="text-2xl font-bold text-on-surface">{messagesNeedingReply}</p>
-            <div style={{marginTop:"0.5rem", width:"2rem", height:"0.25rem", borderRadius:"9999px", background: '#8c0f37'}} />
+            <div style={{marginTop:"0.5rem", width:"2rem", height:"0.25rem", borderRadius:"9999px", background: 'var(--color-accent)'}} />
           </div>
         </div>
         {/* Filter chips */}
         <div style={{ display:"flex", gap:"0.5rem", overflowX:"auto", scrollbarWidth:"none", paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingBottom:"0.75rem" }}>
           {['All', 'At Risk', 'Upcoming Session', 'New'].map((f, i) => (
-            <span key={f} className="text-xs font-semibold" style={Object.assign({ flexShrink:0, paddingLeft:"1rem", paddingRight:"1rem", paddingTop:"0.5rem", paddingBottom:"0.5rem", borderRadius:"9999px", cursor:"pointer" }, i === 0 ? { background: '#8c0f37', color: '#fff' } : { background: 'var(--surface-container-highest)', color: 'var(--on-surface)' })}>
+            <span key={f} className="text-xs font-semibold" style={Object.assign({ flexShrink:0, paddingLeft:"1rem", paddingRight:"1rem", paddingTop:"0.5rem", paddingBottom:"0.5rem", borderRadius:"9999px", cursor:"pointer" }, i === 0 ? { background: 'var(--color-accent)', color: '#fff' } : { background: 'var(--surface-container-highest)', color: 'var(--on-surface)' })}>
               {f}
             </span>
           ))}
@@ -147,10 +147,10 @@ export default async function CounselorPortalPage() {
                     </div>
                     <div style={{ flex:1, minWidth:0 }}>
                       <h4 className="font-bold text-on-surface text-base truncate">{a.member.fullName}</h4>
-                      <p className="text-[10px] font-bold uppercase tracking-wider truncate" style={{marginBottom:"0.25rem", color: '#ad2c4d'}}>{prog}</p>
+                      <p className="text-[10px] font-bold uppercase tracking-wider truncate" style={{marginBottom:"0.25rem", color: 'var(--color-accent)'}}>{prog}</p>
                       <div style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
                         <div className="bg-surface-container" style={{ flex:1, height:"0.25rem", borderRadius:"9999px", overflow:"hidden" }}>
-                          <div style={{height:"100%", borderRadius:"9999px", width: `${progressPct}%`, background: '#ad2c4d'}} />
+                          <div style={{height:"100%", borderRadius:"9999px", width: `${progressPct}%`, background: 'var(--color-accent)'}} />
                         </div>
                         <span className="text-[10px] font-bold text-on-surface-variant">{progressPct}%</span>
                       </div>
@@ -307,7 +307,7 @@ export default async function CounselorPortalPage() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
                           <span style={{
                             padding: '0.25rem 0.75rem',
-                            background: isEnrolled ? 'rgba(128,217,159,0.1)' : 'rgba(173,44,77,0.1)',
+                            background: isEnrolled ? 'rgba(128,217,159,0.1)' : 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
                             color: isEnrolled ? '#80d99f' : 'var(--color-accent)',
                             fontSize: '0.625rem',
                             fontWeight: 700,

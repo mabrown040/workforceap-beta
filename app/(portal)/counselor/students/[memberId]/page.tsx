@@ -80,7 +80,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               gap: '0.25rem',
               fontSize: '0.875rem',
               fontWeight: 500,
-              color: '#8c0f37',
+              color: 'var(--color-accent)',
               textDecoration: 'none',
             }}
           >
@@ -108,7 +108,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                   width: 56,
                   height: 56,
                   borderRadius: '0.875rem',
-                  background: 'linear-gradient(135deg,#8c0f37,#ad2c4d)',
+                  background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent))',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -120,13 +120,13 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <h1
                   className="truncate"
-                  style={{ fontSize: '1.125rem', fontWeight: 800, color: '#1c1b1b', margin: '0 0 0.125rem' }}
+                  style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-on-surface)', margin: '0 0 0.125rem' }}
                 >
                   {member.fullName}
                 </h1>
                 <p
                   className="truncate"
-                  style={{ fontSize: '0.8rem', color: '#584144', margin: '0 0 0.5rem' }}
+                  style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem' }}
                 >
                   {program}
                 </p>
@@ -153,12 +153,12 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 style={{
                   flex: 1,
                   padding: '0.625rem 0',
-                  background: '#f0edec',
+                  background: 'var(--surface-container)',
                   border: 'none',
                   borderRadius: '0.5rem',
                   fontSize: '0.8rem',
                   fontWeight: 600,
-                  color: '#1c1b1b',
+                  color: 'var(--color-on-surface)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -175,7 +175,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 style={{
                   flex: 1,
                   padding: '0.625rem 0',
-                  background: '#8c0f37',
+                  background: 'var(--color-accent)',
                   border: 'none',
                   borderRadius: '0.5rem',
                   fontSize: '0.8rem',
@@ -207,7 +207,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               border: '1px solid #ebe7e7',
             }}
           >
-            <h3 style={{ fontWeight: 700, fontSize: '0.9rem', color: '#1c1b1b', margin: '0 0 1rem' }}>
+            <h3 style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)', margin: '0 0 1rem' }}>
               Program Progress
             </h3>
             {/* Overall progress bar */}
@@ -215,15 +215,15 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               <div
                 style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.375rem' }}
               >
-                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#584144' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
                   Overall Completion
                 </span>
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#8c0f37' }}>68%</span>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)' }}>68%</span>
               </div>
               <div
                 style={{
                   height: 6,
-                  background: '#f0edec',
+                  background: 'var(--surface-container)',
                   borderRadius: '9999px',
                   overflow: 'hidden',
                 }}
@@ -257,7 +257,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                   opacity: mod.done || mod.inProgress ? 1 : 0.5,
                 }}
               >
-                <span style={{ color: '#584144' }}>{mod.name}</span>
+                <span style={{ color: 'var(--color-on-surface-variant)' }}>{mod.name}</span>
                 {mod.done ? (
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#166534' }}>
                     check_circle
@@ -268,7 +268,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                       padding: '0.125rem 0.5rem',
                       borderRadius: '9999px',
                       background: '#fef3c7',
-                      color: '#7b5800',
+                      color: 'var(--color-gold)',
                       fontSize: '0.7rem',
                       fontWeight: 600,
                     }}
@@ -276,7 +276,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                     In Progress
                   </span>
                 ) : (
-                  <span style={{ fontSize: '0.7rem', color: '#8b7073' }}>Not started</span>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>Not started</span>
                 )}
               </div>
             ))}
@@ -301,19 +301,19 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 marginBottom: '1rem',
               }}
             >
-              <h3 style={{ fontWeight: 700, fontSize: '0.9rem', color: '#1c1b1b', margin: 0 }}>
+              <h3 style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)', margin: 0 }}>
                 Counselor Notes
               </h3>
               <button
                 style={{
                   padding: '0.25rem 0.625rem',
-                  background: '#f0edec',
+                  background: 'var(--surface-container)',
                   border: 'none',
                   borderRadius: '0.375rem',
                   fontSize: '0.75rem',
                   fontWeight: 600,
                   cursor: 'pointer',
-                  color: '#1c1b1b',
+                  color: 'var(--color-on-surface)',
                 }}
               >
                 Add Note
@@ -322,18 +322,18 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
             {/* Latest 2 notes (static placeholder — notes model not yet in schema) */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <div style={{ borderLeft: '3px solid #8c0f37', paddingLeft: '0.75rem' }}>
-                <p style={{ fontSize: '0.7rem', color: '#8b7073', margin: '0 0 0.25rem' }}>
+                <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>
                   Most recent · You
                 </p>
-                <p style={{ fontSize: '0.8rem', color: '#1c1b1b', margin: 0 }}>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface)', margin: 0 }}>
                   Student is progressing well. Recommended additional exercises for current module.
                 </p>
               </div>
               <div style={{ borderLeft: '3px solid #debfc2', paddingLeft: '0.75rem' }}>
-                <p style={{ fontSize: '0.7rem', color: '#8b7073', margin: '0 0 0.25rem' }}>
+                <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>
                   Previous · You
                 </p>
-                <p style={{ fontSize: '0.8rem', color: '#1c1b1b', margin: 0 }}>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface)', margin: 0 }}>
                   Completed initial intake session. Reviewed program goals and expectations.
                 </p>
               </div>

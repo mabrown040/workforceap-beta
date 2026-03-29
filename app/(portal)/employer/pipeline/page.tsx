@@ -74,7 +74,7 @@ export default async function EmployerPipelinePage() {
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <div style={{ padding: '1rem 1rem 0.75rem' }}>
           <h1 style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 0.25rem' }}>Candidate Pipeline</h1>
-          <p style={{ fontSize: '0.8rem', color: '#584144', margin: 0 }}>AI-matched candidates across your open roles</p>
+          <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>AI-matched candidates across your open roles</p>
         </div>
 
         {/* Stage scroll */}
@@ -82,10 +82,10 @@ export default async function EmployerPipelinePage() {
           {STAGES.map((stage) => (
             <div
               key={stage.key}
-              style={{ flexShrink: 0, textAlign: 'center', padding: '0.625rem 1rem', background: '#f0edec', borderRadius: '0.75rem', minWidth: '80px' }}
+              style={{ flexShrink: 0, textAlign: 'center', padding: '0.625rem 1rem', background: 'var(--surface-container)', borderRadius: '0.75rem', minWidth: '80px' }}
             >
-              <div style={{ fontSize: '1.125rem', fontWeight: 800, color: '#8c0f37' }}>{stageCounts[stage.key] ?? 0}</div>
-              <div style={{ fontSize: '0.7rem', fontWeight: 600, color: '#584144', marginTop: '0.125rem' }}>{stage.label}</div>
+              <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-accent)' }}>{stageCounts[stage.key] ?? 0}</div>
+              <div style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', marginTop: '0.125rem' }}>{stage.label}</div>
             </div>
           ))}
         </div>
@@ -93,11 +93,11 @@ export default async function EmployerPipelinePage() {
         {/* Cards by job */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '0 1rem' }}>
           {jobs.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '2.5rem 1rem', background: '#f6f3f2', borderRadius: '0.875rem', border: '1px solid #ebe7e7' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: '#debfc2', display: 'block', marginBottom: '0.75rem' }}>account_tree</span>
-              <p style={{ fontWeight: 600, color: '#584144', marginBottom: '0.25rem' }}>No pipeline yet</p>
-              <p style={{ fontSize: '0.8rem', color: '#8b7073', marginBottom: '1rem' }}>Post a job to receive AI-matched candidates.</p>
-              <Link href="/employer/jobs/new" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.625rem 1.25rem', background: '#8c0f37', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
+            <div style={{ textAlign: 'center', padding: '2.5rem 1rem', background: 'var(--surface-container-low)', borderRadius: '0.875rem', border: '1px solid #ebe7e7' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>account_tree</span>
+              <p style={{ fontWeight: 600, color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>No pipeline yet</p>
+              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>Post a job to receive AI-matched candidates.</p>
+              <Link href="/employer/jobs/new" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>Post a Job
               </Link>
             </div>
@@ -107,20 +107,20 @@ export default async function EmployerPipelinePage() {
               if (matches.length === 0) return null;
               return (
                 <div key={job.id}>
-                  <h2 style={{ fontSize: '0.875rem', fontWeight: 700, color: '#1c1b1b', marginBottom: '0.5rem' }}>{job.title}</h2>
+                  <h2 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>{job.title}</h2>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     {matches.map((m) => (
                       <div key={m.id} style={{ background: '#fff', borderRadius: '0.75rem', padding: '0.875rem 1rem', border: '1px solid #ebe7e7', display: 'flex', alignItems: 'center', gap: '0.75rem', boxShadow: '0 1px 3px rgba(28,27,27,0.05)' }}>
-                        <div style={{ width: '2.25rem', height: '2.25rem', borderRadius: '9999px', background: '#fff1f2', color: '#8c0f37', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, flexShrink: 0 }}>
+                        <div style={{ width: '2.25rem', height: '2.25rem', borderRadius: '9999px', background: '#fff1f2', color: 'var(--color-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, flexShrink: 0 }}>
                           {getInitials(m.student.fullName ?? '?')}
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div className="truncate" style={{ fontWeight: 600, fontSize: '0.875rem', color: '#1c1b1b' }}>{m.student.fullName}</div>
-                          <div style={{ fontSize: '0.75rem', color: '#584144' }}>{m.student.enrolledProgram ?? 'No program'}</div>
+                          <div className="truncate" style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{m.student.fullName}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{m.student.enrolledProgram ?? 'No program'}</div>
                         </div>
                         <div style={{ flexShrink: 0, textAlign: 'right' }}>
-                          <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#8c0f37' }}>{Math.round(m.matchScore * 100)}%</div>
-                          <div style={{ fontSize: '0.65rem', color: '#584144', textTransform: 'capitalize' }}>{m.status}</div>
+                          <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)' }}>{Math.round(m.matchScore * 100)}%</div>
+                          <div style={{ fontSize: '0.65rem', color: 'var(--color-on-surface-variant)', textTransform: 'capitalize' }}>{m.status}</div>
                         </div>
                       </div>
                     ))}

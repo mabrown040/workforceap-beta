@@ -58,15 +58,15 @@ export default async function CounselorStudentsPage() {
           }}
         >
           {[
-            { label: 'Active Students', value: activeCount, accent: '#ad2c4d' },
-            { label: 'Enrolled', value: enrolledCount, accent: '#7b5800' },
-            { label: 'Messages', value: 0, accent: '#8c0f37' },
+            { label: 'Active Students', value: activeCount, accent: 'var(--color-accent)' },
+            { label: 'Enrolled', value: enrolledCount, accent: 'var(--color-gold)' },
+            { label: 'Messages', value: 0, accent: 'var(--color-accent)' },
           ].map(({ label, value, accent }) => (
             <div
               key={label}
               style={{
                 flexShrink: 0,
-                background: '#f6f3f2',
+                background: 'var(--surface-container-low)',
                 borderRadius: '0.75rem',
                 padding: '0.875rem 1.125rem',
                 minWidth: '110px',
@@ -77,7 +77,7 @@ export default async function CounselorStudentsPage() {
                   fontSize: '10px',
                   textTransform: 'uppercase',
                   letterSpacing: '0.1em',
-                  color: '#584144',
+                  color: 'var(--color-on-surface-variant)',
                   margin: '0 0 0.25rem',
                 }}
               >
@@ -112,8 +112,8 @@ export default async function CounselorStudentsPage() {
                 fontWeight: 600,
                 letterSpacing: '0.04em',
                 cursor: 'pointer',
-                background: i === 0 ? '#8c0f37' : '#e5e2e1',
-                color: i === 0 ? '#fff' : '#1c1b1b',
+                background: i === 0 ? 'var(--color-accent)' : 'var(--outline-variant)',
+                color: i === 0 ? '#fff' : 'var(--color-on-surface)',
               }}
             >
               {chip}
@@ -130,8 +130,8 @@ export default async function CounselorStudentsPage() {
             padding: '1rem 1rem 0.5rem',
           }}
         >
-          <span style={{ fontSize: '1rem', fontWeight: 700, color: '#1c1b1b' }}>Active Roster</span>
-          <span className="material-symbols-outlined" style={{ color: '#584144', fontSize: '20px' }}>
+          <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>Active Roster</span>
+          <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', fontSize: '20px' }}>
             sort
           </span>
         </div>
@@ -139,7 +139,7 @@ export default async function CounselorStudentsPage() {
         {/* Student list */}
         <div style={{ padding: '0 1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {assignments.length === 0 ? (
-            <p style={{ color: '#584144', fontSize: '0.875rem' }}>No assigned students yet.</p>
+            <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>No assigned students yet.</p>
           ) : (
             assignments.map((a) => {
               const initials = getInitials(a.member.fullName ?? 'U');
@@ -168,7 +168,7 @@ export default async function CounselorStudentsPage() {
                         width: 44,
                         height: 44,
                         borderRadius: '0.625rem',
-                        background: 'linear-gradient(135deg,#8c0f37,#ad2c4d)',
+                        background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent))',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -182,7 +182,7 @@ export default async function CounselorStudentsPage() {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p
                         className="truncate"
-                        style={{ fontWeight: 700, color: '#1c1b1b', fontSize: '0.9rem', margin: '0 0 0.125rem' }}
+                        style={{ fontWeight: 700, color: 'var(--color-on-surface)', fontSize: '0.9rem', margin: '0 0 0.125rem' }}
                       >
                         {a.member.fullName}
                       </p>
@@ -191,7 +191,7 @@ export default async function CounselorStudentsPage() {
                         style={{
                           fontSize: '10px',
                           fontWeight: 700,
-                          color: '#ad2c4d',
+                          color: 'var(--color-accent)',
                           textTransform: 'uppercase',
                           letterSpacing: '0.08em',
                           margin: '0 0 0.375rem',
@@ -207,7 +207,7 @@ export default async function CounselorStudentsPage() {
                           style={{
                             flex: 1,
                             height: 4,
-                            background: '#f0edec',
+                            background: 'var(--surface-container)',
                             borderRadius: '9999px',
                             overflow: 'hidden',
                           }}
@@ -216,7 +216,7 @@ export default async function CounselorStudentsPage() {
                             style={{
                               height: '100%',
                               width: a.member.enrolledProgram ? '50%' : '10%',
-                              background: '#8c0f37',
+                              background: 'var(--color-accent)',
                               borderRadius: '9999px',
                             }}
                           />
@@ -240,7 +240,7 @@ export default async function CounselorStudentsPage() {
                       >
                         On Track
                       </span>
-                      <span className="material-symbols-outlined" style={{ color: '#e5e2e1', fontSize: '18px' }}>
+                      <span className="material-symbols-outlined" style={{ color: 'var(--outline-variant)', fontSize: '18px' }}>
                         chevron_right
                       </span>
                     </div>

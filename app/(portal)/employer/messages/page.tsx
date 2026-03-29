@@ -38,25 +38,25 @@ export default async function EmployerMessagesPage() {
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <div style={{ padding: '1rem 1rem 0.75rem' }}>
           <h1 style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 0.25rem' }}>Messages</h1>
-          <p style={{ fontSize: '0.8rem', color: '#584144', margin: 0 }}>Chat with the WorkforceAP team</p>
+          <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>Chat with the WorkforceAP team</p>
         </div>
 
         {/* Conversation list / preview */}
         <div style={{ padding: '0 1rem', marginBottom: '1rem' }}>
           <div style={{ background: '#fff', borderRadius: '0.875rem', border: '1px solid #ebe7e7', overflow: 'hidden', boxShadow: '0 1px 4px rgba(28,27,27,0.06)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem' }}>
-              <div style={{ width: '2.75rem', height: '2.75rem', borderRadius: '9999px', background: 'linear-gradient(135deg,#8c0f37,#670024)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: '2.75rem', height: '2.75rem', borderRadius: '9999px', background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent-dark))', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: '#fff' }}>support_agent</span>
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#1c1b1b' }}>WorkforceAP Team</div>
-                <div className="truncate" style={{ fontSize: '0.775rem', color: '#584144' }}>
+                <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)' }}>WorkforceAP Team</div>
+                <div className="truncate" style={{ fontSize: '0.775rem', color: 'var(--color-on-surface-variant)' }}>
                   {serializedMessages.length > 0
                     ? (serializedMessages[serializedMessages.length - 1] as { body?: string })?.body ?? 'No messages yet'
                     : 'No messages yet — ask us anything'}
                 </div>
               </div>
-              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: '#debfc2', flexShrink: 0 }}>chevron_right</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--outline-variant)', flexShrink: 0 }}>chevron_right</span>
             </div>
           </div>
         </div>

@@ -141,7 +141,7 @@ export default async function AIToolsPage() {
               href={'href' in tool ? tool.href : '/dashboard/ai-tools'}
               className="bg-white active:scale-[0.98] transition-all" style={{textDecoration:"none", borderRadius:'0.75rem', padding:'1rem', display:'flex', flexDirection:'column', gap:'0.5rem'}}
             >
-              <div style={{ width:'2.5rem', height:'2.5rem', borderRadius:'9999px', display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(173,44,77,0.1)', color:'#ad2c4d' }}>
+              <div style={{ width:'2.5rem', height:'2.5rem', borderRadius:'9999px', display:'flex', alignItems:'center', justifyContent:'center', background:'color-mix(in srgb, var(--color-accent) 10%, transparent)', color:'var(--color-accent)' }}>
                 <span className="material-symbols-outlined text-[20px]">{tool.icon}</span>
               </div>
               <div>
@@ -149,7 +149,7 @@ export default async function AIToolsPage() {
                 <p className="text-on-surface-variant text-[11px] leading-snug line-clamp-2" style={{ marginTop:"0.25rem" }}>{tool.description}</p>
               </div>
               {'badge' in tool && tool.badge && (
-                <span className="text-[9px] font-bold uppercase tracking-wider" style={{alignSelf:"flex-start", background: '#ffbb00', color: '#6c4d00', padding:'0.125rem 0.5rem', borderRadius:'9999px'}}>{tool.badge}</span>
+                <span className="text-[9px] font-bold uppercase tracking-wider" style={{alignSelf:"flex-start", background: 'var(--color-gold)', color: '#6c4d00', padding:'0.125rem 0.5rem', borderRadius:'9999px'}}>{tool.badge}</span>
               )}
             </Link>
           ))}
@@ -162,7 +162,7 @@ export default async function AIToolsPage() {
             { title: 'Flexible', desc: 'Use whenever you need', icon: 'schedule' },
           ].map((item) => (
             <div key={item.title} className="bg-white" style={{textAlign:"center", flex:1, borderRadius:'0.75rem', padding:'0.75rem'}}>
-              <span className="material-symbols-outlined text-[18px]" style={{ color:'#8c0f37', display:'block', marginBottom:'0.25rem' }}>{item.icon}</span>
+              <span className="material-symbols-outlined text-[18px]" style={{ color:'var(--color-accent)', display:'block', marginBottom:'0.25rem' }}>{item.icon}</span>
               <div className="text-sm font-bold text-on-surface leading-tight">{item.title}</div>
               <div className="text-[9px] font-medium leading-snug text-on-surface-variant" style={{ marginTop:'0.125rem' }}>{item.desc}</div>
             </div>

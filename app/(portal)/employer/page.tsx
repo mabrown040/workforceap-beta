@@ -152,7 +152,7 @@ export default async function EmployerDashboardPage() {
         {/* Stats row - horizontal scroll */}
         <div style={{ display:"flex", gap:"0.75rem", overflowX:"auto", scrollbarWidth:"none", paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingBottom:"0.5rem" }}>
           {[
-            { label: 'Open Roles', value: activeJobs, color: '#8c0f37' },
+            { label: 'Open Roles', value: activeJobs, color: 'var(--color-accent)' },
             { label: 'Candidates', value: totalApplications, color: 'var(--on-surface)' },
             { label: 'In Review', value: inReview, color: 'var(--secondary)' },
           ].map((s) => (
@@ -175,14 +175,14 @@ export default async function EmployerDashboardPage() {
                 <p className="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-tighter">{s.label}</p>
                 <p className="text-sm font-bold text-on-surface">{s.value}</p>
               </div>
-              {i < arr.length - 1 && <div className="w-px bg-outline-variant/30" style={{ height:"1.25rem" }} />}
+              {i < arr.length - 1 && <div className="bg-outline-variant/30" style={{ width: '1px', height:"1.25rem" }} />}
             </div>
           ))}
         </div>
         {/* Quick actions */}
         <div style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginTop:"1rem", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"0.75rem" }}>
           <Link href="/employer/jobs/new"
-            className="text-white active:scale-[0.98] transition-all" style={{gridColumn:"span 2", padding:"1rem", borderRadius:"0.75rem", display:"flex", alignItems:"center", justifyContent:"space-between", textDecoration:"none", background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)'}}>
+            className="text-white active:scale-[0.98] transition-all" style={{gridColumn:"span 2", padding:"1rem", borderRadius:"0.75rem", display:"flex", alignItems:"center", justifyContent:"space-between", textDecoration:"none", background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent))'}}>
             <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
               <span className="material-symbols-outlined">add_circle</span>
               <span className="font-bold tracking-tight">Post a Role</span>
@@ -227,7 +227,7 @@ export default async function EmployerDashboardPage() {
                     </div>
                     <p className="text-xs text-[#7b5800] font-semibold uppercase tracking-wider truncate" style={{ marginBottom:"0.25rem" }}>{app.job.title}</p>
                     <span className="text-[10px] font-bold uppercase tracking-tighter" style={{paddingLeft:"0.5rem", paddingRight:"0.5rem", paddingTop:"0.5", paddingBottom:"0.5", borderRadius:"9999px", background: app.status === 'pending' ? '#fff1f2' : '#fef3c7',
-                        color: app.status === 'pending' ? '#8c0f37' : '#7b5800',}}>
+                        color: app.status === 'pending' ? 'var(--color-accent)' : 'var(--color-gold)',}}>
                       {app.status}
                     </span>
                   </div>

@@ -137,7 +137,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
           <h1 style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.02em', margin: 0 }}>My Jobs</h1>
           <Link
             href="/employer/jobs/new"
-            style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.5rem 0.875rem', background: 'linear-gradient(135deg,#8c0f37,#670024)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.5rem 0.875rem', background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent-dark))', color: '#fff', borderRadius: '0.5rem', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>
             Post Job
@@ -157,8 +157,8 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
                 fontSize: '0.8rem',
                 fontWeight: 600,
                 textDecoration: 'none',
-                background: filter === chip.value ? '#8c0f37' : '#f0edec',
-                color: filter === chip.value ? '#fff' : '#584144',
+                background: filter === chip.value ? 'var(--color-accent)' : 'var(--surface-container)',
+                color: filter === chip.value ? '#fff' : 'var(--color-on-surface-variant)',
               }}
             >
               {chip.label}
@@ -169,13 +169,13 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
         {/* Job cards */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem', padding: '0 1rem' }}>
           {boardItems.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '2.5rem 1rem', background: '#f6f3f2', borderRadius: '0.875rem', border: '1px solid #ebe7e7' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: '#debfc2', display: 'block', marginBottom: '0.75rem' }}>work_outline</span>
-              <p style={{ fontWeight: 600, color: '#584144', marginBottom: '0.25rem' }}>No jobs yet</p>
-              <p style={{ fontSize: '0.8rem', color: '#8b7073', marginBottom: '1rem' }}>Post your first role to start receiving AI-matched candidates.</p>
+            <div style={{ textAlign: 'center', padding: '2.5rem 1rem', background: 'var(--surface-container-low)', borderRadius: '0.875rem', border: '1px solid #ebe7e7' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>work_outline</span>
+              <p style={{ fontWeight: 600, color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>No jobs yet</p>
+              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>Post your first role to start receiving AI-matched candidates.</p>
               <Link
                 href="/employer/jobs/new"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.625rem 1.25rem', background: '#8c0f37', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>Post a Job
               </Link>
@@ -193,16 +193,16 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.375rem' }}>
-                  <h3 className="truncate" style={{ fontWeight: 700, fontSize: '0.9375rem', color: '#1c1b1b', margin: 0, flex: 1, paddingRight: '0.5rem' }}>
+                  <h3 className="truncate" style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0, flex: 1, paddingRight: '0.5rem' }}>
                     {job.title}
                   </h3>
                   <span style={{ ...statusBadgeStyle(job.status), padding: '0.125rem 0.5rem', borderRadius: '9999px', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', flexShrink: 0 }}>
                     {job.statusLabel}
                   </span>
                 </div>
-                <p style={{ fontSize: '0.775rem', color: '#584144', margin: '0 0 0.5rem' }}>{job.location}</p>
+                <p style={{ fontSize: '0.775rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem' }}>{job.location}</p>
                 <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.75rem' }}>
-                  <span style={{ fontSize: '0.775rem', color: '#584144', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                  <span style={{ fontSize: '0.775rem', color: 'var(--color-on-surface-variant)', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
                     <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>person</span>
                     {job.applicationsCount} applicants
                   </span>
@@ -210,14 +210,14 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <Link
                     href={`/employer/jobs/${job.id}`}
-                    style={{ flex: 1, textAlign: 'center', padding: '0.5rem', background: '#f0edec', color: '#1c1b1b', borderRadius: '0.375rem', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}
+                    style={{ flex: 1, textAlign: 'center', padding: '0.5rem', background: 'var(--surface-container)', color: 'var(--color-on-surface)', borderRadius: '0.375rem', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}
                     className="active:scale-95 transition-transform"
                   >
                     View
                   </Link>
                   <Link
                     href={`/employer/applications?job=${job.id}`}
-                    style={{ flex: 1, textAlign: 'center', padding: '0.5rem', background: '#fff1f2', color: '#8c0f37', borderRadius: '0.375rem', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}
+                    style={{ flex: 1, textAlign: 'center', padding: '0.5rem', background: '#fff1f2', color: 'var(--color-accent)', borderRadius: '0.375rem', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}
                     className="active:scale-95 transition-transform"
                   >
                     Applications

@@ -32,13 +32,13 @@ export default function PartnerMilestonesMobile() {
 
   if (error) return (
     <div style={{ padding: '1.5rem', textAlign: 'center' }}>
-      <p style={{ color: '#584144', fontSize: '0.875rem' }}>{error}</p>
+      <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>{error}</p>
     </div>
   );
 
   if (!milestones) return (
     <div style={{ padding: '1.5rem', textAlign: 'center' }}>
-      <p style={{ color: '#584144', fontSize: '0.875rem' }}>Loading milestones…</p>
+      <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>Loading milestones…</p>
     </div>
   );
 
@@ -49,9 +49,9 @@ export default function PartnerMilestonesMobile() {
   if (milestones.length === 0) {
     return (
       <div style={{ padding: '2rem 1.5rem', textAlign: 'center' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: '#debfc2', display: 'block', marginBottom: '0.75rem' }}>flag</span>
-        <p className="text-sm font-semibold" style={{ color: '#1c1b1b', marginBottom: '0.25rem' }}>No milestones yet</p>
-        <p className="text-xs" style={{ color: '#584144' }}>Milestones will appear here as your members progress through training.</p>
+        <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>flag</span>
+        <p className="text-sm font-semibold" style={{ color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>No milestones yet</p>
+        <p className="text-xs" style={{ color: 'var(--color-on-surface-variant)' }}>Milestones will appear here as your members progress through training.</p>
       </div>
     );
   }
@@ -61,17 +61,17 @@ export default function PartnerMilestonesMobile() {
       {/* Pending Queue */}
       <div style={{ marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-          <p className="text-sm font-bold" style={{ color: '#1c1b1b', margin: 0 }}>Pending Review</p>
+          <p className="text-sm font-bold" style={{ color: 'var(--color-on-surface)', margin: 0 }}>Pending Review</p>
           {pending.length > 0 && (
-            <span style={{ padding: '0.125rem 0.5rem', borderRadius: '9999px', background: '#8c0f37', color: '#fff', fontSize: '0.625rem', fontWeight: 700 }}>
+            <span style={{ padding: '0.125rem 0.5rem', borderRadius: '9999px', background: 'var(--color-accent)', color: '#fff', fontSize: '0.625rem', fontWeight: 700 }}>
               {pending.length}
             </span>
           )}
         </div>
 
         {pending.length === 0 ? (
-          <div style={{ background: '#f0edec', borderRadius: '0.75rem', padding: '1rem', textAlign: 'center' }}>
-            <p className="text-xs" style={{ color: '#584144' }}>No milestones pending review</p>
+          <div style={{ background: 'var(--surface-container)', borderRadius: '0.75rem', padding: '1rem', textAlign: 'center' }}>
+            <p className="text-xs" style={{ color: 'var(--color-on-surface-variant)' }}>No milestones pending review</p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
@@ -80,10 +80,10 @@ export default function PartnerMilestonesMobile() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                   <div style={{ flex: 1 }}>
                     <Link href={`/partner/members/${m.memberId}`} style={{ textDecoration: 'none' }}>
-                      <p className="text-sm font-semibold" style={{ color: '#1c1b1b', margin: '0 0 0.125rem' }}>{m.memberName}</p>
+                      <p className="text-sm font-semibold" style={{ color: 'var(--color-on-surface)', margin: '0 0 0.125rem' }}>{m.memberName}</p>
                     </Link>
-                    <p className="text-xs font-medium" style={{ color: '#8c0f37', margin: '0 0 0.125rem' }}>{m.label}</p>
-                    <p className="text-xs" style={{ color: '#584144', margin: 0 }}>
+                    <p className="text-xs font-medium" style={{ color: 'var(--color-accent)', margin: '0 0 0.125rem' }}>{m.label}</p>
+                    <p className="text-xs" style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>
                       {new Date(m.at).toLocaleDateString()}
                     </p>
                   </div>
@@ -96,7 +96,7 @@ export default function PartnerMilestonesMobile() {
                     fontWeight: 700,
                     textTransform: 'uppercase',
                     background: 'rgba(173,44,77,0.08)',
-                    color: '#8c0f37',
+                    color: 'var(--color-accent)',
                   }}>
                     {m.kind}
                   </span>
@@ -108,7 +108,7 @@ export default function PartnerMilestonesMobile() {
                       flex: 1,
                       padding: '0.5rem',
                       borderRadius: '0.5rem',
-                      background: '#8c0f37',
+                      background: 'var(--color-accent)',
                       color: '#fff',
                       fontSize: '0.75rem',
                       fontWeight: 700,
@@ -124,8 +124,8 @@ export default function PartnerMilestonesMobile() {
                       flex: 1,
                       padding: '0.5rem',
                       borderRadius: '0.5rem',
-                      background: '#f0edec',
-                      color: '#584144',
+                      background: 'var(--surface-container)',
+                      color: 'var(--color-on-surface-variant)',
                       fontSize: '0.75rem',
                       fontWeight: 700,
                       border: '1px solid #ebe7e7',
@@ -159,10 +159,10 @@ export default function PartnerMilestonesMobile() {
               cursor: 'pointer',
             }}
           >
-            <p className="text-sm font-bold" style={{ color: '#1c1b1b', margin: 0 }}>
+            <p className="text-sm font-bold" style={{ color: 'var(--color-on-surface)', margin: 0 }}>
               Completed ({completed.length})
             </p>
-            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: '#584144', transition: 'transform 0.2s', transform: completedOpen ? 'rotate(180deg)' : 'none' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', transition: 'transform 0.2s', transform: completedOpen ? 'rotate(180deg)' : 'none' }}>
               expand_more
             </span>
           </button>
@@ -170,11 +170,11 @@ export default function PartnerMilestonesMobile() {
           {completedOpen && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', paddingTop: '0.75rem' }}>
               {completed.map((m) => (
-                <div key={m.id} style={{ background: '#f6f3f2', borderRadius: '0.75rem', padding: '0.875rem 1rem', border: '1px solid #ebe7e7' }}>
+                <div key={m.id} style={{ background: 'var(--surface-container-low)', borderRadius: '0.75rem', padding: '0.875rem 1rem', border: '1px solid #ebe7e7' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                      <p className="text-sm font-semibold" style={{ color: '#1c1b1b', margin: '0 0 0.125rem' }}>{m.memberName}</p>
-                      <p className="text-xs" style={{ color: '#584144', margin: 0 }}>{m.label} · {new Date(m.at).toLocaleDateString()}</p>
+                      <p className="text-sm font-semibold" style={{ color: 'var(--color-on-surface)', margin: '0 0 0.125rem' }}>{m.memberName}</p>
+                      <p className="text-xs" style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>{m.label} · {new Date(m.at).toLocaleDateString()}</p>
                     </div>
                     <span style={{
                       padding: '0.15rem 0.5rem',

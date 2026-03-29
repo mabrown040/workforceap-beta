@@ -41,7 +41,7 @@ export default async function LearningPage() {
     <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
       {/* Header */}
       <div style={{ padding: '1.5rem 1.5rem 0', marginBottom: '1.5rem' }}>
-        <span className="text-[10px] font-medium tracking-[0.1em] uppercase text-[#8c0f37]" style={{display:"block", marginBottom: '0.5rem'}}>Learning Path</span>
+        <span className="text-[10px] font-medium tracking-[0.1em] uppercase text-[#8c0f37]" style={{ display: 'block', marginBottom: '0.5rem' }}>Learning Path</span>
         <h2 className="text-3xl font-bold tracking-tight text-[#1c1b1b] leading-tight">My Learning</h2>
       </div>
 
@@ -57,10 +57,10 @@ export default async function LearningPage() {
           {/* Progress orb */}
           <div style={{ position: 'relative', width: '5rem', height: '5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <svg className="-rotate-90" style={{ width: '100%', height: '100%' }} viewBox="0 0 80 80">
-              <circle cx="40" cy="40" r="32" fill="transparent" stroke="#debfc2" strokeWidth="5" />
+              <circle cx="40" cy="40" r="32" fill="transparent" stroke="var(--outline-variant)" strokeWidth="5" />
               <circle
                 cx="40" cy="40" r="32" fill="transparent"
-                stroke="#7b5800" strokeWidth="5"
+                stroke="var(--color-gold)" strokeWidth="5"
                 strokeDasharray="201"
                 strokeDashoffset={201 - (201 * overallPct) / 100}
                 strokeLinecap="round"
@@ -93,9 +93,9 @@ export default async function LearningPage() {
       </section>
 
       {/* In-progress / upcoming modules — Stitch-aligned */}
-      <section style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginBottom:"1.5rem" }}>
-        <h5 className="text-xs font-bold uppercase tracking-widest text-[#584144]" style={{ marginBottom:"1rem" }}>Course Modules</h5>
-        <div style={{ display:"flex", flexDirection:"column", gap:"0.75rem" }}>
+      <section style={{ margin: '0 1.5rem 1.5rem' }}>
+        <h5 className="text-xs font-bold uppercase tracking-widest text-[#584144]" style={{ marginBottom: '1rem' }}>Course Modules</h5>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {upcomingModules.map((stepLabel, i) => {
             const isCompleted = i < completedCount;
             const isActive = i === completedCount;
@@ -103,34 +103,39 @@ export default async function LearningPage() {
             return (
               <div
                 key={i}
-                className={`flex items-center gap-4 rounded-xl px-4 py-3 ${
-                  isCompleted
-                    ? 'bg-white border-l-4 border-[#7b5800] shadow-sm'
-                    : isActive
-                    ? 'bg-white border-l-4 border-[#8c0f37] shadow-sm'
-                    : 'bg-[#f6f3f2] opacity-60'
-                }`}
+                className={`${isCompleted ? 'bg-white border-l-4 border-[#7b5800]' : isActive ? 'bg-white border-l-4 border-[#8c0f37]' : 'bg-[#f6f3f2] opacity-60'}`}
+                style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderRadius: '0.75rem', padding: '0.75rem 1rem', boxShadow: isCompleted || isActive ? '0 1px 2px rgba(0,0,0,0.05)' : undefined }}
               >
                 <div
-                  style={{width:"2.25rem", height:"2.25rem", borderRadius:"9999px", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, background: isCompleted
+                  style={{
+                    width: '2.25rem',
+                    height: '2.25rem',
+                    borderRadius: '9999px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    background: isCompleted
                       ? 'rgba(123,88,0,0.1)'
                       : isActive
-                      ? 'rgba(140,15,55,0.1)'
-                      : 'rgba(88,65,68,0.1)',}}
+                      ? 'color-mix(in srgb, var(--color-accent) 10%, transparent)'
+                      : 'rgba(88,65,68,0.1)',
+                  }}
                 >
                   <span
                     className="material-symbols-outlined text-base"
                     style={{
-                      color: isCompleted ? '#7b5800' : isActive ? '#8c0f37' : '#584144',
+                      color: isCompleted ? 'var(--color-gold)' : isActive ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
                       fontVariationSettings: isCompleted ? "'FILL' 1" : "'FILL' 0",
                     }}
                   >
                     {isCompleted ? 'check_circle' : isLocked ? 'lock' : (MODULE_ICONS[ACTIVE_PATHWAY.category] ?? 'school')}
                   </span>
                 </div>
-                <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
                   <p
-                    className="text-[10px] font-bold uppercase tracking-tight" style={{marginBottom:"0.5", color: isCompleted ? '#7b5800' : isActive ? '#8c0f37' : '#584144'}}
+                    className="text-[10px] font-bold uppercase tracking-tight"
+                    style={{ marginBottom: '0.125rem', color: isCompleted ? 'var(--color-gold)' : isActive ? 'var(--color-accent)' : 'var(--color-on-surface-variant)' }}
                   >
                     {isCompleted ? 'Completed' : isActive ? 'In Progress' : 'Locked'}
                   </p>
@@ -144,18 +149,18 @@ export default async function LearningPage() {
 
       {/* Completed courses section (Stitch: in-progress vs completed separation) */}
       {completedCount > 0 && (
-        <section style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginBottom:"1.5rem" }}>
-          <h5 className="text-xs font-bold uppercase tracking-widest text-[#584144]" style={{ marginBottom:"0.75rem" }}>Completed</h5>
-          <div style={{ display:"flex", flexDirection:"column", gap:"0.75rem" }}>
+        <section style={{ margin: '0 1.5rem 1.5rem' }}>
+          <h5 className="text-xs font-bold uppercase tracking-widest text-[#584144]" style={{ marginBottom: '0.75rem' }}>Completed</h5>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {ACTIVE_PATHWAY.steps.slice(0, completedCount).map((stepLabel, i) => (
-              <div key={i} className="bg-white border-l-4 border-[#7b5800]" style={{ display:"flex", alignItems:"center", gap:"1rem", borderRadius:"0.75rem", paddingLeft:"1rem", paddingRight:"1rem", paddingTop:"0.75rem", paddingBottom:"0.75rem", boxShadow:"0 1px 2px rgba(0,0,0,0.05)" }}>
-                <div style={{width:"2.25rem", height:"2.25rem", borderRadius:"9999px", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, background: 'rgba(123,88,0,0.1)'}}>
-                  <span className="material-symbols-outlined text-base" style={{ color: '#7b5800', fontVariationSettings: "'FILL' 1" }}>
+              <div key={i} className="bg-white border-l-4 border-[#7b5800]" style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderRadius: '0.75rem', padding: '0.75rem 1rem', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+                <div style={{ width: '2.25rem', height: '2.25rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'rgba(123,88,0,0.1)' }}>
+                  <span className="material-symbols-outlined text-base" style={{ color: 'var(--color-gold)', fontVariationSettings: "'FILL' 1" }}>
                     check_circle
                   </span>
                 </div>
-                <div style={{ flex:1, minWidth:0 }}>
-                  <p className="text-[10px] font-bold uppercase tracking-tight text-[#7b5800]" style={{ marginBottom:"0.5" }}>Completed</p>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p className="text-[10px] font-bold uppercase tracking-tight text-[#7b5800]" style={{ marginBottom: '0.125rem' }}>Completed</p>
                   <p className="text-sm font-semibold text-[#1c1b1b] truncate">{stepLabel}</p>
                 </div>
               </div>

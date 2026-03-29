@@ -169,7 +169,7 @@ export default async function DashboardPage() {
               <circle cx="48" cy="48" r="40" fill="transparent" stroke="#f2eeed" strokeWidth="6" />
               <circle
                 cx="48" cy="48" r="40" fill="transparent"
-                stroke="#8c0f37" strokeWidth="6"
+                stroke="var(--color-accent)" strokeWidth="6"
                 strokeDasharray={orbCircumference}
                 strokeDashoffset={orbDashoffset}
                 strokeLinecap="round"
@@ -185,11 +185,11 @@ export default async function DashboardPage() {
         {/* Next step card */}
         {applicationStatus?.nextStep && (
           <section style={{ padding:"0 1.5rem", marginBottom:"1.5rem" }}>
-            <div style={{ padding:"1px", borderRadius:"0.75rem", background:"linear-gradient(135deg,#8c0f37,#ad2c4d)", boxShadow:"0 1px 3px rgba(0,0,0,0.1)" }}>
-              <div style={{ background:"#fcf9f8", borderRadius:"11px", padding:"1.25rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
+            <div style={{ padding:"1px", borderRadius:"0.75rem", background:"linear-gradient(135deg,var(--color-accent),var(--color-accent))", boxShadow:"0 1px 3px rgba(0,0,0,0.1)" }}>
+              <div style={{ background:"var(--surface-container-lowest)", borderRadius:"11px", padding:"1.25rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
                   <div style={{ display:"flex", flexDirection:"column", gap:"0.25rem" }}>
-                    <span className="text-[10px] font-bold uppercase tracking-wider" style={{ display:"inline-flex", alignItems:"center", padding:"0.125rem 0.5rem", borderRadius:"9999px", background:"rgba(140,15,55,0.1)", color:"#8c0f37" }}>
+                    <span className="text-[10px] font-bold uppercase tracking-wider" style={{ display:"inline-flex", alignItems:"center", padding:"0.125rem 0.5rem", borderRadius:"9999px", background:"color-mix(in srgb, var(--color-accent) 10%, transparent)", color:"var(--color-accent)" }}>
                       Priority
                     </span>
                     <h2 className="text-lg font-bold text-[#1c1b1b] tracking-tight">
@@ -202,7 +202,7 @@ export default async function DashboardPage() {
                   Your next action for{' '}
                   {applicationStatus.programInterest ?? program?.title ?? 'your program'}.
                 </p>
-                <button className="font-bold text-sm tracking-wide active:scale-[0.98] transition-transform" style={{ width:"100%", background:"linear-gradient(135deg,#8c0f37,#ad2c4d)", color:"white", padding:"0.75rem", borderRadius:"0.375rem", border:"none", cursor:"pointer" }}>
+                <button className="font-bold text-sm tracking-wide active:scale-[0.98] transition-transform" style={{ width:"100%", background:"linear-gradient(135deg,var(--color-accent),var(--color-accent))", color:"white", padding:"0.75rem", borderRadius:"0.375rem", border:"none", cursor:"pointer" }}>
                   Take Action
                 </button>
               </div>
@@ -218,12 +218,12 @@ export default async function DashboardPage() {
             {journeySteps.map((step, i) => (
               <div key={i} style={{ position:"relative", display:"flex", alignItems:"flex-start", gap:"1.25rem", paddingBottom:"1.75rem", opacity: step.pending ? 0.4 : 1 }}>
                 {step.done ? (
-                  <div style={{ position:"relative", zIndex:10, width:"1.5rem", height:"1.5rem", borderRadius:"9999px", background:"#8c0f37", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                  <div style={{ position:"relative", zIndex:10, width:"1.5rem", height:"1.5rem", borderRadius:"9999px", background:"var(--color-accent)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                     <span className="material-symbols-outlined" style={{ color:"white", fontSize:"0.75rem" }}>check</span>
                   </div>
                 ) : step.active ? (
-                  <div style={{ position:"relative", zIndex:10, width:"1.5rem", height:"1.5rem", borderRadius:"9999px", background:"#fcf9f8", border:"4px solid #8c0f37", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                    <div style={{ width:"0.5rem", height:"0.5rem", borderRadius:"9999px", background:"#8c0f37" }} />
+                  <div style={{ position:"relative", zIndex:10, width:"1.5rem", height:"1.5rem", borderRadius:"9999px", background:"var(--surface-container-lowest)", border:"4px solid #8c0f37", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                    <div style={{ width:"0.5rem", height:"0.5rem", borderRadius:"9999px", background:"var(--color-accent)" }} />
                   </div>
                 ) : (
                   <div style={{ position:"relative", zIndex:10, width:"1.5rem", height:"1.5rem", borderRadius:"9999px", background:"#f2eeed", border:"2px solid #debfc2", flexShrink:0 }} />
@@ -251,11 +251,11 @@ export default async function DashboardPage() {
               { provider: 'Amazon Web Services', title: 'Cloud Practitioner Essentials' },
               { provider: 'Google', title: 'Cybersecurity Professional' },
             ].map((prog, i) => (
-              <div key={i} style={{ minWidth:"220px", borderRadius:"0.75rem", overflow:"hidden", display:"flex", flexDirection:"column", boxShadow:"0 1px 3px rgba(0,0,0,0.08)", flexShrink:0, background:"#f0edec" }}>
+              <div key={i} style={{ minWidth:"220px", borderRadius:"0.75rem", overflow:"hidden", display:"flex", flexDirection:"column", boxShadow:"0 1px 3px rgba(0,0,0,0.08)", flexShrink:0, background:"var(--surface-container)" }}>
                 <div style={{ height:"7rem", position:"relative", background:"linear-gradient(135deg, #2b1f20 0%, #584144 100%)" }}>
                 </div>
                 <div style={{ padding:"1rem", display:"flex", flexDirection:"column", gap:"0.25rem" }}>
-                  <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#7b5800' }}>{prog.provider}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--color-gold)' }}>{prog.provider}</p>
                   <h4 className="font-bold text-sm text-[#1c1b1b] leading-tight">{prog.title}</h4>
                 </div>
               </div>
@@ -275,7 +275,7 @@ export default async function DashboardPage() {
             ].map((action) => (
               <a key={action.label} href={action.href}
                 className="active:scale-[0.97] transition-transform" style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"1rem", borderRadius:"0.75rem", textDecoration:"none", background:"#ffffff", border:"1px solid rgba(222,191,194,0.3)", boxShadow:"0 1px 4px rgba(0,0,0,0.05)" }}>
-                <span className="material-symbols-outlined" style={{ marginBottom:"0.5rem", color:"#8c0f37" }}>{action.icon}</span>
+                <span className="material-symbols-outlined" style={{ marginBottom:"0.5rem", color:"var(--color-accent)" }}>{action.icon}</span>
                 <span className="text-[11px] font-bold text-[#1c1b1b] tracking-tight">{action.label}</span>
               </a>
             ))}

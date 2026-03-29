@@ -50,10 +50,10 @@ function PortalBottomNav() {
       className="wa-fixed wa-bottom-0 wa-left-0 wa-w-full wa-z-50 wa-flex wa-justify-around wa-items-center wa-px-4 md:wa-hidden"
       style={{
         height: '5rem',
-        background: 'var(--glass-bg)',
+        background: 'rgba(252,249,248,0.88)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
-        borderTop: '1px solid color-mix(in srgb, var(--color-accent) 10%, transparent)',
+        borderTop: '1px solid rgba(173,44,77,0.1)',
         boxShadow: '0 -4px 24px rgba(28,27,27,0.04)',
         paddingBottom: 'env(safe-area-inset-bottom)',
       }}
@@ -69,7 +69,7 @@ function PortalBottomNav() {
             className="flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-xl min-w-[56px] active:scale-90 transition-all duration-150"
             style={
               isActive
-                ? { color: 'var(--color-accent)', background: 'color-mix(in srgb, var(--color-accent) 7%, transparent)' }
+                ? { color: 'var(--color-accent)', background: 'rgba(173,44,77,0.07)' }
                 : { color: 'var(--color-on-surface-variant)', opacity: 0.7 }
             }
           >
@@ -241,21 +241,20 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
       : lastMsgTime;
 
     return (
-      <div className="md:wa-hidden wa-flex wa-flex-col wa-min-h-screen" style={{ background: 'var(--color-background-dark)' }}>
+      <div className="md:wa-hidden wa-flex wa-flex-col wa-min-h-screen" style={{ background: 'var(--surface-container-lowest)' }}>
         {/* Header */}
         <header
           className="sticky top-0 z-50 flex items-center justify-between px-6 py-4 w-full"
-          style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
+          style={{ background: 'rgba(252,249,248,0.88)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
         >
           <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="p-1 rounded-full active:scale-95 transition-transform" style={{ color: 'var(--color-accent)' }}>
+            <Link href="/dashboard" className="text-[var(--color-accent)] p-1 rounded-full hover:bg-[var(--surface-container-high)] active:scale-95 transition-transform">
               <span className="material-symbols-outlined">arrow_back</span>
             </Link>
-            <h1 className="font-bold text-xl tracking-tight" style={{ color: 'var(--color-accent)' }}>Messages</h1>
+            <h1 className="text-[var(--color-accent)] font-bold text-xl tracking-tight">Messages</h1>
           </div>
           <button
-            className="p-1 rounded-full active:scale-95 transition-transform"
-            style={{ color: 'var(--color-accent)' }}
+            className="text-[var(--color-accent)] p-1 rounded-full hover:bg-[var(--surface-container-high)] active:scale-95 transition-transform"
             aria-label="New message"
           >
             <span className="material-symbols-outlined">edit_square</span>
@@ -265,12 +264,12 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
         {/* Search */}
         <div className="px-6 py-4">
           <div className="relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-sm" style={{ color: 'var(--color-on-surface-variant)' }}>search</span>
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-on-surface-variant)] text-sm">search</span>
             <input
               type="text"
               placeholder="Search conversations"
-              className="w-full pl-10 pr-3 py-3 rounded-xl text-sm focus:outline-none focus:ring-2"
-              style={{ background: 'var(--surface-container-high)', border: 'none', color: 'var(--color-on-surface)' }}
+              className="w-full pl-10 pr-3 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-dark)]/40 placeholder:text-[var(--color-on-surface-variant)]/60"
+              style={{ background: 'var(--surface-container-high)', border: 'none' }}
               readOnly
             />
           </div>
@@ -284,8 +283,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
               <button
                 type="button"
                 onClick={() => setView('thread')}
-                className="w-full rounded-xl px-4 py-4 flex items-center gap-4 cursor-pointer active:scale-[0.98] transition-transform text-left"
-                style={{ background: 'var(--surface-container-high)' }}
+                className="w-full bg-[var(--surface-container-high)] rounded-xl px-4 py-4 flex items-center gap-4 cursor-pointer active:scale-[0.98] transition-transform text-left"
               >
                 <div className="relative flex-shrink-0">
                   <div
@@ -302,17 +300,17 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-baseline mb-0.5">
-                    <h3 className="font-bold text-[15px]" style={{ color: 'var(--color-on-surface)' }}>
+                    <h3 className="font-bold text-[15px] text-[var(--color-on-surface)]">
                       {counselorName ?? 'Your Counselor'}
                     </h3>
                     {displayLastTime && (
-                      <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--color-accent-dark, var(--color-accent))' }}>
+                      <span className="text-[11px] font-medium text-[var(--color-accent-dark)] uppercase tracking-wider">
                         {displayLastTime}
                       </span>
                     )}
                   </div>
                   <div className="flex justify-between items-center gap-2">
-                    <p className="text-sm font-medium truncate" style={{ color: 'var(--color-on-surface)' }}>{displayLastMsg || 'Tap to start chatting'}</p>
+                    <p className="text-sm text-[var(--color-on-surface)] font-medium truncate">{displayLastMsg || 'Tap to start chatting'}</p>
                     {unreadCount > 0 && (
                       <span
                         className="flex-shrink-0 text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center"
@@ -330,20 +328,20 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
             <div className="px-4 py-1">
               <div
                 className="rounded-xl px-4 py-4 flex items-center gap-4"
-                style={{ background: 'var(--surface-container-low)' }}
+                style={{ background: 'var(--surface-container-lowest)' }}
               >
                 <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
-                  style={{ background: 'var(--surface-container-highest)', color: 'var(--color-on-surface-variant)' }}
+                  className="w-12 h-12 rounded-full flex items-center justify-center text-[var(--color-on-surface-variant)] font-bold text-sm flex-shrink-0"
+                  style={{ background: 'var(--surface-container-highest)' }}
                 >
                   PT
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-baseline mb-0.5">
-                    <h3 className="font-bold text-[15px]" style={{ color: 'var(--color-on-surface)' }}>Program Team</h3>
-                    <span className="text-[11px] opacity-60" style={{ color: 'var(--color-on-surface-variant)' }}>Yesterday</span>
+                    <h3 className="font-bold text-[15px] text-[var(--color-on-surface)]">Program Team</h3>
+                    <span className="text-[11px] text-[var(--color-on-surface-variant)] opacity-60">Yesterday</span>
                   </div>
-                  <p className="text-sm truncate" style={{ color: 'var(--color-on-surface-variant)' }}>Your certification for Digital Literacy is ready.</p>
+                  <p className="text-sm text-[var(--color-on-surface-variant)] truncate">Your certification for Digital Literacy is ready.</p>
                 </div>
               </div>
             </div>
@@ -352,20 +350,20 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
             <div className="px-4 py-1">
               <div
                 className="rounded-xl px-4 py-4 flex items-center gap-4"
-                style={{ background: 'var(--surface-container-low)' }}
+                style={{ background: 'var(--surface-container-lowest)' }}
               >
                 <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
-                  style={{ background: 'var(--surface-container-highest)', color: 'var(--color-on-surface-variant)' }}
+                  className="w-12 h-12 rounded-full flex items-center justify-center text-[var(--color-on-surface-variant)] font-bold text-sm flex-shrink-0"
+                  style={{ background: 'var(--surface-container-highest)' }}
                 >
                   CS
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-baseline mb-0.5">
-                    <h3 className="font-bold text-[15px]" style={{ color: 'var(--color-on-surface)' }}>Career Services</h3>
-                    <span className="text-[11px] opacity-60" style={{ color: 'var(--color-on-surface-variant)' }}>Monday</span>
+                    <h3 className="font-bold text-[15px] text-[var(--color-on-surface)]">Career Services</h3>
+                    <span className="text-[11px] text-[var(--color-on-surface-variant)] opacity-60">Monday</span>
                   </div>
-                  <p className="text-sm truncate" style={{ color: 'var(--color-on-surface-variant)' }}>New job match found: Junior Web Developer.</p>
+                  <p className="text-sm text-[var(--color-on-surface-variant)] truncate">New job match found: Junior Web Developer.</p>
                 </div>
               </div>
             </div>
@@ -383,18 +381,17 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
   return (
     <div
       className="md:wa-hidden wa-flex wa-flex-col"
-      style={{ height: '100dvh', background: 'var(--color-background-dark)', overflow: 'hidden' }}
+      style={{ height: '100dvh', background: 'var(--surface-container-lowest)', overflow: 'hidden' }}
     >
       {/* Header */}
       <header
         className="flex-shrink-0 flex items-center gap-3 px-4 py-3 z-50"
-        style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid color-mix(in srgb, var(--color-accent) 8%, transparent)' }}
+        style={{ background: 'rgba(252,249,248,0.95)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(173,44,77,0.08)' }}
       >
         <button
           type="button"
           onClick={() => setView('list')}
-          className="p-1 rounded-full active:scale-95 transition-transform"
-          style={{ color: 'var(--color-accent)' }}
+          className="text-[var(--color-accent)] p-1 rounded-full hover:bg-[var(--surface-container-high)] active:scale-95 transition-transform"
           aria-label="Back to messages"
         >
           <span className="material-symbols-outlined">arrow_back</span>
@@ -406,11 +403,11 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
           {counselorInitials}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-bold text-sm leading-tight truncate" style={{ color: 'var(--color-on-surface)' }}>
+          <p className="font-bold text-[var(--color-on-surface)] text-sm leading-tight truncate">
             {counselorName ?? 'Your Counselor'}
           </p>
           {thread.counselorUserId && (
-            <p className="text-[11px] opacity-70" style={{ color: 'var(--color-on-surface-variant)' }}>WorkforceAP Counselor</p>
+            <p className="text-[11px] text-[var(--color-on-surface-variant)] opacity-70">WorkforceAP Counselor</p>
           )}
         </div>
       </header>
@@ -428,9 +425,9 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
               className="w-16 h-16 rounded-full flex items-center justify-center"
               style={{ background: 'var(--surface-container-high)' }}
             >
-              <span className="material-symbols-outlined text-2xl" style={{ color: 'var(--color-accent-dark, var(--color-accent))' }}>chat_bubble_outline</span>
+              <span className="material-symbols-outlined text-[var(--color-accent-dark)] text-2xl">chat_bubble_outline</span>
             </div>
-            <p className="text-sm" style={{ color: 'var(--color-on-surface-variant)' }}>No messages yet. Say hello!</p>
+            <p className="text-[var(--color-on-surface-variant)] text-sm">No messages yet. Say hello!</p>
           </div>
         ) : (
           messages.map((m) => {
@@ -445,13 +442,13 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
                   className="max-w-[78%] px-4 py-2.5 text-sm leading-snug"
                   style={
                     mine
-                      ? { background: 'var(--color-accent-dark, var(--color-accent))', color: '#fff', borderRadius: '18px 18px 4px 18px' }
+                      ? { background: 'var(--color-accent-dark)', color: 'var(--color-white)', borderRadius: '18px 18px 4px 18px' }
                       : { background: 'var(--surface-container)', color: 'var(--color-on-surface)', borderRadius: '18px 18px 18px 4px' }
                   }
                 >
                   {m.body}
                 </div>
-                <time className="text-[10px] opacity-60 mt-1 px-1" style={{ color: 'var(--color-on-surface-variant)' }}>
+                <time className="text-[10px] text-[var(--color-on-surface-variant)] opacity-60 mt-1 px-1">
                   {timeStr}
                 </time>
               </div>
@@ -463,7 +460,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
 
       {/* Error */}
       {error && (
-        <div className="flex-shrink-0 mx-4 mb-2 px-3 py-2 rounded-lg text-xs text-white" style={{ background: 'var(--color-error, #ba1a1a)' }}>
+        <div className="flex-shrink-0 mx-4 mb-2 px-3 py-2 rounded-lg text-xs text-white" style={{ background: 'var(--color-error)' }}>
           {error}
         </div>
       )}
@@ -473,8 +470,8 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
         onSubmit={send}
         className="flex-shrink-0 flex items-end gap-2 px-3 py-3"
         style={{
-          background: 'var(--glass-bg)',
-          borderTop: '1px solid color-mix(in srgb, var(--color-accent) 8%, transparent)',
+          background: 'rgba(252,249,248,0.95)',
+          borderTop: '1px solid rgba(173,44,77,0.08)',
           paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))',
         }}
       >
@@ -490,16 +487,16 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
           placeholder="Type a message…"
           maxLength={8000}
           rows={1}
-          className="flex-1 resize-none px-4 py-3 rounded-2xl text-sm focus:outline-none focus:ring-2"
-          style={{ background: 'var(--surface-container)', border: 'none', color: 'var(--color-on-surface)', maxHeight: '8rem', overflowY: 'auto' }}
+          className="flex-1 resize-none px-4 py-3 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-dark)]/40 placeholder:text-[var(--color-on-surface-variant)]/50"
+          style={{ background: 'var(--surface-container)', border: 'none', maxHeight: '8rem', overflowY: 'auto' }}
         />
         <button
           type="submit"
           disabled={sending || !draft.trim()}
           className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition-all"
           style={{
-            background: draft.trim() ? 'var(--color-accent-dark, var(--color-accent))' : 'var(--surface-container-high)',
-            color: draft.trim() ? '#fff' : 'var(--color-on-surface-variant)',
+            background: draft.trim() ? 'var(--color-accent-dark)' : 'var(--surface-container-highest)',
+            color: draft.trim() ? 'var(--color-white)' : 'var(--color-on-surface-variant)',
           }}
           aria-label="Send message"
         >

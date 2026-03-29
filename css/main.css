@@ -28,6 +28,7 @@
     --color-gold: #FFBB00;
     --color-gold-light: #ffd54f;
     --color-purple: #8b4a9b;
+    --color-error: #ba1a1a;
 
     /* Surface Container Tonal Scale (dark mode values, light mode overrides below) */
     --surface-container-lowest: #0c0e10;
@@ -253,11 +254,20 @@ html:not(.dark) {
     --color-on-surface: #1c1b1b;
     --color-on-surface-variant: #584144;
     --outline-variant: #debfc2;
+    --color-error: #ba1a1a;
     --glass-bg: rgba(255, 255, 255, 0.85);
     --shadow-glass: 0 4px 24px rgba(0,0,0,0.08);
 }
 
 html.dark {
+    --surface-container-lowest: #0c0e10;
+    --surface-container-low: #1a1c1e;
+    --surface-container: #1e2022;
+    --surface-container-high: #282a2c;
+    --surface-container-highest: #333537;
+    --color-background-dark: #121416;
+    --color-on-surface: #e2e2e5;
+    --color-on-surface-variant: #debfc2;
     --color-primary: #e2e2e5;
     --color-gold: #FFBB00;
     --shadow-glow-gold: 0 0 30px rgba(255,187,0,0.25), 0 0 60px rgba(255,187,0,0.1);

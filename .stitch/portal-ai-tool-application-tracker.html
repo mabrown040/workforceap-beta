@@ -1,0 +1,59 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Application Tracker — WorkforceAP</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/><style>.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;}*{box-sizing:border-box;}body{font-family:Inter,sans-serif;background:#fcf9f8;color:#1c1b1b;margin:0;}</style></head><body>
+<div style="max-width:1100px;margin:0 auto;padding:2rem 2rem 4rem;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2rem;">
+    <div><h1 style="font-size:1.75rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:0.375rem;">Application Tracker</h1><p style="color:#584144;font-size:0.9rem;">Track every job you've applied to and where you stand.</p></div>
+    <button style="padding:0.625rem 1.25rem;background:#8c0f37;color:#fff;border:none;border-radius:0.5rem;font-size:0.875rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:0.5rem;"><span class="material-symbols-outlined" style="font-size:1rem;">add</span>Add Application</button>
+  </div>
+
+  <!-- Kanban -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;align-items:start;">
+
+    <!-- Applied -->
+    <div><div style="display:flex;justify-content:space-between;margin-bottom:0.75rem;"><span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#584144;">Applied</span><span style="padding:0.125rem 0.5rem;border-radius:9999px;background:#f0edec;font-size:0.7rem;font-weight:700;color:#584144;">4</span></div>
+      <div style="display:flex;flex-direction:column;gap:0.625rem;">
+        <div style="background:#fff;border-radius:0.5rem;padding:0.875rem;border:1px solid #ebe7e7;">
+          <p style="font-weight:700;font-size:0.8rem;color:#1c1b1b;margin-bottom:0.25rem;">IT Support Specialist</p>
+          <p style="font-size:0.75rem;color:#584144;margin-bottom:0.375rem;">Techvera</p>
+          <p style="font-size:0.7rem;color:#8b7073;">Applied Mar 28 · Indeed</p>
+        </div>
+        <div style="background:#fff;border-radius:0.5rem;padding:0.875rem;border:1px solid #ebe7e7;">
+          <p style="font-weight:700;font-size:0.8rem;color:#1c1b1b;margin-bottom:0.25rem;">Help Desk Technician</p>
+          <p style="font-size:0.75rem;color:#584144;margin-bottom:0.375rem;">Dell Technologies</p>
+          <p style="font-size:0.7rem;color:#8b7073;">Applied Mar 25 · LinkedIn</p>
+        </div>
+        <div style="background:#fff;border-radius:0.5rem;padding:0.875rem;border:1px solid #ebe7e7;opacity:0.7;">
+          <p style="font-weight:700;font-size:0.8rem;color:#1c1b1b;margin-bottom:0.25rem;">Network Support Analyst</p>
+          <p style="font-size:0.75rem;color:#584144;margin-bottom:0.375rem;">AT&T</p>
+          <p style="font-size:0.7rem;color:#8b7073;">Applied Mar 22 · Direct</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interviewing -->
+    <div><div style="display:flex;justify-content:space-between;margin-bottom:0.75rem;"><span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#7b5800;">Interviewing</span><span style="padding:0.125rem 0.5rem;border-radius:9999px;background:#fef3c7;font-size:0.7rem;font-weight:700;color:#7b5800;">2</span></div>
+      <div style="display:flex;flex-direction:column;gap:0.625rem;">
+        <div style="background:#fff;border-radius:0.5rem;padding:0.875rem;border:1px solid #fef3c7;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.375rem;"><p style="font-weight:700;font-size:0.8rem;color:#1c1b1b;margin:0;">SOC Analyst I</p><span class="material-symbols-outlined" style="font-size:1rem;color:#7b5800;">star</span></div>
+          <p style="font-size:0.75rem;color:#584144;margin-bottom:0.375rem;">CrowdStrike</p>
+          <span style="padding:0.125rem 0.5rem;border-radius:9999px;background:#fef3c7;color:#7b5800;font-size:0.7rem;font-weight:600;">Round 2 · Apr 3</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Offer -->
+    <div><div style="display:flex;justify-content:space-between;margin-bottom:0.75rem;"><span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#166534;">Offer</span><span style="padding:0.125rem 0.5rem;border-radius:9999px;background:#dcfce7;font-size:0.7rem;font-weight:700;color:#166534;">0</span></div>
+      <div style="border:1px dashed #debfc2;border-radius:0.5rem;padding:2rem;text-align:center;"><span class="material-symbols-outlined" style="font-size:2rem;color:#debfc2;display:block;margin-bottom:0.5rem;">celebration</span><p style="font-size:0.75rem;color:#8b7073;">Offers will appear here</p></div>
+    </div>
+
+    <!-- Closed -->
+    <div><div style="display:flex;justify-content:space-between;margin-bottom:0.75rem;"><span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#8b7073;">Closed</span><span style="padding:0.125rem 0.5rem;border-radius:9999px;background:#ebe7e7;font-size:0.7rem;font-weight:700;color:#8b7073;">1</span></div>
+      <div style="display:flex;flex-direction:column;gap:0.625rem;">
+        <div style="background:#f6f3f2;border-radius:0.5rem;padding:0.875rem;border:1px solid #ebe7e7;opacity:0.6;">
+          <p style="font-weight:700;font-size:0.8rem;color:#8b7073;margin-bottom:0.25rem;">Desktop Support Tech</p>
+          <p style="font-size:0.75rem;color:#8b7073;margin-bottom:0.375rem;">City of Austin</p>
+          <span style="padding:0.125rem 0.5rem;border-radius:9999px;background:#ebe7e7;color:#8b7073;font-size:0.7rem;font-weight:600;">Not selected</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></body></html>

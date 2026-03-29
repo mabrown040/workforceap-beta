@@ -203,23 +203,38 @@
       },
       {
         "route": "/dashboard/ai-tools/gap-analyzer",
-        "status": "MISSING"
+        "status": "covered",
+        "files": [
+          "portal-ai-tool-gap-analyzer.html"
+        ]
       },
       {
         "route": "/dashboard/ai-tools/linkedin-about",
-        "status": "MISSING"
+        "status": "covered",
+        "files": [
+          "portal-ai-tool-linkedin-about.html"
+        ]
       },
       {
         "route": "/dashboard/ai-tools/linkedin-headline",
-        "status": "MISSING"
+        "status": "covered",
+        "files": [
+          "portal-ai-tool-linkedin-headline.html"
+        ]
       },
       {
         "route": "/dashboard/ai-tools/salary-negotiation",
-        "status": "MISSING"
+        "status": "covered",
+        "files": [
+          "portal-ai-tool-salary-negotiation.html"
+        ]
       },
       {
         "route": "/dashboard/ai-tools/application-tracker",
-        "status": "MISSING"
+        "status": "covered",
+        "files": [
+          "portal-ai-tool-application-tracker.html"
+        ]
       },
       {
         "route": "/dashboard/certifications",
@@ -230,7 +245,10 @@
       },
       {
         "route": "/dashboard/resume",
-        "status": "MISSING"
+        "status": "covered",
+        "files": [
+          "portal-member-resume.html"
+        ]
       },
       {
         "route": "/dashboard/settings",
@@ -241,23 +259,38 @@
       },
       {
         "route": "/dashboard/career-brief",
-        "status": "MISSING"
+        "status": "covered",
+        "files": [
+          "portal-member-career-brief.html"
+        ]
       },
       {
         "route": "/dashboard/program",
-        "status": "MISSING"
+        "status": "covered",
+        "files": [
+          "portal-member-program.html"
+        ]
       },
       {
         "route": "/dashboard/resources",
-        "status": "MISSING"
+        "status": "covered",
+        "files": [
+          "portal-member-resources.html"
+        ]
       },
       {
         "route": "/dashboard/weekly-recap",
-        "status": "MISSING"
+        "status": "covered",
+        "files": [
+          "portal-member-weekly-recap.html"
+        ]
       },
       {
         "route": "/dashboard/readiness",
-        "status": "MISSING"
+        "status": "covered",
+        "files": [
+          "portal-member-readiness.html"
+        ]
       }
     ],
     "portal_employer": [
@@ -284,19 +317,31 @@
       },
       {
         "route": "/employer/jobs/new",
-        "status": "MISSING"
+        "status": "covered",
+        "files": [
+          "portal-employer-job-new.html"
+        ]
       },
       {
         "route": "/employer/jobs/import",
-        "status": "MISSING"
+        "status": "covered",
+        "files": [
+          "portal-employer-job-import.html"
+        ]
       },
       {
         "route": "/employer/messages",
-        "status": "MISSING"
+        "status": "covered",
+        "files": [
+          "portal-employer-messages.html"
+        ]
       },
       {
         "route": "/employer/matches",
-        "status": "MISSING"
+        "status": "covered",
+        "files": [
+          "portal-employer-matches.html"
+        ]
       },
       {
         "route": "/employer/pipeline",
@@ -323,11 +368,17 @@
       },
       {
         "route": "/counselor/messages",
-        "status": "MISSING"
+        "status": "covered",
+        "files": [
+          "portal-counselor-messages.html"
+        ]
       },
       {
         "route": "/counselor/resources",
-        "status": "MISSING"
+        "status": "covered",
+        "files": [
+          "portal-counselor-resources.html"
+        ]
       }
     ],
     "portal_partner": [
@@ -340,7 +391,10 @@
       },
       {
         "route": "/partner/members",
-        "status": "MISSING"
+        "status": "covered",
+        "files": [
+          "portal-partner-members.html"
+        ]
       },
       {
         "route": "/partner/milestones",
@@ -351,27 +405,45 @@
       },
       {
         "route": "/partner/outcomes",
-        "status": "MISSING"
+        "status": "covered",
+        "files": [
+          "portal-partner-outcomes.html"
+        ]
       },
       {
         "route": "/partner/messages",
-        "status": "MISSING"
+        "status": "covered",
+        "files": [
+          "portal-partner-messages.html"
+        ]
       },
       {
         "route": "/partner/settings",
-        "status": "MISSING"
+        "status": "covered",
+        "files": [
+          "portal-partner-settings.html"
+        ]
       },
       {
         "route": "/partner/guide",
-        "status": "MISSING"
+        "status": "covered",
+        "files": [
+          "portal-partner-guide.html"
+        ]
       },
       {
         "route": "/partner/attention",
-        "status": "MISSING"
+        "status": "covered",
+        "files": [
+          "portal-partner-attention.html"
+        ]
       },
       {
         "route": "/partner/exports",
-        "status": "MISSING"
+        "status": "covered",
+        "files": [
+          "portal-partner-exports.html"
+        ]
       }
     ],
     "portal_shared": [
@@ -391,14 +463,17 @@
       },
       {
         "route": "/resources",
-        "status": "MISSING"
+        "status": "covered",
+        "files": [
+          "portal-member-resources-shared.html"
+        ]
       }
     ]
   },
   "summary": {
     "total_routes": 64,
-    "covered": 38,
-    "missing": 25,
-    "coverage_pct": 59
+    "covered": 63,
+    "missing": 0,
+    "coverage_pct": 98
   }
 }

@@ -25,10 +25,10 @@ const tracks = getProgramComparisonTracks();
 
 const COMPARISON_ROWS = [
   { label: 'Duration', a: '12 Weeks', b: '16 Weeks' },
-  { label: 'Cost', a: '$4,200', b: '$3,850', highlight: true },
-  { label: 'Certification', a: 'Advanced AI Cert (AAIC)', b: 'CompTIA Sec+ / GSEC' },
-  { label: 'Career Paths', a: 'ML Engineer, AI Consultant', b: 'SOC Analyst, Sec Engineer' },
-  { label: 'Salary Range', a: '$95k – $140k', b: '$88k – $130k' },
+  { label: 'Cost', a: '$0 Free', b: '$0 Free', highlight: true },
+  { label: 'Certification', a: 'Google IT Support', b: 'CompTIA Security+' },
+  { label: 'Career Paths', a: 'IT Support, Help Desk', b: 'SOC Analyst, Security Eng.' },
+  { label: 'Starting Band', a: 'See salary guide', b: 'See salary guide' },
 ];
 
 export default function ProgramComparisonPage() {
@@ -90,7 +90,7 @@ export default function ProgramComparisonPage() {
               <div className="text-center px-2">
                 <div className="h-1 bg-[#ad2c4d]/20 rounded-full mb-3"></div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#ad2c4d] block mb-1">Path A</span>
-                <span className="text-sm font-bold leading-tight block">AI Professional</span>
+                <span className="text-sm font-bold leading-tight block">IT Support</span>
               </div>
               <div className="text-center px-2">
                 <div className="h-1 bg-[#ffbb00]/30 rounded-full mb-3"></div>
@@ -161,7 +161,7 @@ export default function ProgramComparisonPage() {
               Architect Your Civic Future
             </h1>
             <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.125rem', lineHeight: 1.7, marginBottom: '1.5rem' }}>
-              One decision journey: narrow your options, then put 2-4 tracks side-by-side to see tradeoffs — time, difficulty, salary band, and best-fit.
+              One decision journey: narrow your options, then put 2-4 tracks side-by-side to see tradeoffs - time, difficulty, salary band, and best-fit.
             </p>
             <ExperimentedCtaLink
               experiment="program_compare_quiz_cta"

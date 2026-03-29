@@ -73,10 +73,27 @@ export default function FAQMobileSection() {
   });
 
   return (
-    <div className="md:hidden bg-[#fcf9f8] min-h-screen pb-32">
+    <div className="wa-md:hidden" style={{ background: '#fcf9f8', minHeight: '100vh', paddingBottom: '8rem' }}>
       {/* Top App Bar */}
-      <header className="fixed top-0 w-full flex items-center justify-between px-6 h-16 z-50" style={{ background: 'rgba(252,249,248,0.92)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
-        <div className="flex items-center gap-4">
+      <header
+        className="wa-fixed wa-top-0 wa-z-50"
+        style={{
+          position: 'fixed',
+          top: 0,
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingLeft: '1.5rem',
+          paddingRight: '1.5rem',
+          height: '4rem',
+          zIndex: 50,
+          background: 'rgba(252,249,248,0.92)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <Link href="/" className="active:scale-95 duration-200" aria-label="Back">
             <span className="material-symbols-outlined" style={{ color: '#8c0f37' }}>arrow_back</span>
           </Link>
@@ -92,18 +109,28 @@ export default function FAQMobileSection() {
       </header>
 
       {/* Hero + Search */}
-      <div className="px-6 pt-24 mb-6">
-        <h1 className="text-4xl font-extrabold tracking-tight text-[#1c1b1b] leading-tight mb-6">
+      <div style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', paddingTop: '6rem', marginBottom: '1.5rem' }}>
+        <h1 className="text-4xl font-extrabold tracking-tight text-[#1c1b1b] leading-tight" style={{ marginBottom: '1.5rem' }}>
           Frequently Asked Questions
         </h1>
         {/* Search Bar */}
-        <div className="relative">
-          <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+        <div style={{ position: 'relative' }}>
+          <div style={{ position: 'absolute', top: 0, bottom: 0, left: '1rem', display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
             <span className="material-symbols-outlined text-[#8b7073]">search</span>
           </div>
           <input
             id="faq-search-input"
-            className="w-full h-14 pl-12 pr-4 bg-[#ebe7e7] rounded-xl border-none focus:ring-2 focus:ring-[#8c0f37]/40 transition-all text-[#1c1b1b] placeholder:text-[#584144]/60 text-sm"
+            className="focus:ring-2 focus:ring-[#8c0f37]/40 transition-all text-[#1c1b1b] placeholder:text-[#584144]/60 text-sm"
+            style={{
+              width: '100%',
+              height: '3.5rem',
+              paddingLeft: '3rem',
+              paddingRight: '1rem',
+              background: '#ebe7e7',
+              borderRadius: '0.75rem',
+              border: 'none',
+              boxSizing: 'border-box',
+            }}
             placeholder="Search for answers..."
             type="text"
             value={search}
@@ -113,17 +140,18 @@ export default function FAQMobileSection() {
       </div>
 
       {/* Category Chips */}
-      <div className="mb-8 -mx-0 overflow-x-hidden">
-        <div className="flex overflow-x-auto px-6 gap-2 pb-2 no-scrollbar" style={{ scrollbarWidth: 'none' }}>
+      <div style={{ marginBottom: '2rem', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', overflowX: 'auto', paddingLeft: '1.5rem', paddingRight: '1.5rem', gap: '0.5rem', paddingBottom: '0.5rem', scrollbarWidth: 'none' }}>
           {CATEGORY_CHIPS.map((chip) => (
             <button
               key={chip}
               onClick={() => setActiveChip(chip)}
-              className={`flex-none px-5 py-2 rounded-full text-sm font-semibold tracking-wide transition-colors ${
+              className={`transition-colors ${
                 activeChip === chip
                   ? 'bg-[#8c0f37] text-white'
                   : 'bg-[#e5e2e1] text-[#584144]'
               }`}
+              style={{ flexShrink: 0, paddingLeft: '1.25rem', paddingRight: '1.25rem', paddingTop: '0.5rem', paddingBottom: '0.5rem', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: 600, letterSpacing: '0.025em', border: 'none', cursor: 'pointer' }}
             >
               {chip}
             </button>
@@ -132,54 +160,73 @@ export default function FAQMobileSection() {
       </div>
 
       {/* Accordion FAQ List */}
-      <div className="px-6 space-y-3 mb-10">
-        {filtered.length > 0 ? (
-          filtered.map((item) => {
-            const isOpen = openItems.has(item.q);
-            return (
-              <div key={item.q} className="bg-[#f6f3f2] rounded-xl overflow-hidden">
-                <button
-                  className="w-full px-5 py-5 flex items-center justify-between text-left active:bg-[#f0edec] transition-colors"
-                  onClick={() => toggle(item.q)}
-                >
-                  <span className="font-bold text-[#1c1b1b] leading-snug pr-4">{item.q}</span>
-                  <span
-                    className={`material-symbols-outlined flex-shrink-0 transition-transform duration-200 ${
-                      isOpen ? 'text-[#8c0f37] rotate-180' : 'text-[#8b7073]'
-                    }`}
+      <div style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', marginBottom: '2.5rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {filtered.length > 0 ? (
+            filtered.map((item) => {
+              const isOpen = openItems.has(item.q);
+              return (
+                <div key={item.q} style={{ background: '#f6f3f2', borderRadius: '0.75rem', overflow: 'hidden' }}>
+                  <button
+                    className="active:bg-[#f0edec] transition-colors"
+                    style={{
+                      width: '100%',
+                      paddingLeft: '1.25rem',
+                      paddingRight: '1.25rem',
+                      paddingTop: '1.25rem',
+                      paddingBottom: '1.25rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      textAlign: 'left',
+                      border: 'none',
+                      background: 'transparent',
+                      cursor: 'pointer',
+                    }}
+                    onClick={() => toggle(item.q)}
                   >
-                    expand_more
-                  </span>
-                </button>
-                {isOpen && (
-                  <div className="px-5 pb-5">
-                    <p className="text-[#584144] text-sm leading-relaxed">{item.a}</p>
-                  </div>
-                )}
-              </div>
-            );
-          })
-        ) : (
-          <div className="text-center py-12 text-[#584144]">
-            <span className="material-symbols-outlined text-4xl mb-3 block opacity-30">search_off</span>
-            <p className="font-medium">No results found for &ldquo;{search}&rdquo;</p>
-            <button
-              className="mt-3 text-[#8c0f37] font-semibold text-sm"
-              onClick={() => { setSearch(''); setActiveChip('All'); }}
-            >
-              Clear filters
-            </button>
-          </div>
-        )}
+                    <span className="font-bold text-[#1c1b1b] leading-snug" style={{ paddingRight: '1rem' }}>{item.q}</span>
+                    <span
+                      className={`material-symbols-outlined transition-transform duration-200 ${
+                        isOpen ? 'text-[#8c0f37]' : 'text-[#8b7073]'
+                      }`}
+                      style={{ flexShrink: 0, transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                    >
+                      expand_more
+                    </span>
+                  </button>
+                  {isOpen && (
+                    <div style={{ paddingLeft: '1.25rem', paddingRight: '1.25rem', paddingBottom: '1.25rem' }}>
+                      <p className="text-[#584144] text-sm leading-relaxed">{item.a}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          ) : (
+            <div style={{ textAlign: 'center', paddingTop: '3rem', paddingBottom: '3rem', color: '#584144' }}>
+              <span className="material-symbols-outlined text-4xl opacity-30" style={{ display: 'block', marginBottom: '0.75rem' }}>search_off</span>
+              <p className="font-medium">No results found for &ldquo;{search}&rdquo;</p>
+              <button
+                className="text-[#8c0f37] font-semibold text-sm"
+                style={{ marginTop: '0.75rem', border: 'none', background: 'transparent', cursor: 'pointer' }}
+                onClick={() => { setSearch(''); setActiveChip('All'); }}
+              >
+                Clear filters
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* CTA Section */}
-      <div className="px-6 mb-8">
-        <div className="text-center py-8 bg-[#f0edec]/30 rounded-2xl">
-          <p className="text-[#584144] font-medium mb-2">Still have questions?</p>
+      <div style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', marginBottom: '2rem' }}>
+        <div style={{ textAlign: 'center', paddingTop: '2rem', paddingBottom: '2rem', background: 'rgba(240,237,236,0.3)', borderRadius: '1rem' }}>
+          <p className="text-[#584144] font-medium" style={{ marginBottom: '0.5rem' }}>Still have questions?</p>
           <Link
             href="/contact"
-            className="inline-flex items-center text-[#8c0f37] font-bold hover:underline gap-1 group"
+            className="text-[#8c0f37] font-bold hover:underline group"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
           >
             Contact Us
             <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">
@@ -190,15 +237,27 @@ export default function FAQMobileSection() {
       </div>
 
       {/* Featured Resource */}
-      <div className="px-6 mb-8">
-        <div className="relative rounded-2xl overflow-hidden aspect-video flex flex-col justify-end p-5 bg-gradient-to-br from-[#8c0f37] to-[#ad2c4d]">
-          <div className="absolute inset-0 bg-gradient-to-t from-[#8c0f37]/90 to-transparent" />
-          <div className="relative z-10">
-            <span className="bg-[#ffbb00] text-[#261900] text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded mb-2 inline-block">
+      <div style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', marginBottom: '2rem' }}>
+        <div
+          style={{
+            position: 'relative',
+            borderRadius: '1rem',
+            overflow: 'hidden',
+            aspectRatio: '16/9',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-end',
+            padding: '1.25rem',
+            background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)',
+          }}
+        >
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(140,15,55,0.9), transparent)' }} />
+          <div style={{ position: 'relative', zIndex: 10 }}>
+            <span style={{ background: '#ffbb00', color: '#261900', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', marginBottom: '0.5rem', display: 'inline-block' }}>
               New Resource
             </span>
             <h3 className="text-white font-bold text-xl">The 2024 Career Guide</h3>
-            <p className="text-white/80 text-sm mt-1">
+            <p className="text-white/80 text-sm" style={{ marginTop: '0.25rem' }}>
               Download our latest research on workforce trends.
             </p>
           </div>

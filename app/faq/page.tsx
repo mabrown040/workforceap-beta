@@ -18,7 +18,7 @@ export default function FAQPage() {
       <FAQMobileSection />
 
       {/* Desktop view >640px */}
-      <div className="wa-hidden wa-md:block">
+      <div className="wa-hidden md:wa-block">
       {/* Hero Section */}
       <section className="content-section" style={{ paddingBottom: 0 }}>
         <div className="container" style={{ maxWidth: 1200 }}>

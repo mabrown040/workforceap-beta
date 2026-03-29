@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
 import FindYourPathClient from './FindYourPathClient';
+import MobileBottomNav from '@/components/MobileBottomNav';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -105,6 +106,21 @@ export default function FindYourPathPage() {
         </div>
       </section>
 
+      {/* ── Mobile Header (≤640px only) ── */}
+      <div className="md:hidden px-4 pt-8 pb-2" style={{ background: '#fcf9f8' }}>
+        <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-3" style={{ background: 'rgba(173,44,77,0.12)', color: '#ad2c4d' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '0.75rem' }}>explore</span>
+          Career Navigator
+        </span>
+        <h1 className="text-3xl font-extrabold tracking-tight leading-none mb-2" style={{ color: '#1c1b1b' }}>
+          Find Your <span style={{ color: '#ad2c4d' }}>Path</span>
+        </h1>
+        <p className="text-sm leading-relaxed mb-4" style={{ color: '#584144' }}>
+          5 questions · 2 minutes · 3 ranked matches with salary data.
+        </p>
+      </div>
+
+      <MobileBottomNav />
       <Footer />
     </div>
   );

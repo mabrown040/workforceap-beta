@@ -47,12 +47,16 @@ export async function GET(request: Request) {
 
   let applicantEmailsSent = 0;
 
-  // Send follow-up to each applicant (deduplicate by user)
+  // Deduplicate stale applications by user
   const seenUsers = new Set<string>();
-  for (const app of staleApplications) {
-    if (seenUsers.has(app.user.id)) continue;
+  const uniqueStaleApplications = staleApplications.filter(app => {
+    if (seenUsers.has(app.user.id)) return false;
     seenUsers.add(app.user.id);
+    return true;
+  });
 
+  // Send follow-up to each applicant concurrently
+  const emailPromises = uniqueStaleApplications.map(async (app) => {
     const expectedDate = addBusinessDays(
       app.submittedAt ?? app.createdAt,
       5
@@ -64,11 +68,15 @@ export async function GET(request: Request) {
         fullName: app.user.fullName,
         expectedDate,
       });
-      if (result.ok) applicantEmailsSent++;
+      return result.ok ? 1 : 0;
     } catch (err) {
       console.error(`Applicant followup failed for user ${app.user.id}:`, err);
+      return 0;
     }
-  }
+  });
+
+  const results = await Promise.all(emailPromises);
+  applicantEmailsSent = results.reduce<number>((sum, current) => sum + current, 0);
 
   // Send admin alert if there are stale applications
   let adminEmailSent = false;

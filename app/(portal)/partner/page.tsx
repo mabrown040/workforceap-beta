@@ -14,6 +14,7 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { PARTNER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Partner Portal',
@@ -107,6 +108,12 @@ export default async function PartnerDashboardPage() {
   const conversionRate = total > 0 ? Math.round((placements / total) * 100) : 0;
   const verificationSpeed = total > 0 ? Math.min(100, Math.round((appliedViaReferralLink / total) * 100)) : 0;
 
+  // Pending milestones count (open milestones needing review)
+  const pendingMilestonesCount = stageCounts['in_training'] ?? 0;
+
+  // Recent members for mobile (top 4)
+  const recentMembers = pipelineMembers.slice(0, 4);
+
   return (
     <PortalEntryClient
       portal="partner"
@@ -122,6 +129,127 @@ export default async function PartnerDashboardPage() {
         referralApplyUrl,
       }}
     >
+
+    {/* ── MOBILE SECTION ── */}
+    <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      {/* Header */}
+      <div style={{ padding: '1.5rem 1.5rem 0.75rem' }}>
+        <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-[#8c0f37] mb-1">Partner Overview</p>
+        <h1 className="text-3xl font-extrabold tracking-tight" style={{ color: 'var(--color-on-surface)', lineHeight: 1.1 }}>
+          {ctx.partner.name}
+        </h1>
+        <p className="text-sm font-medium" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
+          Strategic Partner
+        </p>
+      </div>
+
+      {/* 2×2 KPI Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', padding: '1rem 1.5rem' }}>
+        {/* Active Members */}
+        <div style={{ background: '#fff', borderRadius: '0.875rem', padding: '1rem', border: '1px solid #ebe7e7', borderLeft: '4px solid #8c0f37' }}>
+          <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#584144', marginBottom: '0.25rem' }}>Active Members</p>
+          <p className="text-3xl font-black" style={{ color: '#8c0f37', lineHeight: 1 }}>{total}</p>
+          <p className="text-xs" style={{ color: '#584144', marginTop: '0.25rem' }}>Referred to date</p>
+        </div>
+        {/* Placements */}
+        <div style={{ background: '#fff', borderRadius: '0.875rem', padding: '1rem', border: '1px solid #ebe7e7' }}>
+          <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#584144', marginBottom: '0.25rem' }}>Placements</p>
+          <p className="text-3xl font-black" style={{ color: '#1c1b1b', lineHeight: 1 }}>{placements}</p>
+          <p className="text-xs" style={{ color: '#584144', marginTop: '0.25rem' }}>Verified hires</p>
+        </div>
+        {/* Certifications */}
+        <div style={{ background: '#fff', borderRadius: '0.875rem', padding: '1rem', border: '1px solid #ebe7e7' }}>
+          <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#584144', marginBottom: '0.25rem' }}>Certifications</p>
+          <p className="text-3xl font-black" style={{ color: '#7b5800', lineHeight: 1 }}>{completions}</p>
+          <p className="text-xs" style={{ color: '#584144', marginTop: '0.25rem' }}>Earned by members</p>
+        </div>
+        {/* Needs Review */}
+        <div style={{ background: '#fff', borderRadius: '0.875rem', padding: '1rem', border: '1px solid #ebe7e7', borderLeft: '4px solid #8c0f37' }}>
+          <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#8c0f37', marginBottom: '0.25rem' }}>Needs Review</p>
+          <p className="text-3xl font-black" style={{ color: '#8c0f37', lineHeight: 1 }}>{pendingMilestonesCount}</p>
+          <p className="text-xs" style={{ color: '#584144', marginTop: '0.25rem' }}>Open milestones</p>
+        </div>
+      </div>
+
+      {/* Recent Members */}
+      <div style={{ padding: '0 1.5rem 1rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+          <p className="text-sm font-bold" style={{ color: '#1c1b1b' }}>Recent Members</p>
+          <Link href="/partner/members" className="text-[11px] font-bold uppercase tracking-wider" style={{ color: '#8c0f37', textDecoration: 'none' }}>View All</Link>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {recentMembers.length === 0 ? (
+            <p className="text-sm" style={{ color: '#584144', padding: '1rem 0' }}>No members yet. Share your referral link to get started.</p>
+          ) : (
+            recentMembers.map((p) => {
+              const initials = (p.member.fullName ?? '?').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
+              const stageLabel = (PIPELINE_STAGE_LABELS as Record<string, string>)[p.stage] ?? p.stage;
+              const isPlaced = p.stage === 'placed';
+              return (
+                <Link key={p.member.id} href={`/partner/members/${p.member.id}`} style={{ textDecoration: 'none' }}>
+                  <div style={{ background: '#fff', borderRadius: '0.75rem', padding: '0.75rem 1rem', border: '1px solid #ebe7e7', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div style={{ width: 36, height: 36, borderRadius: '9999px', background: '#8c0f37', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.75rem', flexShrink: 0 }}>
+                      {initials}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p className="text-sm font-semibold" style={{ color: '#1c1b1b', margin: 0 }}>{p.member.fullName}</p>
+                      <p className="text-xs" style={{ color: '#584144', margin: 0 }}>{p.programTitle}</p>
+                    </div>
+                    <span style={{
+                      padding: '0.15rem 0.5rem',
+                      borderRadius: '9999px',
+                      fontSize: '0.625rem',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      background: isPlaced ? '#dcfce7' : 'rgba(173,44,77,0.08)',
+                      color: isPlaced ? '#166534' : '#8c0f37',
+                    }}>
+                      {stageLabel}
+                    </span>
+                  </div>
+                </Link>
+              );
+            })
+          )}
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div style={{ padding: '0 1.5rem 1rem' }}>
+        <p className="text-sm font-bold" style={{ color: '#1c1b1b', marginBottom: '0.75rem' }}>Quick Actions</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <Link href="/partner/milestones" className="active:scale-[0.98] transition-all" style={{ background: '#fff', border: '1px solid #ebe7e7', borderRadius: '0.875rem', padding: '0.875rem 1rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span className="material-symbols-outlined" style={{ color: '#8c0f37', fontSize: '1.25rem' }}>flag</span>
+            <div style={{ flex: 1 }}>
+              <p className="text-sm font-semibold" style={{ color: '#1c1b1b', margin: 0 }}>Review Milestones</p>
+              <p className="text-xs" style={{ color: '#584144', margin: 0 }}>{pendingMilestonesCount} pending approval</p>
+            </div>
+            <span className="material-symbols-outlined" style={{ color: '#8c0f37', fontSize: '1.125rem' }}>arrow_forward_ios</span>
+          </Link>
+          <Link href="/partner/outcomes" className="active:scale-[0.98] transition-all" style={{ background: '#fff', border: '1px solid #ebe7e7', borderRadius: '0.875rem', padding: '0.875rem 1rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span className="material-symbols-outlined" style={{ color: '#7b5800', fontSize: '1.25rem' }}>bar_chart</span>
+            <div style={{ flex: 1 }}>
+              <p className="text-sm font-semibold" style={{ color: '#1c1b1b', margin: 0 }}>Outcomes</p>
+              <p className="text-xs" style={{ color: '#584144', margin: 0 }}>View placement reports</p>
+            </div>
+            <span className="material-symbols-outlined" style={{ color: '#584144', fontSize: '1.125rem' }}>arrow_forward_ios</span>
+          </Link>
+          <Link href="/partner/exports" className="active:scale-[0.98] transition-all" style={{ background: '#fff', border: '1px solid #ebe7e7', borderRadius: '0.875rem', padding: '0.875rem 1rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span className="material-symbols-outlined" style={{ color: '#474646', fontSize: '1.25rem' }}>download</span>
+            <div style={{ flex: 1 }}>
+              <p className="text-sm font-semibold" style={{ color: '#1c1b1b', margin: 0 }}>Export Data</p>
+              <p className="text-xs" style={{ color: '#584144', margin: 0 }}>CSV, PDF reports</p>
+            </div>
+            <span className="material-symbols-outlined" style={{ color: '#584144', fontSize: '1.125rem' }}>arrow_forward_ios</span>
+          </Link>
+        </div>
+      </div>
+
+      <MobileBottomNav variant="portal" />
+    </div>
+
+    {/* ── DESKTOP SECTION ── */}
+    <div className="wa-hidden wa-md:wa-block">
     <div className="partner-impact-console">
 
       {/* ── Header ── */}
@@ -384,6 +512,8 @@ export default async function PartnerDashboardPage() {
         </>
       )}
     </div>
+    </div>
+
     </PortalEntryClient>
   );
 }

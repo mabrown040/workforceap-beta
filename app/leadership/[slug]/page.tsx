@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import {
   getLeaderBySlug,
   LEADERS,
+  type Leader,
   type LeaderBioBlock,
 } from '@/lib/content/leadership';
 import '../leadership-detail.css';
@@ -62,6 +63,18 @@ function splitNameCredentials(name: string): { displayName: string; credentials:
   return { displayName: match[1], credentials: match[2] };
 }
 
+function heroBadgeFor(leader: Leader): string {
+  if (leader.heroBadge) return leader.heroBadge;
+  if (leader.founder) return 'Founder & Executive Leadership';
+  if (leader.role.includes('COO')) return 'Operational Leadership';
+  if (leader.role.startsWith('Board')) return 'Board of Trustees';
+  return 'Leadership';
+}
+
+function heroQuoteFor(leader: Leader): string {
+  return (leader.heroQuote ?? leader.missionRelevance ?? '').trim();
+}
+
 export default async function LeaderBioPage({ params }: Props) {
   const { slug } = await params;
   const leader = getLeaderBySlug(slug);
@@ -75,18 +88,11 @@ export default async function LeaderBioPage({ params }: Props) {
 
   /* First stat becomes the hero stat pair */
   const heroStats = leader.stats.slice(0, 2);
-
-  const partnerships = [
-    { icon: 'handshake', name: 'Goodwill Central Texas', desc: 'Career & Technical Academy' },
-    { icon: 'account_balance', name: 'Texas Workforce Commission', desc: 'State Career Schools' },
-    { icon: 'school', name: 'Austin Community College', desc: 'Continuing Education' },
-    { icon: 'location_city', name: 'City of Austin', desc: 'Workforce Solutions' },
-  ];
-
-  const achievements = [
-    { icon: 'emoji_events', title: 'Equity Innovation Award', desc: 'Recognized for transformative workforce equity programs across Central Texas.' },
-    { icon: 'payments', title: '$20M+ Funding Secured', desc: 'Raised and directed over $20 million in grants, contracts, and partnerships for workforce development.' },
-  ];
+  const heroQuote = heroQuoteFor(leader);
+  const spotlightCards = leader.spotlightCards ?? [];
+  const partnerTiles = leader.partnerTiles ?? [];
+  const achievementTiles = leader.achievementTiles ?? [];
+  const hasSideColumn = spotlightCards.length > 0;
 
   return (
     <div className="inner-page ld-page">
@@ -97,7 +103,7 @@ export default async function LeaderBioPage({ params }: Props) {
           <div className="ld-hero-text">
             <span className="ld-hero-badge">
               <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden>verified</span>
-              Executive Leadership
+              {heroBadgeFor(leader)}
             </span>
 
             <h1 id="ld-heading" className="ld-hero-name">
@@ -143,11 +149,12 @@ export default async function LeaderBioPage({ params }: Props) {
                 sizes="(max-width: 767px) 100vw, 58%"
               />
             </div>
-            {/* Overlapping quote card */}
-            <div className="ld-hero-quote-card">
-              <span className="material-symbols-outlined ld-hero-quote-icon" aria-hidden>format_quote</span>
-              <p>Committed to bridging the gap between potential and opportunity through workforce innovation.</p>
-            </div>
+            {heroQuote ? (
+              <div className="ld-hero-quote-card">
+                <span className="material-symbols-outlined ld-hero-quote-icon" aria-hidden>format_quote</span>
+                <p>{heroQuote}</p>
+              </div>
+            ) : null}
           </div>
         </div>
       </section>
@@ -159,83 +166,90 @@ export default async function LeaderBioPage({ params }: Props) {
             <span className="material-symbols-outlined" aria-hidden>auto_stories</span>
             Biography
           </h2>
-          <div className="ld-bio-bento">
-            {/* Main bio card (2/3 width) */}
+          <div className={`ld-bio-bento${!hasSideColumn ? ' ld-bio-bento--full' : ''}`}>
             <div className="ld-bio-main-card">
               <BioBlocks blocks={mainBioBlocks} />
               {restBioBlocks.length > 0 && <BioBlocks blocks={restBioBlocks} />}
             </div>
 
-            {/* Stacked side cards (1/3 width) */}
-            <div className="ld-bio-side">
-              <div className="ld-bio-side-card">
-                <div className="ld-bio-side-icon-wrap">
-                  <span className="material-symbols-outlined" aria-hidden>account_balance</span>
-                </div>
-                <h3>Civic Roots</h3>
-                <p>Deep community ties through 100 Black Men of Austin, Alpha Phi Alpha Fraternity, and decades of public service leadership.</p>
+            {hasSideColumn ? (
+              <div className="ld-bio-side">
+                {spotlightCards.map((card) => {
+                  const accent = card.variant === 'accent';
+                  return (
+                    <div
+                      key={card.title}
+                      className={`ld-bio-side-card${accent ? ' ld-bio-side-card--accent' : ''}`}
+                    >
+                      <div
+                        className={`ld-bio-side-icon-wrap${accent ? ' ld-bio-side-icon-wrap--accent' : ''}`}
+                      >
+                        <span className="material-symbols-outlined" aria-hidden>
+                          {card.icon}
+                        </span>
+                      </div>
+                      <h3>{card.title}</h3>
+                      <p>{card.body}</p>
+                    </div>
+                  );
+                })}
               </div>
-              <div className="ld-bio-side-card ld-bio-side-card--accent">
-                <div className="ld-bio-side-icon-wrap ld-bio-side-icon-wrap--accent">
-                  <span className="material-symbols-outlined" aria-hidden>groups</span>
+            ) : null}
+          </div>
+        </div>
+      </section>
+
+      {partnerTiles.length > 0 ? (
+        <section className="ld-section bg-surface-container-low">
+          <div className="ld-container">
+            <h2 className="ld-section-heading">
+              <span className="material-symbols-outlined" aria-hidden>handshake</span>
+              Organizations &amp; focus areas
+            </h2>
+            <div className="ld-partners-grid">
+              {partnerTiles.map((p) => (
+                <div key={p.name} className="ld-partner-card">
+                  <span
+                    className="material-symbols-outlined ld-partner-icon"
+                    style={{ fontVariationSettings: "'FILL' 1" }}
+                    aria-hidden
+                  >
+                    {p.icon}
+                  </span>
+                  <h3>{p.name}</h3>
+                  <p>{p.desc}</p>
                 </div>
-                <h3>Founder&apos;s Lens</h3>
-                <p>A visionary who translates workforce needs into scalable training programs that create lasting community impact.</p>
-              </div>
+              ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
 
-      {/* ── Partnerships Grid ── */}
-      <section className="ld-section bg-surface-container-low">
-        <div className="ld-container">
-          <h2 className="ld-section-heading">
-            <span className="material-symbols-outlined" aria-hidden>handshake</span>
-            Key Partnerships
-          </h2>
-          <div className="ld-partners-grid">
-            {partnerships.map((p) => (
-              <div key={p.name} className="ld-partner-card">
-                <span
-                  className="material-symbols-outlined ld-partner-icon"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                  aria-hidden
-                >
-                  {p.icon}
-                </span>
-                <h3>{p.name}</h3>
-                <p>{p.desc}</p>
-              </div>
-            ))}
+      {achievementTiles.length > 0 ? (
+        <section className="ld-section">
+          <div className="ld-container">
+            <h2 className="ld-section-heading">
+              <span className="material-symbols-outlined" aria-hidden>military_tech</span>
+              Highlights
+            </h2>
+            <div className="ld-achievements-grid">
+              {achievementTiles.map((a) => (
+                <div key={a.title} className="ld-achievement-card">
+                  <span
+                    className="material-symbols-outlined ld-achievement-icon"
+                    style={{ fontVariationSettings: "'FILL' 1" }}
+                    aria-hidden
+                  >
+                    {a.icon}
+                  </span>
+                  <h3>{a.title}</h3>
+                  <p>{a.desc}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
-
-      {/* ── Key Achievements ── */}
-      <section className="ld-section">
-        <div className="ld-container">
-          <h2 className="ld-section-heading">
-            <span className="material-symbols-outlined" aria-hidden>military_tech</span>
-            Key Achievements
-          </h2>
-          <div className="ld-achievements-grid">
-            {achievements.map((a) => (
-              <div key={a.title} className="ld-achievement-card">
-                <span
-                  className="material-symbols-outlined ld-achievement-icon"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                  aria-hidden
-                >
-                  {a.icon}
-                </span>
-                <h3>{a.title}</h3>
-                <p>{a.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
 
       {/* ── All Stats ── */}
       <section className="ld-section bg-surface-container-low">

@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
-import Footer from '@/components/Footer';
+import Footer from "@/components/Footer";
+import MobileBottomNav from "@/components/MobileBottomNav";
 import EmployerContactForm from './EmployerContactForm';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -109,6 +110,7 @@ const PARTNER_LOGOS = ['Google', 'IBM', 'AWS', 'CompTIA', 'Microsoft'];
 export default function EmployersPage() {
   return (
     <div className="inner-page">
+      <div className="wa-hidden md:wa-block marketing-desktop">
       {/* ── Hero ── */}
       <section
         style={{
@@ -273,7 +275,7 @@ export default function EmployersPage() {
           >
             {/* Sticky sidebar */}
             <div style={{ gridColumn: 'span 4' }} className="emp-diff-sidebar">
-              <div style={{ position: 'sticky', top: '6rem' }}>
+              <div style={{ position: 'sticky', top: 'calc(var(--main-nav-layout-height) + 1rem)' }}>
                 <h2
                   style={{
                     fontSize: 'clamp(2rem, 3vw, 2.75rem)',
@@ -666,7 +668,7 @@ export default function EmployersPage() {
                 Ready to Transform Your Hiring Process?
               </h2>
               <p style={{ color: 'rgba(255,203,209,0.9)', fontSize: '1.125rem', marginBottom: '1.5rem', lineHeight: 1.6 }}>
-                Join over 200+ partners building a more equitable and efficient workforce
+                Join our growing network of partners building a more equitable and efficient workforce
                 through Workforce Advancement Project.
               </p>
               <div
@@ -700,6 +702,81 @@ export default function EmployersPage() {
           </div>
         </div>
       </section>
+      </div>{/* end employers desktop */}
+
+      <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav">
+        <section style={{ padding: '1.5rem 1rem', background: '#fcf9f8' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+            {[
+              { val: '$0', label: 'Cost to Hire', accent: '#8c0f37' },
+              { val: 'Cert-ready', label: 'Candidates', accent: '#ad2c4d' },
+            ].map((m) => (
+              <div
+                key={m.label}
+                style={{
+                  borderRadius: '0.75rem',
+                  padding: '0.75rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.25rem',
+                  background: 'white',
+                  borderLeft: `3px solid ${m.accent}`,
+                  boxShadow: '0 1px 4px rgba(28,27,27,0.06)',
+                }}
+              >
+                <span style={{ fontSize: '1.25rem', fontWeight: 900, lineHeight: 1, color: m.accent }}>{m.val}</span>
+                <span style={{ fontSize: '9px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#584144' }}>{m.label}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+        <section style={{ padding: '1rem 0', overflowX: 'auto', background: '#fcf9f8', scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', paddingLeft: '1rem', paddingRight: '1rem', width: 'max-content' }}>
+            {['IT & Cyber', 'AI & Software', 'Cloud', 'Business', 'Healthcare'].map((cat, i) => (
+              <Link
+                key={cat}
+                href="/programs#program-catalog"
+                style={{
+                  flexShrink: 0,
+                  padding: '0.5rem 1rem',
+                  borderRadius: '9999px',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  background: i === 0 ? '#8c0f37' : '#e5e2e1',
+                  color: i === 0 ? '#fff' : '#1c1b1b',
+                  textDecoration: 'none',
+                }}
+              >
+                {cat}
+              </Link>
+            ))}
+          </div>
+        </section>
+        <section style={{ padding: '2.5rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#8c0f37' }}>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>Ready to Hire?</h2>
+          <p style={{ fontSize: '0.875rem', marginBottom: '1.5rem', color: 'rgba(255,203,209,0.9)', maxWidth: '22rem' }}>
+            Partner with us to reach certified, job-ready candidates — no placement fees.
+          </p>
+          <Link
+            href="/contact"
+            style={{
+              display: 'block',
+              width: '100%',
+              maxWidth: '24rem',
+              fontWeight: 700,
+              padding: '1rem',
+              borderRadius: '0.75rem',
+              textAlign: 'center',
+              fontSize: '0.875rem',
+              background: '#fff',
+              color: '#8c0f37',
+              textDecoration: 'none',
+            }}
+          >
+            Request Talent Partnership
+          </Link>
+        </section>
+      </div>{/* end employers mobile */}
 
       <style>{`
         @media (max-width: 1023px) {
@@ -707,15 +784,20 @@ export default function EmployersPage() {
           .emp-diff-cards { grid-column: span 12 !important; }
           .emp-tiers-grid { grid-template-columns: 1fr !important; max-width: 480px; margin: 0 auto; }
           .emp-cohort-card { grid-column: span 12 !important; }
-          .emp-process-grid { grid-template-columns: 1fr 1fr !important; gap: 2rem !important; }
-          .emp-timeline-bar { display: none !important; }
         }
         @media (max-width: 767px) {
-          .emp-process-grid { grid-template-columns: 1fr !important; }
+          .emp-process-grid { grid-template-columns: 1fr 1fr !important; gap: 2rem !important; }
+          .emp-timeline-bar { display: none !important; }
           .emp-diff-cards { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 640px) {
+          .emp-stats-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 0.75rem !important; }
+          .emp-stats-grid > div { padding: 1rem !important; }
+          .emp-stats-grid h3 { font-size: 1.5rem !important; }
         }
       `}</style>
 
+      <MobileBottomNav />
       <Footer />
     </div>
   );

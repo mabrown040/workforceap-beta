@@ -20,3 +20,209 @@ html.dark .trust-logos span,
 html.dark .partner-logos-small span {
   color: rgba(255, 255, 255, 0.85);
 }
+
+/*
+ * Marketing mobile vs desktop (768px) — pairs with `wa-hidden md:wa-block` / `md:wa-hidden`.
+ * Use `.marketing-desktop` on desktop-only trees and `.marketing-mobile` on Stitch/mobile-only trees
+ * so a single breakpoint stays consistent even if utility classes fail to load.
+ */
+@media (max-width: 767px) {
+  .marketing-desktop {
+    display: none !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .marketing-mobile {
+    display: none !important;
+  }
+}
+
+/*
+ * Stitch mobile columns use a light cream surface. In `html.dark`, `body` uses light text; without an
+ * explicit color, children inherit it and become unreadable on #fcf9f8. Lock dark-on-light tokens here
+ * (light and dark site theme).
+ */
+.marketing-mobile {
+  color: #1c1b1b;
+  --color-on-surface: #1c1b1b;
+  --color-on-surface-variant: #584144;
+}
+
+html.dark .marketing-mobile {
+  color: #1c1b1b;
+  --color-on-surface: #1c1b1b;
+  --color-on-surface-variant: #584144;
+}
+
+/* Homepage: one responsive layout (no separate light mobile shell); clear MobileBottomNav on small viewports */
+@media (max-width: 767px) {
+  .homepage {
+    padding-bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .blog-page,
+  .blog-post-page {
+    padding-bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+.home-impact-bento {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 3rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .home-impact-bento {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .home-employer-elevated {
+    transform: none !important;
+  }
+}
+
+/* Home hero: dark scrim over image — keep headline/body readable when site theme is light */
+.home-hero {
+  --home-hero-fg: #f2f2f5;
+  --home-hero-fg-muted: rgba(242, 242, 245, 0.88);
+}
+
+.home-hero-outline-cta {
+  border-color: rgba(255, 255, 255, 0.38) !important;
+  color: var(--home-hero-fg) !important;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.home-hero-outline-cta:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.55) !important;
+  color: #fff !important;
+}
+
+/* Credibility strip dividers + logo treatment per theme */
+.home-credibility-bar {
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+html.dark .home-credibility-bar {
+  border-top-color: rgba(255, 255, 255, 0.08);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.home-credibility-bar .home-cred-logo {
+  opacity: 0.9;
+}
+
+html:not(.dark) .home-credibility-bar .home-cred-logo {
+  filter: none;
+  opacity: 0.75;
+}
+
+html.dark .home-credibility-bar .home-cred-logo {
+  filter: brightness(2);
+  opacity: 0.95;
+}
+
+/* Fixed mobile tab bar: readable in both themes */
+.marketing-bottom-nav {
+  --mbn-inactive-fg: #584144;
+  --mbn-bg: rgba(252, 249, 248, 0.92);
+  --mbn-border: rgba(222, 191, 194, 0.35);
+  background: var(--mbn-bg);
+  border-top: 1px solid var(--mbn-border);
+}
+
+html.dark .marketing-bottom-nav {
+  --mbn-inactive-fg: rgba(236, 238, 240, 0.92);
+  --mbn-bg: rgba(22, 24, 26, 0.94);
+  --mbn-border: rgba(255, 255, 255, 0.1);
+}
+
+.marketing-bottom-nav__link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  min-width: 56px;
+  transition: background 150ms ease, color 150ms ease;
+  text-decoration: none;
+  color: var(--mbn-inactive-fg);
+}
+
+.marketing-bottom-nav__link--active {
+  background: linear-gradient(135deg, #8c0f37, #ad2c4d);
+  color: #fff;
+}
+
+.marketing-bottom-nav__link--active .marketing-bottom-nav__label {
+  color: #fff;
+}
+
+.marketing-bottom-nav__label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  color: inherit;
+}
+
+/*
+ * Fixed `MainNav` (default bar height + safe-area-inset-top). In-flow spacer on marketing routes only
+ * so `#main-content` starts below the fixed header — desktop and mobile.
+ */
+.main-nav-layout-spacer {
+  height: var(--main-nav-layout-height);
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+/* Hash links / scroll-into-view clear the fixed main nav when marketing chrome is shown */
+html.has-marketing-main-nav {
+  scroll-padding-top: var(--main-nav-layout-height);
+}
+
+/*
+ * Fixed `MobileBottomNav` (~56px row + vertical padding) plus device safe area.
+ * Use on mobile marketing roots so content is not covered; match sticky CTAs with sticky-above class.
+ */
+.marketing-mobile-pb-for-bottom-nav {
+  padding-bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
+}
+
+.marketing-mobile-sticky-above-bottom-nav {
+  bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* /programs: mobile sticky quiz CTA clears last catalog rows */
+@media (max-width: 767px) {
+  .programs-page-catalog-anchor {
+    padding-bottom: 5.5rem;
+  }
+}
+
+/* Program detail: shared content-section reads as light marketing chrome on small screens */
+@media (max-width: 767px) {
+  .program-detail-page .content-section.program-detail-shared {
+    background: #fcf9f8;
+    color: #1c1b1b;
+    --color-on-surface: #1c1b1b;
+    --color-on-surface-variant: #584144;
+    --surface-container-low: #f0edec;
+    --surface-container: #ebe7e7;
+    --surface-container-high: #e5e2e1;
+    --outline-variant: rgba(28, 27, 27, 0.12);
+    /* Clear fixed apply bar (~3.25rem) + MobileBottomNav + safe area */
+    padding-bottom: calc(8.5rem + env(safe-area-inset-bottom, 0px));
+  }
+}

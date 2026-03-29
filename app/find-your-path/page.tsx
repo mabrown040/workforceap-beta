@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
 import FindYourPathClient from './FindYourPathClient';
+import MobileBottomNav from '@/components/MobileBottomNav';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -14,6 +15,9 @@ export const metadata: Metadata = buildPageMetadata({
 export default function FindYourPathPage() {
   return (
     <div className="inner-page" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
+      {/* Desktop layout — hidden on mobile */}
+      <div className="wa-hidden md:wa-block marketing-desktop">
+
       {/* Hero */}
       <section style={{
         padding: '5rem 2rem 3rem',
@@ -50,7 +54,7 @@ export default function FindYourPathPage() {
 
       {/* Decision Path Tabs + Quiz */}
       <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 2rem 4rem' }}>
-        <div className="fyp-grid" style={{
+        <div style={{
           display: 'grid',
           gridTemplateColumns: '1fr 300px',
           gap: '2.5rem',
@@ -62,9 +66,9 @@ export default function FindYourPathPage() {
           </div>
 
           {/* Desktop sidebar */}
-          <aside className="fyp-sidebar" style={{
+          <aside style={{
             display: 'flex', flexDirection: 'column', gap: '1.5rem',
-            position: 'sticky', top: '2rem',
+            position: 'sticky', top: 'calc(var(--main-nav-layout-height) + 1rem)',
           }}>
             {/* Why this matters tip card */}
             <div style={{
@@ -105,13 +109,18 @@ export default function FindYourPathPage() {
         </div>
       </section>
 
-      <style dangerouslySetInnerHTML={{ __html: `
-        @media (max-width: 768px) {
-          .fyp-grid { grid-template-columns: 1fr !important; }
-          .fyp-sidebar { position: static !important; }
-        }
-      `}} />
+      </div>{/* end hidden md:block desktop wrapper */}
 
+      {/* ══════════════════════════════════════════════
+          MOBILE LAYOUT ≤640px — interactive quiz
+          ══════════════════════════════════════════════ */}
+      <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: '#fcf9f8', minHeight: '100vh' }}>
+        <div style={{ padding: '5rem 1.25rem 1.5rem' }}>
+          <FindYourPathClient />
+        </div>
+      </div>
+
+      <MobileBottomNav />
       <Footer />
     </div>
   );

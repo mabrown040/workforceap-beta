@@ -87,7 +87,7 @@ export default function FAQContent() {
         <div className="faq-layout-grid" style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '3rem', alignItems: 'flex-start' }}>
 
           {/* ── Sidebar Nav ── */}
-          <aside className="faq-sidebar" style={{ position: 'sticky', top: '2rem' }}>
+          <aside className="faq-sidebar" style={{ position: 'sticky', top: 'calc(var(--main-nav-layout-height) + 1rem)' }}>
             <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
               {sidebarGroups.map((group) => (
                 <div key={group.label} style={{ marginBottom: '1rem' }}>

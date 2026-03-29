@@ -3,6 +3,7 @@ import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 import ContactFormClient from './ContactFormClient';
+import ContactMobileSection from './ContactMobileSection';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Contact Us',
@@ -14,6 +15,11 @@ export const metadata: Metadata = buildPageMetadata({
 export default function ContactPage() {
   return (
     <div className="inner-page contact-page">
+      {/* Mobile view ≤640px */}
+      <ContactMobileSection />
+
+      {/* Desktop view >640px */}
+      <div className="wa-hidden md:wa-block marketing-desktop">
       {/* Hero Section */}
       <section className="content-section" style={{ paddingBottom: 0 }}>
         <div className="container" style={{ maxWidth: 1400 }}>
@@ -134,6 +140,7 @@ export default function ContactPage() {
       `}</style>
 
       <Footer />
+      </div>{/* end desktop */}
     </div>
   );
 }

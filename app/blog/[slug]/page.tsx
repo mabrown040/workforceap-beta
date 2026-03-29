@@ -8,6 +8,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
+import MobileBottomNav from '@/components/MobileBottomNav';
 import { PROGRAMS } from '@/lib/content/programs';
 import { ArrowRight } from 'lucide-react';
 
@@ -27,15 +28,16 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+  const now = new Date();
   let post = null;
   try {
     post = await prisma.blogPost.findUnique({
-      where: { slug, published: true },
+      where: { slug },
     });
   } catch {
     post = null;
   }
-  if (!post) return {};
+  if (!post || (!post.published && (!post.scheduledAt || post.scheduledAt > now))) return {};
   const path = `/blog/${post.slug}`;
   return buildPageMetadata({
     title: post.title,
@@ -89,7 +91,7 @@ export default async function BlogPostPage({ params }: Props) {
   const relevantPrograms = PROGRAMS.filter(p => relevantProgramSlugs.includes(p.slug)).slice(0, 3);
 
   return (
-    <div className="inner-page">
+    <div className="inner-page blog-post-page">
       <PageHero
         title={post.title}
         subtitle={[
@@ -102,6 +104,9 @@ export default async function BlogPostPage({ params }: Props) {
       />
       <div className="blog-post-layout">
         <article className="blog-post-article">
+        <Link href="/blog" className="blog-back-link">
+          ← Back to Blog
+        </Link>
         {post.coverImage ? (
           <div
             style={{
@@ -256,6 +261,7 @@ export default async function BlogPostPage({ params }: Props) {
         )}
       </div>
       <Footer />
+      <MobileBottomNav />
     </div>
   );
 }

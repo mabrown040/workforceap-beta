@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
 import LeadershipContent from './LeadershipContent';
+import './leadership.css';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Board & Leadership',

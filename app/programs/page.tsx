@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
+import MobileBottomNav from '@/components/MobileBottomNav';
 import ProgramsContent from './ProgramsContent';
 import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
@@ -17,6 +18,188 @@ export const metadata: Metadata = buildPageMetadata({
 export default function ProgramsPage() {
   return (
     <div className="inner-page programs-page">
+      {/* ══════════════════════════════════════════════
+          MOBILE LAYOUT ≤640px — Stitch-aligned
+          ══════════════════════════════════════════════ */}
+      {/* Inline styles only: Tailwind uses wa- prefix — unprefixed utility classes do not exist in CSS */}
+      <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: '#fcf9f8', minHeight: '100vh' }}>
+        <main style={{ paddingTop: '1.25rem', paddingLeft: '1.25rem', paddingRight: '1.25rem' }}>
+          <div style={{ marginBottom: '1.75rem', marginTop: '0.75rem' }}>
+            <h1 style={{ fontSize: '2.25rem', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1, color: '#1c1b1b', margin: 0 }}>
+              Master Your <br />
+              <span style={{ fontStyle: 'italic', color: '#ad2c4d' }}>Future</span>
+            </h1>
+            <div style={{ height: '4px', width: '3rem', marginTop: '0.75rem', borderRadius: '9999px', background: '#ffbb00' }} />
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              overflowX: 'auto',
+              gap: '0.5rem',
+              marginBottom: '1.75rem',
+              marginLeft: '-1.25rem',
+              marginRight: '-1.25rem',
+              paddingLeft: '1.25rem',
+              paddingRight: '1.25rem',
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+            }}
+          >
+            {['All Programs', 'AI & Software Dev', 'Cloud & Data', 'IT & Cybersecurity', 'Business', 'Healthcare'].map((label, i) => (
+              <a
+                key={label}
+                href="#program-catalog"
+                style={{
+                  flexShrink: 0,
+                  padding: '0.625rem 1.25rem',
+                  minHeight: '44px',
+                  borderRadius: '9999px',
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  letterSpacing: '0.02em',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  textDecoration: 'none',
+                  ...(i === 0 ? { background: '#ad2c4d', color: '#fff' } : { background: '#f6f3f2', color: '#584144' }),
+                }}
+              >
+                {label}
+              </a>
+            ))}
+          </div>
+
+          <section style={{ marginBottom: '2.25rem' }}>
+            <div
+              style={{
+                position: 'relative',
+                overflow: 'hidden',
+                borderRadius: '0.75rem',
+                padding: '1.25rem',
+                color: '#fff',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)',
+                minHeight: 200,
+              }}
+            >
+              <div style={{ position: 'absolute', top: 0, right: 0, width: '8rem', height: '8rem', borderRadius: '9999px', marginRight: '-4rem', marginTop: '-4rem', background: 'rgba(255,255,255,0.05)', filter: 'blur(20px)' }} />
+              <div style={{ position: 'relative', zIndex: 1 }}>
+                <span style={{ display: 'inline-block', padding: '0.25rem 0.75rem', borderRadius: '0.5rem', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem', background: '#ffbb00', color: '#1c1b1b' }}>Start Here</span>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em', margin: 0 }}>Digital Literacy</h2>
+                <p style={{ fontSize: '0.875rem', marginTop: '0.25rem', marginBottom: 0, color: 'rgba(255,203,209,0.9)' }}>Essential skills for the modern workforce</p>
+              </div>
+              <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '1.25rem' }}>
+                <div style={{ display: 'flex', gap: '1.25rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontSize: '10px', textTransform: 'uppercase', opacity: 0.7, fontWeight: 500 }}>Duration</span>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 700 }}>4 weeks</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontSize: '10px', textTransform: 'uppercase', opacity: 0.7, fontWeight: 500 }}>Cost</span>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 700 }}>$0 cost</span>
+                  </div>
+                </div>
+                <Link href="/programs/digital-literacy-empowerment-class" style={{ width: '2.5rem', height: '2.5rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', color: '#8c0f37', flexShrink: 0 }} aria-label="Open Digital Literacy program">
+                  <span className="material-symbols-outlined">arrow_forward</span>
+                </Link>
+              </div>
+            </div>
+          </section>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2.5rem' }}>
+            {[
+              { cat: 'IT & Cybersecurity', title: 'Cybersecurity (Google)', dur: '3–5 months', slug: 'cybersecurity-professional-certificate-google' },
+              { cat: 'AI & Software Dev', title: 'AI Developer (IBM)', dur: '3–5 months', slug: 'ai-professional-developer-certificate-ibm' },
+              { cat: 'Cloud & Data', title: 'AWS Cloud Technology', dur: '3–5 months', slug: 'aws-cloud-technology-amazon' },
+              { cat: 'Business', title: 'Project Management (Microsoft)', dur: '3–5 months', slug: 'project-management-professional-certificate-microsoft' },
+              { cat: 'AI & Software Dev', title: 'Software Developer (IBM)', dur: '4–6 months', slug: 'software-developer-professional-certificate-ibm' },
+              { cat: 'Cloud & Data', title: 'Data Analytics (Google)', dur: '3–5 months', slug: 'data-analytics-professional-certificate-google' },
+            ].map(({ cat, title, dur, slug }) => (
+              <Link
+                href={`/programs/${slug}`}
+                key={title}
+                style={{
+                  borderRadius: '0.75rem',
+                  padding: '1rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  border: '1px solid rgba(222,191,194,0.15)',
+                  background: '#fff',
+                  minHeight: 192,
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
+                  textDecoration: 'none',
+                  color: 'inherit',
+                }}
+              >
+                <div>
+                  <span style={{ fontSize: '9px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: '0.25rem', color: '#7b5800' }}>{cat}</span>
+                  <h3 style={{ fontSize: '0.875rem', fontWeight: 700, lineHeight: 1.25, margin: 0, color: '#1c1b1b' }}>{title}</h3>
+                </div>
+                <div style={{ marginTop: 'auto' }}>
+                  <p style={{ fontSize: '10px', fontWeight: 500, marginBottom: '0.75rem', color: '#584144' }}>{dur}</p>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ padding: '0.125rem 0.5rem', borderRadius: '4px', fontSize: '10px', fontWeight: 700, background: '#ffd9dd', color: '#8c0f37' }}>$0</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: '#8c0f37' }}>arrow_outward</span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          <div style={{ textAlign: 'center', marginTop: '1rem', marginBottom: '0.5rem' }}>
+            <a href="#program-catalog" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.875rem', fontWeight: 600, color: '#8c0f37', textDecoration: 'none' }}>
+              See all programs
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_forward</span>
+            </a>
+          </div>
+        </main>
+
+        <div
+          className="marketing-mobile-sticky-above-bottom-nav"
+          style={{
+            position: 'fixed',
+            zIndex: 40,
+            left: 0,
+            right: 0,
+            paddingLeft: '1rem',
+            paddingRight: '1rem',
+          }}
+        >
+          <Link
+            href="/find-your-path"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              borderRadius: '0.75rem',
+              padding: '1rem',
+              minHeight: '48px',
+              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.35)',
+              background: '#1c1b1b',
+              color: '#fff',
+              textDecoration: 'none',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <span className="material-symbols-outlined" style={{ color: '#ffbb00', flexShrink: 0 }}>psychology</span>
+              <span style={{ fontSize: '0.875rem', fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1.3 }}>Can&apos;t decide? Take 2-min quiz</span>
+            </div>
+            <span className="material-symbols-outlined" style={{ flexShrink: 0 }}>arrow_forward</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* ══════════════════════════════════════════════
+          DESKTOP LAYOUT ≥641px
+          ══════════════════════════════════════════════ */}
+      <div className="wa-hidden md:wa-block marketing-desktop">
+
       {/* ── Hero Section ── */}
       <section className="content-section" style={{ paddingBottom: 0 }}>
         <div className="container" style={{ maxWidth: 1200 }}>
@@ -110,8 +293,14 @@ export default function ProgramsPage() {
         </div>
       </section>
 
-      {/* ── Program Cards (dynamic, from ProgramsContent) ── */}
-      <ProgramsContent />
+      </div>{/* end desktop: hero + journey nav */}
+
+      {/* Full catalog — one anchor `#program-catalog` for mobile + desktop + deep links */}
+      <div id="program-catalog" className="programs-page-catalog-anchor" style={{ scrollMarginTop: '0.75rem' }}>
+        <ProgramsContent sectionId={null} />
+      </div>
+
+      <div className="wa-hidden md:wa-block marketing-desktop">
 
       {/* ── Journey Section — 4-step flow ── */}
       <section className="bg-surface-container-low" style={{ padding: '6rem 0' }}>
@@ -212,8 +401,8 @@ export default function ProgramsPage() {
               zIndex: 1,
             }}
           >
-            Join thousands of graduates who have transitioned into high-paying tech careers through
-            our nationwide scholarship programs.
+            Training and job-placement support at no cost to eligible members — programs built
+            with employers so you can move into work in your field.
           </p>
           <div
             style={{
@@ -259,7 +448,7 @@ export default function ProgramsPage() {
         </div>
       </section>
 
-      {/* Responsive styles */}
+      {/* Responsive styles (layout toggle lives at top of page) */}
       <style>{`
         @media (max-width: 1023px) {
           .programs-hero-left { grid-column: 1 / -1 !important; }
@@ -272,6 +461,9 @@ export default function ProgramsPage() {
         }
       `}</style>
 
+      </div>{/* end desktop wrapper */}
+
+      <MobileBottomNav />
       <Footer />
     </div>
   );

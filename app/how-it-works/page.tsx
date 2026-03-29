@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
+import MobileBottomNav from '@/components/MobileBottomNav';
 import { prisma } from '@/lib/db/prisma';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { toVideoEmbedUrl } from '@/lib/platform/videoEmbed';
@@ -63,6 +64,7 @@ export default async function HowItWorksPage() {
 
   return (
     <div className="inner-page">
+      <div className="wa-hidden md:wa-block marketing-desktop">
       {/* Hero Section */}
       <section className="content-section" style={{ paddingBottom: 0 }}>
         <div className="container" style={{ maxWidth: 1200 }}>
@@ -335,6 +337,151 @@ export default async function HowItWorksPage() {
         }
       `}</style>
 
+      </div>{/* end hidden md:block desktop wrapper */}
+
+      {/* ── Mobile Journey View (≤640px) — inline styles only (Tailwind wa- prefix) ── */}
+      <section
+        className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav"
+        style={{
+          background: '#fcf9f8',
+          paddingLeft: '1rem',
+          paddingRight: '1rem',
+          paddingTop: '2rem',
+        }}
+      >
+        <div style={{ marginBottom: '1.5rem' }}>
+          <span
+            style={{
+              display: 'inline-block',
+              fontSize: '10px',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.12em',
+              padding: '0.25rem 0.75rem',
+              borderRadius: '9999px',
+              marginBottom: '0.75rem',
+              background: '#ffbb00',
+              color: '#1c1b1b',
+            }}
+          >
+            Member Experience
+          </span>
+          <h2
+            style={{
+              fontSize: '1.875rem',
+              fontWeight: 800,
+              letterSpacing: '-0.025em',
+              lineHeight: 1.1,
+              marginBottom: '0.75rem',
+              color: '#1c1b1b',
+            }}
+          >
+            Your Journey to <span style={{ color: '#ad2c4d' }}>Success</span>
+          </h2>
+          <p style={{ fontSize: '0.875rem', lineHeight: 1.6, color: '#584144' }}>
+            11 milestones from application to career growth.
+          </p>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {PHASES.flatMap((phase) =>
+            phase.steps.map((step) => {
+              const isIntensive = step.num >= 5 && step.num <= 9;
+              return (
+                <div
+                  key={step.num}
+                  style={{
+                    position: 'relative',
+                    overflow: 'hidden',
+                    borderRadius: '0.75rem',
+                    padding: '1rem',
+                    background: isIntensive ? 'rgba(173, 44, 77, 0.06)' : '#fff',
+                    border: isIntensive ? '1px solid rgba(173,44,77,0.15)' : 'none',
+                    boxShadow: isIntensive ? 'none' : '0 1px 4px rgba(28,27,27,0.06)',
+                  }}
+                >
+                  <span
+                    style={{
+                      position: 'absolute',
+                      left: '-0.25rem',
+                      top: '-0.75rem',
+                      fontSize: '4.5rem',
+                      fontWeight: 900,
+                      userSelect: 'none',
+                      pointerEvents: 'none',
+                      color: isIntensive ? 'rgba(173,44,77,0.12)' : 'rgba(173,44,77,0.07)',
+                      lineHeight: 1,
+                    }}
+                  >
+                    {String(step.num).padStart(2, '0')}
+                  </span>
+                  <div style={{ position: 'relative', paddingLeft: '2rem' }}>
+                    {isIntensive && step.num === 5 && (
+                      <span
+                        style={{
+                          fontSize: '9px',
+                          fontWeight: 700,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.1em',
+                          padding: '0.125rem 0.5rem',
+                          borderRadius: '9999px',
+                          marginBottom: '0.5rem',
+                          display: 'inline-block',
+                          background: '#ad2c4d',
+                          color: '#fff',
+                        }}
+                      >
+                        Intensive Learning Phase
+                      </span>
+                    )}
+                    <p style={{ fontWeight: 700, fontSize: '0.875rem', color: '#1c1b1b' }}>{step.title}</p>
+                    <p style={{ fontSize: '0.75rem', marginTop: '0.125rem', lineHeight: 1.55, color: '#584144' }}>{step.desc}</p>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <Link
+            href="/apply"
+            style={{
+              display: 'block',
+              width: '100%',
+              textAlign: 'center',
+              fontWeight: 700,
+              padding: '1rem',
+              borderRadius: '0.5rem',
+              fontSize: '0.875rem',
+              background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)',
+              color: '#fff',
+              textDecoration: 'none',
+            }}
+          >
+            Start Your Application
+          </Link>
+          <Link
+            href="/programs"
+            style={{
+              display: 'block',
+              width: '100%',
+              textAlign: 'center',
+              fontWeight: 700,
+              padding: '1rem',
+              borderRadius: '0.5rem',
+              fontSize: '0.875rem',
+              background: '#ebe7e7',
+              color: '#1c1b1b',
+              textDecoration: 'none',
+            }}
+          >
+            View Programs
+          </Link>
+        </div>
+      </section>
+
+      <MobileBottomNav />
       <Footer />
     </div>
   );

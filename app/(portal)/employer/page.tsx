@@ -9,6 +9,7 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { EMPLOYER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Employer overview',
@@ -139,6 +140,110 @@ export default async function EmployerDashboardPage() {
       }}
     >
     <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
+      {/* ── Mobile Employer Dashboard (≤640px) ── */}
+      <div className="wa-block md:wa-hidden wa-pb-24">
+        {/* Hero */}
+        <div className="px-6 pt-6 pb-4">
+          <p className="text-[10px] uppercase tracking-[0.15em] font-semibold text-[#8c0f37] mb-1">Overview</p>
+          <h2 className="text-3xl font-extrabold tracking-tight text-on-surface leading-tight">
+            Elite Talent<br/>at your fingertips.
+          </h2>
+        </div>
+        {/* Stats row - horizontal scroll */}
+        <div className="flex gap-3 overflow-x-auto px-6 pb-2 hide-scrollbar">
+          {[
+            { label: 'Open Roles', value: activeJobs, color: '#8c0f37' },
+            { label: 'Candidates', value: totalApplications, color: 'var(--on-surface)' },
+            { label: 'In Review', value: inReview, color: 'var(--secondary)' },
+          ].map((s) => (
+            <div key={s.label} className="min-w-[130px] flex-1 bg-white p-4 rounded-xl shadow-sm">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant/60 mb-1">{s.label}</p>
+              <p className="text-2xl font-bold" style={{ color: s.color }}>{s.value}</p>
+            </div>
+          ))}
+        </div>
+        {/* Pipeline summary strip */}
+        <div className="mx-6 mt-3 bg-surface-container-low p-4 rounded-xl flex justify-between items-center text-center">
+          {[
+            { label: 'Screened', value: Math.max(0, totalApplications - inReview) },
+            { label: 'Interview', value: inReview },
+            { label: 'Offer', value: Math.floor(inReview / 2) },
+            { label: 'Hired', value: filledPositions },
+          ].map((s, i, arr) => (
+            <div key={s.label} className="flex items-center gap-2">
+              <div className="flex-1 text-center">
+                <p className="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-tighter">{s.label}</p>
+                <p className="text-sm font-bold text-on-surface">{s.value}</p>
+              </div>
+              {i < arr.length - 1 && <div className="w-px h-5 bg-outline-variant/30" />}
+            </div>
+          ))}
+        </div>
+        {/* Quick actions */}
+        <div className="mx-6 mt-4 grid grid-cols-2 gap-3">
+          <Link href="/employer/jobs/new"
+            className="col-span-2 p-4 rounded-xl flex items-center justify-between text-white no-underline active:scale-[0.98] transition-all"
+            style={{ background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)' }}>
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined">add_circle</span>
+              <span className="font-bold tracking-tight">Post a Role</span>
+            </div>
+            <span className="material-symbols-outlined opacity-60">arrow_forward</span>
+          </Link>
+          <Link href="/employer/applications"
+            className="bg-surface-container-high text-on-surface p-4 rounded-xl flex flex-col gap-2 items-start no-underline active:scale-[0.98] transition-all">
+            <span className="material-symbols-outlined text-[#7b5800]">grading</span>
+            <span className="text-sm font-bold leading-tight">Review Apps</span>
+          </Link>
+          <Link href="/employer/messages"
+            className="bg-surface-container-high text-on-surface p-4 rounded-xl flex flex-col gap-2 items-start no-underline active:scale-[0.98] transition-all">
+            <span className="material-symbols-outlined text-[#8c0f37]">forum</span>
+            <span className="text-sm font-bold leading-tight">Messages</span>
+          </Link>
+        </div>
+        {/* Recent applicants */}
+        <div className="mx-6 mt-6">
+          <div className="flex justify-between items-end mb-4">
+            <h3 className="text-xl font-bold tracking-tight text-on-surface">Recent Applicants</h3>
+            <Link href="/employer/applications" className="text-xs font-bold text-[#8c0f37] uppercase tracking-widest no-underline">View All</Link>
+          </div>
+          <div className="space-y-3">
+            {recentApplications.length === 0 ? (
+              <div className="bg-white rounded-xl p-5 text-center">
+                <p className="text-sm text-on-surface-variant">No applications yet. Post a role to get started.</p>
+              </div>
+            ) : (
+              recentApplications.slice(0, 5).map((app) => (
+                <Link key={app.id} href={`/employer/jobs/${app.jobId}`}
+                  className="bg-white p-4 rounded-xl flex items-center gap-3 no-underline active:scale-[0.98] transition-all">
+                  <div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center flex-shrink-0">
+                    <span className="material-symbols-outlined text-[18px] text-on-surface-variant">person</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start">
+                      <h4 className="font-bold text-on-surface text-sm truncate">{app.student.fullName}</h4>
+                      <span className="text-[10px] text-on-surface-variant/60 font-medium ml-2 flex-shrink-0">
+                        {new Date(app.appliedAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#7b5800] font-semibold uppercase tracking-wider mb-1 truncate">{app.job.title}</p>
+                    <span className="px-2 py-0.5 text-[10px] font-bold rounded-full uppercase tracking-tighter"
+                      style={{
+                        background: app.status === 'pending' ? '#fff1f2' : '#fef3c7',
+                        color: app.status === 'pending' ? '#8c0f37' : '#7b5800',
+                      }}>
+                      {app.status}
+                    </span>
+                  </div>
+                </Link>
+              ))
+            )}
+          </div>
+        </div>
+        <MobileBottomNav variant="portal" />
+      </div>
+      {/* ── Desktop View ── */}
+      <div className="wa-hidden md:wa-block">
       {/* ── Header ── */}
       <header style={{ marginBottom: '2.5rem', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: '1.5rem' }}>
         <div>
@@ -359,6 +464,7 @@ export default async function EmployerDashboardPage() {
           </div>
         )}
       </section>
+      </div>{/* end desktop */}
     </div>
     </PortalEntryClient>
   );

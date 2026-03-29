@@ -62,7 +62,7 @@ export default function ProgramsDecisionJourneyNav({
       <style>{`
         .pdj-nav {
           position: sticky;
-          top: 6rem;
+          top: calc(var(--main-nav-layout-height) + 0.5rem);
           z-index: 40;
           background: var(--surface-container-high);
           border-radius: var(--radius-xl);

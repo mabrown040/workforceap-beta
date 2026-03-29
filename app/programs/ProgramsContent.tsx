@@ -131,7 +131,7 @@ function ProgramCard({ program }: { program: Program }) {
   );
 }
 
-export default function ProgramsContent() {
+export default function ProgramsContent({ sectionId = 'program-catalog' }: { sectionId?: string | null }) {
   const [activeFilter, setActiveFilter] = useState('all');
 
   const filtered = activeFilter === 'all'
@@ -139,7 +139,7 @@ export default function ProgramsContent() {
     : programs.filter((p) => p.category === activeFilter);
 
   return (
-    <section className="content-section">
+    <section id={sectionId ?? undefined} className="content-section">
       <div className="container">
         <div className="program-filters">
           {filters.map((f) => (

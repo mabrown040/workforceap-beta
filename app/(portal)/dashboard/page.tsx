@@ -239,18 +239,53 @@ export default async function DashboardPage() {
           </div>
         </section>
 
-        {/* Recommended programs */}
-        {recommendedActions.length > 0 && (
-          <section className="px-6 mb-4 space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[#584144]">Recommended Next Steps</h3>
-            {recommendedActions.slice(0, 3).map((action, i) => (
-              <div key={i} className="bg-[#f2eeed] rounded-xl px-4 py-3 flex items-center gap-3">
-                <span className="material-symbols-outlined text-[#8c0f37] text-xl">arrow_forward</span>
-                <p className="text-sm font-semibold text-[#1c1b1b]">{action.label}</p>
+        {/* Recommended programs — horizontal scroll cards with placement badges */}
+        <section className="mb-6 space-y-3">
+          <div className="flex justify-between items-end px-6">
+            <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[#584144]">Recommended Programs</h3>
+            <a href="/programs" className="text-xs font-bold text-[#8c0f37] no-underline">View All</a>
+          </div>
+          <div className="flex gap-4 overflow-x-auto -mx-0 px-6 pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            {[
+              { provider: 'IBM Professional', title: 'Data Science Professional', placement: '94%' },
+              { provider: 'Amazon Web Services', title: 'Cloud Practitioner Essentials', placement: '94%' },
+              { provider: 'Google', title: 'Cybersecurity Professional', placement: '91%' },
+            ].map((prog, i) => (
+              <div key={i} className="min-w-[220px] rounded-xl overflow-hidden flex flex-col shadow-sm flex-shrink-0" style={{ background: '#f0edec' }}>
+                <div className="h-28 relative" style={{ background: 'linear-gradient(135deg, #2b1f20 0%, #584144 100%)' }}>
+                  <div className="absolute top-3 left-3 px-2 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter"
+                    style={{ background: '#ffbb00', color: '#6c4d00' }}>
+                    {prog.placement} Placement
+                  </div>
+                </div>
+                <div className="p-4 space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#7b5800' }}>{prog.provider}</p>
+                  <h4 className="font-bold text-sm text-[#1c1b1b] leading-tight">{prog.title}</h4>
+                </div>
               </div>
             ))}
-          </section>
-        )}
+          </div>
+        </section>
+
+        {/* Quick Actions 2x2 grid */}
+        <section className="px-6 mb-6 space-y-3">
+          <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[#584144]">Quick Actions</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { icon: 'upload_file', label: 'Upload Resume', href: '/dashboard/ai-tools/resume-rewriter' },
+              { icon: 'event_available', label: 'Book Coaching', href: '/dashboard' },
+              { icon: 'forum', label: 'Practice Interview', href: '/dashboard/ai-tools/interview-practice' },
+              { icon: 'psychology', label: 'AI Resume Help', href: '/dashboard/ai-tools' },
+            ].map((action) => (
+              <a key={action.label} href={action.href}
+                className="flex flex-col items-center justify-center p-4 rounded-xl no-underline active:scale-[0.97] transition-transform"
+                style={{ background: '#ffffff', border: '1px solid rgba(222,191,194,0.3)', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+                <span className="material-symbols-outlined mb-2" style={{ color: '#8c0f37' }}>{action.icon}</span>
+                <span className="text-[11px] font-bold text-[#1c1b1b] tracking-tight text-center leading-tight">{action.label}</span>
+              </a>
+            ))}
+          </div>
+        </section>
       </div>
 
       {/* ── Desktop view (hidden on mobile) ── */}

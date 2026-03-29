@@ -266,7 +266,7 @@ export default function EmployersPage() {
       <section className="sm:hidden px-4 py-6" style={{ background: '#fcf9f8' }}>
         <div className="grid grid-cols-3 gap-2">
           {[
-            { val: '84%', label: 'Placement Rate', accent: '#8c0f37' },
+            { val: '$0', label: 'Cost to Hire', accent: '#8c0f37' },
             { val: '200+', label: 'Employers', accent: '#ad2c4d' },
             { val: '$0', label: 'Cost to You', accent: '#1c1b1b' },
           ].map((m) => (

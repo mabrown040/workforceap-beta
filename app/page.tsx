@@ -52,7 +52,7 @@ export default async function HomePage() {
             Free Career<br />Training
           </h1>
           <p className="text-base leading-relaxed mb-7 max-w-[280px]" style={{ color: '#584144' }}>
-            Bridge the gap with professional certification and a 94% placement rate.
+            Bridge the gap with professional certification and real employer connections.
           </p>
           <div className="flex flex-col gap-3">
             <Link href="/apply" className="block w-full text-center font-bold py-4 rounded-xl text-sm shadow-lg" style={{ background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)', color: '#fff' }}>
@@ -567,7 +567,7 @@ export default async function HomePage() {
           <span style={{ color: '#ad2c4d' }}>Training</span>
         </h1>
         <p className="text-sm leading-relaxed mb-5" style={{ color: '#584144' }}>
-          Real certifications. Employer connections. 94% placement rate. No cost to members.
+          Real certifications. Employer connections. No cost to members.
         </p>
         <div className="space-y-3">
           <Link href="/apply" className="block w-full text-center font-bold py-4 rounded-lg text-sm" style={{ background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)', color: '#fff' }}>

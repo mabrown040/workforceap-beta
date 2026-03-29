@@ -32,6 +32,8 @@ export default async function LearningPage() {
   const overallPct = 38;
 
   const upcomingModules = ACTIVE_PATHWAY.steps.slice(0, 4);
+  /* How many steps count as "completed" on mobile (placeholder; real data from user progress) */
+  const completedCount = Math.floor(ACTIVE_PATHWAY.steps.length * (overallPct / 100));
 
   return (
     <>
@@ -90,30 +92,81 @@ export default async function LearningPage() {
         </div>
       </section>
 
-      {/* Upcoming modules */}
-      <section className="mx-6 mb-4">
+      {/* In-progress / upcoming modules — Stitch-aligned */}
+      <section className="mx-6 mb-6">
         <h5 className="text-xs font-bold uppercase tracking-widest text-[#584144] mb-4">Course Modules</h5>
         <div className="space-y-3">
-          {upcomingModules.map((stepLabel, i) => (
-            <div key={i} className="flex items-center gap-4 bg-[#fcf9f8] rounded-xl px-4 py-3 border border-[#debfc2]/40">
-              <span
-                className="material-symbols-outlined text-xl flex-shrink-0"
-                style={{ color: '#8c0f37', fontVariationSettings: i === 0 ? "'FILL' 1" : "'FILL' 0" }}
+          {upcomingModules.map((stepLabel, i) => {
+            const isCompleted = i < completedCount;
+            const isActive = i === completedCount;
+            const isLocked = i > completedCount;
+            return (
+              <div
+                key={i}
+                className={`flex items-center gap-4 rounded-xl px-4 py-3 ${
+                  isCompleted
+                    ? 'bg-white border-l-4 border-[#7b5800] shadow-sm'
+                    : isActive
+                    ? 'bg-white border-l-4 border-[#8c0f37] shadow-sm'
+                    : 'bg-[#f6f3f2] opacity-60'
+                }`}
               >
-                {MODULE_ICONS[ACTIVE_PATHWAY.category] ?? 'school'}
-              </span>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-[#1c1b1b] truncate">{stepLabel}</p>
+                <div
+                  className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{
+                    background: isCompleted
+                      ? 'rgba(123,88,0,0.1)'
+                      : isActive
+                      ? 'rgba(140,15,55,0.1)'
+                      : 'rgba(88,65,68,0.1)',
+                  }}
+                >
+                  <span
+                    className="material-symbols-outlined text-base"
+                    style={{
+                      color: isCompleted ? '#7b5800' : isActive ? '#8c0f37' : '#584144',
+                      fontVariationSettings: isCompleted ? "'FILL' 1" : "'FILL' 0",
+                    }}
+                  >
+                    {isCompleted ? 'check_circle' : isLocked ? 'lock' : (MODULE_ICONS[ACTIVE_PATHWAY.category] ?? 'school')}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p
+                    className="text-[10px] font-bold uppercase tracking-tight mb-0.5"
+                    style={{ color: isCompleted ? '#7b5800' : isActive ? '#8c0f37' : '#584144' }}
+                  >
+                    {isCompleted ? 'Completed' : isActive ? 'In Progress' : 'Locked'}
+                  </p>
+                  <p className="text-sm font-semibold text-[#1c1b1b] truncate">{stepLabel}</p>
+                </div>
               </div>
-              {i === 0 && (
-                <span className="text-[10px] font-bold text-[#8c0f37] bg-[#8c0f37]/10 px-2 py-0.5 rounded-full uppercase tracking-wide flex-shrink-0">
-                  Next
-                </span>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
+
+      {/* Completed courses section (Stitch: in-progress vs completed separation) */}
+      {completedCount > 0 && (
+        <section className="mx-6 mb-6">
+          <h5 className="text-xs font-bold uppercase tracking-widest text-[#584144] mb-3">Completed</h5>
+          <div className="space-y-3">
+            {ACTIVE_PATHWAY.steps.slice(0, completedCount).map((stepLabel, i) => (
+              <div key={i} className="flex items-center gap-4 bg-white rounded-xl px-4 py-3 border-l-4 border-[#7b5800] shadow-sm">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(123,88,0,0.1)' }}>
+                  <span className="material-symbols-outlined text-base" style={{ color: '#7b5800', fontVariationSettings: "'FILL' 1" }}>
+                    check_circle
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-bold uppercase tracking-tight mb-0.5 text-[#7b5800]">Completed</p>
+                  <p className="text-sm font-semibold text-[#1c1b1b] truncate">{stepLabel}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
 
     {/* ── Desktop view ── */}

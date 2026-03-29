@@ -46,7 +46,7 @@ export default function ProgramsPage() {
 
           {/* Horizontal Filter Chips */}
           <div className="flex overflow-x-auto gap-2 mb-7 -mx-5 px-5" style={{ scrollbarWidth: 'none' }}>
-            {['All Programs', 'IT &amp; Cyber', 'AI &amp; Software', 'Cloud', 'Business', 'Healthcare'].map((label, i) => (
+            {['All Programs', 'AI & Software Dev', 'Cloud & Data', 'IT & Cybersecurity', 'Business', 'Healthcare'].map((label, i) => (
               <button key={label} className="flex-none px-5 py-2 rounded-full text-sm font-semibold tracking-wide" style={i === 0 ? { background: '#ad2c4d', color: '#fff' } : { background: '#f6f3f2', color: '#584144' }}>
                 {label}
               </button>
@@ -83,14 +83,16 @@ export default function ProgramsPage() {
           {/* 2-Column Program Grid */}
           <div className="grid grid-cols-2 gap-4 mb-10">
             {[
-              { cat: 'IT &amp; Cyber', title: 'Cyber Security Specialist', dur: '12–24 Weeks' },
-              { cat: 'AI &amp; Software', title: 'Python for Data Science', dur: '16 Weeks' },
-              { cat: 'Cloud', title: 'AWS Cloud Architect', dur: '20 Weeks' },
-              { cat: 'Business', title: 'Agile Project Management', dur: '12 Weeks' },
-            ].map(({ cat, title, dur }) => (
-              <div key={title} className="rounded-xl p-4 flex flex-col justify-between border" style={{ background: '#fff', borderColor: 'rgba(222,191,194,0.15)', minHeight: 192, boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+              { cat: 'IT & Cybersecurity', title: 'Cybersecurity Analyst', dur: '12–24 Weeks', slug: 'cybersecurity-analyst' },
+              { cat: 'AI & Software Dev', title: 'Python for Data Science', dur: '16 Weeks', slug: 'python-for-data-science' },
+              { cat: 'Cloud & Data', title: 'AWS Cloud Practitioner', dur: '6 Weeks', slug: 'aws-cloud-practitioner' },
+              { cat: 'Business', title: 'Agile Project Management', dur: '12 Weeks', slug: 'agile-project-management' },
+              { cat: 'AI & Software Dev', title: 'Full-Stack JavaScript', dur: '16 Weeks', slug: 'full-stack-js' },
+              { cat: 'Cloud & Data', title: 'Data Analytics', dur: '10 Weeks', slug: 'data-analytics-professional-certificate-google' },
+            ].map(({ cat, title, dur, slug }) => (
+              <Link href={`/programs/${slug}`} key={title} className="rounded-xl p-4 flex flex-col justify-between border" style={{ background: '#fff', borderColor: 'rgba(222,191,194,0.15)', minHeight: 192, boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
                 <div>
-                  <span className="text-[9px] font-bold uppercase tracking-wider block mb-1" style={{ color: '#7b5800' }} dangerouslySetInnerHTML={{ __html: cat }} />
+                  <span className="text-[9px] font-bold uppercase tracking-wider block mb-1" style={{ color: '#7b5800' }}>{cat}</span>
                   <h3 className="text-sm font-bold leading-tight" style={{ color: '#1c1b1b' }}>{title}</h3>
                 </div>
                 <div className="mt-auto">
@@ -100,8 +102,16 @@ export default function ProgramsPage() {
                     <span className="material-symbols-outlined text-lg" style={{ color: '#8c0f37' }}>arrow_outward</span>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
+          </div>
+
+          {/* See all link */}
+          <div className="text-center mt-4 mb-2">
+            <Link href="/programs#all" className="inline-flex items-center gap-1 text-sm font-semibold" style={{ color: '#8c0f37' }}>
+              See all programs
+              <span className="material-symbols-outlined text-base">arrow_forward</span>
+            </Link>
           </div>
         </main>
 

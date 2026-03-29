@@ -50,7 +50,7 @@ export default function FindYourPathPage() {
 
       {/* Decision Path Tabs + Quiz */}
       <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 2rem 4rem' }}>
-        <div style={{
+        <div className="fyp-grid" style={{
           display: 'grid',
           gridTemplateColumns: '1fr 300px',
           gap: '2.5rem',
@@ -62,7 +62,7 @@ export default function FindYourPathPage() {
           </div>
 
           {/* Desktop sidebar */}
-          <aside style={{
+          <aside className="fyp-sidebar" style={{
             display: 'flex', flexDirection: 'column', gap: '1.5rem',
             position: 'sticky', top: '2rem',
           }}>
@@ -104,6 +104,13 @@ export default function FindYourPathPage() {
           </aside>
         </div>
       </section>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media (max-width: 768px) {
+          .fyp-grid { grid-template-columns: 1fr !important; }
+          .fyp-sidebar { position: static !important; }
+        }
+      `}} />
 
       <Footer />
     </div>

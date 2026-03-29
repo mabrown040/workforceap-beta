@@ -84,10 +84,10 @@ export default function FAQContent() {
       <div className="container" style={{ maxWidth: 1200 }}>
 
         {/* Editorial 2-col grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '3rem', alignItems: 'flex-start' }}>
+        <div className="faq-layout-grid" style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '3rem', alignItems: 'flex-start' }}>
 
           {/* ── Sidebar Nav ── */}
-          <aside style={{ position: 'sticky', top: '2rem' }}>
+          <aside className="faq-sidebar" style={{ position: 'sticky', top: '2rem' }}>
             <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
               {sidebarGroups.map((group) => (
                 <div key={group.label} style={{ marginBottom: '1rem' }}>
@@ -290,7 +290,7 @@ export default function FAQContent() {
           gridTemplateColumns: '1fr 1fr',
           gap: '2rem',
           alignItems: 'center',
-        }}>
+        }} className="faq-bottom-cta-grid">
           <div>
             <h2 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>
               Didn&rsquo;t find your answer?
@@ -339,6 +339,14 @@ export default function FAQContent() {
         </div>
 
       </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media (max-width: 768px) {
+          .faq-layout-grid { grid-template-columns: 1fr !important; }
+          .faq-sidebar { position: static !important; }
+          .faq-bottom-cta-grid { grid-template-columns: 1fr !important; }
+        }
+      `}} />
     </section>
   );
 }

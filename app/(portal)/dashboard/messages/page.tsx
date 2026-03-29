@@ -39,10 +39,7 @@ export default async function MemberMessagesPage() {
     ? new Date(lastMsg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     : '';
   const unreadCount = messages.filter(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (m) => (m as any).senderRole === 'counselor' &&
-      thread.memberLastReadAt &&
-      new Date(m.createdAt) > new Date(thread.memberLastReadAt)
+    (m) => m.authorId !== user.id
   ).length;
 
   const counselorName = counselor?.fullName ?? null;

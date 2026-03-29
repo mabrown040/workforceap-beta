@@ -41,7 +41,7 @@ export default async function HomePage() {
       {/* ══════════════════════════════════════════════
           MOBILE LAYOUT ≤640px — Stitch-aligned
           ══════════════════════════════════════════════ */}
-      <div className="md:hidden" style={{ background: '#fcf9f8', minHeight: '100vh', paddingBottom: '5rem' }}>
+      <div className="wa-md:hidden" style={{ background: '#fcf9f8', minHeight: '100vh', paddingBottom: '5rem' }}>
         {/* Mobile Hero */}
         <section style={{ padding: '5rem 1.25rem 1.5rem' }}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0.375rem 0.75rem', borderRadius: '9999px', marginBottom: '1.25rem', background: '#ffbb00', color: '#1c1b1b' }}>
@@ -124,7 +124,7 @@ export default async function HomePage() {
       {/* ══════════════════════════════════════════════
           DESKTOP LAYOUT ≥641px
           ══════════════════════════════════════════════ */}
-      <div className="hidden md:block">
+      <div className="wa-hidden wa-md:block">
 
       {/* ===== HERO: Full-bleed background image with gradient overlay ===== */}
       <section style={{
@@ -229,7 +229,7 @@ export default async function HomePage() {
       </section>
 
       {/* ===== 25+ Years Breaking Barriers — Bento: 2/3 text + 1/3 stats grid ===== */}
-      <section style={{ padding: '6rem 2rem', maxWidth: '1400px', margin: '0 auto' }} className="hidden md:block">
+      <section style={{ padding: '6rem 2rem', maxWidth: '1400px', margin: '0 auto' }} className="wa-hidden wa-md:block">
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)',
@@ -301,7 +301,7 @@ export default async function HomePage() {
       </section>
 
       {/* ===== Milestone Journey — Horizontal Scrolling Cards ===== */}
-      <section className="hidden md:block" style={{ background: 'var(--surface-container-low)', padding: '6rem 0' }}>
+      <section className="wa-hidden wa-md:block" style={{ background: 'var(--surface-container-low)', padding: '6rem 0' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 2rem' }}>
           <h2 className="text-display-sm" style={{ marginBottom: '1rem', textAlign: 'center' }}>Your Journey to Success</h2>
           <p style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)', marginBottom: '3rem', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>

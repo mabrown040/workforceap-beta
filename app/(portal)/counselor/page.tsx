@@ -69,50 +69,54 @@ export default async function CounselorPortalPage() {
   const enrolledCount = assignments.filter((a) => a.member.enrolledProgram).length;
   const needsAttentionCount = assignments.filter((a) => !a.member.enrolledProgram && !a.member.programInterest).length;
 
-  const metricCards = [
-    { icon: 'groups', label: 'Total Members', value: assignments.length, trend: '+12%', trendColor: '#80d99f' },
-    { icon: 'timer', label: 'Needs Reply', value: messagesNeedingReply, trend: messagesNeedingReply > 0 ? 'Action needed' : 'Clear', trendColor: messagesNeedingReply > 0 ? 'var(--color-accent)' : '#80d99f' },
-    { icon: 'verified_user', label: 'Enrolled', value: enrolledCount, trend: `+${enrolledCount}`, trendColor: '#80d99f' },
-    { icon: 'handshake', label: 'Needs Attention', value: needsAttentionCount, trend: `Target: 0`, trendColor: 'var(--color-on-surface)' },
+  const firstName = (dbUser.fullName ?? 'Counselor').split(' ')[0];
+
+  const statCards = [
+    { icon: 'groups', label: 'Active Students', value: assignments.length, bg: 'rgba(173,44,77,0.1)', iconColor: 'var(--color-accent)' },
+    { icon: 'mark_email_unread', label: 'Unread Messages', value: messagesNeedingReply, bg: 'rgba(59,130,246,0.1)', iconColor: '#3b82f6' },
+    { icon: 'school', label: 'Enrolled Modules', value: enrolledCount, bg: 'rgba(128,217,159,0.1)', iconColor: '#80d99f' },
+    { icon: 'warning', label: 'Needs Attention', value: needsAttentionCount, bg: 'rgba(251,191,36,0.1)', iconColor: '#fbbf24' },
   ];
 
   return (
     <div style={{ maxWidth: '76rem', margin: '0 auto' }}>
-      {/* ── Header Section ── */}
-      <header style={{ marginBottom: '2.5rem', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: '1.5rem' }}>
-        <div>
-          <nav style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-            <span style={{ fontSize: '0.625rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'rgba(173,44,77,0.6)' }}>Dashboard</span>
-            <span className="material-symbols-outlined" style={{ fontSize: '0.625rem', color: 'rgba(173,44,77,0.4)' }}>chevron_right</span>
-            <span style={{ fontSize: '0.625rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'rgba(173,44,77,0.6)' }}>Cohort Management</span>
-          </nav>
-          <h1 className="text-display-sm" style={{ color: 'var(--color-on-surface)' }}>
-            Active Cohorts <span style={{ color: 'var(--color-accent)' }}>Overview</span>
-          </h1>
-          <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.125rem', maxWidth: '42rem', lineHeight: 1.6, marginTop: '0.5rem' }}>
-            {affiliation} &middot; Tracking progress for {assignments.length} active member{assignments.length === 1 ? '' : 's'}.
-          </p>
-        </div>
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <Link href="/counselor/resources" style={{ padding: '0.75rem 1.5rem', background: 'var(--surface-container-high)', color: 'var(--color-accent)', fontWeight: 600, borderRadius: '0.5rem', fontSize: '0.875rem', textDecoration: 'none' }}>
-            Resources
-          </Link>
-          <Link href="/counselor/messages" style={{ padding: '0.75rem 1.5rem', background: 'linear-gradient(to right, var(--color-accent), rgba(173,44,77,0.7))', color: '#fff', fontWeight: 600, borderRadius: '0.5rem', fontSize: '0.875rem', textDecoration: 'none', boxShadow: '0 4px 16px rgba(173,44,77,0.2)' }}>
-            Messages
-          </Link>
-        </div>
+      {/* ── Welcome Header ── */}
+      <header style={{ marginBottom: '2.5rem' }}>
+        <h1 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>
+          Welcome back, {firstName}.
+        </h1>
+        <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1rem', lineHeight: 1.6 }}>
+          Your academic oversight panel is synchronized
+        </p>
       </header>
 
-      {/* ── Metrics Bento ── */}
+      {/* ── Stat Cards ── */}
       <section style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2.5rem' }}>
-        {metricCards.map((card) => (
-          <div key={card.label} className="metric-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>{card.icon}</span>
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: card.trendColor }}>{card.trend}</span>
+        {statCards.map((card) => (
+          <div
+            key={card.label}
+            className="stitch-card"
+            style={{
+              padding: '1.5rem',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '1rem',
+              transition: 'transform 0.15s, box-shadow 0.15s',
+              cursor: 'default',
+            }}
+          >
+            <div style={{
+              width: '2.75rem', height: '2.75rem', borderRadius: '0.75rem',
+              background: card.bg,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: card.iconColor }}>{card.icon}</span>
             </div>
-            <p className="metric-value">{card.value}</p>
-            <p className="metric-label">{card.label}</p>
+            <div>
+              <p style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--color-on-surface)', lineHeight: 1 }}>{card.value}</p>
+              <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', marginTop: '0.25rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{card.label}</p>
+            </div>
           </div>
         ))}
       </section>
@@ -120,105 +124,172 @@ export default async function CounselorPortalPage() {
       {/* ── Main Content Grid ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
 
-        {/* ── Left: Member Activity List ── */}
-        <section style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--color-on-surface)' }}>
-              Your Students ({assignments.length})
-            </h3>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button style={{ padding: '0.5rem', background: 'var(--surface-container)', borderRadius: '0.5rem', border: 'none', color: 'var(--color-on-surface-variant)', cursor: 'pointer' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>filter_list</span>
-              </button>
-              <button style={{ padding: '0.5rem', background: 'var(--surface-container)', borderRadius: '0.5rem', border: 'none', color: 'var(--color-on-surface-variant)', cursor: 'pointer' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>sort</span>
-              </button>
-            </div>
-          </div>
+        {/* ── Left Column ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
 
-          {assignments.length === 0 ? (
-            <div className="stitch-card" style={{ padding: '2rem', textAlign: 'center' }}>
-              <p style={{ color: 'var(--color-on-surface-variant)' }}>
-                No students assigned yet. Administrators assign members to you from the admin workspace.
-              </p>
+          {/* Your Students */}
+          <section>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--color-on-surface)' }}>
+                Your Students
+              </h3>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button style={{ padding: '0.5rem', background: 'var(--surface-container)', borderRadius: '0.5rem', border: 'none', color: 'var(--color-on-surface-variant)', cursor: 'pointer' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>filter_list</span>
+                </button>
+                <button style={{ padding: '0.5rem', background: 'var(--surface-container)', borderRadius: '0.5rem', border: 'none', color: 'var(--color-on-surface-variant)', cursor: 'pointer' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>sort</span>
+                </button>
+              </div>
             </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {assignments.map((assignment) => {
-                const isEnrolled = !!assignment.member.enrolledProgram;
-                const initials = (assignment.member.fullName ?? '?').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
-                return (
-                  <Link
-                    key={assignment.id}
-                    href={`/counselor/students/${assignment.member.id}`}
-                    style={{ textDecoration: 'none', color: 'inherit' }}
-                  >
-                    <div className="stitch-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem', transition: 'background-color 0.15s' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <div style={{
-                          width: '3rem', height: '3rem', borderRadius: '0.5rem',
-                          background: 'var(--surface-container-highest)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-accent)',
-                        }}>
-                          {initials}
-                        </div>
-                        <div>
-                          <h4 style={{ fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.125rem' }}>
-                            {assignment.member.fullName}
-                          </h4>
-                          <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', fontWeight: 500 }}>
-                            {assignment.member.programInterest || 'No program specified'} &middot; {assignment.member.email}
-                          </p>
-                        </div>
-                      </div>
 
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                        <span style={{
-                          padding: '0.25rem 0.75rem',
-                          background: isEnrolled ? 'rgba(128,217,159,0.1)' : 'rgba(173,44,77,0.1)',
-                          color: isEnrolled ? '#80d99f' : 'var(--color-accent)',
-                          fontSize: '0.625rem',
-                          fontWeight: 700,
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em',
-                          borderRadius: '9999px',
-                          border: `1px solid ${isEnrolled ? 'rgba(128,217,159,0.2)' : 'rgba(173,44,77,0.2)'}`,
-                        }}>
-                          {isEnrolled ? 'Enrolled' : 'Not enrolled'}
-                        </span>
-                        <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4 }}>more_vert</span>
-                      </div>
-                    </div>
+            {assignments.length === 0 ? (
+              <div className="stitch-card" style={{ padding: '3rem 2rem', textAlign: 'center' }}>
+                <div style={{
+                  width: '4rem', height: '4rem', borderRadius: '50%',
+                  background: 'var(--surface-container-highest)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  margin: '0 auto 1.25rem',
+                }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.75rem', color: 'var(--color-on-surface-variant)' }}>person_search</span>
+                </div>
+                <p style={{ fontWeight: 600, color: 'var(--color-on-surface)', marginBottom: '0.5rem', fontSize: '1rem' }}>
+                  No students assigned yet
+                </p>
+                <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem', marginBottom: '1.5rem', maxWidth: '24rem', margin: '0 auto 1.5rem' }}>
+                  Students will appear here once assigned by an administrator.
+                </p>
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+                  <Link href="/counselor/resources" style={{
+                    padding: '0.625rem 1.25rem',
+                    background: 'var(--color-accent)',
+                    color: '#fff',
+                    fontWeight: 600,
+                    borderRadius: '0.5rem',
+                    fontSize: '0.875rem',
+                    textDecoration: 'none',
+                  }}>
+                    Import Cohort
                   </Link>
-                );
-              })}
+                  <Link href="/counselor/messages" style={{
+                    padding: '0.625rem 1.25rem',
+                    background: 'var(--surface-container-high)',
+                    color: 'var(--color-accent)',
+                    fontWeight: 600,
+                    borderRadius: '0.5rem',
+                    fontSize: '0.875rem',
+                    textDecoration: 'none',
+                  }}>
+                    Browse Directory
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {assignments.map((assignment) => {
+                  const isEnrolled = !!assignment.member.enrolledProgram;
+                  const initials = (assignment.member.fullName ?? '?').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
+                  return (
+                    <Link
+                      key={assignment.id}
+                      href={`/counselor/students/${assignment.member.id}`}
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      <div className="stitch-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem', transition: 'background-color 0.15s' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                          <div style={{
+                            width: '3rem', height: '3rem', borderRadius: '0.5rem',
+                            background: 'var(--surface-container-highest)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-accent)',
+                          }}>
+                            {initials}
+                          </div>
+                          <div>
+                            <h4 style={{ fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.125rem' }}>
+                              {assignment.member.fullName}
+                            </h4>
+                            <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', fontWeight: 500 }}>
+                              {assignment.member.programInterest || 'No program specified'} &middot; {assignment.member.email}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                          <span style={{
+                            padding: '0.25rem 0.75rem',
+                            background: isEnrolled ? 'rgba(128,217,159,0.1)' : 'rgba(173,44,77,0.1)',
+                            color: isEnrolled ? '#80d99f' : 'var(--color-accent)',
+                            fontSize: '0.625rem',
+                            fontWeight: 700,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                            borderRadius: '9999px',
+                            border: `1px solid ${isEnrolled ? 'rgba(128,217,159,0.2)' : 'rgba(173,44,77,0.2)'}`,
+                          }}>
+                            {isEnrolled ? 'Enrolled' : 'Not enrolled'}
+                          </span>
+                          <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4 }}>more_vert</span>
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+
+          {/* System Diagnostics */}
+          <section>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 600, letterSpacing: '-0.02em', marginBottom: '1.25rem', color: 'var(--color-on-surface)' }}>
+              System Diagnostics
+            </h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div className="stitch-card" style={{ padding: '1.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div>
+                    <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Curriculum Sync Status</p>
+                    <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{affiliation}</p>
+                  </div>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#80d99f', background: 'rgba(128,217,159,0.1)', padding: '0.25rem 0.75rem', borderRadius: '9999px' }}>Healthy</span>
+                </div>
+              </div>
+              <div className="stitch-card" style={{ padding: '1.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div>
+                    <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>AI Teaching Assistant</p>
+                    <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>GPT Integration</p>
+                  </div>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#80d99f', background: 'rgba(128,217,159,0.1)', padding: '0.25rem 0.75rem', borderRadius: '9999px' }}>Operational</span>
+                </div>
+              </div>
             </div>
-          )}
-        </section>
+          </section>
+        </div>
 
         {/* ── Right Sidebar ── */}
         <aside style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
 
-          {/* Coaching Sessions placeholder */}
-          <section>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 600, letterSpacing: '-0.02em', marginBottom: '1.5rem', color: 'var(--color-on-surface)' }}>Quick Actions</h3>
-            <div style={{ background: 'var(--surface-container-low)', borderRadius: '0.75rem', overflow: 'hidden' }}>
-              <div style={{ padding: '1.25rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                  <div style={{ padding: '0.5rem', background: 'rgba(173,44,77,0.1)', borderRadius: '0.25rem' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', color: 'var(--color-accent)' }}>forum</span>
-                  </div>
-                  <div>
-                    <p className="text-label-upper" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Messages</p>
-                    <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
-                      {messagesNeedingReply} thread{messagesNeedingReply === 1 ? '' : 's'} awaiting reply
-                    </p>
-                  </div>
-                </div>
+          {/* Quick Insights */}
+          <section className="stitch-card" style={{ padding: '1.5rem' }}>
+            <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Quick Insights</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>Active students</span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{assignments.length}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>Enrolled in modules</span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#80d99f' }}>{enrolledCount}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>Awaiting reply</span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 700, color: messagesNeedingReply > 0 ? 'var(--color-accent)' : 'var(--color-on-surface)' }}>{messagesNeedingReply}</span>
+              </div>
+              <div style={{ borderTop: '1px solid rgba(226,226,229,0.08)', paddingTop: '1rem', marginTop: '0.25rem' }}>
                 <Link href="/counselor/messages" style={{
-                  display: 'block', width: '100%', marginTop: '1rem',
-                  padding: '0.5rem', textAlign: 'center',
+                  display: 'block', width: '100%',
+                  padding: '0.625rem', textAlign: 'center',
                   background: 'var(--color-accent)', color: '#fff',
                   borderRadius: '0.5rem', fontSize: '0.75rem', fontWeight: 700,
                   textDecoration: 'none',
@@ -226,26 +297,39 @@ export default async function CounselorPortalPage() {
                   Open Messages
                 </Link>
               </div>
-              <div style={{ padding: '1.25rem', opacity: 0.6 }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                  <div style={{ padding: '0.5rem', background: 'var(--surface-container-highest)', borderRadius: '0.25rem' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>people</span>
-                  </div>
-                  <div>
-                    <p className="text-label-upper" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Students</p>
-                    <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
-                      View all student profiles
-                    </p>
-                  </div>
-                </div>
-              </div>
             </div>
           </section>
 
-          {/* Counselor Actions / Notifications */}
+          {/* Upcoming Events */}
           <section>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--color-on-surface)' }}>Counselor Actions</h3>
+            <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Upcoming Events</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {[
+                { day: '02', month: 'Apr', title: 'Cohort Check-in', desc: 'Weekly sync with all active students' },
+                { day: '08', month: 'Apr', title: 'Module Reviews Due', desc: 'Assess enrolled module progress' },
+                { day: '15', month: 'Apr', title: 'Partner Meeting', desc: `${affiliation} quarterly review` },
+              ].map((ev) => (
+                <div key={ev.title} className="stitch-card" style={{ padding: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <div style={{
+                    width: '3rem', minWidth: '3rem', textAlign: 'center',
+                    background: 'var(--surface-container-highest)', borderRadius: '0.5rem', padding: '0.5rem 0',
+                  }}>
+                    <p style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-accent)', lineHeight: 1 }}>{ev.day}</p>
+                    <p style={{ fontSize: '0.5rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)' }}>{ev.month}</p>
+                  </div>
+                  <div>
+                    <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{ev.title}</p>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{ev.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Counselor Actions */}
+          <section>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+              <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>Counselor Actions</h3>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               {needsAttentionCount > 0 && (

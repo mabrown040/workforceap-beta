@@ -47,7 +47,7 @@ function PortalBottomNav() {
   const pathname = usePathname();
   return (
     <nav
-      className="md:hidden"
+      className="wa-md:hidden"
       style={{
         position: 'fixed', bottom: 0, left: 0, width: '100%', zIndex: 50,
         display: 'flex', justifyContent: 'space-around', alignItems: 'center',
@@ -242,7 +242,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
       : lastMsgTime;
 
     return (
-      <div className="md:hidden" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#fcf9f8' }}>
+      <div className="wa-md:hidden" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#fcf9f8' }}>
         {/* Header */}
         <header
           style={{ position: 'sticky', top: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.5rem', width: '100%', background: 'rgba(252,249,248,0.88)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
@@ -379,7 +379,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
   // ── Thread / Chat View ──────────────────────────────────────────────────────
   return (
     <div
-      className="md:hidden"
+      className="wa-md:hidden"
       style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: '#fcf9f8', overflow: 'hidden' }}
     >
       {/* Header */}

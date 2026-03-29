@@ -40,7 +40,7 @@ export const LEADERS: Leader[] = [
     cardBio:
       "Texas A&M Chemical Engineer. Former owner of Consulting Solutions.Net; key leader at Goodwill Career & Technical Academy, Austin Area Urban League, Universal Tech Movement, African American Youth Harvest Foundation. 100 Black Men of Austin, Alpha Phi Alpha, Elder at Celebration Church.",
     missionRelevance:
-      "25+ years delivering workforce training in Austin. Thousands trained through Goodwill, Urban League, and community orgs — the barrier-breaking experience that built WorkforceAP.",
+      "25+ years delivering workforce training. Thousands trained through Goodwill, Urban League, and community orgs — the barrier-breaking experience that built WorkforceAP.",
     bioBlocks: [
       {
         type: 'paragraph',
@@ -173,7 +173,7 @@ export const LEADERS: Leader[] = [
     cardBio:
       'Co-founded Interstate Connections — Austin Business Journal "Fastest Growing Private Company." CFO, The Business Bible. Texas Alliance for Life board. Former Chairman, Concordia High School.',
     missionRelevance:
-      "Austin entrepreneur who built a Fastest Growing Company locally. Board leadership that strengthens community pipelines and employer connections.",
+      "Entrepreneur who built a Fastest Growing Company. Board leadership that strengthens community pipelines and employer connections.",
     bioBlocks: [
       {
         type: 'paragraph',

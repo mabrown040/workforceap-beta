@@ -6,56 +6,129 @@ import LeadershipContent from './LeadershipContent';
 export const metadata: Metadata = buildPageMetadata({
   title: 'Board & Leadership',
   description:
-    "Why WorkforceAP's leadership team makes us unusually credible: 25+ years Austin workforce experience, employer-side tech leaders, military discipline, and community roots.",
+    "Meet the leadership team behind WorkforceAP — decades of workforce experience, employer-side tech credibility, military discipline, and nationwide community impact.",
   path: '/leadership',
 });
 
 export default function LeadershipPage() {
   return (
     <div className="inner-page">
-      {/* Hero / Mission Section */}
+      {/* ── Hero Section ── */}
       <section className="content-section" style={{ paddingBottom: 0 }}>
         <div className="container" style={{ maxWidth: 1400 }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3rem', alignItems: 'flex-start' }}>
-            <div style={{ flex: '1 1 60%', minWidth: '300px' }}>
+          <div
+            className="editorial-grid"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '2fr 1fr',
+              gap: '3rem',
+              alignItems: 'start',
+            }}
+          >
+            {/* Left — 2/3 */}
+            <div>
               <span
                 className="text-label-upper"
                 style={{
                   display: 'inline-block',
-                  padding: '0.25rem 0.75rem',
-                  background: 'rgba(173,44,77,0.1)',
+                  padding: '0.3rem 0.85rem',
+                  background: 'rgba(173,44,77,0.08)',
                   color: 'var(--color-accent)',
                   borderRadius: 'var(--radius-full)',
-                  marginBottom: '1.5rem',
-                  fontSize: '0.75rem',
+                  marginBottom: '1.75rem',
+                  fontSize: '0.7rem',
+                  letterSpacing: '0.08em',
                 }}
               >
-                Leadership &amp; Governance
+                Institutional Governance
               </span>
-              <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', marginBottom: '2rem' }}>
+
+              <h1
+                className="text-display-lg"
+                style={{
+                  color: 'var(--color-on-surface)',
+                  marginBottom: '2rem',
+                  lineHeight: 1.08,
+                }}
+              >
                 Stewards of the{' '}
-                <span style={{ background: 'linear-gradient(to right, var(--color-accent-light), var(--color-accent))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                <span
+                  style={{
+                    background:
+                      'linear-gradient(135deg, var(--color-accent-light), var(--color-accent))',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                  }}
+                >
                   Future Workforce.
                 </span>
               </h1>
-              <p style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', maxWidth: '42rem', lineHeight: 1.7 }}>
-                Our board and leadership bring the combination that makes WorkforceAP work:{' '}
-                <strong>decades of Austin workforce experience</strong>,{' '}
+
+              <p
+                style={{
+                  fontSize: '1.125rem',
+                  color: 'var(--color-on-surface-variant)',
+                  maxWidth: '44rem',
+                  lineHeight: 1.75,
+                }}
+              >
+                Our governance team combines{' '}
+                <strong>decades of workforce development leadership</strong>,{' '}
                 <strong>employer-side tech credibility</strong>,{' '}
                 <strong>military and operations discipline</strong>, and{' '}
-                <strong>community roots</strong> that connect training to real outcomes.
+                <strong>deep community roots</strong> — connecting workforce
+                training to real outcomes across the nation.
               </p>
             </div>
-            <div style={{ flex: '1 1 30%', minWidth: '240px' }}>
-              <div className="stitch-card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--color-accent)' }}>
-                  <span className="material-symbols-outlined">verified</span>
-                  <span className="text-label-upper">Established 2024</span>
-                </div>
-                <div style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', fontStyle: 'italic', borderLeft: '2px solid rgba(173,44,77,0.2)', paddingLeft: '1rem', paddingBlock: '0.25rem' }}>
-                  &ldquo;This isn&rsquo;t a generic nonprofit team. These are people who&rsquo;ve run programs at scale, led at Goodwill and Urban League, built systems at IBM and Microsoft, commanded in the Army and at AWS &mdash; and who show up for Austin.&rdquo;
-                </div>
+
+            {/* Right — 1/3 quote card */}
+            <div
+              style={{
+                background: 'var(--surface-container-low)',
+                borderRadius: 'var(--radius-xl, 1rem)',
+                padding: '2rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1.25rem',
+              }}
+            >
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  color: 'var(--color-accent)',
+                  alignSelf: 'flex-start',
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>
+                  verified
+                </span>
+                <span
+                  className="text-label-upper"
+                  style={{ fontSize: '0.65rem', letterSpacing: '0.1em' }}
+                >
+                  Established 2024
+                </span>
               </div>
+
+              <p
+                style={{
+                  fontSize: '0.9rem',
+                  color: 'var(--color-on-surface-variant)',
+                  fontStyle: 'italic',
+                  borderLeft: '2px solid var(--color-accent)',
+                  paddingLeft: '1rem',
+                  lineHeight: 1.7,
+                  margin: 0,
+                  opacity: 0.85,
+                }}
+              >
+                &ldquo;This isn&rsquo;t a generic nonprofit team. These are
+                people who&rsquo;ve run programs at scale, led at Goodwill and
+                Urban League, built systems at IBM and Microsoft, commanded in
+                the Army and at AWS &mdash; and who show up nationwide.&rdquo;
+              </p>
             </div>
           </div>
         </div>

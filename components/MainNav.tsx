@@ -8,29 +8,21 @@ import { usePathname } from 'next/navigation';
 import { useState, useEffect, useCallback, useRef, useId } from 'react';
 
 const navItems = [
-  { href: '/', label: 'Home' },
   {
     label: 'About Us',
     children: [
       { href: '/what-we-do', label: 'What We Do' },
+      { href: '/how-it-works', label: 'How It Works' },
       { href: '/partners', label: 'Partners' },
-      { href: '/leadership', label: 'Leadership Team' },
-      { href: '/employers', label: 'For Employers' },
+      { href: '/leadership', label: 'Leadership' },
+      { href: '/blog', label: 'Blog' },
+      { href: '/faq', label: 'FAQ' },
+      { href: '/contact', label: 'Contact Us' },
     ],
   },
-  { href: '/how-it-works', label: 'How It Works' },
-  {
-    label: 'Programs',
-    children: [
-      { href: '/programs', label: 'All Programs' },
-      { href: '/find-your-path', label: 'Find Your Career' },
-      { href: '/program-comparison', label: 'Program Comparison' },
-      { href: '/salary-guide', label: 'Salary Guide' },
-    ],
-  },
-  { href: '/blog', label: 'Blog' },
-  { href: '/faq', label: 'FAQ' },
-  { href: '/contact', label: 'Contact Us' },
+  { href: '/programs', label: 'Programs' },
+  { href: '/employers', label: 'Employers' },
+  { href: '/find-your-path', label: 'Find Your Path' },
 ];
 
 function dropdownMenuId(baseId: string, label: string) {

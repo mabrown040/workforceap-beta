@@ -5,9 +5,9 @@ import Footer from '@/components/Footer';
 import EmployerContactForm from './EmployerContactForm';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Hire Certified Tech Graduates | WorkforceAP Austin',
+  title: 'Hire Certified Tech Graduates | WorkforceAP',
   description:
-    'Access pre-screened, certified tech talent. WorkforceAP graduates hold industry credentials from Google, IBM, AWS, CompTIA. Post jobs or become a hiring partner. Currently serving Austin with plans to expand.',
+    'Access pre-screened, certified tech talent. WorkforceAP graduates hold industry credentials from Google, IBM, AWS, CompTIA. Post jobs or become a hiring partner. Serving employers nationwide.',
   path: '/employers',
 });
 

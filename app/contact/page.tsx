@@ -56,8 +56,8 @@ export default function ContactPage() {
                   <div>
                     <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>Our Location</h3>
                     <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-                      Austin, TX Metro Area<br />
-                      Serving the greater Austin community
+                      Headquartered in Austin, TX<br />
+                      Serving communities nationwide
                     </p>
                   </div>
                 </div>

@@ -31,9 +31,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const certClause = externalPartners.includes(program.partner)
     ? ` Earn your ${program.partner}-recognized certification.`
     : '';
-  const description = `Free ${program.title} training in Austin, TX. ${program.duration}.${certClause} Starting salary ${salaryRange}. No cost for qualifying Austin-area residents. Apply today.`;
+  const description = `Free ${program.title} training. ${program.duration}.${certClause} Starting salary ${salaryRange}. No cost for qualifying individuals. Apply today.`;
   return buildPageMetadata({
-    title: `Free ${program.title} Training in Austin, TX`,
+    title: `Free ${program.title} Training & Certification`,
     description,
     path: `/programs/${slug}`,
   });
@@ -72,7 +72,7 @@ export default async function ProgramPage({ params }: Props) {
           </span>
           <h1>{program.title}</h1>
           <p style={{ marginTop: '0.5rem' }}>
-            {program.duration} • Starting range {salaryRangeDisplay(program)} (early-career, Austin-area framing)
+            {program.duration} • Starting range {salaryRangeDisplay(program)} (early-career, national framing)
           </p>
           <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
             {program.partner} certified
@@ -110,7 +110,7 @@ export default async function ProgramPage({ params }: Props) {
                 Ready to start your career in {program.categoryLabel}?
               </h3>
               <p style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', maxWidth: '500px', margin: '0 auto 1.5rem' }}>
-                Applications take about 10 minutes. No cost for qualifying Austin-area residents. 
+                Applications take about 10 minutes. No cost for qualifying individuals.
                 We respond within 24–48 hours.
               </p>
               <Link 

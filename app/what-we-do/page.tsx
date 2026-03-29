@@ -6,7 +6,7 @@ import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Free Workforce Development Training in Austin, TX',
+  title: 'Free Workforce Development Training & Certifications',
   description:
     'How WorkforceAP works: employer-aligned training, no-cost to participants, job placement support. Operating model that scales beyond one market.',
   path: '/what-we-do',
@@ -24,7 +24,7 @@ export default function WhatWeDoPage() {
         imageUrl="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1400&q=80"
         label="Our Approach"
         title="How Our Model Works"
-        description="We train people for jobs employers are hiring for. Funding comes from grants and employer partnerships — not from participants. Success means graduates get hired. We're launching in Austin and building toward expansion."
+        description="We train people for jobs employers are hiring for. Funding comes from grants and employer partnerships — not from participants. Success means graduates get hired. We serve communities across the country and are building toward national scale."
       />
 
       <section className="content-section">
@@ -82,7 +82,7 @@ export default function WhatWeDoPage() {
               { icon: 'public', name: 'Employer-Aligned', desc: 'We teach what employers hire for. Google, IBM, AWS, CompTIA — credentials that open doors.' },
               { icon: 'lightbulb', name: 'Outcomes Matter', desc: 'Our success is your hire. We measure what matters: jobs landed, careers launched.' },
               { icon: 'handshake', name: 'Partnership', desc: 'Government, employers, community orgs — we leverage collective strength so participants don\'t carry the load alone.' },
-              { icon: 'trending_up', name: 'Scale Where It Works', desc: 'We launch where we can deliver, then expand. Austin first; more communities as we grow.' },
+              { icon: 'trending_up', name: 'Scale Where It Works', desc: 'We launch where we can deliver, then expand. Serving communities nationwide and growing.' },
             ].map((v) => (
               <div key={v.name} className="value-card animate-on-scroll">
                 <div className="value-icon"><span className="material-symbols-outlined" style={{ fontSize: 28 }}>{v.icon}</span></div>

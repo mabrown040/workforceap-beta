@@ -164,7 +164,7 @@ function QuizResultsView({
                 ⏱ {program.duration}
               </div>
               <div style={{ fontSize: '0.9rem', color: 'var(--color-accent)', fontWeight: 600, marginBottom: '0.5rem' }}>
-                Starting range: {salaryBand} <span style={{ fontWeight: 500, color: 'var(--color-gray-600)' }}>(Austin-area framing)</span>
+                Starting range: {salaryBand} <span style={{ fontWeight: 500, color: 'var(--color-gray-600)' }}>(national framing)</span>
               </div>
               {extra?.jobOutcomes && extra.jobOutcomes.length > 0 && (
                 <p className="quiz-result-roles">

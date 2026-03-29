@@ -7,7 +7,7 @@ import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Community & Employer Partners | Austin Workforce Development',
+  title: 'Community & Employer Partners | WorkforceAP',
   description:
     'Partner with WorkforceAP: employers hire talent, referral orgs send candidates, workforce boards align, funders support scale. Clear next steps for each.',
   path: '/partners',
@@ -39,7 +39,7 @@ const PARTNER_TYPES = [
     icon: 'favorite',
     type: 'Supporters & Funders',
     who: 'Foundations, corporate giving, impact investors, individual donors.',
-    why: 'Fund a model that works. Employer-aligned training, no participant debt, measurable job outcomes. We\'re launching in Austin and building toward expansion.',
+    why: 'Fund a model that works. Employer-aligned training, no participant debt, measurable job outcomes. We\'re growing nationwide and building toward national scale.',
     nextStep: { text: 'Learn How to Support', href: '/contact?topic=partnership' },
   },
 ];
@@ -88,7 +88,7 @@ export default function PartnersPage() {
               </ul>
             </div>
             <div>
-              <p>Best referrals: motivated to finish training, interested in tech, healthcare, manufacturing, or trades. Currently serving Austin area; expanding over time.</p>
+              <p>Best referrals: motivated to finish training, interested in tech, healthcare, manufacturing, or trades. Serving communities nationwide.</p>
               <Link href="/contact?topic=partnership" className="link-arrow" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginTop: '1rem' }}>
                 Contact us to refer <ArrowRight size={18} />
               </Link>

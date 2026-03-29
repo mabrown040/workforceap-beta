@@ -66,7 +66,7 @@ function ProgramCard({ program }: { program: Program }) {
           </p>
         )}
         <small style={{ display: 'block', fontSize: '.75rem', color: 'var(--color-gray-500)', marginTop: '.25rem' }}>
-          *Austin-area median based on industry data
+          *National median based on industry data
         </small>
       </div>
       {nonEmptySkills.length > 0 ? (
@@ -159,7 +159,7 @@ export default function ProgramsContent() {
           ))}
         </div>
         <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '.85rem', color: '#666', maxWidth: '640px', marginLeft: 'auto', marginRight: 'auto' }}>
-          Bands are Austin-first, grounded in Lightcast/BLS-style data (Jan 2026). Your offer still depends on proof, role, and employer.
+          Bands are grounded in Lightcast/BLS-style data (Jan 2026). Your offer still depends on proof, role, and employer.
         </p>
         <div className="programs-bottom-actions">
           <Link href="/find-your-path" className="btn btn-primary">Not sure? Find Your Career</Link>

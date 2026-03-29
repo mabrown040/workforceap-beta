@@ -10,7 +10,7 @@ import { buildSalaryGuideRows, salaryGuideSummaryStats } from '@/lib/content/pro
 export const metadata: Metadata = buildPageMetadata({
   title: 'Salary Guide',
   description:
-    'Program-by-program starting salary ranges (aligned with our /programs catalog). Austin-first framing: understand fit, ramp, and realistic outcomes — not just the biggest number.',
+    'Program-by-program starting salary ranges (aligned with our /programs catalog). Understand fit, ramp, and realistic outcomes — not just the biggest number.',
   path: '/salary-guide',
 });
 
@@ -32,8 +32,8 @@ const insights = [
   },
   {
     icon: 'location_on',
-    title: 'Austin is the wedge',
-    desc: 'We anchor examples to Austin hiring and cost-of-living reality. National data is a starting point; your offer depends on employer, proof, and fit.',
+    title: 'Grounded in national data',
+    desc: 'We anchor ranges to national hiring and cost-of-living data. Your offer depends on employer, location, proof, and fit.',
   },
   {
     icon: 'handshake',
@@ -55,7 +55,7 @@ export default function SalaryGuidePage() {
     <div className="inner-page salary-guide-page">
       <PageHero
         title="WorkforceAP Salary Guide"
-        subtitle="Starting salary ranges by program — same numbers you see on /programs. Use this with fit, timeline, and ramp; Austin is our launch wedge, not a ceiling on where you can work."
+        subtitle="Starting salary ranges by program — same numbers you see on /programs. Use this with fit, timeline, and ramp to find your best path forward."
       />
 
       <PhotoHighlight
@@ -101,7 +101,7 @@ export default function SalaryGuidePage() {
 
           <h2 style={{ marginBottom: '.5rem' }}>Program starting ranges (all 19)</h2>
           <p className="salary-guide-table-intro">
-            Same published ranges as each program card on /programs. Framed for early-career (roughly 0–1 year in-role). Austin-area offers often land a little higher than the U.S. midpoint — use this table to compare tracks, not to predict your exact offer.
+            Same published ranges as each program card on /programs. Framed for early-career (roughly 0–1 year in-role). Use this table to compare tracks, not to predict your exact offer — your location, employer, and experience will shape the final number.
           </p>
           <p className="salary-guide-ramp-legend"><strong>Ramp:</strong> Easier = quicker, good first credential. Steeper = more depth, higher payoff.</p>
 

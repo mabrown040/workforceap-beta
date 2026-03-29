@@ -8,9 +8,9 @@ import Footer from '@/components/Footer';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Free Tech Career Training in Austin, TX | Workforce Advancement Project',
+  title: 'Free Career Training & Industry Certifications | Workforce Advancement Project',
   description:
-    'Get no-cost career certification training in Digital Literacy, Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Employer-aligned programs. Apply today — WorkforceAP serves Austin and beyond.',
+    'No-cost career certification training in Digital Literacy, Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Employer-aligned programs with placement support. Apply today.',
   path: '/',
 });
 
@@ -22,10 +22,10 @@ export default async function HomePage() {
 
   return (
     <div className="homepage" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
-      {/* Hero Section — Editorial Asymmetric Layout */}
+      {/* Hero Section — Editorial Asymmetric Layout with Image */}
       <section style={{ position: 'relative', padding: '6rem 2rem 5rem', maxWidth: '1400px', margin: '0 auto', overflow: 'hidden' }}>
         <div className="editorial-grid" style={{ alignItems: 'center' }}>
-          <div style={{ gridColumn: 'span 12' }} className="lg-col-span-7">
+          <div style={{ gridColumn: '1 / span 7' }}>
             <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'inline-block' }}>
               Empowering the Workforce
             </span>
@@ -34,7 +34,7 @@ export default async function HomePage() {
               <span style={{ color: 'var(--color-accent)' }}>Next Career.</span>
             </h1>
             <p style={{ fontSize: '1.25rem', color: 'var(--color-on-surface-variant)', maxWidth: '600px', marginBottom: '2.5rem', lineHeight: 1.7 }}>
-              Intentional education designed for modern industry. We connect talented members with employers through {WORKFORCEAP_PROGRAM_CATALOG_SIZE} specialized programs and AI-powered support.
+              Intentional education designed for modern industry. We connect talented members with employers through {WORKFORCEAP_PROGRAM_CATALOG_SIZE} specialized programs and AI-powered support — nationwide.
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
               <ExperimentedCtaLink
@@ -48,6 +48,19 @@ export default async function HomePage() {
                 Partner With Us
               </Link>
             </div>
+          </div>
+          {/* Hero Image */}
+          <div style={{ gridColumn: '8 / span 5', position: 'relative' }}>
+            <div style={{ aspectRatio: '4/5', borderRadius: 'var(--radius-xl)', overflow: 'hidden', position: 'relative', zIndex: 1 }}>
+              <Image
+                src="https://images.unsplash.com/photo-1531218150217-54595bc2b934?auto=format&fit=crop&w=960&q=80"
+                alt="Collaborative workspace"
+                fill
+                sizes="(max-width: 768px) 100vw, 40vw"
+                style={{ objectFit: 'cover', filter: 'grayscale(20%) contrast(1.2) brightness(0.9)' }}
+              />
+            </div>
+            <div style={{ position: 'absolute', bottom: '-1.5rem', right: '-1.5rem', width: '100%', height: '100%', background: 'var(--color-accent)', borderRadius: 'var(--radius-xl)', opacity: 0.2, zIndex: 0 }} />
           </div>
         </div>
       </section>

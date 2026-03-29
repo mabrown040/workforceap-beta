@@ -183,6 +183,11 @@
     grid-template-columns: repeat(12, 1fr);
     gap: var(--space-6);
 }
+@media (max-width: 768px) {
+    .editorial-grid > * {
+        grid-column: 1 / -1 !important;
+    }
+}
 
 /* Metric Card (dashboards) */
 .metric-card {

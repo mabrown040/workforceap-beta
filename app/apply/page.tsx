@@ -85,9 +85,8 @@ export default async function ApplyPage({ searchParams }: PageProps) {
             maxWidth: '700px'
           }}>
             <p style={{ fontSize: '0.95rem', lineHeight: 1.6, margin: 0 }}>
-              <strong>Where we operate today:</strong> We&apos;re currently serving the Austin area. 
-              This is our launch community — we&apos;re building toward expansion. 
-              If you&apos;re elsewhere, apply anyway; we&apos;ll keep you in the loop.
+              <strong>Where we operate:</strong> We serve communities across the country and are building toward national scale.
+              Apply from anywhere — we&apos;ll connect you with the right program.
             </p>
           </div>
 

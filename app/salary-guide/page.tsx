@@ -3,6 +3,7 @@ import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
+import MobileBottomNav from '@/components/MobileBottomNav';
 import { buildSalaryGuideRows, salaryGuideSummaryStats } from '@/lib/content/programSalaryOutcomes';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -52,6 +53,41 @@ const GROWTH_PHASES = [
   { num: '04', title: 'Mastery', desc: 'Industry expert. Multiple career options. Many alumni return to WAP as mentors or instructors.' },
 ];
 
+const MOBILE_SALARY_CARDS = [
+  {
+    category: 'AI & Software',
+    program: 'AI Professional Developer',
+    entry: '$85k – $105k',
+    mid: '$115k – $145k',
+    certs: ['IBM', 'Python', 'PyTorch'],
+    borderColor: 'border-[#8c0f37]',
+  },
+  {
+    category: 'IT and Cyber',
+    program: 'Cybersecurity Architect',
+    entry: '$92k – $112k',
+    mid: '$130k – $165k',
+    certs: ['CompTIA Security+', 'CISSP'],
+    borderColor: 'border-[#ffbb00]',
+  },
+  {
+    category: 'Cloud',
+    program: 'AWS Solutions Associate',
+    entry: '$78k – $95k',
+    mid: '$110k – $140k',
+    certs: ['AWS Certified', 'Terraform'],
+    borderColor: 'border-[#ad2c4d]',
+  },
+  {
+    category: 'Business',
+    program: 'Data Analytics Manager',
+    entry: '$82k – $98k',
+    mid: '$125k – $155k',
+    certs: ['Tableau', 'SQL Expert'],
+    borderColor: 'border-[#7b5800]',
+  },
+];
+
 export default function SalaryGuidePage() {
   const salaryRows = buildSalaryGuideRows();
   const guideStats = salaryGuideSummaryStats(salaryRows);
@@ -59,244 +95,327 @@ export default function SalaryGuidePage() {
   return (
     <div className="inner-page salary-guide-page" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
 
-      {/* ===== Hero ===== */}
-      <section style={{ padding: '5rem 2rem 3rem', maxWidth: '1400px', margin: '0 auto' }}>
-        <span style={{
-          display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
-          padding: '0.3rem 0.75rem', borderRadius: 'var(--radius-full, 50px)',
-          background: 'rgba(173,44,77,0.15)', border: '1px solid rgba(173,44,77,0.3)',
-          color: 'var(--color-accent)', fontSize: '0.7rem', fontWeight: 700,
-          letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '1rem',
-        }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>analytics</span>
-          Salary Intelligence
-        </span>
-        <h1 className="text-display-lg" style={{ marginBottom: '1rem' }}>2024 Salary Intelligence</h1>
-        <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.125rem', lineHeight: 1.7, maxWidth: '640px' }}>
-          Starting salary ranges by program — same numbers you see on /programs. Use this with fit, timeline, and ramp to find your best path forward.
-        </p>
-      </section>
+      {/* ===== MOBILE VIEW (≤640px) ===== */}
+      <div className="md:hidden bg-[#fcf9f8] text-[#1c1b1b] min-h-screen pb-24">
+        {/* Top App Bar */}
+        <header className="fixed top-0 w-full flex items-center justify-between px-6 h-16 bg-[#fcf9f8]/80 backdrop-blur-md z-50">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-[#ad2c4d]">school</span>
+            <h1 className="font-black text-xl text-[#ad2c4d] tracking-tighter">Workforce Academy</h1>
+          </div>
+          <button className="text-[#584144] hover:opacity-80 transition-opacity active:scale-95">
+            <span className="material-symbols-outlined">search</span>
+          </button>
+        </header>
 
-      {/* ===== Bento Grid: Featured chart + side stats ===== */}
-      <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 2rem 3rem' }}>
-        <div style={{
-          display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem',
-        }}>
-          {/* Featured AI/ML salary chart card (8-col) */}
-          <div style={{
-            background: 'var(--surface-container)', borderRadius: 'var(--radius-xl)',
-            padding: '2rem', border: '1px solid var(--surface-container-highest)',
-            position: 'relative', overflow: 'hidden',
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
-              <div>
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Featured</span>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginTop: '0.25rem' }}>AI / Machine Learning Salary Bands</h3>
+        <main className="pt-20 px-6 max-w-[390px] mx-auto">
+          {/* Hero */}
+          <section className="mt-8 mb-10">
+            <h2 className="text-4xl font-extrabold tracking-tight text-[#1c1b1b] leading-[1.1] mb-4">Your Earning Potential.</h2>
+            <p className="text-[#584144] text-base leading-relaxed">
+              Salary bands from Lightcast/BLS data for graduates of our programs.
+            </p>
+          </section>
+
+          {/* Category Filter Chips */}
+          <section className="mb-8 -mx-6 px-6 overflow-x-auto flex gap-3" style={{ msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
+            <button className="flex-shrink-0 px-5 py-2.5 rounded-full bg-[#ad2c4d] text-white text-xs font-bold tracking-widest uppercase">All</button>
+            <button className="flex-shrink-0 px-5 py-2.5 rounded-full bg-[#ebe7e7] text-[#584144] text-xs font-bold tracking-widest uppercase">IT and Cyber</button>
+            <button className="flex-shrink-0 px-5 py-2.5 rounded-full bg-[#ebe7e7] text-[#584144] text-xs font-bold tracking-widest uppercase">AI and Software</button>
+            <button className="flex-shrink-0 px-5 py-2.5 rounded-full bg-[#ebe7e7] text-[#584144] text-xs font-bold tracking-widest uppercase">Cloud</button>
+            <button className="flex-shrink-0 px-5 py-2.5 rounded-full bg-[#ebe7e7] text-[#584144] text-xs font-bold tracking-widest uppercase">Business</button>
+            <button className="flex-shrink-0 px-5 py-2.5 rounded-full bg-[#ebe7e7] text-[#584144] text-xs font-bold tracking-widest uppercase">Healthcare</button>
+          </section>
+
+          {/* Salary Card List */}
+          <div className="space-y-6">
+            {MOBILE_SALARY_CARDS.map((card) => (
+              <div key={card.program} className={`bg-white rounded-xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border-l-4 ${card.borderColor}`}>
+                <div className="flex flex-col gap-2 mb-4">
+                  <span className="inline-block px-2 py-1 bg-[#ffbb00]/10 text-[#6c4d00] text-[10px] font-bold tracking-widest uppercase w-fit rounded">{card.category}</span>
+                  <h3 className="text-xl font-bold text-[#1c1b1b] tracking-tight leading-snug">{card.program}</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-3 mb-5">
+                  <div className="bg-[#f6f3f2] p-3 rounded-lg">
+                    <span className="block text-[10px] uppercase font-bold text-[#584144] tracking-wider mb-1">Entry Level</span>
+                    <p className="text-[#8c0f37] font-bold text-lg leading-none">{card.entry}</p>
+                  </div>
+                  <div className="bg-[#8c0f37]/5 p-3 rounded-lg">
+                    <span className="block text-[10px] uppercase font-bold text-[#8c0f37] tracking-wider mb-1">Mid Level</span>
+                    <p className="text-[#8c0f37] font-black text-lg leading-none">{card.mid}</p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {card.certs.map((cert) => (
+                    <span key={cert} className="bg-[#e5e2e1] px-3 py-1 rounded-full text-[11px] font-medium text-[#584144]">{cert}</span>
+                  ))}
+                </div>
               </div>
-              <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.5rem' }}>smart_toy</span>
+            ))}
+
+            {/* Advisor CTA Card */}
+            <div className="relative overflow-hidden bg-[#8c0f37] text-white rounded-xl p-8 mb-4">
+              <div className="absolute -right-12 -top-12 w-48 h-48 bg-[#ad2c4d] rounded-full opacity-30"></div>
+              <h4 className="text-2xl font-black tracking-tight mb-2 relative z-10">Maximize Your Growth.</h4>
+              <p className="text-[#ffd9dd] text-sm mb-6 relative z-10">Our career coaching services help graduates negotiate 15% higher starting salaries on average.</p>
+              <Link href="/apply" className="bg-white text-[#8c0f37] font-bold px-6 py-3 rounded-md text-xs tracking-widest uppercase relative z-10 inline-block active:scale-95 transition-transform">
+                Speak to an Advisor
+              </Link>
             </div>
-            {/* Visual salary bars */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {salaryRows.filter(r => r.program.toLowerCase().includes('ai') || r.program.toLowerCase().includes('data') || r.program.toLowerCase().includes('cloud')).slice(0, 5).map((row) => (
-                <div key={row.slug} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', minWidth: '140px', textAlign: 'right' }}>{row.program}</span>
-                  <div style={{ flex: 1, height: '24px', background: 'var(--surface-container-highest)', borderRadius: '4px', overflow: 'hidden', position: 'relative' }}>
-                    <div style={{
-                      height: '100%', borderRadius: '4px',
-                      background: `linear-gradient(90deg, var(--color-accent), var(--color-gold))`,
-                      width: '75%',
-                      display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '0.5rem',
-                    }}>
-                      <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'white' }}>{row.salary}</span>
+          </div>
+
+          {/* Disclaimer */}
+          <footer className="mt-12 mb-20 text-center">
+            <p className="text-[10px] font-medium text-[#584144]/60 uppercase tracking-widest leading-relaxed">
+              Data provided by Lightcast and Bureau of Labor Statistics. Figures represent national averages and vary by geographic location and individual experience.
+            </p>
+          </footer>
+        </main>
+
+        <MobileBottomNav />
+      </div>
+
+      {/* ===== DESKTOP VIEW (>640px) ===== */}
+      <div className="hidden md:block">
+        {/* ===== Hero ===== */}
+        <section style={{ padding: '5rem 2rem 3rem', maxWidth: '1400px', margin: '0 auto' }}>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+            padding: '0.3rem 0.75rem', borderRadius: 'var(--radius-full, 50px)',
+            background: 'rgba(173,44,77,0.15)', border: '1px solid rgba(173,44,77,0.3)',
+            color: 'var(--color-accent)', fontSize: '0.7rem', fontWeight: 700,
+            letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '1rem',
+          }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>analytics</span>
+            Salary Intelligence
+          </span>
+          <h1 className="text-display-lg" style={{ marginBottom: '1rem' }}>2024 Salary Intelligence</h1>
+          <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.125rem', lineHeight: 1.7, maxWidth: '640px' }}>
+            Starting salary ranges by program — same numbers you see on /programs. Use this with fit, timeline, and ramp to find your best path forward.
+          </p>
+        </section>
+
+        {/* ===== Bento Grid: Featured chart + side stats ===== */}
+        <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 2rem 3rem' }}>
+          <div style={{
+            display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem',
+          }}>
+            {/* Featured AI/ML salary chart card (8-col) */}
+            <div style={{
+              background: 'var(--surface-container)', borderRadius: 'var(--radius-xl)',
+              padding: '2rem', border: '1px solid var(--surface-container-highest)',
+              position: 'relative', overflow: 'hidden',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+                <div>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Featured</span>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginTop: '0.25rem' }}>AI / Machine Learning Salary Bands</h3>
+                </div>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.5rem' }}>smart_toy</span>
+              </div>
+              {/* Visual salary bars */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {salaryRows.filter(r => r.program.toLowerCase().includes('ai') || r.program.toLowerCase().includes('data') || r.program.toLowerCase().includes('cloud')).slice(0, 5).map((row) => (
+                  <div key={row.slug} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', minWidth: '140px', textAlign: 'right' }}>{row.program}</span>
+                    <div style={{ flex: 1, height: '24px', background: 'var(--surface-container-highest)', borderRadius: '4px', overflow: 'hidden', position: 'relative' }}>
+                      <div style={{
+                        height: '100%', borderRadius: '4px',
+                        background: `linear-gradient(90deg, var(--color-accent), var(--color-gold))`,
+                        width: '75%',
+                        display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '0.5rem',
+                      }}>
+                        <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'white' }}>{row.salary}</span>
+                      </div>
                     </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Side stats column */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              {/* Cost of Living stat */}
+              <div style={{
+                background: 'var(--surface-container)', borderRadius: 'var(--radius-xl)',
+                padding: '1.5rem', border: '1px solid var(--surface-container-highest)',
+                flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center',
+              }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-gold)', marginBottom: '0.5rem' }}>apartment</span>
+                <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Cost of Living Factor</span>
+                <span style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--color-on-surface)', marginTop: '0.25rem' }}>National</span>
+                <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Ranges anchored to national data</span>
+              </div>
+              {/* Market Heat */}
+              <div style={{
+                background: 'var(--color-accent)', borderRadius: 'var(--radius-xl)',
+                padding: '1.5rem', color: 'white', flex: 1,
+                display: 'flex', flexDirection: 'column', justifyContent: 'center',
+              }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>local_fire_department</span>
+                <span style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.8 }}>Market Heat</span>
+                <span style={{ fontSize: '2rem', fontWeight: 900, marginTop: '0.25rem' }}>{guideStats.over100Count} Tracks</span>
+                <span style={{ fontSize: '0.8rem', opacity: 0.85, marginTop: '0.25rem' }}>Top out above $100K</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ===== Decision Nav ===== */}
+        <section className="content-section salary-guide-page" style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 2rem' }}>
+          <ProgramsDecisionJourneyNav current="salary" />
+
+          <div className="salary-guide-fit-context" style={{ marginTop: '2rem' }}>
+            <p className="salary-guide-fit-lead">
+              Salary is one factor. The right program fits your timeline, readiness, and tech comfort — not just the top of the range. Higher bands usually mean a steeper ramp.
+            </p>
+            <div className="salary-guide-fit-links" style={{ marginTop: '1rem' }}>
+              <Link href="/find-your-path" className="btn btn-primary btn-sm">Find your best-fit programs (2-min quiz)</Link>
+              <Link href="/program-comparison" className="btn btn-outline btn-sm">Compare programs</Link>
+            </div>
+          </div>
+
+          {/* Summary Stats */}
+          <div className="salary-guide-stats-row" style={{ marginTop: '2rem' }}>
+            {[
+              { value: guideStats.highestSalary, label: 'Top of published range', sub: guideStats.highestProgram },
+              { value: guideStats.avgMidpointLabel, label: 'Typical midpoint (all 19)', sub: 'Average of range midpoints' },
+              {
+                value: String(guideStats.over100Count),
+                label: 'Tracks topping ~$100K',
+                sub: 'High end of range at/above $100K',
+              },
+            ].map((s) => (
+              <div key={s.label} className="salary-guide-stat-card">
+                <div className="salary-guide-stat-value">{s.value}</div>
+                <div className="salary-guide-stat-label">{s.label}</div>
+                <div className="salary-guide-stat-sub">{s.sub}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* ===== Role Cards Grid ===== */}
+          <h2 style={{ marginTop: '3rem', marginBottom: '1.5rem' }}>Program starting ranges (all 19)</h2>
+          <p className="salary-guide-table-intro">
+            Same published ranges as each program card on /programs. Framed for early-career (roughly 0-1 year in-role).
+          </p>
+          <p className="salary-guide-ramp-legend"><strong>Ramp:</strong> Easier = quicker, good first credential. Steeper = more depth, higher payoff.</p>
+
+          {/* Desktop: table | Mobile: hidden (cards shown instead) */}
+          <div className="salary-guide-table-wrap">
+            <div className="salary-table-wrapper">
+              <table className="salary-table">
+                <thead>
+                  <tr><th>Program</th><th>Duration</th><th>Starting Salary</th><th>Level</th><th>Ramp</th></tr>
+                </thead>
+                <tbody>
+                  {salaryRows.map((row) => (
+                    <tr key={row.slug}>
+                      <td><strong>{row.program}</strong></td>
+                      <td>{row.duration}</td>
+                      <td style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{row.salary}</td>
+                      <td><span style={{ background: row.color, color: 'white', padding: '.3rem .75rem', borderRadius: '50px', fontSize: '.8rem', fontWeight: 600 }}>{row.level}</span></td>
+                      <td><span className="salary-ramp-badge">{row.ramp}</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Mobile only: card layout */}
+          <div className="salary-guide-cards">
+            {salaryRows.map((row) => (
+              <article key={row.slug} className="salary-guide-card">
+                <div className="salary-guide-card__main">
+                  <h3 className="salary-guide-card__program">{row.program}</h3>
+                  <div className="salary-guide-card__salary">{row.salary}</div>
+                </div>
+                <div className="salary-guide-card__meta">
+                  <span>{row.duration}</span>
+                  <span style={{ background: row.color, color: 'white', padding: '0.2rem 0.5rem', borderRadius: '50px', fontSize: '0.75rem', fontWeight: 600 }}>{row.level}</span>
+                  <span className="salary-ramp-badge">{row.ramp}</span>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          {/* Insights grid */}
+          <div className="salary-guide-insights salary-guide-insights-grid" style={{ marginTop: '3rem' }}>
+            {insights.map((item) => (
+              <div key={item.title} style={{ background: 'var(--surface-container-low)', borderRadius: 'var(--radius-lg, 12px)', padding: '1.5rem' }}>
+                <div style={{ marginBottom: '.5rem' }}><span className="material-symbols-outlined" style={{ fontSize: 24, color: 'var(--color-accent)' }}>{item.icon}</span></div>
+                <strong>{item.title}</strong>
+                <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '.9rem', marginTop: '.4rem' }}>{item.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* ===== Growth Trajectory ===== */}
+          <div style={{ marginTop: '4rem', marginBottom: '3rem' }}>
+            <h2 className="text-display-sm" style={{ marginBottom: '0.5rem' }}>Growth Trajectory</h2>
+            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '2rem', maxWidth: '600px' }}>
+              Most graduates see meaningful increases inside 2-3 years. Here is the typical career arc.
+            </p>
+            <div style={{
+              display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem',
+            }}>
+              {GROWTH_PHASES.map((phase) => (
+                <div key={phase.num} style={{
+                  background: 'var(--surface-container)', borderRadius: 'var(--radius-xl)',
+                  padding: '1.75rem', position: 'relative', overflow: 'hidden',
+                  border: '1px solid var(--surface-container-highest)',
+                }}>
+                  <span style={{
+                    position: 'absolute', top: '-0.25rem', right: '0.5rem',
+                    fontSize: '4.5rem', fontWeight: 900, lineHeight: 1,
+                    color: 'var(--surface-container-highest)', opacity: 0.5,
+                    pointerEvents: 'none', userSelect: 'none',
+                  }}>{phase.num}</span>
+                  <div style={{ position: 'relative', zIndex: 1 }}>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Phase {phase.num}</span>
+                    <h4 style={{ fontWeight: 700, marginTop: '0.5rem', marginBottom: '0.5rem' }}>{phase.title}</h4>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{phase.desc}</p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Side stats column */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            {/* Cost of Living stat */}
-            <div style={{
-              background: 'var(--surface-container)', borderRadius: 'var(--radius-xl)',
-              padding: '1.5rem', border: '1px solid var(--surface-container-highest)',
-              flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center',
-            }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-gold)', marginBottom: '0.5rem' }}>apartment</span>
-              <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Cost of Living Factor</span>
-              <span style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--color-on-surface)', marginTop: '0.25rem' }}>National</span>
-              <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Ranges anchored to national data</span>
-            </div>
-            {/* Market Heat */}
-            <div style={{
-              background: 'var(--color-accent)', borderRadius: 'var(--radius-xl)',
-              padding: '1.5rem', color: 'white', flex: 1,
-              display: 'flex', flexDirection: 'column', justifyContent: 'center',
-            }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>local_fire_department</span>
-              <span style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.8 }}>Market Heat</span>
-              <span style={{ fontSize: '2rem', fontWeight: 900, marginTop: '0.25rem' }}>{guideStats.over100Count} Tracks</span>
-              <span style={{ fontSize: '0.8rem', opacity: 0.85, marginTop: '0.25rem' }}>Top out above $100K</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ===== Decision Nav ===== */}
-      <section className="content-section salary-guide-page" style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 2rem' }}>
-        <ProgramsDecisionJourneyNav current="salary" />
-
-        <div className="salary-guide-fit-context" style={{ marginTop: '2rem' }}>
-          <p className="salary-guide-fit-lead">
-            Salary is one factor. The right program fits your timeline, readiness, and tech comfort — not just the top of the range. Higher bands usually mean a steeper ramp.
-          </p>
-          <div className="salary-guide-fit-links" style={{ marginTop: '1rem' }}>
-            <Link href="/find-your-path" className="btn btn-primary btn-sm">Find your best-fit programs (2-min quiz)</Link>
-            <Link href="/program-comparison" className="btn btn-outline btn-sm">Compare programs</Link>
-          </div>
-        </div>
-
-        {/* Summary Stats */}
-        <div className="salary-guide-stats-row" style={{ marginTop: '2rem' }}>
-          {[
-            { value: guideStats.highestSalary, label: 'Top of published range', sub: guideStats.highestProgram },
-            { value: guideStats.avgMidpointLabel, label: 'Typical midpoint (all 19)', sub: 'Average of range midpoints' },
-            {
-              value: String(guideStats.over100Count),
-              label: 'Tracks topping ~$100K',
-              sub: 'High end of range at/above $100K',
-            },
-          ].map((s) => (
-            <div key={s.label} className="salary-guide-stat-card">
-              <div className="salary-guide-stat-value">{s.value}</div>
-              <div className="salary-guide-stat-label">{s.label}</div>
-              <div className="salary-guide-stat-sub">{s.sub}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* ===== Role Cards Grid ===== */}
-        <h2 style={{ marginTop: '3rem', marginBottom: '1.5rem' }}>Program starting ranges (all 19)</h2>
-        <p className="salary-guide-table-intro">
-          Same published ranges as each program card on /programs. Framed for early-career (roughly 0-1 year in-role).
-        </p>
-        <p className="salary-guide-ramp-legend"><strong>Ramp:</strong> Easier = quicker, good first credential. Steeper = more depth, higher payoff.</p>
-
-        {/* Desktop: table | Mobile: hidden (cards shown instead) */}
-        <div className="salary-guide-table-wrap">
-          <div className="salary-table-wrapper">
-            <table className="salary-table">
-              <thead>
-                <tr><th>Program</th><th>Duration</th><th>Starting Salary</th><th>Level</th><th>Ramp</th></tr>
-              </thead>
-              <tbody>
-                {salaryRows.map((row) => (
-                  <tr key={row.slug}>
-                    <td><strong>{row.program}</strong></td>
-                    <td>{row.duration}</td>
-                    <td style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{row.salary}</td>
-                    <td><span style={{ background: row.color, color: 'white', padding: '.3rem .75rem', borderRadius: '50px', fontSize: '.8rem', fontWeight: 600 }}>{row.level}</span></td>
-                    <td><span className="salary-ramp-badge">{row.ramp}</span></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Mobile only: card layout */}
-        <div className="salary-guide-cards">
-          {salaryRows.map((row) => (
-            <article key={row.slug} className="salary-guide-card">
-              <div className="salary-guide-card__main">
-                <h3 className="salary-guide-card__program">{row.program}</h3>
-                <div className="salary-guide-card__salary">{row.salary}</div>
-              </div>
-              <div className="salary-guide-card__meta">
-                <span>{row.duration}</span>
-                <span style={{ background: row.color, color: 'white', padding: '0.2rem 0.5rem', borderRadius: '50px', fontSize: '0.75rem', fontWeight: 600 }}>{row.level}</span>
-                <span className="salary-ramp-badge">{row.ramp}</span>
-              </div>
-            </article>
-          ))}
-        </div>
-
-        {/* Insights grid */}
-        <div className="salary-guide-insights salary-guide-insights-grid" style={{ marginTop: '3rem' }}>
-          {insights.map((item) => (
-            <div key={item.title} style={{ background: 'var(--surface-container-low)', borderRadius: 'var(--radius-lg, 12px)', padding: '1.5rem' }}>
-              <div style={{ marginBottom: '.5rem' }}><span className="material-symbols-outlined" style={{ fontSize: 24, color: 'var(--color-accent)' }}>{item.icon}</span></div>
-              <strong>{item.title}</strong>
-              <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '.9rem', marginTop: '.4rem' }}>{item.desc}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* ===== Growth Trajectory ===== */}
-        <div style={{ marginTop: '4rem', marginBottom: '3rem' }}>
-          <h2 className="text-display-sm" style={{ marginBottom: '0.5rem' }}>Growth Trajectory</h2>
-          <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '2rem', maxWidth: '600px' }}>
-            Most graduates see meaningful increases inside 2-3 years. Here is the typical career arc.
-          </p>
+          {/* ===== Download CTA ===== */}
           <div style={{
-            display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem',
+            background: 'var(--surface-container)', borderRadius: 'var(--radius-xl)',
+            padding: '2.5rem', textAlign: 'center', marginBottom: '2rem',
+            border: '1px solid var(--surface-container-highest)',
           }}>
-            {GROWTH_PHASES.map((phase) => (
-              <div key={phase.num} style={{
-                background: 'var(--surface-container)', borderRadius: 'var(--radius-xl)',
-                padding: '1.75rem', position: 'relative', overflow: 'hidden',
-                border: '1px solid var(--surface-container-highest)',
-              }}>
-                <span style={{
-                  position: 'absolute', top: '-0.25rem', right: '0.5rem',
-                  fontSize: '4.5rem', fontWeight: 900, lineHeight: 1,
-                  color: 'var(--surface-container-highest)', opacity: 0.5,
-                  pointerEvents: 'none', userSelect: 'none',
-                }}>{phase.num}</span>
-                <div style={{ position: 'relative', zIndex: 1 }}>
-                  <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Phase {phase.num}</span>
-                  <h4 style={{ fontWeight: 700, marginTop: '0.5rem', marginBottom: '0.5rem' }}>{phase.title}</h4>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{phase.desc}</p>
-                </div>
-              </div>
-            ))}
+            <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'block' }}>download</span>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>Download the Full 2024 Report</h3>
+            <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', marginBottom: '1.5rem', maxWidth: '480px', marginLeft: 'auto', marginRight: 'auto' }}>
+              Get the complete salary intelligence report with detailed breakdowns, employer insights, and regional adjustments.
+            </p>
+            <Link href="/apply" className="btn btn-primary">
+              Download Report
+            </Link>
           </div>
-        </div>
 
-        {/* ===== Download CTA ===== */}
-        <div style={{
-          background: 'var(--surface-container)', borderRadius: 'var(--radius-xl)',
-          padding: '2.5rem', textAlign: 'center', marginBottom: '2rem',
-          border: '1px solid var(--surface-container-highest)',
-        }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'block' }}>download</span>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>Download the Full 2024 Report</h3>
-          <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', marginBottom: '1.5rem', maxWidth: '480px', marginLeft: 'auto', marginRight: 'auto' }}>
-            Get the complete salary intelligence report with detailed breakdowns, employer insights, and regional adjustments.
+          <p className="salary-guide-methodology">
+            <strong>How we set the ranges:</strong> We start from Lightcast / BLS-style market data and employer conversations, then publish conservative bands on each program page. This guide copies those bands so you are never comparing a &quot;marketing number&quot; here against a different number there.
           </p>
-          <Link href="/apply" className="btn btn-primary">
-            Download Report
-          </Link>
-        </div>
 
-        <p className="salary-guide-methodology">
-          <strong>How we set the ranges:</strong> We start from Lightcast / BLS-style market data and employer conversations, then publish conservative bands on each program page. This guide copies those bands so you are never comparing a &quot;marketing number&quot; here against a different number there.
-        </p>
-
-        {/* Bottom CTAs */}
-        <div className="salary-guide-ctas">
-          <h3 className="salary-guide-cta-title">Your Next Step</h3>
-          <p className="salary-guide-cta-desc">You now have the numbers. Use the pathfinder to find your fit, or compare programs. When you&rsquo;re ready — apply.</p>
-          <div className="salary-guide-cta-buttons">
-            <Link href="/find-your-path" className="btn btn-outline salary-guide-cta-btn">Find your fit (2-min quiz)</Link>
-            <Link href="/program-comparison" className="btn btn-outline salary-guide-cta-btn">Compare programs</Link>
-            <Link href="/apply" className="btn btn-primary btn-large salary-guide-cta-btn">Apply Now</Link>
+          {/* Bottom CTAs */}
+          <div className="salary-guide-ctas">
+            <h3 className="salary-guide-cta-title">Your Next Step</h3>
+            <p className="salary-guide-cta-desc">You now have the numbers. Use the pathfinder to find your fit, or compare programs. When you&rsquo;re ready — apply.</p>
+            <div className="salary-guide-cta-buttons">
+              <Link href="/find-your-path" className="btn btn-outline salary-guide-cta-btn">Find your fit (2-min quiz)</Link>
+              <Link href="/program-comparison" className="btn btn-outline salary-guide-cta-btn">Compare programs</Link>
+              <Link href="/apply" className="btn btn-primary btn-large salary-guide-cta-btn">Apply Now</Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <Footer />
+        <Footer />
+      </div>
     </div>
   );
 }

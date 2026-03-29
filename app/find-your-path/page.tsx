@@ -102,7 +102,7 @@ export default function FindYourPathPage() {
                 position: 'absolute', bottom: '1rem', left: '1rem',
                 color: 'white', fontSize: '0.8rem', fontWeight: 600,
               }}>
-                WAP Austin Campus
+                WorkforceAP Program
               </span>
             </div>
           </aside>

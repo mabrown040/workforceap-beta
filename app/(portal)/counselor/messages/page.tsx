@@ -163,7 +163,7 @@ export default async function CounselorMessagesHubPage() {
         </div>
       </div>
 
-      <MobileBottomNav variant="portal" />
+      <MobileBottomNav variant="counselor" />
     </>
   );
 }

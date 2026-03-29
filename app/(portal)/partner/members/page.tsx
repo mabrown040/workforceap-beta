@@ -142,7 +142,7 @@ export default async function PartnerMembersPage() {
           )}
         </div>
 
-        <MobileBottomNav variant="portal" />
+        <MobileBottomNav variant="partner" />
       </div>
 
       {/* ── DESKTOP SECTION ── */}

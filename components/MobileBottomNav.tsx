@@ -24,13 +24,32 @@ const EMPLOYER_TABS = [
   { href: '/employer/messages', label: 'Messages', icon: 'chat' },
 ];
 
+const COUNSELOR_TABS = [
+  { href: '/counselor', label: 'Overview', icon: 'dashboard' },
+  { href: '/counselor/students', label: 'Students', icon: 'groups' },
+  { href: '/counselor/messages', label: 'Messages', icon: 'chat' },
+  { href: '/counselor/resources', label: 'Resources', icon: 'menu_book' },
+];
+
+const PARTNER_TABS = [
+  { href: '/partner', label: 'Overview', icon: 'dashboard' },
+  { href: '/partner/members', label: 'Members', icon: 'groups' },
+  { href: '/partner/milestones', label: 'Milestones', icon: 'flag' },
+  { href: '/partner/outcomes', label: 'Outcomes', icon: 'bar_chart' },
+];
+
 interface MobileBottomNavProps {
-  variant?: 'marketing' | 'portal' | 'employer';
+  variant?: 'marketing' | 'portal' | 'employer' | 'counselor' | 'partner';
 }
 
 export default function MobileBottomNav({ variant = 'marketing' }: MobileBottomNavProps) {
   const pathname = usePathname();
-  const tabs = variant === 'portal' ? PORTAL_TABS : variant === 'employer' ? EMPLOYER_TABS : MARKETING_TABS;
+  const tabs =
+    variant === 'portal' ? PORTAL_TABS
+    : variant === 'employer' ? EMPLOYER_TABS
+    : variant === 'counselor' ? COUNSELOR_TABS
+    : variant === 'partner' ? PARTNER_TABS
+    : MARKETING_TABS;
 
   return (
     <nav
@@ -53,10 +72,10 @@ export default function MobileBottomNav({ variant = 'marketing' }: MobileBottomN
       }}
     >
       {tabs.map(({ href, label, icon }) => {
-        const isActive =
-          href === '/dashboard' || href === '/' || href === '/employer'
-            ? pathname === href
-            : pathname.startsWith(href);
+        const exactMatch = ['/', '/dashboard', '/employer', '/counselor', '/partner'];
+        const isActive = exactMatch.includes(href)
+          ? pathname === href
+          : pathname.startsWith(href);
         return (
           <Link
             key={href}

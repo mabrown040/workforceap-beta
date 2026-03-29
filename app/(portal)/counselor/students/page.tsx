@@ -280,7 +280,7 @@ export default async function CounselorStudentsPage() {
         </div>
       </div>
 
-      <MobileBottomNav variant="portal" />
+      <MobileBottomNav variant="counselor" />
     </>
   );
 }

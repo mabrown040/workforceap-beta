@@ -165,7 +165,7 @@ export default async function CounselorPortalPage() {
             )}
           </div>
         </div>
-        <MobileBottomNav variant="portal" />
+        <MobileBottomNav variant="counselor" />
       </div>
       {/* ── Desktop View ── */}
       <div className="wa-hidden wa-md:wa-block">

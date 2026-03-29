@@ -385,7 +385,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
         </div>
       </div>
 
-      <MobileBottomNav variant="portal" />
+      <MobileBottomNav variant="counselor" />
     </>
   );
 }

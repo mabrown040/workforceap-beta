@@ -245,7 +245,7 @@ export default async function PartnerDashboardPage() {
         </div>
       </div>
 
-      <MobileBottomNav variant="portal" />
+      <MobileBottomNav variant="partner" />
     </div>
 
     {/* ── DESKTOP SECTION ── */}

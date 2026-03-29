@@ -33,7 +33,7 @@ export default async function PartnerMilestonesPage() {
         </div>
 
         <PartnerMilestonesMobile />
-        <MobileBottomNav variant="portal" />
+        <MobileBottomNav variant="partner" />
       </div>
 
       {/* ── DESKTOP SECTION ── */}

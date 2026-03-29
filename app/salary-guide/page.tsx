@@ -96,11 +96,11 @@ export default function SalaryGuidePage() {
     <div className="inner-page salary-guide-page" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
 
       {/* ===== MOBILE VIEW (≤640px) ===== */}
-      <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: '#fcf9f8', color: '#1c1b1b', minHeight: '100vh' }}>
-        <main style={{ paddingTop: '1.5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', maxWidth: '390px', margin: '0 auto' }}>
+      <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: 'var(--color-surface)', color: 'var(--color-on-surface)', minHeight: '100vh' }}>
+        <div style={{ paddingTop: '1.5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', maxWidth: '390px', margin: '0 auto' }}>
           {/* Hero */}
           <section style={{ marginTop: '2rem', marginBottom: '2.5rem' }}>
-            <h2 style={{ fontSize: '2.25rem', fontWeight: 800, letterSpacing: '-0.03em', color: '#1c1b1b', lineHeight: 1.1, marginBottom: '1rem' }}>Your Earning Potential.</h2>
+            <h2 style={{ fontSize: '2.25rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-on-surface)', lineHeight: 1.1, marginBottom: '1rem' }}>Your Earning Potential.</h2>
             <p style={{ color: '#584144', fontSize: '1rem', lineHeight: 1.6 }}>
               Salary bands from Lightcast/BLS data for graduates of our programs.
             </p>
@@ -145,7 +145,7 @@ export default function SalaryGuidePage() {
               <div key={card.program} style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', borderLeft: `4px solid ${card.borderColor}` }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
                   <span style={{ display: 'inline-block', padding: '0.25rem 0.5rem', background: 'rgba(255,187,0,0.10)', color: '#6c4d00', fontSize: '0.625rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', width: 'fit-content', borderRadius: '0.25rem' }}>{card.category}</span>
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1c1b1b', letterSpacing: '-0.02em', lineHeight: 1.3, margin: 0 }}>{card.program}</h3>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-on-surface)', letterSpacing: '-0.02em', lineHeight: 1.3, margin: 0 }}>{card.program}</h3>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.25rem' }}>
                   <div style={{ background: '#f6f3f2', padding: '0.75rem', borderRadius: '0.5rem' }}>
@@ -179,7 +179,7 @@ export default function SalaryGuidePage() {
               <div key={card.program} style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', borderLeft: `4px solid ${card.borderColor}` }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
                   <span style={{ display: 'inline-block', padding: '0.25rem 0.5rem', background: 'rgba(255,187,0,0.10)', color: '#6c4d00', fontSize: '0.625rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', width: 'fit-content', borderRadius: '0.25rem' }}>{card.category}</span>
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1c1b1b', letterSpacing: '-0.02em', lineHeight: 1.3, margin: 0 }}>{card.program}</h3>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-on-surface)', letterSpacing: '-0.02em', lineHeight: 1.3, margin: 0 }}>{card.program}</h3>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.25rem' }}>
                   <div style={{ background: '#f6f3f2', padding: '0.75rem', borderRadius: '0.5rem' }}>
@@ -206,7 +206,7 @@ export default function SalaryGuidePage() {
               Data provided by Lightcast and Bureau of Labor Statistics. Figures represent national averages and vary by geographic location and individual experience.
             </p>
           </footer>
-        </main>
+        </div>
 
         <Footer />
         <MobileBottomNav />

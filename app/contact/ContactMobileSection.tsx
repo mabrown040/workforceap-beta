@@ -7,11 +7,11 @@ import ContactFormClient from './ContactFormClient';
 
 export default function ContactMobileSection() {
   return (
-    <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: '#fcf9f8', minHeight: '100vh' }}>
+    <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
       <div style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', paddingTop: '1.5rem', marginBottom: '2rem' }}>
-        <h1 style={{ marginBottom: '0.5rem', fontSize: '2.25rem', fontWeight: 800, letterSpacing: '-0.025em', color: '#1c1b1b', lineHeight: 1.15 }}>
+        <h2 style={{ marginBottom: "0.5rem", fontSize: "2.25rem", fontWeight: 800, letterSpacing: "-0.025em", color: "var(--color-on-surface)", lineHeight: 1.15 }}>
           Get in Touch
-        </h1>
+        </h2>
         <p style={{ color: '#584144', fontSize: '1rem', lineHeight: 1.6 }}>
           We respond within 3–5 business days
         </p>
@@ -43,7 +43,7 @@ export default function ContactMobileSection() {
             <span className="material-symbols-outlined" style={{ color: '#8c0f37' }}>alternate_email</span>
           </div>
           <p style={{ marginBottom: '0.25rem', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#8c0f37' }}>Email</p>
-          <p style={{ wordBreak: 'break-word', fontSize: '0.875rem', fontWeight: 600, color: '#1c1b1b' }}>info@workforceap.org</p>
+          <p style={{ wordBreak: 'break-word', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>info@workforceap.org</p>
         </div>
         <div style={{ background: 'white', padding: '1.25rem', borderRadius: '0.75rem' }}>
           <div
@@ -61,7 +61,7 @@ export default function ContactMobileSection() {
             <span className="material-symbols-outlined" style={{ color: '#7b5800' }}>phone</span>
           </div>
           <p style={{ marginBottom: '0.25rem', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#7b5800' }}>Phone</p>
-          <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#1c1b1b' }}>(512) 777-1808</p>
+          <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>(512) 777-1808</p>
         </div>
         <div style={{ background: 'white', padding: '1.25rem', borderRadius: '0.75rem' }}>
           <div
@@ -79,7 +79,7 @@ export default function ContactMobileSection() {
             <span className="material-symbols-outlined" style={{ color: '#8c0f37' }}>location_on</span>
           </div>
           <p style={{ marginBottom: '0.25rem', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#8c0f37' }}>Location</p>
-          <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#1c1b1b' }}>Austin, TX</p>
+          <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>Austin, TX</p>
         </div>
         <div style={{ background: 'white', padding: '1.25rem', borderRadius: '0.75rem' }}>
           <div
@@ -97,7 +97,7 @@ export default function ContactMobileSection() {
             <span className="material-symbols-outlined" style={{ color: '#8c0f37' }}>schedule</span>
           </div>
           <p style={{ marginBottom: '0.25rem', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#8c0f37' }}>Hours</p>
-          <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#1c1b1b' }}>Mon–Fri 9–5 CT</p>
+          <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>Mon–Fri 9–5 CT</p>
         </div>
       </div>
 
@@ -117,7 +117,7 @@ export default function ContactMobileSection() {
               filter: 'blur(24px)',
             }}
           />
-          <h2 style={{ marginBottom: '1.5rem', position: 'relative', zIndex: 10, fontSize: '1.25rem', fontWeight: 700, color: '#1c1b1b' }}>Send Us a Message</h2>
+          <h2 style={{ marginBottom: '1.5rem', position: 'relative', zIndex: 10, fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>Send Us a Message</h2>
           <div style={{ position: 'relative', zIndex: 10 }}>
             <ContactFormClient />
           </div>

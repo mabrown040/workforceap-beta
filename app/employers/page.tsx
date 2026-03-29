@@ -217,7 +217,7 @@ export default function EmployersPage() {
                 alignItems: 'center',
                 gap: '0.5rem',
                 background: 'var(--color-gold)',
-                color: '#1c1b1b',
+                color: 'var(--color-on-surface)',
                 padding: '1rem 2rem',
                 borderRadius: 'var(--radius-md)',
                 fontWeight: 700,
@@ -705,7 +705,7 @@ export default function EmployersPage() {
       </div>{/* end employers desktop */}
 
       <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav">
-        <section style={{ padding: '1.5rem 1rem', background: '#fcf9f8' }}>
+        <section style={{ padding: '1.5rem 1rem', background: 'var(--color-surface)' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
             {[
               { val: '$0', label: 'Cost to Hire', accent: '#8c0f37' },
@@ -730,7 +730,7 @@ export default function EmployersPage() {
             ))}
           </div>
         </section>
-        <section style={{ padding: '1rem 0', overflowX: 'auto', background: '#fcf9f8', scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
+        <section style={{ padding: '1rem 0', overflowX: 'auto', background: 'var(--color-surface)', scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
           <div style={{ display: 'flex', gap: '0.5rem', paddingLeft: '1rem', paddingRight: '1rem', width: 'max-content' }}>
             {['IT & Cyber', 'AI & Software', 'Cloud', 'Business', 'Healthcare'].map((cat, i) => (
               <Link

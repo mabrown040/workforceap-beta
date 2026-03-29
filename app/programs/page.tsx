@@ -22,13 +22,13 @@ export default function ProgramsPage() {
           MOBILE LAYOUT ≤640px — Stitch-aligned
           ══════════════════════════════════════════════ */}
       {/* Inline styles only: Tailwind uses wa- prefix — unprefixed utility classes do not exist in CSS */}
-      <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: '#fcf9f8', minHeight: '100vh' }}>
-        <main style={{ paddingTop: '1.25rem', paddingLeft: '1.25rem', paddingRight: '1.25rem' }}>
+      <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
+        <div style={{ paddingTop: '1.25rem', paddingLeft: '1.25rem', paddingRight: '1.25rem' }}>
           <div style={{ marginBottom: '1.75rem', marginTop: '0.75rem' }}>
-            <h1 style={{ fontSize: '2.25rem', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1, color: '#1c1b1b', margin: 0 }}>
+            <h2 style={{ fontSize: '2.25rem', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1, color: 'var(--color-on-surface)', margin: 0 }}>
               Master Your <br />
-              <span style={{ fontStyle: 'italic', color: '#ad2c4d' }}>Future</span>
-            </h1>
+              <span style={{ fontStyle: 'italic', color: 'var(--color-accent)' }}>Future</span>
+            </h2>
             <div style={{ height: '4px', width: '3rem', marginTop: '0.75rem', borderRadius: '9999px', background: '#ffbb00' }} />
           </div>
 
@@ -89,7 +89,7 @@ export default function ProgramsPage() {
             >
               <div style={{ position: 'absolute', top: 0, right: 0, width: '8rem', height: '8rem', borderRadius: '9999px', marginRight: '-4rem', marginTop: '-4rem', background: 'rgba(255,255,255,0.05)', filter: 'blur(20px)' }} />
               <div style={{ position: 'relative', zIndex: 1 }}>
-                <span style={{ display: 'inline-block', padding: '0.25rem 0.75rem', borderRadius: '0.5rem', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem', background: '#ffbb00', color: '#1c1b1b' }}>Start Here</span>
+                <span style={{ display: 'inline-block', padding: '0.25rem 0.75rem', borderRadius: '0.5rem', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem', background: '#ffbb00', color: 'var(--color-on-surface)' }}>Start Here</span>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em', margin: 0 }}>Digital Literacy</h2>
                 <p style={{ fontSize: '0.875rem', marginTop: '0.25rem', marginBottom: 0, color: 'rgba(255,203,209,0.9)' }}>Essential skills for the modern workforce</p>
               </div>
@@ -158,7 +158,7 @@ export default function ProgramsPage() {
               <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_forward</span>
             </a>
           </div>
-        </main>
+        </div>
 
         <div
           className="marketing-mobile-sticky-above-bottom-nav"
@@ -418,7 +418,7 @@ export default function ProgramsPage() {
               href="/apply"
               style={{
                 background: 'var(--color-gold)',
-                color: '#1c1b1b',
+                color: 'var(--color-on-surface)',
                 padding: '1rem 2rem',
                 borderRadius: 'var(--radius-md)',
                 fontWeight: 900,

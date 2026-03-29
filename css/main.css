@@ -819,34 +819,35 @@ html.dark body {
 html.dark body.homepage {
     background: #0b0d10;
 }
-html.dark .main-nav {
-    background: rgba(8, 10, 12, 0.98);
-    border-bottom-color: rgba(255,255,255,0.08);
-}
-html.dark .main-nav.scrolled {
-    background: rgba(6, 8, 10, 0.99);
-}
+/* Dark nav — glassmorphic (stitch). Inherits from line 265. */
 html.dark .nav-menu a {
-    color: rgba(243,244,246,0.92);
+    color: var(--color-on-surface-variant);
+}
+html.dark .nav-menu a:hover {
+    color: var(--color-accent);
+}
+html.dark .nav-menu a.active {
+    color: var(--color-accent);
 }
 html.dark .nav-menu .dropdown .dropdown-trigger {
-    color: rgba(243,244,246,0.92);
+    color: var(--color-on-surface-variant);
 }
-/* Flyout uses var(--color-gray-800); in dark mode that token is remapped to a LIGHT gray — fix contrast. */
 html.dark .main-nav .dropdown-menu {
-    background: #1a1f27;
-    border-color: rgba(255, 255, 255, 0.14);
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+    background: var(--surface-container-high);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border-color: rgba(255, 255, 255, 0.06);
+    box-shadow: var(--shadow-glass);
 }
 html.dark .main-nav .dropdown-menu a {
-    color: #f3f4f6;
+    color: var(--color-on-surface);
 }
 html.dark .main-nav .dropdown-menu a:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--color-accent);
 }
 html.dark .main-nav .dropdown-menu a.active {
-    color: #f0cd83;
+    color: var(--color-accent);
 }
 html.dark .mobile-nav-toggle {
     border-color: rgba(255,255,255,0.12);
@@ -1558,7 +1559,7 @@ body.mobile-nav-open .main-nav::after {
     padding: 0;
 }
 .nav-menu a {
-    color: rgba(255,255,255,0.95);
+    color: var(--color-on-surface-variant);
     font-size: 0.875rem;
     font-weight: 500;
     transition: color var(--transition-fast);
@@ -1574,13 +1575,13 @@ body.mobile-nav-open .main-nav::after {
     background: var(--color-gold);
     transition: width var(--transition-base);
 }
-.nav-menu a:hover { color: var(--color-white); }
+.nav-menu a:hover { color: var(--color-accent); }
 .nav-menu a:hover::after { width: 100%; }
-.nav-menu a.active { color: #f0cd83; }
-.nav-menu a.active::after { width: 100%; }
+.nav-menu a.active { color: var(--color-accent); font-weight: 700; }
+.nav-menu a.active::after { width: 100%; background: var(--color-accent); }
 .nav-menu .dropdown { position: relative; padding: 0.5rem 0; }
 .nav-menu .dropdown .dropdown-trigger {
-    color: rgba(255,255,255,0.95);
+    color: var(--color-on-surface-variant);
     font-size: 0.875rem;
     font-weight: 500;
     font-family: inherit;
@@ -1605,8 +1606,8 @@ body.mobile-nav-open .main-nav::after {
     transition: transform var(--transition-fast), opacity var(--transition-fast);
 }
 .nav-menu .dropdown:hover .dropdown-trigger::after { transform: rotate(180deg); opacity: 0.8; }
-.nav-menu .dropdown .dropdown-trigger.active { color: #f0cd83; }
-.nav-menu .dropdown:hover .dropdown-trigger { color: var(--color-white); }
+.nav-menu .dropdown .dropdown-trigger.active { color: var(--color-accent); }
+.nav-menu .dropdown:hover .dropdown-trigger { color: var(--color-accent); }
 .dropdown-menu {
     visibility: hidden;
     opacity: 0;
@@ -1644,11 +1645,11 @@ body.mobile-nav-open .main-nav::after {
     display: block;
     padding: 10px 18px;
     font-size: 0.875rem;
-    color: rgba(255,255,255,0.95);
+    color: var(--color-on-surface);
     transition: background var(--transition-fast), color var(--transition-fast), padding-left var(--transition-fast);
 }
 .dropdown-menu a::after { display: none; }
-.dropdown-menu a:hover { background: rgba(255,255,255,0.06); color: var(--color-white); padding-left: 22px; }
+.dropdown-menu a:hover { background: rgba(173,44,77,0.06); color: var(--color-accent); padding-left: 22px; }
 
 /* Glassmorphic nav link styles (desktop) */
 .nav-link-glass {

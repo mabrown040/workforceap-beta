@@ -598,9 +598,8 @@ export default function WhatWeDoPage() {
           {[
             { val: '2,000+', label: 'People Served', accent: '#8c0f37' },
             { val: '$0', label: 'Cost to Members', accent: '#7b5800' },
-            { val: '$0', label: 'Tuition', accent: '#7b5800' },
           ].map((s) => (
-            <div key={s.val} className="rounded-xl p-5" style={{ background: '#f0edec', borderLeft: `4px solid ${s.accent}` }}>
+            <div key={s.label} className="rounded-xl p-5" style={{ background: '#f0edec', borderLeft: `4px solid ${s.accent}` }}>
               <div className="text-2xl font-black" style={{ color: s.accent }}>{s.val}</div>
               <div className="text-[10px] font-bold uppercase tracking-wider mt-1" style={{ color: '#584144' }}>{s.label}</div>
             </div>

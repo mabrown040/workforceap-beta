@@ -107,7 +107,7 @@ export default function ApplyEligibilityClient() {
 
         <div className="apply-transition-card" role="note" aria-label="What happens after this step">
           <strong>What happens next:</strong>
-          <span> Step 2 is program selection. Step 3 is account creation so we can save your choice and follow up within 24–48 hours.</span>
+          <span> Step 2 is program selection. Step 3 is account creation so we can save your choice and follow up within 3–5 business days.</span>
         </div>
 
         <div className="funding-questions">

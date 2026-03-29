@@ -68,7 +68,7 @@ export default async function HomePage() {
         <section className="mb-10">
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] px-5 mb-3" style={{ color: 'rgba(88,65,68,0.6)' }}>Global Hiring Partners</p>
           <div className="flex overflow-x-auto gap-8 px-5 items-center py-2" style={{ scrollbarWidth: 'none' }}>
-            {['Google', 'IBM', 'AWS', 'CompTIA', 'AT&amp;T'].map((p) => (
+            {['Google', 'IBM', 'AWS', 'CompTIA', 'AT&T'].map((p) => (
               <span key={p} className="flex-shrink-0 text-sm font-black uppercase tracking-wider" style={{ color: '#8b7073', opacity: 0.7 }}>{p}</span>
             ))}
           </div>
@@ -199,7 +199,7 @@ export default async function HomePage() {
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '3rem', opacity: 0.4 }}>
             <span style={{ fontSize: '1.25rem', fontWeight: 700 }}>Google</span>
-            <span style={{ fontSize: '1.25rem', fontWeight: 700 }}>AT&amp;T</span>
+            <span style={{ fontSize: "1.25rem", fontWeight: 700 }}>AT&T</span>
             <span style={{ fontSize: '1.25rem', fontWeight: 700 }}>Coursera</span>
             <Image src="/images/microsoft-logo.svg" alt="Microsoft" width={100} height={24} style={{ filter: 'brightness(2)' }} />
             <Image src="/images/ibm-logo.svg" alt="IBM" width={60} height={24} style={{ filter: 'brightness(2)' }} />
@@ -267,8 +267,8 @@ export default async function HomePage() {
               background: 'var(--surface-container-high)', padding: '1.5rem',
               display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
             }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--color-gold)', lineHeight: 1 }}>94%</span>
-              <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Placement</span>
+              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--color-gold)', lineHeight: 1 }}>2,000+</span>
+              <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Trained</span>
             </div>
             {/* Accent card spanning full width */}
             <div className="stitch-card" style={{
@@ -284,14 +284,14 @@ export default async function HomePage() {
       </section>
 
       {/* ===== Mobile: Our Impact (≤640px) ===== */}
-      <section className="md:hidden px-4 py-10" style={{ background: 'var(--color-background-dark)' }}>
+      <section className="hidden px-4 py-10" style={{ background: 'var(--color-background-dark)' }}>
         <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block', fontSize: '0.6rem' }}>Our Impact</span>
         <h2 className="text-2xl font-extrabold mb-3" style={{ color: 'var(--color-on-surface)', letterSpacing: '-0.025em' }}>25+ Years Breaking Barriers</h2>
         <p className="text-sm leading-relaxed mb-6" style={{ color: 'var(--color-on-surface-variant)' }}>
           Founded by Michael Brown, PMP — a workforce leader who has trained thousands nationwide through partnerships with the State of Texas, TWC, Goodwill, Austin Urban League, and more.
         </p>
         <div className="grid grid-cols-3 gap-3 mb-6">
-          {[['2000+', 'Trained'], ['94%', 'Placement'], ['$0', 'Cost']].map(([val, label]) => (
+          {[['2,000+', 'Trained'], ['$0', 'Cost']].map(([val, label]) => (
             <div key={label} className="rounded-xl py-4 px-2 text-center" style={{ background: 'var(--surface-container-high)' }}>
               <div className="text-xl font-black" style={{ color: 'var(--color-gold)', lineHeight: 1 }}>{val}</div>
               <div className="text-[9px] font-bold uppercase tracking-wider mt-1" style={{ color: 'var(--color-on-surface-variant)' }}>{label}</div>
@@ -540,7 +540,7 @@ export default async function HomePage() {
         <div style={{ maxWidth: '700px', margin: '0 auto' }}>
           <h2 style={{ fontSize: '2.5rem', fontWeight: 900, letterSpacing: '-0.02em', color: 'white', marginBottom: '1rem' }}>Your Next Step</h2>
           <p style={{ color: 'rgba(255,255,255,0.85)', marginBottom: '2rem', fontSize: '1.125rem' }}>
-            Apply now — about 10 minutes. We respond within 24-48 hours. Real certifications. Employer connections. No cost to members.
+            Apply now — about 10 minutes. We respond within 3–5 business days. Real certifications. Employer connections. No cost to members.
           </p>
           <Link href="/apply" className="btn btn-large" style={{ background: 'white', color: 'var(--color-accent)', fontWeight: 700 }}>
             Start Your Application

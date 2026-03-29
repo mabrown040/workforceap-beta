@@ -267,10 +267,9 @@ export default function EmployersPage() {
         <div className="grid grid-cols-3 gap-2">
           {[
             { val: '$0', label: 'Cost to Hire', accent: '#8c0f37' },
-            { val: '200+', label: 'Employers', accent: '#ad2c4d' },
-            { val: '$0', label: 'Cost to You', accent: '#1c1b1b' },
+            { val: 'Cert-Ready', label: 'Candidates', accent: '#ad2c4d' },
           ].map((m) => (
-            <div key={m.val} className="rounded-xl p-3 flex flex-col gap-1" style={{ background: 'white', borderLeft: `3px solid ${m.accent}`, boxShadow: '0 1px 4px rgba(28,27,27,0.06)' }}>
+            <div key={m.label} className="rounded-xl p-3 flex flex-col gap-1" style={{ background: 'white', borderLeft: `3px solid ${m.accent}`, boxShadow: '0 1px 4px rgba(28,27,27,0.06)' }}>
               <span className="text-xl font-black leading-none" style={{ color: m.accent }}>{m.val}</span>
               <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: '#584144' }}>{m.label}</span>
             </div>

@@ -469,7 +469,7 @@ export default function ApplyFlowClient() {
             <span className="material-symbols-outlined" style={{ fontSize: 24, verticalAlign: 'middle', marginRight: 'var(--space-2)', color: 'var(--color-accent)' }}>description</span>
             Complete your application
           </h2>
-          <p style={s.stepDesc}>Fill out the form below and a counselor will contact you within 24-48 hours.</p>
+          <p style={s.stepDesc}>Fill out the form below and a counselor will contact you within 3–5 business days.</p>
 
           {/* Eligibility checklist */}
           <div style={{ background: 'var(--surface-container)', borderRadius: 'var(--radius-md)', padding: 'var(--space-4) var(--space-6)', marginBottom: 'var(--space-6)' }}>
@@ -658,7 +658,7 @@ export default function ApplyFlowClient() {
             </div>
 
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', textAlign: 'center', marginTop: 'var(--space-4)' }}>
-              We review every application and respond within 24-48 hours. Your information is kept private.
+              We review every application and respond within 3–5 business days. Your information is kept private.
             </p>
           </form>
         </div>

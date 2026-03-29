@@ -142,7 +142,7 @@ export default function FindYourPathPage() {
           <div className="flex flex-col gap-3 mb-8">
             {[
               { icon: 'computer', label: 'Working with computers and technology', sub: 'Technology', active: true },
-              { icon: 'health_and_safety', label: 'Healthcare &amp; Science', sub: 'Life Sciences', active: false },
+              { icon: 'health_and_safety', label: 'Healthcare & Science', sub: 'Life Sciences', active: false },
               { icon: 'construction', label: 'Advanced Manufacturing', sub: 'Industrial', active: false },
               { icon: 'groups', label: 'Business &amp; People', sub: 'Corporate', active: false },
             ].map(({ icon, label, sub, active }) => (
@@ -151,7 +151,7 @@ export default function FindYourPathPage() {
                   <span className="material-symbols-outlined text-2xl">{icon}</span>
                 </div>
                 <div>
-                  <span className="block font-semibold" style={{ color: active ? '#8c0f37' : '#1c1b1b' }} dangerouslySetInnerHTML={{ __html: label }} />
+                  <span className="block font-semibold" style={{ color: active ? '#8c0f37' : '#1c1b1b' }}>{label}</span>
                   <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#8b7073' }}>{sub}</span>
                 </div>
               </button>

@@ -22,6 +22,13 @@ function formatDate(d: Date | null) {
   return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
+function estimateReadTime(text: string | null | undefined): string {
+  if (!text) return '3 min read';
+  const words = text.trim().split(/\s+/).length;
+  const mins = Math.max(1, Math.round(words / 200));
+  return `${mins} min read`;
+}
+
 export default function BlogMobileSection({
   posts,
   categories,
@@ -110,17 +117,21 @@ export default function BlogMobileSection({
                   </div>
                 )}
                 <div className="space-y-2">
-                  {(post.publishedAt || post.scheduledAt) && (
-                    <div className="flex items-center gap-2 text-[11px] font-semibold text-[#584144] uppercase tracking-widest">
+                  <div className="flex items-center gap-2 text-[11px] font-semibold text-[#584144] uppercase tracking-widest">
+                    {(post.publishedAt || post.scheduledAt) && (
                       <span>{formatDate(post.publishedAt ?? post.scheduledAt ?? null)}</span>
-                      {!img && post.category && (
-                        <>
-                          <span className="w-1 h-1 rounded-full bg-[#debfc2]" />
-                          <span>{post.category}</span>
-                        </>
-                      )}
-                    </div>
-                  )}
+                    )}
+                    {(post.publishedAt || post.scheduledAt) && (
+                      <span className="w-1 h-1 rounded-full bg-[#debfc2]" />
+                    )}
+                    <span>{estimateReadTime(post.excerpt)}</span>
+                    {!img && post.category && (
+                      <>
+                        <span className="w-1 h-1 rounded-full bg-[#debfc2]" />
+                        <span>{post.category}</span>
+                      </>
+                    )}
+                  </div>
                   <h3 className="text-2xl font-bold tracking-tight text-[#1c1b1b] group-hover:text-[#8c0f37] transition-colors leading-snug">
                     {post.title}
                   </h3>
@@ -222,7 +233,7 @@ export default function BlogMobileSection({
       <div className="mt-16 mx-0 px-6 py-12 bg-[#f6f3f2] rounded-t-3xl">
         <h4 className="text-xl font-bold mb-2 text-[#1c1b1b]">Weekly Workforce Insight</h4>
         <p className="text-[#584144] text-sm mb-6">
-          Join 5,000+ professionals getting curated Austin career updates.
+          Get career tips, program updates, and workforce insights delivered to your inbox.
         </p>
         <div className="flex flex-col gap-3">
           <input

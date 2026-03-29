@@ -529,6 +529,7 @@ enum AIToolType {
   resume_rewriter
   cover_letter
   interview_practice
+  interview_coach
   linkedin_headline
   linkedin_about
   job_match_scorer

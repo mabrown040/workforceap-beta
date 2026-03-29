@@ -33,7 +33,7 @@ export default function FAQPage() {
               </span>
             </div>
             <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', maxWidth: '48rem', marginBottom: '1.5rem' }}>
-              Frequently Asked <span style={{ background: 'linear-gradient(to bottom right, var(--color-accent-light), var(--color-accent))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Questions</span>
+              How can we help you <span style={{ background: 'linear-gradient(to bottom right, var(--color-accent-light), var(--color-accent))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>bridge the gap?</span>
             </h1>
             <p style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', maxWidth: '42rem', lineHeight: 1.7, fontWeight: 300 }}>
               Answers that address your concerns &mdash; whether you&rsquo;re applying, supporting someone who is, or deciding if WorkforceAP is right for you.

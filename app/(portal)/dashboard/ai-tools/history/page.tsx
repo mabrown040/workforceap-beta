@@ -43,30 +43,90 @@ export default async function AIHistoryPage({ searchParams }: Props) {
   }));
 
   return (
-    <div className="inner-page">
-      <section className="page-hero">
-        <div className="page-hero-content">
-          <Link href="/dashboard/ai-tools" className="resource-back-link">← Back to AI Tools</Link>
-          <h1>My AI Results</h1>
-          <p>Revisit your past resume rewrites, cover letters, interview questions, and headlines.</p>
-        </div>
-      </section>
-      <section className="content-section">
-        <div className="container">
-          <div style={{ maxWidth: '800px' }}>
-            {withLabels.length === 0 ? (
-              <div className="resource-empty-state">
-                <p>No results yet. Use an AI tool to get started.</p>
-                <Link href="/dashboard/ai-tools" className="btn btn-primary" style={{ marginTop: '1rem' }}>
-                  Go to AI Tools
-                </Link>
-              </div>
-            ) : (
-              <AIHistoryList results={withLabels} initialFilter={tool ?? ''} />
-            )}
+    <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
+      {/* Header */}
+      <div
+        style={{
+          padding: '1.5rem 2rem',
+          borderBottom: '1px solid var(--surface-container-high)',
+          background: 'var(--surface-container-low)',
+        }}
+      >
+        <Link
+          href="/dashboard/ai-tools"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            fontSize: '0.85rem',
+            color: 'var(--color-on-surface-variant)',
+            textDecoration: 'none',
+            marginBottom: '0.75rem',
+          }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>arrow_back</span>
+          Back to AI Tools
+        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div
+            style={{
+              width: '44px',
+              height: '44px',
+              borderRadius: '12px',
+              background: 'var(--surface-container-highest)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1.35rem', color: 'var(--color-accent)' }}>history</span>
+          </div>
+          <div>
+            <h1 style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>My AI Results</h1>
+            <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0.15rem 0 0' }}>
+              Revisit your past resume rewrites, cover letters, interview questions, and headlines.
+            </p>
           </div>
         </div>
-      </section>
+      </div>
+
+      {/* Main content */}
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem 1.5rem' }}>
+        {withLabels.length === 0 ? (
+          <div
+            className="stitch-card"
+            style={{
+              padding: '3rem 2rem',
+              textAlign: 'center',
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem', display: 'block' }}>
+              folder_open
+            </span>
+            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>No results yet. Use an AI tool to get started.</p>
+            <Link
+              href="/dashboard/ai-tools"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                padding: '0.5rem 1.25rem',
+                fontSize: '0.85rem',
+                fontWeight: 600,
+                borderRadius: '8px',
+                background: 'var(--color-accent)',
+                color: '#fff',
+                textDecoration: 'none',
+              }}
+            >
+              Go to AI Tools
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_forward</span>
+            </Link>
+          </div>
+        ) : (
+          <AIHistoryList results={withLabels} initialFilter={tool ?? ''} />
+        )}
+      </div>
     </div>
   );
 }

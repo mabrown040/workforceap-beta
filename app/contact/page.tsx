@@ -19,10 +19,10 @@ export default function ContactPage() {
         <div className="container" style={{ maxWidth: 1400 }}>
           <div style={{ marginBottom: '4rem' }}>
             <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'block' }}>
-              Get In Touch
+              Connect with Authority
             </span>
             <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', maxWidth: '48rem', marginBottom: '1.5rem' }}>
-              The bridge between <span style={{ color: 'var(--color-accent)' }}>your questions</span> and real answers.
+              The bridge between <span style={{ color: 'var(--color-accent)' }}>ambition</span> and institutional impact.
             </h1>
             <p style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', maxWidth: '42rem', lineHeight: 1.7 }}>
               Whether you&rsquo;re an applicant, employer partner, or community supporter, our team responds within 24&ndash;48 hours. We&rsquo;re here to help you move forward.
@@ -31,13 +31,13 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* Content Grid: Asymmetric Layout */}
+      {/* Content Grid: 7/5 Asymmetric Layout */}
       <section className="content-section" style={{ paddingTop: 0 }}>
         <div className="container" style={{ maxWidth: 1400 }}>
           <div className="editorial-grid" style={{ gap: '3rem' }}>
             {/* Contact Form Section (Left 7 Columns) */}
             <div style={{ gridColumn: 'span 12' }} className="lg-col-span-7">
-              <div className="stitch-card" style={{ padding: '2rem' }}>
+              <div className="stitch-card" style={{ padding: '2.5rem' }}>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '2rem', color: 'var(--color-on-surface)' }}>
                   Send Us a Message
                 </h2>
@@ -91,36 +91,21 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                {/* Response Time Card */}
-                <div className="stitch-card-elevated" style={{ padding: '2rem', display: 'flex', alignItems: 'flex-start', gap: '1.5rem' }}>
-                  <div style={{ background: 'rgba(173,44,77,0.1)', padding: '0.75rem', borderRadius: 'var(--radius-lg)', color: 'var(--color-accent)', flexShrink: 0 }}>
-                    <span className="material-symbols-outlined">schedule</span>
+                {/* Map placeholder */}
+                <div style={{
+                  background: 'var(--surface-container-low)',
+                  borderRadius: 'var(--radius-lg)',
+                  overflow: 'hidden',
+                  aspectRatio: '16/9',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid var(--outline-variant)',
+                }}>
+                  <div style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', display: 'block', marginBottom: '0.5rem', opacity: 0.4 }}>map</span>
+                    <p style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Austin, TX</p>
                   </div>
-                  <div>
-                    <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>Response Time</h3>
-                    <p style={{ color: 'var(--color-on-surface-variant)' }}>Within 24&ndash;48 hours</p>
-                  </div>
-                </div>
-
-                {/* Apply CTA */}
-                <div className="stitch-card" style={{ padding: '2rem', textAlign: 'center' }}>
-                  <p style={{ fontWeight: 600, marginBottom: '1rem', color: 'var(--color-on-surface)' }}>Ready to apply instead?</p>
-                  <Link
-                    href="/apply"
-                    style={{
-                      display: 'inline-block',
-                      background: 'var(--color-accent)',
-                      color: '#fff',
-                      padding: '0.75rem 2rem',
-                      borderRadius: 'var(--radius-lg)',
-                      fontWeight: 700,
-                      fontSize: '0.875rem',
-                      letterSpacing: '0.02em',
-                      textDecoration: 'none',
-                    }}
-                  >
-                    Start Your Application
-                  </Link>
                 </div>
               </div>
             </div>

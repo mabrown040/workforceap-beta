@@ -486,7 +486,6 @@ export default async function LearningPage() {
         </div>
       </div>
     </div>
-    </div> {/* end desktop wrapper */}
     </div> {/* end hidden md:block */}
 
     <MobileBottomNav />

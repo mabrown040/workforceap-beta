@@ -246,7 +246,7 @@ export default async function DashboardPage() {
             {recommendedActions.slice(0, 3).map((action, i) => (
               <div key={i} className="bg-[#f2eeed] rounded-xl px-4 py-3 flex items-center gap-3">
                 <span className="material-symbols-outlined text-[#8c0f37] text-xl">arrow_forward</span>
-                <p className="text-sm font-semibold text-[#1c1b1b]">{action}</p>
+                <p className="text-sm font-semibold text-[#1c1b1b]">{action.label}</p>
               </div>
             ))}
           </section>

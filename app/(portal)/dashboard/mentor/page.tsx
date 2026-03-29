@@ -6,7 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 
 export default async function MentorDashboardPage() {
   const user = await getUser();
-  if (!user) redirect('/login?redirectTo=/mentor');
+  if (!user) redirect('/login?redirectTo=/dashboard/mentor');
 
   const mentor = await prisma.mentor.findUnique({
     where: { userId: user.id },

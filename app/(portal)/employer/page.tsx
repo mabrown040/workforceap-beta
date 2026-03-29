@@ -141,7 +141,7 @@ export default async function EmployerDashboardPage() {
     >
     <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
       {/* ── Mobile Employer Dashboard (≤640px) ── */}
-      <div className="wa-block md:wa-hidden wa-pb-24">
+      <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Hero */}
         <div className="px-6 pt-6 pb-4">
           <p className="text-[10px] uppercase tracking-[0.15em] font-semibold text-[#8c0f37] mb-1">Overview</p>
@@ -243,7 +243,7 @@ export default async function EmployerDashboardPage() {
         <MobileBottomNav variant="portal" />
       </div>
       {/* ── Desktop View ── */}
-      <div className="wa-hidden md:wa-block">
+      <div className="wa-hidden wa-md:wa-block">
       {/* ── Header ── */}
       <header style={{ marginBottom: '2.5rem', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: '1.5rem' }}>
         <div>

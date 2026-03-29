@@ -120,7 +120,7 @@ export default async function AIToolsPage() {
   return (
     <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
       {/* ── Mobile AI Tools View (≤640px) ── */}
-      <div className="wa-block md:wa-hidden wa-pb-24">
+      <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Mobile hero */}
         <div className="px-6 pt-8 pb-4">
           <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-[#ad2c4d] mb-1">Included for members</p>
@@ -174,7 +174,7 @@ export default async function AIToolsPage() {
         <MobileBottomNav variant="portal" />
       </div>
       {/* ── Desktop View (hidden on mobile) ── */}
-      <div className="wa-hidden md:wa-block">
+      <div className="wa-hidden wa-md:wa-block">
       {/* Hero */}
       <section
         style={{

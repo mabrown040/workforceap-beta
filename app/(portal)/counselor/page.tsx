@@ -82,7 +82,7 @@ export default async function CounselorPortalPage() {
   return (
     <div style={{ maxWidth: '76rem', margin: '0 auto' }}>
       {/* ── Mobile Counselor View (≤640px) ── */}
-      <div className="wa-block md:wa-hidden wa-pb-24">
+      <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Hero */}
         <div className="px-6 pt-6 pb-2">
           <p className="text-[10px] uppercase tracking-[0.15em] font-semibold text-[#8c0f37] mb-2">Academic Overview</p>
@@ -172,7 +172,7 @@ export default async function CounselorPortalPage() {
         <MobileBottomNav variant="portal" />
       </div>
       {/* ── Desktop View ── */}
-      <div className="wa-hidden md:wa-block">
+      <div className="wa-hidden wa-md:wa-block">
       {/* ── Welcome Header ── */}
       <header style={{ marginBottom: '2.5rem' }}>
         <h1 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>

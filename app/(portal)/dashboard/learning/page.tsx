@@ -38,7 +38,7 @@ export default async function LearningPage() {
   return (
     <>
     {/* ── Mobile learning view (≤640px) ── */}
-    <div className="md:wa-hidden wa-pb-24">
+    <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
       {/* Header */}
       <div className="px-6 pt-6 mb-6">
         <span className="text-[10px] font-medium tracking-[0.1em] uppercase text-[#8c0f37] mb-2 block">Learning Path</span>
@@ -170,7 +170,7 @@ export default async function LearningPage() {
     </div>
 
     {/* ── Desktop view ── */}
-    <div className="wa-hidden md:wa-block">
+    <div className="wa-hidden wa-md:wa-block">
     <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto' }}>
       {/* Top bar: label + heading + progress */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 'var(--space-4)', marginBottom: 'var(--space-8)' }}>

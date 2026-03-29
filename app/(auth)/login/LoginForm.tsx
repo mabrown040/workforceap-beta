@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Eye, EyeOff } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 
+/* ─── portal destination data (unchanged business logic) ─── */
 const PORTAL_DESTINATIONS: { redirectTo: string; title: string; desc: string }[] = [
   {
     redirectTo: '/dashboard',
@@ -34,7 +34,245 @@ function portalTitleForPath(path: string): string {
   return PORTAL_DESTINATIONS.find((o) => o.redirectTo === '/dashboard')!.title;
 }
 
+/* ─── styles ─── */
+const s = {
+  wrapper: {
+    display: 'flex',
+    minHeight: '100vh',
+    fontFamily: 'var(--font-family)',
+  } as React.CSSProperties,
+
+  /* Left branding panel */
+  brandPanel: {
+    flex: '1 1 50%',
+    position: 'relative' as const,
+    display: 'flex',
+    flexDirection: 'column' as const,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 'var(--space-16) var(--space-8)',
+    background: 'linear-gradient(135deg, var(--color-primary) 0%, #2a0a14 50%, var(--color-accent-dark) 100%)',
+    overflow: 'hidden',
+    color: 'var(--color-white)',
+  } as React.CSSProperties,
+
+  brandBgOverlay: {
+    position: 'absolute' as const,
+    inset: 0,
+    backgroundImage: 'url(/images/hero-people.jpg)',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    opacity: 0.12,
+    pointerEvents: 'none' as const,
+  } as React.CSSProperties,
+
+  brandContent: {
+    position: 'relative' as const,
+    zIndex: 1,
+    textAlign: 'center' as const,
+    maxWidth: 440,
+  } as React.CSSProperties,
+
+  brandHeading: {
+    fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
+    fontWeight: 800,
+    lineHeight: 1.15,
+    marginBottom: 'var(--space-6)',
+    letterSpacing: '-0.02em',
+  } as React.CSSProperties,
+
+  brandBadge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 'var(--space-2)',
+    padding: 'var(--space-2) var(--space-4)',
+    borderRadius: 'var(--radius-xl)',
+    background: 'rgba(255,255,255,0.1)',
+    backdropFilter: 'blur(8px)',
+    border: '1px solid rgba(255,255,255,0.15)',
+    fontSize: 'var(--font-size-sm)',
+    fontWeight: 600,
+    letterSpacing: '0.04em',
+    textTransform: 'uppercase' as const,
+  } as React.CSSProperties,
+
+  /* Right form panel */
+  formPanel: {
+    flex: '1 1 50%',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 'var(--space-8)',
+    background: 'var(--surface-container-lowest)',
+    overflowY: 'auto' as const,
+  } as React.CSSProperties,
+
+  formContainer: {
+    width: '100%',
+    maxWidth: 420,
+  } as React.CSSProperties,
+
+  heading: {
+    fontSize: 'var(--font-size-h2)',
+    fontWeight: 800,
+    color: 'var(--color-on-surface)',
+    marginBottom: 'var(--space-1)',
+  } as React.CSSProperties,
+
+  subheading: {
+    fontSize: 'var(--font-size-sm)',
+    color: 'var(--color-on-surface-variant)',
+    marginBottom: 'var(--space-8)',
+    lineHeight: 'var(--line-height-normal)',
+  } as React.CSSProperties,
+
+  label: {
+    display: 'block',
+    fontSize: 'var(--font-size-sm)',
+    fontWeight: 600,
+    color: 'var(--color-on-surface-variant)',
+    marginBottom: 'var(--space-1)',
+    letterSpacing: '0.03em',
+    textTransform: 'uppercase' as const,
+  } as React.CSSProperties,
+
+  input: {
+    width: '100%',
+    padding: 'var(--space-3) var(--space-4)',
+    fontSize: 'var(--font-size-base)',
+    background: 'var(--surface-container)',
+    border: '1px solid var(--outline-variant)',
+    borderRadius: 'var(--radius-md)',
+    color: 'var(--color-on-surface)',
+    outline: 'none',
+    transition: 'border-color 0.2s',
+  } as React.CSSProperties,
+
+  passwordRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 'var(--space-1)',
+  } as React.CSSProperties,
+
+  passwordWrap: {
+    position: 'relative' as const,
+  } as React.CSSProperties,
+
+  passwordToggle: {
+    position: 'absolute' as const,
+    right: 12,
+    top: '50%',
+    transform: 'translateY(-50%)',
+    background: 'none',
+    border: 'none',
+    color: 'var(--color-on-surface-variant)',
+    cursor: 'pointer',
+    padding: 4,
+    display: 'flex',
+    alignItems: 'center',
+  } as React.CSSProperties,
+
+  recoverLink: {
+    fontSize: 'var(--font-size-sm)',
+    color: 'var(--color-accent)',
+    textDecoration: 'none',
+    fontWeight: 500,
+  } as React.CSSProperties,
+
+  checkboxRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 'var(--space-2)',
+    margin: 'var(--space-6) 0',
+  } as React.CSSProperties,
+
+  primaryBtn: {
+    width: '100%',
+    padding: 'var(--space-4)',
+    fontSize: 'var(--font-size-base)',
+    fontWeight: 700,
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase' as const,
+    color: 'var(--color-white)',
+    background: 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%)',
+    border: 'none',
+    borderRadius: 'var(--radius-md)',
+    cursor: 'pointer',
+    transition: 'opacity 0.2s',
+  } as React.CSSProperties,
+
+  divider: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 'var(--space-3)',
+    margin: 'var(--space-6) 0',
+    color: 'var(--color-on-surface-variant)',
+    fontSize: 'var(--font-size-sm)',
+  } as React.CSSProperties,
+
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    background: 'var(--outline-variant)',
+  } as React.CSSProperties,
+
+  socialRow: {
+    display: 'flex',
+    gap: 'var(--space-3)',
+  } as React.CSSProperties,
+
+  socialBtn: {
+    flex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 'var(--space-2)',
+    padding: 'var(--space-3) var(--space-4)',
+    fontSize: 'var(--font-size-sm)',
+    fontWeight: 600,
+    background: 'var(--surface-container)',
+    border: '1px solid var(--outline-variant)',
+    borderRadius: 'var(--radius-md)',
+    color: 'var(--color-on-surface)',
+    cursor: 'pointer',
+    transition: 'background 0.2s',
+  } as React.CSSProperties,
+
+  footer: {
+    marginTop: 'var(--space-8)',
+    textAlign: 'center' as const,
+    fontSize: 'var(--font-size-sm)',
+    color: 'var(--color-on-surface-variant)',
+  } as React.CSSProperties,
+
+  statusDot: {
+    display: 'inline-block',
+    width: 8,
+    height: 8,
+    borderRadius: '50%',
+    background: 'var(--color-green)',
+    marginRight: 'var(--space-2)',
+  } as React.CSSProperties,
+
+  errorBanner: {
+    background: 'rgba(173,44,77,0.1)',
+    borderLeft: '4px solid var(--color-accent)',
+    padding: 'var(--space-3) var(--space-4)',
+    marginBottom: 'var(--space-4)',
+    borderRadius: '0 var(--radius-md) var(--radius-md) 0',
+    color: 'var(--color-on-surface)',
+    fontSize: 'var(--font-size-sm)',
+  } as React.CSSProperties,
+
+  fieldGroup: {
+    marginBottom: 'var(--space-4)',
+  } as React.CSSProperties,
+} as const;
+
 export default function LoginForm() {
+  /* ─── business logic (preserved exactly) ─── */
   const searchParams = useSearchParams();
   const redirectParam = searchParams.get('redirectTo');
   const redirectTo = sanitizeRedirectPath(redirectParam, '/dashboard');
@@ -49,6 +287,7 @@ export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -98,134 +337,187 @@ export default function LoginForm() {
     }
   };
 
+  /* ─── UI ─── */
   return (
-    <div className="inner-page">
-      <section className="page-hero">
-        <div className="page-hero-content">
-          <h1>Sign in to WorkforceAP</h1>
-          <p>
-            One email and password for every portal. Choose where you want to land below, then enter your credentials.
+    <div style={s.wrapper}>
+      {/* ── Left branding panel (hidden on mobile via CSS media query below) ── */}
+      <div className="login-brand-panel" style={s.brandPanel}>
+        <div style={s.brandBgOverlay} />
+        <div style={s.brandContent}>
+          <div style={s.brandBadge}>
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>verified_user</span>
+            Enterprise Trust
+          </div>
+          <h1 style={{ ...s.brandHeading, marginTop: 'var(--space-6)' }}>
+            Authority in the Digital Era
+          </h1>
+          <p style={{ fontSize: 'var(--font-size-base)', opacity: 0.8, lineHeight: 'var(--line-height-normal)' }}>
+            Workforce Advancement Project — empowering careers through industry-recognized credentials.
           </p>
         </div>
-      </section>
+      </div>
 
-      <section className="content-section">
-        <div className="container">
-          <nav className="login-portal-routing" aria-label="Choose portal destination after sign-in">
-            <h2 className="login-portal-routing__title">Where are you signing in?</h2>
-            <p className="login-portal-routing__lead">
-              Pick the experience that matches your role. If your account has more than one portal, you can switch after
-              you are logged in.
-            </p>
-            <ul className="login-portal-routing__grid">
+      {/* ── Right form panel ── */}
+      <div style={s.formPanel}>
+        <div style={s.formContainer}>
+          <h2 style={s.heading}>Welcome Back</h2>
+          <p style={s.subheading}>
+            Signing in to: <strong style={{ color: 'var(--color-accent)' }}>{portalTitleForPath(redirectTo)}</strong>
+          </p>
+
+          {/* Portal routing (collapsed) */}
+          <nav aria-label="Choose portal destination after sign-in" style={{ marginBottom: 'var(--space-6)' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 'var(--space-2)' }}>
               {PORTAL_DESTINATIONS.map((o) => {
                 const href = `/login?redirectTo=${encodeURIComponent(o.redirectTo)}`;
+                const active = destinationActive(o.redirectTo);
                 return (
-                  <li key={o.redirectTo} className="login-portal-routing__item">
-                    <Link
-                      href={href}
-                      className={`login-portal-routing__link${destinationActive(o.redirectTo) ? ' login-portal-routing__link--active' : ''}`}
-                      aria-current={destinationActive(o.redirectTo) || undefined}
-                    >
-                      <span className="login-portal-routing__item-title">{o.title}</span>
-                      <span className="login-portal-routing__item-desc">{o.desc}</span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-
-          <div style={{ maxWidth: '420px', margin: '0 auto' }}>
-            <div className="apply-form">
-              <p
-                className="login-form-context"
-                style={{
-                  margin: '0 0 1rem',
-                  fontSize: '0.9rem',
-                  color: 'var(--color-on-surface-variant)',
-                  lineHeight: 1.45,
-                }}
-              >
-                <strong style={{ color: 'var(--color-primary)' }}>Logging in as:</strong>{' '}
-                {portalTitleForPath(redirectTo)}
-              </p>
-              <form onSubmit={handleSubmit} noValidate>
-                <div className="form-group">
-                  <label htmlFor="email">Email *</label>
-                  <input
-                    id="email"
-                    type="email"
-                    autoComplete="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    aria-invalid={!!error}
-                    aria-describedby="login-error"
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="password">Password *</label>
-                  <div className="login-password-field">
-                    <input
-                      id="password"
-                      type={showPassword ? 'text' : 'password'}
-                      autoComplete="current-password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      aria-invalid={!!error}
-                      aria-describedby="login-error"
-                    />
-                    <button
-                      type="button"
-                      className="login-password-toggle"
-                      onClick={() => setShowPassword((v) => !v)}
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
-                      aria-pressed={showPassword}
-                    >
-                      {showPassword ? <EyeOff size={20} aria-hidden /> : <Eye size={20} aria-hidden />}
-                    </button>
-                  </div>
-                </div>
-                {error && (
-                  <div
-                    id="login-error"
-                    className="form-error-banner"
-                    role="alert"
+                  <Link
+                    key={o.redirectTo}
+                    href={href}
+                    aria-current={active || undefined}
                     style={{
-                      background: '#fff3f5',
-                      borderLeft: '4px solid var(--color-accent)',
-                      padding: '1rem',
-                      marginBottom: '1rem',
-                      borderRadius: '0 8px 8px 0',
+                      padding: 'var(--space-2) var(--space-3)',
+                      fontSize: 'var(--font-size-sm)',
+                      fontWeight: 600,
+                      borderRadius: 'var(--radius-sm)',
+                      border: active ? '1px solid var(--color-accent)' : '1px solid var(--outline-variant)',
+                      background: active ? 'rgba(173,44,77,0.12)' : 'transparent',
+                      color: active ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
+                      textDecoration: 'none',
+                      transition: 'all 0.2s',
                     }}
                   >
-                    {error}
-                  </div>
-                )}
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  style={{ width: '100%', padding: '1rem' }}
-                  disabled={loading}
-                >
-                  {loading ? 'Signing in…' : 'Log in'}
-                </button>
-                <div className="login-form-footer-links">
-                  <Link href="/forgot-password">Forgot password?</Link>
-                  <p className="login-form-footer-links-muted">
-                    Passwords are the ones you set when you created your account (at least 8 characters).
-                  </p>
-                  <p className="login-form-footer-links-muted">
-                    Don&apos;t have an account? <Link href="/signup">Sign up</Link>
-                  </p>
-                </div>
-              </form>
+                    {o.title.replace(' portal', '')}
+                  </Link>
+                );
+              })}
             </div>
+          </nav>
+
+          <form onSubmit={handleSubmit} noValidate>
+            {/* Email */}
+            <div style={s.fieldGroup}>
+              <label htmlFor="email" style={s.label}>Institutional ID</label>
+              <input
+                id="email"
+                type="email"
+                autoComplete="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                aria-invalid={!!error}
+                aria-describedby="login-error"
+                style={s.input}
+              />
+            </div>
+
+            {/* Password */}
+            <div style={s.fieldGroup}>
+              <div style={s.passwordRow}>
+                <label htmlFor="password" style={{ ...s.label, marginBottom: 0 }}>Access Key</label>
+                <Link href="/forgot-password" style={s.recoverLink}>Recover Key?</Link>
+              </div>
+              <div style={s.passwordWrap}>
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  aria-invalid={!!error}
+                  aria-describedby="login-error"
+                  style={s.input}
+                />
+                <button
+                  type="button"
+                  style={s.passwordToggle}
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-pressed={showPassword}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
+                    {showPassword ? 'visibility_off' : 'visibility'}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* Maintain session checkbox */}
+            <div style={s.checkboxRow}>
+              <input
+                id="remember"
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                style={{ accentColor: 'var(--color-accent)' }}
+              />
+              <label htmlFor="remember" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', cursor: 'pointer' }}>
+                Maintain session
+              </label>
+            </div>
+
+            {/* Error banner */}
+            {error && (
+              <div id="login-error" role="alert" style={s.errorBanner}>
+                {error}
+              </div>
+            )}
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              style={{ ...s.primaryBtn, opacity: loading ? 0.7 : 1 }}
+            >
+              {loading ? 'Authenticating...' : 'AUTHENTICATE ACCESS'}
+            </button>
+          </form>
+
+          {/* Third-party divider */}
+          <div style={s.divider}>
+            <span style={s.dividerLine} />
+            <span>or verify with</span>
+            <span style={s.dividerLine} />
+          </div>
+
+          {/* Social buttons */}
+          <div style={s.socialRow}>
+            <button type="button" style={s.socialBtn}>
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>domain</span>
+              Institutional
+            </button>
+            <button type="button" style={s.socialBtn}>
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>fingerprint</span>
+              Biometric
+            </button>
+          </div>
+
+          {/* Bottom links */}
+          <p style={{ textAlign: 'center', marginTop: 'var(--space-6)', fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>
+            First time here?{' '}
+            <Link href="/signup" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
+              Request Credentials
+            </Link>
+          </p>
+
+          {/* Footer status */}
+          <div style={s.footer}>
+            <span style={s.statusDot} />
+            Network Operational
           </div>
         </div>
-      </section>
+      </div>
+
+      {/* Responsive: hide brand panel on mobile */}
+      <style>{`
+        @media (max-width: 768px) {
+          .login-brand-panel { display: none !important; }
+        }
+      `}</style>
     </div>
   );
 }

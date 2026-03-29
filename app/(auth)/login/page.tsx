@@ -29,7 +29,7 @@ export default async function LoginPage({
   }
 
   return (
-    <Suspense fallback={<div className="inner-page" style={{ padding: '4rem 2rem', textAlign: 'center' }}>Loading…</div>}>
+    <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--surface-container-lowest)' }}>Loading...</div>}>
       <LoginForm />
     </Suspense>
   );

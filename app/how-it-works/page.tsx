@@ -64,6 +64,7 @@ export default async function HowItWorksPage() {
 
   return (
     <div className="inner-page">
+      <div className="hidden md:block">
       {/* Hero Section */}
       <section className="content-section" style={{ paddingBottom: 0 }}>
         <div className="container" style={{ maxWidth: 1200 }}>
@@ -335,6 +336,8 @@ export default async function HowItWorksPage() {
           .hiw-benefit-accent { grid-column: 9 / 13 !important; }
         }
       `}</style>
+
+      </div>{/* end hidden md:block desktop wrapper */}
 
       {/* ── Mobile Journey View (≤640px) ── */}
       <section className="md:hidden px-4 pb-32 pt-8" style={{ background: '#fcf9f8' }}>

@@ -1,125 +1,141 @@
-import { NextResponse } from 'next/server';
-import { getUser } from '@/lib/auth/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
-import { prisma } from '@/lib/db/prisma';
-import type { InterviewType, TranscriptTurn } from '@/lib/ai/elevenlabs';
+import { getUser } from '@/lib/auth/server';
+import { saveAIToolResult } from '@/lib/ai/saveResult';
 
-interface FeedbackPayload {
-  summary: string;
-  strengths: string[];
-  improvements: string[];
-  overallScore: number;
-  source: 'anthropic' | 'heuristic';
+const ALLOWED_TYPES = ['technical', 'behavioral', 'general'] as const;
+type InterviewType = (typeof ALLOWED_TYPES)[number];
+
+interface HistoryBody {
+  sessionId?: string;
+  answers?: string[];
+  questions?: string[];
+  role?: string;
+  interviewType?: string;
 }
 
-interface HistoryRecord {
-  id: string;
+async function generateFeedback(params: {
   role: string;
   interviewType: InterviewType;
-  transcript: TranscriptTurn[];
-  feedback: FeedbackPayload;
-  createdAt: string;
-}
-
-interface SaveHistoryBody {
-  role: string;
-  interviewType: InterviewType;
-  transcript: TranscriptTurn[];
-  feedback: FeedbackPayload;
-}
-
-const HISTORY_TOOL_TYPE = 'interview_practice' as const;
-
-export async function GET() {
-  const user = await getUser();
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  answers: string[];
+  questions: string[];
+}): Promise<string> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    throw new Error('ANTHROPIC_API_KEY is not configured');
   }
 
-  const records = await prisma.aIToolResult.findMany({
-    where: {
-      userId: user.id,
-      toolType: HISTORY_TOOL_TYPE,
-      inputSummary: { startsWith: '[Interview Coach]' },
+  const transcript = params.answers
+    .map((answer, index) => {
+      const question = params.questions[index] ?? `Question ${index + 1}`;
+      return `Q${index + 1}: ${question}\nA${index + 1}: ${answer}`;
+    })
+    .join('\n\n');
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
     },
-    orderBy: { createdAt: 'desc' },
-    take: 20,
+    body: JSON.stringify({
+      model: process.env.ANTHROPIC_MODEL ?? 'claude-3-5-sonnet-latest',
+      max_tokens: 900,
+      temperature: 0.3,
+      system: 'You are an interview coach. Provide concise, actionable feedback with clear strengths and improvements.',
+      messages: [
+        {
+          role: 'user',
+          content: [
+            `Role: ${params.role}`,
+            `Interview type: ${params.interviewType}`,
+            'Review this interview transcript and provide:',
+            '1) A brief overall assessment',
+            '2) Top 3 strengths',
+            '3) Top 3 areas to improve',
+            '4) One concrete next-step action',
+            '',
+            transcript,
+          ].join('\n'),
+        },
+      ],
+    }),
   });
 
-  const sessions: HistoryRecord[] = records
-    .map((record) => {
-      try {
-        const parsed = JSON.parse(record.output) as {
-          role: string;
-          interviewType: InterviewType;
-          transcript: TranscriptTurn[];
-          feedback: FeedbackPayload;
-        };
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Anthropic request failed (${response.status}): ${text}`);
+  }
 
-        return {
-          id: record.id,
-          role: parsed.role,
-          interviewType: parsed.interviewType,
-          transcript: parsed.transcript,
-          feedback: parsed.feedback,
-          createdAt: record.createdAt.toISOString(),
-        } satisfies HistoryRecord;
-      } catch {
-        return null;
-      }
-    })
-    .filter((item): item is HistoryRecord => item !== null);
+  const payload = (await response.json()) as {
+    content?: Array<{ type: string; text?: string }>;
+  };
 
-  return NextResponse.json({ sessions });
+  const feedback = payload.content?.find((item) => item.type === 'text')?.text?.trim();
+  if (!feedback) {
+    throw new Error('No feedback returned from Anthropic');
+  }
+
+  return feedback;
 }
 
-export async function POST(request: Request) {
+export async function POST(req: NextRequest) {
   const user = await getUser();
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  await ensureUserInDb(user);
-
-  let body: unknown;
+  let body: HistoryBody;
   try {
-    body = await request.json();
+    body = (await req.json()) as HistoryBody;
   } catch {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
 
-  const payload = body as SaveHistoryBody;
+  const role = body.role?.trim() ?? '';
+  const interviewTypeRaw = body.interviewType?.trim().toLowerCase() ?? '';
+  const sessionId = body.sessionId?.trim() ?? '';
 
-  if (!payload.role || typeof payload.role !== 'string') {
-    return NextResponse.json({ error: 'Role is required' }, { status: 400 });
+  if (!sessionId) {
+    return NextResponse.json({ error: 'sessionId is required' }, { status: 400 });
   }
 
-  if (!['technical', 'behavioral', 'general'].includes(payload.interviewType)) {
-    return NextResponse.json({ error: 'Invalid interview type' }, { status: 400 });
+  if (!role) {
+    return NextResponse.json({ error: 'role is required' }, { status: 400 });
   }
 
-  if (!Array.isArray(payload.transcript)) {
-    return NextResponse.json({ error: 'Transcript is required' }, { status: 400 });
+  if (!ALLOWED_TYPES.includes(interviewTypeRaw as InterviewType)) {
+    return NextResponse.json({ error: 'interviewType must be Technical, Behavioral, or General' }, { status: 400 });
   }
 
-  if (!payload.feedback || typeof payload.feedback.summary !== 'string') {
-    return NextResponse.json({ error: 'Feedback is required' }, { status: 400 });
+  const answers = Array.isArray(body.answers)
+    ? body.answers.map((answer) => answer.trim()).filter((answer) => answer.length > 0)
+    : [];
+  if (answers.length === 0) {
+    return NextResponse.json({ error: 'answers are required' }, { status: 400 });
   }
 
-  const saved = await prisma.aIToolResult.create({
-    data: {
-      userId: user.id,
-      toolType: HISTORY_TOOL_TYPE,
-      inputSummary: `[Interview Coach] ${payload.role} (${payload.interviewType})`,
-      output: JSON.stringify({
-        role: payload.role,
-        interviewType: payload.interviewType,
-        transcript: payload.transcript,
-        feedback: payload.feedback,
-      }),
-    },
-    select: { id: true, createdAt: true },
-  });
+  const questions = Array.isArray(body.questions)
+    ? body.questions.map((question) => question.trim()).filter((question) => question.length > 0)
+    : [];
 
-  return NextResponse.json({ id: saved.id, createdAt: saved.createdAt.toISOString() });
+  const interviewType = interviewTypeRaw as InterviewType;
+
+  try {
+    const feedback = await generateFeedback({ role, interviewType, answers, questions });
+
+    await ensureUserInDb(user);
+    await saveAIToolResult(
+      user.id,
+      'interview_coach',
+      `${interviewType} interview feedback for ${role}`,
+      JSON.stringify({ sessionId, answers, questions, feedback })
+    );
+
+    return NextResponse.json({ feedback });
+  } catch (error) {
+    console.error('Interview history error:', error);
+    return NextResponse.json({ error: 'Failed to generate feedback' }, { status: 500 });
+  }
 }

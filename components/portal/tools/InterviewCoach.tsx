@@ -1,751 +1,273 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { FormEvent, useMemo, useState } from 'react';
 
 type InterviewType = 'technical' | 'behavioral' | 'general';
-type Speaker = 'interviewer' | 'candidate';
 
-interface TranscriptTurn {
-  speaker: Speaker;
-  text: string;
-  timestamp: Date;
+interface SessionResponse {
+  sessionId: string;
+  firstQuestion: string;
 }
-
-interface SessionState {
-  active: boolean;
-  loading: boolean;
-  questionIndex: number;
-  isFeedback: boolean;
-  saved: boolean;
-}
-
-const INTERVIEW_TYPES: { value: InterviewType; label: string; icon: string; desc: string }[] = [
-  { value: 'general', label: 'General', icon: 'chat', desc: 'Background, motivation & fit' },
-  { value: 'behavioral', label: 'Behavioral', icon: 'psychology', desc: 'Past experiences via STAR' },
-  { value: 'technical', label: 'Technical', icon: 'code', desc: 'Skills & problem-solving' },
-];
 
 export default function InterviewCoach() {
   const [role, setRole] = useState('');
-  const [interviewType, setInterviewType] = useState<InterviewType>('general');
-  const [transcript, setTranscript] = useState<TranscriptTurn[]>([]);
-  const [candidateInput, setCandidateInput] = useState('');
+  const [interviewType, setInterviewType] = useState<InterviewType>('technical');
+  const [sessionId, setSessionId] = useState('');
+  const [questions, setQuestions] = useState<string[]>([]);
+  const [answers, setAnswers] = useState<string[]>([]);
+  const [currentAnswer, setCurrentAnswer] = useState('');
   const [feedback, setFeedback] = useState('');
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [voiceEnabled, setVoiceEnabled] = useState(false);
-  const [voiceLoading, setVoiceLoading] = useState(false);
 
-  const [session, setSession] = useState<SessionState>({
-    active: false,
-    loading: false,
-    questionIndex: 0,
-    isFeedback: false,
-    saved: false,
-  });
+  const canStart = role.trim().length > 1 && !loading;
+  const currentQuestion = questions[answers.length] ?? '';
+  const interviewComplete = answers.length >= 5;
+  const canSubmitAnswer = currentAnswer.trim().length > 0 && !loading && !interviewComplete;
 
-  const transcriptEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const progressLabel = useMemo(() => {
+    if (questions.length === 0) return 'Not started';
+    return `Question ${Math.min(answers.length + 1, 5)} of 5`;
+  }, [answers.length, questions.length]);
 
-  useEffect(() => {
-    transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [transcript]);
+  async function startInterview(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!canStart) return;
 
-  const playVoice = useCallback(async (text: string) => {
-    if (!voiceEnabled) return;
-    setVoiceLoading(true);
+    setLoading(true);
+    setError('');
+    setFeedback('');
+    setQuestions([]);
+    setAnswers([]);
+    setCurrentAnswer('');
+
     try {
-      const res = await fetch('/api/ai/interview-voice', {
+      const response = await fetch('/api/interview/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ role: role.trim(), interviewType }),
       });
-      if (!res.ok) return;
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      if (audioRef.current) {
-        audioRef.current.pause();
-        URL.revokeObjectURL(audioRef.current.src);
+      const data = (await response.json()) as Partial<SessionResponse> & { error?: string };
+      if (!response.ok || !data.firstQuestion || !data.sessionId) {
+        throw new Error(data.error ?? 'Unable to start interview.');
       }
-      const audio = new Audio(url);
-      audioRef.current = audio;
-      await audio.play();
-    } catch {
-      // Voice is optional — fail silently
+
+      setSessionId(data.sessionId);
+      setQuestions([data.firstQuestion]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong.');
     } finally {
-      setVoiceLoading(false);
+      setLoading(false);
     }
-  }, [voiceEnabled]);
+  }
 
-  const sendTurn = useCallback(
-    async (message: string, currentTranscript: TranscriptTurn[], qIndex: number) => {
-      setSession((s) => ({ ...s, loading: true }));
-      setError('');
+  async function submitAnswer(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!canSubmitAnswer) return;
 
-      try {
-        const res = await fetch('/api/interview/session', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            role,
-            interviewType,
-            transcript: currentTranscript.map((t) => ({
-              speaker: t.speaker,
-              text: t.text,
-            })),
-            candidateMessage: message,
-            questionIndex: qIndex,
-          }),
-        });
+    const nextAnswers = [...answers, currentAnswer.trim()];
+    setAnswers(nextAnswers);
+    setCurrentAnswer('');
 
-        const data = (await res.json()) as {
-          message?: string;
-          isFeedback?: boolean;
-          questionIndex?: number;
-          error?: string;
-        };
-
-        if (!res.ok || !data.message) {
-          setError(data.error ?? 'Failed to get response');
-          setSession((s) => ({ ...s, loading: false }));
-          return;
-        }
-
-        const interviewerTurn: TranscriptTurn = {
-          speaker: 'interviewer',
-          text: data.message,
-          timestamp: new Date(),
-        };
-
-        setTranscript((prev) => [...prev, interviewerTurn]);
-
-        if (data.isFeedback) {
-          setFeedback(data.message);
-          setSession((s) => ({
-            ...s,
-            loading: false,
-            isFeedback: true,
-            questionIndex: data.questionIndex ?? qIndex,
-          }));
-        } else {
-          setSession((s) => ({
-            ...s,
-            loading: false,
-            questionIndex: data.questionIndex ?? qIndex + 1,
-          }));
-        }
-
-        await playVoice(data.message);
-      } catch {
-        setError('Network error. Please try again.');
-        setSession((s) => ({ ...s, loading: false }));
-      }
-    },
-    [role, interviewType, playVoice]
-  );
-
-  const startInterview = useCallback(async () => {
-    if (!role.trim()) {
-      setError('Please enter a job role to practice for.');
+    if (nextAnswers.length >= 5) {
       return;
     }
-    setTranscript([]);
-    setFeedback('');
-    setCandidateInput('');
+
+    setLoading(true);
     setError('');
-    setSession({
-      active: true,
-      loading: false,
-      questionIndex: 0,
-      isFeedback: false,
-      saved: false,
-    });
-
-    await sendTurn('', [], 0);
-  }, [role, sendTurn]);
-
-  const submitAnswer = useCallback(async () => {
-    const msg = candidateInput.trim();
-    if (!msg || session.loading) return;
-
-    const candidateTurn: TranscriptTurn = {
-      speaker: 'candidate',
-      text: msg,
-      timestamp: new Date(),
-    };
-
-    const updatedTranscript = [...transcript, candidateTurn];
-    setTranscript(updatedTranscript);
-    setCandidateInput('');
-
-    await sendTurn(msg, updatedTranscript, session.questionIndex);
-  }, [candidateInput, session.loading, session.questionIndex, transcript, sendTurn]);
-
-  const saveSession = useCallback(async () => {
     try {
-      const res = await fetch('/api/interview/history', {
+      const response = await fetch('/api/interview/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          role,
+          role: role.trim(),
           interviewType,
-          transcript: transcript.map((t) => ({ speaker: t.speaker, text: t.text })),
-          feedback,
+          answers: nextAnswers,
+          sessionId,
         }),
       });
-      if (res.ok) {
-        setSession((s) => ({ ...s, saved: true }));
+      const data = (await response.json()) as Partial<SessionResponse> & { error?: string };
+      if (!response.ok || !data.firstQuestion) {
+        throw new Error(data.error ?? 'Unable to generate next question.');
       }
-    } catch {
-      // non-critical
-    }
-  }, [role, interviewType, transcript, feedback]);
 
-  const resetSession = () => {
-    setSession({
-      active: false,
-      loading: false,
-      questionIndex: 0,
-      isFeedback: false,
-      saved: false,
-    });
-    setTranscript([]);
-    setFeedback('');
-    setCandidateInput('');
+      const nextQuestion = data.firstQuestion;
+      setQuestions((prev) => [...prev, nextQuestion]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function getFeedback() {
+    if (!sessionId || answers.length < 5 || loading) return;
+
+    setLoading(true);
     setError('');
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-  };
+    try {
+      const response = await fetch('/api/interview/history', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId,
+          answers,
+          role: role.trim(),
+          interviewType,
+          questions,
+        }),
+      });
+      const data = (await response.json()) as { feedback?: string; error?: string };
+      if (!response.ok || !data.feedback) {
+        throw new Error(data.error ?? 'Unable to generate feedback.');
+      }
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      void submitAnswer();
+      setFeedback(data.feedback);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong.');
+    } finally {
+      setLoading(false);
     }
-  };
+  }
 
-  // ── SETUP SCREEN ──────────────────────────────────────────────
-  if (!session.active) {
-    return (
-      <div style={{ maxWidth: 680, margin: '0 auto' }}>
-        {/* Role Input */}
-        <div
-          style={{
-            background: 'var(--surface-container)',
-            borderRadius: 12,
-            padding: '1.5rem',
-            marginBottom: '1.25rem',
-            border: '1px solid var(--surface-container-high)',
-          }}
-        >
-          <label
-            style={{
-              display: 'block',
-              fontSize: '0.8rem',
-              fontWeight: 600,
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-              color: 'var(--color-on-surface-variant)',
-              marginBottom: '0.6rem',
-            }}
-          >
-            Job Role
-          </label>
+  return (
+    <div className="stitch-card" style={{ padding: '1rem', borderRadius: 16 }}>
+      <form onSubmit={startInterview} style={{ display: 'grid', gap: '0.75rem', marginBottom: '1rem' }}>
+        <label style={{ display: 'grid', gap: '0.35rem' }}>
+          <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Job role</span>
           <input
             type="text"
             value={role}
-            onChange={(e) => setRole(e.target.value)}
-            placeholder="e.g. Software Engineer, Project Manager, Data Analyst..."
+            onChange={(event) => setRole(event.target.value)}
+            placeholder="e.g. Frontend Developer"
             style={{
-              width: '100%',
-              padding: '0.75rem 1rem',
-              borderRadius: 8,
               border: '1px solid var(--surface-container-highest)',
-              background: 'var(--color-surface)',
+              borderRadius: 10,
+              padding: '0.65rem 0.8rem',
+              background: 'var(--surface-container-low)',
               color: 'var(--color-on-surface)',
-              fontSize: '0.95rem',
-              boxSizing: 'border-box',
             }}
           />
-        </div>
+        </label>
 
-        {/* Interview Type */}
-        <div
-          style={{
-            background: 'var(--surface-container)',
-            borderRadius: 12,
-            padding: '1.5rem',
-            marginBottom: '1.25rem',
-            border: '1px solid var(--surface-container-high)',
-          }}
-        >
-          <label
+        <label style={{ display: 'grid', gap: '0.35rem' }}>
+          <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Interview type</span>
+          <select
+            value={interviewType}
+            onChange={(event) => setInterviewType(event.target.value as InterviewType)}
             style={{
-              display: 'block',
-              fontSize: '0.8rem',
-              fontWeight: 600,
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-              color: 'var(--color-on-surface-variant)',
-              marginBottom: '0.75rem',
+              border: '1px solid var(--surface-container-highest)',
+              borderRadius: 10,
+              padding: '0.65rem 0.8rem',
+              background: 'var(--surface-container-low)',
+              color: 'var(--color-on-surface)',
             }}
           >
-            Interview Type
-          </label>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
-            {INTERVIEW_TYPES.map((t) => (
-              <button
-                key={t.value}
-                onClick={() => setInterviewType(t.value)}
+            <option value="technical">Technical</option>
+            <option value="behavioral">Behavioral</option>
+            <option value="general">General</option>
+          </select>
+        </label>
+
+        <button
+          type="submit"
+          disabled={!canStart}
+          style={{
+            border: 'none',
+            borderRadius: 10,
+            padding: '0.7rem 0.85rem',
+            fontWeight: 700,
+            background: 'var(--color-accent)',
+            color: '#fff',
+            cursor: canStart ? 'pointer' : 'not-allowed',
+            opacity: canStart ? 1 : 0.6,
+          }}
+        >
+          {loading && questions.length === 0 ? 'Starting…' : 'Start Interview'}
+        </button>
+      </form>
+
+      {questions.length > 0 && (
+        <div style={{ display: 'grid', gap: '0.75rem' }}>
+          <div style={{ fontSize: '0.82rem', color: 'var(--color-on-surface-variant)' }}>{progressLabel}</div>
+
+          {answers.map((answer, index) => (
+            <div key={`qa-${index}`} style={{ background: 'var(--surface-container-low)', borderRadius: 12, padding: '0.75rem' }}>
+              <p style={{ margin: '0 0 0.35rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>
+                Q{index + 1}: {questions[index]}
+              </p>
+              <p style={{ margin: 0, color: 'var(--color-on-surface-variant)' }}>A{index + 1}: {answer}</p>
+            </div>
+          ))}
+
+          {!interviewComplete && currentQuestion && (
+            <form onSubmit={submitAnswer} style={{ display: 'grid', gap: '0.5rem' }}>
+              <p style={{ margin: 0, fontWeight: 600, color: 'var(--color-on-surface)' }}>
+                Q{answers.length + 1}: {currentQuestion}
+              </p>
+              <textarea
+                value={currentAnswer}
+                onChange={(event) => setCurrentAnswer(event.target.value)}
+                rows={4}
+                placeholder="Type your answer..."
                 style={{
-                  padding: '0.9rem 0.75rem',
+                  border: '1px solid var(--surface-container-highest)',
                   borderRadius: 10,
-                  border: `2px solid ${interviewType === t.value ? 'var(--color-accent)' : 'var(--surface-container-high)'}`,
-                  background:
-                    interviewType === t.value
-                      ? 'color-mix(in srgb, var(--color-accent) 10%, transparent)'
-                      : 'var(--color-surface)',
-                  cursor: 'pointer',
-                  textAlign: 'center',
-                  transition: 'all 0.15s',
+                  padding: '0.65rem 0.8rem',
+                  background: 'var(--surface-container-low)',
+                  color: 'var(--color-on-surface)',
+                  resize: 'vertical',
+                }}
+              />
+              <button
+                type="submit"
+                disabled={!canSubmitAnswer}
+                style={{
+                  border: 'none',
+                  borderRadius: 10,
+                  padding: '0.65rem 0.85rem',
+                  fontWeight: 700,
+                  background: 'var(--color-blue)',
+                  color: '#fff',
+                  cursor: canSubmitAnswer ? 'pointer' : 'not-allowed',
+                  opacity: canSubmitAnswer ? 1 : 0.6,
                 }}
               >
-                <span
-                  className="material-symbols-outlined"
-                  style={{
-                    display: 'block',
-                    fontSize: '1.4rem',
-                    color: interviewType === t.value ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
-                    marginBottom: '0.35rem',
-                  }}
-                >
-                  {t.icon}
-                </span>
-                <div
-                  style={{
-                    fontSize: '0.8rem',
-                    fontWeight: 700,
-                    color:
-                      interviewType === t.value ? 'var(--color-accent)' : 'var(--color-on-surface)',
-                  }}
-                >
-                  {t.label}
-                </div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--color-on-surface-variant)', marginTop: '0.2rem' }}>
-                  {t.desc}
-                </div>
+                {loading ? 'Generating next question…' : 'Submit Answer'}
               </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Voice Toggle */}
-        <div
-          style={{
-            background: 'var(--surface-container)',
-            borderRadius: 12,
-            padding: '1rem 1.5rem',
-            marginBottom: '1.5rem',
-            border: '1px solid var(--surface-container-high)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <div>
-            <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>
-              🎙️ Voice Playback
-            </div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-variant)', marginTop: '0.15rem' }}>
-              Hear the interviewer&apos;s questions spoken aloud
-            </div>
-          </div>
-          <button
-            onClick={() => setVoiceEnabled((v) => !v)}
-            style={{
-              width: 48,
-              height: 26,
-              borderRadius: 13,
-              border: 'none',
-              background: voiceEnabled ? 'var(--color-accent)' : 'var(--surface-container-highest)',
-              cursor: 'pointer',
-              position: 'relative',
-              transition: 'background 0.2s',
-            }}
-          >
-            <span
-              style={{
-                position: 'absolute',
-                top: 3,
-                left: voiceEnabled ? 24 : 3,
-                width: 20,
-                height: 20,
-                borderRadius: '50%',
-                background: 'white',
-                transition: 'left 0.2s',
-              }}
-            />
-          </button>
-        </div>
-
-        {error && (
-          <p style={{ color: 'var(--color-error)', fontSize: '0.85rem', marginBottom: '1rem' }}>{error}</p>
-        )}
-
-        <button
-          onClick={() => void startInterview()}
-          disabled={!role.trim()}
-          style={{
-            width: '100%',
-            padding: '1rem',
-            borderRadius: 10,
-            border: 'none',
-            background: role.trim() ? 'var(--color-accent)' : 'var(--surface-container-highest)',
-            color: role.trim() ? 'white' : 'var(--color-on-surface-variant)',
-            fontSize: '1rem',
-            fontWeight: 700,
-            cursor: role.trim() ? 'pointer' : 'not-allowed',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.5rem',
-            transition: 'all 0.15s',
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>
-            play_arrow
-          </span>
-          Start Interview
-        </button>
-      </div>
-    );
-  }
-
-  // ── ACTIVE SESSION ─────────────────────────────────────────────
-  return (
-    <div style={{ maxWidth: 720, margin: '0 auto' }}>
-      {/* Session Header */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '1rem',
-          padding: '0.75rem 1rem',
-          background: 'var(--surface-container)',
-          borderRadius: 10,
-          border: '1px solid var(--surface-container-high)',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <span
-            style={{
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              background: session.isFeedback ? 'var(--color-accent)' : '#22c55e',
-              display: 'inline-block',
-            }}
-          />
-          <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>
-            {role} · {INTERVIEW_TYPES.find((t) => t.value === interviewType)?.label} Interview
-          </span>
-          {!session.isFeedback && (
-            <span
-              style={{
-                fontSize: '0.75rem',
-                color: 'var(--color-on-surface-variant)',
-                background: 'var(--surface-container-high)',
-                padding: '0.2rem 0.5rem',
-                borderRadius: 4,
-              }}
-            >
-              Q {session.questionIndex}
-            </span>
+            </form>
           )}
-        </div>
-        <button
-          onClick={resetSession}
-          style={{
-            fontSize: '0.8rem',
-            color: 'var(--color-on-surface-variant)',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.3rem',
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
-            restart_alt
-          </span>
-          New Session
-        </button>
-      </div>
 
-      {/* Transcript */}
-      <div
-        style={{
-          background: 'var(--surface-container)',
-          borderRadius: 12,
-          border: '1px solid var(--surface-container-high)',
-          padding: '1.25rem',
-          marginBottom: '1rem',
-          minHeight: 300,
-          maxHeight: 480,
-          overflowY: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1rem',
-        }}
-      >
-        {session.loading && transcript.length === 0 && (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              color: 'var(--color-on-surface-variant)',
-              fontSize: '0.85rem',
-            }}
-          >
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: '1rem', animation: 'spin 1s linear infinite' }}
-            >
-              progress_activity
-            </span>
-            Setting up your interview...
-          </div>
-        )}
-
-        {transcript.map((turn, i) => (
-          <div
-            key={i}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: turn.speaker === 'candidate' ? 'flex-end' : 'flex-start',
-            }}
-          >
-            <div
-              style={{
-                fontSize: '0.73rem',
-                fontWeight: 600,
-                color: 'var(--color-on-surface-variant)',
-                marginBottom: '0.3rem',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-              }}
-            >
-              {turn.speaker === 'interviewer' ? '🎙️ Interviewer' : '🙋 You'}
-            </div>
-            <div
-              style={{
-                maxWidth: '85%',
-                padding: '0.75rem 1rem',
-                borderRadius: turn.speaker === 'candidate' ? '12px 12px 4px 12px' : '12px 12px 12px 4px',
-                background:
-                  turn.speaker === 'candidate'
-                    ? 'color-mix(in srgb, var(--color-accent) 15%, transparent)'
-                    : 'var(--surface-container-high)',
-                color: 'var(--color-on-surface)',
-                fontSize: '0.9rem',
-                lineHeight: 1.5,
-                border:
-                  turn.speaker === 'candidate'
-                    ? '1px solid color-mix(in srgb, var(--color-accent) 30%, transparent)'
-                    : '1px solid var(--surface-container-highest)',
-              }}
-            >
-              {turn.text}
-            </div>
-          </div>
-        ))}
-
-        {session.loading && transcript.length > 0 && (
-          <div style={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column', gap: '0.3rem' }}>
-            <div
-              style={{
-                fontSize: '0.73rem',
-                fontWeight: 600,
-                color: 'var(--color-on-surface-variant)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-              }}
-            >
-              🎙️ Interviewer
-            </div>
-            <div
-              style={{
-                padding: '0.75rem 1rem',
-                borderRadius: '12px 12px 12px 4px',
-                background: 'var(--surface-container-high)',
-                border: '1px solid var(--surface-container-highest)',
-                display: 'flex',
-                gap: '0.3rem',
-                alignItems: 'center',
-              }}
-            >
-              {[0, 1, 2].map((d) => (
-                <span
-                  key={d}
-                  style={{
-                    width: 7,
-                    height: 7,
-                    borderRadius: '50%',
-                    background: 'var(--color-on-surface-variant)',
-                    opacity: 0.6,
-                    animation: `bounce 1.2s ease-in-out ${d * 0.2}s infinite`,
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div ref={transcriptEndRef} />
-      </div>
-
-      {/* Feedback Banner */}
-      {session.isFeedback && feedback && (
-        <div
-          style={{
-            background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)',
-            border: '1px solid color-mix(in srgb, var(--color-accent) 25%, transparent)',
-            borderRadius: 12,
-            padding: '1.25rem',
-            marginBottom: '1rem',
-          }}
-        >
-          <div
-            style={{
-              fontSize: '0.8rem',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-              color: 'var(--color-accent)',
-              marginBottom: '0.5rem',
-            }}
-          >
-            📋 Interview Feedback
-          </div>
-          <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: 1.6, color: 'var(--color-on-surface)' }}>
-            {feedback}
-          </p>
-          {!session.saved && (
+          {interviewComplete && (
             <button
-              onClick={() => void saveSession()}
+              type="button"
+              onClick={getFeedback}
+              disabled={loading || Boolean(feedback)}
               style={{
-                marginTop: '1rem',
-                padding: '0.5rem 1rem',
-                borderRadius: 8,
                 border: 'none',
-                background: 'var(--color-accent)',
-                color: 'white',
-                fontSize: '0.82rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.35rem',
+                borderRadius: 10,
+                padding: '0.7rem 0.85rem',
+                fontWeight: 700,
+                background: 'var(--color-green)',
+                color: '#fff',
+                cursor: loading || Boolean(feedback) ? 'not-allowed' : 'pointer',
+                opacity: loading || Boolean(feedback) ? 0.6 : 1,
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>
-                save
-              </span>
-              Save to History
+              {loading ? 'Generating feedback…' : 'Get Feedback'}
             </button>
           )}
-          {session.saved && (
-            <p style={{ marginTop: '0.75rem', fontSize: '0.82rem', color: '#22c55e', fontWeight: 600 }}>
-              ✓ Session saved to history
-            </p>
-          )}
         </div>
       )}
 
-      {error && (
-        <p style={{ color: 'var(--color-error)', fontSize: '0.85rem', marginBottom: '0.75rem' }}>{error}</p>
-      )}
-
-      {/* Input Area */}
-      {!session.isFeedback && (
-        <div
-          style={{
-            display: 'flex',
-            gap: '0.75rem',
-            alignItems: 'flex-end',
-          }}
-        >
-          <textarea
-            ref={inputRef}
-            value={candidateInput}
-            onChange={(e) => setCandidateInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type your answer... (Enter to send, Shift+Enter for new line)"
-            disabled={session.loading}
-            rows={3}
-            style={{
-              flex: 1,
-              padding: '0.75rem 1rem',
-              borderRadius: 10,
-              border: '1px solid var(--surface-container-highest)',
-              background: 'var(--color-surface)',
-              color: 'var(--color-on-surface)',
-              fontSize: '0.9rem',
-              resize: 'none',
-              opacity: session.loading ? 0.6 : 1,
-              fontFamily: 'inherit',
-            }}
-          />
-          <button
-            onClick={() => void submitAnswer()}
-            disabled={!candidateInput.trim() || session.loading}
-            style={{
-              padding: '0.75rem',
-              borderRadius: 10,
-              border: 'none',
-              background:
-                candidateInput.trim() && !session.loading
-                  ? 'var(--color-accent)'
-                  : 'var(--surface-container-highest)',
-              color:
-                candidateInput.trim() && !session.loading ? 'white' : 'var(--color-on-surface-variant)',
-              cursor: candidateInput.trim() && !session.loading ? 'pointer' : 'not-allowed',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: 'fit-content',
-              alignSelf: 'flex-end',
-              marginBottom: 1,
-            }}
-          >
-            {voiceLoading ? (
-              <span
-                className="material-symbols-outlined"
-                style={{ fontSize: '1.2rem', animation: 'spin 1s linear infinite' }}
-              >
-                progress_activity
-              </span>
-            ) : (
-              <span className="material-symbols-outlined" style={{ fontSize: '1.2rem' }}>
-                send
-              </span>
-            )}
-          </button>
+      {feedback && (
+        <div style={{ marginTop: '1rem', background: 'var(--surface-container)', borderRadius: 12, padding: '0.85rem' }}>
+          <h3 style={{ margin: '0 0 0.5rem', fontSize: '1rem' }}>Feedback Summary</h3>
+          <p style={{ margin: 0, whiteSpace: 'pre-wrap', color: 'var(--color-on-surface-variant)' }}>{feedback}</p>
         </div>
       )}
 
-      <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes bounce {
-          0%, 80%, 100% { transform: translateY(0); }
-          40% { transform: translateY(-6px); }
-        }
-      `}</style>
+      {error && <p style={{ marginTop: '0.75rem', color: 'var(--color-accent)', fontSize: '0.875rem' }}>{error}</p>}
     </div>
   );
 }

@@ -25,7 +25,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         from: process.env.EMAIL_FROM || 'noreply@workforceap.org',
         to: mentor.user.email,
         subject: 'WorkforceAP — You are approved as a mentor',
-        html: `<p>Hi ${mentor.fullName},</p><p>You are approved as a WorkforceAP mentor. Thank you for volunteering your expertise.</p><p>Open your mentor dashboard: <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org'}/mentor">Mentor Portal</a></p>`,
+        html: `<p>Hi ${mentor.fullName},</p><p>You are approved as a WorkforceAP mentor. Thank you for volunteering your expertise.</p><p>Open your mentor dashboard: <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org'}/dashboard/mentor">Mentor Portal</a></p>`,
       });
     }
     return NextResponse.json({ mentor: updated });

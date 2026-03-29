@@ -28,14 +28,51 @@ export default function DashboardSidebar({ open = false, onClose }: DashboardSid
   const trapRef = useFocusTrap(open, onEscape);
 
   return (
-    <aside ref={trapRef} className={`dashboard-sidebar ${open ? 'open' : ''}`}>
-      <div className="dashboard-sidebar-inner">
-        <nav aria-label="Member portal navigation" className="dashboard-sidebar-nav">
-          <ul className="dashboard-sidebar-list">
+    <aside
+      ref={trapRef}
+      className={`dashboard-sidebar ${open ? 'open' : ''}`}
+      style={{
+        height: '100vh',
+        width: '16rem',
+        position: 'fixed',
+        left: 0,
+        top: 0,
+        paddingTop: '5rem',
+        background: 'linear-gradient(to right, var(--color-background-dark, #121416), #1c1f22)',
+        zIndex: 40,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.5rem',
+        padding: '5rem 1rem 1rem',
+        fontSize: '0.875rem',
+        fontWeight: 500,
+        overflowY: 'auto',
+      }}
+    >
+      {/* Sidebar brand */}
+      <div style={{ marginBottom: '1.5rem', padding: '0 0.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
+          <div style={{ width: '2rem', height: '2rem', borderRadius: 'var(--radius-sm, 4px)', background: 'var(--color-accent, #ad2c4d)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span className="material-symbols-outlined" style={{ color: 'white', fontSize: '1.125rem' }}>account_balance</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span style={{ color: 'var(--color-accent)', fontWeight: 700 }}>WorkforceAP</span>
+            <span style={{ fontSize: '0.625rem', color: 'rgba(226,226,229,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Member Dashboard</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="dashboard-sidebar-inner" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <nav aria-label="Member portal navigation" className="dashboard-sidebar-nav" style={{ flex: 1 }}>
+          <ul className="dashboard-sidebar-list" style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
             {(['core', 'tools', 'more'] as const).map((group) => (
               <li key={group}>
-                {GROUP_LABELS[group] ? <div className="dashboard-sidebar-group-label">{GROUP_LABELS[group]}</div> : null}
-                <ul className="dashboard-sidebar-list">
+                {GROUP_LABELS[group] ? (
+                  <div className="text-label-upper" style={{ padding: '1rem 0.75rem 0.5rem', color: 'rgba(226,226,229,0.4)', fontSize: '0.625rem' }}>
+                    {GROUP_LABELS[group]}
+                  </div>
+                ) : null}
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
                   {MEMBER_PORTAL_NAV.filter((item) => item.group === group).map(({ href, label, Icon, aliases }) => {
                     const isActive = isActiveRoute(pathname, href, aliases);
                     const Lucide = Icon;
@@ -49,6 +86,18 @@ export default function DashboardSidebar({ open = false, onClose }: DashboardSid
                             e.preventDefault();
                             void router.push(href);
                             queueMicrotask(() => onClose?.());
+                          }}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.75rem',
+                            padding: '0.625rem 0.75rem',
+                            borderRadius: 'var(--radius-lg, 12px)',
+                            color: isActive ? 'var(--color-accent)' : 'rgba(226,226,229,0.5)',
+                            background: isActive ? 'rgba(173,44,77,0.1)' : 'transparent',
+                            borderRight: isActive ? '2px solid var(--color-accent)' : '2px solid transparent',
+                            textDecoration: 'none',
+                            transition: 'all 150ms ease',
                           }}
                         >
                           {Lucide ? (
@@ -66,8 +115,14 @@ export default function DashboardSidebar({ open = false, onClose }: DashboardSid
             ))}
           </ul>
         </nav>
-        <div className="dashboard-sidebar-footer">
-          <Link href="/" className="dashboard-sidebar-home-link" onClick={() => onClose?.()}>
+
+        <div className="dashboard-sidebar-footer" style={{ marginTop: 'auto', paddingBottom: '2rem', padding: '0 0.5rem' }}>
+          <Link
+            href="/"
+            className="dashboard-sidebar-home-link"
+            onClick={() => onClose?.()}
+            style={{ display: 'block', marginBottom: '0.75rem', fontSize: '0.875rem', color: 'rgba(226,226,229,0.5)', textDecoration: 'none' }}
+          >
             {PRODUCT_COPY.publicSiteLabel}
           </Link>
           <SignOutButton className="dashboard-sidebar-signout" onSignOutStart={onClose}>

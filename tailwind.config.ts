@@ -15,14 +15,35 @@ const config: Config = {
       colors: {
         // Prefixed classes: wa-brand-* — keep in sync with DESIGN.md + css/main.css
         brand: {
-          primary: '#1a1a1a', // wa-brand-primary
-          accent: '#ad2c4d', // wa-brand-accent
-          'accent-dark': '#8b1f38', // wa-brand-accent-dark
-          blue: '#2b7bb9', // wa-brand-blue (supporting only — never primary CTA)
-          gold: '#a47f38', // wa-brand-gold
-          'gold-light': '#c49a4a', // wa-brand-gold-light
-          green: '#4a9b4f', // wa-brand-green
+          primary: '#1a1a1a',
+          accent: '#ad2c4d',
+          'accent-dark': '#8b1f38',
+          'accent-light': '#ffb2bc',
+          blue: '#2b7bb9',
+          gold: '#FFBB00',
+          'gold-light': '#ffd54f',
+          green: '#4a9b4f',
         },
+        // Stitch surface-container tonal scale
+        surface: {
+          DEFAULT: '#121416',
+          'container-lowest': '#0c0e10',
+          'container-low': '#1a1c1e',
+          container: '#1e2022',
+          'container-high': '#282a2c',
+          'container-highest': '#333537',
+          dim: '#121416',
+          bright: '#383a3c',
+        },
+        'on-surface': {
+          DEFAULT: '#e2e2e5',
+          variant: '#debfc2',
+        },
+        'outline-variant': '#584144',
+      },
+      backdropBlur: {
+        glass: '12px',
+        'glass-xl': '20px',
       },
     },
   },

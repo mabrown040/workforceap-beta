@@ -31,8 +31,6 @@ const navItems = [
   { href: '/jobs', label: 'Jobs' },
   { href: '/blog', label: 'Blog' },
   { href: '/faq', label: 'FAQ' },
-  { href: '/apply', label: 'Apply Now', cta: true },
-  { href: '/login', label: 'Sign in', portalEntry: true },
   { href: '/contact', label: 'Contact Us' },
 ];
 
@@ -181,7 +179,6 @@ export default function MainNav() {
     return () => document.removeEventListener('keydown', onKey);
   }, [activeDropdown]);
 
-  /** Mobile accordion: close open dropdown when tapping outside the nav menu. */
   useEffect(() => {
     if (!activeDropdown) return;
     const onPointerDown = (e: MouseEvent | TouchEvent) => {
@@ -246,8 +243,18 @@ export default function MainNav() {
   };
 
   return (
-    <nav className={`main-nav${scrolled ? ' scrolled' : ''}`} aria-label="Main navigation">
-      <div className="nav-container" ref={navContainerRef}>
+    <nav
+      className={`main-nav glass-nav${scrolled ? ' scrolled' : ''}`}
+      aria-label="Main navigation"
+      style={{
+        position: 'fixed',
+        top: 0,
+        width: '100%',
+        zIndex: 50,
+        borderBottom: '1px solid var(--outline-variant, rgba(255,255,255,0.06))',
+      }}
+    >
+      <div className="nav-container" ref={navContainerRef} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '1400px', margin: '0 auto', padding: '0 2rem' }}>
         <Link href="/" className="logo" aria-label="Workforce Advancement Project home" onClick={closeMobile}>
           <Image
             src="/images/logo-tight.png"
@@ -260,6 +267,79 @@ export default function MainNav() {
             priority
           />
         </Link>
+
+        {/* Desktop nav links */}
+        <div className="nav-desktop-links" style={{ display: 'none' }}>
+          {navItems.map((item) => {
+            if ('children' in item && item.children) {
+              const parentActive = isParentActive(item.children);
+              const subMenuId = dropdownMenuId(navMenuId, item.label);
+              const isOpen = activeDropdown === item.label;
+              return (
+                <div key={item.label} className={`dropdown${isOpen ? ' active' : ''}`} style={{ position: 'relative' }}>
+                  <button
+                    type="button"
+                    id={`${subMenuId}-trigger`}
+                    aria-expanded={isOpen}
+                    aria-haspopup="true"
+                    aria-controls={subMenuId}
+                    className={`nav-link-glass${parentActive ? ' nav-link-active' : ''}`}
+                    onClick={() => setActiveDropdown(isOpen ? null : item.label)}
+                    onKeyDown={(e) => handleDropdownKeyDown(e, item.label, isOpen, subMenuId)}
+                  >
+                    {item.label}
+                  </button>
+                  {isOpen && (
+                    <ul className="dropdown-menu glass-panel" id={subMenuId} role="menu" aria-labelledby={`${subMenuId}-trigger`} style={{ position: 'absolute', top: '100%', left: 0, minWidth: '200px', marginTop: '0.5rem', padding: '0.5rem 0' }}>
+                      {item.children.map((child) => (
+                        <li key={child.href} role="none">
+                          <Link
+                            href={child.href}
+                            role="menuitem"
+                            className={`dropdown-item-glass${isActive(child.href) ? ' nav-link-active' : ''}`}
+                            onClick={closeMobile}
+                          >
+                            {child.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              );
+            }
+            return (
+              <Link
+                key={item.href}
+                href={item.href!}
+                className={`nav-link-glass${isActive(item.href!) ? ' nav-link-active' : ''}`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Right side: portal links + Apply CTA + theme toggle */}
+        <div className="nav-right-actions" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {portalLinks.map((pl) => (
+            <Link
+              key={`portal-${pl.href}`}
+              href={pl.href}
+              className={`nav-login-btn${portalHrefActive(pl.href) ? ' nav-link-active' : ''}`}
+            >
+              {pl.label}
+            </Link>
+          ))}
+          <Link href="/apply" className="nav-apply-btn">
+            Apply Now
+          </Link>
+          <div className="nav-theme-slot-desktop">
+            <ThemeToggle variant="marketing" />
+          </div>
+        </div>
+
+        {/* Mobile toggle */}
         <button
           ref={toggleRef}
           type="button"
@@ -271,6 +351,8 @@ export default function MainNav() {
         >
           {mobileOpen ? <X size={26} strokeWidth={2} aria-hidden /> : <Menu size={26} strokeWidth={2} aria-hidden />}
         </button>
+
+        {/* Mobile backdrop */}
         <button
           type="button"
           className={`mobile-nav-backdrop${mobileOpen ? ' visible' : ''}`}
@@ -279,6 +361,8 @@ export default function MainNav() {
           onClick={closeMobile}
           {...(!mobileOpen ? { 'data-nav-hidden': 'true' } : {})}
         />
+
+        {/* Mobile menu */}
         <ul ref={menuRef} id={navMenuId} className={`nav-menu${mobileOpen ? ' mobile-open' : ''}`}>
           {navItems.flatMap((item) => {
             if ('children' in item && item.children) {
@@ -316,25 +400,11 @@ export default function MainNav() {
                 </li>,
               ];
             }
-            const isPortalEntry = 'portalEntry' in item && item.portalEntry;
-            if (isPortalEntry) {
-              return portalLinks.map((pl) => (
-                <li key={`portal-${pl.href}-${pl.label}`}>
-                  <Link
-                    href={pl.href}
-                    className={portalHrefActive(pl.href) ? 'active' : undefined}
-                    onClick={closeMobile}
-                  >
-                    {pl.label}
-                  </Link>
-                </li>
-              ));
-            }
             return [
               <li key={item.href}>
                 <Link
                   href={item.href!}
-                  className={`${item.cta ? 'nav-cta' : ''}${isActive(item.href!) ? ' active' : ''}`}
+                  className={isActive(item.href!) ? 'active' : undefined}
                   onClick={closeMobile}
                 >
                   {item.label}
@@ -342,15 +412,22 @@ export default function MainNav() {
               </li>,
             ];
           })}
+          {portalLinks.map((pl) => (
+            <li key={`mobile-portal-${pl.href}`}>
+              <Link href={pl.href} className={portalHrefActive(pl.href) ? 'active' : undefined} onClick={closeMobile}>
+                {pl.label}
+              </Link>
+            </li>
+          ))}
+          <li>
+            <Link href="/apply" className="nav-cta" onClick={closeMobile}>Apply Now</Link>
+          </li>
           <li className="nav-theme-mobile-item" key="theme-toggle-mobile">
             <div className="nav-theme-mobile-wrapper">
               <ThemeToggle variant="marketing" />
             </div>
           </li>
         </ul>
-        <div className="nav-theme-slot-desktop">
-          <ThemeToggle variant="marketing" />
-        </div>
       </div>
     </nav>
   );

@@ -1,7 +1,101 @@
 /*
- * Stage 1 of CSS split: portal/admin styles migrate here.
- * Keep in sync with css/main.css until full extraction is complete.
+ * Portal & Dashboard Styles — Stitch Design System
+ * Surface-container tonal layering, glassmorphic nav, no hard borders
  */
+
+/* Material Symbols Outlined - base config */
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+}
+
+/* Portal shell — glassmorphic dark base */
+.portal-shell-root {
+    background: var(--color-background-dark, #121416);
+    color: var(--color-on-surface, #e2e2e5);
+    min-height: 100vh;
+}
+
+/* Dashboard sidebar — responsive hide on mobile */
+@media (max-width: 768px) {
+    .dashboard-sidebar:not(.open) {
+        display: none !important;
+    }
+    .portal-shell-main {
+        margin-left: 0 !important;
+    }
+    .dashboard-menu-btn {
+        display: block !important;
+    }
+}
+@media (min-width: 769px) {
+    .dashboard-menu-btn {
+        display: none !important;
+    }
+}
+
+/* Dashboard metric card grid */
+.dashboard-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Dashboard section card */
+.dashboard-section {
+    background: var(--surface-container, #1e2022);
+    border-radius: var(--radius-xl, 16px);
+    padding: var(--space-6, 24px);
+    margin-bottom: 1.5rem;
+}
+
+/* Dashboard table */
+.dashboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+.dashboard-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-on-surface-variant);
+    border-bottom: 1px solid var(--surface-container-highest);
+}
+.dashboard-table td {
+    padding: 0.75rem 1rem;
+    color: var(--color-on-surface);
+    border-bottom: 1px solid var(--surface-container-high);
+}
+.dashboard-table tr:hover td {
+    background: var(--surface-container-low);
+}
+
+/* Status badges */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full, 50px);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.status-badge-active {
+    background: rgba(74, 155, 79, 0.2);
+    color: #4ade80;
+}
+.status-badge-review {
+    background: rgba(255, 187, 0, 0.2);
+    color: var(--color-gold);
+}
+.status-badge-pending {
+    background: rgba(200, 198, 197, 0.2);
+    color: #c8c6c5;
+}
 
 .member-prescreen-progress {
   margin-bottom: 1rem;

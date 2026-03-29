@@ -1,25 +1,8 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
-import PageHero from '@/components/PageHero';
-import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
 import EmployerContactForm from './EmployerContactForm';
-import {
-  ShieldCheck,
-  Users,
-  Headphones,
-  FileText,
-  Search,
-  UserCheck,
-  Handshake,
-  Briefcase,
-  Award,
-  Cloud,
-  BarChart3,
-  Code,
-  FolderKanban,
-} from 'lucide-react';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Hire Certified Tech Graduates | WorkforceAP Austin',
@@ -30,55 +13,36 @@ export const metadata: Metadata = buildPageMetadata({
 
 const WHY_HIRE = [
   {
-    icon: ShieldCheck,
-    title: 'Verified Skills',
-    desc: 'All graduates complete skills assessments and earn certifications from Google, IBM, Microsoft, AWS, CompTIA.',
+    icon: 'person_search',
+    title: 'Ready-to-Hire Talent',
+    desc: 'All graduates complete skills assessments and earn certifications from Google, IBM, Microsoft, AWS, CompTIA. Ready to contribute from day one.',
   },
   {
-    icon: Users,
-    title: 'Diverse Pipeline',
-    desc: 'Access motivated candidates from underserved communities, career changers, and veterans.',
+    icon: 'business_center',
+    title: 'Certified Credentials',
+    desc: 'Every candidate in our network has undergone rigorous training vetted by our academic and professional partners.',
   },
   {
-    icon: Headphones,
-    title: 'Ongoing Support',
-    desc: 'We provide 90-day post-hire support to ensure successful onboarding.',
+    icon: 'handshake',
+    title: 'Collaborative Models',
+    desc: 'Customized training pathways designed in partnership with employers to ensure curriculum aligns with specific organizational needs.',
   },
 ];
 
-/** Illustrative Austin-area starting bands — aligned with program catalog / salary guide (not third-party job postings). */
 const PROGRAMS = [
-  { name: 'IT Support', cert: 'IBM Professional Certificate', level: 'Entry-level', salary: '$55K–$72K', icon: Briefcase },
-  { name: 'Cybersecurity', cert: 'Google / CompTIA pathway', level: 'Entry to mid', salary: '$75K–$112K', icon: ShieldCheck },
-  { name: 'Cloud (AWS)', cert: 'AWS Cloud Technology', level: 'Entry to mid', salary: '$95K–$145K', icon: Cloud },
-  { name: 'Data Analytics', cert: 'Google Data Analytics', level: 'Entry-level', salary: '$72K–$102K', icon: BarChart3 },
-  { name: 'Software Developer', cert: 'IBM', level: 'Entry-level', salary: '$78K–$98K', icon: Code },
-  { name: 'Project Management', cert: 'Microsoft', level: 'Entry to mid', salary: '$82K–$112K', icon: FolderKanban },
+  { name: 'IT Support', cert: 'IBM Professional Certificate', level: 'Entry-level', salary: '$55K\u2013$72K', icon: 'computer' },
+  { name: 'Cybersecurity', cert: 'Google / CompTIA pathway', level: 'Entry to mid', salary: '$75K\u2013$112K', icon: 'security' },
+  { name: 'Cloud (AWS)', cert: 'AWS Cloud Technology', level: 'Entry to mid', salary: '$95K\u2013$145K', icon: 'cloud_queue' },
+  { name: 'Data Analytics', cert: 'Google Data Analytics', level: 'Entry-level', salary: '$72K\u2013$102K', icon: 'analytics' },
+  { name: 'Software Developer', cert: 'IBM', level: 'Entry-level', salary: '$78K\u2013$98K', icon: 'code' },
+  { name: 'Project Management', cert: 'Microsoft', level: 'Entry to mid', salary: '$82K\u2013$112K', icon: 'folder_managed' },
 ];
 
 const HOW_IT_WORKS = [
-  { num: 1, title: 'Post Your Opening', desc: 'Add your job to our employer portal. We match it to our pipeline.', icon: FileText },
-  { num: 2, title: 'Review Matched Candidates', desc: 'Receive pre-screened applicants who hold relevant certifications and fit your requirements.', icon: Search },
-  { num: 3, title: 'Interview & Hire', desc: 'You conduct interviews and make the hire. No placement fees.', icon: UserCheck },
-  { num: 4, title: '90-Day Support', desc: "We support your new hire's onboarding. You get a team member who's set up to succeed.", icon: Handshake },
-];
-
-const EMPLOYER_COMMITMENTS = [
-  {
-    icon: ShieldCheck,
-    title: 'Pre-Screened Pipeline',
-    desc: 'Every candidate completes skills assessment and workforce readiness before we refer them. You get vetted talent, not cold resumes.',
-  },
-  {
-    icon: Award,
-    title: 'Industry Credentials',
-    desc: 'Google, IBM, AWS, Microsoft, CompTIA — the same employer-recognized in-demand certifications you hire against. No generic certificates.',
-  },
-  {
-    icon: Handshake,
-    title: '90-Day Post-Hire Support',
-    desc: 'We stay involved after the hire. Onboarding, check-ins, and support so your new team member succeeds.',
-  },
+  { num: 1, title: 'Post Your Opening', desc: 'Add your job to our employer portal. We match it to our pipeline.', icon: 'description' },
+  { num: 2, title: 'Review Matched Candidates', desc: 'Receive pre-screened applicants who hold relevant certifications.', icon: 'search' },
+  { num: 3, title: 'Interview & Hire', desc: 'You conduct interviews and make the hire. No placement fees.', icon: 'how_to_reg' },
+  { num: 4, title: '90-Day Support', desc: 'We support your new hire\u2019s onboarding for long-term success.', icon: 'handshake' },
 ];
 
 const PARTNERSHIP_OPTIONS = [
@@ -108,93 +72,112 @@ const PARTNERSHIP_OPTIONS = [
 export default function EmployersPage() {
   return (
     <div className="inner-page">
-      {/* Hero */}
-      <section className="page-hero employers-hero">
-        <div className="page-hero-content">
-          <h1>Hire Certified, Job-Ready Tech Talent</h1>
-          <p>
-            Pre-screened graduates with industry credentials — Google, IBM, AWS, CompTIA. Workforce readiness built in. 90-day post-hire support so your hire succeeds.
-          </p>
-          <div className="hero-actions" style={{ marginTop: '1.5rem', marginBottom: 0 }}>
-            <Link href="/employer" className="btn btn-accent btn-large">
-              Post a Job
-            </Link>
-            <Link href="#employer-contact" className="btn btn-ghost btn-large">
-              Become a Hiring Partner
-            </Link>
-            <a href="tel:5127771808" className="btn btn-ghost btn-large">
-              Call (512) 777-1808
-            </a>
+      {/* Hero Section: Editorial Asymmetry */}
+      <section className="content-section" style={{ paddingBottom: '2rem' }}>
+        <div className="container" style={{ maxWidth: 1200 }}>
+          <div className="editorial-grid" style={{ alignItems: 'center', gap: '3rem' }}>
+            <div style={{ gridColumn: 'span 12' }} className="emp-hero-left">
+              <span className="text-label-upper" style={{ display: 'inline-block', padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-full)', background: 'var(--surface-container-highest)', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
+                Employer &amp; Partner Solutions
+              </span>
+              <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', marginBottom: '2rem', lineHeight: 0.95 }}>
+                Bridging the{' '}
+                <span style={{ color: 'var(--color-accent)' }}>Talent Gap</span>{' '}
+                Through Intentionality.
+              </h1>
+              <p style={{ fontSize: '1.25rem', color: 'var(--color-on-surface-variant)', maxWidth: '36rem', lineHeight: 1.6 }}>
+                Access a pipeline of industry-certified, ready-to-hire professionals. We don&rsquo;t just find workers; we build the future workforce.
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginTop: '2rem' }}>
+                <Link
+                  href="/employer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    background: 'var(--color-accent)',
+                    color: '#fff',
+                    padding: '1rem 2rem',
+                    borderRadius: 'var(--radius-md)',
+                    fontWeight: 700,
+                    textDecoration: 'none',
+                  }}
+                >
+                  View Talent Portal
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_forward</span>
+                </Link>
+                <Link
+                  href="#employer-contact"
+                  style={{
+                    display: 'inline-block',
+                    background: 'var(--color-gold)',
+                    color: '#1c1b1b',
+                    padding: '1rem 2rem',
+                    borderRadius: 'var(--radius-md)',
+                    fontWeight: 700,
+                    textDecoration: 'none',
+                  }}
+                >
+                  Partner With Us
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Why Hire Our Graduates */}
-      <section className="content-section employers-why-section">
-        <div className="container">
-          <div className="section-header animate-on-scroll" style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h2>Why Hire Our Graduates</h2>
-            <p className="section-subtitle" style={{ marginBottom: 0 }}>
-              Pre-screened, certified, and supported talent ready for your team
-            </p>
-          </div>
-          <div className="employers-three-col">
-            {WHY_HIRE.map((item, idx) => (
-              <div key={item.title} className="employers-why-card animate-on-scroll">
-                <span className="employers-why-icon">
-                  <item.icon size={32} className="text-current" />
+      {/* Value Proposition: Tonal Layering */}
+      <section className="bg-surface-container-low" style={{ padding: '6rem 0' }}>
+        <div className="container" style={{ maxWidth: 1200 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
+            {WHY_HIRE.map((item) => (
+              <div key={item.title} className="stitch-card" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'var(--surface-container-lowest)' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '2.25rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+                  {item.icon}
                 </span>
-                <h3>{item.title}</h3>
-                <p>{item.desc}</p>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--color-on-surface)' }}>{item.title}</h3>
+                <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7 }}>{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Photo Highlight */}
-      <PhotoHighlight
-        imageUrl="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1400&q=80"
-        label="Employer Partnerships"
-        title="Job-Ready Tech Talent"
-        description="Our graduates hold industry certifications, complete workforce readiness training, and are backed by 90-day post-hire support. We're currently serving the Austin area and building toward expansion."
-      />
-
       {/* AI + counselor model */}
-      <section className="content-section employers-ai-support-section" style={{ paddingBottom: 0 }}>
+      <section className="content-section" style={{ paddingBottom: 0 }}>
         <div className="container" style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
-          <h2 className="section-title animate-on-scroll">AI-powered career support</h2>
-          <p className="section-subtitle animate-on-scroll employers-ai-support-copy" style={{ marginBottom: 0 }}>
-            Members use guided AI tools for resumes, interviews, and applications while your WorkforceAP counselor keeps
-            the human layer — so candidates arrive prepared without losing accountability.
-          </p>
+          <div className="stitch-card" style={{ padding: '1.5rem 2rem', display: 'inline-flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>psychology</span>
+            <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', margin: 0 }}>
+              <strong>AI-powered career support:</strong> Members use guided AI tools for resumes, interviews, and applications while a counselor keeps
+              the human layer &mdash; so candidates arrive prepared without losing accountability.
+            </p>
+          </div>
         </div>
       </section>
 
       {/* Available Talent - Program Cards */}
-      <section className="content-section employers-programs-section">
-        <div className="container">
-          <div className="section-header animate-on-scroll" style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h2>Available Talent</h2>
-            <p className="section-subtitle" style={{ marginBottom: 0 }}>
-              Graduate profiles by program and certification
-            </p>
-            <p className="section-subtitle" style={{ marginTop: '0.75rem', marginBottom: 0, fontSize: '0.9rem', maxWidth: '640px', marginInline: 'auto' }}>
-              Ranges match our published program outcomes (not scraped job ads). See{' '}
-              <Link href="/programs">program pages</Link> and the <Link href="/salary-guide">salary guide</Link> for detail.
+      <section className="content-section">
+        <div className="container" style={{ maxWidth: 1200 }}>
+          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+            <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>Available Talent</h2>
+            <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '40rem', margin: '0 auto' }}>
+              Graduate profiles by program and certification. Ranges match our published program outcomes.
+              See <Link href="/programs" style={{ color: 'var(--color-accent)' }}>program pages</Link> and the{' '}
+              <Link href="/salary-guide" style={{ color: 'var(--color-accent)' }}>salary guide</Link> for detail.
             </p>
           </div>
-          <div className="employers-program-cards">
-            {PROGRAMS.map((prog, idx) => (
-              <div key={prog.name} className="employers-program-card animate-on-scroll">
-                <span className="employers-program-icon">
-                  <prog.icon size={24} className="text-current" />
-                </span>
-                <h3>{prog.name}</h3>
-                <p className="employers-program-cert">{prog.cert}</p>
-                <div className="employers-program-meta">
-                  <span>{prog.level}</span>
-                  <span className="employers-program-salary">{prog.salary}</span>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+            {PROGRAMS.map((prog) => (
+              <div key={prog.name} className="stitch-card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>{prog.icon}</span>
+                  <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{prog.name}</h3>
+                </div>
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>{prog.cert}</p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid rgba(88,65,68,0.1)' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{prog.level}</span>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-accent)' }}>{prog.salary}</span>
                 </div>
               </div>
             ))}
@@ -203,79 +186,78 @@ export default function EmployersPage() {
       </section>
 
       {/* How It Works */}
-      <section className="content-section employers-how-section">
-        <div className="container">
-          <div className="section-header animate-on-scroll" style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h2>How It Works</h2>
-            <p className="section-subtitle" style={{ marginBottom: 0 }}>
-              Four simple steps from posting to partnership
-            </p>
+      <section className="bg-surface-container-low" style={{ padding: '6rem 0' }}>
+        <div className="container" style={{ maxWidth: 1200 }}>
+          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+            <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>How It Works</h2>
+            <p style={{ color: 'var(--color-on-surface-variant)' }}>Four simple steps from posting to partnership</p>
           </div>
-          <div className="employers-how-steps">
-            {HOW_IT_WORKS.map((step, idx) => (
-              <div key={step.num} className="employers-how-step animate-on-scroll">
-                <div className="employers-how-num">{step.num}</div>
-                <div className="employers-how-content">
-                  <h3>{step.title}</h3>
-                  <p>{step.desc}</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '2rem' }}>
+            {HOW_IT_WORKS.map((step) => (
+              <div key={step.num} className="stitch-card" style={{ padding: '2rem', textAlign: 'center' }}>
+                <div style={{ width: '3rem', height: '3rem', borderRadius: '50%', background: 'var(--color-accent)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1.25rem', margin: '0 auto 1rem' }}>
+                  {step.num}
                 </div>
-                {idx < HOW_IT_WORKS.length - 1 && (
-                  <div className="employers-how-arrow" aria-hidden="true">
-                    →
-                  </div>
-                )}
+                <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'block', fontVariationSettings: "'FILL' 1" }}>{step.icon}</span>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>{step.title}</h3>
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{step.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Why Partner With Us — commitments, not placeholders */}
-      <section className="content-section employers-commitments-section">
-        <div className="container">
-          <div className="section-header animate-on-scroll" style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h2>Why Employers Partner With Us</h2>
-            <p className="section-subtitle" style={{ marginBottom: 0 }}>
-              Pre-screened, certified, and supported — we deliver talent that fits
-            </p>
+      {/* Partnership Options - Bento Grid */}
+      <section className="content-section">
+        <div className="container" style={{ maxWidth: 1200 }}>
+          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+            <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>
+              Solutions Scaled for Impact
+            </h2>
+            <p style={{ color: 'var(--color-on-surface-variant)' }}>Choose the level that fits your hiring needs</p>
           </div>
-          <div className="employers-three-col">
-            {EMPLOYER_COMMITMENTS.map((item) => (
-              <div key={item.title} className="employers-why-card animate-on-scroll">
-                <span className="employers-why-icon">
-                  <item.icon size={32} className="text-current" />
-                </span>
-                <h3>{item.title}</h3>
-                <p>{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Hiring Partnership Options */}
-      <section className="content-section employers-partnership-section">
-        <div className="container">
-          <div className="section-header animate-on-scroll" style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h2>Hiring Partnership Options</h2>
-            <p className="section-subtitle" style={{ marginBottom: 0 }}>
-              Choose the level that fits your hiring needs
-            </p>
-          </div>
-          <div className="employers-partnership-cards">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
             {PARTNERSHIP_OPTIONS.map((opt) => (
               <div
                 key={opt.title}
-                className={`employers-partnership-card animate-on-scroll ${opt.featured ? 'featured' : ''}`}
+                className={opt.featured ? 'stitch-card-elevated' : 'stitch-card'}
+                style={{
+                  padding: '2.5rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1.5rem',
+                  position: 'relative',
+                  ...(opt.featured ? { border: '2px solid var(--color-accent)' } : {}),
+                }}
               >
-                {opt.featured && <span className="employers-partnership-badge">Most Popular</span>}
-                <h3>{opt.title}</h3>
-                <ul>
+                {opt.featured && (
+                  <span className="text-label-upper" style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'var(--color-accent)', color: '#fff', padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-full)', fontSize: '0.6rem' }}>
+                    Most Popular
+                  </span>
+                )}
+                <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{opt.title}</h3>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1 }}>
                   {opt.features.map((f) => (
-                    <li key={f}>{f}</li>
+                    <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                      {f}
+                    </li>
                   ))}
                 </ul>
-                <Link href={opt.href} className="btn btn-primary">
+                <Link
+                  href={opt.href}
+                  style={{
+                    display: 'block',
+                    textAlign: 'center',
+                    background: opt.featured ? 'var(--color-accent)' : 'var(--surface-container-high)',
+                    color: opt.featured ? '#fff' : 'var(--color-on-surface)',
+                    padding: '0.75rem',
+                    borderRadius: 'var(--radius-lg)',
+                    fontWeight: 700,
+                    fontSize: '0.875rem',
+                    textDecoration: 'none',
+                  }}
+                >
                   {opt.cta}
                 </Link>
               </div>
@@ -285,51 +267,41 @@ export default function EmployersPage() {
       </section>
 
       {/* Contact CTA */}
-      <section id="employer-contact" className="content-section employers-contact-section">
-        <div className="container">
-          <div className="employers-contact-inner">
-            <div className="employers-contact-content animate-on-scroll">
-              <h2>Ready to Hire?</h2>
-              <p>
-                Let&rsquo;s discuss your hiring needs and how WorkforceAP can help. Fill out the form or reach out
-                directly.
+      <section id="employer-contact" className="content-section">
+        <div className="container" style={{ maxWidth: 1200 }}>
+          <div style={{ background: 'var(--color-accent)', borderRadius: 'var(--radius-xl)', padding: '4rem 3rem', display: 'flex', flexWrap: 'wrap', gap: '3rem', alignItems: 'center', justifyContent: 'space-between', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ flex: '1 1 400px', position: 'relative', zIndex: 1 }}>
+              <h2 className="text-display-sm" style={{ color: '#fff', marginBottom: '1.5rem' }}>
+                Ready to Transform Your Hiring Process?
+              </h2>
+              <p style={{ color: 'rgba(255,203,209,0.9)', fontSize: '1.125rem', marginBottom: '1.5rem' }}>
+                Join over 200+ partners building a more equitable and efficient workforce through Workforce Advancement Project.
               </p>
-              <div
-                className="employers-direct-contact"
-                style={{
-                  marginTop: '2rem',
-                  padding: '1.5rem',
-                  background: 'var(--color-light)',
-                  borderRadius: 'var(--radius-md)',
-                  border: '1px solid var(--color-gray-200)',
-                }}
-              >
-                <p style={{ fontWeight: 600, marginBottom: '0.5rem' }}>Direct contact</p>
-                <p style={{ marginBottom: '0.25rem' }}>
+              <div style={{ marginTop: '1.5rem', padding: '1.5rem', background: 'rgba(255,255,255,0.1)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(255,255,255,0.15)' }}>
+                <p style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#fff' }}>Direct contact</p>
+                <p style={{ marginBottom: '0.25rem', color: 'rgba(255,255,255,0.9)' }}>
                   <strong>Michael Brown</strong>
                 </p>
                 <p style={{ marginBottom: '0.25rem' }}>
-                  <a href="mailto:michael.brown@workforceap.org" style={{ color: 'var(--color-accent)' }}>
-                    michael.brown@workforceap.org
-                  </a>
+                  <a href="mailto:michael.brown@workforceap.org" style={{ color: 'var(--color-gold)' }}>michael.brown@workforceap.org</a>
                 </p>
                 <p>
-                  <a href="tel:5127771808" style={{ color: 'var(--color-accent)' }}>
-                    (512) 777-1808
-                  </a>
-                </p>
-                <p style={{ marginTop: '1rem', fontSize: '0.85rem', color: 'var(--color-gray-600)', lineHeight: 1.5 }}>
-                  The web form on this page delivers to <strong>info@workforceap.org</strong> (team inbox). Use
-                  Michael&apos;s email when you already have a direct relationship.
+                  <a href="tel:5127771808" style={{ color: 'var(--color-gold)' }}>(512) 777-1808</a>
                 </p>
               </div>
             </div>
-            <div className="employers-contact-form-wrap animate-on-scroll">
+            <div style={{ flex: '1 1 400px', position: 'relative', zIndex: 1 }}>
               <EmployerContactForm />
             </div>
           </div>
         </div>
       </section>
+
+      <style>{`
+        @media (min-width: 1024px) {
+          .emp-hero-left { grid-column: 1 / 8 !important; }
+        }
+      `}</style>
 
       <Footer />
     </div>

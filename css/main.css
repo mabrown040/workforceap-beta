@@ -5,6 +5,9 @@
 
 /* CSS Custom Properties */
 :root {
+    /* Always white — use on dark image overlays/hero sections where text must stay white regardless of color scheme */
+    --color-always-white: #ffffff;
+
     /* Spacing Scale - 8px base */
     --space-1: 4px;
     --space-2: 8px;

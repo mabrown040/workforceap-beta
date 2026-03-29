@@ -327,7 +327,7 @@ export default async function LearningPage() {
                     >
                       <span className="material-symbols-outlined" style={{
                         fontSize: '0.875rem',
-                        color: status === 'locked' ? 'var(--color-on-surface-variant)' : 'var(--color-white)',
+                        color: status === 'locked' ? 'var(--color-on-surface-variant)' : '#fff',
                         fontVariationSettings: "'FILL' 1",
                       }}>
                         {status === 'completed' ? 'check' : status === 'current' ? 'arrow_forward' : 'lock'}
@@ -475,7 +475,7 @@ export default async function LearningPage() {
         <div
           style={{
             background: 'var(--color-accent)',
-            color: 'var(--color-white)',
+            color: '#fff',
             padding: 'var(--space-4) var(--space-4)',
             display: 'flex',
             alignItems: 'center',
@@ -522,7 +522,7 @@ export default async function LearningPage() {
             type="button"
             style={{
               background: 'var(--color-accent)',
-              color: 'var(--color-white)',
+              color: '#fff',
               border: 'none',
               borderRadius: '50%',
               width: '36px',

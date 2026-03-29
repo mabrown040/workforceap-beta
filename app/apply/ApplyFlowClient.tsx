@@ -162,7 +162,7 @@ const s = {
     fontWeight: 700,
     letterSpacing: '0.06em',
     textTransform: 'uppercase' as const,
-    color: 'var(--color-white)',
+    color: '#fff',
     background: 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%)',
     border: 'none',
     borderRadius: 'var(--radius-md)',

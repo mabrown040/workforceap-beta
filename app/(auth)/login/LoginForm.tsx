@@ -53,7 +53,7 @@ const s = {
     padding: 'var(--space-16) var(--space-8)',
     background: 'linear-gradient(135deg, var(--color-primary) 0%, #2a0a14 50%, var(--color-accent-dark) 100%)',
     overflow: 'hidden',
-    color: 'var(--color-white)',
+    color: '#fff',
   } as React.CSSProperties,
 
   brandBgOverlay: {
@@ -195,7 +195,7 @@ const s = {
     fontWeight: 700,
     letterSpacing: '0.08em',
     textTransform: 'uppercase' as const,
-    color: 'var(--color-white)',
+    color: '#fff',
     background: 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%)',
     border: 'none',
     borderRadius: 'var(--radius-md)',

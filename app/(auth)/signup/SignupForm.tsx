@@ -42,7 +42,7 @@ const s = {
     padding: 'var(--space-16) var(--space-8)',
     background: 'linear-gradient(160deg, #1a0a10 0%, var(--color-accent-dark) 60%, var(--color-primary) 100%)',
     overflow: 'hidden',
-    color: 'var(--color-white)',
+    color: '#fff',
   } as React.CSSProperties,
 
   brandShapes: {
@@ -176,7 +176,7 @@ const s = {
     fontWeight: 700,
     letterSpacing: '0.08em',
     textTransform: 'uppercase' as const,
-    color: 'var(--color-white)',
+    color: '#fff',
     background: 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%)',
     border: 'none',
     borderRadius: 'var(--radius-md)',

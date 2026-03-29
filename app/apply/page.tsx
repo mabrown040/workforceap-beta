@@ -26,7 +26,7 @@ const sPage = {
     padding: 'calc(var(--nav-height-default, 80px) + var(--space-8)) var(--space-6) var(--space-8)',
     textAlign: 'center' as const,
     background: 'linear-gradient(170deg, var(--color-primary) 0%, #2a0a14 60%, var(--color-accent-dark) 100%)',
-    color: 'var(--color-white)',
+    color: '#fff',
   } as React.CSSProperties,
 
   heroLabel: {
@@ -161,7 +161,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
                     height: 32,
                     borderRadius: '50%',
                     background: i === 0 ? 'var(--color-accent)' : 'var(--surface-container-highest)',
-                    color: i === 0 ? 'var(--color-white)' : 'var(--color-on-surface-variant)',
+                    color: i === 0 ? '#fff' : 'var(--color-on-surface-variant)',
                     fontSize: 'var(--font-size-sm)',
                     fontWeight: 700,
                     flexShrink: 0,

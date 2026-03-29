@@ -147,7 +147,7 @@ export default function PartnersPage() {
               fontWeight: 800,
               lineHeight: 0.95,
               letterSpacing: '-0.03em',
-              color: 'var(--color-white)',
+              color: '#fff',
               maxWidth: '48rem',
               marginBottom: '2rem',
             }}

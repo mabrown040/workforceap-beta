@@ -64,7 +64,7 @@ export default async function HowItWorksPage() {
 
   return (
     <div className="inner-page">
-      <div className="hidden md:block">
+      <div className="wa-hidden wa-md:block">
       {/* Hero Section */}
       <section className="content-section" style={{ paddingBottom: 0 }}>
         <div className="container" style={{ maxWidth: 1200 }}>
@@ -340,7 +340,7 @@ export default async function HowItWorksPage() {
       </div>{/* end hidden md:block desktop wrapper */}
 
       {/* ── Mobile Journey View (≤640px) ── */}
-      <section className="md:hidden px-4 pb-32 pt-8" style={{ background: '#fcf9f8' }}>
+      <section className="wa-md:hidden wa-px-4 wa-pb-32 wa-pt-8" style={{ background: '#fcf9f8' }}>
         <div className="mb-6">
           <span className="inline-block text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-3" style={{ background: '#ffbb00', color: '#1c1b1b' }}>
             Member Experience

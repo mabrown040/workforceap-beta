@@ -303,7 +303,7 @@ export default async function ProgramPage({ params }: Props) {
       {/* ── Mobile sticky apply bar (≤640px) ── */}
       <div className="md:hidden fixed bottom-[60px] left-0 w-full z-40 px-4 py-2" style={{ background: 'rgba(252,249,248,0.95)', backdropFilter: 'blur(8px)', borderTop: '1px solid rgba(222,191,194,0.3)' }}>
         <Link
-          href="/apply"
+          href={'/apply?program=' + program.slug}
           className="block w-full text-center font-bold py-3 rounded-lg text-sm"
           style={{ background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)', color: '#fff' }}
         >

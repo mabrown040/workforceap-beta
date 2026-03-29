@@ -1,12 +1,9 @@
+import { createMember } from '@/lib/member/service';
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { prisma } from '@/lib/db/prisma';
 import { memberSignupSchema } from '@/lib/validation/member';
 import { checkSignupRateLimit } from '@/lib/rate-limit';
-import { ApplicationStatus } from '@prisma/client';
-import { sendNewApplicationAdminEmail } from '@/lib/email';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -45,23 +42,6 @@ export async function POST(request: NextRequest) {
   }
 
   const data = parsed.data;
-
-  let referralPartnerId: string | null = null;
-  let referralSource: string | null = null;
-  const refRaw = data.referralRef?.trim().toLowerCase();
-  if (refRaw) {
-    const partner = await prisma.partner.findFirst({
-      where: {
-        active: true,
-        OR: [{ referralCode: refRaw }, { slug: refRaw }],
-      },
-      select: { id: true },
-    });
-    if (partner) {
-      referralPartnerId = partner.id;
-      referralSource = `partner_ref:${refRaw}`;
-    }
-  }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -146,61 +126,10 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const organizationId = await getDefaultOrganizationId();
-
   try {
-    await prisma.$transaction(async (tx) => {
-      let memberRole = await tx.role.findUnique({ where: { name: 'member' } });
-      if (!memberRole) {
-        memberRole = await tx.role.create({ data: { name: 'member' } });
-      }
-
-      await tx.user.create({
-        data: {
-          id: user.id,
-          organizationId,
-          email: data.email,
-          fullName: data.fullName,
-          phone: data.phone,
-        },
-      });
-
-      await tx.userRole.create({
-        data: { userId: user.id, roleId: memberRole.id },
-      });
-
-      await tx.profile.create({
-        data: {
-          userId: user.id,
-          zip: data.zip,
-          veteranStatus: data.veteranStatus ?? undefined,
-          employmentStatus: data.employmentStatus ?? undefined,
-          consentTerms: data.consentTerms,
-          consentCommunications: data.consentCommunications ?? false,
-        },
-      });
-
-      const app = await tx.application.create({
-        data: {
-          userId: user.id,
-          status: ApplicationStatus.PENDING,
-          programInterest: data.programInterest,
-          submittedAt: new Date(),
-          referralSource,
-          referralPartnerId,
-        },
-      });
-
-      // Best-effort: notify admins of new application (don't block signup)
-      sendNewApplicationAdminEmail({
-        applicantName: data.fullName,
-        applicantEmail: data.email,
-        programInterest: data.programInterest,
-        applicationId: app.id,
-      }).catch((err) => console.error('New application admin email failed:', err));
-    });
-  } catch (dbError) {
-    console.error('Signup DB error:', dbError);
+    await createMember(user.id, data);
+  } catch (err) {
+    console.error('Signup member creation error:', err);
     return NextResponse.json(
       { error: 'Account creation failed. Please try again.' },
       { status: 500 }

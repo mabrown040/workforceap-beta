@@ -123,7 +123,7 @@ export default async function ProgramPage({ params }: Props) {
         </section>
       )}
 
-      <section className="page-hero hidden sm:block">
+      <section className="page-hero wa-hidden wa-md:block">
         <div className="page-hero-content">
           <span
             style={{

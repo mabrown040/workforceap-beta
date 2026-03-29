@@ -284,7 +284,7 @@ export default async function HomePage() {
       </section>
 
       {/* ===== Mobile: Our Impact (≤640px) ===== */}
-      <section className="hidden px-4 py-10" style={{ background: 'var(--color-background-dark)' }}>
+      <section className="wa-md:hidden px-4 py-10" style={{ background: 'var(--color-background-dark)' }}>
         <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block', fontSize: '0.6rem' }}>Our Impact</span>
         <h2 className="text-2xl font-extrabold mb-3" style={{ color: 'var(--color-on-surface)', letterSpacing: '-0.025em' }}>25+ Years Breaking Barriers</h2>
         <p className="text-sm leading-relaxed mb-6" style={{ color: 'var(--color-on-surface-variant)' }}>
@@ -557,7 +557,7 @@ export default async function HomePage() {
 
       {/* ── LEGACY mobile sections — now superseded by top Stitch mobile block above ── */}
       {/* ── Mobile Hero Section (≤640px) ── */}
-      <section className="hidden px-4 pt-20 pb-6" style={{ background: '#fcf9f8' }}>
+      <section className="wa-md:hidden px-4 pt-20 pb-6" style={{ background: '#fcf9f8' }}>
         <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-4" style={{ background: '#ffbb00', color: '#1c1b1b' }}>
           <span className="material-symbols-outlined" style={{ fontSize: '0.75rem', fontVariationSettings: "'FILL' 1" }}>circle</span>
           Enrollment Open
@@ -580,7 +580,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── Mobile Trust Strip (≤640px) ── */}
-      <section className="hidden overflow-x-auto pb-4 px-4" style={{ background: '#f6f3f2' }}>
+      <section className="wa-md:hidden overflow-x-auto pb-4 px-4" style={{ background: '#f6f3f2' }}>
         <div className="flex gap-6 items-center pt-4" style={{ minWidth: 'max-content' }}>
           {['Google', 'IBM', 'AWS', 'CompTIA', 'AT&T'].map((p) => (
             <span key={p} className="text-sm font-black uppercase tracking-wider" style={{ color: '#8b7073', opacity: 0.7 }}>{p}</span>
@@ -589,7 +589,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── Mobile Stats Row (≤640px) ── */}
-      <section className="hidden px-4 py-5 grid grid-cols-3 gap-2 text-center" style={{ background: '#fcf9f8' }}>
+      <section className="wa-md:hidden px-4 py-5 grid grid-cols-3 gap-2 text-center" style={{ background: '#fcf9f8' }}>
         {[['19', 'Programs'], ['$0', 'Cost'], ['12-24\nWks', 'Duration']].map(([val, label]) => (
           <div key={label} className="rounded-xl py-3 px-2" style={{ background: '#f0edec' }}>
             <div className="text-xl font-extrabold tracking-tight leading-none" style={{ color: '#ad2c4d' }}>{val}</div>
@@ -599,7 +599,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── Mobile Journey Cards (≤640px) ── */}
-      <section className="hidden px-4 py-5" style={{ background: '#f6f3f2' }}>
+      <section className="wa-md:hidden px-4 py-5" style={{ background: '#f6f3f2' }}>
         <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: '#8b7073' }}>Your Journey</p>
         <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
           {[

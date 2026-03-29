@@ -23,7 +23,7 @@ const sPage = {
   } as React.CSSProperties,
 
   hero: {
-    padding: 'var(--space-16) var(--space-6) var(--space-8)',
+    padding: 'calc(var(--nav-height-default, 80px) + var(--space-8)) var(--space-6) var(--space-8)',
     textAlign: 'center' as const,
     background: 'linear-gradient(170deg, var(--color-primary) 0%, #2a0a14 60%, var(--color-accent-dark) 100%)',
     color: 'var(--color-white)',

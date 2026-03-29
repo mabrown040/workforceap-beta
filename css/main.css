@@ -454,7 +454,7 @@ html.dark .apply-hero-no-cost-callout {
     color: #f8fafc;
 }
 html.dark .apply-hero-no-cost-callout strong {
-    color: #f0cd83;
+    color: var(--color-gold);
 }
 html.dark .form-radio-card {
     background: #161a1f;

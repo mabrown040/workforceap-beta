@@ -106,3 +106,85 @@ Design constraints:
 
 - Existing generated screen IDs already mapped in `STITCH-REFRESH-PROTOCOL.md`.
 - After token refresh, run each prompt through Stitch and save outputs in `.stitch/`.
+
+---
+
+## 3) Member Portal - Resume & Certifications
+
+**Target filename:** `portal-member-resume.html`
+
+**Prompt:**
+```text
+Create a desktop-first screen for the WorkforceAP "Member Portal - Resume & Certifications" page.
+It should use the existing WorkforceAP visual system (Tailwind CSS, Inter font, Material Symbols, primary maroon color #8c0f37, light gray backgrounds #f8fafc).
+Include a left sidebar navigation with links: Dashboard, Resume, Job Matches, Learning, Messages, and AI Tools.
+The main content area should have:
+1) A header "My Resume & Certifications".
+2) A prominent card section to either upload a PDF resume or build one using the "AI Resume Rewriter" (with a clear call-to-action button).
+3) A section listing currently saved skills as chips/tags, with an "+ Add Skill" button.
+4) A section listing uploaded or verified certifications (e.g., CompTIA A+, OSHA 30) with status badges (Verified, Pending).
+5) A primary call to action button at the top right to "Generate PDF Resume" based on the profile data.
+```
+
+---
+
+## 4) Employer Portal - Post a Job
+
+**Target filename:** `portal-employer-new-job.html`
+
+**Prompt:**
+```text
+Create a desktop-first screen for the WorkforceAP "Employer Portal - Post a New Job" page.
+Use the established WorkforceAP design language (Tailwind CSS, Inter font, Material Symbols, maroon/gold civic palette).
+Include a left sidebar navigation for Employers: Dashboard, Jobs, Applications, Talent Pipeline, Settings.
+The main content area should feature a clean, multi-step form wizard layout:
+1) A header "Create New Job Posting".
+2) A progress indicator at the top (Step 1: Job Details, Step 2: Requirements, Step 3: Match Criteria, Step 4: Review).
+3) A form card (representing Step 1) containing standard inputs: Job Title, Location (Remote/Hybrid/On-site), Employment Type (Full-time, Part-time), and Salary Range.
+4) A rich text editor placeholder for the Job Description.
+5) Form action buttons at the bottom: "Cancel", "Save Draft", and a primary "Next: Requirements" button.
+```
+
+---
+
+## 5) Partner Portal - Member Management
+
+**Target filename:** `portal-partner-members.html`
+
+**Prompt:**
+```text
+Create a desktop-first screen for the WorkforceAP "Partner Portal - Member Management" page.
+Design constraints: Tailwind CSS, Inter font, Material Symbols, maroon/gold accent colors.
+Include a left sidebar navigation for Partners: Dashboard, Members, Needs Attention, Milestones, Outcomes, Settings.
+The main content area should be a robust data table view:
+1) A header "Manage Referred Members".
+2) A top action bar with a search input, a "Filter by Status" dropdown, and an "Export CSV" button.
+3) A large data table listing members referred by the partner organization. Columns should include:
+   - Member Name (with avatar placeholder)
+   - Referral Date
+   - Current Status (e.g., Enrolled, Placed, Needs Attention - use colored badges)
+   - Pathway (e.g., IT Support, Healthcare)
+   - Last Activity Date
+   - Quick Actions (View Profile, Send Message)
+4) Pagination controls at the bottom of the table.
+```
+
+---
+
+## 6) Member Portal - AI Tool: Interview Practice
+
+**Target filename:** `portal-ai-tool-interview-practice.html`
+
+**Prompt:**
+```text
+Create a desktop-first screen for the WorkforceAP "Member Portal - AI Interview Practice" tool.
+Use the established WorkforceAP design language (Tailwind CSS, Inter, Material Symbols, maroon/gold).
+Include the standard left sidebar navigation for the Member Portal.
+The main content area should feel like an interactive chat interface:
+1) A header "AI Interview Practice" with a "New Session" button.
+2) A configuration card at the top to select the "Target Role" (e.g., Junior IT Support) and "Interview Type" (e.g., Behavioral, Technical).
+3) A split view below the configuration:
+   - Left pane: The chat log between the user and the "AI Interviewer". Include sample messages (AI asking a question, user responding, AI providing constructive feedback).
+   - Right pane: "Real-time Feedback & Tips" card showing metrics like "Clarity", "Confidence", and "Keywords Used".
+4) A message input box at the bottom of the chat pane with a "Send" button and a microphone icon for voice input.
+```

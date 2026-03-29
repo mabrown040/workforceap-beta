@@ -204,9 +204,9 @@ export default function WhatWeDoPage() {
                 }}
               >
                 <img
-                  src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=800&q=80"
-                  alt="WAP Leadership"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  src="/images/michael-brown.jpg"
+                  alt="Michael Brown, Founder & Executive Director, Workforce Advancement Project"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }}
                 />
               </div>
               <div

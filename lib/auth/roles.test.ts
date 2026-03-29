@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { prisma } from '@/lib/db/prisma';

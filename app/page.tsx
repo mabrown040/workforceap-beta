@@ -141,7 +141,7 @@ export default async function HomePage() {
       </section>
 
       {/* ===== 25+ Years Breaking Barriers — Bento: 2/3 text + 1/3 stats grid ===== */}
-      <section style={{ padding: '6rem 2rem', maxWidth: '1400px', margin: '0 auto' }}>
+      <section style={{ padding: '6rem 2rem', maxWidth: '1400px', margin: '0 auto' }} className="hidden md:block">
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)',
@@ -195,8 +195,25 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ===== Mobile: Our Impact (≤640px) ===== */}
+      <section className="md:hidden px-4 py-10" style={{ background: 'var(--color-background-dark)' }}>
+        <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block', fontSize: '0.6rem' }}>Our Impact</span>
+        <h2 className="text-2xl font-extrabold mb-3" style={{ color: 'var(--color-on-surface)', letterSpacing: '-0.025em' }}>25+ Years Breaking Barriers</h2>
+        <p className="text-sm leading-relaxed mb-6" style={{ color: 'var(--color-on-surface-variant)' }}>
+          Founded by Michael Brown, PMP — a workforce leader who has trained thousands nationwide through partnerships with the State of Texas, TWC, Goodwill, Austin Urban League, and more.
+        </p>
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          {[['2000+', 'Trained'], ['94%', 'Placement'], ['$0', 'Cost']].map(([val, label]) => (
+            <div key={label} className="rounded-xl py-4 px-2 text-center" style={{ background: 'var(--surface-container-high)' }}>
+              <div className="text-xl font-black" style={{ color: 'var(--color-gold)', lineHeight: 1 }}>{val}</div>
+              <div className="text-[9px] font-bold uppercase tracking-wider mt-1" style={{ color: 'var(--color-on-surface-variant)' }}>{label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* ===== Milestone Journey — Horizontal Scrolling Cards ===== */}
-      <section style={{ background: 'var(--surface-container-low)', padding: '6rem 0' }}>
+      <section className="hidden md:block" style={{ background: 'var(--surface-container-low)', padding: '6rem 0' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 2rem' }}>
           <h2 className="text-display-sm" style={{ marginBottom: '1rem', textAlign: 'center' }}>Your Journey to Success</h2>
           <p style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)', marginBottom: '3rem', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>

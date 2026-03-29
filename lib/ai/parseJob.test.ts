@@ -4,6 +4,7 @@ import test from 'node:test';
 import { EMPLOYER_ROLE_SAMPLES } from '@/lib/test-fixtures/employerRoleSamples';
 import {
   buildFallbackParsedJobFromScrape,
+  normalizeCandidateUrl,
   normalizeImportedParsedJob,
   sanitizeScrapedJobText,
 } from './parseJob';
@@ -42,4 +43,33 @@ https://example.com/apply`,
   assert.equal(normalized.title, 'Customer Support Representative');
   assert.ok(!/https?:\/\//i.test(normalized.description));
   assert.deepEqual(normalized.requirements, ['HTML email troubleshooting']);
+});
+
+test('normalizeCandidateUrl', async (t) => {
+  await t.test('returns valid absolute URL', () => {
+    assert.equal(
+      normalizeCandidateUrl('https://example.com/jobs/123'),
+      'https://example.com/jobs/123'
+    );
+  });
+
+  await t.test('resolves relative URL with base URL', () => {
+    assert.equal(
+      normalizeCandidateUrl('/jobs/123', 'https://example.com'),
+      'https://example.com/jobs/123'
+    );
+  });
+
+  await t.test('returns null for malformed URL without base URL', () => {
+    assert.equal(normalizeCandidateUrl('/jobs/123'), null);
+    assert.equal(normalizeCandidateUrl('https://'), null);
+    assert.equal(normalizeCandidateUrl('not-a-url'), null);
+  });
+
+  await t.test('strips tracking parameters', () => {
+    assert.equal(
+      normalizeCandidateUrl('https://example.com/jobs/123?utm_source=test&gh_src=123&valid=true'),
+      'https://example.com/jobs/123?utm_source=test&valid=true'
+    );
+  });
 });

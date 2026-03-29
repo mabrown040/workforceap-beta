@@ -66,7 +66,7 @@ function shouldSkipImportedTitle(title: string): boolean {
   return /^(?:rippling|careers|jobs at|open positions|home|menu|skip to|cookie|privacy|apply|log ?in|sign ?in|back to jobs)$/i.test(cleaned);
 }
 
-function normalizeCandidateUrl(rawUrl: string, baseUrl?: string): string | null {
+export function normalizeCandidateUrl(rawUrl: string, baseUrl?: string): string | null {
   const trimmed = rawUrl.trim().replace(/[),.;:]+$/g, '');
   try {
     const resolved = new URL(trimmed, baseUrl);

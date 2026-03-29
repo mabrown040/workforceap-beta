@@ -569,7 +569,7 @@ export default function WhatWeDoPage() {
                   alignItems: 'center',
                   gap: '0.5rem',
                   background: 'var(--color-gold)',
-                  color: '#1c1b1b',
+                  color: 'var(--color-on-surface)',
                   padding: '1rem 2.5rem',
                   borderRadius: 'var(--radius-md)',
                   fontWeight: 700,
@@ -586,7 +586,7 @@ export default function WhatWeDoPage() {
 
       <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav">
       {/* ── Mobile-only Stitch layout (≤640px) ── */}
-      <section className="px-4 pt-10 pb-4" style={{ background: '#fcf9f8' }}>
+      <section className="px-4 pt-10 pb-4" style={{ background: 'var(--color-surface)' }}>
         {/* Hero H1 with gradient span */}
         <span className="block text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: '#8c0f37' }}>Our Impact</span>
         <h2 className="text-4xl font-extrabold tracking-tight leading-[1.1] mb-6" style={{ color: 'var(--color-on-surface)' }}>
@@ -612,8 +612,8 @@ export default function WhatWeDoPage() {
       </section>
 
       {/* ── Mobile-only: Mission/Values cards stacked (≤640px) ── */}
-      <section className="px-4 pb-8" style={{ background: '#fcf9f8' }}>
-        <h2 className="text-2xl font-bold tracking-tight mb-5" style={{ color: '#1c1b1b' }}>Our Core Values</h2>
+      <section className="px-4 pb-8" style={{ background: 'var(--color-surface)' }}>
+        <h2 className="text-2xl font-bold tracking-tight mb-5" style={{ color: 'var(--color-on-surface)' }}>Our Core Values</h2>
         <div className="space-y-4">
           {[
             { icon: 'payments', title: 'Access First', desc: "Education shouldn't have a paywall. We believe talent is universal, but opportunity is not.", accent: '#8c0f37' },
@@ -626,7 +626,7 @@ export default function WhatWeDoPage() {
                   <span className="material-symbols-outlined text-xl" style={{ color: v.accent }}>{v.icon}</span>
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg mb-1" style={{ color: '#1c1b1b' }}>{v.title}</h3>
+                  <h3 className="font-bold text-lg mb-1" style={{ color: 'var(--color-on-surface)' }}>{v.title}</h3>
                   <p className="text-sm leading-relaxed" style={{ color: '#584144' }}>{v.desc}</p>
                 </div>
               </div>
@@ -637,7 +637,7 @@ export default function WhatWeDoPage() {
 
       {/* ── Mobile-only: 4-step program flow (≤640px) ── */}
       <section className="px-4 py-10" style={{ background: '#f0edec' }}>
-        <h2 className="text-2xl font-bold tracking-tight mb-7" style={{ color: '#1c1b1b' }}>The Journey</h2>
+        <h2 className="text-2xl font-bold tracking-tight mb-7" style={{ color: 'var(--color-on-surface)' }}>The Journey</h2>
         <div className="space-y-5 relative">
           <div className="absolute left-[22px] top-2 bottom-2 w-px" style={{ background: 'rgba(140,15,55,0.2)' }} />
           {[
@@ -649,7 +649,7 @@ export default function WhatWeDoPage() {
             <div key={s.step} className="relative pl-12">
               <div className="absolute left-[14px] top-1 w-4 h-4 rounded-full border-4" style={{ background: '#8c0f37', borderColor: '#f0edec', outline: '3px solid rgba(140,15,55,0.1)' }} />
               <span className="block text-[10px] font-black tracking-widest uppercase mb-1" style={{ color: '#ad2c4d' }}>Step {s.step}</span>
-              <h3 className="font-bold text-lg mb-1" style={{ color: '#1c1b1b' }}>{s.title}</h3>
+              <h3 className="font-bold text-lg mb-1" style={{ color: 'var(--color-on-surface)' }}>{s.title}</h3>
               <p className="text-sm" style={{ color: '#584144' }}>{s.desc}</p>
             </div>
           ))}
@@ -657,11 +657,11 @@ export default function WhatWeDoPage() {
       </section>
 
       {/* ── Mobile-only: Partner pills (≤640px) ── */}
-      <section className="px-4 py-10" style={{ background: '#fcf9f8' }}>
+      <section className="px-4 py-10" style={{ background: 'var(--color-surface)' }}>
         <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-center mb-5" style={{ color: '#584144' }}>Supported By Industry Giants</p>
         <div className="flex flex-wrap justify-center gap-2">
           {['Google', 'IBM', 'AWS', 'CompTIA', 'Coursera'].map((p) => (
-            <span key={p} className="px-4 py-2 rounded-full text-xs font-bold" style={{ background: '#e5e2e1', color: '#1c1b1b' }}>{p}</span>
+            <span key={p} className="px-4 py-2 rounded-full text-xs font-bold" style={{ background: '#e5e2e1', color: 'var(--color-on-surface)' }}>{p}</span>
           ))}
         </div>
       </section>
@@ -708,7 +708,7 @@ export default function WhatWeDoPage() {
             borderRadius: '0.5rem',
             fontSize: '0.875rem',
             border: '1px solid rgba(252,249,248,0.2)',
-            color: '#fcf9f8',
+            color: 'var(--color-surface)',
             textDecoration: 'none',
             textAlign: 'center',
           }}

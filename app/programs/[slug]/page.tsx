@@ -56,7 +56,7 @@ export default async function ProgramPage({ params }: Props) {
   return (
     <div className="inner-page program-detail-page">
       <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav">
-        <section style={{ background: '#fcf9f8', paddingLeft: '1rem', paddingRight: '1rem', paddingTop: '1.5rem', paddingBottom: '1rem' }}>
+        <section style={{ background: 'var(--color-surface)', paddingLeft: '1rem', paddingRight: '1rem', paddingTop: '1.5rem', paddingBottom: '1rem' }}>
           <Link
             href="/programs"
             style={{
@@ -120,7 +120,7 @@ export default async function ProgramPage({ params }: Props) {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', marginBottom: '1rem' }}>
             <div style={{ borderRadius: '0.75rem', padding: '0.75rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', background: '#f0edec', minHeight: '7rem' }}>
               <span className="material-symbols-outlined" style={{ color: '#8c0f37', fontSize: '1.25rem' }}>workspace_premium</span>
-              <p style={{ fontSize: '10px', fontWeight: 700, lineHeight: 1.25, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#1c1b1b', margin: 0 }}>Industry Recognized</p>
+              <p style={{ fontSize: '10px', fontWeight: 700, lineHeight: 1.25, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-on-surface)', margin: 0 }}>Industry Recognized</p>
             </div>
             <div style={{ borderRadius: '0.75rem', padding: '0.75rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', background: '#8c0f37', minHeight: '7rem', boxShadow: '0 4px 12px rgba(140,15,55,0.2)' }}>
               <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '1.25rem' }}>payments</span>
@@ -128,14 +128,14 @@ export default async function ProgramPage({ params }: Props) {
             </div>
             <div style={{ borderRadius: '0.75rem', padding: '0.75rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', background: '#f0edec', minHeight: '7rem' }}>
               <span className="material-symbols-outlined" style={{ color: '#7b5800', fontSize: '1.25rem' }}>handshake</span>
-              <p style={{ fontSize: '10px', fontWeight: 700, lineHeight: 1.25, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#1c1b1b', margin: 0 }}>Placement Support</p>
+              <p style={{ fontSize: '10px', fontWeight: 700, lineHeight: 1.25, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-on-surface)', margin: 0 }}>Placement Support</p>
             </div>
           </div>
         </section>
 
         {extra && extra.jobOutcomes.length > 0 && (
-          <section style={{ background: '#fcf9f8', paddingTop: '1.5rem', paddingBottom: '1.5rem' }}>
-            <h2 style={{ paddingLeft: '1rem', paddingRight: '1rem', fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.75rem', color: '#1c1b1b' }}>Career Outcomes</h2>
+          <section style={{ background: 'var(--color-surface)', paddingTop: '1.5rem', paddingBottom: '1.5rem' }}>
+            <h2 style={{ paddingLeft: '1rem', paddingRight: '1rem', fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.75rem', color: 'var(--color-on-surface)' }}>Career Outcomes</h2>
             <div
               style={{
                 display: 'flex',
@@ -153,7 +153,7 @@ export default async function ProgramPage({ params }: Props) {
                   <p style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem', color: '#8c0f37' }}>
                     {i === 0 ? 'Entry Level' : i === 1 ? 'Entry Level' : 'Career Path'}
                   </p>
-                  <h3 style={{ fontWeight: 700, fontSize: '0.875rem', margin: 0, color: '#1c1b1b' }}>{outcome}</h3>
+                  <h3 style={{ fontWeight: 700, fontSize: '0.875rem', margin: 0, color: 'var(--color-on-surface)' }}>{outcome}</h3>
                 </div>
               ))}
             </div>

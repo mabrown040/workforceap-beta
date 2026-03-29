@@ -11,7 +11,7 @@ export type ConfirmationStep = {
 
 export default function ApplyConfirmationMobile({ steps }: { steps: ConfirmationStep[] }) {
   return (
-    <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: '#fcf9f8', color: '#1c1b1b', minHeight: '100vh' }}>
+    <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: 'var(--color-surface)', color: 'var(--color-on-surface)', minHeight: '100vh' }}>
       <main
         style={{
           paddingTop: '1.25rem',
@@ -70,7 +70,7 @@ export default function ApplyConfirmationMobile({ steps }: { steps: Confirmation
               check
             </span>
           </div>
-          <h1 style={{ fontSize: '1.875rem', fontWeight: 900, color: '#1c1b1b', letterSpacing: '-0.02em', margin: '0 0 0.75rem' }}>
+          <h1 style={{ fontSize: '1.875rem', fontWeight: 900, color: 'var(--color-on-surface)', letterSpacing: '-0.02em', margin: '0 0 0.75rem' }}>
             Application Received!
           </h1>
           <p style={{ color: '#584144', fontSize: '1rem', lineHeight: 1.6, margin: 0, maxWidth: '280px' }}>
@@ -126,7 +126,7 @@ export default function ApplyConfirmationMobile({ steps }: { steps: Confirmation
                   {step.num}
                 </div>
                 <div style={{ paddingTop: '2px' }}>
-                  <p style={{ color: '#1c1b1b', fontWeight: 600, fontSize: '0.875rem', margin: 0 }}>{step.title}</p>
+                  <p style={{ color: 'var(--color-on-surface)', fontWeight: 600, fontSize: '0.875rem', margin: 0 }}>{step.title}</p>
                   <p style={{ color: '#584144', fontSize: '0.75rem', margin: '0.25rem 0 0' }}>{step.desc}</p>
                 </div>
               </div>
@@ -194,7 +194,7 @@ export default function ApplyConfirmationMobile({ steps }: { steps: Confirmation
 
         <div style={{ marginTop: '2rem', background: '#f0edec', borderRadius: '0.75rem', padding: '1rem' }}>
           <p style={{ fontSize: '0.875rem', textAlign: 'center', color: '#584144', margin: 0 }}>
-            <strong style={{ color: '#1c1b1b' }}>Questions?</strong>{' '}
+            <strong style={{ color: 'var(--color-on-surface)' }}>Questions?</strong>{' '}
             <a href="tel:+15127771808" style={{ color: '#8c0f37', fontWeight: 600, textDecoration: 'none' }}>
               (512) 777-1808
             </a>

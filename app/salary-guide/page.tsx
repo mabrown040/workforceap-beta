@@ -96,7 +96,7 @@ export default function SalaryGuidePage() {
     <div className="inner-page salary-guide-page" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
 
       {/* ===== MOBILE VIEW (≤640px) ===== */}
-      <div className="md:hidden bg-[#fcf9f8] text-[#1c1b1b] min-h-screen pb-24">
+      <div className="wa-md:hidden bg-[#fcf9f8] text-[#1c1b1b] min-h-screen pb-24">
         {/* Top App Bar */}
         <header className="fixed top-0 w-full flex items-center justify-between px-6 h-16 bg-[#fcf9f8]/80 backdrop-blur-md z-50">
           <div className="flex items-center gap-2">

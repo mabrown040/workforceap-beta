@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Apply | Civic Bridge</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-surface-variant": "#debfc2",
+                        "secondary-fixed": "#ffd9dd",
+                        "secondary-fixed-dim": "#ffb2bc",
+                        "surface-container-high": "#282a2c",
+                        "inverse-primary": "#ad2c4d",
+                        "surface": "#121416",
+                        "on-tertiary-container": "#92ecb1",
+                        "surface-container-lowest": "#0c0e10",
+                        "on-primary-fixed": "#400013",
+                        "tertiary-fixed-dim": "#80d99f",
+                        "on-tertiary-fixed": "#00210f",
+                        "surface-dim": "#121416",
+                        "surface-container": "#1e2022",
+                        "primary": "#ffb2bc",
+                        "secondary-container": "#71333e",
+                        "on-surface": "#e2e2e5",
+                        "surface-container-highest": "#333537",
+                        "surface-container-low": "#1a1c1e",
+                        "tertiary-fixed": "#9cf6ba",
+                        "surface-bright": "#37393b",
+                        "inverse-on-surface": "#2f3133",
+                        "background": "#121416",
+                        "tertiary": "#80d99f",
+                        "outline": "#a68a8d",
+                        "on-secondary": "#551d29",
+                        "on-primary-container": "#ffcbd1",
+                        "secondary": "#ffb2bc",
+                        "primary-fixed": "#ffd9dd",
+                        "outline-variant": "#584144",
+                        "primary-fixed-dim": "#ffb2bc",
+                        "surface-tint": "#ffb2bc",
+                        "on-background": "#e2e2e5",
+                        "on-secondary-fixed": "#3a0815",
+                        "surface-variant": "#333537",
+                        "primary-container": "#ad2c4d",
+                        "on-primary-fixed-variant": "#8c0f37",
+                        "error": "#ffb4ab",
+                        "tertiary-container": "#006d3e",
+                        "on-error": "#690005",
+                        "error-container": "#93000a",
+                        "on-primary": "#670024",
+                        "on-error-container": "#ffdad6",
+                        "on-tertiary-fixed-variant": "#00522d",
+                        "on-tertiary": "#00391e",
+                        "on-secondary-fixed-variant": "#71333e",
+                        "inverse-surface": "#e2e2e5",
+                        "on-secondary-container": "#f29eaa"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(18, 20, 22, 0.8);
+            backdrop-filter: blur(20px);
+            border-top: 0.5px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container/30">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#121416]/80 backdrop-blur-xl border-b border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
+<div class="flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold tracking-tighter text-[#E2E2E5] font-['Inter']">Civic Bridge</span>
+<nav class="hidden md:flex gap-6 text-sm">
+<a class="text-[#E2E2E5]/60 hover:text-[#AD2C4D] transition-colors duration-200" href="#">Home</a>
+<a class="text-[#AD2C4D] font-semibold transition-colors duration-200" href="#">Apply</a>
+<a class="text-[#E2E2E5]/60 hover:text-[#AD2C4D] transition-colors duration-200" href="#">Status</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-[#E2E2E5]/60 hover:text-[#AD2C4D] transition-colors active:scale-95">account_circle</button>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-4 md:px-0">
+<div class="max-w-4xl mx-auto">
+<!-- Header Section -->
+<div class="mb-12">
+<div class="flex items-center gap-2 mb-4">
+<span class="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Institutional Portal</span>
+<div class="h-[1px] w-12 bg-primary/30"></div>
+</div>
+<h1 class="text-5xl md:text-6xl font-bold tracking-tighter text-on-surface mb-6 leading-[1.1]">Program Admission.</h1>
+<p class="text-on-surface-variant text-lg max-w-2xl leading-relaxed">Initiate your journey into the Civic Bridge ecosystem. Our streamlined application process ensures precision in placement and support.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-12">
+<!-- Sidebar Progress Indicator -->
+<aside class="md:col-span-4 space-y-8">
+<div class="sticky top-32">
+<div class="flex flex-col gap-6">
+<!-- Step 1 -->
+<div class="flex items-start gap-4">
+<div class="relative flex flex-col items-center">
+<div class="w-8 h-8 rounded-full flex items-center justify-center bg-primary-container text-on-primary-container text-sm font-bold z-10">1</div>
+<div class="w-[2px] h-12 bg-primary-container/20"></div>
+</div>
+<div class="pt-1">
+<h3 class="text-primary font-semibold text-sm">Personal Info</h3>
+<p class="text-[11px] text-on-surface-variant/60 uppercase tracking-widest mt-1">Contact Identity</p>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="flex items-start gap-4 opacity-50">
+<div class="relative flex flex-col items-center">
+<div class="w-8 h-8 rounded-full flex items-center justify-center bg-surface-container-high text-on-surface-variant text-sm font-bold z-10">2</div>
+<div class="w-[2px] h-12 bg-surface-container-high"></div>
+</div>
+<div class="pt-1">
+<h3 class="text-on-surface font-medium text-sm">Background</h3>
+<p class="text-[11px] text-on-surface-variant/60 uppercase tracking-widest mt-1">Verification</p>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="flex items-start gap-4 opacity-30">
+<div class="w-8 h-8 rounded-full flex items-center justify-center bg-surface-container-high text-on-surface-variant text-sm font-bold z-10">3</div>
+<div class="pt-1">
+<h3 class="text-on-surface font-medium text-sm">Program selection</h3>
+<p class="text-[11px] text-on-surface-variant/60 uppercase tracking-widest mt-1">Curriculum</p>
+</div>
+</div>
+</div>
+<!-- Info Card -->
+<div class="mt-12 p-6 rounded-xl bg-surface-container-low border-l-4 border-primary/40">
+<span class="material-symbols-outlined text-primary mb-3">info</span>
+<p class="text-sm text-on-surface-variant leading-relaxed italic">"The clarity of your documentation directly influences the speed of our institutional review."</p>
+</div>
+</div>
+</aside>
+<!-- Form Canvas -->
+<div class="md:col-span-8">
+<div class="p-8 md:p-10 rounded-2xl bg-surface-container border-0 shadow-2xl relative overflow-hidden">
+<!-- Subtle Background Texture -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[120px] rounded-full"></div>
+<form class="space-y-8 relative z-10">
+<!-- Section Title -->
+<div>
+<h2 class="text-2xl font-semibold tracking-tight text-on-surface">Personal Information</h2>
+<p class="text-on-surface-variant text-sm mt-1">Please provide your primary administrative details.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Input Field -->
+<div class="space-y-2">
+<label class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant/80 ml-1">Full Legal Name</label>
+<input class="w-full bg-surface-container-lowest border-0 focus:ring-0 focus:border-primary border-b-2 border-outline-variant/30 text-on-surface px-4 py-3 rounded-t-lg transition-all focus:border-primary focus:bg-surface-container-low" placeholder="e.g. Julian Sterling" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant/80 ml-1">Email Address</label>
+<input class="w-full bg-surface-container-lowest border-0 focus:ring-0 focus:border-primary border-b-2 border-outline-variant/30 text-on-surface px-4 py-3 rounded-t-lg transition-all focus:border-primary focus:bg-surface-container-low" placeholder="j.sterling@academy.edu" type="email"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant/80 ml-1">Residential Jurisdiction</label>
+<div class="relative">
+<select class="w-full bg-surface-container-lowest border-0 focus:ring-0 border-b-2 border-outline-variant/30 text-on-surface px-4 py-3 rounded-t-lg appearance-none cursor-pointer">
+<option>North Metropolitan District</option>
+<option>East River Commons</option>
+<option>Central Administrative Zone</option>
+<option>Highlands Preserve</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+</div>
+</div>
+<div class="space-y-4 pt-4">
+<div class="flex items-center gap-3">
+<div class="w-5 h-5 rounded border-2 border-primary/40 flex items-center justify-center cursor-pointer hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-[14px] text-primary" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<span class="text-sm text-on-surface-variant">I certify that all provided documents are authentic and verified.</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-5 h-5 rounded border-2 border-outline-variant/40 flex items-center justify-center cursor-pointer hover:bg-white/5 transition-colors"></div>
+<span class="text-sm text-on-surface-variant">Opt-in for digital correspondence and residency alerts.</span>
+</div>
+</div>
+<!-- Form Controls -->
+<div class="pt-10 flex flex-col md:flex-row items-center justify-between gap-6 border-t border-white/5">
+<button class="text-on-surface-variant text-sm font-semibold hover:text-on-surface transition-colors flex items-center gap-2" type="button">
+<span class="material-symbols-outlined text-sm">arrow_back</span>
+                                    Return to Overview
+                                </button>
+<button class="w-full md:w-auto px-10 py-4 bg-gradient-to-r from-primary to-primary-container text-on-primary rounded-lg font-semibold tracking-wide flex items-center justify-center gap-3 shadow-lg shadow-primary/10 hover:opacity-90 active:scale-95 transition-all" type="submit">
+                                    Continue to Step 2
+                                    <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</form>
+</div>
+<!-- Supplemental Content -->
+<div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="group p-6 rounded-xl bg-surface-container-low transition-colors hover:bg-surface-container-high cursor-help">
+<span class="material-symbols-outlined text-tertiary mb-3">lock</span>
+<h4 class="text-on-surface font-semibold mb-2">Encrypted Transmission</h4>
+<p class="text-xs text-on-surface-variant leading-relaxed">Your data is secured using institutional-grade end-to-end encryption protocols.</p>
+</div>
+<div class="group p-6 rounded-xl bg-surface-container-low transition-colors hover:bg-surface-container-high cursor-help">
+<span class="material-symbols-outlined text-secondary mb-3">auto_awesome</span>
+<h4 class="text-on-surface font-semibold mb-2">Rapid Processing</h4>
+<p class="text-xs text-on-surface-variant leading-relaxed">Applications submitted today enter the priority queue for immediate administrative review.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center h-20 px-4 pb-safe bg-[#121416]/80 backdrop-blur-2xl border-t border-white/5 shadow-[0_-4px_24px_rgba(0,0,0,0.4)] z-50 rounded-t-2xl">
+<a class="flex flex-col items-center justify-center text-[#E2E2E5]/40 hover:bg-white/5 px-3 py-1 transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#AD2C4D] bg-[#AD2C4D]/10 rounded-xl px-3 py-1 transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined">edit_note</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest mt-1">Apply</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#E2E2E5]/40 hover:bg-white/5 px-3 py-1 transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined">hourglass_empty</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest mt-1">Status</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#E2E2E5]/40 hover:bg-white/5 px-3 py-1 transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest mt-1">Profile</span>
+</a>
+</nav>
+<!-- Decorative Elements -->
+<div class="fixed top-1/4 -right-20 w-96 h-96 bg-primary/5 rounded-full blur-[140px] pointer-events-none -z-10"></div>
+<div class="fixed bottom-1/4 -left-20 w-64 h-64 bg-secondary/5 rounded-full blur-[100px] pointer-events-none -z-10"></div>
+</body></html>

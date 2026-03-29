@@ -19,12 +19,16 @@ export default async function JobsPage() {
   
   let ageGroup: 'under14' | 'youth14to17' | 'adult18plus' = 'adult18plus';
   if (user) {
-    const profile = await prisma.profile.findUnique({
-      where: { userId: user.id },
-      select: { dob: true, isMinor: true },
-    });
-    if (profile?.dob) {
-      ageGroup = getAgeGroup(profile.dob);
+    try {
+      const profile = await prisma.profile.findUnique({
+        where: { userId: user.id },
+        select: { dob: true, isMinor: true },
+      });
+      if (profile?.dob) {
+        ageGroup = getAgeGroup(profile.dob);
+      }
+    } catch {
+      ageGroup = 'adult18plus';
     }
   }
 

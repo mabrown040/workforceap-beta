@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-lowest": "#ffffff",
+              "surface-container-highest": "#e5e2e1",
+              "on-primary": "#ffffff",
+              "on-tertiary-fixed-variant": "#474646",
+              "surface-variant": "#e5e2e1",
+              "on-error-container": "#93000a",
+              "secondary-fixed": "#ffdea4",
+              "surface-container-high": "#ebe7e7",
+              "on-surface": "#1c1b1b",
+              "surface-container-low": "#f6f3f2",
+              "error-container": "#ffdad6",
+              "tertiary": "#474646",
+              "on-tertiary-container": "#dbd8d7",
+              "error": "#ba1a1a",
+              "outline-variant": "#debfc2",
+              "primary-container": "#ad2c4d",
+              "on-tertiary-fixed": "#1c1b1b",
+              "on-primary-container": "#ffcbd1",
+              "surface-tint": "#ad2c4d",
+              "secondary": "#7b5800",
+              "tertiary-fixed": "#e5e2e1",
+              "surface-bright": "#fcf9f8",
+              "on-secondary-container": "#6c4d00",
+              "on-primary-fixed": "#400013",
+              "on-background": "#1c1b1b",
+              "primary-fixed-dim": "#ffb2bc",
+              "secondary-container": "#ffbb00",
+              "on-secondary-fixed": "#261900",
+              "background": "#fcf9f8",
+              "on-secondary-fixed-variant": "#5d4200",
+              "outline": "#8b7073",
+              "on-tertiary": "#ffffff",
+              "surface-dim": "#dcd9d9",
+              "secondary-fixed-dim": "#ffbb00",
+              "inverse-on-surface": "#f3f0ef",
+              "primary-fixed": "#ffd9dd",
+              "tertiary-fixed-dim": "#c8c6c5",
+              "primary": "#8c0f37",
+              "tertiary-container": "#5f5e5e",
+              "inverse-primary": "#ffb2bc",
+              "on-secondary": "#ffffff",
+              "surface-container": "#f0edec",
+              "on-error": "#ffffff",
+              "inverse-surface": "#313030",
+              "surface": "#fcf9f8",
+              "on-surface-variant": "#584144",
+              "on-primary-fixed-variant": "#8c0f37"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .editorial-gradient {
+        background: linear-gradient(135deg, #8c0f37 0%, #ad2c4d 100%);
+      }
+      ::-webkit-scrollbar { display: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl shadow-sm dark:shadow-none">
+<div class="flex items-center justify-between px-6 py-4 w-full">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-zinc-600">menu</span>
+<span class="font-inter font-black tracking-tighter text-red-800 dark:text-red-500 text-xl">WorkforceAP</span>
+</div>
+<button class="bg-primary-container text-on-primary font-bold px-4 py-2 rounded-xl text-sm transition-all scale-95 active:opacity-80">
+                Apply Now
+            </button>
+</div>
+</header>
+<main class="pt-24 pb-32 overflow-x-hidden">
+<!-- Hero Section -->
+<section class="px-6 mb-12">
+<div class="inline-flex items-center px-3 py-1 bg-secondary-container text-on-secondary-fixed font-label text-[10px] font-bold tracking-widest uppercase rounded-full mb-6">
+                Enrollment Open for 2024
+            </div>
+<h1 class="text-5xl font-black tracking-tighter leading-[0.95] mb-4 editorial-gradient bg-clip-text text-transparent">
+                Free Career<br/>Training
+            </h1>
+<p class="text-on-surface-variant text-lg leading-relaxed mb-8 max-w-[280px]">
+                Bridge the gap with professional certification and a 94% placement rate.
+            </p>
+<div class="flex flex-col gap-3">
+<button class="w-full editorial-gradient text-on-primary font-bold py-4 rounded-xl shadow-lg shadow-primary/20">
+                    Apply Free
+                </button>
+<button class="w-full bg-surface-container-low text-primary font-bold py-4 rounded-xl border border-primary/10">
+                    Find Your Path
+                </button>
+</div>
+</section>
+<!-- Partner Section (Horizontal Scroll) -->
+<section class="mb-12">
+<div class="px-6 mb-4">
+<p class="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/60">Global Hiring Partners</p>
+</div>
+<div class="flex overflow-x-auto gap-8 px-6 no-scrollbar items-center py-2">
+<div class="flex-shrink-0 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+<img alt="" class="h-6 w-auto" data-alt="clean minimalist google logo icon black and white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzN_t-V7OaVjxIk2C0p7y09odMsQL_qzROR_g2FJmfOgJtH17hYKx2_6dzi4lreS8oJoOKSIjB80ScvHkCxOOGNFYlfxSgBLlCJ2iPxTKirX2S0lQkYvsVZ_LpRIKSQO53HGog0FVJT8Plp63fh4paUS3SPNf6fDP6_4Mb37v66KK45fS2zjvRV6Feip7x4USZuVCSPjxw8LFXeKJ2uOUaTgGZiWE3sp4jKPMfPXddgEdxCokTMJ9ICpT6lbdH0xiTRyWPs6mCYbmK"/>
+</div>
+<div class="flex-shrink-0 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+<img alt="" class="h-6 w-auto" data-alt="clean minimalist ibm logo icon black and white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBiEYQstaIuwWqo_2hUE9pZ-xWeCcf40AySa5c1hpxubUd9QJkAFFWsjQjgtedJD4bu5lv-vKZQ0eGmfmtqnXMVXo5E4Ov_RMfJl4lHMV3683M4_xpX8qD9FUR8DquzDEPlz7ILedIRvizDG--zRFCKDOgw-18JSihGbFNJY3RX3rZK17ABvhD-dXQd_p_yFwkrcl4CboW8t6oZDeeJzPlEfidaKl_IxRohuDRJyD8rO43mZCMOyj0iVOP-lBWclWx5NHfYJYhpa8Y7"/>
+</div>
+<div class="flex-shrink-0 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+<img alt="" class="h-6 w-auto" data-alt="clean minimalist amazon web services logo icon black and white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbhVmXXxRS23UJSB4xAT4nsoLmNNMJboMWnZ5_eyaCtQvhsqAdep4Hl2Cwd-J8GqEBGc1Mf2NEVUHjGtDsQolLFqiws7Dbi3kKC0j2QGDDuE7EqT8bURjdLasP6mo0_OxVHk4GDX3D_B_RuCmyVcgr4TOWtKj2-qIvYW1SmJz2OupAsypyhwb2hSDIx2n3fvfFHDj5MpOfamUJqeMon8gDLvFWBcdnxi-83o7HC7S_LY49S-arYBM_URqE3qKu_pv7C0kPffspt_oc"/>
+</div>
+<div class="flex-shrink-0 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+<img alt="" class="h-6 w-auto" data-alt="clean minimalist comptia logo icon black and white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBGd9tYRwh6JZfhXWg-vPVB3I1c6kX2OMjIaFA45kkjQRJasOYRfE0QE7Rr84IwdNlu6tVnDyW0U9h_h3G2AHhzkEF-HvzcUbu7LTAO3y4VsisKOvryjGtnk6KQoOwNbEIY-mKFjmmJS9fqWce2ei-oElUvv8mvQwRMq_dIMdjtqQhS8rdd-7lAERbBO6OJALzc12RqjjUA1APnrMCG8r5-77t8b3ysIWkDsBiz4xGgDfXT1-ROjbIn5qn8G6RSFm6zG8hj9XioEbc"/>
+</div>
+</div>
+</section>
+<!-- Stats Row (Asymmetric Bento) -->
+<section class="px-6 mb-12">
+<div class="grid grid-cols-3 gap-3">
+<div class="col-span-1 bg-surface-container-low p-4 rounded-2xl flex flex-col justify-end min-h-[120px]">
+<span class="text-2xl font-black text-primary block">19</span>
+<span class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Programs</span>
+</div>
+<div class="col-span-2 bg-primary p-4 rounded-2xl flex flex-col justify-between editorial-gradient">
+<span class="material-symbols-outlined text-white/40 self-end">verified</span>
+<div>
+<span class="text-3xl font-black text-white block">$0 Cost</span>
+<span class="text-[10px] font-bold uppercase tracking-wider text-white/80">Tuition Free Training</span>
+</div>
+</div>
+<div class="col-span-3 bg-surface-container-high p-4 rounded-2xl flex items-center justify-between">
+<span class="text-lg font-bold text-on-surface">12-24 Weeks</span>
+<span class="text-[10px] font-bold uppercase tracking-widest text-secondary">Accelerated</span>
+</div>
+</div>
+</section>
+<!-- Journey Preview -->
+<section class="mb-4">
+<div class="px-6 flex justify-between items-end mb-6">
+<h2 class="text-2xl font-black tracking-tight text-on-surface">Your Journey</h2>
+<span class="text-primary text-xs font-bold underline decoration-2 underline-offset-4">Learn More</span>
+</div>
+<div class="flex overflow-x-auto gap-4 px-6 no-scrollbar pb-6">
+<!-- Step 1 -->
+<div class="flex-shrink-0 w-64 bg-surface-container-lowest p-6 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-on-surface/5">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-6">
+<span class="material-symbols-outlined">quiz</span>
+</div>
+<span class="block text-[10px] font-black uppercase text-secondary mb-1">Phase 01</span>
+<h3 class="text-xl font-bold mb-3">Quiz</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Discover which career path matches your strengths in 5 minutes.</p>
+</div>
+<!-- Step 2 -->
+<div class="flex-shrink-0 w-64 bg-surface-container-low p-6 rounded-3xl border border-on-surface/5">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-6">
+<span class="material-symbols-outlined">assignment_ind</span>
+</div>
+<span class="block text-[10px] font-black uppercase text-secondary mb-1">Phase 02</span>
+<h3 class="text-xl font-bold mb-3">Apply</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Submit your application for our upcoming cohort-based training.</p>
+</div>
+<!-- Step 3 -->
+<div class="flex-shrink-0 w-64 bg-surface-container-lowest p-6 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-on-surface/5">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-6">
+<span class="material-symbols-outlined">school</span>
+</div>
+<span class="block text-[10px] font-black uppercase text-secondary mb-1">Phase 03</span>
+<h3 class="text-xl font-bold mb-3">Train</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Intensive, hands-on learning with industry-leading experts.</p>
+</div>
+<!-- Step 4 -->
+<div class="flex-shrink-0 w-64 bg-surface-container-low p-6 rounded-3xl border border-on-surface/5">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-6">
+<span class="material-symbols-outlined">work</span>
+</div>
+<span class="block text-[10px] font-black uppercase text-secondary mb-1">Phase 04</span>
+<h3 class="text-xl font-bold mb-3">Hired</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Access our exclusive hiring network and start your new career.</p>
+</div>
+</div>
+</section>
+<!-- Featured Media Section -->
+<section class="px-6 mb-12">
+<div class="relative w-full aspect-[4/5] rounded-[2rem] overflow-hidden group">
+<img alt="" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="diverse group of ambitious young professionals collaborating around a desk in a modern bright creative studio office space" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4wNcCm1IiI4NE2RxMu7g2m9Ds_YBZWZ7_KkjtutQ7RzqsBaCBPmQZxv-dDqTyLHndNGswiXwhbNpGjWh1ymLDC9x6Kjjovtga4dWsnaaFmcdukaEP4kQbTgSJXGxI2rNmO7V-roofTXKembOPXtmPxmrB0tdtW9CPIJ1VyhN_cDcTyEzFgXhzNo1eoLDaxjwjwz2csgw06iWzAebGQGRrZ07p3Ls9pjpGL-hoQ0tmTJxjBbsMGCU4XhFZfX_2WDng73kUdh-HVfHD"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/90 via-transparent to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-8">
+<h4 class="text-white text-3xl font-black mb-2">94%</h4>
+<p class="text-white/80 text-sm font-medium">Placement rate within 6 months of program completion.</p>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-t-3xl z-50 shadow-[0_-4px_24px_rgba(0,0,0,0.04)]">
+<!-- Home (Active) -->
+<a class="flex flex-col items-center justify-center bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 rounded-xl px-4 py-2 scale-110 transition-transform duration-300 ease-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-[10px] font-inter uppercase tracking-[0.05em] font-medium mt-1">Home</span>
+</a>
+<!-- Quiz -->
+<a class="flex flex-col items-center justify-center text-zinc-500 dark:text-zinc-400 px-4 py-2 hover:text-red-700 dark:hover:text-red-400" href="#">
+<span class="material-symbols-outlined">quiz</span>
+<span class="text-[10px] font-inter uppercase tracking-[0.05em] font-medium mt-1">Quiz</span>
+</a>
+<!-- Programs -->
+<a class="flex flex-col items-center justify-center text-zinc-500 dark:text-zinc-400 px-4 py-2 hover:text-red-700 dark:hover:text-red-400" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="text-[10px] font-inter uppercase tracking-[0.05em] font-medium mt-1">Programs</span>
+</a>
+<!-- Apply -->
+<a class="flex flex-col items-center justify-center text-zinc-500 dark:text-zinc-400 px-4 py-2 hover:text-red-700 dark:hover:text-red-400" href="#">
+<span class="material-symbols-outlined">assignment_ind</span>
+<span class="text-[10px] font-inter uppercase tracking-[0.05em] font-medium mt-1">Apply</span>
+</a>
+</nav>
+</body></html>

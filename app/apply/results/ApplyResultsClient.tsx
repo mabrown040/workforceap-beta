@@ -145,7 +145,7 @@ export default function ApplyResultsClient() {
           <>
             <div className={`funding-banner funding-banner-qualify`} style={{ marginBottom: '1.5rem' }}>
               <p>
-                <strong>Looks like a strong funding fit.</strong> Pick the program you want most, then create your account so a counselor can confirm next steps within 24–48 hours.
+                <strong>Looks like a strong funding fit.</strong> Pick the program you want most, then create your account so a counselor can confirm next steps within 3–5 business days.
               </p>
             </div>
             <h2 className="apply-step-title">Which program are you most interested in right now?</h2>

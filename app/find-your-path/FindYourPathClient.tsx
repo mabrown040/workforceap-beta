@@ -208,7 +208,7 @@ function QuizResultsView({
             Your top match: <strong>{topProgram.title}</strong>. Published starting band is {salaryRangeDisplay(topProgram)} — your offer still depends on employer and proof.
           </p>
           <p className="quiz-results-cta-sub">
-            Applications take about 10 minutes. We respond within 24–48 hours.
+            Applications take about 10 minutes. We respond within 3–5 business days.
           </p>
           <Link href={`/apply?program=${topProgram.slug}`} className="btn btn-primary btn-large">
             Apply for {topProgram.title}

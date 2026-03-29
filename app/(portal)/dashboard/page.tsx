@@ -11,6 +11,7 @@ import MatchedRoles from '@/components/portal/MatchedRoles';
 import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { MEMBER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Member overview',
@@ -132,56 +133,213 @@ export default async function DashboardPage() {
   const showMatchedRoles = assessmentCompleted;
   const superAdmin = await isSuperAdmin(user.id);
 
+  /* Mobile progress percentage for orb */
+  const mobilePct = totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : 0;
+  const orbCircumference = 251.2;
+  const orbDashoffset = orbCircumference - (orbCircumference * mobilePct) / 100;
+
+  /* Journey timeline steps derived from applicationStatus */
+  const journeySteps = [
+    { label: 'Profile Verified', done: true },
+    {
+      label: applicationStatus?.nextStep ?? 'Assessment',
+      done: assessmentCompleted,
+      active: !assessmentCompleted,
+      detail: assessmentCompleted ? 'Completed' : 'Active Task • 45 mins',
+    },
+    { label: 'Interview Scheduled', done: false, pending: !assessmentCompleted },
+    { label: 'Enrollment Confirmed', done: false, pending: true },
+  ];
+
   return (
-    <PortalEntryClient
-      portal="member"
-      showOnboardingWizard={showMemberOnboarding}
-      showTour={showMemberTour}
-      isSuperAdmin={superAdmin}
-      tourSteps={MEMBER_PORTAL_TOUR_STEPS}
-      wizardProps={{
-        initialFullName: intakeExtra?.fullName ?? '',
-        initialPhone: intakeExtra?.profile?.profilePhone ?? intakeExtra?.phone ?? '',
-        initialCity: intakeExtra?.profile?.city ?? '',
-        initialState: intakeExtra?.profile?.state ?? '',
-        initialZip: intakeExtra?.profile?.zip ?? '',
-        initialProgramInterest: wizardProgramInterest,
-        initialReferralSource: intakeExtra?.profile?.referralSource ?? '',
-      }}
-    >
-      <DashboardHomeClient
-        recommendedActions={recommendedActions}
-        jobSearchUrl={jobSearchUrl}
-        firstName={firstName}
-        assessmentDone={assessmentCompleted}
-        preScreeningDone={!!intakeExtra?.preScreeningResponse}
-        interviewEligible={intakeExtra?.interviewEligible ?? false}
-        interviewRequestedAt={intakeExtra?.interviewRequestedAt ?? null}
-        interviewCompletedAt={intakeExtra?.interviewCompletedAt ?? null}
-        state={
-          !enrolledProgram
-            ? 'A'
-            : !assessmentCompleted
-            ? 'B'
-            : allCoursesComplete
-            ? 'D'
-            : 'C'
-        }
-        programTitle={program?.title}
-        enrolledAt={dbUser.enrolledAt}
-        assessmentScorePct={dbUser.assessmentScorePct}
-        completedCount={completedCount}
-        totalCourses={totalCourses}
-        nextMilestone={nextIncompleteCourse?.name}
-        recentActivity={lastThree}
-        checklist={checklist}
-        checklistAllDone={checklistAllDone}
-        applicationStatus={applicationStatus}
-        noApplicationOnFile={noApplicationOnFile}
-        age={userAge}
-        isMinor={isMinor}
-      />
-      {showMatchedRoles && userAge !== null && userAge < 14 ? null : <MatchedRoles />}
-    </PortalEntryClient>
+    <>
+      {/* ── Mobile-only hero + dashboard (≤640px) ── */}
+      <div className="wa-md:hidden" style={{ paddingBottom: '6rem' }}>
+        {/* Welcome greeting + progress orb */}
+        <section style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '1.5rem 1.5rem 1rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', maxWidth: '60%' }}>
+            <p className="text-[#584144] text-xs font-medium tracking-widest uppercase">Member Dashboard</p>
+            <h1 className="text-2xl font-extrabold tracking-tight text-[#1c1b1b]">
+              Welcome back, {firstName}
+            </h1>
+          </div>
+          {/* Progress orb */}
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '5rem', height: '5rem', flexShrink: 0 }}>
+            <svg className="-rotate-90" style={{ width: '100%', height: '100%' }} viewBox="0 0 96 96">
+              <circle cx="48" cy="48" r="40" fill="transparent" stroke="#f2eeed" strokeWidth="6" />
+              <circle
+                cx="48" cy="48" r="40" fill="transparent"
+                stroke="#8c0f37" strokeWidth="6"
+                strokeDasharray={orbCircumference}
+                strokeDashoffset={orbDashoffset}
+                strokeLinecap="round"
+              />
+            </svg>
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <span className="text-base font-bold text-[#8c0f37]">{mobilePct}%</span>
+              <span className="text-[8px] font-bold uppercase tracking-widest text-[#7b5800]">Done</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Next step card */}
+        {applicationStatus?.nextStep && (
+          <section style={{ padding: '0 1.5rem', marginBottom: '1.5rem' }}>
+            <div className="bg-gradient-to-br from-[#8c0f37] to-[#ad2c4d] shadow-sm" style={{ padding: '1px', borderRadius: '0.75rem' }}>
+              <div className="bg-[#fcf9f8]" style={{ borderRadius: '11px', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                    <span className="text-[10px] font-bold bg-[#8c0f37]/10 text-[#8c0f37] uppercase tracking-wider" style={{ display: 'inline-flex', alignItems: 'center', padding: '0.125rem 0.5rem', borderRadius: '9999px' }}>
+                      Priority
+                    </span>
+                    <h2 className="text-lg font-bold text-[#1c1b1b] tracking-tight">
+                      {applicationStatus.nextStep}
+                    </h2>
+                  </div>
+                  <span className="material-symbols-outlined text-[#7b5800] text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
+                </div>
+                <p className="text-[#584144] text-sm leading-relaxed">
+                  Your next action for{' '}
+                  {applicationStatus.programInterest ?? program?.title ?? 'your program'}.
+                </p>
+                <button className="bg-gradient-to-r from-[#8c0f37] to-[#ad2c4d] text-white font-bold text-sm tracking-wide active:scale-[0.98] transition-transform" style={{ width: '100%', paddingTop: '0.75rem', paddingBottom: '0.75rem', borderRadius: '0.375rem' }}>
+                  Take Action
+                </button>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Application journey timeline */}
+        <section style={{ padding: '0 1.5rem', marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[#584144]">Application Journey</h3>
+          <div style={{ position: 'relative', marginLeft: '1rem' }}>
+            <div className="bg-[#f2eeed]" style={{ position: 'absolute', left: '11px', top: '0.5rem', bottom: '0.5rem', width: '2px' }} />
+            {journeySteps.map((step, i) => (
+              <div key={i} className={step.pending ? 'opacity-40' : ''} style={{ position: 'relative', display: 'flex', alignItems: 'flex-start', gap: '1.25rem', paddingBottom: '1.75rem' }}>
+                {step.done ? (
+                  <div className="bg-[#8c0f37]" style={{ position: 'relative', zIndex: 10, width: '1.5rem', height: '1.5rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <span className="material-symbols-outlined text-white text-xs">check</span>
+                  </div>
+                ) : step.active ? (
+                  <div className="bg-[#fcf9f8] border-4 border-[#8c0f37]" style={{ position: 'relative', zIndex: 10, width: '1.5rem', height: '1.5rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <div className="bg-[#8c0f37] animate-pulse" style={{ width: '0.5rem', height: '0.5rem', borderRadius: '9999px' }} />
+                  </div>
+                ) : (
+                  <div className="bg-[#f2eeed] border-2 border-[#debfc2]" style={{ position: 'relative', zIndex: 10, width: '1.5rem', height: '1.5rem', borderRadius: '9999px', flexShrink: 0 }} />
+                )}
+                <div>
+                  <p className={`font-bold text-sm leading-none mb-1 ${step.active ? 'text-[#8c0f37]' : 'text-[#1c1b1b]'}`}>
+                    {step.label}
+                  </p>
+                  {step.detail && <p className="text-xs text-[#584144]">{step.detail}</p>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Recommended programs — horizontal scroll cards */}
+        <section style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', padding: '0 1.5rem' }}>
+            <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[#584144]">Recommended Programs</h3>
+            <a href="/programs" className="text-xs font-bold text-[#8c0f37] no-underline">View All</a>
+          </div>
+          <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto', padding: '0 1.5rem 0.5rem', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            {[
+              { provider: 'IBM Professional', title: 'Data Science Professional' },
+              { provider: 'Amazon Web Services', title: 'Cloud Practitioner Essentials' },
+              { provider: 'Google', title: 'Cybersecurity Professional' },
+            ].map((prog, i) => (
+              <div key={i} className="shadow-sm" style={{ minWidth: '220px', borderRadius: '0.75rem', overflow: 'hidden', display: 'flex', flexDirection: 'column', flexShrink: 0, background: '#f0edec' }}>
+                <div style={{ height: '7rem', position: 'relative', background: 'linear-gradient(135deg, #2b1f20 0%, #584144 100%)' }}>
+                </div>
+                <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                  <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#7b5800' }}>{prog.provider}</p>
+                  <h4 className="font-bold text-sm text-[#1c1b1b] leading-tight">{prog.title}</h4>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Quick Actions 2x2 grid */}
+        <section style={{ padding: '0 1.5rem', marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[#584144]">Quick Actions</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            {[
+              { icon: 'upload_file', label: 'Upload Resume', href: '/dashboard/ai-tools/resume-rewriter' },
+              { icon: 'event_available', label: 'Book Coaching', href: '/dashboard' },
+              { icon: 'forum', label: 'Practice Interview', href: '/dashboard/ai-tools/interview-practice' },
+              { icon: 'psychology', label: 'AI Resume Help', href: '/dashboard/ai-tools' },
+            ].map((action) => (
+              <a key={action.label} href={action.href}
+                className="no-underline active:scale-[0.97] transition-transform"
+                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1rem', borderRadius: '0.75rem', background: '#ffffff', border: '1px solid rgba(222,191,194,0.3)', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+                <span className="material-symbols-outlined" style={{ color: '#8c0f37', marginBottom: '0.5rem' }}>{action.icon}</span>
+                <span className="text-[11px] font-bold text-[#1c1b1b] tracking-tight text-center leading-tight">{action.label}</span>
+              </a>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      {/* ── Desktop view (hidden on mobile) ── */}
+      <div className="wa-hidden wa-md:block">
+        <PortalEntryClient
+          portal="member"
+          showOnboardingWizard={showMemberOnboarding}
+          showTour={showMemberTour}
+          isSuperAdmin={superAdmin}
+          tourSteps={MEMBER_PORTAL_TOUR_STEPS}
+          wizardProps={{
+            initialFullName: intakeExtra?.fullName ?? '',
+            initialPhone: intakeExtra?.profile?.profilePhone ?? intakeExtra?.phone ?? '',
+            initialCity: intakeExtra?.profile?.city ?? '',
+            initialState: intakeExtra?.profile?.state ?? '',
+            initialZip: intakeExtra?.profile?.zip ?? '',
+            initialProgramInterest: wizardProgramInterest,
+            initialReferralSource: intakeExtra?.profile?.referralSource ?? '',
+          }}
+        >
+          <DashboardHomeClient
+            recommendedActions={recommendedActions}
+            jobSearchUrl={jobSearchUrl}
+            firstName={firstName}
+            assessmentDone={assessmentCompleted}
+            preScreeningDone={!!intakeExtra?.preScreeningResponse}
+            interviewEligible={intakeExtra?.interviewEligible ?? false}
+            interviewRequestedAt={intakeExtra?.interviewRequestedAt ?? null}
+            interviewCompletedAt={intakeExtra?.interviewCompletedAt ?? null}
+            state={
+              !enrolledProgram
+                ? 'A'
+                : !assessmentCompleted
+                ? 'B'
+                : allCoursesComplete
+                ? 'D'
+                : 'C'
+            }
+            programTitle={program?.title}
+            enrolledAt={dbUser.enrolledAt}
+            assessmentScorePct={dbUser.assessmentScorePct}
+            completedCount={completedCount}
+            totalCourses={totalCourses}
+            nextMilestone={nextIncompleteCourse?.name}
+            recentActivity={lastThree}
+            checklist={checklist}
+            checklistAllDone={checklistAllDone}
+            applicationStatus={applicationStatus}
+            noApplicationOnFile={noApplicationOnFile}
+            age={userAge}
+            isMinor={isMinor}
+          />
+          {showMatchedRoles && userAge !== null && userAge < 14 ? null : <MatchedRoles />}
+        </PortalEntryClient>
+      </div>
+
+      {/* Bottom nav — mobile only */}
+      <MobileBottomNav variant="portal" />
+    </>
   );
 }

@@ -5,6 +5,8 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
 import MemberCounselorChatClient from '@/components/portal/MemberCounselorChatClient';
+import MemberMessagesMobileClient from '@/components/portal/MemberMessagesMobileClient';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Messages',
@@ -31,13 +33,28 @@ export default async function MemberMessagesPage() {
       : Promise.resolve(null),
   ]);
 
+  const lastMsg = messages[messages.length - 1];
+  const lastMsgText = lastMsg ? (lastMsg.body ?? '').slice(0, 60) : 'No messages yet';
+  const lastMsgTime = lastMsg
+    ? new Date(lastMsg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    : '';
+  const unreadCount = messages.filter(
+    (m) => m.authorId !== user.id
+  ).length;
+
+  const counselorName = counselor?.fullName ?? null;
+  const counselorInitials = counselorName
+    ? counselorName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+    : 'CS';
+
   return (
-    <div>
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Messages</h1>
-      <MemberCounselorChatClient
+    <>
+      {/* ── Mobile-only messages view (≤640px) — full Stitch-aligned layout ── */}
+      <MemberMessagesMobileClient
         initial={{
           memberUserId: user.id,
-          counselorName: counselor?.fullName ?? null,
+          counselorName,
+          counselorInitials,
           thread: {
             id: thread.id,
             memberId: thread.memberId,
@@ -46,8 +63,32 @@ export default async function MemberMessagesPage() {
             counselorLastReadAt: thread.counselorLastReadAt?.toISOString() ?? null,
           },
           messages: messages.map(serializeMessage),
+          lastMsgText,
+          lastMsgTime,
+          unreadCount,
         }}
       />
-    </div>
+
+      {/* ── Desktop view ── */}
+      <div className="wa-hidden wa-md:block">
+        <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Messages</h1>
+        <MemberCounselorChatClient
+          initial={{
+            memberUserId: user.id,
+            counselorName,
+            thread: {
+              id: thread.id,
+              memberId: thread.memberId,
+              counselorUserId: thread.counselorUserId,
+              memberLastReadAt: thread.memberLastReadAt?.toISOString() ?? null,
+              counselorLastReadAt: thread.counselorLastReadAt?.toISOString() ?? null,
+            },
+            messages: messages.map(serializeMessage),
+          }}
+        />
+      </div>
+
+      <MobileBottomNav variant="portal" />
+    </>
   );
 }

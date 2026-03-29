@@ -8,12 +8,34 @@ import { APPLY_REFERRAL_SESSION_KEY } from '@/lib/apply/applyReferralCapture';
 
 const PROGRAM_STORAGE_KEY = 'apply_program_slug';
 
+const US_STATES: { abbr: string; name: string }[] = [
+  { abbr: 'AL', name: 'Alabama' }, { abbr: 'AK', name: 'Alaska' }, { abbr: 'AZ', name: 'Arizona' },
+  { abbr: 'AR', name: 'Arkansas' }, { abbr: 'CA', name: 'California' }, { abbr: 'CO', name: 'Colorado' },
+  { abbr: 'CT', name: 'Connecticut' }, { abbr: 'DE', name: 'Delaware' }, { abbr: 'DC', name: 'District of Columbia' },
+  { abbr: 'FL', name: 'Florida' }, { abbr: 'GA', name: 'Georgia' }, { abbr: 'HI', name: 'Hawaii' },
+  { abbr: 'ID', name: 'Idaho' }, { abbr: 'IL', name: 'Illinois' }, { abbr: 'IN', name: 'Indiana' },
+  { abbr: 'IA', name: 'Iowa' }, { abbr: 'KS', name: 'Kansas' }, { abbr: 'KY', name: 'Kentucky' },
+  { abbr: 'LA', name: 'Louisiana' }, { abbr: 'ME', name: 'Maine' }, { abbr: 'MD', name: 'Maryland' },
+  { abbr: 'MA', name: 'Massachusetts' }, { abbr: 'MI', name: 'Michigan' }, { abbr: 'MN', name: 'Minnesota' },
+  { abbr: 'MS', name: 'Mississippi' }, { abbr: 'MO', name: 'Missouri' }, { abbr: 'MT', name: 'Montana' },
+  { abbr: 'NE', name: 'Nebraska' }, { abbr: 'NV', name: 'Nevada' }, { abbr: 'NH', name: 'New Hampshire' },
+  { abbr: 'NJ', name: 'New Jersey' }, { abbr: 'NM', name: 'New Mexico' }, { abbr: 'NY', name: 'New York' },
+  { abbr: 'NC', name: 'North Carolina' }, { abbr: 'ND', name: 'North Dakota' }, { abbr: 'OH', name: 'Ohio' },
+  { abbr: 'OK', name: 'Oklahoma' }, { abbr: 'OR', name: 'Oregon' }, { abbr: 'PA', name: 'Pennsylvania' },
+  { abbr: 'RI', name: 'Rhode Island' }, { abbr: 'SC', name: 'South Carolina' }, { abbr: 'SD', name: 'South Dakota' },
+  { abbr: 'TN', name: 'Tennessee' }, { abbr: 'TX', name: 'Texas' }, { abbr: 'UT', name: 'Utah' },
+  { abbr: 'VT', name: 'Vermont' }, { abbr: 'VA', name: 'Virginia' }, { abbr: 'WA', name: 'Washington' },
+  { abbr: 'WV', name: 'West Virginia' }, { abbr: 'WI', name: 'Wisconsin' }, { abbr: 'WY', name: 'Wyoming' },
+];
+
 export default function ApplyCreateAccountForm() {
   const searchParams = useSearchParams();
   const [init, setInit] = useState<'loading' | 'missing' | 'ready'>('loading');
   const [programSlug, setProgramSlug] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [verifyEmailMode, setVerifyEmailMode] = useState(false);
+  const [verifyEmail, setVerifyEmail] = useState('');
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -27,6 +49,8 @@ export default function ApplyCreateAccountForm() {
   const [smsOptIn, setSmsOptIn] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<{
     firstName?: string;
     lastName?: string;
@@ -127,6 +151,8 @@ export default function ApplyCreateAccountForm() {
     }
     if (!zip.trim()) {
       nextFieldErrors.zip = 'Enter your ZIP code.';
+    } else if (!/^\d{5}(-\d{4})?$/.test(zip.trim())) {
+      nextFieldErrors.zip = 'Please enter a valid 5-digit ZIP code';
     }
     if (password.length < 8) {
       nextFieldErrors.password = 'Use at least 8 characters.';
@@ -207,6 +233,15 @@ export default function ApplyCreateAccountForm() {
       }
       completedRef.current = true;
       trackApplyFunnel(3, 'account_created', { program_slug: programSlug, redirect_to: data.redirectTo ?? '/dashboard' });
+
+      // If the API returned a verification message (no session yet), show the verify-email screen
+      if (data.message) {
+        setVerifyEmail(email.trim().toLowerCase());
+        setVerifyEmailMode(true);
+        setLoading(false);
+        return;
+      }
+
       window.location.href = data.redirectTo ?? '/dashboard';
     } catch {
       setError('Something went wrong while creating your account. Please try again, or call (512) 777-1808 if you need help finishing.');
@@ -214,6 +249,33 @@ export default function ApplyCreateAccountForm() {
       setLoading(false);
     }
   };
+
+  if (verifyEmailMode) {
+    return (
+      <div className="apply-form" style={{ textAlign: 'center', padding: '2rem 1rem' }}>
+        <span className="material-symbols-outlined" style={{ fontSize: 56, color: '#ad2c4d', display: 'block', marginBottom: '1rem' }}>mark_email_unread</span>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.75rem', color: '#1c1b1b' }}>Check your email</h2>
+        <p style={{ fontSize: '1rem', color: '#584144', lineHeight: 1.6, marginBottom: '0.5rem' }}>
+          We sent a verification link to:
+        </p>
+        <p style={{ fontSize: '1.05rem', fontWeight: 700, color: '#ad2c4d', marginBottom: '1.25rem', wordBreak: 'break-all' }}>
+          {verifyEmail}
+        </p>
+        <p style={{ fontSize: '0.9rem', color: '#584144', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+          Click the link in that email to verify your account, then come back and log in to view your dashboard and next steps.
+        </p>
+        <Link href="/login" className="btn btn-primary" style={{ display: 'inline-block', marginBottom: '1rem' }}>
+          Go to login
+        </Link>
+        <p style={{ fontSize: '0.85rem', color: '#584144', marginTop: '1rem' }}>
+          Didn&apos;t get it? Check your spam folder, or{' '}
+          <a href={`/api/apply/resend-verification?email=${encodeURIComponent(verifyEmail)}`} style={{ color: '#ad2c4d', fontWeight: 600 }}>
+            resend the email
+          </a>.
+        </p>
+      </div>
+    );
+  }
 
   if (init === 'loading') {
     return <p>Loading…</p>;
@@ -367,9 +429,8 @@ export default function ApplyCreateAccountForm() {
       >
         <div>
           <label htmlFor="state">State *</label>
-          <input
+          <select
             id="state"
-            type="text"
             value={stateVal}
             onChange={(e) => {
               setStateVal(e.target.value);
@@ -378,7 +439,12 @@ export default function ApplyCreateAccountForm() {
             autoComplete="address-level1"
             required
             aria-invalid={!!fieldErrors.state}
-          />
+          >
+            <option value="">Select…</option>
+            {US_STATES.map((s) => (
+              <option key={s.abbr} value={s.abbr}>{s.name}</option>
+            ))}
+          </select>
           {fieldErrors.state ? <p className="form-error">{fieldErrors.state}</p> : null}
         </div>
         <div>
@@ -403,36 +469,63 @@ export default function ApplyCreateAccountForm() {
           <input type="checkbox" checked={smsOptIn} onChange={(e) => setSmsOptIn(e.target.checked)} />
           Text me updates about my application (optional)
         </label>
+        <p style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>Message frequency varies. Reply STOP to cancel, HELP for help. Msg &amp; data rates may apply.</p>
       </div>
       <div className="form-group">
         <label htmlFor="password">Password *</label>
-        <input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => {
-            setPassword(e.target.value);
-            if (fieldErrors.password) setFieldErrors((f) => ({ ...f, password: undefined }));
-          }}
-          autoComplete="new-password"
-          aria-invalid={!!fieldErrors.password}
-        />
+        <div style={{ position: 'relative' }}>
+          <input
+            id="password"
+            type={showPassword ? 'text' : 'password'}
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              if (fieldErrors.password) setFieldErrors((f) => ({ ...f, password: undefined }));
+            }}
+            autoComplete="new-password"
+            aria-invalid={!!fieldErrors.password}
+            style={{ paddingRight: '2.5rem' }}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((v) => !v)}
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: '0.25rem', lineHeight: 1 }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>
+              {showPassword ? 'visibility_off' : 'visibility'}
+            </span>
+          </button>
+        </div>
         <p className="apply-field-hint">Use at least 8 characters. You&apos;ll use this password to come back and check your status.</p>
         {fieldErrors.password ? <p className="form-error">{fieldErrors.password}</p> : null}
       </div>
       <div className="form-group">
         <label htmlFor="confirmPassword">Confirm Password *</label>
-        <input
-          id="confirmPassword"
-          type="password"
-          value={confirmPassword}
-          onChange={(e) => {
-            setConfirmPassword(e.target.value);
-            if (fieldErrors.confirmPassword) setFieldErrors((f) => ({ ...f, confirmPassword: undefined }));
-          }}
-          autoComplete="new-password"
-          aria-invalid={!!fieldErrors.confirmPassword}
-        />
+        <div style={{ position: 'relative' }}>
+          <input
+            id="confirmPassword"
+            type={showConfirmPassword ? 'text' : 'password'}
+            value={confirmPassword}
+            onChange={(e) => {
+              setConfirmPassword(e.target.value);
+              if (fieldErrors.confirmPassword) setFieldErrors((f) => ({ ...f, confirmPassword: undefined }));
+            }}
+            autoComplete="new-password"
+            aria-invalid={!!fieldErrors.confirmPassword}
+            style={{ paddingRight: '2.5rem' }}
+          />
+          <button
+            type="button"
+            onClick={() => setShowConfirmPassword((v) => !v)}
+            aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+            style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: '0.25rem', lineHeight: 1 }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>
+              {showConfirmPassword ? 'visibility_off' : 'visibility'}
+            </span>
+          </button>
+        </div>
         {fieldErrors.confirmPassword ? <p className="form-error">{fieldErrors.confirmPassword}</p> : null}
       </div>
       {error && <p className="form-error" role="alert">{error}</p>}

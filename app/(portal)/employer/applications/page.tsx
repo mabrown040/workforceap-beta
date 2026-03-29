@@ -6,6 +6,8 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
 import { prisma } from '@/lib/db/prisma';
 import EmployerApplicationsClient from '@/components/employer/EmployerApplicationsClient';
+import MobileApplicationsClient from '@/components/employer/MobileApplicationsClient';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'WorkforceAP Applicants',
@@ -41,11 +43,23 @@ export default async function EmployerApplicationsPage() {
 
   return (
     <div>
-      <PageHeader
-        title="Applicants"
-        subtitle="Update application status as you review candidates. Invalid workflow steps are blocked."
-      />
-      <EmployerApplicationsClient initialRows={initialRows} />
+      {/* ── Mobile Applications View (≤640px) ── */}
+      <div className="wa-md:hidden" style={{ paddingBottom: "6rem" }}>
+        <div className="px-4 pt-6 pb-3">
+          <h1 className="text-2xl font-extrabold tracking-tight mb-1" style={{ color: '#1c1b1b' }}>Applicants</h1>
+          <p className="text-xs" style={{ color: '#584144' }}>Review and update candidate status.</p>
+        </div>
+        <MobileApplicationsClient initialRows={initialRows} />
+        <MobileBottomNav variant="portal" />
+      </div>
+      {/* ── Desktop View ── */}
+      <div className="wa-hidden wa-md:block">
+        <PageHeader
+          title="Applicants"
+          subtitle="Update application status as you review candidates. Invalid workflow steps are blocked."
+        />
+        <EmployerApplicationsClient initialRows={initialRows} />
+      </div>
     </div>
   );
 }

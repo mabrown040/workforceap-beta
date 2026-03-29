@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WorkforceAP — Brand Guide 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      /* Primary palette — Stitch Digital Ivory Tower */
+      --primary:        #8c0f37;
+      --primary-cont:   #ad2c4d;
+      --primary-light:  #ffb2bc;
+      --primary-fixed:  #ffd9dd;
+
+      /* Secondary — Gold */
+      --secondary:      #7b5800;
+      --secondary-cont: #ffbb00;
+      --secondary-fixed:#ffdea4;
+
+      /* Surface scale */
+      --surface:        #fcf9f8;
+      --surface-low:    #f6f3f2;
+      --surface-mid:    #f0edec;
+      --surface-high:   #ebe7e7;
+      --surface-highest:#e5e2e1;
+      --surface-dim:    #dcd9d9;
+      --surface-white:  #ffffff;
+
+      /* On-surface */
+      --on-surface:     #1c1b1b;
+      --on-surface-v:   #584144;
+      --outline:        #8b7073;
+      --outline-v:      #debfc2;
+
+      /* Typography */
+      --font: 'Inter', -apple-system, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      background: var(--surface);
+      color: var(--on-surface);
+      -webkit-font-smoothing: antialiased;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* ── Cover ── */
+    .cover {
+      min-height: 100vh;
+      background: linear-gradient(160deg, #8c0f37 0%, #ad2c4d 50%, #c73b62 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 64px;
+      page-break-after: always;
+      position: relative;
+      overflow: hidden;
+    }
+    .cover::before {
+      content: '';
+      position: absolute;
+      top: -120px; right: -120px;
+      width: 500px; height: 500px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 50%;
+    }
+    .cover::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; left: -80px;
+      width: 300px; height: 300px;
+      background: rgba(255,187,0,0.15);
+      border-radius: 50%;
+    }
+    .cover-logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .cover-logo img {
+      height: 52px;
+      filter: brightness(0) invert(1);
+    }
+    .cover-logo-text {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: white;
+      letter-spacing: -0.02em;
+    }
+    .cover-content { position: relative; z-index: 1; }
+    .cover-eyebrow {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 24px;
+    }
+    .cover-title {
+      font-size: 4.5rem;
+      font-weight: 900;
+      color: white;
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      margin-bottom: 24px;
+    }
+    .cover-title span { color: #ffbb00; }
+    .cover-sub {
+      font-size: 1.125rem;
+      color: rgba(255,255,255,0.8);
+      max-width: 460px;
+      line-height: 1.6;
+    }
+    .cover-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      position: relative;
+      z-index: 1;
+    }
+    .cover-footer-left { color: rgba(255,255,255,0.6); font-size: 0.8rem; }
+    .cover-footer-right { color: rgba(255,255,255,0.4); font-size: 0.7rem; text-align: right; }
+
+    /* ── Page layout ── */
+    .page { padding: 64px; page-break-after: always; }
+    .page:last-child { page-break-after: avoid; }
+
+    /* ── Section headers ── */
+    .section-label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--outline);
+      margin-bottom: 8px;
+    }
+    .section-title {
+      font-size: 2.5rem;
+      font-weight: 900;
+      letter-spacing: -0.025em;
+      line-height: 1;
+      color: var(--on-surface);
+      margin-bottom: 8px;
+    }
+    .section-title em { color: var(--primary-cont); font-style: normal; }
+    .section-desc {
+      font-size: 1rem;
+      color: var(--on-surface-v);
+      max-width: 560px;
+      margin-bottom: 48px;
+      line-height: 1.65;
+    }
+
+    /* ── Divider ── */
+    .divider { height: 1px; background: var(--outline-v); margin: 48px 0; opacity: 0.4; }
+
+    /* ── Color system ── */
+    .color-row { display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; }
+    .swatch {
+      border-radius: 12px;
+      overflow: hidden;
+      flex: 1;
+      min-width: 120px;
+    }
+    .swatch-block { height: 100px; }
+    .swatch-info { padding: 12px; background: var(--surface-white); }
+    .swatch-name { font-size: 0.75rem; font-weight: 700; color: var(--on-surface); }
+    .swatch-hex { font-size: 0.65rem; color: var(--outline); font-family: monospace; margin-top: 2px; }
+    .swatch-role { font-size: 0.6rem; color: var(--outline); margin-top: 4px; line-height: 1.4; }
+
+    /* Surface swatch grid */
+    .surface-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 32px; }
+    .surface-swatch { border-radius: 8px; border: 1px solid var(--outline-v); }
+    .surface-swatch-block { height: 60px; border-radius: 8px 8px 0 0; }
+    .surface-swatch-info { padding: 8px; }
+    .surface-swatch-name { font-size: 0.6rem; font-weight: 600; color: var(--on-surface); }
+    .surface-swatch-hex { font-size: 0.55rem; color: var(--outline); font-family: monospace; }
+
+    /* ── Typography ── */
+    .type-specimen { margin-bottom: 24px; }
+    .type-specimen-label { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--outline); margin-bottom: 6px; }
+    .type-specimen-meta { font-size: 0.65rem; color: var(--outline); margin-top: 4px; font-family: monospace; }
+
+    .type-display { font-size: 3.5rem; font-weight: 900; letter-spacing: -0.03em; line-height: 1; color: var(--on-surface); }
+    .type-headline { font-size: 2rem; font-weight: 800; letter-spacing: -0.025em; line-height: 1.1; color: var(--on-surface); }
+    .type-title { font-size: 1.375rem; font-weight: 700; letter-spacing: -0.015em; line-height: 1.2; color: var(--on-surface); }
+    .type-body { font-size: 1rem; font-weight: 400; line-height: 1.65; color: var(--on-surface); }
+    .type-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--on-surface-v); }
+
+    /* ── Components ── */
+    .component-row { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 32px; }
+
+    /* Buttons */
+    .btn-primary {
+      display: inline-block;
+      background: linear-gradient(135deg, #8c0f37, #ad2c4d);
+      color: white;
+      padding: 14px 32px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.875rem;
+      letter-spacing: 0.01em;
+      text-decoration: none;
+    }
+    .btn-secondary {
+      display: inline-block;
+      background: #ffbb00;
+      color: #1c1b1b;
+      padding: 14px 32px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.875rem;
+      letter-spacing: 0.01em;
+    }
+    .btn-outline {
+      display: inline-block;
+      background: transparent;
+      border: 1.5px solid var(--on-surface);
+      color: var(--on-surface);
+      padding: 13px 31px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.875rem;
+    }
+    .btn-ghost {
+      display: inline-block;
+      background: transparent;
+      color: var(--primary-cont);
+      padding: 14px 24px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.875rem;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface-white);
+      border-radius: 12px;
+      padding: 24px;
+      flex: 1;
+      min-width: 200px;
+    }
+    .card-dark {
+      background: #1c1b1b;
+      border-radius: 12px;
+      padding: 24px;
+      color: white;
+      flex: 1;
+      min-width: 200px;
+    }
+    .card-glass {
+      background: rgba(252,249,248,0.8);
+      backdrop-filter: blur(12px);
+      border-radius: 12px;
+      padding: 24px;
+      border: 1px solid rgba(222,191,194,0.3);
+      flex: 1;
+      min-width: 200px;
+    }
+    .card-accent {
+      background: linear-gradient(135deg, #8c0f37, #ad2c4d);
+      border-radius: 12px;
+      padding: 24px;
+      color: white;
+      flex: 1;
+      min-width: 200px;
+    }
+    .card-title { font-weight: 800; font-size: 1rem; margin-bottom: 6px; }
+    .card-body { font-size: 0.8rem; opacity: 0.75; line-height: 1.5; }
+
+    /* Badges */
+    .badge-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .badge-primary { background: rgba(173,44,77,0.12); color: #ad2c4d; }
+    .badge-gold { background: #ffbb00; color: #1c1b1b; }
+    .badge-success { background: #dcfce7; color: #166534; }
+    .badge-neutral { background: var(--surface-highest); color: var(--on-surface-v); }
+    .badge-dark { background: #1c1b1b; color: white; }
+
+    /* ── Spacing ── */
+    .spacing-row { display: flex; gap: 12px; align-items: flex-end; margin-bottom: 24px; }
+    .spacing-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .spacing-block { background: var(--primary-cont); border-radius: 4px; width: 100%; }
+    .spacing-label { font-size: 0.55rem; font-weight: 700; color: var(--outline); text-align: center; font-family: monospace; }
+
+    /* ── Do / Don't ── */
+    .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px; }
+    .rule-do { background: #f0fdf4; border-radius: 12px; padding: 20px; border-left: 3px solid #4a9b4f; }
+    .rule-dont { background: #fff1f2; border-radius: 12px; padding: 20px; border-left: 3px solid #ad2c4d; }
+    .rule-label { font-size: 0.6rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; }
+    .rule-label-do { color: #166534; }
+    .rule-label-dont { color: #ad2c4d; }
+    .rule-item { font-size: 0.8rem; color: var(--on-surface); margin-bottom: 6px; padding-left: 12px; position: relative; line-height: 1.5; }
+    .rule-item::before { content: '•'; position: absolute; left: 0; }
+    .rule-do .rule-item::before { color: #4a9b4f; }
+    .rule-dont .rule-item::before { color: #ad2c4d; }
+
+    /* ── Voice & Tone ── */
+    .tone-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .tone-card { background: var(--surface-mid); border-radius: 12px; padding: 20px; }
+    .tone-card-label { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--primary-cont); margin-bottom: 6px; }
+    .tone-card-title { font-size: 1rem; font-weight: 800; color: var(--on-surface); margin-bottom: 6px; }
+    .tone-card-body { font-size: 0.8rem; color: var(--on-surface-v); line-height: 1.5; }
+
+    /* ── Dark surface section ── */
+    .dark-section { background: #1c1b1b; border-radius: 16px; padding: 48px; margin-bottom: 32px; color: white; }
+    .dark-section .section-label { color: rgba(255,255,255,0.4); }
+    .dark-section .section-title { color: white; }
+    .dark-section .section-desc { color: rgba(255,255,255,0.65); }
+    .dark-swatch-info { background: #2b2a2a; }
+    .dark-swatch-name { color: white; }
+    .dark-swatch-hex { color: rgba(255,255,255,0.5); }
+
+    /* ── Logo section ── */
+    .logo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px; }
+    .logo-cell {
+      border-radius: 12px;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+    .logo-cell img { max-height: 64px; max-width: 200px; object-fit: contain; }
+    .logo-cell-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+    .logo-light { background: var(--surface-white); }
+    .logo-light .logo-cell-label { color: var(--outline); }
+    .logo-dark { background: #1c1b1b; }
+    .logo-dark .logo-cell-label { color: rgba(255,255,255,0.5); }
+    .logo-crimson { background: linear-gradient(135deg, #8c0f37, #ad2c4d); }
+    .logo-crimson .logo-cell-label { color: rgba(255,255,255,0.7); }
+    .logo-surface { background: var(--surface-mid); }
+    .logo-surface .logo-cell-label { color: var(--outline); }
+
+    /* ── Print ── */
+    @media print {
+      body { background: white; }
+      .page { page-break-after: always; }
+      .cover { page-break-after: always; }
+    }
+
+    /* ── Tagline / tagline section ── */
+    .tagline-block {
+      background: linear-gradient(135deg, #8c0f37 0%, #ad2c4d 100%);
+      border-radius: 16px;
+      padding: 48px;
+      margin-bottom: 32px;
+      color: white;
+    }
+    .tagline-text {
+      font-size: 2.25rem;
+      font-weight: 900;
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+      color: white;
+    }
+    .tagline-text span { color: #ffbb00; }
+    .tagline-desc { font-size: 0.9rem; color: rgba(255,255,255,0.75); margin-top: 12px; max-width: 480px; }
+
+    /* Motion tokens table */
+    .token-table { width: 100%; border-collapse: collapse; margin-bottom: 32px; }
+    .token-table th { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--outline); border-bottom: 1px solid var(--outline-v); padding: 8px 12px; text-align: left; }
+    .token-table td { font-size: 0.8rem; padding: 10px 12px; border-bottom: 1px solid var(--surface-high); color: var(--on-surface); font-family: monospace; }
+    .token-table tr:last-child td { border-bottom: none; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════ COVER ══ -->
+<div class="cover">
+  <div class="cover-logo">
+    <img src="public/images/logo.png" alt="WorkforceAP" onerror="this.style.display='none'" />
+    <span class="cover-logo-text">WorkforceAP</span>
+  </div>
+  <div class="cover-content">
+    <div class="cover-eyebrow">Brand Guide · 2026</div>
+    <div class="cover-title">Brand &<br><span>Design</span><br>System</div>
+    <div class="cover-sub">The visual language for WorkforceAP — a premium, editorial workforce development platform built on the "Digital Ivory Tower" design principle.</div>
+  </div>
+  <div class="cover-footer">
+    <div class="cover-footer-left">
+      Empowering People. Advancing Futures.<br>
+      workforceap.org
+    </div>
+    <div class="cover-footer-right">
+      Confidential — Internal Use<br>
+      Version 2.0 · March 2026
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ BRAND IDENTITY ══ -->
+<div class="page">
+  <div class="section-label">01 — Brand Identity</div>
+  <div class="section-title">Who We <em>Are</em></div>
+  <div class="section-desc">WorkforceAP is a workforce development platform delivering free career training and industry certifications to underserved communities, veterans, and adult learners — starting in Austin, scaling nationwide.</div>
+
+  <div class="tone-grid">
+    <div class="tone-card">
+      <div class="tone-card-label">Mission</div>
+      <div class="tone-card-title">Economic mobility through credible career pathways</div>
+      <div class="tone-card-body">We remove tuition as a barrier so that access to opportunity isn't limited by income. Training should be an investment, never a debt.</div>
+    </div>
+    <div class="tone-card">
+      <div class="tone-card-label">Audiences</div>
+      <div class="tone-card-title">Members · Employers · Partners</div>
+      <div class="tone-card-body">Job seekers who need structured pathways. Employers who need certified talent. Nonprofits and workforce centers who need scalable partnerships.</div>
+    </div>
+    <div class="tone-card">
+      <div class="tone-card-label">Creative North Star</div>
+      <div class="tone-card-title">The Digital Ivory Tower</div>
+      <div class="tone-card-body">Academic prestige meets modern workforce training. High-end editorial. Curated, authoritative, intentional. Not "startup cute," not "government dull."</div>
+    </div>
+    <div class="tone-card">
+      <div class="tone-card-label">Tagline</div>
+      <div class="tone-card-title">Empowering People. Advancing Futures.</div>
+      <div class="tone-card-body">Direct, civic, empowering. Serious without being bureaucratic. Built for people who have been overlooked — we actually get people hired.</div>
+    </div>
+  </div>
+
+  <div class="tagline-block">
+    <div class="tagline-text">Empowering People.<br><span>Advancing Futures.</span></div>
+    <div class="tagline-desc">Use this tagline consistently across all marketing surfaces. Never alter the word order. Pair with crimson on dark or white backgrounds.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ LOGO ══ -->
+<div class="page">
+  <div class="section-label">02 — Logo</div>
+  <div class="section-title">Logo <em>Usage</em></div>
+  <div class="section-desc">Use the WorkforceAP logo consistently across all touchpoints. Maintain clear space equal to the height of the "W" on all sides. Never stretch, rotate, or recolor.</div>
+
+  <div class="logo-grid">
+    <div class="logo-cell logo-light">
+      <img src="public/images/logo.png" alt="WorkforceAP on white" />
+      <div class="logo-cell-label">On White / Light Surface</div>
+    </div>
+    <div class="logo-cell logo-dark">
+      <img src="public/images/logo.png" alt="WorkforceAP on dark" style="filter: brightness(0) invert(1);" />
+      <div class="logo-cell-label">On Dark / Near-Black</div>
+    </div>
+    <div class="logo-cell logo-crimson">
+      <img src="public/images/logo.png" alt="WorkforceAP on crimson" style="filter: brightness(0) invert(1);" />
+      <div class="logo-cell-label">On Crimson Gradient</div>
+    </div>
+    <div class="logo-cell logo-surface">
+      <img src="public/images/logo.png" alt="WorkforceAP on surface" />
+      <div class="logo-cell-label">On Surface Container</div>
+    </div>
+  </div>
+
+  <div class="rule-grid" style="grid-template-columns: 1fr 1fr;">
+    <div class="rule-do">
+      <div class="rule-label rule-label-do">✓ Do</div>
+      <div class="rule-item">Use on white, near-black, or crimson backgrounds</div>
+      <div class="rule-item">Maintain minimum clear space</div>
+      <div class="rule-item">Use the full lockup (mark + wordmark) as the standard</div>
+      <div class="rule-item">Use white version on dark/crimson backgrounds</div>
+    </div>
+    <div class="rule-dont">
+      <div class="rule-label rule-label-dont">✗ Don't</div>
+      <div class="rule-item">Place on low-contrast or busy backgrounds</div>
+      <div class="rule-item">Stretch, skew, or rotate the logo</div>
+      <div class="rule-item">Recolor to anything outside approved palette</div>
+      <div class="rule-item">Use the mark alone without wordmark in primary usage</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ COLOR ══ -->
+<div class="page">
+  <div class="section-label">03 — Color System</div>
+  <div class="section-title">Color <em>Palette</em></div>
+  <div class="section-desc">Rooted in academic crimson and prestigious gold, grounded by a nuanced neutral scale. Every color earns its place — no decorative color for its own sake.</div>
+
+  <div class="color-row">
+    <div class="swatch">
+      <div class="swatch-block" style="background: linear-gradient(135deg, #8c0f37, #ad2c4d);"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Crimson Primary</div>
+        <div class="swatch-hex">#8c0f37 → #ad2c4d</div>
+        <div class="swatch-role">Primary CTAs, key accents, hero gradients</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-block" style="background: #ffbb00;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Gold Secondary</div>
+        <div class="swatch-hex">#ffbb00</div>
+        <div class="swatch-role">Achievement badges, milestone markers, enrollment badges</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-block" style="background: #ffb2bc;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Crimson Light</div>
+        <div class="swatch-hex">#ffb2bc</div>
+        <div class="swatch-role">Tints, hover states, decorative elements on dark</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-block" style="background: #1c1b1b;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Near-Black</div>
+        <div class="swatch-hex">#1c1b1b</div>
+        <div class="swatch-role">Body text, headings, dark surfaces, portals</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label" style="margin-top: 16px;">Surface Scale</div>
+  <div style="margin-top: 12px; margin-bottom: 32px;">
+    <div class="surface-grid">
+      <div class="surface-swatch">
+        <div class="surface-swatch-block" style="background: #ffffff; border-radius: 8px 8px 0 0;"></div>
+        <div class="surface-swatch-info">
+          <div class="surface-swatch-name">Surface Lowest</div>
+          <div class="surface-swatch-hex">#ffffff</div>
+        </div>
+      </div>
+      <div class="surface-swatch">
+        <div class="surface-swatch-block" style="background: #fcf9f8; border-radius: 8px 8px 0 0;"></div>
+        <div class="surface-swatch-info">
+          <div class="surface-swatch-name">Surface</div>
+          <div class="surface-swatch-hex">#fcf9f8</div>
+        </div>
+      </div>
+      <div class="surface-swatch">
+        <div class="surface-swatch-block" style="background: #f6f3f2; border-radius: 8px 8px 0 0;"></div>
+        <div class="surface-swatch-info">
+          <div class="surface-swatch-name">Surface Low</div>
+          <div class="surface-swatch-hex">#f6f3f2</div>
+        </div>
+      </div>
+      <div class="surface-swatch">
+        <div class="surface-swatch-block" style="background: #f0edec; border-radius: 8px 8px 0 0;"></div>
+        <div class="surface-swatch-info">
+          <div class="surface-swatch-name">Surface Container</div>
+          <div class="surface-swatch-hex">#f0edec</div>
+        </div>
+      </div>
+      <div class="surface-swatch">
+        <div class="surface-swatch-block" style="background: #ebe7e7; border-radius: 8px 8px 0 0;"></div>
+        <div class="surface-swatch-info">
+          <div class="surface-swatch-name">Surface High</div>
+          <div class="surface-swatch-hex">#ebe7e7</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dark palette -->
+  <div class="dark-section">
+    <div class="section-label">Dark Mode Palette</div>
+    <div class="section-title" style="color: white; font-size: 1.75rem; margin-bottom: 24px;">Portal &amp; Dark Surface Scale</div>
+    <div class="color-row">
+      <div class="swatch">
+        <div class="swatch-block" style="background: #141313; border: 1px solid rgba(255,255,255,0.1);"></div>
+        <div class="dark-swatch-info swatch-info">
+          <div class="dark-swatch-name swatch-name">Surface Dim</div>
+          <div class="dark-swatch-hex swatch-hex">#141313</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background: #201f1f; border: 1px solid rgba(255,255,255,0.08);"></div>
+        <div class="dark-swatch-info swatch-info">
+          <div class="dark-swatch-name swatch-name">Surface Container</div>
+          <div class="dark-swatch-hex swatch-hex">#201f1f</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background: #2b2a2a; border: 1px solid rgba(255,255,255,0.08);"></div>
+        <div class="dark-swatch-info swatch-info">
+          <div class="dark-swatch-name swatch-name">Surface High</div>
+          <div class="dark-swatch-hex swatch-hex">#2b2a2a</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background: #e6e1e1;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">On Surface</div>
+          <div class="swatch-hex">#e6e1e1</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ TYPOGRAPHY ══ -->
+<div class="page">
+  <div class="section-label">04 — Typography</div>
+  <div class="section-title">Type <em>System</em></div>
+  <div class="section-desc">Inter is used exclusively — weights 300 through 900. Vary tracking and leading to create hierarchy that feels like a prestigious academic journal.</div>
+
+  <div class="type-specimen">
+    <div class="type-specimen-label">Display</div>
+    <div class="type-display">Free Career Training</div>
+    <div class="type-specimen-meta">Inter 900 · 56px · tracking -0.03em · line-height 1</div>
+  </div>
+  <div class="divider"></div>
+
+  <div class="type-specimen">
+    <div class="type-specimen-label">Headline</div>
+    <div class="type-headline">25+ Years Breaking Barriers</div>
+    <div class="type-specimen-meta">Inter 800 · 32px · tracking -0.025em · line-height 1.1</div>
+  </div>
+  <div class="divider"></div>
+
+  <div class="type-specimen">
+    <div class="type-specimen-label">Title</div>
+    <div class="type-title">Industry-Recognized Certifications</div>
+    <div class="type-specimen-meta">Inter 700 · 22px · tracking -0.015em · line-height 1.2</div>
+  </div>
+  <div class="divider"></div>
+
+  <div class="type-specimen">
+    <div class="type-specimen-label">Body</div>
+    <div class="type-body">WorkforceAP uses publicly aligned workforce funding and employer partnerships to remove tuition barriers, deliver rigorous training, and stay accountable to actual placement outcomes.</div>
+    <div class="type-specimen-meta">Inter 400 · 16px · line-height 1.65 · color on-surface-variant</div>
+  </div>
+  <div class="divider"></div>
+
+  <div class="type-specimen">
+    <div class="type-specimen-label">Label / Eyebrow</div>
+    <div class="type-label">Available Programs · Austin Launch Community</div>
+    <div class="type-specimen-meta">Inter 700 · 10px · tracking 0.10em · ALL CAPS</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ COMPONENTS ══ -->
+<div class="page">
+  <div class="section-label">05 — Components</div>
+  <div class="section-title">UI <em>Components</em></div>
+  <div class="section-desc">Consistent component patterns across marketing and portal surfaces. Same tokens — different emphasis, not different brands.</div>
+
+  <div class="section-label" style="margin-bottom: 12px;">Buttons</div>
+  <div class="component-row" style="align-items: center; margin-bottom: 40px;">
+    <div class="btn-primary">Apply Now — Free</div>
+    <div class="btn-secondary">Find Your Path</div>
+    <div class="btn-outline">View Programs</div>
+    <div class="btn-ghost">Learn more →</div>
+  </div>
+
+  <div class="section-label" style="margin-bottom: 12px;">Cards</div>
+  <div class="component-row" style="margin-bottom: 40px;">
+    <div class="card">
+      <div class="card-title">Standard Card</div>
+      <div class="card-body">Surface-white background, rounded-xl, ambient shadow on hover. No 1px borders — depth through tonal layering.</div>
+    </div>
+    <div class="card-accent">
+      <div class="card-title">Accent Card</div>
+      <div class="card-body" style="color: rgba(255,255,255,0.8);">Crimson gradient. Use for featured programs, primary CTAs, and enrollment nudges.</div>
+    </div>
+    <div class="card-dark">
+      <div class="card-title">Dark Card</div>
+      <div class="card-body">Near-black surface. Used in portal, stats, and hero sections with editorial depth.</div>
+    </div>
+  </div>
+
+  <div class="section-label" style="margin-bottom: 12px;">Badges &amp; Chips</div>
+  <div class="badge-row" style="margin-bottom: 40px;">
+    <span class="badge badge-primary">Now Enrolling</span>
+    <span class="badge badge-gold">⭐ Highly Recommended</span>
+    <span class="badge badge-success">94% Placement</span>
+    <span class="badge badge-neutral">3–5 Months</span>
+    <span class="badge badge-dark">$0 Cost</span>
+    <span class="badge" style="background: rgba(173,44,77,0.1); color: #8c0f37;">IT &amp; Cybersecurity</span>
+  </div>
+
+  <div class="section-label" style="margin-bottom: 12px;">Bottom Navigation (Mobile)</div>
+  <div style="background: rgba(252,249,248,0.88); backdrop-filter: blur(12px); border-radius: 16px; padding: 12px 24px; display: flex; justify-content: space-around; align-items: center; border: 1px solid rgba(222,191,194,0.3); max-width: 390px; margin-bottom: 40px;">
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 3px; background: linear-gradient(135deg, #8c0f37, #ad2c4d); color: white; padding: 6px 16px; border-radius: 10px;">
+      <span style="font-size: 22px;">🏠</span>
+      <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;">Home</span>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 3px; color: #584144;">
+      <span style="font-size: 22px;">🔍</span>
+      <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;">Quiz</span>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 3px; color: #584144;">
+      <span style="font-size: 22px;">📚</span>
+      <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;">Programs</span>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 3px; color: #584144;">
+      <span style="font-size: 22px;">📋</span>
+      <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;">Apply</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ DESIGN RULES ══ -->
+<div class="page">
+  <div class="section-label">06 — Design Principles</div>
+  <div class="section-title">Rules &amp; <em>Principles</em></div>
+  <div class="section-desc">These rules define the Digital Ivory Tower aesthetic. They are non-negotiable guardrails, not preferences.</div>
+
+  <div class="rule-grid">
+    <div class="rule-do">
+      <div class="rule-label rule-label-do">✓ Do</div>
+      <div class="rule-item">Use crimson (#ad2c4d) for all primary CTAs</div>
+      <div class="rule-item">Separate sections with tonal background shifts, not lines</div>
+      <div class="rule-item">Use glassmorphism for floating nav (bg/80, blur-12px)</div>
+      <div class="rule-item">Apply asymmetric layouts — off-center focal points create depth</div>
+      <div class="rule-item">Use rounded-xl (12px) for cards — rounded-md (6px) for buttons</div>
+      <div class="rule-item">Keep Inter as the only typeface</div>
+      <div class="rule-item">Use Material Symbols Outlined for icons throughout</div>
+      <div class="rule-item">Pair crimson + gold — never crimson + blue</div>
+    </div>
+    <div class="rule-dont">
+      <div class="rule-label rule-label-dont">✗ Don't</div>
+      <div class="rule-item">Use 1px solid borders to separate sections or cards</div>
+      <div class="rule-item">Use default Tailwind blue (#2563eb) as a primary CTA</div>
+      <div class="rule-item">Use pure black (#000000) for text — use #1c1b1b</div>
+      <div class="rule-item">Over-round corners — never apply the same large radius everywhere</div>
+      <div class="rule-item">Use decorative blobs, wavy dividers, or floating shapes</div>
+      <div class="rule-item">Center all content — asymmetry earns authority</div>
+      <div class="rule-item">Use emoji as design elements in UI</div>
+      <div class="rule-item">Mix warm and cool neutrals in the same surface</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-label">Elevation — Tonal Layering</div>
+  <div style="margin-top: 12px;">
+    <p style="font-size: 0.875rem; color: var(--on-surface-v); margin-bottom: 20px;">Depth is achieved by stacking the surface-container tiers. Traditional shadows are a crutch for poor layout.</p>
+    <div style="display: flex; gap: 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--outline-v);">
+      <div style="flex: 1; background: #ffffff; padding: 20px 16px; text-align: center;">
+        <div style="font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--outline); margin-bottom: 6px;">Closest</div>
+        <div style="font-size: 0.75rem; font-weight: 600; color: var(--on-surface);">Surface Lowest</div>
+        <div style="font-size: 0.6rem; color: var(--outline); font-family: monospace;">#ffffff</div>
+      </div>
+      <div style="flex: 1; background: #fcf9f8; padding: 20px 16px; text-align: center;">
+        <div style="font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--outline); margin-bottom: 6px;">Base</div>
+        <div style="font-size: 0.75rem; font-weight: 600; color: var(--on-surface);">Surface</div>
+        <div style="font-size: 0.6rem; color: var(--outline); font-family: monospace;">#fcf9f8</div>
+      </div>
+      <div style="flex: 1; background: #f0edec; padding: 20px 16px; text-align: center;">
+        <div style="font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--outline); margin-bottom: 6px;">Section</div>
+        <div style="font-size: 0.75rem; font-weight: 600; color: var(--on-surface);">Container</div>
+        <div style="font-size: 0.6rem; color: var(--outline); font-family: monospace;">#f0edec</div>
+      </div>
+      <div style="flex: 1; background: #ebe7e7; padding: 20px 16px; text-align: center;">
+        <div style="font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--outline); margin-bottom: 6px;">Receded</div>
+        <div style="font-size: 0.75rem; font-weight: 600; color: var(--on-surface);">Container High</div>
+        <div style="font-size: 0.6rem; color: var(--outline); font-family: monospace;">#ebe7e7</div>
+      </div>
+      <div style="flex: 1; background: #dcd9d9; padding: 20px 16px; text-align: center;">
+        <div style="font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--outline); margin-bottom: 6px;">Background</div>
+        <div style="font-size: 0.75rem; font-weight: 600; color: var(--on-surface);">Surface Dim</div>
+        <div style="font-size: 0.6rem; color: var(--outline); font-family: monospace;">#dcd9d9</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ DESIGN TOKENS ══ -->
+<div class="page">
+  <div class="section-label">07 — Design Tokens</div>
+  <div class="section-title">Token <em>Reference</em></div>
+  <div class="section-desc">CSS custom properties and Tailwind tokens. Always reference tokens — never hardcode hex values in components.</div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
+    <div>
+      <div class="section-label" style="margin-bottom: 12px;">Color Tokens</div>
+      <table class="token-table">
+        <tr><th>Token</th><th>Value</th></tr>
+        <tr><td>--primary</td><td>#8c0f37</td></tr>
+        <tr><td>--primary-cont</td><td>#ad2c4d</td></tr>
+        <tr><td>--primary-light</td><td>#ffb2bc</td></tr>
+        <tr><td>--primary-fixed</td><td>#ffd9dd</td></tr>
+        <tr><td>--secondary</td><td>#7b5800</td></tr>
+        <tr><td>--secondary-cont</td><td>#ffbb00</td></tr>
+        <tr><td>--surface</td><td>#fcf9f8</td></tr>
+        <tr><td>--on-surface</td><td>#1c1b1b</td></tr>
+        <tr><td>--on-surface-variant</td><td>#584144</td></tr>
+        <tr><td>--outline</td><td>#8b7073</td></tr>
+        <tr><td>--outline-variant</td><td>#debfc2</td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="section-label" style="margin-bottom: 12px;">Spacing &amp; Radius</div>
+      <table class="token-table">
+        <tr><th>Token</th><th>Value</th></tr>
+        <tr><td>--space-1</td><td>4px</td></tr>
+        <tr><td>--space-2</td><td>8px</td></tr>
+        <tr><td>--space-3</td><td>12px</td></tr>
+        <tr><td>--space-4</td><td>16px</td></tr>
+        <tr><td>--space-6</td><td>24px</td></tr>
+        <tr><td>--space-8</td><td>32px</td></tr>
+        <tr><td>--space-12</td><td>48px</td></tr>
+        <tr><td>--radius-sm</td><td>4px</td></tr>
+        <tr><td>--radius-md</td><td>6px (buttons)</td></tr>
+        <tr><td>--radius-lg</td><td>8px</td></tr>
+        <tr><td>--radius-xl</td><td>12px (cards)</td></tr>
+        <tr><td>--radius-2xl</td><td>16px (modals)</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-label" style="margin-bottom: 12px;">Motion Tokens</div>
+  <table class="token-table">
+    <tr><th>Token</th><th>Value</th><th>Use</th></tr>
+    <tr><td>--transition-fast</td><td>150ms ease-in-out</td><td>Hover states, color changes</td></tr>
+    <tr><td>--transition-base</td><td>200ms ease-in-out</td><td>Standard transitions</td></tr>
+    <tr><td>--transition-slow</td><td>400ms ease-in-out</td><td>Page transitions, modals</td></tr>
+    <tr><td>backdrop-blur</td><td>blur(12px)</td><td>Glassmorphism nav, modals</td></tr>
+  </table>
+
+  <div style="margin-top: 32px; background: var(--surface-mid); border-radius: 12px; padding: 24px;">
+    <div class="section-label" style="margin-bottom: 8px;">Accessibility</div>
+    <p style="font-size: 0.8rem; color: var(--on-surface-v); line-height: 1.6;">WCAG 2.1 AA compliance required. White on crimson (#ad2c4d) = 4.6:1. Crimson on white = 4.6:1. Minimum touch target: 48×48px. Focus ring: 0 0 0 2px white, 0 0 0 4px #ad2c4d. Never rely on color alone — pair with icon, label, or pattern.</p>
+  </div>
+</div>
+
+</body>
+</html>

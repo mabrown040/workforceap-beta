@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-surface": "#1c1b1b",
+              "surface-container-high": "#ebe7e7",
+              "secondary": "#7b5800",
+              "tertiary": "#474646",
+              "inverse-on-surface": "#f3f0ef",
+              "background": "#fcf9f8",
+              "inverse-surface": "#313030",
+              "surface-variant": "#e5e2e1",
+              "on-secondary-fixed": "#261900",
+              "on-error": "#ffffff",
+              "tertiary-container": "#5f5e5e",
+              "secondary-fixed-dim": "#ffbb00",
+              "on-surface-variant": "#584144",
+              "on-primary-container": "#ffcbd1",
+              "inverse-primary": "#ffb2bc",
+              "outline": "#8b7073",
+              "surface": "#fcf9f8",
+              "surface-tint": "#ad2c4d",
+              "secondary-fixed": "#ffdea4",
+              "on-error-container": "#93000a",
+              "error-container": "#ffdad6",
+              "on-background": "#1c1b1b",
+              "on-tertiary-fixed": "#1c1b1b",
+              "on-primary-fixed": "#400013",
+              "primary-container": "#ad2c4d",
+              "on-primary": "#ffffff",
+              "surface-dim": "#dcd9d9",
+              "on-secondary-container": "#6c4d00",
+              "on-secondary": "#ffffff",
+              "on-tertiary": "#ffffff",
+              "tertiary-fixed-dim": "#c8c6c5",
+              "surface-container-highest": "#e5e2e1",
+              "outline-variant": "#debfc2",
+              "tertiary-fixed": "#e5e2e1",
+              "surface-container": "#f0edec",
+              "on-secondary-fixed-variant": "#5d4200",
+              "on-tertiary-fixed-variant": "#474646",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary-container": "#dbd8d7",
+              "primary-fixed": "#ffd9dd",
+              "secondary-container": "#ffbb00",
+              "error": "#ba1a1a",
+              "surface-container-low": "#f6f3f2",
+              "surface-bright": "#fcf9f8",
+              "primary": "#8c0f37",
+              "on-primary-fixed-variant": "#8c0f37",
+              "primary-fixed-dim": "#ffb2bc"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body max-w-[390px] mx-auto min-h-screen pb-40">
+<!-- Top Navigation Anchor -->
+<header class="fixed top-0 w-full z-50 bg-[#fcf9f8]/80 backdrop-blur-xl flex items-center justify-between px-6 h-16 w-full max-w-[390px]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#8c0f37] cursor-pointer">arrow_back</span>
+<span class="font-label text-xs uppercase tracking-widest text-on-surface-variant">Programs</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant">share</span>
+<span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+</div>
+</header>
+<main class="pt-20 px-6">
+<!-- Hero Section & Title -->
+<section class="space-y-4 mb-8">
+<div class="flex flex-wrap gap-2">
+<span class="bg-surface-container-highest px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider text-primary">IT and Cybersecurity</span>
+<div class="flex items-center gap-1 bg-secondary-container/20 px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-[14px] text-secondary" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="text-[10px] font-bold uppercase tracking-wider text-on-secondary-container">Verified Certification</span>
+</div>
+</div>
+<h1 class="text-3xl font-headline font-extrabold tracking-tight leading-tight text-on-surface">
+                CompTIA A+ Professional Certificate
+            </h1>
+<div class="flex gap-3">
+<div class="flex items-center gap-1.5 bg-surface-container-low px-3 py-2 rounded-lg">
+<span class="material-symbols-outlined text-sm text-on-surface-variant">schedule</span>
+<span class="text-xs font-medium text-on-surface-variant">3-5 months</span>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container-low px-3 py-2 rounded-lg">
+<span class="material-symbols-outlined text-sm text-on-surface-variant">bolt</span>
+<span class="text-xs font-medium text-on-surface-variant">10 hrs/week</span>
+</div>
+</div>
+</section>
+<!-- Stats Row: Intentional Asymmetry -->
+<section class="grid grid-cols-3 gap-3 mb-10">
+<div class="bg-surface-container-low p-4 rounded-xl flex flex-col justify-between h-32">
+<span class="material-symbols-outlined text-primary text-xl">workspace_premium</span>
+<p class="text-[11px] font-bold leading-tight uppercase tracking-wide text-on-surface">Industry Recognized</p>
+</div>
+<div class="bg-primary p-4 rounded-xl flex flex-col justify-between h-32 text-on-primary shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined text-xl">payments</span>
+<p class="text-[11px] font-bold leading-tight uppercase tracking-wide">$0 Cost</p>
+</div>
+<div class="bg-surface-container-low p-4 rounded-xl flex flex-col justify-between h-32">
+<span class="material-symbols-outlined text-secondary text-xl">handshake</span>
+<p class="text-[11px] font-bold leading-tight uppercase tracking-wide text-on-surface">Placement Support</p>
+</div>
+</section>
+<!-- Expandable Content: About -->
+<section class="space-y-4 mb-10">
+<div class="bg-surface-container-lowest p-5 rounded-xl transition-all border border-outline-variant/10">
+<div class="flex justify-between items-center mb-2">
+<h2 class="font-headline font-bold text-lg text-on-surface">About this program</h2>
+<span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+</div>
+<p class="text-sm leading-relaxed text-on-surface-variant">
+                    Master the foundations of IT and prepare for the world's most recognized entry-level tech certification. This curriculum covers essential troubleshooting, cloud computing, and security operations.
+                </p>
+</div>
+<!-- Expandable Content: Skills -->
+<div class="bg-surface-container-lowest p-5 rounded-xl transition-all border border-outline-variant/10">
+<div class="flex justify-between items-center mb-4">
+<h2 class="font-headline font-bold text-lg text-on-surface">What you will learn</h2>
+<span class="material-symbols-outlined text-on-surface-variant">expand_less</span>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-primary text-sm">check_circle</span>
+<span class="text-xs font-medium text-on-surface-variant">Hardware</span>
+</div>
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-primary text-sm">check_circle</span>
+<span class="text-xs font-medium text-on-surface-variant">Networking</span>
+</div>
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-primary text-sm">check_circle</span>
+<span class="text-xs font-medium text-on-surface-variant">OS</span>
+</div>
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-primary text-sm">check_circle</span>
+<span class="text-xs font-medium text-on-surface-variant">Troubleshooting</span>
+</div>
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-primary text-sm">check_circle</span>
+<span class="text-xs font-medium text-on-surface-variant">Security</span>
+</div>
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-primary text-sm">check_circle</span>
+<span class="text-xs font-medium text-on-surface-variant">Mobile Devices</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Career Paths: Horizontal Scroll -->
+<section class="mb-10">
+<h2 class="font-headline font-bold text-lg text-on-surface mb-4 px-0">Career Outcomes</h2>
+<div class="flex gap-3 overflow-x-auto hide-scrollbar -mx-6 px-6">
+<div class="flex-none bg-surface-container p-4 rounded-xl min-w-[200px]">
+<p class="text-[10px] font-bold uppercase tracking-wider text-primary mb-1">Entry Level</p>
+<h3 class="font-bold text-on-surface mb-2">IT Support Specialist</h3>
+<p class="text-sm font-bold text-secondary">$52,000/yr</p>
+</div>
+<div class="flex-none bg-surface-container p-4 rounded-xl min-w-[200px]">
+<p class="text-[10px] font-bold uppercase tracking-wider text-primary mb-1">Entry Level</p>
+<h3 class="font-bold text-on-surface mb-2">Help Desk Tech</h3>
+<p class="text-sm font-bold text-secondary">$48,000/yr</p>
+</div>
+<div class="flex-none bg-surface-container p-4 rounded-xl min-w-[200px]">
+<p class="text-[10px] font-bold uppercase tracking-wider text-primary mb-1">Field Role</p>
+<h3 class="font-bold text-on-surface mb-2">Field Service Technician</h3>
+<p class="text-sm font-bold text-secondary">$55,000/yr</p>
+</div>
+</div>
+</section>
+<!-- Instructor Preview -->
+<section class="mb-12">
+<div class="relative w-full h-48 rounded-xl overflow-hidden mb-4">
+<img class="w-full h-full object-cover" data-alt="professional instructor in business casual attire smiling in a modern bright office studio with technological equipment in the background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcT4AIr_UDQ5cXv4SB7X4S2EoEOZw9UDlGlWsajHsAzditmE6cAjflCC-QVuJOvayyWW2LiPzScOGfF5unYkDn8U3WJ-iQA3AGYnscKqcJLhXBP7vmVDjiria1ocZPRKE-9MKzOmA73-32aG-yqZ5R3DdMc0jgN8r7k9kRCSAlG5ENpPqSt9pSsWWlJHul_UhWXhiSWoWOyDcCdMarCLvrJrTaggdMDw-eCUISglukn12hCAhiS6IsccKYun9HDlxjoiJ1v_9wn7_f"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
+<div class="text-on-primary">
+<p class="text-xs font-medium opacity-80">Lead Instructor</p>
+<h4 class="font-bold">Marcus Thorne, CISSP</h4>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Sticky Action & Nav Shell -->
+<div class="fixed bottom-0 left-0 w-full z-50 max-w-[390px]">
+<!-- Primary Button -->
+<div class="px-6 py-4 bg-gradient-to-t from-surface via-surface to-transparent">
+<button class="w-full bg-gradient-to-r from-primary to-primary-container h-14 rounded-xl flex items-center justify-center gap-2 text-on-primary font-bold shadow-xl shadow-primary/20 active:scale-95 duration-200">
+<span>Apply Now</span>
+<span class="material-symbols-outlined text-lg">arrow_forward</span>
+</button>
+</div>
+<!-- Bottom Navigation -->
+<nav class="bg-[#fcf9f8]/80 backdrop-blur-xl border-t border-[#ad2c4d]/10 flex justify-around items-center px-4 pb-4 h-20 w-full">
+<div class="flex flex-col items-center justify-center text-[#8c0f37] font-bold scale-110 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">school</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-[0.05em] uppercase mt-1">Courses</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#584144] opacity-70">
+<span class="material-symbols-outlined">insights</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-[0.05em] uppercase mt-1">Pathways</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#584144] opacity-70">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-[0.05em] uppercase mt-1">Resources</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#584144] opacity-70">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-[0.05em] uppercase mt-1">Profile</span>
+</div>
+</nav>
+</div>
+</body></html>

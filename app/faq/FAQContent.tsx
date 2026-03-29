@@ -29,7 +29,7 @@ const faqData: Record<string, { q: string; a: string; link?: { text: string; hre
   ],
   'Cost & Funding': [
     { q: 'How much does the program cost?', a: 'Our programs are available at no cost to members. There are no hidden fees, textbook costs, or application charges. This is made possible through grants, employer partnerships, and community funding.', link: { text: 'Compare All Programs', href: '/program-comparison' } },
-    { q: "What does 'qualifying' mean?", a: "16+, US citizen or permanent resident, unemployed or underemployed, household income under $60K — you likely qualify. We also consider special circumstances. Apply and we'll confirm within 24-48 hours.", link: { text: 'Check Your Eligibility', href: '/apply' } },
+    { q: "What does 'qualifying' mean?", a: "16+, US citizen or permanent resident, unemployed or underemployed, household income under $60K — you likely qualify. We also consider special circumstances. Apply and we'll confirm within 3–5 business days.", link: { text: 'Check Your Eligibility', href: '/apply' } },
     { q: 'Do I need to pay anything back?', a: 'No. This is not a loan. Training is funded through grants and partnerships. There are no income-sharing agreements (ISAs), no loans, and no hidden costs. Ever.', link: { text: 'Read Success Stories', href: '/blog' } },
     { q: 'Are certification exam fees included?', a: 'Yes. Certification exam fees are covered for members. There are no out-of-pocket costs for exams when you complete the program through WorkforceAP.', link: { text: 'View Programs', href: '/programs' } },
   ],
@@ -148,7 +148,7 @@ export default function FAQContent() {
               <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', marginBottom: '0.5rem', display: 'block' }}>support_agent</span>
               <p style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-on-surface)', marginBottom: '0.375rem' }}>Still need support?</p>
               <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem', lineHeight: 1.5 }}>
-                Our team responds within 24-48 hours.
+                Our team responds within 3–5 business days.
               </p>
               <Link href="/contact" style={{
                 display: 'block',
@@ -296,7 +296,7 @@ export default function FAQContent() {
               Didn&rsquo;t find your answer?
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, marginBottom: '1.5rem', maxWidth: '28rem' }}>
-              Our team is here to help. Reach out directly and we&rsquo;ll get back to you within 24-48 hours.
+              Our team is here to help. Reach out directly and we&rsquo;ll get back to you within 3–5 business days.
             </p>
             <div style={{ display: 'flex', gap: '0.75rem' }}>
               <Link href="/contact" style={{

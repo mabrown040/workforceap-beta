@@ -21,7 +21,7 @@ export default function ContactMobileSection() {
           Get in Touch
         </h1>
         <p className="text-[#584144] text-base leading-relaxed">
-          We respond within 24–48 hours
+          We respond within 3–5 business days
         </p>
       </div>
 

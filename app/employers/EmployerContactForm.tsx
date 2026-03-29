@@ -106,7 +106,7 @@ export default function EmployerContactForm() {
           Thank you — we received your inquiry
         </p>
         <p style={{ color: 'var(--color-on-surface-variant)' }}>
-          We&rsquo;ll reach out within 24–48 hours.
+          We&rsquo;ll reach out within 3–5 business days.
         </p>
       </div>
     );
@@ -190,7 +190,7 @@ export default function EmployerContactForm() {
         {status === 'sending' ? 'Sending…' : 'Submit inquiry'}
       </button>
       <p style={{ textAlign: 'center', marginTop: '1rem', color: 'var(--color-on-surface-variant)', fontSize: '.85rem' }}>
-        We respond within 24–48 hours.
+        We respond within 3–5 business days.
       </p>
     </form>
   );

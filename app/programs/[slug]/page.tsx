@@ -8,6 +8,7 @@ import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
 import { getProgramDescription } from '@/lib/content/programDescriptions';
 import { getProgramExtra } from '@/lib/content/programExtras';
 import Footer from '@/components/Footer';
+import MobileBottomNav from '@/components/MobileBottomNav';
 import ProgramDetailClient from './ProgramDetailClient';
 import ProgramRelatedSection from '@/components/programs/ProgramRelatedSection';
 import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
@@ -231,6 +232,18 @@ export default async function ProgramPage({ params }: Props) {
         </div>
       </section>
 
+      {/* ── Mobile sticky apply bar (≤640px) ── */}
+      <div className="md:hidden fixed bottom-[60px] left-0 w-full z-40 px-4 py-2" style={{ background: 'rgba(252,249,248,0.95)', backdropFilter: 'blur(8px)', borderTop: '1px solid rgba(222,191,194,0.3)' }}>
+        <Link
+          href="/apply"
+          className="block w-full text-center font-bold py-3 rounded-lg text-sm"
+          style={{ background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)', color: '#fff' }}
+        >
+          Apply Now — Free
+        </Link>
+      </div>
+
+      <MobileBottomNav />
       <Footer />
     </div>
   );

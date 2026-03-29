@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
+import MobileBottomNav from '@/components/MobileBottomNav';
 import { prisma } from '@/lib/db/prisma';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { toVideoEmbedUrl } from '@/lib/platform/videoEmbed';
@@ -335,6 +336,75 @@ export default async function HowItWorksPage() {
         }
       `}</style>
 
+      {/* ── Mobile Journey View (≤640px) ── */}
+      <section className="md:hidden px-4 pb-32 pt-8" style={{ background: '#fcf9f8' }}>
+        <div className="mb-6">
+          <span className="inline-block text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-3" style={{ background: '#ffbb00', color: '#1c1b1b' }}>
+            Member Experience
+          </span>
+          <h2 className="text-3xl font-extrabold tracking-tight leading-none mb-3" style={{ color: '#1c1b1b' }}>
+            Your Journey to{' '}
+            <span style={{ color: '#ad2c4d' }}>Success</span>
+          </h2>
+          <p className="text-sm leading-relaxed" style={{ color: '#584144' }}>
+            11 milestones from application to career growth.
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          {PHASES.flatMap((phase) =>
+            phase.steps.map((step) => {
+              const isIntensive = step.num >= 5 && step.num <= 9;
+              return (
+                <div
+                  key={step.num}
+                  className="rounded-xl p-4 flex gap-4 items-start"
+                  style={{
+                    background: isIntensive ? 'rgba(173, 44, 77, 0.06)' : '#fff',
+                    border: isIntensive ? '1px solid rgba(173,44,77,0.15)' : 'none',
+                    boxShadow: isIntensive ? 'none' : '0 1px 4px rgba(28,27,27,0.06)',
+                  }}
+                >
+                  <span
+                    className="text-2xl font-black leading-none shrink-0 w-8 text-center"
+                    style={{ color: isIntensive ? '#ad2c4d' : 'rgba(173,44,77,0.2)' }}
+                  >
+                    {String(step.num).padStart(2, '0')}
+                  </span>
+                  <div>
+                    {isIntensive && step.num === 5 && (
+                      <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full mb-2 inline-block" style={{ background: '#ad2c4d', color: '#fff' }}>
+                        Intensive Learning Phase
+                      </span>
+                    )}
+                    <p className="font-bold text-sm" style={{ color: '#1c1b1b' }}>{step.title}</p>
+                    <p className="text-xs mt-0.5 leading-relaxed" style={{ color: '#584144' }}>{step.desc}</p>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        <div className="mt-8 space-y-3">
+          <Link
+            href="/apply"
+            className="block w-full text-center font-bold py-4 rounded-lg text-sm"
+            style={{ background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)', color: '#fff' }}
+          >
+            Start Your Application
+          </Link>
+          <Link
+            href="/programs"
+            className="block w-full text-center font-bold py-4 rounded-lg text-sm"
+            style={{ background: '#ebe7e7', color: '#1c1b1b' }}
+          >
+            View Programs
+          </Link>
+        </div>
+      </section>
+
+      <MobileBottomNav />
       <Footer />
     </div>
   );

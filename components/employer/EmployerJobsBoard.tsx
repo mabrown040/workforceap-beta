@@ -377,16 +377,27 @@ export default function EmployerJobsBoard({
     try {
       const batches = chunkIds(selectedDeletable, EMPLOYER_JOB_BULK_MAX_IDS_PER_REQUEST);
       let deletedCount = 0;
-      for (const ids of batches) {
-        const res = await fetch('/api/employer/jobs/bulk-delete', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ids, action: 'delete' }),
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
+
+      const results = await Promise.all(
+        batches.map(async (ids) => {
+          try {
+            const res = await fetch('/api/employer/jobs/bulk-delete', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ ids, action: 'delete' }),
+            });
+            const data = await res.json().catch(() => ({}));
+            return { ok: res.ok, data, ids };
+          } catch (err) {
+            return { ok: false, error: 'Network error.', ids };
+          }
+        })
+      );
+
+      for (const result of results) {
+        if (!result.ok) {
           const base =
-            typeof data.error === 'string' ? data.error : 'Could not delete selected jobs.';
+            result.error ? result.error : (typeof result.data.error === 'string' ? result.data.error : 'Could not delete selected jobs.');
           const msg =
             deletedCount > 0
               ? `${base} (${deletedCount} posting${deletedCount === 1 ? '' : 's'} were removed before this error.)`
@@ -401,7 +412,7 @@ export default function EmployerJobsBoard({
           router.refresh();
           return;
         }
-        deletedCount += typeof data.deleted === 'number' ? data.deleted : ids.length;
+        deletedCount += typeof result.data.deleted === 'number' ? result.data.deleted : result.ids.length;
       }
       trackEmployerBulkDelete(deletedCount, { filter, batches: batches.length });
       try {
@@ -443,16 +454,27 @@ export default function EmployerJobsBoard({
     try {
       const batches = chunkIds(selectedClosable, EMPLOYER_JOB_BULK_MAX_IDS_PER_REQUEST);
       let closedCount = 0;
-      for (const ids of batches) {
-        const res = await fetch('/api/employer/jobs/bulk-delete', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ids, action: 'close' }),
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
+
+      const results = await Promise.all(
+        batches.map(async (ids) => {
+          try {
+            const res = await fetch('/api/employer/jobs/bulk-delete', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ ids, action: 'close' }),
+            });
+            const data = await res.json().catch(() => ({}));
+            return { ok: res.ok, data, ids };
+          } catch (err) {
+            return { ok: false, error: 'Network error.', ids };
+          }
+        })
+      );
+
+      for (const result of results) {
+        if (!result.ok) {
           const base =
-            typeof data.error === 'string' ? data.error : 'Could not close selected jobs.';
+            result.error ? result.error : (typeof result.data.error === 'string' ? result.data.error : 'Could not close selected jobs.');
           const msg =
             closedCount > 0
               ? `${base} (${closedCount} posting${closedCount === 1 ? '' : 's'} were updated before this error.)`
@@ -467,7 +489,7 @@ export default function EmployerJobsBoard({
           router.refresh();
           return;
         }
-        closedCount += typeof data.closed === 'number' ? data.closed : ids.length;
+        closedCount += typeof result.data.closed === 'number' ? result.data.closed : result.ids.length;
       }
       try {
         sessionStorage.setItem(BULK_CLOSE_FLASH_KEY, JSON.stringify({ count: closedCount }));

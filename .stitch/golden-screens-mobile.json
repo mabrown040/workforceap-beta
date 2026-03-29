@@ -1,9 +1,35 @@
 {
   "projectId": "18255988866302206897",
   "mobile": {
-    "homepage": { "screenId": "b82d6493702e43ee972aa9554cef8797", "title": "WorkforceAP Home (Light Mobile)", "file": ".stitch/mobile-homepage-light.html" },
-    "programs": { "screenId": "5aa286c3fd5f4cdab419d2be3177430c", "title": "Programs Catalog (Mobile Light)", "file": ".stitch/mobile-programs.html" },
-    "apply": { "screenId": "1673a5645e784765847abf6abf660f25", "title": "Apply Flow Start (Mobile Light)", "file": ".stitch/mobile-apply.html" },
-    "quiz": { "screenId": "9e3b346b77d14be18020ce6bee91cf62", "title": "Find Your Path Quiz (Mobile Light)", "file": ".stitch/mobile-quiz.html" }
+    "homepage": {
+      "screenId": "b82d6493702e43ee972aa9554cef8797",
+      "title": "WorkforceAP Home (Light Mobile)",
+      "file": ".stitch/mobile-homepage-light.html"
+    },
+    "programs": {
+      "screenId": "5aa286c3fd5f4cdab419d2be3177430c",
+      "title": "Programs Catalog (Mobile Light)",
+      "file": ".stitch/mobile-programs.html"
+    },
+    "apply": {
+      "screenId": "1673a5645e784765847abf6abf660f25",
+      "title": "Apply Flow Start (Mobile Light)",
+      "file": ".stitch/mobile-apply.html"
+    },
+    "quiz": {
+      "screenId": "9e3b346b77d14be18020ce6bee91cf62",
+      "title": "Find Your Path Quiz (Mobile Light)",
+      "file": ".stitch/mobile-quiz.html"
+    },
+    "employers": {
+      "screenId": "7dfe0a853c954d6db9bb5abd534f9823",
+      "title": "Employers (Mobile Light)",
+      "file": ".stitch/mobile-employers.html"
+    },
+    "whatWeDo": {
+      "screenId": "62b20f9be76b4585a71428e55f9a3bec",
+      "title": "What We Do (Mobile Light)",
+      "file": ".stitch/mobile-what-we-do.html"
+    }
   }
 }

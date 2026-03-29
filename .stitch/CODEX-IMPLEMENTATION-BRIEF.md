@@ -81,3 +81,15 @@ Only visible at ≤640px (hidden md:hidden).
 - Branch: `feature/mobile-stitch-sprint`
 - PR title: feat(mobile): Stitch mobile sprint — homepage, programs, apply, quiz
 - Report files changed + build passing in PR description
+
+---
+
+## UPDATE: 2 Additional Screens Added (2026-03-28)
+
+### Task 5: Employers Page Mobile (app/employers/page.tsx)
+Reference: `.stitch/mobile-employers.html`
+Implement at ≤640px: partner logos scroll, proof metrics row, talent category chips, 4-step hiring process, full-width CTA, inquiry form.
+
+### Task 6: What We Do Page Mobile (app/what-we-do/page.tsx)
+Reference: `.stitch/mobile-what-we-do.html`
+Implement at ≤640px: impact stats row, mission/values cards, 4-step program flow, partner pills, bottom CTA band.

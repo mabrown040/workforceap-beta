@@ -6,8 +6,17 @@ import ContactFormClient from './ContactFormClient';
 export default function ContactMobileSection() {
   return (
     <div className="md:hidden bg-[#fcf9f8] min-h-screen pb-32">
+      {/* Top Nav */}
+      <header className="fixed top-0 w-full z-50 bg-[#fcf9f8]/90 backdrop-blur-xl flex justify-between items-center px-6 py-4">
+        <div className="flex items-center gap-2">
+          <span className="material-symbols-outlined text-[#ad2c4d]">school</span>
+          <span className="text-xl font-black text-[#ad2c4d] tracking-tighter">WorkforceAP</span>
+        </div>
+        <span className="material-symbols-outlined text-[#584144]">account_circle</span>
+      </header>
+
       {/* Hero */}
-      <div className="px-6 pt-8 mb-8">
+      <div className="px-6 pt-24 mb-8">
         <h1 className="text-4xl font-extrabold tracking-tight text-[#1c1b1b] leading-tight mb-2">
           Get in Touch
         </h1>

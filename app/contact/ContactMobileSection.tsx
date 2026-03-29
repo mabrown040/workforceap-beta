@@ -5,10 +5,27 @@ import ContactFormClient from './ContactFormClient';
 
 export default function ContactMobileSection() {
   return (
-    <div className="md:hidden bg-[#fcf9f8] min-h-screen pb-32">
+    <div className="wa-md:hidden" style={{ background: '#fcf9f8', minHeight: '100vh', paddingBottom: '8rem' }}>
       {/* Top Nav */}
-      <header className="fixed top-0 w-full z-50 bg-[#fcf9f8]/90 backdrop-blur-xl flex justify-between items-center px-6 py-4">
-        <div className="flex items-center gap-2">
+      <header
+        style={{
+          position: 'fixed',
+          top: 0,
+          width: '100%',
+          zIndex: 50,
+          background: 'rgba(252,249,248,0.9)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          paddingLeft: '1.5rem',
+          paddingRight: '1.5rem',
+          paddingTop: '1rem',
+          paddingBottom: '1rem',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span className="material-symbols-outlined text-[#ad2c4d]">school</span>
           <span className="text-xl font-black text-[#ad2c4d] tracking-tighter">WorkforceAP</span>
         </div>
@@ -16,8 +33,8 @@ export default function ContactMobileSection() {
       </header>
 
       {/* Hero */}
-      <div className="px-6 pt-24 mb-8">
-        <h1 className="text-4xl font-extrabold tracking-tight text-[#1c1b1b] leading-tight mb-2">
+      <div style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', paddingTop: '6rem', marginBottom: '2rem' }}>
+        <h1 className="text-4xl font-extrabold tracking-tight text-[#1c1b1b] leading-tight" style={{ marginBottom: '0.5rem' }}>
           Get in Touch
         </h1>
         <p className="text-[#584144] text-base leading-relaxed">
@@ -26,58 +43,124 @@ export default function ContactMobileSection() {
       </div>
 
       {/* Contact Methods Row */}
-      <div className="px-6 grid grid-cols-2 gap-4 mb-8">
-        <div className="bg-white p-5 rounded-xl">
-          <div className="w-10 h-10 rounded-lg bg-[#8c0f37]/5 flex items-center justify-center mb-4">
+      <div
+        style={{
+          paddingLeft: '1.5rem',
+          paddingRight: '1.5rem',
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '1rem',
+          marginBottom: '2rem',
+        }}
+      >
+        <div style={{ background: 'white', padding: '1.25rem', borderRadius: '0.75rem' }}>
+          <div
+            style={{
+              width: '2.5rem',
+              height: '2.5rem',
+              borderRadius: '0.5rem',
+              background: 'rgba(140,15,55,0.05)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '1rem',
+            }}
+          >
             <span className="material-symbols-outlined text-[#8c0f37]">alternate_email</span>
           </div>
-          <p className="text-[11px] font-bold uppercase tracking-wider text-[#8c0f37] mb-1">Email</p>
-          <p className="text-sm font-semibold text-[#1c1b1b] break-words">info@workforceap.org</p>
+          <p className="text-[11px] font-bold uppercase tracking-wider text-[#8c0f37]" style={{ marginBottom: '0.25rem' }}>Email</p>
+          <p className="text-sm font-semibold text-[#1c1b1b]" style={{ wordBreak: 'break-word' }}>info@workforceap.org</p>
         </div>
-        <div className="bg-white p-5 rounded-xl">
-          <div className="w-10 h-10 rounded-lg bg-[#ffbb00]/10 flex items-center justify-center mb-4">
+        <div style={{ background: 'white', padding: '1.25rem', borderRadius: '0.75rem' }}>
+          <div
+            style={{
+              width: '2.5rem',
+              height: '2.5rem',
+              borderRadius: '0.5rem',
+              background: 'rgba(255,187,0,0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '1rem',
+            }}
+          >
             <span className="material-symbols-outlined text-[#7b5800]">phone</span>
           </div>
-          <p className="text-[11px] font-bold uppercase tracking-wider text-[#7b5800] mb-1">Phone</p>
+          <p className="text-[11px] font-bold uppercase tracking-wider text-[#7b5800]" style={{ marginBottom: '0.25rem' }}>Phone</p>
           <p className="text-sm font-semibold text-[#1c1b1b]">(512) 777-1808</p>
         </div>
-        <div className="bg-white p-5 rounded-xl">
-          <div className="w-10 h-10 rounded-lg bg-[#8c0f37]/5 flex items-center justify-center mb-4">
+        <div style={{ background: 'white', padding: '1.25rem', borderRadius: '0.75rem' }}>
+          <div
+            style={{
+              width: '2.5rem',
+              height: '2.5rem',
+              borderRadius: '0.5rem',
+              background: 'rgba(140,15,55,0.05)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '1rem',
+            }}
+          >
             <span className="material-symbols-outlined text-[#8c0f37]">location_on</span>
           </div>
-          <p className="text-[11px] font-bold uppercase tracking-wider text-[#8c0f37] mb-1">Location</p>
+          <p className="text-[11px] font-bold uppercase tracking-wider text-[#8c0f37]" style={{ marginBottom: '0.25rem' }}>Location</p>
           <p className="text-sm font-semibold text-[#1c1b1b]">Austin, TX</p>
         </div>
-        <div className="bg-white p-5 rounded-xl">
-          <div className="w-10 h-10 rounded-lg bg-[#8c0f37]/5 flex items-center justify-center mb-4">
+        <div style={{ background: 'white', padding: '1.25rem', borderRadius: '0.75rem' }}>
+          <div
+            style={{
+              width: '2.5rem',
+              height: '2.5rem',
+              borderRadius: '0.5rem',
+              background: 'rgba(140,15,55,0.05)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '1rem',
+            }}
+          >
             <span className="material-symbols-outlined text-[#8c0f37]">schedule</span>
           </div>
-          <p className="text-[11px] font-bold uppercase tracking-wider text-[#8c0f37] mb-1">Hours</p>
+          <p className="text-[11px] font-bold uppercase tracking-wider text-[#8c0f37]" style={{ marginBottom: '0.25rem' }}>Hours</p>
           <p className="text-sm font-semibold text-[#1c1b1b]">Mon–Fri 9–5 CT</p>
         </div>
       </div>
 
       {/* Contact Form */}
-      <div className="px-6 mb-10">
-        <div className="bg-[#f6f3f2] p-6 rounded-xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[#8c0f37]/5 rounded-full -mr-16 -mt-16 blur-3xl" />
-          <h2 className="text-xl font-bold text-[#1c1b1b] mb-6 relative z-10">Send Us a Message</h2>
-          <div className="relative z-10">
+      <div style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', marginBottom: '2.5rem' }}>
+        <div style={{ background: '#f6f3f2', padding: '1.5rem', borderRadius: '0.75rem', position: 'relative', overflow: 'hidden' }}>
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              width: '8rem',
+              height: '8rem',
+              background: 'rgba(140,15,55,0.05)',
+              borderRadius: '50%',
+              marginRight: '-4rem',
+              marginTop: '-4rem',
+              filter: 'blur(24px)',
+            }}
+          />
+          <h2 className="text-xl font-bold text-[#1c1b1b]" style={{ marginBottom: '1.5rem', position: 'relative', zIndex: 10 }}>Send Us a Message</h2>
+          <div style={{ position: 'relative', zIndex: 10 }}>
             <ContactFormClient />
           </div>
         </div>
       </div>
 
       {/* Office Info */}
-      <div className="px-6 mb-8">
-        <div className="text-center py-6 px-4 bg-[#f6f3f2] rounded-xl">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-[#584144] mb-2">
+      <div style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', marginBottom: '2rem' }}>
+        <div style={{ textAlign: 'center', paddingTop: '1.5rem', paddingBottom: '1.5rem', paddingLeft: '1rem', paddingRight: '1rem', background: '#f6f3f2', borderRadius: '0.75rem' }}>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-[#584144]" style={{ marginBottom: '0.5rem' }}>
             Workforce Advancement Project
           </p>
           <p className="text-sm text-[#584144]">
             Austin, TX · Serving communities nationwide
           </p>
-          <p className="text-sm text-[#584144] mt-1">
+          <p className="text-sm text-[#584144]" style={{ marginTop: '0.25rem' }}>
             <a href="mailto:info@workforceap.org" className="text-[#8c0f37] font-semibold">
               info@workforceap.org
             </a>

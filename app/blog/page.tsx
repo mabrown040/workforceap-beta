@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db/prisma';
 import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
 import BlogListingClient from './BlogListingClient';
+import BlogMobileSection from './BlogMobileSection';
 
 export const revalidate = 3600;
 
@@ -41,12 +42,18 @@ export default async function BlogPage() {
 
   return (
     <div className="inner-page">
-      <PageHero
-        title="Blog"
-        subtitle="Career tips, program spotlights, success stories, and local insights."
-      />
-      <BlogListingClient posts={posts} categories={categories} />
-      <Footer />
+      {/* Mobile view ≤640px */}
+      <BlogMobileSection posts={posts} categories={categories} />
+
+      {/* Desktop view >640px */}
+      <div className="hidden md:block">
+        <PageHero
+          title="Blog"
+          subtitle="Career tips, program spotlights, success stories, and local insights."
+        />
+        <BlogListingClient posts={posts} categories={categories} />
+        <Footer />
+      </div>
     </div>
   );
 }

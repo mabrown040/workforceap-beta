@@ -5,6 +5,7 @@ import { getUser } from '@/lib/auth/server';
 import { PATHWAYS } from '@/lib/content/learningPathways';
 import LearningPathCard from '@/components/portal/LearningPathCard';
 import LearningHubDestinationCards from '@/components/portal/LearningHubDestinationCards';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'The Learning Hub — Curriculum Oversight',
@@ -30,7 +31,93 @@ export default async function LearningPage() {
   /* Overall completion: average across all pathways (placeholder — real data comes from LearningPathCard client state) */
   const overallPct = 38;
 
+  const upcomingModules = ACTIVE_PATHWAY.steps.slice(0, 4);
+
   return (
+    <>
+    {/* ── Mobile learning view (≤640px) ── */}
+    <div className="md:hidden pb-24">
+      {/* Header */}
+      <div className="px-6 pt-6 mb-6">
+        <span className="text-[10px] font-medium tracking-[0.1em] uppercase text-[#8c0f37] mb-2 block">Learning Path</span>
+        <h2 className="text-3xl font-bold tracking-tight text-[#1c1b1b] leading-tight">My Learning</h2>
+      </div>
+
+      {/* Progress overview card */}
+      <section className="mx-6 mb-6 bg-[#f2eeed] p-5 rounded-xl relative overflow-hidden">
+        <div className="flex items-start justify-between">
+          <div className="z-10 w-3/5">
+            <h3 className="text-lg font-bold leading-tight mb-1 text-[#1c1b1b]">{ACTIVE_PATHWAY.title}</h3>
+            <p className="text-sm text-[#584144] font-medium">
+              {overallPct}% complete · {ACTIVE_PATHWAY.steps.length} modules
+            </p>
+          </div>
+          {/* Progress orb */}
+          <div className="relative w-20 h-20 flex items-center justify-center flex-shrink-0">
+            <svg className="w-full h-full -rotate-90" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="32" fill="transparent" stroke="#debfc2" strokeWidth="5" />
+              <circle
+                cx="40" cy="40" r="32" fill="transparent"
+                stroke="#7b5800" strokeWidth="5"
+                strokeDasharray="201"
+                strokeDashoffset={201 - (201 * overallPct) / 100}
+                strokeLinecap="round"
+              />
+            </svg>
+            <span className="absolute text-base font-bold text-[#7b5800]">{overallPct}%</span>
+          </div>
+        </div>
+        {/* Progress bar */}
+        <div className="mt-4 h-1.5 w-full bg-[#debfc2] rounded-full overflow-hidden">
+          <div className="h-full bg-[#8c0f37] rounded-full" style={{ width: `${overallPct}%` }} />
+        </div>
+      </section>
+
+      {/* Current module card */}
+      <section className="mx-6 mb-6">
+        <div className="bg-gradient-to-br from-[#8c0f37] to-[#ad2c4d] p-5 rounded-xl text-white">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="bg-white/20 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase">Active</span>
+            <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>timer</span>
+            <span className="text-xs font-medium">~{ACTIVE_PATHWAY.estimatedWeeks} weeks</span>
+          </div>
+          <h4 className="text-xl font-bold leading-snug mb-5">{ACTIVE_PATHWAY.title}</h4>
+          <p className="text-white/80 text-sm mb-4">{ACTIVE_PATHWAY.description}</p>
+          <button className="w-full bg-white text-[#8c0f37] font-bold py-3 rounded-lg flex items-center justify-center gap-2 active:scale-95 transition-transform">
+            <span className="material-symbols-outlined">play_arrow</span>
+            Continue Learning
+          </button>
+        </div>
+      </section>
+
+      {/* Upcoming modules */}
+      <section className="mx-6 mb-4">
+        <h5 className="text-xs font-bold uppercase tracking-widest text-[#584144] mb-4">Course Modules</h5>
+        <div className="space-y-3">
+          {upcomingModules.map((stepLabel, i) => (
+            <div key={i} className="flex items-center gap-4 bg-[#fcf9f8] rounded-xl px-4 py-3 border border-[#debfc2]/40">
+              <span
+                className="material-symbols-outlined text-xl flex-shrink-0"
+                style={{ color: '#8c0f37', fontVariationSettings: i === 0 ? "'FILL' 1" : "'FILL' 0" }}
+              >
+                {MODULE_ICONS[ACTIVE_PATHWAY.category] ?? 'school'}
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-[#1c1b1b] truncate">{stepLabel}</p>
+              </div>
+              {i === 0 && (
+                <span className="text-[10px] font-bold text-[#8c0f37] bg-[#8c0f37]/10 px-2 py-0.5 rounded-full uppercase tracking-wide flex-shrink-0">
+                  Next
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+
+    {/* ── Desktop view ── */}
+    <div className="hidden md:block">
     <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto' }}>
       {/* Top bar: label + heading + progress */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 'var(--space-4)', marginBottom: 'var(--space-8)' }}>
@@ -399,5 +486,9 @@ export default async function LearningPage() {
         </div>
       </div>
     </div>
+    </div> {/* end hidden md:block */}
+
+    <MobileBottomNav />
+    </>
   );
 }

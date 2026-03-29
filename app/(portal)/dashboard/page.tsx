@@ -11,6 +11,7 @@ import MatchedRoles from '@/components/portal/MatchedRoles';
 import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { MEMBER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Member overview',
@@ -132,56 +133,182 @@ export default async function DashboardPage() {
   const showMatchedRoles = assessmentCompleted;
   const superAdmin = await isSuperAdmin(user.id);
 
+  /* Mobile progress percentage for orb */
+  const mobilePct = totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : 0;
+  const orbCircumference = 251.2;
+  const orbDashoffset = orbCircumference - (orbCircumference * mobilePct) / 100;
+
+  /* Journey timeline steps derived from applicationStatus */
+  const journeySteps = [
+    { label: 'Profile Verified', done: true },
+    {
+      label: applicationStatus?.nextStep ?? 'Assessment',
+      done: assessmentCompleted,
+      active: !assessmentCompleted,
+      detail: assessmentCompleted ? 'Completed' : 'Active Task • 45 mins',
+    },
+    { label: 'Interview Scheduled', done: false, pending: !assessmentCompleted },
+    { label: 'Enrollment Confirmed', done: false, pending: true },
+  ];
+
   return (
-    <PortalEntryClient
-      portal="member"
-      showOnboardingWizard={showMemberOnboarding}
-      showTour={showMemberTour}
-      isSuperAdmin={superAdmin}
-      tourSteps={MEMBER_PORTAL_TOUR_STEPS}
-      wizardProps={{
-        initialFullName: intakeExtra?.fullName ?? '',
-        initialPhone: intakeExtra?.profile?.profilePhone ?? intakeExtra?.phone ?? '',
-        initialCity: intakeExtra?.profile?.city ?? '',
-        initialState: intakeExtra?.profile?.state ?? '',
-        initialZip: intakeExtra?.profile?.zip ?? '',
-        initialProgramInterest: wizardProgramInterest,
-        initialReferralSource: intakeExtra?.profile?.referralSource ?? '',
-      }}
-    >
-      <DashboardHomeClient
-        recommendedActions={recommendedActions}
-        jobSearchUrl={jobSearchUrl}
-        firstName={firstName}
-        assessmentDone={assessmentCompleted}
-        preScreeningDone={!!intakeExtra?.preScreeningResponse}
-        interviewEligible={intakeExtra?.interviewEligible ?? false}
-        interviewRequestedAt={intakeExtra?.interviewRequestedAt ?? null}
-        interviewCompletedAt={intakeExtra?.interviewCompletedAt ?? null}
-        state={
-          !enrolledProgram
-            ? 'A'
-            : !assessmentCompleted
-            ? 'B'
-            : allCoursesComplete
-            ? 'D'
-            : 'C'
-        }
-        programTitle={program?.title}
-        enrolledAt={dbUser.enrolledAt}
-        assessmentScorePct={dbUser.assessmentScorePct}
-        completedCount={completedCount}
-        totalCourses={totalCourses}
-        nextMilestone={nextIncompleteCourse?.name}
-        recentActivity={lastThree}
-        checklist={checklist}
-        checklistAllDone={checklistAllDone}
-        applicationStatus={applicationStatus}
-        noApplicationOnFile={noApplicationOnFile}
-        age={userAge}
-        isMinor={isMinor}
-      />
-      {showMatchedRoles && userAge !== null && userAge < 14 ? null : <MatchedRoles />}
-    </PortalEntryClient>
+    <>
+      {/* ── Mobile-only hero + dashboard (≤640px) ── */}
+      <div className="md:hidden pb-24">
+        {/* Welcome greeting + progress orb */}
+        <section className="flex justify-between items-start px-6 pt-6 pb-4">
+          <div className="space-y-1 max-w-[60%]">
+            <p className="text-[#584144] text-xs font-medium tracking-widest uppercase">Member Dashboard</p>
+            <h1 className="text-2xl font-extrabold tracking-tight text-[#1c1b1b]">
+              Welcome back, {firstName}
+            </h1>
+          </div>
+          {/* Progress orb */}
+          <div className="relative flex items-center justify-center w-20 h-20 flex-shrink-0">
+            <svg className="w-full h-full -rotate-90" viewBox="0 0 96 96">
+              <circle cx="48" cy="48" r="40" fill="transparent" stroke="#f2eeed" strokeWidth="6" />
+              <circle
+                cx="48" cy="48" r="40" fill="transparent"
+                stroke="#8c0f37" strokeWidth="6"
+                strokeDasharray={orbCircumference}
+                strokeDashoffset={orbDashoffset}
+                strokeLinecap="round"
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-base font-bold text-[#8c0f37]">{mobilePct}%</span>
+              <span className="text-[8px] font-bold uppercase tracking-widest text-[#7b5800]">Done</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Next step card */}
+        {applicationStatus?.nextStep && (
+          <section className="px-6 mb-6">
+            <div className="p-[1px] rounded-xl bg-gradient-to-br from-[#8c0f37] to-[#ad2c4d] shadow-sm">
+              <div className="bg-[#fcf9f8] rounded-[11px] p-5 space-y-3">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-1">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#8c0f37]/10 text-[#8c0f37] uppercase tracking-wider">
+                      Priority
+                    </span>
+                    <h2 className="text-lg font-bold text-[#1c1b1b] tracking-tight">
+                      {applicationStatus.nextStep}
+                    </h2>
+                  </div>
+                  <span className="material-symbols-outlined text-[#7b5800] text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
+                </div>
+                <p className="text-[#584144] text-sm leading-relaxed">
+                  Your next action for{' '}
+                  {applicationStatus.programInterest ?? program?.title ?? 'your program'}.
+                </p>
+                <button className="w-full bg-gradient-to-r from-[#8c0f37] to-[#ad2c4d] text-white py-3 rounded-md font-bold text-sm tracking-wide active:scale-[0.98] transition-transform">
+                  Take Action
+                </button>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Application journey timeline */}
+        <section className="px-6 mb-6 space-y-4">
+          <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[#584144]">Application Journey</h3>
+          <div className="relative ml-4 space-y-0">
+            <div className="absolute left-[11px] top-2 bottom-2 w-[2px] bg-[#f2eeed]" />
+            {journeySteps.map((step, i) => (
+              <div key={i} className={`relative flex items-start gap-5 pb-7 ${step.pending ? 'opacity-40' : ''}`}>
+                {step.done ? (
+                  <div className="relative z-10 w-6 h-6 rounded-full bg-[#8c0f37] flex items-center justify-center flex-shrink-0">
+                    <span className="material-symbols-outlined text-white text-xs">check</span>
+                  </div>
+                ) : step.active ? (
+                  <div className="relative z-10 w-6 h-6 rounded-full bg-[#fcf9f8] border-4 border-[#8c0f37] flex items-center justify-center flex-shrink-0">
+                    <div className="w-2 h-2 rounded-full bg-[#8c0f37] animate-pulse" />
+                  </div>
+                ) : (
+                  <div className="relative z-10 w-6 h-6 rounded-full bg-[#f2eeed] border-2 border-[#debfc2] flex-shrink-0" />
+                )}
+                <div>
+                  <p className={`font-bold text-sm leading-none mb-1 ${step.active ? 'text-[#8c0f37]' : 'text-[#1c1b1b]'}`}>
+                    {step.label}
+                  </p>
+                  {step.detail && <p className="text-xs text-[#584144]">{step.detail}</p>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Recommended programs */}
+        {recommendedActions.length > 0 && (
+          <section className="px-6 mb-4 space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[#584144]">Recommended Next Steps</h3>
+            {recommendedActions.slice(0, 3).map((action, i) => (
+              <div key={i} className="bg-[#f2eeed] rounded-xl px-4 py-3 flex items-center gap-3">
+                <span className="material-symbols-outlined text-[#8c0f37] text-xl">arrow_forward</span>
+                <p className="text-sm font-semibold text-[#1c1b1b]">{action.label}</p>
+              </div>
+            ))}
+          </section>
+        )}
+      </div>
+
+      {/* ── Desktop view (hidden on mobile) ── */}
+      <div className="hidden md:block">
+        <PortalEntryClient
+          portal="member"
+          showOnboardingWizard={showMemberOnboarding}
+          showTour={showMemberTour}
+          isSuperAdmin={superAdmin}
+          tourSteps={MEMBER_PORTAL_TOUR_STEPS}
+          wizardProps={{
+            initialFullName: intakeExtra?.fullName ?? '',
+            initialPhone: intakeExtra?.profile?.profilePhone ?? intakeExtra?.phone ?? '',
+            initialCity: intakeExtra?.profile?.city ?? '',
+            initialState: intakeExtra?.profile?.state ?? '',
+            initialZip: intakeExtra?.profile?.zip ?? '',
+            initialProgramInterest: wizardProgramInterest,
+            initialReferralSource: intakeExtra?.profile?.referralSource ?? '',
+          }}
+        >
+          <DashboardHomeClient
+            recommendedActions={recommendedActions}
+            jobSearchUrl={jobSearchUrl}
+            firstName={firstName}
+            assessmentDone={assessmentCompleted}
+            preScreeningDone={!!intakeExtra?.preScreeningResponse}
+            interviewEligible={intakeExtra?.interviewEligible ?? false}
+            interviewRequestedAt={intakeExtra?.interviewRequestedAt ?? null}
+            interviewCompletedAt={intakeExtra?.interviewCompletedAt ?? null}
+            state={
+              !enrolledProgram
+                ? 'A'
+                : !assessmentCompleted
+                ? 'B'
+                : allCoursesComplete
+                ? 'D'
+                : 'C'
+            }
+            programTitle={program?.title}
+            enrolledAt={dbUser.enrolledAt}
+            assessmentScorePct={dbUser.assessmentScorePct}
+            completedCount={completedCount}
+            totalCourses={totalCourses}
+            nextMilestone={nextIncompleteCourse?.name}
+            recentActivity={lastThree}
+            checklist={checklist}
+            checklistAllDone={checklistAllDone}
+            applicationStatus={applicationStatus}
+            noApplicationOnFile={noApplicationOnFile}
+            age={userAge}
+            isMinor={isMinor}
+          />
+          {showMatchedRoles && userAge !== null && userAge < 14 ? null : <MatchedRoles />}
+        </PortalEntryClient>
+      </div>
+
+      {/* Bottom nav — mobile only */}
+      <MobileBottomNav />
+    </>
   );
 }

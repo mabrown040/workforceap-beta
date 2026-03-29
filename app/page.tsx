@@ -46,7 +46,7 @@ export default async function HomePage() {
         <section style={{ padding: '5rem 1.25rem 1.5rem' }}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0.375rem 0.75rem', borderRadius: '9999px', marginBottom: '1.25rem', background: '#ffbb00', color: '#1c1b1b' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '0.75rem', fontVariationSettings: "'FILL' 1" }}>radio_button_checked</span>
-            Enrollment Open 2024
+            Enrollment Open
           </span>
           <h1 style={{ fontSize: '3rem', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 0.95, marginBottom: '1rem', background: 'linear-gradient(135deg, #8c0f37 0%, #ad2c4d 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
             Free Career<br />Training

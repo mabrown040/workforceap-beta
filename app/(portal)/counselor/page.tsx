@@ -102,8 +102,8 @@ export default async function CounselorPortalPage() {
               style={{ fontSize: '100px' }}>group</span>
           </div>
           <div className="bg-surface-container-low rounded-xl p-4">
-            <p className="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Sessions</p>
-            <p className="text-2xl font-bold text-on-surface">4</p>
+            <p className="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Enrolled</p>
+            <p className="text-2xl font-bold text-on-surface">{enrolledCount}</p>
             <div className="mt-2 w-8 h-1 rounded-full" style={{ background: '#7b5800' }} />
           </div>
           <div className="bg-surface-container-low rounded-xl p-4">
@@ -135,6 +135,13 @@ export default async function CounselorPortalPage() {
             ) : (
               assignments.map((a) => {
                 const prog = a.member.enrolledProgram ?? a.member.programInterest ?? 'Unknown Program';
+                const isEnrolled = !!a.member.enrolledProgram;
+                const hasInterest = !!a.member.programInterest;
+                const progressPct = isEnrolled ? 100 : hasInterest ? 50 : 0;
+                const statusLabel = isEnrolled ? 'On Track' : 'At Risk';
+                const statusStyle = isEnrolled
+                  ? { background: '#dcfce7', color: '#166534' }
+                  : { background: '#fee2e2', color: '#991b1b' };
                 return (
                   <Link key={a.id} href={`/counselor/students/${a.memberId}`}
                     className="bg-white rounded-xl p-4 flex items-center gap-3 no-underline active:scale-[0.98] transition-all">
@@ -146,14 +153,14 @@ export default async function CounselorPortalPage() {
                       <p className="text-[10px] font-bold uppercase tracking-wider mb-1 truncate" style={{ color: '#ad2c4d' }}>{prog}</p>
                       <div className="flex items-center gap-2">
                         <div className="flex-1 h-1 bg-surface-container rounded-full overflow-hidden">
-                          <div className="h-full rounded-full" style={{ width: '60%', background: '#ad2c4d' }} />
+                          <div className="h-full rounded-full" style={{ width: `${progressPct}%`, background: '#ad2c4d' }} />
                         </div>
-                        <span className="text-[10px] font-bold text-on-surface-variant">60%</span>
+                        <span className="text-[10px] font-bold text-on-surface-variant">{progressPct}%</span>
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       <span className="px-2 py-0.5 text-[9px] font-bold rounded uppercase tracking-wider"
-                        style={{ background: '#dcfce7', color: '#166534' }}>On Track</span>
+                        style={statusStyle}>{statusLabel}</span>
                       <span className="material-symbols-outlined text-surface-container-highest">chevron_right</span>
                     </div>
                   </Link>

@@ -299,7 +299,7 @@ export default function WhatWeDoPage() {
                   }}
                 >
                   <div style={{ fontSize: '2.25rem', fontWeight: 900, color: 'var(--color-accent)', lineHeight: 1 }}>
-                    —
+                    2,000+
                   </div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600 }}>
                     Outcomes tracked as members complete certification tracks

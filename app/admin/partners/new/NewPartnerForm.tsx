@@ -54,7 +54,7 @@ export default function NewPartnerForm() {
     width: '100%',
     maxWidth: '480px',
     padding: '0.5rem 0.75rem',
-    border: '1px solid var(--color-gray-300)',
+    border: '1px solid var(--outline-variant)',
     borderRadius: '6px',
     fontSize: '1rem',
   } as const;

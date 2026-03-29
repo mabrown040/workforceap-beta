@@ -27,6 +27,17 @@
 |----------|------------------|-----------------|--------|
 | `NEXT_PUBLIC_SITE_URL` | `https://www.workforceap.org` | `http://localhost:3000` | Your domain |
 
+### AI Tools: ElevenLabs (Interview Simulator)
+| Variable | Production Value | Local Dev Value | Source |
+|----------|------------------|-----------------|--------|
+| `ELEVENLABS_API_KEY` | (set in Vercel) | (set in .env) | ElevenLabs Dashboard |
+
+### AI Tools: O*NET (Skill Mapper)
+| Variable | Production Value | Local Dev Value | Source |
+|----------|------------------|-----------------|--------|
+| `ONET_API_USERNAME` | (optional — public data) | (optional) | https://services.onetcenter.org/ |
+| `ONET_API_PASSWORD` | (optional — public data) | (optional) | O*NET Web Services registration |
+
 ### Optional: Analytics/Monitoring
 | Variable | Production Value | Local Dev Value | Source |
 |----------|------------------|-----------------|--------|

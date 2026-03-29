@@ -55,23 +55,23 @@ export default async function PartnerOutcomesPage() {
       >
         <div className="partner-panel" style={{ padding: '1.25rem' }}>
           <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-accent)' }}>{members.length}</div>
-          <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>Total referrals</div>
+          <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>Total referrals</div>
         </div>
         <div className="partner-panel" style={{ padding: '1.25rem' }}>
           <div style={{ fontSize: '2rem', fontWeight: 800 }}>{placements}</div>
-          <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>Placed</div>
+          <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>Placed</div>
         </div>
         <div className="partner-panel" style={{ padding: '1.25rem' }}>
           <div style={{ fontSize: '2rem', fontWeight: 800 }}>{certified}</div>
-          <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>With certification</div>
+          <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>With certification</div>
         </div>
         <div className="partner-panel" style={{ padding: '1.25rem' }}>
           <div style={{ fontSize: '2rem', fontWeight: 800 }}>{inTraining}</div>
-          <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>In training / certified stage</div>
+          <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>In training / certified stage</div>
         </div>
         <div className="partner-panel" style={{ padding: '1.25rem' }}>
           <div style={{ fontSize: '2rem', fontWeight: 800 }}>{completions}</div>
-          <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>Program completions</div>
+          <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>Program completions</div>
         </div>
       </div>
     </div>

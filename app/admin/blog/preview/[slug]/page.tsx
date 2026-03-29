@@ -101,7 +101,7 @@ export default async function AdminBlogPreviewPage({ params }: Props) {
           style={{
             marginTop: '3rem',
             paddingTop: '2rem',
-            borderTop: '1px solid #eee',
+            borderTop: '1px solid var(--outline-variant)',
           }}
         >
           <Link
@@ -109,8 +109,8 @@ export default async function AdminBlogPreviewPage({ params }: Props) {
             style={{
               display: 'inline-block',
               padding: '0.5rem 1rem',
-              background: '#f0f0f0',
-              color: '#333',
+              background: 'var(--surface-container)',
+              color: 'var(--color-on-surface)',
               borderRadius: '6px',
               textDecoration: 'none',
               fontWeight: 600,
@@ -141,7 +141,7 @@ export default async function AdminBlogPreviewPage({ params }: Props) {
             style={{
               marginTop: '3rem',
               paddingTop: '2rem',
-              borderTop: '1px solid #eee',
+              borderTop: '1px solid var(--outline-variant)',
             }}
           >
             <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>

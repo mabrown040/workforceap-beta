@@ -19,9 +19,8 @@ export default function ProgramDetailClient({ program }: { program: Program }) {
                 key={s}
                 className="program-skill-tag"
                 style={{
-                  background: 'var(--color-gray-100, #f0f0f0)',
-                  color: 'var(--color-gray-800, #1a1a1a)',
-                  border: '1px solid var(--color-border, #e5e5e5)',
+                  background: 'var(--surface-container)',
+                  color: 'var(--color-on-surface)',
                   padding: '0.25rem 0.6rem',
                   borderRadius: '4px',
                   fontSize: '0.9rem',
@@ -35,7 +34,7 @@ export default function ProgramDetailClient({ program }: { program: Program }) {
       ) : null}
 
       <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Course list</h2>
-      <div style={{ border: '1px solid var(--color-border, #e5e5e5)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
+      <div style={{ border: '1px solid var(--outline-variant)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
         {program.courses.map((c, i) => {
           const isOpen = openIndex === i;
           const panelId = `program-course-panel-${c.slug}`;
@@ -43,7 +42,7 @@ export default function ProgramDetailClient({ program }: { program: Program }) {
           return (
             <div
               key={c.slug}
-              style={{ borderBottom: i < program.courses.length - 1 ? '1px solid #eee' : 'none' }}
+              style={{ borderBottom: i < program.courses.length - 1 ? '1px solid var(--outline-variant)' : 'none' }}
             >
               <button
                 type="button"
@@ -68,11 +67,11 @@ export default function ProgramDetailClient({ program }: { program: Program }) {
                 <span>
                   <span style={{ marginRight: '0.5rem' }}>{i + 1}.</span>
                   {c.name}
-                  <span style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)', marginLeft: '0.5rem' }}>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginLeft: '0.5rem' }}>
                     ~{c.estimatedHours} hrs
                   </span>
                 </span>
-                <span aria-hidden="true" style={{ color: 'var(--color-gray-600)', fontSize: '0.9rem', flexShrink: 0 }}>
+                <span aria-hidden="true" style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', flexShrink: 0 }}>
                   {isOpen ? '−' : '+'}
                 </span>
               </button>
@@ -81,7 +80,7 @@ export default function ProgramDetailClient({ program }: { program: Program }) {
                 hidden={!isOpen}
                 role="region"
                 aria-label={`${c.name} details`}
-                style={{ padding: '0 1rem 1rem 1rem', paddingLeft: '2rem', fontSize: '0.9rem', color: 'var(--color-gray-600)' }}
+                style={{ padding: '0 1rem 1rem 1rem', paddingLeft: '2rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}
               >
                 Part of the {program.title} program.
               </div>

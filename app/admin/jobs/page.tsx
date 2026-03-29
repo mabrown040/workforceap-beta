@@ -153,7 +153,7 @@ export default async function AdminJobsPage({
       </div>
 
       {jobs.length === 0 && (
-        <p style={{ color: 'var(--color-gray-500)', marginTop: '1rem' }}>
+        <p style={{ color: 'var(--color-on-surface-variant)', marginTop: '1rem' }}>
           {totalJobsInDb === 0 ? (
             'No jobs yet.'
           ) : (

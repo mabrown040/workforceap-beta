@@ -51,7 +51,7 @@ export default function EmployerApplicationsClient({ initialRows }: { initialRow
   }, []);
 
   if (rows.length === 0) {
-    return <p style={{ color: 'var(--color-gray-500)' }}>No applications yet.</p>;
+    return <p style={{ color: 'var(--color-on-surface-variant)' }}>No applications yet.</p>;
   }
 
   return (
@@ -77,7 +77,7 @@ export default function EmployerApplicationsClient({ initialRows }: { initialRow
                 <td>
                   <div>
                     <strong>{app.student.fullName}</strong>
-                    <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)' }}>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
                       {app.student.email}
                     </div>
                   </div>

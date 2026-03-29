@@ -50,7 +50,7 @@ export default function PartnerMembersList({ members }: { members: PartnerMember
           <option value="placed">Placed</option>
         </select>
       </div>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '0.75rem' }}>{filtered.length} member{filtered.length !== 1 ? 's' : ''} shown</p>
+      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>{filtered.length} member{filtered.length !== 1 ? 's' : ''} shown</p>
       <div className="partner-members-list">
         {filtered.map((member) => (
           <Link key={member.id} href={`/partner/members/${member.id}`} className="partner-member-card">

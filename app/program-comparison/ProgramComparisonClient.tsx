@@ -122,7 +122,7 @@ export default function ProgramComparisonClient({ tracks }: Props) {
             a week (your pace may vary).
           </li>
           <li>
-            <strong>Difficulty (⭐–⭐⭐⭐):</strong> ⭐ = beginner-friendly. ⭐⭐⭐ = steeper curve, usually higher Austin-area
+            <strong>Difficulty (⭐–⭐⭐⭐):</strong> ⭐ = beginner-friendly. ⭐⭐⭐ = steeper curve, usually higher
             earning potential.
           </li>
           <li>
@@ -213,7 +213,7 @@ export default function ProgramComparisonClient({ tracks }: Props) {
                   ))}
                 </tr>
                 <tr>
-                  <th scope="row">Starting range (Austin-area)</th>
+                  <th scope="row">Starting range</th>
                   {selectedTracks.map((t) => (
                     <td key={t.slug}>{t.salary}</td>
                   ))}

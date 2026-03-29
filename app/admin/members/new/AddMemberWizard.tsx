@@ -345,7 +345,7 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
               >
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.25rem' }}><ProgramIcon program={p} size={24} /></div>
                 <h3 style={{ fontSize: '1rem', marginBottom: '0.25rem' }}>{p.title}</h3>
-                <div style={{ fontSize: '0.85rem', color: '#666' }}>{p.duration}</div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{p.duration}</div>
                 <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-accent)' }}>{p.salary}</div>
               </div>
             ))}
@@ -393,7 +393,7 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
                 </option>
               ))}
             </select>
-            <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', marginTop: '0.25rem' }}>Assign to a subgroup for partner/manager/church visibility. Auto-assigned if partner is linked to a subgroup.</p>
+            <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Assign to a subgroup for partner/manager/church visibility. Auto-assigned if partner is linked to a subgroup.</p>
           </div>
           <div className="wizard-actions wizard-actions-between">
             <button type="button" className="btn btn-outline" onClick={() => setStep(2)}>

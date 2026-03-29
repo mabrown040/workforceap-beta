@@ -185,7 +185,7 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
         >
           {outcome.message}
         </p>
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>Redirecting you shortly...</p>
+        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>Redirecting you shortly...</p>
       </div>
     );
   }
@@ -280,7 +280,7 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
             <h2 className="quiz-question" style={{ marginBottom: '0.5rem' }}>
               {config?.title}
             </h2>
-            <p style={{ marginBottom: '1.5rem', color: 'var(--color-gray-600)', fontSize: '0.9rem' }}>
+            <p style={{ marginBottom: '1.5rem', color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
               Questions {config?.questionRange?.[0]}–{config?.questionRange?.[1]} of {ASSESSMENT_QUESTIONS.length}
             </p>
             <div className="assessment-questions-list" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -328,12 +328,12 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
               padding: '1rem',
               background: 'var(--color-light)',
               borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--color-gray-200)',
+              border: '1px solid var(--outline-variant)',
               fontSize: '0.9rem',
             }}
           >
             <p style={{ marginBottom: '0.5rem', fontWeight: 600 }}>Review</p>
-            <p style={{ margin: 0, color: 'var(--color-gray-600)' }}>
+            <p style={{ margin: 0, color: 'var(--color-on-surface-variant)' }}>
               {firstName} {lastName} • {programInterest} • All 35 questions answered
             </p>
           </div>

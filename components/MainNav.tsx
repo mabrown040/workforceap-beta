@@ -8,32 +8,21 @@ import { usePathname } from 'next/navigation';
 import { useState, useEffect, useCallback, useRef, useId } from 'react';
 
 const navItems = [
-  { href: '/', label: 'Home' },
   {
     label: 'About Us',
     children: [
       { href: '/what-we-do', label: 'What We Do' },
+      { href: '/how-it-works', label: 'How It Works' },
       { href: '/partners', label: 'Partners' },
-      { href: '/leadership', label: 'Leadership Team' },
-      { href: '/employers', label: 'For Employers' },
+      { href: '/leadership', label: 'Leadership' },
+      { href: '/blog', label: 'Blog' },
+      { href: '/faq', label: 'FAQ' },
+      { href: '/contact', label: 'Contact Us' },
     ],
   },
-  { href: '/how-it-works', label: 'How It Works' },
-  {
-    label: 'Programs',
-    children: [
-      { href: '/programs', label: 'All Programs' },
-      { href: '/find-your-path', label: 'Find Your Career' },
-      { href: '/program-comparison', label: 'Program Comparison' },
-      { href: '/salary-guide', label: 'Salary Guide' },
-    ],
-  },
-  { href: '/jobs', label: 'Jobs' },
-  { href: '/blog', label: 'Blog' },
-  { href: '/faq', label: 'FAQ' },
-  { href: '/apply', label: 'Apply Now', cta: true },
-  { href: '/login', label: 'Sign in', portalEntry: true },
-  { href: '/contact', label: 'Contact Us' },
+  { href: '/programs', label: 'Programs' },
+  { href: '/employers', label: 'Employers' },
+  { href: '/find-your-path', label: 'Find Your Path' },
 ];
 
 function dropdownMenuId(baseId: string, label: string) {
@@ -73,7 +62,6 @@ export default function MainNav() {
 
   useEffect(() => {
     let cancelled = false;
-
     const refreshPortalLinks = () => {
       void (async () => {
         try {
@@ -96,115 +84,65 @@ export default function MainNav() {
             return;
           }
           const links: { href: string; label: string }[] = [];
-          if (data.canAccessMemberDashboard) {
-            links.push({ href: '/dashboard', label: 'Member Portal' });
-          }
-          if (data.employer) {
-            links.push({ href: '/employer', label: 'Employer Portal' });
-          }
-          if (links.length === 0) {
-            links.push({ href: '/dashboard', label: 'Member Portal' });
-          }
+          if (data.canAccessMemberDashboard) links.push({ href: '/dashboard', label: 'Member Portal' });
+          if (data.employer) links.push({ href: '/employer', label: 'Employer Portal' });
+          if (links.length === 0) links.push({ href: '/dashboard', label: 'Member Portal' });
           setPortalLinks(links);
         } catch {
           if (!cancelled) setPortalLinks([{ href: '/login', label: 'Sign in' }]);
         }
       })();
     };
-
     refreshPortalLinks();
     window.addEventListener('focus', refreshPortalLinks);
-    return () => {
-      cancelled = true;
-      window.removeEventListener('focus', refreshPortalLinks);
-    };
+    return () => { cancelled = true; window.removeEventListener('focus', refreshPortalLinks); };
   }, []);
 
-  useEffect(() => {
-    closeMobile();
-  }, [pathname, closeMobile]);
+  useEffect(() => { closeMobile(); }, [pathname, closeMobile]);
 
   useEffect(() => {
     if (!mobileOpen) return;
-
     const previouslyFocused = document.activeElement as HTMLElement | null;
     const menu = menuRef.current;
     if (!menu) return;
-
     const getFocusable = () =>
-      Array.from(
-        menu.querySelectorAll<HTMLElement>(
-          'a[href]:not([tabindex="-1"]), button:not([disabled]):not([aria-hidden="true"])'
-        )
-      ).filter((el) => !el.hasAttribute('disabled'));
-
+      Array.from(menu.querySelectorAll<HTMLElement>('a[href]:not([tabindex="-1"]), button:not([disabled]):not([aria-hidden="true"])')).filter((el) => !el.hasAttribute('disabled'));
     const t = window.setTimeout(() => getFocusable()[0]?.focus(), 0);
-
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        closeMobile();
-        toggleRef.current?.focus();
-        return;
-      }
+      if (e.key === 'Escape') { e.preventDefault(); closeMobile(); toggleRef.current?.focus(); return; }
       if (e.key !== 'Tab' || !menu) return;
       const focusables = getFocusable();
       if (focusables.length === 0) return;
-      const first = focusables[0];
-      const last = focusables[focusables.length - 1];
+      const first = focusables[0]; const last = focusables[focusables.length - 1];
       const active = document.activeElement as HTMLElement | null;
-      if (e.shiftKey) {
-        if (active === first) {
-          e.preventDefault();
-          last.focus();
-        }
-      } else if (active === last) {
-        e.preventDefault();
-        first.focus();
-      }
+      if (e.shiftKey) { if (active === first) { e.preventDefault(); last.focus(); } }
+      else if (active === last) { e.preventDefault(); first.focus(); }
     };
-
     document.addEventListener('keydown', onKeyDown);
-    return () => {
-      window.clearTimeout(t);
-      document.removeEventListener('keydown', onKeyDown);
-      previouslyFocused?.focus?.();
-    };
+    return () => { window.clearTimeout(t); document.removeEventListener('keydown', onKeyDown); previouslyFocused?.focus?.(); };
   }, [mobileOpen, closeMobile]);
 
   useEffect(() => {
     if (!activeDropdown) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setActiveDropdown(null);
-    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setActiveDropdown(null); };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [activeDropdown]);
 
-  /** Mobile accordion: close open dropdown when tapping outside the nav menu. */
   useEffect(() => {
     if (!activeDropdown) return;
     const onPointerDown = (e: MouseEvent | TouchEvent) => {
-      const root = navContainerRef.current;
-      const t = e.target;
+      const root = navContainerRef.current; const t = e.target;
       if (!root || !(t instanceof Node) || root.contains(t)) return;
       setActiveDropdown(null);
     };
     document.addEventListener('mousedown', onPointerDown);
     document.addEventListener('touchstart', onPointerDown, { passive: true });
-    return () => {
-      document.removeEventListener('mousedown', onPointerDown);
-      document.removeEventListener('touchstart', onPointerDown);
-    };
+    return () => { document.removeEventListener('mousedown', onPointerDown); document.removeEventListener('touchstart', onPointerDown); };
   }, [activeDropdown]);
 
   const toggleMobile = () => {
-    if (mobileOpen) {
-      closeMobile();
-    } else {
-      setMobileOpen(true);
-      document.body.classList.add('mobile-nav-open');
-    }
+    if (mobileOpen) { closeMobile(); } else { setMobileOpen(true); document.body.classList.add('mobile-nav-open'); }
   };
 
   const isActive = (href: string) => pathname === href;
@@ -212,73 +150,36 @@ export default function MainNav() {
 
   const handleDropdownKeyDown = useCallback(
     (e: React.KeyboardEvent, label: string, isOpen: boolean, subMenuId: string) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        setActiveDropdown(isOpen ? null : label);
-        return;
-      }
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        setActiveDropdown(null);
-        return;
-      }
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveDropdown(isOpen ? null : label); return; }
+      if (e.key === 'Escape') { e.preventDefault(); setActiveDropdown(null); return; }
       if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        if (!isOpen) setActiveDropdown(label);
-        queueMicrotask(() => {
-          document.getElementById(subMenuId)?.querySelector<HTMLElement>('a[href]')?.focus();
-        });
+        e.preventDefault(); if (!isOpen) setActiveDropdown(label);
+        queueMicrotask(() => { document.getElementById(subMenuId)?.querySelector<HTMLElement>('a[href]')?.focus(); });
       }
-    },
-    []
+    }, []
   );
 
   const portalHrefActive = (href: string) => {
-    if (href === '/login' || href.startsWith('/login?')) {
-      return pathname === '/login';
-    }
-    return (
-      pathname === href ||
-      (href === '/dashboard' && pathname.startsWith('/dashboard')) ||
-      (href === '/employer' && pathname.startsWith('/employer')) ||
-      (href === '/partner' && pathname.startsWith('/partner'))
-    );
+    if (href === '/login' || href.startsWith('/login?')) return pathname === '/login';
+    return pathname === href || (href === '/dashboard' && pathname.startsWith('/dashboard')) || (href === '/employer' && pathname.startsWith('/employer')) || (href === '/partner' && pathname.startsWith('/partner'));
   };
 
   return (
     <nav className={`main-nav${scrolled ? ' scrolled' : ''}`} aria-label="Main navigation">
       <div className="nav-container" ref={navContainerRef}>
         <Link href="/" className="logo" aria-label="Workforce Advancement Project home" onClick={closeMobile}>
-          <Image
-            src="/images/logo-tight.png"
-            alt="Workforce Advancement Project"
-            width={1930}
-            height={985}
-            className="nav-logo-image"
-            sizes="(max-width: 900px) 130px, 210px"
-            quality={85}
-            priority
-          />
+          <Image src="/images/logo-tight.png" alt="Workforce Advancement Project" width={1930} height={985} className="nav-logo-image" sizes="(max-width: 900px) 130px, 210px" quality={85} priority />
         </Link>
-        <button
-          ref={toggleRef}
-          type="button"
-          className="mobile-nav-toggle"
-          aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'}
-          aria-expanded={mobileOpen}
-          aria-controls={navMenuId}
-          onClick={toggleMobile}
-        >
+
+        {/* Mobile toggle */}
+        <button ref={toggleRef} type="button" className="mobile-nav-toggle" aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={mobileOpen} aria-controls={navMenuId} onClick={toggleMobile}>
           {mobileOpen ? <X size={26} strokeWidth={2} aria-hidden /> : <Menu size={26} strokeWidth={2} aria-hidden />}
         </button>
-        <button
-          type="button"
-          className={`mobile-nav-backdrop${mobileOpen ? ' visible' : ''}`}
-          aria-label="Close navigation menu"
-          tabIndex={mobileOpen ? 0 : -1}
-          onClick={closeMobile}
-          {...(!mobileOpen ? { 'data-nav-hidden': 'true' } : {})}
-        />
+
+        {/* Mobile backdrop */}
+        <button type="button" className={`mobile-nav-backdrop${mobileOpen ? ' visible' : ''}`} aria-label="Close navigation menu" tabIndex={mobileOpen ? 0 : -1} onClick={closeMobile} {...(!mobileOpen ? { 'data-nav-hidden': 'true' } : {})} />
+
+        {/* Nav links — single list, used for both desktop and mobile */}
         <ul ref={menuRef} id={navMenuId} className={`nav-menu${mobileOpen ? ' mobile-open' : ''}`}>
           {navItems.flatMap((item) => {
             if ('children' in item && item.children) {
@@ -302,12 +203,7 @@ export default function MainNav() {
                   <ul className="dropdown-menu" id={subMenuId} role="menu" aria-labelledby={`${subMenuId}-trigger`}>
                     {item.children.map((child) => (
                       <li key={child.href} role="none">
-                        <Link
-                          href={child.href}
-                          role="menuitem"
-                          className={isActive(child.href) ? 'active' : undefined}
-                          onClick={closeMobile}
-                        >
+                        <Link href={child.href} role="menuitem" className={isActive(child.href) ? 'active' : undefined} onClick={closeMobile}>
                           {child.label}
                         </Link>
                       </li>
@@ -316,38 +212,32 @@ export default function MainNav() {
                 </li>,
               ];
             }
-            const isPortalEntry = 'portalEntry' in item && item.portalEntry;
-            if (isPortalEntry) {
-              return portalLinks.map((pl) => (
-                <li key={`portal-${pl.href}-${pl.label}`}>
-                  <Link
-                    href={pl.href}
-                    className={portalHrefActive(pl.href) ? 'active' : undefined}
-                    onClick={closeMobile}
-                  >
-                    {pl.label}
-                  </Link>
-                </li>
-              ));
-            }
             return [
               <li key={item.href}>
-                <Link
-                  href={item.href!}
-                  className={`${item.cta ? 'nav-cta' : ''}${isActive(item.href!) ? ' active' : ''}`}
-                  onClick={closeMobile}
-                >
+                <Link href={item.href!} className={isActive(item.href!) ? 'active' : undefined} onClick={closeMobile}>
                   {item.label}
                 </Link>
               </li>,
             ];
           })}
+          {portalLinks.map((pl) => (
+            <li key={`portal-${pl.href}-${pl.label}`}>
+              <Link href={pl.href} className={portalHrefActive(pl.href) ? 'active' : undefined} onClick={closeMobile}>
+                {pl.label}
+              </Link>
+            </li>
+          ))}
+          <li>
+            <Link href="/apply" className="nav-cta" onClick={closeMobile}>Apply Now</Link>
+          </li>
           <li className="nav-theme-mobile-item" key="theme-toggle-mobile">
             <div className="nav-theme-mobile-wrapper">
               <ThemeToggle variant="marketing" />
             </div>
           </li>
         </ul>
+
+        {/* Desktop-only theme toggle */}
         <div className="nav-theme-slot-desktop">
           <ThemeToggle variant="marketing" />
         </div>

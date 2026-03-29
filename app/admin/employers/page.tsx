@@ -40,7 +40,7 @@ export default async function AdminEmployersPage() {
       {superAdmin && (
         <p style={{ fontSize: '0.9rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           <ClearEmployerPortalContext />
-          <span style={{ color: 'var(--color-gray-500)' }}>
+          <span style={{ color: 'var(--color-on-surface-variant)' }}>
             Stops pinning the employer portal to a specific company (falls back to default).
           </span>
         </p>
@@ -86,7 +86,7 @@ export default async function AdminEmployersPage() {
       </div>
 
       {employers.length === 0 && (
-        <p style={{ color: 'var(--color-gray-500)', marginTop: '1rem' }}>
+        <p style={{ color: 'var(--color-on-surface-variant)', marginTop: '1rem' }}>
           No employers yet. Create the first account using the form below.
         </p>
       )}

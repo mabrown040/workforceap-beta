@@ -155,7 +155,7 @@ export default function AdminMemberCounselorChatClient({
 
   return (
     <div className="admin-member-counselor-chat">
-      <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '0.75rem' }}>
+      <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
         Messages sync in real time. Member last read:{' '}
         {thread.memberLastReadAt ? new Date(thread.memberLastReadAt).toLocaleString() : '—'}
       </p>

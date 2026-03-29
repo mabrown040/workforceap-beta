@@ -53,7 +53,7 @@ export default function PartnerDetailActions({ partner, subgroups, allPartners }
             type="button"
             onClick={() => setDeactivateOpen(true)}
             className="btn btn-outline"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', color: 'var(--color-gray-600)' }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', color: 'var(--color-on-surface-variant)' }}
           >
             <Trash2 size={14} />
             Deactivate

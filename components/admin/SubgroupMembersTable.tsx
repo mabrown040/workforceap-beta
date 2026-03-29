@@ -116,7 +116,7 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
       </div>
 
       {members.length === 0 ? (
-        <p style={{ color: 'var(--color-gray-500)', fontSize: '0.9rem' }}>No members assigned yet. Add members to give the subgroup leader visibility.</p>
+        <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>No members assigned yet. Add members to give the subgroup leader visibility.</p>
       ) : (
         <div className="admin-responsive-data">
         <div className="admin-table-scroll admin-subgroup-desktop">
@@ -144,7 +144,7 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
                   <td>{m.stage}</td>
                   <td style={{ fontSize: '0.85rem' }}>
                     {new Date(m.assignedAt).toLocaleDateString()}
-                    {m.assignedBy && <span style={{ color: 'var(--color-gray-500)' }}> by {m.assignedBy}</span>}
+                    {m.assignedBy && <span style={{ color: 'var(--color-on-surface-variant)' }}> by {m.assignedBy}</span>}
                   </td>
                   <td>
                     <button
@@ -257,7 +257,7 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), doSearch())}
                 placeholder="Search by name or email"
-                style={{ flex: 1, padding: '0.5rem 0.75rem', border: '1px solid #ccc', borderRadius: '6px' }}
+                style={{ flex: 1, padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: '6px' }}
               />
               <button type="button" className="btn btn-primary" onClick={() => doSearch()} disabled={searching}>
                 {searching ? 'Searching…' : 'Search'}
@@ -278,7 +278,7 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
                   >
                     <div>
                       <div style={{ fontWeight: 500 }}>{m.fullName}</div>
-                      <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)' }}>{m.email}</div>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{m.email}</div>
                     </div>
                     <button
                       type="button"
@@ -293,7 +293,7 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
                 ))}
               </ul>
             ) : search ? (
-              <p style={{ color: 'var(--color-gray-500)', fontSize: '0.9rem' }}>
+              <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
                 {searching ? 'Searching…' : 'No members found or all matching members are already in this subgroup.'}
               </p>
             ) : null}

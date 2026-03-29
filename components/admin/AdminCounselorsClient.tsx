@@ -81,7 +81,7 @@ export default function AdminCounselorsClient({ partners }: { partners: PartnerO
     <div>
       <section style={{ marginBottom: '2rem', padding: '1.25rem', border: '1px solid var(--color-border)', borderRadius: '8px' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Add counselor</h2>
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '1rem', maxWidth: '42rem' }}>
+        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem', maxWidth: '42rem' }}>
           Link an existing WorkforceAP user account. Choose <strong>WorkforceAP (org)</strong> for internal staff, or select a partner
           for partner-affiliated counselors.
         </p>

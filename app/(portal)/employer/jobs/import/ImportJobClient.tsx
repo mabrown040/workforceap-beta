@@ -179,7 +179,7 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
           </button>
         </div>
         <h1 style={{ fontSize: '1.35rem', marginBottom: '0.5rem' }}>Review before saving</h1>
-        <p style={{ color: 'var(--color-gray-600)', marginBottom: '1rem', fontSize: '0.9rem' }}>
+        <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem', fontSize: '0.9rem' }}>
           This is still private. Adjust anything that does not sound like your team, then save as a draft or send for
           WorkforceAP review.
         </p>
@@ -344,7 +344,7 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
         <summary>Other ways to add roles</summary>
         <div className="import-job-more-content">
           <h3>One role at a time</h3>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '0.75rem' }}>
+          <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
             Paste a public job link or the full description — fastest when you are only filling one opening.
           </p>
           <div className="form-group">
@@ -360,7 +360,7 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
           </button>
 
           <h3 style={{ marginTop: '1.5rem' }}>Several direct job links</h3>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '0.75rem' }}>
+          <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
             Up to fifteen public URLs, one per line — we turn each into its own draft you can edit separately.
           </p>
           <textarea rows={4} placeholder="https://...&#10;https://..." value={bulkUrls} onChange={(e) => setBulkUrls(e.target.value)} disabled={bulkLoading || loading} />

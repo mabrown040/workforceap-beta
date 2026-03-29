@@ -13,6 +13,15 @@ import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav'
 
 const QUIZ_STORAGE_KEY = 'find_your_path_results';
 
+const INTEREST_ICONS: Record<string, string> = {
+  computers: 'computer',
+  health: 'health_and_safety',
+  building: 'construction',
+  managing: 'groups',
+  data: 'query_stats',
+  not_sure: 'explore',
+};
+
 const QUESTIONS = [
   {
     id: 'q1' as const,
@@ -160,18 +169,18 @@ function QuizResultsView({
               {extra?.rampNote && (
                 <p className="quiz-result-ramp-note">{extra.rampNote}</p>
               )}
-              <div style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '0.5rem' }}>
+              <div style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem' }}>
                 ⏱ {program.duration}
               </div>
               <div style={{ fontSize: '0.9rem', color: 'var(--color-accent)', fontWeight: 600, marginBottom: '0.5rem' }}>
-                Starting range: {salaryBand} <span style={{ fontWeight: 500, color: 'var(--color-gray-600)' }}>(Austin-area framing)</span>
+                Starting range: {salaryBand} <span style={{ fontWeight: 500, color: 'var(--color-on-surface-variant)' }}>(national framing)</span>
               </div>
               {extra?.jobOutcomes && extra.jobOutcomes.length > 0 && (
                 <p className="quiz-result-roles">
                   <strong>Roles:</strong> {extra.jobOutcomes.join(' · ')}
                 </p>
               )}
-              <div style={{ fontSize: '0.85rem', color: '#888', marginBottom: '1rem' }}>
+              <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
                 Partner: {program.partner}
               </div>
               <Link
@@ -228,7 +237,7 @@ function QuizResultsView({
             <button
               type="button"
               className="btn btn-ghost"
-              style={{ color: 'var(--color-primary)', borderColor: 'var(--color-gray-300)' }}
+              style={{ color: 'var(--color-primary)', borderColor: 'var(--outline-variant)' }}
               onClick={onRetake}
             >
               Retake Quiz
@@ -338,67 +347,148 @@ export default function FindYourPathClient() {
     );
   }
 
+  const progressPct = ((step + 1) / QUESTIONS.length) * 100;
+  const stepLabel = String(step + 1).padStart(2, '0');
+
   return (
     <>
       <ProgramsDecisionJourneyNav current="quiz" quizPhase="in_progress" />
-      <div className={`quiz-flow ${direction === 'prev' ? 'quiz-slide-prev' : 'quiz-slide-next'}`}>
-      <div className="quiz-progress-bar">
-        <div
-          className="quiz-progress-fill"
-          style={{ width: `${((step + 1) / QUESTIONS.length) * 100}%` }}
-        />
-        <p className="quiz-progress-label">Question {step + 1} of {QUESTIONS.length}</p>
-      </div>
 
-      <div className="quiz-step-content">
-        {step > 0 && (
-          <button
-            type="button"
-            className="quiz-back-link"
-            onClick={handleBack}
-          >
-            ← Back
-          </button>
-        )}
-        <h2 className="quiz-question">{currentQ?.question}</h2>
-        <div className="quiz-answers">
-          {currentQ?.answers.map((a) => {
-            const inputId = `${currentQ.id}-${a.value}`;
-            return (
-              <label
-                key={a.value}
-                htmlFor={inputId}
-                className={`quiz-answer-card ${currentAnswer === a.value ? 'selected' : ''}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleSelect(a.value);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
+      <div className={`quiz-flow ${direction === 'prev' ? 'quiz-slide-prev' : 'quiz-slide-next'}`}>
+        {/* Step + progress indicator */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem',
+        }}>
+          <span style={{
+            fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-accent)',
+            whiteSpace: 'nowrap', letterSpacing: '0.04em',
+          }}>
+            Step {stepLabel}/{String(QUESTIONS.length).padStart(2, '0')}
+          </span>
+          <div style={{
+            flex: 1, height: '4px', background: 'var(--surface-container-highest)',
+            borderRadius: '2px', overflow: 'hidden',
+          }}>
+            <div style={{
+              width: `${progressPct}%`, height: '100%',
+              background: 'var(--color-accent)',
+              borderRadius: '2px',
+              transition: 'width 0.35s ease',
+            }} />
+          </div>
+          <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
+            {Math.round(progressPct)}%
+          </span>
+        </div>
+
+        {/* Quiz card */}
+        <div style={{
+          background: 'var(--surface-container)', borderRadius: 'var(--radius-xl)',
+          padding: '2rem', border: '1px solid var(--surface-container-highest)',
+        }}>
+          <h2 className="quiz-question" style={{ marginBottom: '1.5rem' }}>{currentQ?.question}</h2>
+          <div className="quiz-answers" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {currentQ?.answers.map((a) => {
+              const inputId = `${currentQ.id}-${a.value}`;
+              const icon = currentQ.id === 'q1' ? INTEREST_ICONS[a.value] : null;
+              return (
+                <label
+                  key={a.value}
+                  htmlFor={inputId}
+                  className={`quiz-answer-card ${currentAnswer === a.value ? 'selected' : ''}`}
+                  onClick={(e) => {
                     e.preventDefault();
                     handleSelect(a.value);
-                  }
-                }}
-                tabIndex={0}
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleSelect(a.value);
+                    }
+                  }}
+                  tabIndex={0}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '0.75rem',
+                    padding: '0.875rem 1rem',
+                    background: currentAnswer === a.value ? 'rgba(173,44,77,0.15)' : 'var(--surface-container-low)',
+                    border: currentAnswer === a.value ? '1px solid var(--color-accent)' : '1px solid var(--surface-container-highest)',
+                    borderRadius: 'var(--radius-lg)',
+                    cursor: 'pointer', transition: 'all 0.15s ease',
+                  }}
+                >
+                  <input
+                    id={inputId}
+                    type="radio"
+                    name={currentQ.id}
+                    value={a.value}
+                    checked={currentAnswer === a.value}
+                    readOnly
+                    tabIndex={-1}
+                    aria-hidden="true"
+                    style={{ display: 'none' }}
+                  />
+                  {icon && (
+                    <span className="material-symbols-outlined" style={{
+                      fontSize: '1.25rem',
+                      color: currentAnswer === a.value ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
+                    }}>{icon}</span>
+                  )}
+                  <span className="radio-dot" aria-hidden style={{ display: 'none' }} />
+                  <span style={{ fontSize: '0.9rem' }}>{a.label}</span>
+                </label>
+              );
+            })}
+          </div>
+
+          {/* Back / Continue buttons */}
+          <div style={{
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            marginTop: '1.5rem', paddingTop: '1rem',
+            borderTop: '1px solid var(--surface-container-highest)',
+          }}>
+            {step > 0 ? (
+              <button
+                type="button"
+                className="btn btn-ghost btn-small"
+                onClick={handleBack}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
               >
-                <input
-                  id={inputId}
-                  type="radio"
-                  name={currentQ.id}
-                  value={a.value}
-                  checked={currentAnswer === a.value}
-                  readOnly
-                  tabIndex={-1}
-                  aria-hidden="true"
-                />
-                <span className="radio-dot" aria-hidden />
-                <span>{a.label}</span>
-              </label>
-            );
-          })}
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_back</span>
+                Back
+              </button>
+            ) : <span />}
+            <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+              Select an option to continue
+            </span>
+          </div>
+        </div>
+
+        {/* Vertical side progress (desktop) — rendered below on mobile, could be positioned via CSS */}
+        <div style={{
+          display: 'flex', gap: '2rem', marginTop: '2rem',
+          flexWrap: 'wrap',
+        }}>
+          {['Interest', 'Experience', 'Timeline', 'Values', 'Tech Comfort'].map((label, i) => (
+            <div key={label} style={{
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+            }}>
+              <div style={{
+                width: '1.5rem', height: '1.5rem', borderRadius: '50%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '0.7rem', fontWeight: 700,
+                background: i <= step ? 'var(--color-accent)' : 'var(--surface-container-highest)',
+                color: i <= step ? 'white' : 'var(--color-on-surface-variant)',
+                transition: 'all 0.2s ease',
+              }}>{i + 1}</div>
+              <span style={{
+                fontSize: '0.75rem',
+                color: i === step ? 'var(--color-on-surface)' : 'var(--color-on-surface-variant)',
+                fontWeight: i === step ? 700 : 400,
+              }}>{label}</span>
+            </div>
+          ))}
         </div>
       </div>
-    </div>
     </>
   );
 }

@@ -132,7 +132,7 @@ export default function DashboardProfileForm({
             />
             No
           </label>
-          <p style={{ fontSize: '0.8rem', color: 'var(--color-gray-600)', margin: '0.35rem 0 0' }}>
+          <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0.35rem 0 0' }}>
             Required before you can enroll in a training program from the portal.
           </p>
         </fieldset>

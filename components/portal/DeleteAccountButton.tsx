@@ -67,7 +67,7 @@ export default function DeleteAccountButton() {
             onClick={(e) => e.stopPropagation()}
           >
             <h3 style={{ marginBottom: '0.75rem' }}>Delete account permanently?</h3>
-            <p style={{ marginBottom: '1rem', fontSize: '0.95rem', color: 'var(--color-gray-600)', lineHeight: 1.5 }}>
+            <p style={{ marginBottom: '1rem', fontSize: '0.95rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
               This deactivates your WorkforceAP member account. You may lose access to training progress, messages, and
               applications tied to this login. This cannot be undone from the app. Type{' '}
               <strong style={{ color: 'var(--color-primary)' }}>DELETE</strong> in the box below to confirm.

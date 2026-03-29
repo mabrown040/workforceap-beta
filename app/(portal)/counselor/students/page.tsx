@@ -33,7 +33,7 @@ export default async function CounselorStudentsPage() {
       <PageHeader title="My students" subtitle="Members assigned to you for coaching and messaging." />
 
       {assignments.length === 0 ? (
-        <p style={{ color: 'var(--color-gray-600)' }}>No assigned students yet.</p>
+        <p style={{ color: 'var(--color-on-surface-variant)' }}>No assigned students yet.</p>
       ) : (
         <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.5rem' }}>
           {assignments.map((a) => (
@@ -44,7 +44,7 @@ export default async function CounselorStudentsPage() {
                 style={{ display: 'inline-flex', width: '100%', justifyContent: 'space-between' }}
               >
                 <span>{a.member.fullName}</span>
-                <span style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>{a.member.email}</span>
+                <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{a.member.email}</span>
               </Link>
             </li>
           ))}

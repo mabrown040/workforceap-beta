@@ -22,7 +22,7 @@ export default function ApplyProgramIntro({ programSlug }: { programSlug: string
         ))}
       </ul>
       <p className="apply-program-intro__salary">
-        <strong>Typical starting salary range:</strong> {salaryLine} (early-career, Austin-area framing — not a guarantee)
+        <strong>Typical starting salary range:</strong> {salaryLine} (early-career, national framing — not a guarantee)
       </p>
       <p className="apply-program-intro__more">
         <Link href={`/programs/${program.slug}`}>Read the full program overview</Link> or{' '}

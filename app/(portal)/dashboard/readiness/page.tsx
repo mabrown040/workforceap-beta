@@ -18,7 +18,7 @@ export default async function DashboardReadinessPage() {
   return (
     <div>
       <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Your Career Readiness</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
+      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
         Track your progress from training to career. Your counselor updates this checklist as you hit milestones.
       </p>
       <ReadinessMemberClient />

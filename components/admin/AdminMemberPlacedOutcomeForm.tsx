@@ -80,7 +80,7 @@ export default function AdminMemberPlacedOutcomeForm({
           {msg.text}
         </p>
       ) : null}
-      <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)', margin: 0 }}>
+      <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
         WorkforceAP-reported placement for funders (separate from counselor placement notes).
       </p>
       <div className="form-group" style={{ marginBottom: 0 }}>

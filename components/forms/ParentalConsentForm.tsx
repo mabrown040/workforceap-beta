@@ -70,7 +70,7 @@ export default function ParentalConsentForm({
         <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem' }}>
           Parental Consent Required
         </h2>
-        <p style={{ color: 'var(--color-gray-600)', lineHeight: 1.6 }}>
+        <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
           Because {studentName} is under 18 years of age, we require consent from a parent or legal guardian 
           to participate in WorkforceAP programs.
         </p>
@@ -113,7 +113,7 @@ export default function ParentalConsentForm({
             onChange={(e) => updateField('parentGuardianEmail', e.target.value)}
             required
           />
-          <small style={{ color: 'var(--color-gray-600)', fontSize: '0.85rem' }}>
+          <small style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>
             We&rsquo;ll send confirmation and program updates to this email
           </small>
         </div>
@@ -253,12 +253,12 @@ export default function ParentalConsentForm({
 
       <div className="consent-form-notice" style={{ 
         padding: '1rem', 
-        background: 'var(--color-gray-50)', 
+        background: 'var(--surface-container-lowest)', 
         borderRadius: 'var(--radius-md)', 
         marginBottom: '1.5rem',
-        border: '1px solid var(--color-gray-200)'
+        border: '1px solid var(--outline-variant)'
       }}>
-        <p style={{ fontSize: '0.9rem', lineHeight: 1.6, color: 'var(--color-gray-700)' }}>
+        <p style={{ fontSize: '0.9rem', lineHeight: 1.6, color: 'var(--color-on-surface)' }}>
           <strong>Your Rights:</strong> You may withdraw consent, request access to your child&rsquo;s information, 
           or request deletion at any time by contacting us at{' '}
           <a href="mailto:info@workforceap.org" style={{ color: 'var(--color-accent)' }}>

@@ -49,7 +49,7 @@ export function buildApplyPageMetadata(programParam: string | undefined): Metada
     return buildPageMetadata({
       title: 'Apply for Free Career Training',
       description:
-        'Apply for no-cost career certification training. CompTIA, Google, IBM, AWS, and more. Currently serving the Austin area with plans to expand. We respond within 24–48 hours.',
+        'Apply for no-cost career certification training. CompTIA, Google, IBM, AWS, and more. Serving communities nationwide. We respond within 24–48 hours.',
       path: '/apply',
     });
   }

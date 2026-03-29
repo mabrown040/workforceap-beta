@@ -6,9 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
-import { Users, ClipboardList, GraduationCap, BookOpen, Trophy } from 'lucide-react';
 import RecentSignupsTable from '@/components/admin/RecentSignupsTable';
-import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin overview',
@@ -73,117 +71,287 @@ export default async function AdminPage() {
 
   const totalPlacements = await prisma.placementRecord.count();
 
+  const metricCards = [
+    { icon: 'groups', label: 'Total Members', value: totalMembers.toLocaleString(), accent: 'var(--color-accent)' },
+    { icon: 'task_alt', label: 'Assessments Completed', value: assessmentsCompleted.toLocaleString(), accent: '#3b82f6' },
+    { icon: 'model_training', label: 'Active in Training', value: activeInTraining.toLocaleString(), accent: '#80d99f' },
+    { icon: 'school', label: 'Programs Enrolled', value: programsCompleted.toLocaleString(), accent: '#fbbf24' },
+  ];
+
+  function timeAgo(date: Date) {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMin = Math.floor(diffMs / 60000);
+    if (diffMin < 1) return 'just now';
+    if (diffMin < 60) return `${diffMin}m ago`;
+    const diffH = Math.floor(diffMin / 60);
+    if (diffH < 24) return `${diffH}h ago`;
+    const diffD = Math.floor(diffH / 24);
+    return `${diffD}d ago`;
+  }
+
   return (
-    <div>
-      <PageHeader title="Admin overview" subtitle="Manage members, employers, partners, and program metrics." />
+    <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
+      {/* ── Breadcrumb + Header ── */}
+      <header style={{ marginBottom: '2.5rem', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: '1rem' }}>
+        <div>
+          <nav style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+            <span style={{ fontSize: '0.625rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--color-on-surface-variant)' }}>Admin</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', opacity: 0.5 }}>chevron_right</span>
+            <span style={{ fontSize: '0.625rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--color-accent)' }}>Overview</span>
+          </nav>
+          <h1 className="text-display-sm" style={{ color: 'var(--color-on-surface)' }}>
+            Admin overview
+          </h1>
+        </div>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <Link href="/admin/pipeline" style={{ padding: '0.625rem 1.5rem', background: 'var(--surface-container-high)', color: 'var(--color-accent)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>download</span>
+            Export Data
+          </Link>
+          <Link href="/admin/programs" style={{ padding: '0.625rem 1.5rem', background: 'linear-gradient(to right, var(--color-accent), #71333e)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none', boxShadow: '0 4px 24px rgba(0,0,0,0.3)', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>
+            Create New Track
+          </Link>
+        </div>
+      </header>
 
-      <div className="admin-stat-cards">
-        <div className="admin-stat-card">
-          <div className="admin-stat-card-icon"><Users size={24} className="text-current" /></div>
-          <div className="admin-stat-card-label">Total Members</div>
-          <div className="admin-stat-card-value">{totalMembers}</div>
-        </div>
-        <div className="admin-stat-card">
-          <div className="admin-stat-card-icon"><ClipboardList size={24} className="text-current" /></div>
-          <div className="admin-stat-card-label">Assessments Completed</div>
-          <div className="admin-stat-card-value">{assessmentsCompleted}</div>
-        </div>
-        <div className="admin-stat-card">
-          <div className="admin-stat-card-icon"><GraduationCap size={24} className="text-current" /></div>
-          <div className="admin-stat-card-label">Active in Training</div>
-          <div className="admin-stat-card-value">{activeInTraining}</div>
-        </div>
-        <div className="admin-stat-card">
-          <div className="admin-stat-card-icon"><BookOpen size={24} className="text-current" /></div>
-          <div className="admin-stat-card-label">Programs Enrolled</div>
-          <div className="admin-stat-card-value">{programsCompleted}</div>
-        </div>
-        <div className="admin-stat-card">
-          <div className="admin-stat-card-icon"><Trophy size={24} className="text-current" /></div>
-          <div className="admin-stat-card-label">Counselor placements</div>
-          <div className="admin-stat-card-value">{totalPlacements}</div>
-        </div>
-        <div className="admin-stat-card">
-          <div className="admin-stat-card-icon"><Trophy size={24} className="text-current" /></div>
-          <div className="admin-stat-card-label">WorkforceAP placements (reported)</div>
-          <div className="admin-stat-card-value">{workforcePlacements}</div>
-        </div>
-      </div>
-
+      {/* ── Pending Applications Alert ── */}
       {pendingApplications > 0 && (
         <div style={{
-          padding: '1rem 1.25rem',
-          background: '#fffbeb',
-          border: '1px solid #fbbf24',
-          borderRadius: '8px',
+          padding: '1rem 1.5rem',
+          background: 'rgba(173,44,77,0.1)',
+          borderRadius: '0.75rem',
           marginBottom: '1.5rem',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
         }}>
-          <span style={{ fontWeight: 600, color: '#92400e' }}>
+          <span style={{ fontWeight: 600, color: 'var(--color-accent)', fontSize: '0.875rem' }}>
             {pendingApplications} pending application{pendingApplications === 1 ? '' : 's'} awaiting review
           </span>
-          <Link href="/admin/members" style={{ color: '#2563eb', fontWeight: 600, fontSize: '0.9rem' }}>
-            Review →
+          <Link href="/admin/members" style={{ color: 'var(--color-accent)', fontWeight: 600, fontSize: '0.875rem', textDecoration: 'none' }}>
+            Review &rarr;
           </Link>
         </div>
       )}
 
-      {recentPlacements.length > 0 && (
-        <>
-          <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Recent Placements</h2>
-          <div style={{ overflowX: 'auto', marginBottom: '2rem' }}>
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Student</th>
-                  <th>Employer</th>
-                  <th>Role</th>
-                  <th>Program</th>
-                  <th>Days to Placement</th>
-                  <th>Salary</th>
-                  <th>Placed</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentPlacements.map((p) => {
-                  const programTitle = p.user.enrolledProgram
-                    ? getProgramBySlug(p.user.enrolledProgram)?.title ?? p.user.enrolledProgram
-                    : '—';
-                  const daysToPlacement = p.user.enrolledAt
-                    ? Math.floor((p.placedAt.getTime() - p.user.enrolledAt.getTime()) / (1000 * 60 * 60 * 24))
-                    : null;
-                  return (
-                    <tr key={p.id}>
-                      <td>
-                        <Link href={`/admin/members/${p.user.id}`}>{p.user.fullName}</Link>
-                      </td>
-                      <td>{p.employerName}</td>
-                      <td>{p.jobTitle}</td>
-                      <td style={{ fontSize: '0.85rem' }}>{programTitle}</td>
-                      <td>{daysToPlacement != null ? `${daysToPlacement}d` : '—'}</td>
-                      <td style={{ color: '#16a34a', fontWeight: 600 }}>
-                        {p.salaryOffered ? `$${p.salaryOffered.toLocaleString()}` : '—'}
-                      </td>
-                      <td>{p.placedAt.toLocaleDateString()}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+      {/* ── Metric Cards with border-b-2 hover accent ── */}
+      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
+        {metricCards.map((card) => (
+          <div
+            key={card.label}
+            className="stitch-card"
+            style={{
+              padding: '1.5rem',
+              borderBottom: `2px solid transparent`,
+              transition: 'border-color 0.2s, transform 0.15s',
+              cursor: 'default',
+              position: 'relative',
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderBottomColor = card.accent; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderBottomColor = 'transparent'; }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+              <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '0.5rem', background: `${card.accent}1a`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span className="material-symbols-outlined" style={{ color: card.accent }}>{card.icon}</span>
+              </div>
+            </div>
+            <span style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--color-on-surface)', display: 'block', lineHeight: 1 }}>{card.value}</span>
+            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '0.25rem', display: 'block' }}>{card.label}</span>
           </div>
-        </>
-      )}
+        ))}
+      </section>
 
-      <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Recent signups</h2>
-      <RecentSignupsTable users={recentUsers} />
+      {/* ── Main Dashboard Layout ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
 
-      <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-        <Link href="/admin/members" className="btn btn-primary">View Members</Link>
-        <Link href="/admin/pipeline" className="btn btn-outline">View Pipeline</Link>
-        <Link href="/admin/assessments" className="btn btn-outline">View Assessments</Link>
-        <Link href="/admin/programs" className="btn btn-outline">View Programs</Link>
+        {/* ── Left Column ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+
+          {/* Recent Signups Table with initials avatars */}
+          <div style={{ background: 'var(--surface-container-low)', borderRadius: '0.75rem', overflow: 'hidden', boxShadow: '0 4px 32px rgba(0,0,0,0.2)' }}>
+            <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(226,226,229,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--surface-container)' }}>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--color-on-surface)' }}>Recent Signups</h3>
+              <Link href="/admin/members" style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-accent)', textDecoration: 'none' }}>
+                View all &rarr;
+              </Link>
+            </div>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(226,226,229,0.05)' }}>
+                    {['Member', 'Track', 'Joined'].map((h) => (
+                      <th key={h} style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', fontWeight: 600 }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentUsers.slice(0, 6).map((u) => {
+                    const initials = (u.fullName ?? '?').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
+                    const track = u.enrolledProgram
+                      ? (getProgramBySlug(u.enrolledProgram)?.title ?? u.enrolledProgram)
+                      : 'Pending enrollment';
+                    return (
+                      <tr key={u.id} style={{ borderBottom: '1px solid rgba(226,226,229,0.05)' }}>
+                        <td style={{ padding: '1rem 1.5rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <div style={{
+                              width: '2.25rem', height: '2.25rem', borderRadius: '50%',
+                              background: 'var(--surface-container-highest)',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-accent)',
+                            }}>
+                              {initials}
+                            </div>
+                            <div>
+                              <Link href={`/admin/members/${u.id}`} style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)', textDecoration: 'none' }}>
+                                {u.fullName ?? 'Unknown'}
+                              </Link>
+                              <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>{u.email}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>{track}</td>
+                        <td style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{timeAgo(u.createdAt)}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Recent Placements */}
+          {recentPlacements.length > 0 && (
+            <div style={{ background: 'var(--surface-container-low)', borderRadius: '0.75rem', overflow: 'hidden', boxShadow: '0 4px 32px rgba(0,0,0,0.2)' }}>
+              <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(226,226,229,0.05)', background: 'var(--surface-container)' }}>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--color-on-surface)' }}>Recent Placements</h3>
+              </div>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid rgba(226,226,229,0.05)' }}>
+                      {['Student', 'Employer', 'Role', 'Program', 'Days', 'Salary', 'Date'].map((h) => (
+                        <th key={h} style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(226,226,229,0.4)', fontWeight: 600 }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentPlacements.map((p) => {
+                      const programTitle = p.user.enrolledProgram
+                        ? getProgramBySlug(p.user.enrolledProgram)?.title ?? p.user.enrolledProgram
+                        : '\u2014';
+                      const daysToPlacement = p.user.enrolledAt
+                        ? Math.floor((p.placedAt.getTime() - p.user.enrolledAt.getTime()) / (1000 * 60 * 60 * 24))
+                        : null;
+                      return (
+                        <tr key={p.id} style={{ borderBottom: '1px solid rgba(226,226,229,0.05)', transition: 'background-color 0.15s' }}>
+                          <td style={{ padding: '1rem 1.5rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                              <div style={{ width: '2rem', height: '2rem', borderRadius: '0.25rem', background: 'var(--surface-container-highest)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)' }}>
+                                {(p.user.fullName ?? '?').split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                              </div>
+                              <Link href={`/admin/members/${p.user.id}`} style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-on-surface)', textDecoration: 'none' }}>
+                                {p.user.fullName}
+                              </Link>
+                            </div>
+                          </td>
+                          <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem' }}>{p.employerName}</td>
+                          <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem' }}>{p.jobTitle}</td>
+                          <td style={{ padding: '1rem 1.5rem', fontSize: '0.85rem' }}>{programTitle}</td>
+                          <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem' }}>{daysToPlacement != null ? `${daysToPlacement}d` : '\u2014'}</td>
+                          <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: '#80d99f', fontWeight: 600 }}>
+                            {p.salaryOffered ? `$${p.salaryOffered.toLocaleString()}` : '\u2014'}
+                          </td>
+                          <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem' }}>{p.placedAt.toLocaleDateString()}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* System Configuration Grid */}
+          <section>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, letterSpacing: '-0.02em', marginBottom: '1.25rem', color: 'var(--color-on-surface)' }}>System Configuration</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+              {[
+                { icon: 'language', label: 'Global Nodes', desc: 'Partners and organizations', href: '/admin/partners' },
+                { icon: 'verified_user', label: 'Compliance', desc: 'Assessments and reviews', href: '/admin/assessments' },
+                { icon: 'database', label: 'Data Clusters', desc: 'Programs and training tracks', href: '/admin/programs' },
+              ].map((item) => (
+                <Link key={item.label} href={item.href} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <div className="stitch-card" style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', transition: 'background-color 0.15s' }}>
+                    <div style={{ padding: '0.625rem', background: 'rgba(173,44,77,0.1)', borderRadius: '0.5rem' }}>
+                      <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem' }}>{item.icon}</span>
+                    </div>
+                    <div>
+                      <h4 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{item.label}</h4>
+                      <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', marginTop: '0.125rem' }}>{item.desc}</p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        </div>
+
+        {/* ── Right Sidebar ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+
+          {/* Status Monitor */}
+          <div className="stitch-card" style={{ padding: '1.5rem' }}>
+            <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.2em', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#80d99f', display: 'inline-block' }} />
+              Status Monitor
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              {[
+                { label: 'Gateway', status: 'Live', color: '#80d99f' },
+                { label: 'Database', status: '99.9%', color: '#80d99f' },
+                { label: 'LMS', status: 'Scheduled', color: '#fbbf24' },
+              ].map((item) => (
+                <div key={item.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>{item.label}</span>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: item.color }}>{item.status}</span>
+                </div>
+              ))}
+              <div style={{ paddingTop: '1rem', borderTop: '1px solid rgba(226,226,229,0.05)' }}>
+                <div style={{ fontSize: '0.625rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>PLATFORM</div>
+                <div style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: 'var(--color-on-surface)' }}>Workforce Advancement Project</div>
+              </div>
+            </div>
+          </div>
+
+          {/* System Feed */}
+          <div className="stitch-card-elevated" style={{ padding: '1.5rem' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1.5rem', color: 'var(--color-on-surface)' }}>System Feed</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative', paddingLeft: '2.5rem' }}>
+              <div style={{ position: 'absolute', left: '0.75rem', top: '2.5rem', bottom: 0, width: '1px', background: 'rgba(226,226,229,0.1)' }} />
+              {recentUsers.slice(0, 4).map((u, i) => (
+                <div key={u.id} style={{ position: 'relative' }}>
+                  <div style={{ position: 'absolute', left: '-2.5rem', top: '0.125rem', width: '1.5rem', height: '1.5rem', borderRadius: '50%', background: 'var(--surface-container)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${i === 0 ? 'rgba(173,44,77,0.2)' : 'rgba(226,226,229,0.1)'}` }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.75rem', color: i === 0 ? 'var(--color-accent)' : 'var(--color-on-surface-variant)' }}>
+                      {i === 0 ? 'person_add' : 'verified'}
+                    </span>
+                  </div>
+                  <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
+                    {u.fullName ?? 'New user'} signed up
+                  </span>
+                  <span style={{ display: 'block', fontSize: '0.625rem', color: 'var(--color-on-surface-variant)' }}>
+                    {timeAgo(u.createdAt)}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <Link href="/admin/members" style={{ display: 'block', width: '100%', marginTop: '2rem', padding: '0.5rem', textAlign: 'center', fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>
+              View All Members
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

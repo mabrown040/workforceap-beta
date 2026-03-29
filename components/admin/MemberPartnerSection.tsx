@@ -53,7 +53,7 @@ export default function MemberPartnerSection({
   return (
     <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
       <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Partner assignment</h2>
-      <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '0.75rem' }}>
+      <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
         Link this member to a partner organization for referral tracking and milestone emails to the partner contact.
       </p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
@@ -73,7 +73,7 @@ export default function MemberPartnerSection({
           {loading ? 'Saving…' : 'Save'}
         </button>
       </div>
-      {message && <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>{message}</p>}
+      {message && <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>{message}</p>}
     </section>
   );
 }

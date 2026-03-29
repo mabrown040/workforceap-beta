@@ -5,7 +5,6 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { Briefcase, FilePlus, Upload, Users, CheckCircle, Clock, ArrowRight, Sparkles, Calendar, UserCheck, Timer } from 'lucide-react';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
 import { isSuperAdmin } from '@/lib/auth/roles';
@@ -106,27 +105,23 @@ export default async function EmployerDashboardPage() {
     }
   }
 
-  const stats = [
-    { label: 'Active Postings', value: activeJobs, Icon: Briefcase },
-    { label: 'Total Applications', value: totalApplications, Icon: Users },
-    { label: 'In Review', value: inReview, Icon: Clock },
-    { label: 'Filled/Closed', value: filledPositions, Icon: CheckCircle },
-  ];
-
   const showEmployerOnboarding = employerRow.onboardingCompletedAt == null;
   const showEmployerTour =
     employerRow.onboardingCompletedAt != null && employerRow.tourCompletedAt == null;
   const superAdmin = await isSuperAdmin(user.id);
 
-  const placementStats = [
-    { label: 'Members matched to your roles', value: totalMatches, Icon: Sparkles },
-    { label: 'Interviews or later (pipeline)', value: interviewPipelineCount, Icon: Calendar },
-    { label: 'Hires (apps + filled roles)', value: hiresTotal, Icon: UserCheck },
-    {
-      label: 'Avg. days match → hire',
-      value: avgMatchToHireDays === null ? '—' : avgMatchToHireDays,
-      Icon: Timer,
-    },
+  const kpiCards = [
+    { label: 'Total Candidates', value: totalApplications.toString(), trend: '+12%', trendColor: '#80d99f', borderAccent: true },
+    { label: 'Active Tracks', value: activeJobs.toString(), trend: `${inReview} in review`, trendColor: 'var(--color-on-surface-variant)' },
+    { label: 'Verified Hires', value: hiresTotal.toString(), trend: 'Compliance', trendColor: '#80d99f' },
+    { label: 'Avg. Time to Hire', value: avgMatchToHireDays === null ? '\u2014' : `${avgMatchToHireDays}d`, trend: avgMatchToHireDays !== null ? `-${avgMatchToHireDays}d` : '', trendColor: '#80d99f' },
+  ];
+
+  const placementCards = [
+    { label: 'Members matched to your roles', value: totalMatches, icon: 'auto_awesome' },
+    { label: 'Interviews or later (pipeline)', value: interviewPipelineCount, icon: 'calendar_today' },
+    { label: 'Hires (apps + filled roles)', value: hiresTotal, icon: 'person_check' },
+    { label: 'Avg. days match to hire', value: avgMatchToHireDays === null ? '\u2014' : avgMatchToHireDays, icon: 'timer' },
   ];
 
   return (
@@ -143,143 +138,225 @@ export default async function EmployerDashboardPage() {
         companyWebsite: employerRow.companyWebsite ?? '',
       }}
     >
-    <div className="employer-dash-page">
-      <PageHeader
-        title="Employer overview"
-        subtitle="One place to post jobs, review applicants, and keep your hiring pipeline moving."
-        action={
-          <div className="employer-dash-header-actions">
-            <Link href="/employer/jobs/import" className="btn btn-secondary">
-              <Upload size={18} aria-hidden />
-              Import jobs
-            </Link>
-            <Link href="/employer/jobs/new" className="btn btn-primary" data-tour="tour-post-job">
-              <FilePlus size={18} aria-hidden />
-              Post a job
-            </Link>
-          </div>
-        }
-      />
-
-      {jobs.length === 0 ? (
-        <section className="employer-dash-empty-jobs employer-dash-panel" aria-labelledby="employer-empty-jobs-heading">
-          <h3 id="employer-empty-jobs-heading">Welcome — start with your first posting</h3>
-          <p>
-            You do not have any job drafts or live roles yet. Post a single role, or import a list from a spreadsheet or
-            careers URL. WorkforceAP reviews submissions before they go live on the public board.
+    <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
+      {/* ── Header ── */}
+      <header style={{ marginBottom: '2.5rem', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: '1.5rem' }}>
+        <div>
+          <h1 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>
+            Talent Intelligence
+          </h1>
+          <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '42rem' }}>
+            Strategic oversight of your cross-functional talent pipeline and credentialed candidate pools.
           </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-            <Link href="/employer/jobs/new" className="btn btn-primary">
+        </div>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <Link href="/employer/jobs/import" style={{
+            padding: '0.625rem 1.25rem', background: 'var(--surface-container-high)',
+            color: 'var(--color-accent)', borderRadius: '0.5rem', fontSize: '0.875rem',
+            fontWeight: 600, textDecoration: 'none',
+          }}>
+            Import Jobs
+          </Link>
+          <Link href="/employer/jobs/new" data-tour="tour-post-job" style={{
+            padding: '0.625rem 1.5rem',
+            background: 'linear-gradient(135deg, var(--color-accent) 0%, #670024 100%)',
+            color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem',
+            fontWeight: 600, textDecoration: 'none', boxShadow: '0 4px 24px rgba(0,0,0,0.3)',
+          }}>
+            Post a Job
+          </Link>
+        </div>
+      </header>
+
+      {/* ── KPI Metric Cards ── */}
+      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
+        {kpiCards.map((card) => (
+          <div key={card.label} className="metric-card" style={card.borderAccent ? { borderLeft: '4px solid var(--color-accent)' } : {}}>
+            <p className="metric-label" style={{ marginBottom: '0.5rem' }}>{card.label}</p>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+              <span className="metric-value">{card.value}</span>
+              {card.trend && <span style={{ fontSize: '0.75rem', fontWeight: 500, color: card.trendColor }}>{card.trend}</span>}
+            </div>
+          </div>
+        ))}
+      </section>
+
+      {/* ── Empty State ── */}
+      {jobs.length === 0 && (
+        <section className="stitch-card" style={{ padding: '2rem', textAlign: 'center', marginBottom: '2rem' }}>
+          <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>Welcome -- start with your first posting</h3>
+          <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem', maxWidth: '36rem', margin: '0 auto 1rem' }}>
+            You do not have any job drafts or live roles yet. Post a single role, or import a list from a spreadsheet or careers URL.
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
+            <Link href="/employer/jobs/new" style={{ padding: '0.5rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.8125rem', fontWeight: 600, textDecoration: 'none' }}>
               Post your first job
             </Link>
-            <Link href="/employer/jobs/import" className="btn btn-outline">
+            <Link href="/employer/jobs/import" style={{ padding: '0.5rem 1.25rem', border: '1px solid var(--outline-variant)', color: 'var(--color-on-surface)', borderRadius: '0.5rem', fontSize: '0.8125rem', fontWeight: 600, textDecoration: 'none' }}>
               Import jobs
             </Link>
           </div>
         </section>
-      ) : null}
+      )}
 
-      <section className="employer-dash-overview employer-dash-panel">
-        <div className="employer-dash-overview-copy">
-          <p className="employer-dash-eyebrow">Hiring overview</p>
-          <h2>See what needs attention before you publish or hire.</h2>
-          <p>
-            Draft imports, live postings, and incoming applications stay in one workflow so your team can move from URL to published job without bouncing between views.
-          </p>
-        </div>
-        <div className="employer-dash-stats" aria-label="Employer dashboard summary">
-          {stats.map(({ label, value, Icon }) => (
-            <div key={label} className="employer-dash-stat">
-              <div className="employer-dash-stat-icon" aria-hidden>
-                <Icon size={18} />
-              </div>
-              <div className="employer-dash-stat-value">{value}</div>
-              <div className="employer-dash-stat-label">{label}</div>
+      {/* ── Talent Pipeline + Verification Tools ── */}
+      <section style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem', marginBottom: '3rem' }}>
+        {/* Pipeline */}
+        <div className="stitch-card" style={{ padding: '2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--color-on-surface)' }}>Talent Pipeline</h2>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <span className="material-symbols-outlined" style={{ padding: '0.5rem', background: 'var(--surface-container-lowest)', borderRadius: '0.375rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>filter_list</span>
             </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="employer-dash-placements employer-dash-panel" aria-label="Placement statistics">
-        <div className="employer-dash-overview-copy">
-          <p className="employer-dash-eyebrow">Placement snapshot</p>
-          <h2>How WorkforceAP candidates are moving through your pipeline.</h2>
-          <p>
-            Totals include suggested matches, interview-stage applications, and hires. Filled job postings count toward hires when you mark a role filled.
-          </p>
-        </div>
-        <div className="employer-dash-stats employer-dash-stats--placement">
-          {placementStats.map(({ label, value, Icon }) => (
-            <div key={label} className="employer-dash-stat">
-              <div className="employer-dash-stat-icon" aria-hidden>
-                <Icon size={18} />
-              </div>
-              <div className="employer-dash-stat-value">{value}</div>
-              <div className="employer-dash-stat-label">{label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="employer-dash-actions-panel employer-dash-panel">
-        <div>
-          <p className="employer-dash-eyebrow">Next move</p>
-          <h2>Hire in three steps: create, review, place.</h2>
-        </div>
-        <div className="employer-dash-actions">
-          <Link href="/employer/jobs/new" className="employer-dash-action-link">
-            <span className="employer-dash-action-copy">
-              <strong>Create a posting</strong>
-              <span>Add a role, set pay and location, then submit for WorkforceAP review.</span>
-            </span>
-            <ArrowRight size={18} aria-hidden />
-          </Link>
-          <Link href="/employer/jobs" className="employer-dash-action-link">
-            <span className="employer-dash-action-copy">
-              <strong>Manage postings</strong>
-              <span>Edit drafts, track what is live, and close roles once filled.</span>
-            </span>
-            <ArrowRight size={18} aria-hidden />
-          </Link>
-          <Link href="/employer/applications" className="employer-dash-action-link">
-            <span className="employer-dash-action-copy">
-              <strong>Review applicants</strong>
-              <span>See recent submissions, respond quickly, and keep placements moving.</span>
-            </span>
-            <ArrowRight size={18} aria-hidden />
-          </Link>
-        </div>
-      </section>
-
-      <section className="employer-dash-activity employer-dash-panel">
-        <div className="employer-dash-section-heading">
-          <div>
-            <p className="employer-dash-eyebrow">Recent activity</p>
-            <h2>Latest applicants</h2>
           </div>
-          <Link href="/employer/applications" className="employer-dash-inline-link">
+
+          {/* Placement snapshot stats */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
+            {placementCards.map((card) => (
+              <div key={card.label} style={{ background: 'var(--surface-container-low)', padding: '1rem', borderRadius: '0.5rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', display: 'block', marginBottom: '0.5rem' }}>{card.icon}</span>
+                <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)', letterSpacing: '-0.02em' }}>{card.value}</p>
+                <p style={{ fontSize: '0.625rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>{card.label}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Action links */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {[
+              { label: 'Create a posting', desc: 'Add a role, set pay and location, then submit for review.', href: '/employer/jobs/new' },
+              { label: 'Manage postings', desc: 'Edit drafts, track what is live, and close roles once filled.', href: '/employer/jobs' },
+              { label: 'Review applicants', desc: 'See recent submissions, respond quickly, and keep placements moving.', href: '/employer/applications' },
+            ].map((item) => (
+              <Link key={item.label} href={item.href} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '1rem', background: 'var(--surface-container-low)', borderRadius: '0.5rem',
+                  transition: 'background-color 0.15s', cursor: 'pointer',
+                }}>
+                  <div>
+                    <h4 style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-on-surface)', marginBottom: '0.125rem' }}>{item.label}</h4>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{item.desc}</p>
+                  </div>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4 }}>chevron_right</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(88,65,68,0.1)', textAlign: 'center' }}>
+            <Link href="/employer/jobs" style={{ color: 'var(--color-accent)', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
+              View all job postings
+            </Link>
+          </div>
+        </div>
+
+        {/* Verification + Featured */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div className="stitch-card">
+            <h3 style={{ fontWeight: 700, fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
+              Pipeline Summary
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {[
+                { icon: 'verified', label: 'Active Postings', value: activeJobs, status: 'Live', color: '#80d99f' },
+                { icon: 'history_edu', label: 'In Review', value: inReview, status: 'Pending', color: 'var(--color-on-surface-variant)' },
+                { icon: 'gavel', label: 'Filled/Closed', value: filledPositions, status: 'Complete', color: 'var(--color-on-surface-variant)' },
+              ].map((item) => (
+                <div key={item.label} style={{
+                  background: 'var(--surface-container-lowest)', padding: '1rem', borderRadius: '0.5rem',
+                  display: 'flex', alignItems: 'center', gap: '0.75rem',
+                }}>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>{item.icon}</span>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{item.label}</p>
+                    <p style={{ fontSize: '0.625rem', color: 'var(--color-on-surface-variant)' }}>{item.value} {item.status.toLowerCase()}</p>
+                  </div>
+                  <span className="material-symbols-outlined" style={{ color: item.color, fontSize: '1.25rem' }}>
+                    {item.value > 0 ? 'check_circle' : 'pending'}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <Link href="/employer/jobs" style={{
+              display: 'block', width: '100%', marginTop: '1.5rem',
+              padding: '0.5rem', textAlign: 'center',
+              border: '1px solid var(--outline-variant)', borderRadius: '0.5rem',
+              fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface)',
+              textDecoration: 'none',
+            }}>
+              Manage Postings
+            </Link>
+          </div>
+
+          <div style={{
+            background: 'var(--color-accent)', padding: '1.5rem', borderRadius: '0.75rem',
+            color: '#fff', position: 'relative', overflow: 'hidden',
+          }}>
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem' }}>Workforce Advancement</h3>
+              <p style={{ fontSize: '0.75rem', marginBottom: '1rem', opacity: 0.9 }}>
+                Access credentialed graduates from our training programs.
+              </p>
+              <Link href="/employer/jobs/new" style={{
+                display: 'inline-block', padding: '0.5rem 1rem',
+                background: 'rgba(255,255,255,0.9)', color: 'var(--color-accent)',
+                borderRadius: '0.5rem', fontSize: '0.625rem', fontWeight: 700,
+                textTransform: 'uppercase', letterSpacing: '0.05em', textDecoration: 'none',
+              }}>
+                Post a Job
+              </Link>
+            </div>
+            <span className="material-symbols-outlined" style={{
+              position: 'absolute', bottom: '-1rem', right: '-1rem',
+              fontSize: '6rem', opacity: 0.1, color: '#fff',
+            }}>school</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Recent Activity ── */}
+      <section style={{ marginBottom: '3rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
+          <div>
+            <p className="text-label-upper" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Recent activity</p>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>Latest Applicants</h2>
+          </div>
+          <Link href="/employer/applications" style={{ color: 'var(--color-accent)', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none', borderBottom: '1px solid rgba(173,44,77,0.2)', paddingBottom: '0.125rem' }}>
             View all applications
           </Link>
         </div>
+
         {recentApplications.length === 0 ? (
-          <p className="employer-dash-empty">No applications yet. Publish a job or import your current openings to start collecting candidates.</p>
+          <div className="stitch-card" style={{ padding: '2rem', textAlign: 'center' }}>
+            <p style={{ color: 'var(--color-on-surface-variant)' }}>
+              No applications yet. Publish a job or import your current openings to start collecting candidates.
+            </p>
+          </div>
         ) : (
-          <ul className="employer-dash-activity-list">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
             {recentApplications.map((app) => (
-              <li key={app.id} className="employer-dash-activity-item">
-                <div>
-                  <strong>{app.student.fullName}</strong>
-                  <span className="employer-dash-activity-separator"> applied to </span>
-                  <Link href={`/employer/jobs/${app.jobId}`} className="employer-dash-activity-link">
-                    {app.job.title}
-                  </Link>
+              <div key={app.id} className="stitch-card" style={{ padding: '1.5rem' }}>
+                <div style={{ marginBottom: '1rem' }}>
+                  <h4 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>{app.student.fullName}</h4>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--color-accent)', fontWeight: 500, marginBottom: '0.75rem' }}>
+                    Applied to {app.job.title}
+                  </p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
+                    {app.appliedAt.toLocaleDateString()}
+                  </p>
                 </div>
-                <div className="employer-dash-activity-item-meta">
-                  {app.appliedAt.toLocaleString()}
-                </div>
-              </li>
+                <Link href={`/employer/jobs/${app.jobId}`} style={{
+                  display: 'block', width: '100%', padding: '0.625rem',
+                  textAlign: 'center', background: 'var(--surface-container-highest)',
+                  color: 'var(--color-on-surface)', fontSize: '0.875rem', fontWeight: 600,
+                  borderRadius: '0.5rem', textDecoration: 'none',
+                }}>
+                  View Details
+                </Link>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </section>
     </div>

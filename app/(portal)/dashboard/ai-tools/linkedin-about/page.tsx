@@ -16,21 +16,59 @@ export default async function LinkedInAboutPage() {
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools/linkedin-about');
 
   return (
-    <div className="inner-page">
-      <section className="page-hero">
-        <div className="page-hero-content">
-          <Link href="/dashboard/ai-tools" className="resource-back-link">← Back to AI Tools</Link>
-          <h1>LinkedIn About Section Generator</h1>
-          <p>Give us your role and a few bullets about yourself. We&apos;ll write a polished 3-paragraph About section ready to paste.</p>
-        </div>
-      </section>
-      <section className="content-section">
-        <div className="container">
-          <div className="ai-tool-page" style={{ maxWidth: '720px' }}>
-            <LinkedInAboutForm />
+    <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
+      {/* Header */}
+      <div
+        style={{
+          padding: '1.5rem 2rem',
+          borderBottom: '1px solid var(--surface-container-high)',
+          background: 'var(--surface-container-low)',
+        }}
+      >
+        <Link
+          href="/dashboard/ai-tools"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            fontSize: '0.85rem',
+            color: 'var(--color-on-surface-variant)',
+            textDecoration: 'none',
+            marginBottom: '0.75rem',
+          }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>arrow_back</span>
+          Back to AI Tools
+        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div
+            style={{
+              width: '44px',
+              height: '44px',
+              borderRadius: '12px',
+              background: 'var(--surface-container-highest)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1.35rem', color: 'var(--color-accent)' }}>person_pin</span>
+          </div>
+          <div>
+            <h1 style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>LinkedIn About Section Generator</h1>
+            <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0.15rem 0 0' }}>
+              Give us your role and a few bullets about yourself. We'll write a polished 3-paragraph About section ready to paste.
+            </p>
           </div>
         </div>
-      </section>
+      </div>
+
+      {/* Main content */}
+      <div style={{ maxWidth: '720px', margin: '0 auto', padding: '2rem 1.5rem' }}>
+        <div className="stitch-card" style={{ padding: '1.5rem' }}>
+          <LinkedInAboutForm />
+        </div>
+      </div>
     </div>
   );
 }

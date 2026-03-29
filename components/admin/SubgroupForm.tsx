@@ -67,7 +67,7 @@ export default function SubgroupForm({ users, partners, subgroup }: Props) {
     }
   };
 
-  const inputStyle = { width: '100%', maxWidth: '480px', padding: '0.5rem 0.75rem', border: '1px solid #ccc', borderRadius: '6px', fontSize: '1rem' } as const;
+  const inputStyle = { width: '100%', maxWidth: '480px', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: '6px', fontSize: '1rem' } as const;
   const labelStyle = { display: 'block', marginBottom: '0.25rem', fontWeight: 500 } as const;
 
   return (
@@ -121,7 +121,7 @@ export default function SubgroupForm({ users, partners, subgroup }: Props) {
             </option>
           ))}
         </select>
-        <p style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)', marginTop: '0.25rem' }}>
+        <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
           The leader can view this subgroup&apos;s members in the portal.
         </p>
       </div>
@@ -142,7 +142,7 @@ export default function SubgroupForm({ users, partners, subgroup }: Props) {
               </option>
             ))}
           </select>
-          <p style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)', marginTop: '0.25rem' }}>
+          <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
             Link to a partner for auto-assignment when members are referred by that partner.
           </p>
         </div>

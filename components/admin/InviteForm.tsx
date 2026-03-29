@@ -56,7 +56,7 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
     width: '100%',
     maxWidth: '100%',
     padding: '0.5rem 0.75rem',
-    border: '1px solid var(--color-gray-300)',
+    border: '1px solid var(--outline-variant)',
     borderRadius: '6px',
     fontSize: '1rem',
   } as const;
@@ -167,7 +167,7 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
                     </option>
                   ))}
                 </select>
-                <p style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)', marginTop: '0.35rem' }}>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.35rem' }}>
                   Leave as WorkforceAP for internal staff, or choose a partner for partner-affiliated counselors.
                 </p>
               </div>

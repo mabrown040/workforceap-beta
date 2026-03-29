@@ -55,7 +55,7 @@ function ProgramCard({ program }: { program: Program }) {
       <div style={{ marginBottom: '.75rem' }}>
         <div
           className="program-card-meta-row"
-          style={{ display: 'flex', gap: '1rem', fontSize: '.85rem', color: 'var(--color-gray-600)' }}
+          style={{ display: 'flex', gap: '1rem', fontSize: '.85rem', color: 'var(--color-on-surface-variant)' }}
         >
           <span>⏱ {program.duration}</span>
           <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Starting range: {salaryRangeDisplay(program)}</span>
@@ -65,8 +65,8 @@ function ProgramCard({ program }: { program: Program }) {
             <strong>Roles:</strong> {extra.jobOutcomes.join(' · ')}
           </p>
         )}
-        <small style={{ display: 'block', fontSize: '.75rem', color: 'var(--color-gray-500)', marginTop: '.25rem' }}>
-          *Austin-area median based on industry data
+        <small style={{ display: 'block', fontSize: '.75rem', color: 'var(--color-on-surface-variant)', marginTop: '.25rem' }}>
+          *National median based on industry data
         </small>
       </div>
       {nonEmptySkills.length > 0 ? (
@@ -76,9 +76,8 @@ function ProgramCard({ program }: { program: Program }) {
               key={s}
               className="program-card-skill-tag"
               style={{
-                background: 'var(--color-gray-100, #f0f0f0)',
-                color: 'var(--color-gray-800, #1a1a1a)',
-                border: '1px solid var(--color-border, #e5e5e5)',
+                background: 'var(--surface-container)',
+                color: 'var(--color-on-surface)',
                 padding: '.25rem .6rem',
                 borderRadius: '4px',
                 fontSize: '.8rem',
@@ -91,8 +90,8 @@ function ProgramCard({ program }: { program: Program }) {
           {moreSkills > 0 && (
             <span
               style={{
-                background: 'var(--color-gray-200, #e5e5e5)',
-                color: 'var(--color-gray-600, #737373)',
+                background: 'var(--surface-container-high)',
+                color: 'var(--color-on-surface-variant)',
                 padding: '.25rem .6rem',
                 borderRadius: '4px',
                 fontSize: '.8rem',
@@ -118,7 +117,7 @@ function ProgramCard({ program }: { program: Program }) {
         className="program-card-footer"
         style={{ display: 'flex', flexWrap: 'wrap', gap: '.5rem', justifyContent: 'space-between', alignItems: 'center' }}
       >
-        <span style={{ fontSize: '.8rem', color: 'var(--color-gray-500)' }}>Partner: {program.partner}</span>
+        <span style={{ fontSize: '.8rem', color: 'var(--color-on-surface-variant)' }}>Partner: {program.partner}</span>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.5rem' }}>
           <Link href={`/programs/${program.slug}`} className="btn btn-outline" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>
             View Program
@@ -158,8 +157,8 @@ export default function ProgramsContent() {
             <ProgramCard key={p.title} program={p} />
           ))}
         </div>
-        <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '.85rem', color: '#666', maxWidth: '640px', marginLeft: 'auto', marginRight: 'auto' }}>
-          Bands are Austin-first, grounded in Lightcast/BLS-style data (Jan 2026). Your offer still depends on proof, role, and employer.
+        <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '.85rem', color: 'var(--color-on-surface-variant)', maxWidth: '640px', marginLeft: 'auto', marginRight: 'auto' }}>
+          Bands are grounded in Lightcast/BLS-style data (Jan 2026). Your offer still depends on proof, role, and employer.
         </p>
         <div className="programs-bottom-actions">
           <Link href="/find-your-path" className="btn btn-primary">Not sure? Find Your Career</Link>

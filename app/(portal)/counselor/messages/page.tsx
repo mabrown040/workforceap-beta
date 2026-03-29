@@ -29,7 +29,7 @@ export default async function CounselorMessagesHubPage() {
       <PageHeader title="Messages" subtitle="Open a conversation with an assigned member." />
 
       {assignments.length === 0 ? (
-        <p style={{ color: 'var(--color-gray-600)' }}>No assigned members yet.</p>
+        <p style={{ color: 'var(--color-on-surface-variant)' }}>No assigned members yet.</p>
       ) : (
         <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.75rem' }}>
           {assignments.map((a) => (
@@ -40,7 +40,7 @@ export default async function CounselorMessagesHubPage() {
                 style={{ display: 'block', textAlign: 'left' }}
               >
                 <strong>{a.member.fullName}</strong>
-                <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-gray-600)', fontWeight: 400 }}>
+                <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', fontWeight: 400 }}>
                   {a.member.email}
                 </span>
               </Link>

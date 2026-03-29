@@ -68,9 +68,9 @@ export default function PartnersTableClient({ partners, subgroups }: Props) {
               style={{
                 padding: '0.4rem 0.75rem',
                 borderRadius: '6px',
-                border: `1px solid ${filter === f ? 'var(--color-accent)' : 'var(--color-gray-300)'}`,
+                border: `1px solid ${filter === f ? 'var(--color-accent)' : 'var(--outline-variant)'}`,
                 background: filter === f ? 'rgba(173,44,77,0.08)' : 'var(--color-white)',
-                color: filter === f ? 'var(--color-accent)' : 'var(--color-gray-700)',
+                color: filter === f ? 'var(--color-accent)' : 'var(--color-on-surface)',
                 cursor: 'pointer',
                 fontSize: '0.9rem',
               }}
@@ -87,7 +87,7 @@ export default function PartnersTableClient({ partners, subgroups }: Props) {
           style={{
             padding: '0.4rem 0.75rem',
             minWidth: 220,
-            border: '1px solid var(--color-gray-300)',
+            border: '1px solid var(--outline-variant)',
             borderRadius: '6px',
             fontSize: '0.9rem',
           }}
@@ -113,11 +113,11 @@ export default function PartnersTableClient({ partners, subgroups }: Props) {
               <tr key={partner.id}>
                 <td>
                   <div style={{ fontWeight: 600 }}>{partner.name}</div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)' }}>{partner.slug}</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{partner.slug}</div>
                 </td>
                 <td style={{ fontSize: '0.9rem' }}>
                   {partner.contactName && <div>{partner.contactName}</div>}
-                  {partner.contactEmail && <div style={{ color: 'var(--color-gray-500)' }}>{partner.contactEmail}</div>}
+                  {partner.contactEmail && <div style={{ color: 'var(--color-on-surface-variant)' }}>{partner.contactEmail}</div>}
                 </td>
                 <td style={{ fontSize: '0.9rem' }}>
                   {partnerSubgroups.length > 0
@@ -132,8 +132,8 @@ export default function PartnersTableClient({ partners, subgroups }: Props) {
                       padding: '0.2rem 0.5rem',
                       borderRadius: '4px',
                       fontSize: '0.8rem',
-                      background: partner.active ? 'rgba(74, 155, 79, 0.12)' : 'var(--color-gray-100)',
-                      color: partner.active ? '#2d7a32' : 'var(--color-gray-600)',
+                      background: partner.active ? 'rgba(74, 155, 79, 0.12)' : 'var(--surface-container)',
+                      color: partner.active ? '#2d7a32' : 'var(--color-on-surface-variant)',
                     }}
                   >
                     {partner.active ? 'Active' : 'Inactive'}
@@ -150,7 +150,7 @@ export default function PartnersTableClient({ partners, subgroups }: Props) {
                         background: 'none',
                         border: 'none',
                         cursor: 'pointer',
-                        color: 'var(--color-gray-600)',
+                        color: 'var(--color-on-surface-variant)',
                       }}
                       title="Edit"
                     >
@@ -166,7 +166,7 @@ export default function PartnersTableClient({ partners, subgroups }: Props) {
                           background: 'none',
                           border: 'none',
                           cursor: 'pointer',
-                          color: 'var(--color-gray-600)',
+                          color: 'var(--color-on-surface-variant)',
                         }}
                         title="Deactivate"
                       >
@@ -193,7 +193,7 @@ export default function PartnersTableClient({ partners, subgroups }: Props) {
                           background: 'none',
                           border: 'none',
                           cursor: reactivatingId === partner.id ? 'wait' : 'pointer',
-                          color: 'var(--color-gray-600)',
+                          color: 'var(--color-on-surface-variant)',
                         }}
                         title="Reactivate"
                       >
@@ -215,7 +215,7 @@ export default function PartnersTableClient({ partners, subgroups }: Props) {
       </table>
 
       {filtered.length === 0 && (
-        <p style={{ padding: '1.5rem', color: 'var(--color-gray-500)', textAlign: 'center' }}>
+        <p style={{ padding: '1.5rem', color: 'var(--color-on-surface-variant)', textAlign: 'center' }}>
           {partners.length === 0 ? 'No partners yet.' : 'No partners match your filters.'}
         </p>
       )}

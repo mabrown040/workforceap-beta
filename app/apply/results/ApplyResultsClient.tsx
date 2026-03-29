@@ -153,7 +153,7 @@ export default function ApplyResultsClient() {
           </>
         ) : (
           <>
-            <div className="apply-results-anyway" style={{ marginBottom: '1rem', padding: '1rem 1.25rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+            <div className="apply-results-anyway" style={{ marginBottom: '1rem', padding: '1rem 1.25rem', background: 'var(--surface-container)', borderRadius: '8px' }}>
               <p style={{ margin: 0 }}>
                 <strong>Your answers don&apos;t match our standard funding profile right now.</strong> That is not a final decision. We still review every application,
                 suggest realistic next steps, and often start people with foundational options while we sort out timing and support.
@@ -207,7 +207,7 @@ export default function ApplyResultsClient() {
               aria-pressed={selectedSlug === p.slug}
               style={{
                 padding: '1.25rem',
-                border: selectedSlug === p.slug ? '2px solid var(--color-accent)' : '1px solid var(--color-gray-200)',
+                border: selectedSlug === p.slug ? '2px solid var(--color-accent)' : '1px solid var(--outline-variant)',
                 borderRadius: 'var(--radius-md)',
                 cursor: 'pointer',
                 background:
@@ -232,7 +232,7 @@ export default function ApplyResultsClient() {
                 </span>
               </div>
               <p className="apply-results-program-card-title">{p.title}</p>
-              <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>
+              <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
                 <div>⏱ {p.duration}</div>
                 <div style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{p.salary}</div>
               </div>

@@ -61,7 +61,7 @@ export default function PartnerDeactivateDialog({ partner, partners, onClose }: 
             <h2 id="deactivate-title" style={{ margin: '0 0 0.5rem', fontSize: '1.25rem' }}>
               Deactivate Partner
             </h2>
-            <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--color-gray-600)', lineHeight: 1.5 }}>
+            <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
               This will prevent <strong>{partner.name}</strong> from accessing the partner portal. Their data will be preserved.
             </p>
           </div>
@@ -75,7 +75,7 @@ export default function PartnerDeactivateDialog({ partner, partners, onClose }: 
             <select
               value={reassignToPartnerId}
               onChange={(e) => setReassignToPartnerId(e.target.value)}
-              style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--color-gray-300)', borderRadius: '6px' }}
+              style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: '6px' }}
               disabled={loading}
             >
               <option value="">— Don&apos;t reassign —</option>
@@ -108,7 +108,7 @@ export default function PartnerDeactivateDialog({ partner, partners, onClose }: 
             type="button"
             onClick={onClose}
             disabled={loading}
-            style={{ padding: '0.5rem 1rem', background: 'var(--color-gray-100)', border: '1px solid var(--color-gray-300)', borderRadius: '6px', cursor: loading ? 'not-allowed' : 'pointer' }}
+            style={{ padding: '0.5rem 1rem', background: 'var(--surface-container)', border: '1px solid var(--outline-variant)', borderRadius: '6px', cursor: loading ? 'not-allowed' : 'pointer' }}
           >
             Cancel
           </button>

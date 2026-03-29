@@ -83,15 +83,14 @@ export default async function AdminPipelinePage() {
             key={stat.label}
             style={{
               padding: '1.5rem',
-              background: 'var(--color-gray-50)',
-              border: '1px solid var(--color-border)',
+              background: 'var(--surface-container)',
               borderRadius: '8px',
               minWidth: '120px',
               textAlign: 'center',
             }}
           >
             <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1.2 }}>{stat.value}</div>
-            <div style={{ fontSize: '0.875rem', color: 'var(--color-gray-500)', marginTop: '0.25rem' }}>{stat.label}</div>
+            <div style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>{stat.label}</div>
           </div>
         ))}
       </div>
@@ -114,14 +113,14 @@ export default async function AdminPipelinePage() {
                   <Link
                     key={s.id}
                     href={`/admin/members/${s.id}`}
-                    style={{ display: 'block', padding: '0.6rem 0.75rem', border: `1px solid ${color}22`, borderLeft: `3px solid ${color}`, borderRadius: '6px', textDecoration: 'none', color: 'inherit', background: 'white' }}
+                    style={{ display: 'block', padding: '0.6rem 0.75rem', border: `1px solid ${color}22`, borderLeft: `3px solid ${color}`, borderRadius: '6px', textDecoration: 'none', color: 'inherit', background: 'var(--surface-container)' }}
                   >
                     <div style={{ fontWeight: 500, fontSize: '0.85rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.fullName}</div>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--color-gray-500)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '0.2rem' }}>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--color-on-surface-variant)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '0.2rem' }}>
                       {s.email || s.phone || '—'}
                     </div>
                     {s.enrolledProgram && (
-                      <div style={{ fontSize: '0.75rem', color: 'var(--color-gray-500)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '0.15rem' }}>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '0.15rem' }}>
                         {s.enrolledProgram.replace(/-/g, ' ')}
                       </div>
                     )}
@@ -133,7 +132,7 @@ export default async function AdminPipelinePage() {
                   </Link>
                 ))}
                 {stageStudents.length > 10 && (
-                  <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)', textAlign: 'center', padding: '0.25rem' }}>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', textAlign: 'center', padding: '0.25rem' }}>
                     +{stageStudents.length - 10} more
                   </div>
                 )}

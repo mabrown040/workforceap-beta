@@ -39,7 +39,7 @@ export default async function DashboardResumePage() {
   return (
     <div>
       <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Resume</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
+      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
         Upload your resume, generate an AI-enhanced version, and prepare for WorkInTexas.
       </p>
       <ResumeClient

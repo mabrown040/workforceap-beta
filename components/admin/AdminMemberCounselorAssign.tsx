@@ -75,7 +75,7 @@ export default function AdminMemberCounselorAssign({
         {saving ? 'Saving…' : 'Save assignment & notify member'}
       </button>
       {counselors.length === 0 ? (
-        <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)' }}>
+        <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
           Add counselors under <strong>Admin → Counselors</strong> (WorkforceAP or a partner).
         </p>
       ) : null}

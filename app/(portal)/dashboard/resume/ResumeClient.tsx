@@ -137,7 +137,7 @@ export default function ResumeClient({
   };
 
   if (loading && !resumeData) {
-    return <p style={{ color: 'var(--color-gray-600)' }}>Loading…</p>;
+    return <p style={{ color: 'var(--color-on-surface-variant)' }}>Loading…</p>;
   }
 
   const hasOriginal = resumeData?.hasOriginal ?? initialHasOriginal;
@@ -161,10 +161,10 @@ export default function ResumeClient({
             onChange={handleFileInput}
             style={{ display: 'none' }}
           />
-          <p style={{ margin: 0, color: 'var(--color-gray-600)' }}>
+          <p style={{ margin: 0, color: 'var(--color-on-surface-variant)' }}>
             {uploading ? 'Uploading…' : 'Drag and drop your resume here, or click to browse'}
           </p>
-          <p style={{ margin: '0.5rem 0 0', fontSize: '0.85rem', color: 'var(--color-gray-500)' }}>
+          <p style={{ margin: '0.5rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
             PDF, DOC, DOCX — max 5MB
           </p>
         </div>
@@ -205,7 +205,7 @@ export default function ResumeClient({
             {hasOriginal && (
               <div className="counselor-resume-card">
                 <h3>Original</h3>
-                <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>
+                <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
                   <a href={resumeData?.originalUrl ?? '#'} target="_blank" rel="noopener noreferrer">
                     Download Original →
                   </a>
@@ -229,7 +229,7 @@ export default function ResumeClient({
 
       <section className="counselor-wit-guide">
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>WorkInTexas Guide</h2>
-        <p style={{ marginBottom: '1rem', color: 'var(--color-gray-600)' }}>
+        <p style={{ marginBottom: '1rem', color: 'var(--color-on-surface-variant)' }}>
           Pre-filled with your data. Use these steps when creating your WorkInTexas profile.
         </p>
         <ol>

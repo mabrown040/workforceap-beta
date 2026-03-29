@@ -9,7 +9,7 @@ import remarkGfm from 'remark-gfm';
 import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
 import { PROGRAMS } from '@/lib/content/programs';
-import { ArrowRight, BookOpen, HelpCircle, GraduationCap } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -111,7 +111,7 @@ export default async function BlogPostPage({ params }: Props) {
               borderRadius: '8px',
               overflow: 'hidden',
               aspectRatio: '16/9',
-              background: '#0f172a',
+              background: 'var(--surface-container-highest)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -133,26 +133,25 @@ export default async function BlogPostPage({ params }: Props) {
 
         {/* Related Resources Section */}
         {(relevantPrograms.length > 0 || related.length > 0) && (
-          <section style={{ 
-            marginTop: '3rem', 
-            padding: '2rem', 
-            background: '#f8f9fa', 
+          <section style={{
+            marginTop: '3rem',
+            padding: '2rem',
+            background: 'var(--surface-container-low)',
             borderRadius: '12px',
-            border: '1px solid #e5e5e5'
           }}>
             <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <BookOpen size={22} style={{ color: '#ad2c4d' }} />
+              <span className="material-symbols-outlined" style={{ fontSize: 22, color: 'var(--color-accent)' }}>menu_book</span>
               Related Resources
             </h3>
             
             {relevantPrograms.length > 0 && (
               <div style={{ marginBottom: '1.5rem' }}>
-                <h4 style={{ fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666', marginBottom: '0.75rem' }}>
+                <h4 className="text-label-upper" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
                   Featured Programs
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   {relevantPrograms.map(program => (
-                    <Link 
+                    <Link
                       key={program.slug}
                       href={`/programs/${program.slug}`}
                       style={{
@@ -160,15 +159,14 @@ export default async function BlogPostPage({ params }: Props) {
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         padding: '0.875rem 1rem',
-                        background: 'white',
+                        background: 'var(--surface-container)',
                         borderRadius: '8px',
                         textDecoration: 'none',
-                        color: '#1a1a1a',
-                        border: '1px solid #e5e5e5',
+                        color: 'var(--color-on-surface)',
                       }}
                     >
                       <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <GraduationCap size={18} style={{ color: '#ad2c4d' }} />
+                        <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }}>school</span>
                         {program.title}
                       </span>
                       <ArrowRight size={16} style={{ opacity: 0.5 }} />
@@ -179,33 +177,32 @@ export default async function BlogPostPage({ params }: Props) {
             )}
 
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <Link 
-                href="/faq" 
+              <Link
+                href="/faq"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.5rem',
                   padding: '0.75rem 1.25rem',
-                  background: 'white',
+                  background: 'var(--surface-container)',
                   borderRadius: '8px',
                   textDecoration: 'none',
-                  color: '#1a1a1a',
-                  border: '1px solid #e5e5e5',
+                  color: 'var(--color-on-surface)',
                   fontSize: '0.9375rem',
                 }}
               >
-                <HelpCircle size={18} style={{ color: '#ad2c4d' }} />
+                <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }}>help</span>
                 Read FAQ
                 <ArrowRight size={16} style={{ opacity: 0.5 }} />
               </Link>
-              <Link 
-                href="/find-your-path" 
+              <Link
+                href="/find-your-path"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.5rem',
                   padding: '0.75rem 1.25rem',
-                  background: '#ad2c4d',
+                  background: 'var(--color-accent)',
                   borderRadius: '8px',
                   textDecoration: 'none',
                   color: 'white',

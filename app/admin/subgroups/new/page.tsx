@@ -28,7 +28,7 @@ export default async function NewSubgroupPage() {
   return (
     <div style={{ paddingTop: '1.5rem' }}>
       <div style={{ marginBottom: '1.5rem' }}>
-        <Link href="/admin/subgroups" style={{ color: 'var(--color-gray-600)', textDecoration: 'none', fontSize: '0.9rem' }}>
+        <Link href="/admin/subgroups" style={{ color: 'var(--color-on-surface-variant)', textDecoration: 'none', fontSize: '0.9rem' }}>
           ← Back to Subgroups
         </Link>
       </div>

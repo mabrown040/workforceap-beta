@@ -73,7 +73,7 @@ export default function MemberSubgroupSection({
   return (
     <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
       <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Subgroup assignment</h2>
-      <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '0.75rem' }}>
+      <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
         Assign this member to subgroups so partners, managers, or churches can view their progress in the portal.
       </p>
       {currentSubgroupIds.length > 0 && (
@@ -123,12 +123,12 @@ export default function MemberSubgroupSection({
         </div>
       )}
       {availableToAdd.length === 0 && currentSubgroupIds.length > 0 && (
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-500)' }}>Member is in all subgroups.</p>
+        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>Member is in all subgroups.</p>
       )}
       {subgroups.length === 0 && (
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-500)' }}>No subgroups exist.</p>
+        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>No subgroups exist.</p>
       )}
-      {message && <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>{message}</p>}
+      {message && <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>{message}</p>}
     </section>
   );
 }

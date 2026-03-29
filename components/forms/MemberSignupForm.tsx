@@ -97,7 +97,7 @@ export default function MemberSignupForm() {
         <h3 style={{ color: 'var(--color-green)', marginBottom: '1rem' }}>
           Check your email
         </h3>
-        <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
+        <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
           We&apos;ve sent you a verification link. Click it to activate your account, then you can log in.
         </p>
         <Link href="/login" className="btn btn-primary">
@@ -299,7 +299,7 @@ export default function MemberSignupForm() {
         {submitStatus === 'loading' ? 'Creating account�' : 'Create account'}
       </button>
 
-      <p style={{ textAlign: 'center', marginTop: '1rem', color: 'var(--color-gray-500)', fontSize: '.9rem' }}>
+      <p style={{ textAlign: 'center', marginTop: '1rem', color: 'var(--color-on-surface-variant)', fontSize: '.9rem' }}>
         Already have an account? <Link href="/login">Log in</Link>
       </p>
     </form>

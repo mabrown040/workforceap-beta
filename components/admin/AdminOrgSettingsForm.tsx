@@ -90,7 +90,7 @@ export default function AdminOrgSettingsForm({
           <img src={logoUrl} alt="" style={{ display: 'block', maxHeight: 48, marginBottom: '0.5rem' }} />
         ) : null}
         <input id="logo" type="file" accept="image/*" onChange={(e) => void onLogo(e)} disabled={logoUploading} />
-        <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)', marginTop: '0.35rem' }}>
+        <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginTop: '0.35rem' }}>
           {logoUploading ? 'Uploading…' : 'Public URL stored on the organization. Uses Supabase bucket organization-branding.'}
         </p>
       </div>
@@ -124,7 +124,7 @@ export default function AdminOrgSettingsForm({
             aria-hidden
           />
         </div>
-        <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)', marginTop: '0.35rem' }}>
+        <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginTop: '0.35rem' }}>
           Drives accent buttons and links site-wide via CSS variables.
         </p>
       </div>
@@ -137,7 +137,7 @@ export default function AdminOrgSettingsForm({
           onChange={(e) => setOverviewVideoUrl(e.target.value)}
           placeholder="https://..."
         />
-        <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)', marginTop: '0.35rem' }}>
+        <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginTop: '0.35rem' }}>
           Shown on the public &ldquo;How it works&rdquo; page for the Overview step. Leave blank to use text only.
         </p>
       </div>

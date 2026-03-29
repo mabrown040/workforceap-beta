@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
-import PageHero from '@/components/PageHero';
-import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
 import { prisma } from '@/lib/db/prisma';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
@@ -65,43 +63,109 @@ export default async function HowItWorksPage() {
 
   return (
     <div className="inner-page">
-      <PageHero
-        title="How It Works"
-        subtitle="Your path from application through training and job placement — eleven steps, each designed to set you up for success."
-      />
+      {/* Hero Section */}
+      <section className="content-section" style={{ paddingBottom: 0 }}>
+        <div className="container" style={{ maxWidth: 1200 }}>
+          <div className="editorial-grid">
+            <div style={{ gridColumn: 'span 12' }} className="hiw-hero-left">
+              <span
+                className="text-label-upper"
+                style={{
+                  display: 'inline-block',
+                  padding: '0.25rem 0.75rem',
+                  background: 'var(--color-gold)',
+                  color: '#1c1b1b',
+                  borderRadius: 'var(--radius-full)',
+                  marginBottom: '1.5rem',
+                }}
+              >
+                Member Experience
+              </span>
+              <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', marginBottom: '2rem', lineHeight: 0.95 }}>
+                Your career{' '}
+                <span style={{ color: 'var(--color-accent)' }}>starts here.</span>
+              </h1>
+              <p style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', maxWidth: '36rem', lineHeight: 1.7, marginBottom: '2.5rem' }}>
+                We provide the tools, training, and long-term support needed to bridge the gap between where you are and where you want to be.
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                <Link
+                  href="/apply"
+                  style={{
+                    display: 'inline-block',
+                    background: 'var(--color-accent)',
+                    color: '#fff',
+                    padding: '1rem 2rem',
+                    borderRadius: 'var(--radius-lg)',
+                    fontWeight: 700,
+                    textDecoration: 'none',
+                  }}
+                >
+                  Start Your Application
+                </Link>
+                <Link
+                  href="/programs"
+                  style={{
+                    display: 'inline-block',
+                    background: 'var(--surface-container-high)',
+                    color: 'var(--color-on-surface)',
+                    padding: '1rem 2rem',
+                    borderRadius: 'var(--radius-lg)',
+                    fontWeight: 700,
+                    textDecoration: 'none',
+                  }}
+                >
+                  View Program Details
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      <PhotoHighlight
-        imageUrl="https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=1400&q=80"
-        label="3 Phases · 11 Steps"
-        title="From Application to Career"
-        description="We explain what each step does for you and why it exists — so you know what to expect and can move forward with confidence."
-      />
+      {/* The Journey: 11-Milestone Process */}
+      <section className="bg-surface-container-low" style={{ padding: '6rem 0', overflow: 'hidden' }}>
+        <div className="container" style={{ maxWidth: 1200 }}>
+          <div style={{ marginBottom: '4rem' }}>
+            <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '1rem' }}>
+              Your Journey With Us
+            </h2>
+            <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '42rem' }}>
+              A structured, 11-milestone roadmap designed to take you from applicant to successful professional.
+            </p>
+          </div>
 
-      <section className="how-it-works-phases">
-        {PHASES.map((phase, idx) => (
-          <div
-            key={phase.id}
-            className={`how-it-works-phase ${idx % 2 === 1 ? 'phase-alt' : ''}`}
-          >
-            <div className="phase-bg-number">{String(phase.id).padStart(2, '0')}</div>
-            <div className="container">
-              <p className="how-it-works-phase-label">{phase.label}</p>
-              <h2 className="phase-title">{phase.title}</h2>
-              <div className="phase-steps">
-                {phase.steps.map((step) => (
-                  <div key={step.num} className="phase-step-item">
-                    <span className="phase-step-num">{step.num}</span>
-                    <div>
-                      <h3>{step.title}</h3>
+          {PHASES.map((phase, phaseIdx) => (
+            <div key={phase.id} style={{ marginBottom: phaseIdx < PHASES.length - 1 ? '4rem' : 0 }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', borderBottom: '1px solid rgba(88,65,68,0.1)', paddingBottom: '1rem', marginBottom: '2rem' }}>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{phase.title}</h3>
+                <span className="text-label-upper" style={{ color: 'var(--color-accent)' }}>{phase.label}</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1.5rem' }}>
+                {phase.steps.map((step) => {
+                  const isHighlight = step.num === 1 || step.num === 8 || step.num === 10 || step.num === 11;
+                  return (
+                    <div
+                      key={step.num}
+                      className="stitch-card"
+                      style={{
+                        padding: '1.5rem',
+                        ...(isHighlight ? { borderLeft: `4px solid var(--color-accent)` } : {}),
+                      }}
+                    >
+                      <span className="text-label-upper" style={{ color: isHighlight ? 'var(--color-accent)' : 'var(--color-on-surface-variant)', marginBottom: '0.5rem', display: 'block' }}>
+                        Phase {String(step.num).padStart(2, '0')}
+                      </span>
+                      <h4 style={{ fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>{step.title}</h4>
                       {step.num === 2 && overviewVideoEmbed ? (
-                        <div className="how-it-works-overview-video" style={{ margin: '1rem 0' }}>
+                        <div style={{ margin: '1rem 0' }}>
                           <div
                             style={{
                               position: 'relative',
                               paddingBottom: '56.25%',
                               height: 0,
                               overflow: 'hidden',
-                              borderRadius: 'var(--radius-md, 8px)',
+                              borderRadius: 'var(--radius-md)',
                               background: '#111',
                             }}
                           >
@@ -113,33 +177,163 @@ export default async function HowItWorksPage() {
                               allowFullScreen
                             />
                           </div>
-                          <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)', marginTop: '0.5rem' }}>
+                          <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem' }}>
                             Prefer to read? The summary below is always available.
                           </p>
                         </div>
                       ) : null}
-                      <p>{step.desc}</p>
-                      {'why' in step && step.why && (
-                        <p className="phase-step-why">Why we do this: {step.why}</p>
+                      <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{step.desc}</p>
+                      {step.why && (
+                        <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.75rem', fontStyle: 'italic', opacity: 0.8 }}>
+                          Why: {step.why}
+                        </p>
                       )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
-            {idx < PHASES.length - 1 && <div className="phase-connector" aria-hidden="true" />}
-          </div>
-        ))}
+          ))}
+        </div>
+      </section>
 
-        <section className="how-it-works-cta">
-          <div className="container">
-            <h2 className="how-it-works-cta-title">Ready to Start?</h2>
-            <Link href="/apply" className="btn btn-primary btn-large">
-              Apply Now
+      {/* Benefits Grid */}
+      <section className="content-section">
+        <div className="container" style={{ maxWidth: 1200 }}>
+          <div className="editorial-grid" style={{ gap: '1.5rem' }}>
+            {/* Loaner Laptop */}
+            <div style={{ gridColumn: 'span 12' }} className="hiw-benefit-wide">
+              <div className="stitch-card-elevated" style={{ padding: '3rem', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ maxWidth: '60%' }}>
+                  <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>Loaner Laptop Program</h2>
+                  <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '2rem', lineHeight: 1.7 }}>
+                    Access to technology shouldn&rsquo;t be a barrier to education. We provide high-performance laptops to members who need them for the duration of their training program.
+                  </p>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {['Pre-configured with all necessary software', 'Technical support included', 'Zero upfront cost for qualifying members'].map((item) => (
+                      <li key={item} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>
+                        <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* 150-Day Support */}
+            <div style={{ gridColumn: 'span 12' }} className="hiw-benefit-accent">
+              <div style={{ background: 'var(--color-accent)', borderRadius: 'var(--radius-xl)', padding: '3rem', color: '#fff', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                <div>
+                  <div style={{ width: '4rem', height: '4rem', background: 'rgba(255,255,255,0.2)', borderRadius: 'var(--radius-xl)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '2rem', fontVariationSettings: "'FILL' 1" }}>calendar_today</span>
+                  </div>
+                  <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>150-Day Post-Hire Support</h2>
+                  <p style={{ color: 'rgba(255,203,209,0.9)', lineHeight: 1.7, maxWidth: '36rem' }}>
+                    We don&rsquo;t just find you a job; we help you keep it. Our support continues for five months after your start date.
+                  </p>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                  {[
+                    { label: 'Benefit 01', text: 'Monthly Check-ins' },
+                    { label: 'Benefit 02', text: 'Conflict Resolution' },
+                    { label: 'Benefit 03', text: 'Advancement Coaching' },
+                  ].map((b) => (
+                    <div key={b.label} style={{ padding: '1rem', background: 'rgba(255,255,255,0.1)', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                      <p className="text-label-upper" style={{ opacity: 0.7, marginBottom: '0.25rem', fontSize: '0.65rem' }}>{b.label}</p>
+                      <p style={{ fontWeight: 500 }}>{b.text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Career Training Benefits */}
+            <div style={{ gridColumn: 'span 12' }}>
+              <div className="stitch-card" style={{ padding: '3rem' }}>
+                <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '2rem' }}>Career Training Benefits</h2>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '2rem' }}>
+                  {[
+                    { icon: 'school', title: 'Tuition Coverage', desc: 'Comprehensive financial support for approved certification tracks and technical bootcamps.' },
+                    { icon: 'groups', title: 'Peer Networks', desc: 'Access to an exclusive community of members and alumni for mentorship and networking.' },
+                    { icon: 'work', title: 'Direct Pipeline', desc: 'Immediate consideration for openings within our 50+ employer partner network.' },
+                    { icon: 'psychology', title: 'Soft Skill Coaching', desc: 'Dedicated sessions on leadership, communication, and emotional intelligence.' },
+                  ].map((b) => (
+                    <div key={b.title} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <div style={{ padding: '0.5rem', background: 'var(--color-gold)', borderRadius: 'var(--radius-lg)' }}>
+                          <span className="material-symbols-outlined" style={{ color: '#1c1b1b', fontSize: '1.25rem', fontVariationSettings: "'FILL' 1" }}>{b.icon}</span>
+                        </div>
+                        <h4 style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{b.title}</h4>
+                      </div>
+                      <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{b.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="content-section" style={{ padding: '5rem 1rem' }}>
+        <div style={{
+          maxWidth: 900,
+          margin: '0 auto',
+          background: 'linear-gradient(to right, var(--color-accent), var(--color-accent-dark))',
+          borderRadius: 'var(--radius-xl)',
+          padding: '4rem 3rem',
+          textAlign: 'center',
+          position: 'relative',
+          overflow: 'hidden',
+        }}>
+          <h2 className="text-display-sm" style={{ color: '#fff', marginBottom: '1.5rem', position: 'relative', zIndex: 1 }}>
+            Ready to bridge the gap?
+          </h2>
+          <p style={{ color: 'rgba(255,203,209,0.9)', fontSize: '1.125rem', maxWidth: '36rem', margin: '0 auto 2.5rem', position: 'relative', zIndex: 1 }}>
+            Join hundreds of successful members who have launched their careers through Workforce Advancement Project.
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
+            <Link
+              href="/apply"
+              style={{
+                background: 'var(--color-gold)',
+                color: '#1c1b1b',
+                padding: '1.25rem 2.5rem',
+                borderRadius: 'var(--radius-xl)',
+                fontWeight: 900,
+                fontSize: '1.125rem',
+                textDecoration: 'none',
+              }}
+            >
+              Apply For Next Cohort
+            </Link>
+            <Link
+              href="/contact"
+              style={{
+                background: 'rgba(255,255,255,0.1)',
+                color: '#fff',
+                padding: '1.25rem 2.5rem',
+                borderRadius: 'var(--radius-xl)',
+                fontWeight: 700,
+                border: '1px solid rgba(255,255,255,0.2)',
+                textDecoration: 'none',
+              }}
+            >
+              Speak with an Advisor
             </Link>
           </div>
-        </section>
+        </div>
       </section>
+
+      <style>{`
+        @media (min-width: 1024px) {
+          .hiw-hero-left { grid-column: 1 / 8 !important; }
+          .hiw-benefit-wide { grid-column: 1 / 9 !important; }
+          .hiw-benefit-accent { grid-column: 9 / 13 !important; }
+        }
+      `}</style>
 
       <Footer />
     </div>

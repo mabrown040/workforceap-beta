@@ -63,12 +63,12 @@ export default async function AdminBlogPage() {
                       ? 'rgba(173, 44, 77, 0.12)'
                       : post.scheduledAt
                       ? 'rgba(37, 99, 235, 0.1)'
-                      : 'var(--color-gray-100)',
+                      : 'var(--surface-container)',
                     color: post.published
                       ? 'var(--color-accent)'
                       : post.scheduledAt
                       ? '#2563eb'
-                      : 'var(--color-gray-600)',
+                      : 'var(--color-on-surface-variant)',
                   }}
                 >
                   {post.published ? 'Published' : post.scheduledAt ? (
@@ -78,7 +78,7 @@ export default async function AdminBlogPage() {
                   ) : 'Draft'}
                 </span>
               </td>
-              <td style={{ color: 'var(--color-gray-600)' }}>
+              <td style={{ color: 'var(--color-on-surface-variant)' }}>
                 {post.publishedAt
                   ? new Date(post.publishedAt).toLocaleDateString('en-US', {
                       year: 'numeric',

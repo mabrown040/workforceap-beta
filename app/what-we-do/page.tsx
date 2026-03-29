@@ -596,9 +596,8 @@ export default function WhatWeDoPage() {
         {/* Impact stats 2×2 grid */}
         <div className="grid grid-cols-2 gap-3 mb-8">
           {[
-            { val: '$14.2M', label: 'Salary Lift', accent: '#8c0f37' },
-            { val: '84%', label: 'Placement', accent: '#7b5800' },
-            { val: '3400+', label: 'People Served', accent: '#8c0f37' },
+            { val: '2,000+', label: 'People Served', accent: '#8c0f37' },
+            { val: '$0', label: 'Cost to Members', accent: '#7b5800' },
             { val: '$0', label: 'Tuition', accent: '#7b5800' },
           ].map((s) => (
             <div key={s.val} className="rounded-xl p-5" style={{ background: '#f0edec', borderLeft: `4px solid ${s.accent}` }}>

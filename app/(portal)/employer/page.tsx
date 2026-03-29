@@ -240,7 +240,7 @@ export default async function EmployerDashboardPage() {
             )}
           </div>
         </div>
-        <MobileBottomNav />
+        <MobileBottomNav variant="portal" />
       </div>
       {/* ── Desktop View ── */}
       <div className="hidden md:block">

@@ -339,7 +339,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Bottom nav — mobile only */}
-      <MobileBottomNav />
+      <MobileBottomNav variant="portal" />
     </>
   );
 }

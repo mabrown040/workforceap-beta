@@ -541,7 +541,7 @@ export default async function LearningPage() {
     </div>
     </div> {/* end hidden md:block */}
 
-    <MobileBottomNav />
+    <MobileBottomNav variant="portal" />
     </>
   );
 }

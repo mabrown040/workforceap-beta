@@ -88,7 +88,7 @@ export default async function MemberMessagesPage() {
         />
       </div>
 
-      <MobileBottomNav />
+      <MobileBottomNav variant="portal" />
     </>
   );
 }

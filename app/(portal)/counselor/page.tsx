@@ -169,7 +169,7 @@ export default async function CounselorPortalPage() {
             )}
           </div>
         </div>
-        <MobileBottomNav />
+        <MobileBottomNav variant="portal" />
       </div>
       {/* ── Desktop View ── */}
       <div className="hidden md:block">

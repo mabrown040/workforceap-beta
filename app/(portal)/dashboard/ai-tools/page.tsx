@@ -171,7 +171,7 @@ export default async function AIToolsPage() {
             </div>
           ))}
         </div>
-        <MobileBottomNav />
+        <MobileBottomNav variant="portal" />
       </div>
       {/* ── Desktop View (hidden on mobile) ── */}
       <div className="hidden md:block">

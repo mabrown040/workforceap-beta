@@ -50,7 +50,7 @@ export default async function EmployerApplicationsPage() {
           <p className="text-xs" style={{ color: '#584144' }}>Review and update candidate status.</p>
         </div>
         <MobileApplicationsClient initialRows={initialRows} />
-        <MobileBottomNav />
+        <MobileBottomNav variant="portal" />
       </div>
       {/* ── Desktop View ── */}
       <div className="hidden md:block">

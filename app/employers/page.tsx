@@ -250,11 +250,11 @@ export default function EmployersPage() {
                 flexWrap: 'wrap',
               }}
             >
-              <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>
+              <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.65)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>
                 Certification Partners:
               </span>
               {PARTNER_LOGOS.map((logo) => (
-                <span key={logo} style={{ fontSize: '0.875rem', fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>
+                <span key={logo} style={{ fontSize: '0.875rem', fontWeight: 700, color: 'rgba(255,255,255,0.85)' }}>
                   {logo}
                 </span>
               ))}
@@ -424,10 +424,10 @@ export default function EmployersPage() {
                     marginTop: 'auto',
                   }}
                 >
-                  <span style={{ fontSize: '0.75rem', color: c.accent ? 'rgba(255,255,255,0.6)' : 'var(--color-on-surface-variant)' }}>
+                  <span style={{ fontSize: '0.75rem', color: c.accent ? 'rgba(255,255,255,0.85)' : 'var(--color-on-surface-variant)' }}>
                     {c.level}
                   </span>
-                  <span style={{ fontSize: '1rem', fontWeight: 700, color: c.accent ? 'var(--color-gold)' : 'var(--color-accent)' }}>
+                  <span style={{ fontSize: '1rem', fontWeight: 700, color: c.accent ? '#fff' : 'var(--color-accent)' }}>
                     {c.salary}
                   </span>
                 </div>
@@ -685,12 +685,12 @@ export default function EmployersPage() {
                   <strong>Michael Brown</strong>
                 </p>
                 <p style={{ marginBottom: '0.25rem' }}>
-                  <a href="mailto:michael.brown@workforceap.org" style={{ color: 'var(--color-gold)' }}>
+                  <a href="mailto:michael.brown@workforceap.org" style={{ color: '#fff' }}>
                     michael.brown@workforceap.org
                   </a>
                 </p>
                 <p>
-                  <a href="tel:5127771808" style={{ color: 'var(--color-gold)' }}>
+                  <a href="tel:5127771808" style={{ color: '#fff' }}>
                     (512) 777-1808
                   </a>
                 </p>
@@ -725,7 +725,7 @@ export default function EmployersPage() {
                 }}
               >
                 <span style={{ fontSize: '1.25rem', fontWeight: 900, lineHeight: 1, color: m.accent }}>{m.val}</span>
-                <span style={{ fontSize: '9px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#584144' }}>{m.label}</span>
+                <span style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)' }}>{m.label}</span>
               </div>
             ))}
           </div>

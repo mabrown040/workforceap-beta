@@ -62,7 +62,7 @@ export default async function HomePage() {
           zIndex: 1,
         }} />
 
-        <div style={{ position: 'relative', zIndex: 2, maxWidth: '900px', padding: '6rem 2rem 5rem', textAlign: 'center' }}>
+        <div style={{ position: 'relative', zIndex: 2, maxWidth: '1400px', width: '100%', padding: '8rem 2rem 6rem' }}>
           {/* Badge pill */}
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
@@ -82,12 +82,12 @@ export default async function HomePage() {
 
           <p style={{
             fontSize: '1.25rem', color: 'var(--color-on-surface-variant)',
-            maxWidth: '640px', margin: '0 auto 2.5rem', lineHeight: 1.7,
+            maxWidth: '640px', marginBottom: '2.5rem', lineHeight: 1.7,
           }}>
             Intentional education designed for modern industry. We connect talented members with employers through {WORKFORCEAP_PROGRAM_CATALOG_SIZE} specialized programs and AI-powered support — nationwide.
           </p>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
             <ExperimentedCtaLink
               experiment="home_apply_primary_cta"
               variants={[
@@ -98,6 +98,43 @@ export default async function HomePage() {
             <Link href="/partners" className="btn btn-secondary btn-large">
               Partner With Us
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== Social Proof / Credibility Bar ===== */}
+      <section style={{ padding: '2rem 0', borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'var(--surface-container-lowest)' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 2rem' }}>
+          <p className="text-label-upper" style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)', opacity: 0.4, marginBottom: '1.5rem', fontSize: '0.625rem', letterSpacing: '0.2em' }}>
+            Curriculum from Industry Leaders
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '3rem', opacity: 0.4 }}>
+            <span style={{ fontSize: '1.25rem', fontWeight: 700 }}>Google</span>
+            <span style={{ fontSize: '1.25rem', fontWeight: 700 }}>AT&amp;T</span>
+            <span style={{ fontSize: '1.25rem', fontWeight: 700 }}>Coursera</span>
+            <Image src="/images/microsoft-logo.svg" alt="Microsoft" width={100} height={24} style={{ filter: 'brightness(2)' }} />
+            <Image src="/images/ibm-logo.svg" alt="IBM" width={60} height={24} style={{ filter: 'brightness(2)' }} />
+          </div>
+        </div>
+      </section>
+
+      {/* ===== Experience Behind WAP — Prelaunch Honest Messaging ===== */}
+      <section style={{ padding: '5rem 2rem', maxWidth: '1400px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '720px', margin: '0 auto', textAlign: 'center' }}>
+          <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
+            Experience Behind WorkforceAP
+          </span>
+          <h2 className="text-display-sm" style={{ marginBottom: '1.5rem' }}>
+            Built on Proven Results
+          </h2>
+          <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, marginBottom: '1.5rem' }}>
+            WorkforceAP is prelaunch — we don&apos;t have graduate stories on this site yet. What we do have is a long run of workforce outcomes through{' '}
+            <strong>Consulting Solutions.Net (CSN)</strong>: training aligned to real job requirements, strong completion and placement support, and thousands of people coached into industry credentials and work. That same leadership team is building WorkforceAP for scale.
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center', marginTop: '1.5rem' }}>
+            <Link href="/blog" className="btn btn-primary btn-small">Blog &amp; Updates</Link>
+            <Link href="/leadership" className="btn btn-secondary btn-small">Leadership &amp; Board</Link>
+            <Link href="/what-we-do" className="btn btn-secondary btn-small">What We Do</Link>
           </div>
         </div>
       </section>
@@ -119,10 +156,10 @@ export default async function HomePage() {
               25+ Years Breaking Barriers
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, marginBottom: '1.5rem', maxWidth: '640px' }}>
-              The Workforce Advancement Project has spent over two decades removing financial and systemic barriers to professional success. Through employer-aligned curriculum, no-cost training, and dedicated placement support, we have helped thousands of members launch meaningful careers in technology, healthcare, skilled trades, and beyond.
+              Founded by Michael Brown, PMP — a workforce leader who has trained thousands nationwide. Through partnerships with the State of Texas, Texas Workforce Commission, Consulting Solutions.Net, Goodwill Career &amp; Technical Academy, Austin Area Urban League, Universal Tech Movement, and African American Youth Harvest Foundation, we deliver the wrap-around services that launch careers.
             </p>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, maxWidth: '640px' }}>
-              We believe education should be an investment in the future, not a debt for the present. Our program is funded through partnerships and successful placements.
+              We believe education should be an investment in the future, not a debt for the present. Our program is funded through partnerships and successful placements — building toward national scale.
             </p>
           </div>
 
@@ -374,6 +411,22 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* ===== AI-Powered Career Support ===== */}
+      <section style={{ padding: '5rem 2rem', maxWidth: '720px', margin: '0 auto', textAlign: 'center' }}>
+        <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
+          AI-Powered Career Support
+        </span>
+        <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>
+          Tools That Work For You
+        </h2>
+        <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '2rem' }}>
+          Members get in-portal AI assistants for resume refinement, interview practice, job matching, application tracking, and more — designed to complement counselor support, not replace it.
+        </p>
+        <Link href="/apply" className="btn btn-primary">
+          Apply to Unlock Member Tools
+        </Link>
       </section>
 
       {/* ===== Final CTA ===== */}

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Workforce Elite Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-tertiary-fixed": "#1c1b1b",
+                        "on-background": "#1c1b1b",
+                        "tertiary-container": "#5f5e5e",
+                        "on-secondary-container": "#6c4d00",
+                        "surface-container-highest": "#e5e2e1",
+                        "inverse-on-surface": "#f3f0ef",
+                        "tertiary-fixed-dim": "#c8c6c5",
+                        "surface-bright": "#fcf9f8",
+                        "on-primary-fixed": "#400013",
+                        "surface-variant": "#e5e2e1",
+                        "surface-container-low": "#f6f3f2",
+                        "inverse-surface": "#313030",
+                        "secondary": "#7b5800",
+                        "tertiary": "#474646",
+                        "surface-dim": "#dcd9d9",
+                        "on-primary-container": "#ffcbd1",
+                        "background": "#fcf9f8",
+                        "on-primary-fixed-variant": "#8c0f37",
+                        "inverse-primary": "#ffb2bc",
+                        "surface-container": "#f0edec",
+                        "surface-tint": "#ad2c4d",
+                        "surface": "#fcf9f8",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#1c1b1b",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#474646",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed": "#261900",
+                        "on-error": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-secondary": "#ffffff",
+                        "outline": "#8b7073",
+                        "on-surface-variant": "#584144",
+                        "primary-fixed": "#ffd9dd",
+                        "on-secondary-fixed-variant": "#5d4200",
+                        "secondary-fixed-dim": "#ffbb00",
+                        "primary-container": "#ad2c4d",
+                        "secondary-container": "#ffbb00",
+                        "tertiary-fixed": "#e5e2e1",
+                        "primary-fixed-dim": "#ffb2bc",
+                        "surface-container-high": "#ebe7e7",
+                        "on-tertiary-container": "#dbd8d7",
+                        "primary": "#8c0f37",
+                        "outline-variant": "#debfc2",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed": "#ffdea4"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-stone-50/80 dark:bg-stone-950/80 backdrop-blur-xl flex items-center justify-between px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-rose-800 dark:text-rose-400 active:scale-95 duration-200" data-icon="menu">menu</span>
+<h1 class="text-xl font-bold tracking-tighter text-rose-900 dark:text-rose-100">Workforce Elite</h1>
+</div>
+<div class="flex items-center">
+<button class="p-2 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 transition-colors rounded-full active:scale-95 duration-200">
+<span class="material-symbols-outlined text-stone-500 dark:text-stone-400" data-icon="notifications">notifications</span>
+</button>
+</div>
+</header>
+<main class="pt-20 px-4 space-y-6">
+<!-- Welcome Section (Digital Ivory Tower Asymmetry) -->
+<section class="py-4">
+<p class="text-label-md uppercase tracking-widest text-secondary font-semibold mb-1">Overview</p>
+<h2 class="text-3xl font-extrabold tracking-tight text-on-surface-variant leading-tight">Elite Talent <br/>at your fingertips.</h2>
+</section>
+<!-- Stats Row (Tonal Layering & Glass) -->
+<section class="flex gap-3 overflow-x-auto hide-scrollbar -mx-4 px-4">
+<div class="min-w-[140px] flex-1 bg-surface-container-lowest p-5 rounded-xl shadow-sm border border-outline-variant/10">
+<p class="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60 mb-2">Open Roles</p>
+<p class="text-2xl font-bold text-primary">12</p>
+</div>
+<div class="min-w-[140px] flex-1 bg-surface-container-lowest p-5 rounded-xl shadow-sm border border-outline-variant/10">
+<p class="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60 mb-2">Candidates</p>
+<p class="text-2xl font-bold text-on-surface">48</p>
+</div>
+<div class="min-w-[140px] flex-1 bg-surface-container-lowest p-5 rounded-xl shadow-sm border border-outline-variant/10">
+<p class="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60 mb-2">Quarter Hires</p>
+<p class="text-2xl font-bold text-secondary">6</p>
+</div>
+</section>
+<!-- Pipeline Summary (Horizontal Strip) -->
+<section class="bg-surface-container-low p-4 rounded-xl flex justify-between items-center text-center">
+<div class="flex-1">
+<p class="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-tighter">Screened</p>
+<p class="text-sm font-bold text-on-surface">14</p>
+</div>
+<div class="w-[1px] h-6 bg-outline-variant/30"></div>
+<div class="flex-1">
+<p class="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-tighter">Interview</p>
+<p class="text-sm font-bold text-on-surface">8</p>
+</div>
+<div class="w-[1px] h-6 bg-outline-variant/30"></div>
+<div class="flex-1">
+<p class="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-tighter">Offer</p>
+<p class="text-sm font-bold text-on-surface">3</p>
+</div>
+<div class="w-[1px] h-6 bg-outline-variant/30"></div>
+<div class="flex-1">
+<p class="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-tighter">Hired</p>
+<p class="text-sm font-bold text-on-surface">2</p>
+</div>
+</section>
+<!-- Quick Actions (Bento Style) -->
+<section class="grid grid-cols-2 gap-3">
+<button class="col-span-2 bg-gradient-to-br from-primary to-primary-container text-on-primary p-4 rounded-xl flex items-center justify-between group active:scale-[0.98] transition-all">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+<span class="font-bold tracking-tight">Post a Role</span>
+</div>
+<span class="material-symbols-outlined opacity-50 group-hover:opacity-100 transition-opacity" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<button class="bg-surface-container-high text-on-surface p-4 rounded-xl flex flex-col gap-2 items-start active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined text-secondary" data-icon="grading">grading</span>
+<span class="text-sm font-bold leading-tight">Review Apps</span>
+</button>
+<button class="bg-surface-container-high text-on-surface p-4 rounded-xl flex flex-col gap-2 items-start active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined text-primary" data-icon="forum">forum</span>
+<span class="text-sm font-bold leading-tight">Messages</span>
+</button>
+</section>
+<!-- Recent Applicants (Editorial List) -->
+<section class="space-y-4">
+<div class="flex justify-between items-end">
+<h3 class="text-xl font-bold tracking-tight text-on-surface">Recent Applicants</h3>
+<span class="text-xs font-bold text-primary uppercase tracking-widest">View All</span>
+</div>
+<div class="space-y-3">
+<!-- Applicant 1 -->
+<div class="bg-surface-container-lowest p-4 rounded-xl flex items-center gap-4 border border-outline-variant/5">
+<img alt="Candidate profile" class="w-12 h-12 rounded-full object-cover" data-alt="Close-up professional portrait of a smiling man with neat beard against a soft studio background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvsPb1Rj79lrz-ZmHr1wSmjnR9NQhxTjL-GdO-Fn3NluVmha07cI3RaQ367CTsjn9ciW1Dh21A_dh5V78hjZMrgnSv0YNWtzrYt583Lmq7QzmlumNL1LBGZlOReURHj_6EqYhNYbgZtVDRWfi4QmGWbLI2BZIFWmV6F_SHFVXkbDI_o3FQzKUPKtS1dtiRYorWTTbH-XoV42kSKF_x3A2pQReD7pU3MWyBN64vk9bRrpyoJ3hFZ6U7KcMpowO5spIZYE1uWytVyeXM"/>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h4 class="font-bold text-on-surface truncate">Marcus Chen</h4>
+<span class="text-[10px] text-on-surface-variant/60 font-medium">2h ago</span>
+</div>
+<p class="text-xs text-secondary font-semibold uppercase tracking-wider mb-1">AI Developer</p>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 bg-rose-50 text-primary text-[10px] font-bold rounded-full uppercase tracking-tighter">New</span>
+</div>
+</div>
+</div>
+<!-- Applicant 2 -->
+<div class="bg-surface-container-lowest p-4 rounded-xl flex items-center gap-4 border border-outline-variant/5">
+<img alt="Candidate profile" class="w-12 h-12 rounded-full object-cover" data-alt="Professional headshot of a young woman with a warm smile, wearing a blazer, minimalist office background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCa2LwKjGqLevCEbeHlPBKKkBX7B-f_o-idMkfTPvzufXy-qnEvCxpZrGkyBtWwL-C7_6ulhu8rpjfUfY3aKKYQ2OwSV1E-4UCan8Kl2AWFHLNRa3z3H37JPQDKvK8bcH8qBfLW-HTm-lYvd3yqU61rK6Ju7gsElkrIXXvUFSOC0hg7Q0BBYkkORLQo6WgS7V7L7g9USkuQ9C45J9jjegOI7dltTyYxgd8PxqIaz5nN_HhonPLff3MqhCNj_TWYXmgq13jSkToSXImY"/>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h4 class="font-bold text-on-surface truncate">Elena Rodriguez</h4>
+<span class="text-[10px] text-on-surface-variant/60 font-medium">5h ago</span>
+</div>
+<p class="text-xs text-secondary font-semibold uppercase tracking-wider mb-1">IT Support</p>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 bg-amber-50 text-secondary text-[10px] font-bold rounded-full uppercase tracking-tighter">Review</span>
+</div>
+</div>
+</div>
+<!-- Applicant 3 -->
+<div class="bg-surface-container-lowest p-4 rounded-xl flex items-center gap-4 border border-outline-variant/5">
+<img alt="Candidate profile" class="w-12 h-12 rounded-full object-cover" data-alt="Close-up portrait of a mature professional man with thoughtful expression, sharp focus on eyes, soft gray background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDtJr-tjOvHVWY_wiQrXHcHqbeLuJzF0YLJwCorM-Bl_WupdB59SsHcOeG5G8nkIIKrqgYg72FBs7wQyFQn4WQCA5yhRGjWTGxElcssBMfmgg_k7e4Tr2wCVhV3P8M1POgjOQQDLzqNda172z7nSYDCI8nPF7tuuUXn26wkMOSnX-nIvyFtr9L-mc0lb76hEj5k_5wOBbRl61fgivvUP1T8-dOgDevqzjynxtwTl_kNCa4N41GmPPXQ4B_4JawJk5-FXccjjXJ0_E1"/>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h4 class="font-bold text-on-surface truncate">Jordan Smith</h4>
+<span class="text-[10px] text-on-surface-variant/60 font-medium">Yesterday</span>
+</div>
+<p class="text-xs text-secondary font-semibold uppercase tracking-wider mb-1">UI/UX Design</p>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-bold rounded-full uppercase tracking-tighter">Interview</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-stone-50/90 dark:bg-stone-950/90 backdrop-blur-lg rounded-t-2xl z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.03)] border-t border-stone-200/30 dark:border-stone-800/30">
+<!-- Home Active -->
+<a class="flex flex-col items-center justify-center text-rose-800 dark:text-rose-400 font-bold bg-rose-50 dark:bg-rose-900/20 rounded-xl px-4 py-1 transition-all cubic-bezier(0.4,0,0.2,1)" href="#">
+<span class="material-symbols-outlined" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-[11px] font-medium uppercase tracking-wider mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 hover:text-rose-700 dark:hover:text-rose-300 transition-all cubic-bezier(0.4,0,0.2,1)" href="#">
+<span class="material-symbols-outlined" data-icon="work">work</span>
+<span class="text-[11px] font-medium uppercase tracking-wider mt-1">Roles</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 hover:text-rose-700 dark:hover:text-rose-300 transition-all cubic-bezier(0.4,0,0.2,1)" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="text-[11px] font-medium uppercase tracking-wider mt-1">Candidates</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 hover:text-rose-700 dark:hover:text-rose-300 transition-all cubic-bezier(0.4,0,0.2,1)" href="#">
+<div class="relative">
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+<span class="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full border-2 border-surface"></span>
+</div>
+<span class="text-[11px] font-medium uppercase tracking-wider mt-1">Messages</span>
+</a>
+</nav>
+</body></html>

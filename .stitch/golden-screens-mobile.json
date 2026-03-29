@@ -76,5 +76,47 @@
       "title": "Application Confirmation (Mobile)",
       "file": ".stitch/mobile-apply-confirmation.html"
     }
+  },
+  "portal": {
+    "memberDashboard": {
+      "screenId": "298ed184d3b44812a64b1c734c986999",
+      "title": "Member Dashboard (Mobile Light)",
+      "file": ".stitch/portal-member-dashboard.html"
+    },
+    "memberMessages": {
+      "screenId": "2d0d51fa64c84b96a8884f12ab045a77",
+      "title": "Member Messages (Mobile)",
+      "file": ".stitch/portal-member-messages.html"
+    },
+    "memberLearning": {
+      "screenId": "471d39b1569a41d7beab4792131a1680",
+      "title": "Member Learning Dashboard (Mobile Light)",
+      "file": ".stitch/portal-member-learning.html"
+    },
+    "memberProfile": {
+      "screenId": "a2f8c4969ce64c86b1e2bcd3f19fd95f",
+      "title": "Member Profile (Mobile Light)",
+      "file": ".stitch/portal-member-profile.html"
+    },
+    "aiTools": {
+      "screenId": "c2e6ca6190a24d939ef9cc68e463f357",
+      "title": "AI Career Tools (Mobile Light)",
+      "file": ".stitch/portal-ai-tools.html"
+    },
+    "employerDashboard": {
+      "screenId": "4678b261b8834a669dfdfdbe2ef87f27",
+      "title": "Employer Dashboard (Mobile Light)",
+      "file": ".stitch/portal-employer-dashboard.html"
+    },
+    "employerApplications": {
+      "screenId": "a22691d7a7ea46368510928de641fbb0",
+      "title": "Employer Applications (Mobile Light)",
+      "file": ".stitch/portal-employer-applications.html"
+    },
+    "counselorStudents": {
+      "screenId": "8413073271314d7f975edae913321a3e",
+      "title": "Counselor Dashboard (Mobile Light)",
+      "file": ".stitch/portal-counselor-students.html"
+    }
   }
 }

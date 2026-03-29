@@ -15,7 +15,7 @@ const PARTNER_TYPES = [
     icon: 'group',
     type: 'Referral Partners',
     who: 'Nonprofits, social services, churches, reentry programs, community centers, workforce centers, federal one-stop centers.',
-    why: 'Refer clients who need career training. We follow up within 3–5 business days. No cost to refer. You get updates when referred individuals complete programs.',
+    why: 'Refer clients who need career training. We follow up within 24-48 hours. No cost to refer. You get updates when referred individuals complete programs.',
     nextStep: { text: 'Contact to Refer', href: '/contact?topic=partnership' },
     colSpan: 8,
   },

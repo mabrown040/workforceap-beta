@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
 import AIToolCard from '@/components/portal/AIToolCard';
 
@@ -119,62 +118,6 @@ export default async function AIToolsPage() {
 
   return (
     <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
-      {/* ── Mobile AI Tools View (≤640px) ── */}
-      <div className="wa-md:hidden" style={{ paddingBottom: "6rem" }}>
-        {/* Mobile hero */}
-        <div className="px-6 pt-8 pb-4">
-          <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-[#ad2c4d] mb-1">Premium Intelligence</p>
-          <h1 className="text-3xl font-extrabold tracking-tight text-on-surface leading-tight mb-1">AI Career Tools</h1>
-          <p className="text-sm text-on-surface-variant font-medium opacity-80">Powered by WorkforceAP AI</p>
-          {/* accent banner */}
-          <div className="mt-6 relative h-28 w-full rounded-xl overflow-hidden bg-gradient-to-br from-[#8c0f37] to-[#ad2c4d] p-5 flex flex-col justify-end">
-            <div className="absolute top-0 right-0 w-28 h-28 bg-yellow-400/20 rounded-full -mr-12 -mt-12 blur-3xl" />
-            <h3 className="text-white text-base font-bold">Smart Recommendations</h3>
-            <p className="text-pink-200 text-xs">AI-driven paths tailored for your goals.</p>
-          </div>
-        </div>
-        {/* Tool cards 2-col grid */}
-        <div className="px-4 grid grid-cols-2 gap-3">
-          {TOOLS.map((tool) => (
-            <Link
-              key={tool.id}
-              href={'href' in tool ? tool.href : '/dashboard/ai-tools'}
-              className="bg-white rounded-xl p-4 flex flex-col gap-2 active:scale-[0.98] transition-all no-underline"
-              style={{ textDecoration: 'none' }}
-            >
-              <div className="w-10 h-10 rounded-full flex items-center justify-center"
-                style={{ background: 'rgba(173,44,77,0.1)', color: '#ad2c4d' }}>
-                <span className="material-symbols-outlined text-[20px]">{tool.icon}</span>
-              </div>
-              <div>
-                <h4 className="font-bold text-sm text-on-surface leading-tight">{tool.title}</h4>
-                <p className="text-on-surface-variant text-[11px] mt-1 leading-snug line-clamp-2">{tool.description}</p>
-              </div>
-              {'badge' in tool && tool.badge && (
-                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider self-start"
-                  style={{ background: '#ffbb00', color: '#6c4d00' }}>{tool.badge}</span>
-              )}
-            </Link>
-          ))}
-        </div>
-        {/* Mobile stats row */}
-        <div className="mx-4 mt-6 flex gap-2">
-          {[
-            { value: '1.2k+', label: 'Resumes', icon: 'description' },
-            { value: '85%', label: 'Interviews', icon: 'trending_up' },
-            { value: '24/7', label: 'Available', icon: 'schedule' },
-          ].map((stat) => (
-            <div key={stat.label} className="flex-1 bg-white rounded-xl p-3 text-center">
-              <span className="material-symbols-outlined text-[18px] block mb-1" style={{ color: '#8c0f37' }}>{stat.icon}</span>
-              <div className="text-base font-bold text-on-surface">{stat.value}</div>
-              <div className="text-[9px] font-semibold uppercase tracking-wider text-on-surface-variant">{stat.label}</div>
-            </div>
-          ))}
-        </div>
-        <MobileBottomNav variant="portal" />
-      </div>
-      {/* ── Desktop View (hidden on mobile) ── */}
-      <div className="wa-hidden wa-md:block">
       {/* Hero */}
       <section
         style={{
@@ -305,7 +248,6 @@ export default async function AIToolsPage() {
           ))}
         </div>
       </section>
-    </div>{/* end desktop */}
     </div>
   );
 }

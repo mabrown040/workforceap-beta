@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { Suspense } from 'react';
 import Footer from '@/components/Footer';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import ApplyEligibilityClient from './ApplyEligibilityClient';
 import ApplyPageSkeleton from './ApplyPageSkeleton';
 import ApplyProgramIntro from '@/components/apply/ApplyProgramIntro';
@@ -25,7 +23,7 @@ const sPage = {
   } as React.CSSProperties,
 
   hero: {
-    padding: 'var(--space-16) var(--space-6) var(--space-8)',
+    padding: 'calc(var(--nav-height-default, 80px) + var(--space-8)) var(--space-6) var(--space-8)',
     textAlign: 'center' as const,
     background: 'linear-gradient(170deg, var(--color-primary) 0%, #2a0a14 60%, var(--color-accent-dark) 100%)',
     color: 'var(--color-white)',
@@ -130,12 +128,6 @@ export default async function ApplyPage({ searchParams }: PageProps) {
 
   return (
     <div style={sPage.wrapper}>
-
-      {/* ══════════════════════════════════════════════
-          DESKTOP SIDEBAR — visible on md+ only
-          ══════════════════════════════════════════════ */}
-      <div>
-
       {/* ── Hero ── */}
       <section style={sPage.hero}>
         <div style={sPage.heroLabel}>
@@ -189,7 +181,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           <div style={sPage.infoCard}>
             <h4 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-2)' }}>What happens next?</h4>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)', margin: 0 }}>
-              After you apply, a counselor reviews your goals, walks through best-fit program options, and follows up within 3–5 business days.
+              After you apply, a counselor reviews your goals, walks through best-fit program options, and follows up within 24-48 hours.
             </p>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', marginTop: 'var(--space-3)', marginBottom: 0 }}>
               Questions? Call <a href="tel:5127771808" style={{ color: 'var(--color-gold)', fontWeight: 700 }}>(512) 777-1808</a>
@@ -207,10 +199,6 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           <Suspense fallback={<ApplyPageSkeleton />}>
             <ApplyEligibilityClient />
           </Suspense>
-          <p style={{ marginTop: 'var(--space-4)', fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', textAlign: 'center' }}>
-            Already have an account?{' '}
-            <Link href="/login" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Log in</Link>
-          </p>
         </div>
       </div>
 
@@ -230,15 +218,13 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           <div>
             <h4 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>Rapid Processing</h4>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)', margin: 0 }}>
-              Applications are reviewed within 3–5 business days. A counselor will contact you to discuss your best-fit program.
+              Applications are reviewed within 24-48 hours. A counselor will contact you to discuss your best-fit program.
             </p>
           </div>
         </div>
       </div>
 
       <Footer />
-
-      </div>{/* end desktop wrapper */}
 
       {/* Responsive overrides */}
       <style>{`
@@ -247,14 +233,13 @@ export default async function ApplyPage({ searchParams }: PageProps) {
             grid-template-columns: 1fr !important;
           }
           .apply-sidebar {
-            display: none !important;
+            position: static !important;
           }
           .apply-supp-row {
             grid-template-columns: 1fr !important;
           }
         }
       `}</style>
-      <MobileBottomNav />
     </div>
   );
 }

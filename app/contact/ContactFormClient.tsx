@@ -122,7 +122,7 @@ export default function ContactFormClient() {
           Message sent successfully
         </p>
         <p style={{ color: 'var(--color-on-surface-variant)' }}>
-          We&rsquo;ll get back to you within 3–5 business days.
+          We&rsquo;ll get back to you within 24–48 hours.
         </p>
       </div>
     );
@@ -317,7 +317,7 @@ export default function ContactFormClient() {
       >
         {status === 'sending' ? 'Sending…' : 'Send Message'}
       </button>
-      <p className="contact-form-footnote">We respond within 3–5 business days.</p>
+      <p className="contact-form-footnote">We respond within 24–48 hours.</p>
     </form>
   );
 }

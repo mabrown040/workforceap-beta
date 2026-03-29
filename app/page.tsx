@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
 import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import Footer from '@/components/Footer';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -37,94 +36,6 @@ export default async function HomePage() {
 
   return (
     <div className="homepage" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
-
-      {/* ══════════════════════════════════════════════
-          MOBILE LAYOUT ≤640px — Stitch-aligned
-          ══════════════════════════════════════════════ */}
-      <div className="wa-md:hidden" style={{ background: '#fcf9f8', minHeight: '100vh', paddingBottom: '5rem' }}>
-        {/* Mobile Hero */}
-        <section style={{ padding: '5rem 1.25rem 1.5rem' }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0.375rem 0.75rem', borderRadius: '9999px', marginBottom: '1.25rem', background: '#ffbb00', color: '#1c1b1b' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '0.75rem', fontVariationSettings: "'FILL' 1" }}>radio_button_checked</span>
-            Enrollment Open
-          </span>
-          <h1 style={{ fontSize: '3rem', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 0.95, marginBottom: '1rem', background: 'linear-gradient(135deg, #8c0f37 0%, #ad2c4d 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-            Free Career<br />Training
-          </h1>
-          <p style={{ fontSize: '1rem', lineHeight: 1.6, marginBottom: '1.75rem', maxWidth: '280px', color: '#584144' }}>
-            Bridge the gap with professional certification and real employer connections.
-          </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <Link href="/apply" style={{ display: 'block', width: '100%', textAlign: 'center', fontWeight: 700, padding: '1rem', borderRadius: '0.75rem', fontSize: '0.875rem', background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)', color: '#fff', textDecoration: 'none', boxShadow: '0 4px 14px rgba(140,15,55,0.35)' }}>
-              Apply Free
-            </Link>
-            <Link href="/find-your-path" style={{ display: 'block', width: '100%', textAlign: 'center', fontWeight: 700, padding: '1rem', borderRadius: '0.75rem', fontSize: '0.875rem', background: '#f6f3f2', color: '#8c0f37', textDecoration: 'none', border: '1px solid rgba(140,15,55,0.15)' }}>
-              Find Your Path
-            </Link>
-          </div>
-        </section>
-
-        {/* Mobile Partner Logos Scroll */}
-        <section style={{ marginBottom: '2.5rem' }}>
-          <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.2em', padding: '0 1.25rem', marginBottom: '0.75rem', color: 'rgba(88,65,68,0.6)' }}>Global Hiring Partners</p>
-          <div style={{ display: 'flex', overflowX: 'auto', gap: '2rem', padding: '0.5rem 1.25rem', alignItems: 'center', scrollbarWidth: 'none' }}>
-            {['Google', 'IBM', 'AWS', 'CompTIA', 'AT&T'].map((p) => (
-              <span key={p} style={{ flexShrink: 0, fontSize: '0.875rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#8b7073', opacity: 0.7 }}>{p}</span>
-            ))}
-          </div>
-        </section>
-
-        {/* Mobile 3-Stat Row */}
-        <section style={{ padding: '0 1.25rem', marginBottom: '2.5rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '0.75rem' }}>
-            <div style={{ borderRadius: '1rem', padding: '1rem', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', background: '#f6f3f2', minHeight: 96 }}>
-              <span style={{ fontSize: '1.5rem', fontWeight: 900, display: 'block', color: '#8c0f37' }}>{programCount}</span>
-              <span style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#584144' }}>Programs</span>
-            </div>
-            <div style={{ borderRadius: '1rem', padding: '1rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', background: 'linear-gradient(135deg, #8c0f37 0%, #ad2c4d 100%)', minHeight: 96 }}>
-              <span className="material-symbols-outlined" style={{ color: 'rgba(255,255,255,0.4)', alignSelf: 'flex-end' }}>verified</span>
-              <div>
-                <span style={{ fontSize: '1.75rem', fontWeight: 900, color: '#fff', display: 'block' }}>$0 Cost</span>
-                <span style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'rgba(255,203,209,0.9)' }}>Tuition Free</span>
-              </div>
-            </div>
-            <div style={{ gridColumn: '1 / -1', borderRadius: '1rem', padding: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#ebe7e7' }}>
-              <span style={{ fontSize: '1.125rem', fontWeight: 700, color: '#1c1b1b' }}>12–24 Weeks</span>
-              <span style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#7b5800' }}>Accelerated</span>
-            </div>
-          </div>
-        </section>
-
-        {/* Mobile 4-Step Journey Card Scroll */}
-        <section style={{ marginBottom: '1.5rem' }}>
-          <div style={{ padding: '0 1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.25rem' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 900, letterSpacing: '-0.025em', color: '#1c1b1b' }}>Your Journey</h2>
-            <Link href="/how-it-works" style={{ fontSize: '0.75rem', fontWeight: 700, textDecoration: 'underline', color: '#8c0f37' }}>Learn More</Link>
-          </div>
-          <div style={{ display: 'flex', overflowX: 'auto', gap: '1rem', padding: '0 1.25rem 1rem', scrollbarWidth: 'none' }}>
-            {[
-              { icon: 'quiz', step: '01', title: 'Quiz', desc: 'Discover your path in 5 minutes.' },
-              { icon: 'assignment_ind', step: '02', title: 'Apply', desc: 'Submit in about 10 minutes.' },
-              { icon: 'school', step: '03', title: 'Train', desc: 'Intensive skill-building with experts.' },
-              { icon: 'work', step: '04', title: 'Hired', desc: 'Access our exclusive hiring network.' },
-            ].map(({ icon, step, title, desc }) => (
-              <div key={step} style={{ flexShrink: 0, width: '14rem', padding: '1.25rem', borderRadius: '1.5rem', border: '1px solid rgba(28,27,27,0.06)', background: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
-                <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.25rem', background: 'rgba(140,15,55,0.1)' }}>
-                  <span className="material-symbols-outlined" style={{ color: '#8c0f37' }}>{icon}</span>
-                </div>
-                <span style={{ display: 'block', fontSize: '0.625rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem', color: '#7b5800' }}>Phase {step}</span>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem', color: '#1c1b1b' }}>{title}</h3>
-                <p style={{ fontSize: '0.875rem', lineHeight: 1.6, color: '#584144' }}>{desc}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      </div>
-
-      {/* ══════════════════════════════════════════════
-          DESKTOP LAYOUT ≥641px
-          ══════════════════════════════════════════════ */}
-      <div className="wa-hidden wa-md:block">
 
       {/* ===== HERO: Full-bleed background image with gradient overlay ===== */}
       <section style={{
@@ -199,7 +110,7 @@ export default async function HomePage() {
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '3rem', opacity: 0.4 }}>
             <span style={{ fontSize: '1.25rem', fontWeight: 700 }}>Google</span>
-            <span style={{ fontSize: "1.25rem", fontWeight: 700 }}>AT&T</span>
+            <span style={{ fontSize: '1.25rem', fontWeight: 700 }}>AT&amp;T</span>
             <span style={{ fontSize: '1.25rem', fontWeight: 700 }}>Coursera</span>
             <Image src="/images/microsoft-logo.svg" alt="Microsoft" width={100} height={24} style={{ filter: 'brightness(2)' }} />
             <Image src="/images/ibm-logo.svg" alt="IBM" width={60} height={24} style={{ filter: 'brightness(2)' }} />
@@ -229,8 +140,13 @@ export default async function HomePage() {
       </section>
 
       {/* ===== 25+ Years Breaking Barriers — Bento: 2/3 text + 1/3 stats grid ===== */}
-      <section style={{ padding: '6rem 2rem', maxWidth: '1400px', margin: '0 auto' }} className="wa-hidden wa-md:block">
-        <div style={{
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media (max-width: 768px) {
+          .home-impact-grid { grid-template-columns: 1fr !important; }
+        }
+      `}} />
+      <section style={{ padding: '6rem 2rem', maxWidth: '1400px', margin: '0 auto' }}>
+        <div className="home-impact-grid" style={{
           display: 'grid',
           gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)',
           gap: '3rem',
@@ -267,8 +183,8 @@ export default async function HomePage() {
               background: 'var(--surface-container-high)', padding: '1.5rem',
               display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
             }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--color-gold)', lineHeight: 1 }}>2,000+</span>
-              <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Trained</span>
+              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--color-gold)', lineHeight: 1 }}>94%</span>
+              <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Placement</span>
             </div>
             {/* Accent card spanning full width */}
             <div className="stitch-card" style={{
@@ -283,25 +199,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ===== Mobile: Our Impact (≤640px) ===== */}
-      <section className="wa-md:hidden px-4 py-10" style={{ background: 'var(--color-background-dark)' }}>
-        <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block', fontSize: '0.6rem' }}>Our Impact</span>
-        <h2 className="text-2xl font-extrabold mb-3" style={{ color: 'var(--color-on-surface)', letterSpacing: '-0.025em' }}>25+ Years Breaking Barriers</h2>
-        <p className="text-sm leading-relaxed mb-6" style={{ color: 'var(--color-on-surface-variant)' }}>
-          Founded by Michael Brown, PMP — a workforce leader who has trained thousands nationwide through partnerships with the State of Texas, TWC, Goodwill, Austin Urban League, and more.
-        </p>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.75rem", marginBottom: "1.5rem" }}>
-          {[['2,000+', 'Trained'], ['$0', 'Cost']].map(([val, label]) => (
-            <div key={label} style={{ borderRadius: "0.75rem", padding: "1rem 0.5rem", textAlign: "center", background: 'var(--surface-container-high)' }}>
-              <div className="text-xl font-black" style={{ color: 'var(--color-gold)', lineHeight: 1 }}>{val}</div>
-              <div className="text-[9px] font-bold uppercase tracking-wider mt-1" style={{ color: 'var(--color-on-surface-variant)' }}>{label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* ===== Milestone Journey — Horizontal Scrolling Cards ===== */}
-      <section className="wa-hidden wa-md:block" style={{ background: 'var(--surface-container-low)', padding: '6rem 0' }}>
+      <section style={{ background: 'var(--surface-container-low)', padding: '6rem 0' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 2rem' }}>
           <h2 className="text-display-sm" style={{ marginBottom: '1rem', textAlign: 'center' }}>Your Journey to Success</h2>
           <p style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)', marginBottom: '3rem', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
@@ -540,7 +439,7 @@ export default async function HomePage() {
         <div style={{ maxWidth: '700px', margin: '0 auto' }}>
           <h2 style={{ fontSize: '2.5rem', fontWeight: 900, letterSpacing: '-0.02em', color: 'white', marginBottom: '1rem' }}>Your Next Step</h2>
           <p style={{ color: 'rgba(255,255,255,0.85)', marginBottom: '2rem', fontSize: '1.125rem' }}>
-            Apply now — about 10 minutes. We respond within 3–5 business days. Real certifications. Employer connections. No cost to members.
+            Apply now — about 10 minutes. We respond within 24-48 hours. Real certifications. Employer connections. No cost to members.
           </p>
           <Link href="/apply" className="btn btn-large" style={{ background: 'white', color: 'var(--color-accent)', fontWeight: 700 }}>
             Start Your Application
@@ -553,71 +452,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      </div>{/* end desktop wrapper */}
-
-      {/* ── LEGACY mobile sections — now superseded by top Stitch mobile block above ── */}
-      {/* ── Mobile Hero Section (≤640px) ── */}
-      <section className="wa-md:hidden px-4 pt-20 pb-6" style={{ background: '#fcf9f8' }}>
-        <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-4" style={{ background: '#ffbb00', color: '#1c1b1b' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '0.75rem', fontVariationSettings: "'FILL' 1" }}>circle</span>
-          Enrollment Open
-        </span>
-        <h1 className="text-4xl font-extrabold tracking-tight leading-[0.95] mb-3" style={{ color: '#1c1b1b' }}>
-          Free Career<br />
-          <span style={{ color: '#ad2c4d' }}>Training</span>
-        </h1>
-        <p className="text-sm leading-relaxed mb-5" style={{ color: '#584144' }}>
-          Real certifications. Employer connections. No cost to members.
-        </p>
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-          <Link href="/apply" className="block w-full text-center font-bold py-4 rounded-lg text-sm" style={{ background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)', color: '#fff' }}>
-            Apply Free — Takes 10 Minutes
-          </Link>
-          <Link href="/find-your-path" className="block w-full text-center font-bold py-4 rounded-lg text-sm" style={{ background: '#ebe7e7', color: '#1c1b1b' }}>
-            Find Your Path
-          </Link>
-        </div>
-      </section>
-
-      {/* ── Mobile Trust Strip (≤640px) ── */}
-      <section className="wa-md:hidden overflow-x-auto pb-4 px-4" style={{ background: '#f6f3f2' }}>
-        <div className="flex gap-6 items-center pt-4" style={{ minWidth: 'max-content' }}>
-          {['Google', 'IBM', 'AWS', 'CompTIA', 'AT&T'].map((p) => (
-            <span key={p} className="text-sm font-black uppercase tracking-wider" style={{ color: '#8b7073', opacity: 0.7 }}>{p}</span>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Mobile Stats Row (≤640px) ── */}
-      <section className="wa-md:hidden px-4 py-5 grid grid-cols-3 gap-2 text-center" style={{ background: '#fcf9f8' }}>
-        {[['19', 'Programs'], ['$0', 'Cost'], ['12-24\nWks', 'Duration']].map(([val, label]) => (
-          <div key={label} className="rounded-xl py-3 px-2" style={{ background: '#f0edec' }}>
-            <div className="text-xl font-extrabold tracking-tight leading-none" style={{ color: '#ad2c4d' }}>{val}</div>
-            <div className="text-[10px] font-bold uppercase tracking-widest mt-1" style={{ color: '#584144' }}>{label}</div>
-          </div>
-        ))}
-      </section>
-
-      {/* ── Mobile Journey Cards (≤640px) ── */}
-      <section className="wa-md:hidden px-4 py-5" style={{ background: '#f6f3f2' }}>
-        <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: '#8b7073' }}>Your Journey</p>
-        <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
-          {[
-            { icon: 'quiz', step: '01', label: 'Quiz' },
-            { icon: 'assignment_ind', step: '02', label: 'Apply' },
-            { icon: 'school', step: '03', label: 'Train' },
-            { icon: 'work', step: '04', label: 'Hired' },
-          ].map(({ icon, step, label }) => (
-            <div key={step} className="flex-shrink-0 w-24 rounded-xl p-3 text-center" style={{ background: '#fff', boxShadow: '0 1px 4px rgba(28,27,27,0.06)' }}>
-              <span className="material-symbols-outlined text-2xl block mb-1" style={{ color: '#ad2c4d' }}>{icon}</span>
-              <div className="text-[9px] font-bold uppercase tracking-widest" style={{ color: '#8b7073' }}>Phase {step}</div>
-              <div className="text-xs font-bold mt-0.5" style={{ color: '#1c1b1b' }}>{label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <MobileBottomNav />
       <Footer variant="home" />
     </div>
   );

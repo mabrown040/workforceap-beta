@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
-import Footer from "@/components/Footer";
-import MobileBottomNav from "@/components/MobileBottomNav";
+import Footer from '@/components/Footer';
 import EmployerContactForm from './EmployerContactForm';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -259,32 +258,6 @@ export default function EmployersPage() {
               ))}
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* ── Mobile-only: Proof metrics row (≤640px) ── */}
-      <section className="wa-sm:wa-hidden" style={{ background: '#fcf9f8', padding: '1.5rem 1rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
-          {[
-            { val: '$0', label: 'Cost to Hire', accent: '#8c0f37' },
-            { val: 'Cert-Ready', label: 'Candidates', accent: '#ad2c4d' },
-          ].map((m) => (
-            <div key={m.label} style={{ background: 'white', borderLeft: `3px solid ${m.accent}`, boxShadow: '0 1px 4px rgba(28,27,27,0.06)', borderRadius: '0.75rem', padding: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-              <span className="text-xl font-black leading-none" style={{ color: m.accent }}>{m.val}</span>
-              <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: '#584144' }}>{m.label}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Mobile-only: Talent category chips (≤640px) ── */}
-      <section className="wa-sm:wa-hidden" style={{ background: '#fcf9f8', padding: '1rem 0', overflowX: 'auto', scrollbarWidth: 'none' }}>
-        <div style={{ display: 'flex', gap: '0.5rem', padding: '0 1rem', width: 'max-content' }}>
-          {['IT & Cyber', 'AI & Software', 'Cloud', 'Business', 'Healthcare'].map((cat, i) => (
-            <span key={cat} className="text-xs font-bold" style={{ flexShrink: 0, padding: '0.5rem 1rem', borderRadius: '9999px', background: i === 0 ? '#8c0f37' : '#e5e2e1', color: i === 0 ? '#fff' : '#1c1b1b' }}>
-              {cat}
-            </span>
-          ))}
         </div>
       </section>
 
@@ -693,7 +666,7 @@ export default function EmployersPage() {
                 Ready to Transform Your Hiring Process?
               </h2>
               <p style={{ color: 'rgba(255,203,209,0.9)', fontSize: '1.125rem', marginBottom: '1.5rem', lineHeight: 1.6 }}>
-                Join our growing network of partners building a more equitable and efficient workforce
+                Join over 200+ partners building a more equitable and efficient workforce
                 through Workforce Advancement Project.
               </p>
               <div
@@ -728,35 +701,21 @@ export default function EmployersPage() {
         </div>
       </section>
 
-      {/* ── Mobile-only: Full-width crimson CTA band (≤640px) ── */}
-      <section className="wa-sm:wa-hidden" style={{ background: '#8c0f37', padding: '2.5rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-        <h2 className="text-2xl font-extrabold text-white tracking-tight" style={{ marginBottom: '0.5rem' }}>Ready to Hire?</h2>
-        <p className="text-sm" style={{ color: 'rgba(255,203,209,0.9)', marginBottom: '1.5rem' }}>Join over 200 employers finding certified talent through WorkforceAP.</p>
-        <Link href="#employer-contact" className="font-bold text-sm" style={{ display: 'block', width: '100%', padding: '1rem', borderRadius: '0.75rem', textAlign: 'center', background: '#fff', color: '#8c0f37', textDecoration: 'none' }}>
-          Request Talent Partnership
-        </Link>
-      </section>
-
       <style>{`
         @media (max-width: 1023px) {
           .emp-diff-sidebar { grid-column: span 12 !important; }
           .emp-diff-cards { grid-column: span 12 !important; }
           .emp-tiers-grid { grid-template-columns: 1fr !important; max-width: 480px; margin: 0 auto; }
           .emp-cohort-card { grid-column: span 12 !important; }
-        }
-        @media (max-width: 767px) {
           .emp-process-grid { grid-template-columns: 1fr 1fr !important; gap: 2rem !important; }
           .emp-timeline-bar { display: none !important; }
-          .emp-diff-cards { grid-template-columns: 1fr !important; }
         }
-        @media (max-width: 640px) {
-          .emp-stats-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 0.75rem !important; }
-          .emp-stats-grid > div { padding: 1rem !important; }
-          .emp-stats-grid h3 { font-size: 1.5rem !important; }
+        @media (max-width: 767px) {
+          .emp-process-grid { grid-template-columns: 1fr !important; }
+          .emp-diff-cards { grid-template-columns: 1fr !important; }
         }
       `}</style>
 
-      <MobileBottomNav />
       <Footer />
     </div>
   );

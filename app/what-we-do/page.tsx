@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
-import Footer from "@/components/Footer";
-import MobileBottomNav from "@/components/MobileBottomNav";
+import Footer from '@/components/Footer';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Free Workforce Development Training & Certifications',
@@ -205,9 +204,9 @@ export default function WhatWeDoPage() {
                 }}
               >
                 <img
-                  src="/images/michael-brown.jpg"
-                  alt="Michael Brown, Founder & Executive Director, Workforce Advancement Project"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }}
+                  src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=800&q=80"
+                  alt="WAP Leadership"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               </div>
               <div
@@ -268,6 +267,7 @@ export default function WhatWeDoPage() {
               </p>
 
               <div
+                className="wwd-stats-grid"
                 style={{
                   display: 'grid',
                   gridTemplateColumns: '1fr 1fr',
@@ -298,10 +298,10 @@ export default function WhatWeDoPage() {
                   }}
                 >
                   <div style={{ fontSize: '2.25rem', fontWeight: 900, color: 'var(--color-accent)', lineHeight: 1 }}>
-                    —
+                    94%
                   </div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600 }}>
-                    Outcomes tracked as members complete certification tracks
+                    Placement rate for graduates completing certification tracks
                   </div>
                 </div>
               </div>
@@ -582,111 +582,19 @@ export default function WhatWeDoPage() {
         </div>
       </section>
 
-      {/* ── Mobile-only Stitch layout (≤640px) ── */}
-      <section className="wa-sm:wa-hidden" style={{ background: '#fcf9f8', padding: '2.5rem 1rem 1rem' }}>
-        {/* Hero H1 with gradient span */}
-        <span className="block text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: '#8c0f37' }}>Our Impact</span>
-        <h1 className="text-4xl font-extrabold tracking-tight leading-[1.1] mb-6" style={{ color: '#1c1b1b' }}>
-          Bridging the{' '}
-          <span style={{ background: 'linear-gradient(135deg, #8c0f37 0%, #ad2c4d 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            Opportunity Gap
-          </span>{' '}
-          with a training-to-workforce engine.
-        </h1>
-
-        {/* Impact stats 2×2 grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", marginBottom: "2rem" }}>
-          {[
-            { val: '2,000+', label: 'People Served', accent: '#8c0f37' },
-            { val: '$0', label: 'Cost to Members', accent: '#7b5800' },
-          ].map((s) => (
-            <div key={s.label} style={{ borderRadius: "0.75rem", padding: "1.25rem", background: "#f0edec", borderLeft: `4px solid ${s.accent}` }}>
-              <div className="text-2xl font-black" style={{ color: s.accent }}>{s.val}</div>
-              <div className="text-[10px] font-bold uppercase tracking-wider mt-1" style={{ color: '#584144' }}>{s.label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Mobile-only: Mission/Values cards stacked (≤640px) ── */}
-      <section className="wa-sm:wa-hidden" style={{ background: '#fcf9f8', padding: '0 1rem 2rem' }}>
-        <h2 className="text-2xl font-bold tracking-tight mb-5" style={{ color: '#1c1b1b' }}>Our Core Values</h2>
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          {[
-            { icon: 'universal_currency_alt', title: 'Access First', desc: "Education shouldn't have a paywall. We believe talent is universal, but opportunity is not.", accent: '#8c0f37' },
-            { icon: 'handshake', title: 'Employer Aligned', desc: 'We train for the roles companies actually need, ensuring your new skills are in high demand.', accent: '#7b5800' },
-            { icon: 'verified', title: 'Outcome Accountable', desc: 'Success is measured by your paycheck. Our model only works when you are working.', accent: '#8c0f37' },
-          ].map((v) => (
-            <div key={v.title} style={{ borderRadius: "0.75rem", padding: "1.25rem", background: "white", boxShadow: "0 2px 8px rgba(28,27,27,0.06)" }}>
-              <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem" }}>
-                <div style={{ padding: "0.75rem", borderRadius: "0.5rem", background: `${v.accent}10` }}>
-                  <span className="material-symbols-outlined text-xl" style={{ color: v.accent }}>{v.icon}</span>
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg mb-1" style={{ color: '#1c1b1b' }}>{v.title}</h3>
-                  <p className="text-sm leading-relaxed" style={{ color: '#584144' }}>{v.desc}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Mobile-only: 4-step program flow (≤640px) ── */}
-      <section className="wa-sm:wa-hidden" style={{ background: '#f0edec', padding: '2.5rem 1rem' }}>
-        <h2 className="text-2xl font-bold tracking-tight mb-7" style={{ color: '#1c1b1b' }}>The Journey</h2>
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem", position: "relative" }}>
-          <div className="absolute left-[22px] top-2 bottom-2 w-px" style={{ background: 'rgba(140,15,55,0.2)' }} />
-          {[
-            { step: '01', title: 'Application', desc: '10-minute online form to start your journey and share your potential.' },
-            { step: '02', title: 'Training', desc: 'Industry-aligned curriculum from global leaders in tech and business.' },
-            { step: '03', title: 'Certification', desc: 'Earn credentials recognized by top employers as a mark of excellence.' },
-            { step: '04', title: 'Placement', desc: 'Direct pipeline to hiring partners and long-term career support.' },
-          ].map((s) => (
-            <div key={s.step} className="relative pl-12">
-              <div className="absolute left-[14px] top-1 w-4 h-4 rounded-full border-4" style={{ background: '#8c0f37', borderColor: '#f0edec', outline: '3px solid rgba(140,15,55,0.1)' }} />
-              <span className="block text-[10px] font-black tracking-widest uppercase mb-1" style={{ color: '#ad2c4d' }}>Step {s.step}</span>
-              <h3 className="font-bold text-lg mb-1" style={{ color: '#1c1b1b' }}>{s.title}</h3>
-              <p className="text-sm" style={{ color: '#584144' }}>{s.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Mobile-only: Partner pills (≤640px) ── */}
-      <section className="wa-sm:wa-hidden" style={{ background: '#fcf9f8', padding: '2.5rem 1rem' }}>
-        <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-center mb-5" style={{ color: '#584144' }}>Supported By Industry Giants</p>
-        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "0.5rem" }}>
-          {['Google', 'IBM', 'AWS', 'CompTIA', 'Coursera'].map((p) => (
-            <span key={p} className="text-xs font-bold" style={{ padding: "0.5rem 1rem", borderRadius: "9999px", background: '#e5e2e1', color: '#1c1b1b' }}>{p}</span>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Mobile-only: Bottom CTA band (≤640px) ── */}
-      <section className="wa-sm:wa-hidden" style={{ background: '#1c1b1b', padding: '2.5rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-        <h2 className="text-2xl font-bold mb-6 text-white">Ready to transform your career?</h2>
-        <Link href="/apply" className="block w-full font-bold py-4 rounded-lg text-sm mb-3" style={{ background: '#8c0f37', color: '#fff' }}>
-          Start an Application
-        </Link>
-        <Link href="/how-it-works" className="block w-full font-bold py-4 rounded-lg text-sm" style={{ border: '1px solid rgba(252,249,248,0.2)', color: '#fcf9f8' }}>
-          See the Process
-        </Link>
-      </section>
-
       <style>{`
         @media (max-width: 1023px) {
           .wwd-legacy-portrait { grid-column: span 12 !important; max-width: 400px; margin: 0 auto; }
           .wwd-legacy-text { grid-column: span 12 !important; }
           .wwd-values-grid { grid-template-columns: 1fr !important; }
-          .wwd-bento-grid > div { grid-column: span 12 !important; grid-row: span 1 !important; }
+          .wwd-bento-grid .stitch-card { grid-column: span 12 !important; grid-row: span 1 !important; }
+          .wwd-stats-grid { grid-template-columns: 1fr !important; }
         }
         @media (max-width: 767px) {
           .wwd-legacy-portrait { max-width: 100%; }
         }
       `}</style>
 
-      <MobileBottomNav />
       <Footer />
     </div>
   );

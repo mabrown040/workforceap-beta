@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import { prisma } from '@/lib/db/prisma';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { toVideoEmbedUrl } from '@/lib/platform/videoEmbed';
@@ -64,7 +63,6 @@ export default async function HowItWorksPage() {
 
   return (
     <div className="inner-page">
-      <div className="wa-hidden wa-md:block">
       {/* Hero Section */}
       <section className="content-section" style={{ paddingBottom: 0 }}>
         <div className="container" style={{ maxWidth: 1200 }}>
@@ -337,78 +335,6 @@ export default async function HowItWorksPage() {
         }
       `}</style>
 
-      </div>{/* end hidden md:block desktop wrapper */}
-
-      {/* ── Mobile Journey View (≤640px) ── */}
-      <section className="wa-md:hidden wa-px-4 wa-pb-32 wa-pt-8" style={{ background: '#fcf9f8' }}>
-        <div className="mb-6">
-          <span className="inline-block text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-3" style={{ background: '#ffbb00', color: '#1c1b1b' }}>
-            Member Experience
-          </span>
-          <h2 className="text-3xl font-extrabold tracking-tight leading-none mb-3" style={{ color: '#1c1b1b' }}>
-            Your Journey to{' '}
-            <span style={{ color: '#ad2c4d' }}>Success</span>
-          </h2>
-          <p className="text-sm leading-relaxed" style={{ color: '#584144' }}>
-            11 milestones from application to career growth.
-          </p>
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-          {PHASES.flatMap((phase) =>
-            phase.steps.map((step) => {
-              const isIntensive = step.num >= 5 && step.num <= 9;
-              return (
-                <div
-                  key={step.num}
-                  style={{
-                    borderRadius: "0.75rem", padding: "1rem", position: "relative", overflow: "hidden",
-                    background: isIntensive ? 'rgba(173, 44, 77, 0.06)' : '#fff',
-                    border: isIntensive ? '1px solid rgba(173,44,77,0.15)' : 'none',
-                    boxShadow: isIntensive ? 'none' : '0 1px 4px rgba(28,27,27,0.06)',
-                  }}
-                >
-                  {/* Faded watermark number — Stitch style */}
-                  <span
-                    className="absolute -left-1 -top-3 text-7xl font-black select-none pointer-events-none"
-                    style={{ color: isIntensive ? 'rgba(173,44,77,0.12)' : 'rgba(173,44,77,0.07)', lineHeight: 1 }}
-                  >
-                    {String(step.num).padStart(2, '0')}
-                  </span>
-                  <div className="relative pl-8">
-                    {isIntensive && step.num === 5 && (
-                      <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full mb-2 inline-block" style={{ background: '#ad2c4d', color: '#fff' }}>
-                        Intensive Learning Phase
-                      </span>
-                    )}
-                    <p className="font-bold text-sm" style={{ color: '#1c1b1b' }}>{step.title}</p>
-                    <p className="text-xs mt-0.5 leading-relaxed" style={{ color: '#584144' }}>{step.desc}</p>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginTop: "2rem" }}>
-          <Link
-            href="/apply"
-            className="block w-full text-center font-bold py-4 rounded-lg text-sm"
-            style={{ background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)', color: '#fff' }}
-          >
-            Start Your Application
-          </Link>
-          <Link
-            href="/programs"
-            className="block w-full text-center font-bold py-4 rounded-lg text-sm"
-            style={{ background: '#ebe7e7', color: '#1c1b1b' }}
-          >
-            View Programs
-          </Link>
-        </div>
-      </section>
-
-      <MobileBottomNav />
       <Footer />
     </div>
   );

@@ -14,10 +14,15 @@ export default function LeadershipPage() {
   return (
     <div className="inner-page">
       {/* ── Hero Section ── */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media (max-width: 768px) {
+          .leadership-hero-grid { grid-template-columns: 1fr !important; }
+        }
+      `}} />
       <section className="content-section" style={{ paddingBottom: 0 }}>
         <div className="container" style={{ maxWidth: 1400 }}>
           <div
-            className="editorial-grid"
+            className="editorial-grid leadership-hero-grid"
             style={{
               display: 'grid',
               gridTemplateColumns: '2fr 1fr',

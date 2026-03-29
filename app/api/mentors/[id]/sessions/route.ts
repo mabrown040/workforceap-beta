@@ -1,0 +1,36 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/db/prisma';
+import { getUser } from '@/lib/auth/server';
+
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const user = await getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { id: mentorId } = await params;
+
+  const sessions = await prisma.mentorSession.findMany({
+    where: { mentorId, memberId: user.id },
+    orderBy: { scheduledAt: 'desc' },
+  });
+
+  return NextResponse.json({ sessions });
+}
+
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const user = await getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { id: mentorId } = await params;
+  const body = await req.json() as { scheduledAt: string; topic?: string; durationMin?: number };
+
+  const session = await prisma.mentorSession.create({
+    data: {
+      mentorId,
+      memberId: user.id,
+      scheduledAt: new Date(body.scheduledAt),
+      durationMin: body.durationMin ?? 30,
+      notes: body.topic ?? null,
+      status: 'PENDING',
+    },
+  });
+
+  return NextResponse.json({ session }, { status: 201 });
+}

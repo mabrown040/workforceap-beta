@@ -100,6 +100,8 @@ model User {
   notesAuthored      CounselorNote[]  @relation("NoteAuthor")
   partnerUser        PartnerUser?
   employer           Employer?
+  mentorProfile      Mentor?
+  mentorSessionsAsMember MentorSession[] @relation("MentorSessionMember")
 
   jobPostingApplications JobPostingApplication[]
   aiJobMatches       AIJobMatch[]
@@ -1254,3 +1256,45 @@ model AIJobMatch {
 }
 
 
+
+model Mentor {
+  id                String    @id @default(uuid())
+  userId            String    @unique @map("user_id")
+  fullName          String    @map("full_name")
+  title             String
+  company           String
+  industry          String
+  bio               String    @db.Text
+  linkedinUrl       String?   @map("linkedin_url")
+  availableHours    Int       @default(2) @map("available_hours")
+  totalHoursDonated Float     @default(0) @map("total_hours_donated")
+  isActive          Boolean   @default(true) @map("is_active")
+  approvedAt        DateTime? @map("approved_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions          MentorSession[]
+  @@map("mentors")
+}
+
+model MentorSession {
+  id          String              @id @default(uuid())
+  mentorId    String              @map("mentor_id")
+  memberId    String              @map("member_id")
+  scheduledAt DateTime            @map("scheduled_at")
+  durationMin Int                 @default(30) @map("duration_min")
+  status      MentorSessionStatus @default(PENDING)
+  notes       String?             @db.Text
+  hoursLogged Float?              @map("hours_logged")
+  createdAt   DateTime            @default(now()) @map("created_at")
+  mentor      Mentor              @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  member      User                @relation("MentorSessionMember", fields: [memberId], references: [id], onDelete: Cascade)
+  @@map("mentor_sessions")
+}
+
+enum MentorSessionStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}

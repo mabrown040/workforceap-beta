@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import Footer from '@/components/Footer';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import ApplyEligibilityClient from './ApplyEligibilityClient';
 import ApplyPageSkeleton from './ApplyPageSkeleton';
 import ApplyProgramIntro from '@/components/apply/ApplyProgramIntro';
@@ -24,7 +23,7 @@ const sPage = {
   } as React.CSSProperties,
 
   hero: {
-    padding: 'var(--space-16) var(--space-6) var(--space-8)',
+    padding: 'calc(var(--nav-height-default, 80px) + var(--space-8)) var(--space-6) var(--space-8)',
     textAlign: 'center' as const,
     background: 'linear-gradient(170deg, var(--color-primary) 0%, #2a0a14 60%, var(--color-accent-dark) 100%)',
     color: 'var(--color-white)',
@@ -129,103 +128,6 @@ export default async function ApplyPage({ searchParams }: PageProps) {
 
   return (
     <div style={sPage.wrapper}>
-
-      {/* ══════════════════════════════════════════════
-          MOBILE LAYOUT ≤640px — Stitch-aligned
-          ══════════════════════════════════════════════ */}
-      <div className="md:hidden flex flex-col items-center" style={{ background: '#fcf9f8', minHeight: '100vh', paddingBottom: '5rem' }}>
-        {/* Header */}
-        <header className="fixed top-0 w-full z-50 px-5 flex justify-between items-center h-16" style={{ background: 'rgba(252,249,248,0.88)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(222,191,194,0.2)' }}>
-          <div className="flex items-center gap-3">
-            <span className="material-symbols-outlined" style={{ color: '#ad2c4d' }}>arrow_back</span>
-            <span className="text-lg font-black tracking-tight" style={{ color: '#ad2c4d' }}>WorkforceAP</span>
-          </div>
-        </header>
-
-        <main className="w-full max-w-[390px] px-5 pt-24 pb-10 flex flex-col gap-7">
-          {/* Hero intro */}
-          <section className="flex flex-col gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ background: '#ad2c4d' }}>
-                <span className="material-symbols-outlined text-white" style={{ fontVariationSettings: "'FILL' 1" }}>shield</span>
-              </div>
-              <h1 className="text-2xl font-bold tracking-tight" style={{ color: '#1c1b1b' }}>Program Admission</h1>
-            </div>
-            <p className="text-sm leading-relaxed" style={{ color: '#584144' }}>
-              Answer a few quick questions then choose a program. No experience required. No cost to qualifying participants.
-            </p>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full self-start" style={{ background: '#ebe7e7' }}>
-              <span className="material-symbols-outlined text-sm" style={{ color: '#584144' }}>timer</span>
-              <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: '#584144' }}>About 10 minutes</span>
-            </div>
-          </section>
-
-          {/* 3-Step Mini-Flow Indicator */}
-          <nav className="flex justify-between items-start relative py-3">
-            <div className="absolute top-7 left-0 w-full h-0.5" style={{ background: '#e5e2e1', zIndex: 0 }} />
-            {[
-              { n: 1, label: 'Check Fit', active: true },
-              { n: 2, label: 'Pick Program', active: false },
-              { n: 3, label: 'Create Account', active: false },
-            ].map(({ n, label, active }) => (
-              <div key={n} className="flex flex-col items-center gap-1.5 z-10">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style={active ? { background: '#ad2c4d', color: '#fff' } : { background: '#e5e2e1', color: '#584144' }}>
-                  {n}
-                </div>
-                <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: active ? '#ad2c4d' : '#584144' }}>{label}</span>
-              </div>
-            ))}
-          </nav>
-
-          {/* Progress Bar */}
-          <div className="flex flex-col gap-1.5">
-            <div className="flex justify-between items-end">
-              <span className="text-[11px] font-medium uppercase tracking-widest" style={{ color: '#584144' }}>Step 1 of 4</span>
-              <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: '#ad2c4d' }}>25% Complete</span>
-            </div>
-            <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: '#e5e2e1' }}>
-              <div className="h-full w-1/4 rounded-full" style={{ background: '#ad2c4d' }} />
-            </div>
-          </div>
-
-          {/* Question Card */}
-          <section className="flex flex-col gap-5">
-            <h2 className="text-xl font-bold tracking-tight leading-snug" style={{ color: '#1c1b1b' }}>
-              What best describes your current situation?
-            </h2>
-            <div className="flex flex-col gap-3">
-              {[
-                'Unemployed and seeking work',
-                'Employed but seeking a new career',
-                'Currently a student',
-                'Other professional transition',
-              ].map((opt, i) => (
-                <label key={opt} className="flex items-center h-14 px-4 rounded-xl cursor-pointer transition-all active:scale-[0.98]" style={{ background: '#fff', border: i === 0 ? '2px solid #ad2c4d' : '1px solid rgba(222,191,194,0.3)', boxShadow: '0 1px 4px rgba(28,27,27,0.04)' }}>
-                  <input type="radio" name="situation" defaultChecked={i === 0} className="w-5 h-5" style={{ accentColor: '#8c0f37' }} />
-                  <span className="ml-4 text-sm font-medium" style={{ color: '#1c1b1b' }}>{opt}</span>
-                </label>
-              ))}
-            </div>
-          </section>
-
-          {/* Action Area */}
-          <div className="flex flex-col gap-5">
-            <button className="w-full h-14 font-bold rounded-xl shadow-lg text-white" style={{ background: 'linear-gradient(90deg, #8c0f37, #ad2c4d)' }}>
-              Next
-            </button>
-            <div className="flex items-center justify-center gap-2" style={{ opacity: 0.6 }}>
-              <span className="material-symbols-outlined text-sm" style={{ color: '#584144' }}>lock</span>
-              <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: '#584144' }}>Your info is private and secure</span>
-            </div>
-          </div>
-        </main>
-      </div>
-
-      {/* ══════════════════════════════════════════════
-          DESKTOP LAYOUT ≥641px
-          ══════════════════════════════════════════════ */}
-      <div className="hidden md:block">
-
       {/* ── Hero ── */}
       <section style={sPage.hero}>
         <div style={sPage.heroLabel}>
@@ -324,8 +226,6 @@ export default async function ApplyPage({ searchParams }: PageProps) {
 
       <Footer />
 
-      </div>{/* end desktop wrapper */}
-
       {/* Responsive overrides */}
       <style>{`
         @media (max-width: 768px) {
@@ -340,7 +240,6 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           }
         }
       `}</style>
-      <MobileBottomNav />
     </div>
   );
 }

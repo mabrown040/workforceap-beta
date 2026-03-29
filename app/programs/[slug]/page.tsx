@@ -8,7 +8,6 @@ import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
 import { getProgramDescription } from '@/lib/content/programDescriptions';
 import { getProgramExtra } from '@/lib/content/programExtras';
 import Footer from '@/components/Footer';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import ProgramDetailClient from './ProgramDetailClient';
 import ProgramRelatedSection from '@/components/programs/ProgramRelatedSection';
 import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
@@ -55,75 +54,7 @@ export default async function ProgramPage({ params }: Props) {
 
   return (
     <div className="inner-page">
-      {/* ── Mobile-only hero: back arrow + category chip + H1 + metadata pills + stats row (≤640px) ── */}
-      <section className="sm:hidden px-4 pt-6 pb-4" style={{ background: '#fcf9f8' }}>
-        {/* Back arrow */}
-        <Link href="/programs" className="flex items-center gap-1 mb-4 text-sm font-medium" style={{ color: '#8c0f37' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>arrow_back</span>
-          Programs
-        </Link>
-
-        {/* Category chip */}
-        <div className="flex flex-wrap gap-2 mb-3">
-          <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider" style={{ background: '#e5e2e1', color: '#8c0f37' }}>
-            {program.categoryLabel}
-          </span>
-          <div className="flex items-center gap-1 px-3 py-1 rounded-full" style={{ background: 'rgba(123,88,0,0.1)' }}>
-            <span className="material-symbols-outlined text-xs" style={{ color: '#7b5800', fontSize: '0.875rem' }}>verified</span>
-            <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#7b5800' }}>Verified Cert</span>
-          </div>
-        </div>
-
-        {/* H1 */}
-        <h1 className="text-3xl font-extrabold tracking-tight leading-tight mb-3" style={{ color: '#1c1b1b' }}>{program.title}</h1>
-
-        {/* Metadata pills */}
-        <div className="flex gap-2 mb-5 flex-wrap">
-          <div className="flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium" style={{ background: '#f0edec', color: '#584144' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>schedule</span>
-            {program.duration}
-          </div>
-          <div className="flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium" style={{ background: '#f0edec', color: '#584144' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>bolt</span>
-            {salaryRangeDisplay(program)}
-          </div>
-        </div>
-
-        {/* Stats row — 3-col Stitch bento */}
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          <div className="rounded-xl p-3 flex flex-col justify-between" style={{ background: '#f0edec', minHeight: '7rem' }}>
-            <span className="material-symbols-outlined" style={{ color: '#8c0f37', fontSize: '1.25rem' }}>workspace_premium</span>
-            <p className="text-[10px] font-bold leading-tight uppercase tracking-wide" style={{ color: '#1c1b1b' }}>Industry Recognized</p>
-          </div>
-          <div className="rounded-xl p-3 flex flex-col justify-between" style={{ background: '#8c0f37', minHeight: '7rem', boxShadow: '0 4px 12px rgba(140,15,55,0.2)' }}>
-            <span className="material-symbols-outlined text-white" style={{ fontSize: '1.25rem' }}>payments</span>
-            <p className="text-[10px] font-bold leading-tight uppercase tracking-wide text-white">$0 Cost</p>
-          </div>
-          <div className="rounded-xl p-3 flex flex-col justify-between" style={{ background: '#f0edec', minHeight: '7rem' }}>
-            <span className="material-symbols-outlined" style={{ color: '#7b5800', fontSize: '1.25rem' }}>handshake</span>
-            <p className="text-[10px] font-bold leading-tight uppercase tracking-wide" style={{ color: '#1c1b1b' }}>Placement Support</p>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Mobile-only: Career paths horizontal scroll (≤640px) ── */}
-      {extra && extra.jobOutcomes.length > 0 && (
-        <section className="sm:hidden py-6" style={{ background: '#fcf9f8' }}>
-          <h2 className="px-4 text-lg font-bold mb-3" style={{ color: '#1c1b1b' }}>Career Outcomes</h2>
-          <div className="flex gap-3 overflow-x-auto px-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
-            {extra.jobOutcomes.map((outcome, i) => (
-              <div key={outcome} className="flex-none rounded-xl p-4" style={{ background: '#f0edec', minWidth: '180px' }}>
-                <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#8c0f37' }}>
-                  {i === 0 ? 'Entry Level' : i === 1 ? 'Entry Level' : 'Career Path'}
-                </p>
-                <h3 className="font-bold text-sm" style={{ color: '#1c1b1b' }}>{outcome}</h3>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <section className="page-hero hidden sm:block">
+      <section className="page-hero">
         <div className="page-hero-content">
           <span
             style={{
@@ -300,18 +231,6 @@ export default async function ProgramPage({ params }: Props) {
         </div>
       </section>
 
-      {/* ── Mobile sticky apply bar (≤640px) ── */}
-      <div className="md:hidden fixed bottom-[60px] left-0 w-full z-40 px-4 py-2" style={{ background: 'rgba(252,249,248,0.95)', backdropFilter: 'blur(8px)', borderTop: '1px solid rgba(222,191,194,0.3)' }}>
-        <Link
-          href="/apply"
-          className="block w-full text-center font-bold py-3 rounded-lg text-sm"
-          style={{ background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)', color: '#fff' }}
-        >
-          Apply Now — Free
-        </Link>
-      </div>
-
-      <MobileBottomNav />
       <Footer />
     </div>
   );

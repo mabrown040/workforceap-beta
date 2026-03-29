@@ -55,17 +55,17 @@ export default async function DashboardProfilePage() {
   return (
     <>
       {/* ── Mobile profile view (≤640px) ── */}
-      <div className="md:hidden pb-24">
+      <div className="wa-md:hidden" style={{ paddingBottom: "6rem" }}>
         {/* Profile hero section */}
-        <section className="pt-6 pb-4 text-center px-6">
-          <div className="flex flex-col items-center">
+        <section className="text-center" style={{ padding: '1.5rem 1.5rem 1rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             {/* Avatar */}
-            <div className="w-24 h-24 rounded-full bg-[#ad2c4d] flex items-center justify-center text-white text-3xl font-bold mb-4 shadow-sm">
+            <div style={{ width: '6rem', height: '6rem', borderRadius: '9999px', background: '#ad2c4d', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.875rem', fontWeight: 700, marginBottom: '1rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
               {initials}
             </div>
             {/* Identity */}
             <h2 className="text-2xl font-extrabold tracking-tight text-[#1c1b1b] mb-1">{dbUser.fullName ?? 'Your Name'}</h2>
-            <div className="inline-flex items-center px-3 py-1 rounded-full bg-[#ffbb00]/20 text-[#7b5800] text-[10px] font-bold uppercase tracking-wider mb-2">
+            <div style={{ display: 'inline-flex', alignItems: 'center', padding: '0.25rem 0.75rem', borderRadius: '9999px', background: 'rgba(255,187,0,0.2)', color: '#7b5800', fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>
               {program?.title ?? 'WorkforceAP Member'}
             </div>
             <p className="text-[#584144] text-sm font-medium">
@@ -77,21 +77,21 @@ export default async function DashboardProfilePage() {
         </section>
 
         {/* Completion meter */}
-        <section className="mx-6 mb-5 bg-[#f2eeed] p-5 rounded-xl">
-          <div className="flex justify-between items-end mb-2">
+        <section style={{ margin: '0 1.5rem 1.25rem', background: '#f2eeed', padding: '1.25rem', borderRadius: '0.75rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '0.5rem' }}>
             <p className="text-[#1c1b1b] font-semibold text-sm tracking-tight">Profile {profilePct}% complete</p>
             <span className="text-[#8c0f37] text-xs font-bold">Fill in missing info</span>
           </div>
-          <div className="h-1.5 w-full bg-[#debfc2] rounded-full overflow-hidden">
-            <div className="h-full bg-[#8c0f37] rounded-full transition-all" style={{ width: `${profilePct}%` }} />
+          <div style={{ height: '0.375rem', width: '100%', background: '#debfc2', borderRadius: '9999px', overflow: 'hidden' }}>
+            <div style={{ height: '100%', background: '#8c0f37', borderRadius: '9999px', transition: 'width 0.3s', width: `${profilePct}%` }} />
           </div>
         </section>
 
         {/* Personal info card */}
-        <div className="mx-6 mb-4 bg-[#fcf9f8] p-5 rounded-xl border border-[#debfc2]/30">
-          <div className="flex justify-between items-start mb-4">
+        <div style={{ margin: '0 1.5rem 1rem', background: '#fcf9f8', padding: '1.25rem', borderRadius: '0.75rem', border: '1px solid rgba(222,191,194,0.3)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
             <h3 className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#584144]">Personal Info</h3>
-            <button className="text-[#8c0f37] p-1 active:scale-90 duration-200">
+            <button className="text-[#8c0f37] active:scale-90 duration-200" style={{ padding: '0.25rem' }}>
               <span className="material-symbols-outlined text-[20px]">edit</span>
             </button>
           </div>
@@ -119,7 +119,7 @@ export default async function DashboardProfilePage() {
 
         {/* Program info card */}
         {program && (
-          <div className="mx-6 mb-4 bg-[#fcf9f8] p-5 rounded-xl border border-[#debfc2]/30">
+          <div style={{ margin: '0 1.5rem 1rem', background: '#fcf9f8', padding: '1.25rem', borderRadius: '0.75rem', border: '1px solid rgba(222,191,194,0.3)' }}>
             <h3 className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#584144] mb-3">Program</h3>
             <p className="text-sm font-semibold text-[#1c1b1b]">{program.title}</p>
             {dbUser.enrolledAt && (
@@ -130,19 +130,19 @@ export default async function DashboardProfilePage() {
 
         {/* Skills card */}
         {program && program.skills && program.skills.length > 0 && (
-          <div className="mx-6 mb-4 bg-[#fcf9f8] p-5 rounded-xl border border-[#debfc2]/30">
-            <div className="flex justify-between items-start mb-4">
+          <div style={{ margin: '0 1.5rem 1rem', background: '#fcf9f8', padding: '1.25rem', borderRadius: '0.75rem', border: '1px solid rgba(222,191,194,0.3)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
               <h3 className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#584144]">Skills</h3>
-              <button className="text-[#8c0f37] p-1 active:scale-90 duration-200">
+              <button className="text-[#8c0f37] active:scale-90 duration-200" style={{ padding: '0.25rem' }}>
                 <span className="material-symbols-outlined text-[20px]">edit</span>
               </button>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
               {program.skills.map((skill) => (
                 <span
                   key={skill}
-                  className="px-3 py-1.5 text-[11px] font-bold rounded-full"
-                  style={{ background: '#ebe7e7', color: '#1c1b1b' }}
+                  className="text-[11px] font-bold"
+                  style={{ padding: '0.375rem 0.75rem', borderRadius: '9999px', background: '#ebe7e7', color: '#1c1b1b' }}
                 >
                   {skill}
                 </span>
@@ -158,7 +158,7 @@ export default async function DashboardProfilePage() {
 
         {/* Assessment card */}
         {dbUser.assessmentCompleted && (
-          <div className="mx-6 mb-4 bg-[#fcf9f8] p-5 rounded-xl border border-[#debfc2]/30">
+          <div style={{ margin: '0 1.5rem 1rem', background: '#fcf9f8', padding: '1.25rem', borderRadius: '0.75rem', border: '1px solid rgba(222,191,194,0.3)' }}>
             <h3 className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#584144] mb-3">Assessment</h3>
             <p className="text-sm font-semibold text-[#1c1b1b]">
               Score: {dbUser.assessmentScore ?? 0}/90 ({dbUser.assessmentScorePct ?? 0}%)
@@ -173,7 +173,7 @@ export default async function DashboardProfilePage() {
       </div>
 
       {/* ── Desktop profile view ── */}
-      <div className="hidden md:block">
+      <div className="wa-hidden wa-md:block">
       <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>My Profile</h1>
       <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
         Manage your contact information and career goals.
@@ -233,7 +233,7 @@ export default async function DashboardProfilePage() {
       )}
       </div> {/* end hidden md:block */}
 
-      <MobileBottomNav />
+      <MobileBottomNav variant="portal" />
     </>
   );
 }

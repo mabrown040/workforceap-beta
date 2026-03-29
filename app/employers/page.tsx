@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
-import Footer from "@/components/Footer";
-import MobileBottomNav from "@/components/MobileBottomNav";
+import Footer from '@/components/Footer';
 import EmployerContactForm from './EmployerContactForm';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -259,33 +258,6 @@ export default function EmployersPage() {
               ))}
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* ── Mobile-only: Proof metrics row (≤640px) ── */}
-      <section className="sm:hidden px-4 py-6" style={{ background: '#fcf9f8' }}>
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            { val: '$0', label: 'Cost to Hire', accent: '#8c0f37' },
-            { val: '200+', label: 'Employers', accent: '#ad2c4d' },
-            { val: '$0', label: 'Cost to You', accent: '#1c1b1b' },
-          ].map((m) => (
-            <div key={m.val} className="rounded-xl p-3 flex flex-col gap-1" style={{ background: 'white', borderLeft: `3px solid ${m.accent}`, boxShadow: '0 1px 4px rgba(28,27,27,0.06)' }}>
-              <span className="text-xl font-black leading-none" style={{ color: m.accent }}>{m.val}</span>
-              <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: '#584144' }}>{m.label}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Mobile-only: Talent category chips (≤640px) ── */}
-      <section className="sm:hidden py-4 overflow-x-auto" style={{ background: '#fcf9f8' }}>
-        <div className="flex gap-2 px-4" style={{ width: 'max-content' }}>
-          {['IT & Cyber', 'AI & Software', 'Cloud', 'Business', 'Healthcare'].map((cat, i) => (
-            <span key={cat} className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold" style={{ background: i === 0 ? '#8c0f37' : '#e5e2e1', color: i === 0 ? '#fff' : '#1c1b1b' }}>
-              {cat}
-            </span>
-          ))}
         </div>
       </section>
 
@@ -729,35 +701,21 @@ export default function EmployersPage() {
         </div>
       </section>
 
-      {/* ── Mobile-only: Full-width crimson CTA band (≤640px) ── */}
-      <section className="sm:hidden px-4 py-10 flex flex-col items-center text-center" style={{ background: '#8c0f37' }}>
-        <h2 className="text-2xl font-extrabold text-white mb-2 tracking-tight">Ready to Hire?</h2>
-        <p className="text-sm mb-6" style={{ color: 'rgba(255,203,209,0.9)' }}>Join over 200 employers finding certified talent through WorkforceAP.</p>
-        <Link href="#employer-contact" className="block w-full font-bold py-4 rounded-xl text-center text-sm" style={{ background: '#fff', color: '#8c0f37' }}>
-          Request Talent Partnership
-        </Link>
-      </section>
-
       <style>{`
         @media (max-width: 1023px) {
           .emp-diff-sidebar { grid-column: span 12 !important; }
           .emp-diff-cards { grid-column: span 12 !important; }
           .emp-tiers-grid { grid-template-columns: 1fr !important; max-width: 480px; margin: 0 auto; }
           .emp-cohort-card { grid-column: span 12 !important; }
-        }
-        @media (max-width: 767px) {
           .emp-process-grid { grid-template-columns: 1fr 1fr !important; gap: 2rem !important; }
           .emp-timeline-bar { display: none !important; }
-          .emp-diff-cards { grid-template-columns: 1fr !important; }
         }
-        @media (max-width: 640px) {
-          .emp-stats-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 0.75rem !important; }
-          .emp-stats-grid > div { padding: 1rem !important; }
-          .emp-stats-grid h3 { font-size: 1.5rem !important; }
+        @media (max-width: 767px) {
+          .emp-process-grid { grid-template-columns: 1fr !important; }
+          .emp-diff-cards { grid-template-columns: 1fr !important; }
         }
       `}</style>
 
-      <MobileBottomNav />
       <Footer />
     </div>
   );

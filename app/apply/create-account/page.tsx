@@ -19,7 +19,7 @@ export default function ApplyCreateAccountPage() {
       <section className="page-hero">
         <div className="page-hero-content">
           <h1>Step 3 of 3 — create your account</h1>
-          <p>Create your account to save your program choice, view updates, and help us follow up with your next steps within 24–48 hours.</p>
+          <p>Create your account to save your program choice, view updates, and help us follow up with your next steps within 3–5 business days.</p>
         </div>
       </section>
 

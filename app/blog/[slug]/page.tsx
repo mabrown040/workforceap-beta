@@ -27,9 +27,14 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = await prisma.blogPost.findUnique({
-    where: { slug, published: true },
-  });
+  let post = null;
+  try {
+    post = await prisma.blogPost.findUnique({
+      where: { slug, published: true },
+    });
+  } catch {
+    post = null;
+  }
   if (!post) return {};
   const path = `/blog/${post.slug}`;
   return buildPageMetadata({
@@ -52,22 +57,32 @@ const categoryProgramMap: Record<string, string[]> = {
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
   const now = new Date();
-  const post = await prisma.blogPost.findUnique({
-    where: { slug },
-  });
+  let post = null;
+  try {
+    post = await prisma.blogPost.findUnique({
+      where: { slug },
+    });
+  } catch {
+    post = null;
+  }
   // Only show if published OR scheduledAt has passed
   if (!post || (!post.published && (!post.scheduledAt || post.scheduledAt > now))) notFound();
 
-  const related = await prisma.blogPost.findMany({
-    where: {
-      published: true,
-      id: { not: post.id },
-      category: post.category ?? undefined,
-    },
-    take: 3,
-    orderBy: { publishedAt: 'desc' },
-    select: { slug: true, title: true },
-  });
+  let related: { slug: string; title: string }[] = [];
+  try {
+    related = await prisma.blogPost.findMany({
+      where: {
+        published: true,
+        id: { not: post.id },
+        category: post.category ?? undefined,
+      },
+      take: 3,
+      orderBy: { publishedAt: 'desc' },
+      select: { slug: true, title: true },
+    });
+  } catch {
+    related = [];
+  }
 
   // Get relevant programs based on category
   const relevantProgramSlugs = categoryProgramMap[post.category ?? ''] ?? [];

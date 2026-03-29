@@ -13,10 +13,15 @@ type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const job = await prisma.job.findFirst({
-    where: { id, status: 'live' },
-    select: { title: true, description: true },
-  });
+  let job = null;
+  try {
+    job = await prisma.job.findFirst({
+      where: { id, status: 'live' },
+      select: { title: true, description: true },
+    });
+  } catch {
+    job = null;
+  }
   if (!job) return buildPageMetadata({ title: 'Job', description: '', path: `/jobs/${id}` });
   return buildPageMetadata({
     title: job.title,
@@ -26,10 +31,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 async function getJob(id: string) {
-  return prisma.job.findFirst({
-    where: { id, status: 'live' },
-    include: { employer: { select: { companyName: true, logoUrl: true } } },
-  });
+  try {
+    return await prisma.job.findFirst({
+      where: { id, status: 'live' },
+      include: { employer: { select: { companyName: true, logoUrl: true } } },
+    });
+  } catch {
+    return null;
+  }
 }
 
 export default async function JobDetailPage({ params }: Props) {

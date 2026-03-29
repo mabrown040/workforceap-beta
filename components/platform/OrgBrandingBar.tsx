@@ -13,7 +13,7 @@ export default function OrgBrandingBar({ branding }: { branding: OrgBranding }) 
         gap: '0.75rem',
         padding: '0.35rem 1rem',
         background: 'var(--color-light, #f5f5f5)',
-        borderBottom: '1px solid var(--color-border, #e5e5e5)',
+        borderBottom: '1px solid var(--outline-variant)',
       }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}

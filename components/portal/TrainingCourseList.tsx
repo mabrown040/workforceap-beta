@@ -49,7 +49,7 @@ export default function TrainingCourseList({ courses, completedSlugs }: Training
             className={`training-course-card${isUpNext ? ' training-course-card--up-next' : ''}`}
             style={{
               padding: '1.25rem',
-              border: '1px solid var(--color-border, #e5e5e5)',
+              border: '1px solid var(--outline-variant)',
               borderRadius: 'var(--radius-md)',
               display: 'flex',
               justifyContent: 'space-between',

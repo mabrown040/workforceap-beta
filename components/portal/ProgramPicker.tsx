@@ -54,7 +54,7 @@ export default function ProgramPicker({ programs }: ProgramPickerProps) {
     <div>
       {error && <p className="form-error" role="alert">{error}</p>}
       {selectedProgram && (
-        <div className="card" style={{ marginBottom: '1rem', padding: '1rem', border: '1px solid var(--color-border, #e5e5e5)' }}>
+        <div className="card" style={{ marginBottom: '1rem', padding: '1rem', border: '1px solid var(--outline-variant)' }}>
           <p style={{ marginBottom: '0.35rem', fontWeight: 700 }}>Review your selection</p>
           <p style={{ marginBottom: '0.35rem' }}>
             <strong>{selectedProgram.title}</strong> · {selectedProgram.duration} · {selectedProgram.salary}
@@ -87,7 +87,7 @@ export default function ProgramPicker({ programs }: ProgramPickerProps) {
               key={p.slug}
               style={{
                 padding: '1.25rem',
-                border: isSelected ? `2px solid ${p.borderColor}` : '1px solid var(--color-border, #e5e5e5)',
+                border: isSelected ? `2px solid ${p.borderColor}` : '1px solid var(--outline-variant)',
                 borderRadius: 'var(--radius-md)',
                 borderTop: `3px solid ${p.borderColor}`,
                 background: 'white',

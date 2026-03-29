@@ -11,7 +11,7 @@ export default function AdminFooter() {
         background: 'var(--color-white)',
       }}
     >
-      © 2026 Workforce Advancement Project
+      © {new Date().getFullYear()} Workforce Advancement Project
       <span style={{ margin: '0 0.35rem', color: 'var(--outline-variant)' }}>|</span>
       Support:{' '}
       <a href="mailto:info@workforceap.org" style={{ color: 'var(--color-blue)', textDecoration: 'none' }}>

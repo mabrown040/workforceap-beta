@@ -34,7 +34,7 @@ export default function ProgramDetailClient({ program }: { program: Program }) {
       ) : null}
 
       <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Course list</h2>
-      <div style={{ border: '1px solid var(--color-border, #e5e5e5)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
+      <div style={{ border: '1px solid var(--outline-variant)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
         {program.courses.map((c, i) => {
           const isOpen = openIndex === i;
           const panelId = `program-course-panel-${c.slug}`;

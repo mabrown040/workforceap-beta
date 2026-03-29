@@ -358,20 +358,21 @@ export default async function HowItWorksPage() {
               return (
                 <div
                   key={step.num}
-                  className="rounded-xl p-4 flex gap-4 items-start"
+                  className="rounded-xl p-4 relative overflow-hidden"
                   style={{
                     background: isIntensive ? 'rgba(173, 44, 77, 0.06)' : '#fff',
                     border: isIntensive ? '1px solid rgba(173,44,77,0.15)' : 'none',
                     boxShadow: isIntensive ? 'none' : '0 1px 4px rgba(28,27,27,0.06)',
                   }}
                 >
+                  {/* Faded watermark number — Stitch style */}
                   <span
-                    className="text-2xl font-black leading-none shrink-0 w-8 text-center"
-                    style={{ color: isIntensive ? '#ad2c4d' : 'rgba(173,44,77,0.2)' }}
+                    className="absolute -left-1 -top-3 text-7xl font-black select-none pointer-events-none"
+                    style={{ color: isIntensive ? 'rgba(173,44,77,0.12)' : 'rgba(173,44,77,0.07)', lineHeight: 1 }}
                   >
                     {String(step.num).padStart(2, '0')}
                   </span>
-                  <div>
+                  <div className="relative pl-8">
                     {isIntensive && step.num === 5 && (
                       <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full mb-2 inline-block" style={{ background: '#ad2c4d', color: '#fff' }}>
                         Intensive Learning Phase

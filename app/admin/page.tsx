@@ -141,16 +141,13 @@ export default async function AdminPage() {
         {metricCards.map((card) => (
           <div
             key={card.label}
-            className="stitch-card"
+            className="stitch-card admin-metric-card"
             style={{
               padding: '1.5rem',
-              borderBottom: `2px solid transparent`,
               transition: 'border-color 0.2s, transform 0.15s',
               cursor: 'default',
               position: 'relative',
             }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderBottomColor = card.accent; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderBottomColor = 'transparent'; }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
               <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '0.5rem', background: `${card.accent}1a`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

@@ -7268,6 +7268,11 @@ body { animation: fadeIn 0.4s ease; }
     padding: 1.25rem;
     border-radius: var(--radius-md);
     border: 1px solid var(--color-gray-200);
+    border-bottom: 2px solid transparent;
+    transition: border-bottom-color 0.2s;
+}
+.admin-metric-card:hover {
+    border-bottom-color: var(--color-accent);
 }
 .admin-metric-card h3 { font-size: 0.9rem; margin: 0 0 0.5rem; font-weight: 600; color: var(--color-on-surface-variant); }
 .admin-metric-value { font-size: 1.75rem; font-weight: 700; margin: 0; color: var(--color-primary); }

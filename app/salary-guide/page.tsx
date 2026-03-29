@@ -96,19 +96,8 @@ export default function SalaryGuidePage() {
     <div className="inner-page salary-guide-page" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
 
       {/* ===== MOBILE VIEW (≤640px) ===== */}
-      <div className="md:wa-hidden" style={{ background: '#fcf9f8', color: '#1c1b1b', minHeight: '100vh', paddingBottom: '6rem' }}>
-        {/* Top App Bar */}
-        <header style={{ position: 'fixed', top: 0, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 1.5rem', height: '4rem', background: 'rgba(252,249,248,0.80)', backdropFilter: 'blur(12px)', zIndex: 50 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span className="material-symbols-outlined" style={{ color: '#ad2c4d' }}>school</span>
-            <h1 style={{ fontWeight: 900, fontSize: '1.25rem', color: '#ad2c4d', letterSpacing: '-0.04em', margin: 0 }}>Workforce Academy</h1>
-          </div>
-          <button style={{ color: '#584144' }}>
-            <span className="material-symbols-outlined">search</span>
-          </button>
-        </header>
-
-        <main style={{ paddingTop: '5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', maxWidth: '390px', margin: '0 auto' }}>
+      <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: '#fcf9f8', color: '#1c1b1b', minHeight: '100vh' }}>
+        <main style={{ paddingTop: '1.5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', maxWidth: '390px', margin: '0 auto' }}>
           {/* Hero */}
           <section style={{ marginTop: '2rem', marginBottom: '2.5rem' }}>
             <h2 style={{ fontSize: '2.25rem', fontWeight: 800, letterSpacing: '-0.03em', color: '#1c1b1b', lineHeight: 1.1, marginBottom: '1rem' }}>Your Earning Potential.</h2>
@@ -119,12 +108,35 @@ export default function SalaryGuidePage() {
 
           {/* Category Filter Chips */}
           <section style={{ marginBottom: '2rem', marginLeft: '-1.5rem', marginRight: '-1.5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', overflowX: 'auto', display: 'flex', gap: '0.75rem', msOverflowStyle: 'none', scrollbarWidth: 'none' } as React.CSSProperties}>
-            <button style={{ flexShrink: 0, padding: '0.625rem 1.25rem', borderRadius: '9999px', background: '#ad2c4d', color: 'white', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', border: 'none', cursor: 'pointer' }}>All</button>
-            <button style={{ flexShrink: 0, padding: '0.625rem 1.25rem', borderRadius: '9999px', background: '#ebe7e7', color: '#584144', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', border: 'none', cursor: 'pointer' }}>IT and Cyber</button>
-            <button style={{ flexShrink: 0, padding: '0.625rem 1.25rem', borderRadius: '9999px', background: '#ebe7e7', color: '#584144', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', border: 'none', cursor: 'pointer' }}>AI and Software</button>
-            <button style={{ flexShrink: 0, padding: '0.625rem 1.25rem', borderRadius: '9999px', background: '#ebe7e7', color: '#584144', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', border: 'none', cursor: 'pointer' }}>Cloud</button>
-            <button style={{ flexShrink: 0, padding: '0.625rem 1.25rem', borderRadius: '9999px', background: '#ebe7e7', color: '#584144', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', border: 'none', cursor: 'pointer' }}>Business</button>
-            <button style={{ flexShrink: 0, padding: '0.625rem 1.25rem', borderRadius: '9999px', background: '#ebe7e7', color: '#584144', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', border: 'none', cursor: 'pointer' }}>Healthcare</button>
+            {(
+              [
+                { label: 'All', primary: true },
+                { label: 'IT and Cyber', primary: false },
+                { label: 'AI and Software', primary: false },
+                { label: 'Cloud', primary: false },
+                { label: 'Business', primary: false },
+                { label: 'Healthcare', primary: false },
+              ] as const
+            ).map(({ label, primary }) => (
+              <Link
+                key={label}
+                href="/programs#program-catalog"
+                style={{
+                  flexShrink: 0,
+                  padding: '0.625rem 1.25rem',
+                  borderRadius: '9999px',
+                  background: primary ? '#ad2c4d' : '#ebe7e7',
+                  color: primary ? 'white' : '#584144',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  textDecoration: 'none',
+                }}
+              >
+                {label}
+              </Link>
+            ))}
           </section>
 
           {/* Salary Card List */}
@@ -196,11 +208,12 @@ export default function SalaryGuidePage() {
           </footer>
         </main>
 
+        <Footer />
         <MobileBottomNav />
       </div>
 
       {/* ===== DESKTOP VIEW (>640px) ===== */}
-      <div className="wa-hidden md:wa-block">
+      <div className="wa-hidden md:wa-block marketing-desktop">
         {/* ===== Hero ===== */}
         <section style={{ padding: '5rem 2rem 3rem', maxWidth: '1400px', margin: '0 auto' }}>
           <span style={{

@@ -194,14 +194,7 @@ export default function LeadershipContent() {
             </h2>
           </div>
 
-          {/* Bento grid */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(6, 1fr)',
-              gap: '1.5rem',
-            }}
-          >
+          <div className="leadership-board-bento">
             {boardMembers.map((leader, idx) => {
               const colSpan = idx === 0 ? 'span 4' : idx === 1 ? 'span 2' : 'span 6';
               const isWide = idx === 0 || idx === 2;
@@ -217,6 +210,7 @@ export default function LeadershipContent() {
                   }}
                 >
                   <article
+                    className="leadership-board-card"
                     style={{
                       background: 'var(--surface-container-lowest)',
                       borderRadius: 'var(--radius-xl, 1rem)',
@@ -240,6 +234,7 @@ export default function LeadershipContent() {
                     }}
                   >
                     <div
+                      className="leadership-board-photo"
                       style={{
                         width: isWide ? 120 : 72,
                         height: isWide ? 120 : 72,
@@ -268,7 +263,7 @@ export default function LeadershipContent() {
                       />
                     </div>
 
-                    <div style={{ flex: 1, minWidth: 0 }}>
+                    <div className="leadership-board-body" style={{ flex: 1, minWidth: 0 }}>
                       <span
                         className="text-label-upper"
                         style={{

@@ -207,3 +207,45 @@
         gap: 1.25rem;
     }
 }
+
+/* Board bento on /leadership — readable on small screens */
+.leadership-board-bento {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1.5rem;
+}
+
+@media (max-width: 900px) {
+    .leadership-board-bento {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    .leadership-board-bento > a {
+        grid-column: 1 / -1 !important;
+    }
+
+    .leadership-board-card {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        padding: 1.5rem !important;
+    }
+
+    .leadership-board-card .leadership-board-photo {
+        width: 100% !important;
+        height: auto !important;
+        aspect-ratio: 1;
+        max-width: 200px;
+        margin: 0 auto 1rem;
+    }
+
+    .leadership-board-card .leadership-board-body {
+        text-align: center;
+    }
+
+    .leadership-board-card .leadership-board-body p {
+        -webkit-line-clamp: unset !important;
+        display: block !important;
+    }
+}

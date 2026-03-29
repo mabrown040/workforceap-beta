@@ -18,111 +18,179 @@ export const metadata: Metadata = buildPageMetadata({
 export default function ProgramsPage() {
   return (
     <div className="inner-page programs-page">
-
       {/* ══════════════════════════════════════════════
           MOBILE LAYOUT ≤640px — Stitch-aligned
           ══════════════════════════════════════════════ */}
-      <div className="md:wa-hidden" style={{ background: '#fcf9f8', minHeight: '100vh', paddingBottom: '8rem' }}>
-        {/* Top App Bar */}
-        <header className="fixed top-0 w-full flex justify-between items-center px-5 h-16 z-50" style={{ background: 'rgba(252,249,248,0.88)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(222,191,194,0.2)' }}>
-          <div className="flex items-center gap-3">
-            <span className="material-symbols-outlined" style={{ color: '#8c0f37' }}>menu</span>
-            <span className="font-black tracking-tighter text-lg" style={{ color: '#ad2c4d' }}>WorkforceAP</span>
-          </div>
-          <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: '#e5e2e1' }}>
-            <span className="material-symbols-outlined text-sm" style={{ color: '#584144' }}>person</span>
-          </div>
-        </header>
-
-        <main className="pt-20 px-5">
-          {/* Editorial Hero Title */}
-          <div className="mb-7 mt-3">
-            <h1 className="text-4xl font-black tracking-tighter leading-none" style={{ color: '#1c1b1b' }}>
+      {/* Inline styles only: Tailwind uses wa- prefix — unprefixed utility classes do not exist in CSS */}
+      <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: '#fcf9f8', minHeight: '100vh' }}>
+        <main style={{ paddingTop: '1.25rem', paddingLeft: '1.25rem', paddingRight: '1.25rem' }}>
+          <div style={{ marginBottom: '1.75rem', marginTop: '0.75rem' }}>
+            <h1 style={{ fontSize: '2.25rem', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1, color: '#1c1b1b', margin: 0 }}>
               Master Your <br />
-              <span className="italic" style={{ color: '#ad2c4d' }}>Future</span>
+              <span style={{ fontStyle: 'italic', color: '#ad2c4d' }}>Future</span>
             </h1>
-            <div className="h-1 w-12 mt-3 rounded-full" style={{ background: '#ffbb00' }} />
+            <div style={{ height: '4px', width: '3rem', marginTop: '0.75rem', borderRadius: '9999px', background: '#ffbb00' }} />
           </div>
 
-          {/* Horizontal Filter Chips */}
-          <div className="flex overflow-x-auto gap-2 mb-7 -mx-5 px-5" style={{ scrollbarWidth: 'none' }}>
+          <div
+            style={{
+              display: 'flex',
+              overflowX: 'auto',
+              gap: '0.5rem',
+              marginBottom: '1.75rem',
+              marginLeft: '-1.25rem',
+              marginRight: '-1.25rem',
+              paddingLeft: '1.25rem',
+              paddingRight: '1.25rem',
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+            }}
+          >
             {['All Programs', 'AI & Software Dev', 'Cloud & Data', 'IT & Cybersecurity', 'Business', 'Healthcare'].map((label, i) => (
-              <button key={label} className="flex-none px-5 py-2 rounded-full text-sm font-semibold tracking-wide" style={i === 0 ? { background: '#ad2c4d', color: '#fff' } : { background: '#f6f3f2', color: '#584144' }}>
+              <a
+                key={label}
+                href="#program-catalog"
+                style={{
+                  flexShrink: 0,
+                  padding: '0.625rem 1.25rem',
+                  minHeight: '44px',
+                  borderRadius: '9999px',
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  letterSpacing: '0.02em',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  textDecoration: 'none',
+                  ...(i === 0 ? { background: '#ad2c4d', color: '#fff' } : { background: '#f6f3f2', color: '#584144' }),
+                }}
+              >
                 {label}
-              </button>
+              </a>
             ))}
           </div>
 
-          {/* Featured Digital Literacy Card */}
-          <section className="mb-9">
-            <div className="relative overflow-hidden rounded-xl p-5 text-white flex flex-col justify-between" style={{ background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)', minHeight: 200 }}>
-              <div className="absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16" style={{ background: 'rgba(255,255,255,0.05)', filter: 'blur(20px)' }} />
-              <div>
-                <span className="inline-block px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest mb-3" style={{ background: '#ffbb00', color: '#1c1b1b' }}>Start Here</span>
-                <h2 className="text-2xl font-bold tracking-tight">Digital Literacy</h2>
-                <p className="text-sm mt-1" style={{ color: 'rgba(255,203,209,0.9)' }}>Essential skills for the modern workforce</p>
+          <section style={{ marginBottom: '2.25rem' }}>
+            <div
+              style={{
+                position: 'relative',
+                overflow: 'hidden',
+                borderRadius: '0.75rem',
+                padding: '1.25rem',
+                color: '#fff',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)',
+                minHeight: 200,
+              }}
+            >
+              <div style={{ position: 'absolute', top: 0, right: 0, width: '8rem', height: '8rem', borderRadius: '9999px', marginRight: '-4rem', marginTop: '-4rem', background: 'rgba(255,255,255,0.05)', filter: 'blur(20px)' }} />
+              <div style={{ position: 'relative', zIndex: 1 }}>
+                <span style={{ display: 'inline-block', padding: '0.25rem 0.75rem', borderRadius: '0.5rem', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem', background: '#ffbb00', color: '#1c1b1b' }}>Start Here</span>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em', margin: 0 }}>Digital Literacy</h2>
+                <p style={{ fontSize: '0.875rem', marginTop: '0.25rem', marginBottom: 0, color: 'rgba(255,203,209,0.9)' }}>Essential skills for the modern workforce</p>
               </div>
-              <div className="flex items-center justify-between mt-5">
-                <div className="flex gap-5">
-                  <div className="flex flex-col">
-                    <span className="text-[10px] uppercase opacity-70 font-medium">Duration</span>
-                    <span className="text-sm font-bold">4 weeks</span>
+              <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '1.25rem' }}>
+                <div style={{ display: 'flex', gap: '1.25rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontSize: '10px', textTransform: 'uppercase', opacity: 0.7, fontWeight: 500 }}>Duration</span>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 700 }}>4 weeks</span>
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-[10px] uppercase opacity-70 font-medium">Cost</span>
-                    <span className="text-sm font-bold">$0 cost</span>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontSize: '10px', textTransform: 'uppercase', opacity: 0.7, fontWeight: 500 }}>Cost</span>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 700 }}>$0 cost</span>
                   </div>
                 </div>
-                <Link href="/programs/digital-literacy" className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: '#fff', color: '#8c0f37' }}>
+                <Link href="/programs/digital-literacy-empowerment-class" style={{ width: '2.5rem', height: '2.5rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', color: '#8c0f37', flexShrink: 0 }} aria-label="Open Digital Literacy program">
                   <span className="material-symbols-outlined">arrow_forward</span>
                 </Link>
               </div>
             </div>
           </section>
 
-          {/* 2-Column Program Grid */}
-          <div className="grid grid-cols-2 gap-4 mb-10">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2.5rem' }}>
             {[
-              { cat: 'IT & Cybersecurity', title: 'Cybersecurity Analyst', dur: '12–24 Weeks', slug: 'cybersecurity-analyst' },
-              { cat: 'AI & Software Dev', title: 'Python for Data Science', dur: '16 Weeks', slug: 'python-for-data-science' },
-              { cat: 'Cloud & Data', title: 'AWS Cloud Practitioner', dur: '6 Weeks', slug: 'aws-cloud-practitioner' },
-              { cat: 'Business', title: 'Agile Project Management', dur: '12 Weeks', slug: 'agile-project-management' },
-              { cat: 'AI & Software Dev', title: 'Full-Stack JavaScript', dur: '16 Weeks', slug: 'full-stack-js' },
-              { cat: 'Cloud & Data', title: 'Data Analytics', dur: '10 Weeks', slug: 'data-analytics-professional-certificate-google' },
+              { cat: 'IT & Cybersecurity', title: 'Cybersecurity (Google)', dur: '3–5 months', slug: 'cybersecurity-professional-certificate-google' },
+              { cat: 'AI & Software Dev', title: 'AI Developer (IBM)', dur: '3–5 months', slug: 'ai-professional-developer-certificate-ibm' },
+              { cat: 'Cloud & Data', title: 'AWS Cloud Technology', dur: '3–5 months', slug: 'aws-cloud-technology-amazon' },
+              { cat: 'Business', title: 'Project Management (Microsoft)', dur: '3–5 months', slug: 'project-management-professional-certificate-microsoft' },
+              { cat: 'AI & Software Dev', title: 'Software Developer (IBM)', dur: '4–6 months', slug: 'software-developer-professional-certificate-ibm' },
+              { cat: 'Cloud & Data', title: 'Data Analytics (Google)', dur: '3–5 months', slug: 'data-analytics-professional-certificate-google' },
             ].map(({ cat, title, dur, slug }) => (
-              <Link href={`/programs/${slug}`} key={title} className="rounded-xl p-4 flex flex-col justify-between border" style={{ background: '#fff', borderColor: 'rgba(222,191,194,0.15)', minHeight: 192, boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+              <Link
+                href={`/programs/${slug}`}
+                key={title}
+                style={{
+                  borderRadius: '0.75rem',
+                  padding: '1rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  border: '1px solid rgba(222,191,194,0.15)',
+                  background: '#fff',
+                  minHeight: 192,
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
+                  textDecoration: 'none',
+                  color: 'inherit',
+                }}
+              >
                 <div>
-                  <span className="text-[9px] font-bold uppercase tracking-wider block mb-1" style={{ color: '#7b5800' }}>{cat}</span>
-                  <h3 className="text-sm font-bold leading-tight" style={{ color: '#1c1b1b' }}>{title}</h3>
+                  <span style={{ fontSize: '9px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: '0.25rem', color: '#7b5800' }}>{cat}</span>
+                  <h3 style={{ fontSize: '0.875rem', fontWeight: 700, lineHeight: 1.25, margin: 0, color: '#1c1b1b' }}>{title}</h3>
                 </div>
-                <div className="mt-auto">
-                  <p className="text-[10px] font-medium mb-3" style={{ color: '#584144' }}>{dur}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold" style={{ background: '#ffd9dd', color: '#8c0f37' }}>$0</span>
-                    <span className="material-symbols-outlined text-lg" style={{ color: '#8c0f37' }}>arrow_outward</span>
+                <div style={{ marginTop: 'auto' }}>
+                  <p style={{ fontSize: '10px', fontWeight: 500, marginBottom: '0.75rem', color: '#584144' }}>{dur}</p>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ padding: '0.125rem 0.5rem', borderRadius: '4px', fontSize: '10px', fontWeight: 700, background: '#ffd9dd', color: '#8c0f37' }}>$0</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: '#8c0f37' }}>arrow_outward</span>
                   </div>
                 </div>
               </Link>
             ))}
           </div>
 
-          {/* See all link */}
-          <div className="text-center mt-4 mb-2">
-            <Link href="/programs#all" className="inline-flex items-center gap-1 text-sm font-semibold" style={{ color: '#8c0f37' }}>
+          <div style={{ textAlign: 'center', marginTop: '1rem', marginBottom: '0.5rem' }}>
+            <a href="#program-catalog" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.875rem', fontWeight: 600, color: '#8c0f37', textDecoration: 'none' }}>
               See all programs
-              <span className="material-symbols-outlined text-base">arrow_forward</span>
-            </Link>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_forward</span>
+            </a>
           </div>
         </main>
 
-        {/* Sticky "Can't decide?" bottom bar */}
-        <div className="fixed z-40 px-4" style={{ bottom: '5rem', left: 0, right: 0 }}>
-          <Link href="/find-your-path" className="flex items-center justify-between rounded-xl p-4 shadow-2xl" style={{ background: '#1c1b1b', color: '#fff' }}>
-            <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined" style={{ color: '#ffbb00' }}>psychology</span>
-              <span className="text-sm font-medium tracking-tight">Can&apos;t decide? Take 2-min quiz</span>
+        <div
+          className="marketing-mobile-sticky-above-bottom-nav"
+          style={{
+            position: 'fixed',
+            zIndex: 40,
+            left: 0,
+            right: 0,
+            paddingLeft: '1rem',
+            paddingRight: '1rem',
+          }}
+        >
+          <Link
+            href="/find-your-path"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              borderRadius: '0.75rem',
+              padding: '1rem',
+              minHeight: '48px',
+              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.35)',
+              background: '#1c1b1b',
+              color: '#fff',
+              textDecoration: 'none',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <span className="material-symbols-outlined" style={{ color: '#ffbb00', flexShrink: 0 }}>psychology</span>
+              <span style={{ fontSize: '0.875rem', fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1.3 }}>Can&apos;t decide? Take 2-min quiz</span>
             </div>
-            <span className="material-symbols-outlined">arrow_forward</span>
+            <span className="material-symbols-outlined" style={{ flexShrink: 0 }}>arrow_forward</span>
           </Link>
         </div>
       </div>
@@ -130,7 +198,7 @@ export default function ProgramsPage() {
       {/* ══════════════════════════════════════════════
           DESKTOP LAYOUT ≥641px
           ══════════════════════════════════════════════ */}
-      <div className="wa-hidden md:wa-block">
+      <div className="wa-hidden md:wa-block marketing-desktop">
 
       {/* ── Hero Section ── */}
       <section className="content-section" style={{ paddingBottom: 0 }}>
@@ -225,8 +293,14 @@ export default function ProgramsPage() {
         </div>
       </section>
 
-      {/* ── Program Cards (dynamic, from ProgramsContent) ── */}
-      <ProgramsContent />
+      </div>{/* end desktop: hero + journey nav */}
+
+      {/* Full catalog — one anchor `#program-catalog` for mobile + desktop + deep links */}
+      <div id="program-catalog" className="programs-page-catalog-anchor" style={{ scrollMarginTop: '0.75rem' }}>
+        <ProgramsContent sectionId={null} />
+      </div>
+
+      <div className="wa-hidden md:wa-block marketing-desktop">
 
       {/* ── Journey Section — 4-step flow ── */}
       <section className="bg-surface-container-low" style={{ padding: '6rem 0' }}>
@@ -374,7 +448,7 @@ export default function ProgramsPage() {
         </div>
       </section>
 
-      {/* Responsive styles */}
+      {/* Responsive styles (layout toggle lives at top of page) */}
       <style>{`
         @media (max-width: 1023px) {
           .programs-hero-left { grid-column: 1 / -1 !important; }

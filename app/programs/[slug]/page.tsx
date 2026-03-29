@@ -54,76 +54,147 @@ export default async function ProgramPage({ params }: Props) {
   const relatedPrograms = getRelatedPrograms(program.slug, 3);
 
   return (
-    <div className="inner-page">
-      {/* ── Mobile-only hero: back arrow + category chip + H1 + metadata pills + stats row (≤640px) ── */}
-      <section className="md:wa-hidden px-4 pt-6 pb-4" style={{ background: '#fcf9f8' }}>
-        {/* Back arrow */}
-        <Link href="/programs" className="flex items-center gap-1 mb-4 text-sm font-medium" style={{ color: '#8c0f37' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>arrow_back</span>
-          Programs
-        </Link>
+    <div className="inner-page program-detail-page">
+      <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav">
+        <section style={{ background: '#fcf9f8', paddingLeft: '1rem', paddingRight: '1rem', paddingTop: '1.5rem', paddingBottom: '1rem' }}>
+          <Link
+            href="/programs"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.25rem',
+              marginBottom: '1rem',
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              color: '#8c0f37',
+              textDecoration: 'none',
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>arrow_back</span>
+            Programs
+          </Link>
 
-        {/* Category chip */}
-        <div className="flex flex-wrap gap-2 mb-3">
-          <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider" style={{ background: '#e5e2e1', color: '#8c0f37' }}>
-            {program.categoryLabel}
-          </span>
-          <div className="flex items-center gap-1 px-3 py-1 rounded-full" style={{ background: 'rgba(123,88,0,0.1)' }}>
-            <span className="material-symbols-outlined text-xs" style={{ color: '#7b5800', fontSize: '0.875rem' }}>verified</span>
-            <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#7b5800' }}>Verified Cert</span>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.75rem' }}>
+            <span
+              style={{
+                padding: '0.25rem 0.75rem',
+                borderRadius: '9999px',
+                fontSize: '10px',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                background: '#e5e2e1',
+                color: '#8c0f37',
+              }}
+            >
+              {program.categoryLabel}
+            </span>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.25rem',
+                padding: '0.25rem 0.75rem',
+                borderRadius: '9999px',
+                background: 'rgba(123,88,0,0.1)',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ color: '#7b5800', fontSize: '0.875rem' }}>verified</span>
+              <span style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#7b5800' }}>Verified Cert</span>
+            </div>
           </div>
-        </div>
 
-        {/* H1 */}
-        <h1 className="text-3xl font-extrabold tracking-tight leading-tight mb-3" style={{ color: '#1c1b1b' }}>{program.title}</h1>
+          <h1 style={{ fontSize: '1.875rem', fontWeight: 800, letterSpacing: '-0.025em', lineHeight: 1.2, marginBottom: '0.75rem', color: '#1c1b1b' }}>{program.title}</h1>
 
-        {/* Metadata pills */}
-        <div className="flex gap-2 mb-5 flex-wrap">
-          <div className="flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium" style={{ background: '#f0edec', color: '#584144' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>schedule</span>
-            {program.duration}
+          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', fontSize: '0.75rem', fontWeight: 500, background: '#f0edec', color: '#584144' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>schedule</span>
+              {program.duration}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', fontSize: '0.75rem', fontWeight: 500, background: '#f0edec', color: '#584144' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>bolt</span>
+              {salaryRangeDisplay(program)}
+            </div>
           </div>
-          <div className="flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium" style={{ background: '#f0edec', color: '#584144' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>bolt</span>
-            {salaryRangeDisplay(program)}
-          </div>
-        </div>
 
-        {/* Stats row — 3-col Stitch bento */}
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          <div className="rounded-xl p-3 flex flex-col justify-between" style={{ background: '#f0edec', minHeight: '7rem' }}>
-            <span className="material-symbols-outlined" style={{ color: '#8c0f37', fontSize: '1.25rem' }}>workspace_premium</span>
-            <p className="text-[10px] font-bold leading-tight uppercase tracking-wide" style={{ color: '#1c1b1b' }}>Industry Recognized</p>
-          </div>
-          <div className="rounded-xl p-3 flex flex-col justify-between" style={{ background: '#8c0f37', minHeight: '7rem', boxShadow: '0 4px 12px rgba(140,15,55,0.2)' }}>
-            <span className="material-symbols-outlined text-white" style={{ fontSize: '1.25rem' }}>payments</span>
-            <p className="text-[10px] font-bold leading-tight uppercase tracking-wide text-white">$0 Cost</p>
-          </div>
-          <div className="rounded-xl p-3 flex flex-col justify-between" style={{ background: '#f0edec', minHeight: '7rem' }}>
-            <span className="material-symbols-outlined" style={{ color: '#7b5800', fontSize: '1.25rem' }}>handshake</span>
-            <p className="text-[10px] font-bold leading-tight uppercase tracking-wide" style={{ color: '#1c1b1b' }}>Placement Support</p>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Mobile-only: Career paths horizontal scroll (≤640px) ── */}
-      {extra && extra.jobOutcomes.length > 0 && (
-        <section className="md:wa-hidden py-6" style={{ background: '#fcf9f8' }}>
-          <h2 className="px-4 text-lg font-bold mb-3" style={{ color: '#1c1b1b' }}>Career Outcomes</h2>
-          <div className="flex gap-3 overflow-x-auto px-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
-            {extra.jobOutcomes.map((outcome, i) => (
-              <div key={outcome} className="flex-none rounded-xl p-4" style={{ background: '#f0edec', minWidth: '180px' }}>
-                <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#8c0f37' }}>
-                  {i === 0 ? 'Entry Level' : i === 1 ? 'Entry Level' : 'Career Path'}
-                </p>
-                <h3 className="font-bold text-sm" style={{ color: '#1c1b1b' }}>{outcome}</h3>
-              </div>
-            ))}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', marginBottom: '1rem' }}>
+            <div style={{ borderRadius: '0.75rem', padding: '0.75rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', background: '#f0edec', minHeight: '7rem' }}>
+              <span className="material-symbols-outlined" style={{ color: '#8c0f37', fontSize: '1.25rem' }}>workspace_premium</span>
+              <p style={{ fontSize: '10px', fontWeight: 700, lineHeight: 1.25, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#1c1b1b', margin: 0 }}>Industry Recognized</p>
+            </div>
+            <div style={{ borderRadius: '0.75rem', padding: '0.75rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', background: '#8c0f37', minHeight: '7rem', boxShadow: '0 4px 12px rgba(140,15,55,0.2)' }}>
+              <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '1.25rem' }}>payments</span>
+              <p style={{ fontSize: '10px', fontWeight: 700, lineHeight: 1.25, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#fff', margin: 0 }}>$0 Cost</p>
+            </div>
+            <div style={{ borderRadius: '0.75rem', padding: '0.75rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', background: '#f0edec', minHeight: '7rem' }}>
+              <span className="material-symbols-outlined" style={{ color: '#7b5800', fontSize: '1.25rem' }}>handshake</span>
+              <p style={{ fontSize: '10px', fontWeight: 700, lineHeight: 1.25, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#1c1b1b', margin: 0 }}>Placement Support</p>
+            </div>
           </div>
         </section>
-      )}
 
-      <section className="page-hero wa-hidden md:wa-block">
+        {extra && extra.jobOutcomes.length > 0 && (
+          <section style={{ background: '#fcf9f8', paddingTop: '1.5rem', paddingBottom: '1.5rem' }}>
+            <h2 style={{ paddingLeft: '1rem', paddingRight: '1rem', fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.75rem', color: '#1c1b1b' }}>Career Outcomes</h2>
+            <div
+              style={{
+                display: 'flex',
+                gap: '0.75rem',
+                overflowX: 'auto',
+                paddingLeft: '1rem',
+                paddingRight: '1rem',
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+                WebkitOverflowScrolling: 'touch',
+              }}
+            >
+              {extra.jobOutcomes.map((outcome, i) => (
+                <div key={outcome} style={{ flex: '0 0 auto', borderRadius: '0.75rem', padding: '1rem', background: '#f0edec', minWidth: '180px' }}>
+                  <p style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem', color: '#8c0f37' }}>
+                    {i === 0 ? 'Entry Level' : i === 1 ? 'Entry Level' : 'Career Path'}
+                  </p>
+                  <h3 style={{ fontWeight: 700, fontSize: '0.875rem', margin: 0, color: '#1c1b1b' }}>{outcome}</h3>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <div
+          className="marketing-mobile-sticky-above-bottom-nav"
+          style={{
+            position: 'fixed',
+            left: 0,
+            width: '100%',
+            zIndex: 40,
+            padding: '0.5rem 1rem',
+            background: 'rgba(252,249,248,0.95)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            borderTop: '1px solid rgba(222,191,194,0.3)',
+          }}
+        >
+          <Link
+            href={'/apply?program=' + program.slug}
+            style={{
+              display: 'block',
+              width: '100%',
+              textAlign: 'center',
+              fontWeight: 700,
+              padding: '0.75rem',
+              borderRadius: '0.5rem',
+              fontSize: '0.875rem',
+              background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)',
+              color: '#fff',
+              textDecoration: 'none',
+            }}
+          >
+            Apply Now — Free
+          </Link>
+        </div>
+      </div>
+
+      <section className="page-hero wa-hidden md:wa-block marketing-desktop">
         <div className="page-hero-content">
           <span
             style={{
@@ -158,7 +229,7 @@ export default async function ProgramPage({ params }: Props) {
         </div>
       </section>
 
-      <section className="content-section">
+      <section className="content-section program-detail-shared">
         <div className="container">
           <ProgramsDecisionJourneyNav current="detail" />
         </div>
@@ -299,30 +370,6 @@ export default async function ProgramPage({ params }: Props) {
           </aside>
         </div>
       </section>
-
-      {/* ── Mobile sticky apply bar (≤640px) ── */}
-      <div
-        className="md:wa-hidden"
-        style={{
-          position: 'fixed',
-          bottom: '60px',
-          left: 0,
-          width: '100%',
-          zIndex: 40,
-          padding: '0.5rem 1rem',
-          background: 'rgba(252,249,248,0.95)',
-          backdropFilter: 'blur(8px)',
-          borderTop: '1px solid rgba(222,191,194,0.3)',
-        }}
-      >
-        <Link
-          href={'/apply?program=' + program.slug}
-          className="block w-full text-center font-bold py-3 rounded-lg text-sm"
-          style={{ background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)', color: '#fff' }}
-        >
-          Apply Now — Free
-        </Link>
-      </div>
 
       <MobileBottomNav />
       <Footer />

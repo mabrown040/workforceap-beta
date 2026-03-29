@@ -85,6 +85,37 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
     setError('');
   };
 
+  const downloadResumeOriginal = () => {
+    if (!resumeFile) return;
+    const url = URL.createObjectURL(resumeFile);
+    try {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = resumeFile.name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  };
+
+  const downloadResumeEnhanced = () => {
+    if (!enhancedResume) return;
+    const blob = new Blob([enhancedResume], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    try {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'enhanced-resume.txt';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -445,14 +476,20 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
                 <div className="counselor-resume-card">
                   <h3>Original Resume</h3>
                   <pre>{resumeText.slice(0, 1500)}{resumeText.length > 1500 ? '…' : ''}</pre>
-                  {resumeFile && <a href="#" onClick={(e) => { e.preventDefault(); }} className="btn btn-outline btn-sm">Download</a>}
+                  {resumeFile && (
+                    <button type="button" className="btn btn-outline btn-sm" onClick={downloadResumeOriginal}>
+                      Download
+                    </button>
+                  )}
                 </div>
                 <div className="counselor-resume-card">
                   <h3>AI-Enhanced Resume</h3>
                   {enhancedResume ? (
                     <>
                       <pre>{enhancedResume.slice(0, 1500)}{enhancedResume.length > 1500 ? '…' : ''}</pre>
-                      <a href="#" onClick={(e) => { e.preventDefault(); }} className="btn btn-outline btn-sm">Download</a>
+                      <button type="button" className="btn btn-outline btn-sm" onClick={downloadResumeEnhanced}>
+                        Download
+                      </button>
                     </>
                   ) : (
                     <button type="button" className="btn btn-primary" onClick={handleEnhance} disabled={!!loading || !form.programSlug}>

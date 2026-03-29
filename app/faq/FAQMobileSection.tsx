@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 const CATEGORY_CHIPS = ['All', 'Programs', 'Cost', 'Eligibility', 'Process', 'Employers'];
@@ -73,43 +74,9 @@ export default function FAQMobileSection() {
   });
 
   return (
-    <div className="md:wa-hidden" style={{ background: '#fcf9f8', minHeight: '100vh', paddingBottom: '8rem' }}>
-      {/* Top App Bar */}
-      <header
-        className="wa-fixed wa-top-0 wa-z-50"
-        style={{
-          position: 'fixed',
-          top: 0,
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingLeft: '1.5rem',
-          paddingRight: '1.5rem',
-          height: '4rem',
-          zIndex: 50,
-          background: 'rgba(252,249,248,0.92)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <Link href="/" className="active:scale-95 duration-200" aria-label="Back">
-            <span className="material-symbols-outlined" style={{ color: '#8c0f37' }}>arrow_back</span>
-          </Link>
-          <h1 className="font-bold text-lg tracking-tight" style={{ color: '#8c0f37' }}>FAQ</h1>
-        </div>
-        <button
-          className="active:scale-95 duration-200"
-          aria-label="Search"
-          onClick={() => document.getElementById('faq-search-input')?.focus()}
-        >
-          <span className="material-symbols-outlined" style={{ color: '#8c0f37' }}>search</span>
-        </button>
-      </header>
-
+    <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: '#fcf9f8', minHeight: '100vh' }}>
       {/* Hero + Search */}
-      <div style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', paddingTop: '6rem', marginBottom: '1.5rem' }}>
+      <div style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', paddingTop: '1.5rem', marginBottom: '1.5rem' }}>
         <h1 className="text-4xl font-extrabold tracking-tight text-[#1c1b1b] leading-tight" style={{ marginBottom: '1.5rem' }}>
           Frequently Asked Questions
         </h1>
@@ -256,14 +223,15 @@ export default function FAQMobileSection() {
             <span style={{ background: '#ffbb00', color: '#261900', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', marginBottom: '0.5rem', display: 'inline-block' }}>
               New Resource
             </span>
-            <h3 className="text-white font-bold text-xl">The 2024 Career Guide</h3>
-            <p className="text-white/80 text-sm" style={{ marginTop: '0.25rem' }}>
+            <h3 style={{ color: '#fff', fontWeight: 700, fontSize: '1.25rem' }}>The 2024 Career Guide</h3>
+            <p style={{ marginTop: '0.25rem', color: 'rgba(255,255,255,0.8)', fontSize: '0.875rem' }}>
               Download our latest research on workforce trends.
             </p>
           </div>
         </div>
       </div>
 
+      <Footer />
       <MobileBottomNav />
     </div>
   );

@@ -59,6 +59,7 @@ const VALUES = [
 export default function WhatWeDoPage() {
   return (
     <div className="inner-page">
+      <div className="wa-hidden md:wa-block marketing-desktop">
       {/* ── Hero ── */}
       <section
         style={{
@@ -581,9 +582,11 @@ export default function WhatWeDoPage() {
           </div>
         </div>
       </section>
+      </div>{/* end desktop */}
 
+      <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav">
       {/* ── Mobile-only Stitch layout (≤640px) ── */}
-      <section className="md:wa-hidden px-4 pt-10 pb-4" style={{ background: '#fcf9f8' }}>
+      <section className="px-4 pt-10 pb-4" style={{ background: '#fcf9f8' }}>
         {/* Hero H1 with gradient span */}
         <span className="block text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: '#8c0f37' }}>Our Impact</span>
         <h1 className="text-4xl font-extrabold tracking-tight leading-[1.1] mb-6" style={{ color: '#1c1b1b' }}>
@@ -609,11 +612,11 @@ export default function WhatWeDoPage() {
       </section>
 
       {/* ── Mobile-only: Mission/Values cards stacked (≤640px) ── */}
-      <section className="md:wa-hidden px-4 pb-8" style={{ background: '#fcf9f8' }}>
+      <section className="px-4 pb-8" style={{ background: '#fcf9f8' }}>
         <h2 className="text-2xl font-bold tracking-tight mb-5" style={{ color: '#1c1b1b' }}>Our Core Values</h2>
         <div className="space-y-4">
           {[
-            { icon: 'universal_currency_alt', title: 'Access First', desc: "Education shouldn't have a paywall. We believe talent is universal, but opportunity is not.", accent: '#8c0f37' },
+            { icon: 'payments', title: 'Access First', desc: "Education shouldn't have a paywall. We believe talent is universal, but opportunity is not.", accent: '#8c0f37' },
             { icon: 'handshake', title: 'Employer Aligned', desc: 'We train for the roles companies actually need, ensuring your new skills are in high demand.', accent: '#7b5800' },
             { icon: 'verified', title: 'Outcome Accountable', desc: 'Success is measured by your paycheck. Our model only works when you are working.', accent: '#8c0f37' },
           ].map((v) => (
@@ -633,7 +636,7 @@ export default function WhatWeDoPage() {
       </section>
 
       {/* ── Mobile-only: 4-step program flow (≤640px) ── */}
-      <section className="md:wa-hidden px-4 py-10" style={{ background: '#f0edec' }}>
+      <section className="px-4 py-10" style={{ background: '#f0edec' }}>
         <h2 className="text-2xl font-bold tracking-tight mb-7" style={{ color: '#1c1b1b' }}>The Journey</h2>
         <div className="space-y-5 relative">
           <div className="absolute left-[22px] top-2 bottom-2 w-px" style={{ background: 'rgba(140,15,55,0.2)' }} />
@@ -654,7 +657,7 @@ export default function WhatWeDoPage() {
       </section>
 
       {/* ── Mobile-only: Partner pills (≤640px) ── */}
-      <section className="md:wa-hidden px-4 py-10" style={{ background: '#fcf9f8' }}>
+      <section className="px-4 py-10" style={{ background: '#fcf9f8' }}>
         <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-center mb-5" style={{ color: '#584144' }}>Supported By Industry Giants</p>
         <div className="flex flex-wrap justify-center gap-2">
           {['Google', 'IBM', 'AWS', 'CompTIA', 'Coursera'].map((p) => (
@@ -664,15 +667,56 @@ export default function WhatWeDoPage() {
       </section>
 
       {/* ── Mobile-only: Bottom CTA band (≤640px) ── */}
-      <section className="md:wa-hidden px-4 py-10 flex flex-col items-center text-center" style={{ background: '#1c1b1b' }}>
-        <h2 className="text-2xl font-bold mb-6 text-white">Ready to transform your career?</h2>
-        <Link href="/apply" className="block w-full font-bold py-4 rounded-lg text-sm mb-3" style={{ background: '#8c0f37', color: '#fff' }}>
+      <section
+        style={{
+          padding: '2.5rem 1rem',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          textAlign: 'center',
+          background: '#1c1b1b',
+        }}
+      >
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem', color: '#fff' }}>Ready to transform your career?</h2>
+        <Link
+          href="/apply"
+          style={{
+            display: 'block',
+            width: '100%',
+            maxWidth: '24rem',
+            fontWeight: 700,
+            padding: '1rem',
+            borderRadius: '0.5rem',
+            fontSize: '0.875rem',
+            marginBottom: '0.75rem',
+            background: '#8c0f37',
+            color: '#fff',
+            textDecoration: 'none',
+            textAlign: 'center',
+          }}
+        >
           Start an Application
         </Link>
-        <Link href="/how-it-works" className="block w-full font-bold py-4 rounded-lg text-sm" style={{ border: '1px solid rgba(252,249,248,0.2)', color: '#fcf9f8' }}>
+        <Link
+          href="/how-it-works"
+          style={{
+            display: 'block',
+            width: '100%',
+            maxWidth: '24rem',
+            fontWeight: 700,
+            padding: '1rem',
+            borderRadius: '0.5rem',
+            fontSize: '0.875rem',
+            border: '1px solid rgba(252,249,248,0.2)',
+            color: '#fcf9f8',
+            textDecoration: 'none',
+            textAlign: 'center',
+          }}
+        >
           See the Process
         </Link>
       </section>
+      </div>{/* end mobile */}
 
       <style>{`
         @media (max-width: 1023px) {

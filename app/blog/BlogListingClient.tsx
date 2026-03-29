@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, BookOpen, HelpCircle, GraduationCap } from 'lucide-react';
+import { ArrowRight, BookOpen, HelpCircle, GraduationCap, Mail } from 'lucide-react';
 import { blogListingCardImage } from '@/lib/blog/blogListingImage';
+import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 
 type Post = {
   id: string;
@@ -26,168 +27,188 @@ export default function BlogListingClient({
   categories: string[];
 }) {
   const [filter, setFilter] = useState<string | null>(null);
-  const filtered = filter
-    ? posts.filter((p) => p.category === filter)
-    : posts;
+  const filtered = filter ? posts.filter((p) => p.category === filter) : posts;
 
   return (
-    <section
-      style={{
-        maxWidth: '1100px',
-        margin: '0 auto',
-        padding: '2rem 1.5rem',
-      }}
-    >
-      {/* Quick Resources */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-        gap: '1rem',
-        marginBottom: '2.5rem',
-      }}>
-        <Link href="/programs" style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1rem',
-          padding: '1.25rem',
-          background: 'var(--surface-container)',
-          borderRadius: '12px',
-          textDecoration: 'none',
-          color: 'var(--color-on-surface)',
-        }}>
-          <GraduationCap size={28} style={{ color: 'var(--color-accent)' }} />
-          <div>
-            <div style={{ fontWeight: 600 }}>Explore Programs</div>
-            <div style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>19 career training options</div>
-          </div>
-          <ArrowRight size={20} style={{ marginLeft: 'auto', opacity: 0.5 }} />
-        </Link>
-        <Link href="/faq" style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1rem',
-          padding: '1.25rem',
-          background: 'var(--surface-container)',
-          borderRadius: '12px',
-          textDecoration: 'none',
-          color: 'var(--color-on-surface)',
-        }}>
-          <HelpCircle size={28} style={{ color: 'var(--color-accent)' }} />
-          <div>
-            <div style={{ fontWeight: 600 }}>Read FAQ</div>
-            <div style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>Common questions answered</div>
-          </div>
-          <ArrowRight size={20} style={{ marginLeft: 'auto', opacity: 0.5 }} />
-        </Link>
-      </div>
-
-      {categories.length > 0 && (
+    <section className="blog-page-section">
+      <div
+        style={{
+          maxWidth: '1100px',
+          margin: '0 auto',
+          padding: 'clamp(1rem, 4vw, 2rem) clamp(1rem, 4vw, 2rem) 2rem',
+        }}
+      >
+        {/* Quick Resources */}
         <div
           style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '0.5rem',
-            marginBottom: '2rem',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
+            gap: '1rem',
+            marginBottom: '2.5rem',
           }}
         >
-          <button
-            type="button"
-            onClick={() => setFilter(null)}
+          <Link
+            href="/programs"
             style={{
-              padding: '0.4rem 0.9rem',
-              borderRadius: '999px',
-              border: `1px solid ${filter === null ? 'var(--color-accent)' : 'var(--outline-variant)'}`,
-              background: filter === null ? 'rgba(74, 155, 79, 0.1)' : 'transparent',
-              color: filter === null ? 'var(--color-accent)' : 'inherit',
-              cursor: 'pointer',
-              fontSize: '0.9rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem',
+              padding: '1.25rem',
+              background: 'var(--surface-container)',
+              borderRadius: '12px',
+              textDecoration: 'none',
+              color: 'var(--color-on-surface)',
             }}
           >
-            All
-          </button>
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => setFilter(cat)}
-              style={{
-                padding: '0.4rem 0.9rem',
-                borderRadius: '999px',
-                border: `1px solid ${filter === cat ? 'var(--color-accent)' : 'var(--outline-variant)'}`,
-                background: filter === cat ? 'rgba(74, 155, 79, 0.1)' : 'transparent',
-                color: filter === cat ? 'var(--color-accent)' : 'inherit',
-                cursor: 'pointer',
-                fontSize: '0.9rem',
-              }}
-            >
-              {cat}
-            </button>
-          ))}
+            <GraduationCap size={28} style={{ color: 'var(--color-accent)', flexShrink: 0 }} />
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontWeight: 600 }}>Explore Programs</div>
+              <div style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                {WORKFORCEAP_PROGRAM_CATALOG_SIZE} career training options
+              </div>
+            </div>
+            <ArrowRight size={20} style={{ marginLeft: 'auto', opacity: 0.5, flexShrink: 0 }} />
+          </Link>
+          <Link
+            href="/faq"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem',
+              padding: '1.25rem',
+              background: 'var(--surface-container)',
+              borderRadius: '12px',
+              textDecoration: 'none',
+              color: 'var(--color-on-surface)',
+            }}
+          >
+            <HelpCircle size={28} style={{ color: 'var(--color-accent)', flexShrink: 0 }} />
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontWeight: 600 }}>Read FAQ</div>
+              <div style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                Common questions answered
+              </div>
+            </div>
+            <ArrowRight size={20} style={{ marginLeft: 'auto', opacity: 0.5, flexShrink: 0 }} />
+          </Link>
         </div>
-      )}
-      <div className="blog-listing-grid">
-        {filtered.map((post) => {
-          const cardSrc = blogListingCardImage(post.heroImage, post.coverImage);
-          return (
-          <article key={post.id} className="blog-card">
-            <Link href={`/blog/${post.slug}`} className="blog-card-link">
-              <div className="blog-card-cover">
-                <Image
-                  src={cardSrc}
-                  alt={post.title ? `Cover image for ${post.title}` : 'Blog post cover image'}
-                  width={400}
-                  height={250}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-                {post.category && (
-                  <span className="blog-card-category">{post.category}</span>
-                )}
-              </div>
-              <h2 className="blog-card-title">{post.title}</h2>
-              {post.excerpt && (
-                <p className="blog-card-excerpt">{post.excerpt}</p>
-              )}
-              <div className="blog-card-meta">
-                {post.authorName}
-                {post.publishedAt && (
-                  <> · {new Date(post.publishedAt).toLocaleDateString('en-US')}</>
-                )}
-              </div>
-              <span className="blog-card-cta">Read More →</span>
-            </Link>
-          </article>
-        );
-        })}
-      </div>
-      {filtered.length === 0 && (
-        <p style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)', padding: '3rem' }}>
-          No posts found.
-        </p>
-      )}
 
-      {/* Bottom CTA */}
-      <div style={{
-        marginTop: '4rem',
-        padding: '2.5rem',
-        background: 'var(--color-on-surface)',
-        borderRadius: '16px',
-        textAlign: 'center',
-        color: 'white',
-      }}>
-        <BookOpen size={40} style={{ margin: '0 auto 1rem', opacity: 0.8 }} />
-        <h3 style={{ color: 'white', fontSize: '1.5rem', marginBottom: '0.75rem' }}>
-          Want personalized career guidance?
-        </h3>
-        <p style={{ color: 'rgba(255,255,255,0.8)', marginBottom: '1.5rem', maxWidth: '500px', margin: '0 auto 1.5rem' }}>
-          Read our blog for tips, or get started finding the right program for your goals.
-        </p>
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link href="/find-your-path" className="btn btn-primary">
-            Take Career Quiz
+        {categories.length > 0 && (
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '0.5rem',
+              marginBottom: '2rem',
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setFilter(null)}
+              className="blog-filter-chip"
+              data-active={filter === null ? 'true' : 'false'}
+            >
+              All
+            </button>
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setFilter(cat)}
+                className="blog-filter-chip"
+                data-active={filter === cat ? 'true' : 'false'}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div className="blog-listing-grid">
+          {filtered.map((post) => {
+            const cardSrc = blogListingCardImage(post.heroImage, post.coverImage);
+            return (
+              <article key={post.id} className="blog-card">
+                <Link href={`/blog/${post.slug}`} className="blog-card-link">
+                  <div className="blog-card-cover">
+                    <Image
+                      src={cardSrc}
+                      alt={post.title ? `Cover image for ${post.title}` : 'Blog post cover image'}
+                      width={400}
+                      height={250}
+                      sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                    {post.category && <span className="blog-card-category">{post.category}</span>}
+                  </div>
+                  <h2 className="blog-card-title">{post.title}</h2>
+                  {post.excerpt && <p className="blog-card-excerpt">{post.excerpt}</p>}
+                  <div className="blog-card-meta">
+                    {post.authorName}
+                    {post.publishedAt && (
+                      <> · {new Date(post.publishedAt).toLocaleDateString('en-US')}</>
+                    )}
+                  </div>
+                  <span className="blog-card-cta">Read More →</span>
+                </Link>
+              </article>
+            );
+          })}
+        </div>
+
+        {filtered.length === 0 && (
+          <div className="blog-empty-state">
+            <p>
+              {posts.length === 0
+                ? 'No articles published yet. Explore programs and how to apply — new posts will appear here.'
+                : 'No posts match this filter.'}
+            </p>
+            {posts.length > 0 && filter !== null && (
+              <button type="button" className="btn btn-secondary blog-empty-state__clear" onClick={() => setFilter(null)}>
+                Show all posts
+              </button>
+            )}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
+              <Link href="/programs" className="btn btn-primary">
+                Browse programs
+              </Link>
+              <Link href="/apply" className="btn btn-secondary">
+                Apply
+              </Link>
+              <Link href="/faq" className="btn btn-outline">
+                FAQ
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* Updates via contact — functional path */}
+        <div className="blog-updates-card">
+          <Mail size={28} style={{ color: 'var(--color-accent)', marginBottom: '0.75rem' }} aria-hidden />
+          <h3 className="blog-updates-card__title">Want updates?</h3>
+          <p className="blog-updates-card__text">
+            Ask to be notified about new articles and program news — our team responds within a few business days.
+          </p>
+          <Link href="/contact" className="btn btn-primary">
+            Contact us for updates
           </Link>
-          <Link href="/programs" className="btn" style={{ background: 'white', color: 'var(--color-on-surface)' }}>
-            Browse Programs
-          </Link>
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="blog-listing-bottom-cta">
+          <BookOpen size={40} style={{ margin: '0 auto 1rem', opacity: 0.95 }} aria-hidden />
+          <h3>Want personalized career guidance?</h3>
+          <p>
+            Read our blog for tips, or get started finding the right program for your goals.
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link href="/find-your-path" className="btn blog-listing-bottom-cta__secondary">
+              Take Career Quiz
+            </Link>
+            <Link href="/programs" className="btn blog-listing-bottom-cta__ghost">
+              Browse Programs
+            </Link>
+          </div>
         </div>
       </div>
     </section>

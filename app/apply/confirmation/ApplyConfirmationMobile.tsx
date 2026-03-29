@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ShareButtons from '@/components/apply/ShareButtons';
 
@@ -10,51 +11,10 @@ export type ConfirmationStep = {
 
 export default function ApplyConfirmationMobile({ steps }: { steps: ConfirmationStep[] }) {
   return (
-    <div className="md:wa-hidden" style={{ background: '#fcf9f8', color: '#1c1b1b', minHeight: '100vh', paddingBottom: '8rem' }}>
-      <header
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 50,
-          height: '4rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 1.5rem',
-          background: 'rgba(252,249,248,0.88)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          borderBottom: '1px solid rgba(222,191,194,0.15)',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <Link
-            href="/apply"
-            style={{
-              color: '#ad2c4d',
-              padding: '0.5rem',
-              borderRadius: '9999px',
-              textDecoration: 'none',
-              display: 'flex',
-              alignItems: 'center',
-            }}
-            aria-label="Back to apply"
-          >
-            <span className="material-symbols-outlined">arrow_back</span>
-          </Link>
-          <p style={{ fontWeight: 900, letterSpacing: '-0.03em', color: '#ad2c4d', fontSize: '1.25rem', margin: 0 }}>
-            Workforce Academy
-          </p>
-        </div>
-        <span style={{ color: '#584144', fontWeight: 700, letterSpacing: '-0.02em', fontSize: '1.125rem' }}>Success</span>
-      </header>
-
+    <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: '#fcf9f8', color: '#1c1b1b', minHeight: '100vh' }}>
       <main
         style={{
-          paddingTop: '6rem',
-          paddingBottom: '8rem',
+          paddingTop: '1.25rem',
           paddingLeft: '1.5rem',
           paddingRight: '1.5rem',
           maxWidth: '390px',
@@ -62,6 +22,36 @@ export default function ApplyConfirmationMobile({ steps }: { steps: Confirmation
           minHeight: '100vh',
         }}
       >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '1.25rem',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <Link
+              href="/apply"
+              style={{
+                color: '#ad2c4d',
+                padding: '0.5rem',
+                marginLeft: '-0.5rem',
+                borderRadius: '9999px',
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+              aria-label="Back to apply"
+            >
+              <span className="material-symbols-outlined">arrow_back</span>
+            </Link>
+            <p style={{ fontWeight: 900, letterSpacing: '-0.03em', color: '#ad2c4d', fontSize: '1.125rem', margin: 0 }}>
+              Apply
+            </p>
+          </div>
+          <span style={{ color: '#584144', fontWeight: 700, letterSpacing: '-0.02em', fontSize: '1rem' }}>Success</span>
+        </div>
         <section style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginBottom: '3rem' }}>
           <div
             style={{
@@ -216,6 +206,7 @@ export default function ApplyConfirmationMobile({ steps }: { steps: Confirmation
         </div>
       </main>
 
+      <Footer />
       <MobileBottomNav />
     </div>
   );

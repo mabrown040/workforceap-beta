@@ -37,7 +37,7 @@ export default function ApplyConfirmationPage() {
       <ApplyConfirmationMobile steps={NEXT_STEPS} />
 
       {/* ===== DESKTOP VIEW (≥768px) ===== */}
-      <div className="wa-hidden md:wa-block">
+      <div className="wa-hidden md:wa-block marketing-desktop">
         <section className="page-hero">
           <div className="page-hero-content">
             <h1>Application Received</h1>

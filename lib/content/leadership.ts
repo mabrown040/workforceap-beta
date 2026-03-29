@@ -12,6 +12,17 @@ export type LeaderStat = {
   value: string;
 };
 
+/** Highlight card in biography column (detail page) */
+export type LeaderSpotlightCard = {
+  icon: string;
+  title: string;
+  body: string;
+  variant?: 'default' | 'accent';
+};
+
+export type LeaderPartnerTile = { icon: string; name: string; desc: string };
+export type LeaderAchievementTile = { icon: string; title: string; desc: string };
+
 export type Leader = {
   slug: string;
   name: string;
@@ -26,6 +37,13 @@ export type Leader = {
   missionRelevance?: string;
   bioBlocks: LeaderBioBlock[];
   stats: LeaderStat[];
+  /** Hero ribbon (defaults from role if omitted) */
+  heroBadge?: string;
+  /** Portrait-adjacent pull quote (defaults to missionRelevance) */
+  heroQuote?: string;
+  spotlightCards?: LeaderSpotlightCard[];
+  partnerTiles?: LeaderPartnerTile[];
+  achievementTiles?: LeaderAchievementTile[];
 };
 
 export const LEADERS: Leader[] = [
@@ -74,6 +92,40 @@ export const LEADERS: Leader[] = [
       { label: 'Fraternity', value: 'Alpha Phi Alpha Fraternity' },
       { label: 'Faith', value: 'Elder at Celebration Church' },
     ],
+    heroBadge: 'Founder & Executive Leadership',
+    heroQuote:
+      'Committed to bridging the gap between potential and opportunity through workforce innovation.',
+    spotlightCards: [
+      {
+        icon: 'account_balance',
+        title: 'Civic Roots',
+        body: 'Deep community ties through 100 Black Men of Austin, Alpha Phi Alpha Fraternity, and decades of public-service leadership across Central Texas.',
+      },
+      {
+        icon: 'groups',
+        title: "Founder's Lens",
+        body: 'A visionary who translates workforce needs into scalable training programs that create lasting community impact.',
+        variant: 'accent',
+      },
+    ],
+    partnerTiles: [
+      { icon: 'handshake', name: 'Goodwill Central Texas', desc: 'Career & Technical Academy' },
+      { icon: 'account_balance', name: 'Texas Workforce Commission', desc: 'State Career Schools' },
+      { icon: 'school', name: 'Austin Community College', desc: 'Continuing Education' },
+      { icon: 'location_city', name: 'City of Austin', desc: 'Workforce Solutions' },
+    ],
+    achievementTiles: [
+      {
+        icon: 'emoji_events',
+        title: 'Equity Innovation Award',
+        desc: 'Recognized for transformative workforce equity programs across Central Texas.',
+      },
+      {
+        icon: 'payments',
+        title: '$20M+ Funding Secured',
+        desc: 'Raised and directed grants, contracts, and partnerships for workforce development.',
+      },
+    ],
   },
   {
     slug: 'adriane-brown',
@@ -114,6 +166,38 @@ export const LEADERS: Leader[] = [
       { label: 'Education', value: 'Texas A&M Graduate' },
       { label: 'Certificate', value: 'Microsoft Project Management (2025)' },
       { label: 'Faith', value: "Women's Ministry Leader" },
+    ],
+    heroBadge: 'Operational Leadership',
+    spotlightCards: [
+      {
+        icon: 'hub',
+        title: 'Systems at scale',
+        body: 'IBM and Accenture — statewide technology for Texas. Co-led growth of Brown & Associates to national reach. Deep experience in compliance, intake redesign, and student performance tracking.',
+      },
+      {
+        icon: 'church',
+        title: 'Faith & mentorship',
+        body: "Women's Ministry Leader at Celebration Church. Co-author of Women of Distinction and Grace — disciplined execution with heart for people.",
+        variant: 'accent',
+      },
+    ],
+    partnerTiles: [
+      { icon: 'computer', name: 'IBM & Accenture', desc: 'Statewide systems for Texas agencies' },
+      { icon: 'account_balance', name: 'Texas Workforce Commission', desc: 'Career school strategy & operations' },
+      { icon: 'workspace_premium', name: 'Microsoft', desc: 'Project Management Certificate (2025)' },
+      { icon: 'groups', name: 'Brown & Associates', desc: 'Scaled family of companies nationally' },
+    ],
+    achievementTiles: [
+      {
+        icon: 'trending_up',
+        title: 'Operational transformation',
+        desc: 'Intake redesign, audit readiness, and performance tracking for TWC-aligned career schools.',
+      },
+      {
+        icon: 'menu_book',
+        title: 'Women of Distinction and Grace',
+        desc: 'Co-authored resource elevating women in leadership and service.',
+      },
     ],
   },
   {
@@ -160,6 +244,38 @@ export const LEADERS: Leader[] = [
       { label: 'Role', value: 'CTO at Microsoft' },
       { label: 'Recognition', value: 'SUCCESS Magazine Women of Influence 2023' },
       { label: 'Governance', value: 'Board Director, IDEX Corporation' },
+    ],
+    heroBadge: 'Board of Trustees',
+    spotlightCards: [
+      {
+        icon: 'memory',
+        title: 'From chips to the C-suite',
+        body: 'Path from digital logic design and DoD program management to Chief of Staff to the Intel CEO — now CTO, Global Partner Solutions at Microsoft.',
+      },
+      {
+        icon: 'mic',
+        title: 'ROAR',
+        body: 'Founder and podcast host of “ROAR with Lakecia Gunter” — inspirational stories and practical tools for women advancing in work and life.',
+        variant: 'accent',
+      },
+    ],
+    partnerTiles: [
+      { icon: 'window', name: 'Microsoft', desc: 'CTO, Global Partner Solutions' },
+      { icon: 'memory', name: 'Intel', desc: 'Chief of Staff to the CEO' },
+      { icon: 'shield', name: 'U.S. Federal / DoD', desc: 'Early-career engineering & programs' },
+      { icon: 'corporate_fare', name: 'IDEX Corporation', desc: 'Board of Directors' },
+    ],
+    achievementTiles: [
+      {
+        icon: 'stars',
+        title: 'SUCCESS Women of Influence',
+        desc: '2023 finalist for achievements in innovation, community, and industry impact.',
+      },
+      {
+        icon: 'school',
+        title: 'Stanford Directors’ College',
+        desc: 'Corporate board governance program graduate.',
+      },
     ],
   },
   {
@@ -216,6 +332,38 @@ export const LEADERS: Leader[] = [
       { label: 'Athletics', value: '20+ triathlons completed' },
       { label: 'Endurance', value: 'Ironman Arizona & Florida finisher' },
     ],
+    heroBadge: 'Board of Trustees',
+    spotlightCards: [
+      {
+        icon: 'rocket_launch',
+        title: 'Built to scale',
+        body: 'Co-founded Interstate Connections — recognized as a Fastest Growing Private Company by the Austin Business Journal.',
+      },
+      {
+        icon: 'gavel',
+        title: 'Governance & community',
+        body: 'Texas Alliance for Life board and Strategic Budget chair; former Concordia High School board chair; invests with focus on real estate.',
+        variant: 'accent',
+      },
+    ],
+    partnerTiles: [
+      { icon: 'bolt', name: 'Interstate Connections', desc: 'Austin Business Journal Fastest Growing Company' },
+      { icon: 'menu_book', name: 'The Business Bible', desc: 'CFO — financial leadership' },
+      { icon: 'favorite', name: 'Texas Alliance for Life', desc: 'Board of Directors' },
+      { icon: 'fitness_center', name: 'Endurance sports', desc: 'Ironman, NYC Marathon, Leadville 100 MTB' },
+    ],
+    achievementTiles: [
+      {
+        icon: 'landscape',
+        title: 'Landgraf Wagyu Ranch',
+        desc: 'Partner in ranching and Austin-area business ventures.',
+      },
+      {
+        icon: 'emoji_events',
+        title: '20+ triathlons',
+        desc: 'Including Ironman Arizona, Ironman Florida, and the New York City Marathon.',
+      },
+    ],
   },
   {
     slug: 'derrick-fishback',
@@ -261,6 +409,38 @@ export const LEADERS: Leader[] = [
       { label: 'Command', value: 'Commanded 1,800+ personnel' },
       { label: 'Education', value: "2 Master's degrees" },
       { label: 'Nonprofit', value: 'Board President, Jazz Society of Pensacola' },
+    ],
+    heroBadge: 'Board of Trustees',
+    spotlightCards: [
+      {
+        icon: 'military_tech',
+        title: 'Command & global crises',
+        body: 'Nearly three decades in the U.S. Army — commanded 1,800+ personnel; civil-military programs spanning 24+ countries including Ukraine, Ebola, and Syrian refugee response.',
+      },
+      {
+        icon: 'cloud',
+        title: 'Cloud & AI in industry',
+        body: 'Engagement Manager at AWS; enterprise delivery at IBM and Dell — bridging technical innovation to measurable business outcomes.',
+        variant: 'accent',
+      },
+    ],
+    partnerTiles: [
+      { icon: 'cloud', name: 'Amazon Web Services', desc: 'Cloud transformation & AI/ML initiatives' },
+      { icon: 'computer', name: 'IBM & Dell', desc: 'Enterprise solutions and delivery' },
+      { icon: 'public', name: 'NATO & joint forces', desc: 'Civil-military frameworks — Ukraine, global crises' },
+      { icon: 'piano', name: 'Jazz Society of Pensacola', desc: 'Board President — cultural impact' },
+    ],
+    achievementTiles: [
+      {
+        icon: 'school',
+        title: 'Global executive education',
+        desc: "Master's degrees plus graduate study at Harvard, Geneva, London, and Erasmus — strategic and international perspective.",
+      },
+      {
+        icon: 'shield',
+        title: 'Afghanistan & allied operations',
+        desc: 'Operation Enduring Freedom and mission-critical leadership in contested environments.',
+      },
     ],
   },
 ];

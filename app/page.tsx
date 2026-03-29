@@ -15,6 +15,11 @@ export const metadata: Metadata = buildPageMetadata({
   path: '/',
 });
 
+const HERO_IMAGE_SRC =
+  'https://images.unsplash.com/photo-1531218150217-54595bc2b934?auto=format&fit=crop&w=1920&q=80';
+const HERO_IMAGE_THUMB =
+  'https://images.unsplash.com/photo-1531218150217-54595bc2b934?auto=format&fit=crop&w=640&q=70';
+
 const MILESTONES = [
   { num: '01', title: 'Application', desc: 'Submit your application online in about 10 minutes.' },
   { num: '02', title: 'Assessment', desc: 'Quick skills and interest review to find your best fit.' },
@@ -38,121 +43,10 @@ export default async function HomePage() {
   return (
     <div className="homepage" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
 
-      {/* ══════════════════════════════════════════════
-          MOBILE LAYOUT ≤640px — Stitch-aligned
-          ══════════════════════════════════════════════ */}
-      <div className="md:wa-hidden" style={{ background: '#fcf9f8', minHeight: '100vh', paddingBottom: '5rem' }}>
-        {/* Mobile Hero */}
-        <section style={{ padding: '5rem 1.25rem 1.5rem' }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0.375rem 0.75rem', borderRadius: '9999px', marginBottom: '1.25rem', background: '#ffbb00', color: '#1c1b1b' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '0.75rem', fontVariationSettings: "'FILL' 1" }}>radio_button_checked</span>
-            Enrollment Open
-          </span>
-          <h1 style={{ fontSize: '3rem', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 0.95, marginBottom: '1rem', background: 'linear-gradient(135deg, #8c0f37 0%, #ad2c4d 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-            Free Career<br />Training
-          </h1>
-          <p style={{ fontSize: '1rem', lineHeight: 1.6, marginBottom: '1.75rem', maxWidth: '280px', color: '#584144' }}>
-            Bridge the gap with professional certification and real employer connections.
-          </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <Link href="/apply" style={{ display: 'block', width: '100%', textAlign: 'center', fontWeight: 700, padding: '1rem', borderRadius: '0.75rem', fontSize: '0.875rem', background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)', color: '#fff', textDecoration: 'none', boxShadow: '0 4px 14px rgba(140,15,55,0.35)' }}>
-              Apply Free
-            </Link>
-            <Link href="/find-your-path" style={{ display: 'block', width: '100%', textAlign: 'center', fontWeight: 700, padding: '1rem', borderRadius: '0.75rem', fontSize: '0.875rem', background: '#f6f3f2', color: '#8c0f37', textDecoration: 'none', border: '1px solid rgba(140,15,55,0.15)' }}>
-              Find Your Path
-            </Link>
-          </div>
-        </section>
-
-        {/* Mobile Partner Logos Scroll */}
-        <section style={{ marginBottom: '2.5rem' }}>
-          <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.2em', padding: '0 1.25rem', marginBottom: '0.75rem', color: 'rgba(88,65,68,0.6)' }}>Global Hiring Partners</p>
-          <div style={{ display: 'flex', overflowX: 'auto', gap: '2rem', padding: '0.5rem 1.25rem', alignItems: 'center', scrollbarWidth: 'none' }}>
-            {['Google', 'IBM', 'AWS', 'CompTIA', 'AT&T'].map((p) => (
-              <span key={p} style={{ flexShrink: 0, fontSize: '0.875rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#8b7073', opacity: 0.7 }}>{p}</span>
-            ))}
-          </div>
-        </section>
-
-        {/* Mobile 3-Stat Row */}
-        <section style={{ padding: '0 1.25rem', marginBottom: '2.5rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '0.75rem' }}>
-            <div style={{ borderRadius: '1rem', padding: '1rem', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', background: '#f6f3f2', minHeight: 96 }}>
-              <span style={{ fontSize: '1.5rem', fontWeight: 900, display: 'block', color: '#8c0f37' }}>{programCount}</span>
-              <span style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#584144' }}>Programs</span>
-            </div>
-            <div style={{ borderRadius: '1rem', padding: '1rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', background: 'linear-gradient(135deg, #8c0f37 0%, #ad2c4d 100%)', minHeight: 96 }}>
-              <span className="material-symbols-outlined" style={{ color: 'rgba(255,255,255,0.4)', alignSelf: 'flex-end' }}>verified</span>
-              <div>
-                <span style={{ fontSize: '1.75rem', fontWeight: 900, color: '#fff', display: 'block' }}>$0 Cost</span>
-                <span style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'rgba(255,203,209,0.9)' }}>Tuition Free</span>
-              </div>
-            </div>
-            <div style={{ gridColumn: '1 / -1', borderRadius: '1rem', padding: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#ebe7e7' }}>
-              <span style={{ fontSize: '1.125rem', fontWeight: 700, color: '#1c1b1b' }}>12–24 Weeks</span>
-              <span style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#7b5800' }}>Accelerated</span>
-            </div>
-          </div>
-        </section>
-
-        {/* Mobile 4-Step Journey Card Scroll */}
-        <section style={{ marginBottom: '1.5rem' }}>
-          <div style={{ padding: '0 1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.25rem' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 900, letterSpacing: '-0.025em', color: '#1c1b1b' }}>Your Journey</h2>
-            <Link href="/how-it-works" style={{ fontSize: '0.75rem', fontWeight: 700, textDecoration: 'underline', color: '#8c0f37' }}>Learn More</Link>
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              overflowX: 'auto',
-              gap: '1rem',
-              padding: '0 1.25rem 1rem',
-              paddingRight: 'max(1.25rem, env(safe-area-inset-right, 0px))',
-              scrollbarWidth: 'none',
-              scrollSnapType: 'x mandatory',
-              WebkitOverflowScrolling: 'touch',
-            }}
-          >
-            {[
-              { icon: 'quiz', step: '01', title: 'Quiz', desc: 'Discover your path in 5 minutes.' },
-              { icon: 'assignment_ind', step: '02', title: 'Apply', desc: 'Submit in about 10 minutes.' },
-              { icon: 'school', step: '03', title: 'Train', desc: 'Intensive skill-building with experts.' },
-              { icon: 'work', step: '04', title: 'Hired', desc: 'Hiring network access when you graduate.' },
-            ].map(({ icon, step, title, desc }) => (
-              <div
-                key={step}
-                style={{
-                  flexShrink: 0,
-                  width: 'min(13.5rem, calc(100vw - 3rem))',
-                  scrollSnapAlign: 'start',
-                  padding: '1.25rem',
-                  borderRadius: '1.5rem',
-                  border: '1px solid rgba(28,27,27,0.06)',
-                  background: '#fff',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
-                }}
-              >
-                <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.25rem', background: 'rgba(140,15,55,0.1)' }}>
-                  <span className="material-symbols-outlined" style={{ color: '#8c0f37' }}>{icon}</span>
-                </div>
-                <span style={{ display: 'block', fontSize: '0.625rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem', color: '#7b5800' }}>Phase {step}</span>
-                <h3 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.5rem', color: '#1c1b1b' }}>{title}</h3>
-                <p style={{ fontSize: '0.8125rem', lineHeight: 1.55, color: '#584144', wordBreak: 'break-word' }}>{desc}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      </div>
-
-      {/* ══════════════════════════════════════════════
-          DESKTOP LAYOUT ≥641px
-          ══════════════════════════════════════════════ */}
-      <div className="wa-hidden md:wa-block">
-
-      {/* ===== HERO: Full-bleed background image with gradient overlay ===== */}
-      <section style={{
+      {/* ===== HERO: Full-bleed background image with gradient overlay (all viewports) ===== */}
+      <section className="home-hero" style={{
         position: 'relative',
-        minHeight: '85vh',
+        minHeight: 'min(85vh, 820px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -160,7 +54,7 @@ export default async function HomePage() {
       }}>
         {/* Background image */}
         <Image
-          src="https://images.unsplash.com/photo-1531218150217-54595bc2b934?auto=format&fit=crop&w=1920&q=80"
+          src={HERO_IMAGE_SRC}
           alt="Collaborative workspace"
           fill
           priority
@@ -174,7 +68,14 @@ export default async function HomePage() {
           zIndex: 1,
         }} />
 
-        <div style={{ position: 'relative', zIndex: 2, maxWidth: '1400px', width: '100%', padding: '8rem 2rem 6rem' }}>
+        <div style={{
+          position: 'relative',
+          zIndex: 2,
+          maxWidth: '1400px',
+          width: '100%',
+          padding: 'clamp(5.5rem, 12vw, 8rem) clamp(1rem, 4vw, 2rem) clamp(3rem, 8vw, 6rem)',
+        }}
+        >
           {/* Badge pill */}
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
@@ -187,14 +88,25 @@ export default async function HomePage() {
             Austin Launch Community
           </span>
 
-          <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem', lineHeight: 1.05 }}>
+          <h1
+            className="text-display-lg"
+            style={{
+              color: 'var(--home-hero-fg, #f2f2f5)',
+              marginBottom: '1.5rem',
+              lineHeight: 1.05,
+              fontSize: 'clamp(2.25rem, 6vw + 1rem, 4.5rem)',
+            }}
+          >
             Empowering People.{' '}
             <span style={{ color: 'var(--color-accent)' }}>Advancing Futures.</span>
           </h1>
 
           <p style={{
-            fontSize: '1.25rem', color: 'var(--color-on-surface-variant)',
-            maxWidth: '640px', marginBottom: '2.5rem', lineHeight: 1.7,
+            fontSize: 'clamp(1rem, 0.5vw + 0.95rem, 1.25rem)',
+            color: 'var(--home-hero-fg-muted, rgba(242, 242, 245, 0.88))',
+            maxWidth: '640px',
+            marginBottom: '2.5rem',
+            lineHeight: 1.7,
           }}>
             Intentional education designed for modern industry. We connect talented members with employers through {WORKFORCEAP_PROGRAM_CATALOG_SIZE} specialized programs and AI-powered support — nationwide.
           </p>
@@ -210,13 +122,16 @@ export default async function HomePage() {
             <Link href="/partners" className="btn btn-secondary btn-large">
               Partner With Us
             </Link>
+            <Link href="/find-your-path" className="btn btn-outline btn-large home-hero-outline-cta">
+              Find Your Path
+            </Link>
           </div>
         </div>
       </section>
 
       {/* ===== Social Proof / Credibility Bar ===== */}
-      <section style={{ padding: '2rem 0', borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'var(--surface-container-lowest)' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 2rem' }}>
+      <section className="home-credibility-bar" style={{ padding: '2rem 0', background: 'var(--surface-container-lowest)' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2rem)' }}>
           <p className="text-label-upper" style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)', opacity: 0.4, marginBottom: '1.5rem', fontSize: '0.625rem', letterSpacing: '0.2em' }}>
             Curriculum from Industry Leaders
           </p>
@@ -224,14 +139,14 @@ export default async function HomePage() {
             <span style={{ fontSize: '1.25rem', fontWeight: 700 }}>Google</span>
             <span style={{ fontSize: "1.25rem", fontWeight: 700 }}>AT&T</span>
             <span style={{ fontSize: '1.25rem', fontWeight: 700 }}>Coursera</span>
-            <Image src="/images/microsoft-logo.svg" alt="Microsoft" width={100} height={24} style={{ filter: 'brightness(2)' }} />
-            <Image src="/images/ibm-logo.svg" alt="IBM" width={60} height={24} style={{ filter: 'brightness(2)' }} />
+            <Image className="home-cred-logo" src="/images/microsoft-logo.svg" alt="Microsoft" width={100} height={24} />
+            <Image className="home-cred-logo" src="/images/ibm-logo.svg" alt="IBM" width={60} height={24} />
           </div>
         </div>
       </section>
 
       {/* ===== Experience Behind WAP — Prelaunch Honest Messaging ===== */}
-      <section style={{ padding: '5rem 2rem', maxWidth: '1400px', margin: '0 auto' }}>
+      <section style={{ padding: 'clamp(3rem, 6vw, 5rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1400px', margin: '0 auto' }}>
         <div style={{ maxWidth: '720px', margin: '0 auto', textAlign: 'center' }}>
           <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
             Experience Behind WorkforceAP
@@ -252,13 +167,8 @@ export default async function HomePage() {
       </section>
 
       {/* ===== 25+ Years Breaking Barriers — Bento: 2/3 text + 1/3 stats grid ===== */}
-      <section style={{ padding: '6rem 2rem', maxWidth: '1400px', margin: '0 auto' }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)',
-          gap: '3rem',
-          alignItems: 'start',
-        }}>
+      <section style={{ padding: 'clamp(3rem, 6vw, 6rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1400px', margin: '0 auto' }}>
+        <div className="home-impact-bento">
           {/* Text block (2/3) */}
           <div>
             <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'inline-block' }}>
@@ -307,16 +217,19 @@ export default async function HomePage() {
       </section>
 
       {/* ===== Milestone Journey — Horizontal Scrolling Cards ===== */}
-      <section className="wa-hidden md:wa-block" style={{ background: 'var(--surface-container-low)', padding: '6rem 0' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 2rem' }}>
+      <section style={{ background: 'var(--surface-container-low)', padding: 'clamp(3rem, 6vw, 6rem) 0' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2rem)' }}>
           <h2 className="text-display-sm" style={{ marginBottom: '1rem', textAlign: 'center' }}>Your Journey to Success</h2>
           <p style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)', marginBottom: '3rem', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
             From application to career growth — 11 milestones that define the WAP experience.
           </p>
         </div>
         <div style={{
-          display: 'flex', gap: '1.25rem', overflowX: 'auto',
-          padding: '0 2rem 1.5rem',
+          display: 'flex',
+          gap: '1.25rem',
+          overflowX: 'auto',
+          padding: `0 clamp(1rem, 4vw, 2rem) 1.5rem`,
+          paddingRight: 'max(clamp(1rem, 4vw, 2rem), env(safe-area-inset-right, 0px))',
           scrollSnapType: 'x mandatory',
           WebkitOverflowScrolling: 'touch',
         }}>
@@ -347,7 +260,7 @@ export default async function HomePage() {
       </section>
 
       {/* ===== Available Programs — 3 Cards with images, category labels, duration + cert badges ===== */}
-      <section style={{ padding: '6rem 2rem', maxWidth: '1400px', margin: '0 auto' }}>
+      <section style={{ padding: 'clamp(3rem, 6vw, 6rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1400px', margin: '0 auto' }}>
         <div style={{ marginBottom: '3rem' }}>
           <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
             Available Programs
@@ -357,7 +270,7 @@ export default async function HomePage() {
             Specialized career paths designed to bridge the skills gap in high-growth industries.
           </p>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '1.5rem' }}>
           {homeProgramShowcase.map((p) => (
             <Link
               key={p.slug}
@@ -380,7 +293,7 @@ export default async function HomePage() {
                 overflow: 'hidden',
               }}>
                 <Image
-                  src="https://images.unsplash.com/photo-1531218150217-54595bc2b934?auto=format&fit=crop&w=640&q=70"
+                  src={HERO_IMAGE_THUMB}
                   alt={p.static?.title ?? p.name}
                   fill
                   sizes="(max-width: 768px) 100vw, 33vw"
@@ -430,8 +343,8 @@ export default async function HomePage() {
       </section>
 
       {/* ===== A Network Built for Success — Stakeholder Cards ===== */}
-      <section style={{ background: 'var(--surface-container-low)', padding: '6rem 0' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 2rem' }}>
+      <section style={{ background: 'var(--surface-container-low)', padding: 'clamp(3rem, 6vw, 6rem) 0' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2rem)' }}>
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
               Community
@@ -439,7 +352,9 @@ export default async function HomePage() {
             <h2 className="text-display-sm">A Network Built for Success</h2>
           </div>
           <div style={{
-            display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
+            gap: '2rem',
             alignItems: 'start',
           }}>
             {/* For Members */}
@@ -468,7 +383,7 @@ export default async function HomePage() {
             </div>
 
             {/* For Employers — center card elevated */}
-            <div className="stitch-card" style={{
+            <div className="stitch-card home-employer-elevated" style={{
               background: 'var(--surface-container-lowest)', padding: '2rem',
               border: '2px solid var(--color-accent)',
               transform: 'translateY(-1rem)',
@@ -526,7 +441,7 @@ export default async function HomePage() {
       </section>
 
       {/* ===== AI-Powered Career Support ===== */}
-      <section style={{ padding: '5rem 2rem', maxWidth: '720px', margin: '0 auto', textAlign: 'center' }}>
+      <section style={{ padding: 'clamp(3rem, 6vw, 5rem) clamp(1rem, 4vw, 2rem)', maxWidth: '720px', margin: '0 auto', textAlign: 'center' }}>
         <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
           AI-Powered Career Support
         </span>
@@ -542,9 +457,9 @@ export default async function HomePage() {
       </section>
 
       {/* ===== Final CTA ===== */}
-      <section className="footer-cta" style={{ background: 'var(--color-accent)', padding: '4rem 2rem', textAlign: 'center' }}>
+      <section className="footer-cta" style={{ background: 'var(--color-accent)', padding: 'clamp(3rem, 6vw, 4rem) clamp(1rem, 4vw, 2rem)', textAlign: 'center' }}>
         <div style={{ maxWidth: '700px', margin: '0 auto' }}>
-          <h2 style={{ fontSize: '2.5rem', fontWeight: 900, letterSpacing: '-0.02em', color: 'white', marginBottom: '1rem' }}>Your Next Step</h2>
+          <h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', fontWeight: 900, letterSpacing: '-0.02em', color: 'white', marginBottom: '1rem' }}>Your Next Step</h2>
           <p style={{ color: 'rgba(255,255,255,0.85)', marginBottom: '2rem', fontSize: '1.125rem' }}>
             Apply now — about 10 minutes. We respond within 3–5 business days. Real certifications. Employer connections. No cost to members.
           </p>
@@ -558,8 +473,6 @@ export default async function HomePage() {
           </p>
         </div>
       </section>
-
-      </div>{/* end desktop wrapper */}
 
       <MobileBottomNav />
       <Footer variant="home" />

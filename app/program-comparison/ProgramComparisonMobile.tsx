@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
+import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 export type ComparisonRow = {
@@ -26,52 +27,8 @@ const selectStyle: CSSProperties = {
 
 export default function ProgramComparisonMobile({ rows }: { rows: ComparisonRow[] }) {
   return (
-    <div className="md:wa-hidden" style={{ background: '#fcf9f8', color: '#1c1b1b', minHeight: '100vh', paddingBottom: '8rem' }}>
-      <header
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 50,
-          height: '4rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 1.5rem',
-          background: 'rgba(252,249,248,0.88)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          borderBottom: '1px solid rgba(222,191,194,0.15)',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <span className="material-symbols-outlined" style={{ color: '#ad2c4d', fontSize: '1.5rem' }}>
-            menu
-          </span>
-          <p style={{ fontWeight: 900, letterSpacing: '-0.03em', color: '#ad2c4d', fontSize: '1.25rem', margin: 0 }}>
-            Workforce Academy
-          </p>
-        </div>
-        <div
-          style={{
-            width: '2rem',
-            height: '2rem',
-            borderRadius: '9999px',
-            background: '#ebe7e7',
-            border: '1px solid rgba(222,191,194,0.2)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ color: '#584144', fontSize: '18px' }}>
-            person
-          </span>
-        </div>
-      </header>
-
-      <main style={{ paddingTop: '6rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', maxWidth: '390px', margin: '0 auto' }}>
+    <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: '#fcf9f8', color: '#1c1b1b', minHeight: '100vh' }}>
+      <main style={{ paddingTop: '1.5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', maxWidth: '390px', margin: '0 auto' }}>
         <section style={{ marginBottom: '2.5rem' }}>
           <h1 style={{ fontSize: '2.25rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#1c1b1b', margin: '0 0 0.75rem', lineHeight: 1.15 }}>
             Compare Programs
@@ -311,6 +268,7 @@ export default function ProgramComparisonMobile({ rows }: { rows: ComparisonRow[
         </Link>
       </main>
 
+      <Footer />
       <MobileBottomNav />
     </div>
   );

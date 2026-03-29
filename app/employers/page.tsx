@@ -110,6 +110,7 @@ const PARTNER_LOGOS = ['Google', 'IBM', 'AWS', 'CompTIA', 'Microsoft'];
 export default function EmployersPage() {
   return (
     <div className="inner-page">
+      <div className="wa-hidden md:wa-block marketing-desktop">
       {/* ── Hero ── */}
       <section
         style={{
@@ -262,32 +263,6 @@ export default function EmployersPage() {
         </div>
       </section>
 
-      {/* ── Mobile-only: Proof metrics row (≤640px) ── */}
-      <section className="md:wa-hidden px-4 py-6" style={{ background: '#fcf9f8' }}>
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            { val: '$0', label: 'Cost to Hire', accent: '#8c0f37' },
-            { val: 'Cert-Ready', label: 'Candidates', accent: '#ad2c4d' },
-          ].map((m) => (
-            <div key={m.label} className="rounded-xl p-3 flex flex-col gap-1" style={{ background: 'white', borderLeft: `3px solid ${m.accent}`, boxShadow: '0 1px 4px rgba(28,27,27,0.06)' }}>
-              <span className="text-xl font-black leading-none" style={{ color: m.accent }}>{m.val}</span>
-              <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: '#584144' }}>{m.label}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Mobile-only: Talent category chips (≤640px) ── */}
-      <section className="md:wa-hidden py-4 overflow-x-auto" style={{ background: '#fcf9f8', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-        <div className="flex gap-2 px-4" style={{ width: 'max-content' }}>
-          {['IT & Cyber', 'AI & Software', 'Cloud', 'Business', 'Healthcare'].map((cat, i) => (
-            <span key={cat} className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold" style={{ background: i === 0 ? '#8c0f37' : '#e5e2e1', color: i === 0 ? '#fff' : '#1c1b1b' }}>
-              {cat}
-            </span>
-          ))}
-        </div>
-      </section>
-
       {/* ── The WAP Difference — Sticky sidebar + value cards ── */}
       <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
@@ -300,7 +275,7 @@ export default function EmployersPage() {
           >
             {/* Sticky sidebar */}
             <div style={{ gridColumn: 'span 4' }} className="emp-diff-sidebar">
-              <div style={{ position: 'sticky', top: '6rem' }}>
+              <div style={{ position: 'sticky', top: 'calc(var(--main-nav-layout-height) + 1rem)' }}>
                 <h2
                   style={{
                     fontSize: 'clamp(2rem, 3vw, 2.75rem)',
@@ -727,15 +702,81 @@ export default function EmployersPage() {
           </div>
         </div>
       </section>
+      </div>{/* end employers desktop */}
 
-      {/* ── Mobile-only: Full-width crimson CTA band (≤640px) ── */}
-      <section className="md:wa-hidden px-4 py-10 flex flex-col items-center text-center" style={{ background: '#8c0f37' }}>
-        <h2 className="text-2xl font-extrabold text-white mb-2 tracking-tight">Ready to Hire?</h2>
-        <p className="text-sm mb-6" style={{ color: 'rgba(255,203,209,0.9)' }}>Join over 200 employers finding certified talent through WorkforceAP.</p>
-        <Link href="#employer-contact" className="block w-full font-bold py-4 rounded-xl text-center text-sm" style={{ background: '#fff', color: '#8c0f37' }}>
-          Request Talent Partnership
-        </Link>
-      </section>
+      <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav">
+        <section style={{ padding: '1.5rem 1rem', background: '#fcf9f8' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+            {[
+              { val: '$0', label: 'Cost to Hire', accent: '#8c0f37' },
+              { val: 'Cert-ready', label: 'Candidates', accent: '#ad2c4d' },
+            ].map((m) => (
+              <div
+                key={m.label}
+                style={{
+                  borderRadius: '0.75rem',
+                  padding: '0.75rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.25rem',
+                  background: 'white',
+                  borderLeft: `3px solid ${m.accent}`,
+                  boxShadow: '0 1px 4px rgba(28,27,27,0.06)',
+                }}
+              >
+                <span style={{ fontSize: '1.25rem', fontWeight: 900, lineHeight: 1, color: m.accent }}>{m.val}</span>
+                <span style={{ fontSize: '9px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#584144' }}>{m.label}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+        <section style={{ padding: '1rem 0', overflowX: 'auto', background: '#fcf9f8', scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', paddingLeft: '1rem', paddingRight: '1rem', width: 'max-content' }}>
+            {['IT & Cyber', 'AI & Software', 'Cloud', 'Business', 'Healthcare'].map((cat, i) => (
+              <Link
+                key={cat}
+                href="/programs#program-catalog"
+                style={{
+                  flexShrink: 0,
+                  padding: '0.5rem 1rem',
+                  borderRadius: '9999px',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  background: i === 0 ? '#8c0f37' : '#e5e2e1',
+                  color: i === 0 ? '#fff' : '#1c1b1b',
+                  textDecoration: 'none',
+                }}
+              >
+                {cat}
+              </Link>
+            ))}
+          </div>
+        </section>
+        <section style={{ padding: '2.5rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#8c0f37' }}>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>Ready to Hire?</h2>
+          <p style={{ fontSize: '0.875rem', marginBottom: '1.5rem', color: 'rgba(255,203,209,0.9)', maxWidth: '22rem' }}>
+            Partner with us to reach certified, job-ready candidates — no placement fees.
+          </p>
+          <Link
+            href="/contact"
+            style={{
+              display: 'block',
+              width: '100%',
+              maxWidth: '24rem',
+              fontWeight: 700,
+              padding: '1rem',
+              borderRadius: '0.75rem',
+              textAlign: 'center',
+              fontSize: '0.875rem',
+              background: '#fff',
+              color: '#8c0f37',
+              textDecoration: 'none',
+            }}
+          >
+            Request Talent Partnership
+          </Link>
+        </section>
+      </div>{/* end employers mobile */}
 
       <style>{`
         @media (max-width: 1023px) {

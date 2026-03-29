@@ -1,8 +1,10 @@
 /**
- * ElevenLabs Text-to-Speech integration for Interview Simulator.
+ * ElevenLabs integrations for WorkforceAP AI interview tools.
  *
- * Uses the ElevenLabs API to generate realistic AI interviewer voice.
- * API key stored in ELEVENLABS_API_KEY env var (never committed to code).
+ * Supports:
+ * - Text-to-speech (existing)
+ * - Conversational AI signed URL session creation
+ * - Post-interview feedback generation with Anthropic fallback support
  */
 
 const ELEVENLABS_API_URL = 'https://api.elevenlabs.io/v1';
@@ -15,6 +17,22 @@ interface ElevenLabsOptions {
   modelId?: string;
   stability?: number;
   similarityBoost?: number;
+}
+
+export type InterviewType = 'technical' | 'behavioral' | 'general';
+
+export interface TranscriptTurn {
+  speaker: 'candidate' | 'interviewer';
+  text: string;
+  at?: string;
+}
+
+export interface FeedbackResult {
+  summary: string;
+  strengths: string[];
+  improvements: string[];
+  overallScore: number;
+  source: 'anthropic' | 'heuristic';
 }
 
 /**
@@ -83,6 +101,176 @@ export async function listVoices(): Promise<
     throw new Error(`ElevenLabs API error: ${response.status}`);
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as {
+    voices: { voice_id: string; name: string; category: string }[];
+  };
   return data.voices;
+}
+
+/**
+ * Create a signed conversational session URL for ElevenLabs Conversational AI.
+ */
+export async function createConversationalSession(agentId: string): Promise<{
+  signedUrl: string;
+  expiresAt?: string;
+}> {
+  const apiKey = process.env.ELEVENLABS_API_KEY;
+  if (!apiKey) {
+    throw new Error('ELEVENLABS_API_KEY is not set');
+  }
+
+  const url = `${ELEVENLABS_API_URL}/convai/conversation/get_signed_url?agent_id=${encodeURIComponent(agentId)}`;
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'xi-api-key': apiKey,
+    },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`ElevenLabs Conversational API error (${response.status}): ${errorText}`);
+  }
+
+  const data = (await response.json()) as { signed_url?: string; expires_at_unix_secs?: number };
+  if (!data.signed_url) {
+    throw new Error('ElevenLabs did not return signed_url');
+  }
+
+  return {
+    signedUrl: data.signed_url,
+    expiresAt: data.expires_at_unix_secs
+      ? new Date(data.expires_at_unix_secs * 1000).toISOString()
+      : undefined,
+  };
+}
+
+export async function generateInterviewFeedback(params: {
+  role: string;
+  interviewType: InterviewType;
+  transcript: TranscriptTurn[];
+}): Promise<FeedbackResult> {
+  const { role, interviewType, transcript } = params;
+
+  const candidateTurns = transcript
+    .filter((turn) => turn.speaker === 'candidate')
+    .map((turn) => turn.text.trim())
+    .filter(Boolean);
+
+  if (candidateTurns.length === 0) {
+    return {
+      summary: 'No candidate responses were captured. Try running another interview and ensure microphone access is enabled.',
+      strengths: ['Session initialized successfully'],
+      improvements: ['Provide spoken answers so feedback can be generated'],
+      overallScore: 20,
+      source: 'heuristic',
+    };
+  }
+
+  const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
+  if (anthropicApiKey) {
+    try {
+      const prompt = [
+        `Role: ${role}`,
+        `Interview type: ${interviewType}`,
+        'Candidate transcript:',
+        ...candidateTurns.map((turn, i) => `${i + 1}. ${turn}`),
+      ].join('\n');
+
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-api-key': anthropicApiKey,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: process.env.ANTHROPIC_MODEL ?? 'claude-3-5-sonnet-latest',
+          max_tokens: 900,
+          temperature: 0.3,
+          system:
+            'You are an interview coach. Return concise feedback as strict JSON with keys: summary(string), strengths(string[] exactly 3), improvements(string[] exactly 3), overallScore(number 0-100).',
+          messages: [{ role: 'user', content: prompt }],
+        }),
+      });
+
+      if (response.ok) {
+        const payload = (await response.json()) as {
+          content?: Array<{ type: string; text?: string }>;
+        };
+        const text = payload.content?.find((part) => part.type === 'text')?.text;
+        if (text) {
+          const parsed = JSON.parse(text) as {
+            summary: string;
+            strengths: string[];
+            improvements: string[];
+            overallScore: number;
+          };
+
+          if (
+            typeof parsed.summary === 'string' &&
+            Array.isArray(parsed.strengths) &&
+            Array.isArray(parsed.improvements) &&
+            typeof parsed.overallScore === 'number'
+          ) {
+            return {
+              summary: parsed.summary,
+              strengths: parsed.strengths.slice(0, 3),
+              improvements: parsed.improvements.slice(0, 3),
+              overallScore: Math.max(0, Math.min(100, Math.round(parsed.overallScore))),
+              source: 'anthropic',
+            };
+          }
+        }
+      }
+    } catch {
+      // Fall through to heuristic feedback.
+    }
+  }
+
+  const totalWords = candidateTurns
+    .join(' ')
+    .split(/\s+/)
+    .map((w) => w.trim())
+    .filter(Boolean).length;
+
+  const avgWords = Math.round(totalWords / Math.max(candidateTurns.length, 1));
+  const usedOutcomeLanguage = candidateTurns.some((line) =>
+    /(result|impact|improved|reduced|increased|delivered|launched)/i.test(line)
+  );
+  const usedStructureLanguage = candidateTurns.some((line) =>
+    /(first|then|next|finally|because|therefore|so that)/i.test(line)
+  );
+
+  let score = 45;
+  if (avgWords >= 35) score += 20;
+  else if (avgWords >= 20) score += 12;
+  else score += 5;
+  if (usedOutcomeLanguage) score += 18;
+  if (usedStructureLanguage) score += 12;
+
+  const finalScore = Math.max(0, Math.min(100, score));
+
+  return {
+    summary:
+      finalScore >= 75
+        ? 'Strong interview fundamentals. Your answers were detailed and included outcome-oriented language.'
+        : 'You have a solid start. Focus on giving more structured responses with specific outcomes and measurable impact.',
+    strengths: [
+      'You stayed engaged throughout the interview session.',
+      avgWords >= 20 ? 'You provided meaningful detail in responses.' : 'You answered each prompt directly.',
+      usedOutcomeLanguage
+        ? 'You referenced impact/results, which hiring managers value.'
+        : 'You maintained role relevance in your answers.',
+    ],
+    improvements: [
+      'Use STAR-style framing (Situation, Task, Action, Result) for key stories.',
+      'Add metrics or business outcomes where possible (%, $, time saved).',
+      interviewType === 'technical'
+        ? 'Explain your decision-making process before jumping to final solutions.'
+        : 'Practice concise opening statements before expanding into detail.',
+    ],
+    overallScore: finalScore,
+    source: 'heuristic',
+  };
 }

@@ -1,197 +1,61 @@
-import type { Metadata } from 'next';
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Become a Mentor',
-  description: 'Volunteer your expertise to help workforce members build careers. Log hours, earn a charitable contribution letter, and make a real impact.',
+  title: 'Become a Mentor | WorkforceAP',
+  description: 'Volunteer your expertise to help job-seekers advance their careers. Log hours, earn a tax deduction letter, and give back to your community.',
   path: '/mentor',
 });
 
-const benefits = [
-  {
-    icon: '📋',
-    title: 'Volunteer Hours Logged',
-    desc: 'Every session is automatically tracked. Your contributions are recorded and verified.',
-  },
-  {
-    icon: '📄',
-    title: 'Nonprofit Tax Deduction Letter',
-    desc: 'WorkforceAP is a registered nonprofit. We auto-generate an IRS-compliant charitable contribution letter for your volunteer time.',
-  },
-  {
-    icon: '🌍',
-    title: 'Real Community Impact',
-    desc: 'Help job seekers break into your industry. Your career wisdom opens doors for people who need it most.',
-  },
-  {
-    icon: '🤝',
-    title: 'Flexible Commitment',
-    desc: 'Choose how many hours per month you can give. As few as 2 hours makes a difference.',
-  },
-];
-
-export default function MentorLandingPage() {
+export default function BecomeMentorPage() {
   return (
-    <>
-      {/* Desktop */}
-      <div className="wa-md:wa-block wa-hidden">
-        <main style={{ minHeight: '100vh', background: '#f8fafc' }}>
-          {/* Hero */}
-          <section style={{
-            background: 'linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%)',
-            color: '#fff',
-            padding: '80px 24px',
-            textAlign: 'center',
-          }}>
-            <div style={{ maxWidth: 720, margin: '0 auto' }}>
-              <div style={{ fontSize: 56, marginBottom: 16 }}>🤝</div>
-              <h1 style={{ fontSize: 42, fontWeight: 800, marginBottom: 16 }}>
-                Become a WorkforceAP Mentor
-              </h1>
-              <p style={{ fontSize: 20, opacity: 0.9, marginBottom: 32, lineHeight: 1.6 }}>
-                Share your expertise, earn a charitable contribution letter, and help workforce members
-                launch meaningful careers in your industry.
-              </p>
-              <Link href="/mentor/apply" style={{
-                display: 'inline-block',
-                background: '#fff',
-                color: '#1e3a5f',
-                fontWeight: 700,
-                fontSize: 18,
-                padding: '14px 36px',
-                borderRadius: 8,
-                textDecoration: 'none',
-              }}>
-                Apply to Mentor →
-              </Link>
-            </div>
-          </section>
+    <main style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
+      {/* Hero */}
+      <section style={{ background: 'var(--color-accent)', color: '#fff', padding: '4rem 2rem', textAlign: 'center' }}>
+        <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '1rem' }}>
+          Share Your Expertise. Change a Career.
+        </h1>
+        <p style={{ fontSize: '1.125rem', maxWidth: 600, margin: '0 auto 2rem', opacity: 0.9 }}>
+          WorkforceAP mentors are industry professionals who volunteer their time to guide job-seekers. Your experience is worth more than you think — and it&apos;s tax-deductible.
+        </p>
+        <Link
+          href="/mentor/apply"
+          style={{ background: '#fff', color: 'var(--color-accent)', fontWeight: 700, padding: '0.875rem 2rem', borderRadius: 8, textDecoration: 'none', fontSize: '1rem' }}
+        >
+          Apply to Mentor
+        </Link>
+      </section>
 
-          {/* Benefits */}
-          <section style={{ padding: '64px 24px', maxWidth: 960, margin: '0 auto' }}>
-            <h2 style={{ textAlign: 'center', fontSize: 32, fontWeight: 700, marginBottom: 48, color: '#1e293b' }}>
-              Why Mentor with WorkforceAP?
-            </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 32 }}>
-              {benefits.map((b) => (
-                <div key={b.title} style={{
-                  background: '#fff',
-                  borderRadius: 12,
-                  padding: 28,
-                  boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                  border: '1px solid #e2e8f0',
-                }}>
-                  <div style={{ fontSize: 36, marginBottom: 12 }}>{b.icon}</div>
-                  <h3 style={{ fontSize: 20, fontWeight: 700, color: '#1e293b', marginBottom: 8 }}>{b.title}</h3>
-                  <p style={{ color: '#475569', lineHeight: 1.6 }}>{b.desc}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* How it works */}
-          <section style={{ background: '#fff', padding: '64px 24px' }}>
-            <div style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
-              <h2 style={{ fontSize: 32, fontWeight: 700, color: '#1e293b', marginBottom: 40 }}>How It Works</h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 24, textAlign: 'left' }}>
-                {[
-                  { step: '1', title: 'Apply in 5 minutes', desc: 'Fill out a short application with your background, industry, and specialties.' },
-                  { step: '2', title: 'Get approved by our team', desc: 'We review applications within 48 hours. Approved mentors receive a welcome email.' },
-                  { step: '3', title: 'Members request sessions', desc: 'Members browse your profile and request 30–60 minute sessions on topics you choose.' },
-                  { step: '4', title: 'Log hours, get your letter', desc: 'After each session, hours are logged automatically. Download your annual contribution letter any time.' },
-                ].map((s) => (
-                  <div key={s.step} style={{ display: 'flex', gap: 20, alignItems: 'flex-start' }}>
-                    <div style={{
-                      minWidth: 40, height: 40, borderRadius: '50%',
-                      background: '#2563eb', color: '#fff',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontWeight: 700, fontSize: 18,
-                    }}>{s.step}</div>
-                    <div>
-                      <div style={{ fontWeight: 700, fontSize: 18, color: '#1e293b' }}>{s.title}</div>
-                      <div style={{ color: '#475569', marginTop: 4 }}>{s.desc}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div style={{ marginTop: 48 }}>
-                <Link href="/mentor/apply" style={{
-                  display: 'inline-block',
-                  background: '#2563eb',
-                  color: '#fff',
-                  fontWeight: 700,
-                  fontSize: 18,
-                  padding: '14px 36px',
-                  borderRadius: 8,
-                  textDecoration: 'none',
-                }}>
-                  Start Your Application →
-                </Link>
-              </div>
-            </div>
-          </section>
-        </main>
-      </div>
-
-      {/* Mobile */}
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        <div style={{
-          background: 'linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%)',
-          color: '#fff',
-          padding: '48px 20px 40px',
-          textAlign: 'center',
-        }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>🤝</div>
-          <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 12 }}>Become a Mentor</h1>
-          <p style={{ fontSize: 16, opacity: 0.9, lineHeight: 1.5, marginBottom: 28 }}>
-            Share expertise, log volunteer hours, and get a charitable contribution letter.
-          </p>
-          <Link href="/mentor/apply" style={{
-            display: 'inline-block',
-            background: '#fff',
-            color: '#1e3a5f',
-            fontWeight: 700,
-            fontSize: 16,
-            padding: '12px 28px',
-            borderRadius: 8,
-            textDecoration: 'none',
-          }}>
-            Apply to Mentor →
-          </Link>
-        </div>
-
-        <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {benefits.map((b) => (
-            <div key={b.title} style={{
-              background: '#fff',
-              borderRadius: 10,
-              padding: 20,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-              border: '1px solid #e2e8f0',
-            }}>
-              <div style={{ fontSize: 28, marginBottom: 8 }}>{b.icon}</div>
-              <div style={{ fontWeight: 700, fontSize: 16, color: '#1e293b', marginBottom: 6 }}>{b.title}</div>
-              <div style={{ color: '#475569', fontSize: 14, lineHeight: 1.5 }}>{b.desc}</div>
+      {/* Benefits */}
+      <section style={{ maxWidth: 900, margin: '0 auto', padding: '3rem 2rem' }}>
+        <h2 style={{ fontSize: '1.75rem', fontWeight: 700, textAlign: 'center', marginBottom: '2rem', color: 'var(--color-on-surface)' }}>
+          Why Mentor with WorkforceAP?
+        </h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem' }}>
+          {[
+            { icon: '📋', title: 'Hours Logged Automatically', desc: 'Every session is recorded. We track your total volunteer hours so you never have to.' },
+            { icon: '📄', title: 'Tax Deduction Letter', desc: 'Download a nonprofit volunteer hour letter for your tax filings — generated automatically from your session history.' },
+            { icon: '🤝', title: 'Real Impact', desc: 'Your guidance helps adults overcome barriers to employment — career changers, veterans, returning workers.' },
+            { icon: '🌐', title: 'Build Your Network', desc: 'Connect with motivated professionals who are eager to learn and grow. Many mentors find their next hires here.' },
+          ].map((b) => (
+            <div key={b.title} style={{ background: 'var(--surface-container-low)', borderRadius: 10, padding: '1.5rem', border: '1px solid var(--surface-container-high)' }}>
+              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>{b.icon}</div>
+              <h3 style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>{b.title}</h3>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>{b.desc}</p>
             </div>
           ))}
         </div>
 
-        <div style={{ padding: '0 20px 24px', textAlign: 'center' }}>
-          <Link href="/mentor/apply" style={{
-            display: 'block',
-            background: '#2563eb',
-            color: '#fff',
-            fontWeight: 700,
-            fontSize: 16,
-            padding: '14px',
-            borderRadius: 8,
-            textDecoration: 'none',
-          }}>
-            Start Application →
+        <div style={{ textAlign: 'center', marginTop: '2.5rem' }}>
+          <Link
+            href="/mentor/apply"
+            style={{ background: 'var(--color-accent)', color: '#fff', fontWeight: 700, padding: '0.875rem 2rem', borderRadius: 8, textDecoration: 'none', fontSize: '1rem' }}
+          >
+            Apply to Mentor →
           </Link>
         </div>
-      </div>
-    </>
+      </section>
+    </main>
   );
 }

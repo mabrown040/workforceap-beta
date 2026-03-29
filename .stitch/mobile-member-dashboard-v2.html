@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Civic Bridge - Member Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-surface-variant": "#debfc2",
+              "secondary-fixed": "#ffd9dd",
+              "secondary-fixed-dim": "#ffb2bc",
+              "surface-container-high": "#282a2c",
+              "inverse-primary": "#ad2c4d",
+              "surface": "#121416",
+              "on-tertiary-container": "#92ecb1",
+              "surface-container-lowest": "#0c0e10",
+              "on-primary-fixed": "#400013",
+              "tertiary-fixed-dim": "#80d99f",
+              "on-tertiary-fixed": "#00210f",
+              "surface-dim": "#121416",
+              "surface-container": "#1e2022",
+              "primary": "#ffb2bc",
+              "secondary-container": "#71333e",
+              "on-surface": "#e2e2e5",
+              "surface-container-highest": "#333537",
+              "surface-container-low": "#1a1c1e",
+              "tertiary-fixed": "#9cf6ba",
+              "surface-bright": "#37393b",
+              "inverse-on-surface": "#2f3133",
+              "background": "#121416",
+              "tertiary": "#80d99f",
+              "outline": "#a68a8d",
+              "on-secondary": "#551d29",
+              "on-primary-container": "#ffcbd1",
+              "secondary": "#ffb2bc",
+              "primary-fixed": "#ffd9dd",
+              "outline-variant": "#584144",
+              "primary-fixed-dim": "#ffb2bc",
+              "surface-tint": "#ffb2bc",
+              "on-background": "#e2e2e5",
+              "on-secondary-fixed": "#3a0815",
+              "surface-variant": "#333537",
+              "primary-container": "#ad2c4d",
+              "on-primary-fixed-variant": "#8c0f37",
+              "error": "#ffb4ab",
+              "tertiary-container": "#006d3e",
+              "on-error": "#690005",
+              "error-container": "#93000a",
+              "on-primary": "#670024",
+              "on-error-container": "#ffdad6",
+              "on-tertiary-fixed-variant": "#00522d",
+              "on-tertiary": "#00391e",
+              "on-secondary-fixed-variant": "#71333e",
+              "inverse-surface": "#e2e2e5",
+              "on-secondary-container": "#f29eaa"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-effect {
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-[#121416]/80 backdrop-blur-xl border-b border-[#E2E2E5]/15 dark:border-[#E2E2E5]/10 shadow-sm dark:shadow-none h-16 flex justify-between items-center px-4">
+<div class="flex items-center gap-3">
+<button class="text-on-surface-variant dark:text-[#E2E2E5]/60 active:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<span class="text-lg font-bold tracking-tighter text-[#AD2C4D]">CIVIC BRIDGE</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant/15">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="Close up portrait of a professional man in a dark blazer with neutral background, soft academic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMH0NaLBzBQGrXXcCMWD0lN-LQf4doIAA2pmCX9rwBsFZyyRFtfuf3qijCA2dGoqjk3R0Dmq1PtctiyDXEBrFSUOpES4yaR-LeOPXkgdcrkaXtGb0Src5lc8avG2MXh3OMLX6xufzd5vAxZpB8zt-MmlJytSPV7d0Vp3OrRNNSOPDzFLgwHo3DlrjvykgwjLMOtQyAagEZA3sdPy8lrWEd4T-InaTo_vigm1OTFA81hiJTitfCbeL3XZ8bs52EIf1nuAiMFQHpb7_3"/>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 pt-20 pb-24 px-4 overflow-x-hidden">
+<!-- Welcome Segment -->
+<section class="mb-8">
+<p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#AD2C4D] mb-1">CUSTODIAN ACCESS</p>
+<h1 class="text-3xl font-bold tracking-tight text-on-surface">Hello, Citizen Curator.</h1>
+<p class="text-on-surface-variant text-sm mt-1 opacity-80">Institutional Tier I — Active Session</p>
+</section>
+<!-- Featured AI Career Toolkit (Signature Glass Card) -->
+<section class="mb-10 relative group">
+<div class="absolute inset-0 bg-gradient-to-br from-[#AD2C4D] to-primary-container opacity-10 rounded-xl"></div>
+<div class="relative bg-surface-container-low border border-white/5 rounded-xl p-6 overflow-hidden">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="inline-block px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded-sm mb-3">PRIORITY TOOLKIT</span>
+<h2 class="text-xl font-bold leading-tight">AI Career<br/>Synthesis Engine</h2>
+</div>
+<div class="w-12 h-12 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl" data-icon="auto_awesome" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+</div>
+<div class="space-y-4 mb-6">
+<div class="flex items-center gap-3">
+<div class="w-1 h-1 rounded-full bg-primary"></div>
+<p class="text-sm text-on-surface-variant">Policy Impact Analysis (v4.2)</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-1 h-1 rounded-full bg-primary"></div>
+<p class="text-sm text-on-surface-variant">Legislative Career Mapping</p>
+</div>
+</div>
+<button class="w-full py-3 bg-gradient-to-r from-primary-container to-[#AD2C4D] text-on-primary text-sm font-semibold rounded-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                    Launch Synthesis
+                    <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</section>
+<!-- Bento Grid Insights -->
+<section class="grid grid-cols-2 gap-4 mb-10">
+<!-- Archives Access -->
+<div class="col-span-1 bg-surface-container-high p-4 rounded-xl flex flex-col justify-between h-40">
+<span class="material-symbols-outlined text-on-tertiary-container" data-icon="account_balance">account_balance</span>
+<div>
+<h3 class="text-sm font-semibold mb-1">Archives</h3>
+<p class="text-[10px] text-on-surface-variant opacity-60">1.2k Documents</p>
+</div>
+</div>
+<!-- Civic Map -->
+<div class="col-span-1 bg-surface-container p-4 rounded-xl flex flex-col justify-between h-40 relative overflow-hidden">
+<div class="absolute inset-0 opacity-20 grayscale">
+<img alt="Map overlay" class="w-full h-full object-cover" data-alt="Subtle top-down view of a vintage architectural blueprint map with fine lines and technical details" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtkUzmYQHJ-8IjD6UApfU02mtulIk5SH6de7PVEIK_rctMKew9XchLCCzwqIP70uxu4zdTCh6eZSRvevYErGOu16GGE39snNd4kyJW9uGPEH2QDrCEMukaiXCSh8Ppnccxjmnyu5SgGzGD-VPybwYcV3al7iTqJSRosgDevNHvSstkqdUa5HhoLKzWnjCIA8Etvik2t5AawC2HZKKhSmHfpg7X-Qq4e4obhhgdEOVpqquerEoSF_dKBGl8flGefbPr_HWZlo2mf8mx"/>
+</div>
+<div class="relative z-10 flex flex-col justify-between h-full">
+<span class="material-symbols-outlined text-tertiary" data-icon="map">map</span>
+<div>
+<h3 class="text-sm font-semibold mb-1">Civic Map</h3>
+<p class="text-[10px] text-on-surface-variant opacity-60">District Activity</p>
+</div>
+</div>
+</div>
+<!-- Legislation Feed (Full Width in grid) -->
+<div class="col-span-2 bg-surface-container-low p-5 rounded-xl border border-white/5">
+<div class="flex justify-between items-center mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="gavel">gavel</span>
+<h3 class="text-sm font-semibold uppercase tracking-wider">Legislation</h3>
+</div>
+<span class="text-[10px] font-bold text-primary">LIVE UPDATES</span>
+</div>
+<div class="space-y-4">
+<div class="flex gap-4 items-start">
+<div class="mt-1 w-2 h-2 rounded-full bg-tertiary shrink-0"></div>
+<div>
+<p class="text-sm font-medium leading-snug">Public Infrastructure Act 2024</p>
+<p class="text-[10px] text-on-surface-variant opacity-60">Second reading scheduled for Thursday</p>
+</div>
+</div>
+<div class="flex gap-4 items-start opacity-60">
+<div class="mt-1 w-2 h-2 rounded-full bg-outline shrink-0"></div>
+<div>
+<p class="text-sm font-medium leading-snug">Urban Zoning Amendment B-12</p>
+<p class="text-[10px] text-on-surface-variant">Status: Pending Review</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Activity Feed -->
+<section>
+<div class="flex justify-between items-end mb-6">
+<h2 class="text-xl font-bold tracking-tight">Recent Activity</h2>
+<span class="text-[10px] font-bold text-[#AD2C4D] border-b border-[#AD2C4D]/30 pb-0.5">VIEW HISTORY</span>
+</div>
+<div class="space-y-1">
+<div class="p-4 bg-surface-container-lowest rounded-lg mb-2 flex items-center gap-4 transition-colors hover:bg-surface-container-low">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="description">description</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-medium">Exported Career Analysis</p>
+<p class="text-[10px] text-on-surface-variant">2 hours ago • PDF Format</p>
+</div>
+<span class="material-symbols-outlined text-sm text-on-surface-variant/40" data-icon="chevron_right">chevron_right</span>
+</div>
+<div class="p-4 bg-surface-container-lowest rounded-lg mb-2 flex items-center gap-4 transition-colors hover:bg-surface-container-low">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="visibility">visibility</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-medium">Viewed Redistricting Proposal</p>
+<p class="text-[10px] text-on-surface-variant">Yesterday • Civic Map</p>
+</div>
+<span class="material-symbols-outlined text-sm text-on-surface-variant/40" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-2 pb-safe h-16 bg-surface/90 dark:bg-[#121416]/90 backdrop-blur-lg border-t border-[#E2E2E5]/10 z-50">
+<!-- Home (Active) -->
+<a class="flex flex-col items-center justify-center text-[#AD2C4D] bg-[#AD2C4D]/5 rounded-xl px-3 py-1 transition-all" href="#">
+<span class="material-symbols-outlined mb-0.5" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-inter text-[10px] font-semibold uppercase tracking-widest">Home</span>
+</a>
+<!-- Search -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-[#E2E2E5]/50 opacity-80 hover:opacity-100 active:translate-y-0.5 transition-all" href="#">
+<span class="material-symbols-outlined mb-0.5" data-icon="search">search</span>
+<span class="font-inter text-[10px] font-semibold uppercase tracking-widest">Search</span>
+</a>
+<!-- Activity -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-[#E2E2E5]/50 opacity-80 hover:opacity-100 active:translate-y-0.5 transition-all" href="#">
+<span class="material-symbols-outlined mb-0.5" data-icon="analytics">analytics</span>
+<span class="font-inter text-[10px] font-semibold uppercase tracking-widest">Activity</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-[#E2E2E5]/50 opacity-80 hover:opacity-100 active:translate-y-0.5 transition-all" href="#">
+<span class="material-symbols-outlined mb-0.5" data-icon="person">person</span>
+<span class="font-inter text-[10px] font-semibold uppercase tracking-widest">Profile</span>
+</a>
+</nav>
+<!-- Contextual FAB (Only for Dashboard/Home) -->
+<button class="fixed right-6 bottom-20 w-14 h-14 bg-gradient-to-br from-[#AD2C4D] to-primary-container text-on-primary rounded-full shadow-2xl flex items-center justify-center z-40 active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-2xl" data-icon="add">add</span>
+</button>
+</body></html>

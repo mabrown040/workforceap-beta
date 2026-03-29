@@ -132,3 +132,125 @@
   border-radius: 4px;
   transition: width 0.3s ease;
 }
+
+/* =============================================
+   Mobile Bottom Navigation (from stitch mobile mockups)
+   ============================================= */
+@media (max-width: 768px) {
+    /* Add bottom padding to main content to account for bottom nav */
+    .portal-shell-main {
+        padding-bottom: 5rem !important;
+    }
+
+    /* Mobile bottom nav bar */
+    .mobile-bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        padding: 0.5rem 0.5rem env(safe-area-inset-bottom, 0);
+        height: 4rem;
+        background: var(--glass-bg);
+        backdrop-filter: var(--glass-blur-xl);
+        -webkit-backdrop-filter: var(--glass-blur-xl);
+        border-top: 1px solid rgba(255,255,255,0.06);
+        z-index: 50;
+    }
+    .mobile-bottom-nav a,
+    .mobile-bottom-nav button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.125rem;
+        color: var(--color-on-surface-variant);
+        opacity: 0.6;
+        text-decoration: none;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--radius-xl);
+        transition: all 0.15s ease;
+    }
+    .mobile-bottom-nav a.active,
+    .mobile-bottom-nav button.active {
+        color: var(--color-accent);
+        opacity: 1;
+        background: rgba(173,44,77,0.05);
+    }
+    .mobile-bottom-nav .nav-label {
+        font-size: 0.625rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    /* Hide desktop sidebar on mobile */
+    .dashboard-sidebar:not(.open) {
+        transform: translateX(-100%);
+    }
+
+    /* Floating action button */
+    .mobile-fab {
+        position: fixed;
+        right: 1.5rem;
+        bottom: 5rem;
+        width: 3.5rem;
+        height: 3.5rem;
+        border-radius: 50%;
+        background: var(--color-accent);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 24px rgba(173,44,77,0.3);
+        z-index: 45;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.15s ease;
+    }
+    .mobile-fab:active {
+        transform: scale(0.9);
+    }
+}
+
+/* Auth pages — split layout */
+.auth-split-layout {
+    display: flex;
+    min-height: 100vh;
+}
+.auth-branding-panel {
+    display: none;
+}
+@media (min-width: 768px) {
+    .auth-branding-panel {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 50%;
+        padding: 3rem;
+        background: var(--surface-container-low);
+        position: relative;
+        overflow: hidden;
+    }
+    .auth-form-panel {
+        width: 50%;
+    }
+}
+.auth-form-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+    background: var(--surface-dim);
+}
+@media (min-width: 768px) {
+    .auth-form-panel {
+        padding: 4rem;
+    }
+}

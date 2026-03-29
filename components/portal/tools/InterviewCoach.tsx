@@ -91,7 +91,8 @@ export default function InterviewCoach() {
         throw new Error(data.error ?? 'Unable to generate next question.');
       }
 
-      setQuestions((prev) => [...prev, data.firstQuestion]);
+      const nextQuestion = data.firstQuestion;
+      setQuestions((prev) => [...prev, nextQuestion]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong.');
     } finally {

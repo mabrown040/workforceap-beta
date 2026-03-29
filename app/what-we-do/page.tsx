@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
-import { Target, Globe, Lightbulb, Handshake, TrendingUp } from 'lucide-react';
 import PageHero from '@/components/PageHero';
 import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
@@ -32,12 +31,12 @@ export default function WhatWeDoPage() {
         <div className="container">
           <div className="mission-vision-grid">
             <div className="mv-card animate-on-scroll">
-              <div className="mv-icon mission"><Target size={32} className="text-current" /></div>
+              <div className="mv-icon mission"><span className="material-symbols-outlined" style={{ fontSize: 32 }}>target</span></div>
               <h2>Mission</h2>
               <p>Break down systemic barriers by providing digital literacy, AI, occupational, and professional certification training to underserved individuals, adult learners, and veterans — at no cost.</p>
             </div>
             <div className="mv-card animate-on-scroll">
-              <div className="mv-icon vision"><Globe size={32} className="text-current" /></div>
+              <div className="mv-icon vision"><span className="material-symbols-outlined" style={{ fontSize: 32 }}>public</span></div>
               <h2>Why This Model Works</h2>
               <p>Employers fund talent pipelines. Grants fund access. We don&rsquo;t charge participants. Our success metric is your hire — when you land a job, we&rsquo;ve done our job. That alignment is why this scales beyond one local market.</p>
             </div>
@@ -70,7 +69,7 @@ export default function WhatWeDoPage() {
             </div>
           </div>
 
-          <div className="wioa-callout animate-on-scroll" style={{ marginBottom: '2rem', padding: '1.25rem 1.5rem', background: 'var(--color-gray-50)', borderLeft: '4px solid var(--color-accent)', borderRadius: 'var(--radius-sm)' }}>
+          <div className="wioa-callout animate-on-scroll" style={{ marginBottom: '2rem', padding: '1.25rem 1.5rem', background: 'var(--surface-container-low)', borderLeft: '4px solid var(--color-accent)', borderRadius: 'var(--radius-sm)' }}>
             <p style={{ margin: 0, lineHeight: 1.6 }}>
               WorkforceAP programs align with <strong>WIOA (Workforce Innovation and Opportunity Act)</strong> eligibility criteria, including low-income individuals, dislocated workers, adult learners, and veterans seeking career advancement. Our employer-aligned training model is designed to serve the communities WIOA prioritizes.
             </p>
@@ -79,21 +78,18 @@ export default function WhatWeDoPage() {
           <h2 className="section-title animate-on-scroll">What We Stand For</h2>
           <div className="values-grid">
             {[
-              { Icon: Target, name: 'Equity', desc: 'Fair access to opportunity — no one should pay for the training that gets them hired.' },
-              { Icon: Globe, name: 'Employer-Aligned', desc: 'We teach what employers hire for. Google, IBM, AWS, CompTIA — credentials that open doors.' },
-              { Icon: Lightbulb, name: 'Outcomes Matter', desc: 'Our success is your hire. We measure what matters: jobs landed, careers launched.' },
-              { Icon: Handshake, name: 'Partnership', desc: 'Government, employers, community orgs — we leverage collective strength so participants don\'t carry the load alone.' },
-              { Icon: TrendingUp, name: 'Scale Where It Works', desc: 'We launch where we can deliver, then expand. Austin first; more communities as we grow.' },
-            ].map((v) => {
-              const Icon = v.Icon;
-              return (
+              { icon: 'target', name: 'Equity', desc: 'Fair access to opportunity — no one should pay for the training that gets them hired.' },
+              { icon: 'public', name: 'Employer-Aligned', desc: 'We teach what employers hire for. Google, IBM, AWS, CompTIA — credentials that open doors.' },
+              { icon: 'lightbulb', name: 'Outcomes Matter', desc: 'Our success is your hire. We measure what matters: jobs landed, careers launched.' },
+              { icon: 'handshake', name: 'Partnership', desc: 'Government, employers, community orgs — we leverage collective strength so participants don\'t carry the load alone.' },
+              { icon: 'trending_up', name: 'Scale Where It Works', desc: 'We launch where we can deliver, then expand. Austin first; more communities as we grow.' },
+            ].map((v) => (
               <div key={v.name} className="value-card animate-on-scroll">
-                <div className="value-icon"><Icon size={28} className="text-current" /></div>
+                <div className="value-icon"><span className="material-symbols-outlined" style={{ fontSize: 28 }}>{v.icon}</span></div>
                 <h3>{v.name}</h3>
                 <p>{v.desc}</p>
               </div>
-              );
-            })}
+            ))}
           </div>
 
           <div className="cta-section animate-on-scroll">

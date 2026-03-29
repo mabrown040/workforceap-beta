@@ -94,7 +94,7 @@ export default async function PartnerMemberDetailPage({ params }: Props) {
                 {coursesDone.includes(c.slug) ? (
                   <CheckCircle size={18} style={{ color: 'var(--color-green)', flexShrink: 0 }} />
                 ) : (
-                  <span style={{ display: 'inline-block', width: 18, height: 18, border: '2px solid #ccc', borderRadius: 4, flexShrink: 0 }} />
+                  <span style={{ display: 'inline-block', width: 18, height: 18, border: '2px solid var(--outline-variant)', borderRadius: 4, flexShrink: 0 }} />
                 )}
                 {c.name}
               </li>
@@ -106,7 +106,7 @@ export default async function PartnerMemberDetailPage({ params }: Props) {
       <section style={{ marginBottom: '1.5rem', padding: '1rem', background: 'var(--color-light)', borderRadius: '8px' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Certifications</h2>
         {member.userCertifications.length === 0 ? (
-          <p style={{ color: 'var(--color-gray-500)', margin: 0 }}>None on file yet.</p>
+          <p style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>None on file yet.</p>
         ) : (
           <ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
             {member.userCertifications.map((c) => (
@@ -138,7 +138,7 @@ export default async function PartnerMemberDetailPage({ params }: Props) {
             )}
           </>
         ) : (
-          <p style={{ color: 'var(--color-gray-500)', margin: 0 }}>Not placed yet.</p>
+          <p style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>Not placed yet.</p>
         )}
       </section>
     </div>

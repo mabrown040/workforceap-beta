@@ -43,13 +43,13 @@ export default async function TrainingPage() {
   return (
     <>
       <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Training</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1rem' }}>
+      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
         {program.title} — Coursera
       </p>
       <p style={{ marginBottom: '1.5rem', fontSize: '0.95rem' }}>
         {completedCount} of {program.courses.length} courses complete
       </p>
-      <div style={{ height: '8px', background: '#e5e5e5', borderRadius: '4px', marginBottom: '2rem', overflow: 'hidden' }}>
+      <div style={{ height: '8px', background: 'var(--surface-container-highest)', borderRadius: '4px', marginBottom: '2rem', overflow: 'hidden' }}>
         <div
           style={{
             height: '100%',

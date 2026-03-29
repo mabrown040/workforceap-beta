@@ -12,7 +12,7 @@ import ProgramDetailClient from './ProgramDetailClient';
 import ProgramRelatedSection from '@/components/programs/ProgramRelatedSection';
 import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
 import { getRelatedPrograms } from '@/lib/content/relatedPrograms';
-import { HelpCircle, BookOpen, ArrowRight, Clock, DollarSign, Briefcase } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -74,7 +74,7 @@ export default async function ProgramPage({ params }: Props) {
           <p style={{ marginTop: '0.5rem' }}>
             {program.duration} • Starting range {salaryRangeDisplay(program)} (early-career, Austin-area framing)
           </p>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>
+          <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
             {program.partner} certified
           </p>
           {extra && (
@@ -99,18 +99,17 @@ export default async function ProgramPage({ params }: Props) {
             <ProgramDetailClient program={program} />
             
             {/* Bottom CTA Banner */}
-            <div className="program-bottom-cta" style={{ 
-              marginTop: '3rem', 
-              padding: '2rem', 
-              background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+            <div className="program-bottom-cta" style={{
+              marginTop: '3rem',
+              padding: '2rem',
+              background: 'var(--surface-container-low)',
               borderRadius: '12px',
               textAlign: 'center',
-              border: '1px solid #dee2e6'
             }}>
-              <h3 style={{ fontSize: '1.5rem', marginBottom: '0.75rem', color: '#1a1a1a' }}>
+              <h3 style={{ fontSize: '1.5rem', marginBottom: '0.75rem', color: 'var(--color-on-surface)' }}>
                 Ready to start your career in {program.categoryLabel}?
               </h3>
-              <p style={{ fontSize: '1rem', color: '#555', marginBottom: '1.5rem', maxWidth: '500px', margin: '0 auto 1.5rem' }}>
+              <p style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', maxWidth: '500px', margin: '0 auto 1.5rem' }}>
                 Applications take about 10 minutes. No cost for qualifying Austin-area residents. 
                 We respond within 24–48 hours.
               </p>
@@ -126,15 +125,14 @@ export default async function ProgramPage({ params }: Props) {
             <ProgramRelatedSection programs={relatedPrograms} />
 
             {/* Related Resources */}
-            <div style={{ 
-              marginTop: '2.5rem', 
+            <div style={{
+              marginTop: '2.5rem',
               padding: '1.5rem',
-              background: 'white',
+              background: 'var(--surface-container-low)',
               borderRadius: '12px',
-              border: '1px solid #e5e5e5'
             }}>
               <h3 style={{ fontSize: '1.125rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <HelpCircle size={20} style={{ color: '#ad2c4d' }} />
+                <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--color-accent)' }}>help</span>
                 Have Questions?
               </h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
@@ -143,12 +141,12 @@ export default async function ProgramPage({ params }: Props) {
                   alignItems: 'center',
                   gap: '0.75rem',
                   padding: '1rem',
-                  background: '#f8f9fa',
+                  background: 'var(--surface-container)',
                   borderRadius: '8px',
                   textDecoration: 'none',
-                  color: '#1a1a1a',
+                  color: 'var(--color-on-surface)',
                 }}>
-                  <BookOpen size={18} style={{ color: '#ad2c4d' }} />
+                  <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }}>menu_book</span>
                   <span>Read FAQ</span>
                   <ArrowRight size={16} style={{ marginLeft: 'auto', opacity: 0.5 }} />
                 </Link>
@@ -157,42 +155,42 @@ export default async function ProgramPage({ params }: Props) {
                   alignItems: 'center',
                   gap: '0.75rem',
                   padding: '1rem',
-                  background: '#f8f9fa',
+                  background: 'var(--surface-container)',
                   borderRadius: '8px',
                   textDecoration: 'none',
-                  color: '#1a1a1a',
+                  color: 'var(--color-on-surface)',
                 }}>
-                  <Clock size={18} style={{ color: '#ad2c4d' }} />
+                  <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }}>schedule</span>
                   <span>How It Works</span>
                   <ArrowRight size={16} style={{ marginLeft: 'auto', opacity: 0.5 }} />
                 </Link>
-                
+
                 <Link href="/salary-guide" style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.75rem',
                   padding: '1rem',
-                  background: '#f8f9fa',
+                  background: 'var(--surface-container)',
                   borderRadius: '8px',
                   textDecoration: 'none',
-                  color: '#1a1a1a',
+                  color: 'var(--color-on-surface)',
                 }}>
-                  <DollarSign size={18} style={{ color: '#ad2c4d' }} />
+                  <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }}>payments</span>
                   <span>Salary Guide</span>
                   <ArrowRight size={16} style={{ marginLeft: 'auto', opacity: 0.5 }} />
                 </Link>
-                
+
                 <Link href="/blog" style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.75rem',
                   padding: '1rem',
-                  background: '#f8f9fa',
+                  background: 'var(--surface-container)',
                   borderRadius: '8px',
                   textDecoration: 'none',
-                  color: '#1a1a1a',
+                  color: 'var(--color-on-surface)',
                 }}>
-                  <Briefcase size={18} style={{ color: '#ad2c4d' }} />
+                  <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }}>work</span>
                   <span>Career Tips</span>
                   <ArrowRight size={16} style={{ marginLeft: 'auto', opacity: 0.5 }} />
                 </Link>

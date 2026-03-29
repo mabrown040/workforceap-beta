@@ -28,7 +28,7 @@ export default async function AdminSubgroupsPage() {
         action={<Link href="/admin/subgroups/new" style={{ padding: '0.5rem 1rem', background: 'var(--color-accent)', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 600 }}>Create Subgroup</Link>}
       />
 
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem', maxWidth: '600px' }}>
+      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', maxWidth: '600px' }}>
         Subgroups let partners, managers, and churches see all members assigned to their group. Members can be assigned manually or auto-assigned when referred by a linked partner.
       </p>
 
@@ -58,7 +58,7 @@ export default async function AdminSubgroupsPage() {
                 <td>
                   <div style={{ fontWeight: 600 }}>{sg.name}</div>
                   {sg.description && (
-                    <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)', maxWidth: 200 }}>{sg.description}</div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', maxWidth: 200 }}>{sg.description}</div>
                   )}
                 </td>
                 <td>
@@ -74,7 +74,7 @@ export default async function AdminSubgroupsPage() {
                 </td>
                 <td style={{ fontSize: '0.9rem' }}>
                   {sg.leader.fullName}
-                  <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)' }}>{sg.leader.email}</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{sg.leader.email}</div>
                 </td>
                 <td>{sg.partner?.name ?? 'â€”'}</td>
                 <td style={{ textAlign: 'center' }}>{sg._count.members}</td>

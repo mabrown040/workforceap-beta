@@ -232,7 +232,7 @@ export default async function AdminMemberDetailPage({
           <ul style={{ marginTop: '0.5rem', paddingLeft: '1.25rem', listStyle: 'none' }}>
             {program?.courses.map((c) => (
               <li key={c.slug} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                {coursesCompleted.includes(c.slug) ? <CheckCircle size={18} style={{ color: 'var(--color-green)', flexShrink: 0 }} /> : <span style={{ display: 'inline-block', width: 18, height: 18, border: '2px solid #ccc', borderRadius: 4, flexShrink: 0 }} />}
+                {coursesCompleted.includes(c.slug) ? <CheckCircle size={18} style={{ color: 'var(--color-green)', flexShrink: 0 }} /> : <span style={{ display: 'inline-block', width: 18, height: 18, border: '2px solid var(--outline-variant)', borderRadius: 4, flexShrink: 0 }} />}
                 {c.name}
               </li>
             ))}
@@ -266,7 +266,7 @@ export default async function AdminMemberDetailPage({
               Current: <strong>{activeCounselorAssign.counselor.user.fullName}</strong>
             </p>
           ) : (
-            <p style={{ marginBottom: '0.75rem', fontSize: '0.95rem', color: 'var(--color-gray-600)' }}>
+            <p style={{ marginBottom: '0.75rem', fontSize: '0.95rem', color: 'var(--color-on-surface-variant)' }}>
               No active counselor assignment.
             </p>
           )}

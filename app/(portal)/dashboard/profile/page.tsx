@@ -35,7 +35,7 @@ export default async function DashboardProfilePage() {
   return (
     <>
       <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>My Profile</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
+      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
         Manage your contact information and career goals.
       </p>
 
@@ -54,7 +54,7 @@ export default async function DashboardProfilePage() {
 
       <div className="dashboard-profile-section">
         <h3>Account</h3>
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', margin: 0 }}>
+        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
           <strong>Email:</strong> {dbUser.email} (tied to account, cannot be changed here)
         </p>
       </div>
@@ -62,7 +62,7 @@ export default async function DashboardProfilePage() {
       {dbUser.assessmentCompleted && (
         <div className="dashboard-profile-section">
           <h3>Assessment</h3>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '0.75rem' }}>
+          <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
             <strong>Assessment Score:</strong> {dbUser.assessmentScore ?? 0}/90 ({dbUser.assessmentScorePct ?? 0}%) — completed{' '}
             {dbUser.assessmentCompletedAt?.toLocaleDateString() ?? ''}
           </p>
@@ -84,7 +84,7 @@ export default async function DashboardProfilePage() {
       {program && (
         <div className="dashboard-profile-section">
           <h3>Program</h3>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', margin: 0 }}>
+          <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
             <strong>Current Program:</strong>{' '}
             <Link href="/dashboard/program">{program.title}</Link>
             {dbUser.enrolledAt && ` — Enrolled ${dbUser.enrolledAt.toLocaleDateString()}`}

@@ -66,7 +66,7 @@ export default async function JobDetailPage({ params }: Props) {
               alt=""
               width={72}
               height={72}
-              style={{ objectFit: 'contain', borderRadius: 8, background: 'rgba(255,255,255,0.2)' }}
+              style={{ objectFit: 'contain', borderRadius: 8, background: 'var(--surface-container-low)' }}
             />
           </div>
         ) : null}
@@ -74,7 +74,7 @@ export default async function JobDetailPage({ params }: Props) {
       <section className="content-section" style={{ paddingTop: '1rem' }}>
         <div className="container" style={{ maxWidth: 720 }}>
           <div style={{ marginBottom: '1.5rem' }}>
-            <Link href="/jobs" style={{ color: 'var(--color-gray-600)', fontSize: '0.9rem' }}>
+            <Link href="/jobs" style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
               ← Back to Job Board
             </Link>
           </div>

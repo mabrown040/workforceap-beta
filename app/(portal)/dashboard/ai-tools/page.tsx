@@ -119,8 +119,7 @@ export default async function AIToolsPage() {
               style={{
                 marginBottom: '1.5rem',
                 padding: '1rem 1.25rem',
-                background: 'rgba(74, 155, 79, 0.08)',
-                border: '1px solid rgba(74, 155, 79, 0.3)',
+                background: 'var(--surface-container)',
                 borderRadius: '8px',
               }}
             >

@@ -193,7 +193,7 @@ export default function BlogAIClient({ postCount }: { postCount: number }) {
               <div key={s.slug} className="admin-suggestion-card" style={{ padding: '1.25rem', borderRadius: '8px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
                   <div>
-                    <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.1rem', color: 'var(--color-primary)' }}>{s.title}</h3>
+                    <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.1rem', color: 'var(--color-on-surface)' }}>{s.title}</h3>
                     <span className="admin-topic-pill" style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: '4px', marginRight: '0.5rem' }}>
                       {s.category}
                     </span>

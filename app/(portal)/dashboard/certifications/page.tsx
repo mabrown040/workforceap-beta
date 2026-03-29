@@ -18,7 +18,7 @@ export default async function DashboardCertificationsPage() {
   return (
     <div>
       <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Certification roadmap</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
+      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
         Track your progress toward industry-recognized certifications across IT, healthcare, and skilled trades.
       </p>
       <div style={{ maxWidth: '800px' }}>

@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
-import { Lightbulb, TrendingUp, MapPin, CheckCircle, Handshake, DollarSign } from 'lucide-react';
 import PageHero from '@/components/PageHero';
 import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
@@ -17,32 +16,32 @@ export const metadata: Metadata = buildPageMetadata({
 
 const insights = [
   {
-    Icon: Lightbulb,
+    icon: 'lightbulb',
     title: 'Higher ranges = deeper programs',
     desc: 'Cloud, AI engineering, and data science tracks sit at the top of the range for a reason — more depth, more commitment. Worth it if you will finish.',
   },
   {
-    Icon: CheckCircle,
+    icon: 'check_circle',
     title: 'Entry ranges are not "lesser" options',
     desc: 'IT Support, Digital Literacy, and several CompTIA paths get you credentialed faster. Plenty of people stack from there. The win is momentum.',
   },
   {
-    Icon: TrendingUp,
+    icon: 'trending_up',
     title: 'Career growth',
     desc: 'Most graduates see meaningful increases inside 2–3 years once they are in-role. Pick a track you can complete; we help match ramp to your life.',
   },
   {
-    Icon: MapPin,
+    icon: 'location_on',
     title: 'Austin is the wedge',
     desc: 'We anchor examples to Austin hiring and cost-of-living reality. National data is a starting point; your offer depends on employer, proof, and fit.',
   },
   {
-    Icon: Handshake,
+    icon: 'handshake',
     title: 'Job placement support',
     desc: 'Resume support, interview prep, employer intros. We do not disappear after you certify.',
   },
   {
-    Icon: DollarSign,
+    icon: 'payments',
     title: 'Total compensation',
     desc: 'Beyond base pay: bonuses, equity at some firms, benefits. Negotiate with the full picture.',
   },
@@ -118,7 +117,7 @@ export default function SalaryGuidePage() {
                   <tr key={row.slug}>
                     <td><strong>{row.program}</strong></td>
                     <td>{row.duration}</td>
-                    <td style={{ fontWeight: 700, color: '#1a1a1a' }}>{row.salary}</td>
+                    <td style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{row.salary}</td>
                     <td><span style={{ background: row.color, color: 'white', padding: '.3rem .75rem', borderRadius: '50px', fontSize: '.8rem', fontWeight: 600 }}>{row.level}</span></td>
                     <td><span className="salary-ramp-badge">{row.ramp}</span></td>
                   </tr>
@@ -146,16 +145,13 @@ export default function SalaryGuidePage() {
           </div>
 
           <div className="salary-guide-insights salary-guide-insights-grid">
-            {insights.map((item) => {
-              const Icon = item.Icon;
-              return (
-              <div key={item.title} style={{ background: '#f8f8f8', borderRadius: '8px', padding: '1.5rem' }}>
-                <div style={{ marginBottom: '.5rem' }}><Icon size={24} className="text-current" /></div>
+            {insights.map((item) => (
+              <div key={item.title} style={{ background: 'var(--surface-container-low)', borderRadius: '8px', padding: '1.5rem' }}>
+                <div style={{ marginBottom: '.5rem' }}><span className="material-symbols-outlined" style={{ fontSize: 24 }}>{item.icon}</span></div>
                 <strong>{item.title}</strong>
-                <p style={{ color: '#555', fontSize: '.9rem', marginTop: '.4rem' }}>{item.desc}</p>
+                <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '.9rem', marginTop: '.4rem' }}>{item.desc}</p>
               </div>
-              );
-            })}
+            ))}
           </div>
 
           <p className="salary-guide-methodology">

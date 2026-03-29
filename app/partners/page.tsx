@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
-import { Handshake, Users, Award, ArrowRight, HelpCircle, Briefcase, Building2, Landmark, Heart } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import PageHero from '@/components/PageHero';
 import PhotoHighlight from '@/components/PhotoHighlight';
 import Footer from '@/components/Footer';
@@ -15,28 +15,28 @@ export const metadata: Metadata = buildPageMetadata({
 
 const PARTNER_TYPES = [
   {
-    icon: Briefcase,
+    icon: 'work',
     type: 'Employers',
     who: 'Companies hiring for IT, cyber, data, project management, healthcare, trades.',
     why: 'Access pre-screened, certified talent. Post jobs or become a hiring partner for first access to cohorts.',
     nextStep: { text: 'Visit Employer Page', href: '/employers' },
   },
   {
-    icon: Users,
+    icon: 'group',
     type: 'Referral & Community Orgs',
     who: 'Nonprofits, social services, churches, reentry programs, community centers, workforce centers, federal one-stop centers.',
     why: 'Refer clients who need career training. We follow up within 24–48 hours. No cost to refer. You get updates when referred individuals complete programs.',
     nextStep: { text: 'Contact to Refer', href: '/contact?topic=partnership' },
   },
   {
-    icon: Landmark,
+    icon: 'account_balance',
     type: 'Workforce Boards & Agencies',
     who: 'Workforce Solutions, TWC, WIOA providers, government workforce programs.',
     why: 'Align your participants with employer-recognized in-demand certifications. We handle training and placement; you strengthen outcomes for your population.',
     nextStep: { text: 'Discuss Alignment', href: '/contact?topic=partnership' },
   },
   {
-    icon: Heart,
+    icon: 'favorite',
     type: 'Supporters & Funders',
     who: 'Foundations, corporate giving, impact investors, individual donors.',
     why: 'Fund a model that works. Employer-aligned training, no participant debt, measurable job outcomes. We\'re launching in Austin and building toward expansion.',
@@ -63,9 +63,9 @@ export default function PartnersPage() {
         <div className="container">
           <h2 className="section-title animate-on-scroll">What Kind of Partner Are You?</h2>
           <div className="partners-type-grid">
-            {PARTNER_TYPES.map(({ icon: Icon, type, who, why, nextStep }) => (
+            {PARTNER_TYPES.map(({ icon, type, who, why, nextStep }) => (
               <div key={type} className="partners-type-card animate-on-scroll">
-                <div className="partners-type-icon"><Icon size={28} className="text-current" /></div>
+                <div className="partners-type-icon"><span className="material-symbols-outlined" style={{ fontSize: 28 }}>{icon}</span></div>
                 <h3>{type}</h3>
                 <p className="partners-type-who"><strong>You are:</strong> {who}</p>
                 <p className="partners-type-why"><strong>Why partner:</strong> {why}</p>
@@ -96,7 +96,7 @@ export default function PartnersPage() {
           </div>
 
           <h2 className="section-title animate-on-scroll" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '3rem' }}>
-            <HelpCircle size={24} className="text-current" />
+            <span className="material-symbols-outlined" style={{ fontSize: 24 }}>help</span>
             Partner FAQ
           </h2>
           <div className="faq-list" style={{ maxWidth: '720px' }}>

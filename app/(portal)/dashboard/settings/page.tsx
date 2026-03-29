@@ -31,7 +31,7 @@ export default async function DashboardSettingsPage() {
   return (
     <>
       <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Settings</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '2rem' }}>
+      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '2rem' }}>
         Manage your account and preferences.
       </p>
 
@@ -55,7 +55,7 @@ export default async function DashboardSettingsPage() {
 
       <section style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem', color: 'var(--color-error, #c00)' }}>Delete Account</h2>
-        <p style={{ marginBottom: '0.75rem', fontSize: '0.95rem', color: 'var(--color-gray-600)' }}>
+        <p style={{ marginBottom: '0.75rem', fontSize: '0.95rem', color: 'var(--color-on-surface-variant)' }}>
           Permanently deactivate your account. Your data will be retained for records but you will no longer have access.
         </p>
         <DeleteAccountButton />

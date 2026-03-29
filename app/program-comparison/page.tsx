@@ -46,7 +46,7 @@ export default function ProgramComparisonPage() {
           <ProgramsDecisionJourneyNav current="compare" />
           <Suspense
             fallback={
-              <p className="program-comparison-suspense" style={{ padding: '2rem 0', color: 'var(--color-gray-600)' }}>
+              <p className="program-comparison-suspense" style={{ padding: '2rem 0', color: 'var(--color-on-surface-variant)' }}>
                 Loading comparison tools…
               </p>
             }

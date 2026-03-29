@@ -45,8 +45,7 @@ export default async function PartnerResourcesPage() {
             marginBottom: '2rem',
             padding: '1.25rem',
             borderRadius: 10,
-            border: '1px solid var(--color-border)',
-            background: 'var(--color-light)',
+            background: 'var(--surface-container)',
             maxWidth: 560,
           }}
         >
@@ -80,19 +79,18 @@ export default async function PartnerResourcesPage() {
               display: 'block',
               padding: '1rem',
               borderRadius: 10,
-              border: '1px solid var(--color-border)',
               textDecoration: 'none',
               color: 'inherit',
-              background: 'var(--color-white)',
+              background: 'var(--surface-container)',
             }}
           >
             <strong style={{ color: 'var(--color-accent)' }}>{item.label}</strong>
-            <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>{item.desc}</p>
+            <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>{item.desc}</p>
           </Link>
         ))}
       </div>
 
-      <p style={{ color: 'var(--color-gray-600)', fontSize: '0.9rem' }}>
+      <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
         Member-facing tools (resume, learning, assessments) live in the{' '}
         <Link href="/dashboard" style={{ color: 'var(--color-accent)' }}>
           member portal

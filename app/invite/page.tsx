@@ -89,7 +89,7 @@ function InviteContent() {
     width: '100%',
     maxWidth: '360px',
     padding: '0.75rem 1rem',
-    border: '1px solid var(--color-gray-300)',
+    border: '1px solid var(--surface-container-highest)',
     borderRadius: '8px',
     fontSize: '1rem',
   } as const;
@@ -108,14 +108,14 @@ function InviteContent() {
       <div className="container" style={{ maxWidth: '560px', paddingTop: '3rem', paddingBottom: '3rem' }}>
         <div
           style={{
-            background: 'var(--color-gray-50)',
+            background: 'var(--surface-container-low)',
             padding: '2rem',
             borderRadius: '12px',
             textAlign: 'center',
           }}
         >
           <h1 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Invalid or Expired Invitation</h1>
-          <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
+          <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
             {data?.error ?? 'This invitation link is no longer valid.'}
           </p>
           <Link href="/" className="btn btn-primary">
@@ -131,7 +131,7 @@ function InviteContent() {
       <div className="container" style={{ maxWidth: '560px', paddingTop: '3rem', paddingBottom: '3rem' }}>
         <div
           style={{
-            background: 'var(--color-gray-50)',
+            background: 'var(--surface-container-low)',
             padding: '2rem',
             borderRadius: '12px',
             textAlign: 'center',
@@ -140,7 +140,7 @@ function InviteContent() {
           <h1 style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: 'var(--color-green)' }}>
             Invitation Accepted!
           </h1>
-          <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
+          <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
             Redirecting you to sign in...
           </p>
           <Link href={postAcceptRedirect} className="btn btn-primary">
@@ -155,15 +155,13 @@ function InviteContent() {
     <div className="container" style={{ maxWidth: '560px', paddingTop: '3rem', paddingBottom: '3rem' }}>
       <div
         style={{
-          background: 'white',
-          border: '1px solid var(--color-gray-200)',
+          background: 'var(--surface-container-low)',
           borderRadius: '12px',
           padding: '2rem',
-          boxShadow: 'var(--shadow-md)',
         }}
       >
         <h1 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>You&apos;re Invited!</h1>
-        <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
+        <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
           {data.inviterName} has invited you to join WorkforceAP as a <strong>{data.roleLabel}</strong>.
         </p>
         {data.subgroup && (
@@ -182,7 +180,7 @@ function InviteContent() {
             Program: <strong>{data.program.title}</strong>
           </p>
         )}
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-500)', marginBottom: '1.5rem' }}>
+        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
           Complete the form below to accept this invitation.
         </p>
 
@@ -192,9 +190,9 @@ function InviteContent() {
               style={{
                 padding: '0.75rem',
                 marginBottom: '1rem',
-                background: '#fee',
+                background: 'var(--surface-container)',
                 borderRadius: '6px',
-                color: '#c00',
+                color: 'var(--color-accent)',
                 fontSize: '0.9rem',
               }}
             >
@@ -211,7 +209,7 @@ function InviteContent() {
               type="email"
               value={data.email ?? ''}
               readOnly
-              style={{ ...inputStyle, background: 'var(--color-gray-100)', cursor: 'not-allowed' }}
+              style={{ ...inputStyle, background: 'var(--surface-container)', cursor: 'not-allowed' }}
             />
           </div>
 
@@ -257,7 +255,7 @@ function InviteContent() {
               minLength={8}
               style={inputStyle}
             />
-            <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)', marginTop: '0.25rem' }}>
+            <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
               New to WorkforceAP? Enter a password to create your account. Already have an account? Leave blank to add this role.
             </p>
           </div>

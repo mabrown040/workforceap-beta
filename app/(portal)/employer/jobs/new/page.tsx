@@ -33,7 +33,7 @@ export default async function NewJobPage() {
   return (
     <div>
       <div style={{ marginBottom: '1.5rem' }}>
-        <Link href="/employer/jobs" style={{ color: 'var(--color-gray-600)', fontSize: '0.9rem' }}>
+        <Link href="/employer/jobs" style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
           ← Back to My Jobs
         </Link>
       </div>

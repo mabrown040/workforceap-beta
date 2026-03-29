@@ -88,8 +88,8 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
                 padding: '0.3rem 0.75rem',
                 borderRadius: '6px',
                 fontSize: '0.85rem',
-                background: partner.active ? 'rgba(74, 155, 79, 0.12)' : 'var(--color-gray-100)',
-                color: partner.active ? '#2d7a32' : 'var(--color-gray-600)',
+                background: partner.active ? 'rgba(74, 155, 79, 0.12)' : 'var(--surface-container)',
+                color: partner.active ? '#2d7a32' : 'var(--color-on-surface-variant)',
               }}
             >
               {partner.active ? 'Active' : 'Inactive'}
@@ -99,9 +99,9 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
         }
       />
 
-      <section style={{ marginBottom: '2rem', padding: '1rem', border: '1px solid var(--color-border)', borderRadius: '8px' }}>
+      <section style={{ marginBottom: '2rem', padding: '1rem', background: 'var(--surface-container)', borderRadius: '8px' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Invite partner user</h2>
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '0.75rem' }}>
+        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
           Sends an email invitation with a link to the partner portal ({partner.contactEmail ? 'milestone notifications go to ' + partner.contactEmail : 'add a contact email on the partner record for notifications'}).
         </p>
         <InvitePartnerUserButton partnerId={partner.id} />
@@ -126,12 +126,11 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
             style={{
               padding: '1rem',
               borderRadius: '8px',
-              border: '1px solid var(--color-border)',
-              background: 'var(--color-light)',
+              background: 'var(--surface-container)',
             }}
           >
             <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{s.value}</div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)' }}>{s.label}</div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{s.label}</div>
           </div>
         ))}
       </div>
@@ -140,14 +139,14 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
         <section>
           <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Counselors ({partner.counselors.length})</h2>
           {partner.counselors.length === 0 ? (
-            <p style={{ color: 'var(--color-gray-500)', fontSize: '0.9rem' }}>No counselors assigned yet.</p>
+            <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>No counselors assigned yet.</p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {partner.counselors.map((c) => (
-                <div key={c.id} style={{ padding: '0.75rem', border: '1px solid var(--color-border)', borderRadius: '6px' }}>
+                <div key={c.id} style={{ padding: '0.75rem', background: 'var(--surface-container-low)', borderRadius: '6px' }}>
                   <div style={{ fontWeight: 600 }}>{c.user.fullName}</div>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)' }}>{c.user.email}</div>
-                  {c.title && <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)' }}>{c.title}</div>}
+                  <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{c.user.email}</div>
+                  {c.title && <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{c.title}</div>}
                 </div>
               ))}
             </div>
@@ -171,7 +170,7 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
       <section style={{ marginTop: '2rem' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Referred members</h2>
         {members.length === 0 ? (
-          <p style={{ color: 'var(--color-gray-500)', fontSize: '0.9rem' }}>No referrals recorded yet.</p>
+          <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>No referrals recorded yet.</p>
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <table className="admin-table">

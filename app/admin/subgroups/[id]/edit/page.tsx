@@ -38,7 +38,7 @@ export default async function EditSubgroupPage({ params }: Props) {
 
   return (
     <div style={{ paddingTop: '1.5rem' }}>
-      <Link href={`/admin/subgroups/${id}`} style={{ color: 'var(--color-gray-600)', textDecoration: 'none', fontSize: '0.9rem', marginBottom: '1rem', display: 'inline-block' }}>
+      <Link href={`/admin/subgroups/${id}`} style={{ color: 'var(--color-on-surface-variant)', textDecoration: 'none', fontSize: '0.9rem', marginBottom: '1rem', display: 'inline-block' }}>
         ← Back to {subgroup.name}
       </Link>
       <PageHeader title="Edit Subgroup" />

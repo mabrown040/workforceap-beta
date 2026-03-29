@@ -94,7 +94,7 @@ export default function CreateEmployerAccountClient() {
   return (
     <section style={{ marginTop: '2.5rem', paddingTop: '2rem', borderTop: '1px solid var(--color-border)' }}>
       <h2 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Create employer portal account</h2>
-      <p style={{ color: 'var(--color-gray-600)', fontSize: '0.9rem', marginBottom: '1.25rem' }}>
+      <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', marginBottom: '1.25rem' }}>
         Link an existing site user (they sign in with their usual email) to a company record so they can use{' '}
         <strong>/employer</strong>. Super-admins can then use <strong>Open portal</strong> to work inside their account.
       </p>
@@ -159,7 +159,7 @@ export default function CreateEmployerAccountClient() {
                     }}
                   >
                     <strong>{m.fullName}</strong>
-                    <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>{m.email}</div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{m.email}</div>
                   </button>
                 </li>
               ))}

@@ -38,7 +38,7 @@ export default async function ProgramPage() {
     return (
       <>
         <h1 style={{ fontSize: '1.75rem', marginBottom: '1rem' }}>Choose Your Program</h1>
-        <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
+        <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
           Select one program. This is a one-time choice — funding is tied to a single program enrollment.
         </p>
         <ProgramPicker programs={pickerPrograms.length ? pickerPrograms : []} />
@@ -52,7 +52,7 @@ export default async function ProgramPage() {
   return (
     <>
       <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>My Program</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
+      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
         Enrolled {dbUser?.enrolledAt?.toLocaleDateString() ?? ''}
       </p>
 
@@ -79,10 +79,10 @@ export default async function ProgramPage() {
           <span>⏱ {program.duration}</span>
           <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{program.salary}</span>
         </div>
-        <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>
+        <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
           Progress: {completedCount} of {program.courses.length} courses complete
         </p>
-        <div style={{ height: '6px', background: '#e5e5e5', borderRadius: '3px', marginBottom: '1.5rem', overflow: 'hidden' }}>
+        <div style={{ height: '6px', background: 'var(--surface-container-highest)', borderRadius: '3px', marginBottom: '1.5rem', overflow: 'hidden' }}>
           <div
             style={{
               height: '100%',

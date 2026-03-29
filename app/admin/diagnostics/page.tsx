@@ -80,7 +80,7 @@ type DiagnosticRow = Awaited<ReturnType<typeof prisma.workflowDiagnostic.findMan
 
 function DiagnosticsTable({ rows }: { rows: DiagnosticRow[] }) {
   if (rows.length === 0) {
-    return <p style={{ color: 'var(--color-gray-500)' }}>No diagnostics captured yet.</p>;
+    return <p style={{ color: 'var(--color-on-surface-variant)' }}>No diagnostics captured yet.</p>;
   }
 
   return (

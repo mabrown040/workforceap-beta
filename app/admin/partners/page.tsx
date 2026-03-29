@@ -82,7 +82,7 @@ export default async function AdminPartnersPage() {
           <p style={{ marginBottom: '0.75rem' }}>
             {loadError}
           </p>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>
+          <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
             Common fix: apply the latest database migration on your hosting environment, then refresh this page.
           </p>
         </div>

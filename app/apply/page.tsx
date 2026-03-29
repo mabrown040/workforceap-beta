@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { CheckCircle, ClipboardList, UserPlus, Clock } from 'lucide-react';
 import Footer from '@/components/Footer';
 import ApplyEligibilityClient from './ApplyEligibilityClient';
 import ApplyPageSkeleton from './ApplyPageSkeleton';
@@ -32,18 +31,18 @@ export default async function ApplyPage({ searchParams }: PageProps) {
             <strong> No experience required.</strong>
           </p>
           
-          <div style={{ 
-            padding: '1.25rem 1.5rem', 
-            background: 'rgba(74, 155, 79, 0.12)', 
-            border: '2px solid rgba(74, 155, 79, 0.35)',
+          <div style={{
+            padding: '1.25rem 1.5rem',
+            background: 'var(--surface-container-low)',
+            border: '2px solid var(--color-accent)',
             borderRadius: 'var(--radius-md)',
             marginBottom: '2rem',
             maxWidth: '600px'
           }}>
-            <p style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: '#166534' }}>
+            <p style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>
               ✓ No cost to members.
             </p>
-            <p style={{ fontSize: '0.95rem', margin: '0.35rem 0 0', color: '#065f46' }}>
+            <p style={{ fontSize: '0.95rem', margin: '0.35rem 0 0', color: 'var(--color-on-surface-variant)' }}>
               Training and support are provided at no charge to qualifying participants.
             </p>
           </div>
@@ -56,16 +55,14 @@ export default async function ApplyPage({ searchParams }: PageProps) {
             maxWidth: '900px'
           }}>
             {[
-              { Icon: CheckCircle, text: 'Quick eligibility check', label: 'Step 1' },
-              { Icon: ClipboardList, text: 'Choose a program', label: 'Step 2' },
-              { Icon: UserPlus, text: 'Create your account', label: 'Step 3' },
-              { Icon: Clock, text: 'We respond within 24–48 hours', label: 'Timeline' }
+              { icon: 'check_circle', text: 'Quick eligibility check', label: 'Step 1' },
+              { icon: 'checklist', text: 'Choose a program', label: 'Step 2' },
+              { icon: 'person_add', text: 'Create your account', label: 'Step 3' },
+              { icon: 'schedule', text: 'We respond within 24–48 hours', label: 'Timeline' }
             ].map((step) => (
               <div key={step.text} style={{
                 padding: '0.85rem 1.1rem',
-                background: 'rgba(255,255,255,0.1)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255,255,255,0.2)',
+                background: 'var(--surface-container-low)',
                 borderRadius: '8px',
                 fontSize: '0.9rem',
                 fontWeight: 500,
@@ -73,7 +70,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
                 alignItems: 'center',
                 gap: '0.65rem'
               }}>
-                <step.Icon size={20} strokeWidth={2.5} aria-label={step.label} style={{ flexShrink: 0, opacity: 0.9 }} />
+                <span className="material-symbols-outlined" aria-label={step.label} style={{ fontSize: 20, flexShrink: 0, opacity: 0.9 }}>{step.icon}</span>
                 <span>{step.text}</span>
               </div>
             ))}
@@ -81,8 +78,8 @@ export default async function ApplyPage({ searchParams }: PageProps) {
 
           <div style={{
             padding: '1rem 1.25rem',
-            background: 'rgba(240, 205, 131, 0.2)',
-            border: '1px solid rgba(240, 205, 131, 0.4)',
+            background: 'var(--surface-container)',
+            border: '1px solid var(--surface-container-highest)',
             borderRadius: 'var(--radius-md)',
             marginBottom: '1.5rem',
             maxWidth: '700px'
@@ -104,17 +101,15 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         <div className="container">
           <div style={{
             padding: '2rem 2.5rem',
-            background: 'white',
-            border: '2px solid var(--color-accent)',
+            background: 'var(--surface-container-low)',
             borderRadius: 'var(--radius-lg)',
             marginBottom: '2rem',
-            boxShadow: '0 10px 40px rgba(0,0,0,0.08)'
           }} aria-labelledby="apply-expectations-heading">
-            <h3 id="apply-expectations-heading" style={{ 
-              fontSize: '1.5rem', 
-              fontWeight: 700, 
+            <h3 id="apply-expectations-heading" style={{
+              fontSize: '1.5rem',
+              fontWeight: 700,
               marginBottom: '1.5rem',
-              color: 'var(--color-primary)',
+              color: 'var(--color-on-surface)',
               textAlign: 'center'
             }}>
               What happens after you apply?
@@ -163,8 +158,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
 
           <div style={{
             padding: '1.5rem 2rem',
-            background: 'rgba(173, 44, 77, 0.06)',
-            border: '1px solid rgba(173, 44, 77, 0.2)',
+            background: 'var(--surface-container)',
             borderRadius: 'var(--radius-md)',
             marginBottom: '2rem',
             fontSize: '0.95rem',
@@ -179,7 +173,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
 
           {program ? <ApplyProgramIntro programSlug={program.slug} /> : null}
 
-          <Suspense fallback={<div style={{ padding: '1rem', color: 'var(--color-gray-600)' }}>Loading...</div>}>
+          <Suspense fallback={<div style={{ padding: '1rem', color: 'var(--color-on-surface-variant)' }}>Loading...</div>}>
             <ApplyRefCapture />
           </Suspense>
           <Suspense fallback={<ApplyPageSkeleton />}>

@@ -35,12 +35,12 @@ export default function SignupPage() {
                   'Access member resources and documents',
                   'Get personalized next steps',
                 ].map((item, i) => (
-                  <li key={i} style={{ padding: '.75rem 0', borderBottom: i < 3 ? '1px solid var(--color-gray-200)' : 'none', display: 'flex', gap: '.75rem' }}>
-                    <span style={{ color: 'var(--color-green)', fontWeight: 700 }}>&#10003;</span> {item}
+                  <li key={i} style={{ padding: '.75rem 0', borderBottom: i < 3 ? '1px solid var(--surface-container-highest)' : 'none', display: 'flex', gap: '.75rem' }}>
+                    <span style={{ color: 'var(--color-accent)', fontWeight: 700 }}>&#10003;</span> {item}
                   </li>
                 ))}
               </ul>
-              <p style={{ marginTop: '1.5rem', color: 'var(--color-gray-600)', fontSize: '.9rem' }}>
+              <p style={{ marginTop: '1.5rem', color: 'var(--color-on-surface-variant)', fontSize: '.9rem' }}>
                 Already have an account? <Link href="/login">Log in</Link>
               </p>
             </div>

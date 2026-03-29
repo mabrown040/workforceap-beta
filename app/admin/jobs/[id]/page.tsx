@@ -43,7 +43,7 @@ export default async function AdminJobDetailPage({ params }: Props) {
   return (
     <div>
       <div style={{ marginBottom: '1.5rem' }}>
-        <Link href="/admin/jobs" style={{ color: 'var(--color-gray-600)', fontSize: '0.9rem' }}>
+        <Link href="/admin/jobs" style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
           ← Back to Jobs
         </Link>
       </div>

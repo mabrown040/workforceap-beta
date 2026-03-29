@@ -179,7 +179,7 @@ export default function BlogPostEditor({
     width: '100%',
     maxWidth: '600px',
     padding: '0.5rem 0.75rem',
-    border: '1px solid var(--color-gray-300)',
+    border: '1px solid var(--outline-variant)',
     borderRadius: '6px',
     fontSize: '1rem',
   } as const;
@@ -301,7 +301,7 @@ export default function BlogPostEditor({
                 >
                   {s.category}
                 </span>
-                <h4 style={{ margin: '0.5rem 0', fontSize: '0.9rem', lineHeight: 1.3, color: 'var(--color-primary)' }}>{s.title}</h4>
+                <h4 style={{ margin: '0.5rem 0', fontSize: '0.9rem', lineHeight: 1.3, color: 'var(--color-on-surface)' }}>{s.title}</h4>
                 <button
                   type="button"
                   onClick={() => handleUseSuggestion(s.title, s.topic, s.category)}
@@ -481,7 +481,7 @@ export default function BlogPostEditor({
           Published
         </label>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-          <label style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--color-gray-700)' }}>Schedule for later (optional)</label>
+          <label style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>Schedule for later (optional)</label>
           <input
             type="datetime-local"
             value={scheduledAt}

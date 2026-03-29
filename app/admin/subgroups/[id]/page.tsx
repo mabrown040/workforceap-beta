@@ -101,7 +101,7 @@ export default async function AdminSubgroupDetailPage({ params }: Props) {
       />
 
       {subgroup.description && (
-        <p style={{ marginBottom: '1.5rem', color: 'var(--color-gray-600)', maxWidth: 600 }}>{subgroup.description}</p>
+        <p style={{ marginBottom: '1.5rem', color: 'var(--color-on-surface-variant)', maxWidth: 600 }}>{subgroup.description}</p>
       )}
 
       <div
@@ -123,12 +123,11 @@ export default async function AdminSubgroupDetailPage({ params }: Props) {
             style={{
               padding: '1rem',
               borderRadius: '8px',
-              border: '1px solid var(--color-border)',
-              background: 'var(--color-light)',
+              background: 'var(--surface-container)',
             }}
           >
             <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{s.value}</div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)' }}>{s.label}</div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{s.label}</div>
           </div>
         ))}
       </div>

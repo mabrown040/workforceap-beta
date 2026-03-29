@@ -136,12 +136,12 @@ export default async function PartnerDashboardPage() {
         data-tour="tour-referral-link"
       >
         <p className="partner-section-eyebrow">Referral link</p>
-        <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--color-gray-700)' }}>
+        <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--color-on-surface)' }}>
           Applied via your referral link: <strong>{appliedViaReferralLink}</strong> — members who used your{' '}
           <code style={{ fontSize: '0.85em' }}>?ref=</code> link when they created an account. Members who apply without{' '}
           <code style={{ fontSize: '0.85em' }}>?ref=</code> still appear in your pipeline below but are not counted here.
         </p>
-        <p style={{ margin: '0.75rem 0 0', fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>
+        <p style={{ margin: '0.75rem 0 0', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
           Share: <strong style={{ wordBreak: 'break-all' }}>{referralApplyUrl}</strong>
         </p>
         <CopyReferralLink url={referralApplyUrl} />

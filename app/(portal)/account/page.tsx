@@ -36,7 +36,7 @@ export default async function AccountPage() {
           <div style={{ maxWidth: '560px' }} className="help-request-card">
             <h2>Email</h2>
             <p>{email}</p>
-            <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>
+            <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
               To change your email, please contact support.
             </p>
 
@@ -48,7 +48,7 @@ export default async function AccountPage() {
               Reset password
             </Link>
 
-            <p style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>
+            <p style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
               <Link href="/profile">Back to profile</Link>
             </p>
           </div>

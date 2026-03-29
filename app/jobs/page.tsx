@@ -52,15 +52,14 @@ export default async function JobsPage() {
           {ageGroup === 'under14' ? (
             <div style={{
               padding: '2rem',
-              background: 'var(--color-gray-50)',
+              background: 'var(--surface-container-low)',
               borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--color-gray-200)',
               textAlign: 'center'
             }}>
               <h3 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '0.75rem' }}>
                 Career Exploration for Young Learners
               </h3>
-              <p style={{ color: 'var(--color-gray-700)', lineHeight: 1.6, marginBottom: '1rem' }}>
+              <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, marginBottom: '1rem' }}>
                 Job applications are available for members 14 and older. For now, focus on exploring 
                 career paths and building skills through our training programs.
               </p>
@@ -72,8 +71,8 @@ export default async function JobsPage() {
             <>
               <div style={{
                 padding: '1rem',
-                background: 'rgba(240, 205, 131, 0.15)',
-                border: '1px solid rgba(240, 205, 131, 0.3)',
+                background: 'var(--surface-container)',
+                border: '1px solid var(--surface-container-highest)',
                 borderRadius: 'var(--radius-md)',
                 marginBottom: '1.5rem'
               }}>

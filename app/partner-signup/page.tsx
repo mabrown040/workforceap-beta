@@ -21,7 +21,7 @@ export default function PartnerSignupPage() {
       />
       <section className="content-section">
         <div className="container" style={{ maxWidth: 560 }}>
-          <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem', lineHeight: 1.6 }}>
+          <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', lineHeight: 1.6 }}>
             Already a partner?{' '}
             <Link href="/login?redirectTo=/partner" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
               Sign in

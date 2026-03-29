@@ -1,34 +1,25 @@
-name: Deploy to Production
+# DISABLED — self-hosted runner / PM2 deploy replaced by Vercel.
+# Production deploys now happen automatically via Vercel on push to master.
+# This file is kept for reference only. Do not re-enable without removing the
+# self-hosted runner dependency.
+#
+# Original flow: push to master → self-hosted runner on prod box → npm ci → next build → pm2 restart
+# New flow: push to master → Vercel production deploy (automatic via Vercel GitHub integration)
+#
+# To re-enable SSH-based prod deploy in the future, see docs/ci-cd.md
+
+name: Deploy to Production (DISABLED)
 
 on:
-  push:
-    branches:
-      - master
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type DEPLOY to confirm manual trigger"
+        required: true
 
 jobs:
-  deploy:
-    runs-on: self-hosted
+  disabled:
+    runs-on: ubuntu-latest
     steps:
-      - name: Pull latest changes
-        run: |
-          cd /var/www/workforceap
-          git fetch origin master
-          git reset --hard origin/master
-
-      - name: Install all dependencies (including devDeps for build)
-        run: |
-          cd /var/www/workforceap
-          npm ci
-
-      - name: Build Next.js
-        env:
-          NODE_OPTIONS: "--max-old-space-size=4096"
-        run: |
-          cd /var/www/workforceap
-          ./node_modules/.bin/next build
-
-      - name: Restart app via pm2
-        run: |
-          pm2 restart workforceap
-          pm2 save
-          echo "Deployed at $(date)"
+      - name: Notice
+        run: echo "This workflow is disabled. Production deploys via Vercel automatically."

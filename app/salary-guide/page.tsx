@@ -129,7 +129,7 @@ export default function SalaryGuidePage() {
 
           {/* Salary Card List */}
           <div className="space-y-6">
-            {MOBILE_SALARY_CARDS.map((card) => (
+            {MOBILE_SALARY_CARDS.slice(0, 3).map((card) => (
               <div key={card.program} className={`bg-white rounded-xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border-l-4 ${card.borderColor}`}>
                 <div className="flex flex-col gap-2 mb-4">
                   <span className="inline-block px-2 py-1 bg-[#ffbb00]/10 text-[#6c4d00] text-[10px] font-bold tracking-widest uppercase w-fit rounded">{card.category}</span>
@@ -153,15 +153,39 @@ export default function SalaryGuidePage() {
               </div>
             ))}
 
-            {/* Advisor CTA Card */}
+            {/* Advisor CTA Card — placed after 3rd data card per Stitch design */}
             <div className="relative overflow-hidden bg-[#8c0f37] text-white rounded-xl p-8 mb-4">
               <div className="absolute -right-12 -top-12 w-48 h-48 bg-[#ad2c4d] rounded-full opacity-30"></div>
               <h4 className="text-2xl font-black tracking-tight mb-2 relative z-10">Maximize Your Growth.</h4>
-              <p className="text-[#ffd9dd] text-sm mb-6 relative z-10">Our career coaching services help graduates negotiate 15% higher starting salaries on average.</p>
+              <p className="text-[#ffd9dd] text-sm mb-6 relative z-10">Free career coaching for every member. Our advisors help you negotiate offers and land the role that fits your goals — at $0 cost to you.</p>
               <Link href="/apply" className="bg-white text-[#8c0f37] font-bold px-6 py-3 rounded-md text-xs tracking-widest uppercase relative z-10 inline-block active:scale-95 transition-transform">
                 Speak to an Advisor
               </Link>
             </div>
+
+            {MOBILE_SALARY_CARDS.slice(3).map((card) => (
+              <div key={card.program} className={`bg-white rounded-xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border-l-4 ${card.borderColor}`}>
+                <div className="flex flex-col gap-2 mb-4">
+                  <span className="inline-block px-2 py-1 bg-[#ffbb00]/10 text-[#6c4d00] text-[10px] font-bold tracking-widest uppercase w-fit rounded">{card.category}</span>
+                  <h3 className="text-xl font-bold text-[#1c1b1b] tracking-tight leading-snug">{card.program}</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-3 mb-5">
+                  <div className="bg-[#f6f3f2] p-3 rounded-lg">
+                    <span className="block text-[10px] uppercase font-bold text-[#584144] tracking-wider mb-1">Entry Level</span>
+                    <p className="text-[#8c0f37] font-bold text-lg leading-none">{card.entry}</p>
+                  </div>
+                  <div className="bg-[#8c0f37]/5 p-3 rounded-lg">
+                    <span className="block text-[10px] uppercase font-bold text-[#8c0f37] tracking-wider mb-1">Mid Level</span>
+                    <p className="text-[#8c0f37] font-black text-lg leading-none">{card.mid}</p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {card.certs.map((cert) => (
+                    <span key={cert} className="bg-[#e5e2e1] px-3 py-1 rounded-full text-[11px] font-medium text-[#584144]">{cert}</span>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* Disclaimer */}

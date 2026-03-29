@@ -290,9 +290,9 @@ export default async function HomePage() {
         <p className="text-sm leading-relaxed mb-6" style={{ color: 'var(--color-on-surface-variant)' }}>
           Founded by Michael Brown, PMP — a workforce leader who has trained thousands nationwide through partnerships with the State of Texas, TWC, Goodwill, Austin Urban League, and more.
         </p>
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.75rem", marginBottom: "1.5rem" }}>
           {[['2,000+', 'Trained'], ['$0', 'Cost']].map(([val, label]) => (
-            <div key={label} className="rounded-xl py-4 px-2 text-center" style={{ background: 'var(--surface-container-high)' }}>
+            <div key={label} style={{ borderRadius: "0.75rem", padding: "1rem 0.5rem", textAlign: "center", background: 'var(--surface-container-high)' }}>
               <div className="text-xl font-black" style={{ color: 'var(--color-gold)', lineHeight: 1 }}>{val}</div>
               <div className="text-[9px] font-bold uppercase tracking-wider mt-1" style={{ color: 'var(--color-on-surface-variant)' }}>{label}</div>
             </div>
@@ -569,7 +569,7 @@ export default async function HomePage() {
         <p className="text-sm leading-relaxed mb-5" style={{ color: '#584144' }}>
           Real certifications. Employer connections. No cost to members.
         </p>
-        <div className="space-y-3">
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
           <Link href="/apply" className="block w-full text-center font-bold py-4 rounded-lg text-sm" style={{ background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)', color: '#fff' }}>
             Apply Free — Takes 10 Minutes
           </Link>

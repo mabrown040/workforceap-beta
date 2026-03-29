@@ -95,19 +95,18 @@ export default function MobileApplicationsClient({
   return (
     <div>
       {/* Filter chips */}
-      <div className="flex gap-2 overflow-x-auto px-4 pb-3 hide-scrollbar" style={{ WebkitOverflowScrolling: 'touch' }}>
+      <div style={{ display: "flex", gap: "0.5rem", overflowX: "auto", padding: "0 1rem 0.75rem", scrollbarWidth: "none", WebkitOverflowScrolling: 'touch' }}>
         {STATUS_CHIP_FILTERS.map((f) => {
           const active = filter === f.value;
           return (
             <button
               key={f.value}
               onClick={() => setFilter(f.value)}
-              className="flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold transition-colors"
-              style={
-                active
-                  ? { background: '#ad2c4d', color: '#ffffff' }
-                  : { background: '#f0edec', color: '#584144' }
-              }
+              className="text-xs font-semibold transition-colors"
+              style={Object.assign(
+                { flexShrink: 0, padding: "0.375rem 1rem", borderRadius: "9999px" },
+                active ? { background: '#ad2c4d', color: '#ffffff' } : { background: '#f0edec', color: '#584144' }
+              )}
             >
               {f.label}
             </button>
@@ -120,9 +119,9 @@ export default function MobileApplicationsClient({
       )}
 
       {/* Applicant cards */}
-      <div className="px-4 space-y-3">
+      <div style={{ padding: "0 1rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
         {visible.length === 0 ? (
-          <div className="bg-white rounded-xl p-6 text-center">
+          <div style={{ background: "white", borderRadius: "0.75rem", padding: "1.5rem", textAlign: "center" }}>
             <span className="material-symbols-outlined text-3xl block mb-2" style={{ color: '#debfc2' }}>inbox</span>
             <p className="text-sm" style={{ color: '#584144' }}>No applications found.</p>
           </div>
@@ -135,23 +134,21 @@ export default function MobileApplicationsClient({
             return (
               <div
                 key={app.id}
-                className="rounded-xl overflow-hidden"
-                style={{ background: '#ffffff', boxShadow: '0 4px 24px -2px rgba(28,27,27,0.06)' }}
+                style={{ borderRadius: "0.75rem", overflow: "hidden", background: '#ffffff', boxShadow: '0 4px 24px -2px rgba(28,27,27,0.06)' }}
               >
                 {/* Card header — tap to expand */}
                 <button
-                  className="w-full text-left p-4 flex gap-4 items-start active:opacity-80"
+                  className="active:opacity-80" style={{ width: "100%", textAlign: "left", padding: "1rem", display: "flex", gap: "1rem", alignItems: "flex-start" }}
                   onClick={() => setExpandedId(isExpanded ? null : app.id)}
                 >
                   {/* Avatar */}
                   <div
-                    className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-base"
-                    style={{ background: '#ad2c4d' }}
+                    className="text-white font-bold text-base" style={{ width: "3.5rem", height: "3.5rem", borderRadius: "9999px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: '#ad2c4d' }}
                   >
                     {initials(app.student.fullName)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-start gap-2">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.5rem" }}>
                       <h4 className="font-bold text-sm truncate" style={{ color: '#1c1b1b' }}>
                         {app.student.fullName}
                       </h4>

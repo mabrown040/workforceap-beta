@@ -354,15 +354,15 @@ export default async function HowItWorksPage() {
           </p>
         </div>
 
-        <div className="space-y-3">
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
           {PHASES.flatMap((phase) =>
             phase.steps.map((step) => {
               const isIntensive = step.num >= 5 && step.num <= 9;
               return (
                 <div
                   key={step.num}
-                  className="rounded-xl p-4 relative overflow-hidden"
                   style={{
+                    borderRadius: "0.75rem", padding: "1rem", position: "relative", overflow: "hidden",
                     background: isIntensive ? 'rgba(173, 44, 77, 0.06)' : '#fff',
                     border: isIntensive ? '1px solid rgba(173,44,77,0.15)' : 'none',
                     boxShadow: isIntensive ? 'none' : '0 1px 4px rgba(28,27,27,0.06)',
@@ -390,7 +390,7 @@ export default async function HowItWorksPage() {
           )}
         </div>
 
-        <div className="mt-8 space-y-3">
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginTop: "2rem" }}>
           <Link
             href="/apply"
             className="block w-full text-center font-bold py-4 rounded-lg text-sm"

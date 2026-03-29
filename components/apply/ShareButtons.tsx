@@ -16,7 +16,7 @@ export default function ShareButtons() {
   };
 
   return (
-    <div className="grid grid-cols-3 gap-3">
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.75rem" }}>
       <button
         onClick={handleCopyLink}
         className="flex flex-col items-center justify-center py-4 bg-white border border-[#debfc2]/10 rounded-xl hover:bg-[#f0edec] transition-colors group"

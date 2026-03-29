@@ -56,19 +56,19 @@ export default async function ProgramPage({ params }: Props) {
   return (
     <div className="inner-page">
       {/* ── Mobile-only hero: back arrow + category chip + H1 + metadata pills + stats row (≤640px) ── */}
-      <section className="sm:hidden px-4 pt-6 pb-4" style={{ background: '#fcf9f8' }}>
+      <section className="wa-sm:wa-hidden" style={{ padding: '1.5rem 1rem 1rem', background: '#fcf9f8' }}>
         {/* Back arrow */}
-        <Link href="/programs" className="flex items-center gap-1 mb-4 text-sm font-medium" style={{ color: '#8c0f37' }}>
+        <Link href="/programs" className="text-sm font-medium" style={{ display: "flex", alignItems: "center", gap: "0.25rem", marginBottom: "1rem", color: '#8c0f37' }}>
           <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>arrow_back</span>
           Programs
         </Link>
 
         {/* Category chip */}
-        <div className="flex flex-wrap gap-2 mb-3">
-          <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider" style={{ background: '#e5e2e1', color: '#8c0f37' }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "0.75rem" }}>
+          <span className="text-[10px] font-bold uppercase tracking-wider" style={{ padding: "0.25rem 0.75rem", borderRadius: "9999px", background: '#e5e2e1', color: '#8c0f37' }}>
             {program.categoryLabel}
           </span>
-          <div className="flex items-center gap-1 px-3 py-1 rounded-full" style={{ background: 'rgba(123,88,0,0.1)' }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.25rem", padding: "0.25rem 0.75rem", borderRadius: "9999px", background: 'rgba(123,88,0,0.1)' }}>
             <span className="material-symbols-outlined text-xs" style={{ color: '#7b5800', fontSize: '0.875rem' }}>verified</span>
             <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#7b5800' }}>Verified Cert</span>
           </div>
@@ -78,12 +78,12 @@ export default async function ProgramPage({ params }: Props) {
         <h1 className="text-3xl font-extrabold tracking-tight leading-tight mb-3" style={{ color: '#1c1b1b' }}>{program.title}</h1>
 
         {/* Metadata pills */}
-        <div className="flex gap-2 mb-5 flex-wrap">
-          <div className="flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium" style={{ background: '#f0edec', color: '#584144' }}>
+        <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.25rem", flexWrap: "wrap" }}>
+          <div className="text-xs font-medium" style={{ display: "flex", alignItems: "center", gap: "0.25rem", padding: "0.5rem 0.75rem", borderRadius: "0.5rem", background: '#f0edec', color: '#584144' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>schedule</span>
             {program.duration}
           </div>
-          <div className="flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium" style={{ background: '#f0edec', color: '#584144' }}>
+          <div className="text-xs font-medium" style={{ display: "flex", alignItems: "center", gap: "0.25rem", padding: "0.5rem 0.75rem", borderRadius: "0.5rem", background: '#f0edec', color: '#584144' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>bolt</span>
             {salaryRangeDisplay(program)}
           </div>
@@ -108,7 +108,7 @@ export default async function ProgramPage({ params }: Props) {
 
       {/* ── Mobile-only: Career paths horizontal scroll (≤640px) ── */}
       {extra && extra.jobOutcomes.length > 0 && (
-        <section className="sm:hidden py-6" style={{ background: '#fcf9f8' }}>
+        <section className="wa-sm:wa-hidden" style={{ padding: '1.5rem 0', background: '#fcf9f8' }}>
           <h2 className="px-4 text-lg font-bold mb-3" style={{ color: '#1c1b1b' }}>Career Outcomes</h2>
           <div className="flex gap-3 overflow-x-auto px-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
             {extra.jobOutcomes.map((outcome, i) => (

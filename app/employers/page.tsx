@@ -263,13 +263,13 @@ export default function EmployersPage() {
       </section>
 
       {/* ── Mobile-only: Proof metrics row (≤640px) ── */}
-      <section className="sm:hidden px-4 py-6" style={{ background: '#fcf9f8' }}>
-        <div className="grid grid-cols-3 gap-2">
+      <section className="wa-sm:wa-hidden" style={{ background: '#fcf9f8', padding: '1.5rem 1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
           {[
             { val: '$0', label: 'Cost to Hire', accent: '#8c0f37' },
             { val: 'Cert-Ready', label: 'Candidates', accent: '#ad2c4d' },
           ].map((m) => (
-            <div key={m.label} className="rounded-xl p-3 flex flex-col gap-1" style={{ background: 'white', borderLeft: `3px solid ${m.accent}`, boxShadow: '0 1px 4px rgba(28,27,27,0.06)' }}>
+            <div key={m.label} style={{ background: 'white', borderLeft: `3px solid ${m.accent}`, boxShadow: '0 1px 4px rgba(28,27,27,0.06)', borderRadius: '0.75rem', padding: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
               <span className="text-xl font-black leading-none" style={{ color: m.accent }}>{m.val}</span>
               <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: '#584144' }}>{m.label}</span>
             </div>
@@ -278,10 +278,10 @@ export default function EmployersPage() {
       </section>
 
       {/* ── Mobile-only: Talent category chips (≤640px) ── */}
-      <section className="sm:hidden py-4 overflow-x-auto" style={{ background: '#fcf9f8', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-        <div className="flex gap-2 px-4" style={{ width: 'max-content' }}>
+      <section className="wa-sm:wa-hidden" style={{ background: '#fcf9f8', padding: '1rem 0', overflowX: 'auto', scrollbarWidth: 'none' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', padding: '0 1rem', width: 'max-content' }}>
           {['IT & Cyber', 'AI & Software', 'Cloud', 'Business', 'Healthcare'].map((cat, i) => (
-            <span key={cat} className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold" style={{ background: i === 0 ? '#8c0f37' : '#e5e2e1', color: i === 0 ? '#fff' : '#1c1b1b' }}>
+            <span key={cat} className="text-xs font-bold" style={{ flexShrink: 0, padding: '0.5rem 1rem', borderRadius: '9999px', background: i === 0 ? '#8c0f37' : '#e5e2e1', color: i === 0 ? '#fff' : '#1c1b1b' }}>
               {cat}
             </span>
           ))}
@@ -729,10 +729,10 @@ export default function EmployersPage() {
       </section>
 
       {/* ── Mobile-only: Full-width crimson CTA band (≤640px) ── */}
-      <section className="sm:hidden px-4 py-10 flex flex-col items-center text-center" style={{ background: '#8c0f37' }}>
-        <h2 className="text-2xl font-extrabold text-white mb-2 tracking-tight">Ready to Hire?</h2>
-        <p className="text-sm mb-6" style={{ color: 'rgba(255,203,209,0.9)' }}>Join over 200 employers finding certified talent through WorkforceAP.</p>
-        <Link href="#employer-contact" className="block w-full font-bold py-4 rounded-xl text-center text-sm" style={{ background: '#fff', color: '#8c0f37' }}>
+      <section className="wa-sm:wa-hidden" style={{ background: '#8c0f37', padding: '2.5rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+        <h2 className="text-2xl font-extrabold text-white tracking-tight" style={{ marginBottom: '0.5rem' }}>Ready to Hire?</h2>
+        <p className="text-sm" style={{ color: 'rgba(255,203,209,0.9)', marginBottom: '1.5rem' }}>Join over 200 employers finding certified talent through WorkforceAP.</p>
+        <Link href="#employer-contact" className="font-bold text-sm" style={{ display: 'block', width: '100%', padding: '1rem', borderRadius: '0.75rem', textAlign: 'center', background: '#fff', color: '#8c0f37', textDecoration: 'none' }}>
           Request Talent Partnership
         </Link>
       </section>

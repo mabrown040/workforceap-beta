@@ -45,6 +45,36 @@
       "screenId": "0e09db1cb78a47cc9ba298d031ac13f4",
       "title": "Quiz Results (Mobile Light)",
       "file": ".stitch/mobile-quiz-result.html"
+    },
+    "blog": {
+      "screenId": "8e269df319ad439c9741769e34f29dd8",
+      "title": "WorkforceAP Blog (Mobile Light)",
+      "file": ".stitch/mobile-blog.html"
+    },
+    "contact": {
+      "screenId": "bda4786c6000427e88b90ea5106d2c1a",
+      "title": "Contact Page (Mobile Light)",
+      "file": ".stitch/mobile-contact.html"
+    },
+    "faq": {
+      "screenId": "acd82125c4014ef2ba9c0ed8d9ea09cc",
+      "title": "FAQ Page (Mobile Light)",
+      "file": ".stitch/mobile-faq.html"
+    },
+    "salaryGuide": {
+      "screenId": "8552024267524c53899309a9adfe7a45",
+      "title": "Salary Guide (Mobile Light)",
+      "file": ".stitch/mobile-salary-guide.html"
+    },
+    "programComparison": {
+      "screenId": "bd609f52d46a425599cac3bf0b9c6bba",
+      "title": "Program Comparison (Mobile Light)",
+      "file": ".stitch/mobile-program-comparison.html"
+    },
+    "applyConfirmation": {
+      "screenId": "1e6291530f6849c1aa488705001d8d10",
+      "title": "Application Confirmation (Mobile)",
+      "file": ".stitch/mobile-apply-confirmation.html"
     }
   }
 }

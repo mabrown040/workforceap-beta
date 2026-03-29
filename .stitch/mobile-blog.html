@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-tertiary": "#ffffff",
+            "on-primary-fixed": "#400013",
+            "inverse-surface": "#313030",
+            "on-secondary-container": "#6c4d00",
+            "secondary": "#7b5800",
+            "primary": "#8c0f37",
+            "on-primary-container": "#ffcbd1",
+            "error-container": "#ffdad6",
+            "on-secondary": "#ffffff",
+            "on-error": "#ffffff",
+            "on-error-container": "#93000a",
+            "outline-variant": "#debfc2",
+            "tertiary-container": "#5f5e5e",
+            "surface-variant": "#e5e2e1",
+            "inverse-on-surface": "#f3f0ef",
+            "tertiary": "#474646",
+            "on-surface": "#1c1b1b",
+            "primary-container": "#ad2c4d",
+            "tertiary-fixed": "#e5e2e1",
+            "on-background": "#1c1b1b",
+            "error": "#ba1a1a",
+            "surface-container-low": "#f6f3f2",
+            "secondary-container": "#ffbb00",
+            "on-secondary-fixed": "#261900",
+            "surface-tint": "#ad2c4d",
+            "surface-bright": "#fcf9f8",
+            "inverse-primary": "#ffb2bc",
+            "surface-container-lowest": "#ffffff",
+            "secondary-fixed-dim": "#ffbb00",
+            "on-secondary-fixed-variant": "#5d4200",
+            "on-primary-fixed-variant": "#8c0f37",
+            "on-tertiary-fixed-variant": "#474646",
+            "on-tertiary-container": "#dbd8d7",
+            "tertiary-fixed-dim": "#c8c6c5",
+            "surface-dim": "#dcd9d9",
+            "primary-fixed-dim": "#ffb2bc",
+            "surface-container-high": "#ebe7e7",
+            "surface": "#fcf9f8",
+            "primary-fixed": "#ffd9dd",
+            "outline": "#8b7073",
+            "surface-container-highest": "#e5e2e1",
+            "on-tertiary-fixed": "#1c1b1b",
+            "on-surface-variant": "#584144",
+            "secondary-fixed": "#ffdea4",
+            "on-primary": "#ffffff",
+            "surface-container": "#f0edec",
+            "background": "#fcf9f8"
+          },
+          fontFamily: {
+            "headline": ["Inter"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          },
+          borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    ::-webkit-scrollbar { display: none; }
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar Shell -->
+<header class="fixed top-0 w-full z-50 bg-[#fcf9f8]/80 dark:bg-stone-900/80 backdrop-blur-xl flex items-center justify-between px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#AD2C4D] dark:text-[#f48fb1]">menu</span>
+<h1 class="text-xl font-black tracking-tighter text-[#AD2C4D] dark:text-[#f48fb1] font-['Inter']">WorkforceAP</h1>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden border border-outline-variant/10">
+<img alt="User profile" data-alt="professional headshot of a smiling woman with a blurred office background, high-end editorial photography style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPGgQRSf-4Wheg5hVW-n7Wq8vQQfNBgBH2aI4Otnts7Nw7aCFXy470hREE5iAqfwTJLNhVh3msolk6XKjAwGi53Fskg4mxgCgCL0GK-aKeQNs5PgfkK4jkVZl3Q16J1oaWiNhZb30_m2XRYuW5UAN0MDPiutVEpgdgjN_Q2F5DPTgdn5B1x9Co442t_W--Dpog2AA_cD7Ivbr-O_IYjovrJfyu74bIKsbZ8fxGu7G0yIC7ebpq6i36JkaDpCIbC1O38gr2rtu2831V"/>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-[390px] mx-auto overflow-x-hidden">
+<!-- Hero Section: Editorial Header -->
+<section class="mb-10">
+<span class="text-[10px] uppercase tracking-[0.2em] font-bold text-primary mb-3 block">Perspective</span>
+<h2 class="text-4xl font-extrabold tracking-tight text-on-surface leading-tight mb-4">Blog and Updates</h2>
+<p class="text-on-surface-variant text-lg leading-relaxed font-medium">Stories, announcements, and career insights.</p>
+</section>
+<!-- Category Filter: Horizontal Scroll -->
+<section class="mb-10 -mx-6">
+<div class="flex overflow-x-auto px-6 gap-3 pb-2 scroll-smooth">
+<button class="whitespace-nowrap px-5 py-2 rounded-full bg-primary text-on-primary text-sm font-semibold transition-all">All</button>
+<button class="whitespace-nowrap px-5 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-sm font-semibold hover:bg-surface-container-highest transition-all">Career Tips</button>
+<button class="whitespace-nowrap px-5 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-sm font-semibold hover:bg-surface-container-highest transition-all">Program Updates</button>
+<button class="whitespace-nowrap px-5 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-sm font-semibold hover:bg-surface-container-highest transition-all">Success Stories</button>
+<button class="whitespace-nowrap px-5 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-sm font-semibold hover:bg-surface-container-highest transition-all">Industry News</button>
+</div>
+</section>
+<!-- Blog Post List -->
+<div class="space-y-12">
+<!-- Post 1: Industry News -->
+<article class="group">
+<div class="relative mb-5 overflow-hidden rounded-xl bg-surface-container-low aspect-[4/3]">
+<img alt="Modern Austin skyline" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="dramatic wide angle shot of modern glass skyscrapers in Austin Texas under a clear blue sky, clean architectural photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8sJdNHrka8cI1i1B5ZoopzPpPuNZY8gE8fAeZ4pk-AdtqMhhwqC03jm860z4N_VelLIhqVPEaMcOmtLaxA-vCVtKpgSe-RjaTUbC0Y4pcWR5doTrz9c3nX1zFCQIBWiQzaQMZLORXuMyReNCIsgUGdq19T8DuXQ1OBebPbT_v1yKribI5vVi-Vv9MxfTlznp7zPYkPwhKvTdyK51shGPSxsQQ5qthsiCjdt2yqY6yDxy0yhltlcRDbWzPYxpir2iAZEjBXbHTHDCa"/>
+<div class="absolute top-4 left-4">
+<span class="px-3 py-1 bg-surface-bright/90 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-wider text-primary">Industry News</span>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex items-center gap-2 text-[11px] font-semibold text-on-surface-variant uppercase tracking-widest">
+<span>March 14, 2024</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>5 min read</span>
+</div>
+<h3 class="text-2xl font-bold tracking-tight text-on-surface group-hover:text-primary transition-colors">Navigating the 2024 Tech Landscape</h3>
+<p class="text-on-surface-variant leading-relaxed line-clamp-2">A deep dive into the skills Austin employers are looking for this year.</p>
+<a class="inline-flex items-center gap-2 text-primary font-bold text-sm pt-2 group-hover:gap-3 transition-all" href="#">
+            Read More
+            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</article>
+<!-- Post 2: Success Stories (Asymmetric / Glassmorphism Focus) -->
+<article class="p-6 rounded-xl bg-surface-container-low relative overflow-hidden">
+<div class="absolute -top-12 -right-12 w-40 h-40 bg-secondary-container/10 rounded-full blur-3xl"></div>
+<div class="relative z-10">
+<div class="mb-5 overflow-hidden rounded-lg aspect-[16/9]">
+<img alt="Portrait of Sarah Jenkins" class="w-full h-full object-cover" data-alt="portrait of a confident black female professional in a minimalist white office setting, soft natural lighting, editorial style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEIUpqvoXx-f1QyPkQ2sAu01o06hQ8ynw9QdrcSCAaag3MUKeNa84HCxG5YDCR9_3XPCHJCpvvMj67lQszGbygisV3BPiNE-xdFI3yW5vrzNcn33sQ5E3L0FzdVsjcfa4Z0zoQlIfxyySDCw5pvW_IKdexDLPqaMCUaic7l6mfw_h92-Q7RXeXPkZlXB4xQsMNlRjln5KErWDrT_E3V9Z-E4U3P2GoG2SM2NbEAqy8ZZMsz4a_ZBrs1-AsScL7qIVwtwPc8JFaZrDq"/>
+</div>
+<div class="space-y-3">
+<span class="text-[10px] font-black uppercase tracking-[0.2em] text-secondary">Success Stories</span>
+<h3 class="text-2xl font-bold tracking-tight text-on-surface">Member Spotlight: Sarah Jenkins</h3>
+<p class="text-on-surface-variant leading-relaxed">How Sarah transitioned from retail to a Junior Cloud Architect in 6 months.</p>
+<div class="flex items-center justify-between pt-4">
+<span class="text-[11px] font-bold text-on-surface-variant/60 uppercase">4 min read</span>
+<a class="h-10 px-6 flex items-center justify-center bg-surface-container-lowest text-primary font-bold text-sm rounded-lg shadow-sm" href="#">Read More</a>
+</div>
+</div>
+</div>
+</article>
+<!-- Post 3: Career Tips -->
+<article class="group">
+<div class="relative mb-5 overflow-hidden rounded-xl bg-surface-container-low aspect-[4/3]">
+<img alt="Job interview scene" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="close-up of professional handshake over a light wooden desk, bright airy office environment, corporate lifestyle photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpG3bsTxtL7lXfO32-QFxPjvo_BBMBz7qvYrRQtU3hGwTKlUJxmwMQ3_dT6pSjhxNvWEz9brLnymT-maiw7r-wkl4EL8GE0jERnr9paFfxauiYxO8dGI5ion2_Pwa_ZkProCl3OSE_Qy-xE2SBeMVmWhlzEn8vfLcXsGWOZo6ovW25u5ZkLq0QmMKxnIbTMFetGYAXq3hI1lulSwW5zcKapv7tcFWm3VAm5l1-kZt1-ya2Os4lKC3AEiKY4EWxa2hwO4ZXK5P8O2Bp"/>
+<div class="absolute top-4 left-4">
+<span class="px-3 py-1 bg-surface-bright/90 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-wider text-primary">Career Tips</span>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex items-center gap-2 text-[11px] font-semibold text-on-surface-variant uppercase tracking-widest">
+<span>March 08, 2024</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>7 min read</span>
+</div>
+<h3 class="text-2xl font-bold tracking-tight text-on-surface group-hover:text-primary transition-colors">Mastering the Behavioral Interview</h3>
+<p class="text-on-surface-variant leading-relaxed line-clamp-2">Struggling with the STAR method? Here is how to nail your next interview.</p>
+<a class="inline-flex items-center gap-2 text-primary font-bold text-sm pt-2 group-hover:gap-3 transition-all" href="#">
+            Read More
+            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</article>
+</div>
+<!-- Newsletter Tonal Shift Section -->
+<section class="mt-16 -mx-6 px-6 py-12 bg-surface-container-low rounded-t-3xl">
+<h4 class="text-xl font-bold mb-2">Weekly Workforce Insight</h4>
+<p class="text-on-surface-variant text-sm mb-6">Join 5,000+ professionals getting curated Austin career updates.</p>
+<div class="flex flex-col gap-3">
+<input class="w-full bg-surface-container-lowest border-none rounded-xl h-12 px-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all" placeholder="email@example.com" type="email"/>
+<button class="w-full bg-primary-container text-on-primary h-12 rounded-xl font-bold transition-all active:scale-95">Subscribe</button>
+</div>
+</section>
+</main>
+<!-- BottomNavBar Shell -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-safe h-20 bg-[#fcf9f8]/80 dark:bg-stone-900/80 backdrop-blur-xl z-50 rounded-t-xl shadow-[0_-4px_24px_rgba(28,27,27,0.04)]">
+<!-- Home Active -->
+<a class="flex flex-col items-center justify-center text-[#AD2C4D] dark:text-[#f48fb1] bg-[#AD2C4D]/10 rounded-xl px-4 py-1 transition-transform scale-95 active:opacity-90" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-['Inter'] text-[11px] uppercase tracking-[0.05em] font-semibold mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#584144] dark:text-stone-400 opacity-70 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="font-['Inter'] text-[11px] uppercase tracking-[0.05em] font-semibold mt-1">Courses</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#584144] dark:text-stone-400 opacity-70 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined">auto_stories</span>
+<span class="font-['Inter'] text-[11px] uppercase tracking-[0.05em] font-semibold mt-1">Insights</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#584144] dark:text-stone-400 opacity-70 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Inter'] text-[11px] uppercase tracking-[0.05em] font-semibold mt-1">Profile</span>
+</a>
+</nav>
+</body></html>

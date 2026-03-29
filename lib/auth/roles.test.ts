@@ -1,55 +1,49 @@
-// @ts-nocheck
-import { test, describe } from 'node:test';
+import test from 'node:test';
 import assert from 'node:assert/strict';
-import { prisma } from '@/lib/db/prisma';
-import { isSuperAdmin } from './roles';
 
-describe('isSuperAdmin', () => {
-  test('returns true for super_admin role', async () => {
-    const originalFindUnique = prisma.profile.findUnique;
-    prisma.profile.findUnique = async () => ({ role: 'super_admin' }) as any;
+import { requireAdmin, isAdmin } from './roles.ts';
+import { prisma } from '../db/prisma.ts';
 
-    try {
-      const result = await isSuperAdmin('user_1');
-      assert.equal(result, true);
-    } finally {
-      prisma.profile.findUnique = originalFindUnique;
-    }
+test('requireAdmin throws error when user is not admin', async (t) => {
+  const originalFindUnique = prisma.profile.findUnique;
+  const originalFindMany = prisma.userRole.findMany;
+
+  t.after(() => {
+    prisma.profile.findUnique = originalFindUnique;
+    prisma.userRole.findMany = originalFindMany;
   });
 
-  test('returns false for admin role', async () => {
-    const originalFindUnique = prisma.profile.findUnique;
-    prisma.profile.findUnique = async () => ({ role: 'admin' }) as any;
+  // Mock Prisma responses so user is not an admin
+  prisma.profile.findUnique = async () => ({ role: 'member' } as any);
+  prisma.userRole.findMany = async () => ([] as any[]);
 
-    try {
-      const result = await isSuperAdmin('user_2');
-      assert.equal(result, false);
-    } finally {
-      prisma.profile.findUnique = originalFindUnique;
-    }
+  // verify isAdmin returns false first
+  const isAdm = await isAdmin('user-1');
+  assert.equal(isAdm, false);
+
+  // Verify requireAdmin throws the expected error
+  await assert.rejects(
+    requireAdmin('user-1'),
+    new Error('Forbidden: admin access required')
+  );
+});
+
+test('requireAdmin succeeds when user is admin', async (t) => {
+  const originalFindUnique = prisma.profile.findUnique;
+  const originalFindMany = prisma.userRole.findMany;
+
+  t.after(() => {
+    prisma.profile.findUnique = originalFindUnique;
+    prisma.userRole.findMany = originalFindMany;
   });
 
-  test('returns false for member role', async () => {
-    const originalFindUnique = prisma.profile.findUnique;
-    prisma.profile.findUnique = async () => ({ role: 'member' }) as any;
+  // Mock Prisma responses so user is an admin
+  prisma.profile.findUnique = async () => ({ role: 'admin' } as any);
+  prisma.userRole.findMany = async () => ([] as any[]);
 
-    try {
-      const result = await isSuperAdmin('user_3');
-      assert.equal(result, false);
-    } finally {
-      prisma.profile.findUnique = originalFindUnique;
-    }
-  });
+  const isAdm = await isAdmin('user-1');
+  assert.equal(isAdm, true);
 
-  test('returns false when profile is not found', async () => {
-    const originalFindUnique = prisma.profile.findUnique;
-    prisma.profile.findUnique = async () => null as any;
-
-    try {
-      const result = await isSuperAdmin('user_4');
-      assert.equal(result, false);
-    } finally {
-      prisma.profile.findUnique = originalFindUnique;
-    }
-  });
+  // Should not throw
+  await requireAdmin('user-1');
 });

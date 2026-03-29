@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { Suspense } from 'react';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -137,7 +138,9 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         {/* Header */}
         <header className="fixed top-0 w-full z-50 px-5 flex justify-between items-center h-16" style={{ background: 'rgba(252,249,248,0.88)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(222,191,194,0.2)' }}>
           <div className="flex items-center gap-3">
-            <span className="material-symbols-outlined" style={{ color: '#ad2c4d' }}>arrow_back</span>
+            <Link href="/" className="flex items-center" aria-label="Back to home">
+              <span className="material-symbols-outlined" style={{ color: '#ad2c4d' }}>arrow_back</span>
+            </Link>
             <span className="text-lg font-black tracking-tight" style={{ color: '#ad2c4d' }}>WorkforceAP</span>
           </div>
         </header>
@@ -217,6 +220,10 @@ export default async function ApplyPage({ searchParams }: PageProps) {
               <span className="material-symbols-outlined text-sm" style={{ color: '#584144' }}>lock</span>
               <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: '#584144' }}>Your info is private and secure</span>
             </div>
+            <p className="text-center text-sm" style={{ color: '#584144' }}>
+              Already have an account?{' '}
+              <Link href="/login" className="font-semibold" style={{ color: '#ad2c4d' }}>Log in</Link>
+            </p>
           </div>
         </main>
       </div>
@@ -279,7 +286,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           <div style={sPage.infoCard}>
             <h4 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-2)' }}>What happens next?</h4>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)', margin: 0 }}>
-              After you apply, a counselor reviews your goals, walks through best-fit program options, and follows up within 24-48 hours.
+              After you apply, a counselor reviews your goals, walks through best-fit program options, and follows up within 3–5 business days.
             </p>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', marginTop: 'var(--space-3)', marginBottom: 0 }}>
               Questions? Call <a href="tel:5127771808" style={{ color: 'var(--color-gold)', fontWeight: 700 }}>(512) 777-1808</a>
@@ -297,6 +304,10 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           <Suspense fallback={<ApplyPageSkeleton />}>
             <ApplyEligibilityClient />
           </Suspense>
+          <p style={{ marginTop: 'var(--space-4)', fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', textAlign: 'center' }}>
+            Already have an account?{' '}
+            <Link href="/login" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Log in</Link>
+          </p>
         </div>
       </div>
 
@@ -316,7 +327,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           <div>
             <h4 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>Rapid Processing</h4>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)', margin: 0 }}>
-              Applications are reviewed within 24-48 hours. A counselor will contact you to discuss your best-fit program.
+              Applications are reviewed within 3–5 business days. A counselor will contact you to discuss your best-fit program.
             </p>
           </div>
         </div>

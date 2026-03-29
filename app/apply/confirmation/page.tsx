@@ -5,6 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
 import ApplyConfirmationCta from '@/components/apply/ApplyConfirmationCta';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import ShareButtons from '@/components/apply/ShareButtons';
 
 export const metadata = buildPageMetadata({
   title: 'Application Received',
@@ -21,7 +22,7 @@ const NEXT_STEPS = [
   {
     num: '2',
     title: 'A counselor will contact you',
-    desc: 'A personalized 15-minute introductory call within 24–48 hours.',
+    desc: 'A personalized 15-minute introductory call within 3–5 business days.',
   },
   {
     num: '3',
@@ -57,7 +58,7 @@ export default function ApplyConfirmationPage() {
             </div>
             <h2 className="text-3xl font-black text-[#1c1b1b] tracking-tight mb-3">Application Received!</h2>
             <p className="text-[#584144] text-base leading-relaxed max-w-[280px]">
-              We will reach out within 24–48 hours to confirm next steps.
+              We will reach out within 3–5 business days to confirm next steps.
             </p>
           </section>
 
@@ -99,20 +100,7 @@ export default function ApplyConfirmationPage() {
           {/* Share Buttons */}
           <section className="mt-10">
             <p className="text-[10px] font-bold uppercase tracking-widest text-[#584144] text-center mb-4">Spread the word</p>
-            <div className="grid grid-cols-3 gap-3">
-              <button className="flex flex-col items-center justify-center py-4 bg-white border border-[#debfc2]/10 rounded-xl hover:bg-[#f0edec] transition-colors group">
-                <span className="material-symbols-outlined text-[#584144] group-hover:text-[#8c0f37] transition-colors">content_copy</span>
-                <span className="text-[10px] mt-2 font-medium text-[#584144]">Copy Link</span>
-              </button>
-              <button className="flex flex-col items-center justify-center py-4 bg-white border border-[#debfc2]/10 rounded-xl hover:bg-[#f0edec] transition-colors group">
-                <span className="material-symbols-outlined text-[#584144] group-hover:text-[#8c0f37] transition-colors">mail</span>
-                <span className="text-[10px] mt-2 font-medium text-[#584144]">Email</span>
-              </button>
-              <button className="flex flex-col items-center justify-center py-4 bg-white border border-[#debfc2]/10 rounded-xl hover:bg-[#f0edec] transition-colors group">
-                <span className="material-symbols-outlined text-[#584144] group-hover:text-[#8c0f37] transition-colors">chat_bubble</span>
-                <span className="text-[10px] mt-2 font-medium text-[#584144]">SMS</span>
-              </button>
-            </div>
+            <ShareButtons />
           </section>
 
           {/* Contact info */}
@@ -153,7 +141,7 @@ export default function ApplyConfirmationPage() {
                   <div>
                     <strong>Our team reviews your application</strong>
                     <p style={{ margin: '0.25rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.95rem' }}>
-                      We review every application within 5 business days. A counselor will look at your goals and match you with the right program.
+                      We review every application within 3–5 business days. A counselor will look at your goals and match you with the right program.
                     </p>
                   </div>
                 </div>

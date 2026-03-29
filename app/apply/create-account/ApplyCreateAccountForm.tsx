@@ -8,6 +8,26 @@ import { APPLY_REFERRAL_SESSION_KEY } from '@/lib/apply/applyReferralCapture';
 
 const PROGRAM_STORAGE_KEY = 'apply_program_slug';
 
+const US_STATES: { abbr: string; name: string }[] = [
+  { abbr: 'AL', name: 'Alabama' }, { abbr: 'AK', name: 'Alaska' }, { abbr: 'AZ', name: 'Arizona' },
+  { abbr: 'AR', name: 'Arkansas' }, { abbr: 'CA', name: 'California' }, { abbr: 'CO', name: 'Colorado' },
+  { abbr: 'CT', name: 'Connecticut' }, { abbr: 'DE', name: 'Delaware' }, { abbr: 'DC', name: 'District of Columbia' },
+  { abbr: 'FL', name: 'Florida' }, { abbr: 'GA', name: 'Georgia' }, { abbr: 'HI', name: 'Hawaii' },
+  { abbr: 'ID', name: 'Idaho' }, { abbr: 'IL', name: 'Illinois' }, { abbr: 'IN', name: 'Indiana' },
+  { abbr: 'IA', name: 'Iowa' }, { abbr: 'KS', name: 'Kansas' }, { abbr: 'KY', name: 'Kentucky' },
+  { abbr: 'LA', name: 'Louisiana' }, { abbr: 'ME', name: 'Maine' }, { abbr: 'MD', name: 'Maryland' },
+  { abbr: 'MA', name: 'Massachusetts' }, { abbr: 'MI', name: 'Michigan' }, { abbr: 'MN', name: 'Minnesota' },
+  { abbr: 'MS', name: 'Mississippi' }, { abbr: 'MO', name: 'Missouri' }, { abbr: 'MT', name: 'Montana' },
+  { abbr: 'NE', name: 'Nebraska' }, { abbr: 'NV', name: 'Nevada' }, { abbr: 'NH', name: 'New Hampshire' },
+  { abbr: 'NJ', name: 'New Jersey' }, { abbr: 'NM', name: 'New Mexico' }, { abbr: 'NY', name: 'New York' },
+  { abbr: 'NC', name: 'North Carolina' }, { abbr: 'ND', name: 'North Dakota' }, { abbr: 'OH', name: 'Ohio' },
+  { abbr: 'OK', name: 'Oklahoma' }, { abbr: 'OR', name: 'Oregon' }, { abbr: 'PA', name: 'Pennsylvania' },
+  { abbr: 'RI', name: 'Rhode Island' }, { abbr: 'SC', name: 'South Carolina' }, { abbr: 'SD', name: 'South Dakota' },
+  { abbr: 'TN', name: 'Tennessee' }, { abbr: 'TX', name: 'Texas' }, { abbr: 'UT', name: 'Utah' },
+  { abbr: 'VT', name: 'Vermont' }, { abbr: 'VA', name: 'Virginia' }, { abbr: 'WA', name: 'Washington' },
+  { abbr: 'WV', name: 'West Virginia' }, { abbr: 'WI', name: 'Wisconsin' }, { abbr: 'WY', name: 'Wyoming' },
+];
+
 export default function ApplyCreateAccountForm() {
   const searchParams = useSearchParams();
   const [init, setInit] = useState<'loading' | 'missing' | 'ready'>('loading');
@@ -27,6 +47,8 @@ export default function ApplyCreateAccountForm() {
   const [smsOptIn, setSmsOptIn] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<{
     firstName?: string;
     lastName?: string;
@@ -127,6 +149,8 @@ export default function ApplyCreateAccountForm() {
     }
     if (!zip.trim()) {
       nextFieldErrors.zip = 'Enter your ZIP code.';
+    } else if (!/^\d{5}(-\d{4})?$/.test(zip.trim())) {
+      nextFieldErrors.zip = 'Please enter a valid 5-digit ZIP code';
     }
     if (password.length < 8) {
       nextFieldErrors.password = 'Use at least 8 characters.';
@@ -367,9 +391,8 @@ export default function ApplyCreateAccountForm() {
       >
         <div>
           <label htmlFor="state">State *</label>
-          <input
+          <select
             id="state"
-            type="text"
             value={stateVal}
             onChange={(e) => {
               setStateVal(e.target.value);
@@ -378,7 +401,12 @@ export default function ApplyCreateAccountForm() {
             autoComplete="address-level1"
             required
             aria-invalid={!!fieldErrors.state}
-          />
+          >
+            <option value="">Select…</option>
+            {US_STATES.map((s) => (
+              <option key={s.abbr} value={s.abbr}>{s.name}</option>
+            ))}
+          </select>
           {fieldErrors.state ? <p className="form-error">{fieldErrors.state}</p> : null}
         </div>
         <div>
@@ -403,36 +431,63 @@ export default function ApplyCreateAccountForm() {
           <input type="checkbox" checked={smsOptIn} onChange={(e) => setSmsOptIn(e.target.checked)} />
           Text me updates about my application (optional)
         </label>
+        <p style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>Message frequency varies. Reply STOP to cancel, HELP for help. Msg &amp; data rates may apply.</p>
       </div>
       <div className="form-group">
         <label htmlFor="password">Password *</label>
-        <input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => {
-            setPassword(e.target.value);
-            if (fieldErrors.password) setFieldErrors((f) => ({ ...f, password: undefined }));
-          }}
-          autoComplete="new-password"
-          aria-invalid={!!fieldErrors.password}
-        />
+        <div style={{ position: 'relative' }}>
+          <input
+            id="password"
+            type={showPassword ? 'text' : 'password'}
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              if (fieldErrors.password) setFieldErrors((f) => ({ ...f, password: undefined }));
+            }}
+            autoComplete="new-password"
+            aria-invalid={!!fieldErrors.password}
+            style={{ paddingRight: '2.5rem' }}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((v) => !v)}
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: '0.25rem', lineHeight: 1 }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>
+              {showPassword ? 'visibility_off' : 'visibility'}
+            </span>
+          </button>
+        </div>
         <p className="apply-field-hint">Use at least 8 characters. You&apos;ll use this password to come back and check your status.</p>
         {fieldErrors.password ? <p className="form-error">{fieldErrors.password}</p> : null}
       </div>
       <div className="form-group">
         <label htmlFor="confirmPassword">Confirm Password *</label>
-        <input
-          id="confirmPassword"
-          type="password"
-          value={confirmPassword}
-          onChange={(e) => {
-            setConfirmPassword(e.target.value);
-            if (fieldErrors.confirmPassword) setFieldErrors((f) => ({ ...f, confirmPassword: undefined }));
-          }}
-          autoComplete="new-password"
-          aria-invalid={!!fieldErrors.confirmPassword}
-        />
+        <div style={{ position: 'relative' }}>
+          <input
+            id="confirmPassword"
+            type={showConfirmPassword ? 'text' : 'password'}
+            value={confirmPassword}
+            onChange={(e) => {
+              setConfirmPassword(e.target.value);
+              if (fieldErrors.confirmPassword) setFieldErrors((f) => ({ ...f, confirmPassword: undefined }));
+            }}
+            autoComplete="new-password"
+            aria-invalid={!!fieldErrors.confirmPassword}
+            style={{ paddingRight: '2.5rem' }}
+          />
+          <button
+            type="button"
+            onClick={() => setShowConfirmPassword((v) => !v)}
+            aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+            style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: '0.25rem', lineHeight: 1 }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>
+              {showConfirmPassword ? 'visibility_off' : 'visibility'}
+            </span>
+          </button>
+        </div>
         {fieldErrors.confirmPassword ? <p className="form-error">{fieldErrors.confirmPassword}</p> : null}
       </div>
       {error && <p className="form-error" role="alert">{error}</p>}

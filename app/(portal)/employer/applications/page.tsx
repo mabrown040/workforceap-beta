@@ -53,7 +53,7 @@ export default async function EmployerApplicationsPage() {
         <MobileBottomNav variant="portal" />
       </div>
       {/* ── Desktop View ── */}
-      <div className="hidden md:block">
+      <div className="wa-hidden wa-md:block">
         <PageHeader
           title="Applicants"
           subtitle="Update application status as you review candidates. Invalid workflow steps are blocked."

@@ -22,7 +22,7 @@ export default function ProgramsPage() {
       {/* ══════════════════════════════════════════════
           MOBILE LAYOUT ≤640px — Stitch-aligned
           ══════════════════════════════════════════════ */}
-      <div className="md:hidden" style={{ background: '#fcf9f8', minHeight: '100vh', paddingBottom: '8rem' }}>
+      <div className="wa-md:hidden" style={{ background: '#fcf9f8', minHeight: '100vh', paddingBottom: '8rem' }}>
         {/* Top App Bar */}
         <header className="fixed top-0 w-full flex justify-between items-center px-5 h-16 z-50" style={{ background: 'rgba(252,249,248,0.88)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(222,191,194,0.2)' }}>
           <div className="flex items-center gap-3">
@@ -130,7 +130,7 @@ export default function ProgramsPage() {
       {/* ══════════════════════════════════════════════
           DESKTOP LAYOUT ≥641px
           ══════════════════════════════════════════════ */}
-      <div className="hidden md:block">
+      <div className="wa-hidden wa-md:block">
 
       {/* ── Hero Section ── */}
       <section className="content-section" style={{ paddingBottom: 0 }}>

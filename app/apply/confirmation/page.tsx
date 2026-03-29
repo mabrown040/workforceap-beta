@@ -118,7 +118,7 @@ export default function ApplyConfirmationPage() {
       </div>
 
       {/* ===== DESKTOP VIEW (>640px) ===== */}
-      <div className="hidden md:block">
+      <div className="wa-hidden wa-md:block">
         <section className="page-hero">
           <div className="page-hero-content">
             <h1>Application Received</h1>

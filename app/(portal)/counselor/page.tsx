@@ -172,7 +172,7 @@ export default async function CounselorPortalPage() {
         <MobileBottomNav variant="portal" />
       </div>
       {/* ── Desktop View ── */}
-      <div className="hidden md:block">
+      <div className="wa-hidden wa-md:block">
       {/* ── Welcome Header ── */}
       <header style={{ marginBottom: '2.5rem' }}>
         <h1 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>

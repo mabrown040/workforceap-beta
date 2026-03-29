@@ -16,7 +16,7 @@ export default function FindYourPathPage() {
   return (
     <div className="inner-page" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
       {/* Desktop layout — hidden on mobile */}
-      <div className="hidden md:block">
+      <div className="wa-hidden wa-md:block">
 
       {/* Hero */}
       <section style={{
@@ -114,7 +114,7 @@ export default function FindYourPathPage() {
       {/* ══════════════════════════════════════════════
           MOBILE LAYOUT ≤640px — Stitch-aligned
           ══════════════════════════════════════════════ */}
-      <div className="md:hidden" style={{ background: '#fcf9f8', minHeight: '100vh', paddingBottom: '6rem' }}>
+      <div className="wa-md:hidden" style={{ background: '#fcf9f8', minHeight: '100vh', paddingBottom: '6rem' }}>
         {/* Clean mobile header */}
         <header className="sticky top-0 w-full z-50 flex justify-between items-center px-5 py-4" style={{ background: 'rgba(252,249,248,0.88)', backdropFilter: 'blur(12px)', boxShadow: '0 24px 40px rgba(28,27,27,0.04)' }}>
           <div className="flex items-center gap-3">

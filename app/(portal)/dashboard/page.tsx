@@ -285,7 +285,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* ── Desktop view (hidden on mobile) ── */}
-      <div className="hidden md:block">
+      <div className="wa-hidden wa-md:block">
         <PortalEntryClient
           portal="member"
           showOnboardingWizard={showMemberOnboarding}

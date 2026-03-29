@@ -46,7 +46,7 @@ export default async function BlogPage() {
       <BlogMobileSection posts={posts} categories={categories} />
 
       {/* Desktop view >640px */}
-      <div className="hidden md:block">
+      <div className="wa-hidden wa-md:block">
         <PageHero
           title="Blog"
           subtitle="Career tips, program spotlights, success stories, and local insights."

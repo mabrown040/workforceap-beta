@@ -173,7 +173,7 @@ export default async function DashboardProfilePage() {
       </div>
 
       {/* ── Desktop profile view ── */}
-      <div className="hidden md:block">
+      <div className="wa-hidden wa-md:block">
       <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>My Profile</h1>
       <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
         Manage your contact information and career goals.

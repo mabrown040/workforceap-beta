@@ -243,7 +243,7 @@ export default async function EmployerDashboardPage() {
         <MobileBottomNav variant="portal" />
       </div>
       {/* ── Desktop View ── */}
-      <div className="hidden md:block">
+      <div className="wa-hidden wa-md:block">
       {/* ── Header ── */}
       <header style={{ marginBottom: '2.5rem', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: '1.5rem' }}>
         <div>

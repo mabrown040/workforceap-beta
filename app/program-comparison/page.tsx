@@ -143,7 +143,7 @@ export default function ProgramComparisonPage() {
       </div>
 
       {/* ===== DESKTOP VIEW (>640px) ===== */}
-      <div className="hidden md:block">
+      <div className="wa-hidden wa-md:block">
         {/* Hero */}
         <section style={{ padding: '5rem 2rem 3rem', maxWidth: '1400px', margin: '0 auto' }}>
           <div style={{ maxWidth: '720px' }}>

@@ -200,7 +200,7 @@ export default function SalaryGuidePage() {
       </div>
 
       {/* ===== DESKTOP VIEW (>640px) ===== */}
-      <div className="hidden md:block">
+      <div className="wa-hidden wa-md:block">
         {/* ===== Hero ===== */}
         <section style={{ padding: '5rem 2rem 3rem', maxWidth: '1400px', margin: '0 auto' }}>
           <span style={{

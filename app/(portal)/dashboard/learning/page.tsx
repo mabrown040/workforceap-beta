@@ -170,7 +170,7 @@ export default async function LearningPage() {
     </div>
 
     {/* ── Desktop view ── */}
-    <div className="hidden md:block">
+    <div className="wa-hidden wa-md:block">
     <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto' }}>
       {/* Top bar: label + heading + progress */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 'var(--space-4)', marginBottom: 'var(--space-8)' }}>

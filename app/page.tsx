@@ -38,6 +38,94 @@ export default async function HomePage() {
   return (
     <div className="homepage" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
 
+      {/* ══════════════════════════════════════════════
+          MOBILE LAYOUT ≤640px — Stitch-aligned
+          ══════════════════════════════════════════════ */}
+      <div className="md:hidden" style={{ background: '#fcf9f8', minHeight: '100vh', paddingBottom: '5rem' }}>
+        {/* Mobile Hero */}
+        <section className="px-5 pt-20 pb-6">
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-5" style={{ background: '#ffbb00', color: '#1c1b1b' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '0.75rem', fontVariationSettings: "'FILL' 1" }}>radio_button_checked</span>
+            Enrollment Open 2024
+          </span>
+          <h1 className="text-5xl font-black tracking-tighter leading-[0.95] mb-4" style={{ background: 'linear-gradient(135deg, #8c0f37 0%, #ad2c4d 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            Free Career<br />Training
+          </h1>
+          <p className="text-base leading-relaxed mb-7 max-w-[280px]" style={{ color: '#584144' }}>
+            Bridge the gap with professional certification and a 94% placement rate.
+          </p>
+          <div className="flex flex-col gap-3">
+            <Link href="/apply" className="block w-full text-center font-bold py-4 rounded-xl text-sm shadow-lg" style={{ background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)', color: '#fff' }}>
+              Apply Free
+            </Link>
+            <Link href="/find-your-path" className="block w-full text-center font-bold py-4 rounded-xl text-sm border" style={{ background: '#f6f3f2', color: '#8c0f37', borderColor: 'rgba(140,15,55,0.15)' }}>
+              Find Your Path
+            </Link>
+          </div>
+        </section>
+
+        {/* Mobile Partner Logos Scroll */}
+        <section className="mb-10">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] px-5 mb-3" style={{ color: 'rgba(88,65,68,0.6)' }}>Global Hiring Partners</p>
+          <div className="flex overflow-x-auto gap-8 px-5 items-center py-2" style={{ scrollbarWidth: 'none' }}>
+            {['Google', 'IBM', 'AWS', 'CompTIA', 'AT&amp;T'].map((p) => (
+              <span key={p} className="flex-shrink-0 text-sm font-black uppercase tracking-wider" style={{ color: '#8b7073', opacity: 0.7 }}>{p}</span>
+            ))}
+          </div>
+        </section>
+
+        {/* Mobile 3-Stat Row */}
+        <section className="px-5 mb-10">
+          <div className="grid grid-cols-3 gap-3">
+            <div className="rounded-2xl p-4 flex flex-col justify-end" style={{ background: '#f6f3f2', minHeight: 96 }}>
+              <span className="text-2xl font-black block" style={{ color: '#8c0f37' }}>{programCount}</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#584144' }}>Programs</span>
+            </div>
+            <div className="col-span-2 rounded-2xl p-4 flex flex-col justify-between" style={{ background: 'linear-gradient(135deg, #8c0f37 0%, #ad2c4d 100%)', minHeight: 96 }}>
+              <span className="material-symbols-outlined text-white/40 self-end">verified</span>
+              <div>
+                <span className="text-3xl font-black text-white block">$0 Cost</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'rgba(255,203,209,0.9)' }}>Tuition Free</span>
+              </div>
+            </div>
+            <div className="col-span-3 rounded-2xl p-4 flex items-center justify-between" style={{ background: '#ebe7e7' }}>
+              <span className="text-lg font-bold" style={{ color: '#1c1b1b' }}>12–24 Weeks</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#7b5800' }}>Accelerated</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Mobile 4-Step Journey Card Scroll */}
+        <section className="mb-6">
+          <div className="px-5 flex justify-between items-end mb-5">
+            <h2 className="text-2xl font-black tracking-tight" style={{ color: '#1c1b1b' }}>Your Journey</h2>
+            <Link href="/how-it-works" className="text-xs font-bold underline decoration-2 underline-offset-4" style={{ color: '#8c0f37' }}>Learn More</Link>
+          </div>
+          <div className="flex overflow-x-auto gap-4 px-5 pb-4" style={{ scrollbarWidth: 'none' }}>
+            {[
+              { icon: 'quiz', step: '01', title: 'Quiz', desc: 'Discover your path in 5 minutes.' },
+              { icon: 'assignment_ind', step: '02', title: 'Apply', desc: 'Submit in about 10 minutes.' },
+              { icon: 'school', step: '03', title: 'Train', desc: 'Intensive skill-building with experts.' },
+              { icon: 'work', step: '04', title: 'Hired', desc: 'Access our exclusive hiring network.' },
+            ].map(({ icon, step, title, desc }) => (
+              <div key={step} className="flex-shrink-0 w-56 p-5 rounded-3xl border" style={{ background: '#fff', borderColor: 'rgba(28,27,27,0.06)', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+                <div className="w-10 h-10 rounded-full flex items-center justify-center mb-5" style={{ background: 'rgba(140,15,55,0.1)' }}>
+                  <span className="material-symbols-outlined" style={{ color: '#8c0f37' }}>{icon}</span>
+                </div>
+                <span className="block text-[10px] font-black uppercase tracking-wider mb-1" style={{ color: '#7b5800' }}>Phase {step}</span>
+                <h3 className="text-xl font-bold mb-2" style={{ color: '#1c1b1b' }}>{title}</h3>
+                <p className="text-sm leading-relaxed" style={{ color: '#584144' }}>{desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      {/* ══════════════════════════════════════════════
+          DESKTOP LAYOUT ≥641px
+          ══════════════════════════════════════════════ */}
+      <div className="hidden md:block">
+
       {/* ===== HERO: Full-bleed background image with gradient overlay ===== */}
       <section style={{
         position: 'relative',
@@ -465,8 +553,11 @@ export default async function HomePage() {
         </div>
       </section>
 
+      </div>{/* end desktop wrapper */}
+
+      {/* ── LEGACY mobile sections — now superseded by top Stitch mobile block above ── */}
       {/* ── Mobile Hero Section (≤640px) ── */}
-      <section className="md:hidden px-4 pt-20 pb-6" style={{ background: '#fcf9f8' }}>
+      <section className="hidden px-4 pt-20 pb-6" style={{ background: '#fcf9f8' }}>
         <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-4" style={{ background: '#ffbb00', color: '#1c1b1b' }}>
           <span className="material-symbols-outlined" style={{ fontSize: '0.75rem', fontVariationSettings: "'FILL' 1" }}>circle</span>
           Enrollment Open
@@ -489,7 +580,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── Mobile Trust Strip (≤640px) ── */}
-      <section className="md:hidden overflow-x-auto pb-4 px-4" style={{ background: '#f6f3f2' }}>
+      <section className="hidden overflow-x-auto pb-4 px-4" style={{ background: '#f6f3f2' }}>
         <div className="flex gap-6 items-center pt-4" style={{ minWidth: 'max-content' }}>
           {['Google', 'IBM', 'AWS', 'CompTIA', 'AT&T'].map((p) => (
             <span key={p} className="text-sm font-black uppercase tracking-wider" style={{ color: '#8b7073', opacity: 0.7 }}>{p}</span>
@@ -498,7 +589,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── Mobile Stats Row (≤640px) ── */}
-      <section className="md:hidden px-4 py-5 grid grid-cols-3 gap-2 text-center" style={{ background: '#fcf9f8' }}>
+      <section className="hidden px-4 py-5 grid grid-cols-3 gap-2 text-center" style={{ background: '#fcf9f8' }}>
         {[['19', 'Programs'], ['$0', 'Cost'], ['12-24\nWks', 'Duration']].map(([val, label]) => (
           <div key={label} className="rounded-xl py-3 px-2" style={{ background: '#f0edec' }}>
             <div className="text-xl font-extrabold tracking-tight leading-none" style={{ color: '#ad2c4d' }}>{val}</div>
@@ -508,7 +599,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── Mobile Journey Cards (≤640px) ── */}
-      <section className="md:hidden px-4 py-5" style={{ background: '#f6f3f2' }}>
+      <section className="hidden px-4 py-5" style={{ background: '#f6f3f2' }}>
         <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: '#8b7073' }}>Your Journey</p>
         <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
           {[

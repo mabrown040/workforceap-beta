@@ -81,12 +81,12 @@ export default function AdminProgramCatalogClient() {
     await load();
   };
 
-  if (loading) return <p style={{ color: 'var(--color-gray-600)' }}>Loading catalog…</p>;
+  if (loading) return <p style={{ color: 'var(--color-on-surface-variant)' }}>Loading catalog…</p>;
 
   return (
     <div>
       {error && <p className="form-error" role="alert">{error}</p>}
-      <p style={{ marginBottom: '1rem', color: 'var(--color-gray-600)', fontSize: '0.9rem' }}>
+      <p style={{ marginBottom: '1rem', color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
         Rows sync with static program slugs (enrollment and course progress). Edit display names, delivery links, and status — homepage and member enrollment use active programs.
       </p>
       <div style={{ overflowX: 'auto' }}>

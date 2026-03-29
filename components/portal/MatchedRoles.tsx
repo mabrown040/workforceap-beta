@@ -30,7 +30,7 @@ export default function MatchedRoles() {
     return (
       <section className="dashboard-matched-roles" style={{ marginTop: '1.5rem' }}>
         <h2 className="dashboard-today-label">Roles that match you</h2>
-        <p style={{ color: 'var(--color-gray-600)', fontSize: '0.9rem' }}>
+        <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
           Finding jobs that match your skills...
         </p>
       </section>
@@ -41,7 +41,7 @@ export default function MatchedRoles() {
     return (
       <section className="dashboard-matched-roles" style={{ marginTop: '1.5rem' }}>
         <h2 className="dashboard-today-label">Roles that match you</h2>
-        <p style={{ color: 'var(--color-gray-600)', fontSize: '0.9rem', marginBottom: '1rem' }}>
+        <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', marginBottom: '1rem' }}>
           No matched jobs available yet. Check back soon as we add new employer opportunities, 
           or visit the <Link href="/jobs" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>job board</Link> to browse all openings.
         </p>
@@ -52,7 +52,7 @@ export default function MatchedRoles() {
   return (
     <section className="dashboard-matched-roles" style={{ marginTop: '1.5rem' }}>
       <h2 className="dashboard-today-label">Roles that match you</h2>
-      <p style={{ color: 'var(--color-gray-600)', fontSize: '0.9rem', marginBottom: '1rem' }}>
+      <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', marginBottom: '1rem' }}>
         Ranked by fit to your skills and program. Apply when you're ready.
       </p>
       <div style={{ display: 'grid', gap: '0.75rem' }}>
@@ -65,8 +65,7 @@ export default function MatchedRoles() {
               style={{
                 display: 'block',
                 padding: '1rem 1.25rem',
-                background: 'white',
-                border: '1px solid #e5e5e5',
+                background: 'var(--surface-container)',
                 borderRadius: '8px',
                 textDecoration: 'none',
                 color: 'inherit',
@@ -76,7 +75,7 @@ export default function MatchedRoles() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
                 <div>
                   <div style={{ fontWeight: 600, fontSize: '1rem', marginBottom: '0.25rem' }}>{job.title}</div>
-                  <div style={{ color: 'var(--color-gray-600)', fontSize: '0.9rem' }}>
+                  <div style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
                     {job.company} &middot; {job.location}
                   </div>
                 </div>

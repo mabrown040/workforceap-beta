@@ -45,7 +45,7 @@ export default function EmployerPipelineClient({
 
   if (matches.length === 0) {
     return (
-      <p style={{ color: 'var(--color-gray-600)' }}>
+      <p style={{ color: 'var(--color-on-surface-variant)' }}>
         No AI-suggested matches for <strong>{jobTitle}</strong> yet. Matches appear after admin review runs.
       </p>
     );
@@ -59,11 +59,11 @@ export default function EmployerPipelineClient({
           <li key={m.id} className="employer-pipeline-match-card">
             <div>
               <strong>{m.student.fullName}</strong>
-              <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>{m.student.email}</div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{m.student.email}</div>
               <div style={{ fontSize: '0.8rem', marginTop: '0.35rem' }}>
                 Score: {m.matchScore}
                 {m.matchReasons?.length ? (
-                  <span style={{ color: 'var(--color-gray-500)' }}> · {m.matchReasons.slice(0, 2).join(' · ')}</span>
+                  <span style={{ color: 'var(--color-on-surface-variant)' }}> · {m.matchReasons.slice(0, 2).join(' · ')}</span>
                 ) : null}
               </div>
             </div>

@@ -12,7 +12,7 @@ export default function PartnerWorkflowTimeline({ events }: { events: Ev[] }) {
     return (
       <section className="partner-workflow-timeline partner-panel" style={{ padding: '1.25rem', marginBottom: '1.25rem' }}>
         <h2 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>Partner workflow activity</h2>
-        <p style={{ color: 'var(--color-gray-600)', margin: 0, fontSize: '0.9rem' }}>
+        <p style={{ color: 'var(--color-on-surface-variant)', margin: 0, fontSize: '0.9rem' }}>
           Outreach, owner changes, and milestones will show here.
         </p>
       </section>

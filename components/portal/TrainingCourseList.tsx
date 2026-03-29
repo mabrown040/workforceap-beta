@@ -62,7 +62,7 @@ export default function TrainingCourseList({ courses, completedSlugs }: Training
               <h3 className="training-course-card__title" style={{ fontSize: '1rem', marginBottom: '0.25rem' }}>
                 {c.name}
               </h3>
-              <span style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>~{c.estimatedHours} hrs</span>
+              <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>~{c.estimatedHours} hrs</span>
               {isUpNext ? (
                 <span className="training-course-up-next" style={{ display: 'block', marginTop: '0.35rem' }}>
                   Up next →
@@ -80,7 +80,7 @@ export default function TrainingCourseList({ courses, completedSlugs }: Training
                     : isUpNext
                       ? 'rgba(173, 44, 77, 0.12)'
                       : '#f0f0f0',
-                  color: isComplete ? 'var(--color-accent)' : isUpNext ? 'var(--color-accent)' : 'var(--color-gray-600)',
+                  color: isComplete ? 'var(--color-accent)' : isUpNext ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
                   fontWeight: isUpNext ? 600 : 400,
                 }}
               >

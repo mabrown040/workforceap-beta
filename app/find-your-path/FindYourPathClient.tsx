@@ -160,11 +160,11 @@ function QuizResultsView({
               {extra?.rampNote && (
                 <p className="quiz-result-ramp-note">{extra.rampNote}</p>
               )}
-              <div style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)', marginBottom: '0.5rem' }}>
+              <div style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem' }}>
                 ⏱ {program.duration}
               </div>
               <div style={{ fontSize: '0.9rem', color: 'var(--color-accent)', fontWeight: 600, marginBottom: '0.5rem' }}>
-                Starting range: {salaryBand} <span style={{ fontWeight: 500, color: 'var(--color-gray-600)' }}>(national framing)</span>
+                Starting range: {salaryBand} <span style={{ fontWeight: 500, color: 'var(--color-on-surface-variant)' }}>(national framing)</span>
               </div>
               {extra?.jobOutcomes && extra.jobOutcomes.length > 0 && (
                 <p className="quiz-result-roles">
@@ -228,7 +228,7 @@ function QuizResultsView({
             <button
               type="button"
               className="btn btn-ghost"
-              style={{ color: 'var(--color-primary)', borderColor: 'var(--color-gray-300)' }}
+              style={{ color: 'var(--color-primary)', borderColor: 'var(--outline-variant)' }}
               onClick={onRetake}
             >
               Retake Quiz

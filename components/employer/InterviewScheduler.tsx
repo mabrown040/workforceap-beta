@@ -79,9 +79,9 @@ export default function InterviewScheduler({
   return (
     <div style={{
       padding: '1.25rem',
-      background: 'var(--color-gray-50)',
+      background: 'var(--surface-container-lowest)',
       borderRadius: 'var(--radius-md)',
-      border: '1px solid var(--color-gray-200)',
+      border: '1px solid var(--outline-variant)',
       marginTop: '1rem'
     }}>
       <h4 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem' }}>
@@ -117,7 +117,7 @@ export default function InterviewScheduler({
           min={new Date().toISOString().slice(0, 16)}
           disabled={saving}
         />
-        <small style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>
+        <small style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
           Applicant will receive an email notification with interview details
         </small>
       </div>

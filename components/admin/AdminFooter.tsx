@@ -3,16 +3,16 @@ export default function AdminFooter() {
     <footer
       className="admin-footer"
       style={{
-        borderTop: '1px solid var(--color-gray-200)',
+        borderTop: '1px solid var(--outline-variant)',
         padding: '0.75rem 1.5rem',
         marginTop: 'auto',
         fontSize: '0.8125rem',
-        color: 'var(--color-gray-600)',
+        color: 'var(--color-on-surface-variant)',
         background: 'var(--color-white)',
       }}
     >
       © 2026 Workforce Advancement Project
-      <span style={{ margin: '0 0.35rem', color: 'var(--color-gray-300)' }}>|</span>
+      <span style={{ margin: '0 0.35rem', color: 'var(--outline-variant)' }}>|</span>
       Support:{' '}
       <a href="mailto:info@workforceap.org" style={{ color: 'var(--color-blue)', textDecoration: 'none' }}>
         info@workforceap.org

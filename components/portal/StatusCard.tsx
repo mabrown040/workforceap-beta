@@ -36,10 +36,10 @@ export function StatusCard({ status, programInterest, submittedAt }: StatusCardP
     >
       <h2 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Application status</h2>
       <p style={{ fontWeight: 700, color: 'var(--color-accent)', marginBottom: '0.5rem' }}>{label}</p>
-      <p style={{ color: 'var(--color-gray-600)', fontSize: '.95rem', marginBottom: '0.75rem' }}>
+      <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '.95rem', marginBottom: '0.75rem' }}>
         {description}
       </p>
-      <p style={{ fontSize: '.875rem', color: 'var(--color-gray-500)' }}>
+      <p style={{ fontSize: '.875rem', color: 'var(--color-on-surface-variant)' }}>
         Program: {programInterest}
         {submittedAt && (
           <> &bull; Submitted {new Date(submittedAt).toLocaleDateString()}</>

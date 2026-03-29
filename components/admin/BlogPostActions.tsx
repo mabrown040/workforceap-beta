@@ -91,7 +91,7 @@ export default function BlogPostActions({ id, slug, published }: Props) {
           </button>
           {confirmDelete ? (
             <>
-              <span style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>
+              <span style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
                 Delete this post?
               </span>
               <button type="button" onClick={handleDelete} disabled={!!loading} data-danger>

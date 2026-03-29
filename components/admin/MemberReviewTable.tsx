@@ -63,7 +63,7 @@ export function MemberReviewTable({ applications }: MemberReviewTableProps) {
 
   if (applications.length === 0) {
     return (
-      <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-gray-600)' }}>
+      <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-on-surface-variant)' }}>
         No applications to review.
       </div>
     );
@@ -82,7 +82,7 @@ export function MemberReviewTable({ applications }: MemberReviewTableProps) {
       <div className="admin-table-scroll admin-member-review-desktop">
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
-          <tr style={{ borderBottom: '2px solid var(--color-gray-200)' }}>
+          <tr style={{ borderBottom: '2px solid var(--outline-variant)' }}>
             <th style={{ textAlign: 'left', padding: '0.75rem', fontWeight: 600 }}>Applicant</th>
             <th style={{ textAlign: 'left', padding: '0.75rem', fontWeight: 600 }}>Program</th>
             <th style={{ textAlign: 'left', padding: '0.75rem', fontWeight: 600 }}>Submitted</th>
@@ -92,12 +92,12 @@ export function MemberReviewTable({ applications }: MemberReviewTableProps) {
         </thead>
         <tbody>
           {applications.map((app) => (
-            <tr key={app.id} style={{ borderBottom: '1px solid var(--color-gray-200)' }}>
+            <tr key={app.id} style={{ borderBottom: '1px solid var(--outline-variant)' }}>
               <td style={{ padding: '0.75rem' }}>
                 <div style={{ fontWeight: 600 }}>{app.user.fullName}</div>
-                <div style={{ fontSize: '.875rem', color: 'var(--color-gray-600)' }}>{app.user.email}</div>
+                <div style={{ fontSize: '.875rem', color: 'var(--color-on-surface-variant)' }}>{app.user.email}</div>
                 {app.user.phone && (
-                  <div style={{ fontSize: '.875rem', color: 'var(--color-gray-500)' }}>{formatPhone(app.user.phone)}</div>
+                  <div style={{ fontSize: '.875rem', color: 'var(--color-on-surface-variant)' }}>{formatPhone(app.user.phone)}</div>
                 )}
               </td>
               <td style={{ padding: '0.75rem', fontSize: '.9rem' }}>{app.programInterest}</td>
@@ -119,7 +119,7 @@ export function MemberReviewTable({ applications }: MemberReviewTableProps) {
                           ? 'rgba(173,44,77,0.15)'
                           : app.status === 'NEEDS_INFO'
                             ? 'rgba(164,127,56,0.15)'
-                            : 'var(--color-gray-100)',
+                            : 'var(--surface-container)',
                     color:
                       app.status === 'APPROVED'
                         ? 'var(--color-green)'
@@ -127,7 +127,7 @@ export function MemberReviewTable({ applications }: MemberReviewTableProps) {
                           ? 'var(--color-accent)'
                           : app.status === 'NEEDS_INFO'
                             ? 'var(--color-gold)'
-                            : 'var(--color-gray-600)',
+                            : 'var(--color-on-surface-variant)',
                   }}
                 >
                   {app.status.replace('_', ' ')}
@@ -143,7 +143,7 @@ export function MemberReviewTable({ applications }: MemberReviewTableProps) {
                     style={{
                       padding: '0.5rem',
                       fontSize: '.875rem',
-                      border: '1px solid var(--color-gray-200)',
+                      border: '1px solid var(--outline-variant)',
                       borderRadius: 'var(--radius-sm)',
                     }}
                   />
@@ -158,7 +158,7 @@ export function MemberReviewTable({ applications }: MemberReviewTableProps) {
                         style={{
                           padding: '0.35rem 0.6rem',
                           fontSize: '.8rem',
-                          background: opt.value === 'APPROVED' ? 'var(--color-green)' : opt.value === 'DENIED' ? 'var(--color-accent)' : 'var(--color-gray-600)',
+                          background: opt.value === 'APPROVED' ? 'var(--color-green)' : opt.value === 'DENIED' ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
                           color: 'white',
                           border: 'none',
                         }}
@@ -189,7 +189,7 @@ export function MemberReviewTable({ applications }: MemberReviewTableProps) {
                         ? 'rgba(173,44,77,0.15)'
                         : app.status === 'NEEDS_INFO'
                           ? 'rgba(164,127,56,0.15)'
-                          : 'var(--color-gray-100)',
+                          : 'var(--surface-container)',
                 }}
               >
                 {app.status.replace('_', ' ')}
@@ -227,7 +227,7 @@ export function MemberReviewTable({ applications }: MemberReviewTableProps) {
                         ? 'var(--color-green)'
                         : opt.value === 'DENIED'
                           ? 'var(--color-accent)'
-                          : 'var(--color-gray-600)',
+                          : 'var(--color-on-surface-variant)',
                     color: 'white',
                     border: 'none',
                   }}

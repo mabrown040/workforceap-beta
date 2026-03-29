@@ -149,7 +149,7 @@ export default function PortalTeamChatClient({ apiPath, initial, subtitle, empty
 
   return (
     <div className="member-counselor-chat">
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1rem', fontSize: '0.95rem' }}>{hint}</p>
+      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem', fontSize: '0.95rem' }}>{hint}</p>
       {error ? (
         <p className="member-counselor-chat__error" role="alert">
           {error}
@@ -157,7 +157,7 @@ export default function PortalTeamChatClient({ apiPath, initial, subtitle, empty
       ) : null}
       <div className="member-counselor-chat__scroll" role="log" aria-live="polite" aria-relevant="additions">
         {messages.length === 0 ? (
-          <p style={{ color: 'var(--color-gray-500)' }}>{emptyHint}</p>
+          <p style={{ color: 'var(--color-on-surface-variant)' }}>{emptyHint}</p>
         ) : (
           messages.map((m) => {
             const mine = m.authorId === portalUserId;

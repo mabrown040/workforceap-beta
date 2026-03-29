@@ -33,9 +33,9 @@ export default function PartnerMilestonesView() {
   }, []);
 
   if (error) return <p role="alert">{error}</p>;
-  if (!milestones) return <p style={{ color: 'var(--color-gray-600)' }}>Loading milestones…</p>;
+  if (!milestones) return <p style={{ color: 'var(--color-on-surface-variant)' }}>Loading milestones…</p>;
   if (milestones.length === 0) {
-    return <p style={{ color: 'var(--color-gray-600)' }}>No milestones in this window yet.</p>;
+    return <p style={{ color: 'var(--color-on-surface-variant)' }}>No milestones in this window yet.</p>;
   }
 
   return (

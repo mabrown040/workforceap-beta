@@ -80,7 +80,7 @@ export default function MemberDetailActions({
   return (
     <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {profileIncomplete && (
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-gray-700)', margin: 0 }}>
+        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface)', margin: 0 }}>
           Profile incomplete for self-serve training enrollment — admin program changes still apply and set an admin enrollment bypass.
         </p>
       )}

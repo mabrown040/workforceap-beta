@@ -205,7 +205,7 @@ export default function AssessmentsTable({
       </div>
 
       {users.length === 0 && (
-        <p style={{ color: 'var(--color-gray-600)', marginTop: '1rem' }}>No assessments match your filters.</p>
+        <p style={{ color: 'var(--color-on-surface-variant)', marginTop: '1rem' }}>No assessments match your filters.</p>
       )}
     </div>
   );

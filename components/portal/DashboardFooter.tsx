@@ -10,8 +10,7 @@ export default function DashboardFooter() {
     <footer
       className="dashboard-site-footer"
       style={{
-        borderTop: '1px solid var(--color-border, #e5e5e5)',
-        background: '#fafafa',
+        background: 'var(--surface-container-lowest)',
         marginTop: 'auto',
       }}
     >
@@ -25,7 +24,7 @@ export default function DashboardFooter() {
           gap: '0.75rem 1.25rem',
           padding: '1rem 1.5rem',
           fontSize: '0.8125rem',
-          color: 'var(--color-gray-600, #525252)',
+          color: 'var(--color-on-surface-variant)',
         }}
       >
         <p style={{ margin: 0 }}>© {year} Workforce Advancement Project</p>

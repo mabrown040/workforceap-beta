@@ -50,10 +50,10 @@ export default function JobApplyButton({ jobId, authenticated = true }: { jobId:
         <Link href={`/login?redirectTo=${encodeURIComponent(`/jobs/${jobId}`)}`} className="btn btn-primary btn-large">
           Log in to apply
         </Link>
-        <p style={{ marginTop: '0.75rem', fontSize: '0.9rem', color: 'var(--color-gray-600)' }}>
+        <p style={{ marginTop: '0.75rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
           You need a WorkforceAP member account to submit an application to this role.
         </p>
-        <p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: 'var(--color-gray-500)' }}>
+        <p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
           New here?{' '}
           <Link href="/apply" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
             Start your application
@@ -77,7 +77,7 @@ export default function JobApplyButton({ jobId, authenticated = true }: { jobId:
         <p style={{ fontWeight: 600, color: 'var(--color-accent)', margin: 0 }}>
           Application submitted successfully!
         </p>
-        <p style={{ margin: '0.5rem 0 0', color: 'var(--color-gray-600)' }}>
+        <p style={{ margin: '0.5rem 0 0', color: 'var(--color-on-surface-variant)' }}>
           The employer will review your application and contact you.
         </p>
       </div>
@@ -97,7 +97,7 @@ export default function JobApplyButton({ jobId, authenticated = true }: { jobId:
         </div>
       )}
       
-      <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'var(--color-gray-50)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-gray-200)' }}>
+      <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'var(--surface-container-lowest)', borderRadius: 'var(--radius-md)', border: '1px solid var(--outline-variant)' }}>
         <h4 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.75rem' }}>Application Consent</h4>
         
         <label style={{ display: 'flex', alignItems: 'start', gap: '0.5rem', cursor: 'pointer', marginBottom: '0.75rem' }}>
@@ -125,7 +125,7 @@ export default function JobApplyButton({ jobId, authenticated = true }: { jobId:
           </span>
         </label>
         
-        <p style={{ fontSize: '0.8rem', color: 'var(--color-gray-600)', marginTop: '0.75rem', lineHeight: 1.4 }}>
+        <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.75rem', lineHeight: 1.4 }}>
           Your information will only be shared with this employer for this specific job application. 
           You can manage your applications in your <Link href="/dashboard/ai-tools/application-tracker" style={{ color: 'var(--color-accent)' }}>dashboard</Link>.
         </p>
@@ -142,7 +142,7 @@ export default function JobApplyButton({ jobId, authenticated = true }: { jobId:
       </button>
       
       {!profileShareConsent && (
-        <p style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: 'var(--color-gray-600)', textAlign: 'center' }}>
+        <p style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', textAlign: 'center' }}>
           Please consent to share your profile to apply
         </p>
       )}

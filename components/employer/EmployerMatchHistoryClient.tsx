@@ -63,7 +63,7 @@ export default function EmployerMatchHistoryClient({ initialRows }: { initialRow
   }, []);
 
   if (rows.length === 0) {
-    return <p style={{ color: 'var(--color-gray-500)' }}>No suggested candidates yet. When WorkforceAP matches members to your roles, they appear here.</p>;
+    return <p style={{ color: 'var(--color-on-surface-variant)' }}>No suggested candidates yet. When WorkforceAP matches members to your roles, they appear here.</p>;
   }
 
   return (
@@ -116,7 +116,7 @@ export default function EmployerMatchHistoryClient({ initialRows }: { initialRow
                     {row.applicationId ? (
                       <Link href={`/employer/applications#${row.applicationId}`}>Open in applicants</Link>
                     ) : (
-                      <span style={{ color: 'var(--color-gray-500)' }}>—</span>
+                      <span style={{ color: 'var(--color-on-surface-variant)' }}>—</span>
                     )}
                   </td>
                 </tr>

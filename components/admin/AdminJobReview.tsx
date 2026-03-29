@@ -47,7 +47,7 @@ function matchEmailBadgeStyle(status: string | null | undefined): { bg: string; 
     case 'dry_run':
       return { bg: 'rgba(59, 130, 246, 0.12)', color: '#1d4ed8', label: 'Dry run' };
     default:
-      return { bg: 'var(--color-gray-100)', color: 'var(--color-gray-700)', label: status ? status : 'None' };
+      return { bg: 'var(--surface-container)', color: 'var(--color-on-surface)', label: status ? status : 'None' };
   }
 }
 
@@ -190,7 +190,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
         </div>
       )}
       <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>{job.title}</h1>
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '1.5rem' }}>
+      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
         {job.employer?.companyName ?? 'Unknown'} · {job.employer?.contactName ?? job.employer?.contactEmail ?? '—'} · Status: {job.status}
       </p>
 
@@ -208,19 +208,19 @@ export default function AdminJobReview({ job }: { job: Job }) {
           <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.5rem 1rem', fontSize: '0.95rem' }}>
             {job.importProvider && (
               <>
-                <dt style={{ color: 'var(--color-gray-500)' }}>Provider</dt>
+                <dt style={{ color: 'var(--color-on-surface-variant)' }}>Provider</dt>
                 <dd>{job.importProvider}</dd>
               </>
             )}
             {job.importMethod && (
               <>
-                <dt style={{ color: 'var(--color-gray-500)' }}>Method</dt>
+                <dt style={{ color: 'var(--color-on-surface-variant)' }}>Method</dt>
                 <dd>{formatImportMethod(job.importMethod)}</dd>
               </>
             )}
             {job.sourceUrl && (
               <>
-                <dt style={{ color: 'var(--color-gray-500)' }}>Source</dt>
+                <dt style={{ color: 'var(--color-on-surface-variant)' }}>Source</dt>
                 <dd>
                   <a href={job.sourceUrl} target="_blank" rel="noreferrer">{job.sourceUrl}</a>
                 </dd>
@@ -284,11 +284,11 @@ export default function AdminJobReview({ job }: { job: Job }) {
       <section style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.15rem', marginBottom: '0.75rem' }}>Details</h2>
         <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.5rem 1rem', fontSize: '0.95rem' }}>
-          <dt style={{ color: 'var(--color-gray-500)' }}>Location</dt>
+          <dt style={{ color: 'var(--color-on-surface-variant)' }}>Location</dt>
           <dd>{job.location ?? '—'}</dd>
-          <dt style={{ color: 'var(--color-gray-500)' }}>Type</dt>
+          <dt style={{ color: 'var(--color-on-surface-variant)' }}>Type</dt>
           <dd>{job.jobType} · {job.locationType}</dd>
-          <dt style={{ color: 'var(--color-gray-500)' }}>Salary</dt>
+          <dt style={{ color: 'var(--color-on-surface-variant)' }}>Salary</dt>
           <dd>
             {job.salaryMin ?? job.salaryMax
               ? `$${(job.salaryMin ?? 0).toLocaleString()} – $${(job.salaryMax ?? 0).toLocaleString()}`
@@ -314,7 +314,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
       <section style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.15rem', marginBottom: '0.75rem' }}>Applications ({job.applications?.length ?? 0})</h2>
         {(job.applications?.length ?? 0) === 0 ? (
-          <p style={{ color: 'var(--color-gray-500)' }}>No applications yet.</p>
+          <p style={{ color: 'var(--color-on-surface-variant)' }}>No applications yet.</p>
         ) : (
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {(job.applications ?? []).map((app) => (
@@ -342,19 +342,19 @@ export default function AdminJobReview({ job }: { job: Job }) {
           style={{
             marginBottom: '1rem',
             padding: '0.85rem 1rem',
-            background: 'var(--color-gray-50)',
+            background: 'var(--surface-container-lowest)',
             border: '1px solid var(--color-border)',
             borderRadius: 'var(--radius-md)',
             fontSize: '0.9rem',
           }}
         >
           {job.status === 'pending' && !job.aiMatchesComputedAt && (
-            <p style={{ margin: '0 0 0.65rem', color: 'var(--color-gray-700)', fontSize: '0.88rem' }}>
+            <p style={{ margin: '0 0 0.65rem', color: 'var(--color-on-surface)', fontSize: '0.88rem' }}>
               Student matches are calculated automatically when you approve this job (they may show as &quot;None&quot; until then).
             </p>
           )}
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.5rem 1rem', marginBottom: '0.35rem' }}>
-            <span style={{ color: 'var(--color-gray-600)' }}>Matches calculated at</span>
+            <span style={{ color: 'var(--color-on-surface-variant)' }}>Matches calculated at</span>
             <strong>{formatAdminDate(job.aiMatchesComputedAt)}</strong>
             <span
               style={{
@@ -372,7 +372,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
               {suggestionBadge.label}
             </span>
           </div>
-          <div style={{ color: 'var(--color-gray-600)' }}>
+          <div style={{ color: 'var(--color-on-surface-variant)' }}>
             Last suggestion email: <strong>{formatAdminDate(job.matchSuggestionsLastSentAt)}</strong>
           </div>
           {job.matchSuggestionsLastError && (
@@ -393,7 +393,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
         ) : (
           <>
             {matches.length === 0 ? (
-              <p style={{ color: 'var(--color-gray-500)' }}>No matching students found.</p>
+              <p style={{ color: 'var(--color-on-surface-variant)' }}>No matching students found.</p>
             ) : (
               <>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, marginBottom: '1rem' }}>
@@ -409,7 +409,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
                     >
                       <strong>{m.student.fullName}</strong> · {m.student.enrolledProgram ?? '—'} · Match: {m.matchScore}%
                       {m.matchReasons.length > 0 && (
-                        <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)', marginTop: '0.25rem' }}>
+                        <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
                           {m.matchReasons.join('; ')}
                         </div>
                       )}

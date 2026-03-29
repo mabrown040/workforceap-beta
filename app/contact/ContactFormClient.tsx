@@ -121,7 +121,7 @@ export default function ContactFormClient() {
         <p style={{ fontWeight: 600, color: 'var(--color-accent)', marginBottom: '0.5rem' }}>
           Message sent successfully
         </p>
-        <p style={{ color: 'var(--color-gray-600)' }}>
+        <p style={{ color: 'var(--color-on-surface-variant)' }}>
           We&rsquo;ll get back to you within 24–48 hours.
         </p>
       </div>

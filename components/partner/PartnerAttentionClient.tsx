@@ -128,7 +128,7 @@ export default function PartnerAttentionClient({ initialTier = 'all' as TierFilt
     <div className="partner-attention-console">
       <section className="partner-panel partner-attention-queue" style={{ padding: '1.25rem', marginBottom: '1.25rem' }}>
         <h2 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>Risk-tiered attention queue</h2>
-        <p style={{ color: 'var(--color-gray-600)', fontSize: '0.9rem', marginBottom: '1rem' }}>
+        <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', marginBottom: '1rem' }}>
           Tier from days since last profile update. Use next actions and owner assignment to keep referrals moving.
         </p>
         <div className="partner-tier-filters" role="tablist" aria-label="Risk tier">
@@ -146,7 +146,7 @@ export default function PartnerAttentionClient({ initialTier = 'all' as TierFilt
         {!rows ? (
           <p>Loading…</p>
         ) : filtered.length === 0 ? (
-          <p style={{ color: 'var(--color-gray-600)' }}>No members in this filter.</p>
+          <p style={{ color: 'var(--color-on-surface-variant)' }}>No members in this filter.</p>
         ) : (
           <ul className="partner-attention-list">
             {filtered.map((m) => (
@@ -249,7 +249,7 @@ export default function PartnerAttentionClient({ initialTier = 'all' as TierFilt
         {!logs ? (
           <p>Loading…</p>
         ) : logs.length === 0 ? (
-          <p style={{ color: 'var(--color-gray-600)' }}>No logs yet.</p>
+          <p style={{ color: 'var(--color-on-surface-variant)' }}>No logs yet.</p>
         ) : (
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {logs.map((l) => (
@@ -262,8 +262,8 @@ export default function PartnerAttentionClient({ initialTier = 'all' as TierFilt
                 }}
               >
                 <strong>{l.memberName}</strong> · {l.channel} · {new Date(l.createdAt).toLocaleString()}
-                <div style={{ color: 'var(--color-gray-600)', marginTop: '0.25rem' }}>{l.note}</div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--color-gray-500)' }}>By {l.createdByName}</div>
+                <div style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>{l.note}</div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>By {l.createdByName}</div>
               </li>
             ))}
           </ul>

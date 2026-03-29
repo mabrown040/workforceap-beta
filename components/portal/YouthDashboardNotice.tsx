@@ -20,7 +20,7 @@ export default function YouthDashboardNotice({ age }: { age: number }) {
       </h3>
       
       <p style={{ 
-        color: 'var(--color-gray-700)', 
+        color: 'var(--color-on-surface)', 
         lineHeight: 1.6, 
         marginBottom: '1rem',
         fontSize: '0.95rem'
@@ -41,7 +41,7 @@ export default function YouthDashboardNotice({ age }: { age: number }) {
           </div>
           <div>
             <strong style={{ fontSize: '0.95rem' }}>Training & Courses</strong>
-            <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)', margin: '0.25rem 0 0' }}>
+            <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>
               Build skills through certified training programs designed for young learners
             </p>
           </div>
@@ -58,7 +58,7 @@ export default function YouthDashboardNotice({ age }: { age: number }) {
           </div>
           <div>
             <strong style={{ fontSize: '0.95rem' }}>Career Resources</strong>
-            <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)', margin: '0.25rem 0 0' }}>
+            <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>
               Explore career paths and learn about different industries
             </p>
           </div>
@@ -75,7 +75,7 @@ export default function YouthDashboardNotice({ age }: { age: number }) {
           </div>
           <div>
             <strong style={{ fontSize: '0.95rem' }}>AI Career Tools</strong>
-            <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)', margin: '0.25rem 0 0' }}>
+            <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>
               Use AI tools to explore careers, build resumes, and practice interviews
             </p>
           </div>
@@ -88,7 +88,7 @@ export default function YouthDashboardNotice({ age }: { age: number }) {
         borderRadius: '8px',
         fontSize: '0.85rem',
         lineHeight: 1.5,
-        color: 'var(--color-gray-700)'
+        color: 'var(--color-on-surface)'
       }}>
         <strong>Job Board Access:</strong> {age >= 16 ? (
           <>
@@ -112,7 +112,7 @@ export default function YouthDashboardNotice({ age }: { age: number }) {
         <p style={{ 
           marginTop: '1rem', 
           fontSize: '0.85rem', 
-          color: 'var(--color-gray-600)',
+          color: 'var(--color-on-surface-variant)',
           fontStyle: 'italic'
         }}>
           Questions? Your counselor can help you plan your career path. Reach out via the Messages tab.

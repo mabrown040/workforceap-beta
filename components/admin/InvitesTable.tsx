@@ -29,10 +29,10 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
-  pending: { bg: 'var(--color-gray-100)', color: 'var(--color-gray-700)' },
-  accepted: { bg: 'var(--color-gray-100)', color: 'var(--color-green)' },
-  expired: { bg: 'var(--color-gray-100)', color: 'var(--color-gray-500)' },
-  revoked: { bg: 'var(--color-gray-100)', color: 'var(--color-gray-500)' },
+  pending: { bg: 'var(--surface-container)', color: 'var(--color-on-surface)' },
+  accepted: { bg: 'var(--surface-container)', color: 'var(--color-green)' },
+  expired: { bg: 'var(--surface-container)', color: 'var(--color-on-surface-variant)' },
+  revoked: { bg: 'var(--surface-container)', color: 'var(--color-on-surface-variant)' },
 };
 
 export default function InvitesTable({ invites }: Props) {
@@ -99,7 +99,7 @@ export default function InvitesTable({ invites }: Props) {
             style={{
               padding: '0.35rem 0.75rem',
               borderRadius: '6px',
-              border: '1px solid var(--color-gray-300)',
+              border: '1px solid var(--outline-variant)',
               background: filter === s ? 'var(--color-accent)' : 'white',
               color: filter === s ? 'white' : 'inherit',
               fontSize: '0.9rem',
@@ -141,12 +141,12 @@ export default function InvitesTable({ invites }: Props) {
                     <td>
                       <div style={{ fontWeight: 500 }}>{inv.email}</div>
                       {inv.subgroup && (
-                        <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)' }}>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
                           Subgroup: {inv.subgroup.name}
                         </div>
                       )}
                       {inv.role === 'counselor' && (
-                        <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-500)' }}>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
                           {inv.partner ? `Partner: ${inv.partner.name}` : 'WorkforceAP counselor'}
                         </div>
                       )}
@@ -198,7 +198,7 @@ export default function InvitesTable({ invites }: Props) {
                             style={{
                               padding: '0.25rem 0.5rem',
                               fontSize: '0.85rem',
-                              color: 'var(--color-gray-600)',
+                              color: 'var(--color-on-surface-variant)',
                               background: 'none',
                               border: 'none',
                               cursor: revoking ? 'wait' : 'pointer',

@@ -89,7 +89,7 @@ export default function ResumeRewriterForm() {
   return (
     <form onSubmit={handleSubmit} className="portal-ai-tool-form">
       <div style={{ background: 'rgba(74,155,79,0.06)', border: '1px solid rgba(74,155,79,0.2)', borderRadius: '8px', padding: '1rem 1.25rem', marginBottom: '1.5rem' }}>
-        <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-gray-700)', lineHeight: 1.5 }}>
+        <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-on-surface)', lineHeight: 1.5 }}>
           <strong>How this works:</strong> Tell us your career goal — we&rsquo;ll reposition your existing experience to match. We don&rsquo;t invent anything. Every bullet in the output comes from what you&rsquo;ve actually done.
         </p>
       </div>
@@ -122,7 +122,7 @@ export default function ResumeRewriterForm() {
                   <option key={s} value={s}>{s || 'Select a range (optional)'}</option>
                 ))}
               </select>
-              <small style={{ color: 'var(--color-gray-500)', fontSize: '0.8rem' }}>Helps calibrate language and seniority level</small>
+              <small style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.8rem' }}>Helps calibrate language and seniority level</small>
             </div>
             <div className="form-group">
               <label htmlFor="target-location">Target city / location</label>
@@ -134,7 +134,7 @@ export default function ResumeRewriterForm() {
                 placeholder="e.g. Austin, TX"
                 disabled={loading}
               />
-              <small style={{ color: 'var(--color-gray-500)', fontSize: '0.8rem' }}>Tailors language to your local job market</small>
+              <small style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.8rem' }}>Tailors language to your local job market</small>
             </div>
           </div>
         </div>

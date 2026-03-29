@@ -8,6 +8,14 @@
 - [x] Cover Letter Builder UI
 - [x] LinkedIn Headline Generator UI
 - [x] LinkedIn About Section Generator UI
+- [ ] Member Certifications page ("Verification Vault" with roadmap)
+- [ ] Member Learning Hub (with CivicBot floating panel)
+- [ ] Member Job Board (CivicBot match scores, portal-only)
+- [ ] Programs Catalog dark mode (bento grid with featured card)
+- [ ] Admin Audit Logs page (compliance registry table)
+- [ ] Refined Job Match Scorer (floating analyze button)
+- [ ] Refined Resume Rewriter (controls bar, knowledge card)
+- [ ] Refined Interview Practice (focus cards, difficulty slider, preview)
 - [x] Salary Negotiation Script Generator UI
 - [x] Gap Analyzer UI
 - [x] Application Tracker UI

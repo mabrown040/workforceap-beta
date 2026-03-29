@@ -99,7 +99,7 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
             type="button"
             onClick={onClose}
             aria-label="Close"
-            style={{ background: 'none', border: 'none', padding: '0.25rem', cursor: 'pointer', color: 'var(--color-gray-600)' }}
+            style={{ background: 'none', border: 'none', padding: '0.25rem', cursor: 'pointer', color: 'var(--color-on-surface-variant)' }}
           >
             <X size={20} />
           </button>
@@ -130,7 +130,7 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--color-gray-300)', borderRadius: '6px' }}
+              style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: '6px' }}
               disabled={saving}
             />
           </div>
@@ -143,7 +143,7 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
               type="text"
               value={contactName}
               onChange={(e) => setContactName(e.target.value)}
-              style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--color-gray-300)', borderRadius: '6px' }}
+              style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: '6px' }}
               disabled={saving}
             />
           </div>
@@ -156,7 +156,7 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
               type="email"
               value={contactEmail}
               onChange={(e) => setContactEmail(e.target.value)}
-              style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--color-gray-300)', borderRadius: '6px' }}
+              style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: '6px' }}
               disabled={saving}
             />
           </div>
@@ -169,7 +169,7 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
               type="tel"
               value={contactPhone}
               onChange={(e) => setContactPhone(e.target.value)}
-              style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--color-gray-300)', borderRadius: '6px' }}
+              style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: '6px' }}
               disabled={saving}
             />
           </div>
@@ -179,7 +179,7 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
               <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.9rem' }}>
                 Subgroup assignment
               </label>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: 140, overflowY: 'auto', padding: '0.5rem', border: '1px solid var(--color-gray-200)', borderRadius: '6px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: 140, overflowY: 'auto', padding: '0.5rem', border: '1px solid var(--outline-variant)', borderRadius: '6px' }}>
                 {partnerSubgroups.map((s) => (
                   <label key={s.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem' }}>
                     <input
@@ -216,7 +216,7 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
               onChange={(e) => setNotes(e.target.value)}
               rows={3}
               placeholder="Admin-only notes about this partner"
-              style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--color-gray-300)', borderRadius: '6px', resize: 'vertical' }}
+              style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: '6px', resize: 'vertical' }}
               disabled={saving}
             />
           </div>
@@ -226,7 +226,7 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
               type="button"
               onClick={onClose}
               disabled={saving}
-              style={{ padding: '0.5rem 1rem', background: 'var(--color-gray-100)', border: '1px solid var(--color-gray-300)', borderRadius: '6px', cursor: saving ? 'not-allowed' : 'pointer' }}
+              style={{ padding: '0.5rem 1rem', background: 'var(--surface-container)', border: '1px solid var(--outline-variant)', borderRadius: '6px', cursor: saving ? 'not-allowed' : 'pointer' }}
             >
               Cancel
             </button>

@@ -218,7 +218,7 @@ export default function MemberPreScreeningForm() {
           {error}
         </p>
       )}
-      <p style={{ color: 'var(--color-gray-600)', marginBottom: '0.5rem', fontSize: '0.95rem' }}>
+      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem', fontSize: '0.95rem' }}>
         A few questions so your counselor can prepare for your interview. All fields are required to submit.
       </p>
       <div className="member-prescreen-progress" aria-live="polite">
@@ -246,7 +246,7 @@ export default function MemberPreScreeningForm() {
       </div>
       <p
         className="member-prescreen-draft-hint"
-        style={{ marginBottom: '1rem', fontSize: '0.875rem', color: 'var(--color-gray-600)' }}
+        style={{ marginBottom: '1rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}
         aria-live="polite"
       >
         {draftHint}

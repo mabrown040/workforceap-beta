@@ -77,7 +77,7 @@ export default function PartnerSignupForm() {
         }}
       >
         <p style={{ fontWeight: 600, color: 'var(--color-accent)', marginBottom: '0.5rem' }}>Thank you!</p>
-        <p style={{ color: 'var(--color-gray-600)', margin: 0 }}>
+        <p style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>
           We&rsquo;ll review your registration and set up your partner portal within 1–2 business days.
         </p>
       </div>

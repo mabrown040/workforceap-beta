@@ -127,7 +127,7 @@ export default function ProfileForm({ initialUser, initialProfile }: ProfileForm
           <label htmlFor="city">
             City
             {zipLookupLoading ? (
-              <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', color: 'var(--color-gray-500)' }}>
+              <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
                 (auto-filling...)
               </span>
             ) : null}

@@ -158,15 +158,15 @@ export default function EmployerSettingsForm({ initial }: { initial: EmployerSet
         <legend className="employer-settings-form__legend">Company</legend>
         <div className="form-group">
           <label htmlFor="emp-logo">Company logo</label>
-          <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)', margin: '0 0 0.5rem' }}>
+          <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem' }}>
             Shown in your employer portal header and on your live job cards for members. PNG or JPG, max 2MB.
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
             {logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={logoUrl} alt="" width={72} height={72} style={{ objectFit: 'contain', borderRadius: 8, border: '1px solid var(--color-gray-200)' }} />
+              <img src={logoUrl} alt="" width={72} height={72} style={{ objectFit: 'contain', borderRadius: 8, border: '1px solid var(--outline-variant)' }} />
             ) : (
-              <div style={{ width: 72, height: 72, borderRadius: 8, background: 'var(--color-gray-100)', border: '1px dashed var(--color-gray-300)' }} aria-hidden />
+              <div style={{ width: 72, height: 72, borderRadius: 8, background: 'var(--surface-container)', border: '1px dashed var(--outline-variant)' }} aria-hidden />
             )}
             <input
               id="emp-logo"
@@ -176,7 +176,7 @@ export default function EmployerSettingsForm({ initial }: { initial: EmployerSet
               disabled={logoUploading}
             />
             {logoUploading ? (
-              <span style={{ fontSize: '0.9rem', color: 'var(--color-gray-600)' }} aria-live="polite">
+              <span style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }} aria-live="polite">
                 Uploading logo… Save is disabled until this finishes.
               </span>
             ) : null}

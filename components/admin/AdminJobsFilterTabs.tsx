@@ -35,7 +35,7 @@ export default function AdminJobsFilterTabs({ currentFilter, tabs }: Props) {
                   padding: '0.15rem 0.4rem',
                   borderRadius: '999px',
                   fontSize: '0.75rem',
-                  background: value === 'pending' ? 'rgba(255, 165, 0, 0.25)' : 'var(--color-gray-200)',
+                  background: value === 'pending' ? 'rgba(255, 165, 0, 0.25)' : 'var(--outline-variant)',
                 }}
               >
                 {count}

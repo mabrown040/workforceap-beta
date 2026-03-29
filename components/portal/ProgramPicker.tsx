@@ -59,7 +59,7 @@ export default function ProgramPicker({ programs }: ProgramPickerProps) {
           <p style={{ marginBottom: '0.35rem' }}>
             <strong>{selectedProgram.title}</strong> · {selectedProgram.duration} · {selectedProgram.salary}
           </p>
-          <p style={{ marginBottom: '0.75rem', color: 'var(--color-gray-600)' }}>
+          <p style={{ marginBottom: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
             Funding is tied to one program. After you confirm, changes require WorkforceAP admin help.
           </p>
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
@@ -109,7 +109,7 @@ export default function ProgramPicker({ programs }: ProgramPickerProps) {
                 <span style={{ display: 'flex', alignItems: 'center' }}><ProgramIcon program={p} size={24} /></span>
               </div>
               <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>{p.title}</h3>
-              <div style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)', marginBottom: '0.75rem' }}>
+              <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
                 <div>⏱ {p.duration}</div>
                 <div style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{p.salary}</div>
               </div>

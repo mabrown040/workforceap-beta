@@ -239,7 +239,7 @@ export default function ApplyFlowClient() {
             Continue to application
           </button>
 
-          <p style={{ marginTop: '1.5rem', fontSize: '.85rem', color: '#666', textAlign: 'center' }}>
+          <p style={{ marginTop: '1.5rem', fontSize: '.85rem', color: 'var(--color-on-surface-variant)', textAlign: 'center' }}>
             Having trouble? Call{' '}
             <a href="tel:+15127771808" style={{ color: '#2563eb', fontWeight: 600 }}>(512) 777-1808</a>
           </p>

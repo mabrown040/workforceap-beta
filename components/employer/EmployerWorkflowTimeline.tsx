@@ -12,7 +12,7 @@ export default function EmployerWorkflowTimeline({ events }: { events: Ev[] }) {
     return (
       <section className="employer-workflow-timeline employer-dash-panel">
         <h2 className="employer-workflow-timeline-title">Workflow activity</h2>
-        <p style={{ color: 'var(--color-gray-600)', margin: 0 }}>Status changes and notes will appear here as your team works applications and jobs.</p>
+        <p style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>Status changes and notes will appear here as your team works applications and jobs.</p>
       </section>
     );
   }

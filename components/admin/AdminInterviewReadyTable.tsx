@@ -77,7 +77,7 @@ export default function AdminInterviewReadyTable({ rows }: { rows: InterviewRead
               <tr key={r.id}>
                 <td>
                   <Link href={`/admin/members/${r.id}`}>{r.fullName}</Link>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-600)' }}>{r.email}</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{r.email}</div>
                 </td>
                 <td>{r.assessmentScorePct ?? '—'}</td>
                 <td>

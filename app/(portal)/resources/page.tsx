@@ -43,13 +43,13 @@ export default async function ResourcesPage() {
             <p>Practical job-seeker resources by career stage. Filter by category or stage to find what you need.</p>
           </div>
           <div className="page-hero-actions">
-            <Link href="/dashboard/learning" className="btn btn-hero-ghost">
+            <Link href="/dashboard/learning" className="btn btn-outline">
               Learning hub
             </Link>
-            <Link href="/dashboard" className="btn btn-hero-ghost">
+            <Link href="/dashboard" className="btn btn-outline">
               Dashboard
             </Link>
-            <SignOutButton className="btn btn-hero-ghost" />
+            <SignOutButton className="btn btn-outline" />
           </div>
         </div>
       </section>

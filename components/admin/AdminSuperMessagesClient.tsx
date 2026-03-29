@@ -504,7 +504,7 @@ export default function AdminSuperMessagesClient() {
                   </div>
 
                   {detail.counselors.length === 0 ? (
-                    <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-500)' }}>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
                       Add counselors under Admin → Counselors (WorkforceAP or a partner).
                     </p>
                   ) : null}

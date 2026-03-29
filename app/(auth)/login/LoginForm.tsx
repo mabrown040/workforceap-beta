@@ -143,7 +143,7 @@ export default function LoginForm() {
                 style={{
                   margin: '0 0 1rem',
                   fontSize: '0.9rem',
-                  color: 'var(--color-gray-600)',
+                  color: 'var(--color-on-surface-variant)',
                   lineHeight: 1.45,
                 }}
               >

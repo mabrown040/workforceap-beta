@@ -30,7 +30,7 @@ export default function MemberInterviewRequestButton() {
   };
 
   if (done) {
-    return <p style={{ color: 'var(--color-gray-700)', margin: 0 }}>Interview request sent. A counselor will follow up.</p>;
+    return <p style={{ color: 'var(--color-on-surface)', margin: 0 }}>Interview request sent. A counselor will follow up.</p>;
   }
 
   return (
@@ -39,7 +39,7 @@ export default function MemberInterviewRequestButton() {
       <button type="button" className="btn btn-primary" disabled={loading} onClick={() => void submit()}>
         {loading ? 'Sending…' : 'Request interview'}
       </button>
-      <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)', marginTop: '0.5rem' }}>
+      <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem' }}>
         Opens scheduling by email on our side — you’ll hear from a counselor.
       </p>
     </div>

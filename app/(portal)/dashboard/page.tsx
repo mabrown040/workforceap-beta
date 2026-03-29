@@ -154,18 +154,18 @@ export default async function DashboardPage() {
   return (
     <>
       {/* ── Mobile-only hero + dashboard (≤640px) ── */}
-      <div className="md:hidden pb-24">
+      <div className="wa-md:hidden" style={{ paddingBottom: '6rem' }}>
         {/* Welcome greeting + progress orb */}
-        <section className="flex justify-between items-start px-6 pt-6 pb-4">
-          <div className="space-y-1 max-w-[60%]">
+        <section style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '1.5rem 1.5rem 1rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', maxWidth: '60%' }}>
             <p className="text-[#584144] text-xs font-medium tracking-widest uppercase">Member Dashboard</p>
             <h1 className="text-2xl font-extrabold tracking-tight text-[#1c1b1b]">
               Welcome back, {firstName}
             </h1>
           </div>
           {/* Progress orb */}
-          <div className="relative flex items-center justify-center w-20 h-20 flex-shrink-0">
-            <svg className="w-full h-full -rotate-90" viewBox="0 0 96 96">
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '5rem', height: '5rem', flexShrink: 0 }}>
+            <svg className="-rotate-90" style={{ width: '100%', height: '100%' }} viewBox="0 0 96 96">
               <circle cx="48" cy="48" r="40" fill="transparent" stroke="#f2eeed" strokeWidth="6" />
               <circle
                 cx="48" cy="48" r="40" fill="transparent"
@@ -175,7 +175,7 @@ export default async function DashboardPage() {
                 strokeLinecap="round"
               />
             </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
               <span className="text-base font-bold text-[#8c0f37]">{mobilePct}%</span>
               <span className="text-[8px] font-bold uppercase tracking-widest text-[#7b5800]">Done</span>
             </div>
@@ -184,12 +184,12 @@ export default async function DashboardPage() {
 
         {/* Next step card */}
         {applicationStatus?.nextStep && (
-          <section className="px-6 mb-6">
-            <div className="p-[1px] rounded-xl bg-gradient-to-br from-[#8c0f37] to-[#ad2c4d] shadow-sm">
-              <div className="bg-[#fcf9f8] rounded-[11px] p-5 space-y-3">
-                <div className="flex justify-between items-start">
-                  <div className="space-y-1">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#8c0f37]/10 text-[#8c0f37] uppercase tracking-wider">
+          <section style={{ padding: '0 1.5rem', marginBottom: '1.5rem' }}>
+            <div className="bg-gradient-to-br from-[#8c0f37] to-[#ad2c4d] shadow-sm" style={{ padding: '1px', borderRadius: '0.75rem' }}>
+              <div className="bg-[#fcf9f8]" style={{ borderRadius: '11px', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                    <span className="text-[10px] font-bold bg-[#8c0f37]/10 text-[#8c0f37] uppercase tracking-wider" style={{ display: 'inline-flex', alignItems: 'center', padding: '0.125rem 0.5rem', borderRadius: '9999px' }}>
                       Priority
                     </span>
                     <h2 className="text-lg font-bold text-[#1c1b1b] tracking-tight">
@@ -202,7 +202,7 @@ export default async function DashboardPage() {
                   Your next action for{' '}
                   {applicationStatus.programInterest ?? program?.title ?? 'your program'}.
                 </p>
-                <button className="w-full bg-gradient-to-r from-[#8c0f37] to-[#ad2c4d] text-white py-3 rounded-md font-bold text-sm tracking-wide active:scale-[0.98] transition-transform">
+                <button className="bg-gradient-to-r from-[#8c0f37] to-[#ad2c4d] text-white font-bold text-sm tracking-wide active:scale-[0.98] transition-transform" style={{ width: '100%', paddingTop: '0.75rem', paddingBottom: '0.75rem', borderRadius: '0.375rem' }}>
                   Take Action
                 </button>
               </div>
@@ -211,22 +211,22 @@ export default async function DashboardPage() {
         )}
 
         {/* Application journey timeline */}
-        <section className="px-6 mb-6 space-y-4">
+        <section style={{ padding: '0 1.5rem', marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[#584144]">Application Journey</h3>
-          <div className="relative ml-4 space-y-0">
-            <div className="absolute left-[11px] top-2 bottom-2 w-[2px] bg-[#f2eeed]" />
+          <div style={{ position: 'relative', marginLeft: '1rem' }}>
+            <div className="bg-[#f2eeed]" style={{ position: 'absolute', left: '11px', top: '0.5rem', bottom: '0.5rem', width: '2px' }} />
             {journeySteps.map((step, i) => (
-              <div key={i} className={`relative flex items-start gap-5 pb-7 ${step.pending ? 'opacity-40' : ''}`}>
+              <div key={i} className={step.pending ? 'opacity-40' : ''} style={{ position: 'relative', display: 'flex', alignItems: 'flex-start', gap: '1.25rem', paddingBottom: '1.75rem' }}>
                 {step.done ? (
-                  <div className="relative z-10 w-6 h-6 rounded-full bg-[#8c0f37] flex items-center justify-center flex-shrink-0">
+                  <div className="bg-[#8c0f37]" style={{ position: 'relative', zIndex: 10, width: '1.5rem', height: '1.5rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <span className="material-symbols-outlined text-white text-xs">check</span>
                   </div>
                 ) : step.active ? (
-                  <div className="relative z-10 w-6 h-6 rounded-full bg-[#fcf9f8] border-4 border-[#8c0f37] flex items-center justify-center flex-shrink-0">
-                    <div className="w-2 h-2 rounded-full bg-[#8c0f37] animate-pulse" />
+                  <div className="bg-[#fcf9f8] border-4 border-[#8c0f37]" style={{ position: 'relative', zIndex: 10, width: '1.5rem', height: '1.5rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <div className="bg-[#8c0f37] animate-pulse" style={{ width: '0.5rem', height: '0.5rem', borderRadius: '9999px' }} />
                   </div>
                 ) : (
-                  <div className="relative z-10 w-6 h-6 rounded-full bg-[#f2eeed] border-2 border-[#debfc2] flex-shrink-0" />
+                  <div className="bg-[#f2eeed] border-2 border-[#debfc2]" style={{ position: 'relative', zIndex: 10, width: '1.5rem', height: '1.5rem', borderRadius: '9999px', flexShrink: 0 }} />
                 )}
                 <div>
                   <p className={`font-bold text-sm leading-none mb-1 ${step.active ? 'text-[#8c0f37]' : 'text-[#1c1b1b]'}`}>
@@ -240,21 +240,21 @@ export default async function DashboardPage() {
         </section>
 
         {/* Recommended programs — horizontal scroll cards */}
-        <section className="mb-6 space-y-3">
-          <div className="flex justify-between items-end px-6">
+        <section style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', padding: '0 1.5rem' }}>
             <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[#584144]">Recommended Programs</h3>
             <a href="/programs" className="text-xs font-bold text-[#8c0f37] no-underline">View All</a>
           </div>
-          <div className="flex gap-4 overflow-x-auto -mx-0 px-6 pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto', padding: '0 1.5rem 0.5rem', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {[
               { provider: 'IBM Professional', title: 'Data Science Professional' },
               { provider: 'Amazon Web Services', title: 'Cloud Practitioner Essentials' },
               { provider: 'Google', title: 'Cybersecurity Professional' },
             ].map((prog, i) => (
-              <div key={i} className="min-w-[220px] rounded-xl overflow-hidden flex flex-col shadow-sm flex-shrink-0" style={{ background: '#f0edec' }}>
-                <div className="h-28 relative" style={{ background: 'linear-gradient(135deg, #2b1f20 0%, #584144 100%)' }}>
+              <div key={i} className="shadow-sm" style={{ minWidth: '220px', borderRadius: '0.75rem', overflow: 'hidden', display: 'flex', flexDirection: 'column', flexShrink: 0, background: '#f0edec' }}>
+                <div style={{ height: '7rem', position: 'relative', background: 'linear-gradient(135deg, #2b1f20 0%, #584144 100%)' }}>
                 </div>
-                <div className="p-4 space-y-1">
+                <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                   <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#7b5800' }}>{prog.provider}</p>
                   <h4 className="font-bold text-sm text-[#1c1b1b] leading-tight">{prog.title}</h4>
                 </div>
@@ -264,9 +264,9 @@ export default async function DashboardPage() {
         </section>
 
         {/* Quick Actions 2x2 grid */}
-        <section className="px-6 mb-6 space-y-3">
+        <section style={{ padding: '0 1.5rem', marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[#584144]">Quick Actions</h3>
-          <div className="grid grid-cols-2 gap-3">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
             {[
               { icon: 'upload_file', label: 'Upload Resume', href: '/dashboard/ai-tools/resume-rewriter' },
               { icon: 'event_available', label: 'Book Coaching', href: '/dashboard' },
@@ -274,9 +274,9 @@ export default async function DashboardPage() {
               { icon: 'psychology', label: 'AI Resume Help', href: '/dashboard/ai-tools' },
             ].map((action) => (
               <a key={action.label} href={action.href}
-                className="flex flex-col items-center justify-center p-4 rounded-xl no-underline active:scale-[0.97] transition-transform"
-                style={{ background: '#ffffff', border: '1px solid rgba(222,191,194,0.3)', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
-                <span className="material-symbols-outlined mb-2" style={{ color: '#8c0f37' }}>{action.icon}</span>
+                className="no-underline active:scale-[0.97] transition-transform"
+                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1rem', borderRadius: '0.75rem', background: '#ffffff', border: '1px solid rgba(222,191,194,0.3)', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+                <span className="material-symbols-outlined" style={{ color: '#8c0f37', marginBottom: '0.5rem' }}>{action.icon}</span>
                 <span className="text-[11px] font-bold text-[#1c1b1b] tracking-tight text-center leading-tight">{action.label}</span>
               </a>
             ))}

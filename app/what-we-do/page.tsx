@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
-import Footer from '@/components/Footer';
+import Footer from "@/components/Footer";
+import MobileBottomNav from "@/components/MobileBottomNav";
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Free Workforce Development Training & Certifications',
@@ -591,6 +592,7 @@ export default function WhatWeDoPage() {
         }
       `}</style>
 
+      <MobileBottomNav />
       <Footer />
     </div>
   );

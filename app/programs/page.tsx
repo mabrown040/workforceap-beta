@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
+import MobileBottomNav from '@/components/MobileBottomNav';
 import ProgramsContent from './ProgramsContent';
 import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
@@ -272,6 +273,7 @@ export default function ProgramsPage() {
         }
       `}</style>
 
+      <MobileBottomNav />
       <Footer />
     </div>
   );

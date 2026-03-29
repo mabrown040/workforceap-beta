@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
 import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import Footer from '@/components/Footer';
+import MobileBottomNav from '@/components/MobileBottomNav';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -447,6 +448,68 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ── Mobile Hero Section (≤640px) ── */}
+      <section className="md:hidden px-4 pt-20 pb-6" style={{ background: '#fcf9f8' }}>
+        <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-4" style={{ background: '#ffbb00', color: '#1c1b1b' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '0.75rem', fontVariationSettings: "'FILL' 1" }}>circle</span>
+          Enrollment Open
+        </span>
+        <h1 className="text-4xl font-extrabold tracking-tight leading-[0.95] mb-3" style={{ color: '#1c1b1b' }}>
+          Free Career<br />
+          <span style={{ color: '#ad2c4d' }}>Training</span>
+        </h1>
+        <p className="text-sm leading-relaxed mb-5" style={{ color: '#584144' }}>
+          Real certifications. Employer connections. 94% placement rate. No cost to members.
+        </p>
+        <div className="space-y-3">
+          <Link href="/apply" className="block w-full text-center font-bold py-4 rounded-lg text-sm" style={{ background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)', color: '#fff' }}>
+            Apply Free — Takes 10 Minutes
+          </Link>
+          <Link href="/find-your-path" className="block w-full text-center font-bold py-4 rounded-lg text-sm" style={{ background: '#ebe7e7', color: '#1c1b1b' }}>
+            Find Your Path
+          </Link>
+        </div>
+      </section>
+
+      {/* ── Mobile Trust Strip (≤640px) ── */}
+      <section className="md:hidden overflow-x-auto pb-4 px-4" style={{ background: '#f6f3f2' }}>
+        <div className="flex gap-6 items-center pt-4" style={{ minWidth: 'max-content' }}>
+          {['Google', 'IBM', 'AWS', 'CompTIA', 'AT&T'].map((p) => (
+            <span key={p} className="text-sm font-black uppercase tracking-wider" style={{ color: '#8b7073', opacity: 0.7 }}>{p}</span>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Mobile Stats Row (≤640px) ── */}
+      <section className="md:hidden px-4 py-5 grid grid-cols-3 gap-2 text-center" style={{ background: '#fcf9f8' }}>
+        {[['19', 'Programs'], ['$0', 'Cost'], ['12-24\nWks', 'Duration']].map(([val, label]) => (
+          <div key={label} className="rounded-xl py-3 px-2" style={{ background: '#f0edec' }}>
+            <div className="text-xl font-extrabold tracking-tight leading-none" style={{ color: '#ad2c4d' }}>{val}</div>
+            <div className="text-[10px] font-bold uppercase tracking-widest mt-1" style={{ color: '#584144' }}>{label}</div>
+          </div>
+        ))}
+      </section>
+
+      {/* ── Mobile Journey Cards (≤640px) ── */}
+      <section className="md:hidden px-4 py-5" style={{ background: '#f6f3f2' }}>
+        <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: '#8b7073' }}>Your Journey</p>
+        <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
+          {[
+            { icon: 'quiz', step: '01', label: 'Quiz' },
+            { icon: 'assignment_ind', step: '02', label: 'Apply' },
+            { icon: 'school', step: '03', label: 'Train' },
+            { icon: 'work', step: '04', label: 'Hired' },
+          ].map(({ icon, step, label }) => (
+            <div key={step} className="flex-shrink-0 w-24 rounded-xl p-3 text-center" style={{ background: '#fff', boxShadow: '0 1px 4px rgba(28,27,27,0.06)' }}>
+              <span className="material-symbols-outlined text-2xl block mb-1" style={{ color: '#ad2c4d' }}>{icon}</span>
+              <div className="text-[9px] font-bold uppercase tracking-widest" style={{ color: '#8b7073' }}>Phase {step}</div>
+              <div className="text-xs font-bold mt-0.5" style={{ color: '#1c1b1b' }}>{label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <MobileBottomNav />
       <Footer variant="home" />
     </div>
   );

@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
-import Footer from '@/components/Footer';
+import Footer from "@/components/Footer";
+import MobileBottomNav from "@/components/MobileBottomNav";
 import EmployerContactForm from './EmployerContactForm';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -715,6 +716,7 @@ export default function EmployersPage() {
         }
       `}</style>
 
+      <MobileBottomNav />
       <Footer />
     </div>
   );

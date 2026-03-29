@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import Footer from '@/components/Footer';
+import MobileBottomNav from '@/components/MobileBottomNav';
 import ApplyEligibilityClient from './ApplyEligibilityClient';
 import ApplyPageSkeleton from './ApplyPageSkeleton';
 import ApplyProgramIntro from '@/components/apply/ApplyProgramIntro';
@@ -240,6 +241,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           }
         }
       `}</style>
+      <MobileBottomNav />
     </div>
   );
 }

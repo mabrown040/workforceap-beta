@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
 import FAQContent from './FAQContent';
+import FAQMobileSection from './FAQMobileSection';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'FAQ: Free WIOA-Aligned Career Training & Certifications',
@@ -13,6 +14,11 @@ export const metadata: Metadata = buildPageMetadata({
 export default function FAQPage() {
   return (
     <div className="inner-page">
+      {/* Mobile view ≤640px */}
+      <FAQMobileSection />
+
+      {/* Desktop view >640px */}
+      <div className="hidden md:block">
       {/* Hero Section */}
       <section className="content-section" style={{ paddingBottom: 0 }}>
         <div className="container" style={{ maxWidth: 1200 }}>
@@ -44,6 +50,7 @@ export default function FAQPage() {
 
       <FAQContent />
       <Footer />
+      </div>{/* end desktop */}
     </div>
   );
 }

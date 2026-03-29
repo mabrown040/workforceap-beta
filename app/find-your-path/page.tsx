@@ -15,6 +15,9 @@ export const metadata: Metadata = buildPageMetadata({
 export default function FindYourPathPage() {
   return (
     <div className="inner-page" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
+      {/* Desktop layout — hidden on mobile */}
+      <div className="hidden md:block">
+
       {/* Hero */}
       <section style={{
         padding: '5rem 2rem 3rem',
@@ -106,6 +109,8 @@ export default function FindYourPathPage() {
         </div>
       </section>
 
+      </div>{/* end hidden md:block desktop wrapper */}
+
       {/* ══════════════════════════════════════════════
           MOBILE LAYOUT ≤640px — Stitch-aligned
           ══════════════════════════════════════════════ */}
@@ -144,7 +149,7 @@ export default function FindYourPathPage() {
               { icon: 'computer', label: 'Working with computers and technology', sub: 'Technology', active: true },
               { icon: 'health_and_safety', label: 'Healthcare & Science', sub: 'Life Sciences', active: false },
               { icon: 'construction', label: 'Advanced Manufacturing', sub: 'Industrial', active: false },
-              { icon: 'groups', label: 'Business &amp; People', sub: 'Corporate', active: false },
+              { icon: 'groups', label: 'Business & People', sub: 'Corporate', active: false },
             ].map(({ icon, label, sub, active }) => (
               <button key={icon} className="w-full flex items-center gap-4 p-5 rounded-xl text-left transition-all active:scale-95" style={active ? { background: 'rgba(255,217,221,0.5)', border: '2px solid #ad2c4d' } : { background: '#f6f3f2', border: '1px solid transparent' }}>
                 <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0" style={active ? { background: '#ad2c4d', color: '#fff' } : { background: '#e5e2e1', color: '#584144' }}>

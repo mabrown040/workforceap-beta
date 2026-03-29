@@ -60,7 +60,7 @@ const MOBILE_SALARY_CARDS = [
     entry: '$85k – $105k',
     mid: '$115k – $145k',
     certs: ['IBM', 'Python', 'PyTorch'],
-    borderColor: 'border-[#8c0f37]',
+    borderColor: '#8c0f37',
   },
   {
     category: 'IT and Cyber',
@@ -68,7 +68,7 @@ const MOBILE_SALARY_CARDS = [
     entry: '$92k – $112k',
     mid: '$130k – $165k',
     certs: ['CompTIA Security+', 'CISSP'],
-    borderColor: 'border-[#ffbb00]',
+    borderColor: '#ffbb00',
   },
   {
     category: 'Cloud',
@@ -76,7 +76,7 @@ const MOBILE_SALARY_CARDS = [
     entry: '$78k – $95k',
     mid: '$110k – $140k',
     certs: ['AWS Certified', 'Terraform'],
-    borderColor: 'border-[#ad2c4d]',
+    borderColor: '#ad2c4d',
   },
   {
     category: 'Business',
@@ -84,7 +84,7 @@ const MOBILE_SALARY_CARDS = [
     entry: '$82k – $98k',
     mid: '$125k – $155k',
     certs: ['Tableau', 'SQL Expert'],
-    borderColor: 'border-[#7b5800]',
+    borderColor: '#7b5800',
   },
 ];
 
@@ -96,92 +96,92 @@ export default function SalaryGuidePage() {
     <div className="inner-page salary-guide-page" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
 
       {/* ===== MOBILE VIEW (≤640px) ===== */}
-      <div className="wa-md:hidden bg-[#fcf9f8] text-[#1c1b1b] min-h-screen pb-24">
+      <div className="wa-md:hidden" style={{ background: '#fcf9f8', color: '#1c1b1b', minHeight: '100vh', paddingBottom: '6rem' }}>
         {/* Top App Bar */}
-        <header className="fixed top-0 w-full flex items-center justify-between px-6 h-16 bg-[#fcf9f8]/80 backdrop-blur-md z-50">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[#ad2c4d]">school</span>
-            <h1 className="font-black text-xl text-[#ad2c4d] tracking-tighter">Workforce Academy</h1>
+        <header style={{ position: 'fixed', top: 0, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 1.5rem', height: '4rem', background: 'rgba(252,249,248,0.80)', backdropFilter: 'blur(12px)', zIndex: 50 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span className="material-symbols-outlined" style={{ color: '#ad2c4d' }}>school</span>
+            <h1 style={{ fontWeight: 900, fontSize: '1.25rem', color: '#ad2c4d', letterSpacing: '-0.04em', margin: 0 }}>Workforce Academy</h1>
           </div>
-          <button className="text-[#584144] hover:opacity-80 transition-opacity active:scale-95">
+          <button style={{ color: '#584144' }}>
             <span className="material-symbols-outlined">search</span>
           </button>
         </header>
 
-        <main className="pt-20 px-6 max-w-[390px] mx-auto">
+        <main style={{ paddingTop: '5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', maxWidth: '390px', margin: '0 auto' }}>
           {/* Hero */}
-          <section className="mt-8 mb-10">
-            <h2 className="text-4xl font-extrabold tracking-tight text-[#1c1b1b] leading-[1.1] mb-4">Your Earning Potential.</h2>
-            <p className="text-[#584144] text-base leading-relaxed">
+          <section style={{ marginTop: '2rem', marginBottom: '2.5rem' }}>
+            <h2 style={{ fontSize: '2.25rem', fontWeight: 800, letterSpacing: '-0.03em', color: '#1c1b1b', lineHeight: 1.1, marginBottom: '1rem' }}>Your Earning Potential.</h2>
+            <p style={{ color: '#584144', fontSize: '1rem', lineHeight: 1.6 }}>
               Salary bands from Lightcast/BLS data for graduates of our programs.
             </p>
           </section>
 
           {/* Category Filter Chips */}
-          <section className="mb-8 -mx-6 px-6 overflow-x-auto flex gap-3" style={{ msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
-            <button className="flex-shrink-0 px-5 py-2.5 rounded-full bg-[#ad2c4d] text-white text-xs font-bold tracking-widest uppercase">All</button>
-            <button className="flex-shrink-0 px-5 py-2.5 rounded-full bg-[#ebe7e7] text-[#584144] text-xs font-bold tracking-widest uppercase">IT and Cyber</button>
-            <button className="flex-shrink-0 px-5 py-2.5 rounded-full bg-[#ebe7e7] text-[#584144] text-xs font-bold tracking-widest uppercase">AI and Software</button>
-            <button className="flex-shrink-0 px-5 py-2.5 rounded-full bg-[#ebe7e7] text-[#584144] text-xs font-bold tracking-widest uppercase">Cloud</button>
-            <button className="flex-shrink-0 px-5 py-2.5 rounded-full bg-[#ebe7e7] text-[#584144] text-xs font-bold tracking-widest uppercase">Business</button>
-            <button className="flex-shrink-0 px-5 py-2.5 rounded-full bg-[#ebe7e7] text-[#584144] text-xs font-bold tracking-widest uppercase">Healthcare</button>
+          <section style={{ marginBottom: '2rem', marginLeft: '-1.5rem', marginRight: '-1.5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', overflowX: 'auto', display: 'flex', gap: '0.75rem', msOverflowStyle: 'none', scrollbarWidth: 'none' } as React.CSSProperties}>
+            <button style={{ flexShrink: 0, padding: '0.625rem 1.25rem', borderRadius: '9999px', background: '#ad2c4d', color: 'white', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', border: 'none', cursor: 'pointer' }}>All</button>
+            <button style={{ flexShrink: 0, padding: '0.625rem 1.25rem', borderRadius: '9999px', background: '#ebe7e7', color: '#584144', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', border: 'none', cursor: 'pointer' }}>IT and Cyber</button>
+            <button style={{ flexShrink: 0, padding: '0.625rem 1.25rem', borderRadius: '9999px', background: '#ebe7e7', color: '#584144', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', border: 'none', cursor: 'pointer' }}>AI and Software</button>
+            <button style={{ flexShrink: 0, padding: '0.625rem 1.25rem', borderRadius: '9999px', background: '#ebe7e7', color: '#584144', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', border: 'none', cursor: 'pointer' }}>Cloud</button>
+            <button style={{ flexShrink: 0, padding: '0.625rem 1.25rem', borderRadius: '9999px', background: '#ebe7e7', color: '#584144', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', border: 'none', cursor: 'pointer' }}>Business</button>
+            <button style={{ flexShrink: 0, padding: '0.625rem 1.25rem', borderRadius: '9999px', background: '#ebe7e7', color: '#584144', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', border: 'none', cursor: 'pointer' }}>Healthcare</button>
           </section>
 
           {/* Salary Card List */}
-          <div className="space-y-6">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             {MOBILE_SALARY_CARDS.slice(0, 3).map((card) => (
-              <div key={card.program} className={`bg-white rounded-xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border-l-4 ${card.borderColor}`}>
-                <div className="flex flex-col gap-2 mb-4">
-                  <span className="inline-block px-2 py-1 bg-[#ffbb00]/10 text-[#6c4d00] text-[10px] font-bold tracking-widest uppercase w-fit rounded">{card.category}</span>
-                  <h3 className="text-xl font-bold text-[#1c1b1b] tracking-tight leading-snug">{card.program}</h3>
+              <div key={card.program} style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', borderLeft: `4px solid ${card.borderColor}` }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
+                  <span style={{ display: 'inline-block', padding: '0.25rem 0.5rem', background: 'rgba(255,187,0,0.10)', color: '#6c4d00', fontSize: '0.625rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', width: 'fit-content', borderRadius: '0.25rem' }}>{card.category}</span>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1c1b1b', letterSpacing: '-0.02em', lineHeight: 1.3, margin: 0 }}>{card.program}</h3>
                 </div>
-                <div className="grid grid-cols-2 gap-3 mb-5">
-                  <div className="bg-[#f6f3f2] p-3 rounded-lg">
-                    <span className="block text-[10px] uppercase font-bold text-[#584144] tracking-wider mb-1">Entry Level</span>
-                    <p className="text-[#8c0f37] font-bold text-lg leading-none">{card.entry}</p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.25rem' }}>
+                  <div style={{ background: '#f6f3f2', padding: '0.75rem', borderRadius: '0.5rem' }}>
+                    <span style={{ display: 'block', fontSize: '0.625rem', textTransform: 'uppercase', fontWeight: 700, color: '#584144', letterSpacing: '0.07em', marginBottom: '0.25rem' }}>Entry Level</span>
+                    <p style={{ color: '#8c0f37', fontWeight: 700, fontSize: '1.125rem', lineHeight: 1, margin: 0 }}>{card.entry}</p>
                   </div>
-                  <div className="bg-[#8c0f37]/5 p-3 rounded-lg">
-                    <span className="block text-[10px] uppercase font-bold text-[#8c0f37] tracking-wider mb-1">Mid Level</span>
-                    <p className="text-[#8c0f37] font-black text-lg leading-none">{card.mid}</p>
+                  <div style={{ background: 'rgba(140,15,55,0.05)', padding: '0.75rem', borderRadius: '0.5rem' }}>
+                    <span style={{ display: 'block', fontSize: '0.625rem', textTransform: 'uppercase', fontWeight: 700, color: '#8c0f37', letterSpacing: '0.07em', marginBottom: '0.25rem' }}>Mid Level</span>
+                    <p style={{ color: '#8c0f37', fontWeight: 900, fontSize: '1.125rem', lineHeight: 1, margin: 0 }}>{card.mid}</p>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                   {card.certs.map((cert) => (
-                    <span key={cert} className="bg-[#e5e2e1] px-3 py-1 rounded-full text-[11px] font-medium text-[#584144]">{cert}</span>
+                    <span key={cert} style={{ background: '#e5e2e1', padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 500, color: '#584144' }}>{cert}</span>
                   ))}
                 </div>
               </div>
             ))}
 
             {/* Advisor CTA Card — placed after 3rd data card per Stitch design */}
-            <div className="relative overflow-hidden bg-[#8c0f37] text-white rounded-xl p-8 mb-4">
-              <div className="absolute -right-12 -top-12 w-48 h-48 bg-[#ad2c4d] rounded-full opacity-30"></div>
-              <h4 className="text-2xl font-black tracking-tight mb-2 relative z-10">Maximize Your Growth.</h4>
-              <p className="text-[#ffd9dd] text-sm mb-6 relative z-10">Free career coaching for every member. Our advisors help you negotiate offers and land the role that fits your goals — at $0 cost to you.</p>
-              <Link href="/apply" className="bg-white text-[#8c0f37] font-bold px-6 py-3 rounded-md text-xs tracking-widest uppercase relative z-10 inline-block active:scale-95 transition-transform">
+            <div style={{ position: 'relative', overflow: 'hidden', background: '#8c0f37', color: 'white', borderRadius: '0.75rem', padding: '2rem', marginBottom: '1rem' }}>
+              <div style={{ position: 'absolute', right: '-3rem', top: '-3rem', width: '12rem', height: '12rem', background: '#ad2c4d', borderRadius: '9999px', opacity: 0.3 }}></div>
+              <h4 style={{ fontSize: '1.5rem', fontWeight: 900, letterSpacing: '-0.02em', marginBottom: '0.5rem', position: 'relative', zIndex: 1 }}>Maximize Your Growth.</h4>
+              <p style={{ color: '#ffd9dd', fontSize: '0.875rem', marginBottom: '1.5rem', position: 'relative', zIndex: 1 }}>Free career coaching for every member. Our advisors help you negotiate offers and land the role that fits your goals — at $0 cost to you.</p>
+              <Link href="/apply" style={{ background: 'white', color: '#8c0f37', fontWeight: 700, padding: '0.75rem 1.5rem', borderRadius: '0.375rem', fontSize: '0.75rem', letterSpacing: '0.1em', textTransform: 'uppercase', position: 'relative', zIndex: 1, display: 'inline-block', textDecoration: 'none' }}>
                 Speak to an Advisor
               </Link>
             </div>
 
             {MOBILE_SALARY_CARDS.slice(3).map((card) => (
-              <div key={card.program} className={`bg-white rounded-xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border-l-4 ${card.borderColor}`}>
-                <div className="flex flex-col gap-2 mb-4">
-                  <span className="inline-block px-2 py-1 bg-[#ffbb00]/10 text-[#6c4d00] text-[10px] font-bold tracking-widest uppercase w-fit rounded">{card.category}</span>
-                  <h3 className="text-xl font-bold text-[#1c1b1b] tracking-tight leading-snug">{card.program}</h3>
+              <div key={card.program} style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', borderLeft: `4px solid ${card.borderColor}` }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
+                  <span style={{ display: 'inline-block', padding: '0.25rem 0.5rem', background: 'rgba(255,187,0,0.10)', color: '#6c4d00', fontSize: '0.625rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', width: 'fit-content', borderRadius: '0.25rem' }}>{card.category}</span>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1c1b1b', letterSpacing: '-0.02em', lineHeight: 1.3, margin: 0 }}>{card.program}</h3>
                 </div>
-                <div className="grid grid-cols-2 gap-3 mb-5">
-                  <div className="bg-[#f6f3f2] p-3 rounded-lg">
-                    <span className="block text-[10px] uppercase font-bold text-[#584144] tracking-wider mb-1">Entry Level</span>
-                    <p className="text-[#8c0f37] font-bold text-lg leading-none">{card.entry}</p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.25rem' }}>
+                  <div style={{ background: '#f6f3f2', padding: '0.75rem', borderRadius: '0.5rem' }}>
+                    <span style={{ display: 'block', fontSize: '0.625rem', textTransform: 'uppercase', fontWeight: 700, color: '#584144', letterSpacing: '0.07em', marginBottom: '0.25rem' }}>Entry Level</span>
+                    <p style={{ color: '#8c0f37', fontWeight: 700, fontSize: '1.125rem', lineHeight: 1, margin: 0 }}>{card.entry}</p>
                   </div>
-                  <div className="bg-[#8c0f37]/5 p-3 rounded-lg">
-                    <span className="block text-[10px] uppercase font-bold text-[#8c0f37] tracking-wider mb-1">Mid Level</span>
-                    <p className="text-[#8c0f37] font-black text-lg leading-none">{card.mid}</p>
+                  <div style={{ background: 'rgba(140,15,55,0.05)', padding: '0.75rem', borderRadius: '0.5rem' }}>
+                    <span style={{ display: 'block', fontSize: '0.625rem', textTransform: 'uppercase', fontWeight: 700, color: '#8c0f37', letterSpacing: '0.07em', marginBottom: '0.25rem' }}>Mid Level</span>
+                    <p style={{ color: '#8c0f37', fontWeight: 900, fontSize: '1.125rem', lineHeight: 1, margin: 0 }}>{card.mid}</p>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                   {card.certs.map((cert) => (
-                    <span key={cert} className="bg-[#e5e2e1] px-3 py-1 rounded-full text-[11px] font-medium text-[#584144]">{cert}</span>
+                    <span key={cert} style={{ background: '#e5e2e1', padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 500, color: '#584144' }}>{cert}</span>
                   ))}
                 </div>
               </div>
@@ -189,8 +189,8 @@ export default function SalaryGuidePage() {
           </div>
 
           {/* Disclaimer */}
-          <footer className="mt-12 mb-20 text-center">
-            <p className="text-[10px] font-medium text-[#584144]/60 uppercase tracking-widest leading-relaxed">
+          <footer style={{ marginTop: '3rem', marginBottom: '5rem', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.625rem', fontWeight: 500, color: 'rgba(88,65,68,0.60)', textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1.6 }}>
               Data provided by Lightcast and Bureau of Labor Statistics. Figures represent national averages and vary by geographic location and individual experience.
             </p>
           </footer>

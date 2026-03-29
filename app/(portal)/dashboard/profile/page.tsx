@@ -55,7 +55,7 @@ export default async function DashboardProfilePage() {
   return (
     <>
       {/* ── Mobile profile view (≤640px) ── */}
-      <div className="md:hidden pb-24">
+      <div className="wa-md:hidden" style={{ paddingBottom: "6rem" }}>
         {/* Profile hero section */}
         <section className="text-center" style={{ padding: '1.5rem 1.5rem 1rem' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>

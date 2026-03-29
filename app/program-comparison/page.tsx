@@ -36,7 +36,7 @@ export default function ProgramComparisonPage() {
     <div className="inner-page" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
 
       {/* ===== MOBILE VIEW (≤640px) ===== */}
-      <div className="md:hidden bg-[#fcf9f8] text-[#1c1b1b] min-h-screen pb-32">
+      <div className="wa-md:hidden" style={{ background: "#fcf9f8", color: "#1c1b1b", minHeight: "100vh", paddingBottom: "8rem" }}>
         {/* Top App Bar */}
         <header className="fixed top-0 w-full z-50 bg-[#fcf9f8]/80 backdrop-blur-xl flex items-center justify-between px-6 h-16">
           <div className="flex items-center gap-4">

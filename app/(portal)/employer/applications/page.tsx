@@ -44,7 +44,7 @@ export default async function EmployerApplicationsPage() {
   return (
     <div>
       {/* ── Mobile Applications View (≤640px) ── */}
-      <div className="block md:hidden pb-24">
+      <div className="wa-md:hidden" style={{ paddingBottom: "6rem" }}>
         <div className="px-4 pt-6 pb-3">
           <h1 className="text-2xl font-extrabold tracking-tight mb-1" style={{ color: '#1c1b1b' }}>Applicants</h1>
           <p className="text-xs" style={{ color: '#584144' }}>Review and update candidate status.</p>

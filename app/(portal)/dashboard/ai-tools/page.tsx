@@ -120,7 +120,7 @@ export default async function AIToolsPage() {
   return (
     <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
       {/* ── Mobile AI Tools View (≤640px) ── */}
-      <div className="block md:hidden pb-24">
+      <div className="wa-md:hidden" style={{ paddingBottom: "6rem" }}>
         {/* Mobile hero */}
         <div className="px-6 pt-8 pb-4">
           <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-[#ad2c4d] mb-1">Premium Intelligence</p>

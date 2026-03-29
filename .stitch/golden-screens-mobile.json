@@ -30,6 +30,21 @@
       "screenId": "62b20f9be76b4585a71428e55f9a3bec",
       "title": "What We Do (Mobile Light)",
       "file": ".stitch/mobile-what-we-do.html"
+    },
+    "howItWorks": {
+      "screenId": "283efeeb2a804518b2c1469fbe7f2252",
+      "title": "How It Works (Mobile)",
+      "file": ".stitch/mobile-how-it-works.html"
+    },
+    "programDetail": {
+      "screenId": "3a6493dcb3a34e9b8418215c3b8bd3b9",
+      "title": "Program Detail (Mobile Light)",
+      "file": ".stitch/mobile-program-detail.html"
+    },
+    "quizResult": {
+      "screenId": "0e09db1cb78a47cc9ba298d031ac13f4",
+      "title": "Quiz Results (Mobile Light)",
+      "file": ".stitch/mobile-quiz-result.html"
     }
   }
 }

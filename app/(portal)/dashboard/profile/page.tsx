@@ -8,6 +8,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
 import DashboardProfileForm from '@/components/portal/DashboardProfileForm';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import MobileProfileSkillsResume from '@/components/portal/MobileProfileSkillsResume';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'My Profile',
@@ -103,12 +104,16 @@ export default async function DashboardProfilePage() {
               <p className="text-[10px] text-[#584144] font-medium uppercase tracking-wider mb-0.5">Email</p>
               <p className="text-sm font-semibold text-[#1c1b1b]">{dbUser.email}</p>
             </div>
-            {(dbUser.profile?.profilePhone ?? dbUser.phone) && (
-              <div>
-                <p className="text-[10px] text-[#584144] font-medium uppercase tracking-wider mb-0.5">Phone</p>
-                <p className="text-sm font-semibold text-[#1c1b1b]">{dbUser.profile?.profilePhone ?? dbUser.phone}</p>
-              </div>
-            )}
+            <div>
+              <p className="text-[10px] text-[#584144] font-medium uppercase tracking-wider mb-0.5">Phone</p>
+              <p className="text-sm font-semibold text-[#1c1b1b]">{dbUser.profile?.profilePhone ?? dbUser.phone ?? '—'}</p>
+            </div>
+            <div>
+              <p className="text-[10px] text-[#584144] font-medium uppercase tracking-wider mb-0.5">Location</p>
+              <p className="text-sm font-semibold text-[#1c1b1b]">
+                {[dbUser.profile?.city, dbUser.profile?.state].filter(Boolean).join(', ') || (dbUser.profile?.profileAddress ?? '—')}
+              </p>
+            </div>
           </div>
         </div>
 
@@ -122,6 +127,34 @@ export default async function DashboardProfilePage() {
             )}
           </div>
         )}
+
+        {/* Skills card */}
+        {program && program.skills && program.skills.length > 0 && (
+          <div className="mx-6 mb-4 bg-[#fcf9f8] p-5 rounded-xl border border-[#debfc2]/30">
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#584144]">Skills</h3>
+              <button className="text-[#8c0f37] p-1 active:scale-90 duration-200">
+                <span className="material-symbols-outlined text-[20px]">edit</span>
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {program.skills.map((skill) => (
+                <span
+                  key={skill}
+                  className="px-3 py-1.5 text-[11px] font-bold rounded-full"
+                  style={{ background: '#ebe7e7', color: '#1c1b1b' }}
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Resume upload section */}
+        <MobileProfileSkillsResume
+          resumeOriginalPath={dbUser.profile?.resumeOriginalPath ?? null}
+        />
 
         {/* Assessment card */}
         {dbUser.assessmentCompleted && (

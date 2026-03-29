@@ -45,7 +45,7 @@ export default function MobileBottomNav({ variant = 'marketing' }: MobileBottomN
         WebkitBackdropFilter: 'blur(12px)',
         borderTop: '1px solid rgba(222, 191, 194, 0.3)',
       }}
-      className="wa-md:hidden"
+      className="md:wa-hidden"
     >
       {tabs.map(({ href, label, icon }) => {
         const isActive = href === '/dashboard' || href === '/'

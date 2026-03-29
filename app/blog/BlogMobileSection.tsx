@@ -40,7 +40,7 @@ export default function BlogMobileSection({
   const filtered = filter ? posts.filter((p) => p.category === filter) : posts;
 
   return (
-    <div className="wa-md:hidden" style={{ background: '#fcf9f8', minHeight: '100vh', paddingBottom: '8rem' }}>
+    <div className="md:wa-hidden" style={{ background: '#fcf9f8', minHeight: '100vh', paddingBottom: '8rem' }}>
       {/* Header */}
       <div style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', paddingTop: '2rem', marginBottom: '2rem' }}>
         <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#8c0f37]" style={{ marginBottom: '0.5rem', display: 'block' }}>

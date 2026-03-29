@@ -38,3 +38,42 @@ npm run build    # TypeScript type-checking + Next.js production build
 ```
 
 There are no configured linters or test frameworks. For validation, run `npm run build` which will catch TypeScript and compilation errors.
+
+## Stitch MCP (designs)
+
+Use the **Google Stitch MCP** from Cursor when you need authoritative UI reference or new screens before coding. Cursor should use the **hosted MCP tools** (not the shell CLI) unless you are outside Cursor.
+
+### Project and docs
+
+- **Stitch project ID:** `18255988866302206897`
+- **CLI / Bearer token / screen ID table:** [.stitch/STITCH-MCP-PROTOCOL.md](.stitch/STITCH-MCP-PROTOCOL.md)
+- **Refreshing API access / canvas workflow:** [.stitch/STITCH-REFRESH-PROTOCOL.md](.stitch/STITCH-REFRESH-PROTOCOL.md)
+- **Dark Stitch reference HTML (layout/shell only):** [.stitch/golden-screens-stitch-dark.json](.stitch/golden-screens-stitch-dark.json) — replace fictional “Civic Bridge” copy with WorkforceAP in product.
+
+### Auth (do not commit keys)
+
+- **Cursor MCP:** configured with `X-Goog-Api-Key` — set environment variable `GOOGLE_STITCH_API_KEY` (see your user `mcp.json`).
+- **CLI `stitch-mcp`:** uses `STITCH_API_KEY` Bearer flow as documented under `.stitch/`.
+
+### When to call Stitch MCP
+
+**Use it when:**
+
+- Building or refactoring **marketing or portal UI** that must **match Stitch mocks** (mobile/desktop parity, spacing, components).
+- There is **no local spec** and you need a **first design** or variant before implementation.
+- You need **design system** tokens (fonts, colors, roundness) to align `tailwind.config.ts` and `css/main.css` with Stitch.
+
+**Skip it when:**
+
+- The work is **logic, API, or database only** with no visual contract.
+- The page already matches production and the change is a **small copy or bugfix** with no design ambiguity.
+
+### Recommended MCP tool order (in Cursor)
+
+1. **`mcp_stitch_list_projects`** (optional) — confirm access and discover project IDs if needed.
+2. **`mcp_stitch_list_screens`** with `projectId: "18255988866302206897"` — find screens by title or id.
+3. **`mcp_stitch_get_screen`** — use resource name `projects/18255988866302206897/screens/<screenId>` (see screen ID table in `STITCH-MCP-PROTOCOL.md`).
+4. **`mcp_stitch_generate_screen_from_text`** or **`mcp_stitch_edit_screens`** — new screens or iterations from a precise prompt.
+5. **`mcp_stitch_list_design_systems`** then **`mcp_stitch_apply_design_system`** — align multiple screens to one design system.
+
+Implement the resulting layout and copy in `app/` and `components/`; treat Stitch output as the design source of truth when the task says to match Stitch.

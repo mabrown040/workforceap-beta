@@ -73,7 +73,7 @@ export default function FAQMobileSection() {
   });
 
   return (
-    <div className="wa-md:hidden" style={{ background: '#fcf9f8', minHeight: '100vh', paddingBottom: '8rem' }}>
+    <div className="md:wa-hidden" style={{ background: '#fcf9f8', minHeight: '100vh', paddingBottom: '8rem' }}>
       {/* Top App Bar */}
       <header
         className="wa-fixed wa-top-0 wa-z-50"

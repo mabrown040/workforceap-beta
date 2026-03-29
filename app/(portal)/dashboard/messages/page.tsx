@@ -70,7 +70,7 @@ export default async function MemberMessagesPage() {
       />
 
       {/* ── Desktop view ── */}
-      <div className="wa-hidden wa-md:block">
+      <div className="wa-hidden md:wa-block">
         <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Messages</h1>
         <MemberCounselorChatClient
           initial={{

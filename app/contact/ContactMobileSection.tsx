@@ -5,7 +5,7 @@ import ContactFormClient from './ContactFormClient';
 
 export default function ContactMobileSection() {
   return (
-    <div className="wa-md:hidden" style={{ background: '#fcf9f8', minHeight: '100vh', paddingBottom: '8rem' }}>
+    <div className="md:wa-hidden" style={{ background: '#fcf9f8', minHeight: '100vh', paddingBottom: '8rem' }}>
       {/* Top Nav */}
       <header
         style={{

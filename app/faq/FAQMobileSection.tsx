@@ -113,8 +113,8 @@ export default function FAQMobileSection() {
       </div>
 
       {/* Category Chips */}
-      <div className="mb-8 -mx-0 overflow-hidden">
-        <div className="flex overflow-x-auto px-6 gap-2 pb-2 no-scrollbar">
+      <div className="mb-8 -mx-0 overflow-x-hidden">
+        <div className="flex overflow-x-auto px-6 gap-2 pb-2 no-scrollbar" style={{ scrollbarWidth: 'none' }}>
           {CATEGORY_CHIPS.map((chip) => (
             <button
               key={chip}

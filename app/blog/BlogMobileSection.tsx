@@ -55,8 +55,8 @@ export default function BlogMobileSection({
       </div>
 
       {/* Category Filter Chips */}
-      <div className="mb-8 -mx-0 overflow-hidden">
-        <div className="flex overflow-x-auto px-6 gap-3 pb-2 scroll-smooth no-scrollbar">
+      <div className="mb-8 -mx-0 overflow-x-hidden">
+        <div className="flex overflow-x-auto px-6 gap-3 pb-2 scroll-smooth no-scrollbar" style={{ scrollbarWidth: 'none' }}>
           <button
             onClick={() => setFilter(null)}
             className={`whitespace-nowrap px-5 py-2 rounded-full text-sm font-semibold transition-all ${

@@ -298,10 +298,10 @@ export default function WhatWeDoPage() {
                   }}
                 >
                   <div style={{ fontSize: '2.25rem', fontWeight: 900, color: 'var(--color-accent)', lineHeight: 1 }}>
-                    94%
+                    —
                   </div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600 }}>
-                    Placement rate for graduates completing certification tracks
+                    Outcomes tracked as members complete certification tracks
                   </div>
                 </div>
               </div>
@@ -328,6 +328,7 @@ export default function WhatWeDoPage() {
           </div>
 
           <div
+            className="wwd-bento-grid"
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(12, 1fr)',
@@ -678,6 +679,7 @@ export default function WhatWeDoPage() {
           .wwd-legacy-portrait { grid-column: span 12 !important; max-width: 400px; margin: 0 auto; }
           .wwd-legacy-text { grid-column: span 12 !important; }
           .wwd-values-grid { grid-template-columns: 1fr !important; }
+          .wwd-bento-grid > div { grid-column: span 12 !important; grid-row: span 1 !important; }
         }
         @media (max-width: 767px) {
           .wwd-legacy-portrait { max-width: 100%; }

@@ -278,7 +278,7 @@ export default function EmployersPage() {
       </section>
 
       {/* ── Mobile-only: Talent category chips (≤640px) ── */}
-      <section className="sm:hidden py-4 overflow-x-auto" style={{ background: '#fcf9f8' }}>
+      <section className="sm:hidden py-4 overflow-x-auto" style={{ background: '#fcf9f8', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         <div className="flex gap-2 px-4" style={{ width: 'max-content' }}>
           {['IT & Cyber', 'AI & Software', 'Cloud', 'Business', 'Healthcare'].map((cat, i) => (
             <span key={cat} className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold" style={{ background: i === 0 ? '#8c0f37' : '#e5e2e1', color: i === 0 ? '#fff' : '#1c1b1b' }}>
@@ -693,7 +693,7 @@ export default function EmployersPage() {
                 Ready to Transform Your Hiring Process?
               </h2>
               <p style={{ color: 'rgba(255,203,209,0.9)', fontSize: '1.125rem', marginBottom: '1.5rem', lineHeight: 1.6 }}>
-                Join over 200+ partners building a more equitable and efficient workforce
+                Join our growing network of partners building a more equitable and efficient workforce
                 through Workforce Advancement Project.
               </p>
               <div

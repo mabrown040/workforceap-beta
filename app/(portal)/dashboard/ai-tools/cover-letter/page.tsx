@@ -139,7 +139,6 @@ export default async function CoverLetterPage() {
         </div>
       </div>
     </div>
-      </div>
     </>
   );
 }

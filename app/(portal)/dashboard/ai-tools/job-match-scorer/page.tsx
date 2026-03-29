@@ -424,7 +424,6 @@ export default async function JobMatchScorerPage() {
         </div>
       </div>
     </div>
-      </div>
     </>
   );
 }

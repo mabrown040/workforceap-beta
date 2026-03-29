@@ -542,7 +542,6 @@ export default async function InterviewPracticePage() {
         </div>
       </div>
     </div>
-      </div>
     </>
   );
 }

@@ -71,6 +71,23 @@ export default function AdminProgramCatalogClient() {
     }
   };
 
+  const handleUpdateRow = (
+    id: string,
+    field: keyof CatalogRow,
+    newValue: string,
+    currentValue: string | null | undefined,
+    nullable: boolean = false
+  ) => {
+    const trimmed = newValue.trim();
+    const finalValue = nullable ? (trimmed || null) : trimmed;
+
+    if (!nullable && !finalValue) return; // Ignore if required but empty
+
+    if (finalValue !== currentValue) {
+      void patchRow(id, { [field]: finalValue } as Partial<CatalogRow>);
+    }
+  };
+
   const move = async (index: number, dir: -1 | 1) => {
     const next = index + dir;
     if (next < 0 || next >= sorted.length) return;
@@ -128,10 +145,7 @@ export default function AdminProgramCatalogClient() {
                     style={{ width: '100%', minWidth: '140px', fontSize: '0.875rem' }}
                     defaultValue={r.name}
                     key={`${r.id}-name`}
-                    onBlur={(e) => {
-                      const v = e.target.value.trim();
-                      if (v && v !== r.name) void patchRow(r.id, { name: v });
-                    }}
+                    onBlur={(e) => handleUpdateRow(r.id, 'name', e.target.value, r.name)}
                   />
                 </td>
                 <td>
@@ -139,10 +153,7 @@ export default function AdminProgramCatalogClient() {
                     style={{ width: '100%', minWidth: '100px', fontSize: '0.875rem' }}
                     defaultValue={r.category}
                     key={`${r.id}-cat`}
-                    onBlur={(e) => {
-                      const v = e.target.value.trim();
-                      if (v && v !== r.category) void patchRow(r.id, { category: v });
-                    }}
+                    onBlur={(e) => handleUpdateRow(r.id, 'category', e.target.value, r.category)}
                   />
                 </td>
                 <td>
@@ -194,10 +205,7 @@ export default function AdminProgramCatalogClient() {
                           style={{ width: '100%', fontSize: '0.875rem' }}
                           defaultValue={r.description ?? ''}
                           key={`${r.id}-desc`}
-                          onBlur={(e) => {
-                            const v = e.target.value.trim() || null;
-                            if (v !== r.description) void patchRow(r.id, { description: v });
-                          }}
+                          onBlur={(e) => handleUpdateRow(r.id, 'description', e.target.value, r.description, true)}
                         />
                       </label>
                       {(r.deliveryType === 'external_lms' || r.deliveryType === 'youtube' || r.deliveryType === 'virtual') && (
@@ -208,10 +216,7 @@ export default function AdminProgramCatalogClient() {
                             style={{ width: '100%', fontSize: '0.875rem' }}
                             defaultValue={r.deliveryUrl ?? ''}
                             key={`${r.id}-url`}
-                            onBlur={(e) => {
-                              const v = e.target.value.trim() || null;
-                              if (v !== r.deliveryUrl) void patchRow(r.id, { deliveryUrl: v });
-                            }}
+                            onBlur={(e) => handleUpdateRow(r.id, 'deliveryUrl', e.target.value, r.deliveryUrl, true)}
                           />
                         </label>
                       )}
@@ -223,10 +228,7 @@ export default function AdminProgramCatalogClient() {
                             style={{ width: '100%', fontSize: '0.875rem' }}
                             defaultValue={r.deliveryDetails ?? ''}
                             key={`${r.id}-det`}
-                            onBlur={(e) => {
-                              const v = e.target.value.trim() || null;
-                              if (v !== r.deliveryDetails) void patchRow(r.id, { deliveryDetails: v });
-                            }}
+                            onBlur={(e) => handleUpdateRow(r.id, 'deliveryDetails', e.target.value, r.deliveryDetails, true)}
                           />
                         </label>
                       )}
@@ -236,10 +238,7 @@ export default function AdminProgramCatalogClient() {
                           style={{ width: '100%', fontSize: '0.875rem' }}
                           defaultValue={r.duration ?? ''}
                           key={`${r.id}-dur`}
-                          onBlur={(e) => {
-                            const v = e.target.value.trim() || null;
-                            if (v !== r.duration) void patchRow(r.id, { duration: v });
-                          }}
+                          onBlur={(e) => handleUpdateRow(r.id, 'duration', e.target.value, r.duration, true)}
                         />
                       </label>
                       <label className="form-group" style={{ display: 'block', marginBottom: '0.75rem' }}>
@@ -249,11 +248,7 @@ export default function AdminProgramCatalogClient() {
                           style={{ width: '100%', fontSize: '0.875rem' }}
                           defaultValue={r.programStartDate ? r.programStartDate.slice(0, 10) : ''}
                           key={`${r.id}-sd`}
-                          onBlur={(e) => {
-                            const v = e.target.value.trim() || null;
-                            const prev = r.programStartDate ? r.programStartDate.slice(0, 10) : '';
-                            if (v !== prev) void patchRow(r.id, { programStartDate: v });
-                          }}
+                          onBlur={(e) => handleUpdateRow(r.id, 'programStartDate', e.target.value, r.programStartDate ? r.programStartDate.slice(0, 10) : '', true)}
                         />
                       </label>
                       <label className="form-group" style={{ display: 'block' }}>
@@ -263,11 +258,7 @@ export default function AdminProgramCatalogClient() {
                           style={{ width: '100%', fontSize: '0.875rem' }}
                           defaultValue={r.programEndDate ? r.programEndDate.slice(0, 10) : ''}
                           key={`${r.id}-ed`}
-                          onBlur={(e) => {
-                            const v = e.target.value.trim() || null;
-                            const prev = r.programEndDate ? r.programEndDate.slice(0, 10) : '';
-                            if (v !== prev) void patchRow(r.id, { programEndDate: v });
-                          }}
+                          onBlur={(e) => handleUpdateRow(r.id, 'programEndDate', e.target.value, r.programEndDate ? r.programEndDate.slice(0, 10) : '', true)}
                         />
                       </label>
                     </div>

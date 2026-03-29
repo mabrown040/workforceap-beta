@@ -239,7 +239,7 @@ export default async function DashboardPage() {
           </div>
         </section>
 
-        {/* Recommended programs — horizontal scroll cards with placement badges */}
+        {/* Recommended programs — horizontal scroll cards */}
         <section className="mb-6 space-y-3">
           <div className="flex justify-between items-end px-6">
             <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[#584144]">Recommended Programs</h3>
@@ -247,16 +247,12 @@ export default async function DashboardPage() {
           </div>
           <div className="flex gap-4 overflow-x-auto -mx-0 px-6 pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {[
-              { provider: 'IBM Professional', title: 'Data Science Professional', placement: '94%' },
-              { provider: 'Amazon Web Services', title: 'Cloud Practitioner Essentials', placement: '94%' },
-              { provider: 'Google', title: 'Cybersecurity Professional', placement: '91%' },
+              { provider: 'IBM Professional', title: 'Data Science Professional' },
+              { provider: 'Amazon Web Services', title: 'Cloud Practitioner Essentials' },
+              { provider: 'Google', title: 'Cybersecurity Professional' },
             ].map((prog, i) => (
               <div key={i} className="min-w-[220px] rounded-xl overflow-hidden flex flex-col shadow-sm flex-shrink-0" style={{ background: '#f0edec' }}>
                 <div className="h-28 relative" style={{ background: 'linear-gradient(135deg, #2b1f20 0%, #584144 100%)' }}>
-                  <div className="absolute top-3 left-3 px-2 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter"
-                    style={{ background: '#ffbb00', color: '#6c4d00' }}>
-                    {prog.placement} Placement
-                  </div>
                 </div>
                 <div className="p-4 space-y-1">
                   <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#7b5800' }}>{prog.provider}</p>

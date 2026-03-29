@@ -78,8 +78,13 @@ export default function SalaryGuidePage() {
       </section>
 
       {/* ===== Bento Grid: Featured chart + side stats ===== */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media (max-width: 768px) {
+          .sg-bento-grid { grid-template-columns: 1fr !important; }
+        }
+      `}} />
       <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 2rem 3rem' }}>
-        <div style={{
+        <div className="sg-bento-grid" style={{
           display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem',
         }}>
           {/* Featured AI/ML salary chart card (8-col) */}

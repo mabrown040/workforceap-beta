@@ -707,10 +707,11 @@ export default function EmployersPage() {
           .emp-diff-cards { grid-column: span 12 !important; }
           .emp-tiers-grid { grid-template-columns: 1fr !important; max-width: 480px; margin: 0 auto; }
           .emp-cohort-card { grid-column: span 12 !important; }
-        }
-        @media (max-width: 767px) {
           .emp-process-grid { grid-template-columns: 1fr 1fr !important; gap: 2rem !important; }
           .emp-timeline-bar { display: none !important; }
+        }
+        @media (max-width: 767px) {
+          .emp-process-grid { grid-template-columns: 1fr !important; }
           .emp-diff-cards { grid-template-columns: 1fr !important; }
         }
       `}</style>

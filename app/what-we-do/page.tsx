@@ -267,6 +267,7 @@ export default function WhatWeDoPage() {
               </p>
 
               <div
+                className="wwd-stats-grid"
                 style={{
                   display: 'grid',
                   gridTemplateColumns: '1fr 1fr',
@@ -327,6 +328,7 @@ export default function WhatWeDoPage() {
           </div>
 
           <div
+            className="wwd-bento-grid"
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(12, 1fr)',
@@ -585,6 +587,8 @@ export default function WhatWeDoPage() {
           .wwd-legacy-portrait { grid-column: span 12 !important; max-width: 400px; margin: 0 auto; }
           .wwd-legacy-text { grid-column: span 12 !important; }
           .wwd-values-grid { grid-template-columns: 1fr !important; }
+          .wwd-bento-grid .stitch-card { grid-column: span 12 !important; grid-row: span 1 !important; }
+          .wwd-stats-grid { grid-template-columns: 1fr !important; }
         }
         @media (max-width: 767px) {
           .wwd-legacy-portrait { max-width: 100%; }

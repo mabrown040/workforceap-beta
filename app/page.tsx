@@ -140,8 +140,13 @@ export default async function HomePage() {
       </section>
 
       {/* ===== 25+ Years Breaking Barriers — Bento: 2/3 text + 1/3 stats grid ===== */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media (max-width: 768px) {
+          .home-impact-grid { grid-template-columns: 1fr !important; }
+        }
+      `}} />
       <section style={{ padding: '6rem 2rem', maxWidth: '1400px', margin: '0 auto' }}>
-        <div style={{
+        <div className="home-impact-grid" style={{
           display: 'grid',
           gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)',
           gap: '3rem',

@@ -6,7 +6,16 @@ import type { Program } from '@/lib/content/programs';
 import { ProgramIcon } from '@/components/ProgramIcon';
 import { formatPhone } from '@/lib/formatPhone';
 import { ADMIN_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
-import { User, BookOpen, FileText, CheckCircle, Handshake } from 'lucide-react';
+import { User, BookOpen, FileText, CheckCircle, Handshake, Wallet } from 'lucide-react';
+
+const FUNDING_SOURCE_OPTIONS = [
+  { value: '', label: '— Not set —' },
+  { value: 'GRANT', label: 'WIOA / Grant' },
+  { value: 'EMPLOYER', label: 'Employer-Paid' },
+  { value: 'PARTNER_ORG', label: 'Partner Organization Sponsored' },
+  { value: 'SELF', label: 'Self-Pay' },
+  { value: 'OTHER', label: 'Other' },
+];
 import '@/css/counselor.css';
 
 const EMPLOYMENT = ['Unemployed', 'Underemployed', 'Employed', 'Self-Employed'];
@@ -40,6 +49,9 @@ type FormData = {
   programNotes: string;
   partnerId: string;
   subgroupId: string;
+  fundingSource: string;
+  fundingNotes: string;
+  workspaceEmail: string;
 };
 
 const initialForm: FormData = {
@@ -63,6 +75,9 @@ const initialForm: FormData = {
   programNotes: '',
   partnerId: '',
   subgroupId: '',
+  fundingSource: '',
+  fundingNotes: '',
+  workspaceEmail: '',
 };
 
 type PartnerOption = { id: string; name: string };
@@ -204,6 +219,18 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
         if (enhancedResume) fd.append('resumeEnhanced', enhancedResume);
         await fetch(`/api/admin/members/${userId}/upload-resume`, { method: 'POST', body: fd });
       }
+      if (userId && (form.fundingSource || form.workspaceEmail)) {
+        await fetch(`/api/admin/members/${userId}/enrollment-funding`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fundingSource: form.fundingSource || null,
+            fundingNotes: form.fundingNotes.trim() || null,
+            workspaceEmail: form.workspaceEmail.trim() || null,
+            workspaceEmailProvisioned: false,
+          }),
+        });
+      }
       const email = data.email ?? form.email;
       router.push(`/admin/members/${userId}?toast=created&email=${encodeURIComponent(email)}`);
       router.refresh();
@@ -217,20 +244,21 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
   const canProceedStep1 = form.firstName && form.email && form.employmentStatus && form.educationLevel &&
     form.usCitizen && form.authorizedToWork;
   const canProceedStep2 = !!form.programSlug;
-  const maxStep = 5;
+  const maxStep = 6;
 
   const stepLabels = [
     'Basic Info',
     'Program Selection',
     'Partner Referral',
     'Resume Upload',
+    'Funding Source',
     'Review & Create',
   ];
 
   return (
     <div className="wizard-container">
       <div className="wizard-step-indicator">
-        <span className="wizard-step-label">Step {step} of 5 — {stepLabels[step - 1]}</span>
+        <span className="wizard-step-label">Step {step} of 6 — {stepLabels[step - 1]}</span>
         <div className="wizard-step-dots">
           {[1, 2, 3, 4, 5].map((s) => (
             <button
@@ -517,8 +545,55 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
         </section>
       )}
 
-      {/* Step 5: Review & Create */}
+      {/* Step 5: Funding Source */}
       {step === 5 && (
+        <section className="wizard-step wizard-step-5">
+          <h2 className="wizard-section-title"><Wallet size={22} className="wizard-icon" /> Funding Source</h2>
+          <div className="wizard-form-grid">
+            <div className="wizard-field">
+              <label htmlFor="wizard-fundingSource">Funding Source</label>
+              <select
+                id="wizard-fundingSource"
+                value={form.fundingSource}
+                onChange={(e) => update('fundingSource', e.target.value)}
+              >
+                {FUNDING_SOURCE_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>{o.label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="wizard-field wizard-field-full">
+              <label htmlFor="wizard-fundingNotes">Funding Notes</label>
+              <textarea
+                id="wizard-fundingNotes"
+                value={form.fundingNotes}
+                onChange={(e) => update('fundingNotes', e.target.value)}
+                rows={3}
+                placeholder="e.g. WIOA Title I, employer PO#1234, partner org name…"
+              />
+            </div>
+            <div className="wizard-field">
+              <label htmlFor="wizard-workspaceEmail">Workspace Email (optional)</label>
+              <input
+                id="wizard-workspaceEmail"
+                type="email"
+                value={form.workspaceEmail}
+                onChange={(e) => update('workspaceEmail', e.target.value)}
+                placeholder="member@workforceap.org"
+              />
+            </div>
+          </div>
+          <div className="wizard-actions wizard-actions-between">
+            <button type="button" className="btn btn-outline" onClick={() => setStep(4)}>Back</button>
+            <button type="button" className="btn btn-primary" onClick={() => setStep(6)}>
+              Continue to Step 6
+            </button>
+          </div>
+        </section>
+      )}
+
+      {/* Step 6: Review & Create */}
+      {step === 6 && (
         <section className="wizard-step wizard-step-4">
           <h2 className="wizard-section-title"><CheckCircle size={22} className="wizard-icon" /> Review & Create</h2>
           <div className="wizard-summary-card">
@@ -535,9 +610,13 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
             </p>
             <p><strong>Resume:</strong> {resumeFile ? 'Original uploaded' : 'Not uploaded'}{enhancedResume ? ' + Enhanced' : ''}</p>
             {form.notes && <p><strong>Counselor notes:</strong> {form.notes}</p>}
+            {form.fundingSource && (
+              <p><strong>Funding:</strong> {FUNDING_SOURCE_OPTIONS.find((o) => o.value === form.fundingSource)?.label ?? form.fundingSource}{form.fundingNotes ? ` — ${form.fundingNotes}` : ''}</p>
+            )}
+            {form.workspaceEmail && <p><strong>Workspace email:</strong> {form.workspaceEmail}</p>}
           </div>
           <div className="wizard-actions wizard-actions-between">
-            <button type="button" className="btn btn-outline" onClick={() => setStep(4)}>Back</button>
+            <button type="button" className="btn btn-outline" onClick={() => setStep(5)}>Back</button>
             <button type="button" className="btn btn-primary" onClick={handleSubmit} disabled={!!loading}>
               {loading === 'create' ? 'Creating…' : 'Create Member Account'}
             </button>

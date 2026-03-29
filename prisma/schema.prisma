@@ -69,6 +69,8 @@ model User {
   onboardingCompletedAt  DateTime? @map("onboarding_completed_at")
   onboardingPortal       String?   @map("onboarding_portal")
   tourCompletedAt        DateTime? @map("tour_completed_at")
+  workspaceEmail               String?   @map("workspace_email")
+  workspaceEmailProvisioned    Boolean   @default(false) @map("workspace_email_provisioned")
 
   organization         Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   profile              Profile?
@@ -124,6 +126,9 @@ model User {
   preScreeningDraft         PreScreeningDraft?
   courseEnrollment          CourseEnrollment?
   adminCourseEnrollments    CourseEnrollment[] @relation("AdminCourseEnrollments")
+
+  mentorProfile             Mentor?
+  mentorSessions            MentorSession[] @relation("MentorSessionMember")
 
   @@index([organizationId])
   @@map("users")
@@ -219,6 +224,14 @@ model Application {
   @@index([status])
   @@index([referralPartnerId])
   @@map("applications")
+}
+
+enum FundingSource {
+  GRANT
+  EMPLOYER
+  PARTNER_ORG
+  SELF
+  OTHER
 }
 
 enum ApplicationStatus {
@@ -535,6 +548,7 @@ enum AIToolType {
   job_match_scorer
   salary_negotiation
   gap_analyzer
+  interview_coach
 }
 
 model UserCertification {
@@ -1083,6 +1097,10 @@ model CourseEnrollment {
   organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   enrolledByAdmin  User?        @relation("AdminCourseEnrollments", fields: [enrolledByAdminId], references: [id], onDelete: SetNull)
+  fundingSource             FundingSource?  @map("funding_source")
+  fundingNotes              String?         @map("funding_notes") @db.Text
+  workspaceEmailProvisioned Boolean         @default(false) @map("workspace_email_provisioned")
+  workspaceEmail            String?         @map("workspace_email")
 
   @@index([organizationId])
   @@map("course_enrollments")
@@ -1255,3 +1273,67 @@ model AIJobMatch {
 }
 
 
+
+// ─── Mentor Portal ───────────────────────────────────────────────────────────
+
+model MentorSpecialty {
+  id       String @id @default(uuid())
+  mentorId String @map("mentor_id")
+  name     String // e.g. "Resume Review", "Mock Interviews", "Career Pivots"
+
+  mentor Mentor @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+
+  @@index([mentorId])
+  @@map("mentor_specialties")
+}
+
+model Mentor {
+  id                String    @id @default(uuid())
+  userId            String    @unique @map("user_id")
+  fullName          String    @map("full_name")
+  title             String    // e.g. "Senior Software Engineer at Google"
+  company           String
+  industry          String    // e.g. "Technology", "Healthcare", "Finance"
+  bio               String    @db.Text
+  linkedinUrl       String?   @map("linkedin_url")
+  availableHours    Int       @default(2) @map("available_hours") // hours/month available
+  totalHoursDonated Float     @default(0) @map("total_hours_donated")
+  isActive          Boolean   @default(true) @map("is_active")
+  approvedAt        DateTime? @map("approved_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions   MentorSession[]
+  specialties MentorSpecialty[]
+
+  @@map("mentors")
+}
+
+model MentorSession {
+  id             String              @id @default(uuid())
+  mentorId       String              @map("mentor_id")
+  memberId       String              @map("member_id")
+  scheduledAt    DateTime            @map("scheduled_at")
+  durationMin    Int                 @default(30) @map("duration_min")
+  status         MentorSessionStatus @default(PENDING)
+  topic          String?             @db.Text
+  notes          String?             @db.Text
+  memberFeedback String?             @map("member_feedback") @db.Text
+  hoursLogged    Float?              @map("hours_logged")
+  createdAt      DateTime            @default(now()) @map("created_at")
+
+  mentor Mentor @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  member User   @relation("MentorSessionMember", fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([mentorId])
+  @@index([memberId])
+  @@map("mentor_sessions")
+}
+
+enum MentorSessionStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}

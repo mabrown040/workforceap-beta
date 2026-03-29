@@ -265,3 +265,13 @@ export async function getEmployerAccountForNav(
   }
   return null;
 }
+
+/** Check if user is an approved mentor */
+export async function isMentor(userId: string): Promise<boolean> {
+  const row = await prisma.mentor.findUnique({
+    where: { userId },
+    select: { id: true, isActive: true, approvedAt: true },
+  });
+  if (!row) return false;
+  return row.isActive && !!row.approvedAt;
+}

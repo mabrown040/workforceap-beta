@@ -49,28 +49,31 @@ export default async function MemberMessagesPage() {
 
   return (
     <>
-      {/* ── Mobile-only messages view (≤640px) — full Stitch-aligned layout ── */}
-      <MemberMessagesMobileClient
-        initial={{
-          memberUserId: user.id,
-          counselorName,
-          counselorInitials,
-          thread: {
-            id: thread.id,
-            memberId: thread.memberId,
-            counselorUserId: thread.counselorUserId,
-            memberLastReadAt: thread.memberLastReadAt?.toISOString() ?? null,
-            counselorLastReadAt: thread.counselorLastReadAt?.toISOString() ?? null,
-          },
-          messages: messages.map(serializeMessage),
-          lastMsgText,
-          lastMsgTime,
-          unreadCount,
-        }}
-      />
+      {/* ── Mobile-only messages view (≤md) ── */}
+      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+        <MemberMessagesMobileClient
+          initial={{
+            memberUserId: user.id,
+            counselorName,
+            counselorInitials,
+            thread: {
+              id: thread.id,
+              memberId: thread.memberId,
+              counselorUserId: thread.counselorUserId,
+              memberLastReadAt: thread.memberLastReadAt?.toISOString() ?? null,
+              counselorLastReadAt: thread.counselorLastReadAt?.toISOString() ?? null,
+            },
+            messages: messages.map(serializeMessage),
+            lastMsgText,
+            lastMsgTime,
+            unreadCount,
+          }}
+        />
+        <MobileBottomNav variant="portal" />
+      </div>
 
       {/* ── Desktop view ── */}
-      <div className="wa-hidden md:wa-block">
+      <div className="wa-hidden wa-md:wa-block">
         <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Messages</h1>
         <MemberCounselorChatClient
           initial={{
@@ -87,8 +90,6 @@ export default async function MemberMessagesPage() {
           }}
         />
       </div>
-
-      <MobileBottomNav variant="portal" />
     </>
   );
 }

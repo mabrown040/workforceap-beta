@@ -17,6 +17,7 @@ import MemberSubgroupSection from '@/components/admin/MemberSubgroupSection';
 import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounselorChatClient';
 import AdminMemberCounselorAssign from '@/components/admin/AdminMemberCounselorAssign';
 import AdminMemberPlacedOutcomeForm from '@/components/admin/AdminMemberPlacedOutcomeForm';
+import AdminMemberEnrollmentFundingForm from '@/components/admin/AdminMemberEnrollmentFundingForm';
 import CreateSuccessToast from './CreateSuccessToast';
 import { formatPhone } from '@/lib/formatPhone';
 import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
@@ -65,7 +66,7 @@ export default async function AdminMemberDetailPage({
 
   const { id } = await params;
 
-  const [member, partners, partnerReferral, subgroups, memberSubgroups, counselorRows, activeCounselorAssign, placedOutcomeRow] =
+  const [member, partners, partnerReferral, subgroups, memberSubgroups, counselorRows, activeCounselorAssign, placedOutcomeRow, courseEnrollment] =
     await Promise.all([
     prisma.user.findUnique({
       where: { id },
@@ -101,6 +102,15 @@ export default async function AdminMemberDetailPage({
       include: { counselor: { select: { userId: true, user: { select: { fullName: true } } } } },
     }),
     prisma.placedOutcome.findUnique({ where: { userId: id } }),
+    prisma.courseEnrollment.findUnique({
+      where: { userId: id },
+      select: {
+        fundingSource: true,
+        fundingNotes: true,
+        workspaceEmail: true,
+        workspaceEmailProvisioned: true,
+      },
+    }),
   ]);
 
   if (!member || member.deletedAt) notFound();
@@ -296,6 +306,34 @@ export default async function AdminMemberDetailPage({
                     notes: placedOutcomeRow.notes,
                   }
                 : null
+            }
+          />
+        </section>
+
+        <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
+          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Enrollment funding &amp; workspace</h2>
+          {!courseEnrollment && (
+            <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
+              Member is not currently enrolled in a program. Enrollment must be created first.
+            </p>
+          )}
+          <AdminMemberEnrollmentFundingForm
+            memberId={member.id}
+            initial={
+              courseEnrollment
+                ? {
+                    fundingSource: courseEnrollment.fundingSource,
+                    fundingNotes: courseEnrollment.fundingNotes,
+                    workspaceEmail: courseEnrollment.workspaceEmail ?? member.workspaceEmail ?? null,
+                    workspaceEmailProvisioned:
+                      courseEnrollment.workspaceEmailProvisioned || member.workspaceEmailProvisioned,
+                  }
+                : {
+                    fundingSource: null,
+                    fundingNotes: null,
+                    workspaceEmail: member.workspaceEmail ?? null,
+                    workspaceEmailProvisioned: member.workspaceEmailProvisioned,
+                  }
             }
           />
         </section>

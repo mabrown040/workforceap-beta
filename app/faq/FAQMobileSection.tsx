@@ -74,8 +74,25 @@ export default function FAQMobileSection() {
 
   return (
     <div className="md:hidden bg-[#fcf9f8] min-h-screen pb-32">
+      {/* Top App Bar */}
+      <header className="fixed top-0 w-full flex items-center justify-between px-6 h-16 z-50" style={{ background: 'rgba(252,249,248,0.92)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+        <div className="flex items-center gap-4">
+          <Link href="/" className="active:scale-95 duration-200" aria-label="Back">
+            <span className="material-symbols-outlined" style={{ color: '#8c0f37' }}>arrow_back</span>
+          </Link>
+          <h1 className="font-bold text-lg tracking-tight" style={{ color: '#8c0f37' }}>FAQ</h1>
+        </div>
+        <button
+          className="active:scale-95 duration-200"
+          aria-label="Search"
+          onClick={() => document.getElementById('faq-search-input')?.focus()}
+        >
+          <span className="material-symbols-outlined" style={{ color: '#8c0f37' }}>search</span>
+        </button>
+      </header>
+
       {/* Hero + Search */}
-      <div className="px-6 pt-8 mb-6">
+      <div className="px-6 pt-24 mb-6">
         <h1 className="text-4xl font-extrabold tracking-tight text-[#1c1b1b] leading-tight mb-6">
           Frequently Asked Questions
         </h1>
@@ -85,6 +102,7 @@ export default function FAQMobileSection() {
             <span className="material-symbols-outlined text-[#8b7073]">search</span>
           </div>
           <input
+            id="faq-search-input"
             className="w-full h-14 pl-12 pr-4 bg-[#ebe7e7] rounded-xl border-none focus:ring-2 focus:ring-[#8c0f37]/40 transition-all text-[#1c1b1b] placeholder:text-[#584144]/60 text-sm"
             placeholder="Search for answers..."
             type="text"

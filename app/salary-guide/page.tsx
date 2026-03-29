@@ -426,12 +426,12 @@ export default function SalaryGuidePage() {
             border: '1px solid var(--surface-container-highest)',
           }}>
             <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'block' }}>download</span>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>Download the Full 2024 Report</h3>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>Start Your Career Track</h3>
             <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', marginBottom: '1.5rem', maxWidth: '480px', marginLeft: 'auto', marginRight: 'auto' }}>
-              Get the complete salary intelligence report with detailed breakdowns, employer insights, and regional adjustments.
+              Apply for free to unlock your personalized salary roadmap, counselor support, and employer connections.
             </p>
             <Link href="/apply" className="btn btn-primary">
-              Download Report
+              Apply for Free
             </Link>
           </div>
 

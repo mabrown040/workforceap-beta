@@ -17,13 +17,20 @@ const PORTAL_TABS = [
   { href: '/dashboard/profile', label: 'Profile', icon: 'person' },
 ];
 
+const EMPLOYER_TABS = [
+  { href: '/employer', label: 'Overview', icon: 'dashboard' },
+  { href: '/employer/jobs', label: 'Jobs', icon: 'work' },
+  { href: '/employer/pipeline', label: 'Pipeline', icon: 'account_tree' },
+  { href: '/employer/messages', label: 'Messages', icon: 'chat' },
+];
+
 interface MobileBottomNavProps {
-  variant?: 'marketing' | 'portal';
+  variant?: 'marketing' | 'portal' | 'employer';
 }
 
 export default function MobileBottomNav({ variant = 'marketing' }: MobileBottomNavProps) {
   const pathname = usePathname();
-  const tabs = variant === 'portal' ? PORTAL_TABS : MARKETING_TABS;
+  const tabs = variant === 'portal' ? PORTAL_TABS : variant === 'employer' ? EMPLOYER_TABS : MARKETING_TABS;
 
   return (
     <nav
@@ -47,7 +54,9 @@ export default function MobileBottomNav({ variant = 'marketing' }: MobileBottomN
     >
       {tabs.map(({ href, label, icon }) => {
         const isActive =
-          href === '/dashboard' || href === '/' ? pathname === href : pathname.startsWith(href);
+          href === '/dashboard' || href === '/' || href === '/employer'
+            ? pathname === href
+            : pathname.startsWith(href);
         return (
           <Link
             key={href}

@@ -142,7 +142,7 @@ export default async function DashboardProfilePage() {
                 <span
                   key={skill}
                   className="px-3 py-1.5 text-[11px] font-bold rounded-full"
-                  style={{ background: '#ebe7e7', color: '#1c1b1b' }}
+                  style={{ background: 'var(--outline-variant)', color: 'var(--color-on-surface)' }}
                 >
                   {skill}
                 </span>

@@ -38,54 +38,54 @@ export default async function LearningPage() {
   return (
     <>
     {/* ── Mobile learning view (≤640px) ── */}
-    <div className="md:wa-hidden wa-pb-24">
+    <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
       {/* Header */}
-      <div className="px-6 pt-6 mb-6">
-        <span className="text-[10px] font-medium tracking-[0.1em] uppercase text-[#8c0f37] mb-2 block">Learning Path</span>
+      <div style={{ padding: '1.5rem 1.5rem 0', marginBottom: '1.5rem' }}>
+        <span className="text-[10px] font-medium tracking-[0.1em] uppercase text-[#8c0f37]" style={{ display: 'block', marginBottom: '0.5rem' }}>Learning Path</span>
         <h2 className="text-3xl font-bold tracking-tight text-[#1c1b1b] leading-tight">My Learning</h2>
       </div>
 
       {/* Progress overview card */}
-      <section className="mx-6 mb-6 bg-[#f2eeed] p-5 rounded-xl relative overflow-hidden">
-        <div className="flex items-start justify-between">
-          <div className="z-10 w-3/5">
-            <h3 className="text-lg font-bold leading-tight mb-1 text-[#1c1b1b]">{ACTIVE_PATHWAY.title}</h3>
+      <section className="bg-[#f2eeed]" style={{ margin: '0 1.5rem 1.5rem', padding: '1.25rem', borderRadius: '0.75rem', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+          <div style={{ zIndex: 10, width: '60%' }}>
+            <h3 className="text-lg font-bold leading-tight text-[#1c1b1b]" style={{ marginBottom: '0.25rem' }}>{ACTIVE_PATHWAY.title}</h3>
             <p className="text-sm text-[#584144] font-medium">
               {overallPct}% complete · {ACTIVE_PATHWAY.steps.length} modules
             </p>
           </div>
           {/* Progress orb */}
-          <div className="relative w-20 h-20 flex items-center justify-center flex-shrink-0">
-            <svg className="w-full h-full -rotate-90" viewBox="0 0 80 80">
-              <circle cx="40" cy="40" r="32" fill="transparent" stroke="#debfc2" strokeWidth="5" />
+          <div style={{ position: 'relative', width: '5rem', height: '5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <svg className="-rotate-90" style={{ width: '100%', height: '100%' }} viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="32" fill="transparent" stroke="var(--outline-variant)" strokeWidth="5" />
               <circle
                 cx="40" cy="40" r="32" fill="transparent"
-                stroke="#7b5800" strokeWidth="5"
+                stroke="var(--color-gold)" strokeWidth="5"
                 strokeDasharray="201"
                 strokeDashoffset={201 - (201 * overallPct) / 100}
                 strokeLinecap="round"
               />
             </svg>
-            <span className="absolute text-base font-bold text-[#7b5800]">{overallPct}%</span>
+            <span className="text-base font-bold text-[#7b5800]" style={{ position: 'absolute' }}>{overallPct}%</span>
           </div>
         </div>
         {/* Progress bar */}
-        <div className="mt-4 h-1.5 w-full bg-[#debfc2] rounded-full overflow-hidden">
-          <div className="h-full bg-[#8c0f37] rounded-full" style={{ width: `${overallPct}%` }} />
+        <div className="bg-[#debfc2]" style={{ marginTop: '1rem', height: '0.375rem', width: '100%', borderRadius: '9999px', overflow: 'hidden' }}>
+          <div className="bg-[#8c0f37]" style={{ width: `${overallPct}%`, height: '100%', borderRadius: '9999px' }} />
         </div>
       </section>
 
       {/* Current module card */}
-      <section className="mx-6 mb-6">
-        <div className="bg-gradient-to-br from-[#8c0f37] to-[#ad2c4d] p-5 rounded-xl text-white">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="bg-white/20 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase">Active</span>
+      <section style={{ margin: '0 1.5rem 1.5rem' }}>
+        <div className="bg-gradient-to-br from-[#8c0f37] to-[#ad2c4d] text-white" style={{ padding: '1.25rem', borderRadius: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+            <span className="bg-white/20 text-[10px] font-bold tracking-wider uppercase" style={{ padding: '0.125rem 0.5rem', borderRadius: '0.25rem' }}>Active</span>
             <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>timer</span>
             <span className="text-xs font-medium">~{ACTIVE_PATHWAY.estimatedWeeks} weeks</span>
           </div>
-          <h4 className="text-xl font-bold leading-snug mb-5">{ACTIVE_PATHWAY.title}</h4>
-          <p className="text-white/80 text-sm mb-4">{ACTIVE_PATHWAY.description}</p>
-          <button className="w-full bg-white text-[#8c0f37] font-bold py-3 rounded-lg flex items-center justify-center gap-2 active:scale-95 transition-transform">
+          <h4 className="text-xl font-bold leading-snug" style={{ marginBottom: '1.25rem' }}>{ACTIVE_PATHWAY.title}</h4>
+          <p className="text-white/80 text-sm" style={{ marginBottom: '1rem' }}>{ACTIVE_PATHWAY.description}</p>
+          <button className="bg-white text-[#8c0f37] font-bold active:scale-95 transition-transform" style={{ width: '100%', padding: '0.75rem 0', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
             <span className="material-symbols-outlined">play_arrow</span>
             Continue Learning
           </button>
@@ -93,9 +93,9 @@ export default async function LearningPage() {
       </section>
 
       {/* In-progress / upcoming modules — Stitch-aligned */}
-      <section className="mx-6 mb-6">
-        <h5 className="text-xs font-bold uppercase tracking-widest text-[#584144] mb-4">Course Modules</h5>
-        <div className="space-y-3">
+      <section style={{ margin: '0 1.5rem 1.5rem' }}>
+        <h5 className="text-xs font-bold uppercase tracking-widest text-[#584144]" style={{ marginBottom: '1rem' }}>Course Modules</h5>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {upcomingModules.map((stepLabel, i) => {
             const isCompleted = i < completedCount;
             const isActive = i === completedCount;
@@ -103,38 +103,39 @@ export default async function LearningPage() {
             return (
               <div
                 key={i}
-                className={`flex items-center gap-4 rounded-xl px-4 py-3 ${
-                  isCompleted
-                    ? 'bg-white border-l-4 border-[#7b5800] shadow-sm'
-                    : isActive
-                    ? 'bg-white border-l-4 border-[#8c0f37] shadow-sm'
-                    : 'bg-[#f6f3f2] opacity-60'
-                }`}
+                className={`${isCompleted ? 'bg-white border-l-4 border-[#7b5800]' : isActive ? 'bg-white border-l-4 border-[#8c0f37]' : 'bg-[#f6f3f2] opacity-60'}`}
+                style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderRadius: '0.75rem', padding: '0.75rem 1rem', boxShadow: isCompleted || isActive ? '0 1px 2px rgba(0,0,0,0.05)' : undefined }}
               >
                 <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
                   style={{
+                    width: '2.25rem',
+                    height: '2.25rem',
+                    borderRadius: '9999px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
                     background: isCompleted
                       ? 'rgba(123,88,0,0.1)'
                       : isActive
-                      ? 'rgba(140,15,55,0.1)'
+                      ? 'color-mix(in srgb, var(--color-accent) 10%, transparent)'
                       : 'rgba(88,65,68,0.1)',
                   }}
                 >
                   <span
                     className="material-symbols-outlined text-base"
                     style={{
-                      color: isCompleted ? '#7b5800' : isActive ? '#8c0f37' : '#584144',
+                      color: isCompleted ? 'var(--color-gold)' : isActive ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
                       fontVariationSettings: isCompleted ? "'FILL' 1" : "'FILL' 0",
                     }}
                   >
                     {isCompleted ? 'check_circle' : isLocked ? 'lock' : (MODULE_ICONS[ACTIVE_PATHWAY.category] ?? 'school')}
                   </span>
                 </div>
-                <div className="flex-1 min-w-0">
+                <div style={{ flex: 1, minWidth: 0 }}>
                   <p
-                    className="text-[10px] font-bold uppercase tracking-tight mb-0.5"
-                    style={{ color: isCompleted ? '#7b5800' : isActive ? '#8c0f37' : '#584144' }}
+                    className="text-[10px] font-bold uppercase tracking-tight"
+                    style={{ marginBottom: '0.125rem', color: isCompleted ? 'var(--color-gold)' : isActive ? 'var(--color-accent)' : 'var(--color-on-surface-variant)' }}
                   >
                     {isCompleted ? 'Completed' : isActive ? 'In Progress' : 'Locked'}
                   </p>
@@ -148,18 +149,18 @@ export default async function LearningPage() {
 
       {/* Completed courses section (Stitch: in-progress vs completed separation) */}
       {completedCount > 0 && (
-        <section className="mx-6 mb-6">
-          <h5 className="text-xs font-bold uppercase tracking-widest text-[#584144] mb-3">Completed</h5>
-          <div className="space-y-3">
+        <section style={{ margin: '0 1.5rem 1.5rem' }}>
+          <h5 className="text-xs font-bold uppercase tracking-widest text-[#584144]" style={{ marginBottom: '0.75rem' }}>Completed</h5>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {ACTIVE_PATHWAY.steps.slice(0, completedCount).map((stepLabel, i) => (
-              <div key={i} className="flex items-center gap-4 bg-white rounded-xl px-4 py-3 border-l-4 border-[#7b5800] shadow-sm">
-                <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(123,88,0,0.1)' }}>
-                  <span className="material-symbols-outlined text-base" style={{ color: '#7b5800', fontVariationSettings: "'FILL' 1" }}>
+              <div key={i} className="bg-white border-l-4 border-[#7b5800]" style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderRadius: '0.75rem', padding: '0.75rem 1rem', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+                <div style={{ width: '2.25rem', height: '2.25rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'rgba(123,88,0,0.1)' }}>
+                  <span className="material-symbols-outlined text-base" style={{ color: 'var(--color-gold)', fontVariationSettings: "'FILL' 1" }}>
                     check_circle
                   </span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[10px] font-bold uppercase tracking-tight mb-0.5 text-[#7b5800]">Completed</p>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p className="text-[10px] font-bold uppercase tracking-tight text-[#7b5800]" style={{ marginBottom: '0.125rem' }}>Completed</p>
                   <p className="text-sm font-semibold text-[#1c1b1b] truncate">{stepLabel}</p>
                 </div>
               </div>
@@ -170,7 +171,7 @@ export default async function LearningPage() {
     </div>
 
     {/* ── Desktop view ── */}
-    <div className="wa-hidden md:wa-block">
+    <div className="wa-hidden wa-md:wa-block">
     <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto' }}>
       {/* Top bar: label + heading + progress */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 'var(--space-4)', marginBottom: 'var(--space-8)' }}>

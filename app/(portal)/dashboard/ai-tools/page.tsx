@@ -120,61 +120,58 @@ export default async function AIToolsPage() {
   return (
     <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
       {/* ── Mobile AI Tools View (≤640px) ── */}
-      <div className="wa-block md:wa-hidden wa-pb-24">
+      <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Mobile hero */}
-        <div className="px-6 pt-8 pb-4">
-          <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-[#ad2c4d] mb-1">Included for members</p>
-          <h1 className="text-3xl font-extrabold tracking-tight text-on-surface leading-tight mb-1">AI Career Tools</h1>
-          <p className="text-sm text-on-surface-variant font-medium opacity-80">Powered by WorkforceAP AI</p>
+        <div style={{ padding: '2rem 1.5rem 1rem' }}>
+          <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-[#ad2c4d]" style={{ marginBottom:"0.25rem" }}>Included for members</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-on-surface leading-tight" style={{ marginBottom:"0.25rem" }}>AI Career Tools</h1>
+          <p className="text-sm text-on-surface-variant font-medium" style={{ opacity:0.8 }}>Powered by WorkforceAP AI</p>
           {/* accent banner */}
-          <div className="mt-6 relative h-28 w-full rounded-xl overflow-hidden bg-gradient-to-br from-[#8c0f37] to-[#ad2c4d] p-5 flex flex-col justify-end">
-            <div className="absolute top-0 right-0 w-28 h-28 bg-yellow-400/20 rounded-full -mr-12 -mt-12 blur-3xl" />
+          <div className="bg-gradient-to-br from-[#8c0f37] to-[#ad2c4d]" style={{ marginTop:'1.5rem', position:'relative', height:'7rem', width:'100%', borderRadius:'0.75rem', overflow:'hidden', padding:'1.25rem', display:'flex', flexDirection:'column', justifyContent:'flex-end' }}>
+            <div className="bg-yellow-400/20 blur-3xl" style={{ position:'absolute', top:0, right:0, width:'7rem', height:'7rem', borderRadius:'9999px', marginRight:'-3rem', marginTop:'-3rem' }} />
             <h3 className="text-white text-base font-bold">Smart Recommendations</h3>
             <p className="text-pink-200 text-xs">AI-driven paths tailored for your goals.</p>
           </div>
         </div>
         {/* Tool cards 2-col grid */}
-        <div className="px-4 grid grid-cols-2 gap-3">
+        <div style={{ padding:'0 1rem', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0.75rem' }}>
           {TOOLS.map((tool) => (
             <Link
               key={tool.id}
               href={'href' in tool ? tool.href : '/dashboard/ai-tools'}
-              className="bg-white rounded-xl p-4 flex flex-col gap-2 active:scale-[0.98] transition-all no-underline"
-              style={{ textDecoration: 'none' }}
+              className="bg-white active:scale-[0.98] transition-all" style={{textDecoration:"none", borderRadius:'0.75rem', padding:'1rem', display:'flex', flexDirection:'column', gap:'0.5rem'}}
             >
-              <div className="w-10 h-10 rounded-full flex items-center justify-center"
-                style={{ background: 'rgba(173,44,77,0.1)', color: '#ad2c4d' }}>
+              <div style={{ width:'2.5rem', height:'2.5rem', borderRadius:'9999px', display:'flex', alignItems:'center', justifyContent:'center', background:'color-mix(in srgb, var(--color-accent) 10%, transparent)', color:'var(--color-accent)' }}>
                 <span className="material-symbols-outlined text-[20px]">{tool.icon}</span>
               </div>
               <div>
                 <h4 className="font-bold text-sm text-on-surface leading-tight">{tool.title}</h4>
-                <p className="text-on-surface-variant text-[11px] mt-1 leading-snug line-clamp-2">{tool.description}</p>
+                <p className="text-on-surface-variant text-[11px] leading-snug line-clamp-2" style={{ marginTop:"0.25rem" }}>{tool.description}</p>
               </div>
               {'badge' in tool && tool.badge && (
-                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider self-start"
-                  style={{ background: '#ffbb00', color: '#6c4d00' }}>{tool.badge}</span>
+                <span className="text-[9px] font-bold uppercase tracking-wider" style={{alignSelf:"flex-start", background: 'var(--color-gold)', color: '#6c4d00', padding:'0.125rem 0.5rem', borderRadius:'9999px'}}>{tool.badge}</span>
               )}
             </Link>
           ))}
         </div>
         {/* Honest member benefits — no vanity metrics */}
-        <div className="mx-4 mt-6 flex gap-2">
+        <div style={{ margin:'1.5rem 1rem 0', display:'flex', gap:'0.5rem' }}>
           {[
             { title: 'Included', desc: 'No add-on fees for enrolled members', icon: 'verified' },
             { title: 'Private', desc: 'Your drafts stay with you', icon: 'lock' },
             { title: 'Flexible', desc: 'Use whenever you need', icon: 'schedule' },
           ].map((item) => (
-            <div key={item.title} className="flex-1 bg-white rounded-xl p-3 text-center">
-              <span className="material-symbols-outlined text-[18px] block mb-1" style={{ color: '#8c0f37' }}>{item.icon}</span>
+            <div key={item.title} className="bg-white" style={{textAlign:"center", flex:1, borderRadius:'0.75rem', padding:'0.75rem'}}>
+              <span className="material-symbols-outlined text-[18px]" style={{ color:'var(--color-accent)', display:'block', marginBottom:'0.25rem' }}>{item.icon}</span>
               <div className="text-sm font-bold text-on-surface leading-tight">{item.title}</div>
-              <div className="text-[9px] font-medium leading-snug text-on-surface-variant mt-0.5">{item.desc}</div>
+              <div className="text-[9px] font-medium leading-snug text-on-surface-variant" style={{ marginTop:'0.125rem' }}>{item.desc}</div>
             </div>
           ))}
         </div>
         <MobileBottomNav variant="portal" />
       </div>
       {/* ── Desktop View (hidden on mobile) ── */}
-      <div className="wa-hidden md:wa-block">
+      <div className="wa-hidden wa-md:wa-block">
       {/* Hero */}
       <section
         style={{

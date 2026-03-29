@@ -34,6 +34,8 @@ export default function ApplyCreateAccountForm() {
   const [programSlug, setProgramSlug] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [verifyEmailMode, setVerifyEmailMode] = useState(false);
+  const [verifyEmail, setVerifyEmail] = useState('');
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -231,6 +233,15 @@ export default function ApplyCreateAccountForm() {
       }
       completedRef.current = true;
       trackApplyFunnel(3, 'account_created', { program_slug: programSlug, redirect_to: data.redirectTo ?? '/dashboard' });
+
+      // If the API returned a verification message (no session yet), show the verify-email screen
+      if (data.message) {
+        setVerifyEmail(email.trim().toLowerCase());
+        setVerifyEmailMode(true);
+        setLoading(false);
+        return;
+      }
+
       window.location.href = data.redirectTo ?? '/dashboard';
     } catch {
       setError('Something went wrong while creating your account. Please try again, or call (512) 777-1808 if you need help finishing.');
@@ -238,6 +249,33 @@ export default function ApplyCreateAccountForm() {
       setLoading(false);
     }
   };
+
+  if (verifyEmailMode) {
+    return (
+      <div className="apply-form" style={{ textAlign: 'center', padding: '2rem 1rem' }}>
+        <span className="material-symbols-outlined" style={{ fontSize: 56, color: '#ad2c4d', display: 'block', marginBottom: '1rem' }}>mark_email_unread</span>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.75rem', color: '#1c1b1b' }}>Check your email</h2>
+        <p style={{ fontSize: '1rem', color: '#584144', lineHeight: 1.6, marginBottom: '0.5rem' }}>
+          We sent a verification link to:
+        </p>
+        <p style={{ fontSize: '1.05rem', fontWeight: 700, color: '#ad2c4d', marginBottom: '1.25rem', wordBreak: 'break-all' }}>
+          {verifyEmail}
+        </p>
+        <p style={{ fontSize: '0.9rem', color: '#584144', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+          Click the link in that email to verify your account, then come back and log in to view your dashboard and next steps.
+        </p>
+        <Link href="/login" className="btn btn-primary" style={{ display: 'inline-block', marginBottom: '1rem' }}>
+          Go to login
+        </Link>
+        <p style={{ fontSize: '0.85rem', color: '#584144', marginTop: '1rem' }}>
+          Didn&apos;t get it? Check your spam folder, or{' '}
+          <a href={`/api/apply/resend-verification?email=${encodeURIComponent(verifyEmail)}`} style={{ color: '#ad2c4d', fontWeight: 600 }}>
+            resend the email
+          </a>.
+        </p>
+      </div>
+    );
+  }
 
   if (init === 'loading') {
     return <p>Loading…</p>;

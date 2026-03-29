@@ -257,7 +257,7 @@ function QuizResultsView({
   );
 }
 
-export default function FindYourPathClient() {
+export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: string }) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Partial<QuizAnswers>>({});
   const [storedResults, setStoredResults] = useState<Program[] | null>(null);
@@ -389,7 +389,7 @@ export default function FindYourPathClient() {
           <h2 className="quiz-question" style={{ marginBottom: '1.5rem' }}>{currentQ?.question}</h2>
           <div className="quiz-answers" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {currentQ?.answers.map((a) => {
-              const inputId = `${currentQ.id}-${a.value}`;
+              const inputId = `${idPrefix}-${currentQ.id}-${a.value}`;
               const icon = currentQ.id === 'q1' ? INTEREST_ICONS[a.value] : null;
               return (
                 <label

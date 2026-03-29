@@ -85,6 +85,7 @@ export default function FAQMobileSection() {
           <div style={{ position: 'absolute', top: 0, bottom: 0, left: '1rem', display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
             <span className="material-symbols-outlined text-[#8b7073]">search</span>
           </div>
+          <label htmlFor="faq-search-input" className="sr-only">Search frequently asked questions</label>
           <input
             id="faq-search-input"
             className="focus:ring-2 focus:ring-[#8c0f37]/40 transition-all text-[#1c1b1b] placeholder:text-[#584144]/60 text-sm"

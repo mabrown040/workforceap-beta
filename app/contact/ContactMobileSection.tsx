@@ -9,9 +9,9 @@ export default function ContactMobileSection() {
   return (
     <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: '#fcf9f8', minHeight: '100vh' }}>
       <div style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', paddingTop: '1.5rem', marginBottom: '2rem' }}>
-        <h1 style={{ marginBottom: '0.5rem', fontSize: '2.25rem', fontWeight: 800, letterSpacing: '-0.025em', color: '#1c1b1b', lineHeight: 1.15 }}>
+        <h2 style={{ marginBottom: "0.5rem", fontSize: "2.25rem", fontWeight: 800, letterSpacing: "-0.025em", color: "var(--color-on-surface)", lineHeight: 1.15 }}>
           Get in Touch
-        </h1>
+        </h2>
         <p style={{ color: '#584144', fontSize: '1rem', lineHeight: 1.6 }}>
           We respond within 3–5 business days
         </p>

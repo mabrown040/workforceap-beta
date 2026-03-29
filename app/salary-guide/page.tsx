@@ -97,7 +97,7 @@ export default function SalaryGuidePage() {
 
       {/* ===== MOBILE VIEW (≤640px) ===== */}
       <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: '#fcf9f8', color: '#1c1b1b', minHeight: '100vh' }}>
-        <main style={{ paddingTop: '1.5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', maxWidth: '390px', margin: '0 auto' }}>
+        <div style={{ paddingTop: '1.5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', maxWidth: '390px', margin: '0 auto' }}>
           {/* Hero */}
           <section style={{ marginTop: '2rem', marginBottom: '2.5rem' }}>
             <h2 style={{ fontSize: '2.25rem', fontWeight: 800, letterSpacing: '-0.03em', color: '#1c1b1b', lineHeight: 1.1, marginBottom: '1rem' }}>Your Earning Potential.</h2>
@@ -206,7 +206,7 @@ export default function SalaryGuidePage() {
               Data provided by Lightcast and Bureau of Labor Statistics. Figures represent national averages and vary by geographic location and individual experience.
             </p>
           </footer>
-        </main>
+        </div>
 
         <Footer />
         <MobileBottomNav />

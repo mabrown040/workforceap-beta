@@ -104,7 +104,7 @@ export default async function ProgramPage({ params }: Props) {
             </div>
           </div>
 
-          <h1 style={{ fontSize: '1.875rem', fontWeight: 800, letterSpacing: '-0.025em', lineHeight: 1.2, marginBottom: '0.75rem', color: '#1c1b1b' }}>{program.title}</h1>
+          <h2 style={{ fontSize: '1.875rem', fontWeight: 800, letterSpacing: '-0.025em', lineHeight: 1.2, marginBottom: '0.75rem', color: 'var(--color-on-surface)' }}>{program.title}</h2>
 
           <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', fontSize: '0.75rem', fontWeight: 500, background: '#f0edec', color: '#584144' }}>

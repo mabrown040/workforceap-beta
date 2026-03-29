@@ -589,13 +589,13 @@ export default function WhatWeDoPage() {
       <section className="px-4 pt-10 pb-4" style={{ background: '#fcf9f8' }}>
         {/* Hero H1 with gradient span */}
         <span className="block text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: '#8c0f37' }}>Our Impact</span>
-        <h1 className="text-4xl font-extrabold tracking-tight leading-[1.1] mb-6" style={{ color: '#1c1b1b' }}>
+        <h2 className="text-4xl font-extrabold tracking-tight leading-[1.1] mb-6" style={{ color: 'var(--color-on-surface)' }}>
           Bridging the{' '}
           <span style={{ background: 'linear-gradient(135deg, #8c0f37 0%, #ad2c4d 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
             Opportunity Gap
           </span>{' '}
           with a training-to-workforce engine.
-        </h1>
+        </h2>
 
         {/* Impact stats 2×2 grid */}
         <div className="grid grid-cols-2 gap-3 mb-8">

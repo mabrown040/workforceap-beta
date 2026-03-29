@@ -28,11 +28,11 @@ const selectStyle: CSSProperties = {
 export default function ProgramComparisonMobile({ rows }: { rows: ComparisonRow[] }) {
   return (
     <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: '#fcf9f8', color: '#1c1b1b', minHeight: '100vh' }}>
-      <main style={{ paddingTop: '1.5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', maxWidth: '390px', margin: '0 auto' }}>
+      <div style={{ paddingTop: '1.5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', maxWidth: '390px', margin: '0 auto' }}>
         <section style={{ marginBottom: '2.5rem' }}>
-          <h1 style={{ fontSize: '2.25rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#1c1b1b', margin: '0 0 0.75rem', lineHeight: 1.15 }}>
+          <h2 style={{ fontSize: '2.25rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--color-on-surface)', margin: '0 0 0.75rem', lineHeight: 1.15 }}>
             Compare Programs
-          </h1>
+          </h2>
           <p style={{ color: '#584144', fontSize: '1rem', lineHeight: 1.6, margin: 0 }}>
             Find the right fit for your goals and timeline through our curated workforce paths.
           </p>
@@ -266,7 +266,7 @@ export default function ProgramComparisonMobile({ rows }: { rows: ComparisonRow[
         >
           Apply to Best Match
         </Link>
-      </main>
+      </div>
 
       <Footer />
       <MobileBottomNav />

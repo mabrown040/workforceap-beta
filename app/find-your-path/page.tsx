@@ -62,7 +62,7 @@ export default function FindYourPathPage() {
         }}>
           {/* Main quiz area */}
           <div>
-            <FindYourPathClient />
+            <FindYourPathClient idPrefix="fyp-desktop" />
           </div>
 
           {/* Desktop sidebar */}
@@ -116,7 +116,7 @@ export default function FindYourPathPage() {
           ══════════════════════════════════════════════ */}
       <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: '#fcf9f8', minHeight: '100vh' }}>
         <div style={{ padding: '5rem 1.25rem 1.5rem' }}>
-          <FindYourPathClient />
+          <FindYourPathClient idPrefix="fyp-mobile" />
         </div>
       </div>
 

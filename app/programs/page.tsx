@@ -138,11 +138,11 @@ export default function ProgramsPage() {
                 }}
               >
                 <div>
-                  <span style={{ fontSize: '9px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: '0.25rem', color: '#7b5800' }}>{cat}</span>
-                  <h3 style={{ fontSize: '0.875rem', fontWeight: 700, lineHeight: 1.25, margin: 0, color: '#1c1b1b' }}>{title}</h3>
+                  <span style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: '0.25rem', color: 'var(--color-accent)' }}>{cat}</span>
+                  <h3 style={{ fontSize: '0.875rem', fontWeight: 700, lineHeight: 1.25, margin: 0, color: 'var(--color-on-surface)' }}>{title}</h3>
                 </div>
                 <div style={{ marginTop: 'auto' }}>
-                  <p style={{ fontSize: '10px', fontWeight: 500, marginBottom: '0.75rem', color: '#584144' }}>{dur}</p>
+                  <p style={{ fontSize: '11px', fontWeight: 500, marginBottom: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{dur}</p>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <span style={{ padding: '0.125rem 0.5rem', borderRadius: '4px', fontSize: '10px', fontWeight: 700, background: '#ffd9dd', color: '#8c0f37' }}>$0</span>
                     <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: '#8c0f37' }}>arrow_outward</span>
@@ -208,7 +208,7 @@ export default function ProgramsPage() {
             <div className="programs-hero-left" style={{ gridColumn: '1 / 8' }}>
               <span
                 className="text-label-upper"
-                style={{ color: 'var(--color-gold)', marginBottom: '1rem', display: 'block' }}
+                style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'block' }}
               >
                 Curated Excellence
               </span>

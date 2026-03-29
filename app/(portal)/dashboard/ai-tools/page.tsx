@@ -44,6 +44,15 @@ const TOOLS = [
     href: '/dashboard/ai-tools/interview-practice',
   },
   {
+    id: 'interview-coach',
+    title: 'AI Interview Coach',
+    icon: 'smart_toy',
+    description: 'Practice a live mock interview with an AI coach. Get asked real questions, give answers, and receive personalized feedback.',
+    timeToComplete: '15-20 min',
+    status: 'available' as const,
+    href: '/dashboard/ai-tools/interview-coach',
+  },
+  {
     id: 'cover-letter',
     title: 'Cover Letter Builder',
     icon: 'description',

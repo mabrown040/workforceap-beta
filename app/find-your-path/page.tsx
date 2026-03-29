@@ -106,18 +106,70 @@ export default function FindYourPathPage() {
         </div>
       </section>
 
-      {/* ── Mobile Header (≤640px only) ── */}
-      <div className="md:hidden px-4 pt-8 pb-2" style={{ background: '#fcf9f8' }}>
-        <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-3" style={{ background: 'rgba(173,44,77,0.12)', color: '#ad2c4d' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '0.75rem' }}>explore</span>
-          Career Navigator
-        </span>
-        <h1 className="text-3xl font-extrabold tracking-tight leading-none mb-2" style={{ color: '#1c1b1b' }}>
-          Find Your <span style={{ color: '#ad2c4d' }}>Path</span>
-        </h1>
-        <p className="text-sm leading-relaxed mb-4" style={{ color: '#584144' }}>
-          5 questions · 2 minutes · 3 ranked matches with salary data.
-        </p>
+      {/* ══════════════════════════════════════════════
+          MOBILE LAYOUT ≤640px — Stitch-aligned
+          ══════════════════════════════════════════════ */}
+      <div className="md:hidden" style={{ background: '#fcf9f8', minHeight: '100vh', paddingBottom: '6rem' }}>
+        {/* Clean mobile header */}
+        <header className="sticky top-0 w-full z-50 flex justify-between items-center px-5 py-4" style={{ background: 'rgba(252,249,248,0.88)', backdropFilter: 'blur(12px)', boxShadow: '0 24px 40px rgba(28,27,27,0.04)' }}>
+          <div className="flex items-center gap-3">
+            <span className="material-symbols-outlined" style={{ color: '#ad2c4d' }}>close</span>
+            <span className="text-lg font-black tracking-tight" style={{ color: '#ad2c4d' }}>Career Path Quiz</span>
+          </div>
+          <span className="material-symbols-outlined" style={{ color: '#584144' }}>more_vert</span>
+        </header>
+
+        <main className="flex-1 w-full px-5 pt-7 pb-28">
+          {/* Progress Section */}
+          <section className="mb-9">
+            <div className="flex justify-between items-end mb-2">
+              <h2 className="font-bold text-3xl tracking-tighter" style={{ color: '#1c1b1b' }}>Find Your Path</h2>
+              <span className="text-xs font-bold uppercase tracking-[0.05em]" style={{ color: '#584144' }}>1 of 5</span>
+            </div>
+            <p className="text-sm mb-5" style={{ color: '#584144' }}>5 questions · 2 minutes</p>
+            <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: '#e5e2e1' }}>
+              <div className="h-full w-[20%] rounded-full" style={{ background: '#ad2c4d' }} />
+            </div>
+          </section>
+
+          {/* Question Card */}
+          <div className="rounded-xl p-7 mb-7 relative overflow-hidden" style={{ background: '#fff', boxShadow: '0 24px 40px rgba(28,27,27,0.04)' }}>
+            <div className="absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16" style={{ background: 'rgba(140,15,55,0.05)' }} />
+            <h3 className="font-bold text-xl leading-snug relative z-10" style={{ color: '#1c1b1b' }}>What interests you most?</h3>
+          </div>
+
+          {/* Full-Width Answer Options */}
+          <div className="flex flex-col gap-3 mb-8">
+            {[
+              { icon: 'computer', label: 'Working with computers and technology', sub: 'Technology', active: true },
+              { icon: 'health_and_safety', label: 'Healthcare &amp; Science', sub: 'Life Sciences', active: false },
+              { icon: 'construction', label: 'Advanced Manufacturing', sub: 'Industrial', active: false },
+              { icon: 'groups', label: 'Business &amp; People', sub: 'Corporate', active: false },
+            ].map(({ icon, label, sub, active }) => (
+              <button key={icon} className="w-full flex items-center gap-4 p-5 rounded-xl text-left transition-all active:scale-95" style={active ? { background: 'rgba(255,217,221,0.5)', border: '2px solid #ad2c4d' } : { background: '#f6f3f2', border: '1px solid transparent' }}>
+                <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0" style={active ? { background: '#ad2c4d', color: '#fff' } : { background: '#e5e2e1', color: '#584144' }}>
+                  <span className="material-symbols-outlined text-2xl">{icon}</span>
+                </div>
+                <div>
+                  <span className="block font-semibold" style={{ color: active ? '#8c0f37' : '#1c1b1b' }} dangerouslySetInnerHTML={{ __html: label }} />
+                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#8b7073' }}>{sub}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </main>
+
+        {/* Back / Continue nav */}
+        <nav className="fixed bottom-0 left-0 w-full flex justify-between items-center px-7 py-5 pb-9 z-50 rounded-t-xl" style={{ background: 'rgba(252,249,248,0.94)', backdropFilter: 'blur(12px)', boxShadow: '0 -4px 24px rgba(28,27,27,0.04)' }}>
+          <button className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.05em] px-5 py-2" style={{ color: 'rgba(140,15,55,0.7)' }}>
+            <span className="material-symbols-outlined text-sm">arrow_back</span>
+            Back
+          </button>
+          <button className="flex items-center gap-2 px-8 py-3 rounded-lg text-xs font-bold uppercase tracking-[0.05em] shadow-lg text-white" style={{ background: '#8c0f37' }}>
+            Continue
+            <span className="material-symbols-outlined text-sm">arrow_forward</span>
+          </button>
+        </nav>
       </div>
 
       <MobileBottomNav />

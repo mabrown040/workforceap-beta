@@ -18,6 +18,110 @@ export const metadata: Metadata = buildPageMetadata({
 export default function ProgramsPage() {
   return (
     <div className="inner-page programs-page">
+
+      {/* ══════════════════════════════════════════════
+          MOBILE LAYOUT ≤640px — Stitch-aligned
+          ══════════════════════════════════════════════ */}
+      <div className="md:hidden" style={{ background: '#fcf9f8', minHeight: '100vh', paddingBottom: '8rem' }}>
+        {/* Top App Bar */}
+        <header className="fixed top-0 w-full flex justify-between items-center px-5 h-16 z-50" style={{ background: 'rgba(252,249,248,0.88)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(222,191,194,0.2)' }}>
+          <div className="flex items-center gap-3">
+            <span className="material-symbols-outlined" style={{ color: '#8c0f37' }}>menu</span>
+            <span className="font-black tracking-tighter text-lg" style={{ color: '#ad2c4d' }}>WorkforceAP</span>
+          </div>
+          <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: '#e5e2e1' }}>
+            <span className="material-symbols-outlined text-sm" style={{ color: '#584144' }}>person</span>
+          </div>
+        </header>
+
+        <main className="pt-20 px-5">
+          {/* Editorial Hero Title */}
+          <div className="mb-7 mt-3">
+            <h1 className="text-4xl font-black tracking-tighter leading-none" style={{ color: '#1c1b1b' }}>
+              Master Your <br />
+              <span className="italic" style={{ color: '#ad2c4d' }}>Future</span>
+            </h1>
+            <div className="h-1 w-12 mt-3 rounded-full" style={{ background: '#ffbb00' }} />
+          </div>
+
+          {/* Horizontal Filter Chips */}
+          <div className="flex overflow-x-auto gap-2 mb-7 -mx-5 px-5" style={{ scrollbarWidth: 'none' }}>
+            {['All Programs', 'IT &amp; Cyber', 'AI &amp; Software', 'Cloud', 'Business', 'Healthcare'].map((label, i) => (
+              <button key={label} className="flex-none px-5 py-2 rounded-full text-sm font-semibold tracking-wide" style={i === 0 ? { background: '#ad2c4d', color: '#fff' } : { background: '#f6f3f2', color: '#584144' }}>
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Featured Digital Literacy Card */}
+          <section className="mb-9">
+            <div className="relative overflow-hidden rounded-xl p-5 text-white flex flex-col justify-between" style={{ background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)', minHeight: 200 }}>
+              <div className="absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16" style={{ background: 'rgba(255,255,255,0.05)', filter: 'blur(20px)' }} />
+              <div>
+                <span className="inline-block px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest mb-3" style={{ background: '#ffbb00', color: '#1c1b1b' }}>Start Here</span>
+                <h2 className="text-2xl font-bold tracking-tight">Digital Literacy</h2>
+                <p className="text-sm mt-1" style={{ color: 'rgba(255,203,209,0.9)' }}>Essential skills for the modern workforce</p>
+              </div>
+              <div className="flex items-center justify-between mt-5">
+                <div className="flex gap-5">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] uppercase opacity-70 font-medium">Duration</span>
+                    <span className="text-sm font-bold">4 weeks</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] uppercase opacity-70 font-medium">Cost</span>
+                    <span className="text-sm font-bold">$0 cost</span>
+                  </div>
+                </div>
+                <Link href="/programs/digital-literacy" className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: '#fff', color: '#8c0f37' }}>
+                  <span className="material-symbols-outlined">arrow_forward</span>
+                </Link>
+              </div>
+            </div>
+          </section>
+
+          {/* 2-Column Program Grid */}
+          <div className="grid grid-cols-2 gap-4 mb-10">
+            {[
+              { cat: 'IT &amp; Cyber', title: 'Cyber Security Specialist', dur: '12–24 Weeks' },
+              { cat: 'AI &amp; Software', title: 'Python for Data Science', dur: '16 Weeks' },
+              { cat: 'Cloud', title: 'AWS Cloud Architect', dur: '20 Weeks' },
+              { cat: 'Business', title: 'Agile Project Management', dur: '12 Weeks' },
+            ].map(({ cat, title, dur }) => (
+              <div key={title} className="rounded-xl p-4 flex flex-col justify-between border" style={{ background: '#fff', borderColor: 'rgba(222,191,194,0.15)', minHeight: 192, boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+                <div>
+                  <span className="text-[9px] font-bold uppercase tracking-wider block mb-1" style={{ color: '#7b5800' }} dangerouslySetInnerHTML={{ __html: cat }} />
+                  <h3 className="text-sm font-bold leading-tight" style={{ color: '#1c1b1b' }}>{title}</h3>
+                </div>
+                <div className="mt-auto">
+                  <p className="text-[10px] font-medium mb-3" style={{ color: '#584144' }}>{dur}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold" style={{ background: '#ffd9dd', color: '#8c0f37' }}>$0</span>
+                    <span className="material-symbols-outlined text-lg" style={{ color: '#8c0f37' }}>arrow_outward</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </main>
+
+        {/* Sticky "Can't decide?" bottom bar */}
+        <div className="fixed z-40 px-4" style={{ bottom: '5rem', left: 0, right: 0 }}>
+          <Link href="/find-your-path" className="flex items-center justify-between rounded-xl p-4 shadow-2xl" style={{ background: '#1c1b1b', color: '#fff' }}>
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined" style={{ color: '#ffbb00' }}>psychology</span>
+              <span className="text-sm font-medium tracking-tight">Can&apos;t decide? Take 2-min quiz</span>
+            </div>
+            <span className="material-symbols-outlined">arrow_forward</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* ══════════════════════════════════════════════
+          DESKTOP LAYOUT ≥641px
+          ══════════════════════════════════════════════ */}
+      <div className="hidden md:block">
+
       {/* ── Hero Section ── */}
       <section className="content-section" style={{ paddingBottom: 0 }}>
         <div className="container" style={{ maxWidth: 1200 }}>
@@ -272,6 +376,8 @@ export default function ProgramsPage() {
           .programs-journey-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
+
+      </div>{/* end desktop wrapper */}
 
       <MobileBottomNav />
       <Footer />

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Conversation } from '@11labs/client';
+import { Conversation } from '@elevenlabs/client';
 
 type TranscriptEntry = { question: string; answer: string };
 type Phase = 'setup' | 'voice' | 'interview' | 'feedback';
@@ -80,6 +80,7 @@ export default function InterviewCoach() {
       });
       convRef.current = conv;
     } catch {
+      setWsStatus('ended');
       setMode('text');
       startTextFallback();
     }

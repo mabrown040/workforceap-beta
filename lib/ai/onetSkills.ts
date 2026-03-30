@@ -38,7 +38,7 @@ export async function searchOccupations(
   const response = await fetch(url, {
     headers: {
       Accept: 'application/json',
-      ...(auth ? { Authorization: auth } : {}),
+      ...(auth ? { 'X-API-Key': auth } : {}),
     },
   });
 

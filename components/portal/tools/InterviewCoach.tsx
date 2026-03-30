@@ -22,7 +22,6 @@ export default function InterviewCoach() {
   const [signedUrl, setSignedUrl] = useState('');
   const [wsStatus, setWsStatus] = useState<'idle' | 'connecting' | 'connected' | 'ended'>('idle');
   const [micDenied, setMicDenied] = useState(false);
-  const [micStatus, setMicStatus] = useState<'idle'|'requesting'|'granted'|'denied'>('idle');
   const convRef = useRef<Conversation | null>(null);
   const intentionalCloseRef = useRef(false);
 
@@ -39,22 +38,12 @@ export default function InterviewCoach() {
     try {
       // Request mic permission before ElevenLabs session
       let micGranted = false;
-      if (typeof navigator !== 'undefined' && navigator.mediaDevices?.getUserMedia) {
-        setMicStatus('requesting');
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          stream.getTracks().forEach(t => t.stop());
-          micGranted = true;
-          setMicStatus('granted');
-        } catch {
-          setMicDenied(true);
-          setMicStatus('denied');
-        }
-      } else {
-        // mediaDevices not available (insecure context or old browser)
-        setMicDenied(true);
-        setMicStatus('denied');
-      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(t => t.stop());
+        micGranted = true;
+      } catch { /* mic denied — will fall back to text */
+        setMicDenied(true); }
 
       const res = await fetch('/api/interview/session', {
         method: 'POST',
@@ -132,6 +121,15 @@ export default function InterviewCoach() {
 
     setLoading(true);
     try {
+      // Request mic permission before ElevenLabs session
+      let micGranted = false;
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(t => t.stop());
+        micGranted = true;
+      } catch { /* mic denied — will fall back to text */
+        setMicDenied(true); }
+
       const res = await fetch('/api/interview/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

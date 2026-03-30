@@ -19,6 +19,7 @@ export default function InterviewCoach() {
   const [currentAnswer, setCurrentAnswer] = useState('');
   const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
   const [feedback, setFeedback] = useState('');
+  const [sessionId, setSessionId] = useState('');
   const [signedUrl, setSignedUrl] = useState('');
   const [wsStatus, setWsStatus] = useState<'idle' | 'connecting' | 'connected' | 'ended'>('idle');
   const [micDenied, setMicDenied] = useState(false);
@@ -26,6 +27,7 @@ export default function InterviewCoach() {
   const [voiceError, setVoiceError] = useState<string>('');
   const convRef = useRef<Conversation | null>(null);
   const intentionalCloseRef = useRef(false);
+  const voiceTranscriptRef = useRef<{ role: 'agent' | 'user'; text: string }[]>([]);
 
   // Cleanup WebSocket on unmount
   useEffect(() => {
@@ -64,9 +66,11 @@ export default function InterviewCoach() {
       };
 
       setMode(data.mode);
+      setSessionId(data.sessionId);
 
       if (micGranted && data.mode === 'voice' && data.signedUrl) {
         setSignedUrl(data.signedUrl);
+        voiceTranscriptRef.current = [];
         setPhase('voice');
         connectVoiceSession(data.signedUrl);
       } else {
@@ -87,10 +91,21 @@ export default function InterviewCoach() {
         onDisconnect: () => {
           setWsStatus('ended');
           if (!intentionalCloseRef.current) {
-            setPhase('feedback');
-            setFeedback('Your voice interview session has ended.');
+            getVoiceFeedback();
           }
           intentionalCloseRef.current = false;
+        },
+        onMessage: (message: { source?: string; message?: string; isFinal?: boolean; role?: string; text?: string }) => {
+          // Capture final transcript messages from both user and agent
+          const source = message.source ?? message.role;
+          const text = message.message ?? message.text ?? '';
+          if (text && source) {
+            const role = source === 'user' ? 'user' as const : 'agent' as const;
+            // Only keep final transcriptions (or all if isFinal is not present)
+            if (message.isFinal !== false) {
+              voiceTranscriptRef.current.push({ role, text });
+            }
+          }
         },
         onError: (msg: string) => { setWsStatus('ended'); setVoiceError(String(msg) || 'Connection error'); },
       });
@@ -98,6 +113,50 @@ export default function InterviewCoach() {
     } catch (e) {
       setWsStatus('ended');
       setVoiceError(String(e));
+    }
+  }
+
+  async function getVoiceFeedback() {
+    const turns = voiceTranscriptRef.current;
+    // Build Q&A pairs from the voice transcript
+    const questions: string[] = [];
+    const answers: string[] = [];
+    let currentQ = '';
+    for (const turn of turns) {
+      if (turn.role === 'agent') {
+        currentQ = turn.text;
+      } else if (turn.role === 'user' && turn.text.trim()) {
+        questions.push(currentQ || 'Voice question');
+        answers.push(turn.text);
+      }
+    }
+
+    if (answers.length === 0) {
+      setFeedback('Your voice interview session has ended but no responses were captured. Please ensure your microphone is working and try again.');
+      setPhase('feedback');
+      return;
+    }
+
+    setLoading(true);
+    setPhase('feedback');
+    try {
+      const res = await fetch('/api/interview/history', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId,
+          role,
+          interviewType: interviewType.toLowerCase(),
+          questions,
+          answers,
+        }),
+      });
+      const data = await res.json() as { feedback?: string; error?: string };
+      setFeedback(data.feedback ?? data.error ?? 'Unable to generate feedback.');
+    } catch {
+      setFeedback('Failed to generate feedback. Please try again.');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -126,19 +185,6 @@ export default function InterviewCoach() {
 
     setLoading(true);
     try {
-      // Request mic permission before ElevenLabs session
-      let micGranted = false;
-      setMicStatus('requesting');
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        stream.getTracks().forEach(t => t.stop());
-        micGranted = true;
-        setMicStatus('granted');
-      } catch {
-        setMicDenied(true);
-        setMicStatus('denied');
-      }
-
       const res = await fetch('/api/interview/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -157,10 +203,16 @@ export default function InterviewCoach() {
       const res = await fetch('/api/interview/history', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role, interviewType, transcript: t }),
+        body: JSON.stringify({
+          sessionId,
+          role,
+          interviewType: interviewType.toLowerCase(),
+          questions: t.map(entry => entry.question),
+          answers: t.map(entry => entry.answer),
+        }),
       });
-      const data = await res.json() as { feedback: string };
-      setFeedback(data.feedback);
+      const data = await res.json() as { feedback?: string; error?: string };
+      setFeedback(data.feedback ?? data.error ?? 'Unable to generate feedback.');
       setPhase('feedback');
     } finally {
       setLoading(false);
@@ -168,6 +220,7 @@ export default function InterviewCoach() {
   }
 
   function endVoiceSession() {
+    // Let onDisconnect handle feedback generation
     if (convRef.current) convRef.current.endSession();
   }
 
@@ -180,9 +233,11 @@ export default function InterviewCoach() {
     setCurrentAnswer('');
     setTranscript([]);
     setFeedback('');
+    setSessionId('');
     setSignedUrl('');
     setWsStatus('idle');
     setMode('text');
+    voiceTranscriptRef.current = [];
     if (convRef.current) convRef.current.endSession();
   }
 

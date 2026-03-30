@@ -119,7 +119,7 @@ export async function createConversationalSession(agentId: string): Promise<{
     throw new Error('ELEVENLABS_API_KEY is not set');
   }
 
-  const url = `${ELEVENLABS_API_URL}/convai/conversation/get_signed_url?agent_id=${encodeURIComponent(agentId)}`;
+  const url = `${ELEVENLABS_API_URL}/convai/conversation/get-signed-url?agent_id=${encodeURIComponent(agentId)}`;
   const response = await fetch(url, {
     method: 'GET',
     headers: {

@@ -352,7 +352,7 @@ export default function InterviewCoach() {
             );
           })}
           {sessions.length >= 5 && (
-            <a href="/dashboard/interview-coach/history" style={{ fontSize: '0.85rem', color: 'var(--color-accent)', textDecoration: 'none', display: 'inline-block', marginTop: '0.25rem' }}>
+            <a href="/dashboard/ai-tools/history" style={{ fontSize: '0.85rem', color: 'var(--color-accent)', textDecoration: 'none', display: 'inline-block', marginTop: '0.25rem' }}>
               View all past sessions →
             </a>
           )}

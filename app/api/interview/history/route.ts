@@ -87,7 +87,7 @@ export async function GET(req: NextRequest) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const limit = parseInt(new URL(req.url).searchParams.get('limit') ?? '10');
+  const limit = parseInt(new URL(req.url).searchParams.get('limit') ?? '10') || 10;
 
   const results = await prisma.aIToolResult.findMany({
     where: { userId: user.id, toolType: 'interview_coach' },

@@ -569,7 +569,7 @@ export default function WhatWeDoPage() {
                   alignItems: 'center',
                   gap: '0.5rem',
                   background: 'var(--color-gold)',
-                  color: '#1c1b1b',
+                  color: 'var(--color-on-surface)',
                   padding: '1rem 2.5rem',
                   borderRadius: 'var(--radius-md)',
                   fontWeight: 700,
@@ -627,7 +627,7 @@ export default function WhatWeDoPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-lg mb-1" style={{ color: 'var(--color-on-surface)' }}>{v.title}</h3>
-                  <p className="text-sm leading-relaxed" style={{ color: 'var(--color-on-surface-variant)' }}>{v.desc}</p>
+                  <p className="text-sm leading-relaxed" style={{ color: '#584144' }}>{v.desc}</p>
                 </div>
               </div>
             </div>
@@ -650,7 +650,7 @@ export default function WhatWeDoPage() {
               <div className="absolute left-[14px] top-1 w-4 h-4 rounded-full border-4" style={{ background: '#8c0f37', borderColor: '#f0edec', outline: '3px solid rgba(140,15,55,0.1)' }} />
               <span className="block text-[10px] font-black tracking-widest uppercase mb-1" style={{ color: '#ad2c4d' }}>Step {s.step}</span>
               <h3 className="font-bold text-lg mb-1" style={{ color: 'var(--color-on-surface)' }}>{s.title}</h3>
-              <p className="text-sm" style={{ color: 'var(--color-on-surface-variant)' }}>{s.desc}</p>
+              <p className="text-sm" style={{ color: '#584144' }}>{s.desc}</p>
             </div>
           ))}
         </div>
@@ -658,7 +658,7 @@ export default function WhatWeDoPage() {
 
       {/* ── Mobile-only: Partner pills (≤640px) ── */}
       <section className="px-4 py-10" style={{ background: 'var(--color-surface)' }}>
-        <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-center mb-5" style={{ color: 'var(--color-on-surface-variant)' }}>Supported By Industry Giants</p>
+        <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-center mb-5" style={{ color: '#584144' }}>Supported By Industry Giants</p>
         <div className="flex flex-wrap justify-center gap-2">
           {['Google', 'IBM', 'AWS', 'CompTIA', 'Coursera'].map((p) => (
             <span key={p} className="px-4 py-2 rounded-full text-xs font-bold" style={{ background: '#e5e2e1', color: 'var(--color-on-surface)' }}>{p}</span>
@@ -708,7 +708,7 @@ export default function WhatWeDoPage() {
             borderRadius: '0.5rem',
             fontSize: '0.875rem',
             border: '1px solid rgba(252,249,248,0.2)',
-            color: '#fcf9f8',
+            color: 'var(--color-surface)',
             textDecoration: 'none',
             textAlign: 'center',
           }}

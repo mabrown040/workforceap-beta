@@ -76,7 +76,7 @@ export default async function HowItWorksPage() {
                   display: 'inline-block',
                   padding: '0.25rem 0.75rem',
                   background: 'var(--color-gold)',
-                  color: '#1c1b1b',
+                  color: 'var(--color-on-surface)',
                   borderRadius: 'var(--radius-full)',
                   marginBottom: '1.5rem',
                 }}
@@ -264,7 +264,7 @@ export default async function HowItWorksPage() {
                     <div key={b.title} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <div style={{ padding: '0.5rem', background: 'var(--color-gold)', borderRadius: 'var(--radius-lg)' }}>
-                          <span className="material-symbols-outlined" style={{ color: '#1c1b1b', fontSize: '1.25rem', fontVariationSettings: "'FILL' 1" }}>{b.icon}</span>
+                          <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface)', fontSize: '1.25rem', fontVariationSettings: "'FILL' 1" }}>{b.icon}</span>
                         </div>
                         <h4 style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{b.title}</h4>
                       </div>
@@ -301,7 +301,7 @@ export default async function HowItWorksPage() {
               href="/apply"
               style={{
                 background: 'var(--color-gold)',
-                color: '#1c1b1b',
+                color: 'var(--color-on-surface)',
                 padding: '1.25rem 2.5rem',
                 borderRadius: 'var(--radius-xl)',
                 fontWeight: 900,
@@ -343,7 +343,7 @@ export default async function HowItWorksPage() {
       <section
         className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav"
         style={{
-          background: '#fcf9f8',
+          background: 'var(--color-surface)',
           paddingLeft: '1rem',
           paddingRight: '1rem',
           paddingTop: '2rem',
@@ -361,7 +361,7 @@ export default async function HowItWorksPage() {
               borderRadius: '9999px',
               marginBottom: '0.75rem',
               background: '#ffbb00',
-              color: '#1c1b1b',
+              color: 'var(--color-on-surface)',
             }}
           >
             Member Experience
@@ -373,7 +373,7 @@ export default async function HowItWorksPage() {
               letterSpacing: '-0.025em',
               lineHeight: 1.1,
               marginBottom: '0.75rem',
-              color: '#1c1b1b',
+              color: 'var(--color-on-surface)',
             }}
           >
             Your Journey to <span style={{ color: '#ad2c4d' }}>Success</span>
@@ -434,7 +434,7 @@ export default async function HowItWorksPage() {
                         Intensive Learning Phase
                       </span>
                     )}
-                    <p style={{ fontWeight: 700, fontSize: '0.875rem', color: '#1c1b1b' }}>{step.title}</p>
+                    <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{step.title}</p>
                     <p style={{ fontSize: '0.75rem', marginTop: '0.125rem', lineHeight: 1.55, color: '#584144' }}>{step.desc}</p>
                   </div>
                 </div>
@@ -472,7 +472,7 @@ export default async function HowItWorksPage() {
               borderRadius: '0.5rem',
               fontSize: '0.875rem',
               background: '#ebe7e7',
-              color: '#1c1b1b',
+              color: 'var(--color-on-surface)',
               textDecoration: 'none',
             }}
           >

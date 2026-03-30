@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useState, type ComponentProps } from 'react';
-import PortalTour, { type TourStep } from '@/components/onboarding/PortalTour';
+import { useTour } from './TourContext';
 import MemberOnboardingWizard from '@/components/onboarding/MemberOnboardingWizard';
 import EmployerOnboardingWizard from '@/components/onboarding/EmployerOnboardingWizard';
 import PartnerOnboardingWizard from '@/components/onboarding/PartnerOnboardingWizard';
 import OnboardingDevReset from '@/components/onboarding/OnboardingDevReset';
+import type { TourStep } from './PortalTour';
 
 type Portal = 'member' | 'employer' | 'partner';
 
@@ -45,16 +46,20 @@ type PortalEntryClientProps =
 export default function PortalEntryClient(props: PortalEntryClientProps) {
   const { portal, showOnboardingWizard, showTour, isSuperAdmin, tourSteps, children } = props;
   const [wizardOpen, setWizardOpen] = useState(showOnboardingWizard);
-  const [tourOpen, setTourOpen] = useState(!showOnboardingWizard && showTour);
+  const { startTour } = useTour();
 
   useEffect(() => {
     setWizardOpen(showOnboardingWizard);
-    setTourOpen(!showOnboardingWizard && showTour);
-  }, [showOnboardingWizard, showTour]);
+    if (!showOnboardingWizard && showTour) {
+      startTour(tourSteps, portal);
+    }
+  }, [showOnboardingWizard, showTour, tourSteps, portal, startTour]);
 
   const onWizardDone = () => {
     setWizardOpen(false);
-    if (showTour) setTourOpen(true);
+    if (showTour) {
+      startTour(tourSteps, portal);
+    }
   };
 
   return (
@@ -67,9 +72,6 @@ export default function PortalEntryClient(props: PortalEntryClientProps) {
       ) : null}
       {portal === 'partner' && wizardOpen ? (
         <PartnerOnboardingWizard {...props.wizardProps} onComplete={onWizardDone} />
-      ) : null}
-      {tourOpen ? (
-        <PortalTour steps={tourSteps} portal={portal} onComplete={() => setTourOpen(false)} />
       ) : null}
       {isSuperAdmin ? <OnboardingDevReset portal={portal} /> : null}
       {children}

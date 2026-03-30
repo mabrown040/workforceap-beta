@@ -7,6 +7,7 @@ import { prisma } from '@/lib/db/prisma';
 import SettingsForm from '@/components/portal/SettingsForm';
 import DeleteAccountButton from '@/components/portal/DeleteAccountButton';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import StartTourButton from '@/components/onboarding/StartTourButton';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Settings',
@@ -103,6 +104,43 @@ export default async function DashboardSettingsPage() {
                 </span>
               </a>
             ))}
+            {/* Portal Tour row */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.875rem',
+                padding: '0.875rem 1rem',
+                borderBottom: 'none',
+              }}
+            >
+              <div
+                style={{
+                  background: 'var(--surface-container-highest)',
+                  borderRadius: '0.5rem',
+                  width: '36px',
+                  height: '36px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                <span
+                  className="material-symbols-outlined"
+                  style={{ fontSize: '1.125rem', color: 'var(--color-accent)' }}
+                >
+                  route
+                </span>
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 600, fontSize: '0.9375rem' }}>Portal Tour</div>
+                <div style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  Take a guided tour of your dashboard
+                </div>
+              </div>
+              <StartTourButton style={{ padding: '0.375rem 0.75rem', fontSize: '0.8125rem' }} />
+            </div>
           </div>
         </div>
 
@@ -158,6 +196,14 @@ export default async function DashboardSettingsPage() {
             defaultUpdates={dbUser.notificationsUpdates ?? true}
             defaultReminders={dbUser.notificationsReminders ?? true}
           />
+        </section>
+
+        <section style={{ marginBottom: '2rem' }}>
+          <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Portal Tour</h2>
+          <p style={{ marginBottom: '0.75rem', fontSize: '0.95rem', color: 'var(--color-on-surface-variant)' }}>
+            New to the portal? Take a quick guided tour of your dashboard, tools, and features.
+          </p>
+          <StartTourButton />
         </section>
 
         <section style={{ marginBottom: '2rem' }}>

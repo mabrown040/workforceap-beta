@@ -50,7 +50,7 @@ const TOOLS = [
     description: 'Practice a live mock interview with an AI coach. Get asked real questions, give answers, and receive personalized feedback.',
     timeToComplete: '15-20 min',
     status: 'available' as const,
-    href: '/dashboard/ai-tools/interview-coach',
+    href: '/dashboard/interview-coach',
   },
   {
     id: 'cover-letter',

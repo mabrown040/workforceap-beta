@@ -270,7 +270,7 @@ export default async function DashboardPage() {
             {[
               { icon: 'upload_file', label: 'Upload Resume', href: '/dashboard/ai-tools/resume-rewriter' },
               { icon: 'event_available', label: 'Book Coaching', href: '/dashboard' },
-              { icon: 'forum', label: 'Practice Interview', href: '/dashboard/ai-tools/interview-practice' },
+              { icon: 'forum', label: 'Practice Interview', href: '/dashboard/interview-coach' },
               { icon: 'psychology', label: 'AI Resume Help', href: '/dashboard/ai-tools' },
             ].map((action) => (
               <a key={action.label} href={action.href}

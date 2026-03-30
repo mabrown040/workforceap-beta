@@ -447,7 +447,8 @@ export default function DashboardHomeClient({
             {[
               { href: '/dashboard/weekly-recap', label: 'Weekly recap', desc: 'Milestones and reminders', icon: 'event_note', action: 'weekly_recap_clicked' },
               { href: '/dashboard/learning', label: 'Learning hub', desc: 'Resources and your paths', icon: 'school', action: 'learning_hub_clicked' },
-              { href: '/dashboard/ai-tools', label: 'Career tools', desc: 'Resume, interview practice, job match', icon: 'auto_awesome', action: 'ai_tools_clicked' },
+              { href: '/dashboard/ai-tools', label: 'Career tools', desc: 'Resume, cover letter, job match, gap analysis', icon: 'auto_awesome', action: 'ai_tools_clicked' },
+              { href: '/dashboard/interview-coach', label: 'Interview Coach', desc: 'Live voice mock interview with AI feedback', icon: 'mic', action: 'interview_coach_clicked' },
             ].map((item) => (
               <Link key={item.href} href={item.href} style={{ textDecoration: 'none', color: 'inherit' }}
                 onClick={() => handleDashboardAction(item.action)}>
@@ -470,6 +471,7 @@ export default function DashboardHomeClient({
             { icon: 'terminal', label: 'Resources', href: '/dashboard/resources' },
             { icon: 'history_edu', label: 'Assessments', href: '/dashboard/assessments' },
             { icon: 'forum', label: 'Messages', href: '/dashboard/messages' },
+            { icon: 'mic', label: 'Interview Coach', href: '/dashboard/interview-coach' },
             { icon: 'auto_awesome', label: 'Career Tools', href: '/dashboard/ai-tools' },
           ].map((item) => (
             <Link key={item.label} href={item.href} style={{ textDecoration: 'none', color: 'inherit' }}

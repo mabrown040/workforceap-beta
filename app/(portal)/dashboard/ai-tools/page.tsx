@@ -142,6 +142,16 @@ export default async function AIToolsPage() {
             <p className="text-pink-200 text-xs">AI-driven paths tailored for your goals.</p>
           </div>
         </div>
+        {/* History link */}
+        <div style={{ padding:'0 1.5rem', marginBottom:'0.75rem' }}>
+          <Link
+            href="/dashboard/ai-tools/history"
+            style={{ display:'inline-flex', alignItems:'center', gap:'0.35rem', fontSize:'0.8rem', fontWeight:600, color:'var(--color-on-surface-variant)', textDecoration:'none' }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize:'1rem' }}>history</span>
+            Your history →
+          </Link>
+        </div>
         {/* Tool cards 2-col grid */}
         <div style={{ padding:'0 1rem', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0.75rem' }}>
           {TOOLS.map((tool) => (

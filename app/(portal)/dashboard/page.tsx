@@ -53,6 +53,13 @@ export default async function DashboardPage() {
     },
   });
 
+  const recentTools = await prisma.aIToolResult.findMany({
+    where: { userId: user.id },
+    orderBy: { createdAt: 'desc' },
+    take: 3,
+    select: { id: true, toolType: true, inputSummary: true, createdAt: true },
+  });
+
   const latestApplication = await prisma.application.findFirst({
     where: { userId: user.id },
     orderBy: { createdAt: 'desc' },
@@ -139,6 +146,19 @@ export default async function DashboardPage() {
   const mobilePct = totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : 0;
   const orbCircumference = 251.2;
   const orbDashoffset = orbCircumference - (orbCircumference * mobilePct) / 100;
+
+  const AI_TOOL_LABELS: Record<string, string> = {
+    job_match_scorer: 'Job Match Scorer',
+    resume_rewriter: 'Resume Rewriter',
+    cover_letter: 'Cover Letter',
+    interview_practice: 'Interview Practice',
+    linkedin_headline: 'LinkedIn Headline',
+    linkedin_about: 'LinkedIn About',
+    salary_negotiation: 'Salary Negotiation',
+    gap_analyzer: 'Gap Analyzer',
+    interview_coach: 'AI Interview Coach',
+    career_counselor: 'Career Counselor',
+  };
 
   /* Journey timeline steps derived from applicationStatus */
   const journeySteps = [
@@ -283,6 +303,28 @@ export default async function DashboardPage() {
             ))}
           </div>
         </section>
+
+        {/* Recent AI Activity */}
+        {recentTools.length > 0 && (
+          <section style={{ padding:'0 1.5rem', marginBottom:'1.5rem', display:'flex', flexDirection:'column', gap:'0.75rem' }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+              <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[#584144]">Recent AI Activity</h3>
+              <Link href="/dashboard/ai-tools/history" className="text-xs font-bold text-[#8c0f37]" style={{ textDecoration:'none' }}>View all →</Link>
+            </div>
+            <div style={{ display:'flex', flexDirection:'column', gap:'0.5rem' }}>
+              {recentTools.map((r) => (
+                <div key={r.id} style={{ display:'flex', alignItems:'center', gap:'0.75rem', padding:'0.75rem', borderRadius:'0.75rem', background:'#ffffff', border:'1px solid rgba(222,191,194,0.3)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize:'1.1rem', color:'var(--color-accent)', flexShrink:0 }}>smart_toy</span>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <p className="text-xs font-bold text-[#1c1b1b] leading-tight">{AI_TOOL_LABELS[r.toolType] ?? r.toolType}</p>
+                    {r.inputSummary && <p className="text-[11px] text-[#584144] leading-snug truncate" style={{ marginTop:'0.1rem' }}>{r.inputSummary}</p>}
+                  </div>
+                  <span className="text-[10px] text-[#584144] whitespace-nowrap" style={{ flexShrink:0 }}>{new Date(r.createdAt).toLocaleDateString()}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
 
       {/* ── Desktop view (hidden on mobile) ── */}
@@ -336,6 +378,32 @@ export default async function DashboardPage() {
             isMinor={isMinor}
           />
           {showMatchedRoles && userAge !== null && userAge < 14 ? null : <MatchedRoles />}
+          {recentTools.length > 0 && (
+            <section style={{ padding:'1.5rem 2rem', borderTop:'1px solid var(--surface-container-high)', maxWidth:'900px', margin:'0 auto' }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'0.75rem' }}>
+                <h2 style={{ fontSize:'1rem', fontWeight:700, margin:0, color:'var(--color-on-surface)' }}>Recent AI Activity</h2>
+                <Link
+                  href="/dashboard/ai-tools/history"
+                  style={{ display:'inline-flex', alignItems:'center', gap:'0.3rem', fontSize:'0.8rem', fontWeight:600, color:'var(--color-accent)', textDecoration:'none' }}
+                >
+                  View all
+                  <span className="material-symbols-outlined" style={{ fontSize:'0.9rem' }}>arrow_forward</span>
+                </Link>
+              </div>
+              <div style={{ display:'flex', flexDirection:'column', gap:'0.5rem' }}>
+                {recentTools.map((r) => (
+                  <div key={r.id} style={{ display:'flex', alignItems:'center', gap:'1rem', padding:'0.75rem 1rem', borderRadius:'10px', background:'var(--surface-container-low)', border:'1px solid var(--surface-container-high)' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize:'1.25rem', color:'var(--color-accent)', flexShrink:0 }}>smart_toy</span>
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <p style={{ fontSize:'0.875rem', fontWeight:600, margin:0, color:'var(--color-on-surface)' }}>{AI_TOOL_LABELS[r.toolType] ?? r.toolType}</p>
+                      {r.inputSummary && <p style={{ fontSize:'0.8rem', color:'var(--color-on-surface-variant)', margin:'0.1rem 0 0', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{r.inputSummary}</p>}
+                    </div>
+                    <span style={{ fontSize:'0.75rem', color:'var(--color-on-surface-variant)', flexShrink:0 }}>{new Date(r.createdAt).toLocaleDateString()}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
         </PortalEntryClient>
       </div>
 

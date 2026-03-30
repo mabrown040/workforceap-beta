@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     try {
       // Get a signed URL for the conversational AI session
       const elRes = await fetch(
-        `https://api.elevenlabs.io/v1/convai/conversation/get_signed_url?agent_id=${ELEVENLABS_AGENT_ID}`,
+        `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${ELEVENLABS_AGENT_ID}`,
         { headers: { 'xi-api-key': ELEVENLABS_API_KEY } }
       );
 
@@ -49,7 +49,8 @@ export async function POST(req: NextRequest) {
           sessionId: `${user.id}-${Date.now()}`,
         });
       }
-    } catch {
+    } catch (err) {
+      console.error('ElevenLabs signed URL error:', err);
       // Fall through to text mode
     }
   }

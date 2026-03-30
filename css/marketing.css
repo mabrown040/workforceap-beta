@@ -160,12 +160,12 @@ html.dark .marketing-bottom-nav {
 }
 
 .marketing-bottom-nav__link--active {
-  background: linear-gradient(135deg, #8c0f37, #ad2c4d);
-  color: #fff;
+  background: linear-gradient(135deg, var(--color-accent-dark), var(--color-accent));
+  color: var(--color-white);
 }
 
 .marketing-bottom-nav__link--active .marketing-bottom-nav__label {
-  color: #fff;
+  color: var(--color-white);
 }
 
 .marketing-bottom-nav__label {

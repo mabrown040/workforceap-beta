@@ -179,15 +179,15 @@ export default async function DashboardPage() {
         {/* Welcome greeting + progress orb */}
         <section style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", padding:"1.5rem 1.5rem 1rem" }}>
           <div style={{ display:"flex", flexDirection:"column", gap:"0.25rem", maxWidth:"60%" }}>
-            <p className="text-[#584144] text-xs font-medium tracking-widest uppercase">Member Dashboard</p>
-            <h1 className="text-2xl font-extrabold tracking-tight text-[#1c1b1b]">
+            <p className="text-[var(--color-on-surface-variant)] text-xs font-medium tracking-widest uppercase">Member Dashboard</p>
+            <h1 className="text-2xl font-extrabold tracking-tight text-[var(--color-on-surface)]">
               Welcome back, {firstName}
             </h1>
           </div>
           {/* Progress orb */}
           <div style={{ position:"relative", display:"flex", alignItems:"center", justifyContent:"center", width:"5rem", height:"5rem", flexShrink:0 }}>
             <svg style={{ width:"100%", height:"100%", transform:"rotate(-90deg)" }} viewBox="0 0 96 96">
-              <circle cx="48" cy="48" r="40" fill="transparent" stroke="#f2eeed" strokeWidth="6" />
+              <circle cx="48" cy="48" r="40" fill="transparent" stroke="var(--surface-container-high)" strokeWidth="6" />
               <circle
                 cx="48" cy="48" r="40" fill="transparent"
                 stroke="var(--color-accent)" strokeWidth="6"
@@ -197,8 +197,8 @@ export default async function DashboardPage() {
               />
             </svg>
             <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
-              <span className="text-base font-bold text-[#8c0f37]">{mobilePct}%</span>
-              <span className="text-[8px] font-bold uppercase tracking-widest text-[#7b5800]">Done</span>
+              <span className="text-base font-bold text-[var(--color-accent-dark)]">{mobilePct}%</span>
+              <span className="text-[8px] font-bold uppercase tracking-widest text-[var(--color-gold)]">Done</span>
             </div>
           </div>
         </section>
@@ -213,17 +213,17 @@ export default async function DashboardPage() {
                     <span className="text-[10px] font-bold uppercase tracking-wider" style={{ display:"inline-flex", alignItems:"center", padding:"0.125rem 0.5rem", borderRadius:"9999px", background:"color-mix(in srgb, var(--color-accent) 10%, transparent)", color:"var(--color-accent)" }}>
                       Priority
                     </span>
-                    <h2 className="text-lg font-bold text-[#1c1b1b] tracking-tight">
+                    <h2 className="text-lg font-bold text-[var(--color-on-surface)] tracking-tight">
                       {applicationStatus.nextStep}
                     </h2>
                   </div>
-                  <span className="material-symbols-outlined text-[#7b5800] text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
+                  <span className="material-symbols-outlined text-[var(--color-gold)] text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
                 </div>
-                <p className="text-[#584144] text-sm leading-relaxed">
+                <p className="text-[var(--color-on-surface-variant)] text-sm leading-relaxed">
                   Your next action for{' '}
                   {applicationStatus.programInterest ?? program?.title ?? 'your program'}.
                 </p>
-                <button className="font-bold text-sm tracking-wide active:scale-[0.98] transition-transform" style={{ width:"100%", background:"linear-gradient(135deg,var(--color-accent),var(--color-accent))", color:"white", padding:"0.75rem", borderRadius:"0.375rem", border:"none", cursor:"pointer" }}>
+                <button className="font-bold text-sm tracking-wide active:scale-[0.98] transition-transform" style={{ width:"100%", background:"linear-gradient(135deg,var(--color-accent),var(--color-accent))", color:"var(--color-white)", padding:"0.75rem", borderRadius:"0.375rem", border:"none", cursor:"pointer" }}>
                   Take Action
                 </button>
               </div>
@@ -233,27 +233,27 @@ export default async function DashboardPage() {
 
         {/* Application journey timeline */}
         <section style={{ padding:"0 1.5rem", marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"1rem" }}>
-          <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[#584144]">Application Journey</h3>
+          <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[var(--color-on-surface-variant)]">Application Journey</h3>
           <div style={{ position:"relative", marginLeft:"1rem" }}>
-            <div style={{ position:"absolute", left:"11px", top:"0.5rem", bottom:"0.5rem", width:"2px", background:"#f2eeed" }} />
+            <div style={{ position:"absolute", left:"11px", top:"0.5rem", bottom:"0.5rem", width:"2px", background:"var(--surface-container-high)" }} />
             {journeySteps.map((step, i) => (
               <div key={i} style={{ position:"relative", display:"flex", alignItems:"flex-start", gap:"1.25rem", paddingBottom:"1.75rem", opacity: step.pending ? 0.4 : 1 }}>
                 {step.done ? (
                   <div style={{ position:"relative", zIndex:10, width:"1.5rem", height:"1.5rem", borderRadius:"9999px", background:"var(--color-accent)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                    <span className="material-symbols-outlined" style={{ color:"white", fontSize:"0.75rem" }}>check</span>
+                    <span className="material-symbols-outlined" style={{ color:"var(--color-white)", fontSize:"0.75rem" }}>check</span>
                   </div>
                 ) : step.active ? (
-                  <div style={{ position:"relative", zIndex:10, width:"1.5rem", height:"1.5rem", borderRadius:"9999px", background:"var(--surface-container-lowest)", border:"4px solid #8c0f37", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                  <div style={{ position:"relative", zIndex:10, width:"1.5rem", height:"1.5rem", borderRadius:"9999px", background:"var(--surface-container-lowest)", border:"4px solid var(--color-accent-dark)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                     <div style={{ width:"0.5rem", height:"0.5rem", borderRadius:"9999px", background:"var(--color-accent)" }} />
                   </div>
                 ) : (
-                  <div style={{ position:"relative", zIndex:10, width:"1.5rem", height:"1.5rem", borderRadius:"9999px", background:"#f2eeed", border:"2px solid #debfc2", flexShrink:0 }} />
+                  <div style={{ position:"relative", zIndex:10, width:"1.5rem", height:"1.5rem", borderRadius:"9999px", background:"var(--surface-container-high)", border:"2px solid var(--outline-variant)", flexShrink:0 }} />
                 )}
                 <div>
-                  <p className={`font-bold text-sm leading-none mb-1 ${step.active ? 'text-[#8c0f37]' : 'text-[#1c1b1b]'}`}>
+                  <p className={`font-bold text-sm leading-none mb-1 ${step.active ? 'text-[var(--color-accent-dark)]' : 'text-[var(--color-on-surface)]'}`}>
                     {step.label}
                   </p>
-                  {step.detail && <p className="text-xs text-[#584144]">{step.detail}</p>}
+                  {step.detail && <p className="text-xs text-[var(--color-on-surface-variant)]">{step.detail}</p>}
                 </div>
               </div>
             ))}
@@ -263,8 +263,8 @@ export default async function DashboardPage() {
         {/* Recommended programs — horizontal scroll cards */}
         <section style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", padding:"0 1.5rem" }}>
-            <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[#584144]">Recommended Programs</h3>
-            <a href="/programs" className="text-xs font-bold text-[#8c0f37]" style={{ textDecoration:"none" }}>View All</a>
+            <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[var(--color-on-surface-variant)]">Recommended Programs</h3>
+            <a href="/programs" className="text-xs font-bold text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>View All</a>
           </div>
           <div style={{ display:"flex", gap:"1rem", overflowX:"auto", padding:"0 1.5rem 0.5rem", scrollbarWidth:"none", msOverflowStyle:"none" }}>
             {[
@@ -273,11 +273,11 @@ export default async function DashboardPage() {
               { provider: 'Google', title: 'Cybersecurity Professional' },
             ].map((prog, i) => (
               <div key={i} style={{ minWidth:"220px", borderRadius:"0.75rem", overflow:"hidden", display:"flex", flexDirection:"column", boxShadow:"0 1px 3px rgba(0,0,0,0.08)", flexShrink:0, background:"var(--surface-container)" }}>
-                <div style={{ height:"7rem", position:"relative", background:"linear-gradient(135deg, #2b1f20 0%, #584144 100%)" }}>
+                <div style={{ height:"7rem", position:"relative", background:"linear-gradient(135deg, var(--surface-container-high) 0%, var(--surface-container-highest) 100%)" }}>
                 </div>
                 <div style={{ padding:"1rem", display:"flex", flexDirection:"column", gap:"0.25rem" }}>
                   <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--color-gold)' }}>{prog.provider}</p>
-                  <h4 className="font-bold text-sm text-[#1c1b1b] leading-tight">{prog.title}</h4>
+                  <h4 className="font-bold text-sm text-[var(--color-on-surface)] leading-tight">{prog.title}</h4>
                 </div>
               </div>
             ))}
@@ -286,7 +286,7 @@ export default async function DashboardPage() {
 
         {/* Quick Actions 2x2 grid */}
         <section style={{ padding:"0 1.5rem", marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
-          <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[#584144]">Quick Actions</h3>
+          <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[var(--color-on-surface-variant)]">Quick Actions</h3>
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.75rem" }}>
             {[
               { icon: 'upload_file', label: 'Upload Resume', href: '/dashboard/ai-tools/resume-rewriter' },
@@ -295,9 +295,9 @@ export default async function DashboardPage() {
               { icon: 'psychology', label: 'AI Resume Help', href: '/dashboard/ai-tools' },
             ].map((action) => (
               <a key={action.label} href={action.href}
-                className="active:scale-[0.97] transition-transform" style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"1rem", borderRadius:"0.75rem", textDecoration:"none", background:"#ffffff", border:"1px solid rgba(222,191,194,0.3)", boxShadow:"0 1px 4px rgba(0,0,0,0.05)" }}>
+                className="active:scale-[0.97] transition-transform" style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"1rem", borderRadius:"0.75rem", textDecoration:"none", background:"var(--surface-container-lowest)", border:"1px solid var(--outline-variant)", boxShadow:"0 1px 4px rgba(0,0,0,0.05)" }}>
                 <span className="material-symbols-outlined" style={{ marginBottom:"0.5rem", color:"var(--color-accent)" }}>{action.icon}</span>
-                <span className="text-[11px] font-bold text-[#1c1b1b] tracking-tight">{action.label}</span>
+                <span className="text-[11px] font-bold text-[var(--color-on-surface)] tracking-tight">{action.label}</span>
               </a>
             ))}
           </div>

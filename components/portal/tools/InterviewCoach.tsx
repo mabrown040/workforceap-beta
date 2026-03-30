@@ -56,7 +56,7 @@ export default function InterviewCoach() {
       const res = await fetch('/api/interview/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role, interviewType, forceText: !micGranted }),
+        body: JSON.stringify({ role, interviewType: interviewType.toLowerCase(), forceText: !micGranted }),
       });
       const data = await res.json() as {
         mode: 'voice' | 'text';
@@ -98,12 +98,15 @@ export default function InterviewCoach() {
           }
           intentionalCloseRef.current = false;
         },
-        onMessage: (payload) => {
-          // payload: { message: string, role: "user" | "agent", source: "user" | "ai" }
-          const text = payload.message;
-          const msgRole = payload.role === 'user' ? 'user' as const : 'agent' as const;
-          if (text) {
-            voiceTranscriptRef.current.push({ role: msgRole, text });
+        onMessage: (event) => {
+          // Discriminated union — check event.type for transcript events
+          const ev = event as unknown as Record<string, unknown>;
+          if (ev.type === 'user_transcript') {
+            const text = (ev.user_transcription_event as { user_transcript: string })?.user_transcript;
+            if (text) voiceTranscriptRef.current.push({ role: 'user', text });
+          } else if (ev.type === 'agent_response') {
+            const text = (ev.agent_response_event as { agent_response: string })?.agent_response;
+            if (text) voiceTranscriptRef.current.push({ role: 'agent', text });
           }
         },
         onError: (msg) => { setWsStatus('ended'); setVoiceError(String(msg) || 'Connection error'); },
@@ -164,7 +167,7 @@ export default function InterviewCoach() {
     const res = await fetch('/api/interview/session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ role, interviewType, forceText: true }),
+      body: JSON.stringify({ role, interviewType: interviewType.toLowerCase(), forceText: true }),
     });
     const data = await res.json() as { firstQuestion?: string; sessionId?: string };
     if (data.sessionId) setSessionId(data.sessionId);
@@ -189,7 +192,7 @@ export default function InterviewCoach() {
       const res = await fetch('/api/interview/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role, interviewType, transcript: newTranscript, nextQuestion: true }),
+        body: JSON.stringify({ role, interviewType: interviewType.toLowerCase(), transcript: newTranscript, nextQuestion: true }),
       });
       const data = await res.json() as { firstQuestion: string };
       setCurrentQuestion(data.firstQuestion);

@@ -11,7 +11,7 @@
  * without API credentials (HTML scraping fallback).
  */
 
-const ONET_API_URL = 'https://services.onetcenter.org/ws';
+const ONET_API_URL = 'https://api-v2.onetcenter.org';
 
 interface OnetSkill {
   id: string;
@@ -32,8 +32,8 @@ interface OnetOccupation {
 export async function searchOccupations(
   keyword: string
 ): Promise<OnetOccupation[]> {
-  const auth = getAuthHeader();
-  const url = `${ONET_API_URL}/online/search?keyword=${encodeURIComponent(keyword)}&start=1&end=10`;
+  const auth = getApiKey();
+  const url = `${ONET_API_URL}/occupations?keyword=${encodeURIComponent(keyword)}&start=1&end=10`;
 
   const response = await fetch(url, {
     headers: {
@@ -61,12 +61,12 @@ export async function searchOccupations(
 export async function getOccupationSkills(
   occupationCode: string
 ): Promise<OnetSkill[]> {
-  const auth = getAuthHeader();
+  const auth = getApiKey();
   const results: OnetSkill[] = [];
 
   // Fetch skills
   const skillsData = await fetchOnetResource(
-    `${ONET_API_URL}/online/occupations/${occupationCode}/summary/skills`,
+    `${ONET_API_URL}/occupations/${occupationCode}/skills`,
     auth
   );
   if (skillsData?.element) {
@@ -82,7 +82,7 @@ export async function getOccupationSkills(
 
   // Fetch knowledge areas
   const knowledgeData = await fetchOnetResource(
-    `${ONET_API_URL}/online/occupations/${occupationCode}/summary/knowledge`,
+    `${ONET_API_URL}/occupations/${occupationCode}/knowledge`,
     auth
   );
   if (knowledgeData?.element) {
@@ -98,7 +98,7 @@ export async function getOccupationSkills(
 
   // Fetch technology skills
   const techData = await fetchOnetResource(
-    `${ONET_API_URL}/online/occupations/${occupationCode}/summary/technology_skills`,
+    `${ONET_API_URL}/occupations/${occupationCode}/technology_skills`,
     auth
   );
   if (techData?.element) {
@@ -145,23 +145,21 @@ export function mapSkillsToRadarAxes(
 
 // --- Helpers ---
 
-function getAuthHeader(): string | null {
-  const username = process.env.ONET_API_USERNAME;
-  const password = process.env.ONET_API_PASSWORD;
-  if (!username || !password) return null;
-  return `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
+function getApiKey(): string | null {
+  return process.env.ONET_API_KEY ?? null;
 }
 
 async function fetchOnetResource(
   url: string,
-  auth: string | null
+  _auth: string | null
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> {
+  const apiKey = getApiKey();
   try {
     const response = await fetch(url, {
       headers: {
         Accept: 'application/json',
-        ...(auth ? { Authorization: auth } : {}),
+        ...(apiKey ? { 'X-API-Key': apiKey } : {}),
       },
     });
     if (!response.ok) return null;

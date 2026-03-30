@@ -260,7 +260,7 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
       <div className="wizard-step-indicator">
         <span className="wizard-step-label">Step {step} of 6 — {stepLabels[step - 1]}</span>
         <div className="wizard-step-dots">
-          {[1, 2, 3, 4, 5].map((s) => (
+          {[1, 2, 3, 4, 5, 6].map((s) => (
             <button
               key={s}
               type="button"

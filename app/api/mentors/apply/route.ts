@@ -21,25 +21,28 @@ export async function POST(req: NextRequest) {
   }
 
   // If logged in, create mentor record linked to user; otherwise store anonymous application
-  if (user) {
-    const existing = await prisma.mentor.findUnique({ where: { userId: user.id } });
-    if (existing) {
-      return NextResponse.json({ error: 'You already have a mentor application on file.' }, { status: 409 });
-    }
-    await prisma.mentor.create({
-      data: {
-        userId: user.id,
-        fullName,
-        title,
-        company,
-        industry,
-        bio,
-        linkedinUrl: linkedinUrl ?? null,
-        availableHours: availableHours ?? 2,
-        isActive: false, // pending approval
-      },
-    });
+  if (!user) {
+    return NextResponse.json({ error: 'You must be signed in to apply as a mentor. Please create a member account first.' }, { status: 401 });
   }
+
+  const existing = await prisma.mentor.findUnique({ where: { userId: user.id } });
+  if (existing) {
+    return NextResponse.json({ error: 'You already have a mentor application on file.' }, { status: 409 });
+  }
+
+  await prisma.mentor.create({
+    data: {
+      userId: user.id,
+      fullName,
+      title,
+      company,
+      industry,
+      bio,
+      linkedinUrl: linkedinUrl ?? null,
+      availableHours: availableHours ?? 2,
+      isActive: false, // pending admin approval
+    },
+  });
 
   return NextResponse.json({ success: true });
 }

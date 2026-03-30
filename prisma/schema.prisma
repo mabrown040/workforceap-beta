@@ -548,6 +548,7 @@ enum AIToolType {
   job_match_scorer
   salary_negotiation
   gap_analyzer
+  career_counselor
 }
 
 model UserCertification {

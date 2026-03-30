@@ -154,6 +154,25 @@ const s = {
     transition: 'border-color 0.2s',
   } as React.CSSProperties,
 
+  passwordWrap: {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+  } as React.CSSProperties,
+
+  passwordToggle: {
+    position: 'absolute',
+    right: 'var(--space-3)',
+    background: 'none',
+    border: 'none',
+    color: 'var(--color-on-surface-variant)',
+    cursor: 'pointer',
+    padding: 'var(--space-1)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  } as React.CSSProperties,
+
   select: {
     width: '100%',
     padding: 'var(--space-3) var(--space-4)',
@@ -236,6 +255,7 @@ export default function SignupForm() {
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [passwordVal, setPasswordVal] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -408,18 +428,31 @@ export default function SignupForm() {
             {/* Password with strength indicator */}
             <div style={s.fieldGroup}>
               <label htmlFor="password" style={s.label}>Password</label>
-              <input
-                id="password"
-                type="password"
-                autoComplete="new-password"
-                placeholder="Min 8 characters"
-                aria-invalid={!!errors.password}
-                aria-describedby={errors.password ? 'password-error' : undefined}
-                style={s.input}
-                {...register('password', {
-                  onChange: (e) => setPasswordVal(e.target.value),
-                })}
-              />
+              <div style={s.passwordWrap}>
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  placeholder="Min 8 characters"
+                  aria-invalid={!!errors.password}
+                  aria-describedby={errors.password ? 'password-error' : undefined}
+                  style={{ ...s.input, paddingRight: 'var(--space-8)' }}
+                  {...register('password', {
+                    onChange: (e) => setPasswordVal(e.target.value),
+                  })}
+                />
+                <button
+                  type="button"
+                  style={s.passwordToggle}
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-pressed={showPassword}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
+                    {showPassword ? 'visibility_off' : 'visibility'}
+                  </span>
+                </button>
+              </div>
               {/* Strength bars */}
               <div style={s.strengthRow}>
                 {[0, 1, 2, 3, 4].map((i) => (

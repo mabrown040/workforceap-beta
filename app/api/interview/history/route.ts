@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { getUser } from '@/lib/auth/server';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { chatCompletion } from '@/lib/ai/groq';
 
 const ALLOWED_TYPES = ['technical', 'behavioral', 'general'] as const;
 type InterviewType = (typeof ALLOWED_TYPES)[number];
@@ -20,11 +21,6 @@ async function generateFeedback(params: {
   answers: string[];
   questions: string[];
 }): Promise<string> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    throw new Error('ANTHROPIC_API_KEY is not configured');
-  }
-
   const transcript = params.answers
     .map((answer, index) => {
       const question = params.questions[index] ?? `Question ${index + 1}`;
@@ -32,52 +28,58 @@ async function generateFeedback(params: {
     })
     .join('\n\n');
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: process.env.ANTHROPIC_MODEL ?? 'claude-3-5-sonnet-latest',
-      max_tokens: 900,
-      temperature: 0.3,
-      system: 'You are an interview coach. Provide concise, actionable feedback with clear strengths and improvements.',
-      messages: [
-        {
-          role: 'user',
-          content: [
-            `Role: ${params.role}`,
-            `Interview type: ${params.interviewType}`,
-            'Review this interview transcript and provide:',
-            '1) A brief overall assessment',
-            '2) Top 3 strengths',
-            '3) Top 3 areas to improve',
-            '4) One concrete next-step action',
-            '',
-            transcript,
-          ].join('\n'),
-        },
-      ],
-    }),
-  });
+  const systemPrompt = 'You are an interview coach. Provide concise, actionable feedback with clear strengths and improvements.';
+  const userPrompt = [
+    `Role: ${params.role}`,
+    `Interview type: ${params.interviewType}`,
+    'Review this interview transcript and provide:',
+    '1) A brief overall assessment',
+    '2) Top 3 strengths',
+    '3) Top 3 areas to improve',
+    '4) One concrete next-step action',
+    '',
+    transcript,
+  ].join('\n');
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Anthropic request failed (${response.status}): ${text}`);
+  // Try Anthropic first
+  const anthropicKey = process.env.ANTHROPIC_API_KEY;
+  if (anthropicKey) {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': anthropicKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: process.env.ANTHROPIC_MODEL ?? 'claude-3-5-sonnet-latest',
+        max_tokens: 900,
+        temperature: 0.3,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }],
+      }),
+    });
+
+    if (response.ok) {
+      const payload = (await response.json()) as {
+        content?: Array<{ type: string; text?: string }>;
+      };
+      const feedback = payload.content?.find((item) => item.type === 'text')?.text?.trim();
+      if (feedback) return feedback;
+    }
   }
 
-  const payload = (await response.json()) as {
-    content?: Array<{ type: string; text?: string }>;
-  };
+  // Fall back to Groq
+  const groqResult = await chatCompletion(
+    [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt },
+    ],
+    { maxTokens: 900, temperature: 0.3 }
+  );
+  if (groqResult) return groqResult;
 
-  const feedback = payload.content?.find((item) => item.type === 'text')?.text?.trim();
-  if (!feedback) {
-    throw new Error('No feedback returned from Anthropic');
-  }
-
-  return feedback;
+  throw new Error('No AI provider configured — set ANTHROPIC_API_KEY or GROQ_API_KEY');
 }
 
 export async function POST(req: NextRequest) {

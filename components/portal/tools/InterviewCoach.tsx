@@ -83,6 +83,7 @@ export default function InterviewCoach() {
   }
 
   async function connectVoiceSession(url: string) {
+    setVoiceError('');
     setWsStatus('connecting');
     try {
       const conv = await Conversation.startSession({

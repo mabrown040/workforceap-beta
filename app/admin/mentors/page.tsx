@@ -15,12 +15,21 @@ async function updateMentorAction(formData: FormData) {
 
   if (!mentorId) return;
 
-  if (action === 'approve') {
-    await prisma.mentor.update({ where: { id: mentorId }, data: { isActive: true, approvedAt: new Date() } });
-  }
-
-  if (action === 'deactivate') {
-    await prisma.mentor.update({ where: { id: mentorId }, data: { isActive: false } });
+  // Use the API route so the approval email is sent via Resend
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.workforceap.org';
+  if (action === 'approve' || action === 'deactivate' || action === 'activate') {
+    await fetch(`${baseUrl}/api/admin/mentors/${mentorId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Cookie': `/* server action — auth handled by getUser above */` },
+      body: JSON.stringify({ action }),
+    }).catch(() => {
+      // Fallback: direct DB update if fetch fails
+      if (action === 'approve') {
+        prisma.mentor.update({ where: { id: mentorId }, data: { isActive: true, approvedAt: new Date() } });
+      } else {
+        prisma.mentor.update({ where: { id: mentorId }, data: { isActive: action === 'activate' } });
+      }
+    });
   }
 }
 

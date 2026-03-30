@@ -3,6 +3,7 @@ import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { getUser } from '@/lib/auth/server';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { chatCompletion } from '@/lib/ai/groq';
+import { prisma } from '@/lib/db/prisma';
 
 const ALLOWED_TYPES = ['technical', 'behavioral', 'general'] as const;
 type InterviewType = (typeof ALLOWED_TYPES)[number];
@@ -82,6 +83,47 @@ async function generateFeedback(params: {
   throw new Error('No AI provider configured — set ANTHROPIC_API_KEY or GROQ_API_KEY');
 }
 
+export async function GET(req: NextRequest) {
+  const user = await getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const limit = parseInt(new URL(req.url).searchParams.get('limit') ?? '10');
+
+  const results = await prisma.aIToolResult.findMany({
+    where: { userId: user.id, toolType: 'interview_coach' },
+    orderBy: { createdAt: 'desc' },
+    take: Math.min(limit, 50),
+    select: { id: true, inputSummary: true, output: true, createdAt: true },
+  });
+
+  const sessions = results.map(r => {
+    try {
+      const data = JSON.parse(r.output) as {
+        role?: string;
+        interviewType?: string;
+        feedback?: string;
+        questions?: string[];
+        answers?: string[];
+        sessionId?: string;
+      };
+      return {
+        id: r.id,
+        createdAt: r.createdAt.toISOString(),
+        role: data.role || r.inputSummary,
+        interviewType: data.interviewType || 'behavioral',
+        feedback: data.feedback || '',
+        questions: data.questions || [],
+        answers: data.answers || [],
+        sessionId: data.sessionId || r.id,
+      };
+    } catch {
+      return null;
+    }
+  }).filter(Boolean);
+
+  return NextResponse.json({ sessions });
+}
+
 export async function POST(req: NextRequest) {
   const user = await getUser();
   if (!user) {
@@ -132,7 +174,7 @@ export async function POST(req: NextRequest) {
       user.id,
       'interview_coach',
       `${interviewType} interview feedback for ${role}`,
-      JSON.stringify({ sessionId, answers, questions, feedback })
+      JSON.stringify({ sessionId, role, interviewType, answers, questions, feedback })
     );
 
     return NextResponse.json({ feedback });

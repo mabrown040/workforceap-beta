@@ -6,6 +6,17 @@ import { Conversation } from '@elevenlabs/client';
 type TranscriptEntry = { question: string; answer: string };
 type Phase = 'setup' | 'voice' | 'interview' | 'feedback';
 
+interface InterviewSession {
+  id: string;
+  createdAt: string;
+  role: string;
+  interviewType: string;
+  feedback: string;
+  questions: string[];
+  answers: string[];
+  sessionId: string;
+}
+
 const INTERVIEW_TYPES = ['Behavioral', 'Technical', 'General'];
 const MAX_QUESTIONS = 5;
 
@@ -25,6 +36,9 @@ export default function InterviewCoach() {
   const [micDenied, setMicDenied] = useState(false);
   const [micStatus, setMicStatus] = useState<'idle'|'requesting'|'granted'|'denied'>('idle');
   const [voiceError, setVoiceError] = useState<string>('');
+  const [sessions, setSessions] = useState<InterviewSession[]>([]);
+  const [sessionsLoading, setSessionsLoading] = useState(false);
+  const [expandedSession, setExpandedSession] = useState<string | null>(null);
   const convRef = useRef<Conversation | null>(null);
   const intentionalCloseRef = useRef(false);
   const voiceTranscriptRef = useRef<{ role: 'agent' | 'user'; text: string }[]>([]);
@@ -35,6 +49,31 @@ export default function InterviewCoach() {
       if (convRef.current) convRef.current.endSession();
     };
   }, []);
+
+  // Fetch past sessions on mount
+  useEffect(() => {
+    setSessionsLoading(true);
+    fetch('/api/interview/history?limit=5')
+      .then(r => r.json())
+      .then((data: { sessions?: InterviewSession[] }) => {
+        setSessions(data.sessions ?? []);
+      })
+      .catch(() => {})
+      .finally(() => setSessionsLoading(false));
+  }, []);
+
+  function refreshSessions() {
+    fetch('/api/interview/history?limit=5')
+      .then(r => r.json())
+      .then((data: { sessions?: InterviewSession[] }) => {
+        setSessions(data.sessions ?? []);
+      })
+      .catch(() => {});
+  }
+
+  function formatDate(iso: string) {
+    return new Date(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  }
 
   async function startInterview() {
     if (!role.trim()) return;
@@ -157,6 +196,7 @@ export default function InterviewCoach() {
       });
       const data = await res.json() as { feedback?: string; error?: string };
       setFeedback(data.feedback ?? data.error ?? 'Unable to generate feedback.');
+      refreshSessions();
     } catch {
       setFeedback('Failed to generate feedback. Please try again.');
     } finally {
@@ -220,6 +260,7 @@ export default function InterviewCoach() {
       const data = await res.json() as { feedback?: string; error?: string };
       setFeedback(data.feedback ?? data.error ?? 'Unable to generate feedback.');
       setPhase('feedback');
+      refreshSessions();
     } finally {
       setLoading(false);
     }
@@ -246,6 +287,79 @@ export default function InterviewCoach() {
     voiceTranscriptRef.current = [];
     if (convRef.current) convRef.current.endSession();
   }
+
+  // ── Past Sessions ─────────────────────────────────────────────────────────
+  const pastSessionsSection = sessions.length > 0 || sessionsLoading ? (
+    <div style={{ marginTop: '2rem', maxWidth: 700 }}>
+      <h3 style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>
+        Past Interview Sessions
+      </h3>
+      {sessionsLoading ? (
+        <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>Loading…</div>
+      ) : (
+        <>
+          {sessions.map(s => {
+            const isExpanded = expandedSession === s.id;
+            return (
+              <div key={s.id} style={{ border: '1px solid var(--surface-container-high)', borderRadius: 8, marginBottom: '0.625rem', overflow: 'hidden' }}>
+                <button
+                  onClick={() => setExpandedSession(isExpanded ? null : s.id)}
+                  style={{ width: '100%', textAlign: 'left', padding: '0.875rem 1rem', background: 'var(--surface-container-low)', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>📅 {formatDate(s.createdAt)}</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{isExpanded ? '▲' : '▼'}</span>
+                  </div>
+                  <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-on-surface)' }}>
+                    {s.role} · {s.interviewType.charAt(0).toUpperCase() + s.interviewType.slice(1)}
+                  </div>
+                  {!isExpanded && s.feedback && (
+                    <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', fontStyle: 'italic' }}>
+                      "{s.feedback.slice(0, 100)}{s.feedback.length > 100 ? '…' : ''}"
+                    </div>
+                  )}
+                </button>
+                {isExpanded && (
+                  <div style={{ padding: '1rem', background: 'var(--color-surface)', borderTop: '1px solid var(--surface-container-high)' }}>
+                    {s.feedback && (
+                      <div style={{ marginBottom: '1rem' }}>
+                        <div style={{ fontWeight: 700, fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Overall Assessment</div>
+                        <div style={{ fontSize: '0.875rem', lineHeight: 1.6, whiteSpace: 'pre-wrap', color: 'var(--color-on-surface)' }}>{s.feedback}</div>
+                      </div>
+                    )}
+                    {s.questions.length > 0 && (
+                      <div style={{ marginBottom: '1rem' }}>
+                        <div style={{ fontWeight: 700, fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Interview Q&A</div>
+                        {s.questions.map((q, i) => (
+                          <div key={i} style={{ marginBottom: '0.75rem' }}>
+                            <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-on-surface)', marginBottom: '0.2rem' }}>Q{i + 1}: {q}</div>
+                            {s.answers[i] && (
+                              <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', paddingLeft: '0.75rem', borderLeft: '2px solid var(--surface-container-high)' }}>A{i + 1}: {s.answers[i]}</div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <button
+                      onClick={() => { setExpandedSession(null); reset(); }}
+                      style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-accent)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                    >
+                      Start new session →
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          {sessions.length >= 5 && (
+            <a href="/dashboard/interview-coach/history" style={{ fontSize: '0.85rem', color: 'var(--color-accent)', textDecoration: 'none', display: 'inline-block', marginTop: '0.25rem' }}>
+              View all past sessions →
+            </a>
+          )}
+        </>
+      )}
+    </div>
+  ) : null;
 
   // ── Setup ────────────────────────────────────────────────────────────────
   if (phase === 'setup') {
@@ -281,6 +395,7 @@ export default function InterviewCoach() {
         <p style={{ marginTop: '0.75rem', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
           Voice-powered by ElevenLabs when available. Text fallback always active.
         </p>
+        {pastSessionsSection}
       </div>
     );
   }
@@ -374,6 +489,7 @@ export default function InterviewCoach() {
       <button onClick={reset} style={{ background: 'var(--color-accent)', color: '#fff', border: 0, borderRadius: 8, padding: '0.75rem 1.5rem', fontWeight: 700, cursor: 'pointer' }}>
         Practice Again
       </button>
+      {pastSessionsSection}
     </div>
   );
 }

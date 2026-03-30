@@ -16,6 +16,7 @@ import {
   GitBranch,
   GraduationCap,
   Handshake,
+  HelpCircle,
   Home,
   Layers,
   LayoutDashboard,
@@ -123,6 +124,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     tourTarget: 'tour-profile',
   },
   { href: '/dashboard/settings', label: 'Settings', group: 'manage', Icon: Settings },
+  { href: '/dashboard/guide', label: 'Member guide', group: 'manage', Icon: HelpCircle },
 ];
 
 export const EMPLOYER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
@@ -164,6 +166,7 @@ export const EMPLOYER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     badgeKey: 'employer_messages_unread',
   },
   { href: '/employer/settings', label: 'Company settings', group: 'manage', Icon: Settings },
+  { href: '/employer/guide', label: 'How it works', group: 'manage', Icon: HelpCircle },
 ];
 
 export const PARTNER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
@@ -243,6 +246,7 @@ export const COUNSELOR_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/counselor/students', label: 'My students', group: 'workflows', Icon: Users },
   { href: '/counselor/messages', label: 'Messages', group: 'workflows', Icon: MessageSquare },
   { href: '/counselor/resources', label: 'Resources', group: 'manage', Icon: BookOpen },
+  { href: '/counselor/guide', label: 'Portal guide', group: 'manage', Icon: HelpCircle },
 ];
 
 export const PORTAL_NAV: Record<PortalRole, PortalNavItem[]> = {

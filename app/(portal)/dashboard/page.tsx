@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getProgramBySlug } from '@/lib/content/programs';
@@ -81,6 +82,7 @@ export default async function DashboardPage() {
         submittedAt: applicationStatusView.submittedAt?.toISOString() ?? null,
         programInterest: applicationStatusView.programInterest,
         nextStep: applicationStatusView.nextStep,
+        nextStepHref: applicationStatusView.nextStepHref,
         showResponseEstimate: applicationStatusView.showResponseEstimate,
         progressIndex: applicationStatusView.progressIndex,
       }
@@ -202,9 +204,9 @@ export default async function DashboardPage() {
                   Your next action for{' '}
                   {applicationStatus.programInterest ?? program?.title ?? 'your program'}.
                 </p>
-                <button className="font-bold text-sm tracking-wide active:scale-[0.98] transition-transform" style={{ width:"100%", background:"linear-gradient(135deg,var(--color-accent),var(--color-accent))", color:"white", padding:"0.75rem", borderRadius:"0.375rem", border:"none", cursor:"pointer" }}>
+                <Link href={applicationStatus.nextStepHref} className="font-bold text-sm tracking-wide active:scale-[0.98] transition-transform" style={{ display:"block", width:"100%", background:"linear-gradient(135deg,var(--color-accent),var(--color-accent))", color:"white", padding:"0.75rem", borderRadius:"0.375rem", textDecoration:"none", textAlign:"center", cursor:"pointer", boxSizing:"border-box" }}>
                   Take Action
-                </button>
+                </Link>
               </div>
             </div>
           </section>

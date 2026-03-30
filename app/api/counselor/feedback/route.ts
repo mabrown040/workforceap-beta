@@ -24,31 +24,35 @@ Respond with ONLY a JSON array of 3 strings. Example: ["Step one", "Step two", "
   // Try Anthropic first
   const anthropicKey = process.env.ANTHROPIC_API_KEY;
   if (anthropicKey) {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-api-key': anthropicKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: process.env.ANTHROPIC_MODEL ?? 'claude-3-5-sonnet-latest',
-        max_tokens: 400,
-        temperature: 0.4,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: userPrompt }],
-      }),
-    });
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-api-key': anthropicKey,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: process.env.ANTHROPIC_MODEL ?? 'claude-3-5-sonnet-latest',
+          max_tokens: 400,
+          temperature: 0.4,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: userPrompt }],
+        }),
+      });
 
-    if (res.ok) {
-      const payload = await res.json() as { content?: Array<{ type: string; text?: string }> };
-      const text = payload.content?.find((c) => c.type === 'text')?.text?.trim();
-      if (text) {
-        try {
-          const steps = JSON.parse(text) as string[];
-          if (Array.isArray(steps) && steps.length > 0) return steps.slice(0, 3);
-        } catch { /* fall through */ }
+      if (res.ok) {
+        const payload = await res.json() as { content?: Array<{ type: string; text?: string }> };
+        const text = payload.content?.find((c) => c.type === 'text')?.text?.trim();
+        if (text) {
+          try {
+            const steps = JSON.parse(text) as string[];
+            if (Array.isArray(steps) && steps.length > 0) return steps.slice(0, 3);
+          } catch { /* fall through */ }
+        }
       }
+    } catch {
+      /* network / parse errors — fall through to Groq */
     }
   }
 

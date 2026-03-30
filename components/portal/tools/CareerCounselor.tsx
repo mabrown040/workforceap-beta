@@ -141,6 +141,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
         body: JSON.stringify({ transcript: transcriptRef.current }),
       });
       const data = await res.json() as { steps?: string[]; error?: string };
+      if (!res.ok) throw new Error(data.error ?? 'Failed to load action plan');
       const actionSteps = data.steps ?? [];
       setSteps(actionSteps);
       setChecked(actionSteps.map(() => false));
@@ -160,7 +161,6 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
     convRef.current?.endSession();
     convRef.current = null;
     transcriptRef.current = [];
-    intentionalRef.current = false;
     setPhase('pre');
     setVoiceError('');
     setSteps([]);

@@ -21,6 +21,7 @@ export default function InterviewCoach() {
   const [feedback, setFeedback] = useState('');
   const [signedUrl, setSignedUrl] = useState('');
   const [wsStatus, setWsStatus] = useState<'idle' | 'connecting' | 'connected' | 'ended'>('idle');
+  const [micDenied, setMicDenied] = useState(false);
   const convRef = useRef<Conversation | null>(null);
   const intentionalCloseRef = useRef(false);
 
@@ -35,10 +36,19 @@ export default function InterviewCoach() {
     if (!role.trim()) return;
     setLoading(true);
     try {
+      // Request mic permission before ElevenLabs session
+      let micGranted = false;
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(t => t.stop());
+        micGranted = true;
+      } catch { /* mic denied — will fall back to text */
+        setMicDenied(true); }
+
       const res = await fetch('/api/interview/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role, interviewType }),
+        body: JSON.stringify({ role, interviewType, forceText: !micGranted }),
       });
       const data = await res.json() as {
         mode: 'voice' | 'text';
@@ -49,7 +59,7 @@ export default function InterviewCoach() {
 
       setMode(data.mode);
 
-      if (data.mode === 'voice' && data.signedUrl) {
+      if (micGranted && data.mode === 'voice' && data.signedUrl) {
         setSignedUrl(data.signedUrl);
         setPhase('voice');
         connectVoiceSession(data.signedUrl);
@@ -111,6 +121,15 @@ export default function InterviewCoach() {
 
     setLoading(true);
     try {
+      // Request mic permission before ElevenLabs session
+      let micGranted = false;
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(t => t.stop());
+        micGranted = true;
+      } catch { /* mic denied — will fall back to text */
+        setMicDenied(true); }
+
       const res = await fetch('/api/interview/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

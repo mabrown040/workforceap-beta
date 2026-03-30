@@ -21,6 +21,8 @@ const TOOL_LABELS: Record<string, string> = {
   linkedin_about: 'LinkedIn About',
   salary_negotiation: 'Salary Negotiation',
   gap_analyzer: 'Gap Analyzer',
+  interview_coach: 'AI Interview Coach',
+  career_counselor: 'Career Counselor',
 };
 
 type Props = { searchParams: Promise<{ tool?: string }> };

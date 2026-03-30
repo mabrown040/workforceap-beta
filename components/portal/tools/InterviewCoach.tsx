@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { Conversation } from '@elevenlabs/client';
 
 type TranscriptEntry = { question: string; answer: string };
 type Phase = 'setup' | 'voice' | 'interview' | 'feedback';
@@ -20,13 +21,13 @@ export default function InterviewCoach() {
   const [feedback, setFeedback] = useState('');
   const [signedUrl, setSignedUrl] = useState('');
   const [wsStatus, setWsStatus] = useState<'idle' | 'connecting' | 'connected' | 'ended'>('idle');
-  const wsRef = useRef<WebSocket | null>(null);
+  const convRef = useRef<Conversation | null>(null);
   const intentionalCloseRef = useRef(false);
 
   // Cleanup WebSocket on unmount
   useEffect(() => {
     return () => {
-      if (wsRef.current) wsRef.current.close();
+      if (convRef.current) convRef.current.endSession();
     };
   }, []);
 
@@ -61,26 +62,28 @@ export default function InterviewCoach() {
     }
   }
 
-  function connectVoiceSession(url: string) {
+  async function connectVoiceSession(url: string) {
     setWsStatus('connecting');
-    const ws = new WebSocket(url);
-    wsRef.current = ws;
-
-    ws.onopen = () => setWsStatus('connected');
-    ws.onclose = () => {
+    try {
+      const conv = await Conversation.startSession({
+        signedUrl: url,
+        onConnect: () => setWsStatus('connected'),
+        onDisconnect: () => {
+          setWsStatus('ended');
+          if (!intentionalCloseRef.current) {
+            setPhase('feedback');
+            setFeedback('Your voice interview session has ended.');
+          }
+          intentionalCloseRef.current = false;
+        },
+        onError: (_msg: string) => { setWsStatus('ended'); setMode('text'); startTextFallback(); },
+      });
+      convRef.current = conv;
+    } catch {
       setWsStatus('ended');
-      if (!intentionalCloseRef.current) {
-        setPhase('feedback');
-        setFeedback('Your voice interview session has ended. Review the conversation above, or start a new practice session.');
-      }
-      intentionalCloseRef.current = false;
-    };
-    ws.onerror = () => {
-      setWsStatus('ended');
-      // Fall back to text mode
       setMode('text');
       startTextFallback();
-    };
+    }
   }
 
   async function startTextFallback() {
@@ -137,7 +140,7 @@ export default function InterviewCoach() {
   }
 
   function endVoiceSession() {
-    if (wsRef.current) wsRef.current.close();
+    if (convRef.current) convRef.current.endSession();
   }
 
   function reset() {
@@ -152,7 +155,7 @@ export default function InterviewCoach() {
     setSignedUrl('');
     setWsStatus('idle');
     setMode('text');
-    if (wsRef.current) wsRef.current.close();
+    if (convRef.current) convRef.current.endSession();
   }
 
   // ── Setup ────────────────────────────────────────────────────────────────

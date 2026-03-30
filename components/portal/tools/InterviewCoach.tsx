@@ -88,26 +88,25 @@ export default function InterviewCoach() {
       const conv = await Conversation.startSession({
         signedUrl: url,
         onConnect: () => setWsStatus('connected'),
-        onDisconnect: () => {
+        onDisconnect: (details) => {
           setWsStatus('ended');
           if (!intentionalCloseRef.current) {
+            if (details?.reason === 'error') {
+              setVoiceError(details.message || 'Connection lost');
+            }
             getVoiceFeedback();
           }
           intentionalCloseRef.current = false;
         },
-        onMessage: (message: { source?: string; message?: string; isFinal?: boolean; role?: string; text?: string }) => {
-          // Capture final transcript messages from both user and agent
-          const source = message.source ?? message.role;
-          const text = message.message ?? message.text ?? '';
-          if (text && source) {
-            const role = source === 'user' ? 'user' as const : 'agent' as const;
-            // Only keep final transcriptions (or all if isFinal is not present)
-            if (message.isFinal !== false) {
-              voiceTranscriptRef.current.push({ role, text });
-            }
+        onMessage: (payload) => {
+          // payload: { message: string, role: "user" | "agent", source: "user" | "ai" }
+          const text = payload.message;
+          const msgRole = payload.role === 'user' ? 'user' as const : 'agent' as const;
+          if (text) {
+            voiceTranscriptRef.current.push({ role: msgRole, text });
           }
         },
-        onError: (msg: string) => { setWsStatus('ended'); setVoiceError(String(msg) || 'Connection error'); },
+        onError: (msg) => { setWsStatus('ended'); setVoiceError(String(msg) || 'Connection error'); },
       });
       convRef.current = conv;
     } catch (e) {
@@ -140,11 +139,12 @@ export default function InterviewCoach() {
     setLoading(true);
     setPhase('feedback');
     try {
+      const sid = sessionId || `fallback-${Date.now()}`;
       const res = await fetch('/api/interview/history', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          sessionId,
+          sessionId: sid,
           role,
           interviewType: interviewType.toLowerCase(),
           questions,
@@ -166,7 +166,8 @@ export default function InterviewCoach() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ role, interviewType, forceText: true }),
     });
-    const data = await res.json() as { firstQuestion?: string };
+    const data = await res.json() as { firstQuestion?: string; sessionId?: string };
+    if (data.sessionId) setSessionId(data.sessionId);
     setCurrentQuestion(data.firstQuestion ?? `Tell me about yourself and your interest in the ${role} role.`);
     setPhase('interview');
   }
@@ -200,11 +201,12 @@ export default function InterviewCoach() {
   async function getFeedback(t: TranscriptEntry[]) {
     setLoading(true);
     try {
+      const sid = sessionId || `fallback-${Date.now()}`;
       const res = await fetch('/api/interview/history', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          sessionId,
+          sessionId: sid,
           role,
           interviewType: interviewType.toLowerCase(),
           questions: t.map(entry => entry.question),

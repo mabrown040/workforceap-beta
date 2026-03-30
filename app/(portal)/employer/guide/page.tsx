@@ -1,0 +1,296 @@
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { buildPageMetadata } from '@/app/seo';
+import { getUser } from '@/lib/auth/server';
+import { getEmployerForUser } from '@/lib/auth/roles';
+
+export const metadata: Metadata = buildPageMetadata({
+  title: 'How WorkforceAP works for employers',
+  description: 'Access vetted, job-ready talent in a few simple steps.',
+  path: '/employer/guide',
+});
+
+const DIFFERENTIATORS = [
+  'Completed career readiness training',
+  'Practiced interviews with AI coach',
+  'Resume reviewed and optimized',
+  'Assigned a counselor — supported through onboarding',
+];
+
+const QUICK_NAV = [
+  { icon: 'post_add', label: 'Post a Job', href: '/employer/jobs/new' },
+  { icon: 'group', label: 'Browse Pipeline', href: '/employer/pipeline' },
+  { icon: 'inbox', label: 'View Applications', href: '/employer/applications' },
+  { icon: 'bar_chart', label: 'Hiring Outcomes', href: '/employer' },
+  { icon: 'settings', label: 'Settings', href: '/employer/settings' },
+];
+
+const FAQS = [
+  {
+    q: 'Is there a cost to post jobs?',
+    a: 'No — posting jobs through WorkforceAP is free. You only pay when you choose to participate in the 10% giveback after a successful hire.',
+  },
+  {
+    q: "What's the 10% giveback?",
+    a: "When you hire a WorkforceAP member, we invite you to give back 10% of their first-year salary to fund the next candidate's training. It's optional — not a fee — but it's how we keep the program free for members.",
+  },
+  {
+    q: 'How are candidates screened?',
+    a: 'Every candidate completes a career readiness assessment, AI-assisted interview practice, and resume review before reaching you. Our team also reviews all candidates manually before adding them to your pipeline.',
+  },
+  {
+    q: 'How long until I see candidates?',
+    a: 'You can start seeing AI-matched candidates within 24–48 hours of posting a role, depending on your location and requirements.',
+  },
+  {
+    q: 'What industries do you serve?',
+    a: 'We work across tech, healthcare, logistics, finance, and professional services. If you have specific hiring needs, reach out and we can talk through fit.',
+  },
+];
+
+export default async function EmployerGuidePage() {
+  const user = await getUser();
+  if (!user) redirect('/login?redirectTo=/employer/guide');
+
+  const ctx = await getEmployerForUser(user.id);
+  if (!ctx) redirect('/employers');
+
+  return (
+    <div style={{ maxWidth: '64rem', margin: '0 auto' }}>
+      {/* Breadcrumb */}
+      <nav style={{ marginBottom: '1.5rem', marginTop: '0.5rem' }}>
+        <Link href="/employer" style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', fontWeight: 500 }}>
+          ← Back to dashboard
+        </Link>
+      </nav>
+
+      {/* Header */}
+      <header style={{ marginBottom: '3rem' }}>
+        <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-accent)', marginBottom: '0.5rem' }}>
+          Employer Guide
+        </p>
+        <h1 style={{ fontSize: 'clamp(1.75rem, 3.5vw, 2.75rem)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-on-surface)', marginBottom: '0.75rem', lineHeight: 1.15, maxWidth: '28rem' }}>
+          How WorkforceAP Works for Employers
+        </h1>
+        <p style={{ fontSize: '1.0625rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.65, maxWidth: '42rem' }}>
+          Access vetted, job-ready talent — in a few simple steps.
+        </p>
+      </header>
+
+      {/* 3-Step Flow */}
+      <section style={{ marginBottom: '3.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+          {[
+            {
+              num: '01',
+              title: 'Post a Job',
+              desc: 'Describe the role. We match it to qualified members who have already completed readiness training.',
+              cta: 'Post a Job',
+              href: '/employer/jobs/new',
+              icon: 'post_add',
+            },
+            {
+              num: '02',
+              title: 'Review Candidates',
+              desc: 'WorkforceAP pre-screens candidates before you see them. Every person in your pipeline has been assessed and coached.',
+              cta: 'View Pipeline',
+              href: '/employer/pipeline',
+              icon: 'manage_accounts',
+            },
+            {
+              num: '03',
+              title: 'Hire & Give Back',
+              desc: 'When you hire a WorkforceAP member, a 10% first-year salary giveback supports the program and trains the next candidate. No upfront cost.',
+              cta: null,
+              href: null,
+              icon: 'handshake',
+            },
+          ].map((step, i) => (
+            <div key={step.num} className="stitch-card" style={{ padding: '2rem', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', top: '1rem', right: '1.25rem', fontSize: '3.5rem', fontWeight: 900, color: 'var(--color-accent)', opacity: 0.06, lineHeight: 1, letterSpacing: '-0.05em', userSelect: 'none' }}>
+                {step.num}
+              </div>
+              <div style={{
+                width: '2.75rem',
+                height: '2.75rem',
+                borderRadius: '0.75rem',
+                background: i === 0 ? 'var(--color-accent)' : 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '1.25rem',
+              }}>
+                <span className="material-symbols-outlined" style={{ color: i === 0 ? '#fff' : 'var(--color-accent)', fontSize: '1.25rem' }}>{step.icon}</span>
+              </div>
+              <h3 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.625rem', letterSpacing: '-0.02em' }}>
+                {step.title}
+              </h3>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.65, marginBottom: step.cta ? '1.25rem' : 0 }}>
+                {step.desc}
+              </p>
+              {step.cta && step.href && (
+                <Link href={step.href} style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.375rem',
+                  padding: '0.5625rem 1.125rem',
+                  background: 'var(--color-accent)',
+                  color: '#fff',
+                  borderRadius: '0.5rem',
+                  fontSize: '0.8125rem',
+                  fontWeight: 700,
+                  textDecoration: 'none',
+                  letterSpacing: '-0.01em',
+                }}>
+                  {step.cta}
+                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>arrow_forward</span>
+                </Link>
+              )}
+              {i === 2 && (
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', fontStyle: 'italic', marginTop: '0.75rem' }}>
+                  Optional but appreciated — it funds the next candidate&apos;s training.
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1.25fr 1fr', gap: '2rem', marginBottom: '3.5rem' }}>
+        {/* Candidate differentiators */}
+        <section className="stitch-card" style={{ padding: '2rem' }}>
+          <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>
+            What sets WorkforceAP candidates apart
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+            {DIFFERENTIATORS.map((item) => (
+              <div key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.875rem' }}>
+                <div style={{
+                  width: '1.5rem',
+                  height: '1.5rem',
+                  borderRadius: '50%',
+                  background: 'rgba(128,217,159,0.15)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  marginTop: '0.125rem',
+                }}>
+                  <span className="material-symbols-outlined" style={{ color: '#80d99f', fontSize: '0.875rem' }}>check</span>
+                </div>
+                <p style={{ fontSize: '0.9375rem', color: 'var(--color-on-surface)', lineHeight: 1.5 }}>{item}</p>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: '1.75rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(88,65,68,0.08)' }}>
+            <Link href="/employer/jobs/new" style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              padding: '0.75rem',
+              background: 'linear-gradient(135deg, var(--color-accent), #670024)',
+              color: '#fff',
+              borderRadius: '0.5rem',
+              fontSize: '0.875rem',
+              fontWeight: 700,
+              textDecoration: 'none',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+            }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>post_add</span>
+              Post your first job
+            </Link>
+          </div>
+        </section>
+
+        {/* Quick nav */}
+        <section>
+          <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>
+            Your portal
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+            {QUICK_NAV.map((item) => (
+              <Link key={item.label} href={item.href} style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem',
+                padding: '1rem 1.125rem',
+                background: 'var(--surface-container-lowest)',
+                border: '1px solid rgba(88,65,68,0.08)',
+                borderRadius: '0.625rem',
+                textDecoration: 'none',
+                transition: 'background 0.15s',
+              }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }}>{item.icon}</span>
+                <span style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-on-surface)', flex: 1 }}>{item.label}</span>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4, fontSize: '1rem' }}>chevron_right</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      {/* FAQ */}
+      <section style={{ marginBottom: '3rem' }}>
+        <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>
+          Common questions
+        </h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1rem' }}>
+          {FAQS.map((faq) => (
+            <div key={faq.q} className="stitch-card" style={{ padding: '1.25rem' }}>
+              <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem', letterSpacing: '-0.01em' }}>
+                {faq.q}
+              </h3>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.65 }}>
+                {faq.a}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Contact CTA */}
+      <div style={{
+        padding: '2rem',
+        background: 'var(--surface-container-lowest)',
+        border: '1px solid rgba(88,65,68,0.1)',
+        borderRadius: '0.875rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '1rem',
+      }}>
+        <div>
+          <p style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>
+            Have questions? We&apos;re here.
+          </p>
+          <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+            Email us at{' '}
+            <a href="mailto:partnerships@workforceap.org" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
+              partnerships@workforceap.org
+            </a>
+          </p>
+        </div>
+        <Link href="/employer/jobs/new" style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.375rem',
+          padding: '0.625rem 1.25rem',
+          background: 'var(--color-accent)',
+          color: '#fff',
+          borderRadius: '0.5rem',
+          fontSize: '0.875rem',
+          fontWeight: 700,
+          textDecoration: 'none',
+          whiteSpace: 'nowrap',
+        }}>
+          Post a job
+          <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_forward</span>
+        </Link>
+      </div>
+    </div>
+  );
+}

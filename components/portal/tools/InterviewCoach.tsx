@@ -21,6 +21,7 @@ export default function InterviewCoach() {
   const [signedUrl, setSignedUrl] = useState('');
   const [wsStatus, setWsStatus] = useState<'idle' | 'connecting' | 'connected' | 'ended'>('idle');
   const wsRef = useRef<WebSocket | null>(null);
+  const intentionalCloseRef = useRef(false);
 
   // Cleanup WebSocket on unmount
   useEffect(() => {
@@ -68,8 +69,11 @@ export default function InterviewCoach() {
     ws.onopen = () => setWsStatus('connected');
     ws.onclose = () => {
       setWsStatus('ended');
-      setPhase('feedback');
-      setFeedback('Your voice interview session has ended. Review the conversation above, or start a new practice session.');
+      if (!intentionalCloseRef.current) {
+        setPhase('feedback');
+        setFeedback('Your voice interview session has ended. Review the conversation above, or start a new practice session.');
+      }
+      intentionalCloseRef.current = false;
     };
     ws.onerror = () => {
       setWsStatus('ended');
@@ -83,7 +87,7 @@ export default function InterviewCoach() {
     const res = await fetch('/api/interview/session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ role, interviewType }),
+      body: JSON.stringify({ role, interviewType, forceText: true }),
     });
     const data = await res.json() as { firstQuestion?: string };
     setCurrentQuestion(data.firstQuestion ?? `Tell me about yourself and your interest in the ${role} role.`);
@@ -137,6 +141,7 @@ export default function InterviewCoach() {
   }
 
   function reset() {
+    intentionalCloseRef.current = true;
     setPhase('setup');
     setRole('');
     setInterviewType('Behavioral');

@@ -21,15 +21,16 @@ export async function POST(req: NextRequest) {
     interviewType: string;
     transcript?: { question: string; answer: string }[];
     nextQuestion?: boolean;
+    forceText?: boolean;
   };
-  const { role, interviewType, transcript, nextQuestion } = body;
+  const { role, interviewType, transcript, nextQuestion, forceText } = body;
 
   if (!role || !interviewType) {
     return NextResponse.json({ error: 'role and interviewType are required' }, { status: 400 });
   }
 
   // ── Mode 1: ElevenLabs Conversational AI ──────────────────────────────────
-  if (ELEVENLABS_API_KEY && !nextQuestion) {
+  if (ELEVENLABS_API_KEY && !nextQuestion && !forceText) {
     try {
       // Get a signed URL for the conversational AI session
       const elRes = await fetch(

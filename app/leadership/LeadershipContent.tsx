@@ -82,14 +82,6 @@ export default function LeadershipContent() {
                       priority={index === 0}
                       style={{
                         objectFit: 'cover',
-                        filter: 'grayscale(100%)',
-                        transition: 'filter 0.4s ease',
-                      }}
-                      onMouseEnter={(e) => {
-                        (e.target as HTMLElement).style.filter = 'grayscale(0%)';
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.target as HTMLElement).style.filter = 'grayscale(100%)';
                       }}
                     />
                     {leader.founder && (
@@ -138,8 +130,8 @@ export default function LeadershipContent() {
                     </h3>
                     {leader.missionRelevance && (
                       <p
+                        className="leader-mission-callout"
                         style={{
-                          color: 'var(--color-accent)',
                           fontSize: '0.8rem',
                           fontWeight: 500,
                           marginBottom: '0.75rem',
@@ -251,14 +243,6 @@ export default function LeadershipContent() {
                         sizes={isWide ? '120px' : '72px'}
                         style={{
                           objectFit: 'cover',
-                          filter: 'grayscale(100%)',
-                          transition: 'filter 0.4s ease',
-                        }}
-                        onMouseEnter={(e) => {
-                          (e.target as HTMLElement).style.filter = 'grayscale(0%)';
-                        }}
-                        onMouseLeave={(e) => {
-                          (e.target as HTMLElement).style.filter = 'grayscale(100%)';
                         }}
                       />
                     </div>
@@ -288,8 +272,8 @@ export default function LeadershipContent() {
                       </h3>
                       {leader.missionRelevance && isWide && (
                         <p
+                          className="leader-mission-callout"
                           style={{
-                            color: 'var(--color-accent)',
                             fontSize: '0.78rem',
                             fontWeight: 500,
                             marginBottom: '0.5rem',

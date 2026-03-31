@@ -224,7 +224,7 @@ export default function FAQMobileSection() {
             <span style={{ background: '#ffbb00', color: '#261900', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', marginBottom: '0.5rem', display: 'inline-block' }}>
               New Resource
             </span>
-            <h3 style={{ color: '#fff', fontWeight: 700, fontSize: '1.25rem' }}>The 2024 Career Guide</h3>
+            <h3 style={{ color: '#fff', fontWeight: 700, fontSize: '1.25rem' }}>The 2025 Career Guide</h3>
             <p style={{ marginTop: '0.25rem', color: 'rgba(255,255,255,0.8)', fontSize: '0.875rem' }}>
               Download our latest research on workforce trends.
             </p>

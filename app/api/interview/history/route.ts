@@ -14,6 +14,7 @@ interface HistoryBody {
   questions?: string[];
   role?: string;
   interviewType?: string;
+  transcriptTurns?: { role: 'agent' | 'user'; text: string }[];
 }
 
 async function generateFeedback(params: {
@@ -105,6 +106,7 @@ export async function GET(req: NextRequest) {
         questions?: string[];
         answers?: string[];
         sessionId?: string;
+        transcriptTurns?: { role: 'agent' | 'user'; text: string }[];
       };
       return {
         id: r.id,
@@ -115,6 +117,7 @@ export async function GET(req: NextRequest) {
         questions: data.questions || [],
         answers: data.answers || [],
         sessionId: data.sessionId || r.id,
+        transcriptTurns: Array.isArray(data.transcriptTurns) ? data.transcriptTurns : [],
       };
     } catch {
       return null;
@@ -163,6 +166,14 @@ export async function POST(req: NextRequest) {
   const questions = Array.isArray(body.questions)
     ? body.questions.map((question) => question.trim()).filter((question) => question.length > 0)
     : [];
+  const transcriptTurns = Array.isArray(body.transcriptTurns)
+    ? body.transcriptTurns
+        .map((turn) => ({
+          role: turn?.role === 'agent' ? 'agent' : 'user',
+          text: typeof turn?.text === 'string' ? turn.text.trim() : '',
+        }))
+        .filter((turn) => turn.text.length > 0)
+    : [];
 
   const interviewType = interviewTypeRaw as InterviewType;
 
@@ -174,7 +185,7 @@ export async function POST(req: NextRequest) {
       user.id,
       'interview_coach',
       `${interviewType} interview feedback for ${role}`,
-      JSON.stringify({ sessionId, role, interviewType, answers, questions, feedback })
+      JSON.stringify({ sessionId, role, interviewType, answers, questions, transcriptTurns, feedback })
     );
 
     return NextResponse.json({ feedback });

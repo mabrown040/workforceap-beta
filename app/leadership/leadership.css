@@ -7,16 +7,16 @@
 .leadership-trust-lead {
     font-size: 1.15rem;
     line-height: 1.7;
-    color: var(--color-gray-700);
+    color: var(--color-on-surface-variant);
     margin-bottom: 1rem;
 }
 .leadership-trust-lead strong {
-    color: var(--color-primary);
+    color: var(--color-accent);
     font-weight: 600;
 }
 .leadership-trust-sub {
     font-size: 0.95rem;
-    color: var(--color-gray-600);
+    color: var(--color-on-surface-variant);
     line-height: 1.65;
 }
 .leadership-grid-title {
@@ -24,7 +24,7 @@
     font-weight: 600;
     text-align: center;
     margin-bottom: 1.5rem;
-    color: var(--color-gray-700);
+    color: var(--color-on-surface);
 }
 
 .leader-card-relevance {
@@ -37,6 +37,14 @@
     background: rgba(173, 44, 77, 0.06);
     border-left: 3px solid var(--color-accent);
     border-radius: 0 4px 4px 0;
+}
+
+.leader-mission-callout {
+    color: var(--color-accent);
+    background: rgba(173, 44, 77, 0.1);
+    border: 1px solid rgba(173, 44, 77, 0.22);
+    border-radius: 12px;
+    padding: 0.65rem 0.8rem;
 }
 .leader-card-profile-link {
     font-size: 0.9rem;
@@ -121,7 +129,7 @@
 .leader-card-name {
     font-size: 1rem;
     font-weight: 700;
-    color: var(--color-primary);
+    color: var(--color-on-surface);
     margin-bottom: 0.2rem;
 }
 
@@ -137,7 +145,7 @@
 .leader-card-bio {
     font-size: 0.9rem;
     line-height: 1.55;
-    color: var(--color-gray-600);
+    color: var(--color-on-surface-variant);
     margin-bottom: 0.75rem;
     flex: 1;
 }
@@ -184,9 +192,9 @@
     text-align: center;
     margin-top: 4rem;
     padding: 3rem;
-    background: var(--color-light);
+    background: var(--surface-container-low);
     border-radius: var(--radius-lg);
-    border: 1px solid var(--color-gray-200);
+    border: 1px solid var(--surface-container-highest);
 }
 
 .join-cta h2 {
@@ -194,11 +202,26 @@
 }
 
 .join-cta p {
-    color: var(--color-gray-500);
+    color: var(--color-on-surface-variant);
     margin-bottom: 1.5rem;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
+}
+
+html.dark .leader-mission-callout {
+    color: #ffd6de;
+    background: rgba(173, 44, 77, 0.18);
+    border-color: rgba(255, 214, 222, 0.18);
+}
+
+html.dark .leadership-board-card {
+    border: 1px solid var(--surface-container-highest);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24);
+}
+
+html.dark .leadership-board-card .leadership-board-photo {
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.06);
 }
 
 @media (max-width: 768px) {

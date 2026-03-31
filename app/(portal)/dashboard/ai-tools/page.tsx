@@ -14,15 +14,7 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 const TOOLS = [
-  {
-    id: 'job-match-scorer',
-    title: 'Job Match Scorer',
-    icon: 'target',
-    description: 'Paste a job description and your resume. Get a match score and specific gaps to address—so you know why you\'re not getting callbacks.',
-    timeToComplete: '3-5 min',
-    status: 'available' as const,
-    href: '/dashboard/ai-tools/job-match-scorer',
-  },
+  // Priority tools: Resume Writer first, AI Interview Coach second
   {
     id: 'resume-rewriter',
     title: 'Resume Rewriter',
@@ -35,15 +27,6 @@ const TOOLS = [
     exampleText: '"Managed team" becomes "Led cross-functional team of 12, delivering $2.4M project 3 weeks ahead of schedule"',
   },
   {
-    id: 'interview-practice',
-    title: 'Interview Practice',
-    icon: 'record_voice_over',
-    description: 'Generate role-specific interview questions with answer frameworks. Practice behavioral and technical questions.',
-    timeToComplete: '10-15 min',
-    status: 'available' as const,
-    href: '/dashboard/ai-tools/interview-practice',
-  },
-  {
     id: 'interview-coach',
     title: 'AI Interview Coach',
     icon: 'smart_toy',
@@ -51,6 +34,24 @@ const TOOLS = [
     timeToComplete: '15-20 min',
     status: 'available' as const,
     href: '/dashboard/ai-tools/interview-coach',
+  },
+  {
+    id: 'job-match-scorer',
+    title: 'Job Match Scorer',
+    icon: 'target',
+    description: 'Paste a job description and your resume. Get a match score and specific gaps to address—so you know why you\'re not getting callbacks.',
+    timeToComplete: '3-5 min',
+    status: 'available' as const,
+    href: '/dashboard/ai-tools/job-match-scorer',
+  },
+  {
+    id: 'interview-practice',
+    title: 'Interview Practice',
+    icon: 'record_voice_over',
+    description: 'Generate role-specific interview questions with answer frameworks. Practice behavioral and technical questions.',
+    timeToComplete: '10-15 min',
+    status: 'available' as const,
+    href: '/dashboard/ai-tools/interview-practice',
   },
   {
     id: 'cover-letter',

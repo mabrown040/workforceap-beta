@@ -4451,7 +4451,8 @@ fieldset.apply-fieldset {
     }
 }
 .salary-guide-stat-card {
-    background: #f8f8f8;
+    background: var(--surface-container-low);
+    border: 1px solid var(--surface-container-high);
     border-radius: 12px;
     padding: 2rem;
     text-align: center;
@@ -4459,14 +4460,15 @@ fieldset.apply-fieldset {
 .salary-guide-stat-value {
     font-size: 2.5rem;
     font-weight: 800;
-    color: #ad2c4d;
+    color: var(--color-accent);
 }
 .salary-guide-stat-label {
     font-weight: 600;
+    color: var(--color-on-surface);
     margin: 0.5rem 0 0.25rem;
 }
 .salary-guide-stat-sub {
-    color: #666;
+    color: var(--color-on-surface-variant);
     font-size: 0.9rem;
 }
 

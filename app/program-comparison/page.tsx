@@ -126,7 +126,7 @@ export default function ProgramComparisonPage() {
               </div>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Fellowship Grant</h3>
               <p style={{ opacity: 0.9, lineHeight: 1.7, fontSize: '0.9rem' }}>
-                All WAP programs are offered at zero cost to members. Our fellowship model is funded through employer partnerships and successful placements.
+                All WorkforceAP programs are offered at zero cost to members. Our fellowship model is funded through employer partnerships and successful placements.
               </p>
               <div style={{ marginTop: 'auto' }}>
                 <Link href="/apply" className="btn btn-small" style={{

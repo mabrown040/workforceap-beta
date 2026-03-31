@@ -2,6 +2,12 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Conversation } from '@elevenlabs/client';
+import {
+  appendVoiceTranscriptTurn,
+  buildInterviewQaFromVoiceTurns,
+  extractVoiceTranscriptTurn,
+  type VoiceTranscriptTurn,
+} from '@/lib/interview/voiceTranscript';
 
 type TranscriptEntry = { question: string; answer: string };
 type Phase = 'setup' | 'voice' | 'interview' | 'feedback';
@@ -15,6 +21,7 @@ interface InterviewSession {
   questions: string[];
   answers: string[];
   sessionId: string;
+  transcriptTurns?: VoiceTranscriptTurn[];
 }
 
 const INTERVIEW_TYPES = ['Behavioral', 'Technical', 'General'];
@@ -41,7 +48,7 @@ export default function InterviewCoach() {
   const [expandedSession, setExpandedSession] = useState<string | null>(null);
   const convRef = useRef<Conversation | null>(null);
   const intentionalCloseRef = useRef(false);
-  const voiceTranscriptRef = useRef<{ role: 'agent' | 'user'; text: string }[]>([]);
+  const voiceTranscriptRef = useRef<VoiceTranscriptTurn[]>([]);
 
   // Cleanup WebSocket on unmount
   useEffect(() => {
@@ -139,15 +146,10 @@ export default function InterviewCoach() {
           intentionalCloseRef.current = false;
         },
         onMessage: (event) => {
-          // Discriminated union — check event.type for transcript events
-          const ev = event as unknown as Record<string, unknown>;
-          if (ev.type === 'user_transcript') {
-            const text = (ev.user_transcription_event as { user_transcript: string })?.user_transcript;
-            if (text) voiceTranscriptRef.current.push({ role: 'user', text });
-          } else if (ev.type === 'agent_response') {
-            const text = (ev.agent_response_event as { agent_response: string })?.agent_response;
-            if (text) voiceTranscriptRef.current.push({ role: 'agent', text });
-          }
+          voiceTranscriptRef.current = appendVoiceTranscriptTurn(
+            voiceTranscriptRef.current,
+            extractVoiceTranscriptTurn(event)
+          );
         },
         onError: (msg) => { setWsStatus('ended'); setVoiceError(String(msg) || 'Connection error'); },
       });
@@ -160,18 +162,7 @@ export default function InterviewCoach() {
 
   async function getVoiceFeedback() {
     const turns = voiceTranscriptRef.current;
-    // Build Q&A pairs from the voice transcript
-    const questions: string[] = [];
-    const answers: string[] = [];
-    let currentQ = '';
-    for (const turn of turns) {
-      if (turn.role === 'agent') {
-        currentQ = turn.text;
-      } else if (turn.role === 'user' && turn.text.trim()) {
-        questions.push(currentQ || 'Voice question');
-        answers.push(turn.text);
-      }
-    }
+    const { questions, answers } = buildInterviewQaFromVoiceTurns(turns);
 
     if (answers.length === 0) {
       setFeedback('Your voice interview session has ended but no responses were captured. Please ensure your microphone is working and try again.');
@@ -192,6 +183,7 @@ export default function InterviewCoach() {
           interviewType: interviewType.toLowerCase(),
           questions,
           answers,
+          transcriptTurns: turns,
         }),
       });
       const data = await res.json() as { feedback?: string; error?: string };

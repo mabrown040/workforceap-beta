@@ -114,7 +114,7 @@ export default function LeadershipPage() {
                   className="text-label-upper"
                   style={{ fontSize: '0.65rem', letterSpacing: '0.1em' }}
                 >
-                  Established 2024
+                  Established 2025
                 </span>
               </div>
 

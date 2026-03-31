@@ -50,7 +50,7 @@ const GROWTH_PHASES = [
   { num: '01', title: 'Foundation', desc: 'Complete your certification program and land your first role. Focus on demonstrating competence.' },
   { num: '02', title: 'Specialization', desc: 'Build depth in your niche. Stack additional certifications. Salary typically increases 15-25%.' },
   { num: '03', title: 'Leadership', desc: 'Move into senior IC or management roles. Mentor others. Compensation reflects your impact.' },
-  { num: '04', title: 'Mastery', desc: 'Industry expert. Multiple career options. Many alumni return to WAP as mentors or instructors.' },
+  { num: '04', title: 'Mastery', desc: 'Industry expert. Multiple career options. Many alumni return to WorkforceAP as mentors or instructors.' },
 ];
 
 const MOBILE_SALARY_CARDS = [
@@ -226,7 +226,7 @@ export default function SalaryGuidePage() {
             <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>analytics</span>
             Salary Intelligence
           </span>
-          <h1 className="text-display-lg" style={{ marginBottom: '1rem' }}>2024 Salary Intelligence</h1>
+          <h1 className="text-display-lg" style={{ marginBottom: '1rem' }}>2025 Salary Intelligence</h1>
           <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.125rem', lineHeight: 1.7, maxWidth: '640px' }}>
             Starting salary ranges by program — same numbers you see on /programs. Use this with fit, timeline, and ramp to find your best path forward.
           </p>
@@ -426,7 +426,7 @@ export default function SalaryGuidePage() {
             border: '1px solid var(--surface-container-highest)',
           }}>
             <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'block' }}>school</span>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>Download the Full 2024 Report</h3>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>Download the Full 2025 Report</h3>
             <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', marginBottom: '1.5rem', maxWidth: '480px', marginLeft: 'auto', marginRight: 'auto' }}>
               Get the complete salary intelligence report with detailed breakdowns, employer insights, and regional adjustments.
             </p>

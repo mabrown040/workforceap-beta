@@ -41,8 +41,8 @@ export default async function LearningPage() {
     <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
       {/* Header */}
       <div style={{ padding: '1.5rem 1.5rem 0', marginBottom: '1.5rem' }}>
-        <span className="text-[10px] font-medium tracking-[0.1em] uppercase text-[#8c0f37]" style={{ display: 'block', marginBottom: '0.5rem' }}>Learning Path</span>
-        <h2 className="text-3xl font-bold tracking-tight text-[#1c1b1b] leading-tight">My Learning</h2>
+        <span className="text-[10px] font-medium tracking-[0.1em] uppercase text-[#8c0f37]" style={{ display: 'block', marginBottom: '0.5rem' }}>Curriculum Oversight</span>
+        <h2 className="text-3xl font-bold tracking-tight text-[#1c1b1b] leading-tight">The Learning Hub</h2>
       </div>
 
       {/* Progress overview card */}
@@ -484,7 +484,7 @@ export default async function LearningPage() {
         >
           <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', fontVariationSettings: "'FILL' 1" }}>smart_toy</span>
           <div>
-            <div style={{ fontWeight: 'var(--font-weight-medium)', fontSize: 'var(--font-size-sm)' }}>WAP Study Assistant</div>
+            <div style={{ fontWeight: 'var(--font-weight-medium)', fontSize: 'var(--font-size-sm)' }}>WorkforceAP Study Assistant</div>
             <div style={{ fontSize: '0.75rem', opacity: 0.85 }}>Ask me anything about your courses</div>
           </div>
         </div>

@@ -331,7 +331,7 @@ export default async function ResumeRewriterPage() {
               </h3>
             </div>
             <p style={{ fontSize: '0.82rem', lineHeight: 1.6, color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem' }}>
-              Our AI follows the WAP Curator&apos;s Standard -- a methodology that balances ATS keyword density with
+              Our AI follows the WorkforceAP Curator&apos;s Standard -- a methodology that balances ATS keyword density with
               authentic professional voice. Each bullet is evaluated for quantifiable impact, strong action verbs,
               and alignment with your target role&apos;s core competencies.
             </p>
@@ -346,7 +346,7 @@ export default async function ResumeRewriterPage() {
                   color: 'var(--color-accent)',
                 }}
               >
-                WAP Standard v2.0
+                WorkforceAP Standard v2.0
               </span>
               <span
                 style={{

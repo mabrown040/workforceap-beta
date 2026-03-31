@@ -56,9 +56,9 @@ export const LEADERS: Leader[] = [
     founder: true,
     linkedin: 'https://www.linkedin.com/in/michaelabrownpmp/',
     cardBio:
-      "Texas A&M Chemical Engineer. Former owner of Consulting Solutions.Net; key leader at Goodwill Career & Technical Academy, Austin Area Urban League, Universal Tech Movement, African American Youth Harvest Foundation. 100 Black Men of Austin, Alpha Phi Alpha, Elder at Celebration Church.",
+      "PMP, nonprofit executive. Former owner of Consulting Solutions.Net; key leader at Goodwill Career & Technical Academy, Austin Area Urban League. Active with Workforce Solutions, State of Texas, Texas Workforce Commission, City of Austin initiatives. 100 Black Men of Austin, Alpha Phi Alpha, Elder at Celebration Church.",
     missionRelevance:
-      "25+ years delivering workforce training. Thousands trained through Goodwill, Urban League, and community orgs — the barrier-breaking experience that built WorkforceAP.",
+      "25+ years delivering workforce training through partnerships with Workforce Solutions, State of Texas, Texas Workforce Commission, City of Austin, Goodwill, and Urban League — the barrier-breaking experience that built WorkforceAP.",
     bioBlocks: [
       {
         type: 'paragraph',
@@ -211,7 +211,7 @@ export const LEADERS: Leader[] = [
     cardBio:
       "CTO, Global Partner Solutions at Microsoft. 25 years in tech. SUCCESS Magazine Women of Influence 2023. MS Electrical Engineering, Georgia Tech. Board Director, IDEX Corporation.",
     missionRelevance:
-      "Employer-side credibility. The tech pathways our graduates walk into — Microsoft, enterprise partners — are the same rooms she helps shape.",
+      "Employer-side credibility. Our employer partners are the rooms she helps shape — Microsoft, enterprise partners, and the tech pathways our graduates walk into.",
     bioBlocks: [
       {
         type: 'paragraph',
@@ -289,7 +289,7 @@ export const LEADERS: Leader[] = [
     cardBio:
       'Co-founded Interstate Connections — Austin Business Journal "Fastest Growing Private Company." CFO, The Business Bible. Texas Alliance for Life board. Former Chairman, Concordia High School.',
     missionRelevance:
-      "Entrepreneur who built a Fastest Growing Company. Board leadership that strengthens community pipelines and employer connections.",
+      "Highly respected entrepreneur that influences direction and resources. Built a Fastest Growing Company; board leadership strengthens community pipelines and employer connections.",
     bioBlocks: [
       {
         type: 'paragraph',

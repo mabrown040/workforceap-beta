@@ -27,7 +27,7 @@ const BENTO_ITEMS = [
   {
     icon: 'verified',
     title: 'Validated Outcomes',
-    desc: 'Industry-recognized certifications. Skills assessments. Job placement support. We measure what matters — jobs landed.',
+    desc: 'Industry-recognized certificates. Skills assessments. Job placement support. We measure what matters — jobs landed.',
     span: 'small',
   },
   {
@@ -110,7 +110,7 @@ export default function WhatWeDoPage() {
             <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', verticalAlign: '-2px', marginRight: '0.35rem' }}>
               history_edu
             </span>
-            Institutional Excellence Since 1999
+            Creating Opportunity for All Since 1999
           </span>
 
           <h1
@@ -206,9 +206,9 @@ export default function WhatWeDoPage() {
                 }}
               >
                 <img
-                  src="/images/michael-brown.jpg"
-                  alt="Michael Brown, Founder & Executive Director, Workforce Advancement Project"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }}
+                  src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80"
+                  alt="Diverse team collaborating on workforce development"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
                 />
               </div>
               <div
@@ -242,8 +242,8 @@ export default function WhatWeDoPage() {
                   marginBottom: '1.5rem',
                 }}
               >
-                Investing in Digital{' '}
-                <span style={{ color: 'var(--color-accent)' }}>Sovereignty</span>
+                Investing in the Future{' '}
+                <span style={{ color: 'var(--color-accent)' }}>Workforce</span>
               </h2>
 
               <blockquote

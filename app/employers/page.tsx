@@ -16,7 +16,7 @@ const VALUE_CARDS = [
   {
     icon: 'verified',
     title: 'Verified Skills',
-    desc: 'All graduates complete skills assessments and earn certifications from Google, IBM, Microsoft, AWS, CompTIA. Ready to contribute from day one.',
+    desc: 'Members complete training and are vetted through the Workforce Advancement Project process — with industry credentials from Google, IBM, Microsoft, AWS, CompTIA.',
   },
   {
     icon: 'diversity_3',
@@ -26,7 +26,7 @@ const VALUE_CARDS = [
   {
     icon: 'support_agent',
     title: 'Integration Support',
-    desc: '90-day onboarding support for every hire. We help your new team members succeed long-term, not just on day one.',
+    desc: '150-day onboarding support for every hire. We help your new team members succeed long-term, not just on day one.',
   },
   {
     icon: 'auto_fix_high',
@@ -37,13 +37,22 @@ const VALUE_CARDS = [
 
 const COHORTS = [
   {
+    icon: 'computer',
+    title: 'IT Support',
+    cert: 'IBM Professional Certificate',
+    level: 'Entry-level',
+    salary: '$55K-$72K',
+    colSpan: 8,
+    accent: true,
+  },
+  {
     icon: 'security',
     title: 'Cyber Defense',
     cert: 'Google / CompTIA pathway',
     level: 'Entry to mid',
     salary: '$75K-$112K',
     colSpan: 8,
-    accent: true,
+    accent: false,
   },
   {
     icon: 'cloud_queue',
@@ -63,22 +72,13 @@ const COHORTS = [
     colSpan: 4,
     accent: false,
   },
-  {
-    icon: 'computer',
-    title: 'IT Support',
-    cert: 'IBM Professional Certificate',
-    level: 'Entry-level',
-    salary: '$55K-$72K',
-    colSpan: 8,
-    accent: false,
-  },
 ];
 
 const PROCESS_STEPS = [
   { num: 1, title: 'Post Your Opening', desc: 'Add your job to our employer portal. We match it to our pipeline.', icon: 'description' },
   { num: 2, title: 'Review Matched Candidates', desc: 'Receive pre-screened applicants who hold relevant certifications.', icon: 'person_search' },
   { num: 3, title: 'Interview & Hire', desc: 'You conduct interviews and make the hire. No placement fees.', icon: 'how_to_reg' },
-  { num: 4, title: '90-Day Support', desc: 'We support your new hire\u2019s onboarding for long-term success.', icon: 'handshake' },
+  { num: 4, title: '150-Day Support', desc: 'We support your new hire\u2019s onboarding for long-term success.', icon: 'handshake' },
 ];
 
 const PARTNERSHIP_TIERS = [
@@ -290,7 +290,7 @@ export default function EmployersPage() {
                   <span style={{ color: 'var(--color-accent)' }}>Difference</span>
                 </h2>
                 <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '1.5rem' }}>
-                  Every candidate in our network has undergone rigorous training vetted by our
+                  Every candidate in our network completes structured training aligned with our
                   academic and professional partners.
                 </p>
                 <div

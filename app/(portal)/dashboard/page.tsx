@@ -15,6 +15,7 @@ import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { MEMBER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import { formatPortalDate } from '@/lib/formatDate';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Member overview',
@@ -329,7 +330,7 @@ export default async function DashboardPage() {
                     <p className="text-xs font-bold text-[#1c1b1b] leading-tight">{AI_TOOL_LABELS[r.toolType] ?? r.toolType}</p>
                     {r.inputSummary && <p className="text-[11px] text-[#584144] leading-snug truncate" style={{ marginTop:'0.1rem' }}>{r.inputSummary}</p>}
                   </div>
-                  <span className="text-[10px] text-[#584144] whitespace-nowrap" style={{ flexShrink:0 }}>{new Date(r.createdAt).toLocaleDateString()}</span>
+                  <span className="text-[10px] text-[#584144] whitespace-nowrap" style={{ flexShrink:0 }}>{formatPortalDate(r.createdAt)}</span>
                 </div>
               ))}
             </div>
@@ -411,7 +412,7 @@ export default async function DashboardPage() {
                       <p style={{ fontSize:'0.875rem', fontWeight:600, margin:0, color:'var(--color-on-surface)' }}>{AI_TOOL_LABELS[r.toolType] ?? r.toolType}</p>
                       {r.inputSummary && <p style={{ fontSize:'0.8rem', color:'var(--color-on-surface-variant)', margin:'0.1rem 0 0', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{r.inputSummary}</p>}
                     </div>
-                    <span style={{ fontSize:'0.75rem', color:'var(--color-on-surface-variant)', flexShrink:0 }}>{new Date(r.createdAt).toLocaleDateString()}</span>
+                    <span style={{ fontSize:'0.75rem', color:'var(--color-on-surface-variant)', flexShrink:0 }}>{formatPortalDate(r.createdAt)}</span>
                   </div>
                 ))}
               </div>

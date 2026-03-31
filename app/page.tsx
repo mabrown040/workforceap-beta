@@ -9,9 +9,9 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Free Career Training & Industry Certifications | Workforce Advancement Project',
+  title: 'Career Training & Industry Certificates | Workforce Advancement Project',
   description:
-    'No-cost career certification training in Digital Literacy, Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Employer-aligned programs with placement support. Apply today.',
+    'Occupational and career training at no cost to members — Digital Literacy, Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Grants and partnerships fund access. Apply today.',
   path: '/',
 });
 
@@ -31,7 +31,7 @@ const MILESTONES = [
   { num: '08', title: 'Certificate Completion', desc: 'Earn your industry-recognized credential. Why: Proof of skills that employers trust.' },
   { num: '09', title: 'Job Readiness Prep', desc: 'Mock interviews, portfolio review, and application support. Why: Presentation matters as much as skills.' },
   { num: '10', title: 'Employer Matching', desc: 'Connect with vetted employers in your field. Why: Our network accelerates your job search.' },
-  { num: '11', title: 'Career Placement & Retention', desc: 'Land your role with 90-day post-placement support. Why: We measure success by what happens after the offer, not just before it.' },
+  { num: '11', title: 'Career Placement & Retention', desc: 'Land your role with 150-day post-placement support. Why: We measure success by what happens after the offer, not just before it.' },
 ];
 
 export default async function HomePage() {
@@ -98,22 +98,22 @@ export default async function HomePage() {
             marginBottom: '2.5rem',
             lineHeight: 1.7,
           }}>
-            Intentional education designed for modern industry. We connect talented members with employers through {WORKFORCEAP_PROGRAM_CATALOG_SIZE} specialized programs and AI-powered support — nationwide.
+            We help people reach career-ready training and support — {WORKFORCEAP_PROGRAM_CATALOG_SIZE} specialized programs, counselor guidance, and AI-powered tools — nationwide.
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+            <Link href="/find-your-path" className="btn btn-primary btn-large">
+              Find Your Career
+            </Link>
             <ExperimentedCtaLink
               experiment="home_apply_primary_cta"
               variants={[
-                { id: 'control', label: 'Start Your Journey', className: 'btn btn-primary btn-large', href: '/apply' },
-                { id: 'urgency', label: 'Apply Now', className: 'btn btn-primary btn-large', href: '/apply' },
+                { id: 'control', label: 'Start Your Journey', className: 'btn btn-secondary btn-large', href: '/apply' },
+                { id: 'urgency', label: 'Apply Now', className: 'btn btn-secondary btn-large', href: '/apply' },
               ]}
             />
-            <Link href="/partners" className="btn btn-secondary btn-large">
+            <Link href="/partners" className="btn btn-outline btn-large home-hero-outline-cta">
               Partner With Us
-            </Link>
-            <Link href="/find-your-path" className="btn btn-outline btn-large home-hero-outline-cta">
-              Find Your Path
             </Link>
           </div>
         </div>
@@ -131,27 +131,6 @@ export default async function HomePage() {
             <span style={{ fontSize: '1.25rem', fontWeight: 700 }}>Coursera</span>
             <Image className="home-cred-logo" src="/images/microsoft-logo.svg" alt="Microsoft" width={100} height={24} />
             <Image className="home-cred-logo" src="/images/ibm-logo.svg" alt="IBM" width={60} height={24} />
-          </div>
-        </div>
-      </section>
-
-      {/* ===== Experience Behind WorkforceAP — Prelaunch Honest Messaging ===== */}
-      <section style={{ padding: 'clamp(3rem, 6vw, 5rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1400px', margin: '0 auto' }}>
-        <div style={{ maxWidth: '720px', margin: '0 auto', textAlign: 'center' }}>
-          <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
-            Experience Behind WorkforceAP
-          </span>
-          <h2 className="text-display-sm" style={{ marginBottom: '1.5rem' }}>
-            Built on Proven Results
-          </h2>
-          <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, marginBottom: '1.5rem' }}>
-            WorkforceAP is prelaunch — we don&apos;t have graduate stories on this site yet. What we do have is a long run of workforce outcomes through{' '}
-            <strong>Consulting Solutions.Net (CSN)</strong>: training aligned to real job requirements, strong completion and placement support, and thousands of people coached into industry credentials and work. That same leadership team is building WorkforceAP for scale.
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center', marginTop: '1.5rem' }}>
-            <Link href="/blog" className="btn btn-primary btn-small">Blog &amp; Updates</Link>
-            <Link href="/leadership" className="btn btn-secondary btn-small">Leadership &amp; Board</Link>
-            <Link href="/what-we-do" className="btn btn-secondary btn-small">What We Do</Link>
           </div>
         </div>
       </section>
@@ -218,7 +197,7 @@ export default async function HomePage() {
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }}>check_circle</span>
-                  Direct pipeline management
+                  Structured hiring introductions when it fits your process
                 </li>
               </ul>
               <div style={{ marginTop: '1.5rem' }}>
@@ -416,7 +395,7 @@ export default async function HomePage() {
                     fontSize: '0.75rem', fontWeight: 600,
                   }}>
                     <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>verified</span>
-                    Certification
+                    Certificate track
                   </span>
                 </div>
               </div>
@@ -448,19 +427,22 @@ export default async function HomePage() {
 
       {/* ===== Final CTA ===== */}
       <section className="footer-cta" style={{ background: 'var(--color-accent)', padding: 'clamp(3rem, 6vw, 4rem) clamp(1rem, 4vw, 2rem)', textAlign: 'center' }}>
-        <div style={{ maxWidth: '700px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '720px', margin: '0 auto' }}>
           <h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', fontWeight: 900, letterSpacing: '-0.02em', color: 'white', marginBottom: '1rem' }}>Your Next Step</h2>
           <p style={{ color: 'rgba(255,255,255,0.85)', marginBottom: '2rem', fontSize: '1.125rem' }}>
-            Apply now — about 10 minutes. We respond within 3–5 business days. Real certifications. Employer connections. No cost to members.
+            About 10 minutes to apply. We respond within 3–5 business days. Industry-recognized certificates and placement support. No tuition cost to members.
           </p>
-          <Link href="/apply" className="btn btn-large" style={{ background: 'white', color: 'var(--color-accent)', fontWeight: 700 }}>
-            Start Your Application
-          </Link>
-          <p style={{ marginTop: '1rem', color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem' }}>
-            <Link href="/find-your-path" style={{ color: 'rgba(255,255,255,0.9)', textDecoration: 'underline' }}>
-              Not sure yet? Take the pathfinder quiz first.
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center', alignItems: 'center' }}>
+            <Link href="/find-your-path" className="btn btn-large" style={{ background: 'white', color: 'var(--color-accent)', fontWeight: 700 }}>
+              Find Your Career
             </Link>
-          </p>
+            <Link href="/apply" className="btn btn-large" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.5)', fontWeight: 700 }}>
+              Start Your Application
+            </Link>
+            <Link href="/programs" className="btn btn-large" style={{ background: 'transparent', color: 'white', border: '1px solid rgba(255,255,255,0.35)', fontWeight: 600 }}>
+              View Program Details
+            </Link>
+          </div>
         </div>
       </section>
 

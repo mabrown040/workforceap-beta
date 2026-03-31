@@ -8,6 +8,7 @@ import { postMemberEvent } from '@/lib/events/client';
 import MemberPreScreeningForm from '@/components/portal/MemberPreScreeningForm';
 import MemberInterviewRequestButton from '@/components/portal/MemberInterviewRequestButton';
 import YouthDashboardNotice from '@/components/portal/YouthDashboardNotice';
+import { formatPortalDate, formatPortalDateTime } from '@/lib/formatDate';
 
 type State = 'A' | 'B' | 'C' | 'D';
 
@@ -257,7 +258,7 @@ export default function DashboardHomeClient({
                 )}
                 {enrolledAt && (
                   <span style={{ padding: '0.25rem 0.5rem', background: 'var(--surface-container-lowest)', fontSize: '0.625rem', borderRadius: '0.25rem', border: '1px solid rgba(255,255,255,0.05)' }}>
-                    Enrolled: {new Date(enrolledAt).toLocaleDateString()}
+                    Enrolled: {formatPortalDate(enrolledAt)}
                   </span>
                 )}
               </div>
@@ -286,7 +287,7 @@ export default function DashboardHomeClient({
             {interviewRequestedAt ? (
               <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
                 We received your interview request on{' '}
-                {new Date(interviewRequestedAt).toLocaleString()}. A counselor will reach out by email.
+                {formatPortalDateTime(interviewRequestedAt)}. A counselor will reach out by email.
               </p>
             ) : (
               <MemberInterviewRequestButton />
@@ -491,7 +492,7 @@ export default function DashboardHomeClient({
                 {recentActivity.map((a, i) => (
                   <li key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                     <span>{a.label}</span>
-                    <span style={{ opacity: 0.5 }}>{a.timestamp.toLocaleDateString()}</span>
+                    <span style={{ opacity: 0.5 }}>{formatPortalDate(a.timestamp)}</span>
                   </li>
                 ))}
               </ul>

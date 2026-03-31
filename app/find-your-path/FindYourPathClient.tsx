@@ -76,6 +76,15 @@ const QUESTIONS = [
       { value: 'basics' as const, label: 'I need to start from the basics' },
     ],
   },
+  {
+    id: 'q6' as const,
+    question: 'Do you have a functional computer at home?',
+    answers: [
+      { value: 'yes_computer' as const, label: 'Yes, I have a working computer or laptop' },
+      { value: 'no_computer' as const, label: 'No, I do not have access to a computer' },
+      { value: 'needs_device' as const, label: 'I have a device but it needs repair or is not reliable' },
+    ],
+  },
 ];
 
 const CATEGORY_BORDER: Record<string, string> = {
@@ -99,13 +108,52 @@ function getTopPrograms(weights: CategoryWeights, answers?: QuizAnswers): Progra
     if (b.score !== a.score) return b.score - a.score;
     return b.salaryNum - a.salaryNum;
   });
-  const top3 = scored.slice(0, 3).map((s) => s.program);
+
+  // Get category-based recommendations
+  const topMatches = scored.filter(s => s.score > 0);
+  const goalProgram = topMatches[0]?.program;
+
+  // Get Digital Literacy and IT Support programs
   const digital = getProgramBySlug('digital-literacy-empowerment-class');
-  const prioritizeDigital =
-    answers && (answers.q5 === 'basics' || answers.q5 === 'basic_apps') && digital;
-  if (!prioritizeDigital || !digital) return top3;
-  if (top3.some((p) => p.slug === digital.slug)) return top3;
-  return [digital, top3[0], top3[1]];
+  const itSupport = getProgramBySlug('it-support-professional-certificate-ibm');
+
+  // Build recommendation based on experience level
+  const experienceLevel = answers?.q2;
+  const needsDigital = answers?.q6 === 'no_computer' || answers?.q6 === 'needs_device' || 
+                       answers?.q5 === 'basics' || answers?.q5 === 'basic_apps';
+
+  const result: Program[] = [];
+
+  // Logic: no experience → digital literacy + IT support + goal
+  //        some experience → IT support + goal
+  //        extensive → goal only
+  if (experienceLevel === 'brand_new') {
+    if (needsDigital && digital) result.push(digital);
+    if (itSupport) result.push(itSupport);
+    if (goalProgram && !result.find(p => p.slug === goalProgram.slug)) {
+      result.push(goalProgram);
+    }
+  } else if (experienceLevel === 'some_knowledge') {
+    if (itSupport) result.push(itSupport);
+    if (goalProgram && !result.find(p => p.slug === goalProgram.slug)) {
+      result.push(goalProgram);
+    }
+  } else {
+    // work_experience or certifications - goal only
+    if (goalProgram) result.push(goalProgram);
+  }
+
+  // Fill remaining slots with top scored programs if needed
+  let idx = 0;
+  while (result.length < 3 && idx < scored.length) {
+    const prog = scored[idx].program;
+    if (!result.find(p => p.slug === prog.slug)) {
+      result.push(prog);
+    }
+    idx++;
+  }
+
+  return result.slice(0, 3);
 }
 
 function QuizResultsView({
@@ -468,7 +516,7 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
           display: 'flex', gap: '2rem', marginTop: '2rem',
           flexWrap: 'wrap',
         }}>
-          {['Interest', 'Experience', 'Timeline', 'Values', 'Tech Comfort'].map((label, i) => (
+          {['Interest', 'Experience', 'Timeline', 'Values', 'Tech Comfort', 'Computer Access'].map((label, i) => (
             <div key={label} style={{
               display: 'flex', alignItems: 'center', gap: '0.5rem',
             }}>

@@ -16,22 +16,22 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 const HERO_IMAGE_SRC =
-  'https://images.unsplash.com/photo-1531218150217-54595bc2b934?auto=format&fit=crop&w=1920&q=80';
+  'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1920&q=80';
 const HERO_IMAGE_THUMB =
-  'https://images.unsplash.com/photo-1531218150217-54595bc2b934?auto=format&fit=crop&w=640&q=70';
+  'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=640&q=70';
 
 const MILESTONES = [
-  { num: '01', title: 'Application', desc: 'Submit your application online in about 10 minutes.' },
-  { num: '02', title: 'Assessment', desc: 'Quick skills and interest review to find your best fit.' },
-  { num: '03', title: 'Enrollment', desc: 'Get matched with a program track and cohort.' },
-  { num: '04', title: 'Orientation', desc: 'Meet your mentors and get set up with tools.' },
-  { num: '05', title: 'Core Training', desc: 'Intensive skill-building with industry experts.' },
-  { num: '06', title: 'Lab Projects', desc: 'Hands-on work simulating real employer needs.' },
-  { num: '07', title: 'Certification', desc: 'Earn recognized industry credentials.' },
-  { num: '08', title: 'Resume + Portfolio', desc: 'Build job-ready materials with AI support.' },
-  { num: '09', title: 'Interview Prep', desc: 'Mock interviews and feedback from hiring managers.' },
-  { num: '10', title: 'Placement', desc: 'Direct introductions to our employer partner network.' },
-  { num: '11', title: 'Career Growth', desc: 'Ongoing alumni support and advancement resources.' },
+  { num: '01', title: 'Apply', desc: 'Submit your application online in about 10 minutes. Why: We need to understand your background to match you with the right opportunity.' },
+  { num: '02', title: 'Eligibility Review', desc: 'Our team reviews your application within 3-5 business days. Why: We ensure our programs fit your situation and goals.' },
+  { num: '03', title: 'Welcome & Onboarding', desc: 'Get access to your member portal and resources. Why: Setting you up for success from day one.' },
+  { num: '04', title: 'Skills Assessment', desc: 'Discover your strengths and identify growth areas. Why: Data helps us personalize your pathway.' },
+  { num: '05', title: 'Program Enrollment', desc: 'Begin your chosen certificate program. Why: Industry-recognized credentials open doors.' },
+  { num: '06', title: '1:1 Counselor Support', desc: 'Regular check-ins with your dedicated career counselor. Why: Accountability and guidance increase completion rates.' },
+  { num: '07', title: 'AI Tools & Resources', desc: 'Resume builder, interview practice, and job matching. Why: Technology amplifies your preparation.' },
+  { num: '08', title: 'Certificate Completion', desc: 'Earn your industry-recognized credential. Why: Proof of skills that employers trust.' },
+  { num: '09', title: 'Job Readiness Prep', desc: 'Mock interviews, portfolio review, and application support. Why: Presentation matters as much as skills.' },
+  { num: '10', title: 'Employer Matching', desc: 'Connect with vetted employers in your field. Why: Our network accelerates your job search.' },
+  { num: '11', title: 'Career Placement & Retention', desc: 'Land your role with 90-day post-placement support. Why: We measure success by what happens after the offer, not just before it.' },
 ];
 
 export default async function HomePage() {
@@ -76,17 +76,7 @@ export default async function HomePage() {
           padding: 'clamp(5.5rem, 12vw, 8rem) clamp(1rem, 4vw, 2rem) clamp(3rem, 8vw, 6rem)',
         }}
         >
-          {/* Badge pill */}
-          <span style={{
-            display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-            padding: '0.4rem 1rem', borderRadius: 'var(--radius-full, 50px)',
-            background: 'rgba(173,44,77,0.2)', border: '1px solid rgba(173,44,77,0.4)',
-            color: 'var(--color-accent)', fontSize: '0.75rem', fontWeight: 700,
-            letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '1.5rem',
-          }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>location_on</span>
-            Austin Launch Community
-          </span>
+
 
           <h1
             className="text-display-lg"
@@ -116,7 +106,7 @@ export default async function HomePage() {
               experiment="home_apply_primary_cta"
               variants={[
                 { id: 'control', label: 'Start Your Journey', className: 'btn btn-primary btn-large', href: '/apply' },
-                { id: 'urgency', label: 'Apply Now — Free', className: 'btn btn-primary btn-large', href: '/apply' },
+                { id: 'urgency', label: 'Apply Now', className: 'btn btn-primary btn-large', href: '/apply' },
               ]}
             />
             <Link href="/partners" className="btn btn-secondary btn-large">
@@ -145,7 +135,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ===== Experience Behind WAP — Prelaunch Honest Messaging ===== */}
+      {/* ===== Experience Behind WorkforceAP — Prelaunch Honest Messaging ===== */}
       <section style={{ padding: 'clamp(3rem, 6vw, 5rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1400px', margin: '0 auto' }}>
         <div style={{ maxWidth: '720px', margin: '0 auto', textAlign: 'center' }}>
           <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
@@ -162,6 +152,104 @@ export default async function HomePage() {
             <Link href="/blog" className="btn btn-primary btn-small">Blog &amp; Updates</Link>
             <Link href="/leadership" className="btn btn-secondary btn-small">Leadership &amp; Board</Link>
             <Link href="/what-we-do" className="btn btn-secondary btn-small">What We Do</Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== A Network Built for Success — Stakeholder Cards (Partnerships) ===== */}
+      <section style={{ background: 'var(--surface-container-low)', padding: 'clamp(3rem, 6vw, 6rem) 0' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2rem)' }}>
+          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+            <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
+              Partnerships
+            </span>
+            <h2 className="text-display-sm">A Network Built for Success</h2>
+          </div>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
+            gap: '2rem',
+            alignItems: 'start',
+          }}>
+            {/* For Members */}
+            <div className="stitch-card" style={{ background: 'var(--surface-container-lowest)', padding: '2rem' }}>
+              <div style={{ width: '3rem', height: '3rem', background: 'rgba(173,44,77,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent)', marginBottom: '1.5rem' }}>
+                <span className="material-symbols-outlined">person</span>
+              </div>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Members</h3>
+              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }}>check_circle</span>
+                  No upfront costs for training
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }}>check_circle</span>
+                  {WORKFORCEAP_PROGRAM_CATALOG_SIZE} high-demand career tracks
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }}>check_circle</span>
+                  Dedicated placement support
+                </li>
+              </ul>
+              <div style={{ marginTop: '1.5rem' }}>
+                <Link href="/apply" className="btn btn-primary btn-small">Apply Now</Link>
+              </div>
+            </div>
+
+            {/* For Employers — center card elevated */}
+            <div className="stitch-card home-employer-elevated" style={{
+              background: 'var(--surface-container-lowest)', padding: '2rem',
+              border: '2px solid var(--color-accent)',
+              transform: 'translateY(-1rem)',
+              boxShadow: '0 8px 32px rgba(173,44,77,0.15)',
+            }}>
+              <div style={{ width: '3rem', height: '3rem', background: 'rgba(255,187,0,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-gold)', marginBottom: '1.5rem' }}>
+                <span className="material-symbols-outlined">business</span>
+              </div>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Employers</h3>
+              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }}>check_circle</span>
+                  Vetted talent ready for work
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }}>check_circle</span>
+                  Customized curriculum options
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }}>check_circle</span>
+                  Direct pipeline management
+                </li>
+              </ul>
+              <div style={{ marginTop: '1.5rem' }}>
+                <Link href="/employers" className="btn btn-primary btn-small">Employer Overview</Link>
+              </div>
+            </div>
+
+            {/* For Partners */}
+            <div className="stitch-card" style={{ background: 'var(--surface-container-lowest)', padding: '2rem' }}>
+              <div style={{ width: '3rem', height: '3rem', background: 'rgba(200,198,197,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c8c6c5', marginBottom: '1.5rem' }}>
+                <span className="material-symbols-outlined">handshake</span>
+              </div>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Partners</h3>
+              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }}>check_circle</span>
+                  Educational resource sharing
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }}>check_circle</span>
+                  Scalable workforce solutions
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }}>check_circle</span>
+                  Community impact analytics
+                </li>
+              </ul>
+              <div style={{ marginTop: '1.5rem' }}>
+                <Link href="/partners" className="btn btn-primary btn-small">Partner With Us</Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -221,7 +309,7 @@ export default async function HomePage() {
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2rem)' }}>
           <h2 className="text-display-sm" style={{ marginBottom: '1rem', textAlign: 'center' }}>Your Journey to Success</h2>
           <p style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)', marginBottom: '3rem', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
-            From application to career growth — 11 milestones that define the WAP experience.
+            From application to career growth — 11 milestones that define your WorkforceAP experience.
           </p>
         </div>
         <div style={{
@@ -339,104 +427,6 @@ export default async function HomePage() {
           <Link href="/programs" className="btn btn-secondary">
             View All {programCount} Programs
           </Link>
-        </div>
-      </section>
-
-      {/* ===== A Network Built for Success — Stakeholder Cards ===== */}
-      <section style={{ background: 'var(--surface-container-low)', padding: 'clamp(3rem, 6vw, 6rem) 0' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2rem)' }}>
-          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
-              Community
-            </span>
-            <h2 className="text-display-sm">A Network Built for Success</h2>
-          </div>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
-            gap: '2rem',
-            alignItems: 'start',
-          }}>
-            {/* For Members */}
-            <div className="stitch-card" style={{ background: 'var(--surface-container-lowest)', padding: '2rem' }}>
-              <div style={{ width: '3rem', height: '3rem', background: 'rgba(173,44,77,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent)', marginBottom: '1.5rem' }}>
-                <span className="material-symbols-outlined">person</span>
-              </div>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Members</h3>
-              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }}>check_circle</span>
-                  No upfront costs for training
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }}>check_circle</span>
-                  {WORKFORCEAP_PROGRAM_CATALOG_SIZE} high-demand career tracks
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }}>check_circle</span>
-                  Dedicated placement support
-                </li>
-              </ul>
-              <div style={{ marginTop: '1.5rem' }}>
-                <Link href="/apply" className="btn btn-primary btn-small">Apply Now</Link>
-              </div>
-            </div>
-
-            {/* For Employers — center card elevated */}
-            <div className="stitch-card home-employer-elevated" style={{
-              background: 'var(--surface-container-lowest)', padding: '2rem',
-              border: '2px solid var(--color-accent)',
-              transform: 'translateY(-1rem)',
-              boxShadow: '0 8px 32px rgba(173,44,77,0.15)',
-            }}>
-              <div style={{ width: '3rem', height: '3rem', background: 'rgba(255,187,0,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-gold)', marginBottom: '1.5rem' }}>
-                <span className="material-symbols-outlined">business</span>
-              </div>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Employers</h3>
-              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }}>check_circle</span>
-                  Vetted talent ready for work
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }}>check_circle</span>
-                  Customized curriculum options
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }}>check_circle</span>
-                  Direct pipeline management
-                </li>
-              </ul>
-              <div style={{ marginTop: '1.5rem' }}>
-                <Link href="/employers" className="btn btn-primary btn-small">Employer Overview</Link>
-              </div>
-            </div>
-
-            {/* For Partners */}
-            <div className="stitch-card" style={{ background: 'var(--surface-container-lowest)', padding: '2rem' }}>
-              <div style={{ width: '3rem', height: '3rem', background: 'rgba(200,198,197,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c8c6c5', marginBottom: '1.5rem' }}>
-                <span className="material-symbols-outlined">handshake</span>
-              </div>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Partners</h3>
-              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }}>check_circle</span>
-                  Educational resource sharing
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }}>check_circle</span>
-                  Scalable workforce solutions
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }}>check_circle</span>
-                  Community impact analytics
-                </li>
-              </ul>
-              <div style={{ marginTop: '1.5rem' }}>
-                <Link href="/partners" className="btn btn-primary btn-small">Partner With Us</Link>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 

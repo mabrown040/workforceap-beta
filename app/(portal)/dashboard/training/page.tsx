@@ -73,7 +73,7 @@ export default async function TrainingPage() {
               marginBottom: 'var(--space-2)',
             }}
           >
-            WAP Training
+            WorkforceAP Training
           </div>
           <h1 style={{ fontSize: 'var(--font-size-h1)', fontWeight: 'var(--font-weight-bold)', lineHeight: 'var(--line-height-tight)', margin: 0, marginBottom: 'var(--space-2)' }}>
             Training &amp; Job Readiness

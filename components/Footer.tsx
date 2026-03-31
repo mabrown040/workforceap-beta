@@ -74,8 +74,22 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
         </div>
       </div>
 
+      {/* Partner Organizations */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem 2rem 1.5rem', borderTop: '1px solid var(--surface-container-highest, #333537)', textAlign: 'center' }}>
+        <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+          Supported By
+        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '1.5rem', marginBottom: '1.5rem' }}>
+          <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>State of Texas</span>
+          <span style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4 }}>|</span>
+          <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>Texas Workforce Commission</span>
+          <span style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4 }}>|</span>
+          <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>Workforce Solutions</span>
+        </div>
+      </div>
+
       {/* Copyright bar */}
-      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem 2rem 0', borderTop: '1px solid var(--surface-container-highest, #333537)', textAlign: 'center' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '1.5rem 2rem 0', borderTop: '1px solid var(--surface-container-highest, #333537)', textAlign: 'center' }}>
         <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
           &copy; {new Date().getFullYear()} Workforce Advancement Project. Empowering People. Advancing Futures.
         </p>

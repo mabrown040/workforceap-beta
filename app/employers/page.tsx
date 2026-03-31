@@ -263,7 +263,7 @@ export default function EmployersPage() {
         </div>
       </section>
 
-      {/* ── The WAP Difference — Sticky sidebar + value cards ── */}
+      {/* ── The WorkforceAP Difference — Sticky sidebar + value cards ── */}
       <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div
@@ -286,7 +286,7 @@ export default function EmployersPage() {
                     marginBottom: '1.25rem',
                   }}
                 >
-                  The WAP{' '}
+                  The WorkforceAP{' '}
                   <span style={{ color: 'var(--color-accent)' }}>Difference</span>
                 </h2>
                 <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '1.5rem' }}>

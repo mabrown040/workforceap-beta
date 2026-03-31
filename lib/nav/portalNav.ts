@@ -79,17 +79,21 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/dashboard', label: 'Overview', group: 'primary', Icon: Home, tourTarget: 'tour-dashboard' },
   { href: '/dashboard/program', label: 'My Program', group: 'primary', Icon: BookOpen, tourTarget: 'tour-programs' },
   { href: '/dashboard/training', label: 'Training', group: 'primary', Icon: GraduationCap },
+  // Workflows group — ordered per Sprint: Learning Hub, AI Tools, Resume, Program Resources, Job Board, Job Applications
   {
     href: '/dashboard/learning',
-    label: 'Learning hub',
+    label: 'Learning Hub',
     group: 'workflows',
     Icon: Library,
     aliases: ['/resources'],
     tourTarget: 'tour-learning',
   },
+  { href: '/dashboard/ai-tools', label: 'AI Tools', group: 'workflows', Icon: Sparkles, tourTarget: 'tour-ai-tools' },
+  { href: '/dashboard/resume', label: 'Resume', group: 'workflows', Icon: FileText },
+  { href: '/dashboard/resources', label: 'Program Resources', group: 'workflows', Icon: Layers, tourTarget: 'tour-resources' },
   {
     href: '/jobs',
-    label: 'Job board',
+    label: 'Job Board',
     group: 'workflows',
     Icon: Briefcase,
     tourTarget: 'tour-jobs',

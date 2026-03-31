@@ -253,7 +253,7 @@ export default async function DashboardCertificationsPage() {
               The Verification Vault
             </h1>
             <p style={{ color: 'var(--color-on-surface-variant)', fontSize: 'var(--font-size-base)', maxWidth: '640px' }}>
-              Your credentials, milestones, and industry verifications in one place. Track progress across WAP certification pathways and download proof of achievement.
+              Your credentials, milestones, and industry verifications in one place. Track progress across WorkforceAP certification pathways and download proof of achievement.
             </p>
           </header>
 

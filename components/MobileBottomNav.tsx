@@ -3,6 +3,12 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+/**
+ * Responsive breakpoint for mobile nav visibility
+ * Matches Tailwind md breakpoint (768px)
+ */
+const MOBILE_NAV_BREAKPOINT = 768;
+
 const MARKETING_TABS = [
   { href: '/', label: 'Home', icon: 'home' },
   { href: '/find-your-path', label: 'Quiz', icon: 'quiz' },
@@ -52,10 +58,24 @@ export default function MobileBottomNav({ variant = 'marketing' }: MobileBottomN
     : MARKETING_TABS;
 
   return (
-    <nav
-      className="marketing-bottom-nav md:wa-hidden"
-      style={{
-        position: 'fixed',
+    <>
+      {/* Mobile-only visibility: hidden on desktop (≥768px) */}
+      <style>{`
+        @media (min-width: ${MOBILE_NAV_BREAKPOINT}px) {
+          .mobile-bottom-nav-root {
+            display: none !important;
+          }
+        }
+        @media (max-width: ${MOBILE_NAV_BREAKPOINT - 1}px) {
+          .mobile-bottom-nav-root {
+            display: flex !important;
+          }
+        }
+      `}</style>
+      <nav
+        className="marketing-bottom-nav mobile-bottom-nav-root"
+        style={{
+          position: 'fixed',
         bottom: 0,
         left: 0,
         width: '100%',
@@ -99,6 +119,7 @@ export default function MobileBottomNav({ variant = 'marketing' }: MobileBottomN
           </Link>
         );
       })}
-    </nav>
+      </nav>
+    </>
   );
 }

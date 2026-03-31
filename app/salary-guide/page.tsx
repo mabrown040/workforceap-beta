@@ -425,13 +425,14 @@ export default function SalaryGuidePage() {
             padding: '2.5rem', textAlign: 'center', marginBottom: '2rem',
             border: '1px solid var(--surface-container-highest)',
           }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'block' }}>school</span>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>Download the Full 2025 Report</h3>
+            <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'block' }}>download</span>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>Start Your Career Track</h3>
+b3850e5 (fix: what-we-do mobile broken H1 tag, dead CTAs, Take Action button now routes)
             <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', marginBottom: '1.5rem', maxWidth: '480px', marginLeft: 'auto', marginRight: 'auto' }}>
-              Get the complete salary intelligence report with detailed breakdowns, employer insights, and regional adjustments.
+              Apply for free to unlock your personalized salary roadmap, counselor support, and employer connections.
             </p>
             <Link href="/apply" className="btn btn-primary">
-              Download Report
+              Apply for Free
             </Link>
           </div>
 

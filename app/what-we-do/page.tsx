@@ -62,6 +62,7 @@ export default function WhatWeDoPage() {
       <div className="wa-hidden md:wa-block marketing-desktop">
       {/* ── Hero ── */}
       <section
+        className="wwd-photo-hero"
         style={{
           position: 'relative',
           minHeight: '90vh',
@@ -86,55 +87,76 @@ export default function WhatWeDoPage() {
             position: 'absolute',
             inset: 0,
             background:
-              'linear-gradient(135deg, rgba(18,20,22,0.92) 0%, rgba(18,20,22,0.7) 50%, rgba(173,44,77,0.3) 100%)',
+              'linear-gradient(135deg, rgba(18,20,22,0.94) 0%, rgba(18,20,22,0.72) 45%, rgba(173,44,77,0.28) 100%)',
           }}
+        />
+        {/* Extra bottom scrim so body copy stays readable on bright areas of the photo */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 42%)',
+            pointerEvents: 'none',
+          }}
+          aria-hidden={true}
         />
 
         <div className="container" style={{ position: 'relative', zIndex: 1, maxWidth: 'var(--max-width)', padding: '6rem 1.5rem' }}>
           <span
+            className="wwd-photo-hero__eyebrow"
             style={{
-              display: 'inline-block',
+              display: 'inline-flex',
+              alignItems: 'center',
               padding: '0.375rem 1rem',
               borderRadius: 'var(--radius-full)',
-              background: 'rgba(255,255,255,0.1)',
+              background: 'rgba(255,255,255,0.12)',
               backdropFilter: 'var(--glass-blur)',
-              border: '1px solid rgba(255,255,255,0.12)',
-              color: 'var(--color-gold)',
+              border: '1px solid rgba(255,255,255,0.18)',
+              color: '#ffe082',
               fontSize: '0.75rem',
               fontWeight: 700,
               letterSpacing: '0.08em',
               textTransform: 'uppercase',
               marginBottom: '1.5rem',
+              textShadow: '0 1px 3px rgba(0,0,0,0.65)',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', verticalAlign: '-2px', marginRight: '0.35rem' }}>
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: '0.875rem', marginRight: '0.35rem', color: 'inherit' }}
+              aria-hidden
+            >
               history_edu
             </span>
             Creating Opportunity for All Since 1999
           </span>
 
           <h1
+            className="wwd-photo-hero__title"
             style={{
               fontSize: 'clamp(2.5rem, 5vw, 4.5rem)',
               fontWeight: 800,
               lineHeight: 0.95,
               letterSpacing: '-0.03em',
-              color: 'var(--color-white)',
+              color: '#ffffff',
               maxWidth: '48rem',
               marginBottom: '2rem',
+              textShadow: '0 2px 32px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.6)',
             }}
           >
             Redefining the Architecture{' '}
-            <span style={{ color: 'var(--color-accent)' }}>of Opportunity</span>
+            <span style={{ color: '#ffb2bc' }}>of Opportunity</span>
           </h1>
 
           <p
+            className="wwd-photo-hero__lede"
             style={{
               fontSize: '1.25rem',
-              color: 'rgba(255,255,255,0.75)',
+              color: 'rgba(255,255,255,0.94)',
               maxWidth: '36rem',
               lineHeight: 1.6,
               marginBottom: '2.5rem',
+              textShadow: '0 1px 18px rgba(0,0,0,0.5)',
             }}
           >
             Employer-aligned training. No cost to participants. Job placement built in.
@@ -144,40 +166,49 @@ export default function WhatWeDoPage() {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
             <Link
               href="/programs"
+              className="wwd-photo-hero__cta-primary"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.5rem',
                 background: 'var(--color-accent)',
-                color: '#fff',
+                color: '#ffffff',
                 padding: '1rem 2rem',
                 borderRadius: 'var(--radius-md)',
                 fontWeight: 700,
                 textDecoration: 'none',
                 transition: 'var(--transition-base)',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.35)',
               }}
             >
               Explore Our Impact
-              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_forward</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'inherit' }} aria-hidden>
+                arrow_forward
+              </span>
             </Link>
             <Link
               href="/contact?topic=partnership"
+              className="wwd-photo-hero__cta-secondary"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                background: 'rgba(255,255,255,0.08)',
+                background: 'rgba(255,255,255,0.12)',
                 backdropFilter: 'var(--glass-blur)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                color: '#fff',
+                border: '1px solid rgba(255,255,255,0.28)',
+                color: '#ffffff',
                 padding: '1rem 2rem',
                 borderRadius: 'var(--radius-md)',
                 fontWeight: 700,
                 textDecoration: 'none',
                 transition: 'var(--transition-base)',
+                textShadow: '0 1px 10px rgba(0,0,0,0.45)',
+                boxShadow: '0 2px 16px rgba(0,0,0,0.2)',
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>handshake</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'inherit' }} aria-hidden>
+                handshake
+              </span>
               Partner With Us
             </Link>
           </div>
@@ -628,7 +659,6 @@ export default function WhatWeDoPage() {
                 <div>
                   <h3 className="font-bold text-lg mb-1" style={{ color: 'var(--color-on-surface)' }}>{v.title}</h3>
                   <p className="text-sm leading-relaxed" style={{ color: 'var(--color-on-surface-variant)' }}>{v.desc}</p>
-b3850e5 (fix: what-we-do mobile broken H1 tag, dead CTAs, Take Action button now routes)
                 </div>
               </div>
             </div>
@@ -652,7 +682,6 @@ b3850e5 (fix: what-we-do mobile broken H1 tag, dead CTAs, Take Action button now
               <span className="block text-[10px] font-black tracking-widest uppercase mb-1" style={{ color: '#ad2c4d' }}>Step {s.step}</span>
               <h3 className="font-bold text-lg mb-1" style={{ color: 'var(--color-on-surface)' }}>{s.title}</h3>
               <p className="text-sm" style={{ color: 'var(--color-on-surface-variant)' }}>{s.desc}</p>
-b3850e5 (fix: what-we-do mobile broken H1 tag, dead CTAs, Take Action button now routes)
             </div>
           ))}
         </div>
@@ -661,7 +690,6 @@ b3850e5 (fix: what-we-do mobile broken H1 tag, dead CTAs, Take Action button now
       {/* ── Mobile-only: Partner pills (≤640px) ── */}
       <section className="px-4 py-10" style={{ background: 'var(--color-surface)' }}>
         <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-center mb-5" style={{ color: 'var(--color-on-surface-variant)' }}>Supported By Industry Giants</p>
-b3850e5 (fix: what-we-do mobile broken H1 tag, dead CTAs, Take Action button now routes)
         <div className="flex flex-wrap justify-center gap-2">
           {['Google', 'IBM', 'AWS', 'CompTIA', 'Coursera'].map((p) => (
             <span key={p} className="px-4 py-2 rounded-full text-xs font-bold" style={{ background: '#e5e2e1', color: 'var(--color-on-surface)' }}>{p}</span>

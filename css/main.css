@@ -7508,12 +7508,7 @@ body { animation: fadeIn 0.4s ease; }
     margin-right: auto;
 }
 
-/* AI Tools */
-.ai-tools-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-}
+/* AI Tools — grid layout lives in css/portal.css (.ai-tools-grid) for member toolkit */
 .ai-tool-card {
     background: var(--color-light);
     border: 1px solid var(--color-gray-200);

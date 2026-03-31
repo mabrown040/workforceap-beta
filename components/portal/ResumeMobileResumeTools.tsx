@@ -1,32 +1,25 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import '@/css/counselor.css';
 
-type WitData = {
-  name: string;
-  email: string;
-  phone: string;
-  recentEmployer: string;
-  targetJob: string;
-  skills: string;
-};
-
-type ResumeClientProps = {
+type Props = {
   completeness: number;
-  witData: WitData;
-  hasOriginal: boolean;
-  hasEnhanced: boolean;
+  initialHasOriginal: boolean;
+  initialHasEnhanced: boolean;
 };
 
-export default function ResumeClient({
+const recommendedProfileCompleteness = 50;
+
+/** Upload + AI generate for narrow viewports (desktop uses ResumeClient). */
+export default function ResumeMobileResumeTools({
   completeness,
-  witData,
-  hasOriginal: initialHasOriginal,
-  hasEnhanced: initialHasEnhanced,
-}: ResumeClientProps) {
-  const recommendedProfileCompleteness = 50;
+  initialHasOriginal,
+  initialHasEnhanced,
+}: Props) {
+  const router = useRouter();
   const [resumeData, setResumeData] = useState<{
     originalUrl: string | null;
     enhancedUrl: string | null;
@@ -83,6 +76,7 @@ export default function ResumeClient({
           hasOriginal: d.hasOriginal ?? true,
           hasEnhanced: d.hasEnhanced ?? false,
         });
+        router.refresh();
       } else {
         setUploadError(data.error ?? 'Upload failed');
       }
@@ -113,6 +107,7 @@ export default function ResumeClient({
           hasOriginal: d.hasOriginal ?? false,
           hasEnhanced: d.hasEnhanced ?? true,
         });
+        router.refresh();
       } else {
         setGenerateError(data.error ?? 'Generation failed');
       }
@@ -137,118 +132,95 @@ export default function ResumeClient({
   };
 
   if (loading && !resumeData) {
-    return <p style={{ color: 'var(--color-on-surface-variant)' }}>Loading…</p>;
+    return (
+      <div style={{ padding: '0 1rem', marginBottom: '1rem' }}>
+        <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem', margin: 0 }}>Loading resume tools…</p>
+      </div>
+    );
   }
 
   const hasOriginal = resumeData?.hasOriginal ?? initialHasOriginal;
   const hasEnhanced = resumeData?.hasEnhanced ?? initialHasEnhanced;
 
   return (
-    <div>
-      <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Upload</h2>
+    <div style={{ padding: '0 1rem', marginBottom: '1rem' }}>
+      <section style={{ marginBottom: '1.25rem' }}>
+        <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.5rem' }}>Upload</h2>
         <div
           className={`counselor-resume-upload ${dragover ? 'dragover' : ''}`}
-          onDragOver={(e) => { e.preventDefault(); setDragover(true); }}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragover(true);
+          }}
           onDragLeave={() => setDragover(false)}
           onDrop={handleDrop}
-          onClick={() => document.getElementById('resume-file-input')?.click()}
+          onClick={() => document.getElementById('resume-mobile-file-input')?.click()}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              document.getElementById('resume-mobile-file-input')?.click();
+            }
+          }}
         >
           <input
-            id="resume-file-input"
+            id="resume-mobile-file-input"
             type="file"
             accept=".pdf,.doc,.docx"
             onChange={handleFileInput}
             style={{ display: 'none' }}
           />
-          <p style={{ margin: 0, color: 'var(--color-on-surface-variant)' }}>
-            {uploading ? 'Uploading…' : 'Drag and drop your resume here, or click to browse'}
+          <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
+            {uploading ? 'Uploading…' : 'Tap to choose a file, or drag and drop'}
           </p>
-          <p style={{ margin: '0.5rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+          <p style={{ margin: '0.5rem 0 0', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
             PDF, DOC, DOCX — max 5MB
           </p>
         </div>
-        {uploadError && <p style={{ color: '#c00', marginTop: '0.5rem' }}>{uploadError}</p>}
+        {uploadError && <p style={{ color: '#c00', marginTop: '0.5rem', fontSize: '0.8125rem' }}>{uploadError}</p>}
+        {hasOriginal && (
+          <p style={{ marginTop: '0.75rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
+            Original resume on file.
+            {resumeData?.originalUrl && (
+              <>
+                {' '}
+                <a href={resumeData.originalUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+                  Open file
+                </a>
+              </>
+            )}
+          </p>
+        )}
       </section>
 
-      <section id="resume-ai-generator" style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>AI Generator</h2>
+      <section id="resume-ai-generator" style={{ marginBottom: '0.5rem' }}>
+        <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.5rem' }}>AI Generator</h2>
         <div style={{ marginBottom: '0.5rem' }}>
-          <span>Profile completeness: {completeness}%</span>
+          <span style={{ fontSize: '0.875rem' }}>Profile completeness: {completeness}%</span>
           <div className="counselor-profile-bar">
             <div className="counselor-profile-bar-fill" style={{ width: `${completeness}%` }} />
           </div>
         </div>
         {completeness < recommendedProfileCompleteness && (
-          <p style={{ marginBottom: '0.75rem' }}>
+          <p style={{ marginBottom: '0.75rem', fontSize: '0.8125rem' }}>
             <Link href="/dashboard/profile" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
               Complete My Profile
-            </Link>
-            {' '}for a better resume. You can still generate now.
+            </Link>{' '}
+            for a better resume. You can still generate now.
           </p>
         )}
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={handleGenerate}
-          disabled={generating}
-        >
+        <button type="button" className="btn btn-primary" onClick={handleGenerate} disabled={generating} style={{ width: '100%' }}>
           {generating ? 'Generating…' : 'Generate Resume'}
         </button>
-        {generateError && <p style={{ color: '#c00', marginTop: '0.5rem' }}>{generateError}</p>}
-      </section>
-
-      {(hasOriginal || hasEnhanced) && (
-        <section style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Before / After</h2>
-          <div className="counselor-resume-preview">
-            {hasOriginal && (
-              <div className="counselor-resume-card">
-                <h3>Original</h3>
-                <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
-                  <a href={resumeData?.originalUrl ?? '#'} target="_blank" rel="noopener noreferrer">
-                    Download Original →
-                  </a>
-                </p>
-              </div>
-            )}
-            {hasEnhanced && (
-              <div className="counselor-resume-card">
-                <h3>AI-Enhanced</h3>
-                {resumeData?.enhancedText && (
-                  <pre>{resumeData.enhancedText.slice(0, 1500)}{resumeData.enhancedText.length > 1500 ? '…' : ''}</pre>
-                )}
-                <a href={resumeData?.enhancedUrl ?? '#'} target="_blank" rel="noopener noreferrer" className="btn btn-outline" style={{ fontSize: '0.9rem' }}>
-                  Download Enhanced →
-                </a>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
-
-      <section className="counselor-wit-guide">
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>WorkInTexas Guide</h2>
-        <p style={{ marginBottom: '1rem', color: 'var(--color-on-surface-variant)' }}>
-          Pre-filled with your data. Use these steps when creating your WorkInTexas profile.
-        </p>
-        <ol>
-          <li><strong>Create account</strong> at workintexas.com</li>
-          <li><strong>Contact info</strong> → {witData.name}, {witData.email}, {witData.phone}</li>
-          <li><strong>Work history</strong> → {witData.recentEmployer}</li>
-          <li><strong>Target job</strong> → {witData.targetJob}</li>
-          <li><strong>Upload resume</strong> → Download from above</li>
-          <li><strong>Skills</strong> → {witData.skills}</li>
-        </ol>
-        <a
-          href="https://www.workintexas.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn btn-primary"
-          style={{ marginTop: '1rem' }}
-        >
-          Open WorkInTexas →
-        </a>
+        {generateError && <p style={{ color: '#c00', marginTop: '0.5rem', fontSize: '0.8125rem' }}>{generateError}</p>}
+        {hasEnhanced && resumeData?.enhancedUrl && (
+          <p style={{ marginTop: '0.75rem', fontSize: '0.8125rem' }}>
+            <a href={resumeData.enhancedUrl} target="_blank" rel="noopener noreferrer" className="btn btn-outline" style={{ display: 'inline-block', width: '100%', textAlign: 'center' }}>
+              Download AI-enhanced resume
+            </a>
+          </p>
+        )}
       </section>
     </div>
   );

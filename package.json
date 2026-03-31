@@ -16,6 +16,7 @@
     "db:seed:blog": "node scripts/prisma-env.js npx tsx prisma/seed-blog.ts",
     "db:seed:demo": "SEED_DEMO=true node scripts/prisma-env.js npx tsx prisma/seed-demo.ts",
     "db:create-employer-michael-brown": "node scripts/prisma-env.js npx tsx scripts/create-employer-michael-brown.ts",
+    "db:sync-test-auth": "node scripts/prisma-env.js npx tsx scripts/sync-portal-test-auth.ts",
     "db:migrate:resolve-failed": "node scripts/resolve-failed-migration.cjs",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",

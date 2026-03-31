@@ -187,76 +187,16 @@ export default async function DashboardResumePage() {
               </div>
             )}
 
-            {!hasOriginal && !hasEnhanced && (
-              <div style={{ marginTop: '0.75rem', padding: '0.75rem', background: 'rgba(173,44,77,0.06)', borderRadius: '0.5rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', textAlign: 'center' }}>
-                No resume uploaded yet. Use the desktop view to upload.
-              </div>
-            )}
           </div>
         </div>
 
-        {/* Action Row */}
-        <div style={{ padding: '0 1rem', display: 'flex', gap: '0.625rem', marginBottom: '1rem' }}>
-          <button
-            type="button"
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '0.25rem',
-              background: 'var(--surface-container)',
-              border: '1px solid var(--outline-variant)',
-              borderRadius: '0.875rem',
-              padding: '0.875rem 0.5rem',
-              cursor: 'pointer',
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.375rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
-              auto_fix_high
-            </span>
-            <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>AI Rewrite</span>
-          </button>
-          <button
-            type="button"
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '0.25rem',
-              background: 'var(--surface-container)',
-              border: '1px solid var(--outline-variant)',
-              borderRadius: '0.875rem',
-              padding: '0.875rem 0.5rem',
-              cursor: 'pointer',
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.375rem', color: 'var(--color-blue)' }}>
-              share
-            </span>
-            <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Share</span>
-          </button>
-          <button
-            type="button"
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '0.25rem',
-              background: 'var(--surface-container)',
-              border: '1px solid var(--outline-variant)',
-              borderRadius: '0.875rem',
-              padding: '0.875rem 0.5rem',
-              cursor: 'pointer',
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.375rem', color: 'var(--color-green)' }}>
-              picture_as_pdf
-            </span>
-            <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Download PDF</span>
-          </button>
+        <div style={{ padding: '0 1rem 1rem' }}>
+          <ResumeClient
+            completeness={completeness}
+            witData={witData}
+            hasOriginal={hasOriginal}
+            hasEnhanced={hasEnhanced}
+          />
         </div>
 
         <MobileBottomNav variant="portal" />

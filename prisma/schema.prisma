@@ -71,6 +71,10 @@ model User {
   tourCompletedAt        DateTime? @map("tour_completed_at")
   workspaceEmail               String?   @map("workspace_email")
   workspaceEmailProvisioned    Boolean   @default(false) @map("workspace_email_provisioned")
+  /// Set when career quiz indicates no reliable computer; counselors can follow up.
+  needsComputerSupportFollowUp Boolean   @default(false) @map("needs_computer_support_follow_up")
+  /// O*NET-backed quiz snapshot for dashboard / consistency (JSON CareerMatchResult shape).
+  careerRecommendationJson    Json?     @map("career_recommendation_json")
 
   organization         Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   profile              Profile?
@@ -210,6 +214,9 @@ model Application {
   userId         String   @map("user_id")
   status         ApplicationStatus @default(PENDING)
   programInterest String  @map("program_interest")
+  programRankedSlugs Json? @map("program_ranked_slugs")
+  recommendedOnetCode   String? @map("recommended_onet_code")
+  recommendedCareerTitle String? @map("recommended_career_title")
   notes          String?  @db.Text
   submittedAt    DateTime? @map("submitted_at")
   referralSource   String?   @map("referral_source")
@@ -1336,4 +1343,134 @@ enum MentorSessionStatus {
   CONFIRMED
   COMPLETED
   CANCELLED
+}
+
+// --- O*NET career intelligence ---
+
+enum CareerExperienceBand {
+  beginner
+  some_experience
+  experienced
+
+  @@map("career_experience_band")
+}
+
+enum CareerRecommendationType {
+  primary
+  bridge
+  stretch
+
+  @@map("career_recommendation_type")
+}
+
+model OnetOccupation {
+  onetCode           String   @id @map("onet_code")
+  title              String
+  description        String?  @db.Text
+  jobFamily          String?  @map("job_family")
+  brightOutlook      Boolean? @map("bright_outlook")
+  educationLevel     String?  @map("education_level")
+  experienceLevel    String?  @map("experience_level")
+  trainingLevel      String?  @map("training_level")
+  salaryLow          Int?     @map("salary_low")
+  salaryMedian       Int?     @map("salary_median")
+  salaryHigh         Int?     @map("salary_high")
+  outlookSummary     String?  @map("outlook_summary") @db.Text
+  isActive           Boolean  @default(true) @map("is_active")
+  rawJson            Json?    @map("raw_json")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  skills            OnetOccupationSkill[]
+  tasks             OnetOccupationTask[]
+  technologies      OnetOccupationTech[]
+  relatedFrom       OnetRelatedOccupation[] @relation("RelatedFrom")
+  relatedTo         OnetRelatedOccupation[] @relation("RelatedTo")
+  programMappings   CareerProgramMapping[]
+
+  @@map("onet_occupations")
+}
+
+model OnetOccupationSkill {
+  id         String   @id @default(uuid())
+  onetCode   String   @map("onet_code")
+  skillName  String   @map("skill_name")
+  importance Int?
+  level      Int?
+
+  occupation OnetOccupation @relation(fields: [onetCode], references: [onetCode], onDelete: Cascade)
+
+  @@index([onetCode])
+  @@map("onet_occupation_skills")
+}
+
+model OnetOccupationTask {
+  id         String   @id @default(uuid())
+  onetCode   String   @map("onet_code")
+  taskText   String   @map("task_text") @db.Text
+  importance Int?
+
+  occupation OnetOccupation @relation(fields: [onetCode], references: [onetCode], onDelete: Cascade)
+
+  @@index([onetCode])
+  @@map("onet_occupation_tasks")
+}
+
+model OnetOccupationTech {
+  id              String   @id @default(uuid())
+  onetCode        String   @map("onet_code")
+  technologyName  String   @map("technology_name")
+  category        String?
+
+  occupation OnetOccupation @relation(fields: [onetCode], references: [onetCode], onDelete: Cascade)
+
+  @@index([onetCode])
+  @@map("onet_occupation_tech")
+}
+
+model OnetRelatedOccupation {
+  id                 String   @id @default(uuid())
+  onetCode           String   @map("onet_code")
+  relatedOnetCode    String   @map("related_onet_code")
+  relationshipType   String?  @map("relationship_type")
+
+  occupation      OnetOccupation @relation("RelatedFrom", fields: [onetCode], references: [onetCode], onDelete: Cascade)
+  relatedOccupation OnetOccupation @relation("RelatedTo", fields: [relatedOnetCode], references: [onetCode], onDelete: Cascade)
+
+  @@index([onetCode])
+  @@index([relatedOnetCode])
+  @@map("onet_related_occupations")
+}
+
+model CareerProgramMapping {
+  id                  String                   @id @default(uuid())
+  onetCode            String                   @map("onet_code")
+  programSlug         String                   @map("program_slug")
+  priority            Int                      @default(1)
+  experienceBand      CareerExperienceBand     @map("experience_band")
+  recommendationType  CareerRecommendationType @map("recommendation_type")
+  whyRecommended      String?                  @map("why_recommended") @db.Text
+  isActive            Boolean                  @default(true) @map("is_active")
+  createdAt           DateTime                 @default(now()) @map("created_at")
+  updatedAt           DateTime                 @updatedAt @map("updated_at")
+
+  occupation OnetOccupation @relation(fields: [onetCode], references: [onetCode], onDelete: Cascade)
+
+  @@index([onetCode])
+  @@index([programSlug])
+  @@index([isActive])
+  @@map("career_program_mappings")
+}
+
+model CareerQuizRule {
+  id            String   @id @default(uuid())
+  ruleKey       String   @unique @map("rule_key")
+  inputSignal   Json     @map("input_signal")
+  boostOnetCode String   @map("boost_onet_code")
+  weight        Int      @default(1)
+  reasonText    String?  @map("reason_text") @db.Text
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("career_quiz_rules")
 }

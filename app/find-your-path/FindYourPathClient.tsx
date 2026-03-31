@@ -5,13 +5,22 @@ import Link from 'next/link';
 import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
 import type { Program } from '@/lib/content/programs';
 import { ProgramIcon } from '@/components/ProgramIcon';
-import { scoreQuiz, type QuizAnswers, type CategoryWeights } from '@/lib/content/quizScoring';
+import { scoreQuiz, type QuizAnswers } from '@/lib/content/quizScoring';
 import { getFitReasoning, getTopFitSummary } from '@/lib/content/quizReasoning';
+import { getTopProgramsFromQuiz } from '@/lib/content/quizProgramRecommendations';
+import type { CareerMatchResult } from '@/lib/onet/types';
 import { getProgramExtra } from '@/lib/content/programExtras';
 import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
 import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
 
 const QUIZ_STORAGE_KEY = 'find_your_path_results';
+const QUIZ_STORAGE_VERSION = 1;
+
+type StoredQuizPayloadV1 = {
+  version: typeof QUIZ_STORAGE_VERSION;
+  programSlugs: string[];
+  careerMatch: CareerMatchResult | null;
+};
 
 const INTEREST_ICONS: Record<string, string> = {
   computers: 'computer',
@@ -97,63 +106,8 @@ const CATEGORY_BORDER: Record<string, string> = {
   'digital-literacy': '#6b7280',
 };
 
-function getTopPrograms(weights: CategoryWeights, answers?: QuizAnswers): Program[] {
-  const scored = PROGRAMS.map((p) => {
-    const score = weights[p.category as keyof CategoryWeights] ?? 0;
-    const salaryMatch = p.salary.match(/\$(\d+)K/);
-    const salaryNum = salaryMatch ? parseInt(salaryMatch[1], 10) : 0;
-    return { program: p, score, salaryNum };
-  });
-  scored.sort((a, b) => {
-    if (b.score !== a.score) return b.score - a.score;
-    return b.salaryNum - a.salaryNum;
-  });
-
-  // Get category-based recommendations
-  const topMatches = scored.filter(s => s.score > 0);
-  const goalProgram = topMatches[0]?.program;
-
-  // Get Digital Literacy and IT Support programs
-  const digital = getProgramBySlug('digital-literacy-empowerment-class');
-  const itSupport = getProgramBySlug('it-support-professional-certificate-ibm');
-
-  // Build recommendation based on experience level
-  const experienceLevel = answers?.q2;
-  const needsDigital = answers?.q6 === 'no_computer' || answers?.q6 === 'needs_device' || 
-                       answers?.q5 === 'basics' || answers?.q5 === 'basic_apps';
-
-  const result: Program[] = [];
-
-  // Logic: no experience → digital literacy + IT support + goal
-  //        some experience → IT support + goal
-  //        extensive → goal only
-  if (experienceLevel === 'brand_new') {
-    if (needsDigital && digital) result.push(digital);
-    if (itSupport) result.push(itSupport);
-    if (goalProgram && !result.find(p => p.slug === goalProgram.slug)) {
-      result.push(goalProgram);
-    }
-  } else if (experienceLevel === 'some_knowledge') {
-    if (itSupport) result.push(itSupport);
-    if (goalProgram && !result.find(p => p.slug === goalProgram.slug)) {
-      result.push(goalProgram);
-    }
-  } else {
-    // work_experience or certifications - goal only
-    if (goalProgram) result.push(goalProgram);
-  }
-
-  // Fill remaining slots with top scored programs if needed
-  let idx = 0;
-  while (result.length < 3 && idx < scored.length) {
-    const prog = scored[idx].program;
-    if (!result.find(p => p.slug === prog.slug)) {
-      result.push(prog);
-    }
-    idx++;
-  }
-
-  return result.slice(0, 3);
+function programsFromSlugs(slugs: string[]): Program[] {
+  return slugs.map((s) => getProgramBySlug(s)).filter(Boolean) as Program[];
 }
 
 function QuizResultsView({
@@ -161,23 +115,100 @@ function QuizResultsView({
   answers,
   isPrevious,
   onRetake,
+  careerMatch,
 }: {
   programs: Program[];
   answers?: QuizAnswers;
   isPrevious?: boolean;
   onRetake?: () => void;
+  careerMatch?: CareerMatchResult | null;
 }) {
   const topProgram = programs[0];
+  const topOcc = careerMatch?.topOccupations[0];
   return (
     <div className="quiz-results">
       <h2 className="quiz-results-title">
-        {isPrevious ? 'Your Previous Results' : 'Your Top 3 Career Paths'}
+        {isPrevious ? 'Your Previous Results' : 'Your career match results'}
       </h2>
       <p className="quiz-results-subtitle">
         {isPrevious
           ? 'Here are the programs we recommended last time:'
           : (answers ? getTopFitSummary(answers) : 'Based on your answers, here are the programs we recommend:')}
       </p>
+
+      {topOcc && (
+        <div
+          style={{
+            marginBottom: '1.5rem',
+            padding: '1.25rem 1.5rem',
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid var(--outline-variant)',
+            background: 'var(--surface-container-low)',
+          }}
+        >
+          <p style={{ margin: '0 0 0.5rem', fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-accent)' }}>
+            YOUR STRONGEST ROLE MATCH
+          </p>
+          <h3 style={{ margin: '0 0 0.75rem', fontSize: '1.25rem' }}>{topOcc.title}</h3>
+          <p style={{ margin: 0, lineHeight: 1.65, color: 'var(--color-on-surface)' }}>{topOcc.description}</p>
+          {topOcc.whyFit.length > 0 && (
+            <div style={{ marginTop: '1rem' }}>
+              <p style={{ margin: '0 0 0.35rem', fontWeight: 600, fontSize: '0.9rem' }}>Why this fits you</p>
+              <ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
+                {topOcc.whyFit.map((line, i) => (
+                  <li key={i} style={{ marginBottom: '0.35rem' }}>
+                    {line}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+
+      {careerMatch && careerMatch.recommendedPrograms.length > 0 && (
+        <div style={{ marginBottom: '1.5rem' }}>
+          <p style={{ margin: '0 0 0.5rem', fontWeight: 600 }}>Recommended path</p>
+          <ol style={{ margin: 0, paddingLeft: '1.25rem', lineHeight: 1.7 }}>
+            {careerMatch.recommendedPrograms.slice(0, 5).map((r) => {
+              const p = getProgramBySlug(r.programSlug);
+              return (
+                <li key={`${r.programSlug}-${r.priority}`}>
+                  {p?.title ?? r.programSlug}
+                  {r.recommendationType === 'bridge' ? ' (foundation step)' : ''}
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      )}
+
+      <h3 className="quiz-results-title" style={{ fontSize: '1.1rem', marginTop: '0.5rem' }}>
+        Your Top 3 WorkforceAP programs
+      </h3>
+
+      {answers && (answers.q6 === 'no_computer' || answers.q6 === 'needs_device') && (
+        <div
+          role="region"
+          aria-label="Computer access support"
+          style={{
+            marginBottom: '1.5rem',
+            padding: '1rem 1.25rem',
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid var(--outline-variant)',
+            background: 'var(--surface-container-low)',
+          }}
+        >
+          <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: 1.6, color: 'var(--color-on-surface)' }}>
+            <strong>Need a reliable computer for training?</strong> Ask your counselor about{' '}
+            <strong>loaner or device support</strong> options — we can help you get set up for online coursework.{' '}
+            <Link href="/contact" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+              Contact us
+            </Link>{' '}
+            or call <a href="tel:+15127771808">(512) 777-1808</a>.
+          </p>
+        </div>
+      )}
 
       <div className="quiz-results-grid">
         {programs.map((program, idx) => {
@@ -309,18 +340,33 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Partial<QuizAnswers>>({});
   const [storedResults, setStoredResults] = useState<Program[] | null>(null);
+  const [careerMatchResult, setCareerMatchResult] = useState<CareerMatchResult | null>(null);
+  const [finishingQuiz, setFinishingQuiz] = useState(false);
   const [direction, setDirection] = useState<'next' | 'prev'>('next');
+  /** Selected option for current question — confirmed with Continue (not auto-advanced). */
+  const [pendingChoice, setPendingChoice] = useState<QuizAnswers[keyof QuizAnswers] | null>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
       const raw = localStorage.getItem(QUIZ_STORAGE_KEY);
       if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length >= 3) {
-          const programs = parsed
-            .map((slug: string) => getProgramBySlug(slug))
-            .filter(Boolean) as Program[];
+        const parsed = JSON.parse(raw) as unknown;
+        if (
+          parsed &&
+          typeof parsed === 'object' &&
+          'version' in parsed &&
+          (parsed as StoredQuizPayloadV1).version === QUIZ_STORAGE_VERSION &&
+          Array.isArray((parsed as StoredQuizPayloadV1).programSlugs)
+        ) {
+          const v1 = parsed as StoredQuizPayloadV1;
+          const programs = programsFromSlugs(v1.programSlugs);
+          if (programs.length > 0) {
+            setStoredResults(programs);
+            setCareerMatchResult(v1.careerMatch ?? null);
+          }
+        } else if (Array.isArray(parsed) && parsed.length >= 3) {
+          const programs = parsed.map((slug: string) => getProgramBySlug(slug)).filter(Boolean) as Program[];
           if (programs.length >= 3) {
             setStoredResults(programs);
           }
@@ -334,6 +380,10 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
   const currentQ = QUESTIONS[step];
   const currentAnswer = currentQ ? answers[currentQ.id] : undefined;
 
+  useEffect(() => {
+    setPendingChoice(null);
+  }, [step]);
+
   const advanceFromAnswer = (value: QuizAnswers[keyof QuizAnswers]) => {
     if (!currentQ) return;
     const newAnswers = { ...answers, [currentQ.id]: value };
@@ -345,32 +395,95 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
     } else {
       const fullAnswers = newAnswers as QuizAnswers;
       const weights = scoreQuiz(fullAnswers);
-      const top3 = getTopPrograms(weights, fullAnswers);
-      setStoredResults(top3);
-      try {
-        localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(top3.map((p) => p.slug)));
-      } catch {
-        // ignore
-      }
+      setFinishingQuiz(true);
+      void (async () => {
+        let careerMatch: CareerMatchResult | null = null;
+        try {
+          const res = await fetch('/api/careers/recommend', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(fullAnswers),
+          });
+          if (res.ok) {
+            careerMatch = (await res.json()) as CareerMatchResult;
+          }
+        } catch {
+          careerMatch = null;
+        }
+
+        const slugsFromApi = careerMatch?.recommendedPrograms.map((r) => r.programSlug) ?? [];
+        let programs =
+          slugsFromApi.length > 0
+            ? programsFromSlugs(slugsFromApi.slice(0, 3))
+            : getTopProgramsFromQuiz(weights, fullAnswers);
+
+        if (programs.length < 3) {
+          const fallback = getTopProgramsFromQuiz(weights, fullAnswers);
+          for (const p of fallback) {
+            if (programs.length >= 3) break;
+            if (!programs.find((x) => x.slug === p.slug)) programs.push(p);
+          }
+          programs = programs.slice(0, 3);
+        }
+
+        setCareerMatchResult(careerMatch);
+        setStoredResults(programs);
+        try {
+          const payload: StoredQuizPayloadV1 = {
+            version: QUIZ_STORAGE_VERSION,
+            programSlugs: programs.map((p) => p.slug),
+            careerMatch,
+          };
+          localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(payload));
+        } catch {
+          // ignore
+        }
+        setFinishingQuiz(false);
+      })();
     }
   };
 
   const handleSelect = (value: QuizAnswers[keyof QuizAnswers]) => {
-    advanceFromAnswer(value);
+    setPendingChoice(value);
+  };
+
+  const handleConfirmStep = () => {
+    if (pendingChoice === null) return;
+    advanceFromAnswer(pendingChoice);
+    setPendingChoice(null);
   };
 
   const handleBack = () => {
     setDirection('prev');
+    setPendingChoice(null);
     if (step > 0) {
       setStep(step - 1);
     }
   };
 
+  if (finishingQuiz) {
+    return (
+      <>
+        <ProgramsDecisionJourneyNav current="quiz" quizPhase="in_progress" />
+        <div className="quiz-flow" style={{ padding: '3rem 1.5rem', textAlign: 'center' }}>
+          <p style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Building your career match…</p>
+          <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.95rem' }}>
+            We&apos;re aligning your answers with real roles and WorkforceAP programs.
+          </p>
+        </div>
+      </>
+    );
+  }
+
   if (storedResults && step === QUESTIONS.length - 1 && currentAnswer) {
     return (
       <>
         <ProgramsDecisionJourneyNav current="quiz" quizPhase="results" />
-        <QuizResultsView programs={storedResults} answers={answers as QuizAnswers} />
+        <QuizResultsView
+          programs={storedResults}
+          answers={answers as QuizAnswers}
+          careerMatch={careerMatchResult}
+        />
       </>
     );
   }
@@ -382,8 +495,10 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
         <QuizResultsView
           programs={storedResults}
           isPrevious
+          careerMatch={careerMatchResult}
           onRetake={() => {
             setStoredResults(null);
+            setCareerMatchResult(null);
             setAnswers({});
             setStep(0);
             try {
@@ -439,11 +554,12 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
             {currentQ?.answers.map((a) => {
               const inputId = `${idPrefix}-${currentQ.id}-${a.value}`;
               const icon = currentQ.id === 'q1' ? INTEREST_ICONS[a.value] : null;
+              const isSelected = pendingChoice === a.value;
               return (
                 <label
                   key={a.value}
                   htmlFor={inputId}
-                  className={`quiz-answer-card ${currentAnswer === a.value ? 'selected' : ''}`}
+                  className={`quiz-answer-card ${isSelected ? 'selected' : ''}`}
                   onClick={(e) => {
                     e.preventDefault();
                     handleSelect(a.value);
@@ -458,8 +574,8 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
                   style={{
                     display: 'flex', alignItems: 'center', gap: '0.75rem',
                     padding: '0.875rem 1rem',
-                    background: currentAnswer === a.value ? 'rgba(173,44,77,0.15)' : 'var(--surface-container-low)',
-                    border: currentAnswer === a.value ? '1px solid var(--color-accent)' : '1px solid var(--surface-container-highest)',
+                    background: isSelected ? 'rgba(173,44,77,0.15)' : 'var(--surface-container-low)',
+                    border: isSelected ? '1px solid var(--color-accent)' : '1px solid var(--surface-container-highest)',
                     borderRadius: 'var(--radius-lg)',
                     cursor: 'pointer', transition: 'all 0.15s ease',
                   }}
@@ -469,7 +585,7 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
                     type="radio"
                     name={currentQ.id}
                     value={a.value}
-                    checked={currentAnswer === a.value}
+                    checked={isSelected}
                     readOnly
                     tabIndex={-1}
                     aria-hidden="true"
@@ -478,7 +594,7 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
                   {icon && (
                     <span className="material-symbols-outlined" style={{
                       fontSize: '1.25rem',
-                      color: currentAnswer === a.value ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
+                      color: isSelected ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
                     }}>{icon}</span>
                   )}
                   <span className="radio-dot" aria-hidden style={{ display: 'none' }} />
@@ -487,6 +603,33 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
               );
             })}
           </div>
+
+          {pendingChoice !== null && currentQ && (
+            <div
+              style={{
+                marginTop: '1.25rem',
+                padding: '1rem 1.25rem',
+                borderRadius: 'var(--radius-lg)',
+                background: 'var(--surface-container-low)',
+                border: '1px solid var(--outline-variant)',
+              }}
+            >
+              <p style={{ margin: '0 0 0.75rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
+                Your answer for this step:
+              </p>
+              <p style={{ margin: '0 0 1rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>
+                {currentQ.answers.find((x) => x.value === pendingChoice)?.label ?? ''}
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
+                <button type="button" className="btn btn-primary btn-small" onClick={handleConfirmStep}>
+                  {step < QUESTIONS.length - 1 ? 'Continue to next question' : 'See my results'}
+                </button>
+                <button type="button" className="btn btn-ghost btn-small" onClick={() => setPendingChoice(null)}>
+                  Choose a different answer
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Back / Continue buttons */}
           <div style={{
@@ -506,7 +649,7 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
               </button>
             ) : <span />}
             <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-              Select an option to continue
+              {pendingChoice === null ? 'Select an option, then confirm below' : 'Confirm your answer to continue'}
             </span>
           </div>
         </div>

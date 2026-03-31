@@ -17,6 +17,7 @@ let adminInviteRateLimiter: Ratelimit | null = null;
 let employerJobImportRateLimiter: Ratelimit | null = null;
 let partnerSignupRateLimiter: Ratelimit | null = null;
 let confirmationEmailRateLimiter: Ratelimit | null = null;
+let careersRecommendRateLimiter: Ratelimit | null = null;
 
 if (redisUrl && redisToken) {
   const redis = new Redis({ url: redisUrl, token: redisToken });
@@ -65,6 +66,11 @@ if (redisUrl && redisToken) {
     redis,
     limiter: Ratelimit.slidingWindow(5, '1 h'),
     prefix: 'ratelimit:confirmation-email',
+  });
+  careersRecommendRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(30, '1 h'),
+    prefix: 'ratelimit:careers-recommend',
   });
 }
 
@@ -122,5 +128,12 @@ export async function checkEmployerJobImportRateLimit(userId: string): Promise<{
 export async function checkConfirmationEmailRateLimit(ip: string): Promise<{ success: boolean }> {
   if (!confirmationEmailRateLimiter) return { success: false };
   const result = await confirmationEmailRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/** Public career quiz recommend — fail-open without Redis (dev). */
+export async function checkCareersRecommendRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!careersRecommendRateLimiter) return { success: true };
+  const result = await careersRecommendRateLimiter.limit(ip);
   return { success: result.success };
 }

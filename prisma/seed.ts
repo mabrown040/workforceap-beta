@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto';
 import { PrismaClient, ApplicationStatus } from '@prisma/client';
 import { seedBlogPosts } from './seed-blog';
+import { seedOnetCareerData } from './seed-onet-career';
 import { seedOrganizationProgramCatalog } from '../lib/platform/seedProgramCatalog';
 import { DEFAULT_BRAND_ACCENT } from '../lib/platform/brandColors';
 
@@ -43,6 +44,8 @@ async function main() {
 
   await seedOrganizationProgramCatalog(defaultOrgId);
   console.log('Seeded organization program catalog from static PROGRAMS list');
+
+  await seedOnetCareerData(prisma);
 
   // Seed admin users (mabrown040 is super_admin for testing all portal views)
   const superAdminEmails = ['mabrown040@gmail.com'];

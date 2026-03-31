@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { Program } from '@/lib/content/programs';
+import ProgramOnetCareerSection from '@/components/programs/ProgramOnetCareerSection';
 
 export default function ProgramDetailClient({ program }: { program: Program }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -10,6 +11,8 @@ export default function ProgramDetailClient({ program }: { program: Program }) {
 
   return (
     <div>
+      <ProgramOnetCareerSection programSlug={program.slug} />
+
       {skills.length > 0 ? (
         <div style={{ marginBottom: '1.5rem' }}>
           <h2 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Skills you&apos;ll learn</h2>

@@ -6,9 +6,9 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Find Your Path — Career Quiz',
+  title: 'Find Your Career Path — Program Quiz',
   description:
-    'Take our 2-minute quiz to discover which WorkforceAP program best fits your interests, experience, and goals. No-cost training for members.',
+    'Take our 2-minute quiz to discover which WorkforceAP program best fits your interests, experience, and goals. No-cost training for qualifying members.',
   path: '/find-your-path',
 });
 
@@ -92,7 +92,7 @@ export default function FindYourPathPage() {
               <img
                 src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=600&q=70"
                 alt="Students collaborating"
-                style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(30%) brightness(0.8)' }}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
               <div style={{
                 position: 'absolute', inset: 0,

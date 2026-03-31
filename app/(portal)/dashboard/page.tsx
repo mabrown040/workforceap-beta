@@ -8,6 +8,8 @@ import { loadMemberCareerBriefBundle } from '@/lib/content/careerBriefPersonaliz
 import { prisma } from '@/lib/db/prisma';
 import { buildMemberApplicationStatusView } from '@/lib/member/memberApplicationStatus';
 import DashboardHomeClient from '@/components/portal/DashboardHomeClient';
+import MemberCareerPathSection from '@/components/portal/MemberCareerPathSection';
+import type { CareerMatchResult } from '@/lib/onet/types';
 import MatchedRoles from '@/components/portal/MatchedRoles';
 import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
 import { isSuperAdmin } from '@/lib/auth/roles';
@@ -39,6 +41,8 @@ export default async function DashboardPage() {
       fullName: true,
       phone: true,
       programInterest: true,
+      careerRecommendationJson: true,
+      needsComputerSupportFollowUp: true,
       profile: {
         select: {
           city: true,
@@ -52,6 +56,8 @@ export default async function DashboardPage() {
       },
     },
   });
+
+  const careerMatchFromProfile = intakeExtra?.careerRecommendationJson as CareerMatchResult | null;
 
   const recentTools = await prisma.aIToolResult.findMany({
     where: { userId: user.id },
@@ -232,6 +238,10 @@ export default async function DashboardPage() {
           </section>
         )}
 
+        <div style={{ padding: '0 1.5rem' }}>
+          <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
+        </div>
+
         {/* Application journey timeline */}
         <section style={{ padding:"0 1.5rem", marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"1rem" }}>
           <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[var(--color-on-surface-variant)]">Application Journey</h3>
@@ -345,6 +355,9 @@ export default async function DashboardPage() {
             initialReferralSource: intakeExtra?.profile?.referralSource ?? '',
           }}
         >
+          <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 2rem' }}>
+            <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
+          </div>
           <DashboardHomeClient
             recommendedActions={recommendedActions}
             jobSearchUrl={jobSearchUrl}

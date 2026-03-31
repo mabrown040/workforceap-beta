@@ -21,17 +21,15 @@ const HERO_IMAGE_THUMB =
   'https://images.unsplash.com/photo-1531218150217-54595bc2b934?auto=format&fit=crop&w=640&q=70';
 
 const MILESTONES = [
-  { num: '01', title: 'Application', desc: 'Submit your application online in about 10 minutes.' },
-  { num: '02', title: 'Assessment', desc: 'Quick skills and interest review to find your best fit.' },
-  { num: '03', title: 'Enrollment', desc: 'Get matched with a program track and cohort.' },
-  { num: '04', title: 'Orientation', desc: 'Meet your mentors and get set up with tools.' },
-  { num: '05', title: 'Core Training', desc: 'Intensive skill-building with industry experts.' },
-  { num: '06', title: 'Lab Projects', desc: 'Hands-on work simulating real employer needs.' },
-  { num: '07', title: 'Certification', desc: 'Earn recognized industry credentials.' },
-  { num: '08', title: 'Resume + Portfolio', desc: 'Build job-ready materials with AI support.' },
-  { num: '09', title: 'Interview Prep', desc: 'Mock interviews and feedback from hiring managers.' },
-  { num: '10', title: 'Placement', desc: 'Direct introductions to our employer partner network.' },
-  { num: '11', title: 'Career Growth', desc: 'Ongoing alumni support and advancement resources.' },
+  { num: '01', title: 'Apply', desc: 'Submit your application online in about 10 minutes.' },
+  { num: '02', title: 'Intake Assessment', desc: 'Quick skills review to match you with the right program and tools.' },
+  { num: '03', title: 'Build Your Profile', desc: 'Set your career goals and unlock AI resume + LinkedIn tools.' },
+  { num: '04', title: 'Access Free Resources', desc: 'LinkedIn Premium, Coursera, and career coaching at no cost.' },
+  { num: '05', title: 'Practice Interviews', desc: 'AI mock interviews with voice feedback from real hiring scenarios.' },
+  { num: '06', title: 'Connect with a Counselor', desc: 'One-on-one guidance to map your path and stay on track.' },
+  { num: '07', title: 'Job Match Scoring', desc: 'See which roles fit your skills and get personalized application tips.' },
+  { num: '08', title: 'Employer Introductions', desc: 'Direct connections to our vetted employer partner network.' },
+  { num: '09', title: 'Placement + Support', desc: 'Land the role with ongoing coaching through your first 90 days.' },
 ];
 
 export default async function HomePage() {

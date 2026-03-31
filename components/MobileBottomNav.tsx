@@ -11,10 +11,10 @@ const MARKETING_TABS = [
 ];
 
 const PORTAL_TABS = [
-  { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
-  { href: '/dashboard/learning', label: 'Learning', icon: 'school' },
-  { href: '/dashboard/messages', label: 'Messages', icon: 'chat' },
-  { href: '/dashboard/profile', label: 'Profile', icon: 'person' },
+  { href: '/dashboard', label: 'Dashboard', icon: 'dashboard', tourTarget: 'tour-dashboard' },
+  { href: '/dashboard/learning', label: 'Learning', icon: 'school', tourTarget: 'tour-learning' },
+  { href: '/dashboard/messages', label: 'Messages', icon: 'chat', tourTarget: 'tour-messages' },
+  { href: '/dashboard/profile', label: 'Profile', icon: 'person', tourTarget: 'tour-profile' },
 ];
 
 const EMPLOYER_TABS = [
@@ -71,7 +71,9 @@ export default function MobileBottomNav({ variant = 'marketing' }: MobileBottomN
         WebkitBackdropFilter: 'blur(12px)',
       }}
     >
-      {tabs.map(({ href, label, icon }) => {
+      {tabs.map((tab) => {
+        const { href, label, icon } = tab;
+        const tourTarget = 'tourTarget' in tab ? tab.tourTarget : undefined;
         const exactMatch = ['/', '/dashboard', '/employer', '/counselor', '/partner'];
         const isActive = exactMatch.includes(href)
           ? pathname === href
@@ -81,6 +83,7 @@ export default function MobileBottomNav({ variant = 'marketing' }: MobileBottomN
             key={href}
             href={href}
             className={`marketing-bottom-nav__link${isActive ? ' marketing-bottom-nav__link--active' : ''}`}
+            {...(tourTarget ? { 'data-tour': tourTarget } : {})}
           >
             <span
               className="material-symbols-outlined"

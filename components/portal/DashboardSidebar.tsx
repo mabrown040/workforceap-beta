@@ -38,7 +38,7 @@ export default function DashboardSidebar({ open = false, onClose }: DashboardSid
         left: 0,
         top: 0,
         paddingTop: '5rem',
-        background: 'linear-gradient(to right, var(--color-background-dark, #121416), #1c1f22)',
+        background: 'linear-gradient(to right, var(--surface-dim), var(--surface-container-lowest))',
         zIndex: 40,
         display: 'flex',
         flexDirection: 'column',
@@ -53,11 +53,11 @@ export default function DashboardSidebar({ open = false, onClose }: DashboardSid
       <div style={{ marginBottom: '1.5rem', padding: '0 0.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
           <div style={{ width: '2rem', height: '2rem', borderRadius: 'var(--radius-sm, 4px)', background: 'var(--color-accent, #ad2c4d)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span className="material-symbols-outlined" style={{ color: 'white', fontSize: '1.125rem' }}>account_balance</span>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-white)', fontSize: '1.125rem' }}>account_balance</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span style={{ color: 'var(--color-accent)', fontWeight: 700 }}>WorkforceAP</span>
-            <span style={{ fontSize: '0.625rem', color: 'rgba(226,226,229,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Member Dashboard</span>
+            <span style={{ fontSize: '0.625rem', color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.6 }}>Member Dashboard</span>
           </div>
         </div>
       </div>
@@ -68,7 +68,7 @@ export default function DashboardSidebar({ open = false, onClose }: DashboardSid
             {(['core', 'tools', 'more'] as const).map((group) => (
               <li key={group}>
                 {GROUP_LABELS[group] ? (
-                  <div className="text-label-upper" style={{ padding: '1rem 0.75rem 0.5rem', color: 'rgba(226,226,229,0.4)', fontSize: '0.625rem' }}>
+                  <div className="text-label-upper" style={{ padding: '1rem 0.75rem 0.5rem', color: 'var(--color-on-surface-variant)', fontSize: '0.625rem', opacity: 0.6 }}>
                     {GROUP_LABELS[group]}
                   </div>
                 ) : null}
@@ -93,7 +93,7 @@ export default function DashboardSidebar({ open = false, onClose }: DashboardSid
                             gap: '0.75rem',
                             padding: '0.625rem 0.75rem',
                             borderRadius: 'var(--radius-lg, 12px)',
-                            color: isActive ? 'var(--color-accent)' : 'rgba(226,226,229,0.5)',
+                            color: isActive ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
                             background: isActive ? 'rgba(173,44,77,0.1)' : 'transparent',
                             borderRight: isActive ? '2px solid var(--color-accent)' : '2px solid transparent',
                             textDecoration: 'none',
@@ -121,7 +121,7 @@ export default function DashboardSidebar({ open = false, onClose }: DashboardSid
             href="/"
             className="dashboard-sidebar-home-link"
             onClick={() => onClose?.()}
-            style={{ display: 'block', marginBottom: '0.75rem', fontSize: '0.875rem', color: 'rgba(226,226,229,0.5)', textDecoration: 'none' }}
+            style={{ display: 'block', marginBottom: '0.75rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}
           >
             {PRODUCT_COPY.publicSiteLabel}
           </Link>

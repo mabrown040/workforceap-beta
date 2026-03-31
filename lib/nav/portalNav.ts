@@ -85,6 +85,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     group: 'workflows',
     Icon: Library,
     aliases: ['/resources'],
+    tourTarget: 'tour-learning',
   },
   {
     href: '/jobs',
@@ -95,7 +96,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   },
   { href: '/dashboard/resources', label: 'Program resources', group: 'workflows', Icon: Layers, tourTarget: 'tour-resources' },
   { href: '/dashboard/resume', label: 'Resume', group: 'workflows', Icon: FileText },
-  { href: '/dashboard/ai-tools', label: 'AI tools', group: 'workflows', Icon: Sparkles },
+  { href: '/dashboard/ai-tools', label: 'AI tools', group: 'workflows', Icon: Sparkles, tourTarget: 'tour-ai-tools' },
   {
     href: '/dashboard/ai-tools/application-tracker',
     label: 'Job Applications',
@@ -109,6 +110,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     group: 'workflows',
     Icon: MessageSquare,
     badgeKey: 'counselor_messages_unread',
+    tourTarget: 'tour-messages',
   },
   { href: '/dashboard/readiness', label: 'Career readiness', group: 'insights', Icon: CheckCircle },
   { href: '/dashboard/assessments', label: 'Skills assessment', group: 'insights', Icon: ClipboardCheck },

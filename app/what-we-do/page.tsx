@@ -177,8 +177,8 @@ export default function WhatWeDoPage() {
                 transition: 'var(--transition-base)',
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>download</span>
-              Download Thesis
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>handshake</span>
+              Partner With Us
             </Link>
           </div>
         </div>
@@ -605,7 +605,7 @@ export default function WhatWeDoPage() {
           ].map((s) => (
             <div key={s.label} className="rounded-xl p-5" style={{ background: '#f0edec', borderLeft: `4px solid ${s.accent}` }}>
               <div className="text-2xl font-black" style={{ color: s.accent }}>{s.val}</div>
-              <div className="text-[10px] font-bold uppercase tracking-wider mt-1" style={{ color: '#584144' }}>{s.label}</div>
+              <div className="text-[10px] font-bold uppercase tracking-wider mt-1" style={{ color: 'var(--color-on-surface-variant)' }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -620,14 +620,15 @@ export default function WhatWeDoPage() {
             { icon: 'handshake', title: 'Employer Aligned', desc: 'We train for the roles companies actually need, ensuring your new skills are in high demand.', accent: '#7b5800' },
             { icon: 'verified', title: 'Outcome Accountable', desc: 'Success is measured by your paycheck. Our model only works when you are working.', accent: '#8c0f37' },
           ].map((v) => (
-            <div key={v.title} className="rounded-xl p-5" style={{ background: 'white', boxShadow: '0 2px 8px rgba(28,27,27,0.06)' }}>
+            <div key={v.title} className="rounded-xl p-5" style={{ background: 'var(--surface-container-low)', boxShadow: '0 2px 8px rgba(28,27,27,0.06)' }}>
               <div className="flex items-start gap-4">
                 <div className="p-3 rounded-lg" style={{ background: `${v.accent}10` }}>
                   <span className="material-symbols-outlined text-xl" style={{ color: v.accent }}>{v.icon}</span>
                 </div>
                 <div>
                   <h3 className="font-bold text-lg mb-1" style={{ color: 'var(--color-on-surface)' }}>{v.title}</h3>
-                  <p className="text-sm leading-relaxed" style={{ color: '#584144' }}>{v.desc}</p>
+                  <p className="text-sm leading-relaxed" style={{ color: 'var(--color-on-surface-variant)' }}>{v.desc}</p>
+b3850e5 (fix: what-we-do mobile broken H1 tag, dead CTAs, Take Action button now routes)
                 </div>
               </div>
             </div>
@@ -650,7 +651,8 @@ export default function WhatWeDoPage() {
               <div className="absolute left-[14px] top-1 w-4 h-4 rounded-full border-4" style={{ background: '#8c0f37', borderColor: '#f0edec', outline: '3px solid rgba(140,15,55,0.1)' }} />
               <span className="block text-[10px] font-black tracking-widest uppercase mb-1" style={{ color: '#ad2c4d' }}>Step {s.step}</span>
               <h3 className="font-bold text-lg mb-1" style={{ color: 'var(--color-on-surface)' }}>{s.title}</h3>
-              <p className="text-sm" style={{ color: '#584144' }}>{s.desc}</p>
+              <p className="text-sm" style={{ color: 'var(--color-on-surface-variant)' }}>{s.desc}</p>
+b3850e5 (fix: what-we-do mobile broken H1 tag, dead CTAs, Take Action button now routes)
             </div>
           ))}
         </div>
@@ -658,7 +660,8 @@ export default function WhatWeDoPage() {
 
       {/* ── Mobile-only: Partner pills (≤640px) ── */}
       <section className="px-4 py-10" style={{ background: 'var(--color-surface)' }}>
-        <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-center mb-5" style={{ color: '#584144' }}>Supported By Industry Giants</p>
+        <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-center mb-5" style={{ color: 'var(--color-on-surface-variant)' }}>Supported By Industry Giants</p>
+b3850e5 (fix: what-we-do mobile broken H1 tag, dead CTAs, Take Action button now routes)
         <div className="flex flex-wrap justify-center gap-2">
           {['Google', 'IBM', 'AWS', 'CompTIA', 'Coursera'].map((p) => (
             <span key={p} className="px-4 py-2 rounded-full text-xs font-bold" style={{ background: '#e5e2e1', color: 'var(--color-on-surface)' }}>{p}</span>

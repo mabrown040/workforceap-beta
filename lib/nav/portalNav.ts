@@ -98,6 +98,9 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     Icon: Briefcase,
     tourTarget: 'tour-jobs',
   },
+  { href: '/dashboard/resources', label: 'Program resources', group: 'workflows', Icon: Layers, tourTarget: 'tour-resources' },
+  { href: '/dashboard/resume', label: 'Resume', group: 'workflows', Icon: FileText },
+  { href: '/dashboard/ai-tools', label: 'AI tools', group: 'workflows', Icon: Sparkles, tourTarget: 'tour-ai-tools' },
   {
     href: '/dashboard/ai-tools/application-tracker',
     label: 'Job Applications',

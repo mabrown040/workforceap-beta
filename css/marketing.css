@@ -87,6 +87,20 @@ html.dark .marketing-mobile {
   }
 }
 
+/*
+ * /what-we-do (desktop): full-bleed photo hero. Never use var(--color-white) for hero copy — in html.dark,
+ * --color-white maps to a dark surface and text disappears on the scrim. Inline styles use #fff; rules
+ * below reinforce contrast for nested links/icons.
+ */
+.wwd-photo-hero .wwd-photo-hero__cta-primary,
+.wwd-photo-hero .wwd-photo-hero__cta-secondary {
+  color: #ffffff;
+}
+
+html.dark .wwd-photo-hero h1.wwd-photo-hero__title {
+  color: #ffffff;
+}
+
 /* Home hero: dark scrim over image — keep headline/body readable when site theme is light */
 .home-hero {
   --home-hero-fg: #f2f2f5;

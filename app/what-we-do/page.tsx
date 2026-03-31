@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Free Workforce Development Training & Certifications',
+  title: 'Workforce Development Training & Industry Certificates',
   description:
     'How WorkforceAP works: employer-aligned training, no-cost to participants, job placement support. Operating model that scales beyond one market.',
   path: '/what-we-do',
@@ -14,20 +14,20 @@ export const metadata: Metadata = buildPageMetadata({
 const BENTO_ITEMS = [
   {
     icon: 'school',
-    title: 'Employer-Led Curricula',
-    desc: 'Training programs designed in direct partnership with employers — Google, IBM, AWS, CompTIA — so every credential maps to an open role.',
+    title: 'Employer-Influenced Curricula',
+    desc: 'Training programs shaped with employer input — Google, IBM, AWS, CompTIA — so credentials map to real hiring needs.',
     span: 'tall',
   },
   {
     icon: 'lock_open',
     title: 'Zero-Barrier Access',
-    desc: 'No tuition. No prerequisites. Funding comes from grants and employer partnerships, never from participants. Career training should be a right, not a privilege.',
+    desc: 'No tuition for members. No prerequisites. Funding comes from grants and partnerships — participants are not charged for access.',
     span: 'large',
   },
   {
     icon: 'verified',
     title: 'Validated Outcomes',
-    desc: 'Industry-recognized certificates. Skills assessments. Job placement support. We measure what matters — jobs landed.',
+    desc: 'Industry-recognized certificates. Skills assessments. Job placement support. We measure what matters — jobs landed. Empower you today for the future workforce.',
     span: 'small',
   },
   {
@@ -41,17 +41,17 @@ const BENTO_ITEMS = [
 const VALUES = [
   {
     num: '01',
-    title: 'Equity as Foundation',
-    desc: 'Fair access to opportunity — no one should pay for the training that gets them hired. We dismantle systemic barriers by design.',
+    title: 'Access as Foundation',
+    desc: 'Fair access to opportunity. We work with community organizations, public partners, and employers so more people can reach training and careers.',
   },
   {
     num: '02',
-    title: 'Outcome-Obsessed',
+    title: 'Outcome Focus',
     desc: 'Our success metric is your hire. When you land a job, we\'ve done our job. Every program, partnership, and dollar is measured by career outcomes.',
   },
   {
     num: '03',
-    title: 'Radical Partnership',
+    title: 'Key Partnerships',
     desc: 'Government, employers, community orgs — we leverage collective strength so participants don\'t carry the load alone.',
   },
 ];

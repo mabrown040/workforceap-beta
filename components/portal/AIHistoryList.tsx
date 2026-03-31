@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { formatPortalDate } from '@/lib/formatDate';
 
 type Result = {
   id: string;
@@ -91,7 +92,7 @@ export default function AIHistoryList({ results, initialFilter = '' }: { results
               <span className="ai-history-tool">{r.toolLabel}</span>
               <span className="ai-history-summary">{r.inputSummary}</span>
               <span className="ai-history-date">
-                {new Date(r.createdAt).toLocaleDateString()}
+                {formatPortalDate(r.createdAt)}
               </span>
               <span className="ai-history-chevron">{expandedId === r.id ? '▼' : '▶'}</span>
             </button>

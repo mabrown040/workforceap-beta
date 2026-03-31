@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { formatPortalDate } from '@/lib/formatDate';
 
 type Question = {
   question?: string;
@@ -48,7 +49,7 @@ export default function InterviewPracticeSaved({ results }: { results: SavedResu
               >
                 <span className="interview-practice-saved-summary">{r.inputSummary}</span>
                 <span className="interview-practice-saved-date">
-                  {new Date(r.createdAt).toLocaleDateString()}
+                  {formatPortalDate(r.createdAt)}
                 </span>
                 <span className="interview-practice-saved-chevron" aria-hidden>
                   {isExpanded ? '▼' : '▶'}

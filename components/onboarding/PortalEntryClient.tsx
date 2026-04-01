@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, type ComponentProps } from 'react';
+import { useRouter } from 'next/navigation';
 import { useTour } from './TourContext';
 import MemberOnboardingWizard from '@/components/onboarding/MemberOnboardingWizard';
 import EmployerOnboardingWizard from '@/components/onboarding/EmployerOnboardingWizard';
@@ -46,6 +47,7 @@ type PortalEntryClientProps =
 export default function PortalEntryClient(props: PortalEntryClientProps) {
   const { portal, showOnboardingWizard, showTour, isSuperAdmin, tourSteps, children } = props;
   const [wizardOpen, setWizardOpen] = useState(showOnboardingWizard);
+  const router = useRouter();
   const { startTour } = useTour();
 
   useEffect(() => {
@@ -57,9 +59,8 @@ export default function PortalEntryClient(props: PortalEntryClientProps) {
 
   const onWizardDone = () => {
     setWizardOpen(false);
-    if (showTour) {
-      startTour(tourSteps, portal);
-    }
+    /* Re-fetch RSC payload so overview reflects saved onboarding data; useEffect starts tour when showTour is true */
+    void router.refresh();
   };
 
   return (

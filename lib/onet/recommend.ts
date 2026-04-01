@@ -7,6 +7,7 @@ import { getTopProgramsFromQuiz } from '@/lib/content/quizProgramRecommendations
 import { translateOccupationDescription, translateSkillName, translateTaskLine } from '@/lib/onet/copy';
 import type { CareerMatchResult, ExperienceBandUi } from '@/lib/onet/types';
 import { ANCHOR_DIGITAL_LITERACY_SLUG, ANCHOR_IT_SUPPORT_SLUG } from '@/lib/onet/programAnchors';
+import { mergeRiasecIntoWeights, type InterestProfilerRiasec } from '@/lib/content/quizIpMerge';
 
 function mapQ2ToExperienceBand(q2: QuizAnswers['q2']): ExperienceBandUi {
   switch (q2) {
@@ -108,8 +109,14 @@ function ruleMatches(signal: Record<string, unknown>, answers: QuizAnswers): boo
   });
 }
 
-export async function buildCareerMatchResult(answers: QuizAnswers): Promise<CareerMatchResult> {
-  const weights = scoreQuiz(answers);
+export async function buildCareerMatchResult(
+  answers: QuizAnswers,
+  options?: { ipRiasec?: InterestProfilerRiasec | null }
+): Promise<CareerMatchResult> {
+  let weights = scoreQuiz(answers);
+  if (options?.ipRiasec) {
+    weights = mergeRiasecIntoWeights(weights, options.ipRiasec);
+  }
   const experienceBand = mapQ2ToExperienceBand(answers.q2);
   const prismaBand = uiBandToPrisma(experienceBand);
   const supportFlags = { needsComputerSupport: needsComputerSupport(answers) };

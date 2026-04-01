@@ -33,6 +33,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid quiz answers' }, { status: 400 });
   }
 
-  const result = await buildCareerMatchResult(parsed.data);
+  const { ipRiasec, ...answers } = parsed.data;
+  const result = await buildCareerMatchResult(answers, { ipRiasec: ipRiasec ?? null });
   return NextResponse.json(result);
 }

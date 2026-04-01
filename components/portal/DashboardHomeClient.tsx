@@ -469,7 +469,7 @@ export default function DashboardHomeClient({
         <section style={{ gridColumn: 'span 12', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginTop: '1rem' }}>
           {[
             { icon: 'terminal', label: 'Resources', href: '/dashboard/resources' },
-            { icon: 'history_edu', label: 'Assessments', href: '/dashboard/assessments' },
+            { icon: 'history_edu', label: 'Assessments', href: '/dashboard/skills-assessment' },
             { icon: 'forum', label: 'Messages', href: '/dashboard/messages' },
             { icon: 'auto_awesome', label: 'Career Tools', href: '/dashboard/ai-tools' },
           ].map((item) => (

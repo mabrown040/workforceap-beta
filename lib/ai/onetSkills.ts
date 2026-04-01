@@ -12,6 +12,7 @@
  */
 
 const ONET_API_URL = 'https://api-v2.onetcenter.org';
+const ONET_TIMEOUT_MS = 8000;
 
 interface OnetSkill {
   id: string;
@@ -34,17 +35,7 @@ export async function searchOccupations(
 ): Promise<OnetOccupation[]> {
   const auth = getApiKey();
   const url = `${ONET_API_URL}/occupations?keyword=${encodeURIComponent(keyword)}&start=1&end=10`;
-
-  const response = await fetch(url, {
-    headers: {
-      Accept: 'application/json',
-      ...(auth ? { 'X-API-Key': auth } : {}),
-    },
-  });
-
-  if (!response.ok) return [];
-
-  const data = await response.json();
+  const data = await fetchOnetJson(url, auth, 'occupation search');
   return (data.occupation ?? []).map(
     (o: { code: string; title: string; description?: string }) => ({
       code: o.code,
@@ -151,20 +142,40 @@ function getApiKey(): string | null {
 
 async function fetchOnetResource(
   url: string,
-  _auth: string | null
+  auth: string | null
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> {
-  const apiKey = getApiKey();
+  try {
+    return await fetchOnetJson(url, auth, 'occupation detail');
+  } catch {
+    return null;
+  }
+}
+
+async function fetchOnetJson(url: string, auth: string | null, label: string): Promise<any> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), ONET_TIMEOUT_MS);
+
   try {
     const response = await fetch(url, {
       headers: {
         Accept: 'application/json',
-        ...(apiKey ? { 'X-API-Key': apiKey } : {}),
+        ...(auth ? { 'X-API-Key': auth } : {}),
       },
+      signal: controller.signal,
     });
-    if (!response.ok) return null;
-    return response.json();
-  } catch {
-    return null;
+
+    if (!response.ok) {
+      throw new Error(`O*NET ${label} is unavailable right now.`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('The O*NET lookup timed out. Please try again in a moment.');
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }

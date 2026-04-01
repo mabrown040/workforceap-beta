@@ -296,6 +296,8 @@ model JobApplication {
   role        String
   status      JobApplicationStatus @default(SAVED)
   appliedAt   DateTime?           @map("applied_at")
+  source      JobApplicationSource @default(OTHER)
+  nextInterviewDate DateTime?     @map("next_interview_date")
   notes       String?             @db.Text
   url         String?
   createdAt   DateTime            @default(now()) @map("created_at")
@@ -315,6 +317,13 @@ enum JobApplicationStatus {
   INTERVIEWING
   OFFER
   REJECTED
+}
+
+enum JobApplicationSource {
+  INDEED
+  LINKEDIN
+  DIRECT
+  OTHER
 }
 
 model BenefitRequest {
@@ -556,6 +565,7 @@ enum AIToolType {
   salary_negotiation
   gap_analyzer
   career_counselor
+  skill_assessment
 }
 
 model UserCertification {

@@ -18,13 +18,14 @@ export default async function DashboardCertificationsPage() {
 
   return (
     <>
+      <h1 className="sr-only">Certifications &amp; achievements</h1>
       {/* ── MOBILE ── */}
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Header */}
         <div style={{ padding: '1.25rem 1rem 0.5rem' }}>
-          <h1 style={{ fontSize: '1.375rem', fontWeight: 700, lineHeight: 1.25, marginBottom: '0.25rem' }}>
+          <h2 style={{ fontSize: '1.375rem', fontWeight: 700, lineHeight: 1.25, marginBottom: '0.25rem' }}>
             Verification Vault
-          </h1>
+          </h2>
           <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
             Your credentials and certification progress.
           </p>
@@ -249,9 +250,9 @@ export default async function DashboardCertificationsPage() {
 
           {/* Page heading */}
           <header style={{ marginBottom: 'var(--space-8)' }}>
-            <h1 style={{ fontSize: 'var(--font-size-h1)', fontWeight: 'var(--font-weight-bold)', lineHeight: 'var(--line-height-tight)', marginBottom: 'var(--space-2)' }}>
+            <h2 style={{ fontSize: 'var(--font-size-h1)', fontWeight: 'var(--font-weight-bold)', lineHeight: 'var(--line-height-tight)', marginBottom: 'var(--space-2)' }}>
               The Verification Vault
-            </h1>
+            </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', fontSize: 'var(--font-size-base)', maxWidth: '640px' }}>
               Your credentials, milestones, and industry verifications in one place. Track progress across WorkforceAP certification pathways and download proof of achievement.
             </p>

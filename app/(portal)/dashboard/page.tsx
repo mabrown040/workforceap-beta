@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
 import { loadMemberCareerBriefBundle } from '@/lib/content/careerBriefPersonalization';
 import { prisma } from '@/lib/db/prisma';
 import { buildMemberApplicationStatusView } from '@/lib/member/memberApplicationStatus';
@@ -285,16 +285,12 @@ export default async function DashboardPage() {
             <a href="/programs" className="text-xs font-bold text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>View All</a>
           </div>
           <div style={{ display:"flex", gap:"1rem", overflowX:"auto", padding:"0 1.5rem 0.5rem", scrollbarWidth:"none", msOverflowStyle:"none" }}>
-            {[
-              { provider: 'IBM Professional', title: 'Data Science Professional' },
-              { provider: 'Amazon Web Services', title: 'Cloud Practitioner Essentials' },
-              { provider: 'Google', title: 'Cybersecurity Professional' },
-            ].map((prog, i) => (
+            {PROGRAMS.slice(0, 3).map((prog, i) => (
               <div key={i} style={{ minWidth:"220px", borderRadius:"0.75rem", overflow:"hidden", display:"flex", flexDirection:"column", boxShadow:"0 1px 3px rgba(0,0,0,0.08)", flexShrink:0, background:"var(--surface-container)" }}>
-                <div style={{ height:"7rem", position:"relative", background:"linear-gradient(135deg, var(--surface-container-high) 0%, var(--surface-container-highest) 100%)" }}>
+                <div style={{ height:"7rem", position:"relative", background: `linear-gradient(135deg, ${prog.categoryColor} 0%, var(--surface-container-highest) 100%)` }}>
                 </div>
                 <div style={{ padding:"1rem", display:"flex", flexDirection:"column", gap:"0.25rem" }}>
-                  <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--color-gold)' }}>{prog.provider}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--color-gold)' }}>{prog.partner || 'WorkforceAP'}</p>
                   <h4 className="font-bold text-sm text-[var(--color-on-surface)] leading-tight">{prog.title}</h4>
                 </div>
               </div>
@@ -308,7 +304,7 @@ export default async function DashboardPage() {
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.75rem" }}>
             {[
               { icon: 'upload_file', label: 'Upload Resume', href: '/dashboard/ai-tools/resume-rewriter' },
-              { icon: 'event_available', label: 'Book Coaching', href: '/dashboard' },
+              { icon: 'event_available', label: 'Book Coaching', href: '/dashboard/messages' },
               { icon: 'forum', label: 'Practice Interview', href: '/dashboard/ai-tools/interview-practice' },
               { icon: 'psychology', label: 'AI Resume Help', href: '/dashboard/ai-tools' },
             ].map((action) => (

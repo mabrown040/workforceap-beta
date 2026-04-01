@@ -42,13 +42,23 @@ export default function JobReadinessScore({ score, nextAction, breakdown }: JobR
         <>
           <button
             type="button"
-            className="job-readiness-breakdown-toggle"
+            className="job-readiness-breakdown-toggle inline-flex items-center gap-1"
             onClick={() => setShowBreakdown(!showBreakdown)}
+            aria-expanded={showBreakdown}
+            aria-controls="readiness-breakdown-list"
           >
             {showBreakdown ? 'Hide' : 'Show'} breakdown
+            <span
+              className={`material-symbols-outlined text-xl transition-transform duration-200 ${
+                showBreakdown ? 'rotate-180' : 'rotate-0'
+              }`}
+              aria-hidden="true"
+            >
+              expand_more
+            </span>
           </button>
           {showBreakdown && (
-            <ul className="job-readiness-breakdown">
+            <ul id="readiness-breakdown-list" className="job-readiness-breakdown">
               {(Object.entries(breakdown) as [keyof ScoreBreakdown, { earned: number; max: number; done: boolean }][]).map(([key, b]) => (
                 <li key={key} className={b.done ? 'done' : ''}>
                   {b.done ? '✓' : '○'} {BREAKDOWN_LABELS[key]}: {b.earned}/{b.max}

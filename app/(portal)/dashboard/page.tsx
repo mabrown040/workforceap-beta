@@ -16,6 +16,7 @@ import { isSuperAdmin } from '@/lib/auth/roles';
 import { MEMBER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { formatPortalDate } from '@/lib/formatDate';
+import MemberDashboardVoiceSection from '@/components/portal/MemberDashboardVoiceSection';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Member overview',
@@ -211,6 +212,10 @@ export default async function DashboardPage() {
           </div>
         </section>
 
+        <section style={{ padding: '0 1.5rem 1.25rem' }}>
+          <MemberDashboardVoiceSection />
+        </section>
+
         {/* Next step card */}
         {applicationStatus?.nextStep && (
           <section style={{ padding:"0 1.5rem", marginBottom:"1.5rem" }}>
@@ -356,6 +361,9 @@ export default async function DashboardPage() {
             initialReferralSource: intakeExtra?.profile?.referralSource ?? '',
           }}
         >
+          <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 2rem 1.5rem' }}>
+            <MemberDashboardVoiceSection />
+          </div>
           <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 2rem' }}>
             <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
           </div>

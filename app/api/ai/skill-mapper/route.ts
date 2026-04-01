@@ -4,6 +4,7 @@ import {
   getOccupationSkills,
   mapSkillsToRadarAxes,
 } from '@/lib/ai/onetSkills';
+import { isOnetConfigured } from '@/lib/onet/client';
 import { getUser } from '@/lib/auth/server';
 import { trackEvent } from '@/lib/events/track';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
@@ -28,6 +29,13 @@ export async function GET(req: NextRequest) {
   const { success } = await checkAIToolRateLimit(user.id);
   if (!success) {
     return NextResponse.json({ error: 'Rate limit exceeded. Try again later.' }, { status: 429 });
+  }
+
+  if (!isOnetConfigured()) {
+    return NextResponse.json(
+      { error: 'O*NET is not configured. Set ONET_API_KEY for occupation search and skills.' },
+      { status: 503 }
+    );
   }
 
   try {

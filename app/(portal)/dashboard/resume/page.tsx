@@ -9,6 +9,7 @@ import ResumeClient from './ResumeClient';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ResumeMobileResumeTools from '@/components/portal/ResumeMobileResumeTools';
 import ResumeMobileQuickActions from '@/components/portal/ResumeMobileQuickActions';
+import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Resume',
@@ -55,6 +56,34 @@ export default async function DashboardResumePage() {
           <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
             Upload, generate, and manage your resume.
           </p>
+        </div>
+
+        <div style={{ padding: '0 1rem 1rem' }}>
+          <div
+            className="stitch-card"
+            style={{
+              padding: '1.25rem',
+              border: '1px solid var(--outline-variant)',
+              borderRadius: '0.875rem',
+              background: 'var(--surface-container-lowest)',
+            }}
+          >
+            <p
+              className="text-[10px] uppercase tracking-[0.12em] font-semibold"
+              style={{ color: 'var(--color-accent)', marginBottom: '0.75rem' }}
+            >
+              Resume coach (voice)
+            </p>
+            <PortalVoiceSession
+              sessionEndpoint="/api/member/resume-coach/session"
+              title="Practice your pitch"
+              description="Talk through experience bullets, gaps, or how to frame your target role."
+              accent="#2563eb"
+              accentDark="#1d4ed8"
+              speakingLabel="Coach is speaking…"
+              listeningLabel="Listening — describe your background"
+            />
+          </div>
         </div>
 
         {/* AI Score Badge */}
@@ -215,6 +244,27 @@ export default async function DashboardResumePage() {
           <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
             Upload your resume, generate an AI-enhanced version, and prepare for WorkInTexas.
           </p>
+          <div
+            className="stitch-card"
+            style={{
+              marginBottom: '1.5rem',
+              padding: '1.5rem',
+              border: '1px solid var(--outline-variant)',
+            }}
+          >
+            <h2 style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
+              Resume coach (voice)
+            </h2>
+            <PortalVoiceSession
+              sessionEndpoint="/api/member/resume-coach/session"
+              title="Practice your pitch"
+              description="Talk through experience bullets, gaps, or how to frame your target role."
+              accent="#2563eb"
+              accentDark="#1d4ed8"
+              speakingLabel="Coach is speaking…"
+              listeningLabel="Listening — describe your background"
+            />
+          </div>
           <ResumeClient
             completeness={completeness}
             witData={witData}

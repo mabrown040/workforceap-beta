@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { chatCompletion } from '@/lib/ai/groq';
+import { getElevenLabsAgentId, startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
 
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
-const ELEVENLABS_AGENT_ID = process.env.ELEVENLABS_INTERVIEW_AGENT_ID || 'agent_9001kmy4g522e5ttvj88k5z1ygem';
 
 /**
  * POST /api/interview/session
@@ -32,23 +32,16 @@ export async function POST(req: NextRequest) {
   // ── Mode 1: ElevenLabs Conversational AI ──────────────────────────────────
   if (ELEVENLABS_API_KEY && !nextQuestion && !forceText) {
     try {
-      // Get a signed URL for the conversational AI session
-      const elRes = await fetch(
-        `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${ELEVENLABS_AGENT_ID}`,
-        { headers: { 'xi-api-key': ELEVENLABS_API_KEY } }
-      );
-
-      if (elRes.ok) {
-        const elData = await elRes.json() as { signed_url: string };
-        return NextResponse.json({
-          mode: 'voice',
-          signedUrl: elData.signed_url,
-          agentId: ELEVENLABS_AGENT_ID,
-          role,
-          interviewType,
-          sessionId: `${user.id}-${Date.now()}`,
-        });
-      }
+      const { signedUrl } = await startElevenLabsPortalSession('interview');
+      const agentId = getElevenLabsAgentId('interview') ?? '';
+      return NextResponse.json({
+        mode: 'voice',
+        signedUrl,
+        agentId,
+        role,
+        interviewType,
+        sessionId: `${user.id}-${Date.now()}`,
+      });
     } catch (err) {
       console.error('ElevenLabs signed URL error:', err);
       // Fall through to text mode

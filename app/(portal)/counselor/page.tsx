@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import Link from 'next/link';
 import { counselorAffiliationLabel } from '@/lib/counselor/counselorLabels';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 
 export default async function CounselorPortalPage() {
   const user = await getUser();
@@ -89,6 +90,20 @@ export default async function CounselorPortalPage() {
           <h2 className="text-3xl font-extrabold tracking-tight text-on-surface leading-tight">
             Morning,<br /><span style={{ color: 'var(--color-accent)' }}>Counselor</span>
           </h2>
+        </div>
+        <div className="stitch-card" style={{ marginLeft: '1.5rem', marginRight: '1.5rem', marginBottom: '1rem', padding: '1.25rem' }}>
+          <p className="text-[10px] uppercase tracking-[0.12em] font-semibold text-[#8c0f37]" style={{ marginBottom: '0.75rem' }}>
+            Voice assistant
+          </p>
+          <PortalVoiceSession
+            sessionEndpoint="/api/counselor/session"
+            title="Counselor voice assistant"
+            description="Talk through student support, outreach, or how to use this portal."
+            accent="#8c0f37"
+            accentDark="#670024"
+            speakingLabel="Assistant is speaking…"
+            listeningLabel="Listening — ask your question"
+          />
         </div>
         {/* Stats grid */}
         <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem", marginTop:"1rem", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"1rem", marginBottom:"1.5rem" }}>
@@ -178,6 +193,21 @@ export default async function CounselorPortalPage() {
           Your academic oversight panel is synchronized
         </p>
       </header>
+
+      <section className="stitch-card" style={{ padding: '1.5rem', marginBottom: '2.5rem' }}>
+        <h2 style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
+          Voice assistant
+        </h2>
+        <PortalVoiceSession
+          sessionEndpoint="/api/counselor/session"
+          title="Counselor voice assistant"
+          description="Talk through student support, outreach, or how to use this portal."
+          accent="#8c0f37"
+          accentDark="#670024"
+          speakingLabel="Assistant is speaking…"
+          listeningLabel="Listening — ask your question"
+        />
+      </section>
 
       {/* ── Stat Cards ── */}
       <section style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2.5rem' }}>

@@ -120,9 +120,9 @@ export default function DashboardHomeClient({
             Workforce Advancement Project {programTitle ? `/ ${programTitle}` : ''}
           </span>
         </div>
-        <h1 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>
+        <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>
           Welcome back, {firstName}.
-        </h1>
+        </h2>
         <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '42rem', lineHeight: 1.6, opacity: 0.8 }}>
           {state === 'A' && (isMinor && age ? "Let's explore career paths and build skills." : "Let's build your career path.")}
           {state === 'B' && `You're enrolled in ${programTitle ?? 'your program'}. Complete your assessment to unlock training.`}

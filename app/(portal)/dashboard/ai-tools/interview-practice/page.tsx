@@ -27,6 +27,7 @@ export default async function InterviewPracticePage() {
 
   return (
     <>
+      <h1 className="sr-only">Interview Practice</h1>
       {/* ── Mobile section ── */}
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <div
@@ -67,9 +68,9 @@ export default async function InterviewPracticePage() {
               <span className="material-symbols-outlined" style={{ fontSize: '1.2rem', color: 'var(--color-accent)' }}>psychology</span>
             </div>
             <div>
-              <h1 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>
+              <h2 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>
                 Interview Practice
-              </h1>
+              </h2>
               <p style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-variant)', margin: '0.1rem 0 0' }}>
                 Role-specific questions with answer frameworks.
               </p>
@@ -124,11 +125,11 @@ export default async function InterviewPracticePage() {
           <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>chevron_right</span>
           <span style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>Interview Practice</span>
         </nav>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>
           Practice{' '}
           <span style={{ color: 'var(--color-accent)' }}>Session</span>
           {' '}Setup
-        </h1>
+        </h2>
         <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>
           Configure your mock interview -- choose a role, focus area, and difficulty level.
         </p>

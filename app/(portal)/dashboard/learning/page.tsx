@@ -8,7 +8,7 @@ import LearningHubDestinationCards from '@/components/portal/LearningHubDestinat
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'The Learning Hub — Curriculum Oversight',
+  title: 'The Learning Hub',
   description:
     'Learning pathways, the career resource library, and program-specific tools — organized in one place.',
   path: '/dashboard/learning',
@@ -37,11 +37,12 @@ export default async function LearningPage() {
 
   return (
     <>
+    <h1 className="sr-only">The Learning Hub</h1>
     {/* ── Mobile learning view (≤640px) ── */}
     <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
       {/* Header */}
       <div style={{ padding: '1.5rem 1.5rem 0', marginBottom: '1.5rem' }}>
-        <span className="text-[10px] font-medium tracking-[0.1em] uppercase text-[#8c0f37]" style={{ display: 'block', marginBottom: '0.5rem' }}>Curriculum Oversight</span>
+        <p className="text-[10px] font-medium tracking-[0.1em] uppercase text-[#8c0f37]" style={{ display: 'block', marginBottom: '0.5rem' }}>Curriculum Oversight</p>
         <h2 className="text-3xl font-bold tracking-tight text-[#1c1b1b] leading-tight">The Learning Hub</h2>
       </div>
 
@@ -176,7 +177,7 @@ export default async function LearningPage() {
       {/* Top bar: label + heading + progress */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 'var(--space-4)', marginBottom: 'var(--space-8)' }}>
         <div>
-          <div
+          <p
             style={{
               fontSize: 'var(--font-size-sm)',
               fontWeight: 'var(--font-weight-medium)',
@@ -187,10 +188,10 @@ export default async function LearningPage() {
             }}
           >
             Curriculum Oversight
-          </div>
-          <h1 style={{ fontSize: 'var(--font-size-h1)', fontWeight: 'var(--font-weight-bold)', lineHeight: 'var(--line-height-tight)', margin: 0 }}>
+          </p>
+          <h2 style={{ fontSize: 'var(--font-size-h1)', fontWeight: 'var(--font-weight-bold)', lineHeight: 'var(--line-height-tight)', margin: 0 }}>
             The Learning Hub
-          </h1>
+          </h2>
           <p style={{ color: 'var(--color-on-surface-variant)', marginTop: 'var(--space-2)', maxWidth: '560px' }}>
             Your pathways, searchable career resources, and program-specific tools — organized so you always know where to look next.
           </p>

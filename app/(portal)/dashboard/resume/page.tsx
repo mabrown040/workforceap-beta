@@ -46,13 +46,14 @@ export default async function DashboardResumePage() {
 
   return (
     <>
+      <h1 className="sr-only">My Resume</h1>
       {/* ── MOBILE ── */}
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Header */}
         <div style={{ padding: '1.25rem 1rem 0.75rem' }}>
-          <h1 style={{ fontSize: '1.375rem', fontWeight: 700, lineHeight: 1.25, marginBottom: '0.25rem' }}>
+          <h2 style={{ fontSize: '1.375rem', fontWeight: 700, lineHeight: 1.25, marginBottom: '0.25rem' }}>
             My Resume
-          </h1>
+          </h2>
           <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
             Upload, generate, and manage your resume.
           </p>
@@ -240,7 +241,7 @@ export default async function DashboardResumePage() {
       {/* ── DESKTOP ── */}
       <div className="wa-hidden wa-md:wa-block">
         <div>
-          <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Resume</h1>
+          <h2 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Resume</h2>
           <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
             Upload your resume, generate an AI-enhanced version, and prepare for WorkInTexas.
           </p>

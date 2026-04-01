@@ -183,15 +183,16 @@ export default async function DashboardPage() {
 
   return (
     <>
+      <h1 className="sr-only">Welcome back, {firstName}</h1>
       {/* ── Mobile-only hero + dashboard (≤640px) ── */}
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Welcome greeting + progress orb */}
         <section style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", padding:"1.5rem 1.5rem 1rem" }}>
           <div style={{ display:"flex", flexDirection:"column", gap:"0.25rem", maxWidth:"60%" }}>
             <p className="text-[var(--color-on-surface-variant)] text-xs font-medium tracking-widest uppercase">Member Dashboard</p>
-            <h1 className="text-2xl font-extrabold tracking-tight text-[var(--color-on-surface)]">
+            <h2 className="text-2xl font-extrabold tracking-tight text-[var(--color-on-surface)]">
               Welcome back, {firstName}
-            </h1>
+            </h2>
           </div>
           {/* Progress orb */}
           <div style={{ position:"relative", display:"flex", alignItems:"center", justifyContent:"center", width:"5rem", height:"5rem", flexShrink:0 }}>

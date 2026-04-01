@@ -9258,7 +9258,9 @@ html.dark .workspace-sidebar-signout:hover {
     flex-wrap: wrap;
     gap: 0.75rem;
 }
-.employer-jobs-header h1 {
+.employer-jobs-header h1,
+.employer-jobs-header h2,
+.employer-jobs-header .employer-jobs-header-title {
     font-size: 1.35rem;
     margin: 0;
     font-weight: 600;

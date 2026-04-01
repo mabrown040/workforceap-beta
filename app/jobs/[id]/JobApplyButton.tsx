@@ -127,7 +127,7 @@ export default function JobApplyButton({ jobId, authenticated = true }: { jobId:
         
         <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.75rem', lineHeight: 1.4 }}>
           Your information will only be shared with this employer for this specific job application. 
-          You can manage your applications in your <Link href="/dashboard/ai-tools/application-tracker" style={{ color: 'var(--color-accent)' }}>dashboard</Link>.
+          You can manage your applications in your <Link href="/dashboard/job-applications" style={{ color: 'var(--color-accent)' }}>dashboard</Link>.
         </p>
       </div>
 

@@ -79,7 +79,7 @@ export default function WeeklyRecapClient({ recap, recapData, weekStart }: Props
             const href =
               lower.includes('resume') ? '/dashboard/ai-tools/resume-rewriter' :
               lower.includes('interview') ? '/dashboard/ai-tools/interview-practice' :
-              lower.includes('application') ? '/dashboard/ai-tools/application-tracker' :
+              lower.includes('application') ? '/dashboard/job-applications' :
               lower.includes('resource') ? '/dashboard/resources' :
               '/dashboard';
             return (

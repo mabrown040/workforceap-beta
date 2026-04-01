@@ -63,7 +63,7 @@ export default async function DashboardResourcesPage() {
     suggestedActions = [
       { label: 'Build your resume', href: '/dashboard/ai-tools/resume-rewriter' },
       { label: 'Practice interview questions', href: '/dashboard/ai-tools/interview-practice' },
-      { label: 'Log your first application', href: '/dashboard/ai-tools/application-tracker' },
+      { label: 'Log your first application', href: '/dashboard/job-applications' },
     ];
   }
 

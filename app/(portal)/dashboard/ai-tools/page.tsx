@@ -105,7 +105,7 @@ const TOOLS = [
     description: 'Track your job applications. Add applications, update status, and see your progress.',
     timeToComplete: 'Ongoing',
     status: 'available' as const,
-    href: '/dashboard/ai-tools/application-tracker',
+    href: '/dashboard/job-applications',
     badge: 'LIVE TRACKING',
     accentBorder: true,
   },
@@ -123,7 +123,7 @@ export default async function AIToolsPage() {
     suggestedActions = [
       { label: 'Build your resume', href: '/dashboard/ai-tools/resume-rewriter' },
       { label: 'Practice interview questions', href: '/dashboard/ai-tools/interview-practice' },
-      { label: 'Log your first application', href: '/dashboard/ai-tools/application-tracker' },
+      { label: 'Log your first application', href: '/dashboard/job-applications' },
     ];
   }
 

@@ -2430,6 +2430,9 @@ a.btn-accent:hover {
     color: var(--color-on-surface-variant);
     padding: 2rem 0;
 }
+.jobs-board-skeleton-wrap {
+    padding: 0.5rem 0 2rem;
+}
 .job-empty-link {
     background: none;
     border: none;

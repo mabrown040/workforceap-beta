@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
+import { captureApiError } from '@/lib/observability/captureApiError';
 import { isExcludedPublicEmployerName } from '@/lib/jobs/publicJobFilters';
 
 /** Public jobs listing - only live jobs for students */
@@ -104,7 +105,7 @@ export async function GET(request: NextRequest) {
     const visible = jobs.filter((j) => !isExcludedPublicEmployerName(j.employer.companyName));
     return NextResponse.json(visible);
   } catch (err) {
-    console.error('[jobs] error:', err);
+    captureApiError(err, { route: 'GET /api/jobs' });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

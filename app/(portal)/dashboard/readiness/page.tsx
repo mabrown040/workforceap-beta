@@ -4,6 +4,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import ReadinessMemberClient from './ReadinessMemberClient';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import '@/css/counselor.css';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -28,6 +29,34 @@ export default async function DashboardReadinessPage() {
           <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
             Your readiness score across 4 key categories.
           </p>
+        </div>
+
+        <div style={{ padding: '0 1rem 1rem' }}>
+          <div
+            className="stitch-card"
+            style={{
+              padding: '1.25rem',
+              border: '1px solid var(--outline-variant)',
+              borderRadius: '0.875rem',
+              background: 'var(--surface-container-lowest)',
+            }}
+          >
+            <p
+              className="text-[10px] uppercase tracking-[0.12em] font-semibold"
+              style={{ color: 'var(--color-accent)', marginBottom: '0.75rem' }}
+            >
+              Readiness coach (voice)
+            </p>
+            <PortalVoiceSession
+              sessionEndpoint="/api/member/readiness/voice-session"
+              title="Talk through your readiness plan"
+              description="Ask about interviews, certifications, LinkedIn, or your next milestone."
+              accent="#0d9488"
+              accentDark="#0f766e"
+              speakingLabel="Coach is speaking…"
+              listeningLabel="Listening — share where you are"
+            />
+          </div>
         </div>
 
         {/* Large SVG Score Ring */}
@@ -152,6 +181,27 @@ export default async function DashboardReadinessPage() {
           <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
             Track your progress from training to career. Your counselor updates this checklist as you hit milestones.
           </p>
+          <div
+            className="stitch-card"
+            style={{
+              marginBottom: '1.5rem',
+              padding: '1.5rem',
+              border: '1px solid var(--outline-variant)',
+            }}
+          >
+            <h2 style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
+              Readiness coach (voice)
+            </h2>
+            <PortalVoiceSession
+              sessionEndpoint="/api/member/readiness/voice-session"
+              title="Talk through your readiness plan"
+              description="Ask about interviews, certifications, LinkedIn, or your next milestone."
+              accent="#0d9488"
+              accentDark="#0f766e"
+              speakingLabel="Coach is speaking…"
+              listeningLabel="Listening — share where you are"
+            />
+          </div>
           <ReadinessMemberClient />
         </div>
       </div>

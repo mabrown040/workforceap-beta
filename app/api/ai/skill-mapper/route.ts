@@ -4,6 +4,7 @@ import {
   getOccupationSkills,
   mapSkillsToRadarAxes,
 } from '@/lib/ai/onetSkills';
+import { isOnetConfigured } from '@/lib/onet/client';
 
 /**
  * GET /api/ai/skill-mapper?occupation=software+developer
@@ -18,6 +19,13 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const occupation = searchParams.get('occupation');
   const code = searchParams.get('code');
+
+  if (!isOnetConfigured()) {
+    return NextResponse.json(
+      { error: 'O*NET is not configured. Set ONET_API_KEY for occupation search and skills.' },
+      { status: 503 }
+    );
+  }
 
   try {
     // If a specific occupation code is provided, return full skill data

@@ -2,16 +2,17 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
 
+/** POST — signed URL for career readiness voice coach. */
 export async function POST() {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-    const { signedUrl } = await startElevenLabsPortalSession('counselor');
-    return NextResponse.json({ signedUrl });
+    const { signedUrl, expiresAt } = await startElevenLabsPortalSession('readiness');
+    return NextResponse.json({ signedUrl, expiresAt });
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Failed to start session';
-    console.error('[counselor/session]', msg);
-    return NextResponse.json({ error: 'Voice sessions are not configured' }, { status: 503 });
+    console.error('[member/readiness/voice-session]', msg);
+    return NextResponse.json({ error: msg }, { status: 503 });
   }
 }

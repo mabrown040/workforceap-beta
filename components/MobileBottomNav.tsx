@@ -39,7 +39,7 @@ const COUNSELOR_TABS = [
 
 const PARTNER_TABS = [
   { href: '/partner', label: 'Overview', icon: 'dashboard' },
-  { href: '/partner/members', label: 'Members', icon: 'groups' },
+  { href: '/partner/referred-members', label: 'Members', icon: 'groups' },
   { href: '/partner/milestones', label: 'Milestones', icon: 'flag' },
   { href: '/partner/outcomes', label: 'Outcomes', icon: 'bar_chart' },
 ];

@@ -28,6 +28,7 @@ import {
   enrollmentConfirmationHtml,
   partnerWeeklyDigestHtml,
   counselorAssignedHtml,
+  partnerReferralInviteHtml,
 } from '@/emails';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
@@ -384,6 +385,44 @@ export async function sendInvitationEmail(params: {
     return { ok: true };
   } catch (err) {
     console.error('sendInvitationEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+export async function sendPartnerReferralInviteEmail(params: {
+  to: string;
+  inviterName: string;
+  partnerName: string;
+  personalMessage?: string | null;
+  inviteUrl: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendPartnerReferralInviteEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+
+  const html = brandedEmailLayout({
+    title: `${params.inviterName} invited you to connect with WorkforceAP`,
+    bodyHtml: partnerReferralInviteHtml({
+      inviterName: params.inviterName,
+      partnerName: params.partnerName,
+      personalMessage: params.personalMessage,
+    }),
+    ctaText: 'Start Application',
+    ctaUrl: params.inviteUrl,
+  });
+
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(`${params.inviterName} invited you to WorkforceAP`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendPartnerReferralInviteEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
 }

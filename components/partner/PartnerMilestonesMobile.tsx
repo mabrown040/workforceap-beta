@@ -79,7 +79,7 @@ export default function PartnerMilestonesMobile() {
               <div key={m.id} style={{ background: '#fff', borderRadius: '0.875rem', padding: '1rem', border: '1px solid #ebe7e7', borderLeft: '3px solid #8c0f37' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                   <div style={{ flex: 1 }}>
-                    <Link href={`/partner/members/${m.memberId}`} style={{ textDecoration: 'none' }}>
+                    <Link href={`/partner/referred-members/${m.memberId}`} style={{ textDecoration: 'none' }}>
                       <p className="text-sm font-semibold" style={{ color: 'var(--color-on-surface)', margin: '0 0 0.125rem' }}>{m.memberName}</p>
                     </Link>
                     <p className="text-xs font-medium" style={{ color: 'var(--color-accent)', margin: '0 0 0.125rem' }}>{m.label}</p>

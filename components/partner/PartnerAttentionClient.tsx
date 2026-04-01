@@ -153,7 +153,7 @@ export default function PartnerAttentionClient({ initialTier = 'all' as TierFilt
               <li key={m.memberId} className={`partner-attention-row tier-${m.riskTier}`}>
                 <div className="partner-attention-main">
                   <span className={`partner-risk-pill tier-${m.riskTier}`}>{m.riskTier}</span>
-                  <Link href={`/partner/members/${m.memberId}`} className="partner-attention-name">
+                  <Link href={`/partner/referred-members/${m.memberId}`} className="partner-attention-name">
                     {m.fullName}
                   </Link>
                   <div className="partner-attention-meta">

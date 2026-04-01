@@ -24,7 +24,7 @@ const JOURNEY_STEPS = [
     num: 2,
     title: 'Get assessment ready',
     desc: 'Take the career readiness assessment — it helps us understand where you are and where you want to go.',
-    href: '/dashboard/assessments',
+    href: '/dashboard/skills-assessment',
     cta: 'Start assessment',
     icon: 'assignment',
   },

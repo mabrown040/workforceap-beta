@@ -107,10 +107,11 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     tourTarget: 'tour-jobs',
   },
   {
-    href: '/dashboard/ai-tools/application-tracker',
+    href: '/dashboard/job-applications',
     label: 'Job Applications',
     group: 'workflows',
     Icon: FileText,
+    aliases: ['/dashboard/ai-tools/application-tracker', '/applications'],
     badgeKey: 'applications_new',
   },
   {
@@ -122,7 +123,13 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     tourTarget: 'tour-messages',
   },
   { href: '/dashboard/readiness', label: 'Career readiness', group: 'insights', Icon: CheckCircle },
-  { href: '/dashboard/assessments', label: 'Skills assessment', group: 'insights', Icon: ClipboardCheck },
+  {
+    href: '/dashboard/skills-assessment',
+    label: 'Skills assessment',
+    group: 'insights',
+    Icon: ClipboardCheck,
+    aliases: ['/dashboard/assessments', '/dashboard/assessment'],
+  },
   { href: '/dashboard/weekly-recap', label: 'Weekly recap', group: 'insights', Icon: BarChart3 },
   { href: '/dashboard/career-brief', label: 'Career Brief', group: 'insights', Icon: ClipboardList },
   { href: '/dashboard/certifications', label: 'Certifications', group: 'manage', Icon: Award, aliases: ['/certifications'] },
@@ -183,11 +190,12 @@ export const EMPLOYER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
 export const PARTNER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/partner', label: 'Overview', group: 'primary', Icon: LayoutDashboard, tourTarget: 'tour-overview' },
   {
-    href: '/partner/members',
+    href: '/partner/referred-members',
     label: 'Referred members',
     group: 'workflows',
     Icon: Users,
     tourTarget: 'tour-members',
+    aliases: ['/partner/members'],
     badgeKey: 'partner_needs_attention',
   },
   {

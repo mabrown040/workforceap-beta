@@ -123,7 +123,7 @@ export function assembleCareerBriefContext(
     recommendedActions.push({ label: 'Practice interview questions', href: '/dashboard/ai-tools/interview-practice' });
   }
   if (applicationsCount === 0) {
-    recommendedActions.push({ label: 'Log your first application', href: '/dashboard/ai-tools/application-tracker' });
+    recommendedActions.push({ label: 'Log your first application', href: '/dashboard/job-applications' });
   }
   if (!scoreBreakdown.complete2Resources.done) {
     recommendedActions.push({ label: 'Complete 2 resources', href: '/resources' });
@@ -132,7 +132,7 @@ export function assembleCareerBriefContext(
     recommendedActions.push({ label: 'Set your goals', href: '/dashboard' });
   }
   if (recommendedActions.length === 0) {
-    recommendedActions.push({ label: 'Add another application', href: '/dashboard/ai-tools/application-tracker' });
+    recommendedActions.push({ label: 'Add another application', href: '/dashboard/job-applications' });
   }
 
   const jobSearchUrl = buildJobSearchUrl(programShortLabel, city, state);

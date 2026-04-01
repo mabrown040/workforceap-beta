@@ -25,7 +25,7 @@ export default async function AssessmentPage({
   }
 
   if (dbUser.interviewCompletedAt == null) {
-    redirect('/dashboard/assessments');
+    redirect('/dashboard/skills-assessment');
   }
 
   const nameParts = dbUser.fullName?.split(' ') ?? [];

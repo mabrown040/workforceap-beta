@@ -53,7 +53,7 @@ export default function PartnerMembersList({ members }: { members: PartnerMember
       <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>{filtered.length} member{filtered.length !== 1 ? 's' : ''} shown</p>
       <div className="partner-members-list">
         {filtered.map((member) => (
-          <Link key={member.id} href={`/partner/members/${member.id}`} className="partner-member-card">
+          <Link key={member.id} href={`/partner/referred-members/${member.id}`} className="partner-member-card">
             <div className="partner-member-main">
               <span className="partner-member-name">{member.fullName}</span>
               <span className="partner-member-story">{member.story}</span>

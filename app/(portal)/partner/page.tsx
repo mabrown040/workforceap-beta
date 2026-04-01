@@ -201,7 +201,7 @@ export default async function PartnerDashboardPage() {
       <div style={{ padding: '0 1.5rem 1rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
           <p className="text-sm font-bold" style={{ color: 'var(--color-on-surface)' }}>Recent Members</p>
-          <Link href="/partner/members" className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-accent)', textDecoration: 'none' }}>View All</Link>
+          <Link href="/partner/referred-members" className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-accent)', textDecoration: 'none' }}>View All</Link>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {recentMembers.length === 0 ? (
@@ -212,7 +212,7 @@ export default async function PartnerDashboardPage() {
               const stageLabel = (PIPELINE_STAGE_LABELS as Record<string, string>)[p.stage] ?? p.stage;
               const isPlaced = p.stage === 'placed';
               return (
-                <Link key={p.member.id} href={`/partner/members/${p.member.id}`} style={{ textDecoration: 'none' }}>
+                <Link key={p.member.id} href={`/partner/referred-members/${p.member.id}`} style={{ textDecoration: 'none' }}>
                   <div style={{ background: '#fff', borderRadius: '0.75rem', padding: '0.75rem 1rem', border: '1px solid #ebe7e7', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                     <div style={{ width: 36, height: 36, borderRadius: '9999px', background: 'var(--color-accent)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.75rem', flexShrink: 0 }}>
                       {initials}
@@ -421,7 +421,7 @@ export default async function PartnerDashboardPage() {
                   const initials = (p.member.fullName ?? '?').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
                   const stageLabel = (PIPELINE_STAGE_LABELS as Record<string, string>)[p.stage] ?? p.stage;
                   return (
-                    <Link key={p.member.id} href={`/partner/members/${p.member.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <Link key={p.member.id} href={`/partner/referred-members/${p.member.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                       <div className="stitch-card" style={{ padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background-color 0.15s' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                           <div style={{
@@ -522,7 +522,7 @@ export default async function PartnerDashboardPage() {
                   </p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     {nearCompletion.slice(0, 3).map((p) => (
-                      <Link key={p.member.id} href={`/partner/members/${p.member.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                      <Link key={p.member.id} href={`/partner/referred-members/${p.member.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid rgba(226,226,229,0.05)' }}>
                           <span style={{ fontSize: '0.8rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>{p.member.fullName}</span>
                           <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#80d99f' }}>{p.progress}%</span>

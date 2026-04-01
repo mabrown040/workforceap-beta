@@ -41,7 +41,8 @@ export type EventName =
   | 'weekly_recap_viewed'
   | 'training_access_requested'
   | 'training_access_approved'
-  | 'training_access_activated';
+  | 'training_access_activated'
+  | 'partner_invite_sent';
 
 type TrackEventParams = {
   userId: string;

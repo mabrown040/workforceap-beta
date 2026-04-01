@@ -46,7 +46,7 @@ export default function PartnerMilestonesView() {
             <span className="partner-milestone-kind">{m.kind}</span>
             <div className="partner-milestone-label">{m.label}</div>
             <div className="partner-milestone-meta">
-              <Link href={`/partner/members/${m.memberId}`}>{m.memberName}</Link>
+              <Link href={`/partner/referred-members/${m.memberId}`}>{m.memberName}</Link>
               <span> · {new Date(m.at).toLocaleString()}</span>
             </div>
           </div>

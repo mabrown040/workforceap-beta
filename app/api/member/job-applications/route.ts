@@ -4,6 +4,7 @@ import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
 import { z } from 'zod';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 // GET: List user's job applications
 export async function GET() {
@@ -20,7 +21,7 @@ export async function GET() {
 
     return NextResponse.json(applications);
   } catch (error) {
-    console.error('[job-applications GET]', error);
+    captureApiError(error, { route: 'GET /api/member/job-applications' });
     return NextResponse.json(
       { error: 'Failed to fetch applications' },
       { status: 500 }
@@ -87,7 +88,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(application, { status: 201 });
   } catch (error) {
-    console.error('[job-applications POST]', error);
+    captureApiError(error, { route: 'POST /api/member/job-applications' });
     return NextResponse.json(
       { error: 'Failed to create application' },
       { status: 500 }

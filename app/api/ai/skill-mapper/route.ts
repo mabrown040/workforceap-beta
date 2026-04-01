@@ -8,6 +8,7 @@ import { isOnetConfigured } from '@/lib/onet/client';
 import { getUser } from '@/lib/auth/server';
 import { trackEvent } from '@/lib/events/track';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 /**
  * GET /api/ai/skill-mapper?occupation=software+developer
@@ -86,7 +87,7 @@ export async function GET(req: NextRequest) {
   } catch (err) {
     const message =
       err instanceof Error ? err.message : 'The skill mapper is temporarily unavailable.';
-    console.error('[skill-mapper] Error:', message);
+    captureApiError(err, { route: 'GET /api/ai/skill-mapper', extra: { message } });
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

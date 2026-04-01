@@ -8,6 +8,7 @@ import { checkSignupRateLimit } from '@/lib/rate-limit';
 import { trackEvent } from '@/lib/events/track';
 import { ApplicationStatus } from '@prisma/client';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -233,7 +234,7 @@ export async function POST(request: NextRequest) {
       sourcePage: '/apply/create-account',
     });
   } catch (dbError) {
-    console.error('Apply signup DB error:', dbError);
+    captureApiError(dbError, { route: 'POST /api/apply/signup' });
     return NextResponse.json({ error: 'Your account was started, but we could not finish saving it. Please try again, or contact us if this keeps happening.' }, { status: 500 });
   }
 

@@ -18,6 +18,7 @@ let employerJobImportRateLimiter: Ratelimit | null = null;
 let partnerSignupRateLimiter: Ratelimit | null = null;
 let confirmationEmailRateLimiter: Ratelimit | null = null;
 let careersRecommendRateLimiter: Ratelimit | null = null;
+let interestProfilerRateLimiter: Ratelimit | null = null;
 
 if (redisUrl && redisToken) {
   const redis = new Redis({ url: redisUrl, token: redisToken });
@@ -71,6 +72,11 @@ if (redisUrl && redisToken) {
     redis,
     limiter: Ratelimit.slidingWindow(30, '1 h'),
     prefix: 'ratelimit:careers-recommend',
+  });
+  interestProfilerRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(40, '1 h'),
+    prefix: 'ratelimit:interest-profiler',
   });
 }
 
@@ -135,5 +141,12 @@ export async function checkConfirmationEmailRateLimit(ip: string): Promise<{ suc
 export async function checkCareersRecommendRateLimit(ip: string): Promise<{ success: boolean }> {
   if (!careersRecommendRateLimiter) return { success: true };
   const result = await careersRecommendRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/** Member Interest Profiler API — per-user cap; fail-open without Redis (dev). */
+export async function checkInterestProfilerRateLimit(userId: string): Promise<{ success: boolean }> {
+  if (!interestProfilerRateLimiter) return { success: true };
+  const result = await interestProfilerRateLimiter.limit(userId);
   return { success: result.success };
 }

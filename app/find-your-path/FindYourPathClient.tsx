@@ -9,6 +9,11 @@ import { scoreQuiz, type QuizAnswers } from '@/lib/content/quizScoring';
 import { getFitReasoning, getTopFitSummary } from '@/lib/content/quizReasoning';
 import { getTopProgramsFromQuiz } from '@/lib/content/quizProgramRecommendations';
 import type { CareerMatchResult } from '@/lib/onet/types';
+import {
+  INTEREST_PROFILER_STORAGE_KEY,
+  type InterestProfilerRiasec,
+  type StoredInterestProfilerV1,
+} from '@/lib/content/quizIpMerge';
 import { getProgramExtra } from '@/lib/content/programExtras';
 import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
 import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
@@ -108,6 +113,19 @@ const CATEGORY_BORDER: Record<string, string> = {
 
 function programsFromSlugs(slugs: string[]): Program[] {
   return slugs.map((s) => getProgramBySlug(s)).filter(Boolean) as Program[];
+}
+
+function readStoredIpRiasec(): InterestProfilerRiasec | undefined {
+  if (typeof window === 'undefined') return undefined;
+  try {
+    const raw = localStorage.getItem(INTEREST_PROFILER_STORAGE_KEY);
+    if (!raw) return undefined;
+    const p = JSON.parse(raw) as StoredInterestProfilerV1;
+    if (p?.version === 1 && p.riasec) return p.riasec;
+  } catch {
+    return undefined;
+  }
+  return undefined;
 }
 
 function QuizResultsView({
@@ -399,10 +417,14 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
       void (async () => {
         let careerMatch: CareerMatchResult | null = null;
         try {
+          const ipRiasec = readStoredIpRiasec();
           const res = await fetch('/api/careers/recommend', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(fullAnswers),
+            body: JSON.stringify({
+              ...fullAnswers,
+              ...(ipRiasec ? { ipRiasec } : {}),
+            }),
           });
           if (res.ok) {
             careerMatch = (await res.json()) as CareerMatchResult;

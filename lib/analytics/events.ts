@@ -49,7 +49,9 @@ export function trackApplyFunnel(
   });
 }
 
-export function trackLearningHubNavigate(destination: 'career_library' | 'program_resources') {
+export function trackLearningHubNavigate(
+  destination: 'career_library' | 'program_resources' | 'interest_profiler'
+) {
   pushEvent({
     event: 'learning_hub_navigate',
     learning_hub_destination: destination,

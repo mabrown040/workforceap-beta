@@ -65,6 +65,14 @@ async function onetGet<T>(path: string, query?: Record<string, string | number |
   return data as T;
 }
 
+/** Server-only JSON GET for O*NET paths not wrapped by a typed helper yet. */
+export async function onetApiGet<T>(
+  path: string,
+  query?: Record<string, string | number | undefined>
+): Promise<T> {
+  return onetGet<T>(path, query);
+}
+
 export function isOnetConfigured(): boolean {
   return Boolean(getApiKey());
 }

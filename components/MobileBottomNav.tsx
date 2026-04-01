@@ -17,10 +17,10 @@ const MARKETING_TABS = [
 ];
 
 const PORTAL_TABS = [
-  { href: '/dashboard', label: 'Dashboard', icon: 'dashboard', tourTarget: 'tour-dashboard' },
-  { href: '/dashboard/learning', label: 'Learning', icon: 'school', tourTarget: 'tour-learning' },
-  { href: '/dashboard/messages', label: 'Messages', icon: 'chat', tourTarget: 'tour-messages' },
-  { href: '/dashboard/profile', label: 'Profile', icon: 'person', tourTarget: 'tour-profile' },
+  { href: '/dashboard', label: 'Journey', icon: 'map', tourTarget: 'tour-dashboard' },
+  { href: '/dashboard/learning', label: 'Resources', icon: 'menu_book', tourTarget: 'tour-learning' },
+  { href: '/dashboard/messages', label: 'Network', icon: 'group', tourTarget: 'tour-messages' },
+  { href: '/profile', label: 'Profile', icon: 'person', tourTarget: 'tour-profile' },
 ];
 
 const EMPLOYER_TABS = [

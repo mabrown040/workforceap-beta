@@ -77,6 +77,8 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const scrollToBottom = useCallback(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -184,6 +186,15 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
       ? new Date(messages[messages.length - 1].createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       : lastMsgTime;
 
+    const q = searchQuery.trim().toLowerCase();
+    const rowMatches = (title: string, preview: string) => {
+      if (!q) return true;
+      return `${title} ${preview}`.toLowerCase().includes(q);
+    };
+    const showCounselor = rowMatches(counselorName ?? 'Counselor', displayLastMsg);
+    const showProgram = rowMatches('Program Team', 'Your certification for Digital Literacy is ready.');
+    const showCareer = rowMatches('Career Services', 'New job match found: Junior Web Developer.');
+
     return (
       <div className="md:wa-hidden wa-flex wa-flex-col wa-min-h-screen" style={{ background: '#fcf9f8' }}>
         {/* Header */}
@@ -198,8 +209,10 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
             <h1 className="text-[#ad2c4d] font-bold text-xl tracking-tight">Messages</h1>
           </div>
           <button
+            type="button"
             className="text-[#ad2c4d] p-1 rounded-full hover:bg-[#f2eeed] active:scale-95 transition-transform"
-            aria-label="New message"
+            aria-label="Search conversations"
+            onClick={() => searchInputRef.current?.focus()}
           >
             <span className="material-symbols-outlined">edit_square</span>
           </button>
@@ -210,11 +223,14 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
           <div className="relative">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#584144] text-sm">search</span>
             <input
-              type="text"
+              ref={searchInputRef}
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search conversations"
               className="w-full pl-10 pr-3 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#8c0f37]/40 placeholder:text-[#584144]/60"
               style={{ background: '#ebe7e7', border: 'none' }}
-              readOnly
+              autoComplete="off"
             />
           </div>
         </div>
@@ -223,6 +239,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
         <main className="flex-1 pb-24 overflow-y-auto">
           <div className="space-y-1">
             {/* Counselor thread — active/unread */}
+            {showCounselor && (
             <div className="px-4 py-1">
               <button
                 type="button"
@@ -267,12 +284,15 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
                 </div>
               </button>
             </div>
+            )}
 
-            {/* Program team placeholder */}
+            {/* Program team — link to resources */}
+            {showProgram && (
             <div className="px-4 py-1">
-              <div
-                className="rounded-xl px-4 py-4 flex items-center gap-4"
-                style={{ background: '#fcf9f8' }}
+              <Link
+                href="/dashboard/resources"
+                className="block rounded-xl px-4 py-4 flex items-center gap-4 active:scale-[0.98] transition-transform"
+                style={{ background: '#fcf9f8', textDecoration: 'none', color: 'inherit' }}
               >
                 <div
                   className="w-12 h-12 rounded-full flex items-center justify-center text-[#584144] font-bold text-sm flex-shrink-0"
@@ -287,14 +307,18 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
                   </div>
                   <p className="text-sm text-[#584144] truncate">Your certification for Digital Literacy is ready.</p>
                 </div>
-              </div>
+                <span className="material-symbols-outlined text-[#584144] text-lg flex-shrink-0">chevron_right</span>
+              </Link>
             </div>
+            )}
 
-            {/* Career Services placeholder */}
+            {/* Career Services — link to job board */}
+            {showCareer && (
             <div className="px-4 py-1">
-              <div
-                className="rounded-xl px-4 py-4 flex items-center gap-4"
-                style={{ background: '#fcf9f8' }}
+              <Link
+                href="/dashboard/jobs"
+                className="block rounded-xl px-4 py-4 flex items-center gap-4 active:scale-[0.98] transition-transform"
+                style={{ background: '#fcf9f8', textDecoration: 'none', color: 'inherit' }}
               >
                 <div
                   className="w-12 h-12 rounded-full flex items-center justify-center text-[#584144] font-bold text-sm flex-shrink-0"
@@ -309,8 +333,10 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
                   </div>
                   <p className="text-sm text-[#584144] truncate">New job match found: Junior Web Developer.</p>
                 </div>
-              </div>
+                <span className="material-symbols-outlined text-[#584144] text-lg flex-shrink-0">chevron_right</span>
+              </Link>
             </div>
+            )}
 
             <CareerTipCard />
           </div>

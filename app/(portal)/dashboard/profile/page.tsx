@@ -231,7 +231,7 @@ export default async function DashboardProfilePage() {
           </p>
         </div>
       )}
-      </div> {/* end hidden md:block */}
+      </div> {/* end wa-hidden md:wa-block */}
 
       <MobileBottomNav variant="portal" />
     </>

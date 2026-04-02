@@ -59,7 +59,7 @@ const VALUES = [
 export default function WhatWeDoPage() {
   return (
     <div className="inner-page">
-      <div className="hidden md:block marketing-desktop">
+      <div className="wa-hidden md:wa-block marketing-desktop">
       {/* ── Hero ── */}
       <section
         className="wwd-photo-hero"
@@ -615,7 +615,7 @@ export default function WhatWeDoPage() {
       </section>
       </div>{/* end desktop */}
 
-      <div className="md:hidden marketing-mobile marketing-mobile-pb-for-bottom-nav">
+      <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav">
       {/* ── Mobile rebuild aligned to desktop + Stitch ── */}
       <section
         className="px-4 pt-4 pb-6"

@@ -96,7 +96,7 @@ export default function SalaryGuidePage() {
     <div className="inner-page salary-guide-page" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
 
       {/* ===== MOBILE VIEW (≤640px) ===== */}
-      <div className="md:hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: 'var(--color-surface)', color: 'var(--color-on-surface)', minHeight: '100vh' }}>
+      <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: 'var(--color-surface)', color: 'var(--color-on-surface)', minHeight: '100vh' }}>
         <div style={{ paddingTop: '1.5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', maxWidth: '390px', margin: '0 auto' }}>
           {/* Hero */}
           <section style={{ marginTop: '2rem', marginBottom: '2.5rem' }}>
@@ -213,7 +213,7 @@ export default function SalaryGuidePage() {
       </div>
 
       {/* ===== DESKTOP VIEW (>640px) ===== */}
-      <div className="hidden md:block marketing-desktop">
+      <div className="wa-hidden md:wa-block marketing-desktop">
         {/* ===== Hero ===== */}
         <section style={{ padding: '5rem 2rem 3rem', maxWidth: '1400px', margin: '0 auto' }}>
           <span style={{

@@ -64,7 +64,7 @@ export default async function HowItWorksPage() {
 
   return (
     <div className="inner-page">
-      <div className="hidden md:block marketing-desktop">
+      <div className="wa-hidden md:wa-block marketing-desktop">
       {/* Hero Section */}
       <section className="content-section" style={{ paddingBottom: 0 }}>
         <div className="container" style={{ maxWidth: 1200 }}>
@@ -337,11 +337,11 @@ export default async function HowItWorksPage() {
         }
       `}</style>
 
-      </div>{/* end hidden md:block desktop wrapper */}
+      </div>{/* end wa-hidden md:wa-block desktop wrapper */}
 
       {/* ── Mobile Journey View (≤640px) — inline styles only (Tailwind wa- prefix) ── */}
       <section
-        className="md:hidden marketing-mobile marketing-mobile-pb-for-bottom-nav"
+        className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav"
         style={{
           background: 'var(--color-surface)',
           paddingLeft: '1rem',

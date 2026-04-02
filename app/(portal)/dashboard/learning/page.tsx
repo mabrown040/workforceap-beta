@@ -541,7 +541,7 @@ export default async function LearningPage() {
         </div>
       </div>
     </div>
-    </div> {/* end hidden md:block */}
+    </div> {/* end wa-hidden md:wa-block */}
 
     <MobileBottomNav variant="portal" />
     </>

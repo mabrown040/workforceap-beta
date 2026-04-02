@@ -16,12 +16,12 @@ export default function ContactPage() {
   return (
     <div className="inner-page contact-page">
       {/* Mobile view ≤768px */}
-      <div className="block md:hidden">
+      <div className="wa-block md:wa-hidden">
         <ContactMobileSection />
       </div>
 
       {/* Desktop view >768px */}
-      <div className="hidden md:block marketing-desktop">
+      <div className="wa-hidden md:wa-block marketing-desktop">
       {/* Hero Section */}
       <section className="content-section" style={{ paddingBottom: 0 }}>
         <div className="container" style={{ maxWidth: 1400 }}>

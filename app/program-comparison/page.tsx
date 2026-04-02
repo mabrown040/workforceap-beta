@@ -38,7 +38,7 @@ export default function ProgramComparisonPage() {
       <ProgramComparisonMobile rows={COMPARISON_ROWS} />
 
       {/* ===== DESKTOP VIEW (≥768px) ===== */}
-      <div className="hidden md:block marketing-desktop">
+      <div className="wa-hidden md:wa-block marketing-desktop">
         {/* Hero */}
         <section style={{ padding: '5rem 2rem 3rem', maxWidth: '1400px', margin: '0 auto' }}>
           <div style={{ maxWidth: '720px' }}>

@@ -16,7 +16,7 @@ export default function FindYourPathPage() {
   return (
     <div className="inner-page" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
       {/* Desktop layout — hidden on mobile */}
-      <div className="hidden md:block marketing-desktop">
+      <div className="wa-hidden md:wa-block marketing-desktop">
 
       {/* Hero */}
       <section style={{
@@ -109,12 +109,12 @@ export default function FindYourPathPage() {
         </div>
       </section>
 
-      </div>{/* end hidden md:block desktop wrapper */}
+      </div>{/* end wa-hidden md:wa-block desktop wrapper */}
 
       {/* ══════════════════════════════════════════════
           MOBILE LAYOUT ≤640px — interactive quiz
           ══════════════════════════════════════════════ */}
-      <div className="md:hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
+      <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
         <div style={{ padding: '5rem 1.25rem 1.5rem' }}>
           <FindYourPathClient idPrefix="fyp-mobile" />
         </div>

@@ -118,7 +118,15 @@ export async function getOccupation(onetCode: string): Promise<OnetOccupationOve
   }
 }
 
-type ElementRating = { id?: string; name?: string; element?: { name?: string }; rating?: { importance?: number; level?: number } };
+type ElementRating = {
+  id?: string;
+  name?: string;
+  element?: { name?: string };
+  rating?: { importance?: number; level?: number };
+  score?: { importance?: number; level?: number };
+  importance?: number;
+  level?: number;
+};
 
 function mapSkillsPayload(data: unknown): { name: string; importance: number | null; level: number | null }[] {
   if (!data || typeof data !== 'object') return [];
@@ -127,8 +135,8 @@ function mapSkillsPayload(data: unknown): { name: string; importance: number | n
   if (!Array.isArray(arr)) return [];
   return arr.slice(0, 40).map((el) => ({
     name: el.element?.name ?? el.name ?? 'Skill',
-    importance: el.rating?.importance ?? null,
-    level: el.rating?.level ?? null,
+    importance: el.importance ?? el.rating?.importance ?? el.score?.importance ?? null,
+    level: el.level ?? el.rating?.level ?? el.score?.level ?? null,
   }));
 }
 

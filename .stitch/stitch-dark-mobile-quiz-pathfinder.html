@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Civic Bridge | Find Your Path</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-lowest": "#0c0e10",
+              "on-tertiary-fixed-variant": "#00522d",
+              "inverse-surface": "#e2e2e5",
+              "tertiary": "#80d99f",
+              "surface-variant": "#333537",
+              "primary": "#ffb2bc",
+              "on-secondary-fixed": "#3a0815",
+              "on-secondary": "#551d29",
+              "on-secondary-container": "#f29eaa",
+              "surface-container": "#1e2022",
+              "on-primary-fixed-variant": "#8c0f37",
+              "tertiary-container": "#006d3e",
+              "surface-container-high": "#282a2c",
+              "on-primary-container": "#ffcbd1",
+              "background": "#121416",
+              "tertiary-fixed-dim": "#80d99f",
+              "primary-container": "#ad2c4d",
+              "on-tertiary-fixed": "#00210f",
+              "on-surface-variant": "#debfc2",
+              "on-secondary-fixed-variant": "#71333e",
+              "on-primary-fixed": "#400013",
+              "secondary-container": "#71333e",
+              "tertiary-fixed": "#9cf6ba",
+              "on-background": "#e2e2e5",
+              "surface-container-highest": "#333537",
+              "primary-fixed": "#ffd9dd",
+              "on-tertiary": "#00391e",
+              "on-tertiary-container": "#92ecb1",
+              "outline": "#a68a8d",
+              "surface-dim": "#121416",
+              "inverse-primary": "#ad2c4d",
+              "inverse-on-surface": "#2f3133",
+              "surface-bright": "#37393b",
+              "error": "#ffb4ab",
+              "on-error": "#690005",
+              "surface": "#121416",
+              "secondary": "#ffb2bc",
+              "on-surface": "#e2e2e5",
+              "surface-container-low": "#1a1c1e",
+              "outline-variant": "#584144",
+              "on-primary": "#670024",
+              "on-error-container": "#ffdad6",
+              "primary-fixed-dim": "#ffb2bc",
+              "secondary-fixed-dim": "#ffb2bc",
+              "secondary-fixed": "#ffd9dd",
+              "error-container": "#93000a",
+              "surface-tint": "#ffb2bc"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bg-glass {
+            background: rgba(18, 20, 22, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .progress-glow {
+            box-shadow: 0 0 15px rgba(173, 44, 77, 0.4);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/10 shadow-2xl shadow-black/50 flex items-center justify-between px-6 h-16">
+<button class="text-slate-400 hover:bg-white/5 transition-colors p-2 rounded-full active:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-['Inter'] font-bold tracking-widest text-[#AD2C4D] uppercase text-lg">CIVIC BRIDGE</h1>
+<div class="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant/20 flex items-center justify-center overflow-hidden">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="close up professional portrait of a man with spectacles in a modern library setting with soft bookshelf background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCL-GcIf0jjAxLYW2NCDRtASxOXnGZivo4jeY_xFX5IWB_qIdTXLOctmpZeQY2WW9Yrl41ghXMQnFasLdw9kHqzDi-iysLZfPdtYcgyJ8K7hhcdQ-TRYrqz1_Hn-B_qjkqi3iPcLCnJohn5aKcATzUZVrlKhak2_LbVItcYQQbLr3bDq_YO-vVqmYgezsYNNtiTuPxQNyMGWiAz149xxkf76QZFJo70oSfY_dnTWouM8Q9V8D3ha2edb2NvML_zF-tUkShrK2COQAvr"/>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-md mx-auto min-h-screen flex flex-col">
+<!-- Progress Indicator Section -->
+<div class="mb-10">
+<div class="flex justify-between items-end mb-3">
+<span class="font-['Inter'] text-[10px] font-semibold uppercase tracking-wider text-primary">Question 03 of 08</span>
+<span class="font-['Inter'] text-[10px] font-semibold uppercase tracking-wider text-slate-500">35% Complete</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-container w-[35%] progress-glow transition-all duration-500"></div>
+</div>
+</div>
+<!-- Question Header -->
+<section class="mb-8">
+<h2 class="text-2xl font-bold font-headline leading-tight tracking-tight text-on-surface">
+                Which civic domain ignites your sense of <span class="text-primary italic">purpose</span> the most?
+            </h2>
+<p class="mt-3 text-on-surface-variant/70 text-sm leading-relaxed">
+                Choose the area where you feel your unique talents could drive the most meaningful structural change.
+            </p>
+</section>
+<!-- Answer Cards Grid -->
+<div class="flex flex-col gap-4 mb-12">
+<!-- Option 1 -->
+<button class="group relative w-full text-left p-5 rounded-xl bg-surface-container-low hover:bg-surface-container-high transition-all duration-300 active:scale-[0.98]">
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-lg bg-slate-900 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300">
+<span class="material-symbols-outlined text-3xl">account_balance</span>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-lg text-on-surface group-hover:text-primary transition-colors">Governance &amp; Policy</h3>
+<p class="text-xs text-on-surface-variant/60 leading-tight mt-1 uppercase tracking-widest">Shaping the rules of society</p>
+</div>
+<div class="h-6 w-6 rounded-full border-2 border-outline-variant/30 flex items-center justify-center">
+<div class="h-2.5 w-2.5 rounded-full bg-primary opacity-0 group-focus:opacity-100 transition-opacity"></div>
+</div>
+</div>
+</button>
+<!-- Option 2 (Active/Selected State Example) -->
+<button class="group relative w-full text-left p-5 rounded-xl bg-primary/10 border border-primary/20 transition-all duration-300 active:scale-[0.98]">
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-lg bg-primary-container flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">insights</span>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-lg text-primary">Urban Innovation</h3>
+<p class="text-xs text-primary/60 leading-tight mt-1 uppercase tracking-widest">Designing smarter city systems</p>
+</div>
+<div class="h-6 w-6 rounded-full border-2 border-primary flex items-center justify-center">
+<div class="h-2.5 w-2.5 rounded-full bg-primary"></div>
+</div>
+</div>
+</button>
+<!-- Option 3 -->
+<button class="group relative w-full text-left p-5 rounded-xl bg-surface-container-low hover:bg-surface-container-high transition-all duration-300 active:scale-[0.98]">
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-lg bg-slate-900 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300">
+<span class="material-symbols-outlined text-3xl">verified_user</span>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-lg text-on-surface group-hover:text-primary transition-colors">Justice Reform</h3>
+<p class="text-xs text-on-surface-variant/60 leading-tight mt-1 uppercase tracking-widest">Ensuring equity for all citizens</p>
+</div>
+<div class="h-6 w-6 rounded-full border-2 border-outline-variant/30 flex items-center justify-center">
+<div class="h-2.5 w-2.5 rounded-full bg-primary opacity-0 group-focus:opacity-100 transition-opacity"></div>
+</div>
+</div>
+</button>
+<!-- Option 4 -->
+<button class="group relative w-full text-left p-5 rounded-xl bg-surface-container-low hover:bg-surface-container-high transition-all duration-300 active:scale-[0.98]">
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-lg bg-slate-900 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300">
+<span class="material-symbols-outlined text-3xl">auto_stories</span>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-lg text-on-surface group-hover:text-primary transition-colors">Educational Access</h3>
+<p class="text-xs text-on-surface-variant/60 leading-tight mt-1 uppercase tracking-widest">Democratizing knowledge growth</p>
+</div>
+<div class="h-6 w-6 rounded-full border-2 border-outline-variant/30 flex items-center justify-center">
+<div class="h-2.5 w-2.5 rounded-full bg-primary opacity-0 group-focus:opacity-100 transition-opacity"></div>
+</div>
+</div>
+</button>
+</div>
+<!-- Sticky Interaction Zone -->
+<div class="mt-auto pt-6 flex gap-4">
+<button class="flex-1 h-14 rounded-xl bg-surface-container-high text-on-surface font-semibold flex items-center justify-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-lg">arrow_back</span>
+<span>Previous</span>
+</button>
+<button class="flex-[2] h-14 rounded-xl bg-gradient-to-r from-primary-container to-[#AD2C4D] text-on-primary font-bold shadow-lg shadow-primary-container/20 flex items-center justify-center gap-2 active:scale-95 transition-transform">
+<span>Continue Path</span>
+<span class="material-symbols-outlined text-lg">arrow_forward</span>
+</button>
+</div>
+</main>
+<!-- BottomNavBar (Suppressed for focused Quiz mode as per UX guidelines, but structure kept for potential global reference if needed) -->
+<!-- Note: Following "The Destination Rule" and "Automatic Suppression", the main BottomNavBar is hidden here to focus on the task. -->
+<!-- Optional Floating Decorative Element -->
+<div class="fixed top-1/2 -right-24 w-64 h-64 bg-primary/5 blur-[100px] rounded-full -z-10 pointer-events-none"></div>
+<div class="fixed bottom-0 -left-24 w-80 h-80 bg-[#AD2C4D]/10 blur-[120px] rounded-full -z-10 pointer-events-none"></div>
+<!-- Universal Navigation Shell (Bottom) -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-2xl bg-slate-950/80 backdrop-blur-2xl border-t border-white/10 shadow-[0_-8px_30px_rgb(0,0,0,0.5)] flex justify-around items-center h-20 pb-safe px-4 md:hidden">
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-slate-200 transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined">home_app_logo</span>
+<span class="font-['Inter'] text-[10px] font-semibold uppercase tracking-wider mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-slate-200 transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined">edit_note</span>
+<span class="font-['Inter'] text-[10px] font-semibold uppercase tracking-wider mt-1">Apply</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#AD2C4D] bg-[#AD2C4D]/10 rounded-xl px-4 py-1.5 transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">explore</span>
+<span class="font-['Inter'] text-[10px] font-semibold uppercase tracking-wider mt-1">Quiz</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-slate-200 transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-['Inter'] text-[10px] font-semibold uppercase tracking-wider mt-1">Catalog</span>
+</a>
+</nav>
+</body></html>

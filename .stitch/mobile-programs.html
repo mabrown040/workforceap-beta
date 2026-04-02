@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WorkforceAP | Programs Catalog</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-fixed": "#ffdea4",
+              "tertiary-fixed-dim": "#c8c6c5",
+              "primary-fixed": "#ffd9dd",
+              "primary": "#8c0f37",
+              "outline-variant": "#debfc2",
+              "on-background": "#1c1b1b",
+              "on-surface-variant": "#584144",
+              "tertiary-container": "#5f5e5e",
+              "error-container": "#ffdad6",
+              "on-tertiary": "#ffffff",
+              "surface-container": "#f0edec",
+              "on-primary": "#ffffff",
+              "inverse-on-surface": "#f3f0ef",
+              "surface-container-highest": "#e5e2e1",
+              "on-secondary-fixed": "#261900",
+              "inverse-primary": "#ffb2bc",
+              "surface-bright": "#fcf9f8",
+              "on-surface": "#1c1b1b",
+              "tertiary-fixed": "#e5e2e1",
+              "surface": "#fcf9f8",
+              "primary-container": "#ad2c4d",
+              "secondary-fixed-dim": "#ffbb00",
+              "secondary-container": "#ffbb00",
+              "error": "#ba1a1a",
+              "surface-variant": "#e5e2e1",
+              "on-primary-container": "#ffcbd1",
+              "surface-dim": "#dcd9d9",
+              "on-primary-fixed": "#400013",
+              "inverse-surface": "#313030",
+              "outline": "#8b7073",
+              "on-secondary": "#ffffff",
+              "primary-fixed-dim": "#ffb2bc",
+              "on-error": "#ffffff",
+              "on-tertiary-container": "#dbd8d7",
+              "on-tertiary-fixed": "#1c1b1b",
+              "on-secondary-container": "#6c4d00",
+              "on-primary-fixed-variant": "#8c0f37",
+              "on-secondary-fixed-variant": "#5d4200",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-high": "#ebe7e7",
+              "tertiary": "#474646",
+              "on-tertiary-fixed-variant": "#474646",
+              "secondary": "#7b5800",
+              "surface-tint": "#ad2c4d",
+              "surface-container-low": "#f6f3f2",
+              "background": "#fcf9f8",
+              "on-error-container": "#93000a"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body { font-family: 'Inter', sans-serif; }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-40">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full flex justify-between items-center px-6 h-16 bg-[#fcf9f8]/80 dark:bg-stone-900/80 backdrop-blur-xl z-50">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#8c0f37] dark:text-[#ad2c4d]">menu</span>
+<h1 class="font-Inter tracking-tight font-bold text-lg text-[#ad2c4d] dark:text-[#ffbb00] font-black tracking-tighter">WorkforceAP</h1>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden">
+<img alt="User" data-alt="Close-up professional portrait of a young woman with a confident expression in a brightly lit modern office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFOapqOCADLtyhXpyHRMtkHyghhakZhbZ_085IeKZjsuSWOAf_RFI0Ou0Mn7st4oFNux5C5gCLsYWbANt4sosAapu0vkd-y0YHs-p_jwfPl__uic9yd55HmCToT8-DNNgGhCDWDiWH_DUl4YCtWr1E2rgRrUJGOwQQdBPLiJKfxcq_yaS5fypLzgpWAqNmlflg2M_woc8dtFhENC-PeUCcxmJgxlp4LOB4vbWW_W0ZpUEcPhlB0Ly8ubmj-fJLVZYWjwolN9ahkqqx"/>
+</div>
+</header>
+<main class="pt-20 px-6">
+<!-- Editorial Hero Title -->
+<div class="mb-8 mt-4">
+<h1 class="text-4xl font-black tracking-tighter leading-none text-on-surface">
+                Master Your <br/>
+<span class="italic text-primary-container">Future</span>
+</h1>
+<div class="h-1 w-12 bg-secondary-container mt-4"></div>
+</div>
+<!-- Horizontal Filter Chips -->
+<div class="flex overflow-x-auto no-scrollbar gap-2 mb-8 -mx-6 px-6">
+<button class="flex-none px-5 py-2 rounded-full bg-primary-container text-white text-sm font-semibold tracking-wide">All Programs</button>
+<button class="flex-none px-5 py-2 rounded-full bg-surface-container-low text-on-surface-variant text-sm font-medium hover:bg-surface-container-high transition-colors">IT &amp; Cyber</button>
+<button class="flex-none px-5 py-2 rounded-full bg-surface-container-low text-on-surface-variant text-sm font-medium hover:bg-surface-container-high transition-colors">AI &amp; Software</button>
+<button class="flex-none px-5 py-2 rounded-full bg-surface-container-low text-on-surface-variant text-sm font-medium hover:bg-surface-container-high transition-colors">Cloud</button>
+<button class="flex-none px-5 py-2 rounded-full bg-surface-container-low text-on-surface-variant text-sm font-medium hover:bg-surface-container-high transition-colors">Business</button>
+<button class="flex-none px-5 py-2 rounded-full bg-surface-container-low text-on-surface-variant text-sm font-medium hover:bg-surface-container-high transition-colors">Healthcare</button>
+</div>
+<!-- Featured Section -->
+<section class="mb-10">
+<div class="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary to-primary-container p-6 text-white min-h-[200px] flex flex-col justify-between">
+<div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+<div>
+<span class="inline-block px-3 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase tracking-widest rounded-lg mb-3">Start Here</span>
+<h2 class="text-2xl font-bold tracking-tight">Digital Literacy</h2>
+<p class="text-on-primary-container text-sm mt-1 opacity-90">Essential skills for the modern workforce</p>
+</div>
+<div class="flex items-center justify-between mt-6">
+<div class="flex gap-4">
+<div class="flex flex-col">
+<span class="text-[10px] uppercase opacity-70 font-medium">Duration</span>
+<span class="text-sm font-bold">4 weeks</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[10px] uppercase opacity-70 font-medium">Cost</span>
+<span class="text-sm font-bold">$0 cost</span>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center">
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Programs Grid -->
+<div class="grid grid-cols-2 gap-4 mb-12">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 flex flex-col justify-between h-48 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-outline-variant/10">
+<div>
+<span class="text-[9px] font-bold text-secondary uppercase tracking-wider block mb-1">IT &amp; Cyber</span>
+<h3 class="text-sm font-bold text-on-surface leading-tight">Cyber Security Specialist</h3>
+</div>
+<div class="mt-auto">
+<p class="text-[10px] text-on-surface-variant font-medium mb-3">12-24 Weeks</p>
+<div class="flex items-center justify-between">
+<span class="px-2 py-0.5 bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-bold rounded">$0</span>
+<span class="material-symbols-outlined text-primary text-lg">arrow_outward</span>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 flex flex-col justify-between h-48 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-outline-variant/10">
+<div>
+<span class="text-[9px] font-bold text-secondary uppercase tracking-wider block mb-1">AI &amp; Software</span>
+<h3 class="text-sm font-bold text-on-surface leading-tight">Python for Data Science</h3>
+</div>
+<div class="mt-auto">
+<p class="text-[10px] text-on-surface-variant font-medium mb-3">16 Weeks</p>
+<div class="flex items-center justify-between">
+<span class="px-2 py-0.5 bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-bold rounded">$0</span>
+<span class="material-symbols-outlined text-primary text-lg">arrow_outward</span>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 flex flex-col justify-between h-48 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-outline-variant/10">
+<div>
+<span class="text-[9px] font-bold text-secondary uppercase tracking-wider block mb-1">Cloud</span>
+<h3 class="text-sm font-bold text-on-surface leading-tight">AWS Cloud Architect</h3>
+</div>
+<div class="mt-auto">
+<p class="text-[10px] text-on-surface-variant font-medium mb-3">20 Weeks</p>
+<div class="flex items-center justify-between">
+<span class="px-2 py-0.5 bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-bold rounded">$0</span>
+<span class="material-symbols-outlined text-primary text-lg">arrow_outward</span>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 flex flex-col justify-between h-48 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-outline-variant/10">
+<div>
+<span class="text-[9px] font-bold text-secondary uppercase tracking-wider block mb-1">Business</span>
+<h3 class="text-sm font-bold text-on-surface leading-tight">Agile Project Management</h3>
+</div>
+<div class="mt-auto">
+<p class="text-[10px] text-on-surface-variant font-medium mb-3">12 Weeks</p>
+<div class="flex items-center justify-between">
+<span class="px-2 py-0.5 bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-bold rounded">$0</span>
+<span class="material-symbols-outlined text-primary text-lg">arrow_outward</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Sticky Footer Quiz Bar -->
+<div class="fixed bottom-20 left-0 w-full px-4 z-40">
+<div class="bg-on-background text-white rounded-xl p-4 flex items-center justify-between shadow-2xl">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary-container">psychology</span>
+<span class="text-sm font-medium tracking-tight">Cannot decide? Take 2-min quiz</span>
+</div>
+<span class="material-symbols-outlined">arrow_forward</span>
+</div>
+</div>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-safe h-20 bg-[#fcf9f8]/80 dark:bg-stone-900/80 backdrop-blur-xl z-50 rounded-t-xl shadow-[0_-4px_24px_rgba(0,0,0,0.04)]">
+<div class="flex flex-col items-center justify-center bg-[#ad2c4d] text-white rounded-xl px-4 py-1.5 transition-all scale-95 active:translate-y-0.5">
+<span class="material-symbols-outlined" data-icon="auto_stories">auto_stories</span>
+<span class="font-Inter text-[10px] uppercase tracking-[0.05em] font-medium">Catalog</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#584144] dark:text-stone-400 px-4 py-1.5 hover:text-[#ad2c4d] dark:hover:text-[#ffbb00] transition-all scale-95 active:translate-y-0.5">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+<span class="font-Inter text-[10px] uppercase tracking-[0.05em] font-medium">My Learning</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#584144] dark:text-stone-400 px-4 py-1.5 hover:text-[#ad2c4d] dark:hover:text-[#ffbb00] transition-all scale-95 active:translate-y-0.5">
+<span class="material-symbols-outlined" data-icon="psychology">psychology</span>
+<span class="font-Inter text-[10px] uppercase tracking-[0.05em] font-medium">Quiz</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#584144] dark:text-stone-400 px-4 py-1.5 hover:text-[#ad2c4d] dark:hover:text-[#ffbb00] transition-all scale-95 active:translate-y-0.5">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-Inter text-[10px] uppercase tracking-[0.05em] font-medium">Profile</span>
+</div>
+</nav>
+</body></html>

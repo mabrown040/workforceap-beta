@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Workforce Academy Member Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "inverse-on-surface": "#f3f0ef",
+              "secondary-container": "#ffbb00",
+              "tertiary-container": "#5f5e5e",
+              "outline": "#8b7073",
+              "on-tertiary-fixed-variant": "#474646",
+              "on-primary-fixed-variant": "#8c0f37",
+              "on-tertiary-fixed": "#1c1b1b",
+              "on-secondary-fixed-variant": "#5d4200",
+              "on-error-container": "#93000a",
+              "surface-tint": "#ad2c4d",
+              "surface-container-highest": "#e5e2e1",
+              "background": "#fcf9f8",
+              "tertiary-fixed": "#e5e2e1",
+              "on-tertiary": "#ffffff",
+              "surface-container-lowest": "#ffffff",
+              "on-background": "#1c1b1b",
+              "surface-variant": "#e5e2e1",
+              "tertiary-fixed-dim": "#c8c6c5",
+              "outline-variant": "#debfc2",
+              "surface-container": "#f0edec",
+              "surface-dim": "#dcd9d9",
+              "on-secondary-container": "#6c4d00",
+              "error-container": "#ffdad6",
+              "primary-fixed": "#ffd9dd",
+              "secondary": "#7b5800",
+              "on-surface-variant": "#584144",
+              "on-tertiary-container": "#dbd8d7",
+              "primary-fixed-dim": "#ffb2bc",
+              "surface-container-low": "#f6f3f2",
+              "surface-bright": "#fcf9f8",
+              "on-primary": "#ffffff",
+              "tertiary": "#474646",
+              "on-primary-fixed": "#400013",
+              "surface-container-high": "#ebe7e7",
+              "inverse-surface": "#313030",
+              "inverse-primary": "#ffb2bc",
+              "secondary-fixed-dim": "#ffbb00",
+              "secondary-fixed": "#ffdea4",
+              "on-error": "#ffffff",
+              "on-secondary": "#ffffff",
+              "on-surface": "#1c1b1b",
+              "on-primary-container": "#ffcbd1",
+              "surface": "#fcf9f8",
+              "primary": "#8c0f37",
+              "on-secondary-fixed": "#261900",
+              "error": "#ba1a1a",
+              "primary-container": "#ad2c4d"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #fcf9f8; color: #1c1b1b; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-nav { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen pb-24">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 bg-[#fcf9f8]/80 backdrop-blur-xl flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-container overflow-hidden">
+<img alt="Member profile photo" class="w-full h-full object-cover" data-alt="Close-up portrait of a confident young professional man with a friendly expression in a modern office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlYr47Ou--zcWnd_gHrycZOcBwJlVkLccKRaRNiGioUOPfnsjibQ12vBRNOfBOo5hJoz9qu5CKkxvCqPMAdgzSsSUu3NSmftwCHFPUZ3pWYhQS4YPWqkfAANPkk43SpII_viwlVPTWa0mZD1jjpsiu_bpzZdiIMpSAh97o5RQhnQvrmDcvIZoSbgHmr-X1atT0rCCYEzu4oc6ntf1YnGCtV-aJv-Ig7ntS80hj-4EQg71KVPVIh71An4R0uD3Xy3tMHdfWtZcYvJxQ"/>
+</div>
+<span class="text-[#AD2C4D] font-black tracking-tighter text-lg font-Inter">Workforce Academy</span>
+</div>
+<button class="text-[#AD2C4D] hover:opacity-80 transition-opacity active:scale-95 duration-200">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</header>
+<main class="pt-20 px-6 space-y-8">
+<!-- Hero Section: Greeting & Progress -->
+<section class="flex justify-between items-start pt-4">
+<div class="space-y-1 max-w-[60%]">
+<p class="text-on-surface-variant text-sm font-medium tracking-wide uppercase">Member Dashboard</p>
+<h1 class="text-3xl font-extrabold tracking-tight text-on-surface">Welcome back, Marcus</h1>
+</div>
+<!-- Progress Orb -->
+<div class="relative flex items-center justify-center w-24 h-24">
+<svg class="w-full h-full transform -rotate-90">
+<circle class="text-surface-container-highest" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" stroke-width="6"></circle>
+<circle class="text-primary" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="87.9" stroke-width="6"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-xl font-bold text-primary">65%</span>
+<span class="text-[8px] font-bold uppercase tracking-widest text-secondary">Complete</span>
+</div>
+</div>
+</section>
+<!-- Critical Next Step -->
+<section>
+<div class="p-[1px] rounded-xl bg-gradient-to-br from-primary to-secondary shadow-sm">
+<div class="bg-surface-container-lowest rounded-[11px] p-5 space-y-4">
+<div class="flex justify-between items-start">
+<div class="space-y-1">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary uppercase tracking-wider">Priority</span>
+<h2 class="text-xl font-bold text-on-surface tracking-tight">Technical Assessment</h2>
+</div>
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+<p class="text-on-surface-variant text-sm leading-relaxed">Your application for the Senior Cloud Architect cohort requires a technical verification. This is the final step before the interview phase.</p>
+<button class="w-full bg-gradient-to-r from-primary to-primary-container text-on-primary py-3 rounded-md font-bold text-sm tracking-wide active:scale-[0.98] transition-transform">
+                        Continue Application
+                    </button>
+</div>
+</div>
+</section>
+<!-- Application Journey (Vertical Timeline) -->
+<section class="space-y-6">
+<h3 class="text-sm font-bold uppercase tracking-[0.1em] text-on-surface-variant px-1">Application Journey</h3>
+<div class="space-y-0 relative ml-4">
+<!-- Timeline Line -->
+<div class="absolute left-[11px] top-2 bottom-2 w-[2px] bg-surface-container-highest"></div>
+<!-- Step 1 -->
+<div class="relative flex items-start gap-6 pb-8">
+<div class="relative z-10 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-white font-bold">check</span>
+</div>
+<div>
+<p class="font-bold text-on-surface leading-none mb-1">Profile Verified</p>
+<p class="text-xs text-on-surface-variant">Completed on Oct 12</p>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="relative flex items-start gap-6 pb-8">
+<div class="relative z-10 w-6 h-6 rounded-full bg-surface-container-lowest border-4 border-primary flex items-center justify-center">
+<div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+</div>
+<div>
+<p class="font-bold text-primary leading-none mb-1">Assessment</p>
+<p class="text-xs text-on-surface-variant">Active Task • 45 mins</p>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="relative flex items-start gap-6 pb-8 opacity-40">
+<div class="relative z-10 w-6 h-6 rounded-full bg-surface-container-highest border-2 border-outline-variant"></div>
+<div>
+<p class="font-medium text-on-surface leading-none mb-1">Interview Scheduled</p>
+<p class="text-xs text-on-surface-variant">Pending assessment</p>
+</div>
+</div>
+<!-- Step 4 -->
+<div class="relative flex items-start gap-6 opacity-40">
+<div class="relative z-10 w-6 h-6 rounded-full bg-surface-container-highest border-2 border-outline-variant"></div>
+<div>
+<p class="font-medium text-on-surface leading-none mb-1">Placement</p>
+<p class="text-xs text-on-surface-variant">Final Stage</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Recommended Programs -->
+<section class="space-y-4">
+<div class="flex justify-between items-end px-1">
+<h3 class="text-sm font-bold uppercase tracking-[0.1em] text-on-surface-variant">Recommended Programs</h3>
+<span class="text-xs font-bold text-primary">View All</span>
+</div>
+<div class="flex gap-4 overflow-x-auto no-scrollbar -mx-6 px-6 py-2">
+<!-- Card 1 -->
+<div class="min-w-[240px] bg-surface-container-low rounded-xl overflow-hidden flex flex-col shadow-sm">
+<div class="h-32 bg-surface-dim relative">
+<img alt="IBM Data Science" class="w-full h-full object-cover opacity-80" data-alt="Digital visualization of data streams and binary code in shades of blue and magenta with a clean corporate tech aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2sF5wquyu1P9KgXLptwCo3dXl91HDSSOS5byuRXK7XqBp4gHIh4rkXIavEvvWo84VWI6F9tJHJPIIiV4N9GXdRYBng01TllsnG-z2bSBT-2zsW8JRciGCYW-M8eQspC0URNMqkB3pltgfe34h8Lc62pdaTWhSEajV9CtDqnmToFjdZIJZ4jzszMcgHbYWvHbdtS9gdXt8-pFAD6WSvHnNQGv-SfjGW_je5Iw2h58d6QclbM7k9a8ZsagFy_x3DCJpsbaqEFyreVZV"/>
+<div class="absolute top-3 left-3 px-2 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-black rounded-full uppercase tracking-tighter">94% Placement</div>
+</div>
+<div class="p-4 space-y-1">
+<p class="text-[10px] font-bold text-secondary uppercase tracking-widest">IBM Professional</p>
+<h4 class="font-bold text-on-surface">Data Science Professional</h4>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="min-w-[240px] bg-surface-container-low rounded-xl overflow-hidden flex flex-col shadow-sm">
+<div class="h-32 bg-surface-dim relative">
+<img alt="AWS Cloud Practitioner" class="w-full h-full object-cover opacity-80" data-alt="High-tech glowing earth network connections from space representing cloud computing and global connectivity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXh87tClQtGO5yZflNBuMXd9wiN-XIEZdWausNEGEhJaAIhSXCsaMivlXOkP8yHUboeXjwpJJLIOZhaZTHibB8dYjA3UMBtSCiUweHfUJdwX03wQPLfDgoqtG1QM3USfV0jR5NBPufRwoq1LdRizmHRiV6JuxzDA64_tWcQEzztcmmNOnr9gFyT74FQqKifaepsUtl3SsSw14iVoOaUTJN-PTtr-zlA30ssQyF7SK1GmZsZCcx7kjtWg7GYWcMWfJ6OdZ1iPEfv0Z4"/>
+<div class="absolute top-3 left-3 px-2 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-black rounded-full uppercase tracking-tighter">94% Placement</div>
+</div>
+<div class="p-4 space-y-1">
+<p class="text-[10px] font-bold text-secondary uppercase tracking-widest">AWS Certification</p>
+<h4 class="font-bold text-on-surface">Cloud Practitioner Essentials</h4>
+</div>
+</div>
+</div>
+</section>
+<!-- Quick Actions -->
+<section class="space-y-4">
+<h3 class="text-sm font-bold uppercase tracking-[0.1em] text-on-surface-variant px-1">Quick Actions</h3>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex flex-col items-center justify-center p-4 bg-surface-container-lowest rounded-xl border border-outline-variant/10 shadow-sm active:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-primary mb-2">upload_file</span>
+<span class="text-[11px] font-bold text-on-surface tracking-tight">Upload Resume</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 bg-surface-container-lowest rounded-xl border border-outline-variant/10 shadow-sm active:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-primary mb-2">event_available</span>
+<span class="text-[11px] font-bold text-on-surface tracking-tight">Book Coaching</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 bg-surface-container-lowest rounded-xl border border-outline-variant/10 shadow-sm active:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-primary mb-2">forum</span>
+<span class="text-[11px] font-bold text-on-surface tracking-tight">Practice Interview</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 bg-surface-container-lowest rounded-xl border border-outline-variant/10 shadow-sm active:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-primary mb-2">psychology</span>
+<span class="text-[11px] font-bold text-on-surface tracking-tight">AI Resume Help</span>
+</button>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-safe pt-2 bg-[#fcf9f8]/80 backdrop-blur-xl z-50 rounded-t-xl border-t border-[#AD2C4D]/10 shadow-[0_-4px_24px_rgba(28,27,27,0.04)] h-20">
+<!-- Journey (Active) -->
+<a class="flex flex-col items-center justify-center text-[#AD2C4D] dark:text-[#ff4d7a] bg-[#AD2C4D]/5 rounded-xl px-3 py-1 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">map</span>
+<span class="font-Inter text-[10px] uppercase tracking-[0.05em] font-medium mt-1">Journey</span>
+</a>
+<!-- Resources -->
+<a class="flex flex-col items-center justify-center text-[#584144] dark:text-neutral-400 hover:text-[#AD2C4D] transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-Inter text-[10px] uppercase tracking-[0.05em] font-medium mt-1">Resources</span>
+</a>
+<!-- Network -->
+<a class="flex flex-col items-center justify-center text-[#584144] dark:text-neutral-400 hover:text-[#AD2C4D] transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-Inter text-[10px] uppercase tracking-[0.05em] font-medium mt-1">Network</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-[#584144] dark:text-neutral-400 hover:text-[#AD2C4D] transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-Inter text-[10px] uppercase tracking-[0.05em] font-medium mt-1">Profile</span>
+</a>
+</nav>
+</body></html>

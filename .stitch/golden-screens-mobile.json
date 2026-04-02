@@ -1,0 +1,142 @@
+{
+  "projectId": "18255988866302206897",
+  "stitchMcpSync": {
+    "note": "Cursor user-stitch MCP must be authenticated (e.g. GOOGLE_STITCH_API_KEY in Cursor MCP config). Then call list_screens with this projectId, match screens by title for Employer/Partner/Counselor Messages, copy each screen id into portal.*Messages.screenId below, and refresh HTML via get_screen (resource name projects/18255988866302206897/screens/{screenId}).",
+    "listScreensTool": "list_screens",
+    "getScreenTool": "get_screen"
+  },
+  "mobile": {
+    "homepage": {
+      "screenId": "b82d6493702e43ee972aa9554cef8797",
+      "title": "WorkforceAP Home (Light Mobile)",
+      "file": ".stitch/mobile-homepage-light.html"
+    },
+    "programs": {
+      "screenId": "5aa286c3fd5f4cdab419d2be3177430c",
+      "title": "Programs Catalog (Mobile Light)",
+      "file": ".stitch/mobile-programs.html"
+    },
+    "apply": {
+      "screenId": "1673a5645e784765847abf6abf660f25",
+      "title": "Apply Flow Start (Mobile Light)",
+      "file": ".stitch/mobile-apply.html"
+    },
+    "quiz": {
+      "screenId": "9e3b346b77d14be18020ce6bee91cf62",
+      "title": "Find Your Path Quiz (Mobile Light)",
+      "file": ".stitch/mobile-quiz.html"
+    },
+    "employers": {
+      "screenId": "7dfe0a853c954d6db9bb5abd534f9823",
+      "title": "Employers (Mobile Light)",
+      "file": ".stitch/mobile-employers.html"
+    },
+    "whatWeDo": {
+      "screenId": "62b20f9be76b4585a71428e55f9a3bec",
+      "title": "What We Do (Mobile Light)",
+      "file": ".stitch/mobile-what-we-do.html"
+    },
+    "howItWorks": {
+      "screenId": "283efeeb2a804518b2c1469fbe7f2252",
+      "title": "How It Works (Mobile)",
+      "file": ".stitch/mobile-how-it-works.html"
+    },
+    "programDetail": {
+      "screenId": "3a6493dcb3a34e9b8418215c3b8bd3b9",
+      "title": "Program Detail (Mobile Light)",
+      "file": ".stitch/mobile-program-detail.html"
+    },
+    "quizResult": {
+      "screenId": "0e09db1cb78a47cc9ba298d031ac13f4",
+      "title": "Quiz Results (Mobile Light)",
+      "file": ".stitch/mobile-quiz-result.html"
+    },
+    "blog": {
+      "screenId": "8e269df319ad439c9741769e34f29dd8",
+      "title": "WorkforceAP Blog (Mobile Light)",
+      "file": ".stitch/mobile-blog.html"
+    },
+    "contact": {
+      "screenId": "bda4786c6000427e88b90ea5106d2c1a",
+      "title": "Contact Page (Mobile Light)",
+      "file": ".stitch/mobile-contact.html"
+    },
+    "faq": {
+      "screenId": "acd82125c4014ef2ba9c0ed8d9ea09cc",
+      "title": "FAQ Page (Mobile Light)",
+      "file": ".stitch/mobile-faq.html"
+    },
+    "salaryGuide": {
+      "screenId": "8552024267524c53899309a9adfe7a45",
+      "title": "Salary Guide (Mobile Light)",
+      "file": ".stitch/mobile-salary-guide.html"
+    },
+    "programComparison": {
+      "screenId": "bd609f52d46a425599cac3bf0b9c6bba",
+      "title": "Program Comparison (Mobile Light)",
+      "file": ".stitch/mobile-program-comparison.html"
+    },
+    "applyConfirmation": {
+      "screenId": "1e6291530f6849c1aa488705001d8d10",
+      "title": "Application Confirmation (Mobile)",
+      "file": ".stitch/mobile-apply-confirmation.html"
+    }
+  },
+  "portal": {
+    "memberDashboard": {
+      "screenId": "298ed184d3b44812a64b1c734c986999",
+      "title": "Member Dashboard (Mobile Light)",
+      "file": ".stitch/portal-member-dashboard.html"
+    },
+    "memberMessages": {
+      "screenId": "2d0d51fa64c84b96a8884f12ab045a77",
+      "title": "Member Messages (Mobile)",
+      "file": ".stitch/portal-member-messages.html"
+    },
+    "memberLearning": {
+      "screenId": "471d39b1569a41d7beab4792131a1680",
+      "title": "Member Learning Dashboard (Mobile Light)",
+      "file": ".stitch/portal-member-learning.html"
+    },
+    "memberProfile": {
+      "screenId": "a2f8c4969ce64c86b1e2bcd3f19fd95f",
+      "title": "Member Profile (Mobile Light)",
+      "file": ".stitch/portal-member-profile.html"
+    },
+    "aiTools": {
+      "screenId": "c2e6ca6190a24d939ef9cc68e463f357",
+      "title": "AI Career Tools (Mobile Light)",
+      "file": ".stitch/portal-ai-tools.html"
+    },
+    "employerDashboard": {
+      "screenId": "4678b261b8834a669dfdfdbe2ef87f27",
+      "title": "Employer Dashboard (Mobile Light)",
+      "file": ".stitch/portal-employer-dashboard.html"
+    },
+    "employerApplications": {
+      "screenId": "a22691d7a7ea46368510928de641fbb0",
+      "title": "Employer Applications (Mobile Light)",
+      "file": ".stitch/portal-employer-applications.html"
+    },
+    "employerMessages": {
+      "screenId": null,
+      "title": "Employer Messages (reference HTML — set screenId after Stitch list_screens)",
+      "file": ".stitch/portal-employer-messages.html"
+    },
+    "counselorStudents": {
+      "screenId": "8413073271314d7f975edae913321a3e",
+      "title": "Counselor Dashboard (Mobile Light)",
+      "file": ".stitch/portal-counselor-students.html"
+    },
+    "counselorMessages": {
+      "screenId": null,
+      "title": "Counselor Messages (reference HTML — set screenId after Stitch list_screens)",
+      "file": ".stitch/portal-counselor-messages.html"
+    },
+    "partnerMessages": {
+      "screenId": null,
+      "title": "Partner Messages (reference HTML — set screenId after Stitch list_screens)",
+      "file": ".stitch/portal-partner-messages.html"
+    }
+  }
+}

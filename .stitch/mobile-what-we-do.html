@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .text-editorial-gradient {
+            background: linear-gradient(135deg, #8c0f37 0%, #ad2c4d 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fcf9f8;
+            color: #1c1b1b;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "inverse-surface": "#313030",
+                        "primary": "#8c0f37",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#ffb2bc",
+                        "on-secondary-container": "#6c4d00",
+                        "surface-tint": "#ad2c4d",
+                        "on-secondary-fixed-variant": "#5d4200",
+                        "primary-container": "#ad2c4d",
+                        "surface-dim": "#dcd9d9",
+                        "secondary-fixed": "#ffdea4",
+                        "on-tertiary-fixed-variant": "#474646",
+                        "surface-container": "#f0edec",
+                        "outline": "#8b7073",
+                        "on-primary-fixed-variant": "#8c0f37",
+                        "surface-container-low": "#f6f3f2",
+                        "surface-container-highest": "#e5e2e1",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#ffbb00",
+                        "tertiary-fixed-dim": "#c8c6c5",
+                        "on-tertiary-fixed": "#1c1b1b",
+                        "primary-fixed": "#ffd9dd",
+                        "surface-bright": "#fcf9f8",
+                        "tertiary-fixed": "#e5e2e1",
+                        "on-surface": "#1c1b1b",
+                        "on-error": "#ffffff",
+                        "background": "#fcf9f8",
+                        "tertiary-container": "#5f5e5e",
+                        "surface-variant": "#e5e2e1",
+                        "on-background": "#1c1b1b",
+                        "error-container": "#ffdad6",
+                        "surface": "#fcf9f8",
+                        "surface-container-high": "#ebe7e7",
+                        "secondary-fixed-dim": "#ffbb00",
+                        "secondary": "#7b5800",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed": "#400013",
+                        "tertiary": "#474646",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#dbd8d7",
+                        "inverse-primary": "#ffb2bc",
+                        "outline-variant": "#debfc2",
+                        "on-surface-variant": "#584144",
+                        "inverse-on-surface": "#f3f0ef",
+                        "on-secondary-fixed": "#261900",
+                        "on-primary-container": "#ffcbd1"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface antialiased">
+<!-- TopAppBar -->
+<header class="bg-[#fcf9f8] dark:bg-slate-950/80 backdrop-blur-xl docked full-width top-0 sticky z-50 tonal-transition flex justify-between items-center w-full px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[#AD2C4D]" data-icon="account_balance">account_balance</span>
+<span class="text-xl font-black tracking-tighter text-[#AD2C4D] uppercase">Civic Bridge</span>
+</div>
+<button class="text-[#584144] hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+</header>
+<main class="pb-32 overflow-x-hidden">
+<!-- Hero Section -->
+<section class="px-6 pt-12 pb-8">
+<label class="uppercase tracking-widest text-[10px] font-bold text-primary mb-4 block">Our Impact</label>
+<h1 class="text-4xl font-extrabold tracking-tight leading-[1.1] text-on-surface mb-8">
+                Bridging the <span class="text-editorial-gradient">Opportunity Gap</span> with a training-to-workforce engine.
+            </h1>
+<!-- Impact Stats Bento -->
+<div class="grid grid-cols-2 gap-3">
+<div class="bg-surface-container-low p-5 rounded-xl border-l-4 border-primary">
+<div class="text-2xl font-black text-primary">$14.2M</div>
+<div class="text-[10px] uppercase font-bold tracking-wider text-on-surface-variant">Salary Lift</div>
+</div>
+<div class="bg-surface-container-low p-5 rounded-xl border-l-4 border-secondary">
+<div class="text-2xl font-black text-secondary">84%</div>
+<div class="text-[10px] uppercase font-bold tracking-wider text-on-surface-variant">Placement</div>
+</div>
+<div class="bg-surface-container-low p-5 rounded-xl border-l-4 border-primary">
+<div class="text-2xl font-black text-primary">3400+</div>
+<div class="text-[10px] uppercase font-bold tracking-wider text-on-surface-variant">People Served</div>
+</div>
+<div class="bg-surface-container-low p-5 rounded-xl border-l-4 border-secondary">
+<div class="text-2xl font-black text-secondary">$0</div>
+<div class="text-[10px] uppercase font-bold tracking-wider text-on-surface-variant">Tuition</div>
+</div>
+</div>
+</section>
+<!-- Image Break -->
+<section class="px-6 mb-12">
+<div class="w-full h-48 rounded-xl overflow-hidden relative">
+<img alt="Diverse group of students collaborating" class="w-full h-full object-cover" data-alt="Modern high-tech classroom with diverse young professionals collaborating on laptops in a bright, airy architectural setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmwTduDHYfQwmflBfer07EkefdpUiCVxcrpberP87plv_5i0WYTMuKYXomzG9MRnEUGOA3_cEW2sLy4ASPXhSOZTrBJP4h6bUMWnzp7sMRW8wa05f1X3GRlhi-B4P1ATedbE9kiGGGYulixVBH4-4SxLdMcra12Llm876OrnI0P7lQ_WzJpIkdA6fwsssXn148yPUNgaGIzesujRnVyBjK1P6NwEX-qPOLOAYbnEI9USwp2_Kp18ngFeGcNNMQjxr3iMFnSLRNO15J"/>
+<div class="absolute inset-0 bg-primary/10 mix-blend-multiply"></div>
+</div>
+</section>
+<!-- Mission and Values -->
+<section class="px-6 mb-16 space-y-4">
+<h2 class="text-2xl font-bold tracking-tight mb-6">Our Core Values</h2>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] group">
+<div class="flex items-start gap-4">
+<div class="bg-primary/5 p-3 rounded-lg text-primary">
+<span class="material-symbols-outlined" data-icon="universal_currency_alt">universal_currency_alt</span>
+</div>
+<div>
+<h3 class="font-bold text-lg mb-1">Access First</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed">Education shouldn't have a paywall. We believe talent is universal, but opportunity is not.</p>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+<div class="flex items-start gap-4">
+<div class="bg-secondary/5 p-3 rounded-lg text-secondary">
+<span class="material-symbols-outlined" data-icon="handshake">handshake</span>
+</div>
+<div>
+<h3 class="font-bold text-lg mb-1">Employer Aligned</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed">We train for the roles companies actually need, ensuring your new skills are in high demand.</p>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+<div class="flex items-start gap-4">
+<div class="bg-primary/5 p-3 rounded-lg text-primary">
+<span class="material-symbols-outlined" data-icon="verified">verified</span>
+</div>
+<div>
+<h3 class="font-bold text-lg mb-1">Outcome Accountable</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed">Success is measured by your paycheck. Our model only works when you are working.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Program Flow -->
+<section class="bg-surface-container-low py-16 px-6">
+<h2 class="text-2xl font-bold tracking-tight mb-8">The Journey</h2>
+<div class="space-y-6 relative">
+<!-- Vertical Line Connector -->
+<div class="absolute left-6 top-4 bottom-4 w-px bg-primary/20"></div>
+<div class="relative pl-12">
+<div class="absolute left-4 top-1 w-4 h-4 rounded-full bg-primary border-4 border-surface ring-4 ring-primary/5"></div>
+<span class="text-[10px] font-black text-primary-container tracking-widest uppercase mb-1 block">Step 01</span>
+<h3 class="font-bold text-lg mb-1">Application</h3>
+<p class="text-on-surface-variant text-sm">10-minute online form to start your journey and share your potential.</p>
+</div>
+<div class="relative pl-12">
+<div class="absolute left-4 top-1 w-4 h-4 rounded-full bg-primary border-4 border-surface ring-4 ring-primary/5"></div>
+<span class="text-[10px] font-black text-primary-container tracking-widest uppercase mb-1 block">Step 02</span>
+<h3 class="font-bold text-lg mb-1">Training</h3>
+<p class="text-on-surface-variant text-sm">Industry-aligned curriculum from global leaders in tech and business.</p>
+</div>
+<div class="relative pl-12">
+<div class="absolute left-4 top-1 w-4 h-4 rounded-full bg-primary border-4 border-surface ring-4 ring-primary/5"></div>
+<span class="text-[10px] font-black text-primary-container tracking-widest uppercase mb-1 block">Step 03</span>
+<h3 class="font-bold text-lg mb-1">Certification</h3>
+<p class="text-on-surface-variant text-sm">Earn credentials recognized by top employers as a mark of excellence.</p>
+</div>
+<div class="relative pl-12">
+<div class="absolute left-4 top-1 w-4 h-4 rounded-full bg-primary border-4 border-surface ring-4 ring-primary/5"></div>
+<span class="text-[10px] font-black text-primary-container tracking-widest uppercase mb-1 block">Step 04</span>
+<h3 class="font-bold text-lg mb-1">Placement</h3>
+<p class="text-on-surface-variant text-sm">Direct pipeline to hiring partners and long-term career support.</p>
+</div>
+</div>
+</section>
+<!-- Partner Network -->
+<section class="px-6 py-12">
+<label class="uppercase tracking-[0.2em] text-[9px] font-bold text-on-surface-variant mb-6 block text-center">Supported By Industry Giants</label>
+<div class="flex flex-wrap justify-center gap-2">
+<span class="px-4 py-2 bg-surface-container-highest rounded-full text-xs font-bold text-on-surface">Google</span>
+<span class="px-4 py-2 bg-surface-container-highest rounded-full text-xs font-bold text-on-surface">IBM</span>
+<span class="px-4 py-2 bg-surface-container-highest rounded-full text-xs font-bold text-on-surface">AWS</span>
+<span class="px-4 py-2 bg-surface-container-highest rounded-full text-xs font-bold text-on-surface">CompTIA</span>
+<span class="px-4 py-2 bg-surface-container-highest rounded-full text-xs font-bold text-on-surface">Coursera</span>
+</div>
+</section>
+<!-- Bottom CTA -->
+<section class="px-6 py-12 bg-on-surface text-surface flex flex-col items-center text-center">
+<h2 class="text-2xl font-bold mb-8">Ready to transform your career?</h2>
+<button class="w-full bg-primary hover:opacity-90 py-4 px-6 rounded-lg text-white font-bold transition-all active:scale-95 mb-4">
+                Start an application
+            </button>
+<button class="w-full border border-surface/20 hover:bg-surface/5 py-4 px-6 rounded-lg text-surface font-bold transition-all active:scale-95">
+                See the process
+            </button>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full bg-[#fcf9f8]/80 dark:bg-slate-950/80 backdrop-blur-xl z-50 rounded-t-xl shadow-[0_-4px_24px_rgba(28,27,27,0.04)] flex justify-around items-center px-4 pb-6 pt-3">
+<a class="flex flex-col items-center justify-center text-[#584144] opacity-70 px-4 py-1 transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#584144] opacity-70 px-4 py-1 transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="quiz">quiz</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest mt-1">Quiz</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#AD2C4D]/10 text-[#AD2C4D] rounded-xl px-4 py-1 transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="school" style="font-variation-settings: 'FILL' 1;">school</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest mt-1">Programs</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#584144] opacity-70 px-4 py-1 transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="assignment_turned_in">assignment_turned_in</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest mt-1">Apply</span>
+</a>
+</nav>
+</body></html>

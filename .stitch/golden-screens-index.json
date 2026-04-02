@@ -1,0 +1,479 @@
+{
+  "description": "WorkforceAP Stitch design coverage index. All HTML files are standalone reference designs using the WorkforceAP color system (primary: #8c0f37). Use for layout/spacing/component patterns only.",
+  "lastUpdated": "2026-03-29",
+  "coverage": {
+    "marketing": [
+      {
+        "route": "/",
+        "files": [
+          "mobile-homepage-light.html",
+          "stitch-dark-mobile-homepage-final.html",
+          "stitch-dark-mobile-home-alt.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/programs",
+        "files": [
+          "mobile-programs.html",
+          "mobile-programs-catalog-new.html",
+          "stitch-dark-mobile-programs-catalog-final.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/programs/[slug]",
+        "files": [
+          "mobile-program-detail.html",
+          "program-detail.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/find-your-path",
+        "files": [
+          "mobile-quiz.html",
+          "stitch-dark-mobile-quiz-pathfinder.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/how-it-works",
+        "files": [
+          "mobile-how-it-works.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/salary-guide",
+        "files": [
+          "mobile-salary-guide.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/contact",
+        "files": [
+          "mobile-contact.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/faq",
+        "files": [
+          "mobile-faq.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/blog",
+        "files": [
+          "mobile-blog.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/what-we-do",
+        "files": [
+          "mobile-what-we-do.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/program-comparison",
+        "files": [
+          "mobile-program-comparison.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/apply",
+        "files": [
+          "mobile-apply.html",
+          "stitch-dark-mobile-apply.html",
+          "apply-flow-desktop.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/apply/confirmation",
+        "files": [
+          "application-confirmation.html",
+          "mobile-apply-confirmation.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/employers",
+        "files": [
+          "mobile-employers.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/leadership/[slug]",
+        "files": [
+          "stitch-dark-leadership-michael-brown.html"
+        ],
+        "status": "covered"
+      }
+    ],
+    "auth": [
+      {
+        "route": "/login",
+        "files": [
+          "login-desktop.html",
+          "stitch-dark-desktop-login.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/signup",
+        "files": [
+          "signup-desktop.html",
+          "stitch-dark-desktop-signup.html"
+        ],
+        "status": "covered"
+      }
+    ],
+    "portal_member": [
+      {
+        "route": "/dashboard",
+        "files": [
+          "portal-member-dashboard.html",
+          "stitch-dark-portal-member-dashboard.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/dashboard/learning",
+        "files": [
+          "portal-member-learning.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/dashboard/messages",
+        "files": [
+          "portal-member-messages.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/dashboard/profile",
+        "files": [
+          "portal-member-profile.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/dashboard/ai-tools",
+        "files": [
+          "portal-ai-tools.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/dashboard/ai-tools/resume-rewriter",
+        "files": [
+          "portal-ai-tool-resume-rewriter.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/dashboard/ai-tools/job-match-scorer",
+        "files": [
+          "portal-ai-tool-job-match-scorer.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/dashboard/ai-tools/interview-practice",
+        "status": "covered",
+        "files": [
+          "portal-ai-tool-interview-practice.html"
+        ]
+      },
+      {
+        "route": "/dashboard/ai-tools/cover-letter",
+        "status": "covered",
+        "files": [
+          "portal-ai-tool-cover-letter.html"
+        ]
+      },
+      {
+        "route": "/dashboard/ai-tools/gap-analyzer",
+        "status": "covered",
+        "files": [
+          "portal-ai-tool-gap-analyzer.html"
+        ]
+      },
+      {
+        "route": "/dashboard/ai-tools/linkedin-about",
+        "status": "covered",
+        "files": [
+          "portal-ai-tool-linkedin-about.html"
+        ]
+      },
+      {
+        "route": "/dashboard/ai-tools/linkedin-headline",
+        "status": "covered",
+        "files": [
+          "portal-ai-tool-linkedin-headline.html"
+        ]
+      },
+      {
+        "route": "/dashboard/ai-tools/salary-negotiation",
+        "status": "covered",
+        "files": [
+          "portal-ai-tool-salary-negotiation.html"
+        ]
+      },
+      {
+        "route": "/dashboard/ai-tools/application-tracker",
+        "status": "covered",
+        "files": [
+          "portal-ai-tool-application-tracker.html"
+        ]
+      },
+      {
+        "route": "/dashboard/certifications",
+        "status": "covered",
+        "files": [
+          "portal-member-certifications.html"
+        ]
+      },
+      {
+        "route": "/dashboard/resume",
+        "status": "covered",
+        "files": [
+          "portal-member-resume.html"
+        ]
+      },
+      {
+        "route": "/dashboard/settings",
+        "status": "covered",
+        "files": [
+          "portal-member-settings.html"
+        ]
+      },
+      {
+        "route": "/dashboard/career-brief",
+        "status": "covered",
+        "files": [
+          "portal-member-career-brief.html"
+        ]
+      },
+      {
+        "route": "/dashboard/program",
+        "status": "covered",
+        "files": [
+          "portal-member-program.html"
+        ]
+      },
+      {
+        "route": "/dashboard/resources",
+        "status": "covered",
+        "files": [
+          "portal-member-resources.html"
+        ]
+      },
+      {
+        "route": "/dashboard/weekly-recap",
+        "status": "covered",
+        "files": [
+          "portal-member-weekly-recap.html"
+        ]
+      },
+      {
+        "route": "/dashboard/readiness",
+        "status": "covered",
+        "files": [
+          "portal-member-readiness.html"
+        ]
+      }
+    ],
+    "portal_employer": [
+      {
+        "route": "/employer",
+        "files": [
+          "portal-employer-dashboard.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/employer/applications",
+        "files": [
+          "portal-employer-applications.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/employer/jobs",
+        "files": [
+          "portal-employer-jobs.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/employer/jobs/new",
+        "status": "covered",
+        "files": [
+          "portal-employer-job-new.html"
+        ]
+      },
+      {
+        "route": "/employer/jobs/import",
+        "status": "covered",
+        "files": [
+          "portal-employer-job-import.html"
+        ]
+      },
+      {
+        "route": "/employer/messages",
+        "status": "covered",
+        "files": [
+          "portal-employer-messages.html"
+        ]
+      },
+      {
+        "route": "/employer/matches",
+        "status": "covered",
+        "files": [
+          "portal-employer-matches.html"
+        ]
+      },
+      {
+        "route": "/employer/pipeline",
+        "status": "covered",
+        "files": [
+          "portal-employer-pipeline.html"
+        ]
+      }
+    ],
+    "portal_counselor": [
+      {
+        "route": "/counselor",
+        "files": [
+          "portal-counselor-students.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/counselor/students/[memberId]",
+        "files": [
+          "portal-counselor-student-detail.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/counselor/messages",
+        "status": "covered",
+        "files": [
+          "portal-counselor-messages.html"
+        ]
+      },
+      {
+        "route": "/counselor/resources",
+        "status": "covered",
+        "files": [
+          "portal-counselor-resources.html"
+        ]
+      }
+    ],
+    "portal_partner": [
+      {
+        "route": "/partner",
+        "files": [
+          "portal-partner-dashboard.html"
+        ],
+        "status": "covered"
+      },
+      {
+        "route": "/partner/members",
+        "status": "covered",
+        "files": [
+          "portal-partner-members.html"
+        ]
+      },
+      {
+        "route": "/partner/milestones",
+        "status": "covered",
+        "files": [
+          "portal-partner-milestones.html"
+        ]
+      },
+      {
+        "route": "/partner/outcomes",
+        "status": "covered",
+        "files": [
+          "portal-partner-outcomes.html"
+        ]
+      },
+      {
+        "route": "/partner/messages",
+        "status": "covered",
+        "files": [
+          "portal-partner-messages.html"
+        ]
+      },
+      {
+        "route": "/partner/settings",
+        "status": "covered",
+        "files": [
+          "portal-partner-settings.html"
+        ]
+      },
+      {
+        "route": "/partner/guide",
+        "status": "covered",
+        "files": [
+          "portal-partner-guide.html"
+        ]
+      },
+      {
+        "route": "/partner/attention",
+        "status": "covered",
+        "files": [
+          "portal-partner-attention.html"
+        ]
+      },
+      {
+        "route": "/partner/exports",
+        "status": "covered",
+        "files": [
+          "portal-partner-exports.html"
+        ]
+      }
+    ],
+    "portal_shared": [
+      {
+        "route": "/account",
+        "status": "covered",
+        "files": [
+          "portal-account.html"
+        ]
+      },
+      {
+        "route": "/help",
+        "status": "covered",
+        "files": [
+          "portal-help.html"
+        ]
+      },
+      {
+        "route": "/resources",
+        "status": "covered",
+        "files": [
+          "portal-member-resources-shared.html"
+        ]
+      }
+    ]
+  },
+  "summary": {
+    "total_routes": 64,
+    "covered": 63,
+    "missing": 0,
+    "coverage_pct": 98
+  }
+}

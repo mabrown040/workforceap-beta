@@ -1,0 +1,19 @@
+{
+  "projectId": "491456976719912592",
+  "golden": {
+    "home": { "screenId": "504a3064259c45fcb14e7a8db28a2927", "title": "Home Page - Redesign" },
+    "programs": { "screenId": "7f5f7909d87240b28d1c91a0fed2ed5c", "title": "Programs Catalog - Redesign" },
+    "quizResult": { "screenId": "630f2d0286d243a6b51acdac472b6176", "title": "Career Quiz Result - Redesign" },
+    "admin": { "screenId": "57910eeeafaa458483d13e34700bcf94", "title": "Admin Dashboard - Final Refinement" },
+    "memberDashboard": { "screenId": "d96df31243844d3db247f8937e6d723c", "title": "Member Dashboard - Final Refinement" },
+    "memberMobile": { "screenId": "c115cd32c71a463da2671478e00a8693", "title": "Member Dashboard (Mobile)" },
+    "counselor": { "screenId": "1b957499cc8d4a51a40af5e36789d1ca", "title": "Counselor Dashboard - Final Refinement" },
+    "employer": { "screenId": "f36ab80285644eea93d79d67767f0978", "title": "Employer Dashboard - Final Refinement" },
+    "resumeRewriter": { "screenId": "577ff5bacbe84d81a26c40318fee3423", "title": "AI Resume Rewriter Tool" },
+    "interviewPrep": { "screenId": "ebbe9fed5d954d01a6bcd6902ae041bf", "title": "AI Interview Prep Tool" },
+    "skillGap": { "screenId": "5cf5ff8318a547ea9b786e9aa0086c8c", "title": "Skill Gap Analysis Tool" },
+    "jobTracker": { "screenId": "4489c5b99ca84f8fb72e91f586393a19", "title": "Smart Job Tracker Tool" },
+    "applicationConfirm": { "screenId": "ce7bc3e12f404716b674b094f93e4230", "title": "Application Confirmation" },
+    "programDetail": { "screenId": "23a9ca5303ec4d7e996789e1ca91e942", "title": "Program Detail View" }
+  }
+}

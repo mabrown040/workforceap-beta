@@ -1,0 +1,313 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+  <script type="module" src="/@vite/client"></script>
+
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<script src="/_stitch/asset?url=https%3A%2F%2Fcdn.tailwindcss.com%3Fplugins%3Dforms%2Ccontainer-queries"></script>
+<link href="/_stitch/asset?url=https%3A%2F%2Ffonts.googleapis.com%2Fcss2%3Ffamily%3DInter%3Awght%40400%3B500%3B600%3B700%26display%3Dswap" rel="stylesheet">
+<link href="/_stitch/asset?url=https%3A%2F%2Ffonts.googleapis.com%2Fcss2%3Ffamily%3DMaterial%2BSymbols%2BOutlined%3Awght%2CFILL%40100..700%2C0..1%26display%3Dswap" rel="stylesheet">
+<link href="/_stitch/asset?url=https%3A%2F%2Ffonts.googleapis.com%2Fcss2%3Ffamily%3DMaterial%2BSymbols%2BOutlined%3Awght%2CFILL%40100..700%2C0..1%26display%3Dswap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "tertiary-container": "#006d3e",
+              "surface": "#121416",
+              "tertiary": "#80d99f",
+              "surface-container-low": "#1a1c1e",
+              "primary": "#ffb2bc",
+              "surface-tint": "#ffb2bc",
+              "on-tertiary-container": "#92ecb1",
+              "on-secondary-fixed": "#3a0815",
+              "on-error-container": "#ffdad6",
+              "secondary": "#ffb2bc",
+              "error-container": "#93000a",
+              "primary-fixed-dim": "#ffb2bc",
+              "outline": "#a68a8d",
+              "error": "#ffb4ab",
+              "on-tertiary": "#00391e",
+              "surface-container-highest": "#333537",
+              "surface-container-lowest": "#0c0e10",
+              "on-secondary-fixed-variant": "#71333e",
+              "on-primary-container": "#ffcbd1",
+              "on-primary": "#670024",
+              "on-tertiary-fixed-variant": "#00522d",
+              "inverse-on-surface": "#2f3133",
+              "on-secondary-container": "#f29eaa",
+              "surface-dim": "#121416",
+              "on-primary-fixed-variant": "#8c0f37",
+              "on-surface-variant": "#debfc2",
+              "primary-fixed": "#ffd9dd",
+              "on-surface": "#e2e2e5",
+              "surface-variant": "#333537",
+              "surface-container-high": "#282a2c",
+              "primary-container": "#ad2c4d",
+              "on-primary-fixed": "#400013",
+              "tertiary-fixed": "#9cf6ba",
+              "inverse-surface": "#e2e2e5",
+              "on-error": "#690005",
+              "on-tertiary-fixed": "#00210f",
+              "on-background": "#e2e2e5",
+              "background": "#121416",
+              "outline-variant": "#584144",
+              "secondary-container": "#71333e",
+              "tertiary-fixed-dim": "#80d99f",
+              "on-secondary": "#551d29",
+              "surface-container": "#1e2022",
+              "inverse-primary": "#ad2c4d",
+              "secondary-fixed-dim": "#ffb2bc",
+              "secondary-fixed": "#ffd9dd",
+              "surface-bright": "#37393b"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+<script type="module" src="/@id/virtual:stitch-nav"></script></head>
+<body class="bg-surface text-on-surface selection:bg-primary-container/30">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-slate-900/80 backdrop-blur-xl border-b border-white/10 shadow-2xl shadow-black/20 flex justify-between items-center px-8 h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="text-xl font-bold text-slate-100 font-inter tracking-tight">Digital Ivory Tower</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex items-center gap-8">
+<a class="text-[#AD2C4D] font-semibold border-b-2 border-[#AD2C4D] pb-1 transition-all active:scale-95 duration-200" href="#">Dashboard</a>
+<a class="text-slate-400 hover:text-slate-200 transition-colors transition-all active:scale-95 duration-200" href="#">Catalog</a>
+<a class="text-slate-400 hover:text-slate-200 transition-colors transition-all active:scale-95 duration-200" href="#">Insights</a>
+</div>
+<div class="flex items-center gap-3 ml-4 border-l border-white/10 pl-6">
+<button class="text-slate-400 hover:bg-white/5 p-2 rounded-lg transition-all active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-slate-400 hover:bg-white/5 p-2 rounded-lg transition-all active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden ml-2 bg-surface-container-high border border-white/10">
+<img alt="Counselor Profile" data-alt="professional portrait of Michael Brown, a male academic counselor in a dark blazer with a warm and approachable expression" src="/_stitch/asset?url=https%3A%2F%2Flh3.googleusercontent.com%2Faida-public%2FAB6AXuCqiU8ew_uHfYMF33ZCSfijLpNnN75sxyGOnGc8hpHwucAmZ8hq8TcUywCZpVlavKGBO8jX3PP1RCiXCpBTLl2pvhGZNFfz8H9mToQjnt27oTkyfrpD-mgDs1mIFuXplpVndrzPoRn17P2HGoOtYsmjq-T6mY5IcaPdDB3SNGYfmsSXBX_sC9MaGVmc19xmRNrFQX-u5tlGoSVLFMy1hafAEsI-YyikA-FHf7Py6O4yhgG00dUbJ1MnEl9HUtiz8LbLaOQeLSRpojqx">
+</div>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-slate-900 pt-20 hidden lg:flex flex-col p-4 gap-2 z-40">
+<div class="px-4 mb-6">
+<h2 class="text-lg font-bold text-slate-100">Counselor Portal</h2>
+<p class="text-xs text-slate-500 font-medium">AI &amp; Software Dev</p>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="bg-[#AD2C4D]/10 text-[#AD2C4D] rounded-lg px-4 py-3 flex items-center gap-3 text-sm font-medium Inter transition-transform duration-200 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+                Overview
+            </a>
+<a class="text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 px-4 py-3 flex items-center gap-3 text-sm font-medium Inter transition-transform duration-200 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+                My Students
+            </a>
+<a class="text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 px-4 py-3 flex items-center gap-3 text-sm font-medium Inter transition-transform duration-200 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="chat_bubble">chat_bubble</span>
+                Messages
+            </a>
+<a class="text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 px-4 py-3 flex items-center gap-3 text-sm font-medium Inter transition-transform duration-200 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="library_books">library_books</span>
+                Resources
+            </a>
+</nav>
+<div class="mt-auto p-4 bg-slate-800/30 rounded-xl">
+<p class="text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-bold">Academic Status</p>
+<div class="flex items-center gap-2 text-primary">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="text-xs font-semibold">System Active</span>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="lg:ml-64 pt-24 px-8 pb-12 min-h-screen">
+<div class="max-w-6xl mx-auto">
+<!-- Header Section -->
+<div class="mb-12">
+<div class="flex items-center gap-2 text-xs font-bold text-primary/60 uppercase tracking-[0.2em] mb-4">
+<span>Portal</span>
+<span class="material-symbols-outlined text-[10px]">chevron_right</span>
+<span>Dashboard</span>
+</div>
+<h1 class="text-5xl font-bold tracking-tight text-on-surface mb-2 font-headline">Welcome back, Michael.</h1>
+<p class="text-on-surface-variant text-lg max-w-2xl font-body leading-relaxed">Your academic oversight panel is synchronized. Here is the current state of your student cohort and upcoming milestones.</p>
+</div>
+<!-- Stats Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+<div class="bg-surface-container p-6 rounded-xl transition-all hover:bg-surface-container-high group">
+<div class="flex justify-between items-start mb-4">
+<div class="p-3 bg-primary/10 rounded-lg text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+</div>
+<span class="text-xs font-bold text-primary px-2 py-1 bg-primary/10 rounded-full">+0%</span>
+</div>
+<div class="text-3xl font-bold mb-1">0</div>
+<div class="text-sm text-on-surface-variant font-medium">Active Students</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl transition-all hover:bg-surface-container group">
+<div class="flex justify-between items-start mb-4">
+<div class="p-3 bg-secondary-container/30 rounded-lg text-secondary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="mail">mail</span>
+</div>
+</div>
+<div class="text-3xl font-bold mb-1 text-on-surface/50">0</div>
+<div class="text-sm text-on-surface-variant font-medium">Unread Messages</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl transition-all hover:bg-surface-container group">
+<div class="flex justify-between items-start mb-4">
+<div class="p-3 bg-tertiary-container/20 rounded-lg text-tertiary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="assignment_turned_in">assignment_turned_in</span>
+</div>
+</div>
+<div class="text-3xl font-bold mb-1 text-on-surface/50">0</div>
+<div class="text-sm text-on-surface-variant font-medium">Enrolled Modules</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl transition-all hover:bg-surface-container group">
+<div class="flex justify-between items-start mb-4">
+<div class="p-3 bg-error-container/20 rounded-lg text-error group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="warning">warning</span>
+</div>
+</div>
+<div class="text-3xl font-bold mb-1 text-on-surface/50">0</div>
+<div class="text-sm text-on-surface-variant font-medium">Needs Attention</div>
+</div>
+</div>
+<!-- Content Area: Asymmetric Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Main Activity Column -->
+<div class="lg:col-span-2 space-y-8">
+<section>
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-2xl font-semibold tracking-tight font-headline">Your Students</h2>
+<button class="text-primary text-sm font-bold flex items-center gap-2 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined text-sm">add</span>
+                                Assign New Student
+                            </button>
+</div>
+<!-- Placeholder Card with Empty State -->
+<div class="relative overflow-hidden bg-surface-container-lowest rounded-2xl p-12 text-center border border-white/5 border-dashed">
+<div class="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none"></div>
+<div class="relative z-10 flex flex-col items-center">
+<div class="w-16 h-16 bg-surface-container rounded-full flex items-center justify-center mb-6 border border-white/5">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="person_search">person_search</span>
+</div>
+<h3 class="text-xl font-medium mb-2">No students assigned yet</h3>
+<p class="text-on-surface-variant max-w-xs mx-auto mb-8">Begin by importing your cohort or manually assigning individual learners to your counselor profile.</p>
+<div class="flex gap-4">
+<button class="px-6 py-2.5 bg-gradient-to-r from-primary to-primary-container text-on-primary text-sm font-bold rounded-lg shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform active:scale-95">
+                                        Import Cohort
+                                    </button>
+<button class="px-6 py-2.5 bg-surface-container-high text-primary text-sm font-bold rounded-lg hover:bg-surface-container-highest transition-colors active:scale-95">
+                                        Browse Directory
+                                    </button>
+</div>
+</div>
+</div>
+</section>
+<section>
+<h2 class="text-2xl font-semibold tracking-tight font-headline mb-6">System Diagnostics</h2>
+<div class="bg-surface-container rounded-xl overflow-hidden">
+<div class="p-6 border-b border-white/5 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-tertiary"></div>
+<span class="font-medium">Curriculum Sync Status</span>
+</div>
+<span class="text-xs font-bold text-tertiary uppercase">Healthy</span>
+</div>
+<div class="p-6 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-tertiary"></div>
+<span class="font-medium">AI Teaching Assistant</span>
+</div>
+<span class="text-xs font-bold text-tertiary uppercase">Operational</span>
+</div>
+</div>
+</section>
+</div>
+<!-- Secondary Info Column -->
+<div class="space-y-8">
+<section class="bg-surface-container-high p-6 rounded-2xl relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-6xl">auto_awesome</span>
+</div>
+<h3 class="text-lg font-bold mb-4 font-headline text-primary">Quick Insights</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed mb-6">
+                            Your dashboard is currently quiet. This is a great time to review updated software development resources in the library.
+                        </p>
+<a class="text-sm font-bold text-primary underline underline-offset-4 hover:text-primary/80 transition-colors" href="#">
+                            View Latest Resources
+                        </a>
+</section>
+<section>
+<h3 class="text-lg font-bold mb-4 font-headline px-2">Upcoming Events</h3>
+<div class="space-y-3">
+<div class="bg-surface-container-lowest p-4 rounded-xl flex gap-4 items-start border-l-2 border-primary-container">
+<div class="text-center min-w-[40px]">
+<div class="text-primary font-bold text-lg">24</div>
+<div class="text-[10px] uppercase font-bold text-on-surface-variant">Oct</div>
+</div>
+<div>
+<h4 class="text-sm font-bold">Counselor Sync</h4>
+<p class="text-xs text-on-surface-variant">10:00 AM • Zoom Conference</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl flex gap-4 items-start border-l-2 border-slate-700">
+<div class="text-center min-w-[40px]">
+<div class="text-on-surface-variant font-bold text-lg">28</div>
+<div class="text-[10px] uppercase font-bold text-on-surface-variant">Oct</div>
+</div>
+<div>
+<h4 class="text-sm font-bold">Curriculum Review</h4>
+<p class="text-xs text-on-surface-variant">2:30 PM • Main Hall</p>
+</div>
+</div>
+</div>
+</section>
+<div class="rounded-2xl overflow-hidden aspect-[4/5] relative">
+<img alt="Campus Architecture" class="w-full h-full object-cover" data-alt="modern minimalist university architecture with sharp clean lines, glass panels, and cool evening lighting reflecting off of slate surfaces" src="/_stitch/asset?url=https%3A%2F%2Flh3.googleusercontent.com%2Faida-public%2FAB6AXuCRSPUnM2LxuSQLAfp6Rf18yfbQrpCMY09C01zYmHIA6oPMtb1ZFAn-Q80J6K0fa7BruNIStyL94jcUNHLZyUBnqSSlmFMScnYYzztJ8qDx2DPXpu2XNqGXbHjOr6GYVzWVlmFLzTl5tj5ZpEk9vfFfvHtbgWdxLr_rXhETdKRg_Ldph3A4uFzVoObWiKH_z1Oc31tOF6tfHpUZxWlnZ2H3d6tVU6hSxkk4V9FZgiZSm9ktFOurqIg29K9sFSfm5gfosGue7kkOL-6k">
+<div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-6">
+<p class="text-[10px] font-bold tracking-[0.3em] uppercase text-primary mb-1">Campus View</p>
+<h4 class="text-white font-bold leading-tight">North Wing Expansion complete.</h4>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile only) -->
+<nav class="md:hidden fixed bottom-0 w-full bg-slate-900/90 backdrop-blur-lg border-t border-white/5 flex justify-around items-center h-16 px-4 z-50">
+<a class="flex flex-col items-center gap-1 text-[#AD2C4D]" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="text-[10px] font-bold">Overview</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="text-[10px] font-bold">Students</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined" data-icon="chat_bubble">chat_bubble</span>
+<span class="text-[10px] font-bold">Messages</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined" data-icon="library_books">library_books</span>
+<span class="text-[10px] font-bold">Resources</span>
+</a>
+</nav>
+</body></html>

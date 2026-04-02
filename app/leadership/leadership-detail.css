@@ -16,6 +16,21 @@
   padding: var(--space-16) 0 var(--space-12);
 }
 
+/* Ensure text contrast on hero background - FORCE white text on dark hero */
+.ld-hero .ld-hero-name {
+  color: #fff !important;
+}
+
+.ld-hero .ld-hero-title,
+.ld-hero .ld-hero-desc {
+  color: #fff !important;
+  opacity: 0.9;
+}
+
+.ld-hero .ld-hero-credentials {
+  color: #ffd700 !important; /* Gold for credentials to pop */
+}
+
 .ld-hero-inner {
   display: grid;
   grid-template-columns: 5fr 7fr;
@@ -539,9 +554,14 @@
     gap: var(--space-4);
   }
 
+  /* Keep leader faces visible on tablet/mobile (avoid wide 16:9 head crop) */
   .ld-hero-portrait {
-    aspect-ratio: 16 / 9;
-    max-height: 400px;
+    aspect-ratio: 4 / 5;
+    max-height: 520px;
+  }
+
+  .ld-hero-portrait-img {
+    object-position: center 18%;
   }
 
   /* Flow quote below photo so it never covers the portrait on tablet/mobile */

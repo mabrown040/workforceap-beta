@@ -44,16 +44,16 @@ export default async function EmployerApplicationsPage() {
   return (
     <div>
       {/* ── Mobile Applications View (≤640px) ── */}
-      <div className="wa-block md:wa-hidden wa-pb-24">
+      <div className="wa-block wa-md:wa-hidden wa-pb-24">
         <div className="px-4 pt-6 pb-3">
           <h1 className="text-2xl font-extrabold tracking-tight mb-1" style={{ color: 'var(--color-on-surface)' }}>Applicants</h1>
           <p className="text-xs" style={{ color: 'var(--color-on-surface-variant)' }}>Review and update candidate status.</p>
         </div>
         <MobileApplicationsClient initialRows={initialRows} />
-        <MobileBottomNav variant="portal" />
+        <MobileBottomNav variant="employer" />
       </div>
       {/* ── Desktop View ── */}
-      <div className="wa-hidden md:wa-block">
+      <div className="wa-hidden wa-md:wa-block">
         <PageHeader
           title="Applicants"
           subtitle="Update application status as you review candidates. Invalid workflow steps are blocked."

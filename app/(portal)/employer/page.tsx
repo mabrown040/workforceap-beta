@@ -249,7 +249,7 @@ export default async function EmployerDashboardPage() {
             )}
           </div>
         </div>
-        <MobileBottomNav variant="portal" />
+        <MobileBottomNav variant="employer" />
       </div>
       {/* ── Desktop View ── */}
       <div className="wa-hidden wa-md:wa-block">

@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -33,61 +32,6 @@ type InitialPayload = {
   lastMsgTime: string;
   unreadCount: number;
 };
-
-// ── Portal Bottom Nav ─────────────────────────────────────────────────────────
-
-const PORTAL_NAV = [
-  { href: '/dashboard', label: 'Home', icon: 'home' },
-  { href: '/dashboard/messages', label: 'Messages', icon: 'chat_bubble' },
-  { href: '/dashboard/learning', label: 'Resources', icon: 'menu_book' },
-  { href: '/dashboard/profile', label: 'Profile', icon: 'person' },
-];
-
-function PortalBottomNav() {
-  const pathname = usePathname();
-  return (
-    <nav
-      className="wa-fixed wa-bottom-0 wa-left-0 wa-w-full wa-z-50 wa-flex wa-justify-around wa-items-center wa-px-4 md:wa-hidden"
-      style={{
-        height: '5rem',
-        background: 'rgba(252,249,248,0.88)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        borderTop: '1px solid rgba(173,44,77,0.1)',
-        boxShadow: '0 -4px 24px rgba(28,27,27,0.04)',
-        paddingBottom: 'env(safe-area-inset-bottom)',
-      }}
-    >
-      {PORTAL_NAV.map(({ href, label, icon }) => {
-        const isActive = href === '/dashboard'
-          ? pathname === '/dashboard'
-          : pathname.startsWith(href);
-        return (
-          <Link
-            key={href}
-            href={href}
-            className="flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-xl min-w-[56px] active:scale-90 transition-all duration-150"
-            style={
-              isActive
-                ? { color: '#ad2c4d', background: 'rgba(173,44,77,0.07)' }
-                : { color: '#584144', opacity: 0.7 }
-            }
-          >
-            <span
-              className="material-symbols-outlined text-[22px] leading-none mb-1"
-              style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}
-            >
-              {icon}
-            </span>
-            <span className="font-bold uppercase tracking-[0.05em] leading-none" style={{ fontSize: '0.6875rem' }}>
-              {label}
-            </span>
-          </Link>
-        );
-      })}
-    </nav>
-  );
-}
 
 // ── Career Tip Card ───────────────────────────────────────────────────────────
 
@@ -371,8 +315,6 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
             <CareerTipCard />
           </div>
         </main>
-
-        <PortalBottomNav />
       </div>
     );
   }

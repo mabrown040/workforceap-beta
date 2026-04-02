@@ -830,7 +830,7 @@ html.dark body.homepage {
 }
 /* Dark nav — glassmorphic (stitch). Inherits from line 265. */
 html.dark .nav-menu a {
-    color: var(--color-on-surface-variant);
+    color: var(--color-on-surface);
 }
 html.dark .nav-menu a:hover {
     color: var(--color-accent);
@@ -839,7 +839,7 @@ html.dark .nav-menu a.active {
     color: var(--color-accent);
 }
 html.dark .nav-menu .dropdown .dropdown-trigger {
-    color: var(--color-on-surface-variant);
+    color: var(--color-on-surface);
 }
 html.dark .main-nav .dropdown-menu {
     background: var(--surface-container-high);
@@ -1569,7 +1569,7 @@ body.mobile-nav-open .main-nav::after {
     padding: 0;
 }
 .nav-menu a {
-    color: var(--color-on-surface-variant);
+    color: var(--color-on-surface);
     font-size: 0.875rem;
     font-weight: 500;
     transition: color var(--transition-fast);
@@ -1591,7 +1591,7 @@ body.mobile-nav-open .main-nav::after {
 .nav-menu a.active::after { width: 100%; background: var(--color-accent); }
 .nav-menu .dropdown { position: relative; padding: 0.5rem 0; }
 .nav-menu .dropdown .dropdown-trigger {
-    color: var(--color-on-surface-variant);
+    color: var(--color-on-surface);
     font-size: 0.875rem;
     font-weight: 500;
     font-family: inherit;
@@ -1618,6 +1618,24 @@ body.mobile-nav-open .main-nav::after {
 .nav-menu .dropdown:hover .dropdown-trigger::after { transform: rotate(180deg); opacity: 0.8; }
 .nav-menu .dropdown .dropdown-trigger.active { color: var(--color-accent); }
 .nav-menu .dropdown:hover .dropdown-trigger { color: var(--color-accent); }
+/* Light mode: unscrolled bar is frosted light (on-surface reads well); scrolled bar is dark — default link text light. */
+html:not(.dark) .main-nav.scrolled .nav-menu a,
+html:not(.dark) .main-nav.scrolled .nav-menu .dropdown .dropdown-trigger {
+    color: rgba(255, 255, 255, 0.92);
+}
+/* Same specificity as block above + :hover / .active so accent beats default white (Bugbot: scrolled bar hover/active). */
+html:not(.dark) .main-nav.scrolled .nav-menu a:hover,
+html:not(.dark) .main-nav.scrolled .nav-menu a.active {
+    color: var(--color-accent);
+}
+html:not(.dark) .main-nav.scrolled .nav-menu a.active::after {
+    width: 100%;
+    background: var(--color-accent);
+}
+html:not(.dark) .main-nav.scrolled .nav-menu .dropdown:hover .dropdown-trigger,
+html:not(.dark) .main-nav.scrolled .nav-menu .dropdown .dropdown-trigger.active {
+    color: var(--color-accent);
+}
 .dropdown-menu {
     visibility: hidden;
     opacity: 0;
@@ -1663,7 +1681,7 @@ body.mobile-nav-open .main-nav::after {
 
 /* Glassmorphic nav link styles (desktop) */
 .nav-link-glass {
-    color: var(--color-on-surface-variant);
+    color: var(--color-on-surface);
     font-size: 0.875rem;
     font-weight: 500;
     letter-spacing: -0.01em;

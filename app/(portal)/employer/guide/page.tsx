@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'How WorkforceAP works for employers',
@@ -57,7 +58,8 @@ export default async function EmployerGuidePage() {
   if (!ctx) redirect('/employers');
 
   return (
-    <div style={{ maxWidth: '64rem', margin: '0 auto' }}>
+    <>
+    <div className="wa-pb-24 wa-md:wa-pb-0" style={{ maxWidth: '64rem', margin: '0 auto' }}>
       {/* Breadcrumb */}
       <nav style={{ marginBottom: '1.5rem', marginTop: '0.5rem' }}>
         <Link href="/employer" style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', fontWeight: 500 }}>
@@ -292,5 +294,7 @@ export default async function EmployerGuidePage() {
         </Link>
       </div>
     </div>
+    <MobileBottomNav variant="employer" />
+    </>
   );
 }

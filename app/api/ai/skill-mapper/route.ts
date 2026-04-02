@@ -58,6 +58,7 @@ export async function GET(req: NextRequest) {
         skills: skills.slice(0, 20), // Top 20 skills
         radarAxes: radarData,
         totalSkills: skills.length,
+        unmatchedAxes: radarData.filter(a => !a.hasData).map(a => a.axis),
       });
     }
 

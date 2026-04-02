@@ -616,49 +616,178 @@ export default function WhatWeDoPage() {
       </div>{/* end desktop */}
 
       <div className="md:hidden marketing-mobile marketing-mobile-pb-for-bottom-nav">
-      {/* ── Mobile-only Stitch layout (≤640px) ── */}
-      <section className="px-4 pt-10 pb-4" style={{ background: 'var(--color-surface)' }}>
-        {/* Hero H1 with gradient span */}
-        <span className="block text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: '#8c0f37' }}>Our Impact</span>
-        <h2 className="text-4xl font-extrabold tracking-tight leading-[1.1] mb-6" style={{ color: 'var(--color-on-surface)' }}>
-          Bridging the{' '}
-          <span style={{ background: 'linear-gradient(135deg, #8c0f37 0%, #ad2c4d 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            Opportunity Gap
-          </span>{' '}
-          with a training-to-workforce engine.
-        </h2>
+      {/* ── Mobile rebuild aligned to desktop + Stitch ── */}
+      <section
+        className="px-4 pt-4 pb-6"
+        style={{
+          background: 'linear-gradient(180deg, #141618 0%, #1c1b1b 58%, var(--color-surface) 58%)',
+        }}
+      >
+        <div
+          style={{
+            position: 'relative',
+            overflow: 'hidden',
+            borderRadius: '1.5rem',
+            minHeight: '30rem',
+            backgroundImage: 'url(https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1200&q=80)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.28)',
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(180deg, rgba(10,12,14,0.16) 0%, rgba(10,12,14,0.56) 34%, rgba(10,12,14,0.92) 100%)',
+            }}
+          />
+          <div
+            style={{
+              position: 'relative',
+              zIndex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-end',
+              minHeight: '30rem',
+              padding: '1.5rem',
+            }}
+          >
+            <span className="block text-[10px] font-bold uppercase tracking-[0.24em] mb-3" style={{ color: 'rgba(255,255,255,0.72)' }}>
+              What We Do
+            </span>
+            <h1 className="text-[2.15rem] font-black tracking-tight leading-[1.02] mb-3" style={{ color: '#fff' }}>
+              Redefining the Architecture of Opportunity
+            </h1>
+            <p className="text-[0.98rem] leading-7 mb-5" style={{ color: 'rgba(255,255,255,0.9)' }}>
+              Employer-aligned training. No cost to participants. Job placement built in.
+              A model that works — and scales.
+            </p>
 
-        {/* Impact stats 2×2 grid */}
-        <div className="grid grid-cols-2 gap-3 mb-8">
-          {[
-            { val: '2,000+', label: 'People Served', accent: '#8c0f37' },
-            { val: '$0', label: 'Cost to Members', accent: '#7b5800' },
-          ].map((s) => (
-            <div key={s.label} className="rounded-xl p-5" style={{ background: '#f0edec', borderLeft: `4px solid ${s.accent}` }}>
-              <div className="text-2xl font-black" style={{ color: s.accent }}>{s.val}</div>
-              <div className="text-[10px] font-bold uppercase tracking-wider mt-1" style={{ color: 'var(--color-on-surface-variant)' }}>{s.label}</div>
+            <div className="grid grid-cols-2 gap-3 mb-5">
+              {[
+                { val: '2,000+', label: 'People Served', accent: '#ad2c4d' },
+                { val: '$0', label: 'Cost to Members', accent: '#f0b429' },
+              ].map((s) => (
+                <div
+                  key={s.label}
+                  className="rounded-2xl p-4"
+                  style={{
+                    background: 'rgba(255,255,255,0.14)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255,255,255,0.16)',
+                  }}
+                >
+                  <div className="text-[1.9rem] font-black leading-none" style={{ color: s.accent }}>{s.val}</div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.16em] mt-2" style={{ color: 'rgba(255,255,255,0.76)' }}>{s.label}</div>
+                </div>
+              ))}
             </div>
-          ))}
+
+            <div className="flex flex-col gap-3">
+              <Link
+                href="/programs"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  width: '100%',
+                  padding: '0.95rem 1rem',
+                  borderRadius: '0.9rem',
+                  background: 'var(--color-accent)',
+                  color: '#fff',
+                  fontWeight: 800,
+                  textDecoration: 'none',
+                }}
+              >
+                Explore Our Impact
+                <span className="material-symbols-outlined" style={{ fontSize: '1.05rem', color: 'inherit' }} aria-hidden>
+                  arrow_forward
+                </span>
+              </Link>
+              <Link
+                href="/contact?topic=partnership"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  width: '100%',
+                  padding: '0.95rem 1rem',
+                  borderRadius: '0.9rem',
+                  background: 'rgba(255,255,255,0.08)',
+                  border: '1px solid rgba(255,255,255,0.18)',
+                  color: '#fff',
+                  fontWeight: 700,
+                  textDecoration: 'none',
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '1.05rem', color: 'inherit' }} aria-hidden>
+                  handshake
+                </span>
+                Partner With Us
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ── Mobile-only: Mission/Values cards stacked (≤640px) ── */}
       <section className="px-4 pb-8" style={{ background: 'var(--color-surface)' }}>
-        <h2 className="text-2xl font-bold tracking-tight mb-5" style={{ color: 'var(--color-on-surface)' }}>Our Core Values</h2>
+        <div className="rounded-[1.4rem] p-5" style={{ background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)' }}>
+          <div className="flex items-center justify-between gap-4 mb-4">
+            <div>
+              <span className="block text-[10px] font-bold uppercase tracking-[0.22em] mb-2" style={{ color: 'var(--color-accent)' }}>25+ Years</span>
+              <h2 className="text-[1.75rem] font-black tracking-tight leading-[1.08]" style={{ color: 'var(--color-on-surface)' }}>
+                Investing in the Future Workforce
+              </h2>
+            </div>
+          </div>
+          <blockquote
+            className="text-[0.98rem] leading-7"
+            style={{
+              color: 'var(--color-on-surface-variant)',
+              borderLeft: '3px solid var(--color-accent)',
+              paddingLeft: '1rem',
+              margin: 0,
+            }}
+          >
+            Built on 25+ years of workforce development — Goodwill, Austin Area Urban League,
+            state and local initiatives. We know what works. Employers fund talent pipelines.
+            Grants fund access. We don’t charge participants.
+          </blockquote>
+        </div>
+      </section>
+
+      <section className="px-4 pb-8" style={{ background: 'var(--color-surface)' }}>
+        <div className="mb-5">
+          <span className="block text-[10px] font-bold uppercase tracking-[0.22em] mb-2" style={{ color: 'var(--color-accent)' }}>The Architecture of Impact</span>
+          <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--color-on-surface)' }}>How the model works</h2>
+        </div>
         <div className="space-y-4">
-          {[
-            { icon: 'payments', title: 'Access First', desc: "Education shouldn't have a paywall. We believe talent is universal, but opportunity is not.", accent: '#8c0f37' },
-            { icon: 'handshake', title: 'Employer Aligned', desc: 'We train for the roles companies actually need, ensuring your new skills are in high demand.', accent: '#7b5800' },
-            { icon: 'verified', title: 'Outcome Accountable', desc: 'Success is measured by your paycheck. Our model only works when you are working.', accent: '#8c0f37' },
-          ].map((v) => (
-            <div key={v.title} className="rounded-xl p-5" style={{ background: 'var(--surface-container-low)', boxShadow: '0 2px 8px rgba(28,27,27,0.06)' }}>
+          {BENTO_ITEMS.map((item, index) => (
+            <div
+              key={item.title}
+              className="rounded-[1.4rem] p-5"
+              style={{
+                background: index === 1 ? 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%)' : 'var(--surface-container-low)',
+                border: index === 1 ? 'none' : '1px solid var(--outline-variant)',
+                boxShadow: index === 1 ? '0 18px 40px rgba(140,15,55,0.22)' : '0 6px 20px rgba(28,27,27,0.06)',
+              }}
+            >
               <div className="flex items-start gap-4">
-                <div className="p-3 rounded-lg" style={{ background: `${v.accent}10` }}>
-                  <span className="material-symbols-outlined text-xl" style={{ color: v.accent }}>{v.icon}</span>
+                <div
+                  className="rounded-2xl p-3"
+                  style={{
+                    background: index === 1 ? 'rgba(255,255,255,0.14)' : 'rgba(140,15,55,0.08)',
+                    color: index === 1 ? '#fff' : 'var(--color-accent)',
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'inherit' }}>{item.icon}</span>
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg mb-1" style={{ color: 'var(--color-on-surface)' }}>{v.title}</h3>
-                  <p className="text-sm leading-relaxed" style={{ color: 'var(--color-on-surface-variant)' }}>{v.desc}</p>
+                  <h3 className="text-lg font-extrabold mb-2" style={{ color: index === 1 ? '#fff' : 'var(--color-on-surface)' }}>{item.title}</h3>
+                  <p className="text-sm leading-7" style={{ color: index === 1 ? 'rgba(255,255,255,0.88)' : 'var(--color-on-surface-variant)' }}>{item.desc}</p>
                 </div>
               </div>
             </div>
@@ -666,86 +795,143 @@ export default function WhatWeDoPage() {
         </div>
       </section>
 
-      {/* ── Mobile-only: 4-step program flow (≤640px) ── */}
-      <section className="px-4 py-10" style={{ background: '#f0edec' }}>
-        <h2 className="text-2xl font-bold tracking-tight mb-7" style={{ color: 'var(--color-on-surface)' }}>The Journey</h2>
-        <div className="space-y-5 relative">
-          <div className="absolute left-[22px] top-2 bottom-2 w-px" style={{ background: 'rgba(140,15,55,0.2)' }} />
+      <section className="px-4 py-8" style={{ background: 'var(--surface-container-low)' }}>
+        <div className="mb-5">
+          <span className="block text-[10px] font-bold uppercase tracking-[0.22em] mb-2" style={{ color: 'var(--color-accent)' }}>What We Stand For</span>
+          <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--color-on-surface)' }}>Our core values</h2>
+        </div>
+        <div className="space-y-4">
+          {VALUES.map((value) => (
+            <div key={value.title} className="rounded-[1.25rem] p-5" style={{ background: 'var(--color-surface)', border: '1px solid var(--outline-variant)' }}>
+              <div className="flex items-start gap-4">
+                <div
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-black"
+                  style={{ background: 'rgba(140,15,55,0.1)', color: 'var(--color-accent)' }}
+                >
+                  {value.num}
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--color-on-surface)' }}>{value.title}</h3>
+                  <p className="text-sm leading-7" style={{ color: 'var(--color-on-surface-variant)' }}>{value.desc}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="px-4 py-8" style={{ background: 'var(--color-surface)' }}>
+        <div className="mb-5">
+          <span className="block text-[10px] font-bold uppercase tracking-[0.22em] mb-2" style={{ color: 'var(--color-accent)' }}>The Journey</span>
+          <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--color-on-surface)' }}>From application to placement</h2>
+        </div>
+        <div className="space-y-4">
           {[
             { step: '01', title: 'Application', desc: '10-minute online form to start your journey and share your potential.' },
             { step: '02', title: 'Training', desc: 'Industry-aligned curriculum from global leaders in tech and business.' },
             { step: '03', title: 'Certification', desc: 'Earn credentials recognized by top employers as a mark of excellence.' },
             { step: '04', title: 'Placement', desc: 'Direct pipeline to hiring partners with 150-day post-placement support.' },
           ].map((s) => (
-            <div key={s.step} className="relative pl-12">
-              <div className="absolute left-[14px] top-1 w-4 h-4 rounded-full border-4" style={{ background: '#8c0f37', borderColor: '#f0edec', outline: '3px solid rgba(140,15,55,0.1)' }} />
-              <span className="block text-[10px] font-black tracking-widest uppercase mb-1" style={{ color: '#ad2c4d' }}>Step {s.step}</span>
-              <h3 className="font-bold text-lg mb-1" style={{ color: 'var(--color-on-surface)' }}>{s.title}</h3>
-              <p className="text-sm" style={{ color: 'var(--color-on-surface-variant)' }}>{s.desc}</p>
+            <div key={s.step} className="rounded-[1.25rem] p-5" style={{ background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)' }}>
+              <span className="block text-[10px] font-black uppercase tracking-[0.2em] mb-2" style={{ color: 'var(--color-accent)' }}>Step {s.step}</span>
+              <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--color-on-surface)' }}>{s.title}</h3>
+              <p className="text-sm leading-7" style={{ color: 'var(--color-on-surface-variant)' }}>{s.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── Mobile-only: Partner pills (≤640px) ── */}
-      <section className="px-4 py-10" style={{ background: 'var(--color-surface)' }}>
-        <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-center mb-5" style={{ color: 'var(--color-on-surface-variant)' }}>Supported By Industry Giants</p>
-        <div className="flex flex-wrap justify-center gap-2">
+      <section className="px-4 py-8" style={{ background: 'var(--color-surface)' }}>
+        <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-center mb-5" style={{ color: 'var(--color-on-surface-variant)' }}>Supported By Industry Giants</p>
+        <div className="flex flex-wrap justify-center gap-2.5">
           {['Google', 'IBM', 'AWS', 'Microsoft', 'CompTIA', 'Coursera'].map((p) => (
-            <span key={p} className="px-4 py-2 rounded-full text-xs font-bold" style={{ background: '#e5e2e1', color: 'var(--color-on-surface)' }}>{p}</span>
+            <span
+              key={p}
+              className="px-4 py-2.5 rounded-full text-xs font-bold"
+              style={{ background: 'var(--surface-container-low)', color: 'var(--color-on-surface)', border: '1px solid var(--outline-variant)' }}
+            >
+              {p}
+            </span>
           ))}
         </div>
       </section>
 
-      {/* ── Mobile-only: Bottom CTA band (≤640px) ── */}
       <section
-        style={{
-          padding: '2.5rem 1rem',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          textAlign: 'center',
-          background: '#1c1b1b',
-        }}
+        className="px-4 pt-2 pb-8"
+        style={{ background: 'var(--color-surface)' }}
       >
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem', color: '#fff' }}>Ready to transform your career?</h2>
-        <Link
-          href="/apply"
+        <div
           style={{
-            display: 'block',
-            width: '100%',
-            maxWidth: '24rem',
-            fontWeight: 700,
-            padding: '1rem',
-            borderRadius: '0.5rem',
-            fontSize: '0.875rem',
-            marginBottom: '0.75rem',
-            background: '#8c0f37',
-            color: '#fff',
-            textDecoration: 'none',
+            padding: '2rem 1rem',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
             textAlign: 'center',
+            background: 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%)',
+            borderRadius: '1.5rem',
+            boxShadow: '0 20px 40px rgba(140,15,55,0.2)',
           }}
         >
-          Start an Application
-        </Link>
-        <Link
-          href="/how-it-works"
-          style={{
-            display: 'block',
-            width: '100%',
-            maxWidth: '24rem',
-            fontWeight: 700,
-            padding: '1rem',
-            borderRadius: '0.5rem',
-            fontSize: '0.875rem',
-            border: '1px solid rgba(252,249,248,0.2)',
-            color: 'var(--color-surface)',
-            textDecoration: 'none',
-            textAlign: 'center',
-          }}
-        >
-          See the Process
-        </Link>
+          <h2 style={{ fontSize: '1.6rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '0.75rem', color: '#fff' }}>
+            Ready to build the future?
+          </h2>
+          <p style={{ fontSize: '0.95rem', lineHeight: 1.7, marginBottom: '1.5rem', color: 'rgba(255,255,255,0.86)' }}>
+            Join individuals who are transforming their careers through employer-aligned training and certifications.
+          </p>
+          <div className="flex w-full flex-col gap-3">
+            <Link
+              href="/apply"
+              style={{
+                display: 'block',
+                width: '100%',
+                fontWeight: 800,
+                padding: '1rem',
+                borderRadius: '0.9rem',
+                fontSize: '0.95rem',
+                background: 'var(--color-gold)',
+                color: '#1c1b1b',
+                textDecoration: 'none',
+                textAlign: 'center',
+              }}
+            >
+              Apply Now
+            </Link>
+            <Link
+              href="/programs"
+              style={{
+                display: 'block',
+                width: '100%',
+                fontWeight: 700,
+                padding: '1rem',
+                borderRadius: '0.9rem',
+                fontSize: '0.95rem',
+                border: '1px solid rgba(255,255,255,0.24)',
+                color: '#fff',
+                textDecoration: 'none',
+                textAlign: 'center',
+              }}
+            >
+              Explore Programs
+            </Link>
+            <Link
+              href="/leadership"
+              style={{
+                display: 'block',
+                width: '100%',
+                fontWeight: 700,
+                padding: '1rem',
+                borderRadius: '0.9rem',
+                fontSize: '0.95rem',
+                border: '1px solid rgba(255,255,255,0.24)',
+                color: '#fff',
+                textDecoration: 'none',
+                textAlign: 'center',
+              }}
+            >
+              Meet Our Team
+            </Link>
+          </div>
+        </div>
       </section>
       </div>{/* end mobile */}
 

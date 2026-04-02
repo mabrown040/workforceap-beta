@@ -130,8 +130,13 @@ type ElementRating = {
 
 function mapSkillsPayload(data: unknown): { name: string; importance: number | null; level: number | null }[] {
   if (!data || typeof data !== 'object') return [];
-  const d = data as { element?: ElementRating[]; occupation?: { skills?: ElementRating[] } };
-  const arr = d.element ?? d.occupation?.skills ?? [];
+  const d = data as {
+    element?: ElementRating[];
+    skills?: ElementRating[];
+    skill?: ElementRating[];
+    occupation?: { skills?: ElementRating[]; skill?: ElementRating[]; element?: ElementRating[] };
+  };
+  const arr = d.element ?? d.skills ?? d.skill ?? d.occupation?.skills ?? d.occupation?.skill ?? d.occupation?.element ?? [];
   if (!Array.isArray(arr)) return [];
   return arr.slice(0, 40).map((el) => ({
     name: el.element?.name ?? el.name ?? 'Skill',

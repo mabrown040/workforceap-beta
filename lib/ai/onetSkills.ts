@@ -35,7 +35,9 @@ export async function searchOccupations(keyword: string): Promise<OnetOccupation
 }
 
 function scoreFromRatings(importance: number | null, level: number | null): number {
-  if (importance != null && importance > 0) return Math.min(100, Math.round(importance));
+  // O*NET importance is typically on a 1–5 scale, while level is commonly 0–7.
+  // Normalize both to a 0–100 UI score so the radar chart is readable.
+  if (importance != null && importance > 0) return Math.min(100, Math.round((importance / 5) * 100));
   if (level != null && level > 0) return Math.min(100, Math.round((level / 7) * 100));
   return 0;
 }
@@ -60,22 +62,38 @@ export function mapSkillsToRadarAxes(
   skills: OnetSkill[]
 ): { axis: string; value: number; maxValue: number }[] {
   const axes = [
-    { axis: 'Analytics', keywords: ['mathematics', 'data', 'statistics', 'analysis', 'critical thinking'] },
-    { axis: 'Engineering', keywords: ['programming', 'systems', 'technology', 'engineering', 'design'] },
-    { axis: 'Design', keywords: ['design', 'creative', 'visualization', 'user', 'interface'] },
-    { axis: 'Strategy', keywords: ['management', 'planning', 'coordination', 'leadership', 'decision'] },
-    { axis: 'Ethics', keywords: ['social', 'service', 'compliance', 'regulation', 'governance'] },
-    { axis: 'Research', keywords: ['research', 'writing', 'reading', 'learning', 'science'] },
+    {
+      axis: 'Analytics',
+      keywords: ['mathematics', 'math', 'data', 'statistics', 'analysis', 'analytical', 'critical thinking', 'problem solving'],
+    },
+    {
+      axis: 'Engineering',
+      keywords: ['programming', 'systems', 'technology', 'engineering', 'operations monitoring', 'equipment', 'computers', 'installation'],
+    },
+    {
+      axis: 'Design',
+      keywords: ['design', 'creative', 'visualization', 'user', 'interface', 'fine arts', 'drafting', 'layout'],
+    },
+    {
+      axis: 'Strategy',
+      keywords: ['management', 'planning', 'coordination', 'leadership', 'decision', 'monitoring', 'judgment', 'operations analysis'],
+    },
+    {
+      axis: 'Ethics',
+      keywords: ['social', 'service', 'compliance', 'regulation', 'governance', 'integrity', 'dependability', 'concern for others'],
+    },
+    {
+      axis: 'Research',
+      keywords: ['research', 'writing', 'reading', 'learning', 'science', 'active learning', 'investigation', 'studying'],
+    },
   ];
 
   return axes.map(({ axis, keywords }) => {
-    const matching = skills.filter((s) =>
-      keywords.some((kw) => s.name.toLowerCase().includes(kw))
-    );
-    const avgScore =
-      matching.length > 0
-        ? Math.round(matching.reduce((sum, s) => sum + s.score, 0) / matching.length)
-        : 0;
+    const matching = skills.filter((s) => keywords.some((kw) => s.name.toLowerCase().includes(kw)));
+    const fallback = matching.length === 0 ? skills.slice(0, 3) : matching;
+    const avgScore = fallback.length > 0
+      ? Math.round(fallback.reduce((sum, s) => sum + s.score, 0) / fallback.length)
+      : 0;
     return { axis, value: avgScore, maxValue: 100 };
   });
 }

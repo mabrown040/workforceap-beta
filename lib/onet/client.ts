@@ -118,17 +118,61 @@ export async function getOccupation(onetCode: string): Promise<OnetOccupationOve
   }
 }
 
-type ElementRating = { id?: string; name?: string; element?: { name?: string }; rating?: { importance?: number; level?: number } };
+type ElementRating = {
+  id?: string;
+  name?: string;
+  title?: string;
+  element?: { name?: string };
+  rating?:
+    | { importance?: number; level?: number }
+    | Array<{ scale_id?: string; scale?: string; id?: string; value?: number | string | null }>;
+  score?:
+    | { importance?: number; level?: number }
+    | Array<{ scale_id?: string; scale?: string; id?: string; value?: number | string | null }>;
+  importance?: number;
+  level?: number;
+};
+
+function pickScaleValue(
+  source: ElementRating['rating'] | ElementRating['score'] | undefined,
+  scaleHints: string[]
+): number | null {
+  if (!source) return null;
+  if (!Array.isArray(source)) return null;
+  const match = source.find((row) => {
+    const scale = (row.scale_id ?? row.scale ?? row.id ?? '').toLowerCase();
+    return scaleHints.some((hint) => scale.includes(hint));
+  });
+  if (!match) return null;
+  const raw = match.value;
+  const parsed = typeof raw === 'string' ? Number(raw) : raw;
+  return typeof parsed === 'number' && Number.isFinite(parsed) ? parsed : null;
+}
 
 function mapSkillsPayload(data: unknown): { name: string; importance: number | null; level: number | null }[] {
   if (!data || typeof data !== 'object') return [];
-  const d = data as { element?: ElementRating[]; occupation?: { skills?: ElementRating[] } };
-  const arr = d.element ?? d.occupation?.skills ?? [];
+  const d = data as {
+    element?: ElementRating[];
+    skills?: ElementRating[];
+    skill?: ElementRating[];
+    occupation?: { skills?: ElementRating[]; skill?: ElementRating[]; element?: ElementRating[] };
+  };
+  const arr = d.element ?? d.skills ?? d.skill ?? d.occupation?.skills ?? d.occupation?.skill ?? d.occupation?.element ?? [];
   if (!Array.isArray(arr)) return [];
   return arr.slice(0, 40).map((el) => ({
-    name: el.element?.name ?? el.name ?? 'Skill',
-    importance: el.rating?.importance ?? null,
-    level: el.rating?.level ?? null,
+    name: el.element?.name ?? el.name ?? el.title ?? 'Skill',
+    importance:
+      el.importance ??
+      (Array.isArray(el.rating) ? null : el.rating?.importance) ??
+      (Array.isArray(el.score) ? null : el.score?.importance) ??
+      pickScaleValue(el.rating, ['im', 'importance']) ??
+      pickScaleValue(el.score, ['im', 'importance']),
+    level:
+      el.level ??
+      (Array.isArray(el.rating) ? null : el.rating?.level) ??
+      (Array.isArray(el.score) ? null : el.score?.level) ??
+      pickScaleValue(el.rating, ['lv', 'level']) ??
+      pickScaleValue(el.score, ['lv', 'level']),
   }));
 }
 

@@ -243,17 +243,18 @@ export default function JobsListingClient({
     <div className="job-filters-panel">
       <div className="job-filter-group">
         <label htmlFor="job-search-q" className="job-filter-label">
-          Keyword search
+          Search jobs
         </label>
         <div className="job-search-input-wrap">
           <Search size={18} className="job-search-icon" aria-hidden />
           <input
             id="job-search-q"
             type="search"
-            placeholder="Search titles, companies..."
+            placeholder="Titles, companies, keywords…"
             value={qLocal}
             onChange={(e) => handleKeywordChange(e.target.value)}
             className="job-search-input"
+            autoComplete="off"
           />
         </div>
       </div>

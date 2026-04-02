@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
 import { loadMemberCareerBriefBundle } from '@/lib/content/careerBriefPersonalization';
 import { prisma } from '@/lib/db/prisma';
 import { buildMemberApplicationStatusView } from '@/lib/member/memberApplicationStatus';
@@ -16,6 +16,7 @@ import { isSuperAdmin } from '@/lib/auth/roles';
 import { MEMBER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { formatPortalDate } from '@/lib/formatDate';
+import MemberDashboardVoiceSection from '@/components/portal/MemberDashboardVoiceSection';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Member overview',
@@ -182,15 +183,16 @@ export default async function DashboardPage() {
 
   return (
     <>
+      <h1 className="sr-only">Welcome back, {firstName}</h1>
       {/* ── Mobile-only hero + dashboard (≤640px) ── */}
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Welcome greeting + progress orb */}
         <section style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", padding:"1.5rem 1.5rem 1rem" }}>
           <div style={{ display:"flex", flexDirection:"column", gap:"0.25rem", maxWidth:"60%" }}>
             <p className="text-[var(--color-on-surface-variant)] text-xs font-medium tracking-widest uppercase">Member Dashboard</p>
-            <h1 className="text-2xl font-extrabold tracking-tight text-[var(--color-on-surface)]">
+            <h2 className="text-2xl font-extrabold tracking-tight text-[var(--color-on-surface)]">
               Welcome back, {firstName}
-            </h1>
+            </h2>
           </div>
           {/* Progress orb */}
           <div style={{ position:"relative", display:"flex", alignItems:"center", justifyContent:"center", width:"5rem", height:"5rem", flexShrink:0 }}>
@@ -209,6 +211,10 @@ export default async function DashboardPage() {
               <span className="text-[8px] font-bold uppercase tracking-widest text-[var(--color-gold)]">Done</span>
             </div>
           </div>
+        </section>
+
+        <section style={{ padding: '0 1.5rem 1.25rem' }}>
+          <MemberDashboardVoiceSection />
         </section>
 
         {/* Next step card */}
@@ -279,16 +285,12 @@ export default async function DashboardPage() {
             <a href="/programs" className="text-xs font-bold text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>View All</a>
           </div>
           <div style={{ display:"flex", gap:"1rem", overflowX:"auto", padding:"0 1.5rem 0.5rem", scrollbarWidth:"none", msOverflowStyle:"none" }}>
-            {[
-              { provider: 'IBM Professional', title: 'Data Science Professional' },
-              { provider: 'Amazon Web Services', title: 'Cloud Practitioner Essentials' },
-              { provider: 'Google', title: 'Cybersecurity Professional' },
-            ].map((prog, i) => (
+            {PROGRAMS.slice(0, 3).map((prog, i) => (
               <div key={i} style={{ minWidth:"220px", borderRadius:"0.75rem", overflow:"hidden", display:"flex", flexDirection:"column", boxShadow:"0 1px 3px rgba(0,0,0,0.08)", flexShrink:0, background:"var(--surface-container)" }}>
-                <div style={{ height:"7rem", position:"relative", background:"linear-gradient(135deg, var(--surface-container-high) 0%, var(--surface-container-highest) 100%)" }}>
+                <div style={{ height:"7rem", position:"relative", background: `linear-gradient(135deg, ${prog.categoryColor} 0%, var(--surface-container-highest) 100%)` }}>
                 </div>
                 <div style={{ padding:"1rem", display:"flex", flexDirection:"column", gap:"0.25rem" }}>
-                  <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--color-gold)' }}>{prog.provider}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--color-gold)' }}>{prog.partner || 'WorkforceAP'}</p>
                   <h4 className="font-bold text-sm text-[var(--color-on-surface)] leading-tight">{prog.title}</h4>
                 </div>
               </div>
@@ -302,7 +304,7 @@ export default async function DashboardPage() {
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.75rem" }}>
             {[
               { icon: 'upload_file', label: 'Upload Resume', href: '/dashboard/ai-tools/resume-rewriter' },
-              { icon: 'event_available', label: 'Book Coaching', href: '/dashboard' },
+              { icon: 'event_available', label: 'Book Coaching', href: '/dashboard/messages' },
               { icon: 'forum', label: 'Practice Interview', href: '/dashboard/ai-tools/interview-practice' },
               { icon: 'psychology', label: 'AI Resume Help', href: '/dashboard/ai-tools' },
             ].map((action) => (
@@ -356,6 +358,9 @@ export default async function DashboardPage() {
             initialReferralSource: intakeExtra?.profile?.referralSource ?? '',
           }}
         >
+          <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 2rem 1.5rem' }}>
+            <MemberDashboardVoiceSection />
+          </div>
           <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 2rem' }}>
             <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
           </div>

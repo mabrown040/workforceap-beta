@@ -130,11 +130,12 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
 
   return (
     <>
+      <h1 className="sr-only">My Jobs</h1>
       {/* ── Mobile section ── */}
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1rem 0.75rem' }}>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.02em', margin: 0 }}>My Jobs</h1>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.02em', margin: 0 }}>My Jobs</h2>
           <Link
             href="/employer/jobs/new"
             style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.5rem 0.875rem', background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent-dark))', color: '#fff', borderRadius: '0.5rem', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}
@@ -234,7 +235,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
       <div className="wa-hidden wa-md:wa-block">
         <div className="employer-jobs-page">
           <header className="employer-jobs-header">
-            <h1>My Jobs</h1>
+            <h2 className="employer-jobs-header-title">My Jobs</h2>
             <div className="employer-jobs-actions">
               <Link href="/employer/jobs/import" className="btn btn-secondary btn-sm">
                 Import

@@ -6,6 +6,7 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
 import EmployerWorkQueueClient from '@/components/employer/EmployerWorkQueueClient';
 import EmployerWorkflowTimeline from '@/components/employer/EmployerWorkflowTimeline';
+import MobileBottomNav from '@/components/MobileBottomNav';
 import { getEmployerWorkQueueSlices } from '@/lib/employer/workQueue';
 import { listEmployerWorkflowEvents } from '@/lib/portal/workflowEvents';
 
@@ -54,7 +55,8 @@ export default async function EmployerWorkQueuePage({
   });
 
   return (
-    <div className="employer-work-queue-page">
+    <>
+    <div className="employer-work-queue-page wa-pb-24 wa-md:wa-pb-0">
       <PageHeader
         title="Work queue"
         subtitle="Needs review today, stale applications, and interview follow-ups — with one-click moves where safe."
@@ -75,5 +77,7 @@ export default async function EmployerWorkQueuePage({
 
       <EmployerWorkflowTimeline events={events} />
     </div>
+    <MobileBottomNav variant="employer" />
+    </>
   );
 }

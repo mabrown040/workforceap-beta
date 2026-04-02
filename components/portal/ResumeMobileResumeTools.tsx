@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import '@/css/counselor.css';
+import { uploadMemberResumeFile } from '@/lib/portal/memberResumeUpload';
 
 type Props = {
   completeness: number;
@@ -50,38 +51,27 @@ export default function ResumeMobileResumeTools({
   }, []);
 
   const handleUpload = async (file: File) => {
-    if (!file || file.size > 5 * 1024 * 1024) {
-      setUploadError('File too large (max 5MB)');
-      return;
-    }
-    const ext = file.name.split('.').pop()?.toLowerCase();
-    if (!['pdf', 'doc', 'docx'].includes(ext || '')) {
-      setUploadError('Only PDF, DOC, DOCX allowed');
-      return;
-    }
     setUploading(true);
     setUploadError('');
+    const result = await uploadMemberResumeFile(file);
+    if (!result.ok) {
+      setUploadError(result.error);
+      setUploading(false);
+      return;
+    }
     try {
-      const fd = new FormData();
-      fd.append('file', file);
-      const res = await fetch('/api/member/resume/upload', { method: 'POST', body: fd });
-      const data = await res.json();
-      if (res.ok) {
-        const refetch = await fetch('/api/member/resume');
-        const d = await refetch.json();
-        setResumeData({
-          originalUrl: d.originalUrl ?? null,
-          enhancedUrl: d.enhancedUrl ?? null,
-          enhancedText: d.enhancedText ?? null,
-          hasOriginal: d.hasOriginal ?? true,
-          hasEnhanced: d.hasEnhanced ?? false,
-        });
-        router.refresh();
-      } else {
-        setUploadError(data.error ?? 'Upload failed');
-      }
+      const refetch = await fetch('/api/member/resume');
+      const d = await refetch.json();
+      setResumeData({
+        originalUrl: d.originalUrl ?? null,
+        enhancedUrl: d.enhancedUrl ?? null,
+        enhancedText: d.enhancedText ?? null,
+        hasOriginal: d.hasOriginal ?? true,
+        hasEnhanced: d.hasEnhanced ?? false,
+      });
+      router.refresh();
     } catch {
-      setUploadError('Upload failed');
+      setUploadError('Could not refresh resume status');
     } finally {
       setUploading(false);
     }

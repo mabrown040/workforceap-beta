@@ -5,6 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Counselor portal guide',
@@ -86,7 +87,8 @@ export default async function CounselorGuidePage() {
   ]);
 
   return (
-    <div style={{ maxWidth: '64rem', margin: '0 auto' }}>
+    <>
+    <div className="wa-pb-24 wa-md:wa-pb-0" style={{ maxWidth: '64rem', margin: '0 auto' }}>
       {/* Breadcrumb */}
       <nav style={{ marginBottom: '1.5rem', marginTop: '0.5rem' }}>
         <Link href="/counselor" style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', fontWeight: 500 }}>
@@ -269,5 +271,7 @@ export default async function CounselorGuidePage() {
         </div>
       </section>
     </div>
+    <MobileBottomNav variant="counselor" />
+    </>
   );
 }

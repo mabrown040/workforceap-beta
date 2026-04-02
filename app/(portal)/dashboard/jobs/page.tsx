@@ -7,6 +7,7 @@ import { getAgeGroup } from '@/lib/util/ageCalculation';
 import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
 import JobsListingClient from './JobsListingClient';
+import JobsBoardSkeleton from './JobsBoardSkeleton';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Job Board',
@@ -85,12 +86,12 @@ export default async function JobsPage() {
                   These positions comply with youth labor laws and work permit requirements.
                 </p>
               </div>
-              <Suspense fallback={<p className="job-loading">Loading youth-appropriate jobs…</p>}>
+              <Suspense fallback={<JobsBoardSkeleton />}>
                 <JobsListingClient isAuthenticated={!!user} ageGroup={ageGroup} />
               </Suspense>
             </>
           ) : (
-            <Suspense fallback={<p className="job-loading">Loading jobs…</p>}>
+            <Suspense fallback={<JobsBoardSkeleton />}>
               <JobsListingClient isAuthenticated={!!user} ageGroup={ageGroup} />
             </Suspense>
           )}

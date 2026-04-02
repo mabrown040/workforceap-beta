@@ -1,6 +1,11 @@
 import { headers } from 'next/headers';
 import { SITE_URL } from '@/app/seo';
 
+
+function safeJsonLdStringify(data: any) {
+  return JSON.stringify(data).replace(/</g, '\\u003c');
+}
+
 export default async function JsonLd() {
   const h = await headers();
   if (h.get('x-suppress-jsonld') === '1') {
@@ -51,11 +56,11 @@ export default async function JsonLd() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(organizationSchema) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(websiteSchema) }}
       />
     </>
   );

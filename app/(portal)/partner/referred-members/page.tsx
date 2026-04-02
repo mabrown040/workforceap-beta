@@ -34,10 +34,11 @@ export default async function PartnerReferredMembersPage() {
   return (
     <>
       <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+        <h1 className="sr-only">Referred members</h1>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '1.25rem 1.5rem 0.75rem', gap: '1rem' }}>
           <div>
             <p className="text-[10px] uppercase tracking-[0.15em] font-bold" style={{ color: 'var(--color-accent)', marginBottom: '0.125rem' }}>Partner Portal</p>
-            <h1 className="text-2xl font-extrabold tracking-tight" style={{ color: 'var(--color-on-surface)' }}>Members</h1>
+            <h2 className="text-2xl font-extrabold tracking-tight" style={{ color: 'var(--color-on-surface)' }}>Referred members</h2>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'stretch' }}>
             <PartnerInviteMemberButton compact />

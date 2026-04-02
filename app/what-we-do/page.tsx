@@ -15,7 +15,7 @@ const BENTO_ITEMS = [
   {
     icon: 'school',
     title: 'Employer-Influenced Curricula',
-    desc: 'Training programs shaped with employer input — Google, IBM, AWS, CompTIA — so credentials map to real hiring needs.',
+    desc: 'Training programs shaped with employer input — Google, IBM, AWS, Microsoft, CompTIA — so credentials map to real hiring needs.',
     span: 'tall',
   },
   {
@@ -675,7 +675,7 @@ export default function WhatWeDoPage() {
             { step: '01', title: 'Application', desc: '10-minute online form to start your journey and share your potential.' },
             { step: '02', title: 'Training', desc: 'Industry-aligned curriculum from global leaders in tech and business.' },
             { step: '03', title: 'Certification', desc: 'Earn credentials recognized by top employers as a mark of excellence.' },
-            { step: '04', title: 'Placement', desc: 'Direct pipeline to hiring partners and long-term career support.' },
+            { step: '04', title: 'Placement', desc: 'Direct pipeline to hiring partners with 150-day post-placement support.' },
           ].map((s) => (
             <div key={s.step} className="relative pl-12">
               <div className="absolute left-[14px] top-1 w-4 h-4 rounded-full border-4" style={{ background: '#8c0f37', borderColor: '#f0edec', outline: '3px solid rgba(140,15,55,0.1)' }} />
@@ -691,7 +691,7 @@ export default function WhatWeDoPage() {
       <section className="px-4 py-10" style={{ background: 'var(--color-surface)' }}>
         <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-center mb-5" style={{ color: 'var(--color-on-surface-variant)' }}>Supported By Industry Giants</p>
         <div className="flex flex-wrap justify-center gap-2">
-          {['Google', 'IBM', 'AWS', 'CompTIA', 'Coursera'].map((p) => (
+          {['Google', 'IBM', 'AWS', 'Microsoft', 'CompTIA', 'Coursera'].map((p) => (
             <span key={p} className="px-4 py-2 rounded-full text-xs font-bold" style={{ background: '#e5e2e1', color: 'var(--color-on-surface)' }}>{p}</span>
           ))}
         </div>

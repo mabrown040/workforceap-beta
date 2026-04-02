@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
 import type { TourStep } from './PortalTour';
 
 type PortalType = 'member' | 'employer' | 'partner';
@@ -33,6 +34,7 @@ interface TourProviderProps {
 }
 
 export function TourProvider({ children }: TourProviderProps) {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [steps, setSteps] = useState<TourStep[]>([]);
@@ -61,7 +63,8 @@ export function TourProvider({ children }: TourProviderProps) {
       // ignore
     }
     endTour();
-  }, [portal, endTour]);
+    router.refresh();
+  }, [portal, endTour, router]);
 
   const nextStep = useCallback(() => {
     setCurrentStep((prev) => {

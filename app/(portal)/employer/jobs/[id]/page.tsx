@@ -9,6 +9,7 @@ import { getActivePrograms } from '@/lib/platform/programCatalog';
 import JobForm from '@/components/employer/JobForm';
 import JobReadinessIssueList from '@/components/employer/JobReadinessIssueList';
 import { assessJobPostingReadiness, readinessLabel } from '@/lib/employer/jobReadiness';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -57,7 +58,8 @@ export default async function EmployerJobDetailPage({ params }: Props) {
   });
 
   return (
-    <article className="employer-job-edit">
+    <>
+    <article className="employer-job-edit wa-pb-24 wa-md:wa-pb-0">
       <div className="employer-job-edit__back">
         <Link href="/employer/jobs">← My Jobs</Link>
       </div>
@@ -90,5 +92,7 @@ export default async function EmployerJobDetailPage({ params }: Props) {
         programSlugs={programSlugs}
       />
     </article>
+    <MobileBottomNav variant="employer" />
+    </>
   );
 }

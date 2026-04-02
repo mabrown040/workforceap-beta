@@ -139,9 +139,10 @@ function pickScaleValue(
 ): number | null {
   if (!source) return null;
   if (!Array.isArray(source)) return null;
+  const normalizedHints = new Set(scaleHints.map((hint) => hint.toLowerCase().replace(/[^a-z0-9]/g, '')));
   const match = source.find((row) => {
-    const scale = (row.scale_id ?? row.scale ?? row.id ?? '').toLowerCase();
-    return scaleHints.some((hint) => scale.includes(hint));
+    const scale = (row.scale_id ?? row.scale ?? row.id ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    return normalizedHints.has(scale);
   });
   if (!match) return null;
   const raw = match.value;
@@ -159,7 +160,7 @@ function mapSkillsPayload(data: unknown): { name: string; importance: number | n
   };
   const arr = d.element ?? d.skills ?? d.skill ?? d.occupation?.skills ?? d.occupation?.skill ?? d.occupation?.element ?? [];
   if (!Array.isArray(arr)) return [];
-  return arr.slice(0, 40).map((el) => ({
+  return arr.slice(0, 25).map((el) => ({
     name: el.element?.name ?? el.name ?? el.title ?? 'Skill',
     importance:
       el.importance ??

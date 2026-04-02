@@ -93,6 +93,7 @@ export async function checkApplySignupRateLimit(identifier: string): Promise<{ s
 }
 
 export async function checkAuthRateLimit(identifier: string): Promise<{ success: boolean; remaining?: number }> {
+  if (FAIL_CLOSED) return { success: false };
   if (!authRateLimiter) return { success: true };
   const result = await authRateLimiter.limit(identifier);
   return { success: result.success, remaining: result.remaining };

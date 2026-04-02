@@ -85,7 +85,7 @@ export async function POST(
     entityType: 'job_application',
     entityId: app.id,
     metadata: { jobId: id, jobTitle: job.title },
-    sourcePage: `/jobs/${id}`,
+    sourcePage: `/dashboard/jobs/${id}`,
   });
 
   return NextResponse.json({ ok: true, applicationId: app.id });

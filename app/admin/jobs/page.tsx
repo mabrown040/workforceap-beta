@@ -51,48 +51,65 @@ export default async function AdminJobsPage({
   else if (currentFilter === 'draft') where.status = { in: ['draft'] };
   else if (currentFilter === 'approved') where.status = { in: ['approved'] };
 
-  const jobs = await prisma.job.findMany({
-    where,
-    orderBy: { updatedAt: 'desc' },
-    include: {
-      employer: { select: { companyName: true, contactEmail: true } },
-      _count: { select: { applications: true } },
-    },
-  });
-
-  const allCounts = await prisma.job.groupBy({
-    by: ['status'],
-    _count: { id: true },
-  });
-
+  let jobs: any[] = [];
+  let totalJobsInDb = 0;
   const countByStatus: Record<string, number> = {};
-  for (const r of allCounts) {
-    if (r.status == null) continue;
-    if (r.status === 'filled' || r.status === 'closed') {
-      countByStatus['filled'] = (countByStatus['filled'] ?? 0) + r._count.id;
-    } else {
-      countByStatus[r.status] = r._count.id;
+  let tabs: any[] = [];
+
+  try {
+    jobs = await prisma.job.findMany({
+      where,
+      orderBy: { updatedAt: 'desc' },
+      include: {
+        employer: { select: { companyName: true, contactEmail: true } },
+        _count: { select: { applications: true } },
+      },
+    });
+
+    const allCounts = await prisma.job.groupBy({
+      by: ['status'],
+      _count: { id: true },
+    });
+
+    for (const r of allCounts) {
+      if (r.status == null) continue;
+      if (r.status === 'filled' || r.status === 'closed') {
+        countByStatus['filled'] = (countByStatus['filled'] ?? 0) + r._count.id;
+      } else {
+        countByStatus[r.status] = r._count.id;
+      }
     }
+
+    totalJobsInDb = Object.values(countByStatus).reduce((a, b) => a + b, 0);
+
+    tabs = [
+      { value: 'pending', label: 'Pending', count: countByStatus['pending'] ?? 0 },
+      { value: 'all', label: 'All', count: totalJobsInDb },
+      { value: 'live', label: 'Live', count: countByStatus['live'] ?? 0 },
+      { value: 'draft', label: 'Draft', count: countByStatus['draft'] ?? 0 },
+      { value: 'filled', label: 'Filled / Closed', count: countByStatus['filled'] ?? 0 },
+    ];
+
+    await recordWorkflowDiagnostic({
+      workflow: 'admin_review_queue',
+      status: 'inspection',
+      actorUserId: user.id,
+      summary: `Admin opened jobs review queue (${currentFilter})`,
+      method: 'page_load',
+      metadata: { filter: currentFilter, queueCount: jobs.length },
+    });
+  } catch (error) {
+    console.error('Error fetching jobs:', error);
+    return (
+      <div>
+        <PageHeader title="Jobs" subtitle="Employer submits → Admin reviews → Approve/Reject → Live. Manage job postings." />
+        <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-error)' }}>
+          <h2>Error loading jobs</h2>
+          <p>There was a problem loading the job postings. Please try again later.</p>
+        </div>
+      </div>
+    );
   }
-
-  const totalJobsInDb = Object.values(countByStatus).reduce((a, b) => a + b, 0);
-
-  const tabs = [
-    { value: 'pending', label: 'Pending', count: countByStatus['pending'] ?? 0 },
-    { value: 'all', label: 'All', count: totalJobsInDb },
-    { value: 'live', label: 'Live', count: countByStatus['live'] ?? 0 },
-    { value: 'draft', label: 'Draft', count: countByStatus['draft'] ?? 0 },
-    { value: 'filled', label: 'Filled / Closed', count: countByStatus['filled'] ?? 0 },
-  ];
-
-  await recordWorkflowDiagnostic({
-    workflow: 'admin_review_queue',
-    status: 'inspection',
-    actorUserId: user.id,
-    summary: `Admin opened jobs review queue (${currentFilter})`,
-    method: 'page_load',
-    metadata: { filter: currentFilter, queueCount: jobs.length },
-  });
 
   return (
     <div>

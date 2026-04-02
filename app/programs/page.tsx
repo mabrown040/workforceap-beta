@@ -10,7 +10,7 @@ import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Free Career Training Programs — Nationwide Certifications',
+  title: 'Career Training Programs — Nationwide Certificates',
   description: `Explore ${WORKFORCEAP_PROGRAM_CATALOG_SIZE} free career training programs with industry certifications from IBM, Google, AWS, Microsoft, and CompTIA. No-cost certifications for qualifying residents nationwide.`,
   path: '/programs',
 });

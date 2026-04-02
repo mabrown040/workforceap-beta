@@ -98,7 +98,7 @@ export default async function HomePage() {
             marginBottom: '2.5rem',
             lineHeight: 1.7,
           }}>
-            We help people reach career-ready training and support — {WORKFORCEAP_PROGRAM_CATALOG_SIZE} specialized programs, counselor guidance, and AI-powered tools — nationwide.
+            Occupational and career training at no cost to members — {WORKFORCEAP_PROGRAM_CATALOG_SIZE} specialized programs, counselor guidance, and AI-powered tools designed to help people move forward.
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>

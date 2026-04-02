@@ -16,6 +16,18 @@
   padding: var(--space-16) 0 var(--space-12);
 }
 
+/* Ensure text contrast on hero background */
+.ld-hero .ld-hero-name,
+.ld-hero .ld-hero-title,
+.ld-hero .ld-hero-desc {
+  color: #fff;
+}
+
+.ld-hero .ld-hero-title,
+.ld-hero .ld-hero-desc {
+  opacity: 0.9;
+}
+
 .ld-hero-inner {
   display: grid;
   grid-template-columns: 5fr 7fr;

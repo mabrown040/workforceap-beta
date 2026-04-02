@@ -35,10 +35,15 @@ export async function searchOccupations(keyword: string): Promise<OnetOccupation
 }
 
 function scoreFromRatings(importance: number | null, level: number | null): number {
-  // O*NET importance is typically on a 1–5 scale, while level is commonly 0–7.
-  // Normalize both to a 0–100 UI score so the radar chart is readable.
-  if (importance != null && importance > 0) return Math.min(100, Math.round((importance / 5) * 100));
-  if (level != null && level > 0) return Math.min(100, Math.round((level / 7) * 100));
+  // O*NET can return either normalized percentages (0–100) or raw scales (importance 1–5, level 0–7).
+  if (importance != null && importance > 0) {
+    if (importance > 5) return Math.min(100, Math.round(importance));
+    return Math.min(100, Math.round((importance / 5) * 100));
+  }
+  if (level != null && level > 0) {
+    if (level > 7) return Math.min(100, Math.round(level));
+    return Math.min(100, Math.round((level / 7) * 100));
+  }
   return 0;
 }
 
@@ -61,6 +66,10 @@ export async function getOccupationSkills(occupationCode: string): Promise<OnetS
 export function mapSkillsToRadarAxes(
   skills: OnetSkill[]
 ): { axis: string; value: number; maxValue: number }[] {
+  const overallAverage = skills.length
+    ? Math.round(skills.reduce((sum, s) => sum + s.score, 0) / skills.length)
+    : 0;
+
   const axes = [
     {
       axis: 'Analytics',
@@ -93,7 +102,9 @@ export function mapSkillsToRadarAxes(
     const fallback = matching.length === 0 ? skills.slice(0, 3) : matching;
     const avgScore = fallback.length > 0
       ? Math.round(fallback.reduce((sum, s) => sum + s.score, 0) / fallback.length)
-      : 0;
-    return { axis, value: avgScore, maxValue: 100 };
+      : overallAverage;
+    // Keep every axis populated even when keyword matching is sparse for a role.
+    const value = avgScore > 0 ? avgScore : overallAverage;
+    return { axis, value, maxValue: 100 };
   });
 }

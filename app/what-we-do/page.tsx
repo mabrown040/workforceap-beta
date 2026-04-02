@@ -634,7 +634,7 @@ export default function WhatWeDoPage() {
             { val: '2,000+', label: 'People Served', accent: '#8c0f37' },
             { val: '$0', label: 'Cost to Members', accent: '#7b5800' },
           ].map((s) => (
-            <div key={s.label} className="rounded-xl p-5" style={{ background: '#f0edec', borderLeft: `4px solid ${s.accent}` }}>
+            <div key={s.label} className="rounded-xl p-5" style={{ background: 'var(--surface-container)', border: '1px solid var(--outline-variant)' }}>
               <div className="text-2xl font-black" style={{ color: s.accent }}>{s.val}</div>
               <div className="text-[10px] font-bold uppercase tracking-wider mt-1" style={{ color: 'var(--color-on-surface-variant)' }}>{s.label}</div>
             </div>
@@ -667,7 +667,7 @@ export default function WhatWeDoPage() {
       </section>
 
       {/* ── Mobile-only: 4-step program flow (≤640px) ── */}
-      <section className="px-4 py-10" style={{ background: '#f0edec' }}>
+      <section className="px-4 py-10" style={{ background: 'var(--surface-container-low)' }}>
         <h2 className="text-2xl font-bold tracking-tight mb-7" style={{ color: 'var(--color-on-surface)' }}>The Journey</h2>
         <div className="space-y-5 relative">
           <div className="absolute left-[22px] top-2 bottom-2 w-px" style={{ background: 'rgba(140,15,55,0.2)' }} />

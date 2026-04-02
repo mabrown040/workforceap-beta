@@ -110,7 +110,7 @@ const PARTNER_LOGOS = ['Google', 'IBM', 'AWS', 'CompTIA', 'Microsoft'];
 export default function EmployersPage() {
   return (
     <div className="inner-page">
-      <div className="wa-hidden md:wa-block marketing-desktop">
+      <div className="hidden md:block marketing-desktop">
       {/* ── Hero ── */}
       <section
         style={{
@@ -704,7 +704,7 @@ export default function EmployersPage() {
       </section>
       </div>{/* end employers desktop */}
 
-      <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav">
+      <div className="md:hidden marketing-mobile marketing-mobile-pb-for-bottom-nav">
         <section style={{ padding: '1.5rem 1rem', background: 'var(--color-surface)' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
             {[

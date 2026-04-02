@@ -16,7 +16,7 @@ export default function FAQPage() {
     <div className="inner-page">
       <FAQMobileSection />
 
-      <div className="wa-hidden md:wa-block marketing-desktop">
+      <div className="hidden md:block marketing-desktop">
         {/* Hero Section */}
         <section className="content-section" style={{ paddingBottom: 0 }}>
           <div className="container" style={{ maxWidth: 1200 }}>

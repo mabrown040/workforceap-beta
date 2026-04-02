@@ -554,9 +554,14 @@
     gap: var(--space-4);
   }
 
+  /* Keep leader faces visible on tablet/mobile (avoid wide 16:9 head crop) */
   .ld-hero-portrait {
-    aspect-ratio: 16 / 9;
-    max-height: 400px;
+    aspect-ratio: 4 / 5;
+    max-height: 520px;
+  }
+
+  .ld-hero-portrait-img {
+    object-position: center 18%;
   }
 
   /* Flow quote below photo so it never covers the portrait on tablet/mobile */

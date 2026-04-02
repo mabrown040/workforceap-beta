@@ -63,7 +63,7 @@ export async function getOccupationSkills(occupationCode: string): Promise<OnetS
  */
 export function mapSkillsToRadarAxes(
   skills: OnetSkill[]
-): { axis: string; value: number; maxValue: number; hasData: boolean }[] {
+): { axis: string; value: number; maxValue: number; hasData: boolean; matchedSkills: { name: string; score: number; category: OnetSkill['category'] }[] }[] {
   const axes = [
     {
       axis: 'Analytics',
@@ -137,6 +137,12 @@ export function mapSkillsToRadarAxes(
       ? Math.round(matching.reduce((sum, s) => sum + s.score, 0) / matching.length)
       : 0;
       
-    return { axis, value: avgScore, maxValue: 100, hasData };
+    return {
+      axis,
+      value: avgScore,
+      maxValue: 100,
+      hasData,
+      matchedSkills: matching.map((s) => ({ name: s.name, score: s.score, category: s.category })),
+    };
   });
 }

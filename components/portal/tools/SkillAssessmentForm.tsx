@@ -1,6 +1,6 @@
 'use client';
 
-import { startTransition, useId, useState } from 'react';
+import { startTransition, useEffect, useId, useState } from 'react';
 
 type OccupationResult = {
   code: string;
@@ -33,6 +33,7 @@ type Props = {
 const CHART_SIZE = 280;
 const CHART_CENTER = CHART_SIZE / 2;
 const CHART_RADIUS = 92;
+const MOBILE_BREAKPOINT_PX = 640;
 
 function polarToCartesian(angle: number, radius: number) {
   return {
@@ -62,6 +63,7 @@ function buildGridPolygon(sideCount: number, scale: number) {
 export default function SkillAssessmentForm({ disabled = false }: Props) {
   const queryId = useId();
   const statusId = useId();
+  const [isMobile, setIsMobile] = useState(false);
   const [query, setQuery] = useState('');
   const [occupationResults, setOccupationResults] = useState<OccupationResult[]>([]);
   const [selectedOccupation, setSelectedOccupation] = useState<OccupationResult | null>(null);
@@ -124,6 +126,14 @@ export default function SkillAssessmentForm({ disabled = false }: Props) {
   const radarPolygon = radarAxes.length ? buildRadarPolygon(radarAxes) : '';
   const topSkills = skillResult?.skills.slice(0, 8) ?? [];
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const syncMobile = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT_PX);
+    syncMobile();
+    window.addEventListener('resize', syncMobile);
+    return () => window.removeEventListener('resize', syncMobile);
+  }, []);
+
   async function saveSnapshot() {
     if (!selectedOccupation || !skillResult) return;
 
@@ -164,7 +174,8 @@ export default function SkillAssessmentForm({ disabled = false }: Props) {
         border: '1px solid #ebe7e7',
         borderRadius: '1rem',
         background: '#fff',
-        padding: '1.25rem',
+        padding: isMobile ? '1rem' : '1.25rem',
+        overflowX: 'hidden',
       }}
     >
       <div style={{ marginBottom: '1rem' }}>
@@ -293,8 +304,9 @@ export default function SkillAssessmentForm({ disabled = false }: Props) {
           style={{
             display: 'grid',
             gap: '1.25rem',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(260px, 1fr))',
             alignItems: 'start',
+            minWidth: 0,
           }}
         >
           <div
@@ -341,8 +353,8 @@ export default function SkillAssessmentForm({ disabled = false }: Props) {
             <h3 style={{ margin: '0 0 0.75rem', fontSize: '1rem', color: 'var(--color-on-surface)' }}>
               Radar snapshot
             </h3>
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <svg viewBox={`0 0 ${CHART_SIZE} ${CHART_SIZE}`} width={CHART_SIZE} height={CHART_SIZE} role="img" aria-label="Skill radar chart">
+            <div style={{ display: 'flex', justifyContent: 'center', width: '100%', overflow: 'hidden' }}>
+              <svg viewBox={`0 0 ${CHART_SIZE} ${CHART_SIZE}`} width={isMobile ? '100%' : CHART_SIZE} height={isMobile ? 'auto' : CHART_SIZE} style={{ maxWidth: `${CHART_SIZE}px`, height: 'auto', display: 'block' }} role="img" aria-label="Skill radar chart">
                 {[0.25, 0.5, 0.75, 1].map((scale) => (
                   <polygon
                     key={scale}
@@ -381,7 +393,7 @@ export default function SkillAssessmentForm({ disabled = false }: Props) {
             </div>
             <div style={{ display: 'grid', gap: '0.45rem', marginTop: '0.5rem' }}>
               {radarAxes.map((axis) => (
-                <div key={axis.axis} style={{ display: 'grid', gridTemplateColumns: '110px 1fr 42px', gap: '0.75rem', alignItems: 'center' }}>
+                <div key={axis.axis} style={{ display: 'grid', gridTemplateColumns: isMobile ? '84px 1fr 36px' : '110px 1fr 42px', gap: isMobile ? '0.5rem' : '0.75rem', alignItems: 'center', minWidth: 0 }}>
                   <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{axis.axis}</span>
                   <div style={{ height: '0.5rem', background: '#f0edec', borderRadius: '999px', overflow: 'hidden' }}>
                     <div

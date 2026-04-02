@@ -87,8 +87,8 @@ export default async function HomePage() {
               fontSize: 'clamp(2.25rem, 6vw + 1rem, 4.5rem)',
             }}
           >
-            Free Career Training + Certifications{' '}
-            <span style={{ color: 'var(--color-accent)' }}>for Austin Workers</span>
+            Empowering People.{' '}
+            <span style={{ color: 'var(--color-accent)' }}>Advancing Futures.</span>
           </h1>
 
           <p style={{

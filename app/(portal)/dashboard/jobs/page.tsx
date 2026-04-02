@@ -12,7 +12,7 @@ import JobsBoardSkeleton from './JobsBoardSkeleton';
 export const metadata: Metadata = buildPageMetadata({
   title: 'Job Board',
   description: 'Browse job openings from WorkforceAP employer partners. Log in to apply.',
-  path: '/jobs',
+  path: '/dashboard/jobs',
 });
 
 export default async function JobsPage() {
@@ -44,7 +44,7 @@ export default async function JobsPage() {
           {!user ? (
             <p className="jobs-public-cta" style={{ marginBottom: '1.25rem', fontSize: '0.95rem', lineHeight: 1.5 }}>
               <strong>Applying is for members.</strong>{' '}
-              <a href="/login?redirectTo=/jobs" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+              <a href="/login?redirectTo=/dashboard/jobs" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
                 Log in
               </a>{' '}
               or{' '}

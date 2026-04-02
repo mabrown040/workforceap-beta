@@ -64,7 +64,7 @@ function JobCard({ job, isAuthenticated }: { job: Job; isAuthenticated: boolean 
 
   return (
     <Link
-      href={isAuthenticated ? `/jobs/${job.id}` : `/login?redirectTo=${encodeURIComponent(`/jobs/${job.id}`)}`}
+      href={isAuthenticated ? `/dashboard/jobs/${job.id}` : `/login?redirectTo=${encodeURIComponent(`/dashboard/jobs/${job.id}`)}`}
       className="job-card"
     >
       <div className="job-card__logo">
@@ -233,7 +233,7 @@ export default function JobsListingClient({
     if (ageGroup) params.set('ageGroup', ageGroup);
     
     setLoading(true);
-    fetch(`/api/jobs?${params}`)
+    fetch(`/api/dashboard/jobs?${params}`)
       .then((r) => r.json())
       .then(setJobs)
       .finally(() => setLoading(false));

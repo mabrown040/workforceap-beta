@@ -19,7 +19,7 @@ export default function JobApplyButton({ jobId, authenticated = true }: { jobId:
     setApplying(true);
     setError(null);
     try {
-      const res = await fetch(`/api/jobs/${jobId}/apply`, {
+      const res = await fetch(`/api/dashboard/jobs/${jobId}/apply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -47,7 +47,7 @@ export default function JobApplyButton({ jobId, authenticated = true }: { jobId:
   if (!authenticated) {
     return (
       <div className="job-apply-guest">
-        <Link href={`/login?redirectTo=${encodeURIComponent(`/jobs/${jobId}`)}`} className="btn btn-primary btn-large">
+        <Link href={`/login?redirectTo=${encodeURIComponent(`/dashboard/jobs/${jobId}`)}`} className="btn btn-primary btn-large">
           Log in to apply
         </Link>
         <p style={{ marginTop: '0.75rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
@@ -90,7 +90,7 @@ export default function JobApplyButton({ jobId, authenticated = true }: { jobId:
         <div className="admin-error-banner" style={{ padding: '0.75rem', marginBottom: '1rem', borderRadius: 'var(--radius-sm)' }} role="alert">
           {error}
           {error === 'Please log in to apply.' && (
-            <Link href={`/login?redirectTo=/jobs/${jobId}`} style={{ marginLeft: '0.5rem', textDecoration: 'underline' }}>
+            <Link href={`/login?redirectTo=/dashboard/jobs/${jobId}`} style={{ marginLeft: '0.5rem', textDecoration: 'underline' }}>
               Log in
             </Link>
           )}

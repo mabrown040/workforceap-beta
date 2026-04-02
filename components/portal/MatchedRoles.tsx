@@ -43,7 +43,7 @@ export default function MatchedRoles() {
         <h2 className="dashboard-today-label">Roles that match you</h2>
         <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', marginBottom: '1rem' }}>
           No matched jobs available yet. Check back soon as we add new employer opportunities, 
-          or visit the <Link href="/jobs" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>job board</Link> to browse all openings.
+          or visit the <Link href="/dashboard/jobs" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>job board</Link> to browse all openings.
         </p>
       </section>
     );
@@ -61,7 +61,7 @@ export default function MatchedRoles() {
           return (
             <Link
               key={job.id}
-              href={`/jobs/${job.id}`}
+              href={`/dashboard/jobs/${job.id}`}
               style={{
                 display: 'block',
                 padding: '1rem 1.25rem',

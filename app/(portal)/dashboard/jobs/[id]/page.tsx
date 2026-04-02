@@ -22,11 +22,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   } catch {
     job = null;
   }
-  if (!job) return buildPageMetadata({ title: 'Job', description: '', path: `/jobs/${id}` });
+  if (!job) return buildPageMetadata({ title: 'Job', description: '', path: `/dashboard/jobs/${id}` });
   return buildPageMetadata({
     title: job.title,
     description: job.description?.slice(0, 160) ?? '',
-    path: `/jobs/${id}`,
+    path: `/dashboard/jobs/${id}`,
   });
 }
 
@@ -83,7 +83,7 @@ export default async function JobDetailPage({ params }: Props) {
       <section className="content-section" style={{ paddingTop: '1rem' }}>
         <div className="container" style={{ maxWidth: 720 }}>
           <div style={{ marginBottom: '1.5rem' }}>
-            <Link href="/jobs" style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+            <Link href="/dashboard/jobs" style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
               ← Back to Job Board
             </Link>
           </div>

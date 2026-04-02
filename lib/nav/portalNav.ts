@@ -100,7 +100,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/dashboard/resume', label: 'Resume', group: 'workflows', Icon: FileText },
   { href: '/dashboard/resources', label: 'Program Resources', group: 'workflows', Icon: Layers, tourTarget: 'tour-resources' },
   {
-    href: '/jobs',
+    href: '/dashboard/jobs',
     label: 'Job Board',
     group: 'workflows',
     Icon: Briefcase,

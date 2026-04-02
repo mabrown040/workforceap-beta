@@ -55,18 +55,21 @@ function ProgramCard({ program }: { program: Program }) {
       <div style={{ marginBottom: '.75rem' }}>
         <div
           className="program-card-meta-row"
-          style={{ display: 'flex', gap: '1rem', fontSize: '.85rem', color: 'var(--color-on-surface-variant)' }}
+          style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.25rem', fontSize: '0.9rem' }}
         >
           <span>⏱ {program.duration}</span>
           <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Starting range: {salaryRangeDisplay(program)}</span>
         </div>
+        <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
+          Salary range is Austin market estimate (Lightcast/BLS, Jan 2026). Actual pay depends on experience and employer.
+        </p>
         {extra?.jobOutcomes && extra.jobOutcomes.length > 0 && (
           <p className="program-card-outcomes">
             <strong>Roles:</strong> {extra.jobOutcomes.join(' · ')}
           </p>
         )}
         <small style={{ display: 'block', fontSize: '.75rem', color: 'var(--color-on-surface-variant)', marginTop: '.25rem' }}>
-          *National median based on industry data
+
         </small>
       </div>
       {nonEmptySkills.length > 0 ? (

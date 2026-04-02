@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export default async function CounselorResourcesPage() {
   const user = await getUser();
@@ -13,7 +14,8 @@ export default async function CounselorResourcesPage() {
   const admin = await isAdmin(user.id);
 
   return (
-    <div className="portal-main-content">
+    <>
+    <div className="portal-main-content wa-pb-24 wa-md:wa-pb-0">
       <PageHeader title="Resources" subtitle="Quick links for counselors." />
 
       <ul style={{ lineHeight: 1.8, paddingLeft: '1.25rem' }}>
@@ -32,5 +34,7 @@ export default async function CounselorResourcesPage() {
         </li>
       </ul>
     </div>
+    <MobileBottomNav variant="counselor" />
+    </>
   );
 }

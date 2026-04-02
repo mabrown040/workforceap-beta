@@ -75,13 +75,13 @@ export default async function CounselorMessagesHubPage() {
                   <div
                     className="active:scale-[0.98] transition-all"
                     style={{
-                      background: '#fff',
+                      background: 'var(--surface-container-lowest, #fff)',
                       borderRadius: '0.875rem',
                       padding: '0.875rem 1rem',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '0.875rem',
-                      border: '1px solid #ebe7e7',
+                      border: '1px solid var(--color-border, #ebe7e7)',
                     }}
                   >
                     {/* Avatar */}
@@ -126,6 +126,8 @@ export default async function CounselorMessagesHubPage() {
             })
           )}
         </div>
+
+        <MobileBottomNav variant="counselor" />
       </div>
 
       {/* ── Desktop ─────────────────────────────────────────── */}
@@ -162,8 +164,6 @@ export default async function CounselorMessagesHubPage() {
           )}
         </div>
       </div>
-
-      <MobileBottomNav variant="counselor" />
     </>
   );
 }

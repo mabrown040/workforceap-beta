@@ -31,9 +31,12 @@ type InitialPayload = {
 export default function AdminMemberCounselorChatClient({
   initial,
   messagesApiBase,
+  compact,
 }: {
   initial: InitialPayload;
   messagesApiBase?: string;
+  /** Hide sync / read-receipt helper (e.g. inbox split layout). */
+  compact?: boolean;
 }) {
   const { staffUserId, member } = initial;
   const apiBase = messagesApiBase ?? `/api/admin/members/${member.id}/messages`;
@@ -155,10 +158,12 @@ export default function AdminMemberCounselorChatClient({
 
   return (
     <div className="admin-member-counselor-chat">
-      <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
-        Messages sync in real time. Member last read:{' '}
-        {thread.memberLastReadAt ? new Date(thread.memberLastReadAt).toLocaleString() : '—'}
-      </p>
+      {!compact ? (
+        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
+          Messages sync in real time. Member last read:{' '}
+          {thread.memberLastReadAt ? new Date(thread.memberLastReadAt).toLocaleString() : '—'}
+        </p>
+      ) : null}
       {error ? (
         <p className="member-counselor-chat__error" role="alert">
           {error}

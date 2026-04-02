@@ -39,7 +39,7 @@ export default async function PartnerMessagesPage() {
         <div style={{ padding: '1rem 1rem 0.75rem' }}>
           <h1 style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 0.25rem' }}>Messages</h1>
           <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-            Chat with the WorkforceAP team
+            Direct line to your WorkforceAP partnership team
           </p>
         </div>
 
@@ -106,7 +106,7 @@ export default async function PartnerMessagesPage() {
       <div className="wa-hidden wa-md:wa-block">
         <PageHeader
           title="Messages"
-          subtitle="Chat with the WorkforceAP team about referrals, member progress, and partner resources."
+          subtitle="Direct line to your WorkforceAP partnership team — referrals, milestones, and resources."
         />
         <PortalTeamChatClient
           apiPath="/api/partner/messages"

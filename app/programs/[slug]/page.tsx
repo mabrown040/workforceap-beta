@@ -55,7 +55,7 @@ export default async function ProgramPage({ params }: Props) {
 
   return (
     <div className="inner-page program-detail-page">
-      <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav">
+      <div className="md:hidden marketing-mobile marketing-mobile-pb-for-bottom-nav">
         <section style={{ background: 'var(--color-surface)', paddingLeft: '1rem', paddingRight: '1rem', paddingTop: '1.5rem', paddingBottom: '1rem' }}>
           <Link
             href="/programs"
@@ -194,7 +194,7 @@ export default async function ProgramPage({ params }: Props) {
         </div>
       </div>
 
-      <section className="page-hero wa-hidden md:wa-block marketing-desktop">
+      <section className="page-hero hidden md:block marketing-desktop">
         <div className="page-hero-content">
           <span
             style={{

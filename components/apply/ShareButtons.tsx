@@ -7,7 +7,7 @@ export default function ShareButtons() {
 
   const handleEmail = () => {
     window.location.href =
-      'mailto:?subject=Free Career Training&body=Check out WorkforceAP: ' + window.location.origin;
+      'mailto:?subject=Career Training at No Cost to Members&body=Check out WorkforceAP: ' + window.location.origin;
   };
 
   const handleSms = () => {

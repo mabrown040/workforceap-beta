@@ -59,7 +59,7 @@ const VALUES = [
 export default function WhatWeDoPage() {
   return (
     <div className="inner-page">
-      <div className="wa-hidden md:wa-block marketing-desktop">
+      <div className="hidden md:block marketing-desktop">
       {/* ── Hero ── */}
       <section
         className="wwd-photo-hero"
@@ -615,7 +615,7 @@ export default function WhatWeDoPage() {
       </section>
       </div>{/* end desktop */}
 
-      <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav">
+      <div className="md:hidden marketing-mobile marketing-mobile-pb-for-bottom-nav">
       {/* ── Mobile-only Stitch layout (≤640px) ── */}
       <section className="px-4 pt-10 pb-4" style={{ background: 'var(--color-surface)' }}>
         {/* Hero H1 with gradient span */}

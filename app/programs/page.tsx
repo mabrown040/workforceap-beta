@@ -10,7 +10,7 @@ import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Free Career Training Programs — Nationwide Certifications',
+  title: 'Career Training Programs — Nationwide Certificates',
   description: `Explore ${WORKFORCEAP_PROGRAM_CATALOG_SIZE} free career training programs with industry certifications from IBM, Google, AWS, Microsoft, and CompTIA. No-cost certifications for qualifying residents nationwide.`,
   path: '/programs',
 });
@@ -22,7 +22,7 @@ export default function ProgramsPage() {
           MOBILE LAYOUT ≤640px — Stitch-aligned
           ══════════════════════════════════════════════ */}
       {/* Inline styles only: Tailwind uses wa- prefix — unprefixed utility classes do not exist in CSS */}
-      <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
+      <div className="md:hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
         <div style={{ paddingTop: '1.25rem', paddingLeft: '1.25rem', paddingRight: '1.25rem' }}>
           <div style={{ marginBottom: '1.75rem', marginTop: '0.75rem' }}>
             <h2 style={{ fontSize: '2.25rem', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1, color: 'var(--color-on-surface)', margin: 0 }}>
@@ -198,7 +198,7 @@ export default function ProgramsPage() {
       {/* ══════════════════════════════════════════════
           DESKTOP LAYOUT ≥641px
           ══════════════════════════════════════════════ */}
-      <div className="wa-hidden md:wa-block marketing-desktop">
+      <div className="hidden md:block marketing-desktop">
 
       {/* ── Hero Section ── */}
       <section className="content-section" style={{ paddingBottom: 0 }}>
@@ -300,7 +300,7 @@ export default function ProgramsPage() {
         <ProgramsContent sectionId={null} />
       </div>
 
-      <div className="wa-hidden md:wa-block marketing-desktop">
+      <div className="hidden md:block marketing-desktop">
 
       {/* ── Journey Section — 4-step flow ── */}
       <section className="bg-surface-container-low" style={{ padding: '6rem 0' }}>

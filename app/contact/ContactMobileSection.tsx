@@ -7,7 +7,7 @@ import ContactFormClient from './ContactFormClient';
 
 export default function ContactMobileSection() {
   return (
-    <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
+    <div className="md:hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
       <div style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', paddingTop: '1.5rem', marginBottom: '2rem' }}>
         <h2 style={{ marginBottom: "0.5rem", fontSize: "2.25rem", fontWeight: 800, letterSpacing: "-0.025em", color: "var(--color-on-surface)", lineHeight: 1.15 }}>
           Get in Touch

@@ -12,6 +12,7 @@ type RadarAxis = {
   axis: string;
   value: number;
   maxValue: number;
+  hasData?: boolean;
 };
 
 type SkillResult = {
@@ -46,7 +47,9 @@ function buildRadarPolygon(axes: RadarAxis[]) {
   return axes
     .map((axis, index) => {
       const angle = -Math.PI / 2 + (Math.PI * 2 * index) / axes.length;
-      const point = polarToCartesian(angle, (CHART_RADIUS * axis.value) / axis.maxValue);
+      // For axes with no data, pull the point to center (0) to show the gap
+      const effectiveValue = axis.hasData === false ? 0 : axis.value;
+      const point = polarToCartesian(angle, (CHART_RADIUS * effectiveValue) / axis.maxValue);
       return `${point.x},${point.y}`;
     })
     .join(' ');
@@ -386,8 +389,14 @@ export default function SkillAssessmentForm({ disabled = false }: Props) {
                 <polygon points={radarPolygon} fill="rgba(140, 15, 55, 0.18)" stroke="#8c0f37" strokeWidth="2.5" />
                 {radarAxes.map((axis, index) => {
                   const angle = -Math.PI / 2 + (Math.PI * 2 * index) / radarAxes.length;
-                  const point = polarToCartesian(angle, (CHART_RADIUS * axis.value) / axis.maxValue);
-                  return <circle key={axis.axis} cx={point.x} cy={point.y} r="4.5" fill="#8c0f37" />;
+                  const effectiveValue = axis.hasData === false ? 0 : axis.value;
+                  const point = polarToCartesian(angle, (CHART_RADIUS * effectiveValue) / axis.maxValue);
+                  // Show hollow circle for axes with no data, filled for axes with data
+                  return axis.hasData === false ? (
+                    <circle key={axis.axis} cx={point.x} cy={point.y} r="4.5" fill="none" stroke="#8c0f37" strokeWidth="2" />
+                  ) : (
+                    <circle key={axis.axis} cx={point.x} cy={point.y} r="4.5" fill="#8c0f37" />
+                  );
                 })}
               </svg>
             </div>
@@ -396,17 +405,23 @@ export default function SkillAssessmentForm({ disabled = false }: Props) {
                 <div key={axis.axis} style={{ display: 'grid', gridTemplateColumns: isMobile ? '84px 1fr 36px' : '110px 1fr 42px', gap: isMobile ? '0.5rem' : '0.75rem', alignItems: 'center', minWidth: 0 }}>
                   <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{axis.axis}</span>
                   <div style={{ height: '0.5rem', background: '#f0edec', borderRadius: '999px', overflow: 'hidden' }}>
-                    <div
-                      style={{
-                        width: `${axis.value}%`,
-                        height: '100%',
-                        borderRadius: '999px',
-                        background: 'linear-gradient(90deg, #8c0f37 0%, #c7496a 100%)',
-                      }}
-                    />
+                    {axis.hasData === false ? (
+                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <span style={{ fontSize: '0.6rem', color: '#999', fontStyle: 'italic' }}>no data</span>
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          width: `${axis.value}%`,
+                          height: '100%',
+                          borderRadius: '999px',
+                          background: 'linear-gradient(90deg, #8c0f37 0%, #c7496a 100%)',
+                        }}
+                      />
+                    )}
                   </div>
-                  <span style={{ fontSize: '0.82rem', color: 'var(--color-on-surface-variant)', textAlign: 'right' }}>
-                    {axis.value}%
+                  <span style={{ fontSize: '0.82rem', color: axis.hasData === false ? '#999' : 'var(--color-on-surface-variant)', textAlign: 'right', fontStyle: axis.hasData === false ? 'italic' : 'normal' }}>
+                    {axis.hasData === false ? '—' : `${axis.value}%`}
                   </span>
                 </div>
               ))}

@@ -69,7 +69,7 @@ function ProgramCard({ program }: { program: Program }) {
           </p>
         )}
         <small style={{ display: 'block', fontSize: '.75rem', color: 'var(--color-on-surface-variant)', marginTop: '.25rem' }}>
-          *National median based on industry data
+
         </small>
       </div>
       {nonEmptySkills.length > 0 ? (

@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import WorkspaceShell from './WorkspaceShell';
 import ProgressBanner from './ProgressBanner';
 import DashboardFooter from './DashboardFooter';
@@ -17,8 +18,11 @@ export default function MemberWorkspaceShell({
   totalCount?: number;
   children: React.ReactNode;
 }) {
+  const pathname = usePathname() ?? '';
+  const showProgressBanner = !pathname.includes('/messages');
+
   const topBanner =
-    programTitle != null && totalCount != null && totalCount > 0 ? (
+    showProgressBanner && programTitle != null && totalCount != null && totalCount > 0 ? (
       <ProgressBanner
         programTitle={programTitle}
         completedCount={completedCount ?? 0}

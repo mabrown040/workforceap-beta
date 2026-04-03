@@ -35,7 +35,7 @@ export default async function PartnerMessagesPage() {
 
   return (
     <>
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem', maxWidth: '100%', overflowX: 'hidden' }}>
         <div style={{ padding: '1rem 1rem 0.75rem' }}>
           <h1 style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 0.25rem' }}>Messages</h1>
           <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
@@ -72,7 +72,7 @@ export default async function PartnerMessagesPage() {
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)' }}>WorkforceAP Team</div>
-                <div className="truncate" style={{ fontSize: '0.775rem', color: 'var(--color-on-surface-variant)' }}>
+                <div style={{ fontSize: '0.775rem', color: 'var(--color-on-surface-variant)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
                   {serializedMessages.length > 0
                     ? last?.body ?? 'No messages yet'
                     : 'No messages yet — ask us anything'}

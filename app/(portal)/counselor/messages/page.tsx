@@ -32,7 +32,7 @@ export default async function CounselorMessagesHubPage() {
 
   return (
     <>
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem', maxWidth: '100%', overflowX: 'hidden' }}>
         <div style={{ padding: '1.25rem 1rem 0.5rem' }}>
           <h1
             style={{

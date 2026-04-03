@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { trackApplicationTrackerOpen } from '@/lib/analytics/events';
 import { TableSkeleton } from '@/components/ui/Skeleton';
+import { useScrollAffordance } from './useScrollAffordance';
 
 type JobApplication = {
   id: string;
@@ -53,6 +54,7 @@ export default function ApplicationTrackerTable() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const formRef = useRef<HTMLFormElement>(null);
+  const scrollRef = useScrollAffordance<HTMLDivElement>();
 
   const filteredApplications = applications.filter((app) => {
     if (statusFilter !== 'all') {
@@ -328,7 +330,7 @@ export default function ApplicationTrackerTable() {
           <p className="application-tracker-scroll-hint application-tracker-scroll-hint--desktop-only">
             On a small screen, use the card view below or scroll the table sideways.
           </p>
-          <div className="application-tracker-table-wrap application-tracker-table-desktop">
+          <div className="application-tracker-table-wrap application-tracker-table-desktop" ref={scrollRef}>
           <table className="application-tracker-table">
             <thead>
               <tr>

@@ -11450,6 +11450,7 @@ html.dark .admin-super-messages-bubble.is-staff {
     margin-bottom: 1.5rem;
     border: 1px solid var(--color-gray-200);
     box-shadow: var(--shadow-sm);
+    overflow-x: clip;
 }
 .dashboard-program-detail-header {
     display: flex;
@@ -11475,9 +11476,14 @@ html.dark .admin-super-messages-bubble.is-staff {
 .dashboard-program-course-list li {
     padding: 0.6rem 0;
     border-bottom: 1px solid var(--color-gray-200);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.75rem;
+    align-items: start;
+}
+.dashboard-program-course-name {
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 .dashboard-program-course-list li:last-child {
     border-bottom: none;
@@ -11487,6 +11493,7 @@ html.dark .admin-super-messages-bubble.is-staff {
     padding: 0.2rem 0.5rem;
     border-radius: 4px;
     font-weight: 600;
+    white-space: nowrap;
 }
 .dashboard-program-badge.complete {
     background: rgba(173, 44, 77, 0.12);
@@ -11495,6 +11502,19 @@ html.dark .admin-super-messages-bubble.is-staff {
 .dashboard-program-badge.pending {
     background: var(--color-gray-100);
     color: var(--color-on-surface-variant);
+}
+
+@media (max-width: 480px) {
+    .dashboard-program-detail-meta {
+        display: grid;
+        gap: 0.35rem;
+    }
+
+    .dashboard-program-badge {
+        white-space: normal;
+        text-align: center;
+        min-width: 5.6rem;
+    }
 }
 
 /* Dashboard profile page */

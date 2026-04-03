@@ -74,7 +74,7 @@ export default function MobileBottomNav({ variant = 'marketing' }: MobileBottomN
         }
       `}</style>
       <nav
-        className="marketing-bottom-nav mobile-bottom-nav-root"
+        className={`marketing-bottom-nav mobile-bottom-nav-root mobile-bottom-nav--${variant}`}
         style={{
           position: 'fixed',
         bottom: 0,

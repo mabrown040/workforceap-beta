@@ -659,7 +659,7 @@ export default function WhatWeDoPage() {
             <h1 style={{ fontSize: '2.15rem', fontWeight: 900, letterSpacing: '-0.025em', lineHeight: 1.02, marginBottom: '0.75rem', color: '#fff' }}>
               Redefining the Architecture of Opportunity
             </h1>
-            <p style={{ fontSize: '0.98rem', lineHeight: 1.75, marginBottom: '1.25rem', color: 'rgba(255,255,255,0.9)' }}>
+            <p style={{ fontSize: '0.98rem', lineHeight: '1.75rem', marginBottom: '1.25rem', color: 'rgba(255,255,255,0.9)' }}>
               Employer-aligned training. No cost to participants. Job placement built in.
               A model that works — and scales.
             </p>
@@ -745,7 +745,7 @@ export default function WhatWeDoPage() {
           </div>
           <blockquote
             style={{
-              fontSize: '0.98rem', lineHeight: 1.75,
+              fontSize: '0.98rem', lineHeight: '1.75rem',
               color: 'var(--color-on-surface-variant)',
               borderLeft: '3px solid var(--color-accent)',
               paddingLeft: '1rem',
@@ -759,9 +759,9 @@ export default function WhatWeDoPage() {
         </div>
       </section>
 
-      <section className="px-4 pb-8" style={{ background: 'var(--color-surface)' }}>
+      <section style={{ padding: '0 1rem 2rem', background: 'var(--color-surface)' }}>
         <div style={{ marginBottom: '1.25rem' }}>
-          <span className="block text-[10px] font-bold uppercase tracking-[0.22em] mb-2" style={{ color: 'var(--color-accent)' }}>The Architecture of Impact</span>
+          <span style={{ display: 'block', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', marginBottom: '0.5rem', color: 'var(--color-accent)' }}>The Architecture of Impact</span>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 900, letterSpacing: '-0.025em', color: 'var(--color-on-surface)' }}>How the model works</h2>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -787,7 +787,7 @@ export default function WhatWeDoPage() {
                 </div>
                 <div style={{ minWidth: 0 }}>
                   <h3 style={{ fontSize: '1.125rem', fontWeight: 800, marginBottom: '0.5rem', color: index === 1 ? '#fff' : 'var(--color-on-surface)', overflowWrap: 'anywhere' }}>{item.title}</h3>
-                  <p style={{ fontSize: '0.875rem', lineHeight: 1.75, color: index === 1 ? 'rgba(255,255,255,0.88)' : 'var(--color-on-surface-variant)' }}>{item.desc}</p>
+                  <p style={{ fontSize: '0.875rem', lineHeight: '1.75rem', color: index === 1 ? 'rgba(255,255,255,0.88)' : 'var(--color-on-surface-variant)' }}>{item.desc}</p>
                 </div>
               </div>
             </div>
@@ -796,22 +796,22 @@ export default function WhatWeDoPage() {
       </section>
 
       <section style={{ padding: '2rem 1rem', background: 'var(--surface-container-low)' }}>
-        <div className="mb-5">
-          <span className="block text-[10px] font-bold uppercase tracking-[0.22em] mb-2" style={{ color: 'var(--color-accent)' }}>What We Stand For</span>
-          <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--color-on-surface)' }}>Our core values</h2>
+        <div style={{ marginBottom: '1.25rem' }}>
+          <span style={{ display: 'block', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', marginBottom: '0.5rem', color: 'var(--color-accent)' }}>What We Stand For</span>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 900, letterSpacing: '-0.025em', color: 'var(--color-on-surface)' }}>Our core values</h2>
         </div>
-        <div className="space-y-4">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {VALUES.map((value) => (
             <div key={value.title} style={{ borderRadius: '1.25rem', padding: '1.25rem', background: 'var(--color-surface)', border: '1px solid var(--outline-variant)' }}>
-              <div className="flex items-start gap-4">
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
                 <div
                   style={{ display: 'flex', height: '2.75rem', width: '2.75rem', flexShrink: 0, alignItems: 'center', justifyContent: 'center', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: 900, background: 'rgba(140,15,55,0.1)', color: 'var(--color-accent)' }}
                 >
                   {value.num}
                 </div>
-                <div className="min-w-0">
+                <div style={{ minWidth: 0 }}>
                   <h3 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.25rem', color: 'var(--color-on-surface)', overflowWrap: 'anywhere' }}>{value.title}</h3>
-                  <p style={{ fontSize: '0.875rem', lineHeight: 1.75, color: 'var(--color-on-surface-variant)' }}>{value.desc}</p>
+                  <p style={{ fontSize: '0.875rem', lineHeight: '1.75rem', color: 'var(--color-on-surface-variant)' }}>{value.desc}</p>
                 </div>
               </div>
             </div>
@@ -820,11 +820,11 @@ export default function WhatWeDoPage() {
       </section>
 
       <section style={{ padding: '2rem 1rem', background: 'var(--color-surface)' }}>
-        <div className="mb-5">
-          <span className="block text-[10px] font-bold uppercase tracking-[0.22em] mb-2" style={{ color: 'var(--color-accent)' }}>The Journey</span>
-          <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--color-on-surface)' }}>From application to placement</h2>
+        <div style={{ marginBottom: '1.25rem' }}>
+          <span style={{ display: 'block', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', marginBottom: '0.5rem', color: 'var(--color-accent)' }}>The Journey</span>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 900, letterSpacing: '-0.025em', color: 'var(--color-on-surface)' }}>From application to placement</h2>
         </div>
-        <div className="space-y-4">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {[
             { step: '01', title: 'Application', desc: '10-minute online form to start your journey and share your potential.' },
             { step: '02', title: 'Training', desc: 'Industry-aligned curriculum from global leaders in tech and business.' },
@@ -834,19 +834,18 @@ export default function WhatWeDoPage() {
             <div key={s.step} style={{ borderRadius: '1.25rem', padding: '1.25rem', background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)' }}>
               <span style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.5rem', color: 'var(--color-accent)' }}>Step {s.step}</span>
               <h3 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>{s.title}</h3>
-              <p className="text-sm leading-7" style={{ color: 'var(--color-on-surface-variant)' }}>{s.desc}</p>
+              <p style={{ fontSize: '0.875rem', lineHeight: '1.75rem', color: 'var(--color-on-surface-variant)' }}>{s.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="px-4 py-8" style={{ background: 'var(--color-surface)' }}>
+      <section style={{ padding: '2rem 1rem', background: 'var(--color-surface)' }}>
         <p style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', textAlign: 'center', marginBottom: '1.25rem', color: 'var(--color-on-surface-variant)' }}>Supported By Industry Giants</p>
-        <div className="flex flex-wrap justify-center gap-2.5" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.625rem' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.625rem' }}>
           {['Google', 'IBM', 'AWS', 'Microsoft', 'CompTIA', 'Coursera'].map((p) => (
             <span
               key={p}
-              className="px-4 py-2.5 rounded-full text-xs font-bold"
               style={{ display: 'inline-block', padding: '0.625rem 1rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 700, background: 'var(--surface-container-low)', color: 'var(--color-on-surface)', border: '1px solid var(--outline-variant)' }}
             >
               {p}
@@ -876,7 +875,7 @@ export default function WhatWeDoPage() {
           <p style={{ fontSize: '0.95rem', lineHeight: 1.7, marginBottom: '1.5rem', color: 'rgba(255,255,255,0.86)' }}>
             Join individuals who are transforming their careers through employer-aligned training and certifications.
           </p>
-          <div className="flex w-full flex-col gap-3" style={{ display: 'flex', width: '100%', flexDirection: 'column', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', width: '100%', flexDirection: 'column', gap: '0.75rem' }}>
             <Link
               href="/apply"
               style={{

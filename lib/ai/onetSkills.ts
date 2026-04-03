@@ -93,7 +93,7 @@ export function mapSkillsToRadarAxes(
       axis: 'Design',
       keywords: [
         'design', 'creative', 'visualization', 'user', 'interface', 'fine arts', 'drafting', 'layout',
-        'ux', 'ui', 'graphic', 'visual', 'aesthetic', 'composition', 'typography', 'color', 'branding',
+        'ux', 'graphic', 'visual', 'aesthetic', 'composition', 'typography', 'color', 'branding',
         'prototyping', 'wireframing', 'user experience', 'user interface', 'interaction design', 'product design',
         'artistic', 'imagination', 'innovation', 'conceptualization', 'spatial', '3d', 'illustration',
         'multimedia', 'animation', 'motion', 'video', 'audio', 'photography'

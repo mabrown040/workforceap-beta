@@ -27,9 +27,9 @@ export default async function PartnerMilestonesPage() {
       <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Header */}
         <div style={{ padding: '1.25rem 1.5rem 1rem' }}>
-          <p className="text-[10px] uppercase tracking-[0.15em] font-bold" style={{ color: 'var(--color-accent)', marginBottom: '0.125rem' }}>Partner Portal</p>
-          <h1 className="text-2xl font-extrabold tracking-tight" style={{ color: 'var(--color-on-surface)' }}>Milestones</h1>
-          <p className="text-sm" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Review member certifications, placements, and progress events.</p>
+          <p className="wa-text-[10px] wa-uppercase wa-tracking-[0.15em] wa-font-bold" style={{ color: 'var(--color-accent)', marginBottom: '0.125rem' }}>Partner Portal</p>
+          <h1 className="wa-text-2xl wa-font-extrabold wa-tracking-tight" style={{ color: 'var(--color-on-surface)' }}>Milestones</h1>
+          <p className="wa-text-sm" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Review member certifications, placements, and progress events.</p>
         </div>
 
         <PartnerMilestonesMobile />

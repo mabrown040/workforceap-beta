@@ -214,7 +214,7 @@ export default async function AIToolsPage() {
                 filter: 'blur(40px)',
               }}
             />
-            <h2 className="text-base font-bold" style={{ color: '#fff', margin: 0, position: 'relative', zIndex: 1 }}>
+            <h2 className="wa-text-base wa-font-bold" style={{ color: '#fff', margin: 0, position: 'relative', zIndex: 1 }}>
               Smart Recommendations
             </h2>
             <p style={{ color: 'rgba(255, 228, 232, 0.95)', fontSize: '0.75rem', margin: '0.25rem 0 0', position: 'relative', zIndex: 1 }}>

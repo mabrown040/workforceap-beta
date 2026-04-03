@@ -18,7 +18,7 @@ export default async function DashboardCertificationsPage() {
 
   return (
     <>
-      <h1 className="sr-only">Certifications &amp; achievements</h1>
+      <h1 className="wa-sr-only">Certifications &amp; achievements</h1>
       {/* ── MOBILE ── */}
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Header */}

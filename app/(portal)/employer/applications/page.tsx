@@ -45,9 +45,9 @@ export default async function EmployerApplicationsPage() {
     <div>
       {/* ── Mobile Applications View (≤640px) ── */}
       <div className="wa-block wa-md:wa-hidden wa-pb-24">
-        <div className="px-4 pt-6 pb-3">
-          <h1 className="text-2xl font-extrabold tracking-tight mb-1" style={{ color: 'var(--color-on-surface)' }}>Applicants</h1>
-          <p className="text-xs" style={{ color: 'var(--color-on-surface-variant)' }}>Review and update candidate status.</p>
+        <div className="wa-px-4 wa-pt-6 wa-pb-3">
+          <h1 className="wa-text-2xl wa-font-extrabold wa-tracking-tight wa-mb-1" style={{ color: 'var(--color-on-surface)' }}>Applicants</h1>
+          <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)' }}>Review and update candidate status.</p>
         </div>
         <MobileApplicationsClient initialRows={initialRows} />
         <MobileBottomNav variant="employer" />

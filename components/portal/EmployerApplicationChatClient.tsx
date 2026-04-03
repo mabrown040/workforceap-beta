@@ -111,7 +111,7 @@ export default function EmployerApplicationChatClient({
         </div>
         <div style={{ minWidth: 0 }}>
           <p style={{ fontWeight: 700, fontSize: '0.875rem', margin: 0 }}>{studentName}</p>
-          <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: 0 }} className="truncate">
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: 0 }} className="wa-truncate">
             {jobTitle}
           </p>
         </div>

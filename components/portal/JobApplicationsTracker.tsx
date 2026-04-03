@@ -75,8 +75,8 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <p className="text-gray-500">Loading applications...</p>
+      <div className="wa-flex wa-items-center wa-justify-center wa-py-12">
+        <p className="wa-text-gray-500">Loading applications...</p>
       </div>
     );
   }
@@ -85,21 +85,21 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
     <div>
       {/* Error Alert */}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+        <div className="wa-mb-6 wa-p-4 wa-bg-red-50 wa-border wa-border-red-200 wa-rounded-lg wa-text-red-700">
           {error}
         </div>
       )}
 
       {/* Header with Button */}
-      <div className="mb-6 flex justify-between items-center">
+      <div className="wa-mb-6 wa-flex wa-justify-between wa-items-center">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">
+          <h2 className="wa-text-xl wa-font-semibold wa-text-gray-900">
             {applications.length} Application{applications.length !== 1 ? 's' : ''}
           </h2>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="px-4 py-2 bg-[#8c0f37] text-white rounded-lg hover:bg-[#6b0a2a] transition-colors font-medium"
+          className="wa-px-4 wa-py-2 wa-bg-[#8c0f37] wa-text-white wa-rounded-lg hover:wa-bg-[#6b0a2a] wa-transition-colors wa-font-medium"
         >
           + Add Application
         </button>
@@ -115,11 +115,11 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
 
       {/* Kanban */}
       {applications.length === 0 ? (
-        <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-lg">
-          <p className="text-gray-500 mb-3">No applications yet.</p>
+        <div className="wa-text-center wa-py-12 wa-border-2 wa-border-dashed wa-border-gray-300 wa-rounded-lg">
+          <p className="wa-text-gray-500 wa-mb-3">No applications yet.</p>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="text-[#8c0f37] font-medium hover:underline"
+            className="wa-text-[#8c0f37] wa-font-medium hover:wa-underline"
           >
             Add your first application
           </button>

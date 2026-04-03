@@ -119,13 +119,13 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <h1
-                  className="truncate"
+                  className="wa-truncate"
                   style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-on-surface)', margin: '0 0 0.125rem' }}
                 >
                   {member.fullName}
                 </h1>
                 <p
-                  className="truncate"
+                  className="wa-truncate"
                   style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem' }}
                 >
                   {program}

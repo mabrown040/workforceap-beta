@@ -48,13 +48,13 @@ export default function JobApplicationCard({
 
   if (isEditing) {
     return (
-      <div className="bg-white border-2 border-[#8c0f37] rounded-lg p-4 shadow-md">
-        <div className="mb-4">
-          <label className="block text-xs font-bold uppercase text-gray-700 mb-2">Status</label>
+      <div className="wa-bg-white wa-border-2 wa-border-[#8c0f37] wa-rounded-lg wa-p-4 wa-shadow-md">
+        <div className="wa-mb-4">
+          <label className="wa-block wa-text-xs wa-font-bold wa-uppercase wa-text-gray-700 wa-mb-2">Status</label>
           <select
             value={selectedStatus}
             onChange={e => setSelectedStatus(e.target.value as JobApplicationStatus)}
-            className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+            className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded wa-text-sm"
           >
             {availableStatuses.map(status => (
               <option key={status} value={status}>
@@ -64,27 +64,27 @@ export default function JobApplicationCard({
           </select>
         </div>
 
-        <div className="mb-4">
-          <label className="block text-xs font-bold uppercase text-gray-700 mb-2">Notes</label>
+        <div className="wa-mb-4">
+          <label className="wa-block wa-text-xs wa-font-bold wa-uppercase wa-text-gray-700 wa-mb-2">Notes</label>
           <textarea
             value={notes}
             onChange={e => setNotes(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+            className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded wa-text-sm"
             rows={3}
             placeholder="Add notes about this application..."
           />
         </div>
 
-        <div className="flex gap-2">
+        <div className="wa-flex wa-gap-2">
           <button
             onClick={handleStatusChange}
-            className="flex-1 px-3 py-2 bg-[#8c0f37] text-white text-sm font-medium rounded hover:bg-[#6b0a2a]"
+            className="wa-flex-1 wa-px-3 wa-py-2 wa-bg-[#8c0f37] wa-text-white wa-text-sm wa-font-medium wa-rounded hover:wa-bg-[#6b0a2a]"
           >
             Save
           </button>
           <button
             onClick={() => setIsEditing(false)}
-            className="flex-1 px-3 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded hover:bg-gray-300"
+            className="wa-flex-1 wa-px-3 wa-py-2 wa-bg-gray-200 wa-text-gray-700 wa-text-sm wa-font-medium wa-rounded hover:wa-bg-gray-300"
           >
             Cancel
           </button>
@@ -96,28 +96,28 @@ export default function JobApplicationCard({
   return (
     <div
       onClick={() => setIsEditing(true)}
-      className="bg-white border rounded-lg p-3 cursor-pointer hover:shadow-md transition-shadow"
+      className="wa-bg-white wa-border wa-rounded-lg wa-p-3 wa-cursor-pointer hover:wa-shadow-md wa-transition-shadow"
     >
-      <h4 className="font-bold text-sm text-gray-900">{application.role}</h4>
-      <p className="text-xs text-gray-600 mb-2">{application.company}</p>
+      <h4 className="wa-font-bold wa-text-sm wa-text-gray-900">{application.role}</h4>
+      <p className="wa-text-xs wa-text-gray-600 wa-mb-2">{application.company}</p>
 
       {application.appliedAt && (
-        <p className="text-xs text-gray-500 mb-1">
+        <p className="wa-text-xs wa-text-gray-500 wa-mb-1">
           Applied {formatDate(application.appliedAt)} · {application.source}
         </p>
       )}
 
       {application.nextInterviewDate && (
-        <p className="text-xs text-[#8c0f37] font-medium mb-2">
+        <p className="wa-text-xs wa-text-[#8c0f37] wa-font-medium wa-mb-2">
           🗓️ Interview: {formatDate(application.nextInterviewDate)}
         </p>
       )}
 
       {application.notes && (
-        <p className="text-xs text-gray-600 border-t pt-2 mt-2">{application.notes}</p>
+        <p className="wa-text-xs wa-text-gray-600 wa-border-t wa-pt-2 wa-mt-2">{application.notes}</p>
       )}
 
-      <p className="text-xs text-gray-400 mt-2 pt-2 border-t">
+      <p className="wa-text-xs wa-text-gray-400 wa-mt-2 wa-pt-2 wa-border-t">
         Click to edit
       </p>
     </div>

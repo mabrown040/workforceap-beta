@@ -157,10 +157,10 @@ export default function InterestProfilerClient() {
         </p>
 
         <section style={{ marginBottom: '2rem' }}>
-          <h2 className="text-lg font-semibold" style={{ marginBottom: '1rem' }}>
+          <h2 className="wa-text-lg wa-font-semibold" style={{ marginBottom: '1rem' }}>
             Interest areas
           </h2>
-          <ul className="space-y-3" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          <ul className="wa-space-y-3" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {score.result.map((r) => (
               <li key={r.code}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
@@ -190,7 +190,7 @@ export default function InterestProfilerClient() {
 
         {score.careers.length > 0 && (
           <section style={{ marginBottom: '2rem' }}>
-            <h2 className="text-lg font-semibold" style={{ marginBottom: '0.5rem' }}>
+            <h2 className="wa-text-lg wa-font-semibold" style={{ marginBottom: '0.5rem' }}>
               Sample career matches ({score.careers.length}
               {score.careersTotal > score.careers.length ? ` of ${score.careersTotal}` : ''})
             </h2>
@@ -209,7 +209,7 @@ export default function InterestProfilerClient() {
         )}
 
         <section style={{ marginBottom: '2rem' }}>
-          <h2 className="text-lg font-semibold" style={{ marginBottom: '0.75rem' }}>
+          <h2 className="wa-text-lg wa-font-semibold" style={{ marginBottom: '0.75rem' }}>
             WorkforceAP programs
           </h2>
           {score.programSlugs.length === 0 ? (
@@ -221,7 +221,7 @@ export default function InterestProfilerClient() {
               for a quick program match.
             </p>
           ) : (
-            <ul className="space-y-2" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            <ul className="wa-space-y-2" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {score.programSlugs.map((slug) => {
                 const p = getProgramBySlug(slug);
                 if (!p) return null;

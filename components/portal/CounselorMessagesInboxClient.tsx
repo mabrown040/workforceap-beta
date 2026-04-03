@@ -198,7 +198,7 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
         </div>
         <div style={{ minWidth: 0 }}>
           <p style={{ fontWeight: 700, fontSize: '0.875rem', margin: 0 }}>{chat.member.fullName}</p>
-          <p style={{ fontSize: '0.75rem', color: '#584144', margin: 0 }} className="truncate">
+          <p style={{ fontSize: '0.75rem', color: '#584144', margin: 0 }} className="wa-truncate">
             {rows.find((x) => x.memberId === chat.member.id)?.programSubtitle ?? '—'}
           </p>
         </div>

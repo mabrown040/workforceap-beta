@@ -149,7 +149,7 @@ export default async function CounselorStudentsPage() {
                   style={{ textDecoration: 'none' }}
                 >
                   <div
-                    className="active:scale-[0.98] transition-all"
+                    className="active:scale-[0.98] wa-transition-all"
                     style={{
                       background: '#fff',
                       borderRadius: '0.75rem',
@@ -179,13 +179,13 @@ export default async function CounselorStudentsPage() {
                     {/* Info */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p
-                        className="truncate"
+                        className="wa-truncate"
                         style={{ fontWeight: 700, color: 'var(--color-on-surface)', fontSize: '0.9rem', margin: '0 0 0.125rem' }}
                       >
                         {a.member.fullName}
                       </p>
                       <p
-                        className="truncate"
+                        className="wa-truncate"
                         style={{
                           fontSize: '10px',
                           fontWeight: 700,

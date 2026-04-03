@@ -56,16 +56,9 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({
         occupationCode: code,
         skills: skills.slice(0, 20), // Top 20 skills
-        radarAxes: radarData.map(({ matchedSkills, ...axis }) => axis),
+        radarAxes: radarData,
         totalSkills: skills.length,
         ...(process.env.NODE_ENV === 'development' ? {
-          axisAudit: radarData.map((axis) => ({
-            axis: axis.axis,
-            value: axis.value,
-            hasData: axis.hasData,
-            matchedCount: axis.matchedSkills.length,
-            matchedSkills: axis.matchedSkills,
-          })),
           unmatchedAxes: radarData.filter(a => !a.hasData).map(a => a.axis),
         } : {}),
       });

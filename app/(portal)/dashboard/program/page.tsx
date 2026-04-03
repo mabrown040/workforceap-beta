@@ -98,7 +98,7 @@ export default async function ProgramPage() {
             const done = completedSet.has(c.slug);
             return (
               <li key={c.slug}>
-                <span>{c.name}</span>
+                <span className="dashboard-program-course-name">{c.name}</span>
                 <span className={`dashboard-program-badge ${done ? 'complete' : 'pending'}`}>
                   {done ? 'Complete' : 'Not Started'}
                 </span>

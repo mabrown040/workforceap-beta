@@ -705,6 +705,70 @@ export default function EmployersPage() {
       </div>{/* end employers desktop */}
 
       <div className="md:hidden marketing-mobile marketing-mobile-pb-for-bottom-nav">
+        {/* Mobile Hero */}
+        <section
+          style={{
+            position: 'relative',
+            padding: '3rem 1.25rem 2rem',
+            overflow: 'hidden',
+            minHeight: '280px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-end',
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundImage: 'url(https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=70)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(180deg, rgba(18,20,22,0.5) 0%, rgba(18,20,22,0.88) 100%)',
+            }}
+          />
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <span
+              style={{
+                display: 'inline-block',
+                padding: '0.25rem 0.75rem',
+                borderRadius: '9999px',
+                background: 'rgba(255,255,255,0.12)',
+                color: 'var(--color-gold, #ffbb00)',
+                fontSize: '0.65rem',
+                fontWeight: 700,
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                marginBottom: '0.75rem',
+              }}
+            >
+              Building Tomorrow&apos;s Workforce
+            </span>
+            <h1
+              style={{
+                fontSize: '1.75rem',
+                fontWeight: 800,
+                lineHeight: 1.05,
+                letterSpacing: '-0.02em',
+                color: '#fff',
+                marginBottom: '0.5rem',
+              }}
+            >
+              Hire Certified,{' '}
+              <span style={{ color: 'var(--color-accent, #ad2c4d)' }}>Job-Ready Talent</span>
+            </h1>
+            <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5, maxWidth: '26rem' }}>
+              Access industry-certified, ready-to-hire professionals.
+            </p>
+          </div>
+        </section>
+
         <section style={{ padding: '1.5rem 1rem', background: 'var(--color-surface)' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
             {[

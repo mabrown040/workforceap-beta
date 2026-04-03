@@ -50,7 +50,7 @@ export default async function MemberMessagesPage() {
   return (
     <>
       {/* ── Mobile-only messages view (≤md) ── */}
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem', maxWidth: '100%', overflowX: 'hidden' }}>
         <MemberMessagesMobileClient
           initial={{
             memberUserId: user.id,

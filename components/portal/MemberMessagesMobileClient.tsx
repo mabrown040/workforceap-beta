@@ -445,7 +445,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
             return (
               <div
                 key={m.id}
-                className={`flex flex-col ${mine ? 'items-end' : 'items-start'}`}
+                className={`wa-flex wa-flex-col ${mine ? 'wa-items-end' : 'wa-items-start'}`}
               >
                 <div
                   className="wa-max-w-[78%] wa-px-4 wa-py-2.5 wa-text-sm wa-leading-snug"

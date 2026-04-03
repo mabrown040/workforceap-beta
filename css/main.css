@@ -8367,10 +8367,11 @@ html.dark .portal-nav {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.35);
+    background: rgba(0, 0, 0, 0.55);
     z-index: 70;
 }
 .workspace-drawer-overlay.open {
+    backdrop-filter: blur(2px);
     display: block;
 }
 .workspace-shell-body {
@@ -8641,6 +8642,7 @@ html.dark .workspace-sidebar-signout:hover {
         display: none;
     }
     .workspace-drawer-overlay.open {
+    backdrop-filter: blur(2px);
         display: none !important;
     }
     .workspace-sidebar-collapse-btn {

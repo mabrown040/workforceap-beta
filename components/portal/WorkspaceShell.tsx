@@ -73,6 +73,24 @@ export default function WorkspaceShell({
     };
   }, [drawerOpen]);
 
+  // Body scroll lock with scroll position preservation
+  useEffect(() => {
+    if (drawerOpen) {
+      const scrollY = window.scrollY;
+      document.body.style.top = `-${scrollY}px`;
+      document.body.classList.add('sidebar-open');
+    } else {
+      const scrollY = document.body.style.top;
+      document.body.classList.remove('sidebar-open');
+      document.body.style.top = '';
+      window.scrollTo(0, parseInt(scrollY || '0') * -1);
+    }
+    return () => {
+      document.body.classList.remove('sidebar-open');
+      document.body.style.top = '';
+    };
+  }, [drawerOpen]);
+
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 1024px)');
     const fn = () => setWide(mq.matches);

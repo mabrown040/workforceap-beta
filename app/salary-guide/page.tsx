@@ -348,11 +348,11 @@ export default function SalaryGuidePage() {
                 <tbody>
                   {salaryRows.map((row) => (
                     <tr key={row.slug}>
-                      <td><strong>{row.program}</strong></td>
-                      <td>{row.duration}</td>
-                      <td style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{row.salary}</td>
-                      <td><span style={{ background: row.color, color: 'white', padding: '.3rem .75rem', borderRadius: '50px', fontSize: '.8rem', fontWeight: 600 }}>{row.level}</span></td>
-                      <td><span className="salary-ramp-badge">{row.ramp}</span></td>
+                      <td data-label="Program"><strong>{row.program}</strong></td>
+                      <td data-label="Duration">{row.duration}</td>
+                      <td data-label="Starting Salary" style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{row.salary}</td>
+                      <td data-label="Level"><span style={{ background: row.color, color: 'white', padding: '.3rem .75rem', borderRadius: '50px', fontSize: '.8rem', fontWeight: 600 }}>{row.level}</span></td>
+                      <td data-label="Ramp"><span className="salary-ramp-badge">{row.ramp}</span></td>
                     </tr>
                   ))}
                 </tbody>

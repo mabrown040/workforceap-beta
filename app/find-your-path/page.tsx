@@ -115,7 +115,25 @@ export default function FindYourPathPage() {
           MOBILE LAYOUT ≤640px — interactive quiz
           ══════════════════════════════════════════════ */}
       <div className="md:hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
-        <div style={{ padding: '5rem 1.25rem 1.5rem' }}>
+        {/* Mobile Hero */}
+        <div style={{ padding: '4.5rem 1.25rem 1rem' }}>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
+            padding: '0.25rem 0.6rem', borderRadius: '9999px',
+            background: 'rgba(173,44,77,0.12)', color: '#ad2c4d',
+            fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.06em',
+            textTransform: 'uppercase', marginBottom: '0.5rem',
+          }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '0.75rem' }}>explore</span>
+            Academic Navigator
+          </span>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--color-on-surface)', marginBottom: '0.375rem' }}>Find Your Path</h1>
+          <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: 0 }}>
+            Five questions, three ranked matches — takes about 2 minutes.
+          </p>
+        </div>
+        {/* Quiz */}
+        <div style={{ padding: '0 1.25rem 2rem' }}>
           <FindYourPathClient idPrefix="fyp-mobile" />
         </div>
       </div>

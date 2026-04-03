@@ -343,9 +343,9 @@ export default function ApplicationTrackerTable() {
             <tbody>
               {filteredApplications.map((app) => (
                 <tr key={app.id}>
-                  <td>{app.company}</td>
-                  <td>{app.role}</td>
-                  <td>
+                  <td data-label="Company">{app.company}</td>
+                  <td data-label="Role">{app.role}</td>
+                  <td data-label="Status">
                     <select
                       value={app.status}
                       onChange={(e) => handleStatusChange(app.id, e.target.value)}
@@ -356,7 +356,7 @@ export default function ApplicationTrackerTable() {
                       ))}
                     </select>
                   </td>
-                  <td>
+                  <td data-label="Applied">
                     {editingId === app.id ? (
                       <input
                         type="date"
@@ -368,7 +368,7 @@ export default function ApplicationTrackerTable() {
                       <span>{app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : '— (add date)'}</span>
                     )}
                   </td>
-                  <td>
+                  <td data-label="Link">
                     {editingId === app.id ? (
                       <input
                         type="url"
@@ -385,7 +385,7 @@ export default function ApplicationTrackerTable() {
                       '—'
                     )}
                   </td>
-                  <td>
+                  <td data-label="Actions">
                     {editingId === app.id ? (
                       <span style={{ display: 'flex', gap: '0.5rem' }}>
                         <button type="button" className="btn btn-primary btn-sm" onClick={saveEdit}>

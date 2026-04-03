@@ -203,25 +203,25 @@ export default function ProgramComparisonClient({ tracks }: Props) {
                 <tr>
                   <th scope="row">Duration</th>
                   {selectedTracks.map((t) => (
-                    <td key={t.slug}>{t.duration}</td>
+                    <td key={t.slug} data-label="Duration">{t.duration}</td>
                   ))}
                 </tr>
                 <tr>
                   <th scope="row">Difficulty</th>
                   {selectedTracks.map((t) => (
-                    <td key={t.slug}>{t.difficulty}</td>
+                    <td key={t.slug} data-label="Difficulty">{t.difficulty}</td>
                   ))}
                 </tr>
                 <tr>
                   <th scope="row">Starting range</th>
                   {selectedTracks.map((t) => (
-                    <td key={t.slug}>{t.salary}</td>
+                    <td key={t.slug} data-label="Starting range">{t.salary}</td>
                   ))}
                 </tr>
                 <tr>
                   <th scope="row">Demand</th>
                   {selectedTracks.map((t) => (
-                    <td key={t.slug}>
+                    <td key={t.slug} data-label="Demand">
                       <span className="demand-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                         {t.demand === 'Very High' && <Flame size={14} aria-hidden />}
                         {t.demand}
@@ -234,20 +234,20 @@ export default function ProgramComparisonClient({ tracks }: Props) {
                   {selectedTracks.map((t) => {
                     const ex = getProgramExtra(t.slug);
                     return (
-                      <td key={t.slug}>{ex?.bestFor ?? '—'}</td>
+                      <td key={t.slug} data-label="Best for">{ex?.bestFor ?? '—'}</td>
                     );
                   })}
                 </tr>
                 <tr>
                   <th scope="row">Certifications</th>
                   {selectedTracks.map((t) => (
-                    <td key={t.slug}>{t.certs}</td>
+                    <td key={t.slug} data-label="Certifications">{t.certs}</td>
                   ))}
                 </tr>
                 <tr>
                   <th scope="row">Next step</th>
                   {selectedTracks.map((t) => (
-                    <td key={t.slug}>
+                    <td key={t.slug} data-label="Next step">
                       <Link href={`/apply?program=${t.slug}`} className="btn btn-secondary btn-sm">
                         Apply
                       </Link>
@@ -290,7 +290,7 @@ export default function ProgramComparisonClient({ tracks }: Props) {
           <tbody>
             {tracks.map((t) => (
               <tr key={t.slug}>
-                <td className="program-comparison-pick-col">
+                <td className="program-comparison-pick-col" data-label="Compare">
                   <input
                     type="checkbox"
                     checked={selected.has(t.slug)}
@@ -299,22 +299,22 @@ export default function ProgramComparisonClient({ tracks }: Props) {
                     disabled={!selected.has(t.slug) && selected.size >= MAX_PICK}
                   />
                 </td>
-                <td>
+                <td data-label="Track">
                   <Link href={`/programs/${t.slug}`}>
                     <strong>{t.shortName}</strong>
                   </Link>
                 </td>
-                <td>{t.duration}</td>
-                <td>{t.difficulty}</td>
-                <td>{t.salary}</td>
-                <td>
+                <td data-label="Duration">{t.duration}</td>
+                <td data-label="Difficulty">{t.difficulty}</td>
+                <td data-label="Avg. Starting Salary">{t.salary}</td>
+                <td data-label="Job Demand">
                   <span className="demand-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                     {t.demand === 'Very High' && <Flame size={14} className="text-current" aria-hidden />}
                     {t.demand}
                   </span>
                 </td>
-                <td>{t.certs}</td>
-                <td>
+                <td data-label="Certifications">{t.certs}</td>
+                <td data-label="">
                   <Link href={`/apply?program=${t.slug}`} className="btn btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
                     Apply
                   </Link>

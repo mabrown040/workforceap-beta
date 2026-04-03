@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import PortalNav from './PortalNav';
 
@@ -20,7 +20,9 @@ export default function PortalShell({ children }: { children: React.ReactNode })
   const isDashboard = pathname.startsWith('/dashboard');
   const isPartnerPortal = pathname.startsWith('/partner');
   const isDedicatedShell = hasDedicatedShell(pathname);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Redirect partner users away from member portal
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -42,9 +44,59 @@ export default function PortalShell({ children }: { children: React.ReactNode })
     };
   }, [pathname]);
 
+  // Body scroll lock when sidebar is open
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.classList.add('sidebar-open');
+    } else {
+      document.body.classList.remove('sidebar-open');
+    }
+    return () => {
+      document.body.classList.remove('sidebar-open');
+    };
+  }, [sidebarOpen]);
+
+  // Close sidebar on Escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && sidebarOpen) {
+        setSidebarOpen(false);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [sidebarOpen]);
+
+  // Close sidebar on route change
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [pathname]);
+
+  const showNav = !isDashboard && !isPartnerPortal && !isDedicatedShell;
+
   return (
     <>
-      {!isDashboard && !isPartnerPortal && !isDedicatedShell && <PortalNav />}
+      {showNav && (
+        <>
+          <button
+            type="button"
+            className="portal-hamburger md:hidden"
+            onClick={() => setSidebarOpen((prev) => !prev)}
+            aria-label={sidebarOpen ? 'Close navigation' : 'Open navigation'}
+          >
+            <span className="portal-hamburger-bar" />
+            <span className="portal-hamburger-bar" />
+            <span className="portal-hamburger-bar" />
+          </button>
+          {sidebarOpen && (
+            <div
+              className="portal-drawer-overlay open"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
+          <PortalNav className={sidebarOpen ? 'open' : ''} />
+        </>
+      )}
       {children}
     </>
   );

@@ -11016,9 +11016,7 @@ html.dark .admin-super-messages-bubble.is-staff {
 
 /* Sticky training progress strip (member dashboard top banner) */
 .progress-banner {
-    position: sticky;
-    top: 0;
-    z-index: 10;
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -11080,6 +11078,9 @@ html.dark .admin-super-messages-bubble.is-staff {
 }
 @media (min-width: 640px) {
     .progress-banner {
+        position: sticky;
+        top: 0;
+        z-index: 10;
         flex-direction: row;
         flex-wrap: wrap;
         align-items: center;

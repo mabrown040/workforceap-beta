@@ -125,6 +125,14 @@ export default async function HowItWorksPage() {
         </div>
       </section>
 
+      {/* Find Your Career CTA */}
+      <section style={{ textAlign: 'center', padding: '2.5rem 1rem', background: 'var(--color-light)' }}>
+        <p style={{ fontSize: '1.1rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>Not sure where to start?</p>
+        <a href="/find-your-path" className="btn btn-accent btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
+          Find Your Career
+        </a>
+      </section>
+
       {/* The Journey: 11-Milestone Process */}
       <section className="bg-surface-container-low" style={{ padding: '6rem 0', overflow: 'hidden' }}>
         <div className="container" style={{ maxWidth: 1200 }}>

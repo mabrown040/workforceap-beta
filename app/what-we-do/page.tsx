@@ -47,12 +47,12 @@ const VALUES = [
   {
     num: '02',
     title: 'Outcome Focus',
-    desc: 'Our success metric is your hire. When you land a job, we\'ve done our job. Every program, partnership, and dollar is measured by career outcomes.',
+    desc: 'Every program, partnership, and investment is designed to expand opportunities, strengthen skills, and deliver meaningful life and career outcomes.',
   },
   {
     num: '03',
     title: 'Key Partnerships',
-    desc: 'Government, employers, community orgs — we leverage collective strength so participants don\'t carry the load alone.',
+    desc: 'Government, Employers, Non-profit & Community Organizations, and Churches — we leverage collective strength so participants don\'t carry the load alone.',
   },
 ];
 
@@ -144,8 +144,8 @@ export default function WhatWeDoPage() {
               textShadow: '0 2px 32px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.6)',
             }}
           >
-            Redefining the Architecture{' '}
-            <span style={{ color: '#ffb2bc' }}>of Opportunity</span>
+            Creating{' '}
+            <span style={{ color: '#ffb2bc' }}>Opportunity</span>
           </h1>
 
           <p
@@ -213,6 +213,14 @@ export default function WhatWeDoPage() {
             </Link>
           </div>
         </div>
+      </section>
+
+      {/* Find Your Career CTA */}
+      <section style={{ textAlign: 'center', padding: '2.5rem 1rem', background: 'var(--color-light)' }}>
+        <p style={{ fontSize: '1.1rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>Not sure where to start?</p>
+        <a href="/find-your-path" className="btn btn-accent btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
+          Find Your Career
+        </a>
       </section>
 
       {/* ── Legacy Section ── */}
@@ -657,7 +665,7 @@ export default function WhatWeDoPage() {
               What We Do
             </span>
             <h1 style={{ fontSize: '2.15rem', fontWeight: 900, letterSpacing: '-0.025em', lineHeight: 1.02, marginBottom: '0.75rem', color: '#fff' }}>
-              Redefining the Architecture of Opportunity
+              Creating Opportunity
             </h1>
             <p style={{ fontSize: '0.98rem', lineHeight: '1.75rem', marginBottom: '1.25rem', color: 'rgba(255,255,255,0.9)' }}>
               Employer-aligned training. No cost to participants. Job placement built in.

@@ -115,7 +115,7 @@ export default async function EmployerPipelinePage() {
                           {getInitials(m.student.fullName ?? '?')}
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div className="truncate" style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{m.student.fullName}</div>
+                          <div className="wa-truncate" style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{m.student.fullName}</div>
                           <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{m.student.enrolledProgram ?? 'No program'}</div>
                         </div>
                         <div style={{ flexShrink: 0, textAlign: 'right' }}>

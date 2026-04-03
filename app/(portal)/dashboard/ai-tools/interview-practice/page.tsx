@@ -27,7 +27,7 @@ export default async function InterviewPracticePage() {
 
   return (
     <>
-      <h1 className="sr-only">Interview Practice</h1>
+      <h1 className="wa-sr-only">Interview Practice</h1>
       {/* ── Mobile section ── */}
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <div

@@ -86,7 +86,7 @@ export default function PortalShell({ children }: { children: React.ReactNode })
         <>
           <button
             type="button"
-            className="portal-hamburger md:hidden"
+            className="portal-hamburger md:wa-hidden"
             onClick={() => setSidebarOpen((prev) => !prev)}
             aria-label={sidebarOpen ? 'Close navigation' : 'Open navigation'}
           >

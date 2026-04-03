@@ -183,14 +183,14 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <h1 className="sr-only">Welcome back, {firstName}</h1>
+      <h1 className="wa-sr-only">Welcome back, {firstName}</h1>
       {/* ── Mobile-only hero + dashboard (≤640px) ── */}
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Welcome greeting + progress orb */}
         <section style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", padding:"1.5rem 1.5rem 1rem" }}>
           <div style={{ display:"flex", flexDirection:"column", gap:"0.25rem", maxWidth:"60%" }}>
-            <p className="text-[var(--color-on-surface-variant)] text-xs font-medium tracking-widest uppercase">Member Dashboard</p>
-            <h2 className="text-2xl font-extrabold tracking-tight text-[var(--color-on-surface)]">
+            <p className="wa-text-[var(--color-on-surface-variant)] wa-text-xs wa-font-medium wa-tracking-widest wa-uppercase">Member Dashboard</p>
+            <h2 className="wa-text-2xl wa-font-extrabold wa-tracking-tight wa-text-[var(--color-on-surface)]">
               Welcome back, {firstName}
             </h2>
           </div>
@@ -207,8 +207,8 @@ export default async function DashboardPage() {
               />
             </svg>
             <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
-              <span className="text-base font-bold text-[var(--color-accent-dark)]">{mobilePct}%</span>
-              <span className="text-[8px] font-bold uppercase tracking-widest text-[var(--color-gold)]">Done</span>
+              <span className="wa-text-base wa-font-bold wa-text-[var(--color-accent-dark)]">{mobilePct}%</span>
+              <span className="wa-text-[8px] wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-gold)]">Done</span>
             </div>
           </div>
         </section>
@@ -224,20 +224,20 @@ export default async function DashboardPage() {
               <div style={{ background:"var(--surface-container-lowest)", borderRadius:"11px", padding:"1.25rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
                   <div style={{ display:"flex", flexDirection:"column", gap:"0.25rem" }}>
-                    <span className="text-[10px] font-bold uppercase tracking-wider" style={{ display:"inline-flex", alignItems:"center", padding:"0.125rem 0.5rem", borderRadius:"9999px", background:"color-mix(in srgb, var(--color-accent) 10%, transparent)", color:"var(--color-accent)" }}>
+                    <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ display:"inline-flex", alignItems:"center", padding:"0.125rem 0.5rem", borderRadius:"9999px", background:"color-mix(in srgb, var(--color-accent) 10%, transparent)", color:"var(--color-accent)" }}>
                       Priority
                     </span>
-                    <h2 className="text-lg font-bold text-[var(--color-on-surface)] tracking-tight">
+                    <h2 className="wa-text-lg wa-font-bold wa-text-[var(--color-on-surface)] wa-tracking-tight">
                       {applicationStatus.nextStep}
                     </h2>
                   </div>
-                  <span className="material-symbols-outlined text-[var(--color-gold)] text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
+                  <span className="material-symbols-outlined wa-text-[var(--color-gold)] wa-text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
                 </div>
-                <p className="text-[var(--color-on-surface-variant)] text-sm leading-relaxed">
+                <p className="wa-text-[var(--color-on-surface-variant)] wa-text-sm wa-leading-relaxed">
                   Your next action for{' '}
                   {applicationStatus.programInterest ?? program?.title ?? 'your program'}.
                 </p>
-                <Link href={applicationStatus.nextStepHref} className="font-bold text-sm tracking-wide active:scale-[0.98] transition-transform" style={{ display:"block", width:"100%", background:"linear-gradient(135deg,var(--color-accent),var(--color-accent))", color:"white", padding:"0.75rem", borderRadius:"0.375rem", textDecoration:"none", textAlign:"center", cursor:"pointer", boxSizing:"border-box" }}>
+                <Link href={applicationStatus.nextStepHref} className="wa-font-bold wa-text-sm wa-tracking-wide active:scale-[0.98] wa-transition-transform" style={{ display:"block", width:"100%", background:"linear-gradient(135deg,var(--color-accent),var(--color-accent))", color:"white", padding:"0.75rem", borderRadius:"0.375rem", textDecoration:"none", textAlign:"center", cursor:"pointer", boxSizing:"border-box" }}>
                   Take Action
                 </Link>
               </div>
@@ -251,7 +251,7 @@ export default async function DashboardPage() {
 
         {/* Application journey timeline */}
         <section style={{ padding:"0 1.5rem", marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"1rem" }}>
-          <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[var(--color-on-surface-variant)]">Application Journey</h3>
+          <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">Application Journey</h3>
           <div style={{ position:"relative", marginLeft:"1rem" }}>
             <div style={{ position:"absolute", left:"11px", top:"0.5rem", bottom:"0.5rem", width:"2px", background:"var(--surface-container-high)" }} />
             {journeySteps.map((step, i) => (
@@ -271,7 +271,7 @@ export default async function DashboardPage() {
                   <p className={`font-bold text-sm leading-none mb-1 ${step.active ? 'text-[var(--color-accent-dark)]' : 'text-[var(--color-on-surface)]'}`}>
                     {step.label}
                   </p>
-                  {step.detail && <p className="text-xs text-[var(--color-on-surface-variant)]">{step.detail}</p>}
+                  {step.detail && <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)]">{step.detail}</p>}
                 </div>
               </div>
             ))}
@@ -281,8 +281,8 @@ export default async function DashboardPage() {
         {/* Recommended programs — horizontal scroll cards */}
         <section style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", padding:"0 1.5rem" }}>
-            <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[var(--color-on-surface-variant)]">Recommended Programs</h3>
-            <a href="/programs" className="text-xs font-bold text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>View All</a>
+            <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">Recommended Programs</h3>
+            <a href="/programs" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>View All</a>
           </div>
           <div style={{ display:"flex", gap:"1rem", overflowX:"auto", padding:"0 1.5rem 0.5rem", scrollbarWidth:"none", msOverflowStyle:"none" }}>
             {PROGRAMS.slice(0, 3).map((prog, i) => (
@@ -290,8 +290,8 @@ export default async function DashboardPage() {
                 <div style={{ height:"7rem", position:"relative", background: `linear-gradient(135deg, ${prog.categoryColor} 0%, var(--surface-container-highest) 100%)` }}>
                 </div>
                 <div style={{ padding:"1rem", display:"flex", flexDirection:"column", gap:"0.25rem" }}>
-                  <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--color-gold)' }}>{prog.partner || 'WorkforceAP'}</p>
-                  <h4 className="font-bold text-sm text-[var(--color-on-surface)] leading-tight">{prog.title}</h4>
+                  <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-widest" style={{ color: 'var(--color-gold)' }}>{prog.partner || 'WorkforceAP'}</p>
+                  <h4 className="wa-font-bold wa-text-sm wa-text-[var(--color-on-surface)] wa-leading-tight">{prog.title}</h4>
                 </div>
               </div>
             ))}
@@ -300,7 +300,7 @@ export default async function DashboardPage() {
 
         {/* Quick Actions 2x2 grid */}
         <section style={{ padding:"0 1.5rem", marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
-          <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[var(--color-on-surface-variant)]">Quick Actions</h3>
+          <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">Quick Actions</h3>
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.75rem" }}>
             {[
               { icon: 'upload_file', label: 'Upload Resume', href: '/dashboard/ai-tools/resume-rewriter' },
@@ -309,9 +309,9 @@ export default async function DashboardPage() {
               { icon: 'psychology', label: 'AI Resume Help', href: '/dashboard/ai-tools' },
             ].map((action) => (
               <a key={action.label} href={action.href}
-                className="active:scale-[0.97] transition-transform" style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"1rem", borderRadius:"0.75rem", textDecoration:"none", background:"var(--surface-container-lowest)", border:"1px solid var(--outline-variant)", boxShadow:"0 1px 4px rgba(0,0,0,0.05)" }}>
+                className="active:scale-[0.97] wa-transition-transform" style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"1rem", borderRadius:"0.75rem", textDecoration:"none", background:"var(--surface-container-lowest)", border:"1px solid var(--outline-variant)", boxShadow:"0 1px 4px rgba(0,0,0,0.05)" }}>
                 <span className="material-symbols-outlined" style={{ marginBottom:"0.5rem", color:"var(--color-accent)" }}>{action.icon}</span>
-                <span className="text-[11px] font-bold text-[var(--color-on-surface)] tracking-tight">{action.label}</span>
+                <span className="wa-text-[11px] wa-font-bold wa-text-[var(--color-on-surface)] wa-tracking-tight">{action.label}</span>
               </a>
             ))}
           </div>
@@ -321,18 +321,18 @@ export default async function DashboardPage() {
         {recentTools.length > 0 && (
           <section style={{ padding:'0 1.5rem', marginBottom:'1.5rem', display:'flex', flexDirection:'column', gap:'0.75rem' }}>
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-              <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[#584144]">Recent AI Activity</h3>
-              <Link href="/dashboard/ai-tools/history" className="text-xs font-bold text-[#8c0f37]" style={{ textDecoration:'none' }}>View all →</Link>
+              <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#584144]">Recent AI Activity</h3>
+              <Link href="/dashboard/ai-tools/history" className="wa-text-xs wa-font-bold wa-text-[#8c0f37]" style={{ textDecoration:'none' }}>View all →</Link>
             </div>
             <div style={{ display:'flex', flexDirection:'column', gap:'0.5rem' }}>
               {recentTools.map((r) => (
                 <div key={r.id} style={{ display:'flex', alignItems:'center', gap:'0.75rem', padding:'0.75rem', borderRadius:'0.75rem', background:'#ffffff', border:'1px solid rgba(222,191,194,0.3)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize:'1.1rem', color:'var(--color-accent)', flexShrink:0 }}>smart_toy</span>
                   <div style={{ flex:1, minWidth:0 }}>
-                    <p className="text-xs font-bold text-[#1c1b1b] leading-tight">{AI_TOOL_LABELS[r.toolType] ?? r.toolType}</p>
-                    {r.inputSummary && <p className="text-[11px] text-[#584144] leading-snug truncate" style={{ marginTop:'0.1rem' }}>{r.inputSummary}</p>}
+                    <p className="wa-text-xs wa-font-bold wa-text-[#1c1b1b] wa-leading-tight">{AI_TOOL_LABELS[r.toolType] ?? r.toolType}</p>
+                    {r.inputSummary && <p className="wa-text-[11px] wa-text-[#584144] wa-leading-snug wa-truncate" style={{ marginTop:'0.1rem' }}>{r.inputSummary}</p>}
                   </div>
-                  <span className="text-[10px] text-[#584144] whitespace-nowrap" style={{ flexShrink:0 }}>{formatPortalDate(r.createdAt)}</span>
+                  <span className="wa-text-[10px] wa-text-[#584144] wa-whitespace-nowrap" style={{ flexShrink:0 }}>{formatPortalDate(r.createdAt)}</span>
                 </div>
               ))}
             </div>

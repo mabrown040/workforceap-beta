@@ -63,19 +63,19 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" role="presentation">
+    <div className="wa-fixed wa-inset-0 wa-bg-black wa-bg-opacity-50 wa-flex wa-items-center wa-justify-center wa-z-50 wa-p-4" role="presentation">
       <div
-        className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+        className="wa-bg-white wa-rounded-lg wa-shadow-xl wa-max-w-md wa-w-full wa-max-h-[90vh] wa-overflow-y-auto"
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
       >
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b p-6 flex justify-between items-center">
-          <h2 id={titleId} className="text-xl font-bold text-gray-900">Add Application</h2>
+        <div className="wa-sticky wa-top-0 wa-bg-white wa-border-b wa-p-6 wa-flex wa-justify-between wa-items-center">
+          <h2 id={titleId} className="wa-text-xl wa-font-bold wa-text-gray-900">Add Application</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+            className="wa-text-gray-400 hover:wa-text-gray-600 wa-text-2xl wa-leading-none"
             aria-label="Close add application dialog"
           >
             ×
@@ -83,15 +83,15 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="wa-p-6 wa-space-y-4">
           {error && (
-            <div id={errorId} role="alert" className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+            <div id={errorId} role="alert" className="wa-p-3 wa-bg-red-50 wa-border wa-border-red-200 wa-rounded wa-text-red-700 wa-text-sm">
               {error}
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">
+            <label className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
               Job Title *
             </label>
             <input
@@ -102,13 +102,13 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
               onChange={handleChange}
               required
               aria-describedby={error ? errorId : undefined}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8c0f37] focus:border-transparent"
+              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8c0f37] focus:border-transparent"
               placeholder="e.g., Software Engineer"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">
+            <label className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
               Company *
             </label>
             <input
@@ -117,13 +117,13 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
               value={formData.company}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8c0f37] focus:border-transparent"
+              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8c0f37] focus:border-transparent"
               placeholder="e.g., Techvera"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">
+            <label className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
               Date Applied *
             </label>
             <input
@@ -132,19 +132,19 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
               value={formData.appliedAt}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8c0f37] focus:border-transparent"
+              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8c0f37] focus:border-transparent"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">
+            <label className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
               Source *
             </label>
             <select
               name="source"
               value={formData.source}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8c0f37] focus:border-transparent"
+              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8c0f37] focus:border-transparent"
             >
               <option value="INDEED">Indeed</option>
               <option value="LINKEDIN">LinkedIn</option>
@@ -154,7 +154,7 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">
+            <label className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
               Interview Date
             </label>
             <input
@@ -162,37 +162,37 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
               name="nextInterviewDate"
               value={formData.nextInterviewDate}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8c0f37] focus:border-transparent"
+              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8c0f37] focus:border-transparent"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">
+            <label className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
               Notes
             </label>
             <textarea
               name="notes"
               value={formData.notes}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8c0f37] focus:border-transparent"
+              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8c0f37] focus:border-transparent"
               rows={3}
               placeholder="Any notes about this application..."
             />
           </div>
 
           {/* Buttons */}
-          <div className="flex gap-3 pt-4">
+          <div className="wa-flex wa-gap-3 wa-pt-4">
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 px-4 py-2 bg-[#8c0f37] text-white font-medium rounded-lg hover:bg-[#6b0a2a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="wa-flex-1 wa-px-4 wa-py-2 wa-bg-[#8c0f37] wa-text-white wa-font-medium wa-rounded-lg hover:wa-bg-[#6b0a2a] disabled:wa-opacity-50 disabled:wa-cursor-not-allowed wa-transition-colors"
             >
               {isSubmitting ? 'Adding...' : 'Add Application'}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-colors"
+              className="wa-flex-1 wa-px-4 wa-py-2 wa-bg-gray-200 wa-text-gray-700 wa-font-medium wa-rounded-lg hover:wa-bg-gray-300 wa-transition-colors"
             >
               Cancel
             </button>

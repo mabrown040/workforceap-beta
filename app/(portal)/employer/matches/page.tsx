@@ -111,8 +111,8 @@ export default async function EmployerMatchesPage() {
                     {getInitials(row.student.fullName ?? '?')}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className="truncate" style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)' }}>{row.student.fullName}</div>
-                    <div className="truncate" style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{row.job.title}</div>
+                    <div className="wa-truncate" style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)' }}>{row.student.fullName}</div>
+                    <div className="wa-truncate" style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{row.job.title}</div>
                   </div>
                   <div style={{ flexShrink: 0, textAlign: 'right' }}>
                     <div style={{ fontSize: '1rem', fontWeight: 800, color: matchScoreColor(row.matchScore) }}>{Math.round(row.matchScore * 100)}%</div>
@@ -123,14 +123,14 @@ export default async function EmployerMatchesPage() {
                   <Link
                     href={`/employer/pipeline`}
                     style={{ flex: 1, textAlign: 'center', padding: '0.5rem', background: 'var(--surface-container)', color: 'var(--color-on-surface)', borderRadius: '0.375rem', fontSize: '0.775rem', fontWeight: 600, textDecoration: 'none' }}
-                    className="active:scale-95 transition-transform"
+                    className="active:wa-scale-95 wa-transition-transform"
                   >
                     View Profile
                   </Link>
                   <Link
                     href={`/employer/messages`}
                     style={{ flex: 1, textAlign: 'center', padding: '0.5rem', background: '#fff1f2', color: 'var(--color-accent)', borderRadius: '0.375rem', fontSize: '0.775rem', fontWeight: 600, textDecoration: 'none' }}
-                    className="active:scale-95 transition-transform"
+                    className="active:wa-scale-95 wa-transition-transform"
                   >
                     Contact
                   </Link>

@@ -42,7 +42,7 @@ export default function JobReadinessScore({ score, nextAction, breakdown }: JobR
         <>
           <button
             type="button"
-            className="job-readiness-breakdown-toggle inline-flex items-center gap-1"
+            className="job-readiness-breakdown-toggle wa-inline-flex wa-items-center wa-gap-1"
             onClick={() => setShowBreakdown(!showBreakdown)}
             aria-expanded={showBreakdown}
             aria-controls="readiness-breakdown-list"

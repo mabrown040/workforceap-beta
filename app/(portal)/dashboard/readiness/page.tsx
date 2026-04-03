@@ -42,7 +42,7 @@ export default async function DashboardReadinessPage() {
             }}
           >
             <p
-              className="text-[10px] uppercase tracking-[0.12em] font-semibold"
+              className="wa-text-[10px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold"
               style={{ color: 'var(--color-accent)', marginBottom: '0.75rem' }}
             >
               Readiness coach (voice)

@@ -7,7 +7,7 @@ export default function MemberDashboardVoiceSection() {
   return (
     <section aria-label="Voice assistants">
       <h2
-        className="text-xs font-bold uppercase tracking-[0.1em]"
+        className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em]"
         style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}
       >
         Voice assistants
@@ -28,7 +28,7 @@ export default function MemberDashboardVoiceSection() {
             background: 'var(--surface-container-lowest)',
           }}
         >
-          <p className="text-[10px] uppercase tracking-[0.12em] font-semibold" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem' }}>
+          <p className="wa-text-[10px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem' }}>
             Readiness coach
           </p>
           <PortalVoiceSession
@@ -50,7 +50,7 @@ export default function MemberDashboardVoiceSection() {
             background: 'var(--surface-container-lowest)',
           }}
         >
-          <p className="text-[10px] uppercase tracking-[0.12em] font-semibold" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem' }}>
+          <p className="wa-text-[10px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem' }}>
             Resume coach
           </p>
           <PortalVoiceSession

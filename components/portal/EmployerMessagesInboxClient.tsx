@@ -191,7 +191,7 @@ export default function EmployerMessagesInboxClient({
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.375rem' }}>
             <span style={{ fontWeight: 700, fontSize: '0.875rem' }}>{c.studentName}</span>
           </div>
-          <p style={{ fontSize: '0.75rem', color: '#584144', margin: '0 0 0.25rem' }} className="truncate">
+          <p style={{ fontSize: '0.75rem', color: '#584144', margin: '0 0 0.25rem' }} className="wa-truncate">
             {c.jobTitle}
           </p>
           <p

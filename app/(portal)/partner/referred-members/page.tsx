@@ -34,17 +34,17 @@ export default async function PartnerReferredMembersPage() {
   return (
     <>
       <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        <h1 className="sr-only">Referred members</h1>
+        <h1 className="wa-sr-only">Referred members</h1>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '1.25rem 1.5rem 0.75rem', gap: '1rem' }}>
           <div>
-            <p className="text-[10px] uppercase tracking-[0.15em] font-bold" style={{ color: 'var(--color-accent)', marginBottom: '0.125rem' }}>Partner Portal</p>
-            <h2 className="text-2xl font-extrabold tracking-tight" style={{ color: 'var(--color-on-surface)' }}>Referred members</h2>
+            <p className="wa-text-[10px] wa-uppercase wa-tracking-[0.15em] wa-font-bold" style={{ color: 'var(--color-accent)', marginBottom: '0.125rem' }}>Partner Portal</p>
+            <h2 className="wa-text-2xl wa-font-extrabold wa-tracking-tight" style={{ color: 'var(--color-on-surface)' }}>Referred members</h2>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'stretch' }}>
             <PartnerInviteMemberButton compact />
             <a
               href="/partner/exports"
-              className="active:scale-[0.98] transition-all"
+              className="active:scale-[0.98] wa-transition-all"
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -107,8 +107,8 @@ export default async function PartnerReferredMembersPage() {
           {rows.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>group</span>
-              <p className="text-sm font-semibold" style={{ color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>No members yet</p>
-              <p className="text-xs" style={{ color: 'var(--color-on-surface-variant)' }}>Share your referral link to start building your pipeline.</p>
+              <p className="wa-text-sm wa-font-semibold" style={{ color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>No members yet</p>
+              <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)' }}>Share your referral link to start building your pipeline.</p>
             </div>
           ) : (
             rows.map((row) => {
@@ -130,8 +130,8 @@ export default async function PartnerReferredMembersPage() {
                       {initials}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <p className="text-sm font-semibold" style={{ color: 'var(--color-on-surface)', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.fullName}</p>
-                      <p className="text-xs" style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>{row.programTitle} · Enrolled {row.referredAtLabel}</p>
+                      <p className="wa-text-sm wa-font-semibold" style={{ color: 'var(--color-on-surface)', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.fullName}</p>
+                      <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>{row.programTitle} · Enrolled {row.referredAtLabel}</p>
                     </div>
                     <span
                       style={{

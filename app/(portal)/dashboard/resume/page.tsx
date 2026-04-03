@@ -46,7 +46,7 @@ export default async function DashboardResumePage() {
 
   return (
     <>
-      <h1 className="sr-only">My Resume</h1>
+      <h1 className="wa-sr-only">My Resume</h1>
       {/* ── MOBILE ── */}
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Header */}
@@ -70,7 +70,7 @@ export default async function DashboardResumePage() {
             }}
           >
             <p
-              className="text-[10px] uppercase tracking-[0.12em] font-semibold"
+              className="wa-text-[10px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold"
               style={{ color: 'var(--color-accent)', marginBottom: '0.75rem' }}
             >
               Resume coach (voice)

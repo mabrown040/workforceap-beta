@@ -16,9 +16,9 @@ export default async function JobApplicationsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-2">Application Tracker</h1>
-      <p className="text-gray-600 mb-6">
+    <div className="container wa-mx-auto wa-px-4 wa-py-8">
+      <h1 className="wa-text-3xl wa-font-bold wa-mb-2">Application Tracker</h1>
+      <p className="wa-text-gray-600 wa-mb-6">
         Track every job you've applied to and where you stand in the process.
       </p>
       

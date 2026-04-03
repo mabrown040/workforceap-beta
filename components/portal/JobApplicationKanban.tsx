@@ -41,12 +41,12 @@ export default function JobApplicationKanban({
   );
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 lg:wa-grid-cols-4 wa-gap-4">
       {STATUSES.map(status => (
         <div key={status} className={`${STATUS_COLORS[status].bg} rounded-lg p-4 min-h-[500px]`}>
           {/* Column Header */}
-          <div className="mb-4">
-            <h3 className="text-sm font-bold uppercase tracking-wide text-gray-900">
+          <div className="wa-mb-4">
+            <h3 className="wa-text-sm wa-font-bold wa-uppercase wa-tracking-wide wa-text-gray-900">
               {STATUS_LABELS[status]}
             </h3>
             <span className={`inline-block mt-2 px-3 py-1 text-xs font-bold rounded-full ${STATUS_COLORS[status].badge}`}>
@@ -55,7 +55,7 @@ export default function JobApplicationKanban({
           </div>
 
           {/* Cards */}
-          <div className="space-y-3">
+          <div className="wa-space-y-3">
             {grouped[status].length === 0 ? (
               <div className={`p-4 text-center text-sm ${STATUS_COLORS[status].text} border border-dashed border-gray-300 rounded`}>
                 No applications

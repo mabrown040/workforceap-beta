@@ -130,7 +130,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
 
   return (
     <>
-      <h1 className="sr-only">My Jobs</h1>
+      <h1 className="wa-sr-only">My Jobs</h1>
       {/* ── Mobile section ── */}
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Header */}
@@ -194,7 +194,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.375rem' }}>
-                  <h3 className="truncate" style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0, flex: 1, paddingRight: '0.5rem' }}>
+                  <h3 className="wa-truncate" style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0, flex: 1, paddingRight: '0.5rem' }}>
                     {job.title}
                   </h3>
                   <span style={{ ...statusBadgeStyle(job.status), padding: '0.125rem 0.5rem', borderRadius: '9999px', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', flexShrink: 0 }}>
@@ -212,14 +212,14 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
                   <Link
                     href={`/employer/jobs/${job.id}`}
                     style={{ flex: 1, textAlign: 'center', padding: '0.5rem', background: 'var(--surface-container)', color: 'var(--color-on-surface)', borderRadius: '0.375rem', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}
-                    className="active:scale-95 transition-transform"
+                    className="active:wa-scale-95 wa-transition-transform"
                   >
                     View
                   </Link>
                   <Link
                     href={`/employer/applications?job=${job.id}`}
                     style={{ flex: 1, textAlign: 'center', padding: '0.5rem', background: '#fff1f2', color: 'var(--color-accent)', borderRadius: '0.375rem', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}
-                    className="active:scale-95 transition-transform"
+                    className="active:wa-scale-95 wa-transition-transform"
                   >
                     Applications
                   </Link>

@@ -394,49 +394,49 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
     >
       {/* Header */}
       <header
-        className="flex-shrink-0 flex items-center gap-3 px-4 py-3 z-50"
+        className="wa-flex-shrink-0 wa-flex wa-items-center wa-gap-3 wa-px-4 wa-py-3 wa-z-50"
         style={{ background: 'rgba(252,249,248,0.95)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(173,44,77,0.08)' }}
       >
         <button
           type="button"
           onClick={() => setView('list')}
-          className="text-[#ad2c4d] p-1 rounded-full hover:bg-[#f2eeed] active:scale-95 transition-transform"
+          className="wa-text-[#ad2c4d] wa-p-1 wa-rounded-full hover:wa-bg-[#f2eeed] active:wa-scale-95 wa-transition-transform"
           aria-label="Back to messages"
         >
           <span className="material-symbols-outlined">arrow_back</span>
         </button>
         <div
-          className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0"
+          className="wa-w-9 wa-h-9 wa-rounded-full wa-flex wa-items-center wa-justify-center wa-text-white wa-font-bold wa-text-xs wa-flex-shrink-0"
           style={{ background: '#ad2c4d' }}
         >
           {counselorInitials}
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="font-bold text-[#1c1b1b] text-sm leading-tight truncate">
+        <div className="wa-flex-1 wa-min-w-0">
+          <p className="wa-font-bold wa-text-[#1c1b1b] wa-text-sm wa-leading-tight wa-truncate">
             {counselorName ?? 'Your Counselor'}
           </p>
           {thread.counselorUserId && (
-            <p className="text-[11px] text-[#584144] opacity-70">WorkforceAP Counselor</p>
+            <p className="wa-text-[11px] wa-text-[#584144] wa-opacity-70">WorkforceAP Counselor</p>
           )}
         </div>
       </header>
 
       {/* Message scroll area */}
       <div
-        className="flex-1 overflow-y-auto px-4 py-4 space-y-3"
+        className="wa-flex-1 wa-overflow-y-auto wa-px-4 wa-py-4 wa-space-y-3"
         role="log"
         aria-live="polite"
         aria-relevant="additions"
       >
         {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full gap-3 text-center">
+          <div className="wa-flex wa-flex-col wa-items-center wa-justify-center wa-h-full wa-gap-3 wa-text-center">
             <div
-              className="w-16 h-16 rounded-full flex items-center justify-center"
+              className="wa-w-16 wa-h-16 wa-rounded-full wa-flex wa-items-center wa-justify-center"
               style={{ background: '#f2eeed' }}
             >
-              <span className="material-symbols-outlined text-[#8c0f37] text-2xl">chat_bubble_outline</span>
+              <span className="material-symbols-outlined wa-text-[#8c0f37] wa-text-2xl">chat_bubble_outline</span>
             </div>
-            <p className="text-[#584144] text-sm">No messages yet. Say hello!</p>
+            <p className="wa-text-[#584144] wa-text-sm">No messages yet. Say hello!</p>
           </div>
         ) : (
           messages.map((m) => {
@@ -448,7 +448,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
                 className={`flex flex-col ${mine ? 'items-end' : 'items-start'}`}
               >
                 <div
-                  className="max-w-[78%] px-4 py-2.5 text-sm leading-snug"
+                  className="wa-max-w-[78%] wa-px-4 wa-py-2.5 wa-text-sm wa-leading-snug"
                   style={
                     mine
                       ? { background: '#8c0f37', color: '#fff', borderRadius: '18px 18px 4px 18px' }
@@ -457,7 +457,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
                 >
                   {m.body}
                 </div>
-                <time className="text-[10px] text-[#584144] opacity-60 mt-1 px-1">
+                <time className="wa-text-[10px] wa-text-[#584144] wa-opacity-60 wa-mt-1 wa-px-1">
                   {timeStr}
                 </time>
               </div>
@@ -469,7 +469,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
 
       {/* Error */}
       {error && (
-        <div className="flex-shrink-0 mx-4 mb-2 px-3 py-2 rounded-lg text-xs text-white" style={{ background: '#ba1a1a' }}>
+        <div className="wa-flex-shrink-0 wa-mx-4 wa-mb-2 wa-px-3 wa-py-2 wa-rounded-lg wa-text-xs wa-text-white" style={{ background: '#ba1a1a' }}>
           {error}
         </div>
       )}
@@ -477,7 +477,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
       {/* Compose input — pinned at bottom */}
       <form
         onSubmit={send}
-        className="flex-shrink-0 flex items-end gap-2 px-3 py-3"
+        className="wa-flex-shrink-0 wa-flex wa-items-end wa-gap-2 wa-px-3 wa-py-3"
         style={{
           background: 'rgba(252,249,248,0.95)',
           borderTop: '1px solid rgba(173,44,77,0.08)',
@@ -496,20 +496,20 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
           placeholder="Type a message…"
           maxLength={8000}
           rows={1}
-          className="flex-1 resize-none px-4 py-3 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#8c0f37]/40 placeholder:text-[#584144]/50"
+          className="wa-flex-1 wa-resize-none wa-px-4 wa-py-3 wa-rounded-2xl wa-text-sm focus:wa-outline-none focus:wa-ring-2 focus:ring-[#8c0f37]/40 placeholder:text-[#584144]/50"
           style={{ background: '#f0edec', border: 'none', maxHeight: '8rem', overflowY: 'auto' }}
         />
         <button
           type="submit"
           disabled={sending || !draft.trim()}
-          className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition-all"
+          className="wa-flex-shrink-0 wa-w-10 wa-h-10 wa-rounded-full wa-flex wa-items-center wa-justify-center active:wa-scale-95 wa-transition-all"
           style={{
             background: draft.trim() ? '#8c0f37' : '#e5e2e1',
             color: draft.trim() ? '#fff' : '#584144',
           }}
           aria-label="Send message"
         >
-          <span className="material-symbols-outlined text-[20px]">send</span>
+          <span className="material-symbols-outlined wa-text-[20px]">send</span>
         </button>
       </form>
     </div>

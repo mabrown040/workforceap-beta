@@ -27,7 +27,7 @@ export default function MemberCareerPathSection({
       }}
       aria-labelledby="member-career-path-heading"
     >
-      <h2 id="member-career-path-heading" className="text-xs font-bold uppercase tracking-[0.1em] text-[var(--color-on-surface-variant)]" style={{ marginBottom: '0.75rem' }}>
+      <h2 id="member-career-path-heading" className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]" style={{ marginBottom: '0.75rem' }}>
         Your career path
       </h2>
       <h3 style={{ fontSize: '1.05rem', margin: '0 0 0.5rem', fontWeight: 700 }}>{top.title}</h3>

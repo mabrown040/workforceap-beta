@@ -145,13 +145,13 @@ export default async function EmployerDashboardPage() {
       <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Hero */}
         <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingTop:"1.5rem", paddingBottom:"1rem" }}>
-          <p className="text-[10px] uppercase tracking-[0.15em] font-semibold text-[#8c0f37]" style={{ marginBottom:"0.25rem" }}>Overview</p>
-          <h2 className="text-3xl font-extrabold tracking-tight text-on-surface leading-tight">
+          <p className="wa-text-[10px] wa-uppercase wa-tracking-[0.15em] wa-font-semibold wa-text-[#8c0f37]" style={{ marginBottom:"0.25rem" }}>Overview</p>
+          <h2 className="wa-text-3xl wa-font-extrabold wa-tracking-tight text-on-surface wa-leading-tight">
             Elite Talent<br/>at your fingertips.
           </h2>
         </div>
         <div className="stitch-card" style={{ marginLeft: '1.5rem', marginRight: '1.5rem', marginBottom: '1rem', padding: '1.25rem' }}>
-          <p className="text-[10px] uppercase tracking-[0.12em] font-semibold text-[#8c0f37]" style={{ marginBottom: '0.75rem' }}>
+          <p className="wa-text-[10px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold wa-text-[#8c0f37]" style={{ marginBottom: '0.75rem' }}>
             Voice assistant
           </p>
           <PortalVoiceSession
@@ -169,9 +169,9 @@ export default async function EmployerDashboardPage() {
             { label: 'Candidates', value: totalApplications, color: 'var(--on-surface)' },
             { label: 'In Review', value: inReview, color: 'var(--secondary)' },
           ].map((s) => (
-            <div key={s.label} className="bg-white" style={{ minWidth:"130px", flex:1, padding:"1rem", borderRadius:"0.75rem", boxShadow:"0 1px 2px rgba(0,0,0,0.05)" }}>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant/60" style={{ marginBottom:"0.25rem" }}>{s.label}</p>
-              <p className="text-2xl font-bold" style={{ color: s.color }}>{s.value}</p>
+            <div key={s.label} className="wa-bg-white" style={{ minWidth:"130px", flex:1, padding:"1rem", borderRadius:"0.75rem", boxShadow:"0 1px 2px rgba(0,0,0,0.05)" }}>
+              <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-wider text-on-surface-variant/60" style={{ marginBottom:"0.25rem" }}>{s.label}</p>
+              <p className="wa-text-2xl wa-font-bold" style={{ color: s.color }}>{s.value}</p>
             </div>
           ))}
         </div>
@@ -185,8 +185,8 @@ export default async function EmployerDashboardPage() {
           ].map((s, i, arr) => (
             <div key={s.label} style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
               <div style={{ flex:1, textAlign:"center" }}>
-                <p className="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-tighter">{s.label}</p>
-                <p className="text-sm font-bold text-on-surface">{s.value}</p>
+                <p className="wa-text-[10px] wa-font-bold text-on-surface-variant/50 wa-uppercase wa-tracking-tighter">{s.label}</p>
+                <p className="wa-text-sm wa-font-bold text-on-surface">{s.value}</p>
               </div>
               {i < arr.length - 1 && <div className="bg-outline-variant/30" style={{ width: '1px', height:"1.25rem" }} />}
             </div>
@@ -195,51 +195,51 @@ export default async function EmployerDashboardPage() {
         {/* Quick actions */}
         <div style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginTop:"1rem", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"0.75rem" }}>
           <Link href="/employer/jobs/new"
-            className="text-white active:scale-[0.98] transition-all" style={{gridColumn:"span 2", padding:"1rem", borderRadius:"0.75rem", display:"flex", alignItems:"center", justifyContent:"space-between", textDecoration:"none", background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent))'}}>
+            className="wa-text-white active:scale-[0.98] wa-transition-all" style={{gridColumn:"span 2", padding:"1rem", borderRadius:"0.75rem", display:"flex", alignItems:"center", justifyContent:"space-between", textDecoration:"none", background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent))'}}>
             <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
               <span className="material-symbols-outlined">add_circle</span>
-              <span className="font-bold tracking-tight">Post a Role</span>
+              <span className="wa-font-bold wa-tracking-tight">Post a Role</span>
             </div>
             <span className="material-symbols-outlined" style={{ opacity:0.6 }}>arrow_forward</span>
           </Link>
           <Link href="/employer/applications"
-            className="bg-surface-container-high text-on-surface active:scale-[0.98] transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", flexDirection:"column", gap:"0.5rem", alignItems:"flex-start", textDecoration:"none" }}>
-            <span className="material-symbols-outlined text-[#7b5800]">grading</span>
-            <span className="text-sm font-bold leading-tight">Review Apps</span>
+            className="bg-surface-container-high text-on-surface active:scale-[0.98] wa-transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", flexDirection:"column", gap:"0.5rem", alignItems:"flex-start", textDecoration:"none" }}>
+            <span className="material-symbols-outlined wa-text-[#7b5800]">grading</span>
+            <span className="wa-text-sm wa-font-bold wa-leading-tight">Review Apps</span>
           </Link>
           <Link href="/employer/messages"
-            className="bg-surface-container-high text-on-surface active:scale-[0.98] transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", flexDirection:"column", gap:"0.5rem", alignItems:"flex-start", textDecoration:"none" }}>
-            <span className="material-symbols-outlined text-[#8c0f37]">forum</span>
-            <span className="text-sm font-bold leading-tight">Messages</span>
+            className="bg-surface-container-high text-on-surface active:scale-[0.98] wa-transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", flexDirection:"column", gap:"0.5rem", alignItems:"flex-start", textDecoration:"none" }}>
+            <span className="material-symbols-outlined wa-text-[#8c0f37]">forum</span>
+            <span className="wa-text-sm wa-font-bold wa-leading-tight">Messages</span>
           </Link>
         </div>
         {/* Recent applicants */}
         <div style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginTop:"1.5rem" }}>
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:"1rem" }}>
-            <h3 className="text-xl font-bold tracking-tight text-on-surface">Recent Applicants</h3>
-            <Link href="/employer/applications" className="text-xs font-bold text-[#8c0f37] uppercase tracking-widest" style={{ textDecoration:"none" }}>View All</Link>
+            <h3 className="wa-text-xl wa-font-bold wa-tracking-tight text-on-surface">Recent Applicants</h3>
+            <Link href="/employer/applications" className="wa-text-xs wa-font-bold wa-text-[#8c0f37] wa-uppercase wa-tracking-widest" style={{ textDecoration:"none" }}>View All</Link>
           </div>
           <div style={{ display:"flex", flexDirection:"column", gap:"0.75rem" }}>
             {recentApplications.length === 0 ? (
-              <div className="bg-white" style={{ borderRadius:"0.75rem", padding:"1.25rem", textAlign:"center" }}>
-                <p className="text-sm text-on-surface-variant">No applications yet. Post a role to get started.</p>
+              <div className="wa-bg-white" style={{ borderRadius:"0.75rem", padding:"1.25rem", textAlign:"center" }}>
+                <p className="wa-text-sm text-on-surface-variant">No applications yet. Post a role to get started.</p>
               </div>
             ) : (
               recentApplications.slice(0, 5).map((app) => (
                 <Link key={app.id} href={`/employer/jobs/${app.jobId}`}
-                  className="bg-white active:scale-[0.98] transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", alignItems:"center", gap:"0.75rem", textDecoration:"none" }}>
+                  className="wa-bg-white active:scale-[0.98] wa-transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", alignItems:"center", gap:"0.75rem", textDecoration:"none" }}>
                   <div className="bg-surface-container-high" style={{ width:"2.5rem", height:"2.5rem", borderRadius:"9999px", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                    <span className="material-symbols-outlined text-[18px] text-on-surface-variant">person</span>
+                    <span className="material-symbols-outlined wa-text-[18px] text-on-surface-variant">person</span>
                   </div>
                   <div style={{ flex:1, minWidth:0 }}>
                     <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
-                      <h4 className="font-bold text-on-surface text-sm truncate">{app.student.fullName}</h4>
-                      <span className="text-[10px] text-on-surface-variant/60 font-medium" style={{ marginLeft:"0.5rem", flexShrink:0 }}>
+                      <h4 className="wa-font-bold text-on-surface wa-text-sm wa-truncate">{app.student.fullName}</h4>
+                      <span className="wa-text-[10px] text-on-surface-variant/60 wa-font-medium" style={{ marginLeft:"0.5rem", flexShrink:0 }}>
                         {new Date(app.appliedAt).toLocaleDateString()}
                       </span>
                     </div>
-                    <p className="text-xs text-[#7b5800] font-semibold uppercase tracking-wider truncate" style={{ marginBottom:"0.25rem" }}>{app.job.title}</p>
-                    <span className="text-[10px] font-bold uppercase tracking-tighter" style={{paddingLeft:"0.5rem", paddingRight:"0.5rem", paddingTop:"0.5", paddingBottom:"0.5", borderRadius:"9999px", background: app.status === 'pending' ? '#fff1f2' : '#fef3c7',
+                    <p className="wa-text-xs wa-text-[#7b5800] wa-font-semibold wa-uppercase wa-tracking-wider wa-truncate" style={{ marginBottom:"0.25rem" }}>{app.job.title}</p>
+                    <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-tighter" style={{paddingLeft:"0.5rem", paddingRight:"0.5rem", paddingTop:"0.5", paddingBottom:"0.5", borderRadius:"9999px", background: app.status === 'pending' ? '#fff1f2' : '#fef3c7',
                         color: app.status === 'pending' ? 'var(--color-accent)' : 'var(--color-gold)',}}>
                       {app.status}
                     </span>

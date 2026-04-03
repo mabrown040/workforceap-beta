@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
+import { getScoreBreakdown } from '@/lib/readiness/score';
 import ReadinessMemberClient from './ReadinessMemberClient';
+import ReadinessMobileScoreCard from '@/components/portal/ReadinessMobileScoreCard';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import '@/css/counselor.css';
@@ -13,9 +15,65 @@ export const metadata: Metadata = buildPageMetadata({
   path: '/dashboard',
 });
 
+/**
+ * Map the 10-item score breakdown into 4 mobile-friendly categories.
+ */
+function buildCategories(breakdown: Awaited<ReturnType<typeof getScoreBreakdown>>) {
+  const pct = (earned: number, max: number) => (max > 0 ? Math.round((earned / max) * 100) : 0);
+
+  // Resume: buildResume (20) + completeProfile (5) = 25 max
+  const resumeEarned = breakdown.buildResume.earned + breakdown.completeProfile.earned;
+  const resumeMax = breakdown.buildResume.max + breakdown.completeProfile.max;
+
+  // Certificates & Training: trackCertifications (5) + complete2Resources (10) + completePathwaySteps (15) + startPathway (5) = 35 max
+  const certEarned = breakdown.trackCertifications.earned + breakdown.complete2Resources.earned + breakdown.completePathwaySteps.earned + breakdown.startPathway.earned;
+  const certMax = breakdown.trackCertifications.max + breakdown.complete2Resources.max + breakdown.completePathwaySteps.max + breakdown.startPathway.max;
+
+  // Interview Prep: practiceInterview (15) + addApplications (15) = 30 max
+  const interviewEarned = breakdown.practiceInterview.earned + breakdown.addApplications.earned;
+  const interviewMax = breakdown.practiceInterview.max + breakdown.addApplications.max;
+
+  // Engagement: setGoals (10) + weeklyConsistency (5) = 15 max
+  const engagementEarned = breakdown.setGoals.earned + breakdown.weeklyConsistency.earned;
+  const engagementMax = breakdown.setGoals.max + breakdown.weeklyConsistency.max;
+
+  return [
+    { label: 'Resume & Profile', pct: pct(resumeEarned, resumeMax), icon: 'description', color: 'var(--color-blue, #3b82f6)' },
+    { label: 'Training & Certs', pct: pct(certEarned, certMax), icon: 'workspace_premium', color: 'var(--color-accent)' },
+    { label: 'Interview & Jobs', pct: pct(interviewEarned, interviewMax), icon: 'record_voice_over', color: 'var(--color-green, #22c55e)' },
+    { label: 'Engagement', pct: pct(engagementEarned, engagementMax), icon: 'trending_up', color: 'var(--color-gold, #f59e0b)' },
+  ];
+}
+
+function getPriorityAction(breakdown: Awaited<ReturnType<typeof getScoreBreakdown>>) {
+  // Find highest-impact incomplete item
+  const priorities: { key: keyof typeof breakdown; label: string; href: string; weight: number }[] = [
+    { key: 'buildResume', label: 'Build or upload your resume to boost your score.', href: '/dashboard/profile#resume', weight: 20 },
+    { key: 'practiceInterview', label: 'Practice a mock interview to sharpen your skills.', href: '/dashboard/ai-tools/interview-practice', weight: 15 },
+    { key: 'addApplications', label: 'Apply to at least 3 jobs to show employer readiness.', href: '/dashboard/jobs', weight: 15 },
+    { key: 'completePathwaySteps', label: 'Complete more pathway steps in your training program.', href: '/dashboard/training', weight: 15 },
+    { key: 'setGoals', label: 'Set career goals to stay on track.', href: '/dashboard/career-brief', weight: 10 },
+    { key: 'complete2Resources', label: 'Complete 2+ learning resources.', href: '/dashboard/resources', weight: 10 },
+    { key: 'completeProfile', label: 'Fill in your profile details for employer visibility.', href: '/dashboard/profile', weight: 5 },
+    { key: 'trackCertifications', label: 'Add your certificates to showcase your skills.', href: '/dashboard/certifications', weight: 5 },
+  ];
+
+  for (const p of priorities) {
+    if (!breakdown[p.key].done) {
+      return { label: p.label, href: p.href };
+    }
+  }
+  return null;
+}
+
 export default async function DashboardReadinessPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/readiness');
+
+  const breakdown = await getScoreBreakdown(user.id);
+  const overallScore = Math.min(100, Object.values(breakdown).reduce((sum, b) => sum + b.earned, 0));
+  const categories = buildCategories(breakdown);
+  const priorityAction = getPriorityAction(breakdown);
 
   return (
     <>
@@ -59,117 +117,11 @@ export default async function DashboardReadinessPage() {
           </div>
         </div>
 
-        {/* Large SVG Score Ring */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1rem 1rem 0.5rem' }}>
-          <svg width="160" height="160" viewBox="0 0 160 160" fill="none" aria-label="Career readiness score ring">
-            {/* Background track */}
-            <circle cx="80" cy="80" r="68" stroke="var(--surface-container-highest)" strokeWidth="10" />
-            {/* Score ring — 72% = dashoffset: circumference * (1 - 0.72) */}
-            {/* circumference = 2π*68 ≈ 427.3 */}
-            <circle
-              cx="80"
-              cy="80"
-              r="68"
-              stroke="var(--color-accent)"
-              strokeWidth="10"
-              strokeDasharray="427.3"
-              strokeDashoffset="119.6"
-              strokeLinecap="round"
-              transform="rotate(-90 80 80)"
-            />
-            <text x="80" y="72" textAnchor="middle" fill="var(--color-on-surface)" fontSize="32" fontWeight="700">
-              72
-            </text>
-            <text x="80" y="95" textAnchor="middle" fill="var(--color-on-surface-variant)" fontSize="13">
-              / 100
-            </text>
-            <text x="80" y="115" textAnchor="middle" fill="var(--color-accent)" fontSize="11" fontWeight="600">
-              Good Standing
-            </text>
-          </svg>
-        </div>
-
-        {/* 4 Category Progress Bars */}
-        <div style={{ padding: '0.5rem 1rem', marginBottom: '1rem' }}>
-          {[
-            { label: 'Resume', pct: 80, icon: 'description', color: 'var(--color-blue)' },
-            { label: 'Certificates', pct: 67, icon: 'workspace_premium', color: 'var(--color-accent)' },
-            { label: 'Interview Prep', pct: 55, icon: 'record_voice_over', color: 'var(--color-green)' },
-            { label: 'LinkedIn', pct: 40, icon: 'person_check', color: 'var(--color-gold, #f59e0b)' },
-          ].map((cat) => (
-            <div key={cat.label} style={{ marginBottom: '1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.375rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span
-                    className="material-symbols-outlined"
-                    style={{ fontSize: '1rem', color: cat.color, fontVariationSettings: "'FILL' 1" }}
-                  >
-                    {cat.icon}
-                  </span>
-                  <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>{cat.label}</span>
-                </div>
-                <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: cat.color }}>{cat.pct}%</span>
-              </div>
-              <div
-                style={{
-                  height: '8px',
-                  background: 'var(--surface-container-highest)',
-                  borderRadius: '999px',
-                  overflow: 'hidden',
-                }}
-              >
-                <svg width={`${cat.pct}%`} height="8" style={{ display: 'block' }} aria-hidden="true">
-                  <rect x="0" y="0" width="100%" height="8" rx="4" fill={cat.color} />
-                </svg>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Priority Action CTA */}
-        <div style={{ padding: '0 1rem', marginBottom: '1rem' }}>
-          <div
-            style={{
-              background: 'var(--surface-container)',
-              borderRadius: '0.875rem',
-              padding: '1rem',
-              border: '1px solid var(--outline-variant)',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-              <span
-                className="material-symbols-outlined"
-                style={{ fontSize: '1.375rem', color: 'var(--color-gold, #f59e0b)', fontVariationSettings: "'FILL' 1", flexShrink: 0 }}
-              >
-                priority_high
-              </span>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700, fontSize: '0.9375rem', marginBottom: '0.25rem' }}>Priority Action</div>
-                <div style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
-                  Boost your LinkedIn score — connect your profile to unlock employer visibility.
-                </div>
-                <a
-                  href="/dashboard/profile"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.25rem',
-                    background: 'var(--color-accent)',
-                    color: '#fff',
-                    borderRadius: '0.5rem',
-                    padding: '0.4375rem 0.875rem',
-                    fontWeight: 700,
-                    fontSize: '0.8125rem',
-                    textDecoration: 'none',
-                  }}
-                >
-                  Update Profile
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_forward</span>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ReadinessMobileScoreCard
+          overallScore={overallScore}
+          categories={categories}
+          priorityAction={priorityAction}
+        />
 
         <MobileBottomNav variant="portal" />
       </div>

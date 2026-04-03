@@ -20,6 +20,15 @@ type Job = {
   employer: { companyName: string; logoUrl: string | null };
 };
 
+type MatchedJob = {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  locationType: string;
+  matchPct: number;
+};
+
 const LOCATION_LABELS: Record<string, string> = {
   remote: 'Remote',
   hybrid: 'Hybrid',
@@ -164,7 +173,9 @@ export default function JobsListingClient({
   const searchParams = useSearchParams();
 
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [matchedJobs, setMatchedJobs] = useState<MatchedJob[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMatches, setLoadingMatches] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const qParam = searchParams.get('q') ?? '';
@@ -238,6 +249,16 @@ export default function JobsListingClient({
       .then(setJobs)
       .finally(() => setLoading(false));
   }, [q, locationType, jobType, program, salaryMin, salaryMax, sort, ageGroup]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    setLoadingMatches(true);
+    fetch('/api/member/matched-jobs')
+      .then((r) => (r.ok ? r.json() : { jobs: [] }))
+      .then((d) => setMatchedJobs(d.jobs ?? []))
+      .catch(() => setMatchedJobs([]))
+      .finally(() => setLoadingMatches(false));
+  }, [isAuthenticated]);
 
   const filterPanel = (
     <div className="job-filters-panel">
@@ -384,6 +405,73 @@ export default function JobsListingClient({
 
   return (
     <div className="job-board jobs-listing">
+      {isAuthenticated && (loadingMatches || matchedJobs.length > 0) && (
+        <section
+          style={{
+            marginBottom: '1.5rem',
+            padding: '1rem',
+            background: 'var(--surface-container-low)',
+            border: '1px solid var(--outline-variant)',
+            borderRadius: 'var(--radius-lg)',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+            <div>
+              <h2 style={{ fontSize: '1rem', fontWeight: 700, margin: 0 }}>Best matches for you</h2>
+              <p style={{ margin: '0.25rem 0 0', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
+                Ranked from your program, readiness, certifications, and activity.
+              </p>
+            </div>
+            <a href="/dashboard/readiness" className="btn btn-outline" style={{ whiteSpace: 'nowrap' }}>
+              Improve readiness
+            </a>
+          </div>
+
+          {loadingMatches ? (
+            <p style={{ margin: 0, color: 'var(--color-on-surface-variant)' }}>Loading matches…</p>
+          ) : (
+            <div style={{ display: 'grid', gap: '0.75rem' }}>
+              {matchedJobs.slice(0, 3).map((job) => (
+                <Link
+                  key={job.id}
+                  href={`/dashboard/jobs/${job.id}`}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '1rem',
+                    padding: '0.875rem 1rem',
+                    background: 'var(--surface-container)',
+                    borderRadius: 'var(--radius-md)',
+                    textDecoration: 'none',
+                    color: 'inherit',
+                  }}
+                >
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontWeight: 700 }}>{job.title}</div>
+                    <div style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
+                      {job.company} · {job.location}
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      flexShrink: 0,
+                      background: 'rgba(13,148,136,0.12)',
+                      color: '#0d9488',
+                      borderRadius: '999px',
+                      padding: '0.35rem 0.65rem',
+                      fontWeight: 700,
+                      fontSize: '0.85rem',
+                    }}
+                  >
+                    {job.matchPct}% match
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
       <div className="job-board-header">
         <button
           type="button"

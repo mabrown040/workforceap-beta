@@ -785,8 +785,8 @@ export default function WhatWeDoPage() {
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'inherit' }}>{item.icon}</span>
                 </div>
-                <div>
-                  <h3 className="text-lg font-extrabold mb-2" style={{ color: index === 1 ? '#fff' : 'var(--color-on-surface)' }}>{item.title}</h3>
+                <div className="min-w-0">
+                  <h3 className="text-lg font-extrabold mb-2" style={{ color: index === 1 ? '#fff' : 'var(--color-on-surface)', overflowWrap: 'anywhere' }}>{item.title}</h3>
                   <p className="text-sm leading-7" style={{ color: index === 1 ? 'rgba(255,255,255,0.88)' : 'var(--color-on-surface-variant)' }}>{item.desc}</p>
                 </div>
               </div>
@@ -810,8 +810,8 @@ export default function WhatWeDoPage() {
                 >
                   {value.num}
                 </div>
-                <div>
-                  <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--color-on-surface)' }}>{value.title}</h3>
+                <div className="min-w-0">
+                  <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--color-on-surface)', overflowWrap: 'anywhere' }}>{value.title}</h3>
                   <p className="text-sm leading-7" style={{ color: 'var(--color-on-surface-variant)' }}>{value.desc}</p>
                 </div>
               </div>

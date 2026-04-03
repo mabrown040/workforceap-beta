@@ -130,8 +130,13 @@ type ElementRating = {
 
 function mapSkillsPayload(data: unknown): { name: string; importance: number | null; level: number | null }[] {
   if (!data || typeof data !== 'object') return [];
-  const d = data as { element?: ElementRating[]; occupation?: { skills?: ElementRating[] } };
-  const arr = d.element ?? d.occupation?.skills ?? [];
+  const d = data as {
+    element?: ElementRating[];
+    skills?: ElementRating[];
+    skill?: ElementRating[];
+    occupation?: { skills?: ElementRating[]; skill?: ElementRating[]; element?: ElementRating[] };
+  };
+  const arr = d.element ?? d.skills ?? d.skill ?? d.occupation?.skills ?? d.occupation?.skill ?? d.occupation?.element ?? [];
   if (!Array.isArray(arr)) return [];
   return arr.slice(0, 40).map((el) => ({
     name: el.element?.name ?? el.name ?? 'Skill',
@@ -143,8 +148,21 @@ function mapSkillsPayload(data: unknown): { name: string; importance: number | n
 export async function getOccupationSkills(onetCode: string) {
   const code = encodeURIComponent(onetCode.trim());
   try {
-    const data = await onetGet<unknown>(`online/occupations/${code}/summary/skills`);
-    return mapSkillsPayload(data);
+    // Details endpoint includes standardized importance values.
+    const details = await onetGet<unknown>(`online/occupations/${code}/details/skills`, {
+      sort: 'importance',
+      start: 1,
+      end: 25,
+    });
+    const mappedDetails = mapSkillsPayload(details);
+    if (mappedDetails.length > 0) return mappedDetails;
+
+    // Backward-compatible fallback for tenants that still mirror summary responses.
+    const summary = await onetGet<unknown>(`online/occupations/${code}/summary/skills`, {
+      start: 1,
+      end: 25,
+    });
+    return mapSkillsPayload(summary);
   } catch {
     return [];
   }

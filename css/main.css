@@ -1806,9 +1806,9 @@ a.nav-cta:hover {
 a.nav-cta::after { display: none !important; }
 .mobile-nav-toggle {
     display: none;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.14);
-    color: var(--color-white);
+    background: var(--surface-container, rgba(0,0,0,0.04));
+    border: 1px solid var(--outline-variant, rgba(0,0,0,0.14));
+    color: var(--color-on-surface, #1c1b1b);
     font-size: 1.5rem;
     cursor: pointer;
     padding: 0.5rem;
@@ -1817,7 +1817,7 @@ a.nav-cta::after { display: none !important; }
     transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
 }
 .mobile-nav-toggle:hover {
-    background: rgba(255,255,255,0.12);
+    background: var(--surface-container-high, rgba(0,0,0,0.12));
     border-color: rgba(255,255,255,0.24);
 }
 
@@ -5832,8 +5832,9 @@ img.img-fade.loaded { opacity: 1; }
         width: 44px;
         height: 44px;
         border-radius: 14px;
-        border: 1px solid rgba(255,255,255,0.08);
-        background: rgba(255,255,255,0.06);
+        border: 1px solid var(--outline-variant, rgba(0,0,0,0.12));
+        background: var(--surface-container, rgba(0,0,0,0.06));
+        color: var(--color-on-surface, #1c1b1b);
         box-shadow: 0 8px 24px rgba(0,0,0,0.18);
         transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
         position: relative;
@@ -5842,13 +5843,13 @@ img.img-fade.loaded { opacity: 1; }
         touch-action: manipulation;
     }
     .mobile-nav-toggle:hover {
-        background: rgba(255,255,255,0.12);
-        border-color: rgba(255,255,255,0.16);
+        background: var(--surface-container-high, rgba(0,0,0,0.12));
+        border-color: var(--outline, rgba(0,0,0,0.2));
         transform: translateY(-1px);
     }
     .mobile-nav-toggle:active { 
         transform: scale(0.92);
-        background: rgba(255,255,255,0.09);
+        background: var(--surface-container, rgba(0,0,0,0.09));
     }
     .nav-menu {
         position: fixed;
@@ -8104,6 +8105,10 @@ body { animation: fadeIn 0.4s ease; }
     background: var(--color-primary);
     border-bottom: 1px solid rgba(255,255,255,0.08);
     padding: 0.5rem 0;
+}
+html.dark .portal-nav {
+    background: #1a1a1a;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 .portal-nav-inner {
     max-width: var(--max-width);

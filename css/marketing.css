@@ -146,17 +146,17 @@ html.dark .home-credibility-bar .home-cred-logo {
 
 /* Fixed mobile tab bar: readable in both themes */
 .marketing-bottom-nav {
-  --mbn-inactive-fg: #584144;
-  --mbn-bg: rgba(252, 249, 248, 0.92);
-  --mbn-border: rgba(222, 191, 194, 0.35);
+  --mbn-inactive-fg: rgba(236, 238, 240, 0.92);
+  --mbn-bg: rgba(22, 24, 26, 0.94);
+  --mbn-border: rgba(255, 255, 255, 0.1);
   background: var(--mbn-bg);
   border-top: 1px solid var(--mbn-border);
 }
 
 html.dark .marketing-bottom-nav {
-  --mbn-inactive-fg: rgba(236, 238, 240, 0.92);
-  --mbn-bg: rgba(22, 24, 26, 0.94);
-  --mbn-border: rgba(255, 255, 255, 0.1);
+  --mbn-inactive-fg: #584144;
+  --mbn-bg: rgba(252, 249, 248, 0.92);
+  --mbn-border: rgba(222, 191, 194, 0.35);
 }
 
 .marketing-bottom-nav__link {

@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import AssessmentForm from '@/components/portal/AssessmentForm';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export default async function AssessmentPage({
   searchParams,
@@ -33,6 +34,7 @@ export default async function AssessmentPage({
   const lastName = nameParts.slice(1).join(' ') ?? '';
 
   return (
+    <>
     <div className="inner-page">
       <section className="page-hero">
         <div className="page-hero-content">
@@ -56,5 +58,7 @@ export default async function AssessmentPage({
       </section>
 
     </div>
+      <MobileBottomNav variant="portal" />
+    </>
   );
 }

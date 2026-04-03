@@ -8,6 +8,7 @@ import SkillAssessmentForm from '@/components/portal/tools/SkillAssessmentForm';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Skills Assessment',
@@ -37,6 +38,7 @@ export default async function SkillsAssessmentPage() {
   const assessmentGated = !completed && dbUser.interviewCompletedAt == null;
 
   return (
+    <>
     <div className="assessments-page">
       <h1 className="portal-page-title">Skills Assessment</h1>
       <p className="portal-assessments-lead">
@@ -124,5 +126,7 @@ export default async function SkillsAssessmentPage() {
 
       {!assessmentGated ? <SkillAssessmentForm /> : null}
     </div>
+      <MobileBottomNav variant="portal" />
+    </>
   );
 }

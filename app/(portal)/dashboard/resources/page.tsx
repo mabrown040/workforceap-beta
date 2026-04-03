@@ -7,6 +7,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getResourcesForCategory } from '@/lib/content/programResources';
 import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Program resources',
@@ -72,6 +73,7 @@ export default async function DashboardResourcesPage() {
     .slice(0, 4);
 
   return (
+    <>
     <div className="portal-resources-page">
       <nav className="learning-hub-breadcrumb" aria-label="Learning hub">
         <Link href="/dashboard/learning">Learning hub</Link>
@@ -201,5 +203,7 @@ export default async function DashboardResourcesPage() {
         </div>
       </section>
     </div>
+      <MobileBottomNav variant="portal" />
+    </>
   );
 }

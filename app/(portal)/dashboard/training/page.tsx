@@ -5,6 +5,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import TrainingCourseList from '@/components/portal/TrainingCourseList';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Training & Job Readiness',
@@ -42,6 +43,7 @@ export default async function TrainingPage() {
   const progressPct = program.courses.length > 0 ? Math.round((completedCount / program.courses.length) * 100) : 0;
 
   return (
+    <>
     <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto' }}>
       {/* Breadcrumb */}
       <nav
@@ -256,5 +258,7 @@ export default async function TrainingPage() {
         />
       </section>
     </div>
+      <MobileBottomNav variant="portal" />
+    </>
   );
 }

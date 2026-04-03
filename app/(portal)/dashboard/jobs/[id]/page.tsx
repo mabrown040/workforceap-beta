@@ -8,6 +8,7 @@ import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
 import JobApplyButton from './JobApplyButton';
 import { formatJobSalaryRange } from '@/lib/jobs/formatSalary';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -62,6 +63,7 @@ export default async function JobDetailPage({ params }: Props) {
   };
 
   return (
+    <>
     <div className="inner-page">
       <PageHero
         title={job.title}
@@ -115,5 +117,7 @@ export default async function JobDetailPage({ params }: Props) {
       </section>
       <Footer />
     </div>
+      <MobileBottomNav variant="portal" />
+    </>
   );
 }

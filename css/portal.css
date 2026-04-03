@@ -474,13 +474,22 @@
     margin-bottom: 0.15rem;
   }
 
-  /* Program Comparison Matrix */
-  .program-comparison-matrix thead {
-    display: none;
-  }
+  /* Program Comparison Matrix - preserve thead on mobile for program names */
   .program-comparison-matrix {
     width: 100%;
     min-width: 0;
+  }
+  .program-comparison-matrix thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--color-surface, #fff);
+  }
+  .program-comparison-matrix thead th {
+    padding: 0.5rem;
+    font-size: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--surface-container-highest, #e0e0e0);
   }
   .program-comparison-matrix tbody tr {
     display: block;
@@ -489,6 +498,14 @@
     border-radius: 0.75rem;
     border: 1px solid var(--surface-container-highest, #e0e0e0);
     background: var(--color-surface, #fff);
+  }
+  .program-comparison-matrix tbody th[scope="row"] {
+    display: block;
+    padding: 0.35rem 0;
+    font-weight: 700;
+    text-align: left;
+    border-bottom: 1px solid var(--surface-container-high, #eee);
+    margin-bottom: 0.5rem;
   }
   .program-comparison-matrix tbody td {
     display: block;

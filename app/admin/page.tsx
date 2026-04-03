@@ -137,7 +137,7 @@ export default async function AdminPage() {
       )}
 
       {/* ── Metric Cards with border-b-2 hover accent ── */}
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
+      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
         {metricCards.map((card) => (
           <div
             key={card.label}
@@ -161,7 +161,7 @@ export default async function AdminPage() {
       </section>
 
       {/* ── Main Dashboard Layout ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
 
         {/* ── Left Column ── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -274,7 +274,7 @@ export default async function AdminPage() {
           {/* System Configuration Grid */}
           <section>
             <h3 style={{ fontSize: '1.125rem', fontWeight: 600, letterSpacing: '-0.02em', marginBottom: '1.25rem', color: 'var(--color-on-surface)' }}>System Configuration</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
               {[
                 { icon: 'language', label: 'Global Nodes', desc: 'Partners and organizations', href: '/admin/partners' },
                 { icon: 'verified_user', label: 'Compliance', desc: 'Assessments and reviews', href: '/admin/assessments' },

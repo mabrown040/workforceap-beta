@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Member guide',
@@ -109,6 +110,7 @@ export default async function MemberGuidePage() {
   const firstName = dbUser.fullName?.split(' ')[0] ?? 'there';
 
   return (
+    <>
     <div style={{ maxWidth: '52rem', margin: '0 auto', padding: '0 1rem 4rem' }}>
       {/* Breadcrumb */}
       <nav style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
@@ -337,5 +339,7 @@ export default async function MemberGuidePage() {
         </div>
       </section>
     </div>
+      <MobileBottomNav variant="portal" />
+    </>
   );
 }

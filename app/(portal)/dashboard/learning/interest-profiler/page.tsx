@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import InterestProfilerClient from '@/components/portal/InterestProfilerClient';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'O*NET Interest Profiler',
@@ -16,8 +17,11 @@ export default async function InterestProfilerPage() {
   if (!user) redirect('/login?redirectTo=/dashboard/learning/interest-profiler');
 
   return (
+    <>
     <div style={{ maxWidth: 720, margin: '0 auto', padding: '1.5rem 1rem 3rem' }}>
       <InterestProfilerClient />
     </div>
+      <MobileBottomNav variant="portal" />
+    </>
   );
 }

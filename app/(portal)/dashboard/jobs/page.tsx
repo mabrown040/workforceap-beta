@@ -8,6 +8,7 @@ import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
 import JobsListingClient from './JobsListingClient';
 import JobsBoardSkeleton from './JobsBoardSkeleton';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Job Board',
@@ -34,6 +35,7 @@ export default async function JobsPage() {
   }
 
   return (
+    <>
     <div className="inner-page">
       <PageHero
         title="Job Board"
@@ -99,5 +101,7 @@ export default async function JobsPage() {
       </section>
       <Footer />
     </div>
+      <MobileBottomNav variant="portal" />
+    </>
   );
 }

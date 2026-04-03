@@ -5,6 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import WeeklyRecapClient from '@/components/portal/WeeklyRecapClient';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Weekly Recap',
@@ -47,6 +48,7 @@ export default async function WeeklyRecapPage() {
   } | null;
 
   return (
+    <>
     <div className="inner-page">
       <section className="page-hero">
         <div className="page-hero-content">
@@ -69,5 +71,7 @@ export default async function WeeklyRecapPage() {
       </section>
 
     </div>
+      <MobileBottomNav variant="portal" />
+    </>
   );
 }

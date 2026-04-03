@@ -6,6 +6,7 @@ import { getCareerBriefs } from '@/lib/content/careerBriefs';
 import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
 import CareerBriefList from '@/components/portal/CareerBriefList';
 import CareerBriefForYou from '@/components/portal/CareerBriefForYou';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Weekly Career Brief',
@@ -23,6 +24,7 @@ export default async function CareerBriefPage() {
   ]);
 
   return (
+    <>
     <div className="inner-page">
       <section className="page-hero">
         <div className="page-hero-content">
@@ -40,5 +42,7 @@ export default async function CareerBriefPage() {
       </section>
 
     </div>
+      <MobileBottomNav variant="portal" />
+    </>
   );
 }

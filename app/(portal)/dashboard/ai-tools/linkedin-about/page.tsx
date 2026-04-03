@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import LinkedInAboutForm from '@/components/portal/tools/LinkedInAboutForm';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata = buildPageMetadata({
   title: 'LinkedIn About Section Generator',
@@ -16,6 +17,7 @@ export default async function LinkedInAboutPage() {
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools/linkedin-about');
 
   return (
+    <>
     <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
       {/* Header */}
       <div
@@ -70,5 +72,7 @@ export default async function LinkedInAboutPage() {
         </div>
       </div>
     </div>
+      <MobileBottomNav variant="portal" />
+    </>
   );
 }

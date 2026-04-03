@@ -5,6 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import AIHistoryList from '@/components/portal/AIHistoryList';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'AI Tool History',
@@ -45,6 +46,7 @@ export default async function AIHistoryPage({ searchParams }: Props) {
   }));
 
   return (
+    <>
     <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
       {/* Header */}
       <div
@@ -130,5 +132,7 @@ export default async function AIHistoryPage({ searchParams }: Props) {
         )}
       </div>
     </div>
+      <MobileBottomNav variant="portal" />
+    </>
   );
 }

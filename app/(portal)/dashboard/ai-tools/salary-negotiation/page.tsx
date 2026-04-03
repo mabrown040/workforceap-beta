@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import SalaryNegotiationForm from '@/components/portal/tools/SalaryNegotiationForm';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata = buildPageMetadata({
   title: 'Salary Negotiation Script',
@@ -16,6 +17,7 @@ export default async function SalaryNegotiationPage() {
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools/salary-negotiation');
 
   return (
+    <>
     <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
       {/* Header */}
       <div
@@ -70,5 +72,7 @@ export default async function SalaryNegotiationPage() {
         </div>
       </div>
     </div>
+      <MobileBottomNav variant="portal" />
+    </>
   );
 }

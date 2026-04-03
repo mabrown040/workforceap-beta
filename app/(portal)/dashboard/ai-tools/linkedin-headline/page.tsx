@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import LinkedInHeadlineForm from '@/components/portal/tools/LinkedInHeadlineForm';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'LinkedIn Headline Generator',
@@ -16,6 +17,7 @@ export default async function LinkedInHeadlinePage() {
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools/linkedin-headline');
 
   return (
+    <>
     <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
       {/* Header */}
       <div
@@ -70,5 +72,7 @@ export default async function LinkedInHeadlinePage() {
         </div>
       </div>
     </div>
+      <MobileBottomNav variant="portal" />
+    </>
   );
 }

@@ -8,6 +8,7 @@ import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
 import ProgramPicker from '@/components/portal/ProgramPicker';
 import { ProgramIcon } from '@/components/ProgramIcon';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'My Program',
@@ -42,6 +43,7 @@ export default async function ProgramPage() {
           Select one program. This is a one-time choice — funding is tied to a single program enrollment.
         </p>
         <ProgramPicker programs={pickerPrograms.length ? pickerPrograms : []} />
+        <MobileBottomNav variant="portal" />
       </>
     );
   }

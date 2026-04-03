@@ -82,7 +82,7 @@ export default async function EmployerMatchesPage() {
 
         {/* Filter chips by job role */}
         {uniqueJobs.length > 1 && (
-          <div style={{ overflowX: 'auto', display: 'flex', gap: '0.5rem', padding: '0 1rem 0.75rem', scrollbarWidth: 'none' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', padding: '0 1rem 0.75rem' }}>
             <span style={{ flexShrink: 0, padding: '0.375rem 0.875rem', borderRadius: '9999px', fontSize: '0.8rem', fontWeight: 600, background: 'var(--color-accent)', color: '#fff' }}>All Roles</span>
             {uniqueJobs.map(([jobId, title]) => (
               <span key={jobId} style={{ flexShrink: 0, padding: '0.375rem 0.875rem', borderRadius: '9999px', fontSize: '0.8rem', fontWeight: 600, background: 'var(--surface-container)', color: 'var(--color-on-surface-variant)' }}>

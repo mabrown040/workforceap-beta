@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
+import pdfParse from 'pdf-parse';
+import mammoth from 'mammoth';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -34,11 +36,10 @@ export async function POST(request: Request) {
 
       // Try pdf-parse first (best quality extraction)
       try {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const pdfParse = require('pdf-parse/lib/pdf-parse.js');
         const data = await pdfParse(buffer);
         text = data.text?.trim() || '';
-      } catch {
+      } catch (e) {
+        console.error('PDF parse failed:', e);
         // Fallback: raw text extraction from PDF binary
         // Extracts readable text by stripping non-printable characters
         const raw = buffer.toString('utf-8');
@@ -60,7 +61,6 @@ export async function POST(request: Request) {
     }
 
     if (ext === 'docx' || ext === 'doc') {
-      const mammoth = await import('mammoth');
       const buffer = Buffer.from(await file.arrayBuffer());
       const result = await mammoth.extractRawText({ buffer });
       return NextResponse.json({ text: result.value?.trim() || '' });

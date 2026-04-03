@@ -150,11 +150,26 @@ export default function WorkspaceShell({
   };
 
   const isCollapsedDesktop = collapsed && wide;
+  const headerRef = useRef<HTMLElement>(null);
+
+  // Measure header height so tab bar sticks below it
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const update = () => {
+      document.documentElement.style.setProperty('--workspace-header-h', `${el.offsetHeight}px`);
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   const firstHref = navItems[0]?.href ?? '/';
 
   return (
     <div className="workspace-shell-root">
-      <header className="workspace-shell-header">
+      <header ref={headerRef} className="workspace-shell-header">
         <div className="workspace-shell-header__brand">
           <button
             type="button"

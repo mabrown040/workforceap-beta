@@ -199,37 +199,37 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
       <div className="md:wa-hidden wa-flex wa-flex-col wa-min-h-screen" style={{ background: '#fcf9f8' }}>
         {/* Header */}
         <header
-          className="sticky top-0 z-50 flex items-center justify-between px-6 py-4 w-full"
-          style={{ background: 'rgba(252,249,248,0.88)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
+          className="sticky top-0 z-50 flex items-center justify-between px-4 py-3 w-full"
+          style={{ background: 'rgba(252,249,248,0.92)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(173,44,77,0.06)' }}
         >
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="text-[#ad2c4d] p-1 rounded-full hover:bg-[#f2eeed] active:scale-95 transition-transform">
-              <span className="material-symbols-outlined">arrow_back</span>
+          <div className="flex items-center gap-3">
+            <Link href="/dashboard" className="text-[#ad2c4d] p-1.5 rounded-full hover:bg-[#f2eeed] active:scale-95 transition-transform">
+              <span className="material-symbols-outlined text-[20px]">arrow_back</span>
             </Link>
-            <h1 className="text-[#ad2c4d] font-bold text-xl tracking-tight">Messages</h1>
+            <h1 className="text-[#1c1b1b] font-bold text-lg tracking-tight">Messages</h1>
           </div>
           <button
             type="button"
-            className="text-[#ad2c4d] p-1 rounded-full hover:bg-[#f2eeed] active:scale-95 transition-transform"
-            aria-label="Search conversations"
+            className="text-[#ad2c4d] p-1.5 rounded-full hover:bg-[#f2eeed] active:scale-95 transition-transform"
+            aria-label="New message"
             onClick={() => searchInputRef.current?.focus()}
           >
-            <span className="material-symbols-outlined">edit_square</span>
+            <span className="material-symbols-outlined text-[20px]">edit_square</span>
           </button>
         </header>
 
         {/* Search */}
-        <div className="px-6 py-4">
+        <div className="px-4 py-2">
           <div className="relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#584144] text-sm">search</span>
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#584144]/50 text-[16px]">search</span>
             <input
               ref={searchInputRef}
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search conversations"
-              className="w-full pl-10 pr-3 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#8c0f37]/40 placeholder:text-[#584144]/60"
-              style={{ background: '#ebe7e7', border: 'none' }}
+              placeholder="Search"
+              className="w-full pl-10 pr-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#8c0f37]/30 placeholder:text-[#584144]/40"
+              style={{ background: '#f0edec', border: 'none' }}
               autoComplete="off"
             />
           </div>
@@ -237,44 +237,44 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
 
         {/* Thread list */}
         <main className="flex-1 pb-24 overflow-y-auto">
-          <div className="space-y-1">
+          <div className="px-2 pt-1">
             {/* Counselor thread — active/unread */}
             {showCounselor && (
-            <div className="px-4 py-1">
+            <div className="px-2 py-0.5">
               <button
                 type="button"
                 onClick={() => setView('thread')}
-                className="w-full bg-[#f2eeed] rounded-xl px-4 py-4 flex items-center gap-4 cursor-pointer active:scale-[0.98] transition-transform text-left"
+                className="w-full rounded-xl px-3 py-3 flex items-center gap-3 cursor-pointer active:scale-[0.98] transition-transform text-left"
+                style={{ background: 'rgba(173,44,77,0.04)' }}
               >
                 <div className="relative flex-shrink-0">
                   <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm tracking-tight"
-                    style={{ background: '#ad2c4d' }}
+                    className="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-xs"
+                    style={{ background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)' }}
                   >
                     {counselorInitials}
                   </div>
-                  {/* Online dot */}
                   <div
-                    className="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2"
-                    style={{ background: '#7b5800', borderColor: '#f2eeed' }}
+                    className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2"
+                    style={{ background: '#22c55e', borderColor: '#fcf9f8' }}
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-baseline mb-0.5">
-                    <h3 className="font-bold text-[15px] text-[#1c1b1b]">
+                  <div className="flex justify-between items-baseline">
+                    <h3 className="font-semibold text-[14px] text-[#1c1b1b]">
                       {counselorName ?? 'Your Counselor'}
                     </h3>
                     {displayLastTime && (
-                      <span className="text-[11px] font-medium text-[#8c0f37] uppercase tracking-wider">
+                      <span className="text-[11px] text-[#584144]/60">
                         {displayLastTime}
                       </span>
                     )}
                   </div>
-                  <div className="flex justify-between items-center gap-2">
-                    <p className="text-sm text-[#1c1b1b] font-medium truncate">{displayLastMsg || 'Tap to start chatting'}</p>
+                  <div className="flex justify-between items-center gap-2 mt-0.5">
+                    <p className="text-[13px] text-[#584144] truncate">{displayLastMsg || 'Tap to start chatting'}</p>
                     {unreadCount > 0 && (
                       <span
-                        className="flex-shrink-0 text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center"
+                        className="flex-shrink-0 text-white text-[10px] font-bold h-5 min-w-[20px] px-1 rounded-full flex items-center justify-center"
                         style={{ background: '#ad2c4d' }}
                       >
                         {unreadCount}
@@ -288,52 +288,52 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
 
             {/* Program team — link to resources */}
             {showProgram && (
-            <div className="px-4 py-1">
+            <div className="px-2 py-0.5">
               <Link
                 href="/dashboard/resources"
-                className="block rounded-xl px-4 py-4 flex items-center gap-4 active:scale-[0.98] transition-transform"
-                style={{ background: '#fcf9f8', textDecoration: 'none', color: 'inherit' }}
+                className="block rounded-xl px-3 py-3 flex items-center gap-3 active:scale-[0.98] transition-transform"
+                style={{ textDecoration: 'none', color: 'inherit' }}
               >
                 <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center text-[#584144] font-bold text-sm flex-shrink-0"
+                  className="w-11 h-11 rounded-full flex items-center justify-center text-[#584144] font-bold text-xs flex-shrink-0"
                   style={{ background: '#e5e2e1' }}
                 >
                   PT
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-baseline mb-0.5">
-                    <h3 className="font-bold text-[15px] text-[#1c1b1b]">Program Team</h3>
-                    <span className="text-[11px] text-[#584144] opacity-60">Yesterday</span>
+                  <div className="flex justify-between items-baseline">
+                    <h3 className="font-semibold text-[14px] text-[#1c1b1b]">Program Team</h3>
+                    <span className="text-[11px] text-[#584144]/60">Yesterday</span>
                   </div>
-                  <p className="text-sm text-[#584144] truncate">Your certification for Digital Literacy is ready.</p>
+                  <p className="text-[13px] text-[#584144] truncate mt-0.5">Your certification for Digital Literacy is ready.</p>
                 </div>
-                <span className="material-symbols-outlined text-[#584144] text-lg flex-shrink-0">chevron_right</span>
+                <span className="material-symbols-outlined text-[#584144]/40 text-lg flex-shrink-0">chevron_right</span>
               </Link>
             </div>
             )}
 
             {/* Career Services — link to job board */}
             {showCareer && (
-            <div className="px-4 py-1">
+            <div className="px-2 py-0.5">
               <Link
                 href="/dashboard/jobs"
-                className="block rounded-xl px-4 py-4 flex items-center gap-4 active:scale-[0.98] transition-transform"
-                style={{ background: '#fcf9f8', textDecoration: 'none', color: 'inherit' }}
+                className="block rounded-xl px-3 py-3 flex items-center gap-3 active:scale-[0.98] transition-transform"
+                style={{ textDecoration: 'none', color: 'inherit' }}
               >
                 <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center text-[#584144] font-bold text-sm flex-shrink-0"
+                  className="w-11 h-11 rounded-full flex items-center justify-center text-[#584144] font-bold text-xs flex-shrink-0"
                   style={{ background: '#e5e2e1' }}
                 >
                   CS
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-baseline mb-0.5">
-                    <h3 className="font-bold text-[15px] text-[#1c1b1b]">Career Services</h3>
-                    <span className="text-[11px] text-[#584144] opacity-60">Monday</span>
+                  <div className="flex justify-between items-baseline">
+                    <h3 className="font-semibold text-[14px] text-[#1c1b1b]">Career Services</h3>
+                    <span className="text-[11px] text-[#584144]/60">Monday</span>
                   </div>
-                  <p className="text-sm text-[#584144] truncate">New job match found: Junior Web Developer.</p>
+                  <p className="text-[13px] text-[#584144] truncate mt-0.5">New job match found: Junior Web Developer.</p>
                 </div>
-                <span className="material-symbols-outlined text-[#584144] text-lg flex-shrink-0">chevron_right</span>
+                <span className="material-symbols-outlined text-[#584144]/40 text-lg flex-shrink-0">chevron_right</span>
               </Link>
             </div>
             )}

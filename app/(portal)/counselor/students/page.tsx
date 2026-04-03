@@ -49,8 +49,7 @@ export default async function CounselorStudentsPage() {
         {/* Stats row */}
         <div
           style={{
-            display: 'flex',
-            overflowX: 'auto',
+            display: 'flex', flexWrap: 'wrap',
             gap: '0.75rem',
             padding: '1rem 1rem 0',
             msOverflowStyle: 'none',
@@ -93,8 +92,7 @@ export default async function CounselorStudentsPage() {
         {/* Filter chips */}
         <div
           style={{
-            display: 'flex',
-            overflowX: 'auto',
+            display: 'flex', flexWrap: 'wrap',
             gap: '0.625rem',
             padding: '1rem 1rem 0',
             scrollbarWidth: 'none',

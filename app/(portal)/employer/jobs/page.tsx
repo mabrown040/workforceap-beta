@@ -146,7 +146,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
         </div>
 
         {/* Filter chips */}
-        <div style={{ overflowX: 'auto', display: 'flex', gap: '0.5rem', padding: '0 1rem 0.75rem', scrollbarWidth: 'none' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', padding: '0 1rem 0.75rem' }}>
           {FILTER_CHIPS.map((chip) => (
             <Link
               key={chip.value}

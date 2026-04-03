@@ -78,7 +78,7 @@ export default async function EmployerPipelinePage() {
         </div>
 
         {/* Stage scroll */}
-        <div style={{ overflowX: 'auto', display: 'flex', gap: '0.5rem', padding: '0 1rem 0.875rem', scrollbarWidth: 'none' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', padding: '0 1rem 0.875rem' }}>
           {STAGES.map((stage) => (
             <div
               key={stage.key}

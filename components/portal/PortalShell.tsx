@@ -47,12 +47,18 @@ export default function PortalShell({ children }: { children: React.ReactNode })
   // Body scroll lock when sidebar is open
   useEffect(() => {
     if (sidebarOpen) {
+      const scrollY = window.scrollY;
       document.body.classList.add('sidebar-open');
+      document.body.style.top = `-${scrollY}px`;
     } else {
+      const scrollY = document.body.style.top;
       document.body.classList.remove('sidebar-open');
+      document.body.style.top = '';
+      window.scrollTo(0, parseInt(scrollY || '0') * -1);
     }
     return () => {
       document.body.classList.remove('sidebar-open');
+      document.body.style.top = '';
     };
   }, [sidebarOpen]);
 

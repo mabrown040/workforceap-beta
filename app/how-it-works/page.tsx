@@ -90,7 +90,7 @@ export default async function HowItWorksPage() {
               <p style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', maxWidth: '36rem', lineHeight: 1.7, marginBottom: '2.5rem' }}>
                 We provide the tools, training, and long-term support needed to bridge the gap between where you are and where you want to be.
               </p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
                 <Link
                   href="/apply"
                   style={{
@@ -100,10 +100,11 @@ export default async function HowItWorksPage() {
                     padding: '1rem 2rem',
                     borderRadius: 'var(--radius-lg)',
                     fontWeight: 700,
+                    fontSize: '1.1rem',
                     textDecoration: 'none',
                   }}
                 >
-                  Start Your Application
+                  Apply Now
                 </Link>
                 <Link
                   href="/programs"
@@ -114,23 +115,31 @@ export default async function HowItWorksPage() {
                     padding: '1rem 2rem',
                     borderRadius: 'var(--radius-lg)',
                     fontWeight: 700,
+                    fontSize: '1.1rem',
                     textDecoration: 'none',
                   }}
                 >
                   View Program Details
                 </Link>
+                <Link
+                  href="/find-your-path"
+                  style={{
+                    display: 'inline-block',
+                    background: 'var(--surface-container-high)',
+                    color: 'var(--color-accent)',
+                    padding: '1rem 2rem',
+                    borderRadius: 'var(--radius-lg)',
+                    fontWeight: 700,
+                    fontSize: '1.1rem',
+                    textDecoration: 'none',
+                  }}
+                >
+                  Find Your Career
+                </Link>
               </div>
             </div>
           </div>
         </div>
-      </section>
-
-      {/* Find Your Career CTA */}
-      <section style={{ textAlign: 'center', padding: '2.5rem 1rem', background: 'var(--color-light)' }}>
-        <p style={{ fontSize: '1.1rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>Not sure where to start?</p>
-        <a href="/find-your-path" className="btn btn-accent btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
-          Find Your Career
-        </a>
       </section>
 
       {/* The Journey: 11-Milestone Process */}

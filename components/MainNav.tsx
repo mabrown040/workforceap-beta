@@ -13,11 +13,11 @@ const navItems = [
     children: [
       { href: '/what-we-do', label: 'What We Do' },
       { href: '/how-it-works', label: 'How It Works' },
-      { href: '/partners', label: 'Partners' },
       { href: '/leadership', label: 'Leadership' },
+      { href: '/partners', label: 'Partners' },
       { href: '/blog', label: 'Blog' },
-      { href: '/faq', label: 'FAQ' },
       { href: '/contact', label: 'Contact Us' },
+      { href: '/faq', label: 'FAQ' },
     ],
   },
   { href: '/programs', label: 'Programs' },

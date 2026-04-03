@@ -23,7 +23,7 @@ const HERO_IMAGE_THUMB =
 const MILESTONES = [
   { num: '01', title: 'Apply', desc: 'Submit your application online in about 10 minutes. Why: We need to understand your background to match you with the right opportunity.' },
   { num: '02', title: 'Eligibility Review', desc: 'Our team reviews your application within 3-5 business days. Why: We ensure our programs fit your situation and goals.' },
-  { num: '03', title: 'Welcome & Onboarding', desc: 'Get access to your member portal and resources. Why: Setting you up for success from day one.' },
+  { num: '03', title: 'Getting Started', desc: 'Get access to your member portal and resources. Why: Setting you up for success from day one.' },
   { num: '04', title: 'Skills Assessment', desc: 'Discover your strengths and identify growth areas. Why: Data helps us personalize your pathway.' },
   { num: '05', title: 'Program Enrollment', desc: 'Begin your chosen certificate program. Why: Industry-recognized credentials open doors.' },
   { num: '06', title: '1:1 Counselor Support', desc: 'Regular check-ins with your dedicated career counselor. Why: Accountability and guidance increase completion rates.' },
@@ -64,7 +64,7 @@ export default async function HomePage() {
         {/* Gradient overlay */}
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'linear-gradient(180deg, rgba(18,20,22,0.82) 0%, rgba(18,20,22,0.92) 60%, var(--color-background-dark) 100%)',
+          background: 'linear-gradient(180deg, rgba(28,31,36,0.68) 0%, rgba(28,31,36,0.80) 60%, var(--color-background-dark) 100%)',
           zIndex: 1,
         }} />
 
@@ -108,8 +108,20 @@ export default async function HomePage() {
             <ExperimentedCtaLink
               experiment="home_apply_primary_cta"
               variants={[
-                { id: 'control', label: 'Start Your Journey', className: 'btn btn-secondary btn-large', href: '/apply' },
-                { id: 'urgency', label: 'Apply Now', className: 'btn btn-secondary btn-large', href: '/apply' },
+                {
+                  id: 'control',
+                  label: 'Apply Now',
+                  className: 'btn btn-secondary btn-large',
+                  href: '/apply',
+                  style: { fontSize: '1.15rem' },
+                },
+                {
+                  id: 'urgency',
+                  label: 'Start Your Journey',
+                  className: 'btn btn-secondary btn-large',
+                  href: '/apply',
+                  style: { fontSize: '1.15rem' },
+                },
               ]}
             />
             <Link href="/partners" className="btn btn-outline btn-large home-hero-outline-cta">

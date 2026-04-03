@@ -136,9 +136,13 @@ export default function ProgramsDecisionJourneyNav({
           .pdj-nav {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
             top: 4rem;
             border-radius: var(--radius-lg);
+            margin-left: 0.5rem;
+            margin-right: 0.5rem;
           }
+          .pdj-nav::-webkit-scrollbar { display: none; }
 
           .pdj-nav__list {
             flex-wrap: nowrap;
@@ -146,13 +150,21 @@ export default function ProgramsDecisionJourneyNav({
           }
 
           .pdj-nav__label {
-            display: none;
+            font-size: 0.65rem;
+            letter-spacing: 0;
           }
 
           .pdj-nav__tab {
             flex: 0 0 auto;
-            padding: 0.5rem 0.75rem;
-            min-width: 3rem;
+            padding: 0.5rem 0.625rem;
+            min-width: auto;
+            flex-direction: column;
+            gap: 0.2rem;
+            font-size: 0.65rem;
+          }
+
+          .pdj-nav__icon {
+            font-size: 1.125rem;
           }
         }
       `}</style>

@@ -307,45 +307,62 @@ export default function InterestProfilerClient() {
         </legend>
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+            display: 'flex',
+            flexDirection: 'column',
             gap: '0.5rem',
           }}
         >
-          {LIKERT.map(({ v, label }) => (
-            <label
-              key={v}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '0.6rem 0.75rem',
-                borderRadius: 8,
-                border:
-                  digits[step] === v ? '2px solid #8c0f37' : '1px solid var(--outline-variant)',
-                background: digits[step] === v ? 'rgba(140, 15, 55, 0.06)' : 'var(--surface)',
-                cursor: 'pointer',
-                fontSize: '0.88rem',
-              }}
-            >
-              <input
-                type="radio"
-                name={`ip-q-${step}`}
-                checked={digits[step] === v}
-                onChange={() => {
-                  setDigits((prev) => {
-                    const next = [...prev];
-                    next[step] = v;
-                    return next;
-                  });
+          {LIKERT.map(({ v, label }) => {
+            const selected = digits[step] === v;
+            return (
+              <label
+                key={v}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  padding: '0.875rem 1rem',
+                  borderRadius: '0.75rem',
+                  border: selected ? '2px solid #8c0f37' : '1px solid var(--outline-variant)',
+                  background: selected ? 'rgba(140, 15, 55, 0.06)' : 'var(--surface)',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  transition: 'border-color 0.15s, background 0.15s',
+                  WebkitTapHighlightColor: 'transparent',
                 }}
-                style={{ accentColor: '#8c0f37' }}
-              />
-              <span>
-                {v} — {label}
-              </span>
-            </label>
-          ))}
+              >
+                <input
+                  type="radio"
+                  name={`ip-q-${step}`}
+                  checked={selected}
+                  onChange={() => {
+                    setDigits((prev) => {
+                      const next = [...prev];
+                      next[step] = v;
+                      return next;
+                    });
+                  }}
+                  style={{ display: 'none' }}
+                />
+                <span
+                  style={{
+                    width: '28px', height: '28px', borderRadius: '9999px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0,
+                    background: selected ? '#8c0f37' : 'var(--surface-container-highest, #e5e2e1)',
+                    color: selected ? '#fff' : 'var(--color-on-surface-variant)',
+                    fontSize: '0.75rem', fontWeight: 700,
+                    transition: 'background 0.15s, color 0.15s',
+                  }}
+                >
+                  {v}
+                </span>
+                <span style={{ fontWeight: selected ? 600 : 400, color: selected ? '#8c0f37' : 'var(--color-on-surface)' }}>
+                  {label}
+                </span>
+              </label>
+            );
+          })}
         </div>
       </fieldset>
 

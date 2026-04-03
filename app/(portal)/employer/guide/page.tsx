@@ -159,7 +159,7 @@ export default async function EmployerGuidePage() {
         </div>
       </section>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.25fr 1fr', gap: '2rem', marginBottom: '3.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', marginBottom: '3.5rem' }}>
         {/* Candidate differentiators */}
         <section className="stitch-card" style={{ padding: '2rem' }}>
           <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>

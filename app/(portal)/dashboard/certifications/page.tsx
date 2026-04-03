@@ -370,7 +370,7 @@ export default async function DashboardCertificationsPage() {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: '2fr 1fr',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
               gap: 'var(--space-4)',
               marginBottom: 'var(--space-12)',
             }}

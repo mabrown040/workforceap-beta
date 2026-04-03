@@ -236,7 +236,7 @@ export default async function InterviewPracticePage() {
               >
                 Focus Area
               </p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
                 {[
                   { label: 'Behavioral', icon: 'psychology', desc: 'STAR method questions', active: true },
                   { label: 'Technical', icon: 'code', desc: 'Role-specific skills', active: false },

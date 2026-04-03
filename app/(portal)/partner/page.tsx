@@ -365,7 +365,7 @@ export default async function PartnerDashboardPage() {
       {/* ── Journey Snapshot (5-col) ── */}
       <section style={{ marginBottom: '2rem' }}>
         <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>Journey Snapshot</p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.75rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '0.75rem' }}>
           {JOURNEY_STAGES.map((s, i) => (
             <div
               key={s}
@@ -404,7 +404,7 @@ export default async function PartnerDashboardPage() {
       ) : (
         <>
           {/* ── Main Bento: Member Pipeline + Sidebar ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>
 
             {/* Member Pipeline */}
             <section>

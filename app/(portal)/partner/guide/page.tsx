@@ -177,7 +177,7 @@ export default async function PartnerGuidePage() {
         <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '1rem', letterSpacing: '-0.02em' }}>
           Your referral impact
         </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
           {[
             { label: 'Members referred', value: totalReferred, icon: 'group_add' },
             { label: 'Completed assessment', value: assessmentCount, icon: 'assignment_turned_in' },

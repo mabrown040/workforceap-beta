@@ -210,7 +210,7 @@ export default async function CounselorPortalPage() {
       </section>
 
       {/* ── Stat Cards ── */}
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2.5rem' }}>
+      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1.5rem', marginBottom: '2.5rem' }}>
         {statCards.map((card) => (
           <div
             key={card.label}
@@ -241,7 +241,7 @@ export default async function CounselorPortalPage() {
       </section>
 
       {/* ── Main Content Grid ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
 
         {/* ── Left Column ── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>

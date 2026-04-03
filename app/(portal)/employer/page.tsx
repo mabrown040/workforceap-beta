@@ -296,7 +296,7 @@ export default async function EmployerDashboardPage() {
       </section>
 
       {/* ── KPI Metric Cards ── */}
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
+      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
         {kpiCards.map((card) => (
           <div key={card.label} className="metric-card" style={card.borderAccent ? { borderLeft: '4px solid var(--color-accent)' } : {}}>
             <p className="metric-label" style={{ marginBottom: '0.5rem' }}>{card.label}</p>
@@ -327,7 +327,7 @@ export default async function EmployerDashboardPage() {
       )}
 
       {/* ── Talent Pipeline + Verification Tools ── */}
-      <section style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem', marginBottom: '3rem' }}>
+      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
         {/* Pipeline */}
         <div className="stitch-card" style={{ padding: '2rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
@@ -338,7 +338,7 @@ export default async function EmployerDashboardPage() {
           </div>
 
           {/* Placement snapshot stats */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
             {placementCards.map((card) => (
               <div key={card.label} style={{ background: 'var(--surface-container-low)', padding: '1rem', borderRadius: '0.5rem' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', display: 'block', marginBottom: '0.5rem' }}>{card.icon}</span>

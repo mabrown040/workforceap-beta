@@ -364,7 +364,7 @@ export default async function JobMatchScorerPage() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
             gap: '1.25rem',
           }}
         >

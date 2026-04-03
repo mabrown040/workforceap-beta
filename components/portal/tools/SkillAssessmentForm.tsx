@@ -404,10 +404,10 @@ export default function SkillAssessmentForm({ disabled = false }: Props) {
               {radarAxes.map((axis) => (
                 <div key={axis.axis} style={{ display: 'grid', gridTemplateColumns: isMobile ? '84px 1fr 36px' : '110px 1fr 42px', gap: isMobile ? '0.5rem' : '0.75rem', alignItems: 'center', minWidth: 0 }}>
                   <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{axis.axis}</span>
-                  <div style={{ height: '0.5rem', background: '#f0edec', borderRadius: '999px', overflow: 'hidden' }}>
+                  <div style={{ height: axis.hasData === false ? '1rem' : '0.5rem', background: '#f0edec', borderRadius: '999px', overflow: 'hidden', transition: 'height 0.2s' }}>
                     {axis.hasData === false ? (
                       <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ fontSize: '0.6rem', color: '#999', fontStyle: 'italic' }}>no data</span>
+                        <span style={{ fontSize: '0.6rem', color: '#999', fontStyle: 'italic', lineHeight: 1 }}>no data</span>
                       </div>
                     ) : (
                       <div

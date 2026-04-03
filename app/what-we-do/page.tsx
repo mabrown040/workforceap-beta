@@ -878,7 +878,7 @@ export default function WhatWeDoPage() {
           <p style={{ fontSize: '0.95rem', lineHeight: 1.7, marginBottom: '1.5rem', color: 'rgba(255,255,255,0.86)' }}>
             Join individuals who are transforming their careers through employer-aligned training and certifications.
           </p>
-          <div className="flex w-full flex-col gap-3">
+          <div className="flex w-full flex-col gap-3" style={{ display: 'flex', width: '100%', flexDirection: 'column', gap: '0.75rem' }}>
             <Link
               href="/apply"
               style={{

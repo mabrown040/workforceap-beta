@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Flame } from 'lucide-react';
 import type { ComparisonTrack } from '@/lib/content/programComparisonTracks';
 import { getProgramExtra } from '@/lib/content/programExtras';
+import { useScrollAffordance } from '@/components/portal/useScrollAffordance';
 
 const MAX_PICK = 4;
 const MIN_PICK = 2;
@@ -30,6 +31,8 @@ export default function ProgramComparisonClient({ tracks }: Props) {
   const [selected, setSelected] = useState<Set<string>>(() => new Set());
   const [hydrated, setHydrated] = useState(false);
   const initFromUrlRef = useRef(false);
+  const matrixScrollRef = useScrollAffordance<HTMLDivElement>();
+  const tableScrollRef = useScrollAffordance<HTMLDivElement>();
 
   useEffect(() => {
     if (initFromUrlRef.current) return;
@@ -187,7 +190,7 @@ export default function ProgramComparisonClient({ tracks }: Props) {
             </button>
           </div>
           {tradeoffNote && <p className="program-comparison-tradeoff">{tradeoffNote}</p>}
-          <div className="program-comparison-matrix-wrap">
+          <div className="program-comparison-matrix-wrap" ref={matrixScrollRef}>
             <table className="program-comparison-matrix">
               <thead>
                 <tr>
@@ -271,7 +274,7 @@ export default function ProgramComparisonClient({ tracks }: Props) {
         </p>
       </div>
 
-      <div className="program-comparison-table-wrap">
+      <div className="program-comparison-table-wrap" ref={tableScrollRef}>
         <table className="comparison-table program-table program-comparison-table-pick">
           <thead>
             <tr>

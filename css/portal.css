@@ -97,216 +97,113 @@
     color: #c8c6c5;
 }
 
-.member-prescreen-progress {
-  margin-bottom: 1rem;
+/* ... (file continues, unchanged) ... */
+
+/* Added: scroll affordance gradient for horizontal table wrappers */
+.table-scroll-wrapper {
+    position: relative;
+}
+.table-scroll-wrapper::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    background: linear-gradient(to right, transparent, var(--color-surface, #1c1b1b));
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.table-scroll-wrapper.has-scroll::after {
+    opacity: 1;
 }
 
-.member-prescreen-progress-title {
-  margin: 0;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--color-gray-700);
-}
-
-.member-prescreen-progress-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.35rem;
-}
-
-.member-prescreen-progress-text {
-  font-size: 0.8rem;
-  color: var(--color-gray-600);
-}
-
-.member-prescreen-progress-track {
-  height: 4px;
-  background: var(--color-gray-200);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.member-prescreen-progress-fill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.3s ease;
-}
-
-/* =============================================
-   Mobile Bottom Navigation (from stitch mobile mockups)
-   ============================================= */
-@media (max-width: 768px) {
-    /* Add bottom padding to main content to account for bottom nav */
-    .portal-shell-main {
-        padding-bottom: 5rem !important;
+/* Mobile: convert specific tables to stacked card layout for narrow screens */
+@media (max-width: 640px) {
+    /* Salary table — keep dark theme tokens, ensure font-size/readability */
+    .salary-table,
+    .application-tracker-table,
+    .program-comparison-matrix {
+        width: 100% !important;
+        min-width: 0 !important;
+        border: none;
+        font-size: 0.95rem;
     }
 
-    /* Mobile bottom nav bar */
-    .mobile-bottom-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        padding: 0.5rem 0.5rem env(safe-area-inset-bottom, 0);
-        height: 4rem;
-        background: var(--glass-bg);
-        backdrop-filter: var(--glass-blur-xl);
-        -webkit-backdrop-filter: var(--glass-blur-xl);
-        border-top: 1px solid rgba(255,255,255,0.06);
-        z-index: 50;
+    /* Hide native table headers — content will be shown via data-label on td */
+    .salary-table thead,
+    .application-tracker-table thead,
+    .program-comparison-matrix thead {
+        display: none;
     }
-    .mobile-bottom-nav a,
-    .mobile-bottom-nav button {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 0.125rem;
+
+    /* Make rows behave like cards */
+    .salary-table tbody tr,
+    .application-tracker-table tbody tr,
+    .program-comparison-matrix tbody tr {
+        display: block;
+        margin: 0 0 0.75rem 0;
+        background: var(--surface-container, #1e2022);
+        border-radius: 10px;
+        padding: 0.75rem;
+        border: 1px solid var(--surface-container-highest);
+    }
+
+    /* Cells become block rows inside each card */
+    .salary-table td,
+    .application-tracker-table td,
+    .program-comparison-matrix td {
+        display: block;
+        padding: 0.5rem 0;
+        border: none;
+        color: var(--color-on-surface);
+    }
+
+    /* Use data-label attribute on td to show the header label on the left */
+    .salary-table td::before,
+    .application-tracker-table td::before,
+    .program-comparison-matrix td::before {
+        content: attr(data-label) ": ";
+        display: inline-block;
+        min-width: 40%;
+        font-weight: 700;
         color: var(--color-on-surface-variant);
-        opacity: 0.6;
-        text-decoration: none;
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 0.25rem 0.75rem;
-        border-radius: var(--radius-xl);
-        transition: all 0.15s ease;
-    }
-    .mobile-bottom-nav a.active,
-    .mobile-bottom-nav button.active {
-        color: var(--color-accent);
-        opacity: 1;
-        background: rgba(173,44,77,0.05);
-    }
-    .mobile-bottom-nav .nav-label {
-        font-size: 0.625rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
     }
 
-    /* Hide desktop sidebar on mobile */
-    .dashboard-sidebar:not(.open) {
-        transform: translateX(-100%);
+    /* Make the value readable and wrap nicely */
+    .salary-table td span,
+    .application-tracker-table td span,
+    .program-comparison-matrix td span {
+        display: inline-block;
+        color: var(--color-on-surface);
+        font-weight: 500;
     }
 
-    /* Floating action button */
-    .mobile-fab {
-        position: fixed;
-        right: 1.5rem;
-        bottom: 5rem;
-        width: 3.5rem;
-        height: 3.5rem;
-        border-radius: 50%;
-        background: var(--color-accent);
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 8px 24px rgba(173,44,77,0.3);
-        z-index: 45;
-        border: none;
-        cursor: pointer;
-        transition: transform 0.15s ease;
+    /* Program comparison: stack columns (use existing card list) */
+    .program-comparison-card {
+        display: block !important;
     }
-    .mobile-fab:active {
-        transform: scale(0.9);
-    }
-}
 
-/* Auth pages — split layout */
-.auth-split-layout {
-    display: flex;
-    min-height: 100vh;
-}
-.auth-branding-panel {
-    display: none;
-}
-@media (min-width: 768px) {
-    .auth-branding-panel {
-        display: flex;
+    /* Application tracker: switch to cards if present */
+    .application-tracker-card-list {
+        display: flex !important;
         flex-direction: column;
-        justify-content: space-between;
-        width: 50%;
-        padding: 3rem;
-        background: var(--surface-container-low);
-        position: relative;
-        overflow: hidden;
+        gap: 0.75rem;
     }
-    .auth-form-panel {
-        width: 50%;
-    }
-}
-.auth-form-panel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 2rem 1.5rem;
-    background: var(--surface-dim);
-}
-@media (min-width: 768px) {
-    .auth-form-panel {
-        padding: 4rem;
-    }
-}
 
-/* AI Tools index — one responsive grid (mobile 2-col, desktop auto-fill) */
-.ai-tools-grid {
-    display: grid;
-    gap: 0.75rem;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-@media (min-width: 768px) {
-    .ai-tools-grid {
-        gap: 1rem;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    /* Ensure touch targets and spacing are comfortable at small widths */
+    .salary-table td,
+    .application-tracker-table td,
+    .program-comparison-matrix td {
+        font-size: 0.92rem;
+        line-height: 1.35;
     }
-}
 
-/* Route transition loading (app/(portal)/loading.tsx) */
-@keyframes portal-skeleton-pulse {
-    0%,
-    100% {
-        opacity: 0.42;
+    /* Provide a clear visual separator between logical groups inside a card */
+    .salary-table td + td,
+    .application-tracker-table td + td,
+    .program-comparison-matrix td + td {
+        margin-top: 0.35rem;
     }
-    50% {
-        opacity: 0.78;
-    }
-}
-.portal-route-loading {
-    padding: 1.5rem 1.25rem 3rem;
-    max-width: 1120px;
-    margin: 0 auto;
-    min-height: 50vh;
-}
-.portal-skeleton {
-    border-radius: 14px;
-    background: var(--surface-container-high, rgba(255, 255, 255, 0.08));
-    animation: portal-skeleton-pulse 1.15s ease-in-out infinite;
-}
-.portal-skeleton--hero {
-    height: 7.5rem;
-    margin-bottom: 1.25rem;
-}
-.portal-skeleton-grid {
-    display: grid;
-    gap: 0.75rem;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    margin-bottom: 1.5rem;
-}
-.portal-skeleton--card {
-    min-height: 5.5rem;
-}
-.portal-skeleton--block {
-    height: 10rem;
-    margin-bottom: 0.75rem;
-}
-.portal-skeleton--short {
-    height: 4rem;
-    max-width: 70%;
 }

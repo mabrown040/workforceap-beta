@@ -191,6 +191,33 @@ html.dark .marketing-bottom-nav {
   color: inherit;
 }
 
+/* Portal variants: reduce crowding in fixed bottom nav labels */
+.mobile-bottom-nav--portal .marketing-bottom-nav__link,
+.mobile-bottom-nav--employer .marketing-bottom-nav__link,
+.mobile-bottom-nav--counselor .marketing-bottom-nav__link,
+.mobile-bottom-nav--partner .marketing-bottom-nav__link {
+  padding: 6px 8px;
+  min-width: 0;
+  flex: 1 1 0;
+}
+
+.mobile-bottom-nav--portal .marketing-bottom-nav__label,
+.mobile-bottom-nav--employer .marketing-bottom-nav__label,
+.mobile-bottom-nav--counselor .marketing-bottom-nav__label,
+.mobile-bottom-nav--partner .marketing-bottom-nav__label {
+  font-size: 9px;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+.mobile-bottom-nav--partner .marketing-bottom-nav__label {
+  font-size: 8px;
+}
+
+.mobile-bottom-nav--partner .marketing-bottom-nav__link {
+  gap: 1px;
+}
+
 /*
  * Fixed `MainNav` (default bar height + safe-area-inset-top). In-flow spacer on marketing routes only
  * so `#main-content` starts below the fixed header — desktop and mobile.

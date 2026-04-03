@@ -7,6 +7,11 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
 import DashboardProfileForm from '@/components/portal/DashboardProfileForm';
+import SettingsForm from '@/components/portal/SettingsForm';
+import DeleteAccountButton from '@/components/portal/DeleteAccountButton';
+import StartTourButton from '@/components/onboarding/StartTourButton';
+import ResumeClient from '@/app/(portal)/dashboard/resume/ResumeClient';
+import { getProfileCompleteness } from '@/lib/resume/profileCompleteness';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import MobileProfileSkillsResume from '@/components/portal/MobileProfileSkillsResume';
 
@@ -51,6 +56,17 @@ export default async function DashboardProfilePage() {
   ];
   const filledFields = profileFields.filter(Boolean).length;
   const profilePct = Math.round((filledFields / profileFields.length) * 100);
+  const completeness = getProfileCompleteness(dbUser.profile, dbUser);
+  const witData = {
+    name: dbUser.fullName ?? '',
+    email: dbUser.email,
+    phone: dbUser.phone ?? dbUser.profile?.profilePhone ?? '',
+    recentEmployer: '—',
+    targetJob: program?.title ?? dbUser.enrolledProgram ?? 'Target role',
+    skills: program?.skills?.join(', ') ?? '—',
+  };
+  const hasEnhanced = !!dbUser.profile?.resumeEnhancedPath;
+  const hasOriginal = !!dbUser.profile?.resumeOriginalPath;
 
   return (
     <>
@@ -152,9 +168,35 @@ export default async function DashboardProfilePage() {
         )}
 
         {/* Resume upload section */}
-        <MobileProfileSkillsResume
-          resumeOriginalPath={dbUser.profile?.resumeOriginalPath ?? null}
-        />
+        <div id="resume">
+          <MobileProfileSkillsResume
+            resumeOriginalPath={dbUser.profile?.resumeOriginalPath ?? null}
+          />
+        </div>
+
+        {/* Account + settings card */}
+        <div id="settings" className="wa-mx-6 wa-mb-4 wa-bg-[#fcf9f8] wa-p-5 wa-rounded-xl wa-border border-[#debfc2]/30">
+          <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#584144] wa-mb-4">Account & Settings</h3>
+          <div className="wa-space-y-4">
+            <div>
+              <p className="wa-text-[10px] wa-text-[#584144] wa-font-medium wa-uppercase wa-tracking-wider wa-mb-1">Notifications</p>
+              <SettingsForm
+                defaultUpdates={dbUser.notificationsUpdates ?? true}
+                defaultReminders={dbUser.notificationsReminders ?? true}
+              />
+            </div>
+            <div className="wa-flex wa-flex-wrap wa-gap-2 wa-pt-1">
+              <Link href={`/forgot-password?email=${encodeURIComponent(dbUser.email)}`} className="btn btn-outline">
+                Reset password
+              </Link>
+              <StartTourButton />
+            </div>
+            <div>
+              <p className="wa-text-[10px] wa-text-[#584144] wa-font-medium wa-uppercase wa-tracking-wider wa-mb-1">Danger Zone</p>
+              <DeleteAccountButton />
+            </div>
+          </div>
+        </div>
 
         {/* Assessment card */}
         {dbUser.assessmentCompleted && (
@@ -175,11 +217,16 @@ export default async function DashboardProfilePage() {
       {/* ── Desktop profile view ── */}
       <div className="wa-hidden md:wa-block">
       <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>My Profile</h1>
-      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
-        Manage your contact information and career goals.
+      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
+        Manage your profile, resume, and settings in one place.
       </p>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1.5rem' }}>
+        <a href="#profile" className="btn btn-outline">Profile</a>
+        <a href="#resume" className="btn btn-outline">Resume</a>
+        <a href="#settings" className="btn btn-outline">Settings</a>
+      </div>
 
-      <div className="dashboard-profile-section">
+      <div id="profile" className="dashboard-profile-section">
         <h3>Contact info</h3>
         <DashboardProfileForm
           defaultFirstName={firstName}
@@ -231,6 +278,46 @@ export default async function DashboardProfilePage() {
           </p>
         </div>
       )}
+
+      <div id="resume" className="dashboard-profile-section">
+        <h3>Resume tools</h3>
+        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
+          Upload, generate, and improve your resume without leaving your profile.
+        </p>
+        <ResumeClient
+          completeness={completeness}
+          witData={witData}
+          hasOriginal={hasOriginal}
+          hasEnhanced={hasEnhanced}
+        />
+      </div>
+
+      <div id="settings" className="dashboard-profile-section">
+        <h3>Settings</h3>
+        <div style={{ display: 'grid', gap: '1.5rem' }}>
+          <section>
+            <h4 style={{ fontSize: '1rem', marginBottom: '0.75rem' }}>Password</h4>
+            <Link href={`/forgot-password?email=${encodeURIComponent(dbUser.email)}`} className="btn btn-outline">
+              Reset password
+            </Link>
+          </section>
+          <section>
+            <h4 style={{ fontSize: '1rem', marginBottom: '0.75rem' }}>Email notifications</h4>
+            <SettingsForm
+              defaultUpdates={dbUser.notificationsUpdates ?? true}
+              defaultReminders={dbUser.notificationsReminders ?? true}
+            />
+          </section>
+          <section>
+            <h4 style={{ fontSize: '1rem', marginBottom: '0.75rem' }}>Portal tour</h4>
+            <StartTourButton />
+          </section>
+          <section>
+            <h4 style={{ fontSize: '1rem', marginBottom: '0.75rem', color: 'var(--color-error, #c00)' }}>Delete account</h4>
+            <DeleteAccountButton />
+          </section>
+        </div>
+      </div>
       </div> {/* end hidden md:block */}
 
       <MobileBottomNav variant="portal" />

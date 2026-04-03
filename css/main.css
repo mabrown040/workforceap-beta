@@ -1883,15 +1883,15 @@ body.mobile-nav-open {
 .btn-primary,
 a.btn-primary,
 button.btn-primary {
-    background: var(--color-accent);
+    background: linear-gradient(135deg, #8c0f37, #ad2c4d);
     color: var(--color-white);
     border: none;
     border-radius: var(--radius-md);
 }
 .btn-primary:hover {
-    background: var(--color-accent-dark);
+    background: linear-gradient(135deg, #7a0d30, #9c2744);
     transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 20px 40px rgba(28, 27, 27, 0.06);
 }
 .btn-primary:focus-visible {
     outline: 3px solid var(--color-accent);

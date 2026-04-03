@@ -10,10 +10,14 @@ import {
   type PortalNavItem,
   type PortalRole,
   type NavBadgeKey,
+  type NavTab,
   NAV_GROUP_LABELS,
   GROUP_ORDER,
+  NAV_TAB_META,
+  NAV_TAB_ORDER,
   navItemsForActiveRoute,
   badgeTotalForItem,
+  getActiveTab,
 } from '@/lib/nav/portalNav';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import SuperAdminViewSwitcher from '@/components/super-admin-view-switcher';
@@ -54,6 +58,9 @@ export default function WorkspaceShell({
 }) {
   const pathname = usePathname() ?? '';
   const activeHref = getBestActiveHref(pathname, navItemsForActiveRoute(navItems));
+  const hasTabs = navItems.some((i) => i.tab);
+  const activeTab = hasTabs ? getActiveTab(pathname, navItems) : null;
+  const filteredNavItems = hasTabs && activeTab ? navItems.filter((i) => i.tab === activeTab) : navItems;
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [wide, setWide] = useState(false);
@@ -143,11 +150,26 @@ export default function WorkspaceShell({
   };
 
   const isCollapsedDesktop = collapsed && wide;
+  const headerRef = useRef<HTMLElement>(null);
+
+  // Measure header height so tab bar sticks below it
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const update = () => {
+      document.documentElement.style.setProperty('--workspace-header-h', `${el.offsetHeight}px`);
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   const firstHref = navItems[0]?.href ?? '/';
 
   return (
     <div className="workspace-shell-root">
-      <header className="workspace-shell-header">
+      <header ref={headerRef} className="workspace-shell-header">
         <div className="workspace-shell-header__brand">
           <button
             type="button"
@@ -199,6 +221,30 @@ export default function WorkspaceShell({
         aria-hidden
       />
 
+      {hasTabs && activeTab && (
+        <nav className="workspace-tab-bar" aria-label="Workspace tabs">
+          <div className="workspace-tab-bar-inner">
+            {NAV_TAB_ORDER.map((tab) => {
+              const meta = NAV_TAB_META[tab];
+              const isActive = tab === activeTab;
+              // Find the first item in this tab to link to
+              const firstItem = navItems.find((i) => i.tab === tab);
+              return (
+                <Link
+                  key={tab}
+                  href={firstItem?.href ?? '/dashboard'}
+                  className={`workspace-tab${isActive ? ' workspace-tab--active' : ''}`}
+                  onClick={closeDrawer}
+                >
+                  <span className="material-symbols-outlined workspace-tab-icon" aria-hidden>{meta.icon}</span>
+                  <span className="workspace-tab-label">{meta.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
+      )}
+
       <div className="workspace-shell-body">
         <aside
           ref={trapRef}
@@ -222,7 +268,7 @@ export default function WorkspaceShell({
             <nav aria-label={`${workspaceLabel} navigation`} className="workspace-sidebar-nav">
               <ul className="workspace-sidebar-list workspace-sidebar-list--root">
                 {GROUP_ORDER.map((group) => {
-                  const inGroup = navItems.filter((i) => i.group === group);
+                  const inGroup = filteredNavItems.filter((i) => i.group === group);
                   if (inGroup.length === 0) return null;
                   const groupLabel = NAV_GROUP_LABELS[group];
                   return (

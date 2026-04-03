@@ -38,6 +38,8 @@ export type PortalRole = 'member' | 'employer' | 'partner' | 'admin' | 'group' |
 
 export type NavGroup = 'primary' | 'workflows' | 'insights' | 'manage';
 
+export type NavTab = 'journey' | 'tools' | 'connect' | 'me';
+
 export type NavBadgeKey =
   | 'jobs_draft'
   | 'jobs_pending'
@@ -57,6 +59,8 @@ export type PortalNavItem = {
   href: string;
   label: string;
   group: NavGroup;
+  /** Top-level workspace tab (member portal only for now) */
+  tab?: NavTab;
   Icon?: LucideIcon;
   aliases?: string[];
   /** `data-tour` id for first-login tooltip tour (Sprint 8c) */
@@ -68,6 +72,15 @@ export type PortalNavItem = {
   requiresSuperAdminContext?: boolean;
 };
 
+export const NAV_TAB_META: Record<NavTab, { label: string; icon: string }> = {
+  journey: { label: 'My Journey', icon: 'route' },
+  tools: { label: 'Career Tools', icon: 'build' },
+  connect: { label: 'Connect', icon: 'group' },
+  me: { label: 'Me', icon: 'person' },
+};
+
+export const NAV_TAB_ORDER: NavTab[] = ['journey', 'tools', 'connect', 'me'];
+
 export const NAV_GROUP_LABELS: Record<NavGroup, string | null> = {
   primary: null,
   workflows: 'Workflows',
@@ -78,14 +91,21 @@ export const NAV_GROUP_LABELS: Record<NavGroup, string | null> = {
 export const GROUP_ORDER: NavGroup[] = ['primary', 'workflows', 'insights', 'manage'];
 
 export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
-  { href: '/dashboard', label: 'Overview', group: 'primary', Icon: Home, tourTarget: 'tour-dashboard' },
-  { href: '/dashboard/program', label: 'My Program', group: 'primary', Icon: BookOpen, tourTarget: 'tour-programs' },
-  { href: '/dashboard/training', label: 'Training', group: 'primary', Icon: GraduationCap },
-  // Workflows group — ordered per Sprint: Learning Hub, AI Tools, Resume, Program Resources, Job Board, Job Applications
+  // ── My Journey tab ──
+  { href: '/dashboard', label: 'Overview', group: 'primary', tab: 'journey', Icon: Home, tourTarget: 'tour-dashboard' },
+  { href: '/dashboard/program', label: 'My Program', group: 'primary', tab: 'journey', Icon: BookOpen, tourTarget: 'tour-programs' },
+  { href: '/dashboard/training', label: 'Training', group: 'primary', tab: 'journey', Icon: GraduationCap },
+  { href: '/dashboard/readiness', label: 'Career Readiness', group: 'insights', tab: 'journey', Icon: CheckCircle },
+  { href: '/dashboard/weekly-recap', label: 'Weekly Recap', group: 'insights', tab: 'journey', Icon: BarChart3 },
+  { href: '/dashboard/career-brief', label: 'Career Brief', group: 'insights', tab: 'journey', Icon: ClipboardList },
+  // ── Career Tools tab ──
+  { href: '/dashboard/ai-tools', label: 'AI Tools', group: 'workflows', tab: 'tools', Icon: Sparkles, tourTarget: 'tour-ai-tools' },
+  { href: '/dashboard/resume', label: 'Resume', group: 'workflows', tab: 'tools', Icon: FileText },
   {
     href: '/dashboard/learning',
     label: 'Learning Hub',
     group: 'workflows',
+    tab: 'tools',
     Icon: Library,
     aliases: ['/resources'],
     tourTarget: 'tour-learning',
@@ -94,15 +114,24 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     href: '/dashboard/learning/interest-profiler',
     label: 'Interest Profiler',
     group: 'workflows',
+    tab: 'tools',
     Icon: Compass,
   },
-  { href: '/dashboard/ai-tools', label: 'AI Tools', group: 'workflows', Icon: Sparkles, tourTarget: 'tour-ai-tools' },
-  { href: '/dashboard/resume', label: 'Resume', group: 'workflows', Icon: FileText },
-  { href: '/dashboard/resources', label: 'Program Resources', group: 'workflows', Icon: Layers, tourTarget: 'tour-resources' },
+  {
+    href: '/dashboard/skills-assessment',
+    label: 'Skills Assessment',
+    group: 'insights',
+    tab: 'tools',
+    Icon: ClipboardCheck,
+    aliases: ['/dashboard/assessments', '/dashboard/assessment'],
+  },
+  { href: '/dashboard/certifications', label: 'Certificates', group: 'manage', tab: 'tools', Icon: Award, aliases: ['/certifications'] },
+  // ── Connect tab ──
   {
     href: '/dashboard/jobs',
     label: 'Job Board',
     group: 'workflows',
+    tab: 'connect',
     Icon: Briefcase,
     tourTarget: 'tour-jobs',
   },
@@ -110,6 +139,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     href: '/dashboard/job-applications',
     label: 'Job Applications',
     group: 'workflows',
+    tab: 'connect',
     Icon: FileText,
     aliases: ['/dashboard/ai-tools/application-tracker', '/applications'],
     badgeKey: 'applications_new',
@@ -118,31 +148,24 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     href: '/dashboard/messages',
     label: 'Messages',
     group: 'workflows',
+    tab: 'connect',
     Icon: MessageSquare,
     badgeKey: 'counselor_messages_unread',
     tourTarget: 'tour-messages',
   },
-  { href: '/dashboard/readiness', label: 'Career readiness', group: 'insights', Icon: CheckCircle },
-  {
-    href: '/dashboard/skills-assessment',
-    label: 'Skills assessment',
-    group: 'insights',
-    Icon: ClipboardCheck,
-    aliases: ['/dashboard/assessments', '/dashboard/assessment'],
-  },
-  { href: '/dashboard/weekly-recap', label: 'Weekly recap', group: 'insights', Icon: BarChart3 },
-  { href: '/dashboard/career-brief', label: 'Career Brief', group: 'insights', Icon: ClipboardList },
-  { href: '/dashboard/certifications', label: 'Certifications', group: 'manage', Icon: Award, aliases: ['/certifications'] },
+  { href: '/dashboard/resources', label: 'Program Resources', group: 'workflows', tab: 'connect', Icon: Layers, tourTarget: 'tour-resources' },
+  { href: '/dashboard/guide', label: 'Member Guide', group: 'manage', tab: 'connect', Icon: HelpCircle },
+  // ── Me tab ──
   {
     href: '/dashboard/profile',
     label: 'Profile',
     group: 'manage',
+    tab: 'me',
     Icon: User,
     aliases: ['/profile'],
     tourTarget: 'tour-profile',
   },
-  { href: '/dashboard/settings', label: 'Settings', group: 'manage', Icon: Settings },
-  { href: '/dashboard/guide', label: 'Member guide', group: 'manage', Icon: HelpCircle },
+  { href: '/dashboard/settings', label: 'Settings', group: 'manage', tab: 'me', Icon: Settings },
 ];
 
 export const EMPLOYER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
@@ -280,6 +303,24 @@ export const PORTAL_NAV: Record<PortalRole, PortalNavItem[]> = {
 
 export function navItemsForActiveRoute(items: PortalNavItem[]): { href: string; aliases?: string[] }[] {
   return items.map(({ href, aliases }) => ({ href, aliases }));
+}
+
+/** Given a pathname, determine which tab is active. Falls back to 'journey'. */
+export function getActiveTab(pathname: string, items: PortalNavItem[]): NavTab {
+  // Find the most specific matching item
+  let best: PortalNavItem | undefined;
+  let bestLen = 0;
+  for (const item of items) {
+    if (!item.tab) continue;
+    const candidates = [item.href, ...(item.aliases ?? [])];
+    for (const c of candidates) {
+      if ((pathname === c || pathname.startsWith(c + '/')) && c.length > bestLen) {
+        best = item;
+        bestLen = c.length;
+      }
+    }
+  }
+  return best?.tab ?? 'journey';
 }
 
 export function badgeTotalForItem(

@@ -8363,6 +8363,67 @@ html.dark .portal-nav {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+/* ── Workspace Tab Bar ── */
+.workspace-tab-bar {
+    background: var(--color-white);
+    border-bottom: 1px solid var(--color-gray-200);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+}
+.workspace-tab-bar-inner {
+    display: flex;
+    gap: 0;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.workspace-tab-bar-inner::-webkit-scrollbar {
+    display: none;
+}
+.workspace-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+    padding: 0.6rem 1rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--color-on-surface-variant);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+.workspace-tab:hover {
+    color: var(--color-on-surface);
+}
+.workspace-tab--active {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+}
+.workspace-tab-icon {
+    font-size: 1.25rem;
+}
+.workspace-tab-label {
+    letter-spacing: 0.02em;
+}
+@media (min-width: 640px) {
+    .workspace-tab {
+        flex-direction: row;
+        gap: 0.4rem;
+        font-size: 0.82rem;
+        padding: 0.65rem 1.25rem;
+    }
+    .workspace-tab-icon {
+        font-size: 1.1rem;
+    }
+}
+
 .workspace-drawer-overlay {
     display: none;
     position: fixed;

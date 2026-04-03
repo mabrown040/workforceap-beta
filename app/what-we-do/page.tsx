@@ -618,8 +618,8 @@ export default function WhatWeDoPage() {
       <div className="md:hidden marketing-mobile marketing-mobile-pb-for-bottom-nav">
       {/* ── Mobile rebuild aligned to desktop + Stitch ── */}
       <section
-        className="px-4 pt-4 pb-6"
         style={{
+          padding: '1rem 1rem 1.5rem',
           background: 'linear-gradient(180deg, #141618 0%, #1c1b1b 58%, var(--color-surface) 58%)',
         }}
       >
@@ -653,38 +653,38 @@ export default function WhatWeDoPage() {
               padding: '1.5rem',
             }}
           >
-            <span className="block text-[10px] font-bold uppercase tracking-[0.24em] mb-3" style={{ color: 'rgba(255,255,255,0.72)' }}>
+            <span style={{ display: 'block', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.24em', marginBottom: '0.75rem', color: 'rgba(255,255,255,0.72)' }}>
               What We Do
             </span>
-            <h1 className="text-[2.15rem] font-black tracking-tight leading-[1.02] mb-3" style={{ color: '#fff' }}>
+            <h1 style={{ fontSize: '2.15rem', fontWeight: 900, letterSpacing: '-0.025em', lineHeight: 1.02, marginBottom: '0.75rem', color: '#fff' }}>
               Redefining the Architecture of Opportunity
             </h1>
-            <p className="text-[0.98rem] leading-7 mb-5" style={{ color: 'rgba(255,255,255,0.9)' }}>
+            <p style={{ fontSize: '0.98rem', lineHeight: 1.75, marginBottom: '1.25rem', color: 'rgba(255,255,255,0.9)' }}>
               Employer-aligned training. No cost to participants. Job placement built in.
               A model that works — and scales.
             </p>
 
-            <div className="grid grid-cols-2 gap-3 mb-5">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.25rem' }}>
               {[
                 { val: '2,000+', label: 'People Served', accent: '#ad2c4d' },
                 { val: '$0', label: 'Cost to Members', accent: '#f0b429' },
               ].map((s) => (
                 <div
                   key={s.label}
-                  className="rounded-2xl p-4"
                   style={{
+                    borderRadius: '1rem', padding: '1rem',
                     background: 'rgba(255,255,255,0.14)',
                     backdropFilter: 'blur(10px)',
                     border: '1px solid rgba(255,255,255,0.16)',
                   }}
                 >
-                  <div className="text-[1.9rem] font-black leading-none" style={{ color: s.accent }}>{s.val}</div>
-                  <div className="text-[10px] font-bold uppercase tracking-[0.16em] mt-2" style={{ color: 'rgba(255,255,255,0.76)' }}>{s.label}</div>
+                  <div style={{ fontSize: '1.9rem', fontWeight: 900, lineHeight: 1, color: s.accent }}>{s.val}</div>
+                  <div style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.16em', marginTop: '0.5rem', color: 'rgba(255,255,255,0.76)' }}>{s.label}</div>
                 </div>
               ))}
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <Link
                 href="/programs"
                 style={{
@@ -733,19 +733,19 @@ export default function WhatWeDoPage() {
         </div>
       </section>
 
-      <section className="px-4 pb-8" style={{ background: 'var(--color-surface)' }}>
-        <div className="rounded-[1.4rem] p-5" style={{ background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)' }}>
-          <div className="flex items-center justify-between gap-4 mb-4">
+      <section style={{ padding: '0 1rem 2rem', background: 'var(--color-surface)' }}>
+        <div style={{ borderRadius: '1.4rem', padding: '1.25rem', background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '1rem' }}>
             <div>
-              <span className="block text-[10px] font-bold uppercase tracking-[0.22em] mb-2" style={{ color: 'var(--color-accent)' }}>25+ Years</span>
-              <h2 className="text-[1.75rem] font-black tracking-tight leading-[1.08]" style={{ color: 'var(--color-on-surface)' }}>
+              <span style={{ display: 'block', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', marginBottom: '0.5rem', color: 'var(--color-accent)' }}>25+ Years</span>
+              <h2 style={{ fontSize: '1.75rem', fontWeight: 900, letterSpacing: '-0.025em', lineHeight: 1.08, color: 'var(--color-on-surface)' }}>
                 Investing in the Future Workforce
               </h2>
             </div>
           </div>
           <blockquote
-            className="text-[0.98rem] leading-7"
             style={{
+              fontSize: '0.98rem', lineHeight: 1.75,
               color: 'var(--color-on-surface-variant)',
               borderLeft: '3px solid var(--color-accent)',
               paddingLeft: '1rem',
@@ -760,34 +760,34 @@ export default function WhatWeDoPage() {
       </section>
 
       <section className="px-4 pb-8" style={{ background: 'var(--color-surface)' }}>
-        <div className="mb-5">
+        <div style={{ marginBottom: '1.25rem' }}>
           <span className="block text-[10px] font-bold uppercase tracking-[0.22em] mb-2" style={{ color: 'var(--color-accent)' }}>The Architecture of Impact</span>
-          <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--color-on-surface)' }}>How the model works</h2>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 900, letterSpacing: '-0.025em', color: 'var(--color-on-surface)' }}>How the model works</h2>
         </div>
-        <div className="space-y-4">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {BENTO_ITEMS.map((item, index) => (
             <div
               key={item.title}
-              className="rounded-[1.4rem] p-5"
               style={{
+                borderRadius: '1.4rem', padding: '1.25rem',
                 background: index === 1 ? 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%)' : 'var(--surface-container-low)',
                 border: index === 1 ? 'none' : '1px solid var(--outline-variant)',
                 boxShadow: index === 1 ? '0 18px 40px rgba(140,15,55,0.22)' : '0 6px 20px rgba(28,27,27,0.06)',
               }}
             >
-              <div className="flex items-start gap-4">
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
                 <div
-                  className="rounded-2xl p-3"
                   style={{
+                    borderRadius: '1rem', padding: '0.75rem', flexShrink: 0,
                     background: index === 1 ? 'rgba(255,255,255,0.14)' : 'rgba(140,15,55,0.08)',
                     color: index === 1 ? '#fff' : 'var(--color-accent)',
                   }}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'inherit' }}>{item.icon}</span>
                 </div>
-                <div className="min-w-0">
-                  <h3 className="text-lg font-extrabold mb-2" style={{ color: index === 1 ? '#fff' : 'var(--color-on-surface)', overflowWrap: 'anywhere' }}>{item.title}</h3>
-                  <p className="text-sm leading-7" style={{ color: index === 1 ? 'rgba(255,255,255,0.88)' : 'var(--color-on-surface-variant)' }}>{item.desc}</p>
+                <div style={{ minWidth: 0 }}>
+                  <h3 style={{ fontSize: '1.125rem', fontWeight: 800, marginBottom: '0.5rem', color: index === 1 ? '#fff' : 'var(--color-on-surface)', overflowWrap: 'anywhere' }}>{item.title}</h3>
+                  <p style={{ fontSize: '0.875rem', lineHeight: 1.75, color: index === 1 ? 'rgba(255,255,255,0.88)' : 'var(--color-on-surface-variant)' }}>{item.desc}</p>
                 </div>
               </div>
             </div>
@@ -795,24 +795,23 @@ export default function WhatWeDoPage() {
         </div>
       </section>
 
-      <section className="px-4 py-8" style={{ background: 'var(--surface-container-low)' }}>
+      <section style={{ padding: '2rem 1rem', background: 'var(--surface-container-low)' }}>
         <div className="mb-5">
           <span className="block text-[10px] font-bold uppercase tracking-[0.22em] mb-2" style={{ color: 'var(--color-accent)' }}>What We Stand For</span>
           <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--color-on-surface)' }}>Our core values</h2>
         </div>
         <div className="space-y-4">
           {VALUES.map((value) => (
-            <div key={value.title} className="rounded-[1.25rem] p-5" style={{ background: 'var(--color-surface)', border: '1px solid var(--outline-variant)' }}>
+            <div key={value.title} style={{ borderRadius: '1.25rem', padding: '1.25rem', background: 'var(--color-surface)', border: '1px solid var(--outline-variant)' }}>
               <div className="flex items-start gap-4">
                 <div
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-black"
-                  style={{ background: 'rgba(140,15,55,0.1)', color: 'var(--color-accent)' }}
+                  style={{ display: 'flex', height: '2.75rem', width: '2.75rem', flexShrink: 0, alignItems: 'center', justifyContent: 'center', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: 900, background: 'rgba(140,15,55,0.1)', color: 'var(--color-accent)' }}
                 >
                   {value.num}
                 </div>
                 <div className="min-w-0">
-                  <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--color-on-surface)', overflowWrap: 'anywhere' }}>{value.title}</h3>
-                  <p className="text-sm leading-7" style={{ color: 'var(--color-on-surface-variant)' }}>{value.desc}</p>
+                  <h3 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.25rem', color: 'var(--color-on-surface)', overflowWrap: 'anywhere' }}>{value.title}</h3>
+                  <p style={{ fontSize: '0.875rem', lineHeight: 1.75, color: 'var(--color-on-surface-variant)' }}>{value.desc}</p>
                 </div>
               </div>
             </div>
@@ -820,7 +819,7 @@ export default function WhatWeDoPage() {
         </div>
       </section>
 
-      <section className="px-4 py-8" style={{ background: 'var(--color-surface)' }}>
+      <section style={{ padding: '2rem 1rem', background: 'var(--color-surface)' }}>
         <div className="mb-5">
           <span className="block text-[10px] font-bold uppercase tracking-[0.22em] mb-2" style={{ color: 'var(--color-accent)' }}>The Journey</span>
           <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--color-on-surface)' }}>From application to placement</h2>
@@ -832,9 +831,9 @@ export default function WhatWeDoPage() {
             { step: '03', title: 'Certification', desc: 'Earn credentials recognized by top employers as a mark of excellence.' },
             { step: '04', title: 'Placement', desc: 'Direct pipeline to hiring partners with 150-day post-placement support.' },
           ].map((s) => (
-            <div key={s.step} className="rounded-[1.25rem] p-5" style={{ background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)' }}>
-              <span className="block text-[10px] font-black uppercase tracking-[0.2em] mb-2" style={{ color: 'var(--color-accent)' }}>Step {s.step}</span>
-              <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--color-on-surface)' }}>{s.title}</h3>
+            <div key={s.step} style={{ borderRadius: '1.25rem', padding: '1.25rem', background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)' }}>
+              <span style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.5rem', color: 'var(--color-accent)' }}>Step {s.step}</span>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>{s.title}</h3>
               <p className="text-sm leading-7" style={{ color: 'var(--color-on-surface-variant)' }}>{s.desc}</p>
             </div>
           ))}
@@ -842,7 +841,7 @@ export default function WhatWeDoPage() {
       </section>
 
       <section className="px-4 py-8" style={{ background: 'var(--color-surface)' }}>
-        <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-center mb-5" style={{ color: 'var(--color-on-surface-variant)' }}>Supported By Industry Giants</p>
+        <p style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', textAlign: 'center', marginBottom: '1.25rem', color: 'var(--color-on-surface-variant)' }}>Supported By Industry Giants</p>
         <div className="flex flex-wrap justify-center gap-2.5" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.625rem' }}>
           {['Google', 'IBM', 'AWS', 'Microsoft', 'CompTIA', 'Coursera'].map((p) => (
             <span
@@ -857,8 +856,7 @@ export default function WhatWeDoPage() {
       </section>
 
       <section
-        className="px-4 pt-2 pb-8"
-        style={{ background: 'var(--color-surface)' }}
+        style={{ padding: '0.5rem 1rem 2rem', background: 'var(--color-surface)' }}
       >
         <div
           style={{

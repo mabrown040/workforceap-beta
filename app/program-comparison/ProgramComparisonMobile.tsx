@@ -27,7 +27,7 @@ const selectStyle: CSSProperties = {
 
 export default function ProgramComparisonMobile({ rows }: { rows: ComparisonRow[] }) {
   return (
-    <div className="md:hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: 'var(--color-surface)', color: 'var(--color-on-surface)', minHeight: '100vh' }}>
+    <div className="marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: 'var(--color-surface)', color: 'var(--color-on-surface)', minHeight: '100vh' }}>
       <div style={{ paddingTop: '1.5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', maxWidth: '390px', margin: '0 auto' }}>
         <section style={{ marginBottom: '2.5rem' }}>
           <h2 style={{ fontSize: '2.25rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--color-on-surface)', margin: '0 0 0.75rem', lineHeight: 1.15 }}>

@@ -66,7 +66,7 @@ const PLATFORM_FEATURES = [
 const FAQ_ITEMS = [
   {
     q: 'Who can become a partner?',
-    a: 'Employers, workforce development boards, community organizations, social service agencies, and educational institutions can partner with WorkforceAP to refer candidates or hire graduates.',
+    a: 'Employers, workforce development boards, non-profit services, churches, community organizations, social service agencies, and educational institutions can partner with WorkforceAP to refer candidates or hire graduates.',
   },
   {
     q: 'Is there a cost to refer candidates?',
@@ -266,14 +266,14 @@ export default function PartnersPage() {
 
               <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '1.5rem' }}>
                 Referral partners send us candidates who may benefit from complimentary career training.
-                We reach out within 24&ndash;48 hours and walk them through the process. Best referrals:
-                motivated to finish training, interested in tech, healthcare, manufacturing, or trades.
+                We reach out within 24&ndash;48 hours and walk them through the process.
+                We welcome referrals of individuals motivated to improve the quality of their life and interested in training in technology, healthcare, manufacturing, or skilled trades.
               </p>
 
               <ul style={{ paddingLeft: '1.25rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.8 }}>
                 <li>Submit a referral via our contact form or partner portal</li>
                 <li>We contact the candidate within 24&ndash;48 hours</li>
-                <li>Accepted members receive training, certifications, and job placement support</li>
+                <li>Accepted members receive training, certificates, and job placement support</li>
                 <li>You receive updates when referred individuals complete programs</li>
               </ul>
             </div>

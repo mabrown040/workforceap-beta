@@ -268,7 +268,7 @@ export default async function DashboardPage() {
                   <div style={{ position:"relative", zIndex:10, width:"1.5rem", height:"1.5rem", borderRadius:"9999px", background:"var(--surface-container-high)", border:"2px solid var(--outline-variant)", flexShrink:0 }} />
                 )}
                 <div>
-                  <p className={`font-bold text-sm leading-none mb-1 ${step.active ? 'text-[var(--color-accent-dark)]' : 'text-[var(--color-on-surface)]'}`}>
+                  <p className={`wa-font-bold wa-text-sm wa-leading-none wa-mb-1 ${step.active ? 'wa-text-[var(--color-accent-dark)]' : 'wa-text-[var(--color-on-surface)]'}`}>
                     {step.label}
                   </p>
                   {step.detail && <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)]">{step.detail}</p>}

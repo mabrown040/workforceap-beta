@@ -104,7 +104,7 @@ export default async function LearningPage() {
             return (
               <div
                 key={i}
-                className={`${isCompleted ? 'bg-white border-l-4 border-[#7b5800]' : isActive ? 'bg-white border-l-4 border-[#8c0f37]' : 'bg-[#f6f3f2] opacity-60'}`}
+                className={`${isCompleted ? 'wa-bg-white wa-border-l-4 wa-border-[#7b5800]' : isActive ? 'wa-bg-white wa-border-l-4 wa-border-[#8c0f37]' : 'wa-bg-[#f6f3f2] wa-opacity-60'}`}
                 style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderRadius: '0.75rem', padding: '0.75rem 1rem', boxShadow: isCompleted || isActive ? '0 1px 2px rgba(0,0,0,0.05)' : undefined }}
               >
                 <div

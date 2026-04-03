@@ -400,22 +400,26 @@ export default async function HowItWorksPage() {
                     boxShadow: isIntensive ? 'none' : '0 1px 4px rgba(28,27,27,0.06)',
                   }}
                 >
-                  <span
-                    style={{
-                      position: 'absolute',
-                      left: '-0.25rem',
-                      top: '-0.75rem',
-                      fontSize: '4.5rem',
-                      fontWeight: 900,
-                      userSelect: 'none',
-                      pointerEvents: 'none',
-                      color: isIntensive ? 'rgba(173,44,77,0.12)' : 'rgba(173,44,77,0.07)',
-                      lineHeight: 1,
-                    }}
-                  >
-                    {String(step.num).padStart(2, '0')}
-                  </span>
-                  <div style={{ position: 'relative', paddingLeft: '2rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                    <span
+                      style={{
+                        width: '2.5rem',
+                        height: '2.5rem',
+                        flexShrink: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: '50%',
+                        fontSize: '0.875rem',
+                        fontWeight: 700,
+                        background: '#ad2c4d',
+                        color: '#fff',
+                        lineHeight: 1,
+                      }}
+                    >
+                      {String(step.num).padStart(2, '0')}
+                    </span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                     {isIntensive && step.num === 5 && (
                       <span
                         style={{
@@ -436,6 +440,7 @@ export default async function HowItWorksPage() {
                     )}
                     <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{step.title}</p>
                     <p style={{ fontSize: '0.75rem', marginTop: '0.125rem', lineHeight: 1.55, color: '#584144' }}>{step.desc}</p>
+                  </div>
                   </div>
                 </div>
               );

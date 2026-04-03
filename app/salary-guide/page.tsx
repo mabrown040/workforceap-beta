@@ -107,7 +107,7 @@ export default function SalaryGuidePage() {
           </section>
 
           {/* Category Filter Chips */}
-          <section style={{ marginBottom: '2rem', marginLeft: '-1.5rem', marginRight: '-1.5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', overflowX: 'auto', display: 'flex', gap: '0.75rem', msOverflowStyle: 'none', scrollbarWidth: 'none' } as React.CSSProperties}>
+          <section style={{ marginBottom: '2rem', marginLeft: '-1.5rem', marginRight: '-1.5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem' } as React.CSSProperties}>
             {(
               [
                 { label: 'All', primary: true },
@@ -132,6 +132,10 @@ export default function SalaryGuidePage() {
                   letterSpacing: '0.1em',
                   textTransform: 'uppercase',
                   textDecoration: 'none',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  maxWidth: '100%',
                 }}
               >
                 {label}

@@ -11,7 +11,7 @@ export type ConfirmationStep = {
 
 export default function ApplyConfirmationMobile({ steps }: { steps: ConfirmationStep[] }) {
   return (
-    <div className="md:hidden marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: 'var(--color-surface)', color: 'var(--color-on-surface)', minHeight: '100vh' }}>
+    <div className="marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: 'var(--color-surface)', color: 'var(--color-on-surface)', minHeight: '100vh' }}>
       <main
         style={{
           paddingTop: '1.25rem',

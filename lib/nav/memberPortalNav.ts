@@ -46,7 +46,7 @@ export const MEMBER_PORTAL_NAV: MemberPortalNavItem[] = [
     Icon: ClipboardCheck,
     aliases: ['/dashboard/assessments', '/dashboard/assessment'],
   },
-  { href: '/certifications', label: 'Certifications', group: 'more', Icon: Award },
+  { href: '/certifications', label: 'Certificates', group: 'more', Icon: Award },
   { href: '/dashboard/career-brief', label: 'Career Brief', group: 'more', Icon: ClipboardList },
   { href: '/dashboard/weekly-recap', label: 'Weekly recap', group: 'more', Icon: BarChart3 },
   { href: '/profile', label: 'Profile', group: 'more', Icon: User },

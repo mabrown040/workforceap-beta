@@ -223,7 +223,7 @@ export default async function TrainingPage() {
           }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>workspace_premium</span>
-          View Certifications
+          View Certificates
         </a>
         <a
           href="/dashboard/readiness"

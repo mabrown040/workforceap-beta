@@ -63,7 +63,7 @@ export default async function PartnerOutcomesPage() {
         </div>
         <div className="partner-panel" style={{ padding: '1.25rem' }}>
           <div style={{ fontSize: '2rem', fontWeight: 800 }}>{certified}</div>
-          <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>With certification</div>
+          <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>With certificate</div>
         </div>
         <div className="partner-panel" style={{ padding: '1.25rem' }}>
           <div style={{ fontSize: '2rem', fontWeight: 800 }}>{inTraining}</div>

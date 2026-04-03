@@ -17,7 +17,7 @@ const GOAL_TEMPLATES = [
   { type: 'build_resume', label: 'Build my resume' },
   { type: 'practice_interviews', label: 'Practice interviews' },
   { type: 'apply_to_jobs', label: 'Apply to jobs consistently' },
-  { type: 'complete_certification', label: 'Complete a certification' },
+  { type: 'complete_certification', label: 'Complete a certificate' },
   { type: 'finish_pathway', label: 'Finish a learning pathway' },
   { type: 'linkedin_profile', label: 'Improve my LinkedIn profile' },
   { type: 'tech_readiness', label: 'Get ready for tech jobs' },

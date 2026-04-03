@@ -7,7 +7,7 @@ import CertificationReferenceSection from '@/components/portal/CertificationRefe
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Certifications & Achievements — The Verification Vault',
+  title: 'Certificates & Achievements — The Verification Vault',
   description: 'Track credentials, download certificates, and follow your certification roadmap.',
   path: '/dashboard/certifications',
 });
@@ -18,7 +18,7 @@ export default async function DashboardCertificationsPage() {
 
   return (
     <>
-      <h1 className="wa-sr-only">Certifications &amp; achievements</h1>
+      <h1 className="wa-sr-only">Certificates &amp; achievements</h1>
       {/* ── MOBILE ── */}
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Header */}
@@ -27,7 +27,7 @@ export default async function DashboardCertificationsPage() {
             Verification Vault
           </h2>
           <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-            Your credentials and certification progress.
+            Your credentials and certificate progress.
           </p>
         </div>
 
@@ -201,7 +201,7 @@ export default async function DashboardCertificationsPage() {
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 700, color: '#fff', fontSize: '1rem', marginBottom: '0.25rem' }}>Earn More Credentials</div>
               <div style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.85)', marginBottom: '0.625rem' }}>
-                Browse available certifications in your program pathway.
+                Browse available certificates in your program pathway.
               </div>
               <a
                 href="/dashboard/learning"
@@ -245,7 +245,7 @@ export default async function DashboardCertificationsPage() {
           >
             <a href="/dashboard" style={{ color: 'var(--color-accent)', textDecoration: 'none' }}>Member Portal</a>
             <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>chevron_right</span>
-            <span>Certifications &amp; Achievements</span>
+            <span>Certificates &amp; Achievements</span>
           </nav>
 
           {/* Page heading */}
@@ -254,7 +254,7 @@ export default async function DashboardCertificationsPage() {
               The Verification Vault
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', fontSize: 'var(--font-size-base)', maxWidth: '640px' }}>
-              Your credentials, milestones, and industry verifications in one place. Track progress across WorkforceAP certification pathways and download proof of achievement.
+              Your credentials, milestones, and industry verifications in one place. Track progress across WorkforceAP certificate pathways and download proof of achievement.
             </p>
           </header>
 
@@ -509,16 +509,16 @@ export default async function DashboardCertificationsPage() {
             </div>
           </div>
 
-          {/* Certification Roadmap section */}
+          {/* Certificate Roadmap section */}
           <section style={{ marginBottom: 'var(--space-12)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-2)' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
                 timeline
               </span>
-              <h2 style={{ fontSize: 'var(--font-size-h2)', fontWeight: 'var(--font-weight-bold)', margin: 0 }}>Certification Roadmap</h2>
+              <h2 style={{ fontSize: 'var(--font-size-h2)', fontWeight: 'var(--font-weight-bold)', margin: 0 }}>Certificate Roadmap</h2>
             </div>
             <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-6)', maxWidth: '640px' }}>
-              Industry-recognized credentials across IT, healthcare, and skilled trades. Check off certifications as you earn them.
+              Industry-recognized credentials across IT, healthcare, and skilled trades. Check off certificates as you earn them.
             </p>
 
             <CertificationReferenceSection />

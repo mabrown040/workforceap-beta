@@ -93,7 +93,7 @@ export default async function DashboardReadinessPage() {
         <div style={{ padding: '0.5rem 1rem', marginBottom: '1rem' }}>
           {[
             { label: 'Resume', pct: 80, icon: 'description', color: 'var(--color-blue)' },
-            { label: 'Certifications', pct: 67, icon: 'workspace_premium', color: 'var(--color-accent)' },
+            { label: 'Certificates', pct: 67, icon: 'workspace_premium', color: 'var(--color-accent)' },
             { label: 'Interview Prep', pct: 55, icon: 'record_voice_over', color: 'var(--color-green)' },
             { label: 'LinkedIn', pct: 40, icon: 'person_check', color: 'var(--color-gold, #f59e0b)' },
           ].map((cat) => (

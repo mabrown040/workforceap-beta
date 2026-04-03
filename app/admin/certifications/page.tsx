@@ -6,8 +6,8 @@ import { getUser } from '@/lib/auth/server';
 import { getCertificationsCohortStats } from '@/lib/admin/cohortAnalytics';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Certifications analytics',
-  description: 'Member certifications by cohort.',
+  title: 'Certificates analytics',
+  description: 'Member certificates by cohort.',
   path: '/admin/certifications',
 });
 
@@ -24,8 +24,8 @@ export default async function AdminCertificationsAnalyticsPage() {
           <Link href="/admin" className="resource-back-link">
             ← Back to admin
           </Link>
-          <h1>Certifications analytics</h1>
-          <p>Recorded certifications by enrolled program (cohort).</p>
+          <h1>Certificates analytics</h1>
+          <p>Recorded certificates by enrolled program (cohort).</p>
         </div>
       </section>
 
@@ -38,7 +38,7 @@ export default async function AdminCertificationsAnalyticsPage() {
                   <th>Cohort</th>
                   <th>Members</th>
                   <th>Members with certs</th>
-                  <th>Total certifications</th>
+                  <th>Total certificates</th>
                 </tr>
               </thead>
               <tbody>

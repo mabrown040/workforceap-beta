@@ -57,7 +57,7 @@ const JOURNEY_STEPS = [
 
 const BENEFITS = [
   { icon: 'workspace_premium', title: 'LinkedIn Premium', desc: 'Request free access through your dashboard.' },
-  { icon: 'school', title: 'Coursera Access', desc: 'Earn free professional certifications.' },
+  { icon: 'school', title: 'Coursera Access', desc: 'Earn free professional certificates.' },
   { icon: 'auto_awesome', title: 'AI Career Tools', desc: '7 tools: resume, cover letter, LinkedIn, interview coach, and more.' },
   { icon: 'person_pin', title: 'Your Counselor', desc: 'A human counselor is assigned to you — they want to hear from you.' },
 ];

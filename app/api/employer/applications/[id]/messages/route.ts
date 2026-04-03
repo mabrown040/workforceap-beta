@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
+import { checkMessageRateLimit } from '@/lib/messages/rateLimit';
 
 const messageSchema = z.object({
   body: z.string().min(1).max(5000),
@@ -83,6 +84,14 @@ export async function POST(request: NextRequest, { params }: Props) {
   
   if (!parsed.success) {
     return NextResponse.json({ error: 'Invalid message' }, { status: 400 });
+  }
+
+  const rl = checkMessageRateLimit(user.id);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: 'Too many messages. Please wait a moment.' },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil(rl.retryAfterMs / 1000)) } }
+    );
   }
 
   const message = await prisma.$transaction(async (tx) => {

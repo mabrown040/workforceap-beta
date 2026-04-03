@@ -1,5 +1,3 @@
-'use client';
-
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
@@ -7,7 +5,7 @@ import Footer from '@/components/Footer';
 import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { buildSalaryGuideRows, salaryGuideSummaryStats } from '@/lib/content/programSalaryOutcomes';
-import { useScrollAffordance } from '@/components/portal/useScrollAffordance';
+import SalaryTableWrapper from '@/components/portal/SalaryTableWrapper';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Salary Guide',
@@ -94,7 +92,6 @@ const MOBILE_SALARY_CARDS = [
 export default function SalaryGuidePage() {
   const salaryRows = buildSalaryGuideRows();
   const guideStats = salaryGuideSummaryStats(salaryRows);
-  const scrollRef = useScrollAffordance<HTMLDivElement>();
 
   return (
     <div className="inner-page salary-guide-page" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
@@ -348,7 +345,7 @@ export default function SalaryGuidePage() {
 
           {/* Desktop: table | Mobile: hidden (cards shown instead) */}
           <div className="salary-guide-table-wrap">
-            <div className="salary-table-wrapper" ref={scrollRef}>
+            <SalaryTableWrapper>
               <table className="salary-table">
                 <thead>
                   <tr><th>Program</th><th>Duration</th><th>Starting Salary</th><th>Level</th><th>Ramp</th></tr>
@@ -365,7 +362,7 @@ export default function SalaryGuidePage() {
                   ))}
                 </tbody>
               </table>
-            </div>
+            </SalaryTableWrapper>
           </div>
 
           {/* Mobile only: card layout */}

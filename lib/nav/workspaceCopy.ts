@@ -38,5 +38,5 @@ export const ADMIN_NAV = [
   { href: '/admin/diagnostics', label: 'Diagnostics' },
   { href: '/admin/weekly-recap', label: 'Weekly recap' },
   { href: '/admin/ai-tools', label: 'AI tools' },
-  { href: '/admin/certifications', label: 'Certifications' },
+  { href: '/admin/certifications', label: 'Certificates' },
 ] as const;

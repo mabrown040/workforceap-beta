@@ -14,7 +14,7 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 const PUBLIC_LINKS = [
-  { href: '/programs', label: 'Training programs', desc: 'Certifications and pathways we offer.' },
+  { href: '/programs', label: 'Training programs', desc: 'Certificates and pathways we offer.' },
   { href: '/how-it-works', label: 'How it works', desc: 'Timeline from application to job search support.' },
   { href: '/faq', label: 'FAQ', desc: 'Common questions for participants and partners.' },
   { href: '/contact', label: 'Contact', desc: 'Reach the WorkforceAP team.' },

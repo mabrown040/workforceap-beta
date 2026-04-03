@@ -19,7 +19,7 @@ const BREAKDOWN_LABELS: Record<keyof ScoreBreakdown, string> = {
   startPathway: 'Start pathway',
   completePathwaySteps: 'Complete pathway steps',
   addApplications: 'Add applications',
-  trackCertifications: 'Track certifications',
+  trackCertifications: 'Track certificates',
   weeklyConsistency: 'Recent activity',
 };
 

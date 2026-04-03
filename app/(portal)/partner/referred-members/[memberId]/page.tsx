@@ -130,7 +130,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
       ) : null}
 
       <section style={{ marginBottom: '1.5rem', padding: '1rem', background: 'var(--color-light)', borderRadius: '8px' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Certifications</h2>
+        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Certificates</h2>
         {member.userCertifications.length === 0 ? (
           <p style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>None on file yet.</p>
         ) : (

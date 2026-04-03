@@ -48,7 +48,7 @@ export default function CertificationRoadmap() {
   return (
     <div className="certification-roadmap">
       <p className="certification-intro" style={{ marginBottom: '1.5rem', color: 'var(--color-on-surface-variant)' }}>
-        Track your progress toward industry-recognized certifications. Mark certs as earned when you complete them.
+        Track your progress toward industry-recognized certificates. Mark certs as earned when you complete them.
       </p>
       <div className="certification-tracks">
         {CERTIFICATION_TRACKS.map((track) => (

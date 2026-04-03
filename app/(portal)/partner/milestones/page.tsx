@@ -10,7 +10,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Milestones',
-  description: 'Certifications, placements, and activity for your referrals.',
+  description: 'Certificates, placements, and activity for your referrals.',
   path: '/partner/milestones',
 });
 
@@ -29,7 +29,7 @@ export default async function PartnerMilestonesPage() {
         <div style={{ padding: '1.25rem 1.5rem 1rem' }}>
           <p className="wa-text-[10px] wa-uppercase wa-tracking-[0.15em] wa-font-bold" style={{ color: 'var(--color-accent)', marginBottom: '0.125rem' }}>Partner Portal</p>
           <h1 className="wa-text-2xl wa-font-extrabold wa-tracking-tight" style={{ color: 'var(--color-on-surface)' }}>Milestones</h1>
-          <p className="wa-text-sm" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Review member certifications, placements, and progress events.</p>
+          <p className="wa-text-sm" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Review member certificates, placements, and progress events.</p>
         </div>
 
         <PartnerMilestonesMobile />
@@ -40,7 +40,7 @@ export default async function PartnerMilestonesPage() {
       <div className="wa-hidden wa-md:wa-block">
         <PageHeader
           title="Milestones"
-          subtitle="Recent certifications, placements, and milestone events across your referrals."
+          subtitle="Recent certificates, placements, and milestone events across your referrals."
         />
         <PartnerMilestonesView />
       </div>

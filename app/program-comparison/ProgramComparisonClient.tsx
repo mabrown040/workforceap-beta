@@ -242,9 +242,9 @@ export default function ProgramComparisonClient({ tracks }: Props) {
                   })}
                 </tr>
                 <tr>
-                  <th scope="row">Certifications</th>
+                  <th scope="row">Certificates</th>
                   {selectedTracks.map((t) => (
-                    <td key={t.slug} data-label="Certifications">{t.certs}</td>
+                    <td key={t.slug} data-label="Certificates">{t.certs}</td>
                   ))}
                 </tr>
                 <tr>
@@ -286,7 +286,7 @@ export default function ProgramComparisonClient({ tracks }: Props) {
               <th>Difficulty</th>
               <th>Avg. Starting Salary</th>
               <th>Job Demand</th>
-              <th>Certifications</th>
+              <th>Certificates</th>
               <th></th>
             </tr>
           </thead>
@@ -316,7 +316,7 @@ export default function ProgramComparisonClient({ tracks }: Props) {
                     {t.demand}
                   </span>
                 </td>
-                <td data-label="Certifications">{t.certs}</td>
+                <td data-label="Certificates">{t.certs}</td>
                 <td data-label="">
                   <Link href={`/apply?program=${t.slug}`} className="btn btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
                     Apply
@@ -381,7 +381,7 @@ export default function ProgramComparisonClient({ tracks }: Props) {
                   </span>
                 </div>
                 <p className="program-comparison-card__certs">
-                  <span className="program-comparison-card__certs-label">Certifications</span>
+                  <span className="program-comparison-card__certs-label">Certificates</span>
                   {t.certs}
                 </p>
               </article>

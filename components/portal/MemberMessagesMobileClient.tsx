@@ -37,19 +37,26 @@ type InitialPayload = {
 
 function CareerTipCard() {
   return (
-    <div className="mt-8 mx-4 mb-4">
+    <div style={{ marginTop: '2rem', marginLeft: '1rem', marginRight: '1rem', marginBottom: '1rem' }}>
       <div
-        className="rounded-2xl p-6 flex flex-col items-center text-center"
-        style={{ background: 'linear-gradient(135deg, #ad2c4d, #8c0f37)' }}
+        style={{
+          borderRadius: '16px', padding: '1.5rem',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' as const,
+          background: 'linear-gradient(135deg, #ad2c4d, #8c0f37)',
+        }}
       >
         <div
-          className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-          style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(8px)' }}
+          style={{
+            width: '64px', height: '64px', borderRadius: '9999px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            marginBottom: '1rem',
+            background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(8px)',
+          }}
         >
-          <span className="material-symbols-outlined text-white text-3xl">tips_and_updates</span>
+          <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '30px' }}>tips_and_updates</span>
         </div>
-        <h4 className="text-white font-bold mb-1">Career Tip</h4>
-        <p className="text-white/80 text-xs leading-relaxed">
+        <h4 style={{ color: '#fff', fontWeight: 700, marginBottom: '4px', margin: '0 0 4px' }}>Career Tip</h4>
+        <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px', lineHeight: 1.6, margin: 0 }}>
           Responding to your counselor within 24 hours increases your placement rate by 30%.
         </p>
       </div>
@@ -196,86 +203,106 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
     const showCareer = rowMatches('Career Services', 'New job match found: Junior Web Developer.');
 
     return (
-      <div className="md:wa-hidden wa-flex wa-flex-col wa-min-h-screen" style={{ background: '#fcf9f8' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#fcf9f8' }}>
         {/* Header */}
         <header
-          className="sticky top-0 z-50 flex items-center justify-between px-4 py-3 w-full"
-          style={{ background: 'rgba(252,249,248,0.92)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(173,44,77,0.06)' }}
+          style={{
+            position: 'sticky', top: 0, zIndex: 50,
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '0.75rem 1rem', width: '100%',
+            background: 'rgba(252,249,248,0.92)',
+            backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            borderBottom: '1px solid rgba(173,44,77,0.06)',
+          }}
         >
-          <div className="flex items-center gap-3">
-            <Link href="/dashboard" className="text-[#ad2c4d] p-1.5 rounded-full hover:bg-[#f2eeed] active:scale-95 transition-transform">
-              <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <Link href="/dashboard" style={{ color: '#ad2c4d', padding: '6px', borderRadius: '9999px', display: 'flex' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>arrow_back</span>
             </Link>
-            <h1 className="text-[#1c1b1b] font-bold text-lg tracking-tight">Messages</h1>
+            <h1 style={{ color: '#1c1b1b', fontWeight: 700, fontSize: '1.125rem', letterSpacing: '-0.01em', margin: 0 }}>Messages</h1>
           </div>
           <button
             type="button"
-            className="text-[#ad2c4d] p-1.5 rounded-full hover:bg-[#f2eeed] active:scale-95 transition-transform"
+            style={{ color: '#ad2c4d', padding: '6px', borderRadius: '9999px', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}
             aria-label="New message"
             onClick={() => searchInputRef.current?.focus()}
           >
-            <span className="material-symbols-outlined text-[20px]">edit_square</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>edit_square</span>
           </button>
         </header>
 
         {/* Search */}
-        <div className="px-4 py-2">
-          <div className="relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#584144]/50 text-[16px]">search</span>
+        <div style={{ padding: '0.5rem 1rem' }}>
+          <div style={{ position: 'relative' }}>
+            <span className="material-symbols-outlined" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(88,65,68,0.5)', fontSize: '16px' }}>search</span>
             <input
               ref={searchInputRef}
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search"
-              className="w-full pl-10 pr-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#8c0f37]/30 placeholder:text-[#584144]/40"
-              style={{ background: '#f0edec', border: 'none' }}
+              style={{ width: '100%', paddingLeft: '40px', paddingRight: '12px', paddingTop: '10px', paddingBottom: '10px', borderRadius: '12px', fontSize: '14px', background: '#f0edec', border: 'none', outline: 'none', color: '#1c1b1b' }}
               autoComplete="off"
             />
           </div>
         </div>
 
         {/* Thread list */}
-        <main className="flex-1 pb-24 overflow-y-auto">
-          <div className="px-2 pt-1">
+        <main style={{ flex: 1, paddingBottom: '6rem', overflowY: 'auto' }}>
+          <div style={{ padding: '4px 8px 0' }}>
             {/* Counselor thread — active/unread */}
             {showCounselor && (
-            <div className="px-2 py-0.5">
+            <div style={{ padding: '2px 8px' }}>
               <button
                 type="button"
                 onClick={() => setView('thread')}
-                className="w-full rounded-xl px-3 py-3 flex items-center gap-3 cursor-pointer active:scale-[0.98] transition-transform text-left"
-                style={{ background: 'rgba(173,44,77,0.04)' }}
+                style={{
+                  width: '100%', borderRadius: '12px', padding: '12px',
+                  display: 'flex', alignItems: 'center', gap: '12px',
+                  cursor: 'pointer', textAlign: 'left' as const,
+                  background: 'rgba(173,44,77,0.04)', border: 'none',
+                }}
               >
-                <div className="relative flex-shrink-0">
+                <div style={{ position: 'relative', flexShrink: 0 }}>
                   <div
-                    className="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-xs"
-                    style={{ background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)' }}
+                    style={{
+                      width: '44px', height: '44px', borderRadius: '9999px',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: '#fff', fontWeight: 700, fontSize: '12px',
+                      background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)',
+                    }}
                   >
                     {counselorInitials}
                   </div>
                   <div
-                    className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2"
-                    style={{ background: '#22c55e', borderColor: '#fcf9f8' }}
+                    style={{
+                      position: 'absolute', bottom: '-2px', right: '-2px',
+                      width: '12px', height: '12px', borderRadius: '9999px',
+                      border: '2px solid #fcf9f8', background: '#22c55e',
+                    }}
                   />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-baseline">
-                    <h3 className="font-semibold text-[14px] text-[#1c1b1b]">
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <h3 style={{ fontWeight: 600, fontSize: '14px', color: '#1c1b1b', margin: 0 }}>
                       {counselorName ?? 'Your Counselor'}
                     </h3>
                     {displayLastTime && (
-                      <span className="text-[11px] text-[#584144]/60">
+                      <span style={{ fontSize: '11px', color: 'rgba(88,65,68,0.6)' }}>
                         {displayLastTime}
                       </span>
                     )}
                   </div>
-                  <div className="flex justify-between items-center gap-2 mt-0.5">
-                    <p className="text-[13px] text-[#584144] truncate">{displayLastMsg || 'Tap to start chatting'}</p>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
+                    <p style={{ fontSize: '13px', color: '#584144', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayLastMsg || 'Tap to start chatting'}</p>
                     {unreadCount > 0 && (
                       <span
-                        className="flex-shrink-0 text-white text-[10px] font-bold h-5 min-w-[20px] px-1 rounded-full flex items-center justify-center"
-                        style={{ background: '#ad2c4d' }}
+                        style={{
+                          flexShrink: 0, color: '#fff', fontSize: '10px', fontWeight: 700,
+                          height: '20px', minWidth: '20px', padding: '0 4px',
+                          borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          background: '#ad2c4d',
+                        }}
                       >
                         {unreadCount}
                       </span>
@@ -288,52 +315,66 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
 
             {/* Program team — link to resources */}
             {showProgram && (
-            <div className="px-2 py-0.5">
+            <div style={{ padding: '2px 8px' }}>
               <Link
                 href="/dashboard/resources"
-                className="block rounded-xl px-3 py-3 flex items-center gap-3 active:scale-[0.98] transition-transform"
-                style={{ textDecoration: 'none', color: 'inherit' }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '12px',
+                  borderRadius: '12px', padding: '12px',
+                  textDecoration: 'none', color: 'inherit',
+                }}
               >
                 <div
-                  className="w-11 h-11 rounded-full flex items-center justify-center text-[#584144] font-bold text-xs flex-shrink-0"
-                  style={{ background: '#e5e2e1' }}
+                  style={{
+                    width: '44px', height: '44px', borderRadius: '9999px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: '#584144', fontWeight: 700, fontSize: '12px', flexShrink: 0,
+                    background: '#e5e2e1',
+                  }}
                 >
                   PT
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-baseline">
-                    <h3 className="font-semibold text-[14px] text-[#1c1b1b]">Program Team</h3>
-                    <span className="text-[11px] text-[#584144]/60">Yesterday</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <h3 style={{ fontWeight: 600, fontSize: '14px', color: '#1c1b1b', margin: 0 }}>Program Team</h3>
+                    <span style={{ fontSize: '11px', color: 'rgba(88,65,68,0.6)' }}>Yesterday</span>
                   </div>
-                  <p className="text-[13px] text-[#584144] truncate mt-0.5">Your certification for Digital Literacy is ready.</p>
+                  <p style={{ fontSize: '13px', color: '#584144', margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Your certification for Digital Literacy is ready.</p>
                 </div>
-                <span className="material-symbols-outlined text-[#584144]/40 text-lg flex-shrink-0">chevron_right</span>
+                <span className="material-symbols-outlined" style={{ color: 'rgba(88,65,68,0.4)', fontSize: '18px', flexShrink: 0 }}>chevron_right</span>
               </Link>
             </div>
             )}
 
             {/* Career Services — link to job board */}
             {showCareer && (
-            <div className="px-2 py-0.5">
+            <div style={{ padding: '2px 8px' }}>
               <Link
                 href="/dashboard/jobs"
-                className="block rounded-xl px-3 py-3 flex items-center gap-3 active:scale-[0.98] transition-transform"
-                style={{ textDecoration: 'none', color: 'inherit' }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '12px',
+                  borderRadius: '12px', padding: '12px',
+                  textDecoration: 'none', color: 'inherit',
+                }}
               >
                 <div
-                  className="w-11 h-11 rounded-full flex items-center justify-center text-[#584144] font-bold text-xs flex-shrink-0"
-                  style={{ background: '#e5e2e1' }}
+                  style={{
+                    width: '44px', height: '44px', borderRadius: '9999px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: '#584144', fontWeight: 700, fontSize: '12px', flexShrink: 0,
+                    background: '#e5e2e1',
+                  }}
                 >
                   CS
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-baseline">
-                    <h3 className="font-semibold text-[14px] text-[#1c1b1b]">Career Services</h3>
-                    <span className="text-[11px] text-[#584144]/60">Monday</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <h3 style={{ fontWeight: 600, fontSize: '14px', color: '#1c1b1b', margin: 0 }}>Career Services</h3>
+                    <span style={{ fontSize: '11px', color: 'rgba(88,65,68,0.6)' }}>Monday</span>
                   </div>
-                  <p className="text-[13px] text-[#584144] truncate mt-0.5">New job match found: Junior Web Developer.</p>
+                  <p style={{ fontSize: '13px', color: '#584144', margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>New job match found: Junior Web Developer.</p>
                 </div>
-                <span className="material-symbols-outlined text-[#584144]/40 text-lg flex-shrink-0">chevron_right</span>
+                <span className="material-symbols-outlined" style={{ color: 'rgba(88,65,68,0.4)', fontSize: '18px', flexShrink: 0 }}>chevron_right</span>
               </Link>
             </div>
             )}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useState } from 'react';
 
 export type CertRow = {
   id: string;
@@ -24,10 +24,7 @@ export function CertificationViewButton({
   earnedAtLabel: string;
   variant?: 'mobile' | 'desktop';
 }) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
-
-  const open = () => dialogRef.current?.showModal();
-  const close = () => dialogRef.current?.close();
+  const [open, setOpen] = useState(false);
 
   const btnStyle =
     variant === 'mobile'
@@ -56,82 +53,88 @@ export function CertificationViewButton({
 
   return (
     <>
-      <button type="button" onClick={open} style={btnStyle}>
+      <button type="button" onClick={() => setOpen(true)} style={btnStyle}>
         View
       </button>
-      <dialog
-        ref={dialogRef}
-        style={{
-          border: 'none',
-          borderRadius: '0.875rem',
-          padding: '1.25rem',
-          maxWidth: 'min(100vw - 2rem, 22rem)',
-          boxShadow: 'var(--shadow-lg, 0 8px 32px rgba(0,0,0,0.15))',
-        }}
-      >
-        <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.05rem', fontWeight: 700 }}>{certName}</h3>
-        <p style={{ margin: '0 0 0.75rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-          Earned: {earnedAtLabel}
-        </p>
-        <p style={{ margin: '0 0 1rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
-          This is your verification record in WorkforceAP. Official certificates are issued by the certifying body; keep any PDFs they provide.
-        </p>
-        <button
-          type="button"
-          className="btn btn-primary"
-          style={{ width: '100%' }}
-          onClick={close}
+      {open ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${certName} details`}
+          onClick={() => setOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15, 23, 42, 0.55)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1rem',
+            zIndex: 1000,
+          }}
         >
-          Close
-        </button>
-      </dialog>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: 'var(--surface, #fff)',
+              color: 'var(--color-on-surface)',
+              borderRadius: '0.875rem',
+              padding: '1.25rem',
+              width: 'min(100%, 22rem)',
+              boxShadow: 'var(--shadow-lg, 0 8px 32px rgba(0,0,0,0.15))',
+            }}
+          >
+            <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.05rem', fontWeight: 700 }}>{certName}</h3>
+            <p style={{ margin: '0 0 0.75rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+              Earned: {earnedAtLabel}
+            </p>
+            <p style={{ margin: '0 0 1rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
+              This is your verification record in WorkforceAP. Official certificates are issued by the certifying body; keep any PDFs they provide.
+            </p>
+            <button
+              type="button"
+              className="btn btn-primary"
+              style={{ width: '100%' }}
+              onClick={() => setOpen(false)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }
 
 export function CertificationDownloadOneButton({
   certName,
-  earnedAtIso,
   variant = 'compact',
 }: {
   certName: string;
   earnedAtIso: string;
   variant?: 'compact' | 'icon';
 }) {
-  const run = () => {
-    const line = `"${certName.replace(/"/g, '""')}",${earnedAtIso}`;
-    const blob = new Blob([`Certificate name,Earned date (ISO)\n${line}`], {
-      type: 'text/csv;charset=utf-8',
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `certificate-${certName.slice(0, 40).replace(/[^a-zA-Z0-9-_]+/g, '-') || 'record'}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   if (variant === 'icon') {
     return (
-      <button
-        type="button"
-        onClick={run}
-        title="Download this certificate record (CSV)"
+      <a
+        href="/api/member/certifications/export"
+        download="my-certificates.csv"
+        title="Download your certificate records (CSV)"
         className="btn btn-outline btn-sm"
-        style={{ padding: '0.35rem 0.5rem', minWidth: 'auto' }}
+        style={{ padding: '0.35rem 0.5rem', minWidth: 'auto', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
         aria-label={`Download record for ${certName}`}
       >
         <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>
           download
         </span>
-      </button>
+      </a>
     );
   }
 
   return (
-    <button
-      type="button"
-      onClick={run}
+    <a
+      href="/api/member/certifications/export"
+      download="my-certificates.csv"
       style={{
         background: 'var(--surface-container-high)',
         color: 'var(--color-on-surface)',
@@ -143,10 +146,13 @@ export function CertificationDownloadOneButton({
         whiteSpace: 'nowrap' as const,
         cursor: 'pointer',
         flexShrink: 0,
+        display: 'inline-flex',
+        alignItems: 'center',
+        textDecoration: 'none',
       }}
     >
       Download
-    </button>
+    </a>
   );
 }
 
@@ -212,33 +218,40 @@ export function CertificationEarnedRowMobile({
 }
 
 export function DownloadAllCertificatesButton({ certs }: { certs: CertRow[] }) {
-  const [busy, setBusy] = useState(false);
+  const disabled = certs.length === 0;
 
-  const run = useCallback(() => {
-    if (certs.length === 0) return;
-    setBusy(true);
-    try {
-      const lines = ['Certificate name,Earned date (ISO)', ...certs.map((c) => `"${c.certName.replace(/"/g, '""')}",${c.earnedAt}`)];
-      const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `workforceap-certifications-${new Date().toISOString().slice(0, 10)}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } finally {
-      setBusy(false);
-    }
-  }, [certs]);
-
-  const disabled = certs.length === 0 || busy;
+  if (disabled) {
+    return (
+      <button
+        type="button"
+        className="btn btn-primary"
+        disabled
+        title="Add earned certificates from your roadmap first"
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 'var(--space-2)',
+          alignSelf: 'flex-start',
+          padding: '0.6rem 1.25rem',
+          fontSize: 'var(--font-size-sm)',
+          opacity: 0.6,
+          cursor: 'not-allowed',
+        }}
+      >
+        <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>
+          download
+        </span>
+        Download list (CSV)
+      </button>
+    );
+  }
 
   return (
-    <button
-      type="button"
+    <a
+      href="/api/member/certifications/export"
+      download="my-certificates.csv"
       className="btn btn-primary"
-      disabled={disabled}
-      title={certs.length === 0 ? 'Add earned certificates from your roadmap first' : 'Download a CSV list of your earned certificates'}
+      title="Download a CSV list of your earned certificates"
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -246,15 +259,13 @@ export function DownloadAllCertificatesButton({ certs }: { certs: CertRow[] }) {
         alignSelf: 'flex-start',
         padding: '0.6rem 1.25rem',
         fontSize: 'var(--font-size-sm)',
-        opacity: disabled ? 0.6 : 1,
-        cursor: disabled ? 'not-allowed' : 'pointer',
+        textDecoration: 'none',
       }}
-      onClick={run}
     >
       <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>
         download
       </span>
-      {busy ? 'Preparing…' : 'Download list (CSV)'}
-    </button>
+      Download list (CSV)
+    </a>
   );
 }

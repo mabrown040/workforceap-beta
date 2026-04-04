@@ -115,7 +115,6 @@ export async function listVoices(): Promise<
 export async function createConversationalSession(agentId: string): Promise<{
   signedUrl: string;
   expiresAt?: string;
-  dynamicContext?: string;
 }> {
   const apiKey = process.env.ELEVENLABS_API_KEY;
   if (!apiKey) {
@@ -145,7 +144,6 @@ export async function createConversationalSession(agentId: string): Promise<{
     expiresAt: data.expires_at_unix_secs
       ? new Date(data.expires_at_unix_secs * 1000).toISOString()
       : undefined,
-    dynamicContext: options?.dynamicContext || undefined,
   };
 }
 

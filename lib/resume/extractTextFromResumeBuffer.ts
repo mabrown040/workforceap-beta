@@ -1,4 +1,6 @@
 import { Buffer } from 'node:buffer';
+import pdfParse from 'pdf-parse/lib/pdf-parse.js';
+import mammoth from 'mammoth';
 
 /**
  * Extract plain text from a resume file buffer (same rules as `/api/ai/extract-resume-text`).
@@ -8,11 +10,10 @@ export async function extractTextFromResumeBuffer(buffer: Buffer, ext: string): 
 
   if (e === 'pdf') {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const pdfParse = require('pdf-parse/lib/pdf-parse.js');
       const data = await pdfParse(buffer);
       return (data.text?.trim() || '') as string;
-    } catch {
+    } catch (err) {
+      console.error('Error parsing PDF:', err);
       const raw = buffer.toString('utf-8');
       return raw
         .replace(/[^\x20-\x7E\n\r\t]/g, ' ')
@@ -23,7 +24,6 @@ export async function extractTextFromResumeBuffer(buffer: Buffer, ext: string): 
   }
 
   if (e === 'docx' || e === 'doc') {
-    const mammoth = await import('mammoth');
     const result = await mammoth.extractRawText({ buffer });
     return (result.value?.trim() || '') as string;
   }

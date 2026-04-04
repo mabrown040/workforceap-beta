@@ -263,6 +263,53 @@ export default function EmployersPage() {
         </div>
       </section>
 
+      {/* ===== Employer Stats ===== */}
+      <section style={{ padding: 'clamp(2rem, 4vw, 4rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1200px', margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem', textAlign: 'center' }}>
+          {[
+            { stat: '200+', label: 'Graduates Placed' },
+            { stat: '90%', label: 'Retention Rate' },
+            { stat: '$0', label: 'Upfront Cost to You' },
+          ].map((item) => (
+            <div key={item.label} className="stitch-card" style={{ padding: '2rem' }}>
+              <div style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-accent)', lineHeight: 1 }}>{item.stat}</div>
+              <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>{item.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ===== How It Works for Employers ===== */}
+      <section style={{ padding: 'clamp(2rem, 4vw, 4rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1200px', margin: '0 auto' }}>
+        <h2 className="text-display-sm" style={{ textAlign: 'center', marginBottom: '2.5rem' }}>How It Works</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
+          {[
+            { step: '1', icon: 'work', title: 'Post a Role or Browse', desc: 'Tell us what you need — or browse our pipeline of trained, job-ready candidates.' },
+            { step: '2', icon: 'groups', title: 'We Match You', desc: 'Our team connects you with vetted graduates whose skills align with your requirements.' },
+            { step: '3', icon: 'handshake', title: 'Hire When Ready', desc: 'Interview on your timeline. No pressure, no placement fees, no strings attached.' },
+          ].map((item) => (
+            <div key={item.step} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+              <div style={{ width: '3rem', height: '3rem', borderRadius: '50%', background: 'var(--color-accent)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '1.25rem', flexShrink: 0 }}>{item.step}</div>
+              <div>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.5rem' }}>{item.title}</h3>
+                <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', lineHeight: 1.6 }}>{item.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ===== Employer Testimonial ===== */}
+      <section style={{ padding: 'clamp(2rem, 4vw, 4rem) clamp(1rem, 4vw, 2rem)', maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
+        <div className="stitch-card" style={{ padding: '2.5rem', background: 'var(--surface-container-low)' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '1rem', display: 'block' }}>format_quote</span>
+          <blockquote style={{ fontSize: '1.1rem', lineHeight: 1.7, fontStyle: 'italic', color: 'var(--color-on-surface)', marginBottom: '1rem' }}>
+            &ldquo;WorkforceAP connected us with three candidates who were immediately productive. The quality of preparation was unlike anything we&apos;ve seen from traditional staffing.&rdquo;
+          </blockquote>
+          <cite style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', fontStyle: 'normal' }}>— Hiring Manager, Regional Healthcare System</cite>
+        </div>
+      </section>
+
       {/* Find Your Career CTA */}
       <section style={{ textAlign: 'center', padding: '2.5rem 1rem', background: 'var(--color-light)' }}>
         <p style={{ fontSize: '1.1rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>Not sure where to start?</p>
@@ -710,6 +757,17 @@ export default function EmployersPage() {
           </div>
         </div>
       </section>
+
+      {/* ===== Employer CTA ===== */}
+      <section style={{ padding: 'clamp(3rem, 6vw, 5rem) clamp(1rem, 4vw, 2rem)', textAlign: 'center' }}>
+        <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>Ready to Hire?</h2>
+        <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.1rem', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
+          Let&apos;s connect you with trained, motivated talent — at zero cost to your organization.
+        </p>
+        <a href="/contact" className="btn btn-primary" style={{ fontSize: '1rem', padding: '0.875rem 2rem' }}>
+          Let&apos;s Talk
+        </a>
+      </section>
       </div>{/* end employers desktop */}
 
       <div className="marketing-mobile marketing-mobile-pb-for-bottom-nav">
@@ -901,6 +959,17 @@ export default function EmployersPage() {
                 {cat}
               </Link>
             ))}
+          </div>
+        </section>
+
+        {/* ── Employer Testimonial ── */}
+        <section style={{ padding: '2rem 1rem', background: 'var(--surface-container-low, #f5f2f1)' }}>
+          <div style={{ borderRadius: '0.75rem', padding: '1.5rem', background: 'white', boxShadow: '0 1px 4px rgba(28,27,27,0.05)', textAlign: 'center' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: '#8c0f37', marginBottom: '0.75rem', display: 'block' }}>format_quote</span>
+            <blockquote style={{ fontSize: '0.9rem', lineHeight: 1.6, fontStyle: 'italic', color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>
+              &ldquo;WorkforceAP connected us with three candidates who were immediately productive. The quality of preparation was unlike anything we&apos;ve seen from traditional staffing.&rdquo;
+            </blockquote>
+            <cite style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', fontStyle: 'normal' }}>— Hiring Manager, Regional Healthcare System</cite>
           </div>
         </section>
 

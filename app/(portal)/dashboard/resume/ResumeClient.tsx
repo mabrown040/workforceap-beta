@@ -228,11 +228,20 @@ export default function ResumeClient({
                 )}
               </div>
               {resumeData?.originalUrl && (
-                <iframe
-                  src={resumeData.originalUrl}
-                  title="Original resume preview"
-                  style={{ width: '100%', height: '600px', border: 'none', background: '#f5f5f5' }}
-                />
+                <div style={{ width: '100%', textAlign: 'center', padding: '1.5rem', background: 'var(--surface-container)', borderRadius: '0.75rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--color-accent)', marginBottom: '0.5rem', display: 'block' }}>description</span>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface)', marginBottom: '1rem' }}>Your resume is ready</p>
+                  <a
+                    href={resumeData.originalUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-primary"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>open_in_new</span>
+                    Open Resume
+                  </a>
+                </div>
               )}
               {!resumeData?.originalUrl && (
                 <div style={{ padding: '1rem', color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>
@@ -276,11 +285,20 @@ export default function ResumeClient({
                 )}
               </div>
               {resumeData?.enhancedUrl && (
-                <iframe
-                  src={resumeData.enhancedUrl}
-                  title="AI-enhanced resume preview"
-                  style={{ width: '100%', height: '600px', border: 'none', background: '#f5f5f5' }}
-                />
+                <div style={{ width: '100%', textAlign: 'center', padding: '1.5rem', background: 'var(--surface-container)', borderRadius: '0.75rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--color-accent)', marginBottom: '0.5rem', display: 'block' }}>auto_awesome</span>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface)', marginBottom: '1rem' }}>AI-enhanced resume ready</p>
+                  <a
+                    href={resumeData.enhancedUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-primary"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>open_in_new</span>
+                    Open Enhanced Resume
+                  </a>
+                </div>
               )}
               {resumeData?.enhancedText && !resumeData?.enhancedUrl && (
                 <pre style={{ whiteSpace: 'pre-wrap', fontSize: '0.85rem', maxHeight: '400px', overflow: 'auto', padding: '1rem', margin: 0 }}>

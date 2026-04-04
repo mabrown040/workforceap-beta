@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { trackAIToolRun, trackToolLaunch } from '@/lib/analytics/events';
@@ -15,6 +15,24 @@ export default function JobMatchScorerForm() {
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { copy, copied } = useCopyToClipboard();
+  const formRef = useRef<HTMLFormElement>(null);
+  const [showFloating, setShowFloating] = useState(false);
+
+  const canSubmit = resume.trim().length > 0 && jobDescription.trim().length > 0 && !loading;
+
+  useEffect(() => {
+    if (!formRef.current || !canSubmit) {
+      setShowFloating(false);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowFloating(!entry.isIntersecting && canSubmit),
+      { threshold: 0 }
+    );
+    const submitBtn = formRef.current.querySelector('button[type="submit"]');
+    if (submitBtn) observer.observe(submitBtn);
+    return () => observer.disconnect();
+  }, [canSubmit]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,7 +98,7 @@ export default function JobMatchScorerForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="portal-ai-tool-form">
+    <form ref={formRef} onSubmit={handleSubmit} className="portal-ai-tool-form">
       <div className="form-group">
         <label htmlFor="job-desc">Job description</label>
         <textarea
@@ -144,6 +162,50 @@ export default function JobMatchScorerForm() {
           <p className="ai-result-saved">
             Saved to your history. <Link href="/dashboard/ai-tools/history">View all results</Link>
           </p>
+        </div>
+      )}
+      {/* Floating analyze button — mobile */}
+      {showFloating && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '5rem',
+            left: '1rem',
+            right: '1rem',
+            zIndex: 50,
+            display: 'flex',
+          }}
+          className="wa-md:wa-hidden"
+        >
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={loading}
+            style={{
+              width: '100%',
+              minHeight: '48px',
+              fontSize: '1rem',
+              fontWeight: 700,
+              borderRadius: 'var(--radius-lg)',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+            }}
+          >
+            {loading ? (
+              <>
+                <Loader2 className="ai-tool-submit-spinner" size={18} aria-hidden />
+                Analyzing…
+              </>
+            ) : (
+              <>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>analytics</span>
+                Analyze Match
+              </>
+            )}
+          </button>
         </div>
       )}
     </form>

@@ -89,6 +89,67 @@ export function CertificationViewButton({
   );
 }
 
+export function CertificationDownloadOneButton({
+  certName,
+  earnedAtIso,
+  variant = 'compact',
+}: {
+  certName: string;
+  earnedAtIso: string;
+  variant?: 'compact' | 'icon';
+}) {
+  const run = () => {
+    const line = `"${certName.replace(/"/g, '""')}",${earnedAtIso}`;
+    const blob = new Blob([`Certificate name,Earned date (ISO)\n${line}`], {
+      type: 'text/csv;charset=utf-8',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `certificate-${certName.slice(0, 40).replace(/[^a-zA-Z0-9-_]+/g, '-') || 'record'}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  if (variant === 'icon') {
+    return (
+      <button
+        type="button"
+        onClick={run}
+        title="Download this certificate record (CSV)"
+        className="btn btn-outline btn-sm"
+        style={{ padding: '0.35rem 0.5rem', minWidth: 'auto' }}
+        aria-label={`Download record for ${certName}`}
+      >
+        <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>
+          download
+        </span>
+      </button>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={run}
+      style={{
+        background: 'var(--surface-container-high)',
+        color: 'var(--color-on-surface)',
+        border: '1px solid var(--outline-variant)',
+        borderRadius: '0.5rem',
+        padding: '0.375rem 0.65rem',
+        fontSize: '0.8125rem',
+        fontWeight: 600,
+        whiteSpace: 'nowrap' as const,
+        cursor: 'pointer',
+        flexShrink: 0,
+      }}
+    >
+      Download
+    </button>
+  );
+}
+
 export function CertificationEarnedRowMobile({
   certName,
   earnedAt,
@@ -98,6 +159,7 @@ export function CertificationEarnedRowMobile({
 }) {
   const icon = iconForCertName(certName);
   const earnedLabel = earnedAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const earnedIso = earnedAt.toISOString();
   return (
     <div
       style={{
@@ -141,7 +203,10 @@ export function CertificationEarnedRowMobile({
         </div>
         <div style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>Recorded · {earnedLabel}</div>
       </div>
-      <CertificationViewButton certName={certName} earnedAtLabel={earnedLabel} variant="mobile" />
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+        <CertificationDownloadOneButton certName={certName} earnedAtIso={earnedIso} variant="compact" />
+        <CertificationViewButton certName={certName} earnedAtLabel={earnedLabel} variant="mobile" />
+      </div>
     </div>
   );
 }

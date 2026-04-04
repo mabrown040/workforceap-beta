@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { role, experienceLevel, count } = parsed.data;
+  const { role, experienceLevel, count, resumeContext } = parsed.data;
   const levelDesc = LEVEL_PROMPTS[experienceLevel];
 
   const systemPrompt = `You are a career coach and interview preparation expert. Generate interview questions for job seekers.
@@ -56,9 +56,13 @@ Format your response as a JSON array of objects. Each object must have:
 
 Return ONLY the JSON array, no other text.`;
 
+  const resumeBlock =
+    resumeContext?.trim() &&
+    `\n\nCandidate resume / background (use only to tailor questions and examples; do not invent employers or titles not supported here):\n---\n${resumeContext.trim()}\n---`;
+
   const userPrompt = `Generate ${count} interview questions for a ${role} role at ${levelDesc} level.
 
-Include a mix of behavioral (STAR method) and technical questions. Make them specific to this role. For each question, provide an exampleAnswer that demonstrates a strong 2-3 sentence response.`;
+Include a mix of behavioral (STAR method) and technical questions. Make them specific to this role. For each question, provide an exampleAnswer that demonstrates a strong 2-3 sentence response.${resumeBlock ?? ''}`;
 
   try {
     const raw = await chatCompletion(

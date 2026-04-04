@@ -71,6 +71,7 @@ export default function AIHistoryList({ results, initialFilter = '' }: { results
           <select value={filter} onChange={(e) => setFilter(e.target.value)}>
             <option value="">All tools</option>
             <option value="job_match_scorer">Job Match Scorer</option>
+            <option value="resume_analysis">Resume Analysis</option>
             <option value="resume_rewriter">Resume Rewriter</option>
             <option value="cover_letter">Cover Letter</option>
             <option value="interview_practice">Interview Practice</option>

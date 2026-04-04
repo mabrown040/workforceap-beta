@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumePlainText';
 
 export default function GapAnalyzerForm() {
   const [resume, setResume] = useState('');
@@ -14,6 +15,8 @@ export default function GapAnalyzerForm() {
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { copy, copied } = useCopyToClipboard();
+
+  useHydrateMemberResumePlainText(setResume);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

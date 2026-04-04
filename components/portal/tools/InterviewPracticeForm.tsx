@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumePlainText';
 import ExportPdfButton from './ExportPdfButton';
 
 type Question = {
@@ -21,6 +22,7 @@ const emptyStar = (): StarWorksheet => ({ situation: '', task: '', action: '', r
 
 export default function InterviewPracticeForm() {
   const [role, setRole] = useState('');
+  const [resumeContext, setResumeContext] = useState('');
   const [experienceLevel, setExperienceLevel] = useState<'entry' | 'mid' | 'senior'>('mid');
   const [focusAreas, setFocusAreas] = useState<string[]>([]);
   const [difficulty, setDifficulty] = useState(5);
@@ -42,6 +44,8 @@ export default function InterviewPracticeForm() {
   const toggleFocus = (id: string) =>
     setFocusAreas((prev) => prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]);
 
+  useHydrateMemberResumePlainText(setResumeContext);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -54,7 +58,14 @@ export default function InterviewPracticeForm() {
       const res = await fetch('/api/ai/interview-practice', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role, experienceLevel, focusAreas: focusAreas.length ? focusAreas : undefined, difficulty, count: 8 }),
+        body: JSON.stringify({
+          role,
+          experienceLevel,
+          focusAreas: focusAreas.length ? focusAreas : undefined,
+          difficulty,
+          count: 8,
+          resumeContext: resumeContext.trim() || undefined,
+        }),
       });
 
       const data = await res.json();
@@ -148,6 +159,20 @@ export default function InterviewPracticeForm() {
           onChange={(e) => setRole(e.target.value)}
           placeholder="e.g. Software Developer, Data Analyst"
           required
+          disabled={loading}
+        />
+      </div>
+      <div className="form-group">
+        <label htmlFor="interview-resume-context">Resume context (optional)</label>
+        <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem' }}>
+          Pre-filled from your uploaded resume when available. We use this to tailor questions — not shown to employers.
+        </p>
+        <textarea
+          id="interview-resume-context"
+          value={resumeContext}
+          onChange={(e) => setResumeContext(e.target.value)}
+          placeholder="Paste key bullets or your full resume so practice questions match your background."
+          rows={5}
           disabled={loading}
         />
       </div>

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { counselorAffiliationLabel } from '@/lib/counselor/counselorLabels';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
+import { counselorStudentStatusBadge } from '@/lib/counselor/memberStatus';
 
 export default async function CounselorPortalPage() {
   const user = await getUser();
@@ -35,6 +36,7 @@ export default async function CounselorPortalPage() {
               email: true,
               programInterest: true,
               enrolledProgram: true,
+              assessmentScorePct: true,
             },
           },
         },
@@ -150,10 +152,12 @@ export default async function CounselorPortalPage() {
                 const isEnrolled = !!a.member.enrolledProgram;
                 const hasInterest = !!a.member.programInterest;
                 const progressPct = isEnrolled ? 100 : hasInterest ? 50 : 0;
-                const statusLabel = isEnrolled ? 'On Track' : 'At Risk';
-                const statusStyle = isEnrolled
-                  ? { background: '#dcfce7', color: '#166534' }
-                  : { background: '#fee2e2', color: '#991b1b' };
+                const rosterBadge = counselorStudentStatusBadge({
+                  enrolledProgram: a.member.enrolledProgram,
+                  assessmentScorePct: a.member.assessmentScorePct,
+                });
+                const statusLabel = rosterBadge.label;
+                const statusStyle = rosterBadge.style;
                 return (
                   <Link key={a.id} href={`/counselor/students/${a.memberId}`}
                     className="wa-bg-white active:scale-[0.98] wa-transition-all" style={{ borderRadius:"0.75rem", padding:"1rem", display:"flex", alignItems:"center", gap:"0.75rem", textDecoration:"none" }}>

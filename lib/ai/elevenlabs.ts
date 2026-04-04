@@ -109,11 +109,10 @@ export async function listVoices(): Promise<
 
 /**
  * Create a signed conversational session URL for ElevenLabs Conversational AI.
+ * Dynamic prompt/context must be sent from the client via `Conversation.startSession({ overrides })`
+ * (see `@elevenlabs/client`); appending overrides to the signed URL is not reliably applied.
  */
-export async function createConversationalSession(
-  agentId: string,
-  options?: { dynamicContext?: string }
-): Promise<{
+export async function createConversationalSession(agentId: string): Promise<{
   signedUrl: string;
   expiresAt?: string;
   dynamicContext?: string;

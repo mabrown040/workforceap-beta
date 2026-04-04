@@ -1,28 +1,8 @@
 import { redirect } from 'next/navigation';
-import { revalidatePath } from 'next/cache';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { runMentorStatusUpdate } from '@/lib/admin/mentorStatusUpdate';
-
-async function updateMentorAction(formData: FormData) {
-  'use server';
-
-  const user = await getUser();
-  if (!user) return;
-  await requireAdmin(user.id);
-
-  const mentorId = String(formData.get('mentorId') || '');
-  const action = String(formData.get('action') || '') as 'approve' | 'deactivate' | 'activate';
-
-  if (!mentorId) return;
-  if (action !== 'approve' && action !== 'deactivate' && action !== 'activate') return;
-
-  const result = await runMentorStatusUpdate(mentorId, action);
-  if (result.ok) {
-    revalidatePath('/admin/mentors');
-  }
-}
+import MentorStatusButtons from '@/components/admin/MentorStatusButtons';
 
 export default async function AdminMentorsPage() {
   const user = await getUser();
@@ -43,8 +23,12 @@ export default async function AdminMentorsPage() {
   });
 
   return (
-    <main style={{ padding: '1.5rem' }}>
-      <h1 style={{ fontSize: '1.9rem', fontWeight: 700, marginBottom: '1rem' }}>Mentor Management</h1>
+    <main style={{ padding: '1.5rem', maxWidth: '90rem', margin: '0 auto' }}>
+      <h1 style={{ fontSize: '1.9rem', fontWeight: 700, marginBottom: '0.35rem' }}>Mentor management</h1>
+      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', maxWidth: '48rem', lineHeight: 1.5 }}>
+        Approve new mentor applications, or deactivate access. Approved mentors receive an email when{' '}
+        <code style={{ fontSize: '0.85em' }}>RESEND_API_KEY</code> is configured.
+      </p>
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '52rem' }}>
           <thead>
@@ -65,19 +49,8 @@ export default async function AdminMentorsPage() {
                 <td style={{ padding: '0.7rem 0.5rem' }}>{mentor.industry}</td>
                 <td style={{ padding: '0.7rem 0.5rem' }}>{mentor.approvedAt ? (mentor.isActive ? 'Approved' : 'Deactivated') : 'Pending'}</td>
                 <td style={{ padding: '0.7rem 0.5rem' }}>{mentor.createdAt.toLocaleDateString()}</td>
-                <td style={{ padding: '0.7rem 0.5rem', display: 'flex', gap: '0.5rem' }}>
-                  {!mentor.approvedAt ? (
-                    <form action={updateMentorAction}>
-                      <input type="hidden" name="mentorId" value={mentor.id} />
-                      <input type="hidden" name="action" value="approve" />
-                      <button type="submit" style={{ border: 0, borderRadius: '0.45rem', padding: '0.45rem 0.7rem', background: 'var(--color-accent)', color: '#fff', fontWeight: 600 }}>Approve</button>
-                    </form>
-                  ) : null}
-                  <form action={updateMentorAction}>
-                    <input type="hidden" name="mentorId" value={mentor.id} />
-                    <input type="hidden" name="action" value="deactivate" />
-                    <button type="submit" style={{ border: 0, borderRadius: '0.45rem', padding: '0.45rem 0.7rem', background: '#a91b3f', color: '#fff', fontWeight: 600 }}>Deactivate</button>
-                  </form>
+                <td style={{ padding: '0.7rem 0.5rem' }}>
+                  <MentorStatusButtons mentorId={mentor.id} approvedAt={mentor.approvedAt} isActive={mentor.isActive} />
                 </td>
               </tr>
             ))}

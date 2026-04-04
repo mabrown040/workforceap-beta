@@ -19,6 +19,8 @@ type Props = {
   resumePreview: string;
   /** 0–100 match score for the circular gauge */
   scorePercent: number;
+  /** Label under the score (e.g. job match vs. overall resume strength). */
+  gaugeLabel?: string;
   matchedSkills: string[];
   missingSkills: string[];
   analysisText: string;
@@ -26,6 +28,7 @@ type Props = {
   missingMetrics: string[];
   bulletSuggestions: BulletSuggestionPair[];
   exportTitle?: string;
+  pdfToolName?: string;
 };
 
 /**
@@ -34,6 +37,7 @@ type Props = {
 export default function ResumeAnalysisPanel({
   resumePreview,
   scorePercent,
+  gaugeLabel = 'Target alignment',
   matchedSkills,
   missingSkills,
   analysisText,
@@ -41,6 +45,7 @@ export default function ResumeAnalysisPanel({
   missingMetrics,
   bulletSuggestions,
   exportTitle = 'Job Match Analysis',
+  pdfToolName = 'Job Match Scorer',
 }: Props) {
   const { copy, copied } = useCopyToClipboard();
   const clamped = Math.min(100, Math.max(0, scorePercent));
@@ -63,7 +68,7 @@ export default function ResumeAnalysisPanel({
           <button type="button" className="btn btn-outline btn-sm" onClick={() => void copy(analysisText)}>
             {copied ? 'Copied!' : 'Copy to clipboard'}
           </button>
-          <ExportPdfButton text={analysisText} title={exportTitle} toolName="Job Match Scorer" />
+          <ExportPdfButton text={analysisText} title={exportTitle} toolName={pdfToolName} />
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'center', margin: '1.5rem 0' }}>
@@ -84,7 +89,7 @@ export default function ResumeAnalysisPanel({
               {clamped}%
             </text>
             <text x="60" y="72" textAnchor="middle" fill="var(--color-on-surface-variant)" fontSize="11">
-              Target alignment
+              {gaugeLabel}
             </text>
           </svg>
         </div>

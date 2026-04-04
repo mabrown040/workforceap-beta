@@ -20,7 +20,10 @@ export default async function AdminMetricsPage() {
 
   return (
     <>
-      <PageHeader title="Admin metrics" subtitle="Engagement and activity overview." />
+      <PageHeader
+        title="Admin metrics"
+        subtitle="Engagement and activity overview — counts are derived from member activity, applications, goals, resources, AI tool usage, and pathway progress in this environment."
+      />
       <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
         <div className="admin-metrics-grid">
           <div className="admin-metric-card">

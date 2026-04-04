@@ -104,12 +104,12 @@ export default function PortalVoiceSession({
         headers: { 'Content-Type': 'application/json' },
         body: sessionPayload ? JSON.stringify(sessionPayload) : undefined,
       });
-      const data = (await res.json()) as { signedUrl?: string; error?: string; dynamicContext?: string };
+      const data = (await res.json()) as { signedUrl?: string; dynamicContext?: string; error?: string };
       if (!res.ok || !data.signedUrl) {
         throw new Error(data.error ?? 'Voice is not available right now.');
       }
       signedUrl = data.signedUrl;
-      dynamicCtx = data.dynamicContext;
+      dynamicCtx = typeof data.dynamicContext === 'string' ? data.dynamicContext.trim() || undefined : undefined;
     } catch (err) {
       setVoiceError(err instanceof Error ? err.message : 'Could not start session.');
       setPhase('pre');
@@ -119,15 +119,15 @@ export default function PortalVoiceSession({
     try {
       const conv = await Conversation.startSession({
         signedUrl,
-        ...(dynamicCtx ? {
-          overrides: {
-            agent: {
-              prompt: {
-                prompt: dynamicCtx,
+        ...(dynamicCtx
+          ? {
+              overrides: {
+                agent: {
+                  prompt: { prompt: dynamicCtx },
+                },
               },
-            },
-          },
-        } : {}),
+            }
+          : {}),
         onConnect: () => setPhase('active'),
         onDisconnect: (details) => {
           if (!intentionalRef.current) {
@@ -400,18 +400,75 @@ export default function PortalVoiceSession({
                   animation: 'pvs-fade-in 0.3s ease both',
                 }}
               >
-                {s.original && (
-                  <div style={{ marginBottom: '0.5rem' }}>
-                    <span style={{ fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>Original</span>
-                    <p style={{ margin: '0.25rem 0 0', fontSize: '0.88rem', textDecoration: 'line-through', color: 'var(--color-on-surface-variant)' }}>{s.original}</p>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: s.original ? '1fr 1fr' : '1fr',
+                    gap: '0.65rem',
+                    marginBottom: '0.65rem',
+                  }}
+                >
+                  {s.original ? (
+                    <div
+                      style={{
+                        borderRadius: 10,
+                        padding: '0.65rem 0.75rem',
+                        background: 'rgba(127,127,127,0.08)',
+                        border: '1px solid var(--outline-variant)',
+                        minWidth: 0,
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: '0.65rem',
+                          fontWeight: 700,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.06em',
+                          color: 'var(--color-on-surface-variant)',
+                        }}
+                      >
+                        Before
+                      </span>
+                      <p
+                        style={{
+                          margin: '0.35rem 0 0',
+                          fontSize: '0.85rem',
+                          lineHeight: 1.45,
+                          textDecoration: 'line-through',
+                          color: 'var(--color-on-surface-variant)',
+                        }}
+                      >
+                        {s.original}
+                      </p>
+                    </div>
+                  ) : null}
+                  <div
+                    style={{
+                      borderRadius: 10,
+                      padding: '0.65rem 0.75rem',
+                      background: 'rgba(22, 101, 52, 0.1)',
+                      border: '1px solid rgba(22, 101, 52, 0.28)',
+                      minWidth: 0,
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: '0.65rem',
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.06em',
+                        color: '#166534',
+                      }}
+                    >
+                      After
+                    </span>
+                    <p style={{ margin: '0.35rem 0 0', fontSize: '0.85rem', lineHeight: 1.45, fontWeight: 500, color: '#14532d' }}>
+                      {s.suggested}
+                    </p>
                   </div>
-                )}
-                <div style={{ marginBottom: '0.5rem' }}>
-                  <span style={{ fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', color: accent }}>Suggested</span>
-                  <p style={{ margin: '0.25rem 0 0', fontSize: '0.88rem', fontWeight: 500 }}>{s.suggested}</p>
                 </div>
                 <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem', fontStyle: 'italic' }}>{s.context}</p>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                   <button
                     type="button"
                     onClick={() => {
@@ -429,7 +486,7 @@ export default function PortalVoiceSession({
                       cursor: 'pointer',
                     }}
                   >
-                    ✓ Accept
+                    ✓ Approve
                   </button>
                   <button
                     type="button"
@@ -445,7 +502,7 @@ export default function PortalVoiceSession({
                       cursor: 'pointer',
                     }}
                   >
-                    ✗ Dismiss
+                    ✗ Deny
                   </button>
                 </div>
               </div>

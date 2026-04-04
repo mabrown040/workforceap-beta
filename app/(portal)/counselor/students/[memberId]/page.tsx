@@ -7,7 +7,7 @@ import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounse
 import Link from 'next/link';
 import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import { counselorEnrollmentStatusBadge } from '@/lib/counselor/memberStatus';
+import { counselorStudentStatusBadge } from '@/lib/counselor/memberStatus';
 import CounselorNotesPanel from './CounselorNotesPanel';
 
 type Props = { params: Promise<{ memberId: string }> };
@@ -40,7 +40,14 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
 
   const member = await prisma.user.findFirst({
     where: { id: memberId, deletedAt: null },
-    select: { id: true, fullName: true, email: true, enrolledProgram: true, programInterest: true },
+    select: {
+      id: true,
+      fullName: true,
+      email: true,
+      enrolledProgram: true,
+      programInterest: true,
+      assessmentScorePct: true,
+    },
   });
   if (!member) notFound();
 
@@ -67,7 +74,10 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
 
   const initials = getInitials(member.fullName ?? 'U');
   const program = member.enrolledProgram ?? member.programInterest ?? '—';
-  const enrollmentBadge = counselorEnrollmentStatusBadge(member.enrolledProgram);
+  const enrollmentBadge = counselorStudentStatusBadge({
+    enrolledProgram: member.enrolledProgram,
+    assessmentScorePct: member.assessmentScorePct,
+  });
 
   return (
     <>

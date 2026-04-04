@@ -4,6 +4,8 @@ export const interviewPracticeSchema = z.object({
   role: z.string().min(3, 'Role is required').max(200, 'Role must be under 200 characters'),
   experienceLevel: z.enum(['entry', 'mid', 'senior']).optional().default('mid'),
   count: z.number().min(3).max(15).optional().default(8),
+  /** Optional resume text so questions can reference real experience */
+  resumeContext: z.string().max(15000).optional(),
 });
 
 export type InterviewPracticeInput = z.infer<typeof interviewPracticeSchema>;

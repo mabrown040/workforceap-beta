@@ -26,10 +26,10 @@ export async function POST(req: NextRequest) {
   ].join('\n');
 
   try {
-    const { signedUrl, expiresAt } = await startElevenLabsPortalSession('interview', {
+    const { signedUrl, expiresAt, dynamicContext: ctx } = await startElevenLabsPortalSession('interview', {
       dynamicContext,
     });
-    return NextResponse.json({ signedUrl, expiresAt });
+    return NextResponse.json({ signedUrl, expiresAt, dynamicContext: ctx });
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Failed to start session';
     console.error('[member/voice-interview/session]', msg);

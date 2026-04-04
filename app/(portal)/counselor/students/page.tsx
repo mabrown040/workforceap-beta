@@ -5,6 +5,7 @@ import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import { counselorStudentStatusBadge } from '@/lib/counselor/memberStatus';
 
 function getInitials(name: string): string {
   return name
@@ -32,7 +33,14 @@ export default async function CounselorStudentsPage() {
         where: { counselor: { userId: user.id, active: true }, active: true },
         include: {
           member: {
-            select: { id: true, fullName: true, email: true, enrolledProgram: true, programInterest: true },
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+              enrolledProgram: true,
+              programInterest: true,
+              assessmentScorePct: true,
+            },
           },
         },
         orderBy: { assignedAt: 'desc' },
@@ -142,6 +150,10 @@ export default async function CounselorStudentsPage() {
             assignments.map((a) => {
               const initials = getInitials(a.member.fullName ?? 'U');
               const program = a.member.enrolledProgram ?? a.member.programInterest ?? '—';
+              const statusBadge = counselorStudentStatusBadge({
+                enrolledProgram: a.member.enrolledProgram,
+                assessmentScorePct: a.member.assessmentScorePct,
+              });
               return (
                 <Link
                   key={a.id}
@@ -228,15 +240,15 @@ export default async function CounselorStudentsPage() {
                         style={{
                           padding: '0.125rem 0.5rem',
                           borderRadius: '9999px',
-                          background: '#dcfce7',
-                          color: '#166534',
+                          background: statusBadge.style.background,
+                          color: statusBadge.style.color,
                           fontSize: '9px',
                           fontWeight: 700,
                           textTransform: 'uppercase',
                           letterSpacing: '0.05em',
                         }}
                       >
-                        On Track
+                        {statusBadge.label}
                       </span>
                       <span className="material-symbols-outlined" style={{ color: 'var(--outline-variant)', fontSize: '18px' }}>
                         chevron_right

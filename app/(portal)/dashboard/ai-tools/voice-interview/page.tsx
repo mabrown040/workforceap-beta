@@ -8,7 +8,7 @@ import { getUser } from '@/lib/auth/server';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Voice Interview',
-  description: 'Practice a live voice mock interview with real-time coaching feedback.',
+  description: 'Practice a live voice mock interview with optional camera recording and real-time coaching feedback.',
   path: '/dashboard/ai-tools/voice-interview',
 });
 
@@ -43,7 +43,7 @@ export default async function VoiceInterviewPage() {
         </nav>
         <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>Voice Interview</h1>
         <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', maxWidth: 640 }}>
-          Live mock interview with your microphone. Coaching scores update as you speak (local heuristics — not a test score).
+          Live mock interview with your microphone. Optionally record camera + mic for your own review (encrypted storage). Coaching updates as you speak (local heuristics — not a test score).
         </p>
       </div>
 

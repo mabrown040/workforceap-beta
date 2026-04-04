@@ -60,7 +60,7 @@ export default async function EmployerDashboardPage() {
 
   const jobIds = jobs.map((j) => j.id);
 
-  const [totalMatches, interviewPipelineCount, hiredApplications, filledJobsCount] = await Promise.all([
+  const [totalMatches, interviewPipelineCount, hiredApplications, filledJobsCount, offerStageCount] = await Promise.all([
     jobIds.length === 0
       ? Promise.resolve(0)
       : prisma.aIJobMatch.count({ where: { jobId: { in: jobIds } } }),
@@ -80,6 +80,9 @@ export default async function EmployerDashboardPage() {
       },
     }),
     prisma.job.count({ where: { employerId: ctx.employerId, status: 'filled' } }),
+    prisma.jobPostingApplication.count({
+      where: { job: { employerId: ctx.employerId }, status: 'offered' },
+    }),
   ]);
 
   const hiresFromApplications = hiredApplications.length;
@@ -180,7 +183,7 @@ export default async function EmployerDashboardPage() {
           {[
             { label: 'Screened', value: Math.max(0, totalApplications - inReview) },
             { label: 'Interview', value: inReview },
-            { label: 'Offer', value: Math.floor(inReview / 2) },
+            { label: 'Offer', value: offerStageCount },
             { label: 'Hired', value: filledPositions },
           ].map((s, i, arr) => (
             <div key={s.label} style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>

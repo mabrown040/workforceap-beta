@@ -5,6 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
+import MobileBottomNav from '@/components/MobileBottomNav';
 import { prisma } from '@/lib/db/prisma';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -33,7 +34,7 @@ export default async function PartnerResourcesPage() {
   });
 
   return (
-    <div>
+    <div style={{ paddingBottom: '6rem' }} className="wa-md:wa-pb-8">
       <PageHeader
         title="Partner resources"
         subtitle={`Quick links for ${ctx.partner.name} and your internal team.`}
@@ -97,6 +98,9 @@ export default async function PartnerResourcesPage() {
         </Link>{' '}
         after they enroll.
       </p>
+      <div className="wa-md:wa-hidden">
+        <MobileBottomNav variant="partner" />
+      </div>
     </div>
   );
 }

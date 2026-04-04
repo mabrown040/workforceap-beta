@@ -6,8 +6,11 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
 import { prisma } from '@/lib/db/prisma';
 import EmployerApplicationsClient from '@/components/employer/EmployerApplicationsClient';
+import EmployerApplicationsPager from '@/components/employer/EmployerApplicationsPager';
 import MobileApplicationsClient from '@/components/employer/MobileApplicationsClient';
 import MobileBottomNav from '@/components/MobileBottomNav';
+
+const PAGE_SIZE = 25;
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'WorkforceAP Applicants',
@@ -15,21 +18,38 @@ export const metadata: Metadata = buildPageMetadata({
   path: '/employer/applications',
 });
 
-export default async function EmployerApplicationsPage() {
+export default async function EmployerApplicationsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ page?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/employer/applications');
 
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect('/employers');
 
-  const applications = await prisma.jobPostingApplication.findMany({
-    where: { job: { employerId: ctx.employerId } },
-    orderBy: { appliedAt: 'desc' },
-    include: {
-      job: { select: { id: true, title: true } },
-      student: { select: { id: true, fullName: true, email: true } },
-    },
-  });
+  const sp = (await searchParams) ?? {};
+  const page = Math.max(1, parseInt(String(sp.page ?? '1'), 10) || 1);
+  const skip = (page - 1) * PAGE_SIZE;
+
+  const whereEmployer = { job: { employerId: ctx.employerId } };
+
+  const [applications, totalCount] = await Promise.all([
+    prisma.jobPostingApplication.findMany({
+      where: whereEmployer,
+      orderBy: { appliedAt: 'desc' },
+      skip,
+      take: PAGE_SIZE,
+      include: {
+        job: { select: { id: true, title: true } },
+        student: { select: { id: true, fullName: true, email: true } },
+      },
+    }),
+    prisma.jobPostingApplication.count({ where: whereEmployer }),
+  ]);
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   const initialRows = applications.map((app) => ({
     id: app.id,
@@ -50,6 +70,9 @@ export default async function EmployerApplicationsPage() {
           <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)' }}>Review and update candidate status.</p>
         </div>
         <MobileApplicationsClient initialRows={initialRows} />
+        <div className="wa-px-4">
+          <EmployerApplicationsPager page={page} totalPages={totalPages} />
+        </div>
         <MobileBottomNav variant="employer" />
       </div>
       {/* ── Desktop View ── */}
@@ -59,6 +82,7 @@ export default async function EmployerApplicationsPage() {
           subtitle="Update application status as you review candidates. Invalid workflow steps are blocked."
         />
         <EmployerApplicationsClient initialRows={initialRows} />
+        <EmployerApplicationsPager page={page} totalPages={totalPages} />
       </div>
     </div>
   );

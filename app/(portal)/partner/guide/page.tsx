@@ -5,6 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Partner referral guide',
@@ -58,7 +59,7 @@ export default async function PartnerGuidePage() {
   const partnerName = ctx.partner.name;
 
   return (
-    <div style={{ maxWidth: '56rem', margin: '0 auto' }}>
+    <div style={{ maxWidth: '56rem', margin: '0 auto', paddingBottom: '6rem' }} className="wa-md:wa-pb-12">
       {/* Breadcrumb */}
       <nav style={{ marginBottom: '1.5rem', marginTop: '0.5rem' }}>
         <Link href="/partner" style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', fontWeight: 500 }}>
@@ -236,6 +237,9 @@ export default async function PartnerGuidePage() {
             </a>
           </p>
         </div>
+      </div>
+      <div className="wa-md:wa-hidden">
+        <MobileBottomNav variant="partner" />
       </div>
     </div>
   );

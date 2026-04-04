@@ -3,10 +3,15 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { CERTIFICATION_TRACKS } from '@/lib/content/certificationTracks';
+import { PATHWAYS } from '@/lib/content/learningPathways';
 import CertificationRoadmap from '@/components/portal/CertificationRoadmap';
 import CertificationReferenceSection from '@/components/portal/CertificationReferenceSection';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import {
+  CertificationEarnedRowMobile,
+  DownloadAllCertificatesButton,
+  CertificationViewButton,
+} from '@/components/portal/CertificationVaultActions';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Certificates & Achievements — The Verification Vault',
@@ -18,14 +23,31 @@ export default async function DashboardCertificationsPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/certifications');
 
-  // Compute real cert stats
-  const earnedCerts = await prisma.userCertification.findMany({
-    where: { userId: user.id },
-    select: { certName: true },
-  });
-  const earnedCount = earnedCerts.length;
-  const totalCerts = CERTIFICATION_TRACKS.reduce((sum, track) => sum + track.certs.length, 0);
-  const progressPct = totalCerts > 0 ? Math.round((earnedCount / totalCerts) * 100) : 0;
+  const primaryPathway = PATHWAYS[0];
+  const [certs, pathwayRows] = await Promise.all([
+    prisma.userCertification.findMany({
+      where: { userId: user.id },
+      orderBy: { earnedAt: 'desc' },
+      select: { id: true, certName: true, earnedAt: true },
+    }),
+    prisma.pathwayStepProgress.findMany({
+      where: { userId: user.id, pathwayId: primaryPathway.id },
+    }),
+  ]);
+
+  const completedSteps = pathwayRows.filter((r) => r.status === 'completed').length;
+  const pathwayPct =
+    primaryPathway.steps.length > 0
+      ? Math.round((completedSteps / primaryPathway.steps.length) * 100)
+      : 0;
+
+  const certRows = certs.map((c) => ({
+    id: c.id,
+    certName: c.certName,
+    earnedAt: c.earnedAt.toISOString(),
+  }));
+
+  const badgeDashOffset = 264 - (264 * Math.min(100, pathwayPct)) / 100;
 
   return (
     <>
@@ -45,9 +67,24 @@ export default async function DashboardCertificationsPage() {
         {/* Stats chips */}
         <div style={{ display: 'flex', gap: '0.625rem', padding: '0.75rem 1rem', overflowX: 'auto' }}>
           {[
-            { icon: 'workspace_premium', label: `${earnedCount} Credentials`, color: 'var(--color-accent)', bg: 'rgba(173,44,77,0.12)' },
-            { icon: 'trending_up', label: `${progressPct}% Progress`, color: 'var(--color-blue)', bg: 'rgba(43,123,185,0.12)' },
-            { icon: 'verified', label: 'Industry Verified', color: 'var(--color-green)', bg: 'rgba(74,155,79,0.12)' },
+            {
+              icon: 'workspace_premium',
+              label: `${certs.length} earned`,
+              color: 'var(--color-accent)',
+              bg: 'rgba(173,44,77,0.12)',
+            },
+            {
+              icon: 'trending_up',
+              label: `${pathwayPct}% pathway`,
+              color: 'var(--color-blue)',
+              bg: 'rgba(43,123,185,0.12)',
+            },
+            {
+              icon: 'verified',
+              label: certs.length > 0 ? 'On file' : 'Start pathway',
+              color: 'var(--color-green)',
+              bg: 'rgba(74,155,79,0.12)',
+            },
           ].map((chip) => (
             <div
               key={chip.label}
@@ -77,70 +114,23 @@ export default async function DashboardCertificationsPage() {
         <section style={{ padding: '0 1rem', marginBottom: '1.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
             <h2 style={{ fontSize: '1rem', fontWeight: 700, margin: 0 }}>Earned</h2>
-            <span style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>3 certs</span>
+            <span style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
+              {certs.length} cert{certs.length !== 1 ? 's' : ''}
+            </span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
-            {[
-              { icon: 'cloud', name: 'Cloud Fundamentals', issuer: 'CompTIA', date: 'Jan 2024' },
-              { icon: 'security', name: 'Security Essentials', issuer: 'CompTIA', date: 'Mar 2024' },
-              { icon: 'health_and_safety', name: 'CPR & First Aid', issuer: 'Red Cross', date: 'Feb 2024' },
-            ].map((cert) => (
-              <div
-                key={cert.name}
-                style={{
-                  background: 'var(--surface-container)',
-                  borderRadius: '0.875rem',
-                  padding: '0.875rem 1rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.875rem',
-                }}
-              >
-                <div
-                  style={{
-                    background: 'rgba(74,155,79,0.12)',
-                    borderRadius: '0.625rem',
-                    padding: '0.5rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                  }}
-                >
-                  <span
-                    className="material-symbols-outlined"
-                    style={{ fontSize: '1.375rem', color: 'var(--color-green)', fontVariationSettings: "'FILL' 1" }}
-                  >
-                    {cert.icon}
-                  </span>
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 600, fontSize: '0.9375rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {cert.name}
-                  </div>
-                  <div style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
-                    {cert.issuer} · {cert.date}
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  style={{
-                    background: 'var(--color-accent)',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '0.5rem',
-                    padding: '0.375rem 0.75rem',
-                    fontSize: '0.8125rem',
-                    fontWeight: 600,
-                    whiteSpace: 'nowrap',
-                    cursor: 'pointer',
-                    flexShrink: 0,
-                  }}
-                >
-                  View
-                </button>
-              </div>
-            ))}
+            {certs.length === 0 ? (
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.5 }}>
+                No certificates recorded yet. Mark certificates earned in your roadmap below, or complete training milestones.
+              </p>
+            ) : (
+              certs.map((cert) => (
+                <CertificationEarnedRowMobile key={cert.id} certName={cert.certName} earnedAt={cert.earnedAt} />
+              ))
+            )}
+          </div>
+          <div style={{ paddingTop: '0.75rem' }}>
+            <DownloadAllCertificatesButton certs={certRows} />
           </div>
         </section>
 
@@ -181,11 +171,11 @@ export default async function DashboardCertificationsPage() {
             {/* SVG Progress bar */}
             <div style={{ position: 'relative', height: '8px', borderRadius: '999px', overflow: 'hidden', background: 'var(--surface-container-highest)' }}>
               <svg width="100%" height="8" style={{ position: 'absolute', inset: 0 }} aria-hidden="true">
-                <rect x="0" y="0" width={`${progressPct}%`} height="8" rx="4" fill="var(--color-blue)" />
+                <rect x="0" y="0" width={`${pathwayPct}%`} height="8" rx="4" fill="var(--color-blue)" />
               </svg>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.375rem' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{progressPct}% complete</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{pathwayPct}% complete</span>
               <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Est. 2 weeks</span>
             </div>
           </div>
@@ -304,7 +294,7 @@ export default async function DashboardCertificationsPage() {
               </span>
               <div>
                 <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>Total Credentials</div>
-                <div style={{ fontSize: '1.75rem', fontWeight: 'var(--font-weight-bold)' }}>{earnedCount}</div>
+                <div style={{ fontSize: '1.75rem', fontWeight: 'var(--font-weight-bold)' }}>{certs.length}</div>
               </div>
             </div>
 
@@ -332,11 +322,19 @@ export default async function DashboardCertificationsPage() {
                 </span>
                 <div>
                   <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>Program Progress</div>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 'var(--font-weight-bold)' }}>{progressPct}%</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 'var(--font-weight-bold)' }}>{pathwayPct}%</div>
                 </div>
               </div>
               <div style={{ height: '6px', background: 'var(--surface-container-highest)', borderRadius: 'var(--radius-full)', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${progressPct}%`, background: 'var(--color-blue)', borderRadius: 'var(--radius-full)', transition: 'var(--transition-base)' }} />
+                <div
+                  style={{
+                    height: '100%',
+                    width: `${pathwayPct}%`,
+                    background: 'var(--color-blue)',
+                    borderRadius: 'var(--radius-full)',
+                    transition: 'var(--transition-base)',
+                  }}
+                />
               </div>
             </div>
 
@@ -365,13 +363,18 @@ export default async function DashboardCertificationsPage() {
                 verified
               </span>
               <div>
-                <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>Industry Verified</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginTop: 'var(--space-1)', fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>
-                  <span style={{ fontWeight: 600 }}>CompTIA</span>
-                  <span style={{ opacity: 0.4 }}>|</span>
-                  <span style={{ fontWeight: 600 }}>Red Cross</span>
-                  <span style={{ opacity: 0.4 }}>|</span>
-                  <span style={{ fontWeight: 600 }}>OSHA</span>
+                <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>Records</div>
+                <div
+                  style={{
+                    marginTop: 'var(--space-1)',
+                    fontSize: 'var(--font-size-sm)',
+                    color: 'var(--color-on-surface-variant)',
+                    lineHeight: 1.4,
+                  }}
+                >
+                  {certs.length > 0
+                    ? 'Credentials saved to your WorkforceAP profile. Official PDFs come from the issuing organization.'
+                    : 'Earn certificates through your pathway to see them listed here.'}
                 </div>
               </div>
             </div>
@@ -477,23 +480,36 @@ export default async function DashboardCertificationsPage() {
                 <h3 style={{ fontSize: 'var(--font-size-h4)', fontWeight: 'var(--font-weight-medium)', margin: 0 }}>Ready for Download</h3>
               </div>
               <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-                Your earned certificates are ready to download as PDF.
+                Export your earned certificates as a CSV for your records. Official PDFs are issued by the certifying body.
               </p>
-              <button
-                type="button"
-                className="btn btn-primary"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 'var(--space-2)',
-                  alignSelf: 'flex-start',
-                  padding: '0.6rem 1.25rem',
-                  fontSize: 'var(--font-size-sm)',
-                }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>picture_as_pdf</span>
-                Download All (PDF)
-              </button>
+              {certs.length > 0 ? (
+                <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                  {certs.map((c) => (
+                    <li
+                      key={c.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 'var(--space-3)',
+                        fontSize: 'var(--font-size-sm)',
+                      }}
+                    >
+                      <span style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>{c.certName}</span>
+                      <CertificationViewButton
+                        certName={c.certName}
+                        earnedAtLabel={c.earnedAt.toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })}
+                        variant="desktop"
+                      />
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              <DownloadAllCertificatesButton certs={certRows} />
             </div>
 
             {/* Achievement badge with SVG ring */}
@@ -511,12 +527,28 @@ export default async function DashboardCertificationsPage() {
             >
               <svg width="96" height="96" viewBox="0 0 96 96" fill="none" aria-hidden="true">
                 <circle cx="48" cy="48" r="42" stroke="var(--surface-container-highest)" strokeWidth="4" opacity="0.3" />
-                <circle cx="48" cy="48" r="42" stroke="var(--color-gold)" strokeWidth="4" strokeDasharray="264" strokeDashoffset={String(264 - (264 * progressPct) / 100)} strokeLinecap="round" transform="rotate(-90 48 48)" />
-                <text x="48" y="45" textAnchor="middle" fill="var(--color-gold)" fontSize="22" fontWeight="700">{progressPct}%</text>
-                <text x="48" y="62" textAnchor="middle" fill="var(--color-on-surface-variant)" fontSize="10">of goal</text>
+                <circle
+                  cx="48"
+                  cy="48"
+                  r="42"
+                  stroke="var(--color-gold)"
+                  strokeWidth="4"
+                  strokeDasharray="264"
+                  strokeDashoffset={badgeDashOffset}
+                  strokeLinecap="round"
+                  transform="rotate(-90 48 48)"
+                />
+                <text x="48" y="45" textAnchor="middle" fill="var(--color-gold)" fontSize="22" fontWeight="700">
+                  {pathwayPct}%
+                </text>
+                <text x="48" y="62" textAnchor="middle" fill="var(--color-on-surface-variant)" fontSize="10">
+                  pathway
+                </text>
               </svg>
-              <div style={{ marginTop: 'var(--space-3)', fontSize: 'var(--font-size-sm)', fontWeight: 'var(--font-weight-medium)' }}>Pathway Badge</div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>Earn 3 more to unlock Gold</div>
+              <div style={{ marginTop: 'var(--space-3)', fontSize: 'var(--font-size-sm)', fontWeight: 'var(--font-weight-medium)' }}>
+                Pathway progress
+              </div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{primaryPathway.title}</div>
             </div>
           </div>
 

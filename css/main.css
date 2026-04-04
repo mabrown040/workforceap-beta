@@ -14053,7 +14053,7 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
     gap: 0.5rem;
     margin-top: 0.85rem;
 }
-@media (max-width: 720px) {
+@media (max-width: 640px) {
     .application-tracker-table-desktop {
         display: none;
     }

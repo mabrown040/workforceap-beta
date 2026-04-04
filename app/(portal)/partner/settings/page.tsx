@@ -23,10 +23,20 @@ export default async function PartnerSettingsPage() {
     <div>
       <PageHeader
         title="Settings"
-        subtitle={`Portal context: ${ctx.partner.name}. Contact WorkforceAP to update partner contact details or notification preferences.`}
+        subtitle="Your partner profile is managed with WorkforceAP. Request changes below — updates require staff approval."
       />
+      <div
+        className="stitch-card"
+        style={{ padding: '1.25rem', maxWidth: 560, marginBottom: '1.25rem' }}
+      >
+        <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>Organization (read-only)</h2>
+        <p style={{ margin: '0 0 0.35rem', fontWeight: 600 }}>{ctx.partner.name}</p>
+        <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+          Slug: <code style={{ fontSize: '0.8rem' }}>{ctx.partner.slug}</code>
+        </p>
+      </div>
       <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: 560, lineHeight: 1.6 }}>
-        For changes to your organization profile, email{' '}
+        To update contact details, notification preferences, or branding, email{' '}
         <a href="mailto:info@workforceap.org">info@workforceap.org</a> or use the{' '}
         <Link href="/contact" style={{ color: 'var(--color-accent)' }}>
           contact form

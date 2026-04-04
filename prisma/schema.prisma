@@ -608,6 +608,7 @@ enum AIToolType {
   cover_letter
   interview_practice
   interview_coach
+  voice_interview_video
   linkedin_headline
   linkedin_about
   job_match_scorer

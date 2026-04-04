@@ -127,7 +127,9 @@ export default function EmployerApplicationsClient({ initialRows }: { initialRow
                   <tr id={app.id}>
                     <td>
                       <div>
-                        <strong>{studentName}</strong>
+                        <Link href={`/employer/candidates/${app.student.id}?jobId=${encodeURIComponent(app.jobId)}`}>
+                          <strong>{studentName}</strong>
+                        </Link>
                         <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
                           {app.student.email}
                         </div>

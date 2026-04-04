@@ -52,7 +52,8 @@
 ### AI tools (see also `AI-TOOLS-BACKLOG.md`)
 - [x] Skill Mapper page + radar + O*NET/demo fallback
 - [x] Browser STT captions on voice interview (Web Speech API)
-- [ ] WebRTC video recording (optional stretch)
+- [x] Skill Mapper follow-through: cert → skill categories, market comparison (My Skills Profile), course/cert gap recommendations
+- [x] WebRTC / MediaRecorder video mock interview (optional opt-in on voice interview page; consent + Supabase upload + `voice_interview_video` AI history row)
 
 ## SEPARATE SPRINTS 🗓️
 

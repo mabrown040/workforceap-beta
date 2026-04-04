@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import Link from 'next/link';
+import { useState } from 'react';
 
 interface AuditEvent {
   id: string;
   userId: string;
-  userName: string;
-  userEmail: string;
+  userName: string | null;
+  userEmail: string | null;
   eventName: string;
   entityType: string | null;
   entityId: string | null;
@@ -16,33 +17,39 @@ interface AuditEvent {
   createdAt: string;
 }
 
-export default function AuditLogsClient({ events }: { events: AuditEvent[] }) {
-  const [search, setSearch] = useState('');
-  const [eventFilter, setEventFilter] = useState('');
+function buildAuditLogsHref(
+  page: number,
+  q: string,
+  event: string
+): string {
+  const params = new URLSearchParams();
+  if (q.trim()) params.set('q', q.trim());
+  if (event.trim()) params.set('event', event.trim());
+  if (page > 1) params.set('page', String(page));
+  const s = params.toString();
+  return s ? `/admin/audit-logs?${s}` : '/admin/audit-logs';
+}
+
+export default function AuditLogsClient({
+  events,
+  page,
+  totalPages,
+  pageSize,
+  totalMatching,
+  initialQ,
+  initialEvent,
+  eventTypes,
+}: {
+  events: AuditEvent[];
+  page: number;
+  totalPages: number;
+  pageSize: number;
+  totalMatching: number;
+  initialQ: string;
+  initialEvent: string;
+  eventTypes: { name: string; count: number }[];
+}) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
-
-  const eventTypes = useMemo(() => {
-    const set = new Set(events.map((e) => e.eventName));
-    return Array.from(set).sort();
-  }, [events]);
-
-  const filtered = useMemo(() => {
-    return events.filter((e) => {
-      if (eventFilter && e.eventName !== eventFilter) return false;
-      if (search) {
-        const q = search.toLowerCase();
-        return (
-          e.userName.toLowerCase().includes(q) ||
-          e.userEmail.toLowerCase().includes(q) ||
-          e.eventName.toLowerCase().includes(q) ||
-          e.entityType?.toLowerCase().includes(q) ||
-          e.sourcePage?.toLowerCase().includes(q) ||
-          false
-        );
-      }
-      return true;
-    });
-  }, [events, search, eventFilter]);
 
   const formatTime = (iso: string) => {
     const d = new Date(iso);
@@ -55,57 +62,136 @@ export default function AuditLogsClient({ events }: { events: AuditEvent[] }) {
     });
   };
 
+  const start = totalMatching === 0 ? 0 : (page - 1) * pageSize + 1;
+  const end = Math.min(page * pageSize, totalMatching);
+
   return (
     <div>
-      {/* Filters */}
-      <div
+      {/* Filters — GET form resets to page 1 */}
+      <form
+        action="/admin/audit-logs"
+        method="get"
         style={{
           display: 'flex',
           gap: 'var(--space-3)',
           marginBottom: 'var(--space-4)',
           flexWrap: 'wrap',
+          alignItems: 'flex-end',
         }}
       >
-        <input
-          type="text"
-          placeholder="Search events…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+        <label style={{ flex: '1 1 240px', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+          <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>Search</span>
+          <input
+            type="text"
+            name="q"
+            placeholder="Search users, events, source…"
+            defaultValue={initialQ}
+            style={{
+              minHeight: '44px',
+              padding: '0.5rem 1rem',
+              fontSize: '0.875rem',
+              border: '1px solid var(--outline-variant)',
+              borderRadius: 'var(--radius-md)',
+              background: 'var(--surface-container)',
+              color: 'var(--color-on-surface)',
+            }}
+          />
+        </label>
+        <label style={{ minWidth: '200px', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+          <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>Event type</span>
+          <select
+            name="event"
+            defaultValue={initialEvent}
+            style={{
+              minHeight: '44px',
+              padding: '0.5rem 1rem',
+              fontSize: '0.875rem',
+              border: '1px solid var(--outline-variant)',
+              borderRadius: 'var(--radius-md)',
+              background: 'var(--surface-container)',
+              color: 'var(--color-on-surface)',
+            }}
+          >
+            <option value="">All types</option>
+            {eventTypes.map((t) => (
+              <option key={t.name} value={t.name}>
+                {t.name} ({t.count})
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          type="submit"
           style={{
-            flex: '1 1 240px',
             minHeight: '44px',
-            padding: '0.5rem 1rem',
+            padding: '0 1.25rem',
+            fontWeight: 600,
             fontSize: '0.875rem',
-            border: '1px solid var(--outline-variant)',
             borderRadius: 'var(--radius-md)',
-            background: 'var(--surface-container)',
-            color: 'var(--color-on-surface)',
-          }}
-        />
-        <select
-          value={eventFilter}
-          onChange={(e) => setEventFilter(e.target.value)}
-          style={{
-            minHeight: '44px',
-            padding: '0.5rem 1rem',
-            fontSize: '0.875rem',
-            border: '1px solid var(--outline-variant)',
-            borderRadius: 'var(--radius-md)',
-            background: 'var(--surface-container)',
-            color: 'var(--color-on-surface)',
+            background: 'var(--color-accent)',
+            color: '#fff',
+            border: 'none',
+            cursor: 'pointer',
           }}
         >
-          <option value="">All events ({events.length})</option>
-          {eventTypes.map((t) => (
-            <option key={t} value={t}>
-              {t} ({events.filter((e) => e.eventName === t).length})
-            </option>
-          ))}
-        </select>
-      </div>
+          Apply
+        </button>
+      </form>
 
-      <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-3)' }}>
-        Showing {filtered.length} of {events.length} events
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 'var(--space-3)',
+          marginBottom: 'var(--space-3)',
+        }}
+      >
+        <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>
+          {totalMatching === 0
+            ? 'No events match'
+            : `Showing ${start.toLocaleString()}–${end.toLocaleString()} of ${totalMatching.toLocaleString()} events`}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Link
+            href={buildAuditLogsHref(Math.max(1, page - 1), initialQ, initialEvent)}
+            aria-disabled={page <= 1}
+            style={{
+              pointerEvents: page <= 1 ? 'none' : undefined,
+              opacity: page <= 1 ? 0.45 : 1,
+              padding: '0.5rem 0.75rem',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              color: 'var(--color-accent)',
+              textDecoration: 'none',
+              border: '1px solid var(--outline-variant)',
+              borderRadius: 'var(--radius-md)',
+            }}
+          >
+            Previous
+          </Link>
+          <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+            Page {page} / {totalPages}
+          </span>
+          <Link
+            href={buildAuditLogsHref(Math.min(totalPages, page + 1), initialQ, initialEvent)}
+            aria-disabled={page >= totalPages}
+            style={{
+              pointerEvents: page >= totalPages ? 'none' : undefined,
+              opacity: page >= totalPages ? 0.45 : 1,
+              padding: '0.5rem 0.75rem',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              color: 'var(--color-accent)',
+              textDecoration: 'none',
+              border: '1px solid var(--outline-variant)',
+              borderRadius: 'var(--radius-md)',
+            }}
+          >
+            Next
+          </Link>
+        </div>
       </div>
 
       {/* Desktop table */}
@@ -133,7 +219,7 @@ export default function AuditLogsClient({ events }: { events: AuditEvent[] }) {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((e) => (
+            {events.map((e) => (
               <tr
                 key={e.id}
                 style={{
@@ -146,8 +232,8 @@ export default function AuditLogsClient({ events }: { events: AuditEvent[] }) {
                   {formatTime(e.createdAt)}
                 </td>
                 <td style={{ padding: '0.625rem 0.5rem' }}>
-                  <div style={{ fontWeight: 500 }}>{e.userName}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{e.userEmail}</div>
+                  <div style={{ fontWeight: 500 }}>{e.userName ?? '—'}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{e.userEmail ?? '—'}</div>
                 </td>
                 <td style={{ padding: '0.625rem 0.5rem' }}>
                   <span
@@ -181,7 +267,7 @@ export default function AuditLogsClient({ events }: { events: AuditEvent[] }) {
                 </td>
               </tr>
             ))}
-            {filtered.length === 0 && (
+            {events.length === 0 && (
               <tr>
                 <td colSpan={6} style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-on-surface-variant)' }}>
                   No events match your filters.
@@ -194,7 +280,7 @@ export default function AuditLogsClient({ events }: { events: AuditEvent[] }) {
 
       {/* Mobile card list */}
       <div className="wa-md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
-        {filtered.map((e) => (
+        {events.map((e) => (
           <div
             key={e.id}
             style={{
@@ -220,7 +306,7 @@ export default function AuditLogsClient({ events }: { events: AuditEvent[] }) {
               </span>
               <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{formatTime(e.createdAt)}</span>
             </div>
-            <div style={{ fontWeight: 500, fontSize: '0.875rem' }}>{e.userName}</div>
+            <div style={{ fontWeight: 500, fontSize: '0.875rem' }}>{e.userName ?? '—'}</div>
             <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
               {e.entityType && `${e.entityType} `}
               {e.sourcePage && `· ${e.sourcePage}`}
@@ -244,7 +330,7 @@ export default function AuditLogsClient({ events }: { events: AuditEvent[] }) {
             )}
           </div>
         ))}
-        {filtered.length === 0 && (
+        {events.length === 0 && (
           <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-on-surface-variant)' }}>
             No events match your filters.
           </div>

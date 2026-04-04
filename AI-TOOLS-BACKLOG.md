@@ -1,24 +1,12 @@
-# AI Tools — remaining backlog
+# AI Tools — backlog status
 
 Shipped items: [`docs/COMPLETED-WORK-LOG.md`](docs/COMPLETED-WORK-LOG.md). Policy: [`docs/BACKLOG-MAINTENANCE.md`](docs/BACKLOG-MAINTENANCE.md).
 
+**Status:** The AI-tools backlog is **complete**. Voice mock interview **optional camera recording** (MediaRecorder + upload to private storage, consent + download link) ships on `/dashboard/ai-tools/voice-interview`.
+
 ---
 
-## Optional / stretch
+## Optional follow-ups (not blocking)
 
-- [ ] **Video mock interview** — WebRTC recording (heavy; privacy + storage policy needed first).
-
-### Skill Mapper (medium priority)
-
-- [x] Research free skills taxonomy APIs/databases:
-  - O*NET (US Dept of Labor) — free API for occupation skills, knowledge, abilities
-  - ESCO (European Skills/Competences) — open data
-  - LinkedIn Skills API (if available)
-  - Lightcast (formerly EMSI/Burning Glass) — paid but comprehensive
-- [x] Build radar chart visualization with real skill data
-- [ ] Map member certifications/training to skill categories
-- [ ] Compare member skills vs. job market demand
-- [ ] Recommend courses/certs to fill gaps
-- **Tech**: SVG radar chart (already mocked in stitch), O*NET API for skills taxonomy
-
-Everything else from the former AI-tools list (Skill Mapper UI, O*NET+demo path, STT captions, blog defaults, etc.) is **shipped** — see log **2026-04 round**.
+- **Retention automation** — purge or lifecycle rules for `member-resumes` / `voice-interview-recordings/*` if legal asks for a fixed window (currently same as other member uploads; document in privacy policy).
+- **Safari / iOS** — `MediaRecorder` + codec support varies; users may need Chrome/Edge for best results.

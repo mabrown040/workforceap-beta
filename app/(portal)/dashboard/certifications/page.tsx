@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
+import { prisma } from '@/lib/db/prisma';
+import { CERTIFICATION_TRACKS } from '@/lib/content/certificationTracks';
 import CertificationRoadmap from '@/components/portal/CertificationRoadmap';
 import CertificationReferenceSection from '@/components/portal/CertificationReferenceSection';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -15,6 +17,15 @@ export const metadata: Metadata = buildPageMetadata({
 export default async function DashboardCertificationsPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/certifications');
+
+  // Compute real cert stats
+  const earnedCerts = await prisma.userCertification.findMany({
+    where: { userId: user.id },
+    select: { certName: true },
+  });
+  const earnedCount = earnedCerts.length;
+  const totalCerts = CERTIFICATION_TRACKS.reduce((sum, track) => sum + track.certs.length, 0);
+  const progressPct = totalCerts > 0 ? Math.round((earnedCount / totalCerts) * 100) : 0;
 
   return (
     <>
@@ -34,8 +45,8 @@ export default async function DashboardCertificationsPage() {
         {/* Stats chips */}
         <div style={{ display: 'flex', gap: '0.625rem', padding: '0.75rem 1rem', overflowX: 'auto' }}>
           {[
-            { icon: 'workspace_premium', label: '9 Credentials', color: 'var(--color-accent)', bg: 'rgba(173,44,77,0.12)' },
-            { icon: 'trending_up', label: '67% Progress', color: 'var(--color-blue)', bg: 'rgba(43,123,185,0.12)' },
+            { icon: 'workspace_premium', label: `${earnedCount} Credentials`, color: 'var(--color-accent)', bg: 'rgba(173,44,77,0.12)' },
+            { icon: 'trending_up', label: `${progressPct}% Progress`, color: 'var(--color-blue)', bg: 'rgba(43,123,185,0.12)' },
             { icon: 'verified', label: 'Industry Verified', color: 'var(--color-green)', bg: 'rgba(74,155,79,0.12)' },
           ].map((chip) => (
             <div
@@ -170,11 +181,11 @@ export default async function DashboardCertificationsPage() {
             {/* SVG Progress bar */}
             <div style={{ position: 'relative', height: '8px', borderRadius: '999px', overflow: 'hidden', background: 'var(--surface-container-highest)' }}>
               <svg width="100%" height="8" style={{ position: 'absolute', inset: 0 }} aria-hidden="true">
-                <rect x="0" y="0" width="67%" height="8" rx="4" fill="var(--color-blue)" />
+                <rect x="0" y="0" width={`${progressPct}%`} height="8" rx="4" fill="var(--color-blue)" />
               </svg>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.375rem' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>67% complete</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{progressPct}% complete</span>
               <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Est. 2 weeks</span>
             </div>
           </div>
@@ -293,7 +304,7 @@ export default async function DashboardCertificationsPage() {
               </span>
               <div>
                 <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>Total Credentials</div>
-                <div style={{ fontSize: '1.75rem', fontWeight: 'var(--font-weight-bold)' }}>9</div>
+                <div style={{ fontSize: '1.75rem', fontWeight: 'var(--font-weight-bold)' }}>{earnedCount}</div>
               </div>
             </div>
 
@@ -321,11 +332,11 @@ export default async function DashboardCertificationsPage() {
                 </span>
                 <div>
                   <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>Program Progress</div>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 'var(--font-weight-bold)' }}>67%</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 'var(--font-weight-bold)' }}>{progressPct}%</div>
                 </div>
               </div>
               <div style={{ height: '6px', background: 'var(--surface-container-highest)', borderRadius: 'var(--radius-full)', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: '67%', background: 'var(--color-blue)', borderRadius: 'var(--radius-full)', transition: 'var(--transition-base)' }} />
+                <div style={{ height: '100%', width: `${progressPct}%`, background: 'var(--color-blue)', borderRadius: 'var(--radius-full)', transition: 'var(--transition-base)' }} />
               </div>
             </div>
 
@@ -500,8 +511,8 @@ export default async function DashboardCertificationsPage() {
             >
               <svg width="96" height="96" viewBox="0 0 96 96" fill="none" aria-hidden="true">
                 <circle cx="48" cy="48" r="42" stroke="var(--surface-container-highest)" strokeWidth="4" opacity="0.3" />
-                <circle cx="48" cy="48" r="42" stroke="var(--color-gold)" strokeWidth="4" strokeDasharray="264" strokeDashoffset="88" strokeLinecap="round" transform="rotate(-90 48 48)" />
-                <text x="48" y="45" textAnchor="middle" fill="var(--color-gold)" fontSize="22" fontWeight="700">67%</text>
+                <circle cx="48" cy="48" r="42" stroke="var(--color-gold)" strokeWidth="4" strokeDasharray="264" strokeDashoffset={String(264 - (264 * progressPct) / 100)} strokeLinecap="round" transform="rotate(-90 48 48)" />
+                <text x="48" y="45" textAnchor="middle" fill="var(--color-gold)" fontSize="22" fontWeight="700">{progressPct}%</text>
                 <text x="48" y="62" textAnchor="middle" fill="var(--color-on-surface-variant)" fontSize="10">of goal</text>
               </svg>
               <div style={{ marginTop: 'var(--space-3)', fontSize: 'var(--font-size-sm)', fontWeight: 'var(--font-weight-medium)' }}>Pathway Badge</div>

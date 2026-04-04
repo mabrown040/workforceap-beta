@@ -16,7 +16,6 @@ const routes = [
   '/faq',
   '/find-your-path',
   '/how-it-works',
-  '/jobs',
   '/leadership',
   '/partners',
   '/partner-signup',

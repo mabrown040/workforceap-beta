@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
+import ReferralLinkCopier from './ReferralLinkCopier';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Partner settings',
@@ -13,7 +14,7 @@ export const metadata: Metadata = buildPageMetadata({
   path: '/partner/settings',
 });
 
-function row(label: string, value: string | null | boolean | Date, opts?: { mono?: boolean; bool?: boolean }) {
+function row(label: string, value: string | null | boolean | Date | undefined, opts?: { mono?: boolean; bool?: boolean }) {
   let display: string;
   if (opts?.bool === true) {
     display = value === true ? 'On' : value === false ? 'Off' : '—';
@@ -75,6 +76,7 @@ export default async function PartnerSettingsPage() {
         subtitle="Your organization profile and notification defaults (read-only). Request changes through WorkforceAP staff — updates require approval."
       />
 
+      {/* Organization */}
       <div className="stitch-card" style={{ padding: '1.25rem', maxWidth: 640, marginBottom: '1rem' }}>
         <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>Organization</h2>
         {row('Name', partner.name)}
@@ -86,6 +88,16 @@ export default async function PartnerSettingsPage() {
         {row('Portal tour', partner.tourCompletedAt)}
       </div>
 
+      {/* Referral link */}
+      <div className="stitch-card" style={{ padding: '1.25rem', maxWidth: 640, marginBottom: '1rem' }}>
+        <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>Referral link</h2>
+        <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
+          Share this link to refer applicants to WorkforceAP. Applications submitted through your link are automatically tracked to your organization.
+        </p>
+        <ReferralLinkCopier link={`https://workforceap.org/apply?ref=${partner.referralCode}`} />
+      </div>
+
+      {/* Primary contact */}
       <div className="stitch-card" style={{ padding: '1.25rem', maxWidth: 640, marginBottom: '1rem' }}>
         <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>Primary contact</h2>
         {row('Contact name', partner.contactName)}
@@ -93,6 +105,7 @@ export default async function PartnerSettingsPage() {
         {row('Phone', partner.contactPhone)}
       </div>
 
+      {/* Notification defaults */}
       <div className="stitch-card" style={{ padding: '1.25rem', maxWidth: 640, marginBottom: '1.25rem' }}>
         <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>Email notifications (defaults)</h2>
         {row('New enrollment', partner.notifyOnEnrollment, { bool: true })}

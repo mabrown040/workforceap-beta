@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import type { ResumeSuggestion } from '@/components/portal/PortalVoiceSession';
-import ResumeRewriterForm from '@/components/portal/tools/ResumeRewriterForm';
 
 /**
  * Coordinates voice coach suggestions → live text editor.
@@ -64,38 +63,7 @@ export default function ResumeCoachWorkspace() {
         marginTop: '1.5rem',
       }}
     >
-      {/* Left panel: Resume editor */}
-      <div style={{ flex: '1 1 300px', minWidth: 280 }}>
-        <div
-          className="stitch-card"
-          style={{ padding: '1.5rem', border: '1px solid var(--outline-variant)' }}
-        >
-          <h4 style={{ fontSize: '0.95rem', marginBottom: '0.5rem' }}>Live Resume Draft</h4>
-          <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem', marginBottom: '1rem' }}>
-            {hydrated
-              ? 'Your resume is loaded. Accept suggestions to apply changes inline.'
-              : 'Loading your resume…'}
-          </p>
-          {hydrated ? (
-            <ResumeRewriterForm resumeControlled={resumeText} onResumeChange={setResumeText} />
-          ) : (
-            <div style={{
-              height: 200,
-              background: 'var(--surface-container)',
-              borderRadius: '0.5rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'var(--color-on-surface-variant)',
-              fontSize: '0.875rem',
-            }}>
-              Loading…
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Right panel: Voice coach */}
+      {/* Top/Left panel: Voice coach */}
       <div style={{ flex: '1 1 300px', minWidth: 280 }}>
         <div
           className="stitch-card"
@@ -125,6 +93,55 @@ export default function ResumeCoachWorkspace() {
             listeningLabel="Listening — describe your background"
             onAcceptSuggestion={handleAccept}
           />
+        </div>
+      </div>
+
+      {/* Bottom/Right panel: Live resume draft (context textarea) */}
+      <div style={{ flex: '1 1 300px', minWidth: 280 }}>
+        <div
+          className="stitch-card"
+          style={{ padding: '1.5rem', border: '1px solid var(--outline-variant)' }}
+        >
+          <h4 style={{ fontSize: '0.95rem', marginBottom: '0.5rem' }}>Live Resume Draft</h4>
+          <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem', marginBottom: '1rem' }}>
+            {hydrated
+              ? 'Your resume is loaded. Accept suggestions from the coach to apply changes inline.'
+              : 'Loading your resume…'}
+          </p>
+          {hydrated ? (
+            <textarea
+              value={resumeText}
+              onChange={(e) => setResumeText(e.target.value)}
+              rows={18}
+              placeholder="Your resume will appear here…"
+              style={{
+                width: '100%',
+                resize: 'vertical',
+                fontFamily: 'monospace',
+                fontSize: '0.82rem',
+                lineHeight: 1.55,
+                padding: '0.75rem',
+                borderRadius: '0.5rem',
+                border: '1px solid var(--outline-variant)',
+                background: 'var(--surface-container-low)',
+                color: 'var(--color-on-surface)',
+                boxSizing: 'border-box',
+              }}
+            />
+          ) : (
+            <div style={{
+              height: 200,
+              background: 'var(--surface-container)',
+              borderRadius: '0.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--color-on-surface-variant)',
+              fontSize: '0.875rem',
+            }}>
+              Loading…
+            </div>
+          )}
         </div>
       </div>
     </div>

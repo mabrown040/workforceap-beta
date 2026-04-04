@@ -11,6 +11,7 @@ import SettingsForm from '@/components/portal/SettingsForm';
 import DeleteAccountButton from '@/components/portal/DeleteAccountButton';
 import StartTourButton from '@/components/onboarding/StartTourButton';
 import ResumeClient from '@/app/(portal)/dashboard/resume/ResumeClient';
+import ResumeRewriterForm from '@/components/portal/tools/ResumeRewriterForm';
 import { getProfileCompleteness } from '@/lib/resume/profileCompleteness';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import MobileProfileSkillsResume from '@/components/portal/MobileProfileSkillsResume';
@@ -174,6 +175,11 @@ export default async function DashboardProfilePage() {
           />
         </div>
 
+        <div className="wa-mx-6 wa-mb-4 wa-bg-[#fcf9f8] wa-p-5 wa-rounded-xl wa-border border-[#debfc2]/30">
+          <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#584144] wa-mb-4">Live Resume Edits</h3>
+          <ResumeRewriterForm />
+        </div>
+
         {/* Account + settings card */}
         <div id="settings" className="wa-mx-6 wa-mb-4 wa-bg-[#fcf9f8] wa-p-5 wa-rounded-xl wa-border border-[#debfc2]/30">
           <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#584144] wa-mb-4">Account & Settings</h3>
@@ -290,6 +296,21 @@ export default async function DashboardProfilePage() {
           hasOriginal={hasOriginal}
           hasEnhanced={hasEnhanced}
         />
+
+        <div
+          className="stitch-card"
+          style={{
+            marginTop: '1.5rem',
+            padding: '1.5rem',
+            border: '1px solid var(--outline-variant)',
+          }}
+        >
+          <h4 style={{ fontSize: '0.95rem', marginBottom: '1rem' }}>Live resume edits</h4>
+          <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem', fontSize: '0.9rem' }}>
+            Rewrite bullets, tailor for a target role, and keep your resume work on the same page as your upload and preview.
+          </p>
+          <ResumeRewriterForm />
+        </div>
       </div>
 
       <div id="settings" className="dashboard-profile-section">

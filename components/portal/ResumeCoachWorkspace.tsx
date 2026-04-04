@@ -84,6 +84,8 @@ export default function ResumeCoachWorkspace() {
           <PortalVoiceSession
             sessionEndpoint="/api/member/resume-coach/session"
             sessionPayload={sessionPayload}
+            retryWithoutDynamicVariables={false}
+            pushLiveResumeDraftContext
             suggestionsEndpoint="/api/member/resume-coach/parse-suggestions"
             title="Talk through your resume"
             description="Practice your pitch, discuss experience bullets, or get advice on framing your background."

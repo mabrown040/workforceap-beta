@@ -5,6 +5,9 @@ import { Conversation } from '@elevenlabs/client';
 
 type Phase = 'pre' | 'connecting' | 'active' | 'done';
 
+/** Voice session UI phase — use with optional video recording (WebRTC). */
+export type VoiceSessionPhase = Phase;
+
 export type ResumeSuggestion = {
   original?: string;
   suggested: string;
@@ -28,6 +31,8 @@ export type PortalVoiceSessionProps = {
   onAcceptSuggestion?: (s: ResumeSuggestion) => void;
   /** Fired when a new transcript line is captured (for live coaching UI) */
   onTranscriptChunk?: (chunk: { speaker: 'agent' | 'user'; text: string }) => void;
+  /** Fired whenever session phase changes (e.g. sync MediaRecorder with voice session). */
+  onPhaseChange?: (phase: VoiceSessionPhase) => void;
 };
 
 const PULSE_STYLE = `
@@ -48,6 +53,7 @@ export default function PortalVoiceSession({
   suggestionsEndpoint,
   onAcceptSuggestion,
   onTranscriptChunk,
+  onPhaseChange,
 }: PortalVoiceSessionProps) {
   const [phase, setPhase] = useState<Phase>('pre');
   const [voiceError, setVoiceError] = useState('');
@@ -58,6 +64,10 @@ export default function PortalVoiceSession({
   const convRef = useRef<Conversation | null>(null);
   const intentionalRef = useRef(false);
   const transcriptRef = useRef<Array<{ speaker: string; text: string }>>([]);
+
+  useEffect(() => {
+    onPhaseChange?.(phase);
+  }, [phase, onPhaseChange]);
 
   useEffect(() => {
     if (document.getElementById('pvs-styles')) return;

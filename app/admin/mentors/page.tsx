@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { runMentorStatusUpdate } from '@/lib/admin/mentorStatusUpdate';
 
 async function updateMentorAction(formData: FormData) {
   'use server';
@@ -11,26 +12,12 @@ async function updateMentorAction(formData: FormData) {
   await requireAdmin(user.id);
 
   const mentorId = String(formData.get('mentorId') || '');
-  const action = String(formData.get('action') || '');
+  const action = String(formData.get('action') || '') as 'approve' | 'deactivate' | 'activate';
 
   if (!mentorId) return;
+  if (action !== 'approve' && action !== 'deactivate' && action !== 'activate') return;
 
-  // Use the API route so the approval email is sent via Resend
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.workforceap.org';
-  if (action === 'approve' || action === 'deactivate' || action === 'activate') {
-    await fetch(`${baseUrl}/api/admin/mentors/${mentorId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'Cookie': `/* server action — auth handled by getUser above */` },
-      body: JSON.stringify({ action }),
-    }).catch(() => {
-      // Fallback: direct DB update if fetch fails
-      if (action === 'approve') {
-        prisma.mentor.update({ where: { id: mentorId }, data: { isActive: true, approvedAt: new Date() } });
-      } else {
-        prisma.mentor.update({ where: { id: mentorId }, data: { isActive: action === 'activate' } });
-      }
-    });
-  }
+  await runMentorStatusUpdate(mentorId, action);
 }
 
 export default async function AdminMentorsPage() {

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useCallback } from 'react';
 import Link from 'next/link';
+import { useState, useCallback } from 'react';
 
 export type EmployerApplicationRow = {
   id: string;
@@ -76,7 +76,9 @@ export default function EmployerApplicationsClient({ initialRows }: { initialRow
               <tr key={app.id} id={app.id}>
                 <td>
                   <div>
-                    <strong>{app.student.fullName}</strong>
+                    <Link href={`/employer/candidates/${app.student.id}?jobId=${encodeURIComponent(app.jobId)}`}>
+                      <strong>{app.student.fullName}</strong>
+                    </Link>
                     <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
                       {app.student.email}
                     </div>

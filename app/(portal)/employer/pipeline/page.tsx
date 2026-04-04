@@ -7,7 +7,9 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
 import { prisma } from '@/lib/db/prisma';
 import EmployerPipelineClient from '@/components/employer/EmployerPipelineClient';
+import EmployerMatchStatusSelect from '@/components/employer/EmployerMatchStatusSelect';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Candidate pipeline',
@@ -47,18 +49,17 @@ export default async function EmployerPipelinePage() {
     byJob.set(m.jobId, list);
   }
 
-  const STAGES = [
-    { key: 'matched', label: 'Matched' },
-    { key: 'applied', label: 'Applied' },
-    { key: 'interview', label: 'Interview' },
-    { key: 'offer', label: 'Offer' },
-    { key: 'hired', label: 'Hired' },
+  const PIPELINE_STRIP = [
+    {
+      label: 'New',
+      count: allMatches.filter((m) =>
+        ['suggested', 'employer_notified', 'student_notified'].includes(m.status)
+      ).length,
+    },
+    { label: 'Contact', count: allMatches.filter((m) => m.status === 'contacted').length },
+    { label: 'Interview', count: allMatches.filter((m) => m.status === 'interviewing').length },
+    { label: 'Hired', count: allMatches.filter((m) => m.status === 'hired').length },
   ];
-
-  const stageCounts = STAGES.reduce<Record<string, number>>((acc, s) => {
-    acc[s.key] = allMatches.filter((m) => m.status === s.key).length;
-    return acc;
-  }, {});
 
   const getInitials = (name: string) =>
     name
@@ -79,12 +80,12 @@ export default async function EmployerPipelinePage() {
 
         {/* Stage scroll */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', padding: '0 1rem 0.875rem' }}>
-          {STAGES.map((stage) => (
+          {PIPELINE_STRIP.map((stage) => (
             <div
-              key={stage.key}
+              key={stage.label}
               style={{ flexShrink: 0, textAlign: 'center', padding: '0.625rem 1rem', background: 'var(--surface-container)', borderRadius: '0.75rem', minWidth: '80px' }}
             >
-              <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-accent)' }}>{stageCounts[stage.key] ?? 0}</div>
+              <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-accent)' }}>{stage.count}</div>
               <div style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', marginTop: '0.125rem' }}>{stage.label}</div>
             </div>
           ))}
@@ -110,18 +111,30 @@ export default async function EmployerPipelinePage() {
                   <h2 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>{job.title}</h2>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     {matches.map((m) => (
-                      <div key={m.id} style={{ background: '#fff', borderRadius: '0.75rem', padding: '0.875rem 1rem', border: '1px solid #ebe7e7', display: 'flex', alignItems: 'center', gap: '0.75rem', boxShadow: '0 1px 3px rgba(28,27,27,0.05)' }}>
-                        <div style={{ width: '2.25rem', height: '2.25rem', borderRadius: '9999px', background: '#fff1f2', color: 'var(--color-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, flexShrink: 0 }}>
-                          {getInitials(m.student.fullName ?? '?')}
+                      <div
+                        key={m.id}
+                        style={{
+                          background: '#fff',
+                          borderRadius: '0.75rem',
+                          padding: '0.875rem 1rem',
+                          border: '1px solid #ebe7e7',
+                          boxShadow: '0 1px 3px rgba(28,27,27,0.05)',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                          <div style={{ width: '2.25rem', height: '2.25rem', borderRadius: '9999px', background: '#fff1f2', color: 'var(--color-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, flexShrink: 0 }}>
+                            {getInitials(m.student.fullName ?? '?')}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div className="wa-truncate" style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{m.student.fullName}</div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{m.student.enrolledProgram ?? 'No program'}</div>
+                          </div>
+                          <div style={{ flexShrink: 0, textAlign: 'right' }}>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)' }}>{matchScoreAsPercent(m.matchScore)}%</div>
+                            <div style={{ fontSize: '0.65rem', color: 'var(--color-on-surface-variant)', textTransform: 'capitalize' }}>{m.status.replace(/_/g, ' ')}</div>
+                          </div>
                         </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div className="wa-truncate" style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{m.student.fullName}</div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{m.student.enrolledProgram ?? 'No program'}</div>
-                        </div>
-                        <div style={{ flexShrink: 0, textAlign: 'right' }}>
-                          <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)' }}>{Math.round(m.matchScore * 100)}%</div>
-                          <div style={{ fontSize: '0.65rem', color: 'var(--color-on-surface-variant)', textTransform: 'capitalize' }}>{m.status}</div>
-                        </div>
+                        <EmployerMatchStatusSelect jobId={job.id} studentId={m.student.id} initialStatus={m.status} compact />
                       </div>
                     ))}
                   </div>

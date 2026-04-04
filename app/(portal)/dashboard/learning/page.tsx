@@ -1,10 +1,13 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
+import { prisma } from '@/lib/db/prisma';
 import { PATHWAYS } from '@/lib/content/learningPathways';
 import LearningPathCard from '@/components/portal/LearningPathCard';
 import LearningHubDestinationCards from '@/components/portal/LearningHubDestinationCards';
+import LearningCivicBotPanel from '@/components/portal/LearningCivicBotPanel';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -21,19 +24,25 @@ const MODULE_ICONS: Record<string, string> = {
   Business: 'business_center',
 };
 
-/* Current active course (first pathway that has steps remaining — placeholder for real data) */
-const ACTIVE_PATHWAY = PATHWAYS[0];
-
 export default async function LearningPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/learning');
 
-  /* Overall completion: average across all pathways (placeholder — real data comes from LearningPathCard client state) */
-  const overallPct = 38;
+  const ACTIVE_PATHWAY = PATHWAYS[0];
+
+  const allProgress = await prisma.pathwayStepProgress.findMany({
+    where: { userId: user.id },
+  });
+
+  const totalStepsAllPathways = PATHWAYS.reduce((sum, p) => sum + p.steps.length, 0);
+  const completedAll = allProgress.filter((r) => r.status === 'completed').length;
+  const overallPct =
+    totalStepsAllPathways > 0 ? Math.round((completedAll / totalStepsAllPathways) * 100) : 0;
+
+  const progressActive = allProgress.filter((r) => r.pathwayId === ACTIVE_PATHWAY.id);
+  const completedCount = progressActive.filter((r) => r.status === 'completed').length;
 
   const upcomingModules = ACTIVE_PATHWAY.steps.slice(0, 4);
-  /* How many steps count as "completed" on mobile (placeholder; real data from user progress) */
-  const completedCount = Math.floor(ACTIVE_PATHWAY.steps.length * (overallPct / 100));
 
   return (
     <>
@@ -86,10 +95,23 @@ export default async function LearningPage() {
           </div>
           <h4 className="wa-text-xl wa-font-bold wa-leading-snug" style={{ marginBottom: '1.25rem' }}>{ACTIVE_PATHWAY.title}</h4>
           <p className="text-white/80 wa-text-sm" style={{ marginBottom: '1rem' }}>{ACTIVE_PATHWAY.description}</p>
-          <button className="wa-bg-white wa-text-[#8c0f37] wa-font-bold active:wa-scale-95 wa-transition-transform" style={{ width: '100%', padding: '0.75rem 0', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+          <Link
+            href="/dashboard/training"
+            className="wa-bg-white wa-text-[#8c0f37] wa-font-bold active:wa-scale-95 wa-transition-transform"
+            style={{
+              width: '100%',
+              padding: '0.75rem 0',
+              borderRadius: '0.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              textDecoration: 'none',
+            }}
+          >
             <span className="material-symbols-outlined">play_arrow</span>
             Continue Learning
-          </button>
+          </Link>
         </div>
       </section>
 
@@ -272,12 +294,19 @@ export default async function LearningPage() {
             </div>
             {/* Progress bar */}
             <div style={{ height: '8px', background: 'var(--surface-container-highest)', borderRadius: 'var(--radius-full)', overflow: 'hidden', maxWidth: '360px', marginBottom: 'var(--space-4)' }}>
-              <div style={{ height: '100%', width: '25%', background: 'var(--color-accent)', borderRadius: 'var(--radius-full)' }} />
+              <div
+                style={{
+                  height: '100%',
+                  width: `${Math.min(100, overallPct)}%`,
+                  background: 'var(--color-accent)',
+                  borderRadius: 'var(--radius-full)',
+                }}
+              />
             </div>
           </div>
           <div>
-            <a
-              href={`/dashboard/learning`}
+            <Link
+              href="/dashboard/training"
               className="btn btn-primary"
               style={{
                 display: 'inline-flex',
@@ -286,9 +315,11 @@ export default async function LearningPage() {
                 padding: '0.75rem 1.5rem',
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>play_arrow</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>
+                play_arrow
+              </span>
               Resume Learning
-            </a>
+            </Link>
           </div>
         </div>
 
@@ -457,89 +488,7 @@ export default async function LearningPage() {
         </div>
       </section>
 
-      {/* CivicBot floating panel (static mockup) */}
-      <div
-        style={{
-          position: 'fixed',
-          bottom: 'var(--space-6)',
-          right: 'var(--space-6)',
-          width: '320px',
-          background: 'var(--surface-container-low)',
-          borderRadius: 'var(--radius-xl)',
-          border: '1px solid var(--outline-variant)',
-          boxShadow: 'var(--shadow-glass)',
-          overflow: 'hidden',
-          zIndex: 100,
-        }}
-      >
-        {/* Header */}
-        <div
-          style={{
-            background: 'var(--color-accent)',
-            color: 'var(--color-white)',
-            padding: 'var(--space-4) var(--space-4)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--space-3)',
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', fontVariationSettings: "'FILL' 1" }}>smart_toy</span>
-          <div>
-            <div style={{ fontWeight: 'var(--font-weight-medium)', fontSize: 'var(--font-size-sm)' }}>WorkforceAP Study Assistant</div>
-            <div style={{ fontSize: '0.75rem', opacity: 0.85 }}>Ask me anything about your courses</div>
-          </div>
-        </div>
-        {/* Chat body mockup */}
-        <div style={{ padding: 'var(--space-4)', minHeight: '120px' }}>
-          <div
-            style={{
-              background: 'var(--surface-container)',
-              borderRadius: 'var(--radius-lg)',
-              padding: 'var(--space-3)',
-              fontSize: 'var(--font-size-sm)',
-              color: 'var(--color-on-surface-variant)',
-              marginBottom: 'var(--space-3)',
-            }}
-          >
-            Hi! I can help you study, explain concepts, or quiz you on your current module. What would you like to work on?
-          </div>
-        </div>
-        {/* Input mockup */}
-        <div style={{ padding: '0 var(--space-4) var(--space-4)', display: 'flex', gap: 'var(--space-2)' }}>
-          <div
-            style={{
-              flex: 1,
-              background: 'var(--surface-container)',
-              borderRadius: 'var(--radius-full)',
-              padding: 'var(--space-2) var(--space-4)',
-              fontSize: 'var(--font-size-sm)',
-              color: 'var(--color-on-surface-variant)',
-              opacity: 0.6,
-            }}
-          >
-            Type a message...
-          </div>
-          <button
-            type="button"
-            style={{
-              background: 'var(--color-accent)',
-              color: 'var(--color-white)',
-              border: 'none',
-              borderRadius: '50%',
-              width: '36px',
-              height: '36px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              flexShrink: 0,
-            }}
-            aria-label="Send message"
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>send</span>
-          </button>
-        </div>
-      </div>
+      <LearningCivicBotPanel />
     </div>
     </div> {/* end hidden md:block */}
 

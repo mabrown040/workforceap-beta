@@ -7,6 +7,7 @@ import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounse
 import Link from 'next/link';
 import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import { counselorEnrollmentStatusBadge } from '@/lib/counselor/memberStatus';
 
 type Props = { params: Promise<{ memberId: string }> };
 
@@ -65,6 +66,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
 
   const initials = getInitials(member.fullName ?? 'U');
   const program = member.enrolledProgram ?? member.programInterest ?? '—';
+  const enrollmentBadge = counselorEnrollmentStatusBadge(member.enrolledProgram);
 
   return (
     <>
@@ -134,15 +136,15 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                   style={{
                     padding: '0.125rem 0.625rem',
                     borderRadius: '9999px',
-                    background: '#dcfce7',
-                    color: '#166534',
+                    background: enrollmentBadge.style.background,
+                    color: enrollmentBadge.style.color,
                     fontSize: '9px',
                     fontWeight: 700,
                     textTransform: 'uppercase' as const,
                     letterSpacing: '0.05em',
                   }}
                 >
-                  On Track
+                  {enrollmentBadge.label}
                 </span>
               </div>
             </div>

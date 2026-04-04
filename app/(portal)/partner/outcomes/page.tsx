@@ -7,6 +7,7 @@ import { getPartnerForUser } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
 import { loadPartnerReferralBundle } from '@/lib/partner/referralBundle';
 import { getProgramBySlug } from '@/lib/content/programs';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Outcomes snapshot',
@@ -36,7 +37,7 @@ export default async function PartnerOutcomesPage() {
   }).length;
 
   return (
-    <div>
+    <div style={{ paddingBottom: '6rem' }} className="wa-md:wa-pb-8">
       <PageHeader
         title="Outcomes snapshot"
         subtitle={`Quick counts for ${ctx.partner.name}. See the overview for journey detail.`}
@@ -73,6 +74,9 @@ export default async function PartnerOutcomesPage() {
           <div style={{ fontSize: '2rem', fontWeight: 800 }}>{completions}</div>
           <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>Program completions</div>
         </div>
+      </div>
+      <div className="wa-md:wa-hidden">
+        <MobileBottomNav variant="partner" />
       </div>
     </div>
   );

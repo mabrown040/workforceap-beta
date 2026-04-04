@@ -106,8 +106,10 @@ export default async function PartnerDashboardPage() {
     partnerRow.onboardingCompletedAt != null && partnerRow.tourCompletedAt == null;
   const superAdmin = await isSuperAdmin(user.id);
 
+  /** Share of referred members who reached a placed outcome (placements / total referrals). */
   const conversionRate = total > 0 ? Math.round((placements / total) * 100) : 0;
-  const verificationSpeed = total > 0 ? Math.min(100, Math.round((appliedViaReferralLink / total) * 100)) : 0;
+  /** Share of referrals who applied using your referral link (not a time metric). */
+  const referralLinkUsagePct = total > 0 ? Math.min(100, Math.round((appliedViaReferralLink / total) * 100)) : 0;
 
   // Pending milestones count (open milestones needing review)
   const pendingMilestonesCount = stageCounts['in_training'] ?? 0;
@@ -289,7 +291,7 @@ export default async function PartnerDashboardPage() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <Link href="/partner/guide" style={{
+          <Link href="/partner/outcomes" style={{
             padding: '0.625rem 1.25rem',
             background: 'var(--surface-container-high)',
             color: 'var(--color-accent)',
@@ -302,7 +304,7 @@ export default async function PartnerDashboardPage() {
             gap: '0.5rem',
           }}>
             <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>summarize</span>
-            Generate Report
+            Outcomes snapshot
           </Link>
           <Link href="/apply" style={{
             padding: '0.625rem 1.25rem',
@@ -464,12 +466,12 @@ export default async function PartnerDashboardPage() {
             {/* Partner Insights Sidebar */}
             <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
-              {/* Conversion Rate + Verification Speed */}
+              {/* Placement rate + referral link usage */}
               <div className="stitch-card" style={{ padding: '1.5rem' }}>
                 <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Partner Insights</h3>
                 <div style={{ marginBottom: '1.25rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.375rem' }}>
-                    <span style={{ color: 'var(--color-on-surface)' }}>Conversion Rate</span>
+                    <span style={{ color: 'var(--color-on-surface)' }}>Placement rate</span>
                     <span style={{ color: 'var(--color-accent)' }}>{conversionRate}%</span>
                   </div>
                   <div style={{ width: '100%', height: '6px', background: 'var(--surface-container-highest)', borderRadius: '9999px', overflow: 'hidden' }}>
@@ -478,12 +480,15 @@ export default async function PartnerDashboardPage() {
                 </div>
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.375rem' }}>
-                    <span style={{ color: 'var(--color-on-surface)' }}>Verification Speed</span>
-                    <span style={{ color: '#80d99f' }}>{verificationSpeed}%</span>
+                    <span style={{ color: 'var(--color-on-surface)' }}>Referral link usage</span>
+                    <span style={{ color: '#80d99f' }}>{referralLinkUsagePct}%</span>
                   </div>
                   <div style={{ width: '100%', height: '6px', background: 'var(--surface-container-highest)', borderRadius: '9999px', overflow: 'hidden' }}>
-                    <div style={{ width: `${verificationSpeed}%`, height: '100%', background: '#80d99f', borderRadius: '9999px', transition: 'width 0.3s' }} />
+                    <div style={{ width: `${referralLinkUsagePct}%`, height: '100%', background: '#80d99f', borderRadius: '9999px', transition: 'width 0.3s' }} />
                   </div>
+                  <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0', lineHeight: 1.4 }}>
+                    Of all people you referred, the share who applied using your partner referral link.
+                  </p>
                 </div>
               </div>
 

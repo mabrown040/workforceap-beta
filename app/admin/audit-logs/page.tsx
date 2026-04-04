@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import type { Prisma } from '@prisma/client';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isSuperAdmin } from '@/lib/auth/roles';
@@ -13,34 +14,103 @@ export const metadata: Metadata = buildPageMetadata({
   path: '/admin/audit-logs',
 });
 
-export default async function AdminAuditLogsPage() {
+const PAGE_SIZE = 50;
+
+function buildWhere(
+  thirtyDaysAgo: Date,
+  q: string,
+  eventName: string
+): Prisma.MemberEventWhereInput {
+  const trimmed = q.trim();
+  const base: Prisma.MemberEventWhereInput = {
+    createdAt: { gte: thirtyDaysAgo },
+    ...(eventName ? { eventName } : {}),
+  };
+  if (!trimmed) return base;
+  return {
+    AND: [
+      base,
+      {
+        OR: [
+          { user: { fullName: { contains: trimmed, mode: 'insensitive' } } },
+          { user: { email: { contains: trimmed, mode: 'insensitive' } } },
+          { eventName: { contains: trimmed, mode: 'insensitive' } },
+          { entityType: { contains: trimmed, mode: 'insensitive' } },
+          { sourcePage: { contains: trimmed, mode: 'insensitive' } },
+        ],
+      },
+    ],
+  };
+}
+
+type Props = {
+  searchParams?: Promise<{ page?: string; q?: string; event?: string }>;
+};
+
+export default async function AdminAuditLogsPage({ searchParams }: Props) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/audit-logs');
 
   const superAdmin = await isSuperAdmin(user.id);
   if (!superAdmin) redirect('/admin');
 
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const sp = (await searchParams) ?? {};
+  const page = Math.max(1, parseInt(sp.page ?? '1', 10) || 1);
+  const q = (sp.q ?? '').trim();
+  const eventFilter = (sp.event ?? '').trim();
+
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const windowWhere: Prisma.MemberEventWhereInput = { createdAt: { gte: thirtyDaysAgo } };
+  const listWhere = buildWhere(thirtyDaysAgo, q, eventFilter);
+
+  const [totalInWindow, uniqueUsersInWindow, topEventRow, eventTypeGroups, totalMatching] = await Promise.all([
+    prisma.memberEvent.count({ where: windowWhere }),
+    prisma.memberEvent.groupBy({
+      by: ['userId'],
+      where: windowWhere,
+      _count: true,
+    }).then((rows) => rows.length),
+    prisma.memberEvent.groupBy({
+      by: ['eventName'],
+      where: windowWhere,
+      _count: { eventName: true },
+      orderBy: { _count: { eventName: 'desc' } },
+      take: 1,
+    }),
+    prisma.memberEvent.groupBy({
+      by: ['eventName'],
+      where: windowWhere,
+      _count: { eventName: true },
+      orderBy: { eventName: 'asc' },
+    }),
+    prisma.memberEvent.count({ where: listWhere }),
+  ]);
+
+  const totalPages = Math.max(1, Math.ceil(totalMatching / PAGE_SIZE));
+  const safePage = Math.min(Math.max(1, page), totalPages);
 
   const events = await prisma.memberEvent.findMany({
-    where: { createdAt: { gte: sevenDaysAgo } },
+    where: listWhere,
     orderBy: { createdAt: 'desc' },
-    take: 500,
+    skip: (safePage - 1) * PAGE_SIZE,
+    take: PAGE_SIZE,
     include: {
       user: { select: { id: true, fullName: true, email: true } },
     },
   });
 
   const stats = {
-    total7d: events.length,
-    uniqueUsers: new Set(events.map((e) => e.userId)).size,
-    topEvent: (() => {
-      const counts: Record<string, number> = {};
-      for (const e of events) counts[e.eventName] = (counts[e.eventName] || 0) + 1;
-      return Object.entries(counts).sort(([, a], [, b]) => b - a)[0]?.[0] ?? '—';
-    })(),
+    total30d: totalInWindow,
+    uniqueUsers: uniqueUsersInWindow,
+    topEvent: topEventRow[0]?.eventName ?? '—',
   };
+
+  const eventTypesForSelect = eventTypeGroups.map((g) => ({
+    name: g.eventName,
+    count: g._count.eventName,
+  }));
 
   const serialized = events.map((e) => ({
     id: e.id,
@@ -60,7 +130,7 @@ export default async function AdminAuditLogsPage() {
     <>
       <PageHeader
         title="Audit Logs"
-        subtitle="Compliance registry — 7-day event trail"
+        subtitle="Compliance registry — 30-day event trail (paginated)"
       />
 
       {/* Stats row */}
@@ -73,7 +143,7 @@ export default async function AdminAuditLogsPage() {
         }}
       >
         {[
-          { label: 'Events (7d)', value: stats.total7d.toLocaleString(), icon: 'timeline', color: 'var(--color-accent)' },
+          { label: 'Events (30d)', value: stats.total30d.toLocaleString(), icon: 'timeline', color: 'var(--color-accent)' },
           { label: 'Active Users', value: stats.uniqueUsers.toString(), icon: 'group', color: 'var(--color-blue)' },
           { label: 'Top Event', value: stats.topEvent, icon: 'trending_up', color: 'var(--color-green)' },
         ].map((s) => (
@@ -102,7 +172,16 @@ export default async function AdminAuditLogsPage() {
         ))}
       </div>
 
-      <AuditLogsClient events={serialized} />
+      <AuditLogsClient
+        events={serialized}
+        page={safePage}
+        totalPages={totalPages}
+        pageSize={PAGE_SIZE}
+        totalMatching={totalMatching}
+        initialQ={q}
+        initialEvent={eventFilter}
+        eventTypes={eventTypesForSelect}
+      />
     </>
   );
 }

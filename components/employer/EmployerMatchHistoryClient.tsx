@@ -90,7 +90,14 @@ export default function EmployerMatchHistoryClient({ initialRows }: { initialRow
               const last = row.statusUpdatedAt ?? row.createdAt;
               return (
                 <tr key={row.id}>
-                  <td>{row.student.fullName}</td>
+                  <td>
+                    <Link
+                      href={`/employer/candidates/${row.studentId}?jobId=${encodeURIComponent(row.jobId)}`}
+                      style={{ fontWeight: 600, color: 'var(--color-accent)' }}
+                    >
+                      {row.student.fullName}
+                    </Link>
+                  </td>
                   <td>{row.job.title}</td>
                   <td>{row.matchScore}%</td>
                   <td>

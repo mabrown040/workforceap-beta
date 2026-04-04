@@ -121,7 +121,7 @@ export default async function EmployerMatchesPage() {
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <Link
-                    href={`/employer/pipeline`}
+                    href={`/employer/candidates/${row.studentId}?jobId=${encodeURIComponent(row.jobId)}`}
                     style={{ flex: 1, textAlign: 'center', padding: '0.5rem', background: 'var(--surface-container)', color: 'var(--color-on-surface)', borderRadius: '0.375rem', fontSize: '0.775rem', fontWeight: 600, textDecoration: 'none' }}
                     className="active:wa-scale-95 wa-transition-transform"
                   >

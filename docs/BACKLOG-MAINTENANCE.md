@@ -18,7 +18,7 @@
 
 Point them at:
 
-- `AI-TOOLS-BACKLOG.md` — remaining AI tooling work  
+- `AI-TOOLS-BACKLOG.md` — AI tooling status (complete except optional WebRTC stretch; policy-blocked)  
 - `docs/plans/2026-04-03-sprint-tracker.md` — queued portal/marketing items  
 - `docs/COMPLETED-WORK-LOG.md` — avoid redoing shipped work  
 

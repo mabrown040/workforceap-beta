@@ -364,7 +364,7 @@ export default async function PartnerDashboardPage() {
       >
         <p className="partner-section-eyebrow">Referral link</p>
         <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--color-on-surface)' }}>
-          Applied via your referral link: <strong>{appliedViaReferralLink}</strong>
+          Applied via your referral link: <strong>{referredMembersAppliedViaLink}</strong>
         </p>
         <p style={{ margin: '0.75rem 0 0', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
           Share: <strong style={{ wordBreak: 'break-all' }}>{referralApplyUrl}</strong>

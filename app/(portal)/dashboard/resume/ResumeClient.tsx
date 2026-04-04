@@ -241,7 +241,7 @@ export default function ResumeClient({
           onClick={handleGenerate}
           disabled={generating}
         >
-          {generating ? 'Generating…' : 'Generate Resume'}
+          {generating ? 'Generating…' : hasEnhanced ? 'Re-enhance with AI' : 'Generate Resume'}
         </button>
         {generateError && <p style={{ color: '#c00', marginTop: '0.5rem' }}>{generateError}</p>}
       </section>
@@ -406,6 +406,40 @@ export default function ResumeClient({
           )}
         </section>
       )}
+
+      <section style={{ marginBottom: '2rem' }}>
+        <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>AI Tools for Your Resume</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem' }}>
+          {[
+            { icon: '🔄', title: 'Resume Rewriter', desc: 'Rewrite and polish your resume with AI assistance.', href: '/dashboard/ai-tools/resume-rewriter' },
+            { icon: '🎯', title: 'Job Match Scorer', desc: 'See how well your resume matches a job posting.', href: '/dashboard/ai-tools/job-match-scorer' },
+            { icon: '📊', title: 'Resume Analysis', desc: 'Get a detailed AI breakdown of your resume strength.', href: '/dashboard/ai-tools/resume-analysis' },
+          ].map(({ icon, title, desc, href }) => (
+            <div
+              key={href}
+              style={{
+                background: 'var(--surface-container)',
+                borderRadius: '0.75rem',
+                padding: '1rem 1.1rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.4rem',
+                border: '1px solid var(--outline-variant)',
+              }}
+            >
+              <span style={{ fontSize: '1.5rem' }}>{icon}</span>
+              <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>{title}</span>
+              <span style={{ fontSize: '0.82rem', color: 'var(--color-on-surface-variant)', flexGrow: 1 }}>{desc}</span>
+              <Link
+                href={href}
+                style={{ color: 'var(--color-accent)', fontWeight: 600, fontSize: '0.875rem', textDecoration: 'none', marginTop: '0.25rem' }}
+              >
+                Open →
+              </Link>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <section className="counselor-wit-guide">
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>WorkInTexas Guide</h2>

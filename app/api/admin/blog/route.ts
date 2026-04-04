@@ -4,50 +4,55 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
 export async function POST(request: NextRequest) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!(await isAdmin(user.id)))
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await isAdmin(user.id)))
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const body = await request.json();
-  const {
-    slug,
-    title,
-    excerpt,
-    content,
-    coverImage,
-    authorName,
-    category,
-    published,
-    scheduledAt,
-  } = body;
+    const body = await request.json();
+    const {
+      slug,
+      title,
+      excerpt,
+      content,
+      coverImage,
+      authorName,
+      category,
+      published,
+      scheduledAt,
+    } = body;
 
-  if (!slug?.trim() || !title?.trim() || !content?.trim()) {
-    return NextResponse.json(
-      { error: 'Slug, title, and content are required' },
-      { status: 400 }
-    );
+    if (!slug?.trim() || !title?.trim() || !content?.trim()) {
+      return NextResponse.json(
+        { error: 'Slug, title, and content are required' },
+        { status: 400 }
+      );
+    }
+
+    const existing = await prisma.blogPost.findUnique({ where: { slug: slug.trim() } });
+    if (existing) {
+      return NextResponse.json({ error: 'Slug already exists' }, { status: 400 });
+    }
+
+    const post = await prisma.blogPost.create({
+      data: {
+        slug: slug.trim(),
+        title: title.trim(),
+        excerpt: excerpt?.trim() || null,
+        content: content.trim(),
+        coverImage: coverImage?.trim() || null,
+        authorName: authorName?.trim() || 'WorkforceAP Team',
+        category: category?.trim() || null,
+        published: !!published,
+        publishedAt: published ? new Date() : null,
+        scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
+      },
+    });
+
+    return NextResponse.json(post);
+  } catch (error) {
+    console.error('[admin/blog POST] error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  const existing = await prisma.blogPost.findUnique({ where: { slug: slug.trim() } });
-  if (existing) {
-    return NextResponse.json({ error: 'Slug already exists' }, { status: 400 });
-  }
-
-  const post = await prisma.blogPost.create({
-    data: {
-      slug: slug.trim(),
-      title: title.trim(),
-      excerpt: excerpt?.trim() || null,
-      content: content.trim(),
-      coverImage: coverImage?.trim() || null,
-      authorName: authorName?.trim() || 'WorkforceAP Team',
-      category: category?.trim() || null,
-      published: !!published,
-      publishedAt: published ? new Date() : null,
-      scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
-    },
-  });
-
-  return NextResponse.json(post);
 }

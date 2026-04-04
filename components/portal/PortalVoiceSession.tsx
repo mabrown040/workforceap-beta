@@ -5,6 +5,12 @@ import { Conversation } from '@elevenlabs/client';
 
 type Phase = 'pre' | 'connecting' | 'active' | 'done';
 
+export type ResumeSuggestion = {
+  original?: string;
+  suggested: string;
+  context: string;
+};
+
 export type PortalVoiceSessionProps = {
   /** POST endpoint that returns `{ signedUrl: string }` */
   sessionEndpoint: string;
@@ -14,6 +20,10 @@ export type PortalVoiceSessionProps = {
   accentDark?: string;
   speakingLabel?: string;
   listeningLabel?: string;
+  /** If set, transcript will be parsed for suggestions after session ends */
+  suggestionsEndpoint?: string;
+  /** Called when user accepts a suggestion */
+  onAcceptSuggestion?: (s: ResumeSuggestion) => void;
 };
 
 const PULSE_STYLE = `
@@ -30,12 +40,18 @@ export default function PortalVoiceSession({
   accentDark = '#6b0c29',
   speakingLabel = 'Assistant is speaking…',
   listeningLabel = 'Listening — speak when ready',
+  suggestionsEndpoint,
+  onAcceptSuggestion,
 }: PortalVoiceSessionProps) {
   const [phase, setPhase] = useState<Phase>('pre');
   const [voiceError, setVoiceError] = useState('');
   const [agentSpeaking, setAgentSpeaking] = useState(false);
+  const [suggestions, setSuggestions] = useState<ResumeSuggestion[]>([]);
+  const [parsingSuggestions, setParsingSuggestions] = useState(false);
+  const [dismissed, setDismissed] = useState<Set<number>>(new Set());
   const convRef = useRef<Conversation | null>(null);
   const intentionalRef = useRef(false);
+  const transcriptRef = useRef<Array<{ speaker: string; text: string }>>([]);
 
   useEffect(() => {
     if (document.getElementById('pvs-styles')) return;
@@ -94,8 +110,18 @@ export default function PortalVoiceSession({
         },
         onMessage: (event) => {
           const ev = event as unknown as Record<string, unknown>;
-          if (ev.type === 'agent_response') setAgentSpeaking(true);
-          if (ev.type === 'user_transcript') setAgentSpeaking(false);
+          if (ev.type === 'agent_response') {
+            setAgentSpeaking(true);
+            if (typeof ev.text === 'string' && ev.text.trim()) {
+              transcriptRef.current.push({ speaker: 'agent', text: ev.text });
+            }
+          }
+          if (ev.type === 'user_transcript') {
+            setAgentSpeaking(false);
+            if (typeof ev.text === 'string' && ev.text.trim()) {
+              transcriptRef.current.push({ speaker: 'user', text: ev.text });
+            }
+          }
         },
         onError: (msg) => {
           setVoiceError(String(msg) || 'Connection error');
@@ -109,11 +135,31 @@ export default function PortalVoiceSession({
     }
   }
 
-  function endSession() {
+  async function endSession() {
     intentionalRef.current = true;
     convRef.current?.endSession();
     setPhase('done');
     setAgentSpeaking(false);
+
+    // Parse suggestions from transcript
+    if (suggestionsEndpoint && transcriptRef.current.length > 0) {
+      setParsingSuggestions(true);
+      try {
+        const res = await fetch(suggestionsEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ transcript: transcriptRef.current }),
+        });
+        if (res.ok) {
+          const data = (await res.json()) as { suggestions: ResumeSuggestion[] };
+          setSuggestions(data.suggestions ?? []);
+        }
+      } catch (err) {
+        console.error('[suggestion-parse]', err);
+      } finally {
+        setParsingSuggestions(false);
+      }
+    }
   }
 
   function reset() {
@@ -124,6 +170,9 @@ export default function PortalVoiceSession({
     setPhase('pre');
     setVoiceError('');
     setAgentSpeaking(false);
+    setSuggestions([]);
+    setDismissed(new Set());
+    transcriptRef.current = [];
   }
 
   const bgSoft = `${accent}14`;
@@ -271,24 +320,106 @@ export default function PortalVoiceSession({
     );
   }
 
+  const activeSuggestions = suggestions.filter((_, i) => !dismissed.has(i));
+
   return (
-    <div style={{ maxWidth: 560, textAlign: 'center' }}>
-      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem', fontSize: '0.9rem' }}>Session ended.</p>
-      <button
-        type="button"
-        onClick={reset}
-        style={{
-          background: 'var(--surface-container-highest)',
-          color: 'var(--color-on-surface)',
-          border: '1px solid var(--outline-variant)',
-          borderRadius: 10,
-          padding: '0.65rem 1.25rem',
-          fontWeight: 600,
-          cursor: 'pointer',
-        }}
-      >
-        Start again
-      </button>
+    <div style={{ maxWidth: 560 }}>
+      <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
+        <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem', fontSize: '0.9rem' }}>Session ended.</p>
+        <button
+          type="button"
+          onClick={reset}
+          style={{
+            background: 'var(--surface-container-highest)',
+            color: 'var(--color-on-surface)',
+            border: '1px solid var(--outline-variant)',
+            borderRadius: 10,
+            padding: '0.65rem 1.25rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+          }}
+        >
+          Start again
+        </button>
+      </div>
+
+      {parsingSuggestions && (
+        <p style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)', fontSize: '0.85rem', marginTop: '1rem' }}>
+          Extracting suggestions from your session…
+        </p>
+      )}
+
+      {activeSuggestions.length > 0 && (
+        <div style={{ marginTop: '1.25rem' }}>
+          <h4 style={{ fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
+            Coach suggestions ({activeSuggestions.length})
+          </h4>
+          {suggestions.map((s, i) =>
+            dismissed.has(i) ? null : (
+              <div
+                key={i}
+                style={{
+                  background: 'var(--surface-container-low, #f8f5f4)',
+                  border: '1px solid var(--outline-variant, #e0d6d3)',
+                  borderRadius: 12,
+                  padding: '1rem',
+                  marginBottom: '0.75rem',
+                  animation: 'pvs-fade-in 0.3s ease both',
+                }}
+              >
+                {s.original && (
+                  <div style={{ marginBottom: '0.5rem' }}>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>Original</span>
+                    <p style={{ margin: '0.25rem 0 0', fontSize: '0.88rem', textDecoration: 'line-through', color: 'var(--color-on-surface-variant)' }}>{s.original}</p>
+                  </div>
+                )}
+                <div style={{ marginBottom: '0.5rem' }}>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', color: accent }}>Suggested</span>
+                  <p style={{ margin: '0.25rem 0 0', fontSize: '0.88rem', fontWeight: 500 }}>{s.suggested}</p>
+                </div>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem', fontStyle: 'italic' }}>{s.context}</p>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onAcceptSuggestion?.(s);
+                      setDismissed((prev) => new Set(prev).add(i));
+                    }}
+                    style={{
+                      background: accent,
+                      color: '#fff',
+                      border: 0,
+                      borderRadius: 8,
+                      padding: '0.45rem 1rem',
+                      fontWeight: 600,
+                      fontSize: '0.82rem',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    ✓ Accept
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDismissed((prev) => new Set(prev).add(i))}
+                    style={{
+                      background: 'transparent',
+                      color: 'var(--color-on-surface-variant)',
+                      border: '1px solid var(--outline-variant)',
+                      borderRadius: 8,
+                      padding: '0.45rem 1rem',
+                      fontWeight: 600,
+                      fontSize: '0.82rem',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    ✗ Dismiss
+                  </button>
+                </div>
+              </div>
+            )
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -181,6 +181,7 @@ export default async function DashboardProfilePage() {
           <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#584144] wa-mb-4">Resume Coach (Voice)</h3>
           <PortalVoiceSession
             sessionEndpoint="/api/member/resume-coach/session"
+            suggestionsEndpoint="/api/member/resume-coach/parse-suggestions"
             title="Talk through your resume"
             description="Practice your pitch, discuss experience bullets, or get advice on framing your background."
             accent="#2563eb"
@@ -326,6 +327,7 @@ export default async function DashboardProfilePage() {
           </h2>
           <PortalVoiceSession
             sessionEndpoint="/api/member/resume-coach/session"
+            suggestionsEndpoint="/api/member/resume-coach/parse-suggestions"
             title="Talk through your resume"
             description="Practice your pitch, discuss experience bullets, or get advice on framing your background."
             accent="#2563eb"

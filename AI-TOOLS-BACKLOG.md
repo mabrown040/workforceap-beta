@@ -53,9 +53,9 @@
 ### Resume Auditor (Future Sprint)
 - [ ] Split-pane: resume preview (white document) + AI analysis panel
 - [ ] Target alignment score (circular SVG)
-- [ ] Section-by-section audit with color-coded markers
-- [ ] Missing metrics detection
-- [ ] Bullet point optimization suggestions with before/after
+- [x] Section-by-section audit with color-coded markers
+- [x] Missing metrics detection
+- [x] Bullet point optimization suggestions with before/after
 - [ ] Skill match tags (green = matched, red = missing)
 - **Tech**: Parse resume text, run against job description via AI, return structured analysis
 

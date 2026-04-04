@@ -98,6 +98,59 @@ export default function JobMatchScorerForm() {
     }
   };
 
+  const sectionAuditCards = [
+    {
+      title: 'Summary',
+      status: 'Good',
+      description: 'Clear positioning and concise framing make the overview easy to scan.',
+      accent: '#2e7d32',
+      accentSoft: 'rgba(46, 125, 50, 0.12)',
+      statusColor: 'var(--color-green)',
+    },
+    {
+      title: 'Experience',
+      status: 'Needs work',
+      description: 'Recent role bullets would be stronger with more measurable outcomes and scope.',
+      accent: '#ed8b00',
+      accentSoft: 'rgba(237, 139, 0, 0.14)',
+      statusColor: '#b26a00',
+    },
+    {
+      title: 'Skills',
+      status: 'Strong',
+      description: 'Core tools and capabilities align well with the target role requirements.',
+      accent: '#2e7d32',
+      accentSoft: 'rgba(46, 125, 50, 0.12)',
+      statusColor: 'var(--color-green)',
+    },
+    {
+      title: 'Education',
+      status: 'Missing detail',
+      description: 'School name, degree, or graduation timing should be expanded for credibility.',
+      accent: '#d32f2f',
+      accentSoft: 'rgba(211, 47, 47, 0.12)',
+      statusColor: '#d32f2f',
+    },
+  ];
+
+  const missingMetrics = [
+    'No quantified impact in recent role bullets',
+    'Missing team size / scope ownership',
+    'No time-to-result or delivery speed metrics',
+  ];
+
+  const bulletSuggestions = [
+    {
+      before: 'Managed onboarding for new hires',
+      after: 'Managed onboarding for 25+ new hires, reducing time-to-productivity by 18%.',
+    },
+    {
+      before: 'Worked with cross-functional teams on deployments',
+      after:
+        'Coordinated deployments across product, QA, and engineering, improving release predictability for biweekly launches.',
+    },
+  ];
+
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="portal-ai-tool-form">
       <div className="form-group">
@@ -195,6 +248,171 @@ export default function JobMatchScorerForm() {
             ))}
           </div>
           <pre className="resume-rewriter-output-content">{output}</pre>
+          <section
+            aria-labelledby="resume-section-audit-heading"
+            style={{
+              marginTop: '1.5rem',
+              display: 'grid',
+              gap: '1rem',
+            }}
+          >
+            <div
+              style={{
+                display: 'grid',
+                gap: '0.5rem',
+              }}
+            >
+              <h4 id="resume-section-audit-heading" style={{ margin: 0 }}>
+                Section audit
+              </h4>
+              <div
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '0.75rem',
+                }}
+              >
+                {sectionAuditCards.map((card) => (
+                  <article
+                    key={card.title}
+                    style={{
+                      flex: '1 1 220px',
+                      minWidth: '220px',
+                      borderRadius: 'var(--radius-lg)',
+                      border: '1px solid rgba(127, 127, 127, 0.2)',
+                      borderLeft: `4px solid ${card.accent}`,
+                      background: 'var(--surface-container-highest)',
+                      padding: '1rem',
+                      boxShadow: '0 1px 0 rgba(0, 0, 0, 0.04)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '0.75rem' }}>
+                      <h5 style={{ margin: 0, fontSize: '1rem' }}>{card.title}</h5>
+                      <span
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.35rem',
+                          padding: '0.2rem 0.6rem',
+                          borderRadius: '999px',
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          background: card.accentSoft,
+                          color: card.statusColor,
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        <span
+                          aria-hidden
+                          style={{
+                            width: '0.5rem',
+                            height: '0.5rem',
+                            borderRadius: '999px',
+                            background: card.accent,
+                            display: 'inline-block',
+                          }}
+                        />
+                        {card.status}
+                      </span>
+                    </div>
+                    <p style={{ margin: '0.65rem 0 0', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
+                      {card.description}
+                    </p>
+                  </article>
+                ))}
+              </div>
+            </div>
+
+            <section
+              aria-labelledby="resume-missing-metrics-heading"
+              style={{
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid rgba(237, 139, 0, 0.25)',
+                background: 'linear-gradient(180deg, rgba(237, 139, 0, 0.12), rgba(237, 139, 0, 0.06))',
+                padding: '1rem',
+              }}
+            >
+              <h4 id="resume-missing-metrics-heading" style={{ margin: 0 }}>
+                Missing metrics
+              </h4>
+              <ul
+                style={{
+                  margin: '0.75rem 0 0',
+                  paddingLeft: '1.25rem',
+                  display: 'grid',
+                  gap: '0.5rem',
+                  color: 'var(--color-on-surface)',
+                }}
+              >
+                {missingMetrics.map((metric) => (
+                  <li key={metric}>{metric}</li>
+                ))}
+              </ul>
+            </section>
+
+            <section
+              aria-labelledby="resume-bullet-optimization-heading"
+              style={{
+                display: 'grid',
+                gap: '0.75rem',
+              }}
+            >
+              <h4 id="resume-bullet-optimization-heading" style={{ margin: 0 }}>
+                Bullet optimization suggestions
+              </h4>
+              <div style={{ display: 'grid', gap: '0.75rem' }}>
+                {bulletSuggestions.map((item) => (
+                  <article
+                    key={item.before}
+                    style={{
+                      borderRadius: 'var(--radius-lg)',
+                      border: '1px solid rgba(127, 127, 127, 0.18)',
+                      background: 'var(--surface-container-highest)',
+                      padding: '1rem',
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: 'grid',
+                        gap: '0.75rem',
+                      }}
+                    >
+                      <div
+                        style={{
+                          borderRadius: 'var(--radius-md)',
+                          border: '1px solid rgba(127, 127, 127, 0.14)',
+                          background: 'rgba(127, 127, 127, 0.06)',
+                          padding: '0.85rem',
+                        }}
+                      >
+                        <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
+                          Before
+                        </div>
+                        <p style={{ margin: '0.35rem 0 0', lineHeight: 1.55 }}>
+                          {item.before}
+                        </p>
+                      </div>
+                      <div
+                        style={{
+                          borderRadius: 'var(--radius-md)',
+                          border: '1px solid rgba(46, 125, 50, 0.22)',
+                          background: 'rgba(46, 125, 50, 0.08)',
+                          padding: '0.85rem',
+                        }}
+                      >
+                        <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-green)' }}>
+                          After
+                        </div>
+                        <p style={{ margin: '0.35rem 0 0', lineHeight: 1.55 }}>
+                          {item.after}
+                        </p>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          </section>
           <p className="ai-result-saved">
             Saved to your history. <Link href="/dashboard/ai-tools/history">View all results</Link>
           </p>

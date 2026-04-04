@@ -102,28 +102,26 @@ export default function MobileApplicationsClient({
     setError(null);
     setExpandedId(applicationId);
 
-    if (!chatMessages[applicationId]) {
-      setChatLoadingId(applicationId);
-      try {
-        const r = await fetch(`/api/employer/applications/${applicationId}/messages`, {
-          credentials: 'include',
-        });
-        const data = await r.json().catch(() => ({}));
-        if (!r.ok) {
-          setError(typeof data.error === 'string' ? data.error : 'Unable to load messages');
-          return;
-        }
-        setChatMessages((prev) => ({ ...prev, [applicationId]: Array.isArray(data.messages) ? data.messages : [] }));
-      } catch {
-        setError('Unable to load messages');
+    setChatLoadingId(applicationId);
+    try {
+      const r = await fetch(`/api/employer/applications/${applicationId}/messages`, {
+        credentials: 'include',
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        setError(typeof data.error === 'string' ? data.error : 'Unable to load messages');
         return;
-      } finally {
-        setChatLoadingId(null);
       }
+      setChatMessages((prev) => ({ ...prev, [applicationId]: Array.isArray(data.messages) ? data.messages : [] }));
+    } catch {
+      setError('Unable to load messages');
+      return;
+    } finally {
+      setChatLoadingId(null);
     }
 
     setOpenChatId(applicationId);
-  }, [chatMessages, openChatId]);
+  }, [openChatId]);
 
   const visible =
     filter === 'all' ? rows : rows.filter((r) => r.status === filter);
@@ -190,7 +188,7 @@ export default function MobileApplicationsClient({
                   <div
                     className="text-white font-bold text-base" style={{ width: '3.5rem', height: '3.5rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'var(--color-accent)' }}
                   >
-                    {initials(app.student.fullName)}
+                    {initials(studentName)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>

@@ -70,28 +70,26 @@ export default function EmployerApplicationsClient({ initialRows }: { initialRow
 
     setError(null);
 
-    if (!chatMessages[applicationId]) {
-      setChatLoadingId(applicationId);
-      try {
-        const r = await fetch(`/api/employer/applications/${applicationId}/messages`, {
-          credentials: 'include',
-        });
-        const data = await r.json().catch(() => ({}));
-        if (!r.ok) {
-          setError(typeof data.error === 'string' ? data.error : 'Unable to load messages');
-          return;
-        }
-        setChatMessages((prev) => ({ ...prev, [applicationId]: Array.isArray(data.messages) ? data.messages : [] }));
-      } catch {
-        setError('Unable to load messages');
+    setChatLoadingId(applicationId);
+    try {
+      const r = await fetch(`/api/employer/applications/${applicationId}/messages`, {
+        credentials: 'include',
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        setError(typeof data.error === 'string' ? data.error : 'Unable to load messages');
         return;
-      } finally {
-        setChatLoadingId(null);
       }
+      setChatMessages((prev) => ({ ...prev, [applicationId]: Array.isArray(data.messages) ? data.messages : [] }));
+    } catch {
+      setError('Unable to load messages');
+      return;
+    } finally {
+      setChatLoadingId(null);
     }
 
     setOpenChatId(applicationId);
-  }, [chatMessages, openChatId]);
+  }, [openChatId]);
 
   if (rows.length === 0) {
     return <p style={{ color: 'var(--color-on-surface-variant)' }}>No applications yet.</p>;

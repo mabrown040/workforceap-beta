@@ -55,6 +55,7 @@ export default function MemberDashboardVoiceSection() {
           </p>
           <PortalVoiceSession
             sessionEndpoint="/api/member/resume-coach/session"
+            retryWithoutDynamicVariables={false}
             title="Resume & experience"
             description="Practice how you describe your background and target role out loud."
             accent="#2563eb"

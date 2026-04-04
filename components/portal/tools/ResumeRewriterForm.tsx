@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, type ReactNode } from 'react';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
@@ -21,12 +21,14 @@ type ResumeRewriterFormProps = {
   /** When set with onResumeChange, the resume field is controlled (e.g. profile coach Accept → append). */
   resumeControlled?: string;
   onResumeChange?: (value: string) => void;
+  resumeBanner?: ReactNode;
 };
 
 export default function ResumeRewriterForm({
   initialResume,
   resumeControlled,
   onResumeChange,
+  resumeBanner,
 }: ResumeRewriterFormProps = {}) {
   const [internalResume, setInternalResume] = useState(initialResume ?? '');
   const isControlled = onResumeChange != null;
@@ -193,6 +195,7 @@ export default function ResumeRewriterForm({
 
       <div className="form-group">
         <label htmlFor="resume">Your resume (paste or upload PDF/DOCX) *</label>
+        {resumeBanner}
         <div className="resume-upload-row">
           <input
             ref={fileInputRef}

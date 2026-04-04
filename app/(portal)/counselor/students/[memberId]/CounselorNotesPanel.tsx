@@ -1,0 +1,191 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+
+interface Note {
+  id: string;
+  content: string;
+  createdAt: string;
+  author: { fullName: string | null; email: string };
+}
+
+export default function CounselorNotesPanel({ memberId }: { memberId: string }) {
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [adding, setAdding] = useState(false);
+  const [newNote, setNewNote] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  const fetchNotes = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/counselor/members/${memberId}/notes`);
+      const data = await res.json();
+      if (Array.isArray(data)) setNotes(data);
+    } catch {
+      // ignore
+    } finally {
+      setLoading(false);
+    }
+  }, [memberId]);
+
+  useEffect(() => { fetchNotes(); }, [fetchNotes]);
+
+  const handleAdd = async () => {
+    if (!newNote.trim()) return;
+    setSubmitting(true);
+    setError('');
+    try {
+      const res = await fetch(`/api/counselor/members/${memberId}/notes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: newNote.trim() }),
+      });
+      if (!res.ok) throw new Error('Failed to save note');
+      const note = await res.json();
+      setNotes((prev) => [note, ...prev]);
+      setNewNote('');
+      setAdding(false);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Error saving note');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (noteId: string) => {
+    setNotes((prev) => prev.filter((n) => n.id !== noteId));
+    await fetch(`/api/counselor/members/${memberId}/notes`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ noteId }),
+    }).catch(() => {});
+  };
+
+  return (
+    <div style={{
+      background: 'var(--surface-container, #fff)',
+      borderRadius: '0.75rem',
+      padding: '1.25rem',
+      border: '1px solid var(--outline-variant, #ebe7e7)',
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <h3 style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)', margin: 0 }}>
+          Counselor Notes
+        </h3>
+        {!adding && (
+          <button
+            onClick={() => setAdding(true)}
+            style={{
+              padding: '0.25rem 0.625rem',
+              background: 'var(--surface-container-highest)',
+              border: 'none',
+              borderRadius: '0.375rem',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              color: 'var(--color-on-surface)',
+            }}
+          >
+            + Add Note
+          </button>
+        )}
+      </div>
+
+      {adding && (
+        <div style={{ marginBottom: '1rem' }}>
+          <textarea
+            value={newNote}
+            onChange={(e) => setNewNote(e.target.value)}
+            placeholder="Write a note about this student..."
+            rows={3}
+            style={{
+              width: '100%',
+              border: '1px solid var(--outline-variant)',
+              borderRadius: '0.5rem',
+              padding: '0.5rem 0.75rem',
+              fontSize: '0.8rem',
+              fontFamily: 'inherit',
+              resize: 'vertical',
+              background: 'var(--color-surface)',
+              color: 'var(--color-on-surface)',
+              boxSizing: 'border-box',
+            }}
+          />
+          {error && <p style={{ color: 'var(--color-error, #c00)', fontSize: '0.75rem', margin: '0.25rem 0' }}>{error}</p>}
+          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+            <button
+              onClick={handleAdd}
+              disabled={submitting || !newNote.trim()}
+              style={{
+                padding: '0.375rem 0.875rem',
+                background: 'var(--color-accent)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '0.375rem',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                opacity: submitting ? 0.6 : 1,
+              }}
+            >
+              {submitting ? 'Saving…' : 'Save'}
+            </button>
+            <button
+              onClick={() => { setAdding(false); setNewNote(''); setError(''); }}
+              style={{
+                padding: '0.375rem 0.875rem',
+                background: 'transparent',
+                color: 'var(--color-on-surface-variant)',
+                border: '1px solid var(--outline-variant)',
+                borderRadius: '0.375rem',
+                fontSize: '0.8rem',
+                cursor: 'pointer',
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {loading && <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>Loading notes…</p>}
+
+      {!loading && notes.length === 0 && !adding && (
+        <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', fontStyle: 'italic' }}>
+          No notes yet. Add one to track progress.
+        </p>
+      )}
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        {notes.map((note) => (
+          <div key={note.id} style={{ borderLeft: '3px solid var(--color-accent)', paddingLeft: '0.75rem', position: 'relative' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>
+                {new Date(note.createdAt).toLocaleDateString()} · {note.author.fullName ?? note.author.email}
+              </p>
+              <button
+                onClick={() => handleDelete(note.id)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--color-on-surface-variant)',
+                  fontSize: '0.75rem',
+                  cursor: 'pointer',
+                  padding: '0 0.25rem',
+                  lineHeight: 1,
+                }}
+                title="Delete note"
+              >
+                ×
+              </button>
+            </div>
+            <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface)', margin: 0, whiteSpace: 'pre-wrap' }}>
+              {note.content}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

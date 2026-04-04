@@ -110,6 +110,15 @@ const TOOLS = [
     href: '/dashboard/ai-tools/gap-analyzer',
   },
   {
+    id: 'skill-mapper',
+    title: 'Skill Mapper',
+    icon: 'radar',
+    description: 'Search any occupation and see its top skills on a competency radar chart — powered by O*NET data from the U.S. Department of Labor.',
+    timeToComplete: '2 min',
+    status: 'available' as const,
+    href: '/dashboard/ai-tools/skill-mapper',
+  },
+  {
     id: 'application-tracker',
     title: 'Application Tracker',
     icon: 'view_list',

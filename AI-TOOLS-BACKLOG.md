@@ -30,12 +30,12 @@
 - **Tech**: Use `react-pdf` or `@react-pdf/renderer` for PDF generation; `docx` npm package for DOCX
 
 ### Skill Mapper (Medium Priority)
-- [ ] Research free skills taxonomy APIs/databases:
+- [x] Research free skills taxonomy APIs/databases:
   - O*NET (US Dept of Labor) — free API for occupation skills, knowledge, abilities
   - ESCO (European Skills/Competences) — open data
   - LinkedIn Skills API (if available)
   - Lightcast (formerly EMSI/Burning Glass) — paid but comprehensive
-- [ ] Build radar chart visualization with real skill data
+- [x] Build radar chart visualization with real skill data
 - [ ] Map member certifications/training to skill categories
 - [ ] Compare member skills vs. job market demand
 - [ ] Recommend courses/certs to fill gaps

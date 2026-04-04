@@ -23,14 +23,15 @@ export default function RecordPlacementPage() {
     setError('');
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/members/${memberId.trim()}/placed-outcome`, {
+      const res = await fetch('/api/admin/placements', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          userId: memberId.trim(),
           employerName,
           jobTitle,
-          startingSalary: startingSalary ? parseInt(startingSalary, 10) : null,
-          placedAt: placedAt ? new Date(placedAt).toISOString() : undefined,
+          salaryOffered: startingSalary ? parseInt(startingSalary, 10) : null,
+          startDate: placedAt || null,
           notes: notes || null,
         }),
       });

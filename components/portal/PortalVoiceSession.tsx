@@ -102,7 +102,7 @@ export default function PortalVoiceSession({
       const res = await fetch(sessionEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: sessionPayload ? JSON.stringify(sessionPayload) : undefined,
+        body: sessionPayload ? JSON.stringify(sessionPayload) : '{}',
       });
       const data = (await res.json()) as { signedUrl?: string; dynamicContext?: string; error?: string };
       if (!res.ok || !data.signedUrl) {
@@ -130,9 +130,12 @@ export default function PortalVoiceSession({
           : {}),
         onConnect: () => setPhase('active'),
         onDisconnect: (details) => {
+          const _reason = (details as { reason?: string })?.reason;
+          const _msg = (details as { message?: string })?.message;
+          console.error('[voice] disconnect:', _reason, _msg);
           if (!intentionalRef.current) {
-            if ((details as { reason?: string })?.reason === 'error') {
-              setVoiceError((details as { message?: string })?.message ?? 'Connection lost');
+            if (_reason === 'error') {
+              setVoiceError(_msg ?? 'Connection lost — please try again.');
             }
           }
           intentionalRef.current = false;

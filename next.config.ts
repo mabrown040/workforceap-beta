@@ -8,6 +8,7 @@ require('./scripts/ensure-prisma-env.cjs');
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  serverExternalPackages: ['pdf-parse', 'mammoth'],
   async headers() {
     return [
       {

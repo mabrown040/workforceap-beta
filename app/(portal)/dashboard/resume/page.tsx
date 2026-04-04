@@ -24,7 +24,7 @@ export default async function DashboardResumePage() {
       resumeEnhancedPath: true,
       user: {
         select: {
-          name: true,
+          fullName: true,
           email: true,
           phone: true,
         },
@@ -33,7 +33,7 @@ export default async function DashboardResumePage() {
   });
 
   const fields = {
-    name: profile?.user?.name ?? '',
+    name: profile?.user?.fullName ?? '',
     email: profile?.user?.email ?? '',
     phone: profile?.user?.phone ?? '',
   };

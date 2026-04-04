@@ -19,6 +19,10 @@ type VoiceErrorContext = {
   closeCode?: number;
   closeReason?: string;
   stage?: string;
+<<<<<<< HEAD
+=======
+  retryingWithoutOverrides?: boolean;
+>>>>>>> origin/master
 };
 
 function stringifyUnknown(value: unknown): string | undefined {
@@ -42,6 +46,10 @@ function formatVoiceRuntimeReason(message?: string, context?: VoiceErrorContext)
   if (context?.closeCode !== undefined && context.closeCode !== null) parts.push(`close=${String(context.closeCode)}`);
   if (context?.closeReason) parts.push(`closeReason=${context.closeReason}`);
   if (context?.stage) parts.push(`stage=${context.stage}`);
+<<<<<<< HEAD
+=======
+  if (context?.retryingWithoutOverrides) parts.push('retry=no-overrides');
+>>>>>>> origin/master
   if (context?.debugMessage) parts.push(`debug=${context.debugMessage}`);
 
   const detailText = stringifyUnknown(context?.details);
@@ -186,6 +194,7 @@ export default function PortalVoiceSession({
       return;
     }
 
+<<<<<<< HEAD
     try {
       const conv = await Conversation.startSession({
         signedUrl,
@@ -227,6 +236,49 @@ export default function PortalVoiceSession({
               transcriptRef.current.push({ speaker: 'agent', text: ev.text });
               onTranscriptChunk?.({ speaker: 'agent', text: ev.text });
             }
+=======
+    async function tryStartConversation(opts: { useOverrides: boolean; stage: string }) {
+      const { useOverrides, stage } = opts;
+      return Conversation.startSession({
+        signedUrl,
+        ...(useOverrides && dynamicCtx
+          ? {
+              overrides: {
+                agent: {
+                  prompt: { prompt: dynamicCtx },
+                },
+              },
+            }
+          : {}),
+        onConnect: () => setPhase('active'),
+        onDisconnect: (details) => {
+          const typed = (details ?? {}) as VoiceDisconnectDetails;
+          console.error('[voice] disconnect:', {
+            stage,
+            reason: typed.reason,
+            message: typed.message,
+            closeCode: typed.closeCode,
+            closeReason: typed.closeReason,
+            contextType: typed.context?.type,
+          });
+          if (!intentionalRef.current && typed.reason === 'error') {
+            setVoiceError(formatDisconnectReason(typed));
+            setPhase('pre');
+          } else {
+            setPhase('done');
+          }
+          intentionalRef.current = false;
+          setAgentSpeaking(false);
+        },
+        onMessage: (event) => {
+          const ev = event as unknown as Record<string, unknown>;
+          if (ev.type === 'agent_response') {
+            setAgentSpeaking(true);
+            if (typeof ev.text === 'string' && ev.text.trim()) {
+              transcriptRef.current.push({ speaker: 'agent', text: ev.text });
+              onTranscriptChunk?.({ speaker: 'agent', text: ev.text });
+            }
+>>>>>>> origin/master
           }
           if (ev.type === 'user_transcript') {
             setAgentSpeaking(false);
@@ -239,12 +291,52 @@ export default function PortalVoiceSession({
         onError: (msg, context) => {
           const errorText = formatVoiceRuntimeReason(String(msg) || 'Connection error', {
             ...(context as VoiceErrorContext | undefined),
+<<<<<<< HEAD
+=======
+            stage,
+            retryingWithoutOverrides: !useOverrides,
+>>>>>>> origin/master
           });
           console.error('[voice] runtime error:', errorText, context);
           setVoiceError(errorText);
           setPhase('pre');
         },
       });
+<<<<<<< HEAD
+=======
+    }
+
+    try {
+      let conv: Conversation | null = null;
+      let firstError: unknown;
+
+      if (dynamicCtx) {
+        try {
+          conv = await tryStartConversation({ useOverrides: true, stage: 'start-with-overrides' });
+        } catch (err) {
+          firstError = err;
+          const fallbackMessage = formatVoiceRuntimeReason(err instanceof Error ? err.message : String(err), {
+            stage: 'start-with-overrides',
+          });
+          console.error('[voice] start failed with overrides, retrying without overrides:', fallbackMessage, err);
+          try {
+            conv = await tryStartConversation({ useOverrides: false, stage: 'retry-without-overrides' });
+          } catch (retryErr) {
+            const retryMessage = formatVoiceRuntimeReason(retryErr instanceof Error ? retryErr.message : String(retryErr), {
+              stage: 'retry-without-overrides',
+              retryingWithoutOverrides: true,
+            });
+            console.error('[voice] retry without overrides failed:', retryMessage, retryErr);
+            const firstMessage = formatVoiceRuntimeReason(firstError instanceof Error ? firstError.message : String(firstError), {
+              stage: 'start-with-overrides',
+            });
+            throw new Error(`${firstMessage} | fallback=${retryMessage}`);
+          }
+        }
+      } else {
+        conv = await tryStartConversation({ useOverrides: false, stage: 'start-no-overrides' });
+      }
+>>>>>>> origin/master
 
       convRef.current = conv;
     } catch (err) {

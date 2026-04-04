@@ -61,7 +61,6 @@ export default async function AdminAuditLogsPage() {
       <PageHeader
         title="Audit Logs"
         subtitle="Compliance registry — 7-day event trail"
-        icon="policy"
       />
 
       {/* Stats row */}

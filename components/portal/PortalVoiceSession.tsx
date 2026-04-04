@@ -97,7 +97,7 @@ export default function PortalVoiceSession({
     }
 
     let signedUrl: string;
-    let promptOverride: string | undefined;
+    let dynamicCtx: string | undefined;
     try {
       const res = await fetch(sessionEndpoint, {
         method: 'POST',
@@ -109,7 +109,7 @@ export default function PortalVoiceSession({
         throw new Error(data.error ?? 'Voice is not available right now.');
       }
       signedUrl = data.signedUrl;
-      promptOverride = typeof data.dynamicContext === 'string' ? data.dynamicContext.trim() || undefined : undefined;
+      dynamicCtx = typeof data.dynamicContext === 'string' ? data.dynamicContext.trim() || undefined : undefined;
     } catch (err) {
       setVoiceError(err instanceof Error ? err.message : 'Could not start session.');
       setPhase('pre');
@@ -119,11 +119,11 @@ export default function PortalVoiceSession({
     try {
       const conv = await Conversation.startSession({
         signedUrl,
-        ...(promptOverride
+        ...(dynamicCtx
           ? {
               overrides: {
                 agent: {
-                  prompt: { prompt: promptOverride },
+                  prompt: { prompt: dynamicCtx },
                 },
               },
             }

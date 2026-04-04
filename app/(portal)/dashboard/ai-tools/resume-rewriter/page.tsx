@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import ResumeRewriterForm from '@/components/portal/tools/ResumeRewriterForm';
+import ResumeRewriterClient from './ResumeRewriterClient';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -77,7 +77,7 @@ export default async function ResumeRewriterPage() {
           </div>
 
           <div className="stitch-card" style={{ padding: '1rem', borderRadius: 12 }}>
-            <ResumeRewriterForm />
+            <ResumeRewriterClient />
           </div>
         </div>
 
@@ -293,8 +293,8 @@ export default async function ResumeRewriterPage() {
             marginBottom: '2rem',
           }}
         >
-          {/* Form component handles split textarea, API calls, output rendering */}
-          <ResumeRewriterForm />
+          {/* Client component handles mode selection, prefill, and form rendering */}
+          <ResumeRewriterClient />
         </div>
 
         {/* ── Bottom: Knowledge Card ── */}

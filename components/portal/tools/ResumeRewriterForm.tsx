@@ -15,8 +15,8 @@ const SALARY_RANGES = [
   '$130,000+',
 ];
 
-export default function ResumeRewriterForm() {
-  const [resume, setResume] = useState('');
+export default function ResumeRewriterForm({ initialResume }: { initialResume?: string } = {}) {
+  const [resume, setResume] = useState(initialResume ?? '');
   const [jobTarget, setJobTarget] = useState('');
   const [targetSalary, setTargetSalary] = useState('');
   const [targetLocation, setTargetLocation] = useState('');

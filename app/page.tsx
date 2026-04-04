@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
 import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import Footer from '@/components/Footer';
-import HomepageTestimonials from '@/components/HomepageTestimonials';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 
@@ -296,9 +295,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* ===== Graduate Testimonials ===== */}
-      <HomepageTestimonials />
 
       {/* ===== Milestone Journey — Horizontal Scrolling Cards ===== */}
       <section style={{ background: 'var(--surface-container-low)', padding: 'clamp(3rem, 6vw, 6rem) 0' }}>

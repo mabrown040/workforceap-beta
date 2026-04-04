@@ -2,6 +2,11 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
+function csvEscape(s: string): string {
+  if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+  return s;
+}
+
 export async function GET() {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -14,7 +19,9 @@ export async function GET() {
 
   const rows = [
     'Certificate Name,Earned Date',
-    ...certs.map((c) => `"${c.certName}","${c.earnedAt.toISOString().split('T')[0]}"`)
+    ...certs.map((c) =>
+      [csvEscape(c.certName), csvEscape(c.earnedAt.toISOString().split('T')[0])].join(',')
+    ),
   ].join('\n');
 
   return new NextResponse(rows, {

@@ -15,6 +15,20 @@ export default function MobileProfileSkillsResume({
   const [error, setError] = useState('');
   const [hasResume, setHasResume] = useState(Boolean(resumeOriginalPath));
   const [fileName, setFileName] = useState(resumeOriginalPath?.split('/').pop() ?? 'resume.pdf');
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [loadingPreview, setLoadingPreview] = useState(false);
+
+  const loadPreview = async () => {
+    setLoadingPreview(true);
+    try {
+      const res = await fetch('/api/member/resume');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.originalUrl) setPreviewUrl(data.originalUrl);
+      }
+    } catch { /* ignore */ }
+    setLoadingPreview(false);
+  };
 
   const handleFile = async (file: File) => {
     setError('');
@@ -43,24 +57,59 @@ export default function MobileProfileSkillsResume({
       </div>
 
       {hasResume ? (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <span className="material-symbols-outlined" style={{ color: '#8c0f37', fontSize: '24px' }}>description</span>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <p className="wa-text-sm wa-font-semibold wa-truncate" style={{ color: '#1c1b1b' }}>
-              {fileName}
-            </p>
-            <p className="wa-text-[10px]" style={{ color: '#584144' }}>Uploaded</p>
+        <>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span className="material-symbols-outlined" style={{ color: '#8c0f37', fontSize: '24px' }}>description</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p className="wa-text-sm wa-font-semibold wa-truncate" style={{ color: '#1c1b1b' }}>
+                {fileName}
+              </p>
+              <p className="wa-text-[10px]" style={{ color: '#584144' }}>Uploaded</p>
+            </div>
+            <button
+              className="wa-text-xs wa-font-bold"
+              style={{ padding: '0.375rem 0.75rem', borderRadius: '9999px', background: '#fff1f2', color: '#8c0f37' }}
+              onClick={() => fileRef.current?.click()}
+              disabled={uploading}
+            >
+              {uploading ? 'Uploading…' : 'Replace'}
+            </button>
+            <input ref={fileRef} type="file" accept=".pdf,.doc,.docx" onChange={onFileChange} style={{ display: 'none' }} />
           </div>
-          <button
-            className="wa-text-xs wa-font-bold"
-            style={{ padding: '0.375rem 0.75rem', borderRadius: '9999px', background: '#fff1f2', color: '#8c0f37' }}
-            onClick={() => fileRef.current?.click()}
-            disabled={uploading}
-          >
-            {uploading ? 'Uploading…' : 'Replace'}
-          </button>
-          <input ref={fileRef} type="file" accept=".pdf,.doc,.docx" onChange={onFileChange} style={{ display: 'none' }} />
-        </div>
+
+          {/* Inline preview toggle */}
+          {!previewUrl && (
+            <button
+              type="button"
+              onClick={loadPreview}
+              disabled={loadingPreview}
+              style={{
+                marginTop: '0.75rem',
+                width: '100%',
+                padding: '0.5rem',
+                borderRadius: '0.5rem',
+                border: '1px solid #debfc2',
+                background: '#fff',
+                color: '#8c0f37',
+                fontWeight: 700,
+                fontSize: '0.8125rem',
+                cursor: loadingPreview ? 'wait' : 'pointer',
+              }}
+            >
+              {loadingPreview ? 'Loading preview…' : '👁 View Resume'}
+            </button>
+          )}
+
+          {previewUrl && (
+            <div style={{ marginTop: '0.75rem', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid #debfc2' }}>
+              <iframe
+                src={previewUrl}
+                title="Resume preview"
+                style={{ width: '100%', height: '500px', border: 'none' }}
+              />
+            </div>
+          )}
+        </>
       ) : (
         <label
           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '1.5rem 0', borderRadius: '0.75rem', border: '2px dashed #debfc2', background: '#f6f3f2', cursor: uploading ? 'wait' : 'pointer', opacity: uploading ? 0.6 : 1 }}

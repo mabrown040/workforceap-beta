@@ -186,134 +186,126 @@ export default function LeadershipContent() {
             </h2>
           </div>
 
-          <div className="leadership-board-bento">
-            {boardMembers.map((leader, idx) => {
-              const colSpan = idx === 0 ? 'span 4' : idx === 1 ? 'span 2' : 'span 6';
-              const isWide = idx === 0 || idx === 2;
-
-              return (
-                <Link
-                  key={leader.slug}
-                  href={`/leadership/${leader.slug}`}
+          <div className="leadership-board-equal">
+            {boardMembers.map((leader) => (
+              <Link
+                key={leader.slug}
+                href={`/leadership/${leader.slug}`}
+                style={{
+                  textDecoration: 'none',
+                  color: 'inherit',
+                }}
+              >
+                <article
+                  className="leadership-board-card leadership-board-card-equal"
                   style={{
-                    gridColumn: colSpan,
-                    textDecoration: 'none',
-                    color: 'inherit',
+                    background: 'var(--surface-container-lowest)',
+                    borderRadius: 'var(--radius-xl, 1rem)',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    textAlign: 'center',
+                    gap: '1rem',
+                    padding: '2rem 1.5rem',
+                    height: '100%',
+                    transition: 'background 0.2s ease, transform 0.2s ease',
+                    cursor: 'pointer',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'var(--surface-container)';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'var(--surface-container-lowest)';
+                    e.currentTarget.style.transform = 'translateY(0)';
                   }}
                 >
-                  <article
-                    className="leadership-board-card"
+                  <div
+                    className="leadership-board-photo"
                     style={{
-                      background: 'var(--surface-container-lowest)',
-                      borderRadius: 'var(--radius-xl, 1rem)',
+                      width: 120,
+                      height: 120,
+                      borderRadius: '50%',
                       overflow: 'hidden',
-                      display: isWide ? 'grid' : 'flex',
-                      gridTemplateColumns: isWide ? 'auto 1fr auto' : undefined,
-                      flexDirection: isWide ? undefined : 'column',
-                      alignItems: isWide ? 'center' : undefined,
-                      gap: isWide ? '2rem' : '1.25rem',
-                      padding: isWide ? '2rem' : '1.75rem',
-                      transition: 'background 0.2s ease, transform 0.2s ease',
-                      cursor: 'pointer',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'var(--surface-container)';
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'var(--surface-container-lowest)';
-                      e.currentTarget.style.transform = 'translateY(0)';
+                      flexShrink: 0,
+                      position: 'relative',
                     }}
                   >
-                    <div
-                      className="leadership-board-photo"
+                    <Image
+                      src={leader.image}
+                      alt={leader.name}
+                      fill
+                      sizes="120px"
                       style={{
-                        width: isWide ? 120 : 72,
-                        height: isWide ? 120 : 72,
-                        borderRadius: '50%',
-                        overflow: 'hidden',
-                        flexShrink: 0,
-                        position: 'relative',
+                        objectFit: 'cover',
+                      }}
+                    />
+                  </div>
+
+                  <div className="leadership-board-body" style={{ flex: 1, minWidth: 0 }}>
+                    <span
+                      className="text-label-upper"
+                      style={{
+                        color: 'var(--color-accent)',
+                        fontSize: '0.65rem',
+                        letterSpacing: '0.1em',
+                        display: 'block',
+                        marginBottom: '0.35rem',
                       }}
                     >
-                      <Image
-                        src={leader.image}
-                        alt={leader.name}
-                        fill
-                        sizes={isWide ? '120px' : '72px'}
-                        style={{
-                          objectFit: 'cover',
-                        }}
-                      />
-                    </div>
-
-                    <div className="leadership-board-body" style={{ flex: 1, minWidth: 0 }}>
-                      <span
-                        className="text-label-upper"
-                        style={{
-                          color: 'var(--color-accent)',
-                          fontSize: '0.6rem',
-                          letterSpacing: '0.1em',
-                          display: 'block',
-                          marginBottom: '0.35rem',
-                        }}
-                      >
-                        {leader.role}
-                      </span>
-                      <h3
-                        style={{
-                          color: 'var(--color-on-surface)',
-                          fontSize: isWide ? '1.25rem' : '1.1rem',
-                          fontWeight: 600,
-                          margin: '0 0 0.35rem',
-                        }}
-                      >
-                        {leader.name}
-                      </h3>
-                      {leader.missionRelevance && isWide && (
-                        <p
-                          className="leader-mission-callout"
-                          style={{
-                            fontSize: '0.78rem',
-                            fontWeight: 500,
-                            marginBottom: '0.5rem',
-                            lineHeight: 1.5,
-                          }}
-                        >
-                          {leader.missionRelevance}
-                        </p>
-                      )}
+                      {leader.role}
+                    </span>
+                    <h3
+                      style={{
+                        color: 'var(--color-on-surface)',
+                        fontSize: '1.2rem',
+                        fontWeight: 600,
+                        margin: '0 0 0.5rem',
+                      }}
+                    >
+                      {leader.name}
+                    </h3>
+                    {leader.missionRelevance && (
                       <p
+                        className="leader-mission-callout"
                         style={{
-                          color: 'var(--color-on-surface-variant)',
-                          fontSize: '0.83rem',
-                          lineHeight: 1.6,
-                          margin: 0,
-                          display: '-webkit-box',
-                          WebkitLineClamp: isWide ? 4 : 3,
-                          WebkitBoxOrient: 'vertical' as const,
-                          overflow: 'hidden',
+                          fontSize: '0.78rem',
+                          fontWeight: 500,
+                          marginBottom: '0.5rem',
+                          lineHeight: 1.5,
+                          textAlign: 'left',
                         }}
                       >
-                        {leader.cardBio}
+                        {leader.missionRelevance}
                       </p>
-                    </div>
-
-                    <span
-                      className="material-symbols-outlined"
+                    )}
+                    <p
                       style={{
                         color: 'var(--color-on-surface-variant)',
-                        opacity: 0.4,
-                        fontSize: '1.25rem',
-                        alignSelf: isWide ? 'center' : 'flex-end',
+                        fontSize: '0.88rem',
+                        lineHeight: 1.6,
+                        margin: 0,
+                        textAlign: 'left',
                       }}
                     >
-                      arrow_forward
-                    </span>
-                  </article>
-                </Link>
-              );
-            })}
+                      {leader.cardBio}
+                    </p>
+                  </div>
+
+                  <span
+                    className="material-symbols-outlined"
+                    style={{
+                      color: 'var(--color-accent)',
+                      opacity: 0.7,
+                      fontSize: '1.25rem',
+                    }}
+                  >
+                    arrow_forward
+                  </span>
+                </article>
+              </Link>
+            ))}
           </div>
         </div>
       </section>

@@ -145,15 +145,35 @@ function QuizResultsView({
   const topOcc = careerMatch?.topOccupations[0];
   return (
     <div className="quiz-results">
-      {/* Prominent retake banner for users with existing results */}
+      {/* Sticky retake strip — stays visible while scrolling (feedback: button was easy to miss at bottom) */}
       {isPrevious && onRetake && (
-        <div style={{ background: 'var(--color-light)', border: '1px solid var(--color-gray-200)', borderRadius: '0.75rem', padding: '1.25rem 1.5rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+        <div
+          className="fyp-retake-sticky"
+          style={{
+            position: 'sticky',
+            top: 'calc(var(--main-nav-layout-height, 72px) + 0.5rem)',
+            zIndex: 20,
+            background: 'var(--surface-container-high, var(--color-light))',
+            border: '2px solid var(--color-accent)',
+            borderRadius: '0.75rem',
+            padding: '1rem 1.25rem',
+            marginBottom: '1.5rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '1rem',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+          }}
+        >
           <div>
-            <p style={{ fontWeight: 700, margin: 0, fontSize: '1rem' }}>You've already completed your career assessment!</p>
-            <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>Your results are below. Want to try again?</p>
+            <p style={{ fontWeight: 700, margin: 0, fontSize: '1.05rem' }}>Assessment on file</p>
+            <p style={{ margin: '0.25rem 0 0', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
+              Your results are below — retake anytime to refresh your matches.
+            </p>
           </div>
-          <button onClick={onRetake} className="btn btn-accent" style={{ flexShrink: 0 }}>
-            Retake Assessment
+          <button type="button" onClick={onRetake} className="btn btn-primary" style={{ flexShrink: 0, fontWeight: 700 }}>
+            Retake assessment
           </button>
         </div>
       )}

@@ -30,6 +30,7 @@ Open `http://localhost:3000` in a browser.
 - `next.config.ts` — Next.js configuration including redirects for old `.html` URLs
 - `Caddyfile` — production reverse-proxy config
 - `DEPLOY.md` — production deployment instructions
+- `docs/COMPLETED-WORK-LOG.md` — shipped tasks (backlog hygiene: `docs/BACKLOG-MAINTENANCE.md`)
 
 ### Lint / Test / Build
 

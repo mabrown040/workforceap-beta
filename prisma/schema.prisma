@@ -75,6 +75,8 @@ model User {
   needsComputerSupportFollowUp Boolean   @default(false) @map("needs_computer_support_follow_up")
   /// O*NET-backed quiz snapshot for dashboard / consistency (JSON CareerMatchResult shape).
   careerRecommendationJson    Json?     @map("career_recommendation_json")
+  /// Admin pipeline board column; when null, stage is derived from enrollment, courses, certs, placement.
+  pipelineBoardStage   PipelineBoardStage? @map("pipeline_board_stage")
 
   organization         Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   profile              Profile?
@@ -110,6 +112,8 @@ model User {
   jobPostingApplications JobPostingApplication[]
   aiJobMatches       AIJobMatch[]
   jobsApproved       Job[]            @relation("JobApprover")
+  programChangeRequests ProgramChangeRequest[]
+  programChangeReviews ProgramChangeRequest[] @relation("ProgramChangeReviewer")
   partnerOutreachAbout    PartnerOutreachLog[] @relation("PartnerOutreachMember")
   partnerOutreachAuthored   PartnerOutreachLog[] @relation("PartnerOutreachAuthor")
   assignedPartnerReferrals  PartnerReferral[]    @relation("PartnerReferralAssignee")
@@ -300,13 +304,17 @@ model JobApplication {
   nextInterviewDate DateTime?     @map("next_interview_date")
   notes       String?             @db.Text
   url         String?
+  /// When set, this row is linked to a curated employer job on the member job board.
+  curatedJobId String?            @map("curated_job_id")
   createdAt   DateTime            @default(now()) @map("created_at")
   updatedAt   DateTime            @updatedAt @map("updated_at")
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  curatedJob Job? @relation(fields: [curatedJobId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([status])
+  @@index([curatedJobId])
   @@map("job_applications")
 }
 
@@ -346,6 +354,47 @@ enum BenefitRequestStatus {
   PENDING
   APPROVED
   DENIED
+}
+
+/// Member-initiated request to switch enrollment program (counselor/admin review).
+model ProgramChangeRequest {
+  id                   String                  @id @default(uuid())
+  userId               String                  @map("user_id")
+  currentProgramSlug   String?                 @map("current_program_slug")
+  requestedProgramSlug String                  @map("requested_program_slug")
+  reason               String                  @db.Text
+  status               ProgramChangeRequestStatus @default(PENDING)
+  adminNote            String?                 @map("admin_note") @db.Text
+  reviewedById         String?                 @map("reviewed_by_id")
+  reviewedAt           DateTime?               @map("reviewed_at")
+  createdAt            DateTime                @default(now()) @map("created_at")
+  updatedAt            DateTime                @updatedAt @map("updated_at")
+
+  user       User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reviewedBy User? @relation("ProgramChangeReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@map("program_change_requests")
+}
+
+enum ProgramChangeRequestStatus {
+  PENDING
+  APPROVED
+  DENIED
+  CANCELLED
+}
+
+/// Columns on /admin/pipeline kanban (manual position; null = data-driven stage).
+enum PipelineBoardStage {
+  applied
+  enrolled
+  in_training
+  certified
+  job_searching
+  placed
+
+  @@map("pipeline_board_stage")
 }
 
 model LearningProgress {
@@ -1061,6 +1110,7 @@ model Job {
   approvedBy User?      @relation("JobApprover", fields: [approvedById], references: [id], onDelete: SetNull)
   applications JobPostingApplication[]
   aiMatches  AIJobMatch[]
+  memberTrackerRows JobApplication[]
 
   @@index([employerId])
   @@index([organizationId])

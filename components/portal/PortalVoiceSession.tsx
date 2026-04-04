@@ -14,6 +14,8 @@ export type ResumeSuggestion = {
 export type PortalVoiceSessionProps = {
   /** POST endpoint that returns `{ signedUrl: string }` */
   sessionEndpoint: string;
+  /** JSON body for POST (e.g. role + interview type). Omit for empty body. */
+  sessionPayload?: Record<string, unknown>;
   title: string;
   description: string;
   accent?: string;
@@ -24,6 +26,8 @@ export type PortalVoiceSessionProps = {
   suggestionsEndpoint?: string;
   /** Called when user accepts a suggestion */
   onAcceptSuggestion?: (s: ResumeSuggestion) => void;
+  /** Fired when a new transcript line is captured (for live coaching UI) */
+  onTranscriptChunk?: (chunk: { speaker: 'agent' | 'user'; text: string }) => void;
 };
 
 const PULSE_STYLE = `
@@ -34,6 +38,7 @@ const PULSE_STYLE = `
 
 export default function PortalVoiceSession({
   sessionEndpoint,
+  sessionPayload,
   title,
   description,
   accent = '#8c0f37',
@@ -42,6 +47,7 @@ export default function PortalVoiceSession({
   listeningLabel = 'Listening — speak when ready',
   suggestionsEndpoint,
   onAcceptSuggestion,
+  onTranscriptChunk,
 }: PortalVoiceSessionProps) {
   const [phase, setPhase] = useState<Phase>('pre');
   const [voiceError, setVoiceError] = useState('');
@@ -82,7 +88,11 @@ export default function PortalVoiceSession({
 
     let signedUrl: string;
     try {
-      const res = await fetch(sessionEndpoint, { method: 'POST' });
+      const res = await fetch(sessionEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: sessionPayload ? JSON.stringify(sessionPayload) : undefined,
+      });
       const data = (await res.json()) as { signedUrl?: string; error?: string };
       if (!res.ok || !data.signedUrl) {
         throw new Error(data.error ?? 'Voice is not available right now.');
@@ -114,12 +124,14 @@ export default function PortalVoiceSession({
             setAgentSpeaking(true);
             if (typeof ev.text === 'string' && ev.text.trim()) {
               transcriptRef.current.push({ speaker: 'agent', text: ev.text });
+              onTranscriptChunk?.({ speaker: 'agent', text: ev.text });
             }
           }
           if (ev.type === 'user_transcript') {
             setAgentSpeaking(false);
             if (typeof ev.text === 'string' && ev.text.trim()) {
               transcriptRef.current.push({ speaker: 'user', text: ev.text });
+              onTranscriptChunk?.({ speaker: 'user', text: ev.text });
             }
           }
         },

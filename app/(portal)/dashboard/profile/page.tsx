@@ -12,8 +12,6 @@ import DeleteAccountButton from '@/components/portal/DeleteAccountButton';
 import StartTourButton from '@/components/onboarding/StartTourButton';
 import ResumeClient from '@/app/(portal)/dashboard/resume/ResumeClient';
 import ResumeCoachWorkspace from '@/components/portal/ResumeCoachWorkspace';
-import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
-import ResumeRewriterForm from '@/components/portal/tools/ResumeRewriterForm';
 import { getProfileCompleteness } from '@/lib/resume/profileCompleteness';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
@@ -192,25 +190,9 @@ export default async function DashboardProfilePage() {
           </a>
         </div>
 
-        {/* Voice resume coach */}
-        <div className="wa-mx-6 wa-mb-4 wa-bg-[#fcf9f8] wa-p-5 wa-rounded-xl wa-border border-[#debfc2]/30">
-          <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#584144] wa-mb-4">Resume Coach (Voice)</h3>
-          <PortalVoiceSession
-            sessionEndpoint="/api/member/resume-coach/session"
-            suggestionsEndpoint="/api/member/resume-coach/parse-suggestions"
-            title="Talk through your resume"
-            description="Practice your pitch, discuss experience bullets, or get advice on framing your background."
-            accent="#2563eb"
-            accentDark="#1d4ed8"
-            speakingLabel="Coach is speaking…"
-            listeningLabel="Listening — describe your background"
-          />
-        </div>
-
-        {/* Live text edits */}
-        <div className="wa-mx-6 wa-mb-4 wa-bg-[#fcf9f8] wa-p-5 wa-rounded-xl wa-border border-[#debfc2]/30">
-          <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#584144] wa-mb-4">Live Resume Edits</h3>
-          <ResumeRewriterForm />
+        {/* Voice coach + rewriter (Accept pushes into editor — same as desktop) */}
+        <div className="wa-mx-6 wa-mb-4">
+          <ResumeCoachWorkspace />
         </div>
 
         {/* Account + settings card */}

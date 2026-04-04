@@ -8,7 +8,15 @@ interface JobApplicationKanbanProps {
   onStatusChange: (id: string, updates: Partial<JobApplication>) => void;
 }
 
-const STATUSES: JobApplicationStatus[] = ['APPLIED', 'PHONE_SCREEN', 'INTERVIEWING', 'OFFER'];
+/** Full pipeline including saved leads and rejections (curated board "track only" lands in Saved). */
+const STATUSES: JobApplicationStatus[] = [
+  'SAVED',
+  'APPLIED',
+  'PHONE_SCREEN',
+  'INTERVIEWING',
+  'OFFER',
+  'REJECTED',
+];
 
 const STATUS_LABELS: Record<JobApplicationStatus, string> = {
   APPLIED: 'Applied',
@@ -24,7 +32,7 @@ const STATUS_COLORS: Record<JobApplicationStatus, { bg: string; badge: string; t
   PHONE_SCREEN: { bg: 'bg-blue-50', badge: 'bg-blue-100 text-blue-700', text: 'text-blue-600' },
   INTERVIEWING: { bg: 'bg-amber-50', badge: 'bg-amber-100 text-amber-700', text: 'text-amber-600' },
   OFFER: { bg: 'bg-green-50', badge: 'bg-green-100 text-green-700', text: 'text-green-600' },
-  SAVED: { bg: 'bg-gray-50', badge: 'bg-gray-100 text-gray-700', text: 'text-gray-600' },
+  SAVED: { bg: 'bg-slate-50', badge: 'bg-slate-200 text-slate-800', text: 'text-slate-600' },
   REJECTED: { bg: 'bg-red-50', badge: 'bg-red-100 text-red-700', text: 'text-red-600' },
 };
 
@@ -41,7 +49,7 @@ export default function JobApplicationKanban({
   );
 
   return (
-    <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 lg:wa-grid-cols-4 wa-gap-4">
+    <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 lg:wa-grid-cols-3 xl:wa-grid-cols-6 wa-gap-4">
       {STATUSES.map(status => (
         <div key={status} className={`${STATUS_COLORS[status].bg} wa-rounded-lg wa-p-4 wa-min-h-[500px]`}>
           {/* Column Header */}

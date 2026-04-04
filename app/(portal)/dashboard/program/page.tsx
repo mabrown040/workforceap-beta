@@ -9,6 +9,7 @@ import { getActivePrograms } from '@/lib/platform/programCatalog';
 import ProgramPicker from '@/components/portal/ProgramPicker';
 import { ProgramIcon } from '@/components/ProgramIcon';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import ProgramChangeRequestPanel from '@/components/portal/ProgramChangeRequestPanel';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'My Program',
@@ -112,6 +113,11 @@ export default async function ProgramPage() {
           Go to Training
         </Link>
       </div>
+
+      <ProgramChangeRequestPanel
+        currentSlug={enrolledSlug}
+        alternatives={pickerPrograms.length ? pickerPrograms : PROGRAMS}
+      />
     </>
   );
 }

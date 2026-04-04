@@ -38,12 +38,24 @@ export async function GET() {
       }
     }
 
+    const extOf = (p: string | null | undefined) => {
+      if (!p) return null;
+      const base = p.split('/').pop() ?? '';
+      const i = base.lastIndexOf('.');
+      return i >= 0 ? base.slice(i + 1).toLowerCase() : null;
+    };
+
     return NextResponse.json({
       hasOriginal: !!originalPath,
       hasEnhanced: !!enhancedPath,
       originalUrl,
       enhancedUrl,
       enhancedText,
+      originalExt: extOf(originalPath),
+      enhancedExt: extOf(enhancedPath),
+      /** Same-origin URL for inline iframe preview (PDF/DOC). */
+      previewOriginalPath: originalPath ? '/api/member/resume/preview?variant=original' : null,
+      previewEnhancedPath: enhancedPath ? '/api/member/resume/preview?variant=enhanced' : null,
     });
   } catch (err) {
     console.error('[member/resume] error:', err);

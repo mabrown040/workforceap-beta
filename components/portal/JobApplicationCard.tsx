@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { JobApplication, JobApplicationStatus } from '@prisma/client';
 
 interface JobApplicationCardProps {
@@ -98,8 +99,30 @@ export default function JobApplicationCard({
       onClick={() => setIsEditing(true)}
       className="wa-bg-white wa-border wa-rounded-lg wa-p-3 wa-cursor-pointer hover:wa-shadow-md wa-transition-shadow"
     >
-      <h4 className="wa-font-bold wa-text-sm wa-text-gray-900">{application.role}</h4>
+      <div className="wa-flex wa-items-start wa-justify-between wa-gap-2 wa-mb-1">
+        <h4 className="wa-font-bold wa-text-sm wa-text-gray-900">{application.role}</h4>
+        {application.curatedJobId && (
+          <span
+            className="wa-shrink-0 wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-wide wa-px-2 wa-py-0.5 wa-rounded wa-bg-amber-100 wa-text-amber-900"
+            title="From WorkforceAP Job Board"
+          >
+            Board
+          </span>
+        )}
+      </div>
       <p className="wa-text-xs wa-text-gray-600 wa-mb-2">{application.company}</p>
+
+      {application.curatedJobId && application.url && (
+        <p className="wa-text-xs wa-mb-2">
+          <Link
+            href={application.url}
+            className="wa-text-[#8c0f37] wa-font-medium hover:wa-underline"
+            onClick={(e) => e.stopPropagation()}
+          >
+            View job posting →
+          </Link>
+        </p>
+      )}
 
       {application.appliedAt && (
         <p className="wa-text-xs wa-text-gray-500 wa-mb-1">

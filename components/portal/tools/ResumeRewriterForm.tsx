@@ -16,8 +16,26 @@ const SALARY_RANGES = [
   '$130,000+',
 ];
 
-export default function ResumeRewriterForm({ initialResume }: { initialResume?: string } = {}) {
-  const [resume, setResume] = useState(initialResume ?? '');
+type ResumeRewriterFormProps = {
+  initialResume?: string;
+  /** When set with onResumeChange, the resume field is controlled (e.g. profile coach Accept → append). */
+  resumeControlled?: string;
+  onResumeChange?: (value: string) => void;
+};
+
+export default function ResumeRewriterForm({
+  initialResume,
+  resumeControlled,
+  onResumeChange,
+}: ResumeRewriterFormProps = {}) {
+  const [internalResume, setInternalResume] = useState(initialResume ?? '');
+  const isControlled = onResumeChange != null;
+  const resume = isControlled ? (resumeControlled ?? '') : internalResume;
+
+  const setResume = (value: string) => {
+    if (isControlled) onResumeChange(value);
+    else setInternalResume(value);
+  };
   const [jobTarget, setJobTarget] = useState('');
   const [targetSalary, setTargetSalary] = useState('');
   const [targetLocation, setTargetLocation] = useState('');

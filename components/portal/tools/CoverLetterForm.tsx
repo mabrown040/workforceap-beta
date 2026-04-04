@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumePlainText';
 import ExportPdfButton from './ExportPdfButton';
 
 export default function CoverLetterForm() {
@@ -16,6 +17,8 @@ export default function CoverLetterForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { copy, copied } = useCopyToClipboard();
+
+  useHydrateMemberResumePlainText(setResume);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -200,6 +200,7 @@ export default async function DashboardPage() {
 
   const AI_TOOL_LABELS: Record<string, string> = {
     job_match_scorer: 'Job Match Scorer',
+    resume_analysis: 'Resume Analysis',
     resume_rewriter: 'Resume Rewriter',
     cover_letter: 'Cover Letter',
     interview_practice: 'Interview Practice',

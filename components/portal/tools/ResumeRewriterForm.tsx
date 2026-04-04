@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
@@ -36,6 +36,32 @@ export default function ResumeRewriterForm({
     if (isControlled) onResumeChange(value);
     else setInternalResume(value);
   };
+
+  const onResumeChangeRef = useRef(onResumeChange);
+  const resumeControlledRef = useRef(resumeControlled);
+  onResumeChangeRef.current = onResumeChange;
+  resumeControlledRef.current = resumeControlled;
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/member/resume?includePlainText=1')
+      .then((r) => r.json())
+      .then((d: { resumePlainText?: string | null }) => {
+        if (cancelled) return;
+        const t = d.resumePlainText?.trim();
+        if (!t) return;
+        if (onResumeChangeRef.current) {
+          if (!(resumeControlledRef.current ?? '').trim()) onResumeChangeRef.current(t);
+        } else {
+          setInternalResume((prev) => (prev.trim() ? prev : t));
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const [jobTarget, setJobTarget] = useState('');
   const [targetSalary, setTargetSalary] = useState('');
   const [targetLocation, setTargetLocation] = useState('');

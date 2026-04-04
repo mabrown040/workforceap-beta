@@ -9,6 +9,7 @@ import CertificationReferenceSection from '@/components/portal/CertificationRefe
 import MobileBottomNav from '@/components/MobileBottomNav';
 import {
   CertificationEarnedRowMobile,
+  CertificationDownloadOneButton,
   DownloadAllCertificatesButton,
   CertificationViewButton,
 } from '@/components/portal/CertificationVaultActions';
@@ -496,15 +497,22 @@ export default async function DashboardCertificationsPage() {
                       }}
                     >
                       <span style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>{c.certName}</span>
-                      <CertificationViewButton
-                        certName={c.certName}
-                        earnedAtLabel={c.earnedAt.toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric',
-                        })}
-                        variant="desktop"
-                      />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                        <CertificationDownloadOneButton
+                          certName={c.certName}
+                          earnedAtIso={c.earnedAt.toISOString()}
+                          variant="icon"
+                        />
+                        <CertificationViewButton
+                          certName={c.certName}
+                          earnedAtLabel={c.earnedAt.toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                          })}
+                          variant="desktop"
+                        />
+                      </div>
                     </li>
                   ))}
                 </ul>

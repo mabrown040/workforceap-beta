@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { trackAIToolRun, trackToolLaunch } from '@/lib/analytics/events';
+import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumePlainText';
 import ResumeAnalysisPanel from './ResumeAnalysisPanel';
 
 export default function JobMatchScorerForm() {
@@ -15,6 +16,8 @@ export default function JobMatchScorerForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const [showFloating, setShowFloating] = useState(false);
+
+  useHydrateMemberResumePlainText(setResume);
 
   const canSubmit = resume.trim().length > 0 && jobDescription.trim().length > 0 && !loading;
 

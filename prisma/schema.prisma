@@ -612,6 +612,7 @@ enum AIToolType {
   linkedin_headline
   linkedin_about
   job_match_scorer
+  resume_analysis
   salary_negotiation
   gap_analyzer
   career_counselor

@@ -38,6 +38,16 @@ const TOOLS = [
     exampleText: '"Managed team" becomes "Led cross-functional team of 12, delivering $2.4M project 3 weeks ahead of schedule"',
   },
   {
+    id: 'resume-analysis',
+    title: 'Resume Analysis',
+    icon: 'analytics',
+    description:
+      'Standalone AI review: overall strength, what is working, priority improvements, and quick wins — no job posting required.',
+    timeToComplete: '3-5 min',
+    status: 'available' as const,
+    href: '/dashboard/ai-tools/resume-analysis',
+  },
+  {
     id: 'interview-coach',
     title: 'AI Interview Coach',
     icon: 'smart_toy',

@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
+import { claudeChat, isAnthropicConfigured } from '@/lib/ai/anthropicChat';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 
@@ -113,7 +114,16 @@ export async function POST(request: Request) {
     `Program category: ${program?.categoryLabel ?? 'N/A'}`,
   ].join('\n');
 
-  const systemPrompt = `You are a professional resume writer for career changers. Write an ATS-friendly resume based on the following profile and any existing resume provided. Add a professional summary, use action verbs, include a certification objective. Keep to 1 page. Return the resume as markdown.`;
+  const systemPrompt = `You are an expert resume writer and career coach. Your job is to enhance and rewrite a member's existing resume to be more compelling for their target career.
+
+Key rules:
+- ONLY use information that exists in the provided resume and profile. Do NOT invent experiences, companies, degrees, or skills that aren't mentioned.
+- Keep all real job titles, company names, and dates exactly as provided
+- Strengthen the language: use stronger action verbs, quantify achievements where possible
+- Add an ATS-friendly professional summary based on their actual experience
+- Organize sections clearly: Summary, Experience, Skills, Education, Certifications
+- Format as clean markdown that renders well
+- Do NOT add fictional education (e.g., "XYZ University") if education is not in their profile`;
 
   const userContent = resumeText
     ? `Base resume to improve:\n\n${resumeText}\n\n---\nProfile context:\n${context}`
@@ -135,10 +145,16 @@ export async function POST(request: Request) {
   try {
     let output = '';
     let fallbackUsed = false;
-    if (!isAIConfigured()) {
-      fallbackUsed = true;
-      output = fallbackResume;
-    } else {
+
+    if (isAnthropicConfigured()) {
+      const aiOutput = await claudeChat(systemPrompt, userContent, { maxTokens: 2000 });
+      if (aiOutput) {
+        output = aiOutput;
+      } else {
+        fallbackUsed = true;
+        output = fallbackResume;
+      }
+    } else if (isAIConfigured()) {
       const { success } = await checkAIToolRateLimit(user.id);
       if (!success) {
         fallbackUsed = true;
@@ -158,6 +174,9 @@ export async function POST(request: Request) {
           output = aiOutput;
         }
       }
+    } else {
+      fallbackUsed = true;
+      output = fallbackResume;
     }
 
     const supabase = getSupabaseAdmin();

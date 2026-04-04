@@ -28,6 +28,16 @@
         display: block !important;
     }
 }
+
+/* Touch target minimum 44x44 for icon-only and small buttons */
+@media (max-width: 768px) {
+    .btn-sm,
+    .btn-icon,
+    button[aria-label] {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
 @media (min-width: 769px) {
     .dashboard-menu-btn {
         display: none !important;

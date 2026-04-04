@@ -32,7 +32,7 @@ export default async function LearningPage() {
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
-    select: { enrolledProgram: true, assessmentCompleted: true },
+    select: { enrolledProgram: true },
   });
   const isEnrolled = !!dbUser?.enrolledProgram;
 
@@ -67,7 +67,7 @@ export default async function LearningPage() {
                 cx="40" cy="40" r="32" fill="transparent"
                 stroke="var(--color-gold)" strokeWidth="5"
                 strokeDasharray="201"
-                strokeDashoffset={isEnrolled ? 201 * 0.1 : 201}
+                strokeDashoffset={isEnrolled ? 201 - 201 * 0.1 : 201}
                 strokeLinecap="round"
               />
             </svg>

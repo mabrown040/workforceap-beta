@@ -106,7 +106,7 @@ export default async function HomePage() {
             <Link href="/find-your-path" className="btn btn-primary btn-large" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.25rem)' }}>
               Find Your Career
             </Link>
-            <Link href="/partners" className="btn btn-secondary btn-large home-hero-outline-cta" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.2rem)' }}>
+            <Link href="/partners" className="btn btn-outline btn-large home-hero-outline-cta" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.2rem)' }}>
               Partner With Us
             </Link>
             <ExperimentedCtaLink
@@ -115,14 +115,14 @@ export default async function HomePage() {
                 {
                   id: 'control',
                   label: 'Apply Now — Free',
-                  className: 'btn btn-outline btn-large',
+                  className: 'btn btn-outline btn-large home-hero-outline-cta',
                   href: '/apply',
                   style: { fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.15rem)' },
                 },
                 {
                   id: 'urgency',
                   label: 'Start Your Application',
-                  className: 'btn btn-outline btn-large',
+                  className: 'btn btn-outline btn-large home-hero-outline-cta',
                   href: '/apply',
                   style: { fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.15rem)' },
                 },

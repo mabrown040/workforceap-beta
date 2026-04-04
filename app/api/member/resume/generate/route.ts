@@ -5,6 +5,7 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
+import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 
 const BUCKET = 'member-resumes';
 
@@ -90,29 +91,12 @@ export async function POST(request: Request) {
 
   // Try to extract text from the uploaded original resume
   let resumeText = body.resumeBase?.trim() || '';
-  if (!resumeText && profile?.resumeOriginalPath) {
+  if (!resumeText) {
     try {
-      const supabaseRead = getSupabaseAdmin();
-      const { data: fileData } = await supabaseRead.storage.from(BUCKET).download(profile.resumeOriginalPath);
-      if (fileData) {
-        const ext = profile.resumeOriginalPath.split('.').pop()?.toLowerCase();
-        if (ext === 'pdf') {
-          // Extract text from PDF — read as text (works for text-based PDFs)
-          const rawText = await fileData.text();
-          // Clean up PDF binary artifacts — keep only printable text
-          resumeText = rawText
-            .replace(/[^\x20-\x7E\n\r\t]/g, ' ')
-            .replace(/\s{3,}/g, '\n')
-            .trim()
-            .slice(0, 6000);
-        } else {
-          // DOC/DOCX — extract as text
-          resumeText = (await fileData.text()).slice(0, 6000);
-        }
-      }
+      const extracted = await getMemberResumePlainText(user.id, 6000);
+      resumeText = extracted ?? '';
     } catch (err) {
-      console.error('Failed to read original resume from storage:', err);
-      // Continue without resume text — will generate from profile
+      console.error('Failed to extract resume text:', err);
     }
   }
 

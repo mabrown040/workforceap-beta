@@ -8436,6 +8436,9 @@ html.dark .portal-nav {
     backdrop-filter: blur(2px);
     display: block;
 }
+body:has(.workspace-drawer-overlay.open) {
+    overflow: hidden;
+}
 .workspace-shell-body {
     display: flex;
     flex: 1;
@@ -10127,6 +10130,9 @@ html.dark .blog-post-article {
 }
 .dashboard-drawer-overlay.open {
     opacity: 1;
+}
+body:has(.dashboard-drawer-overlay.open) {
+    overflow: hidden;
 }
 @media (max-width: 768px) {
     .dashboard-drawer-overlay { display: block; pointer-events: none; }

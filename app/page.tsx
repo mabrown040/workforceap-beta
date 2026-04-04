@@ -187,38 +187,13 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* For Employers — center card elevated */}
+            {/* For Partners — center card elevated */}
             <div className="stitch-card home-employer-elevated" style={{
               background: 'var(--surface-container-lowest)', padding: '2rem',
               border: '2px solid var(--color-accent)',
               transform: 'translateY(-1rem)',
               boxShadow: '0 8px 32px rgba(173,44,77,0.15)',
             }}>
-              <div style={{ width: '3rem', height: '3rem', background: 'rgba(255,187,0,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-gold)', marginBottom: '1.5rem' }}>
-                <span className="material-symbols-outlined">business</span>
-              </div>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Employers</h3>
-              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }}>check_circle</span>
-                  Vetted talent ready for work
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }}>check_circle</span>
-                  Customized curriculum options
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }}>check_circle</span>
-                  Structured hiring introductions when it fits your process
-                </li>
-              </ul>
-              <div style={{ marginTop: '1.5rem' }}>
-                <Link href="/employers" className="btn btn-primary btn-small">Employer Overview</Link>
-              </div>
-            </div>
-
-            {/* For Partners */}
-            <div className="stitch-card" style={{ background: 'var(--surface-container-lowest)', padding: '2rem' }}>
               <div style={{ width: '3rem', height: '3rem', background: 'rgba(200,198,197,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c8c6c5', marginBottom: '1.5rem' }}>
                 <span className="material-symbols-outlined">handshake</span>
               </div>
@@ -239,6 +214,31 @@ export default async function HomePage() {
               </ul>
               <div style={{ marginTop: '1.5rem' }}>
                 <Link href="/partners" className="btn btn-primary btn-small">Partner With Us</Link>
+              </div>
+            </div>
+
+            {/* For Employers */}
+            <div className="stitch-card" style={{ background: 'var(--surface-container-lowest)', padding: '2rem' }}>
+              <div style={{ width: '3rem', height: '3rem', background: 'rgba(255,187,0,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-gold)', marginBottom: '1.5rem' }}>
+                <span className="material-symbols-outlined">business</span>
+              </div>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Employers</h3>
+              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }}>check_circle</span>
+                  Vetted talent ready for work
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }}>check_circle</span>
+                  Customized curriculum options
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }}>check_circle</span>
+                  Structured hiring introductions when it fits your process
+                </li>
+              </ul>
+              <div style={{ marginTop: '1.5rem' }}>
+                <Link href="/employers" className="btn btn-primary btn-small">Employer Overview</Link>
               </div>
             </div>
           </div>

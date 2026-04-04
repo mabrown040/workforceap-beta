@@ -14,15 +14,12 @@ export async function claudeChat(
   opts?: { maxTokens?: number; temperature?: number }
 ): Promise<string | null> {
   if (!client) return null;
-
   const msg = await client.messages.create({
     model: 'claude-haiku-4-5',
     max_tokens: opts?.maxTokens ?? 2000,
-    temperature: opts?.temperature,
     system: systemPrompt,
     messages: [{ role: 'user', content: userContent }],
   });
-
   const block = msg.content[0];
-  return block?.type === 'text' ? block.text : null;
+  return block.type === 'text' ? block.text : null;
 }

@@ -145,7 +145,6 @@ Key rules:
   try {
     let output = '';
     let fallbackUsed = false;
-
     if (isAnthropicConfigured()) {
       const aiOutput = await claudeChat(systemPrompt, userContent, { maxTokens: 2000 });
       if (aiOutput) {

@@ -73,10 +73,10 @@ export async function POST(req: NextRequest) {
 
   try {
     const dynamicContext = await getResumeCoachDynamicContext(user.id, { liveResumeDraft });
-    const { signedUrl, expiresAt } = await startElevenLabsPortalSession('resume_coach', {
+    const { signedUrl, expiresAt, dynamicContext: ctx } = await startElevenLabsPortalSession('resume_coach', {
       dynamicContext: dynamicContext || undefined,
     });
-    return NextResponse.json({ signedUrl, expiresAt });
+    return NextResponse.json({ signedUrl, expiresAt, dynamicContext: ctx });
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Failed to start session';
     console.error('[member/resume-coach/session]', msg);

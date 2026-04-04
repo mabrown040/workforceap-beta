@@ -97,17 +97,19 @@ export default function PortalVoiceSession({
     }
 
     let signedUrl: string;
+    let dynamicCtx: string | undefined;
     try {
       const res = await fetch(sessionEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: sessionPayload ? JSON.stringify(sessionPayload) : undefined,
       });
-      const data = (await res.json()) as { signedUrl?: string; error?: string };
+      const data = (await res.json()) as { signedUrl?: string; error?: string; dynamicContext?: string };
       if (!res.ok || !data.signedUrl) {
         throw new Error(data.error ?? 'Voice is not available right now.');
       }
       signedUrl = data.signedUrl;
+      dynamicCtx = data.dynamicContext;
     } catch (err) {
       setVoiceError(err instanceof Error ? err.message : 'Could not start session.');
       setPhase('pre');
@@ -117,6 +119,15 @@ export default function PortalVoiceSession({
     try {
       const conv = await Conversation.startSession({
         signedUrl,
+        ...(dynamicCtx ? {
+          overrides: {
+            agent: {
+              prompt: {
+                prompt: dynamicCtx,
+              },
+            },
+          },
+        } : {}),
         onConnect: () => setPhase('active'),
         onDisconnect: (details) => {
           if (!intentionalRef.current) {

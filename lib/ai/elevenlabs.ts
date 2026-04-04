@@ -116,6 +116,7 @@ export async function createConversationalSession(
 ): Promise<{
   signedUrl: string;
   expiresAt?: string;
+  dynamicContext?: string;
 }> {
   const apiKey = process.env.ELEVENLABS_API_KEY;
   if (!apiKey) {
@@ -140,22 +141,12 @@ export async function createConversationalSession(
     throw new Error('ElevenLabs did not return signed_url');
   }
 
-  let signedUrl = data.signed_url;
-
-  // Append dynamic context as a custom_llm_extra_body param if provided
-  // ElevenLabs WebSocket accepts agent_overrides on connect
-  if (options?.dynamicContext) {
-    const sep = signedUrl.includes('?') ? '&' : '?';
-    signedUrl = `${signedUrl}${sep}agent_overrides=${encodeURIComponent(JSON.stringify({
-      prompt: { prompt: options.dynamicContext },
-    }))}`;
-  }
-
   return {
-    signedUrl,
+    signedUrl: data.signed_url,
     expiresAt: data.expires_at_unix_secs
       ? new Date(data.expires_at_unix_secs * 1000).toISOString()
       : undefined,
+    dynamicContext: options?.dynamicContext || undefined,
   };
 }
 

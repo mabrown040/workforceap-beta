@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/db/prisma';
 import { computeMemberSkillProfile } from '@/lib/content/certToSkills';
 
 export async function GET() {
@@ -12,7 +12,7 @@ export async function GET() {
     select: { certName: true },
   });
 
-  const certNames = certs.map((c) => c.certName);
+  const certNames = certs.map((c: { certName: string }) => c.certName);
   const skillProfile = computeMemberSkillProfile(certNames);
 
   return NextResponse.json({ certNames, skillProfile });

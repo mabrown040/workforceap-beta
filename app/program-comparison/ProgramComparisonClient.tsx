@@ -60,7 +60,7 @@ export default function ProgramComparisonClient({ tracks }: Props) {
     } else {
       router.replace('/program-comparison', { scroll: false });
     }
-  }, [selected, hydrated]); // eslint-disable-line react-hooks/exhaustive-deps -- omit router; avoid replace loops
+  }, [selected, hydrated]); // omit router; avoid replace loops
 
   const toggle = (slug: string) => {
     setSelected((prev) => {

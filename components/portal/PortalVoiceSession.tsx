@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { Conversation } from '@elevenlabs/client';
@@ -100,6 +100,12 @@ const PULSE_STYLE = `
 @keyframes pvs-fade-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 `;
 
+function logVoice(event: string, detail?: unknown) {
+  if (process.env.NODE_ENV === 'development') {
+    console.warn(`[workforceap:voice] ${event}`, detail ?? '');
+  }
+}
+
 export default function PortalVoiceSession({
   sessionEndpoint,
   sessionPayload,
@@ -157,7 +163,8 @@ export default function PortalVoiceSession({
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach((t) => t.stop());
     } catch {
-      setVoiceError('Microphone access is required. Allow it in your browser and try again.');
+      logVoice('mic_denied');
+      setVoiceError('Microphone: access is required. Allow it in your browser and try again.');
       setPhase('pre');
       return;
     }
@@ -180,75 +187,127 @@ export default function PortalVoiceSession({
       }
       signedUrl = data.signedUrl;
       dynamicVariables = data.dynamicVariables;
+      logVoice('signed_url_ok', {
+        hasDynamicVariables: Boolean(
+          dynamicVariables && Object.keys(dynamicVariables).length > 0
+        ),
+      });
     } catch (err) {
-      setVoiceError(err instanceof Error ? err.message : 'Could not start session.');
+      logVoice('signed_url_failed', err);
+      setVoiceError(
+        `Server: ${err instanceof Error ? err.message : 'Could not start session.'}`
+      );
       setPhase('pre');
       return;
     }
 
-    try {
-      const conv = await Conversation.startSession({
-        signedUrl,
-        ...(dynamicVariables && Object.keys(dynamicVariables).length > 0 ? { dynamicVariables } : {}),
-        onConnect: () => setPhase('active'),
-        onDisconnect: (details) => {
-          const typed = (details ?? {}) as VoiceDisconnectDetails;
-          const disconnectMessage = formatDisconnectReason(typed);
-          const startupDisconnect = phaseRef.current === 'connecting';
-          const hasExistingError = Boolean(voiceErrorRef.current);
-          const shouldSurfaceError = !intentionalRef.current && (typed.reason === 'error' || startupDisconnect || hasExistingError);
+    const sessionCallbacks = {
+      onConnect: () => {
+        logVoice('session_connected');
+        setPhase('active');
+      },
+      onDisconnect: (details: unknown) => {
+        const typed = (details ?? {}) as VoiceDisconnectDetails;
+        const disconnectMessage = formatDisconnectReason(typed);
+        const startupDisconnect = phaseRef.current === 'connecting';
+        const hasExistingError = Boolean(voiceErrorRef.current);
+        const shouldSurfaceError =
+          !intentionalRef.current &&
+          (typed.reason === 'error' || startupDisconnect || hasExistingError);
 
-          console.error('[voice] disconnect:', {
-            reason: typed.reason,
-            message: typed.message,
-            closeCode: typed.closeCode,
-            closeReason: typed.closeReason,
-            contextType: typed.context?.type,
-            phase: phaseRef.current,
-            startupDisconnect,
-            hasExistingError,
-          });
+        logVoice('disconnect', {
+          reason: typed.reason,
+          message: typed.message,
+          closeCode: typed.closeCode,
+          phase: phaseRef.current,
+        });
+        console.error('[voice] disconnect:', {
+          reason: typed.reason,
+          message: typed.message,
+          closeCode: typed.closeCode,
+          closeReason: typed.closeReason,
+          contextType: typed.context?.type,
+          phase: phaseRef.current,
+          startupDisconnect,
+          hasExistingError,
+        });
 
-          if (shouldSurfaceError) {
-            const surfacedMessage = hasExistingError ? voiceErrorRef.current : disconnectMessage;
-            setVoiceError(surfacedMessage);
-            setPhase('pre');
-          } else {
-            setPhase('done');
-          }
-          intentionalRef.current = false;
-          setAgentSpeaking(false);
-        },
-        onMessage: (event) => {
-          const ev = event as unknown as Record<string, unknown>;
-          if (ev.type === 'agent_response') {
-            setAgentSpeaking(true);
-            if (typeof ev.text === 'string' && ev.text.trim()) {
-              transcriptRef.current.push({ speaker: 'agent', text: ev.text });
-              onTranscriptChunk?.({ speaker: 'agent', text: ev.text });
-            }
-          }
-          if (ev.type === 'user_transcript') {
-            setAgentSpeaking(false);
-            if (typeof ev.text === 'string' && ev.text.trim()) {
-              transcriptRef.current.push({ speaker: 'user', text: ev.text });
-              onTranscriptChunk?.({ speaker: 'user', text: ev.text });
-            }
-          }
-        },
-        onError: (msg, context) => {
-          const errorText = formatVoiceRuntimeReason(String(msg) || 'Connection error', {
-            ...(context as VoiceErrorContext | undefined),
-          });
-          console.error('[voice] runtime error:', errorText, context);
-          setVoiceError(errorText);
+        if (shouldSurfaceError) {
+          const surfacedMessage = hasExistingError ? voiceErrorRef.current : disconnectMessage;
+          setVoiceError(surfacedMessage);
           setPhase('pre');
-        },
-      });
+        } else {
+          setPhase('done');
+        }
+        intentionalRef.current = false;
+        setAgentSpeaking(false);
+      },
+      onMessage: (event: unknown) => {
+        const ev = event as Record<string, unknown>;
+        if (ev.type === 'agent_response') {
+          setAgentSpeaking(true);
+          if (typeof ev.text === 'string' && ev.text.trim()) {
+            transcriptRef.current.push({ speaker: 'agent', text: ev.text });
+            onTranscriptChunk?.({ speaker: 'agent', text: ev.text });
+          }
+        }
+        if (ev.type === 'user_transcript') {
+          setAgentSpeaking(false);
+          if (typeof ev.text === 'string' && ev.text.trim()) {
+            transcriptRef.current.push({ speaker: 'user', text: ev.text });
+            onTranscriptChunk?.({ speaker: 'user', text: ev.text });
+          }
+        }
+      },
+      onError: (msg: unknown, context?: unknown) => {
+        logVoice('runtime_error', { msg, context });
+        const errorText = formatVoiceRuntimeReason(String(msg) || 'Connection error', {
+          ...(context as VoiceErrorContext | undefined),
+        });
+        console.error('[voice] runtime error:', errorText, context);
+        setVoiceError(errorText);
+        setPhase('pre');
+      },
+    };
 
-      convRef.current = conv;
+    const hasDynamicVariables = Boolean(
+      dynamicVariables && Object.keys(dynamicVariables).length > 0
+    );
+
+    try {
+      if (hasDynamicVariables) {
+        try {
+          logVoice('start_attempt', { withDynamicVariables: true });
+          const conv = await Conversation.startSession({
+            signedUrl,
+            dynamicVariables,
+            ...sessionCallbacks,
+          });
+          convRef.current = conv;
+        } catch (firstErr) {
+          logVoice('start_threw_with_dynamic_variables', firstErr);
+          logVoice('start_retry', { plainSignedUrlOnly: true });
+          const conv = await Conversation.startSession({
+            signedUrl,
+            ...sessionCallbacks,
+          });
+          convRef.current = conv;
+        }
+      } else {
+        logVoice('start_attempt', { plain: true });
+        const conv = await Conversation.startSession({
+          signedUrl,
+          ...sessionCallbacks,
+        });
+        convRef.current = conv;
+      }
     } catch (err) {
-      setVoiceError(err instanceof Error ? err.message : String(err));
+      logVoice('start_failed_final', err);
+      setVoiceError(
+        `Voice session failed (including retry without dynamic variables if applicable): ${
+          err instanceof Error ? err.message : String(err)
+        }`
+      );
       setPhase('pre');
     }
   }

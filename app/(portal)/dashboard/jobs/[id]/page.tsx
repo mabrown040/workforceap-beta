@@ -71,7 +71,6 @@ export default async function JobDetailPage({ params }: Props) {
       >
         {job.employer.logoUrl ? (
           <div style={{ marginTop: '0.75rem' }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={job.employer.logoUrl}
               alt=""

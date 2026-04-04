@@ -44,7 +44,7 @@ export async function middleware(request: NextRequest) {
     requestHeaders.set('x-suppress-jsonld', '1');
   }
 
-  let response = NextResponse.next({
+  const response = NextResponse.next({
     request: {
       headers: requestHeaders,
     },

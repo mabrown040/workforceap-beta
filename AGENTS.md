@@ -4,16 +4,24 @@
 
 This is a **Next.js 15 (App Router)** website — a replica of the live Squarespace-hosted site at [workforceap.org](https://workforceap.org), intended for self-hosting without Squarespace. The live Squarespace site is the visual reference for how pages should look.
 
+### Install dependencies
+
+The repo uses **pnpm** (`pnpm-lock.yaml`). Install with:
+
+```bash
+pnpm install
+```
+
 ### Running the dev server
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 Or for production build + serve:
 
 ```bash
-npm run build && npm start
+pnpm run build && pnpm start
 ```
 
 Open `http://localhost:3000` in a browser.
@@ -35,10 +43,12 @@ Open `http://localhost:3000` in a browser.
 ### Lint / Test / Build
 
 ```bash
-npm run build    # TypeScript type-checking + Next.js production build
+pnpm run lint    # ESLint (next/core-web-vitals + TypeScript)
+pnpm run build   # TypeScript + Next.js production build
+pnpm run test:a11y   # Playwright + axe smoke on `/terms` and `/privacy` (see docs/SITE-AUDIT-RUNBOOK.md)
 ```
 
-There are no configured linters or test frameworks. For validation, run `npm run build` which will catch TypeScript and compilation errors.
+CI runs `pnpm install --frozen-lockfile`, typecheck (`tsc`), `pnpm run lint`, and `next build`. For manual Lighthouse and dependency audit steps, see [docs/SITE-AUDIT-RUNBOOK.md](docs/SITE-AUDIT-RUNBOOK.md).
 
 ## Stitch MCP (designs)
 

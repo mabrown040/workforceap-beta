@@ -163,7 +163,6 @@ export default function EmployerSettingsForm({ initial }: { initial: EmployerSet
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
             {logoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
               <img src={logoUrl} alt="" width={72} height={72} style={{ objectFit: 'contain', borderRadius: 8, border: '1px solid var(--outline-variant)' }} />
             ) : (
               <div style={{ width: 72, height: 72, borderRadius: 8, background: 'var(--surface-container)', border: '1px dashed var(--outline-variant)' }} aria-hidden />

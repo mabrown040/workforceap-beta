@@ -86,7 +86,6 @@ export default function AdminOrgSettingsForm({
       <div className="form-group">
         <label htmlFor="logo">Organization logo</label>
         {logoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
           <img src={logoUrl} alt="" style={{ display: 'block', maxHeight: 48, marginBottom: '0.5rem' }} />
         ) : null}
         <input id="logo" type="file" accept="image/*" onChange={(e) => void onLogo(e)} disabled={logoUploading} />

@@ -189,7 +189,6 @@ export default function WorkspaceShell({
         <div className="workspace-shell-header__meta">
           {contextLogoUrl ? (
             <span className="workspace-shell-context-logo-wrap" aria-hidden>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={contextLogoUrl} alt="" className="workspace-shell-context-logo" width={32} height={32} />
             </span>
           ) : null}

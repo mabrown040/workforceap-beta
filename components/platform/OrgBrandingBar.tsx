@@ -16,7 +16,6 @@ export default function OrgBrandingBar({ branding }: { branding: OrgBranding }) 
         borderBottom: '1px solid var(--outline-variant)',
       }}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={branding.logo} alt="" width={120} height={36} style={{ maxHeight: 36, width: 'auto', objectFit: 'contain' }} />
     </div>
   );

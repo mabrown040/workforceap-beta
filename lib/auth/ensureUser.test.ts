@@ -35,7 +35,7 @@ test('ensureUserInDb - handles P2002 unique constraint error by updating with em
 
   prisma.organization.findUnique = async () => ({ id: 'org-1' } as any);
 
-  let upsertCalls: any[] = [];
+  const upsertCalls: any[] = [];
   prisma.user.upsert = async (args: any) => {
     upsertCalls.push(args);
     if (upsertCalls.length === 1) {

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { JobApplication, JobApplicationStatus } from '@prisma/client';
+import { formatPortalDate } from '@/lib/formatDate';
 import JobApplicationCard from './JobApplicationCard';
 
 interface JobApplicationKanbanProps {
@@ -56,11 +57,6 @@ function MobileApplicationCard({
   const [open, setOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<JobApplicationStatus>(application.status);
 
-  const formatDate = (date: Date | null) => {
-    if (!date) return '';
-    return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  };
-
   const handleSave = () => {
     if (selectedStatus !== application.status) {
       onStatusChange(application.id, { status: selectedStatus });
@@ -82,7 +78,7 @@ function MobileApplicationCard({
           <p className="wa-font-bold wa-text-sm wa-text-gray-900 wa-truncate">{application.role}</p>
           <p className="wa-text-xs wa-text-gray-600 wa-mt-0.5">{application.company}</p>
           {application.appliedAt && (
-            <p className="wa-text-xs wa-text-gray-500 wa-mt-1">Applied {formatDate(application.appliedAt)}</p>
+            <p className="wa-text-xs wa-text-gray-500 wa-mt-1">Applied {formatPortalDate(application.appliedAt)}</p>
           )}
         </div>
         <span
@@ -112,7 +108,10 @@ function MobileApplicationCard({
               Save
             </button>
             <button
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                setSelectedStatus(application.status);
+                setOpen(false);
+              }}
               className="wa-flex-1 wa-px-3 wa-py-2 wa-bg-gray-200 wa-text-gray-700 wa-text-sm wa-font-medium wa-rounded"
             >
               Cancel

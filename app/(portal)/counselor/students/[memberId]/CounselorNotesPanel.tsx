@@ -6,10 +6,16 @@ interface Note {
   id: string;
   content: string;
   createdAt: string;
-  author: { fullName: string | null; email: string };
+  author: { id: string; fullName: string | null; email: string };
 }
 
-export default function CounselorNotesPanel({ memberId }: { memberId: string }) {
+export default function CounselorNotesPanel({
+  memberId,
+  currentUserId,
+}: {
+  memberId: string;
+  currentUserId: string;
+}) {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
@@ -20,6 +26,10 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
   const fetchNotes = useCallback(async () => {
     try {
       const res = await fetch(`/api/counselor/members/${memberId}/notes`);
+      if (!res.ok) {
+        setNotes([]);
+        return;
+      }
       const data = await res.json();
       if (Array.isArray(data)) setNotes(data);
     } catch {
@@ -54,12 +64,21 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
   };
 
   const handleDelete = async (noteId: string) => {
-    setNotes((prev) => prev.filter((n) => n.id !== noteId));
-    await fetch(`/api/counselor/members/${memberId}/notes`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ noteId }),
-    }).catch(() => {});
+    let snapshot: Note[] = [];
+    setNotes((prev) => {
+      snapshot = prev;
+      return prev.filter((n) => n.id !== noteId);
+    });
+    try {
+      const res = await fetch(`/api/counselor/members/${memberId}/notes`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ noteId }),
+      });
+      if (!res.ok) throw new Error('Delete failed');
+    } catch {
+      setNotes(snapshot);
+    }
   };
 
   return (
@@ -164,21 +183,24 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
               <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>
                 {new Date(note.createdAt).toLocaleDateString()} · {note.author.fullName ?? note.author.email}
               </p>
-              <button
-                onClick={() => handleDelete(note.id)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--color-on-surface-variant)',
-                  fontSize: '0.75rem',
-                  cursor: 'pointer',
-                  padding: '0 0.25rem',
-                  lineHeight: 1,
-                }}
-                title="Delete note"
-              >
-                ×
-              </button>
+              {note.author.id === currentUserId ? (
+                <button
+                  onClick={() => handleDelete(note.id)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--color-on-surface-variant)',
+                    fontSize: '0.75rem',
+                    cursor: 'pointer',
+                    padding: '0 0.25rem',
+                    lineHeight: 1,
+                  }}
+                  title="Delete note"
+                  type="button"
+                >
+                  ×
+                </button>
+              ) : null}
             </div>
             <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface)', margin: 0, whiteSpace: 'pre-wrap' }}>
               {note.content}

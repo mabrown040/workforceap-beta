@@ -290,7 +290,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
 
         {/* Counselor Notes */}
         <div style={{ padding: '0 1rem 1rem' }}>
-          <CounselorNotesPanel memberId={member.id} />
+          <CounselorNotesPanel memberId={member.id} currentUserId={user.id} />
         </div>
       </div>
 

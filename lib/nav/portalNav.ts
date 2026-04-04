@@ -26,6 +26,7 @@ import {
   MessageSquare,
   PlusCircle,
   Settings,
+  Shield,
   Sparkles,
   Target,
   Upload,
@@ -281,6 +282,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin/diagnostics', label: 'Diagnostics', group: 'insights', Icon: Activity },
   { href: '/admin/weekly-recap', label: 'Weekly recap', group: 'insights', Icon: BarChart3 },
   { href: '/admin/ai-tools', label: 'AI tools', group: 'insights', Icon: Sparkles },
+  { href: '/admin/audit-logs', label: 'Audit logs', group: 'insights', Icon: Shield, requiresSuperAdminContext: true },
   { href: '/admin/certifications', label: 'Certificates', group: 'insights', Icon: Award },
 ];
 

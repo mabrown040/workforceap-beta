@@ -116,9 +116,49 @@ export default function PortalVoiceSession({
       return;
     }
 
+    const sessionConfigBase = {
+      signedUrl,
+      onConnect: () => setPhase('active'),
+      onDisconnect: (details: unknown) => {
+        const _reason = (details as { reason?: string })?.reason;
+        const _msg = (details as { message?: string })?.message;
+        console.error('[voice] disconnect:', _reason, _msg);
+        if (!intentionalRef.current) {
+          if (_reason === 'error') {
+            setVoiceError(_msg ?? 'Connection lost — please try again.');
+          }
+        }
+        intentionalRef.current = false;
+        setPhase('done');
+        setAgentSpeaking(false);
+      },
+      onMessage: (event: unknown) => {
+        const ev = event as Record<string, unknown>;
+        if (ev.type === 'agent_response') {
+          setAgentSpeaking(true);
+          if (typeof ev.text === 'string' && ev.text.trim()) {
+            transcriptRef.current.push({ speaker: 'agent', text: ev.text });
+            onTranscriptChunk?.({ speaker: 'agent', text: ev.text });
+          }
+        }
+        if (ev.type === 'user_transcript') {
+          setAgentSpeaking(false);
+          if (typeof ev.text === 'string' && ev.text.trim()) {
+            transcriptRef.current.push({ speaker: 'user', text: ev.text });
+            onTranscriptChunk?.({ speaker: 'user', text: ev.text });
+          }
+        }
+      },
+      onError: (msg: unknown) => {
+        setVoiceError(String(msg) || 'Connection error');
+        setPhase('pre');
+      },
+    };
+
+    let conv: Conversation;
     try {
-      const conv = await Conversation.startSession({
-        signedUrl,
+      conv = await Conversation.startSession({
+        ...sessionConfigBase,
         ...(dynamicCtx
           ? {
               overrides: {
@@ -128,47 +168,26 @@ export default function PortalVoiceSession({
               },
             }
           : {}),
-        onConnect: () => setPhase('active'),
-        onDisconnect: (details) => {
-          const _reason = (details as { reason?: string })?.reason;
-          const _msg = (details as { message?: string })?.message;
-          console.error('[voice] disconnect:', _reason, _msg);
-          if (!intentionalRef.current) {
-            if (_reason === 'error') {
-              setVoiceError(_msg ?? 'Connection lost — please try again.');
-            }
-          }
-          intentionalRef.current = false;
-          setPhase('done');
-          setAgentSpeaking(false);
-        },
-        onMessage: (event) => {
-          const ev = event as unknown as Record<string, unknown>;
-          if (ev.type === 'agent_response') {
-            setAgentSpeaking(true);
-            if (typeof ev.text === 'string' && ev.text.trim()) {
-              transcriptRef.current.push({ speaker: 'agent', text: ev.text });
-              onTranscriptChunk?.({ speaker: 'agent', text: ev.text });
-            }
-          }
-          if (ev.type === 'user_transcript') {
-            setAgentSpeaking(false);
-            if (typeof ev.text === 'string' && ev.text.trim()) {
-              transcriptRef.current.push({ speaker: 'user', text: ev.text });
-              onTranscriptChunk?.({ speaker: 'user', text: ev.text });
-            }
-          }
-        },
-        onError: (msg) => {
-          setVoiceError(String(msg) || 'Connection error');
-          setPhase('pre');
-        },
       });
-      convRef.current = conv;
     } catch (err) {
-      setVoiceError(String(err));
-      setPhase('pre');
+      console.error('[voice] startSession with overrides failed:', err);
+      if (dynamicCtx) {
+        try {
+          conv = await Conversation.startSession(sessionConfigBase);
+          setVoiceError('Started without resume context override. Voice should still work.');
+        } catch (retryErr) {
+          console.error('[voice] startSession retry without overrides failed:', retryErr);
+          setVoiceError('Voice session failed to start. If microphone is allowed, try again in a few seconds.');
+          setPhase('pre');
+          return;
+        }
+      } else {
+        setVoiceError('Voice session failed to start. If microphone is allowed, try again in a few seconds.');
+        setPhase('pre');
+        return;
+      }
     }
+    convRef.current = conv;
   }
 
   async function endSession() {

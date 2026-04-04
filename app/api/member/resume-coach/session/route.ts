@@ -1,13 +1,17 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
+import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 
-const BUCKET = 'member-resumes';
+const FILE_RESUME_MAX = 6000;
+const LIVE_DRAFT_MAX = 6000;
 
-async function getResumeContext(userId: string): Promise<string> {
+async function getResumeCoachDynamicContext(
+  userId: string,
+  opts: { liveResumeDraft?: string }
+): Promise<string> {
   try {
     const dbUser = await prisma.user.findUnique({
       where: { id: userId },
@@ -17,7 +21,6 @@ async function getResumeContext(userId: string): Promise<string> {
 
     const parts: string[] = [];
 
-    // Basic member info
     parts.push(`Member: ${dbUser.fullName ?? 'Unknown'}`);
     const program = dbUser.enrolledProgram ? getProgramBySlug(dbUser.enrolledProgram) : null;
     if (program) {
@@ -25,25 +28,25 @@ async function getResumeContext(userId: string): Promise<string> {
       if (program.skills?.length) parts.push(`Program skills: ${program.skills.join(', ')}`);
     }
 
-    // Try to get resume text
-    const resumePath = dbUser.profile?.resumeEnhancedPath ?? dbUser.profile?.resumeOriginalPath;
-    if (resumePath) {
-      const supabase = getSupabaseAdmin();
-      const { data } = await supabase.storage.from(BUCKET).download(resumePath);
-      if (data) {
-        const text = await data.text();
-        if (text && text.length > 10) {
-          // Truncate to avoid token limits
-          parts.push(`\n--- MEMBER'S CURRENT RESUME ---\n${text.slice(0, 4000)}`);
-        }
-      }
+    const fileResume = await getMemberResumePlainText(userId, FILE_RESUME_MAX);
+    if (fileResume) {
+      parts.push(`\n--- RESUME TEXT FROM UPLOADED FILE (enhanced or original) ---\n${fileResume}`);
     }
 
-    if (parts.length <= 1) return '';
+    const draft = opts.liveResumeDraft?.trim();
+    if (draft) {
+      parts.push(
+        `\n--- LIVE EDITOR DRAFT (what the member sees on this page now; prefer this over the file excerpt if they conflict) ---\n${draft.slice(0, LIVE_DRAFT_MAX)}`
+      );
+    }
+
+    if (parts.length <= 1 && !fileResume && !draft) {
+      return '';
+    }
 
     return [
       'You are coaching the following member on their resume. Reference their actual resume content when giving suggestions.',
-      'When suggesting changes, be specific — quote the original text and provide the improved version.',
+      'When suggesting changes, be specific — quote the original phrase from their resume or draft and provide the improved version.',
       '',
       ...parts,
     ].join('\n');
@@ -53,13 +56,23 @@ async function getResumeContext(userId: string): Promise<string> {
   }
 }
 
-/** POST — signed URL for resume-focused voice coach with member context. */
-export async function POST() {
+/** POST — signed URL for resume-focused voice coach. Body (optional): `{ liveResumeDraft?: string }` from the live editor. */
+export async function POST(req: NextRequest) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+  let liveResumeDraft = '';
   try {
-    const dynamicContext = await getResumeContext(user.id);
+    const body = (await req.json()) as { liveResumeDraft?: unknown };
+    if (typeof body?.liveResumeDraft === 'string') {
+      liveResumeDraft = body.liveResumeDraft;
+    }
+  } catch {
+    /* empty body */
+  }
+
+  try {
+    const dynamicContext = await getResumeCoachDynamicContext(user.id, { liveResumeDraft });
     const { signedUrl, expiresAt } = await startElevenLabsPortalSession('resume_coach', {
       dynamicContext: dynamicContext || undefined,
     });

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { sanitizeDocxPreviewHtml } from '@/lib/html/sanitizeDocxPreviewHtml';
 
 const BUCKET = 'member-resumes';
 
@@ -40,7 +41,8 @@ export async function POST(req: NextRequest) {
   const buf = Buffer.from(await data.arrayBuffer());
   try {
     const mammoth = await import('mammoth');
-    const { value: html } = await mammoth.convertToHtml({ buffer: buf });
+    const { value: rawHtml } = await mammoth.convertToHtml({ buffer: buf });
+    const html = sanitizeDocxPreviewHtml(rawHtml);
     return NextResponse.json({
       html: `<div class="mammoth-doc">${html}</div>`,
     });

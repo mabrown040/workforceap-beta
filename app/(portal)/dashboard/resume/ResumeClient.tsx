@@ -298,7 +298,7 @@ export default function ResumeClient({
                     <iframe
                       title="Original resume preview"
                       srcDoc={`<!DOCTYPE html><html><head><meta charset="utf-8"/><style>body{font-family:system-ui,sans-serif;padding:1rem;margin:0;line-height:1.45;color:#111;}.mammoth-doc img{max-width:100%;height:auto;}</style></head><body>${originalDocHtml}</body></html>`}
-                      sandbox="allow-same-origin"
+                      sandbox=""
                       style={{ width: '100%', minHeight: '480px', border: 'none', display: 'block' }}
                     />
                   ) : (
@@ -372,7 +372,7 @@ export default function ResumeClient({
                     <iframe
                       title="Enhanced resume preview"
                       srcDoc={`<!DOCTYPE html><html><head><meta charset="utf-8"/><style>body{font-family:system-ui,sans-serif;padding:1rem;margin:0;line-height:1.45;color:#111;}.mammoth-doc img{max-width:100%;height:auto;}</style></head><body>${enhancedDocHtml}</body></html>`}
-                      sandbox="allow-same-origin"
+                      sandbox=""
                       style={{ width: '100%', minHeight: '480px', border: 'none', display: 'block' }}
                     />
                   ) : (

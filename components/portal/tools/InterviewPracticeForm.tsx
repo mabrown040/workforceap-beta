@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
@@ -135,7 +135,10 @@ export default function InterviewPracticeForm() {
     }));
   };
 
-  const pdfExportText = buildSessionTranscript();
+  const pdfExportText = useMemo(
+    () => buildSessionTranscript(),
+    [questions, starByIndex, role, experienceLevel, focusAreas]
+  );
 
   return (
     <form onSubmit={handleSubmit} className="interview-practice-form">

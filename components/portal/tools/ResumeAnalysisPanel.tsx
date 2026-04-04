@@ -17,14 +17,14 @@ export type BulletSuggestionPair = { before: string; after: string };
 
 type Props = {
   resumePreview: string;
-  /** 0–100 match score for the circular gauge */
-  scorePercent: number;
-  matchedSkills: string[];
-  missingSkills: string[];
+  /** 0–100 match score for the circular gauge; omit or null when not parsed from output */
+  scorePercent?: number | null;
+  matchedSkills?: string[];
+  missingSkills?: string[];
   analysisText: string;
-  sectionAuditCards: ResumeSectionAuditCard[];
-  missingMetrics: string[];
-  bulletSuggestions: BulletSuggestionPair[];
+  sectionAuditCards?: ResumeSectionAuditCard[];
+  missingMetrics?: string[];
+  bulletSuggestions?: BulletSuggestionPair[];
   exportTitle?: string;
 };
 
@@ -43,7 +43,13 @@ export default function ResumeAnalysisPanel({
   exportTitle = 'Job Match Analysis',
 }: Props) {
   const { copy, copied } = useCopyToClipboard();
-  const clamped = Math.min(100, Math.max(0, scorePercent));
+  const matched = matchedSkills ?? [];
+  const missing = missingSkills ?? [];
+  const audits = sectionAuditCards ?? [];
+  const metrics = missingMetrics ?? [];
+  const bullets = bulletSuggestions ?? [];
+  const hasScore = typeof scorePercent === 'number' && !Number.isNaN(scorePercent);
+  const clamped = hasScore ? Math.min(100, Math.max(0, scorePercent)) : 0;
   const r = 52;
   const c = 2 * Math.PI * r;
   const dash = c * (clamped / 100);
@@ -66,31 +72,33 @@ export default function ResumeAnalysisPanel({
           <ExportPdfButton text={analysisText} title={exportTitle} toolName="Job Match Scorer" />
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'center', margin: '1.5rem 0' }}>
-          <svg width="120" height="120" viewBox="0 0 120 120" aria-hidden>
-            <circle cx="60" cy="60" r={r} stroke="var(--surface-container-highest)" strokeWidth="8" fill="none" />
-            <circle
-              cx="60"
-              cy="60"
-              r={r}
-              stroke="var(--color-accent)"
-              strokeWidth="8"
-              fill="none"
-              strokeDasharray={`${dash} ${c}`}
-              strokeLinecap="round"
-              transform="rotate(-90 60 60)"
-            />
-            <text x="60" y="55" textAnchor="middle" fill="var(--color-on-surface)" fontSize="28" fontWeight="700">
-              {clamped}%
-            </text>
-            <text x="60" y="72" textAnchor="middle" fill="var(--color-on-surface-variant)" fontSize="11">
-              Target alignment
-            </text>
-          </svg>
-        </div>
+        {hasScore && (
+          <div style={{ display: 'flex', justifyContent: 'center', margin: '1.5rem 0' }}>
+            <svg width="120" height="120" viewBox="0 0 120 120" aria-hidden>
+              <circle cx="60" cy="60" r={r} stroke="var(--surface-container-highest)" strokeWidth="8" fill="none" />
+              <circle
+                cx="60"
+                cy="60"
+                r={r}
+                stroke="var(--color-accent)"
+                strokeWidth="8"
+                fill="none"
+                strokeDasharray={`${dash} ${c}`}
+                strokeLinecap="round"
+                transform="rotate(-90 60 60)"
+              />
+              <text x="60" y="55" textAnchor="middle" fill="var(--color-on-surface)" fontSize="28" fontWeight="700">
+                {clamped}%
+              </text>
+              <text x="60" y="72" textAnchor="middle" fill="var(--color-on-surface-variant)" fontSize="11">
+                Target alignment
+              </text>
+            </svg>
+          </div>
+        )}
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem', padding: '0 0.5rem' }}>
-          {matchedSkills.map((skill) => (
+          {matched.map((skill) => (
             <span
               key={`m-${skill}`}
               style={{
@@ -105,7 +113,7 @@ export default function ResumeAnalysisPanel({
               {skill} ✓
             </span>
           ))}
-          {missingSkills.map((skill) => (
+          {missing.map((skill) => (
             <span
               key={`x-${skill}`}
               style={{
@@ -124,13 +132,15 @@ export default function ResumeAnalysisPanel({
 
         <pre className="resume-rewriter-output-content">{analysisText}</pre>
 
+        {(audits.length > 0 || metrics.length > 0 || bullets.length > 0) && (
         <section aria-labelledby="resume-section-audit-heading" style={{ marginTop: '1.5rem', display: 'grid', gap: '1rem' }}>
+          {audits.length > 0 && (
           <div style={{ display: 'grid', gap: '0.5rem' }}>
             <h4 id="resume-section-audit-heading" style={{ margin: 0 }}>
               Section audit
             </h4>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-              {sectionAuditCards.map((card) => (
+              {audits.map((card) => (
                 <article
                   key={card.title}
                   style={{
@@ -180,7 +190,9 @@ export default function ResumeAnalysisPanel({
               ))}
             </div>
           </div>
+          )}
 
+          {metrics.length > 0 && (
           <section
             aria-labelledby="resume-missing-metrics-heading"
             style={{
@@ -202,18 +214,20 @@ export default function ResumeAnalysisPanel({
                 color: 'var(--color-on-surface)',
               }}
             >
-              {missingMetrics.map((metric) => (
+              {metrics.map((metric) => (
                 <li key={metric}>{metric}</li>
               ))}
             </ul>
           </section>
+          )}
 
+          {bullets.length > 0 && (
           <section aria-labelledby="resume-bullet-optimization-heading" style={{ display: 'grid', gap: '0.75rem' }}>
             <h4 id="resume-bullet-optimization-heading" style={{ margin: 0 }}>
               Bullet optimization suggestions
             </h4>
             <div style={{ display: 'grid', gap: '0.75rem' }}>
-              {bulletSuggestions.map((item) => (
+              {bullets.map((item) => (
                 <article
                   key={item.before}
                   style={{
@@ -255,7 +269,9 @@ export default function ResumeAnalysisPanel({
               ))}
             </div>
           </section>
+          )}
         </section>
+        )}
 
         <p className="ai-result-saved">
           Saved to your history. <Link href="/dashboard/ai-tools/history">View all results</Link>

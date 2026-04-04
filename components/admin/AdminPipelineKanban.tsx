@@ -45,41 +45,42 @@ export default function AdminPipelineKanban({ initialByStage }: { initialByStage
   const [byStage, setByStage] = useState<ByStage>(() => cloneByStage(initialByStage));
   const [dragOverStage, setDragOverStage] = useState<PipelineStage | null>(null);
 
-  const onDropOnColumn = useCallback(
-    (e: React.DragEvent, targetStage: PipelineStage) => {
-      e.preventDefault();
-      setDragOverStage(null);
-      const memberId = e.dataTransfer.getData('text/plain');
-      if (!memberId) return;
+  const onDropOnColumn = useCallback((e: React.DragEvent, targetStage: PipelineStage) => {
+    e.preventDefault();
+    setDragOverStage(null);
+    const memberId = e.dataTransfer.getData('text/plain');
+    if (!memberId) return;
 
-      const from = findMemberStage(byStage, memberId);
-      if (!from || from === targetStage) return;
+    let rollback: ByStage | null = null;
+    setByStage((prev) => {
+      const from = findMemberStage(prev, memberId);
+      if (!from || from === targetStage) return prev;
 
-      const member = byStage[from].find((m) => m.id === memberId);
-      if (!member) return;
+      const member = prev[from].find((m) => m.id === memberId);
+      if (!member) return prev;
 
-      const snapshot = cloneByStage(byStage);
-      setByStage((prev) => {
-        const next = cloneByStage(prev);
-        next[from] = next[from].filter((m) => m.id !== memberId);
-        next[targetStage] = [...next[targetStage], member];
-        return next;
-      });
+      rollback = cloneByStage(prev);
+      const next = cloneByStage(prev);
+      next[from] = next[from].filter((m) => m.id !== memberId);
+      next[targetStage] = [...next[targetStage], member];
+      return next;
+    });
 
-      fetch(`/api/admin/members/${memberId}/pipeline-stage`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stage: targetStage }),
-      }).then(async (res) => {
-        if (!res.ok) {
-          setByStage(snapshot);
-          const j = (await res.json().catch(() => ({}))) as { error?: string };
-          window.alert(typeof j.error === 'string' ? j.error : 'Could not save column. Try again.');
-        }
-      });
-    },
-    [byStage]
-  );
+    if (rollback === null) return;
+    const snapshot = rollback;
+
+    fetch(`/api/admin/members/${memberId}/pipeline-stage`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stage: targetStage }),
+    }).then(async (res) => {
+      if (!res.ok) {
+        setByStage(snapshot);
+        const j = (await res.json().catch(() => ({}))) as { error?: string };
+        window.alert(typeof j.error === 'string' ? j.error : 'Could not save column. Try again.');
+      }
+    });
+  }, []);
 
   return (
     <div

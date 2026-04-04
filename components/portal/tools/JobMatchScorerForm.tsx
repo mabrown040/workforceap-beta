@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
 import { trackAIToolRun, trackToolLaunch } from '@/lib/analytics/events';
+import { parseJobMatchOutput } from '@/lib/ai/parseJobMatchOutput';
 import ResumeAnalysisPanel from './ResumeAnalysisPanel';
 
 export default function JobMatchScorerForm() {
@@ -31,6 +32,8 @@ export default function JobMatchScorerForm() {
     if (submitBtn) observer.observe(submitBtn);
     return () => observer.disconnect();
   }, [canSubmit]);
+
+  const parsedMatch = useMemo(() => parseJobMatchOutput(output), [output]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,59 +94,6 @@ export default function JobMatchScorerForm() {
     }
   };
 
-  const sectionAuditCards = [
-    {
-      title: 'Summary',
-      status: 'Good',
-      description: 'Clear positioning and concise framing make the overview easy to scan.',
-      accent: '#2e7d32',
-      accentSoft: 'rgba(46, 125, 50, 0.12)',
-      statusColor: 'var(--color-green)',
-    },
-    {
-      title: 'Experience',
-      status: 'Needs work',
-      description: 'Recent role bullets would be stronger with more measurable outcomes and scope.',
-      accent: '#ed8b00',
-      accentSoft: 'rgba(237, 139, 0, 0.14)',
-      statusColor: '#b26a00',
-    },
-    {
-      title: 'Skills',
-      status: 'Strong',
-      description: 'Core tools and capabilities align well with the target role requirements.',
-      accent: '#2e7d32',
-      accentSoft: 'rgba(46, 125, 50, 0.12)',
-      statusColor: 'var(--color-green)',
-    },
-    {
-      title: 'Education',
-      status: 'Missing detail',
-      description: 'School name, degree, or graduation timing should be expanded for credibility.',
-      accent: '#d32f2f',
-      accentSoft: 'rgba(211, 47, 47, 0.12)',
-      statusColor: '#d32f2f',
-    },
-  ];
-
-  const missingMetrics = [
-    'No quantified impact in recent role bullets',
-    'Missing team size / scope ownership',
-    'No time-to-result or delivery speed metrics',
-  ];
-
-  const bulletSuggestions = [
-    {
-      before: 'Managed onboarding for new hires',
-      after: 'Managed onboarding for 25+ new hires, reducing time-to-productivity by 18%.',
-    },
-    {
-      before: 'Worked with cross-functional teams on deployments',
-      after:
-        'Coordinated deployments across product, QA, and engineering, improving release predictability for biweekly launches.',
-    },
-  ];
-
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="portal-ai-tool-form">
       <div className="form-group">
@@ -200,13 +150,10 @@ export default function JobMatchScorerForm() {
       {output && (
         <ResumeAnalysisPanel
           resumePreview={resume}
-          scorePercent={78}
-          matchedSkills={['Python', 'SQL', 'Data Analysis', 'Communication']}
-          missingSkills={['Kubernetes', 'AWS', 'Machine Learning']}
+          scorePercent={parsedMatch.scorePercent}
+          matchedSkills={parsedMatch.matchedSkills}
+          missingSkills={parsedMatch.missingSkills}
           analysisText={output}
-          sectionAuditCards={sectionAuditCards}
-          missingMetrics={missingMetrics}
-          bulletSuggestions={bulletSuggestions}
         />
       )}
       {/* Floating analyze button — mobile */}

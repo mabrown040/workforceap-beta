@@ -27,6 +27,14 @@ export default async function DashboardCertificationsPage() {
   const totalCerts = CERTIFICATION_TRACKS.reduce((sum, track) => sum + track.certs.length, 0);
   const progressPct = totalCerts > 0 ? Math.round((earnedCount / totalCerts) * 100) : 0;
 
+  // Mobile "In Progress" card copy is track-specific (4 of 6 modules); bar must match, not overall program %.
+  const inProgressModulesCompleted = 4;
+  const inProgressModulesTotal = 6;
+  const inProgressTrackPct =
+    inProgressModulesTotal > 0
+      ? Math.round((inProgressModulesCompleted / inProgressModulesTotal) * 100)
+      : 0;
+
   return (
     <>
       <h1 className="wa-sr-only">Certificates &amp; achievements</h1>
@@ -175,17 +183,19 @@ export default async function DashboardCertificationsPage() {
               </div>
               <div>
                 <div style={{ fontWeight: 600, fontSize: '0.9375rem' }}>Data &amp; Storage</div>
-                <div style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>CompTIA · 4 of 6 modules</div>
+                <div style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
+                  CompTIA · {inProgressModulesCompleted} of {inProgressModulesTotal} modules
+                </div>
               </div>
             </div>
             {/* SVG Progress bar */}
             <div style={{ position: 'relative', height: '8px', borderRadius: '999px', overflow: 'hidden', background: 'var(--surface-container-highest)' }}>
               <svg width="100%" height="8" style={{ position: 'absolute', inset: 0 }} aria-hidden="true">
-                <rect x="0" y="0" width={`${progressPct}%`} height="8" rx="4" fill="var(--color-blue)" />
+                <rect x="0" y="0" width={`${inProgressTrackPct}%`} height="8" rx="4" fill="var(--color-blue)" />
               </svg>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.375rem' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{progressPct}% complete</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{inProgressTrackPct}% complete</span>
               <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Est. 2 weeks</span>
             </div>
           </div>

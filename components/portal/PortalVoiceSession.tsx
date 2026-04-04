@@ -19,7 +19,6 @@ type VoiceErrorContext = {
   closeCode?: number;
   closeReason?: string;
   stage?: string;
-  retryingWithoutOverrides?: boolean;
 };
 
 function stringifyUnknown(value: unknown): string | undefined {
@@ -43,7 +42,6 @@ function formatVoiceRuntimeReason(message?: string, context?: VoiceErrorContext)
   if (context?.closeCode !== undefined && context.closeCode !== null) parts.push(`close=${String(context.closeCode)}`);
   if (context?.closeReason) parts.push(`closeReason=${context.closeReason}`);
   if (context?.stage) parts.push(`stage=${context.stage}`);
-  if (context?.retryingWithoutOverrides) parts.push('retry=no-overrides');
   if (context?.debugMessage) parts.push(`debug=${context.debugMessage}`);
 
   const detailText = stringifyUnknown(context?.details);
@@ -125,10 +123,17 @@ export default function PortalVoiceSession({
   const convRef = useRef<Conversation | null>(null);
   const intentionalRef = useRef(false);
   const transcriptRef = useRef<Array<{ speaker: string; text: string }>>([]);
+  const phaseRef = useRef<Phase>('pre');
+  const voiceErrorRef = useRef('');
 
   useEffect(() => {
+    phaseRef.current = phase;
     onPhaseChange?.(phase);
   }, [phase, onPhaseChange]);
+
+  useEffect(() => {
+    voiceErrorRef.current = voiceError;
+  }, [voiceError]);
 
   useEffect(() => {
     if (document.getElementById('pvs-styles')) return;
@@ -158,51 +163,55 @@ export default function PortalVoiceSession({
     }
 
     let signedUrl: string;
-    let dynamicCtx: string | undefined;
+    let dynamicVariables: Record<string, string | number | boolean> | undefined;
     try {
       const res = await fetch(sessionEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: sessionPayload ? JSON.stringify(sessionPayload) : '{}',
       });
-      const data = (await res.json()) as { signedUrl?: string; dynamicContext?: string; error?: string };
+      const data = (await res.json()) as {
+        signedUrl?: string;
+        dynamicVariables?: Record<string, string | number | boolean>;
+        error?: string;
+      };
       if (!res.ok || !data.signedUrl) {
         throw new Error(data.error ?? 'Voice is not available right now.');
       }
       signedUrl = data.signedUrl;
-      dynamicCtx = typeof data.dynamicContext === 'string' ? data.dynamicContext.trim() || undefined : undefined;
+      dynamicVariables = data.dynamicVariables;
     } catch (err) {
       setVoiceError(err instanceof Error ? err.message : 'Could not start session.');
       setPhase('pre');
       return;
     }
 
-    async function tryStartConversation(opts: { useOverrides: boolean; stage: string }) {
-      const { useOverrides, stage } = opts;
-      return Conversation.startSession({
+    try {
+      const conv = await Conversation.startSession({
         signedUrl,
-        ...(useOverrides && dynamicCtx
-          ? {
-              overrides: {
-                agent: {
-                  prompt: { prompt: dynamicCtx },
-                },
-              },
-            }
-          : {}),
+        ...(dynamicVariables && Object.keys(dynamicVariables).length > 0 ? { dynamicVariables } : {}),
         onConnect: () => setPhase('active'),
         onDisconnect: (details) => {
           const typed = (details ?? {}) as VoiceDisconnectDetails;
+          const disconnectMessage = formatDisconnectReason(typed);
+          const startupDisconnect = phaseRef.current === 'connecting';
+          const hasExistingError = Boolean(voiceErrorRef.current);
+          const shouldSurfaceError = !intentionalRef.current && (typed.reason === 'error' || startupDisconnect || hasExistingError);
+
           console.error('[voice] disconnect:', {
-            stage,
             reason: typed.reason,
             message: typed.message,
             closeCode: typed.closeCode,
             closeReason: typed.closeReason,
             contextType: typed.context?.type,
+            phase: phaseRef.current,
+            startupDisconnect,
+            hasExistingError,
           });
-          if (!intentionalRef.current && typed.reason === 'error') {
-            setVoiceError(formatDisconnectReason(typed));
+
+          if (shouldSurfaceError) {
+            const surfacedMessage = hasExistingError ? voiceErrorRef.current : disconnectMessage;
+            setVoiceError(surfacedMessage);
             setPhase('pre');
           } else {
             setPhase('done');
@@ -230,46 +239,12 @@ export default function PortalVoiceSession({
         onError: (msg, context) => {
           const errorText = formatVoiceRuntimeReason(String(msg) || 'Connection error', {
             ...(context as VoiceErrorContext | undefined),
-            stage,
-            retryingWithoutOverrides: !useOverrides,
           });
           console.error('[voice] runtime error:', errorText, context);
           setVoiceError(errorText);
           setPhase('pre');
         },
       });
-    }
-
-    try {
-      let conv: Conversation | null = null;
-      let firstError: unknown;
-
-      if (dynamicCtx) {
-        try {
-          conv = await tryStartConversation({ useOverrides: true, stage: 'start-with-overrides' });
-        } catch (err) {
-          firstError = err;
-          const fallbackMessage = formatVoiceRuntimeReason(err instanceof Error ? err.message : String(err), {
-            stage: 'start-with-overrides',
-          });
-          console.error('[voice] start failed with overrides, retrying without overrides:', fallbackMessage, err);
-          try {
-            conv = await tryStartConversation({ useOverrides: false, stage: 'retry-without-overrides' });
-          } catch (retryErr) {
-            const retryMessage = formatVoiceRuntimeReason(retryErr instanceof Error ? retryErr.message : String(retryErr), {
-              stage: 'retry-without-overrides',
-              retryingWithoutOverrides: true,
-            });
-            console.error('[voice] retry without overrides failed:', retryMessage, retryErr);
-            const firstMessage = formatVoiceRuntimeReason(firstError instanceof Error ? firstError.message : String(firstError), {
-              stage: 'start-with-overrides',
-            });
-            throw new Error(`${firstMessage} | fallback=${retryMessage}`);
-          }
-        }
-      } else {
-        conv = await tryStartConversation({ useOverrides: false, stage: 'start-no-overrides' });
-      }
 
       convRef.current = conv;
     } catch (err) {

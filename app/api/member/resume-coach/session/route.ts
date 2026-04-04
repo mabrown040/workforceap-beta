@@ -8,53 +8,37 @@ import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText'
 const FILE_RESUME_MAX = 6000;
 const LIVE_DRAFT_MAX = 6000;
 
-async function getResumeCoachDynamicContext(
+async function getResumeCoachDynamicVariables(
   userId: string,
   opts: { liveResumeDraft?: string }
-): Promise<string> {
+): Promise<Record<string, string>> {
   try {
     const dbUser = await prisma.user.findUnique({
       where: { id: userId },
       include: { profile: true },
     });
-    if (!dbUser) return '';
+    if (!dbUser) {
+      return {};
+    }
 
-    const parts: string[] = [];
-
-    parts.push(`Member: ${dbUser.fullName ?? 'Unknown'}`);
     const program = dbUser.enrolledProgram ? getProgramBySlug(dbUser.enrolledProgram) : null;
-    if (program) {
-      parts.push(`Program: ${program.title}`);
-      if (program.skills?.length) parts.push(`Program skills: ${program.skills.join(', ')}`);
-    }
-
     const fileResume = await getMemberResumePlainText(userId, FILE_RESUME_MAX);
-    if (fileResume) {
-      parts.push(`\n--- RESUME TEXT FROM UPLOADED FILE (enhanced or original) ---\n${fileResume}`);
-    }
-
     const draft = opts.liveResumeDraft?.trim();
-    if (draft) {
-      parts.push(
-        `\n--- LIVE EDITOR DRAFT (what the member sees on this page now; prefer this over the file excerpt if they conflict) ---\n${draft.slice(0, LIVE_DRAFT_MAX)}`
-      );
-    }
 
-    if (parts.length <= 1 && !fileResume && !draft) {
-      return '';
-    }
-
-    return [
-      'You are coaching the following member on their resume. Reference their actual resume content when giving suggestions.',
-      'When suggesting changes, be specific — quote the original phrase from their resume or draft and provide the improved version.',
-      '',
-      ...parts,
-    ].join('\n');
+    return {
+      member_name: dbUser.fullName ?? '',
+      program_title: program?.title ?? '',
+      program_skills: program?.skills?.join(', ') ?? '',
+      resume_text: fileResume ?? '',
+      live_resume_draft: draft?.slice(0, LIVE_DRAFT_MAX) ?? '',
+      has_resume: fileResume ? 'true' : 'false',
+    };
   } catch (err) {
     console.error('[resume-coach] context fetch error:', err);
-    return '';
+    return {};
   }
 }
+
 
 /** POST — signed URL for resume-focused voice coach. Body (optional): `{ liveResumeDraft?: string }` from the live editor. */
 export async function POST(req: NextRequest) {
@@ -72,11 +56,11 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const dynamicContext = await getResumeCoachDynamicContext(user.id, { liveResumeDraft });
-    const { signedUrl, expiresAt, dynamicContext: ctx } = await startElevenLabsPortalSession('resume_coach', {
-      dynamicContext: dynamicContext || undefined,
+    const dynamicVariables = await getResumeCoachDynamicVariables(user.id, { liveResumeDraft });
+    const { signedUrl, expiresAt } = await startElevenLabsPortalSession('resume_coach', {
+      dynamicVariables,
     });
-    return NextResponse.json({ signedUrl, expiresAt, dynamicContext: ctx });
+    return NextResponse.json({ signedUrl, expiresAt, dynamicVariables });
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Failed to start session';
     console.error('[member/resume-coach/session]', msg);

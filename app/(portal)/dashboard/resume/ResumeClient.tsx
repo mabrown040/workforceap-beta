@@ -397,10 +397,21 @@ export default function ResumeClient({
                     </a>
                   </div>
                 )}
-              {resumeData?.enhancedText && !resumeData?.enhancedUrl && (
-                <pre style={{ whiteSpace: 'pre-wrap', fontSize: '0.85rem', maxHeight: '400px', overflow: 'auto', padding: '1rem', margin: 0 }}>
-                  {resumeData.enhancedText.slice(0, 3000)}{resumeData.enhancedText.length > 3000 ? '…' : ''}
-                </pre>
+              {resumeData?.enhancedText &&
+                !['pdf', 'doc', 'docx'].includes(resumeData?.enhancedExt ?? '') && (
+                <div style={{
+                  padding: '1.25rem',
+                  background: 'var(--color-surface)',
+                  fontFamily: 'system-ui, sans-serif',
+                  fontSize: '0.875rem',
+                  lineHeight: '1.7',
+                  whiteSpace: 'pre-wrap',
+                  maxHeight: '600px',
+                  overflowY: 'auto',
+                  color: 'var(--color-on-surface)',
+                }}>
+                  {resumeData.enhancedText}
+                </div>
               )}
             </div>
           )}

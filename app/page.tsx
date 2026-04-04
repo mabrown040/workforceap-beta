@@ -163,32 +163,7 @@ export default async function HomePage() {
             gap: '2rem',
             alignItems: 'start',
           }}>
-            {/* For Partners */}
-            <div className="stitch-card" style={{ background: 'var(--surface-container-lowest)', padding: '2rem' }}>
-              <div style={{ width: '3rem', height: '3rem', background: 'rgba(200,198,197,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c8c6c5', marginBottom: '1.5rem' }}>
-                <span className="material-symbols-outlined">handshake</span>
-              </div>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Partners</h3>
-              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }}>check_circle</span>
-                  Educational resource sharing
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }}>check_circle</span>
-                  Scalable workforce solutions
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }}>check_circle</span>
-                  Community impact analytics
-                </li>
-              </ul>
-              <div style={{ marginTop: '1.5rem' }}>
-                <Link href="/partners" className="btn btn-primary btn-small">Partner With Us</Link>
-              </div>
-            </div>
-
-            {/* For Members — center + elevated (primary audience) */}
+            {/* For Members — first card, elevated (primary audience) */}
             <div className="stitch-card home-employer-elevated" style={{
               background: 'var(--surface-container-lowest)', padding: '2rem',
               border: '2px solid var(--color-accent)',
@@ -215,6 +190,31 @@ export default async function HomePage() {
               </ul>
               <div style={{ marginTop: '1.5rem' }}>
                 <Link href="/apply" className="btn btn-primary btn-small">Apply Now</Link>
+              </div>
+            </div>
+
+            {/* For Partners */}
+            <div className="stitch-card" style={{ background: 'var(--surface-container-lowest)', padding: '2rem' }}>
+              <div style={{ width: '3rem', height: '3rem', background: 'rgba(200,198,197,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c8c6c5', marginBottom: '1.5rem' }}>
+                <span className="material-symbols-outlined">handshake</span>
+              </div>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Partners</h3>
+              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }}>check_circle</span>
+                  Educational resource sharing
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }}>check_circle</span>
+                  Scalable workforce solutions
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }}>check_circle</span>
+                  Community impact analytics
+                </li>
+              </ul>
+              <div style={{ marginTop: '1.5rem' }}>
+                <Link href="/partners" className="btn btn-primary btn-small">Partner With Us</Link>
               </div>
             </div>
 

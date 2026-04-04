@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
+import { prisma } from '@/lib/db/prisma';
 import { PATHWAYS } from '@/lib/content/learningPathways';
 import LearningPathCard from '@/components/portal/LearningPathCard';
 import LearningHubDestinationCards from '@/components/portal/LearningHubDestinationCards';
@@ -28,12 +30,14 @@ export default async function LearningPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/learning');
 
-  /* Overall completion: average across all pathways (placeholder — real data comes from LearningPathCard client state) */
-  const overallPct = 38;
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { enrolledProgram: true, assessmentCompleted: true },
+  });
+  const isEnrolled = !!dbUser?.enrolledProgram;
 
   const upcomingModules = ACTIVE_PATHWAY.steps.slice(0, 4);
-  /* How many steps count as "completed" on mobile (placeholder; real data from user progress) */
-  const completedCount = Math.floor(ACTIVE_PATHWAY.steps.length * (overallPct / 100));
+  const completedCount = 0;
 
   return (
     <>
@@ -52,7 +56,7 @@ export default async function LearningPage() {
           <div style={{ zIndex: 10, width: '60%' }}>
             <h3 className="wa-text-lg wa-font-bold wa-leading-tight wa-text-[#1c1b1b]" style={{ marginBottom: '0.25rem' }}>{ACTIVE_PATHWAY.title}</h3>
             <p className="wa-text-sm wa-text-[#584144] wa-font-medium">
-              {overallPct}% complete · {ACTIVE_PATHWAY.steps.length} modules
+              {isEnrolled ? 'In Progress' : 'Not Started'} · {ACTIVE_PATHWAY.steps.length} modules
             </p>
           </div>
           {/* Progress orb */}
@@ -63,16 +67,16 @@ export default async function LearningPage() {
                 cx="40" cy="40" r="32" fill="transparent"
                 stroke="var(--color-gold)" strokeWidth="5"
                 strokeDasharray="201"
-                strokeDashoffset={201 - (201 * overallPct) / 100}
+                strokeDashoffset={isEnrolled ? 201 * 0.1 : 201}
                 strokeLinecap="round"
               />
             </svg>
-            <span className="wa-text-base wa-font-bold wa-text-[#7b5800]" style={{ position: 'absolute' }}>{overallPct}%</span>
+            <span className="wa-text-base wa-font-bold wa-text-[#7b5800]" style={{ position: 'absolute' }}>{isEnrolled ? '▶' : '—'}</span>
           </div>
         </div>
         {/* Progress bar */}
         <div className="wa-bg-[#debfc2]" style={{ marginTop: '1rem', height: '0.375rem', width: '100%', borderRadius: '9999px', overflow: 'hidden' }}>
-          <div className="wa-bg-[#8c0f37]" style={{ width: `${overallPct}%`, height: '100%', borderRadius: '9999px' }} />
+          <div className="wa-bg-[#8c0f37]" style={{ width: isEnrolled ? '10%' : '0%', height: '100%', borderRadius: '9999px' }} />
         </div>
       </section>
 
@@ -86,10 +90,10 @@ export default async function LearningPage() {
           </div>
           <h4 className="wa-text-xl wa-font-bold wa-leading-snug" style={{ marginBottom: '1.25rem' }}>{ACTIVE_PATHWAY.title}</h4>
           <p className="text-white/80 wa-text-sm" style={{ marginBottom: '1rem' }}>{ACTIVE_PATHWAY.description}</p>
-          <button className="wa-bg-white wa-text-[#8c0f37] wa-font-bold active:wa-scale-95 wa-transition-transform" style={{ width: '100%', padding: '0.75rem 0', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+          <Link href="/dashboard/program" className="wa-bg-white wa-text-[#8c0f37] wa-font-bold active:wa-scale-95 wa-transition-transform" style={{ width: '100%', padding: '0.75rem 0', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', textDecoration: 'none' }}>
             <span className="material-symbols-outlined">play_arrow</span>
             Continue Learning
-          </button>
+          </Link>
         </div>
       </section>
 
@@ -211,10 +215,10 @@ export default async function LearningPage() {
             Overall Completion
           </div>
           <div style={{ fontSize: '1.5rem', fontWeight: 'var(--font-weight-bold)', marginBottom: 'var(--space-2)' }}>
-            {overallPct}%
+            {isEnrolled ? 'In Progress' : 'Not Started'}
           </div>
           <div style={{ height: '6px', background: 'var(--surface-container-highest)', borderRadius: 'var(--radius-full)', overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${overallPct}%`, background: 'var(--color-accent)', borderRadius: 'var(--radius-full)', transition: 'var(--transition-base)' }} />
+            <div style={{ height: '100%', width: isEnrolled ? '10%' : '0%', background: 'var(--color-accent)', borderRadius: 'var(--radius-full)', transition: 'var(--transition-base)' }} />
           </div>
         </div>
       </div>

@@ -384,7 +384,8 @@ export default function ResumeClient({
               )}
               {resumeData?.enhancedUrl &&
                 resumeData.enhancedExt &&
-                !['pdf', 'doc', 'docx'].includes(resumeData.enhancedExt) && (
+                !['pdf', 'doc', 'docx'].includes(resumeData.enhancedExt) &&
+                !resumeData.enhancedText && (
                   <div style={{ padding: '1rem', textAlign: 'center', background: 'var(--surface-container)' }}>
                     <a
                       href={resumeData.enhancedUrl}

@@ -25,13 +25,17 @@ async function getResumeCoachDynamicVariables(
     const fileResume = await getMemberResumePlainText(userId, FILE_RESUME_MAX);
     const draft = opts.liveResumeDraft?.trim();
 
+    const hasPersistedResume = !!(
+      dbUser.profile?.resumeOriginalPath || dbUser.profile?.resumeEnhancedPath
+    );
+
     return {
       member_name: dbUser.fullName ?? '',
       program_title: program?.title ?? '',
       program_skills: program?.skills?.join(', ') ?? '',
       resume_text: fileResume ?? '',
       live_resume_draft: draft?.slice(0, LIVE_DRAFT_MAX) ?? '',
-      has_resume: fileResume ? 'true' : 'false',
+      has_resume: hasPersistedResume ? 'true' : 'false',
     };
   } catch (err) {
     console.error('[resume-coach] context fetch error:', err);

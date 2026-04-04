@@ -4342,6 +4342,25 @@ html:not(.dark) .apply-location-callout strong {
     background: var(--color-accent);
     box-shadow: inset 0 0 0 3px var(--color-white);
 }
+html.dark .form-radio-card.selected {
+    border: 2px solid var(--color-accent);
+    background: rgba(173, 44, 77, 0.15);
+}
+html.dark .form-radio-card.selected .radio-dot {
+    box-shadow: inset 0 0 0 3px var(--surface-container-high);
+}
+
+/* Apply/signup forms — mobile-friendly inputs */
+@media (max-width: 768px) {
+    .apply-grid-layout input[type="text"],
+    .apply-grid-layout input[type="email"],
+    .apply-grid-layout input[type="tel"],
+    .apply-grid-layout select,
+    .apply-grid-layout textarea {
+        min-height: 44px;
+        font-size: 16px; /* prevents iOS zoom */
+    }
+}
 .eligibility-list {
     list-style: none;
     padding: 0;

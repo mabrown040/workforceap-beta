@@ -33,9 +33,24 @@ export default function LearningCivicBotPanel() {
         <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', fontVariationSettings: "'FILL' 1" }}>
           smart_toy
         </span>
-        <div>
-          <div style={{ fontWeight: 'var(--font-weight-medium)', fontSize: 'var(--font-size-sm)' }}>WorkforceAP Study Assistant</div>
-          <div style={{ fontSize: '0.75rem', opacity: 0.85 }}>Ask me anything about your courses</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontWeight: 'var(--font-weight-medium)', fontSize: 'var(--font-size-sm)', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <span>WorkforceAP Study Assistant</span>
+            <span
+              style={{
+                fontSize: '0.65rem',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                padding: '0.1rem 0.4rem',
+                borderRadius: '4px',
+                background: 'rgba(255,255,255,0.25)',
+              }}
+            >
+              Preview
+            </span>
+          </div>
+          <div style={{ fontSize: '0.75rem', opacity: 0.85 }}>Conversational help is on the roadmap — use Training and pathways for now.</div>
         </div>
       </div>
       <div style={{ padding: 'var(--space-4)', minHeight: '120px' }}>
@@ -88,8 +103,8 @@ export default function LearningCivicBotPanel() {
           }}
           aria-label="Send message"
           onClick={() => {
-            setNotice('Conversational study help is coming soon. Use Training and your pathway cards for now.');
-            window.setTimeout(() => setNotice(null), 5000);
+            setNotice('Live chat is not available yet. Open Training or your pathway modules for structured learning.');
+            window.setTimeout(() => setNotice(null), 6000);
           }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>

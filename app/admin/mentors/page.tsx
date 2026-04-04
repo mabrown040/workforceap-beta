@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -17,7 +18,10 @@ async function updateMentorAction(formData: FormData) {
   if (!mentorId) return;
   if (action !== 'approve' && action !== 'deactivate' && action !== 'activate') return;
 
-  await runMentorStatusUpdate(mentorId, action);
+  const result = await runMentorStatusUpdate(mentorId, action);
+  if (result.ok) {
+    revalidatePath('/admin/mentors');
+  }
 }
 
 export default async function AdminMentorsPage() {

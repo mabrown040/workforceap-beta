@@ -107,16 +107,25 @@ html.dark .wwd-photo-hero h1.wwd-photo-hero__title {
   --home-hero-fg-muted: rgba(242, 242, 245, 0.88);
 }
 
+/*
+ * Hero secondary CTA: must NOT use .btn-secondary — that applies a light surface fill and makes
+ * light hero text invisible (white-on-white). Dark glass + light text works on any scrim.
+ */
+.home-hero-partner-cta,
 .home-hero-outline-cta {
-  border-color: rgba(255, 255, 255, 0.38) !important;
-  color: var(--home-hero-fg) !important;
-  background: rgba(255, 255, 255, 0.06);
+  border: 2px solid rgba(255, 255, 255, 0.58) !important;
+  color: #f5f5f8 !important;
+  background: rgba(0, 0, 0, 0.45) !important;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.22);
 }
 
+.home-hero-partner-cta:hover,
 .home-hero-outline-cta:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.55) !important;
-  color: #fff !important;
+  background: rgba(0, 0, 0, 0.58) !important;
+  border-color: rgba(255, 255, 255, 0.78) !important;
+  color: #ffffff !important;
 }
 
 /* Credibility strip dividers + logo treatment per theme */

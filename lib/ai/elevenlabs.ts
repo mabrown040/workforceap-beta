@@ -110,7 +110,10 @@ export async function listVoices(): Promise<
 /**
  * Create a signed conversational session URL for ElevenLabs Conversational AI.
  */
-export async function createConversationalSession(agentId: string): Promise<{
+export async function createConversationalSession(
+  agentId: string,
+  options?: { dynamicContext?: string }
+): Promise<{
   signedUrl: string;
   expiresAt?: string;
 }> {
@@ -137,8 +140,19 @@ export async function createConversationalSession(agentId: string): Promise<{
     throw new Error('ElevenLabs did not return signed_url');
   }
 
+  let signedUrl = data.signed_url;
+
+  // Append dynamic context as a custom_llm_extra_body param if provided
+  // ElevenLabs WebSocket accepts agent_overrides on connect
+  if (options?.dynamicContext) {
+    const sep = signedUrl.includes('?') ? '&' : '?';
+    signedUrl = `${signedUrl}${sep}agent_overrides=${encodeURIComponent(JSON.stringify({
+      prompt: { prompt: options.dynamicContext },
+    }))}`;
+  }
+
   return {
-    signedUrl: data.signed_url,
+    signedUrl,
     expiresAt: data.expires_at_unix_secs
       ? new Date(data.expires_at_unix_secs * 1000).toISOString()
       : undefined,

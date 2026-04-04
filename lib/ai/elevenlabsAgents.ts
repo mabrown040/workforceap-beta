@@ -38,10 +38,13 @@ export function envKeyForPortalAgent(key: ElevenLabsPortalAgentKey): string {
   return ENV_KEYS[key];
 }
 
-export async function startElevenLabsPortalSession(key: ElevenLabsPortalAgentKey) {
+export async function startElevenLabsPortalSession(
+  key: ElevenLabsPortalAgentKey,
+  options?: { dynamicContext?: string }
+) {
   const agentId = getElevenLabsAgentId(key);
   if (!agentId) {
     throw new Error(`No ElevenLabs agent ID for "${key}". Set ${ENV_KEYS[key]}.`);
   }
-  return createConversationalSession(agentId);
+  return createConversationalSession(agentId, options);
 }

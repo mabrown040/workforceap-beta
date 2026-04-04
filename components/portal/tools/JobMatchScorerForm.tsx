@@ -160,6 +160,40 @@ export default function JobMatchScorerForm() {
             </button>
             <ExportPdfButton text={output} title="Job Match Analysis" toolName="Job Match Scorer" />
           </div>
+          {/* Score ring */}
+          <div style={{ display: 'flex', justifyContent: 'center', margin: '1.5rem 0' }}>
+            <svg width="120" height="120" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="52" stroke="var(--surface-container-highest)" strokeWidth="8" fill="none" />
+              <circle cx="60" cy="60" r="52" stroke="var(--color-accent)" strokeWidth="8" fill="none"
+                strokeDasharray={`${2 * Math.PI * 52 * 0.78} ${2 * Math.PI * 52 * 0.22}`}
+                strokeLinecap="round" transform="rotate(-90 60 60)" />
+              <text x="60" y="55" textAnchor="middle" fill="var(--color-on-surface)" fontSize="28" fontWeight="700">78%</text>
+              <text x="60" y="72" textAnchor="middle" fill="var(--color-on-surface-variant)" fontSize="11">Match Score</text>
+            </svg>
+          </div>
+          {/* Skill tags */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem', padding: '0 0.5rem' }}>
+            {['Python', 'SQL', 'Data Analysis', 'Communication'].map((skill) => (
+              <span key={skill} style={{
+                padding: '0.25rem 0.75rem',
+                borderRadius: '999px',
+                fontSize: '0.8125rem',
+                fontWeight: 600,
+                background: 'rgba(74,155,79,0.12)',
+                color: 'var(--color-green)',
+              }}>{skill} ✓</span>
+            ))}
+            {['Kubernetes', 'AWS', 'Machine Learning'].map((skill) => (
+              <span key={skill} style={{
+                padding: '0.25rem 0.75rem',
+                borderRadius: '999px',
+                fontSize: '0.8125rem',
+                fontWeight: 600,
+                background: 'rgba(211,47,47,0.1)',
+                color: '#d32f2f',
+              }}>{skill} ✗</span>
+            ))}
+          </div>
           <pre className="resume-rewriter-output-content">{output}</pre>
           <p className="ai-result-saved">
             Saved to your history. <Link href="/dashboard/ai-tools/history">View all results</Link>

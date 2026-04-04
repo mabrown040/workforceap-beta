@@ -6,6 +6,8 @@ import Link from 'next/link';
 export default function JobApplyButton({ jobId, authenticated = true }: { jobId: string; authenticated?: boolean }) {
   const [applying, setApplying] = useState(false);
   const [applied, setApplied] = useState(false);
+  const [tracking, setTracking] = useState(false);
+  const [tracked, setTracked] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [profileShareConsent, setProfileShareConsent] = useState(false);
   const [resumeShareConsent, setResumeShareConsent] = useState(false);
@@ -41,6 +43,28 @@ export default function JobApplyButton({ jobId, authenticated = true }: { jobId:
       setError('Network error');
     } finally {
       setApplying(false);
+    }
+  }
+
+  async function handleAddToTracker() {
+    setTracking(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/member/job-applications/track-curated', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jobId }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setTracked(true);
+      } else {
+        setError(data.error ?? 'Could not add to tracker');
+      }
+    } catch {
+      setError('Network error');
+    } finally {
+      setTracking(false);
     }
   }
 
@@ -80,6 +104,37 @@ export default function JobApplyButton({ jobId, authenticated = true }: { jobId:
         <p style={{ margin: '0.5rem 0 0', color: 'var(--color-on-surface-variant)' }}>
           The employer will review your application and contact you.
         </p>
+        <p style={{ margin: '0.75rem 0 0', fontSize: '0.9rem' }}>
+          <Link href="/dashboard/job-applications" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+            Open Application Tracker
+          </Link>
+          {' '}to see this role on your board.
+        </p>
+      </div>
+    );
+  }
+
+  if (tracked) {
+    return (
+      <div
+        style={{
+          padding: '1.25rem',
+          background: 'var(--surface-container)',
+          borderRadius: 'var(--radius-md)',
+          border: '1px solid var(--outline-variant)',
+        }}
+      >
+        <p style={{ fontWeight: 600, margin: 0 }}>Saved to your Application Tracker</p>
+        <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
+          We added this job under <strong>Saved</strong>. Update the stage as you apply and interview.
+        </p>
+        <Link
+          href="/dashboard/job-applications"
+          className="btn btn-primary"
+          style={{ marginTop: '0.75rem', display: 'inline-block' }}
+        >
+          Go to Application Tracker
+        </Link>
       </div>
     );
   }
@@ -140,7 +195,27 @@ export default function JobApplyButton({ jobId, authenticated = true }: { jobId:
       >
         {applying ? 'Submitting application…' : 'Submit Application'}
       </button>
-      
+
+      <p style={{ margin: '1rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', textAlign: 'center' }}>
+        Not ready to apply?{' '}
+        <button
+          type="button"
+          onClick={handleAddToTracker}
+          disabled={tracking}
+          style={{
+            background: 'none',
+            border: 'none',
+            padding: 0,
+            color: 'var(--color-accent)',
+            fontWeight: 600,
+            cursor: tracking ? 'wait' : 'pointer',
+            textDecoration: 'underline',
+          }}
+        >
+          {tracking ? 'Adding…' : 'Add to my tracker only'}
+        </button>
+      </p>
+
       {!profileShareConsent && (
         <p style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', textAlign: 'center' }}>
           Please consent to share your profile to apply

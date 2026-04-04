@@ -47,6 +47,15 @@ const TOOLS = [
     href: '/dashboard/ai-tools/interview-coach',
   },
   {
+    id: 'voice-interview',
+    title: 'Voice Interview',
+    icon: 'mic',
+    description: 'Voice-only mock interview with ElevenLabs and a live coaching panel (clarity, confidence, keywords).',
+    timeToComplete: '10-20 min',
+    status: 'available' as const,
+    href: '/dashboard/ai-tools/voice-interview',
+  },
+  {
     id: 'job-match-scorer',
     title: 'Job Match Scorer',
     icon: 'target',
@@ -113,7 +122,8 @@ const TOOLS = [
     id: 'skill-mapper',
     title: 'Skill Mapper',
     icon: 'radar',
-    description: 'Search any occupation and see its top skills on a competency radar chart — powered by O*NET data from the U.S. Department of Labor.',
+    description:
+      'Search any occupation and see its top skills on a competency radar chart — powered by O*NET data from the U.S. Department of Labor.',
     timeToComplete: '2 min',
     status: 'available' as const,
     href: '/dashboard/ai-tools/skill-mapper',

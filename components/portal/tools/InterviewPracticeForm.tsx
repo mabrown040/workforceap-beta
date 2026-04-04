@@ -15,12 +15,17 @@ type Question = {
   exampleAnswer?: string;
 };
 
+type StarWorksheet = { situation: string; task: string; action: string; result: string };
+
+const emptyStar = (): StarWorksheet => ({ situation: '', task: '', action: '', result: '' });
+
 export default function InterviewPracticeForm() {
   const [role, setRole] = useState('');
   const [experienceLevel, setExperienceLevel] = useState<'entry' | 'mid' | 'senior'>('mid');
   const [focusAreas, setFocusAreas] = useState<string[]>([]);
   const [difficulty, setDifficulty] = useState(5);
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [starByIndex, setStarByIndex] = useState<Record<number, StarWorksheet>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { copy, copied } = useCopyToClipboard();
@@ -41,6 +46,7 @@ export default function InterviewPracticeForm() {
     e.preventDefault();
     setError('');
     setQuestions([]);
+    setStarByIndex({});
     setLoading(true);
     trackToolLaunch('interview-practice', 'Interview Practice Generator');
 
@@ -66,15 +72,70 @@ export default function InterviewPracticeForm() {
     }
   };
 
-  const handleCopy = () => {
-    const text = questions
-      .map(
-        (q) =>
-          `${q.question}\nType: ${q.type}\nTip: ${q.tip}${q.starHint ? `\nSTAR hint: ${q.starHint}` : ''}${q.exampleAnswer ? `\nExample answer: ${q.exampleAnswer}` : ''}\n`
-      )
+  const buildSessionTranscript = () => {
+    const header = [
+      'WorkforceAP — Interview practice session',
+      `Target role: ${role || '(not set)'}`,
+      `Experience: ${experienceLevel}`,
+      `Focus: ${focusAreas.length ? focusAreas.join(', ') : 'any'}`,
+      `Generated: ${new Date().toLocaleString()}`,
+      '',
+      '---',
+      '',
+    ].join('\n');
+
+    const body = questions
+      .map((q, i) => {
+        const star = starByIndex[i] ?? emptyStar();
+        const starBlock = [star.situation, star.task, star.action, star.result].some((s) => s.trim())
+          ? [
+              'STAR worksheet (your notes):',
+              star.situation.trim() ? `  Situation: ${star.situation.trim()}` : '  Situation: —',
+              star.task.trim() ? `  Task: ${star.task.trim()}` : '  Task: —',
+              star.action.trim() ? `  Action: ${star.action.trim()}` : '  Action: —',
+              star.result.trim() ? `  Result: ${star.result.trim()}` : '  Result: —',
+            ].join('\n')
+          : 'STAR worksheet: (not filled yet)';
+        return [
+          `Question ${i + 1}`,
+          q.question,
+          `Type: ${q.type}`,
+          `Tip: ${q.tip}`,
+          q.starHint ? `STAR hint: ${q.starHint}` : '',
+          q.exampleAnswer ? `Example answer: ${q.exampleAnswer}` : '',
+          starBlock,
+          '',
+        ]
+          .filter(Boolean)
+          .join('\n');
+      })
       .join('\n');
-    void copy(text);
+
+    return `${header}${body}`;
   };
+
+  const handleCopy = () => {
+    void copy(buildSessionTranscript());
+  };
+
+  const handleDownloadTxt = () => {
+    const blob = new Blob([buildSessionTranscript()], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `interview-practice-${(role || 'session').replace(/[^a-zA-Z0-9-_ ]/g, '').slice(0, 40) || 'session'}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const updateStar = (index: number, field: keyof StarWorksheet, value: string) => {
+    setStarByIndex((prev) => ({
+      ...prev,
+      [index]: { ...(prev[index] ?? emptyStar()), [field]: value },
+    }));
+  };
+
+  const pdfExportText = buildSessionTranscript();
 
   return (
     <form onSubmit={handleSubmit} className="interview-practice-form">
@@ -182,30 +243,69 @@ export default function InterviewPracticeForm() {
           <div className="interview-practice-output-header">
             <h3>Interview questions</h3>
             <button type="button" className="btn btn-outline btn-sm" onClick={handleCopy}>
-              {copied ? 'Copied!' : 'Copy all'}
+              {copied ? 'Copied!' : 'Copy transcript'}
+            </button>
+            <button type="button" className="btn btn-outline btn-sm" onClick={handleDownloadTxt}>
+              Download .txt
             </button>
             <ExportPdfButton
-              text={questions.map((q) => `${q.question}\nType: ${q.type}\nTip: ${q.tip}${q.starHint ? `\nSTAR: ${q.starHint}` : ''}${q.exampleAnswer ? `\nExample: ${q.exampleAnswer}` : ''}\n`).join('\n')}
-              title="Interview Questions"
+              text={pdfExportText}
+              title="Interview Practice Session"
               toolName="Interview Practice"
             />
           </div>
+          <p className="interview-practice-star-intro" style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0 0 1rem' }}>
+            Use the STAR worksheet under each question to draft your answer (Situation → Task → Action → Result). It’s included in copy, PDF, and .txt export.
+          </p>
           <ol className="interview-practice-list">
-            {questions.map((q, i) => (
-              <li key={i} className="interview-practice-item">
-                <div className="interview-practice-question">{q.question}</div>
-                <span className={`interview-practice-type type-${q.type}`}>{q.type}</span>
-                <p className="interview-practice-tip">{q.tip}</p>
-                {q.starHint && (
-                  <p className="interview-practice-star">STAR hint: {q.starHint}</p>
-                )}
-                {q.exampleAnswer && (
-                  <div className="interview-practice-example">
-                    <strong>Example answer:</strong> {q.exampleAnswer}
-                  </div>
-                )}
-              </li>
-            ))}
+            {questions.map((q, i) => {
+              const star = starByIndex[i] ?? emptyStar();
+              return (
+                <li key={i} className="interview-practice-item">
+                  <div className="interview-practice-question">{q.question}</div>
+                  <span className={`interview-practice-type type-${q.type}`}>{q.type}</span>
+                  <p className="interview-practice-tip">{q.tip}</p>
+                  {q.starHint && (
+                    <p className="interview-practice-star">STAR hint: {q.starHint}</p>
+                  )}
+                  <details className="interview-practice-star-details" style={{ marginTop: '0.75rem' }}>
+                    <summary style={{ cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-accent)' }}>
+                      STAR answer worksheet
+                    </summary>
+                    <div style={{ display: 'grid', gap: '0.65rem', marginTop: '0.75rem', paddingLeft: '0.25rem' }}>
+                      {(
+                        [
+                          ['situation', 'Situation — context and stakes'] as const,
+                          ['task', 'Task — what you needed to achieve'] as const,
+                          ['action', 'Action — what you did'] as const,
+                          ['result', 'Result — outcome and metrics'] as const,
+                        ] as const
+                      ).map(([key, label]) => (
+                        <div key={key} className="form-group" style={{ marginBottom: 0 }}>
+                          <label htmlFor={`star-${i}-${key}`} style={{ fontSize: '0.8rem' }}>
+                            {label}
+                          </label>
+                          <textarea
+                            id={`star-${i}-${key}`}
+                            value={star[key]}
+                            onChange={(e) => updateStar(i, key, e.target.value)}
+                            rows={key === 'action' ? 3 : 2}
+                            placeholder={`Draft your ${key}…`}
+                            disabled={loading}
+                            style={{ fontSize: '0.875rem' }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </details>
+                  {q.exampleAnswer && (
+                    <div className="interview-practice-example">
+                      <strong>Example answer:</strong> {q.exampleAnswer}
+                    </div>
+                  )}
+                </li>
+              );
+            })}
           </ol>
           <p className="ai-result-saved">
             Saved to your history. <Link href="/dashboard/ai-tools/history">View all results</Link>

@@ -2,6 +2,7 @@ import type { LucideIcon } from 'lucide-react';
 import {
   Activity,
   AlertTriangle,
+  ArrowLeftRight,
   Award,
   BarChart3,
   BookOpen,
@@ -270,6 +271,12 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin/invites', label: 'Invites', group: 'workflows', Icon: MessageSquare },
   { href: '/admin/assessments', label: 'Assessments', group: 'workflows', Icon: ClipboardCheck },
   { href: '/admin/programs', label: 'Programs', group: 'workflows', Icon: BookOpen },
+  {
+    href: '/admin/program-change-requests',
+    label: 'Program changes',
+    group: 'workflows',
+    Icon: ArrowLeftRight,
+  },
   { href: '/admin/career-mappings', label: 'Career mappings', group: 'workflows', Icon: Target },
   { href: '/admin/settings', label: 'Settings', group: 'manage', Icon: Settings },
   { href: '/admin/blog', label: 'Blog', group: 'workflows', Icon: FileText },

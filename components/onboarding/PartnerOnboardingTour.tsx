@@ -45,7 +45,8 @@ const SLIDES: Slide[] = [
   },
 ];
 
-const SLIDE_DURATION = 8000; // ms
+/** ~7.5s × 4 slides ≈ 30s intro before the last slide stays for “Get started” */
+const SLIDE_DURATION = 7500; // ms
 
 /* ------------------------------------------------------------------ */
 /*  Component                                                         */

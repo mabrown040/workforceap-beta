@@ -9,6 +9,8 @@ import MemberPreScreeningForm from '@/components/portal/MemberPreScreeningForm';
 import MemberInterviewRequestButton from '@/components/portal/MemberInterviewRequestButton';
 import YouthDashboardNotice from '@/components/portal/YouthDashboardNotice';
 import { formatPortalDate, formatPortalDateTime } from '@/lib/formatDate';
+import MemberNextStepsStrip from '@/components/portal/MemberNextStepsStrip';
+import type { NextBestAction } from '@/lib/member/nextBestActions';
 
 type State = 'A' | 'B' | 'C' | 'D';
 
@@ -40,6 +42,8 @@ type DashboardHomeClientProps = {
   };
   checklistAllDone: boolean;
   recommendedActions: Array<{ label: string; href: string }>;
+  /** Data-driven nudges (resume, messages, tracker, recap, etc.) */
+  nextBestActions?: NextBestAction[];
   jobSearchUrl?: string | null;
   age?: number | null;
   isMinor?: boolean;
@@ -66,6 +70,7 @@ export default function DashboardHomeClient({
   checklist,
   checklistAllDone,
   recommendedActions,
+  nextBestActions = [],
   jobSearchUrl,
   applicationStatus,
   noApplicationOnFile,
@@ -130,6 +135,8 @@ export default function DashboardHomeClient({
           {state === 'D' && `All courses complete. Focus on job outcomes and career readiness.`}
         </p>
       </header>
+
+      {nextBestActions.length > 0 && <MemberNextStepsStrip actions={nextBestActions} />}
 
       {/* ── Bento Grid ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '1.5rem' }}>

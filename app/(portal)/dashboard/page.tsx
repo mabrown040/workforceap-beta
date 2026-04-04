@@ -17,6 +17,10 @@ import { MEMBER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { formatPortalDate } from '@/lib/formatDate';
 import MemberDashboardVoiceSection from '@/components/portal/MemberDashboardVoiceSection';
+import MemberNextStepsStrip from '@/components/portal/MemberNextStepsStrip';
+import { getMemberEngagementSignals } from '@/lib/member/memberEngagementSignals';
+import { buildNextBestActions } from '@/lib/member/nextBestActions';
+import { getProfileCompleteness } from '@/lib/resume/profileCompleteness';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Member overview',
@@ -31,33 +35,47 @@ export default async function DashboardPage() {
   const { user: dbUser, careerBrief } = await loadMemberCareerBriefBundle(user.id, { activeMemberOnly: true });
   if (!dbUser) redirect('/login');
 
-  const intakeExtra = await prisma.user.findUnique({
-    where: { id: user.id },
-    select: {
-      interviewEligible: true,
-      interviewRequestedAt: true,
-      interviewCompletedAt: true,
-      preScreeningResponse: { select: { id: true } },
-      onboardingCompletedAt: true,
-      tourCompletedAt: true,
-      fullName: true,
-      phone: true,
-      programInterest: true,
-      careerRecommendationJson: true,
-      needsComputerSupportFollowUp: true,
-      profile: {
-        select: {
-          city: true,
-          state: true,
-          zip: true,
-          profilePhone: true,
-          referralSource: true,
-          dob: true,
-          isMinor: true,
+  const [intakeExtra, profileForCompleteness, engagementSignals] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: user.id },
+      select: {
+        interviewEligible: true,
+        interviewRequestedAt: true,
+        interviewCompletedAt: true,
+        preScreeningResponse: { select: { id: true } },
+        onboardingCompletedAt: true,
+        tourCompletedAt: true,
+        fullName: true,
+        phone: true,
+        programInterest: true,
+        careerRecommendationJson: true,
+        needsComputerSupportFollowUp: true,
+        profile: {
+          select: {
+            city: true,
+            state: true,
+            zip: true,
+            profilePhone: true,
+            referralSource: true,
+            dob: true,
+            isMinor: true,
+          },
         },
       },
-    },
-  });
+    }),
+    prisma.profile.findUnique({
+      where: { userId: user.id },
+      select: {
+        profilePhone: true,
+        profileAddress: true,
+        profileLinkedin: true,
+        profileBio: true,
+        employmentStatus: true,
+        educationLevel: true,
+      },
+    }),
+    getMemberEngagementSignals(user.id),
+  ]);
 
   const careerMatchFromProfile = intakeExtra?.careerRecommendationJson as CareerMatchResult | null;
 
@@ -120,6 +138,31 @@ export default async function DashboardPage() {
     ? coursesCompleted.filter((s) => program.courses.some((c) => c.slug === s)).length
     : 0;
   const allCoursesComplete = totalCourses > 0 && completedCount >= totalCourses;
+
+  const dashboardState: 'A' | 'B' | 'C' | 'D' = !enrolledProgram
+    ? 'A'
+    : !assessmentCompleted
+      ? 'B'
+      : allCoursesComplete
+        ? 'D'
+        : 'C';
+
+  const profileCompletenessPct = getProfileCompleteness(profileForCompleteness, {
+    fullName: dbUser.fullName,
+    email: dbUser.email,
+  });
+
+  const nextBestActions = buildNextBestActions({
+    state: dashboardState,
+    noApplicationOnFile,
+    enrolledProgram,
+    assessmentCompleted,
+    hasResume: engagementSignals.hasResume,
+    profileCompletenessPct,
+    jobApplicationCount: engagementSignals.jobApplicationCount,
+    counselorUnreadCount: engagementSignals.counselorUnreadCount,
+    weeklyRecapUnopened: engagementSignals.weeklyRecapUnopened,
+  });
 
   const checklist = {
     createAccount: true,
@@ -216,6 +259,12 @@ export default async function DashboardPage() {
         <section style={{ padding: '0 1.5rem 1.25rem' }}>
           <MemberDashboardVoiceSection />
         </section>
+
+        {nextBestActions.length > 0 && (
+          <section style={{ padding: '0 1.5rem 1rem' }}>
+            <MemberNextStepsStrip actions={nextBestActions} compact />
+          </section>
+        )}
 
         {/* Next step card */}
         {applicationStatus?.nextStep && (
@@ -368,20 +417,13 @@ export default async function DashboardPage() {
             recommendedActions={recommendedActions}
             jobSearchUrl={jobSearchUrl}
             firstName={firstName}
+            nextBestActions={nextBestActions}
             assessmentDone={assessmentCompleted}
             preScreeningDone={!!intakeExtra?.preScreeningResponse}
             interviewEligible={intakeExtra?.interviewEligible ?? false}
             interviewRequestedAt={intakeExtra?.interviewRequestedAt ?? null}
             interviewCompletedAt={intakeExtra?.interviewCompletedAt ?? null}
-            state={
-              !enrolledProgram
-                ? 'A'
-                : !assessmentCompleted
-                ? 'B'
-                : allCoursesComplete
-                ? 'D'
-                : 'C'
-            }
+            state={dashboardState}
             programTitle={program?.title}
             enrolledAt={dbUser.enrolledAt}
             assessmentScorePct={dbUser.assessmentScorePct}

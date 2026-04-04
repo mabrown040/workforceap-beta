@@ -1,0 +1,81 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { getUser } from '@/lib/auth/server';
+import { ensureUserInDb } from '@/lib/auth/ensureUser';
+import { prisma } from '@/lib/db/prisma';
+import { captureApiError } from '@/lib/observability/captureApiError';
+
+const createSchema = z.object({
+  requestedProgramSlug: z.string().min(1).max(120),
+  reason: z.string().min(10).max(8000),
+});
+
+export async function GET() {
+  try {
+    const user = await getUser();
+    if (!user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const rows = await prisma.programChangeRequest.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        currentProgramSlug: true,
+        requestedProgramSlug: true,
+        reason: true,
+        status: true,
+        adminNote: true,
+        createdAt: true,
+        reviewedAt: true,
+      },
+    });
+
+    return NextResponse.json({ requests: rows });
+  } catch (error) {
+    captureApiError(error, { route: 'GET /api/member/program-change-request' });
+    return NextResponse.json({ error: 'Failed to load requests' }, { status: 500 });
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const user = await getUser();
+    if (!user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    await ensureUserInDb(user);
+
+    const parsed = createSchema.safeParse(await req.json().catch(() => ({})));
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid data', details: parsed.error.flatten() }, { status: 400 });
+    }
+
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { enrolledProgram: true },
+    });
+
+    const pending = await prisma.programChangeRequest.findFirst({
+      where: { userId: user.id, status: 'PENDING' },
+    });
+    if (pending) {
+      return NextResponse.json(
+        { error: 'You already have a pending program change request.' },
+        { status: 409 }
+      );
+    }
+
+    const row = await prisma.programChangeRequest.create({
+      data: {
+        userId: user.id,
+        currentProgramSlug: dbUser?.enrolledProgram ?? null,
+        requestedProgramSlug: parsed.data.requestedProgramSlug,
+        reason: parsed.data.reason,
+      },
+    });
+
+    return NextResponse.json({ ok: true, id: row.id });
+  } catch (error) {
+    captureApiError(error, { route: 'POST /api/member/program-change-request' });
+    return NextResponse.json({ error: 'Could not submit request' }, { status: 500 });
+  }
+}

@@ -2,7 +2,7 @@
 ## Call Notes Implementation Sprint
 
 > Source: Call notes from Mike + Dad session (~120 items)
-> Updated: 2026-04-03 19:42 CDT
+> Updated: 2026-04-04 (engineering sweep)
 
 ---
 
@@ -30,26 +30,33 @@
 
 ## IN PROGRESS 🔨
 
-### Resume Hub Polish (current branch: feat/accept-and-fix-resume)
-- [ ] Wire Accept → pushes suggestion text into ResumeRewriterForm
-- [ ] Verify resume inline preview actually works end-to-end in production (signed URL + CORS)
+### Resume Hub Polish
+- [x] Wire Accept → pushes suggestion text into ResumeRewriterForm — **done** (controlled `ResumeRewriterForm` in `ResumeCoachWorkspace`; mobile profile uses same workspace as desktop). Log: `docs/COMPLETED-WORK-LOG.md`.
+- [ ] **Deploy QA:** resume inline preview — same-origin `/api/member/resume/preview` + DOC/DOCX HTML path; confirm PDF iframe in staging/prod (replaces raw Supabase URL in iframe for PDF).
 
 ## QUEUED 📋
 
 ### Marketing (Round 4)
-- [ ] Blog default image pool (20 curated images with category defaults)
-- [ ] Image diversity pass (67%+ diverse across site)
-- [ ] "How It Works" laptop program wording ("Zero cost for qualifying members")
-- [ ] Accessibility font sizes + journey step consistency
+- [x] Blog default image pool (20 curated images with category defaults) — **wired** (`getDefaultImage` in listing + post when no cover). See `lib/blog/defaultImages.ts`.
+- [x] Image diversity pass (67%+ diverse across site) — **addressed for blog defaults** via curated Unsplash pools (diverse subjects); sitewide photo audit still optional.
+- [x] "How It Works" laptop program wording — **already matches live site** (workforceap.org: “Zero upfront cost for qualifying members”; same intent in beta). See `docs/COMPLETED-WORK-LOG.md`.
+- [x] Accessibility font sizes + journey step consistency — **partial:** homepage milestone cards (`.home-milestone-card`); blog listing “Read more” text; skip link already in root layout.
 
 ### Portal Improvements
-- [ ] Weekly recap + career brief consolidation
-- [ ] Job board full solution (admin-curated + member self-tracking)
-- [ ] Partner onboarding flow (30-sec intro, auto-advance tour)
-- [ ] Program change request flow (member requests → admin approves)
-- [ ] DOC/DOCX server-side conversion to PDF for inline preview
+- [x] Weekly recap + career brief consolidation — **light:** cross-links between `/dashboard/weekly-recap` and `/dashboard/career-brief` (full single-page merge not done).
+- [x] Job board full solution — **shipped:** curated apply syncs to Application Tracker; “Add to my tracker only” + Saved column on kanban; board badge on tracker cards (`lib/jobs/syncCuratedJobToTracker`, `/api/member/job-applications/track-curated`).
+- [x] Partner onboarding flow (30-sec intro, auto-advance tour) — **timing tuned** (`PartnerOnboardingTour` 7.5s/slide ≈ 30s for first four slides).
+- [x] Program change request flow — **shipped:** member `/dashboard/program` + `/api/member/program-change-request`; admin `/admin/program-change-requests` (approve updates `User.enrolledProgram`).
+- [x] DOC/DOCX inline preview — **shipped:** server HTML via Mammoth (`/api/member/resume/docx-html`); PDF via same-origin stream (not full PDF conversion pipeline).
+
+### AI tools (see also `AI-TOOLS-BACKLOG.md`)
+- [x] Skill Mapper page + radar + O*NET/demo fallback
+- [x] Browser STT captions on voice interview (Web Speech API)
+- [ ] WebRTC video recording (optional stretch)
 
 ## SEPARATE SPRINTS 🗓️
+
+Detailed notes: [`docs/plans/SEPARATE-SPRINTS.md`](SEPARATE-SPRINTS.md).
 
 - **O*NET → 19 Programs Mapping** — keep Grok, improve prompts
 - **Partner Portal White-Label** — attendance sheets, outcome reports

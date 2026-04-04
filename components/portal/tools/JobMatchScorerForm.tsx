@@ -1,11 +1,9 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { trackAIToolRun, trackToolLaunch } from '@/lib/analytics/events';
-import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
-import ExportPdfButton from './ExportPdfButton';
+import ResumeAnalysisPanel from './ResumeAnalysisPanel';
 
 export default function JobMatchScorerForm() {
   const [resume, setResume] = useState('');
@@ -15,7 +13,6 @@ export default function JobMatchScorerForm() {
   const [extracting, setExtracting] = useState(false);
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { copy, copied } = useCopyToClipboard();
   const formRef = useRef<HTMLFormElement>(null);
   const [showFloating, setShowFloating] = useState(false);
 
@@ -66,10 +63,6 @@ export default function JobMatchScorerForm() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleCopy = () => {
-    if (output) void copy(output);
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -205,218 +198,16 @@ export default function JobMatchScorerForm() {
       </button>
 
       {output && (
-        <div className="resume-rewriter-output">
-          <div className="resume-rewriter-output-header">
-            <h3>Match analysis</h3>
-            <button type="button" className="btn btn-outline btn-sm" onClick={handleCopy}>
-              {copied ? 'Copied!' : 'Copy to clipboard'}
-            </button>
-            <ExportPdfButton text={output} title="Job Match Analysis" toolName="Job Match Scorer" />
-          </div>
-          {/* Score ring */}
-          <div style={{ display: 'flex', justifyContent: 'center', margin: '1.5rem 0' }}>
-            <svg width="120" height="120" viewBox="0 0 120 120">
-              <circle cx="60" cy="60" r="52" stroke="var(--surface-container-highest)" strokeWidth="8" fill="none" />
-              <circle cx="60" cy="60" r="52" stroke="var(--color-accent)" strokeWidth="8" fill="none"
-                strokeDasharray={`${2 * Math.PI * 52 * 0.78} ${2 * Math.PI * 52 * 0.22}`}
-                strokeLinecap="round" transform="rotate(-90 60 60)" />
-              <text x="60" y="55" textAnchor="middle" fill="var(--color-on-surface)" fontSize="28" fontWeight="700">78%</text>
-              <text x="60" y="72" textAnchor="middle" fill="var(--color-on-surface-variant)" fontSize="11">Match Score</text>
-            </svg>
-          </div>
-          {/* Skill tags */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem', padding: '0 0.5rem' }}>
-            {['Python', 'SQL', 'Data Analysis', 'Communication'].map((skill) => (
-              <span key={skill} style={{
-                padding: '0.25rem 0.75rem',
-                borderRadius: '999px',
-                fontSize: '0.8125rem',
-                fontWeight: 600,
-                background: 'rgba(74,155,79,0.12)',
-                color: 'var(--color-green)',
-              }}>{skill} ✓</span>
-            ))}
-            {['Kubernetes', 'AWS', 'Machine Learning'].map((skill) => (
-              <span key={skill} style={{
-                padding: '0.25rem 0.75rem',
-                borderRadius: '999px',
-                fontSize: '0.8125rem',
-                fontWeight: 600,
-                background: 'rgba(211,47,47,0.1)',
-                color: '#d32f2f',
-              }}>{skill} ✗</span>
-            ))}
-          </div>
-          <pre className="resume-rewriter-output-content">{output}</pre>
-          <section
-            aria-labelledby="resume-section-audit-heading"
-            style={{
-              marginTop: '1.5rem',
-              display: 'grid',
-              gap: '1rem',
-            }}
-          >
-            <div
-              style={{
-                display: 'grid',
-                gap: '0.5rem',
-              }}
-            >
-              <h4 id="resume-section-audit-heading" style={{ margin: 0 }}>
-                Section audit
-              </h4>
-              <div
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: '0.75rem',
-                }}
-              >
-                {sectionAuditCards.map((card) => (
-                  <article
-                    key={card.title}
-                    style={{
-                      flex: '1 1 220px',
-                      minWidth: '220px',
-                      borderRadius: 'var(--radius-lg)',
-                      border: '1px solid rgba(127, 127, 127, 0.2)',
-                      borderLeft: `4px solid ${card.accent}`,
-                      background: 'var(--surface-container-highest)',
-                      padding: '1rem',
-                      boxShadow: '0 1px 0 rgba(0, 0, 0, 0.04)',
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '0.75rem' }}>
-                      <h5 style={{ margin: 0, fontSize: '1rem' }}>{card.title}</h5>
-                      <span
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '0.35rem',
-                          padding: '0.2rem 0.6rem',
-                          borderRadius: '999px',
-                          fontSize: '0.75rem',
-                          fontWeight: 700,
-                          background: card.accentSoft,
-                          color: card.statusColor,
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        <span
-                          aria-hidden
-                          style={{
-                            width: '0.5rem',
-                            height: '0.5rem',
-                            borderRadius: '999px',
-                            background: card.accent,
-                            display: 'inline-block',
-                          }}
-                        />
-                        {card.status}
-                      </span>
-                    </div>
-                    <p style={{ margin: '0.65rem 0 0', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
-                      {card.description}
-                    </p>
-                  </article>
-                ))}
-              </div>
-            </div>
-
-            <section
-              aria-labelledby="resume-missing-metrics-heading"
-              style={{
-                borderRadius: 'var(--radius-lg)',
-                border: '1px solid rgba(237, 139, 0, 0.25)',
-                background: 'linear-gradient(180deg, rgba(237, 139, 0, 0.12), rgba(237, 139, 0, 0.06))',
-                padding: '1rem',
-              }}
-            >
-              <h4 id="resume-missing-metrics-heading" style={{ margin: 0 }}>
-                Missing metrics
-              </h4>
-              <ul
-                style={{
-                  margin: '0.75rem 0 0',
-                  paddingLeft: '1.25rem',
-                  display: 'grid',
-                  gap: '0.5rem',
-                  color: 'var(--color-on-surface)',
-                }}
-              >
-                {missingMetrics.map((metric) => (
-                  <li key={metric}>{metric}</li>
-                ))}
-              </ul>
-            </section>
-
-            <section
-              aria-labelledby="resume-bullet-optimization-heading"
-              style={{
-                display: 'grid',
-                gap: '0.75rem',
-              }}
-            >
-              <h4 id="resume-bullet-optimization-heading" style={{ margin: 0 }}>
-                Bullet optimization suggestions
-              </h4>
-              <div style={{ display: 'grid', gap: '0.75rem' }}>
-                {bulletSuggestions.map((item) => (
-                  <article
-                    key={item.before}
-                    style={{
-                      borderRadius: 'var(--radius-lg)',
-                      border: '1px solid rgba(127, 127, 127, 0.18)',
-                      background: 'var(--surface-container-highest)',
-                      padding: '1rem',
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: 'grid',
-                        gap: '0.75rem',
-                      }}
-                    >
-                      <div
-                        style={{
-                          borderRadius: 'var(--radius-md)',
-                          border: '1px solid rgba(127, 127, 127, 0.14)',
-                          background: 'rgba(127, 127, 127, 0.06)',
-                          padding: '0.85rem',
-                        }}
-                      >
-                        <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
-                          Before
-                        </div>
-                        <p style={{ margin: '0.35rem 0 0', lineHeight: 1.55 }}>
-                          {item.before}
-                        </p>
-                      </div>
-                      <div
-                        style={{
-                          borderRadius: 'var(--radius-md)',
-                          border: '1px solid rgba(46, 125, 50, 0.22)',
-                          background: 'rgba(46, 125, 50, 0.08)',
-                          padding: '0.85rem',
-                        }}
-                      >
-                        <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-green)' }}>
-                          After
-                        </div>
-                        <p style={{ margin: '0.35rem 0 0', lineHeight: 1.55 }}>
-                          {item.after}
-                        </p>
-                      </div>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </section>
-          </section>
-          <p className="ai-result-saved">
-            Saved to your history. <Link href="/dashboard/ai-tools/history">View all results</Link>
-          </p>
-        </div>
+        <ResumeAnalysisPanel
+          resumePreview={resume}
+          scorePercent={78}
+          matchedSkills={['Python', 'SQL', 'Data Analysis', 'Communication']}
+          missingSkills={['Kubernetes', 'AWS', 'Machine Learning']}
+          analysisText={output}
+          sectionAuditCards={sectionAuditCards}
+          missingMetrics={missingMetrics}
+          bulletSuggestions={bulletSuggestions}
+        />
       )}
       {/* Floating analyze button — mobile */}
       {showFloating && (

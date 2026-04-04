@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
@@ -28,6 +29,11 @@ export default async function CareerBriefPage() {
     <div className="inner-page">
       <section className="page-hero">
         <div className="page-hero-content">
+          <p style={{ marginBottom: '0.75rem' }}>
+            <Link href="/dashboard/weekly-recap" className="resource-back-link" style={{ display: 'inline' }}>
+              View Weekly Recap →
+            </Link>
+          </p>
           <h1>Weekly Career Brief</h1>
           <p>Guidance, tips, and opportunity updates to keep your job search on track.</p>
         </div>

@@ -11,6 +11,7 @@ import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { PROGRAMS } from '@/lib/content/programs';
 import { ArrowRight } from 'lucide-react';
+import { getDefaultImage } from '@/lib/blog/defaultImages';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -39,11 +40,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
   if (!post || (!post.published && (!post.scheduledAt || post.scheduledAt > now))) return {};
   const path = `/blog/${post.slug}`;
+  const defImg = getDefaultImage(post.category, post.slug);
   return buildPageMetadata({
     title: post.title,
     description: post.excerpt ?? post.title,
     path,
-    image: post.coverImage ?? undefined,
+    image: post.coverImage?.trim() || defImg.url,
   });
 }
 
@@ -107,46 +109,30 @@ export default async function BlogPostPage({ params }: Props) {
         <Link href="/blog" className="blog-back-link">
           ← Back to Blog
         </Link>
-        {post.coverImage ? (
-          <div
-            style={{
-              marginBottom: '2rem',
-              borderRadius: '8px',
-              overflow: 'hidden',
-              aspectRatio: '16/9',
-            }}
-          >
-            <Image
-              src={post.coverImage}
-              alt={`Cover image for ${post.title}`}
-              width={680}
-              height={383}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-          </div>
-        ) : (
-          <div
-            style={{
-              marginBottom: '2rem',
-              borderRadius: '8px',
-              overflow: 'hidden',
-              aspectRatio: '16/9',
-              background: 'var(--surface-container-highest)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '2rem',
-            }}
-          >
-            <Image
-              src="/images/logo-tight.svg"
-              alt="Workforce Advancement Project"
-              width={272}
-              height={153}
-              style={{ width: '40%', height: 'auto', opacity: 0.9, objectFit: 'contain' }}
-            />
-          </div>
-        )}
+        {(() => {
+          const cover = post.coverImage?.trim();
+          const fallback = getDefaultImage(post.category, post.slug);
+          const src = cover || fallback.url;
+          const alt = cover ? `Cover image for ${post.title}` : fallback.alt;
+          return (
+            <div
+              style={{
+                marginBottom: '2rem',
+                borderRadius: '8px',
+                overflow: 'hidden',
+                aspectRatio: '16/9',
+              }}
+            >
+              <Image
+                src={src}
+                alt={alt}
+                width={680}
+                height={383}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </div>
+          );
+        })()}
         <div className="blog-post-prose markdown-body">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content}</ReactMarkdown>
         </div>

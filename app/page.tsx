@@ -313,7 +313,7 @@ export default async function HomePage() {
           WebkitOverflowScrolling: 'touch',
         }}>
           {MILESTONES.map((step) => (
-            <div key={step.num} style={{
+            <div key={step.num} className="home-milestone-card" style={{
               flex: '0 0 260px', scrollSnapAlign: 'start',
               background: 'var(--surface-container)', borderRadius: 'var(--radius-xl)',
               padding: '2rem 1.5rem', position: 'relative', overflow: 'hidden',

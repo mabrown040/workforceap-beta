@@ -34,7 +34,13 @@ export default function ResumeClient({
     enhancedText: string | null;
     hasOriginal: boolean;
     hasEnhanced: boolean;
+    originalExt: string | null;
+    enhancedExt: string | null;
+    previewOriginalPath: string | null;
+    previewEnhancedPath: string | null;
   } | null>(null);
+  const [originalDocHtml, setOriginalDocHtml] = useState<string | null>(null);
+  const [enhancedDocHtml, setEnhancedDocHtml] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -52,6 +58,10 @@ export default function ResumeClient({
           enhancedText: d.enhancedText ?? null,
           hasOriginal: d.hasOriginal ?? false,
           hasEnhanced: d.hasEnhanced ?? false,
+          originalExt: d.originalExt ?? null,
+          enhancedExt: d.enhancedExt ?? null,
+          previewOriginalPath: d.previewOriginalPath ?? null,
+          previewEnhancedPath: d.previewEnhancedPath ?? null,
         });
       })
       .finally(() => setLoading(false));
@@ -75,6 +85,10 @@ export default function ResumeClient({
         enhancedText: d.enhancedText ?? null,
         hasOriginal: d.hasOriginal ?? true,
         hasEnhanced: d.hasEnhanced ?? false,
+        originalExt: d.originalExt ?? null,
+        enhancedExt: d.enhancedExt ?? null,
+        previewOriginalPath: d.previewOriginalPath ?? null,
+        previewEnhancedPath: d.previewEnhancedPath ?? null,
       });
     } catch {
       setUploadError('Could not refresh resume status');
@@ -102,6 +116,10 @@ export default function ResumeClient({
           enhancedText: d.enhancedText ?? data.resume ?? null,
           hasOriginal: d.hasOriginal ?? false,
           hasEnhanced: d.hasEnhanced ?? true,
+          originalExt: d.originalExt ?? null,
+          enhancedExt: d.enhancedExt ?? null,
+          previewOriginalPath: d.previewOriginalPath ?? null,
+          previewEnhancedPath: d.previewEnhancedPath ?? null,
         });
       } else {
         setGenerateError(data.error ?? 'Generation failed');
@@ -125,6 +143,46 @@ export default function ResumeClient({
     if (file) handleUpload(file);
     e.target.value = '';
   };
+
+  useEffect(() => {
+    const ext = resumeData?.originalExt;
+    if (!ext || !['doc', 'docx'].includes(ext)) {
+      setOriginalDocHtml(null);
+      return;
+    }
+    let cancelled = false;
+    fetch('/api/member/resume/docx-html?variant=original', { method: 'POST' })
+      .then((r) => r.json())
+      .then((d) => {
+        if (!cancelled && d.html) setOriginalDocHtml(d.html as string);
+      })
+      .catch(() => {
+        if (!cancelled) setOriginalDocHtml(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [resumeData?.originalExt, resumeData?.hasOriginal]);
+
+  useEffect(() => {
+    const ext = resumeData?.enhancedExt;
+    if (!ext || !['doc', 'docx'].includes(ext)) {
+      setEnhancedDocHtml(null);
+      return;
+    }
+    let cancelled = false;
+    fetch('/api/member/resume/docx-html?variant=enhanced', { method: 'POST' })
+      .then((r) => r.json())
+      .then((d) => {
+        if (!cancelled && d.html) setEnhancedDocHtml(d.html as string);
+      })
+      .catch(() => {
+        if (!cancelled) setEnhancedDocHtml(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [resumeData?.enhancedExt, resumeData?.hasEnhanced]);
 
   if (loading && !resumeData) {
     return <p style={{ color: 'var(--color-on-surface-variant)' }}>Loading…</p>;
@@ -192,7 +250,7 @@ export default function ResumeClient({
         <section style={{ marginBottom: '2rem' }}>
           <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Your Resume</h2>
 
-          {/* Original resume — PDF inline preview + download link */}
+          {/* Original resume — same-origin PDF / Word HTML preview (avoids cross-origin iframe issues) */}
           {hasOriginal && (
             <div
               style={{
@@ -221,33 +279,50 @@ export default function ResumeClient({
                     rel="noopener noreferrer"
                     style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}
                   >
-                    Open / Download ↗
+                    Download ↗
                   </a>
                 ) : (
                   <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.8rem' }}>Generating link…</span>
                 )}
               </div>
-              {resumeData?.originalUrl && (
-                <div style={{ width: '100%', textAlign: 'center', padding: '1.5rem', background: 'var(--surface-container)', borderRadius: '0.75rem' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--color-accent)', marginBottom: '0.5rem', display: 'block' }}>description</span>
-                  <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface)', marginBottom: '1rem' }}>Your resume is ready</p>
-                  <a
-                    href={resumeData.originalUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-primary"
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}
-                  >
-                    <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>open_in_new</span>
-                    Open Resume
-                  </a>
+              {resumeData?.previewOriginalPath && resumeData.originalExt === 'pdf' && (
+                <iframe
+                  title="Original resume preview"
+                  src={resumeData.previewOriginalPath}
+                  style={{ width: '100%', minHeight: '480px', border: 'none', display: 'block', background: '#525659' }}
+                />
+              )}
+              {['doc', 'docx'].includes(resumeData?.originalExt ?? '') && (
+                <div style={{ background: 'var(--surface-container)' }}>
+                  {originalDocHtml ? (
+                    <iframe
+                      title="Original resume preview"
+                      srcDoc={`<!DOCTYPE html><html><head><meta charset="utf-8"/><style>body{font-family:system-ui,sans-serif;padding:1rem;margin:0;line-height:1.45;color:#111;}.mammoth-doc img{max-width:100%;height:auto;}</style></head><body>${originalDocHtml}</body></html>`}
+                      sandbox="allow-same-origin"
+                      style={{ width: '100%', minHeight: '480px', border: 'none', display: 'block' }}
+                    />
+                  ) : (
+                    <p style={{ padding: '1rem', margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                      Loading preview…
+                    </p>
+                  )}
                 </div>
               )}
-              {!resumeData?.originalUrl && (
-                <div style={{ padding: '1rem', color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>
-                  Resume uploaded. Refresh to view inline preview.
-                </div>
-              )}
+              {resumeData?.originalExt &&
+                !['pdf', 'doc', 'docx'].includes(resumeData.originalExt) &&
+                resumeData?.originalUrl && (
+                  <div style={{ padding: '1rem', textAlign: 'center', background: 'var(--surface-container)' }}>
+                    <a
+                      href={resumeData.originalUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-primary"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}
+                    >
+                      Open resume
+                    </a>
+                  </div>
+                )}
             </div>
           )}
 
@@ -273,33 +348,55 @@ export default function ResumeClient({
                 }}
               >
                 <span style={{ fontWeight: 600 }}>✨ AI-Enhanced Resume</span>
-                {resumeData?.enhancedUrl && (
+                {resumeData?.enhancedUrl ? (
                   <a
                     href={resumeData.enhancedUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}
                   >
-                    Open / Download ↗
+                    Download ↗
                   </a>
-                )}
+                ) : null}
               </div>
-              {resumeData?.enhancedUrl && (
-                <div style={{ width: '100%', textAlign: 'center', padding: '1.5rem', background: 'var(--surface-container)', borderRadius: '0.75rem' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--color-accent)', marginBottom: '0.5rem', display: 'block' }}>auto_awesome</span>
-                  <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface)', marginBottom: '1rem' }}>AI-enhanced resume ready</p>
-                  <a
-                    href={resumeData.enhancedUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-primary"
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}
-                  >
-                    <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>open_in_new</span>
-                    Open Enhanced Resume
-                  </a>
+              {resumeData?.previewEnhancedPath && resumeData.enhancedExt === 'pdf' && (
+                <iframe
+                  title="Enhanced resume preview"
+                  src={resumeData.previewEnhancedPath}
+                  style={{ width: '100%', minHeight: '480px', border: 'none', display: 'block', background: '#525659' }}
+                />
+              )}
+              {['doc', 'docx'].includes(resumeData?.enhancedExt ?? '') && (
+                <div style={{ background: 'var(--surface-container)' }}>
+                  {enhancedDocHtml ? (
+                    <iframe
+                      title="Enhanced resume preview"
+                      srcDoc={`<!DOCTYPE html><html><head><meta charset="utf-8"/><style>body{font-family:system-ui,sans-serif;padding:1rem;margin:0;line-height:1.45;color:#111;}.mammoth-doc img{max-width:100%;height:auto;}</style></head><body>${enhancedDocHtml}</body></html>`}
+                      sandbox="allow-same-origin"
+                      style={{ width: '100%', minHeight: '480px', border: 'none', display: 'block' }}
+                    />
+                  ) : (
+                    <p style={{ padding: '1rem', margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                      Loading preview…
+                    </p>
+                  )}
                 </div>
               )}
+              {resumeData?.enhancedUrl &&
+                resumeData.enhancedExt &&
+                !['pdf', 'doc', 'docx'].includes(resumeData.enhancedExt) && (
+                  <div style={{ padding: '1rem', textAlign: 'center', background: 'var(--surface-container)' }}>
+                    <a
+                      href={resumeData.enhancedUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-primary"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}
+                    >
+                      Open enhanced resume
+                    </a>
+                  </div>
+                )}
               {resumeData?.enhancedText && !resumeData?.enhancedUrl && (
                 <pre style={{ whiteSpace: 'pre-wrap', fontSize: '0.85rem', maxHeight: '400px', overflow: 'auto', padding: '1rem', margin: 0 }}>
                   {resumeData.enhancedText.slice(0, 3000)}{resumeData.enhancedText.length > 3000 ? '…' : ''}

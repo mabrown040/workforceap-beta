@@ -7,21 +7,21 @@ import ResumeRewriterForm from '@/components/portal/tools/ResumeRewriterForm';
 
 /**
  * Coordinates voice coach suggestions → live text editor.
- * When the user accepts a suggestion, it's appended to the rewriter input.
+ * When the user accepts a suggestion, it's appended to the rewriter textarea (controlled state).
  */
 export default function ResumeCoachWorkspace() {
-  const [accepted, setAccepted] = useState<string[]>([]);
+  const [resumeText, setResumeText] = useState('');
 
   const handleAccept = useCallback((s: ResumeSuggestion) => {
     const line = s.original
       ? `[Change] "${s.original}" → "${s.suggested}" (${s.context})`
       : `[Add] ${s.suggested} (${s.context})`;
-    setAccepted((prev) => [...prev, line]);
+    setResumeText((prev) =>
+      prev.trim()
+        ? `${prev}\n\n--- Coach suggestion (accepted) ---\n${line}`
+        : `--- Coach suggestion (accepted) ---\n${line}`
+    );
   }, []);
-
-  const initialResume = accepted.length
-    ? `\n\n--- Coach Suggestions (accepted) ---\n${accepted.join('\n')}`
-    : undefined;
 
   return (
     <>
@@ -77,7 +77,7 @@ export default function ResumeCoachWorkspace() {
           Rewrite bullets, tailor for a target role, and keep your resume work on the same page as
           your upload and preview.
         </p>
-        <ResumeRewriterForm initialResume={initialResume} />
+        <ResumeRewriterForm resumeControlled={resumeText} onResumeChange={setResumeText} />
       </div>
     </>
   );

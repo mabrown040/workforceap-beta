@@ -1,7 +1,10 @@
-﻿import { prisma } from '@/lib/db/prisma';
-import { getPipelineStage, PIPELINE_STAGE_LABELS, PIPELINE_STAGE_COLORS, PIPELINE_STAGES_ORDERED, type PipelineStage } from '@/lib/pipeline/stage';
+import { prisma } from '@/lib/db/prisma';
+import { getPipelineStage, type PipelineStage } from '@/lib/pipeline/stage';
 import Link from 'next/link';
 import PageHeader from '@/components/portal/PageHeader';
+import AdminPipelineKanban, {
+  type PipelineKanbanMember,
+} from '@/components/admin/AdminPipelineKanban';
 
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
@@ -11,6 +14,34 @@ export const metadata: Metadata = buildPageMetadata({
   description: 'View and manage the hiring pipeline.',
   path: '/admin/pipeline',
 });
+
+function toKanbanMember(s: {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string | null;
+  enrolledProgram: string | null;
+  placementRecord: {
+    employerName: string;
+    jobTitle: string;
+    salaryOffered: number | null;
+  } | null;
+}): PipelineKanbanMember {
+  return {
+    id: s.id,
+    fullName: s.fullName,
+    email: s.email,
+    phone: s.phone,
+    enrolledProgram: s.enrolledProgram,
+    placementRecord: s.placementRecord
+      ? {
+          employerName: s.placementRecord.employerName,
+          jobTitle: s.placementRecord.jobTitle,
+          salaryOffered: s.placementRecord.salaryOffered,
+        }
+      : null,
+  };
+}
 
 export default async function AdminPipelinePage() {
   const students = await prisma.user.findMany({
@@ -27,6 +58,7 @@ export default async function AdminPipelinePage() {
       coursesCompleted: true,
       deletedAt: true,
       createdAt: true,
+      pipelineBoardStage: true,
       placementRecord: {
         select: { employerName: true, jobTitle: true, salaryOffered: true, placedAt: true },
       },
@@ -41,8 +73,7 @@ export default async function AdminPipelinePage() {
     },
   });
 
-  // Group by pipeline stage
-  const byStage: Record<PipelineStage, typeof students> = {
+  const byStage: Record<PipelineStage, PipelineKanbanMember[]> = {
     applied: [],
     enrolled: [],
     in_training: [],
@@ -54,29 +85,52 @@ export default async function AdminPipelinePage() {
 
   for (const s of students) {
     const stage = getPipelineStage(s);
-    byStage[stage].push(s);
+    byStage[stage].push(toKanbanMember(s));
   }
 
-  const totalActive = students.filter((s) => !s.deletedAt).length;
+  const totalActive = students.length;
   const totalPlaced = byStage.placed.length;
   const placedWithSalary = byStage.placed.filter((s) => s.placementRecord?.salaryOffered);
-  const avgSalary = placedWithSalary.length > 0
-    ? Math.round(placedWithSalary.reduce((sum, s) => sum + (s.placementRecord?.salaryOffered ?? 0), 0) / placedWithSalary.length)
-    : null;
+  const avgSalary =
+    placedWithSalary.length > 0
+      ? Math.round(
+          placedWithSalary.reduce((sum, s) => sum + (s.placementRecord?.salaryOffered ?? 0), 0) /
+            placedWithSalary.length
+        )
+      : null;
+
+  const initialByStage = JSON.parse(JSON.stringify(byStage)) as Record<PipelineStage, PipelineKanbanMember[]>;
 
   return (
     <div style={{ paddingTop: '1.5rem' }}>
       <PageHeader
         title="Student Pipeline"
-        action={<Link href="/admin/placements/new" style={{ padding: '0.5rem 1rem', background: 'var(--color-blue)', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 600 }}>Record Placement</Link>}
+        subtitle="Drag cards between columns like a Trello board. Positions are saved for all admins. With no manual column set, a student’s stage is derived from enrollment, courses, certifications, and placement."
+        action={
+          <Link
+            href="/admin/placements/new"
+            style={{
+              padding: '0.5rem 1rem',
+              background: 'var(--color-blue)',
+              color: 'white',
+              borderRadius: '6px',
+              textDecoration: 'none',
+              fontWeight: 600,
+            }}
+          >
+            Record Placement
+          </Link>
+        }
       />
 
-      {/* Stats bar */}
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
         {[
           { label: 'Total Active', value: totalActive },
           { label: 'Placed', value: totalPlaced },
-          { label: 'Placement Rate', value: totalActive > 0 ? `${Math.round((totalPlaced / totalActive) * 100)}%` : '—' },
+          {
+            label: 'Placement Rate',
+            value: totalActive > 0 ? `${Math.round((totalPlaced / totalActive) * 100)}%` : '—',
+          },
           { label: 'Avg Salary', value: avgSalary ? `$${avgSalary.toLocaleString()}` : '—' },
         ].map((stat) => (
           <div
@@ -90,57 +144,20 @@ export default async function AdminPipelinePage() {
             }}
           >
             <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1.2 }}>{stat.value}</div>
-            <div style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>{stat.label}</div>
+            <div
+              style={{
+                fontSize: '0.875rem',
+                color: 'var(--color-on-surface-variant)',
+                marginTop: '0.25rem',
+              }}
+            >
+              {stat.label}
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Pipeline columns */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '1rem', overflowX: 'auto' }}>
-        {PIPELINE_STAGES_ORDERED.map((stage) => {
-          const stageStudents = byStage[stage];
-          const color = PIPELINE_STAGE_COLORS[stage];
-          return (
-            <div key={stage} style={{ minWidth: '160px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                <span style={{ fontWeight: 600, fontSize: '0.85rem', color }}>{PIPELINE_STAGE_LABELS[stage]}</span>
-                <span style={{ background: color, color: 'white', borderRadius: '999px', fontSize: '0.75rem', padding: '0.1rem 0.5rem', fontWeight: 700 }}>
-                  {stageStudents.length}
-                </span>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {stageStudents.slice(0, 10).map((s) => (
-                  <Link
-                    key={s.id}
-                    href={`/admin/members/${s.id}`}
-                    style={{ display: 'block', padding: '0.6rem 0.75rem', border: `1px solid ${color}22`, borderLeft: `3px solid ${color}`, borderRadius: '6px', textDecoration: 'none', color: 'inherit', background: 'var(--surface-container)' }}
-                  >
-                    <div style={{ fontWeight: 500, fontSize: '0.85rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.fullName}</div>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--color-on-surface-variant)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '0.2rem' }}>
-                      {s.email || s.phone || '—'}
-                    </div>
-                    {s.enrolledProgram && (
-                      <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '0.15rem' }}>
-                        {s.enrolledProgram.replace(/-/g, ' ')}
-                      </div>
-                    )}
-                    {stage === 'placed' && s.placementRecord && (
-                      <div style={{ fontSize: '0.75rem', color: '#16a34a', marginTop: '0.15rem' }}>
-                        {s.placementRecord.employerName}
-                      </div>
-                    )}
-                  </Link>
-                ))}
-                {stageStudents.length > 10 && (
-                  <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', textAlign: 'center', padding: '0.25rem' }}>
-                    +{stageStudents.length - 10} more
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <AdminPipelineKanban initialByStage={initialByStage} />
     </div>
   );
 }

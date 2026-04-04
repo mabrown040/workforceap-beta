@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, BookOpen, HelpCircle, GraduationCap, Mail } from 'lucide-react';
-import { blogListingCardImage } from '@/lib/blog/blogListingImage';
+import { blogListingCardAlt, blogListingCardImage } from '@/lib/blog/blogListingImage';
 import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 
 type Post = {
@@ -126,14 +126,21 @@ export default function BlogListingClient({
 
         <div className="blog-listing-grid">
           {filtered.map((post) => {
-            const cardSrc = blogListingCardImage(post.heroImage, post.coverImage);
+            const cardSrc = blogListingCardImage(post.heroImage, post.coverImage, post.category, post.slug);
+            const cardAlt = blogListingCardAlt({
+              title: post.title,
+              heroImage: post.heroImage,
+              coverImage: post.coverImage,
+              category: post.category,
+              slug: post.slug,
+            });
             return (
               <article key={post.id} className="blog-card">
                 <Link href={`/blog/${post.slug}`} className="blog-card-link">
                   <div className="blog-card-cover">
                     <Image
                       src={cardSrc}
-                      alt={post.title ? `Cover image for ${post.title}` : 'Blog post cover image'}
+                      alt={cardAlt}
                       width={400}
                       height={250}
                       sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
@@ -149,7 +156,7 @@ export default function BlogListingClient({
                       <> · {new Date(post.publishedAt).toLocaleDateString('en-US')}</>
                     )}
                   </div>
-                  <span className="blog-card-cta">Read More →</span>
+                  <span className="blog-card-cta">{post.title ? `Read more: ${post.title}` : 'Read more'}</span>
                 </Link>
               </article>
             );

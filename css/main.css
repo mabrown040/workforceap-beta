@@ -3385,6 +3385,17 @@ html.dark .program-card-courses-list li {
     margin-top: 2rem;
 }
 
+/* Homepage — 11-step milestone strip: consistent readable type */
+.home-milestone-card p {
+    font-size: 0.9375rem;
+    line-height: 1.55;
+}
+@media (max-width: 639px) {
+    .home-milestone-card h4 {
+        font-size: 1.0625rem;
+    }
+}
+
 /* Homepage — horizontal outcome journey (replaces 3-col feature grid) */
 .home-outcome-journey {
     list-style: none;

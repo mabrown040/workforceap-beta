@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db/prisma';
 import { sendNewJobApplicationEmail } from '@/lib/email';
 import { z } from 'zod';
 import { trackEvent } from '@/lib/events/track';
+import { syncCuratedJobToTracker } from '@/lib/jobs/syncCuratedJobToTracker';
 
 const applySchema = z.object({
   coverLetter: z.string().max(5000).optional(),
@@ -34,7 +35,7 @@ export async function POST(
   const { id } = await params;
   const job = await prisma.job.findFirst({
     where: { id, status: 'live' },
-    include: { employer: { select: { contactEmail: true } } },
+    include: { employer: { select: { contactEmail: true, companyName: true } } },
   });
 
   if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
@@ -87,6 +88,16 @@ export async function POST(
     metadata: { jobId: id, jobTitle: job.title },
     sourcePage: `/dashboard/jobs/${id}`,
   });
+
+  try {
+    await syncCuratedJobToTracker(
+      authUser.id,
+      { id: job.id, title: job.title, employer: { companyName: job.employer.companyName } },
+      { status: 'APPLIED', markAppliedDate: true, source: 'DIRECT' }
+    );
+  } catch (e) {
+    console.error('[apply] tracker sync:', e);
+  }
 
   return NextResponse.json({ ok: true, applicationId: app.id });
 }

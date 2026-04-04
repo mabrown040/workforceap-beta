@@ -5,6 +5,16 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 
 const BUCKET = 'member-resumes';
 
+function getFileExt(path: string | null | undefined): string | null {
+  if (!path) return null;
+  const ext = path.split('.').pop()?.toLowerCase();
+  return ext || null;
+}
+
+function isPreviewablePdf(path: string | null | undefined): boolean {
+  return getFileExt(path) === 'pdf';
+}
+
 export async function GET() {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -44,6 +54,12 @@ export async function GET() {
       originalUrl,
       enhancedUrl,
       enhancedText,
+      originalPath,
+      enhancedPath,
+      originalExt: getFileExt(originalPath),
+      enhancedExt: getFileExt(enhancedPath),
+      originalPreviewable: isPreviewablePdf(originalPath),
+      enhancedPreviewable: isPreviewablePdf(enhancedPath),
     });
   } catch (err) {
     console.error('[member/resume] error:', err);

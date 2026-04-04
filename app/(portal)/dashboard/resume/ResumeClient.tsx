@@ -32,6 +32,10 @@ export default function ResumeClient({
     originalUrl: string | null;
     enhancedUrl: string | null;
     enhancedText: string | null;
+    originalExt?: string | null;
+    enhancedExt?: string | null;
+    originalPreviewable?: boolean;
+    enhancedPreviewable?: boolean;
     hasOriginal: boolean;
     hasEnhanced: boolean;
   } | null>(null);
@@ -50,6 +54,10 @@ export default function ResumeClient({
           originalUrl: d.originalUrl ?? null,
           enhancedUrl: d.enhancedUrl ?? null,
           enhancedText: d.enhancedText ?? null,
+          originalExt: d.originalExt ?? null,
+          enhancedExt: d.enhancedExt ?? null,
+          originalPreviewable: d.originalPreviewable ?? false,
+          enhancedPreviewable: d.enhancedPreviewable ?? false,
           hasOriginal: d.hasOriginal ?? false,
           hasEnhanced: d.hasEnhanced ?? false,
         });
@@ -73,6 +81,10 @@ export default function ResumeClient({
         originalUrl: d.originalUrl ?? null,
         enhancedUrl: d.enhancedUrl ?? null,
         enhancedText: d.enhancedText ?? null,
+        originalExt: d.originalExt ?? null,
+        enhancedExt: d.enhancedExt ?? null,
+        originalPreviewable: d.originalPreviewable ?? false,
+        enhancedPreviewable: d.enhancedPreviewable ?? false,
         hasOriginal: d.hasOriginal ?? true,
         hasEnhanced: d.hasEnhanced ?? false,
       });
@@ -100,6 +112,10 @@ export default function ResumeClient({
           originalUrl: d.originalUrl ?? null,
           enhancedUrl: d.enhancedUrl ?? null,
           enhancedText: d.enhancedText ?? data.resume ?? null,
+          originalExt: d.originalExt ?? null,
+          enhancedExt: d.enhancedExt ?? null,
+          originalPreviewable: d.originalPreviewable ?? false,
+          enhancedPreviewable: d.enhancedPreviewable ?? false,
           hasOriginal: d.hasOriginal ?? false,
           hasEnhanced: d.hasEnhanced ?? true,
         });
@@ -193,7 +209,7 @@ export default function ResumeClient({
           <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Your Resume</h2>
 
           {/* Inline PDF preview — frozen document view */}
-          {resumeData?.originalUrl && resumeData.originalUrl.includes('.pdf') && (
+          {resumeData?.originalUrl && resumeData.originalPreviewable && (
             <div
               style={{
                 marginBottom: '1rem',
@@ -224,28 +240,38 @@ export default function ResumeClient({
                   Open ↗
                 </a>
               </div>
-              <iframe
-                src={resumeData.originalUrl}
-                title="Original resume preview"
-                style={{ width: '100%', height: '600px', border: 'none' }}
-              />
+              <object
+                data={resumeData.originalUrl}
+                type="application/pdf"
+                aria-label="Original resume preview"
+                style={{ width: '100%', height: '600px', border: 'none', background: '#fff' }}
+              >
+                <iframe
+                  src={resumeData.originalUrl}
+                  title="Original resume preview"
+                  style={{ width: '100%', height: '600px', border: 'none', background: '#fff' }}
+                />
+              </object>
             </div>
           )}
 
           {/* Non-PDF original — download link */}
-          {hasOriginal && resumeData?.originalUrl && !resumeData.originalUrl.includes('.pdf') && (
+          {hasOriginal && resumeData?.originalUrl && !resumeData.originalPreviewable && (
             <div className="counselor-resume-card" style={{ marginBottom: '1rem' }}>
               <h3>Original Resume</h3>
               <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
+                This file is a {resumeData.originalExt?.toUpperCase() ?? 'document'}, so it may not render inline in all browsers.
+              </p>
+              <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
                 <a href={resumeData.originalUrl} target="_blank" rel="noopener noreferrer">
-                  Download Original →
+                  Open Original →
                 </a>
               </p>
             </div>
           )}
 
           {/* Enhanced PDF preview */}
-          {resumeData?.enhancedUrl && resumeData.enhancedUrl.includes('.pdf') && (
+          {resumeData?.enhancedUrl && resumeData.enhancedPreviewable && (
             <div
               style={{
                 marginBottom: '1rem',
@@ -276,16 +302,23 @@ export default function ResumeClient({
                   Open ↗
                 </a>
               </div>
-              <iframe
-                src={resumeData.enhancedUrl}
-                title="AI-enhanced resume preview"
-                style={{ width: '100%', height: '600px', border: 'none' }}
-              />
+              <object
+                data={resumeData.enhancedUrl}
+                type="application/pdf"
+                aria-label="AI-enhanced resume preview"
+                style={{ width: '100%', height: '600px', border: 'none', background: '#fff' }}
+              >
+                <iframe
+                  src={resumeData.enhancedUrl}
+                  title="AI-enhanced resume preview"
+                  style={{ width: '100%', height: '600px', border: 'none', background: '#fff' }}
+                />
+              </object>
             </div>
           )}
 
           {/* Enhanced text fallback (non-PDF) */}
-          {hasEnhanced && resumeData?.enhancedUrl && !resumeData.enhancedUrl.includes('.pdf') && (
+          {hasEnhanced && resumeData?.enhancedUrl && !resumeData.enhancedPreviewable && (
             <div className="counselor-resume-card" style={{ marginBottom: '1rem' }}>
               <h3>AI-Enhanced</h3>
               {resumeData?.enhancedText && (

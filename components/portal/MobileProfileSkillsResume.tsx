@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { uploadMemberResumeFile } from '@/lib/portal/memberResumeUpload';
 
@@ -16,6 +16,7 @@ export default function MobileProfileSkillsResume({
   const [hasResume, setHasResume] = useState(Boolean(resumeOriginalPath));
   const [fileName, setFileName] = useState(resumeOriginalPath?.split('/').pop() ?? 'resume.pdf');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewable, setPreviewable] = useState(false);
   const [loadingPreview, setLoadingPreview] = useState(false);
 
   const loadPreview = async () => {
@@ -25,10 +26,17 @@ export default function MobileProfileSkillsResume({
       if (res.ok) {
         const data = await res.json();
         if (data.originalUrl) setPreviewUrl(data.originalUrl);
+        setPreviewable(Boolean(data.originalPreviewable));
       }
     } catch { /* ignore */ }
     setLoadingPreview(false);
   };
+
+  useEffect(() => {
+    if (hasResume) {
+      void loadPreview();
+    }
+  }, [hasResume]);
 
   const handleFile = async (file: File) => {
     setError('');
@@ -38,7 +46,9 @@ export default function MobileProfileSkillsResume({
     if (result.ok) {
       setHasResume(true);
       setFileName(file.name);
+      setPreviewable(file.name.toLowerCase().endsWith('.pdf'));
       router.refresh();
+      void loadPreview();
     } else {
       setError(result.error);
     }
@@ -77,36 +87,35 @@ export default function MobileProfileSkillsResume({
             <input ref={fileRef} type="file" accept=".pdf,.doc,.docx" onChange={onFileChange} style={{ display: 'none' }} />
           </div>
 
-          {/* Inline preview toggle */}
-          {!previewUrl && (
-            <button
-              type="button"
-              onClick={loadPreview}
-              disabled={loadingPreview}
-              style={{
-                marginTop: '0.75rem',
-                width: '100%',
-                padding: '0.5rem',
-                borderRadius: '0.5rem',
-                border: '1px solid #debfc2',
-                background: '#fff',
-                color: '#8c0f37',
-                fontWeight: 700,
-                fontSize: '0.8125rem',
-                cursor: loadingPreview ? 'wait' : 'pointer',
-              }}
-            >
-              {loadingPreview ? 'Loading preview…' : '👁 View Resume'}
-            </button>
+          {loadingPreview && !previewUrl && (
+            <p style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: '#584144' }}>Loading preview…</p>
           )}
 
-          {previewUrl && (
-            <div style={{ marginTop: '0.75rem', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid #debfc2' }}>
-              <iframe
-                src={previewUrl}
-                title="Resume preview"
+          {previewUrl && previewable && (
+            <div style={{ marginTop: '0.75rem', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid #debfc2', background: '#fff' }}>
+              <object
+                data={previewUrl}
+                type="application/pdf"
+                aria-label="Resume preview"
                 style={{ width: '100%', height: '500px', border: 'none' }}
-              />
+              >
+                <iframe
+                  src={previewUrl}
+                  title="Resume preview"
+                  style={{ width: '100%', height: '500px', border: 'none' }}
+                />
+              </object>
+            </div>
+          )}
+
+          {previewUrl && !previewable && (
+            <div style={{ marginTop: '0.75rem', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #debfc2', background: '#fff' }}>
+              <p style={{ margin: '0 0 0.5rem', fontSize: '0.75rem', color: '#584144' }}>
+                This resume was uploaded as a document file and may not render inline on mobile.
+              </p>
+              <a href={previewUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#8c0f37', fontWeight: 700, fontSize: '0.8125rem' }}>
+                Open resume →
+              </a>
             </div>
           )}
         </>

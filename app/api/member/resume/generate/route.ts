@@ -93,7 +93,7 @@ export async function POST(request: Request) {
   let resumeText = body.resumeBase?.trim() || '';
   if (!resumeText) {
     try {
-      const extracted = await getMemberResumePlainText(user.id, 6000);
+      const extracted = await getMemberResumePlainText(user.id, 6000, true);
       resumeText = extracted ?? '';
     } catch (err) {
       console.error('Failed to extract resume text:', err);

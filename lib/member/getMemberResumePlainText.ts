@@ -14,16 +14,25 @@ function extFromPath(path: string): string {
 /**
  * Best-effort plain text from the member's stored resume (enhanced first, then original).
  * Used for AI voice context and profile hydration — not for download URLs.
+ *
+ * @param originalOnly When true, only reads `resumeOriginalPath` (e.g. resume generation must
+ *   not use prior AI output from `resumeEnhancedPath`).
  */
-export async function getMemberResumePlainText(userId: string, maxChars = 8000): Promise<string> {
+export async function getMemberResumePlainText(
+  userId: string,
+  maxChars = 8000,
+  originalOnly = false
+): Promise<string> {
   const profile = await prisma.profile.findUnique({
     where: { userId },
   });
   if (!profile) return '';
 
-  const paths = [profile.resumeEnhancedPath, profile.resumeOriginalPath].filter(
-    (p): p is string => !!p
-  );
+  const paths = (
+    originalOnly
+      ? [profile.resumeOriginalPath]
+      : [profile.resumeEnhancedPath, profile.resumeOriginalPath]
+  ).filter((p): p is string => !!p);
   if (paths.length === 0) return '';
 
   const supabase = getSupabaseAdmin();

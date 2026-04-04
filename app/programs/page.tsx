@@ -29,7 +29,7 @@ export default function ProgramsPage() {
               Master Your <br />
               <span style={{ fontStyle: 'italic', color: 'var(--color-accent)' }}>Future</span>
             </h2>
-            <div style={{ height: '4px', width: '3rem', marginTop: '0.75rem', borderRadius: '9999px', background: '#ffbb00' }} />
+            <div style={{ height: '4px', width: '3rem', marginTop: '0.75rem', borderRadius: '9999px', background: 'var(--color-gold)' }} />
           </div>
 
           <div
@@ -64,7 +64,7 @@ export default function ProgramsPage() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   textDecoration: 'none',
-                  ...(i === 0 ? { background: '#ad2c4d', color: '#fff' } : { background: '#f6f3f2', color: '#584144' }),
+                  ...(i === 0 ? { background: 'var(--color-accent)', color: 'var(--color-white, #fff)' } : { background: 'var(--surface-container-low)', color: 'var(--color-on-surface-variant)' }),
                 }}
               >
                 {label}
@@ -79,17 +79,17 @@ export default function ProgramsPage() {
                 overflow: 'hidden',
                 borderRadius: '0.75rem',
                 padding: '1.25rem',
-                color: '#fff',
+                color: 'var(--color-white, #fff)',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)',
+                background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
                 minHeight: 200,
               }}
             >
               <div style={{ position: 'absolute', top: 0, right: 0, width: '8rem', height: '8rem', borderRadius: '9999px', marginRight: '-4rem', marginTop: '-4rem', background: 'rgba(255,255,255,0.05)', filter: 'blur(20px)' }} />
               <div style={{ position: 'relative', zIndex: 1 }}>
-                <span style={{ display: 'inline-block', padding: '0.25rem 0.75rem', borderRadius: '0.5rem', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem', background: '#ffbb00', color: 'var(--color-on-surface)' }}>Start Here</span>
+                <span style={{ display: 'inline-block', padding: '0.25rem 0.75rem', borderRadius: '0.5rem', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem', background: 'var(--color-gold)', color: 'var(--color-on-surface)' }}>Start Here</span>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em', margin: 0 }}>Digital Literacy</h2>
                 <p style={{ fontSize: '0.875rem', marginTop: '0.25rem', marginBottom: 0, color: 'rgba(255,203,209,0.9)' }}>Essential skills for the modern workforce</p>
               </div>
@@ -104,7 +104,7 @@ export default function ProgramsPage() {
                     <span style={{ fontSize: '0.875rem', fontWeight: 700 }}>$0 cost</span>
                   </div>
                 </div>
-                <Link href="/programs/digital-literacy-empowerment-class" style={{ width: '2.5rem', height: '2.5rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', color: '#8c0f37', flexShrink: 0 }} aria-label="Open Digital Literacy program">
+                <Link href="/programs/digital-literacy-empowerment-class" style={{ width: '2.5rem', height: '2.5rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-white, #fff)', color: 'var(--color-accent-dark)', flexShrink: 0 }} aria-label="Open Digital Literacy program">
                   <span className="material-symbols-outlined">arrow_forward</span>
                 </Link>
               </div>
@@ -130,7 +130,7 @@ export default function ProgramsPage() {
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                   border: '1px solid rgba(222,191,194,0.15)',
-                  background: '#fff',
+                  background: 'var(--color-white, #fff)',
                   minHeight: 192,
                   boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
                   textDecoration: 'none',
@@ -144,8 +144,8 @@ export default function ProgramsPage() {
                 <div style={{ marginTop: 'auto' }}>
                   <p style={{ fontSize: '11px', fontWeight: 500, marginBottom: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{dur}</p>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ padding: '0.125rem 0.5rem', borderRadius: '4px', fontSize: '10px', fontWeight: 700, background: '#ffd9dd', color: '#8c0f37' }}>$0</span>
-                    <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: '#8c0f37' }}>arrow_outward</span>
+                    <span style={{ padding: '0.125rem 0.5rem', borderRadius: '4px', fontSize: '10px', fontWeight: 700, background: 'rgba(173,44,77,0.15)', color: 'var(--color-accent-dark)' }}>$0</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent-dark)' }}>arrow_outward</span>
                   </div>
                 </div>
               </Link>
@@ -153,7 +153,7 @@ export default function ProgramsPage() {
           </div>
 
           <div style={{ textAlign: 'center', marginTop: '1rem', marginBottom: '0.5rem' }}>
-            <a href="#program-catalog" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.875rem', fontWeight: 600, color: '#8c0f37', textDecoration: 'none' }}>
+            <a href="#program-catalog" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-accent-dark)', textDecoration: 'none' }}>
               See all programs
               <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_forward</span>
             </a>
@@ -181,13 +181,13 @@ export default function ProgramsPage() {
               padding: '1rem',
               minHeight: '48px',
               boxShadow: '0 25px 50px -12px rgba(0,0,0,0.35)',
-              background: '#1c1b1b',
-              color: '#fff',
+              background: 'var(--color-on-surface)',
+              color: 'var(--color-white, #fff)',
               textDecoration: 'none',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <span className="material-symbols-outlined" style={{ color: '#ffbb00', flexShrink: 0 }}>psychology</span>
+              <span className="material-symbols-outlined" style={{ color: 'var(--color-gold)', flexShrink: 0 }}>psychology</span>
               <span style={{ fontSize: '0.875rem', fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1.3 }}>Can&apos;t decide? Take 2-min quiz</span>
             </div>
             <span className="material-symbols-outlined" style={{ flexShrink: 0 }}>arrow_forward</span>
@@ -386,7 +386,7 @@ export default function ProgramsPage() {
         >
           <h2
             className="text-display-sm"
-            style={{ color: '#fff', marginBottom: '1.5rem', position: 'relative', zIndex: 1 }}
+            style={{ color: 'var(--color-white, #fff)', marginBottom: '1.5rem', position: 'relative', zIndex: 1 }}
           >
             Your Next Step Starts Here
           </h2>
@@ -434,7 +434,7 @@ export default function ProgramsPage() {
               href="/contact"
               style={{
                 border: '1px solid rgba(255,255,255,0.3)',
-                color: '#fff',
+                color: 'var(--color-white, #fff)',
                 padding: '1rem 2rem',
                 borderRadius: 'var(--radius-md)',
                 fontWeight: 600,

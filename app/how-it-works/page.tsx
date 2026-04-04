@@ -44,7 +44,7 @@ const PHASES = [
       { num: 8, title: 'Training', desc: 'Industry certification courses — taught by certified instructors or approved online platforms. The same credentials employers hire against.', why: 'Real credentials, not certificates of attendance.' },
       { num: 9, title: 'Certify', desc: 'Earn credentials recognized by employers — CompTIA, AWS, Google, Microsoft, and more. You walk away with proof employers trust.', why: 'Your resume needs more than "I took a class."' },
       { num: 10, title: 'Job Placement Assistance', desc: 'Resume review, interview prep, employer connections, and job search support until you land. We don\'t disappear after you graduate.', why: 'We\'re invested in your first hire, not just your last exam.' },
-      { num: 11, title: 'Better Life', desc: 'A career that pays. Graduates average $42K+ starting in their new field — many see significant growth within 2–3 years.', why: 'This is the outcome we\'re both working toward.' },
+      { num: 11, title: 'Career growth', desc: 'A career that pays. Graduates average $42K+ starting in their new field — many see significant growth within 2–3 years.', why: 'This is the outcome we\'re both working toward.' },
     ],
   },
 ];
@@ -92,7 +92,7 @@ export default async function HowItWorksPage() {
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
                 <Link
-                  href="/apply"
+                  href="/find-your-path"
                   style={{
                     display: 'inline-block',
                     background: 'var(--color-accent)',
@@ -100,14 +100,14 @@ export default async function HowItWorksPage() {
                     padding: '1rem 2rem',
                     borderRadius: 'var(--radius-lg)',
                     fontWeight: 700,
-                    fontSize: '1.1rem',
+                    fontSize: '1.15rem',
                     textDecoration: 'none',
                   }}
                 >
-                  Apply Now
+                  Find your career
                 </Link>
                 <Link
-                  href="/programs"
+                  href="/apply"
                   style={{
                     display: 'inline-block',
                     background: 'var(--surface-container-high)',
@@ -119,22 +119,23 @@ export default async function HowItWorksPage() {
                     textDecoration: 'none',
                   }}
                 >
-                  View Program Details
+                  Apply now — free
                 </Link>
                 <Link
-                  href="/find-your-path"
+                  href="/programs"
                   style={{
                     display: 'inline-block',
-                    background: 'var(--surface-container-high)',
+                    background: 'transparent',
                     color: 'var(--color-accent)',
                     padding: '1rem 2rem',
                     borderRadius: 'var(--radius-lg)',
                     fontWeight: 700,
                     fontSize: '1.1rem',
                     textDecoration: 'none',
+                    border: '2px solid var(--color-accent)',
                   }}
                 >
-                  Find Your Career
+                  View programs
                 </Link>
               </div>
             </div>

@@ -231,21 +231,18 @@ html.dark .leadership-board-card .leadership-board-photo {
     }
 }
 
-/* Board bento on /leadership — readable on small screens */
-.leadership-board-bento {
+/* Board — equal three columns (trustees), consistent photo size */
+.leadership-board-equal {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1.5rem;
+    align-items: stretch;
 }
 
 @media (max-width: 900px) {
-    .leadership-board-bento {
+    .leadership-board-equal {
         grid-template-columns: 1fr;
         gap: 1.25rem;
-    }
-
-    .leadership-board-bento > a {
-        grid-column: 1 / -1 !important;
     }
 
     .leadership-board-card {

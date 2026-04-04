@@ -64,7 +64,8 @@ export default async function HomePage() {
         {/* Gradient overlay */}
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'linear-gradient(180deg, rgba(28,31,36,0.68) 0%, rgba(28,31,36,0.80) 60%, var(--color-background-dark) 100%)',
+          /* Brighter overlay — more uplifting while keeping text readable */
+          background: 'linear-gradient(180deg, rgba(28,31,36,0.42) 0%, rgba(28,31,36,0.58) 55%, var(--color-background-dark) 100%)',
           zIndex: 1,
         }} />
 
@@ -101,32 +102,32 @@ export default async function HomePage() {
             Occupational and career training at no cost to members — {WORKFORCEAP_PROGRAM_CATALOG_SIZE} specialized programs, counselor guidance, and AI-powered tools designed to help people move forward.
           </p>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-            <Link href="/find-your-path" className="btn btn-primary btn-large">
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
+            <Link href="/find-your-path" className="btn btn-primary btn-large" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.25rem)' }}>
               Find Your Career
+            </Link>
+            <Link href="/partners" className="btn btn-secondary btn-large home-hero-outline-cta" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.2rem)' }}>
+              Partner With Us
             </Link>
             <ExperimentedCtaLink
               experiment="home_apply_primary_cta"
               variants={[
                 {
                   id: 'control',
-                  label: 'Apply Now',
-                  className: 'btn btn-secondary btn-large',
+                  label: 'Apply Now — Free',
+                  className: 'btn btn-outline btn-large',
                   href: '/apply',
-                  style: { fontSize: '1.15rem' },
+                  style: { fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.15rem)' },
                 },
                 {
                   id: 'urgency',
-                  label: 'Start Your Journey',
-                  className: 'btn btn-secondary btn-large',
+                  label: 'Start Your Application',
+                  className: 'btn btn-outline btn-large',
                   href: '/apply',
-                  style: { fontSize: '1.15rem' },
+                  style: { fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.15rem)' },
                 },
               ]}
             />
-            <Link href="/partners" className="btn btn-outline btn-large home-hero-outline-cta">
-              Partner With Us
-            </Link>
           </div>
         </div>
       </section>
@@ -162,32 +163,7 @@ export default async function HomePage() {
             gap: '2rem',
             alignItems: 'start',
           }}>
-            {/* For Members */}
-            <div className="stitch-card" style={{ background: 'var(--surface-container-lowest)', padding: '2rem' }}>
-              <div style={{ width: '3rem', height: '3rem', background: 'rgba(173,44,77,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent)', marginBottom: '1.5rem' }}>
-                <span className="material-symbols-outlined">person</span>
-              </div>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Members</h3>
-              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }}>check_circle</span>
-                  No tuition costs for training
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }}>check_circle</span>
-                  {WORKFORCEAP_PROGRAM_CATALOG_SIZE} high-demand career tracks
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }}>check_circle</span>
-                  Dedicated placement support
-                </li>
-              </ul>
-              <div style={{ marginTop: '1.5rem' }}>
-                <Link href="/apply" className="btn btn-primary btn-small">Apply Now</Link>
-              </div>
-            </div>
-
-            {/* For Partners — center card elevated */}
+            {/* For Partners — first + elevated (stakeholder priority) */}
             <div className="stitch-card home-employer-elevated" style={{
               background: 'var(--surface-container-lowest)', padding: '2rem',
               border: '2px solid var(--color-accent)',
@@ -214,6 +190,31 @@ export default async function HomePage() {
               </ul>
               <div style={{ marginTop: '1.5rem' }}>
                 <Link href="/partners" className="btn btn-primary btn-small">Partner With Us</Link>
+              </div>
+            </div>
+
+            {/* For Members */}
+            <div className="stitch-card" style={{ background: 'var(--surface-container-lowest)', padding: '2rem' }}>
+              <div style={{ width: '3rem', height: '3rem', background: 'rgba(173,44,77,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent)', marginBottom: '1.5rem' }}>
+                <span className="material-symbols-outlined">person</span>
+              </div>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Members</h3>
+              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }}>check_circle</span>
+                  No tuition costs for training
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }}>check_circle</span>
+                  {WORKFORCEAP_PROGRAM_CATALOG_SIZE} high-demand career tracks
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }}>check_circle</span>
+                  Dedicated placement support
+                </li>
+              </ul>
+              <div style={{ marginTop: '1.5rem' }}>
+                <Link href="/apply" className="btn btn-primary btn-small">Apply Now</Link>
               </div>
             </div>
 

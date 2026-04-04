@@ -3385,14 +3385,17 @@ html.dark .program-card-courses-list li {
     margin-top: 2rem;
 }
 
-/* Homepage — 11-step milestone strip: consistent readable type */
+/* Homepage — 11-step milestone strip: consistent readable type (slightly larger for low vision) */
 .home-milestone-card p {
-    font-size: 0.9375rem;
-    line-height: 1.55;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+.home-milestone-card h4 {
+    font-size: 1.125rem;
 }
 @media (max-width: 639px) {
     .home-milestone-card h4 {
-        font-size: 1.0625rem;
+        font-size: 1.125rem;
     }
 }
 

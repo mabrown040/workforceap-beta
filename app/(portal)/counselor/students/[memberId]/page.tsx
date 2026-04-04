@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { counselorEnrollmentStatusBadge } from '@/lib/counselor/memberStatus';
+import CounselorNotesPanel from './CounselorNotesPanel';
 
 type Props = { params: Promise<{ memberId: string }> };
 
@@ -151,7 +152,8 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
 
             {/* Action buttons */}
             <div style={{ display: 'flex', gap: '0.625rem' }}>
-              <button
+              <Link
+                href="/counselor/messages"
                 style={{
                   flex: 1,
                   padding: '0.625rem 0',
@@ -166,14 +168,16 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '0.375rem',
+                  textDecoration: 'none',
                 }}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
                   chat
                 </span>
                 Message
-              </button>
+              </Link>
               <button
+                disabled
                 style={{
                   flex: 1,
                   padding: '0.625rem 0',
@@ -183,11 +187,12 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                   fontSize: '0.8rem',
                   fontWeight: 600,
                   color: '#fff',
-                  cursor: 'pointer',
+                  cursor: 'not-allowed',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '0.375rem',
+                  opacity: 0.5,
                 }}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
@@ -287,60 +292,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
 
         {/* Counselor Notes */}
         <div style={{ padding: '0 1rem 1rem' }}>
-          <div
-            style={{
-              background: '#fff',
-              borderRadius: '0.75rem',
-              padding: '1.25rem',
-              border: '1px solid #ebe7e7',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '1rem',
-              }}
-            >
-              <h3 style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)', margin: 0 }}>
-                Counselor Notes
-              </h3>
-              <button
-                style={{
-                  padding: '0.25rem 0.625rem',
-                  background: 'var(--surface-container)',
-                  border: 'none',
-                  borderRadius: '0.375rem',
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  color: 'var(--color-on-surface)',
-                }}
-              >
-                Add Note
-              </button>
-            </div>
-            {/* Latest 2 notes (static placeholder — notes model not yet in schema) */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <div style={{ borderLeft: '3px solid #8c0f37', paddingLeft: '0.75rem' }}>
-                <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>
-                  Most recent · You
-                </p>
-                <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface)', margin: 0 }}>
-                  Student is progressing well. Recommended additional exercises for current module.
-                </p>
-              </div>
-              <div style={{ borderLeft: '3px solid #debfc2', paddingLeft: '0.75rem' }}>
-                <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>
-                  Previous · You
-                </p>
-                <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface)', margin: 0 }}>
-                  Completed initial intake session. Reviewed program goals and expectations.
-                </p>
-              </div>
-            </div>
-          </div>
+          <CounselorNotesPanel memberId={member.id} />
         </div>
       </div>
 

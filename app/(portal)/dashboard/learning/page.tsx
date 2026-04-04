@@ -30,9 +30,16 @@ export default async function LearningPage() {
 
   const ACTIVE_PATHWAY = PATHWAYS[0];
 
-  const allProgress = await prisma.pathwayStepProgress.findMany({
-    where: { userId: user.id },
-  });
+  const [allProgress, dbUser] = await Promise.all([
+    prisma.pathwayStepProgress.findMany({
+      where: { userId: user.id },
+    }),
+    prisma.user.findUnique({
+      where: { id: user.id },
+      select: { enrolledProgram: true, assessmentCompleted: true },
+    }),
+  ]);
+  const isEnrolled = !!dbUser?.enrolledProgram;
 
   const totalStepsAllPathways = PATHWAYS.reduce((sum, p) => sum + p.steps.length, 0);
   const completedAll = allProgress.filter((r) => r.status === 'completed').length;
@@ -61,7 +68,7 @@ export default async function LearningPage() {
           <div style={{ zIndex: 10, width: '60%' }}>
             <h3 className="wa-text-lg wa-font-bold wa-leading-tight wa-text-[#1c1b1b]" style={{ marginBottom: '0.25rem' }}>{ACTIVE_PATHWAY.title}</h3>
             <p className="wa-text-sm wa-text-[#584144] wa-font-medium">
-              {overallPct}% complete · {ACTIVE_PATHWAY.steps.length} modules
+              {isEnrolled ? 'In Progress' : 'Not Started'} · {ACTIVE_PATHWAY.steps.length} modules
             </p>
           </div>
           {/* Progress orb */}
@@ -72,7 +79,7 @@ export default async function LearningPage() {
                 cx="40" cy="40" r="32" fill="transparent"
                 stroke="var(--color-gold)" strokeWidth="5"
                 strokeDasharray="201"
-                strokeDashoffset={201 - (201 * overallPct) / 100}
+                strokeDashoffset={201 - (201 * Math.min(100, overallPct)) / 100}
                 strokeLinecap="round"
               />
             </svg>
@@ -81,7 +88,7 @@ export default async function LearningPage() {
         </div>
         {/* Progress bar */}
         <div className="wa-bg-[#debfc2]" style={{ marginTop: '1rem', height: '0.375rem', width: '100%', borderRadius: '9999px', overflow: 'hidden' }}>
-          <div className="wa-bg-[#8c0f37]" style={{ width: `${overallPct}%`, height: '100%', borderRadius: '9999px' }} />
+          <div className="wa-bg-[#8c0f37]" style={{ width: `${Math.min(100, overallPct)}%`, height: '100%', borderRadius: '9999px' }} />
         </div>
       </section>
 
@@ -236,7 +243,7 @@ export default async function LearningPage() {
             {overallPct}%
           </div>
           <div style={{ height: '6px', background: 'var(--surface-container-highest)', borderRadius: 'var(--radius-full)', overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${overallPct}%`, background: 'var(--color-accent)', borderRadius: 'var(--radius-full)', transition: 'var(--transition-base)' }} />
+            <div style={{ height: '100%', width: `${Math.min(100, overallPct)}%`, background: 'var(--color-accent)', borderRadius: 'var(--radius-full)', transition: 'var(--transition-base)' }} />
           </div>
         </div>
       </div>

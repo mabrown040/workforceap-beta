@@ -241,7 +241,7 @@ export default function ResumeClient({
           onClick={handleGenerate}
           disabled={generating}
         >
-          {generating ? 'Generating…' : 'Generate Resume'}
+          {generating ? 'Generating…' : hasEnhanced ? 'Re-enhance with AI' : 'Generate Resume'}
         </button>
         {generateError && <p style={{ color: '#c00', marginTop: '0.5rem' }}>{generateError}</p>}
       </section>
@@ -384,7 +384,8 @@ export default function ResumeClient({
               )}
               {resumeData?.enhancedUrl &&
                 resumeData.enhancedExt &&
-                !['pdf', 'doc', 'docx'].includes(resumeData.enhancedExt) && (
+                !['pdf', 'doc', 'docx'].includes(resumeData.enhancedExt) &&
+                !resumeData.enhancedText && (
                   <div style={{ padding: '1rem', textAlign: 'center', background: 'var(--surface-container)' }}>
                     <a
                       href={resumeData.enhancedUrl}
@@ -397,15 +398,60 @@ export default function ResumeClient({
                     </a>
                   </div>
                 )}
-              {resumeData?.enhancedText && !resumeData?.enhancedUrl && (
-                <pre style={{ whiteSpace: 'pre-wrap', fontSize: '0.85rem', maxHeight: '400px', overflow: 'auto', padding: '1rem', margin: 0 }}>
-                  {resumeData.enhancedText.slice(0, 3000)}{resumeData.enhancedText.length > 3000 ? '…' : ''}
-                </pre>
+              {resumeData?.enhancedText &&
+                !['pdf', 'doc', 'docx'].includes(resumeData?.enhancedExt ?? '') && (
+                <div style={{
+                  padding: '1.25rem',
+                  background: 'var(--color-surface)',
+                  fontFamily: 'system-ui, sans-serif',
+                  fontSize: '0.875rem',
+                  lineHeight: '1.7',
+                  whiteSpace: 'pre-wrap',
+                  maxHeight: '600px',
+                  overflowY: 'auto',
+                  color: 'var(--color-on-surface)',
+                }}>
+                  {resumeData.enhancedText}
+                </div>
               )}
             </div>
           )}
         </section>
       )}
+
+      <section style={{ marginBottom: '2rem' }}>
+        <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>AI Tools for Your Resume</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem' }}>
+          {[
+            { icon: '🔄', title: 'Resume Rewriter', desc: 'Rewrite and polish your resume with AI assistance.', href: '/dashboard/ai-tools/resume-rewriter' },
+            { icon: '🎯', title: 'Job Match Scorer', desc: 'See how well your resume matches a job posting.', href: '/dashboard/ai-tools/job-match-scorer' },
+            { icon: '📊', title: 'Resume Analysis', desc: 'Get a detailed AI breakdown of your resume strength.', href: '/dashboard/ai-tools/resume-analysis' },
+          ].map(({ icon, title, desc, href }) => (
+            <div
+              key={href}
+              style={{
+                background: 'var(--surface-container)',
+                borderRadius: '0.75rem',
+                padding: '1rem 1.1rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.4rem',
+                border: '1px solid var(--outline-variant)',
+              }}
+            >
+              <span style={{ fontSize: '1.5rem' }}>{icon}</span>
+              <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>{title}</span>
+              <span style={{ fontSize: '0.82rem', color: 'var(--color-on-surface-variant)', flexGrow: 1 }}>{desc}</span>
+              <Link
+                href={href}
+                style={{ color: 'var(--color-accent)', fontWeight: 600, fontSize: '0.875rem', textDecoration: 'none', marginTop: '0.25rem' }}
+              >
+                Open →
+              </Link>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <section className="counselor-wit-guide">
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>WorkInTexas Guide</h2>

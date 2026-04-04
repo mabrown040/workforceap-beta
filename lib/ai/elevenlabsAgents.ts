@@ -40,21 +40,19 @@ export function envKeyForPortalAgent(key: ElevenLabsPortalAgentKey): string {
 
 export async function startElevenLabsPortalSession(
   key: ElevenLabsPortalAgentKey,
-  options?: { dynamicContext?: string }
+  options?: { dynamicVariables?: Record<string, string | number | boolean> }
 ): Promise<{
   signedUrl: string;
   expiresAt?: string;
-  /** Pass to `Conversation.startSession({ overrides: { agent: { prompt: { prompt } } } })` on the client. */
-  dynamicContext?: string;
+  dynamicVariables?: Record<string, string | number | boolean>;
 }> {
   const agentId = getElevenLabsAgentId(key);
   if (!agentId) {
     throw new Error(`No ElevenLabs agent ID for "${key}". Set ${ENV_KEYS[key]}.`);
   }
   const session = await createConversationalSession(agentId);
-  const ctx = options?.dynamicContext?.trim();
   return {
     ...session,
-    ...(ctx ? { dynamicContext: ctx } : {}),
+    ...(options?.dynamicVariables ? { dynamicVariables: options.dynamicVariables } : {}),
   };
 }

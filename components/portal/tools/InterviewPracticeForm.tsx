@@ -17,10 +17,24 @@ type Question = {
 export default function InterviewPracticeForm() {
   const [role, setRole] = useState('');
   const [experienceLevel, setExperienceLevel] = useState<'entry' | 'mid' | 'senior'>('mid');
+  const [focusAreas, setFocusAreas] = useState<string[]>([]);
+  const [difficulty, setDifficulty] = useState(5);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { copy, copied } = useCopyToClipboard();
+
+  const FOCUS_OPTIONS = [
+    { id: 'behavioral', icon: 'psychology', label: 'Behavioral' },
+    { id: 'technical', icon: 'code', label: 'Technical' },
+    { id: 'situational', icon: 'lightbulb', label: 'Situational' },
+    { id: 'leadership', icon: 'groups', label: 'Leadership' },
+    { id: 'problem-solving', icon: 'extension', label: 'Problem Solving' },
+    { id: 'culture-fit', icon: 'favorite', label: 'Culture Fit' },
+  ];
+
+  const toggleFocus = (id: string) =>
+    setFocusAreas((prev) => prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +47,7 @@ export default function InterviewPracticeForm() {
       const res = await fetch('/api/ai/interview-practice', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role, experienceLevel, count: 8 }),
+        body: JSON.stringify({ role, experienceLevel, focusAreas: focusAreas.length ? focusAreas : undefined, difficulty, count: 8 }),
       });
 
       const data = await res.json();
@@ -88,6 +102,64 @@ export default function InterviewPracticeForm() {
           <option value="senior">Senior (8+ years)</option>
         </select>
       </div>
+      {/* Focus area cards */}
+      <div style={{ marginBottom: '1.25rem' }}>
+        <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.5rem', fontSize: '0.9375rem' }}>Focus areas <span style={{ fontWeight: 400, color: 'var(--color-on-surface-variant)', fontSize: '0.8125rem' }}>(optional)</span></label>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '0.5rem' }}>
+          {FOCUS_OPTIONS.map((opt) => (
+            <button
+              key={opt.id}
+              type="button"
+              onClick={() => toggleFocus(opt.id)}
+              disabled={loading}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '0.375rem',
+                padding: '0.75rem 0.5rem',
+                borderRadius: '0.75rem',
+                border: focusAreas.includes(opt.id) ? '2px solid var(--color-accent)' : '1px solid var(--outline-variant, rgba(0,0,0,0.08))',
+                background: focusAreas.includes(opt.id) ? 'rgba(173,44,77,0.06)' : 'var(--surface-container)',
+                cursor: 'pointer',
+                fontSize: '0.8125rem',
+                fontWeight: 600,
+                color: focusAreas.includes(opt.id) ? 'var(--color-accent)' : 'var(--color-on-surface)',
+                minHeight: '44px',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>{opt.icon}</span>
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Difficulty slider */}
+      <div style={{ marginBottom: '1.25rem' }}>
+        <label htmlFor="difficulty" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600, marginBottom: '0.375rem', fontSize: '0.9375rem' }}>
+          <span>Difficulty</span>
+          <span style={{ fontWeight: 400, color: 'var(--color-on-surface-variant)', fontSize: '0.8125rem' }}>
+            {difficulty <= 3 ? 'Easy' : difficulty <= 6 ? 'Medium' : difficulty <= 8 ? 'Hard' : 'Expert'}
+          </span>
+        </label>
+        <input
+          id="difficulty"
+          type="range"
+          min={1}
+          max={10}
+          value={difficulty}
+          onChange={(e) => setDifficulty(Number(e.target.value))}
+          disabled={loading}
+          style={{ width: '100%', accentColor: 'var(--color-accent)' }}
+        />
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
+          <span>Warm-up</span>
+          <span>Expert</span>
+        </div>
+      </div>
+
       {error && (
         <div className="form-error" role="alert">
           {error}

@@ -11,8 +11,9 @@ import SettingsForm from '@/components/portal/SettingsForm';
 import DeleteAccountButton from '@/components/portal/DeleteAccountButton';
 import StartTourButton from '@/components/onboarding/StartTourButton';
 import ResumeClient from '@/app/(portal)/dashboard/resume/ResumeClient';
-import ResumeRewriterForm from '@/components/portal/tools/ResumeRewriterForm';
+import ResumeCoachWorkspace from '@/components/portal/ResumeCoachWorkspace';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
+import ResumeRewriterForm from '@/components/portal/tools/ResumeRewriterForm';
 import { getProfileCompleteness } from '@/lib/resume/profileCompleteness';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import MobileProfileSkillsResume from '@/components/portal/MobileProfileSkillsResume';
@@ -314,43 +315,7 @@ export default async function DashboardProfilePage() {
           hasEnhanced={hasEnhanced}
         />
 
-        <div
-          className="stitch-card"
-          style={{
-            marginTop: '1.5rem',
-            padding: '1.5rem',
-            border: '1px solid var(--outline-variant)',
-          }}
-        >
-          <h2 style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
-            Resume coach (voice)
-          </h2>
-          <PortalVoiceSession
-            sessionEndpoint="/api/member/resume-coach/session"
-            suggestionsEndpoint="/api/member/resume-coach/parse-suggestions"
-            title="Talk through your resume"
-            description="Practice your pitch, discuss experience bullets, or get advice on framing your background."
-            accent="#2563eb"
-            accentDark="#1d4ed8"
-            speakingLabel="Coach is speaking…"
-            listeningLabel="Listening — describe your background"
-          />
-        </div>
-
-        <div
-          className="stitch-card"
-          style={{
-            marginTop: '1.5rem',
-            padding: '1.5rem',
-            border: '1px solid var(--outline-variant)',
-          }}
-        >
-          <h4 style={{ fontSize: '0.95rem', marginBottom: '1rem' }}>Live resume edits</h4>
-          <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem', fontSize: '0.9rem' }}>
-            Rewrite bullets, tailor for a target role, and keep your resume work on the same page as your upload and preview.
-          </p>
-          <ResumeRewriterForm />
-        </div>
+        <ResumeCoachWorkspace />
       </div>
 
       <div id="settings" className="dashboard-profile-section">

@@ -317,7 +317,7 @@ function QuizResultsView({
                 className="btn btn-primary"
                 style={{ width: '100%', padding: '0.75rem', fontSize: '0.9rem' }}
               >
-                Apply for This Program →
+                Apply Now →
               </Link>
               <Link
                 href={`/programs/${program.slug}`}
@@ -340,7 +340,7 @@ function QuizResultsView({
             Applications take about 10 minutes. We respond within 3–5 business days.
           </p>
           <Link href={`/apply?program=${topProgram.slug}`} className="btn btn-primary btn-large">
-            Apply for {topProgram.title}
+            Start Your Application →
           </Link>
           <p className="quiz-results-cta-phone">
             <a href="tel:+15127771808">Talk to someone first → (512) 777-1808</a>

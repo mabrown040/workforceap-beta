@@ -16,6 +16,17 @@ export const metadata: Metadata = buildPageMetadata({
 const TOOLS = [
   // Priority tools: Resume Writer first, AI Interview Coach second
   {
+    id: 'my-resume',
+    title: 'My Resume',
+    icon: 'description',
+    description: 'Upload your resume PDF, view it inline, or generate one from your profile using AI.',
+    timeToComplete: '2 min',
+    status: 'available' as const,
+    href: '/dashboard/resume',
+    badge: 'UPLOAD',
+    accentBorder: true,
+  },
+  {
     id: 'resume-rewriter',
     title: 'Resume Rewriter',
     icon: 'edit_note',

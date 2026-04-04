@@ -190,30 +190,114 @@ export default function ResumeClient({
 
       {(hasOriginal || hasEnhanced) && (
         <section style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Before / After</h2>
-          <div className="counselor-resume-preview">
-            {hasOriginal && (
-              <div className="counselor-resume-card">
-                <h3>Original</h3>
-                <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
-                  <a href={resumeData?.originalUrl ?? '#'} target="_blank" rel="noopener noreferrer">
-                    Download Original →
-                  </a>
-                </p>
-              </div>
-            )}
-            {hasEnhanced && (
-              <div className="counselor-resume-card">
-                <h3>AI-Enhanced</h3>
-                {resumeData?.enhancedText && (
-                  <pre>{resumeData.enhancedText.slice(0, 1500)}{resumeData.enhancedText.length > 1500 ? '…' : ''}</pre>
-                )}
-                <a href={resumeData?.enhancedUrl ?? '#'} target="_blank" rel="noopener noreferrer" className="btn btn-outline" style={{ fontSize: '0.9rem' }}>
-                  Download Enhanced →
+          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Your Resume</h2>
+
+          {/* Inline PDF preview — frozen document view */}
+          {resumeData?.originalUrl && resumeData.originalUrl.includes('.pdf') && (
+            <div
+              style={{
+                marginBottom: '1rem',
+                border: '1px solid var(--outline-variant)',
+                borderRadius: 'var(--radius-md)',
+                overflow: 'hidden',
+                background: '#f5f5f5',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '0.5rem 0.75rem',
+                  background: 'var(--surface-container)',
+                  borderBottom: '1px solid var(--outline-variant)',
+                  fontSize: '0.85rem',
+                }}
+              >
+                <span style={{ fontWeight: 600 }}>📄 Original Resume</span>
+                <a
+                  href={resumeData.originalUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}
+                >
+                  Open ↗
                 </a>
               </div>
-            )}
-          </div>
+              <iframe
+                src={resumeData.originalUrl}
+                title="Original resume preview"
+                style={{ width: '100%', height: '600px', border: 'none' }}
+              />
+            </div>
+          )}
+
+          {/* Non-PDF original — download link */}
+          {hasOriginal && resumeData?.originalUrl && !resumeData.originalUrl.includes('.pdf') && (
+            <div className="counselor-resume-card" style={{ marginBottom: '1rem' }}>
+              <h3>Original Resume</h3>
+              <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
+                <a href={resumeData.originalUrl} target="_blank" rel="noopener noreferrer">
+                  Download Original →
+                </a>
+              </p>
+            </div>
+          )}
+
+          {/* Enhanced PDF preview */}
+          {resumeData?.enhancedUrl && resumeData.enhancedUrl.includes('.pdf') && (
+            <div
+              style={{
+                marginBottom: '1rem',
+                border: '1px solid var(--outline-variant)',
+                borderRadius: 'var(--radius-md)',
+                overflow: 'hidden',
+                background: '#f5f5f5',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '0.5rem 0.75rem',
+                  background: 'var(--surface-container)',
+                  borderBottom: '1px solid var(--outline-variant)',
+                  fontSize: '0.85rem',
+                }}
+              >
+                <span style={{ fontWeight: 600 }}>✨ AI-Enhanced Resume</span>
+                <a
+                  href={resumeData.enhancedUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}
+                >
+                  Open ↗
+                </a>
+              </div>
+              <iframe
+                src={resumeData.enhancedUrl}
+                title="AI-enhanced resume preview"
+                style={{ width: '100%', height: '600px', border: 'none' }}
+              />
+            </div>
+          )}
+
+          {/* Enhanced text fallback (non-PDF) */}
+          {hasEnhanced && resumeData?.enhancedUrl && !resumeData.enhancedUrl.includes('.pdf') && (
+            <div className="counselor-resume-card" style={{ marginBottom: '1rem' }}>
+              <h3>AI-Enhanced</h3>
+              {resumeData?.enhancedText && (
+                <pre style={{ whiteSpace: 'pre-wrap', fontSize: '0.85rem', maxHeight: '400px', overflow: 'auto' }}>
+                  {resumeData.enhancedText.slice(0, 3000)}{resumeData.enhancedText.length > 3000 ? '…' : ''}
+                </pre>
+              )}
+              <a href={resumeData.enhancedUrl} target="_blank" rel="noopener noreferrer" className="btn btn-outline" style={{ fontSize: '0.9rem' }}>
+                Download Enhanced →
+              </a>
+            </div>
+          )}
         </section>
       )}
 

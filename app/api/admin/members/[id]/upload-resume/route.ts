@@ -30,10 +30,9 @@ function validateFileType(buffer: Buffer, mimeType: string, fileName: string): b
 
   // Check magic bytes
   if (buffer.length < 4) return false;
-  const matchesMagic = MAGIC_BYTES.some(
-    (m) => m.bytes.every((b, i) => buffer[i] === b)
+  return MAGIC_BYTES.some(
+    (m) => m.ext === ext && m.bytes.every((b, i) => buffer[i] === b)
   );
-  return matchesMagic;
 }
 
 export async function POST(

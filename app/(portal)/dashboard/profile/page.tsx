@@ -16,7 +16,6 @@ import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import ResumeRewriterForm from '@/components/portal/tools/ResumeRewriterForm';
 import { getProfileCompleteness } from '@/lib/resume/profileCompleteness';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import MobileProfileSkillsResume from '@/components/portal/MobileProfileSkillsResume';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'My Profile',
@@ -170,11 +169,27 @@ export default async function DashboardProfilePage() {
           </div>
         )}
 
-        {/* Resume upload section */}
-        <div id="resume">
-          <MobileProfileSkillsResume
-            resumeOriginalPath={dbUser.profile?.resumeOriginalPath ?? null}
-          />
+        {/* Resume — link to dedicated page */}
+        <div id="resume" className="wa-mx-6 wa-mb-4">
+          <a
+            href="/dashboard/resume"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.75rem 1rem',
+              background: 'var(--surface-container-low)',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--outline-variant)',
+              color: 'var(--color-accent)',
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              textDecoration: 'none',
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>description</span>
+            Manage My Resume →
+          </a>
         </div>
 
         {/* Voice resume coach */}

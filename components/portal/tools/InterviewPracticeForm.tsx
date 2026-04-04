@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import ExportPdfButton from './ExportPdfButton';
 
 type Question = {
   question: string;
@@ -183,6 +184,11 @@ export default function InterviewPracticeForm() {
             <button type="button" className="btn btn-outline btn-sm" onClick={handleCopy}>
               {copied ? 'Copied!' : 'Copy all'}
             </button>
+            <ExportPdfButton
+              text={questions.map((q) => `${q.question}\nType: ${q.type}\nTip: ${q.tip}${q.starHint ? `\nSTAR: ${q.starHint}` : ''}${q.exampleAnswer ? `\nExample: ${q.exampleAnswer}` : ''}\n`).join('\n')}
+              title="Interview Questions"
+              toolName="Interview Practice"
+            />
           </div>
           <ol className="interview-practice-list">
             {questions.map((q, i) => (

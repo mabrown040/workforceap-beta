@@ -13,9 +13,9 @@
 - [x] Member Job Board (CivicBot match scores, portal-only)
 - [x] Programs Catalog dark mode (bento grid with featured card)
 - [x] Admin Audit Logs page (compliance registry table)
-- [ ] Refined Job Match Scorer (floating analyze button)
-- [ ] Refined Resume Rewriter (controls bar, knowledge card)
-- [ ] Refined Interview Practice (focus cards, difficulty slider, preview)
+- [x] Refined Job Match Scorer (floating analyze button)
+- [x] Refined Resume Rewriter (controls bar, knowledge card)
+- [x] Refined Interview Practice (focus cards, difficulty slider, preview)
 - [x] Salary Negotiation Script Generator UI
 - [x] Gap Analyzer UI
 - [x] Application Tracker UI
@@ -23,10 +23,10 @@
 ## Next Sprint: Functional Enhancements
 
 ### PDF/DOC Export (High Priority)
-- [ ] Resume Rewriter — download optimized resume as PDF/DOCX
-- [ ] Cover Letter Builder — download as PDF/DOCX
-- [ ] Interview Practice — export session transcript + feedback as PDF
-- [ ] Salary Negotiation — export scripts as PDF
+- [x] Resume Rewriter — download optimized resume as PDF/DOCX
+- [x] Cover Letter Builder — download as PDF/DOCX
+- [x] Interview Practice — export session transcript + feedback as PDF
+- [x] Salary Negotiation — export scripts as PDF
 - **Tech**: Use `react-pdf` or `@react-pdf/renderer` for PDF generation; `docx` npm package for DOCX
 
 ### Skill Mapper (Medium Priority)

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import ExportPdfButton from './ExportPdfButton';
 
 const SALARY_RANGES = [
   '',
@@ -218,6 +219,7 @@ export default function ResumeRewriterForm({ initialResume }: { initialResume?: 
             <button type="button" className="btn btn-outline btn-sm" onClick={handleCopy}>
               {copied ? 'Copied!' : 'Copy to clipboard'}
             </button>
+            <ExportPdfButton text={output} title="Resume" toolName="Resume Rewriter" />
           </div>
           <pre className="resume-rewriter-output-content">{output}</pre>
           <p className="ai-result-saved">

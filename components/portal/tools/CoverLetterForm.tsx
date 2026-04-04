@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import ExportPdfButton from './ExportPdfButton';
 
 export default function CoverLetterForm() {
   const [resume, setResume] = useState('');
@@ -120,6 +121,7 @@ export default function CoverLetterForm() {
             <button type="button" className="btn btn-outline btn-sm" onClick={handleCopy}>
               {copied ? 'Copied!' : 'Copy to clipboard'}
             </button>
+            <ExportPdfButton text={output} title="Cover Letter" toolName="Cover Letter Builder" />
           </div>
           <pre className="resume-rewriter-output-content">{output}</pre>
           <p className="ai-result-saved">

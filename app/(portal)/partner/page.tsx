@@ -32,24 +32,19 @@ export default async function PartnerDashboardPage() {
   const ctx = await getPartnerForUser(user.id);
   if (!ctx) redirect('/dashboard');
 
-  const [appliedViaReferralLink, partnerRow] = await Promise.all([
-    prisma.application.count({
-      where: { referralPartnerId: ctx.partnerId },
-    }),
-    prisma.partner.findUnique({
-      where: { id: ctx.partnerId },
-      select: {
-        referralCode: true,
-        slug: true,
-        onboardingCompletedAt: true,
-        name: true,
-        organizationType: true,
-        contactName: true,
-        contactPhone: true,
-        tourCompletedAt: true,
-      },
-    }),
-  ]);
+  const partnerRow = await prisma.partner.findUnique({
+    where: { id: ctx.partnerId },
+    select: {
+      referralCode: true,
+      slug: true,
+      onboardingCompletedAt: true,
+      name: true,
+      organizationType: true,
+      contactName: true,
+      contactPhone: true,
+      tourCompletedAt: true,
+    },
+  });
 
   if (!partnerRow) redirect('/dashboard');
 
@@ -59,6 +54,18 @@ export default async function PartnerDashboardPage() {
 
   const { members, pipelineMembers } = await loadPartnerReferralBundle(ctx.partnerId);
   const memberIds = members.map((m) => m.id);
+
+  /** Distinct referred members who have at least one intake application tied to this partner link (apples-to-apples vs. total referrals). */
+  const referredMembersAppliedViaLink =
+    memberIds.length === 0
+      ? 0
+      : (
+          await prisma.application.findMany({
+            where: { referralPartnerId: ctx.partnerId, userId: { in: memberIds } },
+            select: { userId: true },
+            distinct: ['userId'],
+          })
+        ).length;
 
   const events =
     memberIds.length === 0
@@ -108,8 +115,9 @@ export default async function PartnerDashboardPage() {
 
   /** Share of referred members who reached a placed outcome (placements / total referrals). */
   const conversionRate = total > 0 ? Math.round((placements / total) * 100) : 0;
-  /** Share of referrals who applied using your referral link (not a time metric). */
-  const referralLinkUsagePct = total > 0 ? Math.min(100, Math.round((appliedViaReferralLink / total) * 100)) : 0;
+  /** Share of referred members who submitted an application recorded with your partner referral link. */
+  const referralLinkUsagePct =
+    total > 0 ? Math.min(100, Math.round((referredMembersAppliedViaLink / total) * 100)) : 0;
 
   // Pending milestones count (open milestones needing review)
   const pendingMilestonesCount = stageCounts['in_training'] ?? 0;
@@ -356,7 +364,7 @@ export default async function PartnerDashboardPage() {
       >
         <p className="partner-section-eyebrow">Referral link</p>
         <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--color-on-surface)' }}>
-          Applied via your referral link: <strong>{appliedViaReferralLink}</strong>
+          Applied via your referral link: <strong>{referredMembersAppliedViaLink}</strong>
         </p>
         <p style={{ margin: '0.75rem 0 0', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
           Share: <strong style={{ wordBreak: 'break-all' }}>{referralApplyUrl}</strong>
@@ -481,13 +489,13 @@ export default async function PartnerDashboardPage() {
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.375rem' }}>
                     <span style={{ color: 'var(--color-on-surface)' }}>Referral link usage</span>
-                    <span style={{ color: '#80d99f' }}>{referralLinkUsagePct}%</span>
+                    <span style={{ color: 'var(--color-green)' }}>{referralLinkUsagePct}%</span>
                   </div>
                   <div style={{ width: '100%', height: '6px', background: 'var(--surface-container-highest)', borderRadius: '9999px', overflow: 'hidden' }}>
-                    <div style={{ width: `${referralLinkUsagePct}%`, height: '100%', background: '#80d99f', borderRadius: '9999px', transition: 'width 0.3s' }} />
+                    <div style={{ width: `${referralLinkUsagePct}%`, height: '100%', background: 'var(--color-green)', borderRadius: '9999px', transition: 'width 0.3s' }} />
                   </div>
                   <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0', lineHeight: 1.4 }}>
-                    Of all people you referred, the share who applied using your partner referral link.
+                    Of people in your referral list, how many submitted an application with your partner link attached.
                   </p>
                 </div>
               </div>

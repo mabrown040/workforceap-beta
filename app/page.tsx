@@ -106,7 +106,7 @@ export default async function HomePage() {
             <Link href="/find-your-path" className="btn btn-primary btn-large" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.25rem)' }}>
               Find Your Career
             </Link>
-            <Link href="/partners" className="btn btn-secondary btn-large home-hero-outline-cta" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.2rem)' }}>
+            <Link href="/partners" className="btn btn-large home-hero-partner-cta" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.2rem)' }}>
               Partner With Us
             </Link>
             <ExperimentedCtaLink
@@ -163,13 +163,8 @@ export default async function HomePage() {
             gap: '2rem',
             alignItems: 'start',
           }}>
-            {/* For Partners — first + elevated (stakeholder priority) */}
-            <div className="stitch-card home-employer-elevated" style={{
-              background: 'var(--surface-container-lowest)', padding: '2rem',
-              border: '2px solid var(--color-accent)',
-              transform: 'translateY(-1rem)',
-              boxShadow: '0 8px 32px rgba(173,44,77,0.15)',
-            }}>
+            {/* For Partners */}
+            <div className="stitch-card" style={{ background: 'var(--surface-container-lowest)', padding: '2rem' }}>
               <div style={{ width: '3rem', height: '3rem', background: 'rgba(200,198,197,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c8c6c5', marginBottom: '1.5rem' }}>
                 <span className="material-symbols-outlined">handshake</span>
               </div>
@@ -193,8 +188,13 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* For Members */}
-            <div className="stitch-card" style={{ background: 'var(--surface-container-lowest)', padding: '2rem' }}>
+            {/* For Members — center + elevated (primary audience) */}
+            <div className="stitch-card home-employer-elevated" style={{
+              background: 'var(--surface-container-lowest)', padding: '2rem',
+              border: '2px solid var(--color-accent)',
+              transform: 'translateY(-1rem)',
+              boxShadow: '0 8px 32px rgba(173,44,77,0.15)',
+            }}>
               <div style={{ width: '3rem', height: '3rem', background: 'rgba(173,44,77,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent)', marginBottom: '1.5rem' }}>
                 <span className="material-symbols-outlined">person</span>
               </div>

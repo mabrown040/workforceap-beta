@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import '@/css/counselor.css';
 import { uploadMemberResumeFile } from '@/lib/portal/memberResumeUpload';
 
@@ -108,14 +110,17 @@ export default function ResumeClient({
       });
       const data = await res.json();
       if (res.ok) {
+        const generated = typeof data.resume === 'string' ? data.resume : '';
         const refetch = await fetch('/api/member/resume');
         const d = await refetch.json();
+        const textFromApi =
+          typeof d.enhancedText === 'string' && d.enhancedText.trim() ? d.enhancedText : generated || null;
         setResumeData({
           originalUrl: d.originalUrl ?? null,
           enhancedUrl: d.enhancedUrl ?? null,
-          enhancedText: d.enhancedText ?? data.resume ?? null,
+          enhancedText: textFromApi,
           hasOriginal: d.hasOriginal ?? false,
-          hasEnhanced: d.hasEnhanced ?? true,
+          hasEnhanced: Boolean(d.hasEnhanced || textFromApi),
           originalExt: d.originalExt ?? null,
           enhancedExt: d.enhancedExt ?? null,
           previewOriginalPath: d.previewOriginalPath ?? null,
@@ -400,19 +405,32 @@ export default function ResumeClient({
                 )}
               {resumeData?.enhancedText &&
                 !['pdf', 'doc', 'docx'].includes(resumeData?.enhancedExt ?? '') && (
-                <div style={{
-                  padding: '1.25rem',
-                  background: 'var(--color-surface)',
-                  fontFamily: 'system-ui, sans-serif',
-                  fontSize: '0.875rem',
-                  lineHeight: '1.7',
-                  whiteSpace: 'pre-wrap',
-                  maxHeight: '600px',
-                  overflowY: 'auto',
-                  color: 'var(--color-on-surface)',
-                }}>
-                  {resumeData.enhancedText}
-                </div>
+                <article
+                  key={resumeData.enhancedText.slice(0, 120)}
+                  className="markdown-body"
+                  style={{
+                    padding: '1.25rem',
+                    background: 'var(--color-surface)',
+                    fontSize: '0.9375rem',
+                    lineHeight: 1.65,
+                    maxHeight: 'min(70vh, 720px)',
+                    overflowY: 'auto',
+                    color: 'var(--color-on-surface)',
+                  }}
+                >
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      a: ({ href, children }) => (
+                        <a href={href} target="_blank" rel="noopener noreferrer">
+                          {children}
+                        </a>
+                      ),
+                    }}
+                  >
+                    {resumeData.enhancedText}
+                  </ReactMarkdown>
+                </article>
               )}
             </div>
           )}

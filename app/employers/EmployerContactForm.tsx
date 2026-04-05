@@ -8,6 +8,15 @@ const Turnstile = dynamic(() => import('@marsidev/react-turnstile').then((m) => 
 const CAPTCHA_ENABLED = process.env.NEXT_PUBLIC_CAPTCHA_ENABLED === 'true';
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
+const EMPLOYEE_COUNT = [
+  { value: '', label: 'Select…' },
+  { value: '1-10', label: '1–10' },
+  { value: '11-50', label: '11–50' },
+  { value: '51-200', label: '51–200' },
+  { value: '201-500', label: '201–500' },
+  { value: '500+', label: '500+' },
+];
+
 const HIRE_VOLUME = [
   { value: '', label: 'Select…' },
   { value: '1', label: '1' },
@@ -19,11 +28,11 @@ const HIRE_VOLUME = [
 
 const HIRING_TIMELINE = [
   { value: '', label: 'Select…' },
-  { value: 'immediately', label: 'Immediately' },
-  { value: '30-60_days', label: '30–60 days' },
-  { value: '60-90_days', label: '60–90 days' },
+  { value: 'ASAP', label: 'ASAP' },
+  { value: '1-3_months', label: '1–3 months' },
   { value: '3-6_months', label: '3–6 months' },
-  { value: 'planning', label: 'Planning ahead' },
+  { value: '6+_months', label: '6+ months' },
+  { value: 'just_exploring', label: 'Just exploring' },
 ];
 
 const INTEREST_USE_CASE = [
@@ -55,6 +64,7 @@ export default function EmployerContactForm() {
     const first_name = nameParts[0] || contactName;
     const last_name = nameParts.slice(1).join(' ') || '(Contact)';
     const company = String(formData.get('company') || '').trim();
+    const employeeCount = String(formData.get('employee_count') || '').trim();
     const roleTitle = String(formData.get('role_title') || '').trim();
     const rolesHiring = String(formData.get('roles_hiring') || '').trim();
     const openRoles = String(formData.get('open_roles') || '').trim();
@@ -63,6 +73,7 @@ export default function EmployerContactForm() {
 
     const message = [
       company ? `Company: ${company}` : '',
+      employeeCount ? `Approximate number of employees: ${employeeCount}` : '',
       roleTitle ? `Role / title: ${roleTitle}` : '',
       openRoles ? `Open roles in next 6 months: ${openRoles}` : '',
       hiringTimeline ? `Hiring timeline: ${hiringTimeline}` : '',
@@ -168,6 +179,16 @@ export default function EmployerContactForm() {
       <div className="form-group">
         <label htmlFor="employer-company">Company name *</label>
         <input id="employer-company" type="text" name="company" required disabled={status === 'sending'} aria-required="true" />
+      </div>
+      <div className="form-group">
+        <label htmlFor="employer-employee-count">Approximate number of employees *</label>
+        <select id="employer-employee-count" name="employee_count" className="form-control" required disabled={status === 'sending'} aria-required="true">
+          {EMPLOYEE_COUNT.map((o) => (
+            <option key={o.value || 'empty'} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
       </div>
       <div className="form-group">
         <label htmlFor="employer-contact-name">Contact name *</label>

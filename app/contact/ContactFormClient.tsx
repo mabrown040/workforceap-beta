@@ -1,6 +1,7 @@
 'use client';
 
-import { useId, useState } from 'react';
+import { useId, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 type FieldKey = 'first_name' | 'last_name' | 'email' | 'topic' | 'message';
 
@@ -36,6 +37,8 @@ function validateContactFields(data: {
 }
 
 export default function ContactFormClient() {
+  const searchParams = useSearchParams();
+  const topicParam = searchParams.get('topic');
   const formId = useId();
   const errorId = `${formId}-error`;
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
@@ -271,8 +274,10 @@ export default function ContactFormClient() {
               .join(' ') || undefined
           }
           onChange={() => setFieldErrors((p) => ({ ...p, topic: undefined }))}
+          defaultValue={topicParam === 'hire' ? 'Hire talent' : ''}
         >
           <option value="">Select a topic&hellip;</option>
+          <option>Hire talent</option>
           <option>Program information</option>
           <option>Eligibility questions</option>
           <option>Application help</option>

@@ -86,21 +86,21 @@ const PARTNERSHIP_TIERS = [
     title: 'Standard',
     features: ['Post unlimited jobs', 'Access to active members and alumni', 'Direct candidate introductions'],
     cta: 'Start Standard Intake',
-    href: '#employer-contact-form',
+    href: '/contact?topic=hire',
     featured: false,
   },
   {
     title: 'Strategic Partner',
     features: ['First access to graduating cohorts', 'Input on curriculum design', 'Co-branded success stories', 'Quarterly hiring events'],
     cta: 'Start Partner Intake',
-    href: '#employer-contact-form',
+    href: '/contact?topic=hire',
     featured: true,
   },
   {
     title: 'Enterprise Upskill',
     features: ['Upskill your existing workforce', 'Custom training programs', 'Group enrollment discounts', 'Dedicated account manager'],
     cta: 'Start Upskill Intake',
-    href: '#employer-contact-form',
+    href: '/contact?topic=hire',
     featured: false,
   },
 ];
@@ -194,7 +194,7 @@ export default function EmployersPage() {
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
             <Link
-              href="#employer-contact-form"
+              href="/contact?topic=hire"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -211,7 +211,7 @@ export default function EmployersPage() {
               <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_forward</span>
             </Link>
             <Link
-              href="#employer-contact-form"
+              href="/contact?topic=hire"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -784,7 +784,7 @@ export default function EmployersPage() {
         <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.1rem', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
           Tell us what you&apos;re hiring for, how many roles you have open, and your timeline so we can route you to the right employer intake path.
         </p>
-        <a href="#employer-contact-form" className="btn btn-primary" style={{ fontSize: '1rem', padding: '0.875rem 2rem' }}>
+        <a href="/contact?topic=hire" className="btn btn-primary" style={{ fontSize: '1rem', padding: '0.875rem 2rem' }}>
           Start Employer Intake
         </a>
       </section>
@@ -815,7 +815,7 @@ export default function EmployersPage() {
             <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5, maxWidth: '26rem' }}>
               Tell us what roles you need, how many openings you have, and when you need them filled.
             </p>
-            <Link href="#employer-contact-form" style={{ display: 'inline-block', marginTop: '1rem', padding: '0.75rem 1.5rem', borderRadius: '0.75rem', background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)', color: '#fff', fontWeight: 700, fontSize: '0.875rem', textDecoration: 'none' }}>
+            <Link href="/contact?topic=hire" style={{ display: 'inline-block', marginTop: '1rem', padding: '0.75rem 1.5rem', borderRadius: '0.75rem', background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)', color: '#fff', fontWeight: 700, fontSize: '0.875rem', textDecoration: 'none' }}>
               Start Employer Intake
             </Link>
           </div>
@@ -1000,7 +1000,7 @@ export default function EmployersPage() {
             Start the employer intake and tell us what roles, volume, and timeline you need so we can route you quickly.
           </p>
           <Link
-            href="#employer-contact-form"
+            href="/contact?topic=hire"
             style={{ display: 'block', width: '100%', maxWidth: '24rem', fontWeight: 700, padding: '1rem', borderRadius: '0.75rem', textAlign: 'center', fontSize: '0.875rem', background: '#fff', color: '#8c0f37', textDecoration: 'none' }}
           >
             Start Employer Intake

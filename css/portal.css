@@ -638,3 +638,308 @@
     grid-template-columns: minmax(0, 1fr) minmax(0, 320px);
   }
 }
+
+/* ── Member messages (mobile) — shared tokens with workspace / VoiceAgentSurface ── */
+.portal-messages-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--surface-container-lowest);
+  color: var(--color-on-surface);
+}
+
+.portal-messages-shell--thread {
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.portal-messages-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  width: 100%;
+  background: color-mix(in srgb, var(--surface-container-lowest) 88%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(173, 44, 77, 0.08);
+}
+
+.portal-messages-header-btn {
+  color: var(--color-accent);
+  padding: 6px;
+  border-radius: 9999px;
+  display: flex;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.portal-messages-title {
+  color: var(--color-on-surface);
+  font-weight: 700;
+  font-size: 1.125rem;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.portal-messages-search {
+  padding: 0.5rem 1rem;
+}
+
+.portal-messages-search-input {
+  width: 100%;
+  padding: 0.625rem 0.75rem 0.625rem 2.5rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  background: var(--surface-container);
+  border: 1px solid rgba(222, 191, 194, 0.25);
+  outline: none;
+  color: var(--color-on-surface);
+}
+
+.portal-messages-search-wrap {
+  position: relative;
+}
+
+.portal-messages-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-on-surface-variant);
+  opacity: 0.65;
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.portal-messages-thread-btn {
+  width: 100%;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  text-align: left;
+  background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+  border: 1px solid transparent;
+  color: inherit;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.portal-messages-thread-btn:hover {
+  background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.portal-messages-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, var(--color-accent-dark, #6b0c29), var(--color-accent));
+}
+
+.portal-messages-avatar--muted {
+  color: var(--color-on-surface-variant);
+  background: var(--surface-container-high);
+}
+
+.portal-messages-online-dot {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  border: 2px solid var(--surface-container-lowest);
+  background: #22c55e;
+}
+
+.portal-messages-badge {
+  flex-shrink: 0;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  height: 20px;
+  min-width: 20px;
+  padding: 0 4px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-accent);
+}
+
+.portal-messages-bubble--mine {
+  background: var(--color-accent-dark, #6b0c29);
+  color: #fff;
+  border-radius: 18px 18px 4px 18px;
+}
+
+.portal-messages-bubble--them {
+  background: var(--surface-container-high);
+  color: var(--color-on-surface);
+  border-radius: 18px 18px 18px 4px;
+}
+
+.portal-messages-compose {
+  background: color-mix(in srgb, var(--surface-container-lowest) 92%, transparent);
+  border-top: 1px solid rgba(173, 44, 77, 0.08);
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+.portal-messages-compose-input {
+  background: var(--surface-container);
+  border: 1px solid rgba(222, 191, 194, 0.2);
+  color: var(--color-on-surface);
+}
+
+.portal-messages-tip-card {
+  margin: 2rem 1rem 1rem;
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-dark, #6b0c29));
+  color: #fff;
+  box-shadow: 0 16px 40px color-mix(in srgb, var(--color-accent) 35%, transparent);
+}
+
+.portal-messages-link-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 12px;
+  padding: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s ease;
+}
+
+.portal-messages-link-row:hover {
+  background: var(--surface-container);
+}
+
+/* Job application kanban — align with stitch-card + status tints */
+.portal-kanban {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .portal-kanban {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .portal-kanban {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .portal-kanban {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+.portal-kanban-column {
+  border-radius: var(--radius-xl);
+  padding: 1rem;
+  min-height: 500px;
+  background: var(--surface-container-low);
+  border: 1px solid rgba(222, 191, 194, 0.2);
+}
+
+.portal-kanban-column--applied {
+  background: color-mix(in srgb, var(--surface-container-low) 92%, var(--color-on-surface) 8%);
+}
+.portal-kanban-column--phone {
+  background: color-mix(in srgb, #dbeafe 35%, var(--surface-container-low) 65%);
+}
+.portal-kanban-column--interviewing {
+  background: color-mix(in srgb, #fef3c7 40%, var(--surface-container-low) 60%);
+}
+.portal-kanban-column--offer {
+  background: color-mix(in srgb, #dcfce7 38%, var(--surface-container-low) 62%);
+}
+.portal-kanban-column--saved {
+  background: color-mix(in srgb, var(--surface-container) 80%, var(--surface-container-low) 20%);
+}
+.portal-kanban-column--rejected {
+  background: color-mix(in srgb, #fee2e2 35%, var(--surface-container-low) 65%);
+}
+
+html.dark .portal-kanban-column--phone {
+  background: color-mix(in srgb, #1e3a5f 25%, var(--surface-container-low) 75%);
+}
+html.dark .portal-kanban-column--interviewing {
+  background: color-mix(in srgb, #713f12 22%, var(--surface-container-low) 78%);
+}
+html.dark .portal-kanban-column--offer {
+  background: color-mix(in srgb, #14532d 22%, var(--surface-container-low) 78%);
+}
+html.dark .portal-kanban-column--rejected {
+  background: color-mix(in srgb, #7f1d1d 22%, var(--surface-container-low) 78%);
+}
+
+.portal-kanban-column-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-on-surface);
+  margin-bottom: 0.25rem;
+}
+
+.portal-kanban-empty {
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--color-on-surface-variant);
+  border: 1px dashed rgba(222, 191, 194, 0.45);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--surface-container-lowest) 70%, transparent);
+}
+
+.portal-kanban-mobile-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  border: 2px dashed rgba(222, 191, 194, 0.35);
+  border-radius: var(--radius-lg);
+  color: var(--color-on-surface-variant);
+  background: var(--surface-container-low);
+}
+
+.job-app-card {
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.job-app-card:hover {
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+}
+
+html.dark .job-app-card:hover {
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+}
+
+.job-app-card--editing {
+  border: 2px solid var(--color-accent) !important;
+  box-shadow: 0 8px 28px rgba(173, 44, 77, 0.2);
+}

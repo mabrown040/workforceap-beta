@@ -37,29 +37,28 @@ type InitialPayload = {
 
 function CareerTipCard() {
   return (
-    <div style={{ marginTop: '2rem', marginLeft: '1rem', marginRight: '1rem', marginBottom: '1rem' }}>
+    <div className="portal-messages-tip-card">
       <div
         style={{
-          borderRadius: '16px', padding: '1.5rem',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' as const,
-          background: 'linear-gradient(135deg, #ad2c4d, #8c0f37)',
+          width: '64px',
+          height: '64px',
+          borderRadius: '9999px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: '1rem',
+          background: 'rgba(255,255,255,0.12)',
+          backdropFilter: 'blur(8px)',
         }}
       >
-        <div
-          style={{
-            width: '64px', height: '64px', borderRadius: '9999px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            marginBottom: '1rem',
-            background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(8px)',
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '30px' }}>tips_and_updates</span>
-        </div>
-        <h4 style={{ color: '#fff', fontWeight: 700, marginBottom: '4px', margin: '0 0 4px' }}>Career Tip</h4>
-        <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px', lineHeight: 1.6, margin: 0 }}>
-          Responding to your counselor within 24 hours increases your placement rate by 30%.
-        </p>
+        <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '30px' }}>
+          tips_and_updates
+        </span>
       </div>
+      <h4 style={{ color: '#fff', fontWeight: 700, margin: '0 0 4px' }}>Career Tip</h4>
+      <p style={{ color: 'rgba(255,255,255,0.88)', fontSize: '12px', lineHeight: 1.6, margin: 0 }}>
+        Responding to your counselor within 24 hours increases your placement rate by 30%.
+      </p>
     </div>
   );
 }
@@ -203,45 +202,40 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
     const showCareer = rowMatches('Career Services', 'New job match found: Junior Web Developer.');
 
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#fcf9f8' }}>
+      <div className="portal-messages-shell">
         {/* Header */}
-        <header
-          style={{
-            position: 'sticky', top: 0, zIndex: 50,
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '0.75rem 1rem', width: '100%',
-            background: 'rgba(252,249,248,0.92)',
-            backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-            borderBottom: '1px solid rgba(173,44,77,0.06)',
-          }}
-        >
+        <header className="portal-messages-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <Link href="/dashboard" style={{ color: '#ad2c4d', padding: '6px', borderRadius: '9999px', display: 'flex' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>arrow_back</span>
+            <Link href="/dashboard" className="portal-messages-header-btn" aria-label="Back to dashboard">
+              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+                arrow_back
+              </span>
             </Link>
-            <h1 style={{ color: '#1c1b1b', fontWeight: 700, fontSize: '1.125rem', letterSpacing: '-0.01em', margin: 0 }}>Messages</h1>
+            <h1 className="portal-messages-title">Messages</h1>
           </div>
           <button
             type="button"
-            style={{ color: '#ad2c4d', padding: '6px', borderRadius: '9999px', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}
-            aria-label="New message"
+            className="portal-messages-header-btn"
+            aria-label="Focus search"
             onClick={() => searchInputRef.current?.focus()}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>edit_square</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+              edit_square
+            </span>
           </button>
         </header>
 
         {/* Search */}
-        <div style={{ padding: '0.5rem 1rem' }}>
-          <div style={{ position: 'relative' }}>
-            <span className="material-symbols-outlined" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(88,65,68,0.5)', fontSize: '16px' }}>search</span>
+        <div className="portal-messages-search">
+          <div className="portal-messages-search-wrap">
+            <span className="material-symbols-outlined portal-messages-search-icon">search</span>
             <input
               ref={searchInputRef}
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search"
-              style={{ width: '100%', paddingLeft: '40px', paddingRight: '12px', paddingTop: '10px', paddingBottom: '10px', borderRadius: '12px', fontSize: '14px', background: '#f0edec', border: 'none', outline: 'none', color: '#1c1b1b' }}
+              className="portal-messages-search-input"
               autoComplete="off"
             />
           </div>
@@ -256,56 +250,27 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
               <button
                 type="button"
                 onClick={() => setView('thread')}
-                style={{
-                  width: '100%', borderRadius: '12px', padding: '12px',
-                  display: 'flex', alignItems: 'center', gap: '12px',
-                  cursor: 'pointer', textAlign: 'left' as const,
-                  background: 'rgba(173,44,77,0.04)', border: 'none',
-                }}
+                className="portal-messages-thread-btn"
               >
                 <div style={{ position: 'relative', flexShrink: 0 }}>
-                  <div
-                    style={{
-                      width: '44px', height: '44px', borderRadius: '9999px',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      color: '#fff', fontWeight: 700, fontSize: '12px',
-                      background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)',
-                    }}
-                  >
-                    {counselorInitials}
-                  </div>
-                  <div
-                    style={{
-                      position: 'absolute', bottom: '-2px', right: '-2px',
-                      width: '12px', height: '12px', borderRadius: '9999px',
-                      border: '2px solid #fcf9f8', background: '#22c55e',
-                    }}
-                  />
+                  <div className="portal-messages-avatar">{counselorInitials}</div>
+                  <div className="portal-messages-online-dot" aria-hidden />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <h3 style={{ fontWeight: 600, fontSize: '14px', color: '#1c1b1b', margin: 0 }}>
+                    <h3 style={{ fontWeight: 600, fontSize: '14px', color: 'var(--color-on-surface)', margin: 0 }}>
                       {counselorName ?? 'Your Counselor'}
                     </h3>
                     {displayLastTime && (
-                      <span style={{ fontSize: '11px', color: 'rgba(88,65,68,0.6)' }}>
+                      <span style={{ fontSize: '11px', color: 'var(--color-on-surface-variant)' }}>
                         {displayLastTime}
                       </span>
                     )}
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
-                    <p style={{ fontSize: '13px', color: '#584144', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayLastMsg || 'Tap to start chatting'}</p>
+                    <p style={{ fontSize: '13px', color: 'var(--color-on-surface-variant)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayLastMsg || 'Tap to start chatting'}</p>
                     {unreadCount > 0 && (
-                      <span
-                        style={{
-                          flexShrink: 0, color: '#fff', fontSize: '10px', fontWeight: 700,
-                          height: '20px', minWidth: '20px', padding: '0 4px',
-                          borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          background: '#ad2c4d',
-                        }}
-                      >
-                        {unreadCount}
-                      </span>
+                      <span className="portal-messages-badge">{unreadCount}</span>
                     )}
                   </div>
                 </div>
@@ -316,32 +281,16 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
             {/* Program team — link to resources */}
             {showProgram && (
             <div style={{ padding: '2px 8px' }}>
-              <Link
-                href="/dashboard/resources"
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '12px',
-                  borderRadius: '12px', padding: '12px',
-                  textDecoration: 'none', color: 'inherit',
-                }}
-              >
-                <div
-                  style={{
-                    width: '44px', height: '44px', borderRadius: '9999px',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: '#584144', fontWeight: 700, fontSize: '12px', flexShrink: 0,
-                    background: '#e5e2e1',
-                  }}
-                >
-                  PT
-                </div>
+              <Link href="/dashboard/resources" className="portal-messages-link-row">
+                <div className="portal-messages-avatar portal-messages-avatar--muted">PT</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <h3 style={{ fontWeight: 600, fontSize: '14px', color: '#1c1b1b', margin: 0 }}>Program Team</h3>
-                    <span style={{ fontSize: '11px', color: 'rgba(88,65,68,0.6)' }}>Yesterday</span>
+                    <h3 style={{ fontWeight: 600, fontSize: '14px', color: 'var(--color-on-surface)', margin: 0 }}>Program Team</h3>
+                    <span style={{ fontSize: '11px', color: 'var(--color-on-surface-variant)' }}>Yesterday</span>
                   </div>
-                  <p style={{ fontSize: '13px', color: '#584144', margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Your certification for Digital Literacy is ready.</p>
+                  <p style={{ fontSize: '13px', color: 'var(--color-on-surface-variant)', margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Your certification for Digital Literacy is ready.</p>
                 </div>
-                <span className="material-symbols-outlined" style={{ color: 'rgba(88,65,68,0.4)', fontSize: '18px', flexShrink: 0 }}>chevron_right</span>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.5, fontSize: '18px', flexShrink: 0 }}>chevron_right</span>
               </Link>
             </div>
             )}
@@ -349,32 +298,16 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
             {/* Career Services — link to job board */}
             {showCareer && (
             <div style={{ padding: '2px 8px' }}>
-              <Link
-                href="/dashboard/jobs"
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '12px',
-                  borderRadius: '12px', padding: '12px',
-                  textDecoration: 'none', color: 'inherit',
-                }}
-              >
-                <div
-                  style={{
-                    width: '44px', height: '44px', borderRadius: '9999px',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: '#584144', fontWeight: 700, fontSize: '12px', flexShrink: 0,
-                    background: '#e5e2e1',
-                  }}
-                >
-                  CS
-                </div>
+              <Link href="/dashboard/jobs" className="portal-messages-link-row">
+                <div className="portal-messages-avatar portal-messages-avatar--muted">CS</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <h3 style={{ fontWeight: 600, fontSize: '14px', color: '#1c1b1b', margin: 0 }}>Career Services</h3>
-                    <span style={{ fontSize: '11px', color: 'rgba(88,65,68,0.6)' }}>Monday</span>
+                    <h3 style={{ fontWeight: 600, fontSize: '14px', color: 'var(--color-on-surface)', margin: 0 }}>Career Services</h3>
+                    <span style={{ fontSize: '11px', color: 'var(--color-on-surface-variant)' }}>Monday</span>
                   </div>
-                  <p style={{ fontSize: '13px', color: '#584144', margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>New job match found: Junior Web Developer.</p>
+                  <p style={{ fontSize: '13px', color: 'var(--color-on-surface-variant)', margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>New job match found: Junior Web Developer.</p>
                 </div>
-                <span className="material-symbols-outlined" style={{ color: 'rgba(88,65,68,0.4)', fontSize: '18px', flexShrink: 0 }}>chevron_right</span>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.5, fontSize: '18px', flexShrink: 0 }}>chevron_right</span>
               </Link>
             </div>
             )}
@@ -388,35 +321,26 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
 
   // ── Thread / Chat View ──────────────────────────────────────────────────────
   return (
-    <div
-      className="md:wa-hidden wa-flex wa-flex-col"
-      style={{ height: '100dvh', background: '#fcf9f8', overflow: 'hidden' }}
-    >
+    <div className="md:wa-hidden wa-flex wa-flex-col portal-messages-shell portal-messages-shell--thread">
       {/* Header */}
-      <header
-        className="wa-flex-shrink-0 wa-flex wa-items-center wa-gap-3 wa-px-4 wa-py-3 wa-z-50"
-        style={{ background: 'rgba(252,249,248,0.95)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(173,44,77,0.08)' }}
-      >
+      <header className="wa-flex-shrink-0 wa-flex wa-items-center wa-gap-3 wa-px-4 wa-py-3 portal-messages-header">
         <button
           type="button"
           onClick={() => setView('list')}
-          className="wa-text-[#ad2c4d] wa-p-1 wa-rounded-full hover:wa-bg-[#f2eeed] active:wa-scale-95 wa-transition-transform"
+          className="portal-messages-header-btn hover:wa-bg-[var(--surface-container)] active:wa-scale-95 wa-transition-transform"
           aria-label="Back to messages"
         >
           <span className="material-symbols-outlined">arrow_back</span>
         </button>
-        <div
-          className="wa-w-9 wa-h-9 wa-rounded-full wa-flex wa-items-center wa-justify-center wa-text-white wa-font-bold wa-text-xs wa-flex-shrink-0"
-          style={{ background: '#ad2c4d' }}
-        >
-          {counselorInitials}
-        </div>
+        <div className="portal-messages-avatar wa-w-9 wa-h-9 wa-text-xs">{counselorInitials}</div>
         <div className="wa-flex-1 wa-min-w-0">
-          <p className="wa-font-bold wa-text-[#1c1b1b] wa-text-sm wa-leading-tight wa-truncate">
+          <p className="wa-font-bold wa-text-sm wa-leading-tight wa-truncate" style={{ color: 'var(--color-on-surface)' }}>
             {counselorName ?? 'Your Counselor'}
           </p>
           {thread.counselorUserId && (
-            <p className="wa-text-[11px] wa-text-[#584144] wa-opacity-70">WorkforceAP Counselor</p>
+            <p className="wa-text-[11px]" style={{ color: 'var(--color-on-surface-variant)' }}>
+              WorkforceAP Counselor
+            </p>
           )}
         </div>
       </header>
@@ -432,11 +356,15 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
           <div className="wa-flex wa-flex-col wa-items-center wa-justify-center wa-h-full wa-gap-3 wa-text-center">
             <div
               className="wa-w-16 wa-h-16 wa-rounded-full wa-flex wa-items-center wa-justify-center"
-              style={{ background: '#f2eeed' }}
+              style={{ background: 'var(--surface-container-high)' }}
             >
-              <span className="material-symbols-outlined wa-text-[#8c0f37] wa-text-2xl">chat_bubble_outline</span>
+              <span className="material-symbols-outlined wa-text-2xl" style={{ color: 'var(--color-accent)' }}>
+                chat_bubble_outline
+              </span>
             </div>
-            <p className="wa-text-[#584144] wa-text-sm">No messages yet. Say hello!</p>
+            <p className="wa-text-sm" style={{ color: 'var(--color-on-surface-variant)' }}>
+              No messages yet. Say hello!
+            </p>
           </div>
         ) : (
           messages.map((m) => {
@@ -448,16 +376,16 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
                 className={`wa-flex wa-flex-col ${mine ? 'wa-items-end' : 'wa-items-start'}`}
               >
                 <div
-                  className="wa-max-w-[78%] wa-px-4 wa-py-2.5 wa-text-sm wa-leading-snug"
-                  style={
-                    mine
-                      ? { background: '#8c0f37', color: '#fff', borderRadius: '18px 18px 4px 18px' }
-                      : { background: '#f0edec', color: '#1c1b1b', borderRadius: '18px 18px 18px 4px' }
-                  }
+                  className={`wa-max-w-[78%] wa-px-4 wa-py-2.5 wa-text-sm wa-leading-snug ${
+                    mine ? 'portal-messages-bubble--mine' : 'portal-messages-bubble--them'
+                  }`}
                 >
                   {m.body}
                 </div>
-                <time className="wa-text-[10px] wa-text-[#584144] wa-opacity-60 wa-mt-1 wa-px-1">
+                <time
+                  className="wa-text-[10px] wa-mt-1 wa-px-1"
+                  style={{ color: 'var(--color-on-surface-variant)', opacity: 0.75 }}
+                >
                   {timeStr}
                 </time>
               </div>
@@ -469,7 +397,10 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
 
       {/* Error */}
       {error && (
-        <div className="wa-flex-shrink-0 wa-mx-4 wa-mb-2 wa-px-3 wa-py-2 wa-rounded-lg wa-text-xs wa-text-white" style={{ background: '#ba1a1a' }}>
+        <div
+          className="wa-flex-shrink-0 wa-mx-4 wa-mb-2 wa-px-3 wa-py-2 wa-rounded-lg wa-text-xs wa-text-white"
+          style={{ background: 'var(--color-error, #ba1a1a)' }}
+        >
           {error}
         </div>
       )}
@@ -477,12 +408,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
       {/* Compose input — pinned at bottom */}
       <form
         onSubmit={send}
-        className="wa-flex-shrink-0 wa-flex wa-items-end wa-gap-2 wa-px-3 wa-py-3"
-        style={{
-          background: 'rgba(252,249,248,0.95)',
-          borderTop: '1px solid rgba(173,44,77,0.08)',
-          paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))',
-        }}
+        className="wa-flex-shrink-0 wa-flex wa-items-end wa-gap-2 wa-px-3 wa-py-3 portal-messages-compose"
       >
         <textarea
           value={draft}
@@ -496,16 +422,16 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
           placeholder="Type a message…"
           maxLength={8000}
           rows={1}
-          className="wa-flex-1 wa-resize-none wa-px-4 wa-py-3 wa-rounded-2xl wa-text-sm focus:wa-outline-none focus:wa-ring-2 focus:ring-[#8c0f37]/40 placeholder:text-[#584144]/50"
-          style={{ background: '#f0edec', border: 'none', maxHeight: '8rem', overflowY: 'auto' }}
+          className="wa-flex-1 wa-resize-none wa-px-4 wa-py-3 wa-rounded-2xl wa-text-sm portal-messages-compose-input focus:wa-outline-none focus:wa-ring-2 focus:wa-ring-[var(--color-accent)]/35 placeholder:opacity-50"
+          style={{ maxHeight: '8rem', overflowY: 'auto' }}
         />
         <button
           type="submit"
           disabled={sending || !draft.trim()}
           className="wa-flex-shrink-0 wa-w-10 wa-h-10 wa-rounded-full wa-flex wa-items-center wa-justify-center active:wa-scale-95 wa-transition-all"
           style={{
-            background: draft.trim() ? '#8c0f37' : '#e5e2e1',
-            color: draft.trim() ? '#fff' : '#584144',
+            background: draft.trim() ? 'var(--color-accent-dark, #6b0c29)' : 'var(--surface-container-high)',
+            color: draft.trim() ? '#fff' : 'var(--color-on-surface-variant)',
           }}
           aria-label="Send message"
         >

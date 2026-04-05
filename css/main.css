@@ -1295,6 +1295,7 @@ html.dark .workspace-shell-brand {
 html.dark .workspace-sidebar {
     background: linear-gradient(to right, var(--color-background-dark), #1c1f22);
     border-right-color: transparent;
+    border-left-color: color-mix(in srgb, var(--color-accent) 35%, transparent);
 }
 html.dark .workspace-sidebar-link {
     color: rgba(226,226,229,0.5);
@@ -8378,6 +8379,9 @@ html.dark .portal-nav {
     flex-direction: column;
     background: var(--surface-container-lowest);
     color: var(--color-on-surface);
+    /* Set by WorkspaceShell (header + tab bar height) for sticky sidebar alignment */
+    --workspace-tab-bar-h: 0px;
+    --workspace-top-offset: calc(var(--workspace-header-h, 3.25rem) + var(--workspace-tab-bar-h, 0px));
 }
 .workspace-shell-header {
     display: flex;
@@ -8469,12 +8473,15 @@ html.dark .portal-nav {
 .workspace-tab-bar-inner {
     display: flex;
     gap: 0;
-    max-width: var(--max-width);
+    max-width: min(var(--max-width), 100%);
     margin: 0 auto;
-    padding: 0 0.5rem;
+    padding: 0 max(0.5rem, env(safe-area-inset-left)) 0 max(0.5rem, env(safe-area-inset-right));
     overflow-x: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    flex-wrap: nowrap;
+    justify-content: safe center;
+    scroll-snap-type: x proximity;
 }
 .workspace-tab-bar-inner::-webkit-scrollbar {
     display: none;
@@ -8493,6 +8500,7 @@ html.dark .portal-nav {
     transition: color 0.15s, border-color 0.15s;
     flex-shrink: 0;
     white-space: nowrap;
+    scroll-snap-align: center;
 }
 .workspace-tab:hover {
     color: var(--color-on-surface);
@@ -8820,12 +8828,19 @@ html.dark .workspace-sidebar-signout:hover {
         display: flex;
     }
     .workspace-sidebar {
-        position: relative;
+        position: sticky;
+        top: var(--workspace-top-offset, calc(var(--workspace-header-h, 3.25rem) + var(--workspace-tab-bar-h, 0px)));
+        align-self: flex-start;
+        max-height: calc(100vh - var(--workspace-top-offset, calc(var(--workspace-header-h, 3.25rem) + var(--workspace-tab-bar-h, 0px))));
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
         transform: none !important;
         width: 260px;
         flex-shrink: 0;
         box-shadow: none;
         border-right: 1px solid var(--color-border);
+        border-left: 3px solid color-mix(in srgb, var(--color-accent) 28%, transparent);
     }
     .workspace-sidebar.open {
         box-shadow: none;

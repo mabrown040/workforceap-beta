@@ -8,30 +8,35 @@ const schema = z.object({
   fullName: z.string().min(1),
 });
 
-export async function POST(request: NextRequest) {
-  const ip =
+function getClientIp(request: NextRequest) {
+  return (
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
     request.headers.get('x-real-ip') ??
-    'unknown';
+    request.headers.get('cf-connecting-ip') ??
+    request.headers.get('x-vercel-forwarded-for') ??
+    'unknown'
+  );
+}
 
-  const { success } = await checkConfirmationEmailRateLimit(ip);
-  if (!success) {
-    return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
-  }
-
-  let body: unknown;
+export async function POST(request: NextRequest) {
   try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
-  }
+    const { success } = await checkConfirmationEmailRateLimit(getClientIp(request));
+    if (!success) {
+      return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
+    }
 
-  const parsed = schema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: 'Invalid data' }, { status: 400 });
-  }
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+    }
 
-  try {
+    const parsed = schema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid data' }, { status: 400 });
+    }
+
     const result = await sendApplicationConfirmationEmail({
       to: parsed.data.email,
       fullName: parsed.data.fullName,

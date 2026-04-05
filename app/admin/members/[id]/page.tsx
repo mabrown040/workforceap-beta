@@ -339,8 +339,7 @@ export default async function AdminMemberDetailPage({
         </section>
 
         <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
-          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Counselor chat</h2>
-          <AdminMemberCounselorChatClient initial={counselorChatInitial} />
+          <AdminMemberCounselorChatClient initial={counselorChatInitial} messagingSurface="admin" />
         </section>
 
         {(member.profile?.resumeOriginalPath || member.profile?.resumeEnhancedPath) && (

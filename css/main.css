@@ -1558,7 +1558,8 @@ body.mobile-nav-open .main-nav::after {
     }
 }
 .nav-container {
-    max-width: var(--max-width);
+    /* Wider than page content so primary links + Your account + Apply fit on one row */
+    max-width: min(100%, var(--max-width-lg));
     margin: 0 auto;
     padding: 0 1.5rem;
     display: flex;
@@ -1603,14 +1604,16 @@ body.mobile-nav-open .main-nav::after {
 .nav-menu {
     display: flex;
     align-items: center;
-    gap: 1.75rem;
+    gap: 1.35rem;
     margin: 0;
     margin-left: auto;
     padding: 0;
+    flex-wrap: nowrap;
+    min-width: 0;
 }
 .nav-menu a {
     color: var(--color-on-surface);
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 500;
     transition: color var(--transition-fast);
     position: relative;
@@ -1632,7 +1635,7 @@ body.mobile-nav-open .main-nav::after {
 .nav-menu .dropdown { position: relative; padding: 0.5rem 0; }
 .nav-menu .dropdown .dropdown-trigger {
     color: var(--color-on-surface);
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 500;
     font-family: inherit;
     cursor: pointer;

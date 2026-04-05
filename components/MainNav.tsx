@@ -35,7 +35,7 @@ export default function MainNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
-  const [portalLinks, setPortalLinks] = useState<{ href: string; label: string }[]>([{ href: '/login', label: 'Sign in' }]);
+  const [portalLink, setPortalLink] = useState<{ href: string; label: string }>({ href: '/login', label: 'Sign in' });
   const menuRef = useRef<HTMLUListElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const navContainerRef = useRef<HTMLDivElement>(null);
@@ -75,21 +75,17 @@ export default function MainNav() {
           };
           if (cancelled) return;
           if (!data.role) {
-            setPortalLinks([{ href: '/login', label: 'Sign in' }]);
+            setPortalLink({ href: '/login', label: 'Sign in' });
             return;
           }
           const partnerExclusive = !!data.partner && !data.superAdmin;
           if (partnerExclusive) {
-            setPortalLinks([{ href: '/partner', label: 'Partner Portal' }]);
+            setPortalLink({ href: '/partner', label: 'Your account' });
             return;
           }
-          const links: { href: string; label: string }[] = [];
-          if (data.canAccessMemberDashboard) links.push({ href: '/dashboard', label: 'Member Portal' });
-          if (data.employer) links.push({ href: '/employer', label: 'Employer Portal' });
-          if (links.length === 0) links.push({ href: '/dashboard', label: 'Member Portal' });
-          setPortalLinks(links);
+          setPortalLink({ href: '/dashboard', label: 'Your account' });
         } catch {
-          if (!cancelled) setPortalLinks([{ href: '/login', label: 'Sign in' }]);
+          if (!cancelled) setPortalLink({ href: '/login', label: 'Sign in' });
         }
       })();
     };
@@ -161,7 +157,18 @@ export default function MainNav() {
 
   const portalHrefActive = (href: string) => {
     if (href === '/login' || href.startsWith('/login?')) return pathname === '/login';
-    return pathname === href || (href === '/dashboard' && pathname.startsWith('/dashboard')) || (href === '/employer' && pathname.startsWith('/employer')) || (href === '/partner' && pathname.startsWith('/partner'));
+    if (href === '/partner') return pathname.startsWith('/partner');
+    if (href === '/dashboard') {
+      return (
+        pathname.startsWith('/dashboard') ||
+        pathname.startsWith('/employer') ||
+        pathname.startsWith('/admin') ||
+        pathname.startsWith('/counselor') ||
+        pathname.startsWith('/mentor') ||
+        pathname.startsWith('/account')
+      );
+    }
+    return pathname === href || pathname.startsWith(`${href}/`);
   };
 
   return (
@@ -220,13 +227,15 @@ export default function MainNav() {
               </li>,
             ];
           })}
-          {portalLinks.map((pl) => (
-            <li key={`portal-${pl.href}-${pl.label}`}>
-              <Link href={pl.href} className={portalHrefActive(pl.href) ? 'active' : undefined} onClick={closeMobile}>
-                {pl.label}
-              </Link>
-            </li>
-          ))}
+          <li key={`portal-${portalLink.href}`}>
+            <Link
+              href={portalLink.href}
+              className={portalHrefActive(portalLink.href) ? 'active' : undefined}
+              onClick={closeMobile}
+            >
+              {portalLink.label}
+            </Link>
+          </li>
           <li>
             <Link href="/apply" className="nav-cta" onClick={closeMobile}>Apply Now</Link>
           </li>

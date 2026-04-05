@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import PortalVoiceSession, { type VoiceSessionPhase } from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { mockInterviewVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
@@ -23,6 +23,9 @@ export default function VoiceInterviewScaffold() {
   const [recordingConsent, setRecordingConsent] = useState(false);
   const [playbackUrl, setPlaybackUrl] = useState<string | null>(null);
   const [videoErr, setVideoErr] = useState('');
+  /** Fresh mount for each run so voice UI state resets reliably after “Change role / style”. */
+  const [voiceSessionKey, setVoiceSessionKey] = useState(0);
+  const videoStreamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
     if (!ready) {
@@ -121,7 +124,10 @@ export default function VoiceInterviewScaffold() {
             type="button"
             className="btn btn-primary"
             disabled={!canStart}
-            onClick={() => setReady(true)}
+            onClick={() => {
+              setVoiceSessionKey((k) => k + 1);
+              setReady(true);
+            }}
           >
             Continue to voice session
           </button>
@@ -146,6 +152,7 @@ export default function VoiceInterviewScaffold() {
                 phase={voicePhase}
                 role={role.trim()}
                 interviewType={interviewType}
+                externalStreamRef={videoStreamRef}
                 onUploadComplete={({ playbackUrl: u }) => setPlaybackUrl(u)}
                 onError={(m) => setVideoErr(m)}
               />
@@ -155,6 +162,7 @@ export default function VoiceInterviewScaffold() {
             ) : null}
             <VoiceAgentSurface {...mockInterviewVoiceSurface}>
               <PortalVoiceSession
+                key={voiceSessionKey}
                 sessionEndpoint="/api/member/voice-interview/session"
                 sessionPayload={{ role: role.trim(), interviewType }}
                 title="Voice mock interview"
@@ -166,6 +174,9 @@ export default function VoiceInterviewScaffold() {
                 liveTranscriptCoachLabel="Interviewer"
                 onTranscriptChunk={onTranscriptChunk}
                 onPhaseChange={setVoicePhase}
+                acquireVideoForRecording={wantRecording}
+                optionalCameraForRecording={wantRecording}
+                videoStreamRef={videoStreamRef}
               />
             </VoiceAgentSurface>
             {playbackUrl ? (
@@ -187,10 +198,14 @@ export default function VoiceInterviewScaffold() {
               className="btn btn-outline btn-sm"
               style={{ marginTop: '1rem' }}
               onClick={() => {
+                videoStreamRef.current?.getTracks().forEach((t) => t.stop());
+                videoStreamRef.current = null;
+                setVoiceSessionKey((k) => k + 1);
                 setReady(false);
                 setLastUserText('');
                 setPlaybackUrl(null);
                 setVideoErr('');
+                setVoicePhase('pre');
               }}
             >
               Change role / style

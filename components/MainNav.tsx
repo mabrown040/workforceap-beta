@@ -14,15 +14,15 @@ const navItems = [
       { href: '/what-we-do', label: 'What We Do' },
       { href: '/how-it-works', label: 'How It Works' },
       { href: '/leadership', label: 'Leadership' },
-      { href: '/partners', label: 'Partners' },
-      { href: '/blog', label: 'Blog' },
-      { href: '/contact', label: 'Contact Us' },
       { href: '/faq', label: 'FAQ' },
     ],
   },
   { href: '/programs', label: 'Programs' },
+  { href: '/partners', label: 'Partners' },
+  { href: '/blog', label: 'Blog' },
   { href: '/employers', label: 'Employers' },
   { href: '/find-your-path', label: 'Find Your Path' },
+  { href: '/contact', label: 'Contact Us' },
 ];
 
 function dropdownMenuId(baseId: string, label: string) {

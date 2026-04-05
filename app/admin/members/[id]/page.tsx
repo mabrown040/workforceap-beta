@@ -22,6 +22,9 @@ import CreateSuccessToast from './CreateSuccessToast';
 import { formatPhone } from '@/lib/formatPhone';
 import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
 import { ClipboardList, CheckCircle } from 'lucide-react';
+import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
+import type { WioaReviewStatus } from '@/lib/wioa/wioaReview';
+import AdminMemberWioaReviewPanel from '@/components/admin/AdminMemberWioaReviewPanel';
 import PageHeader from '@/components/portal/PageHeader';
 import '@/css/counselor.css';
 
@@ -48,7 +51,34 @@ export default async function AdminMemberDetailPage({
     await Promise.all([
     prisma.user.findUnique({
       where: { id },
-      include: { profile: true },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        phone: true,
+        deletedAt: true,
+        enrolledProgram: true,
+        enrolledAt: true,
+        programChangedAt: true,
+        coursesCompleted: true,
+        assessmentCompleted: true,
+        assessmentCompletedAt: true,
+        assessmentScore: true,
+        assessmentScorePct: true,
+        programInterest: true,
+        assessmentAnswers: true,
+        interviewEligible: true,
+        interviewRequestedAt: true,
+        interviewCompletedAt: true,
+        workspaceEmail: true,
+        workspaceEmailProvisioned: true,
+        wioaQualificationJson: true,
+        wioaReviewStatus: true,
+        wioaReviewedAt: true,
+        wioaReviewedByUserId: true,
+        wioaReviewNotes: true,
+        profile: true,
+      },
     }),
     prisma.partner.findMany({
       where: { active: true },
@@ -93,6 +123,15 @@ export default async function AdminMemberDetailPage({
 
   if (!member || member.deletedAt) notFound();
 
+  let wioaReviewerName: string | null = null;
+  if (member.wioaReviewedByUserId) {
+    const rev = await prisma.user.findUnique({
+      where: { id: member.wioaReviewedByUserId },
+      select: { fullName: true },
+    });
+    wioaReviewerName = rev?.fullName ?? null;
+  }
+
   const preScreening = await prisma.preScreeningResponse.findUnique({
     where: { userId: member.id },
   });
@@ -134,6 +173,8 @@ export default async function AdminMemberDetailPage({
         })
       : [];
   const chatNameById = new Map(chatAuthors.map((n) => [n.id, n.fullName]));
+
+  const wioaSnap = parseWioaQualificationSnapshot(member.wioaQualificationJson);
 
   const counselorChatInitial = {
     staffUserId: user.id,
@@ -186,6 +227,17 @@ export default async function AdminMemberDetailPage({
           <p><strong>LinkedIn:</strong> {member.profile?.profileLinkedin ? <a href={member.profile.profileLinkedin} target="_blank" rel="noopener noreferrer">{member.profile.profileLinkedin}</a> : '—'}</p>
           <p><strong>Bio:</strong> {member.profile?.profileBio ?? '—'}</p>
         </section>
+
+        {wioaSnap && (
+          <AdminMemberWioaReviewPanel
+            memberId={member.id}
+            snapshot={wioaSnap}
+            reviewStatus={(member.wioaReviewStatus as WioaReviewStatus | null) ?? null}
+            reviewedAt={member.wioaReviewedAt?.toISOString() ?? null}
+            reviewerName={wioaReviewerName}
+            reviewNotes={member.wioaReviewNotes}
+          />
+        )}
 
         {preScreening && (
           <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>

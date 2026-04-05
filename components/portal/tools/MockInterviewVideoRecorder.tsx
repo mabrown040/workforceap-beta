@@ -118,13 +118,17 @@ export default function MockInterviewVideoRecorder({
                 audio: true,
               });
             } catch {
-              stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
-                audio: false,
-              });
-              setUploadHint(
-                'Recording video only — your voice is still captured by the interview session.'
-              );
+              try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                  video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+                  audio: false,
+                });
+                setUploadHint(
+                  'Recording video only — your voice is still captured by the interview session.'
+                );
+              } catch {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+              }
             }
           }
           streamRef.current = stream;
@@ -146,7 +150,11 @@ export default function MockInterviewVideoRecorder({
           startedAtRef.current = Date.now();
           rec.start(1000);
         } catch (e) {
-          const msg = e instanceof Error ? e.message : 'Camera access failed';
+          const raw = e instanceof Error ? e.message : String(e);
+          const msg =
+            /denied|not allowed|Permission/i.test(raw)
+              ? 'Camera access was blocked or unavailable. The voice interview still works — allow camera in your browser settings to save a practice video, or turn off recording and try again.'
+              : raw || 'Camera access failed';
           onErrorRef.current?.(msg);
           cleanupStream();
         }

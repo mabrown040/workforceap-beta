@@ -135,6 +135,12 @@ export type PortalVoiceSessionProps = {
    * permission prompt stays tied to the Start click. Requires `videoStreamRef`.
    */
   acquireVideoForRecording?: boolean;
+  /**
+   * When `acquireVideoForRecording` is true and camera permission fails, still start the voice session.
+   * Recording UI can retry camera later or show video-only errors without blocking the interview.
+   * @default false
+   */
+  optionalCameraForRecording?: boolean;
   /** Set when `acquireVideoForRecording`; pass the same ref to `MockInterviewVideoRecorder`. */
   videoStreamRef?: MutableRefObject<MediaStream | null>;
   /**
@@ -183,6 +189,7 @@ export default function PortalVoiceSession({
   liveTranscriptCoachLabel = 'Coach',
   liveTranscriptYouLabel = 'You',
   acquireVideoForRecording = false,
+  optionalCameraForRecording = false,
   videoStreamRef,
   conversationOverrides,
 }: PortalVoiceSessionProps) {
@@ -324,19 +331,31 @@ export default function PortalVoiceSession({
     }
 
     if (acquireVideoForRecording && videoStreamRef) {
+      let vs: MediaStream | null = null;
       try {
-        const vs = await navigator.mediaDevices.getUserMedia({
+        vs = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
           audio: false,
         });
-        videoStreamRef.current = vs;
       } catch {
-        logVoice('camera_denied');
-        setVoiceError(
-          'Camera: access is required for recording. Allow it in your browser and try again.'
-        );
-        setPhase('pre');
-        return;
+        try {
+          vs = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        } catch {
+          /* handled below */
+        }
+      }
+      if (vs) {
+        videoStreamRef.current = vs;
+      } else {
+        logVoice('camera_denied', { optional: optionalCameraForRecording });
+        if (!optionalCameraForRecording) {
+          setVoiceError(
+            'Camera: access is required for recording. Allow it in your browser and try again.'
+          );
+          setPhase('pre');
+          return;
+        }
+        videoStreamRef.current = null;
       }
     }
 

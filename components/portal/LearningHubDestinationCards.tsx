@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { BookOpen, ChevronRight, Compass, FolderOpen } from 'lucide-react';
+import { BookOpen, ChevronRight, FolderOpen, ShieldCheck } from 'lucide-react';
 import { trackLearningHubNavigate } from '@/lib/analytics/events';
 
 export default function LearningHubDestinationCards() {
@@ -52,18 +52,18 @@ export default function LearningHubDestinationCards() {
           </li>
           <li>
             <Link
-              href="/dashboard/learning/interest-profiler"
+              href="/dashboard/learning/wioa-qualification"
               className="learning-hub-card"
-              onClick={() => trackLearningHubNavigate('interest_profiler')}
+              onClick={() => trackLearningHubNavigate('wioa_screening')}
             >
               <span className="learning-hub-card-icon" aria-hidden>
-                <Compass size={26} strokeWidth={1.75} />
+                <ShieldCheck size={26} strokeWidth={1.75} />
               </span>
               <span className="learning-hub-card-body">
-                <span className="learning-hub-card-title">O*NET Interest Profiler</span>
+                <span className="learning-hub-card-title">WIOA eligibility screening</span>
                 <span className="learning-hub-card-desc">
-                  Take the 30-question Mini-IP, see RIASEC scores, and link results to WorkforceAP programs and Find Your
-                  Path.
+                  Short self-screening for funded training — prepares you for staff and American Job Center visits (not a
+                  legal determination).
                 </span>
               </span>
               <ChevronRight className="learning-hub-card-chevron" aria-hidden size={22} />

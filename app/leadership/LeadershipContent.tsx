@@ -5,9 +5,12 @@ import Link from 'next/link';
 import { LEADERS } from '@/lib/content/leadership';
 
 const executives = LEADERS.filter(
-  (l) => l.role === 'Executive Director, CEO' || l.role === 'Chief Operating Officer'
+  (l) => l.section !== 'consultant' && (l.role === 'Executive Director, CEO' || l.role === 'Chief Operating Officer')
 );
-const boardMembers = LEADERS.filter((l) => l.role.startsWith('Board Member'));
+const boardMembers = LEADERS.filter(
+  (l) => l.section !== 'consultant' && l.role.startsWith('Board Member')
+);
+const leadConsultants = LEADERS.filter((l) => l.section === 'consultant');
 
 export default function LeadershipContent() {
   return (
@@ -68,8 +71,10 @@ export default function LeadershipContent() {
                   }}
                 >
                   <div
+                    className="leadership-exec-photo"
                     style={{
-                      aspectRatio: '4/5',
+                      aspectRatio: '3/4',
+                      maxHeight: 320,
                       position: 'relative',
                       overflow: 'hidden',
                     }}
@@ -159,6 +164,131 @@ export default function LeadershipContent() {
         </div>
       </section>
 
+      {/* ── Lead Consultant ── */}
+      {leadConsultants.length > 0 ? (
+        <section className="content-section">
+          <div className="container" style={{ maxWidth: 1400 }}>
+            <div style={{ marginBottom: '3rem' }}>
+              <span
+                className="text-label-upper"
+                style={{
+                  color: 'var(--color-accent)',
+                  fontSize: '0.7rem',
+                  letterSpacing: '0.1em',
+                  display: 'block',
+                  marginBottom: '0.75rem',
+                }}
+              >
+                Advisory
+              </span>
+              <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', margin: 0 }}>
+                Lead Consultant
+              </h2>
+            </div>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                gap: '2rem',
+                alignItems: 'stretch',
+              }}
+            >
+              {leadConsultants.map((leader) => (
+                <Link
+                  key={leader.slug}
+                  href={`/leadership/${leader.slug}`}
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  <article
+                    className="stitch-card"
+                    style={{
+                      background: 'var(--surface-container)',
+                      borderRadius: 'var(--radius-xl, 1rem)',
+                      overflow: 'hidden',
+                      height: '100%',
+                      transition: 'background 0.2s ease, transform 0.2s ease',
+                      cursor: 'pointer',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'var(--surface-container-high)';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'var(--surface-container)';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }}
+                  >
+                    <div
+                      style={{
+                        aspectRatio: '16/10',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        maxHeight: 260,
+                      }}
+                    >
+                      <Image
+                        src={leader.image}
+                        alt={leader.name}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 480px"
+                        style={{ objectFit: 'cover' }}
+                      />
+                    </div>
+                    <div style={{ padding: '1.5rem 1.75rem 2rem' }}>
+                      <span
+                        className="text-label-upper"
+                        style={{
+                          color: 'var(--color-accent)',
+                          fontSize: '0.65rem',
+                          letterSpacing: '0.08em',
+                          display: 'block',
+                          marginBottom: '0.5rem',
+                        }}
+                      >
+                        {leader.role}
+                      </span>
+                      <h3
+                        style={{
+                          color: 'var(--color-on-surface)',
+                          fontSize: '1.25rem',
+                          fontWeight: 600,
+                          margin: '0 0 0.5rem',
+                        }}
+                      >
+                        {leader.name}
+                      </h3>
+                      {leader.missionRelevance ? (
+                        <p
+                          className="leader-mission-callout"
+                          style={{
+                            fontSize: '0.8rem',
+                            fontWeight: 500,
+                            marginBottom: '0.75rem',
+                            lineHeight: 1.5,
+                          }}
+                        >
+                          {leader.missionRelevance}
+                        </p>
+                      ) : null}
+                      <p
+                        style={{
+                          color: 'var(--color-on-surface-variant)',
+                          fontSize: '0.875rem',
+                          lineHeight: 1.65,
+                          margin: 0,
+                        }}
+                      >
+                        {leader.cardBio}
+                      </p>
+                    </div>
+                  </article>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
       {/* ── Board of Trustees ── */}
       <section
         className="content-section"
@@ -224,8 +354,8 @@ export default function LeadershipContent() {
                   <div
                     className="leadership-board-photo"
                     style={{
-                      width: 120,
-                      height: 120,
+                      width: 152,
+                      height: 152,
                       borderRadius: '50%',
                       overflow: 'hidden',
                       flexShrink: 0,
@@ -236,7 +366,7 @@ export default function LeadershipContent() {
                       src={leader.image}
                       alt={leader.name}
                       fill
-                      sizes="120px"
+                      sizes="152px"
                       style={{
                         objectFit: 'cover',
                       }}

@@ -18,6 +18,12 @@ export default async function DashboardLayout({
       deletedAt: true,
       enrolledProgram: true,
       coursesCompleted: true,
+      profile: {
+        select: {
+          resumeOriginalPath: true,
+          resumeEnhancedPath: true,
+        },
+      },
     },
   });
 
@@ -33,11 +39,16 @@ export default async function DashboardLayout({
     ? coursesCompleted.filter((s) => program.courses.some((c) => c.slug === s)).length
     : 0;
 
+  const hasResume = !!(
+    dbUser?.profile?.resumeOriginalPath || dbUser?.profile?.resumeEnhancedPath
+  );
+
   return (
     <MemberWorkspaceShell
       programTitle={program?.title}
       completedCount={completedCount}
       totalCount={totalCourses}
+      hasResume={hasResume}
     >
       {children}
     </MemberWorkspaceShell>

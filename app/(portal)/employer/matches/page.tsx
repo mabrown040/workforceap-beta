@@ -8,6 +8,7 @@ import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import EmployerMatchHistoryClient from '@/components/employer/EmployerMatchHistoryClient';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Match history',
@@ -73,21 +74,20 @@ export default async function EmployerMatchesPage() {
 
   return (
     <>
+      <h1 className="wa-sr-only">Match History</h1>
       {/* ── Mobile section ── */}
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        <div style={{ padding: '1rem 1rem 0.75rem' }}>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 0.25rem' }}>Match History</h1>
-          <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>AI-suggested candidates for your roles</p>
-        </div>
+        <PageHeader
+          title="Match History"
+          subtitle="AI-suggested candidates for your roles"
+        />
 
         {/* Filter chips by job role */}
         {uniqueJobs.length > 1 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', padding: '0 1rem 0.75rem' }}>
-            <span style={{ flexShrink: 0, padding: '0.375rem 0.875rem', borderRadius: '9999px', fontSize: '0.8rem', fontWeight: 600, background: 'var(--color-accent)', color: '#fff' }}>All Roles</span>
+            <span className="stitch-badge stitch-badge--accent">All Roles</span>
             {uniqueJobs.map(([jobId, title]) => (
-              <span key={jobId} style={{ flexShrink: 0, padding: '0.375rem 0.875rem', borderRadius: '9999px', fontSize: '0.8rem', fontWeight: 600, background: 'var(--surface-container)', color: 'var(--color-on-surface-variant)' }}>
-                {title}
-              </span>
+              <span key={jobId} className="stitch-badge stitch-badge--subtle">{title}</span>
             ))}
           </div>
         )}
@@ -95,19 +95,19 @@ export default async function EmployerMatchesPage() {
         {/* Match cards */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem', padding: '0 1rem' }}>
           {initialRows.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '2.5rem 1rem', background: 'var(--surface-container-low)', borderRadius: '0.875rem', border: '1px solid #ebe7e7' }}>
+            <div className="stitch-card" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>auto_awesome</span>
-              <p style={{ fontWeight: 600, color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>No matches yet</p>
-              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>AI candidate matches will appear here once your jobs are live.</p>
+              <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>No matches yet</p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>AI candidate matches will appear here once your jobs are live.</p>
               <Link href="/employer/jobs/new" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>Post a Job
               </Link>
             </div>
           ) : (
             initialRows.map((row) => (
-              <div key={row.id} style={{ background: '#fff', borderRadius: '0.75rem', padding: '1rem', border: '1px solid #ebe7e7', boxShadow: '0 1px 4px rgba(28,27,27,0.06)' }}>
+              <div key={row.id} className="stitch-card">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.625rem' }}>
-                  <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '9999px', background: '#fff1f2', color: 'var(--color-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 700, flexShrink: 0 }}>
+                  <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '9999px', background: 'var(--surface-container-low)', color: 'var(--color-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 700, flexShrink: 0 }}>
                     {getInitials(row.student.fullName ?? '?')}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -129,7 +129,7 @@ export default async function EmployerMatchesPage() {
                   </Link>
                   <Link
                     href={`/employer/messages`}
-                    style={{ flex: 1, textAlign: 'center', padding: '0.5rem', background: '#fff1f2', color: 'var(--color-accent)', borderRadius: '0.375rem', fontSize: '0.775rem', fontWeight: 600, textDecoration: 'none' }}
+                    style={{ flex: 1, textAlign: 'center', padding: '0.5rem', background: 'var(--surface-container-low)', color: 'var(--color-accent)', borderRadius: '0.375rem', fontSize: '0.775rem', fontWeight: 600, textDecoration: 'none' }}
                     className="active:wa-scale-95 wa-transition-transform"
                   >
                     Contact
@@ -144,13 +144,35 @@ export default async function EmployerMatchesPage() {
 
       {/* ── Desktop section ── */}
       <div className="wa-hidden wa-md:wa-block">
-        <div>
+        <PortalPageFrame>
           <PageHeader
-            title="Match history"
+            title="Match History"
             subtitle="Track suggested members and update your pipeline status as you move from outreach to hire."
           />
-          <EmployerMatchHistoryClient initialRows={initialRows} />
-        </div>
+
+          {initialRows.length === 0 ? (
+            <div className="stitch-card" style={{ padding: '2.5rem', textAlign: 'center' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>auto_awesome</span>
+              <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>No matches yet</h3>
+              <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
+                AI candidate matches will appear here once your jobs are live.
+              </p>
+              <Link href="/employer/jobs/new" style={{
+                padding: '0.625rem 1.25rem',
+                background: 'var(--color-accent)',
+                color: '#fff',
+                borderRadius: '0.5rem',
+                fontSize: '0.875rem',
+                fontWeight: 600,
+                textDecoration: 'none',
+              }}>
+                Post your first job
+              </Link>
+            </div>
+          ) : (
+            <EmployerMatchHistoryClient initialRows={initialRows} />
+          )}
+        </PortalPageFrame>
       </div>
     </>
   );

@@ -5,9 +5,11 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import PageHeader from '@/components/portal/PageHeader';
 import EmployerJobsBoard from '@/components/employer/EmployerJobsBoard';
 import { assessJobPostingReadiness } from '@/lib/employer/jobReadiness';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import {
   EMPLOYER_JOBS_PAGE_SIZE,
   employerJobsListHref,
@@ -133,17 +135,19 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
       <h1 className="wa-sr-only">My Jobs</h1>
       {/* ── Mobile section ── */}
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1rem 0.75rem' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.02em', margin: 0 }}>My Jobs</h2>
-          <Link
-            href="/employer/jobs/new"
-            style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.5rem 0.875rem', background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent-dark))', color: '#fff', borderRadius: '0.5rem', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>
-            Post Job
-          </Link>
-        </div>
+        <PageHeader
+          title="My Jobs"
+          subtitle="Manage your job postings and review candidate activity."
+          action={(
+            <Link
+              href="/employer/jobs/new"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.5rem 0.875rem', background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent-dark))', color: '#fff', borderRadius: '0.5rem', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>
+              Post Job
+            </Link>
+          )}
+        />
 
         {/* Filter chips */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', padding: '0 1rem 0.75rem' }}>
@@ -170,10 +174,10 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
         {/* Job cards */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem', padding: '0 1rem' }}>
           {boardItems.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '2.5rem 1rem', background: 'var(--surface-container-low)', borderRadius: '0.875rem', border: '1px solid #ebe7e7' }}>
+            <div className="stitch-card" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>work_outline</span>
-              <p style={{ fontWeight: 600, color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>No jobs yet</p>
-              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>Post your first role to start receiving AI-matched candidates.</p>
+              <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>No jobs yet</p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Post your first role to start receiving AI-matched candidates.</p>
               <Link
                 href="/employer/jobs/new"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}
@@ -185,12 +189,10 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
             boardItems.map((job) => (
               <div
                 key={job.id}
+                className="stitch-card"
                 style={{
-                  background: '#fff',
-                  borderRadius: '0.75rem',
                   padding: '1rem',
-                  border: job.status === 'draft' ? '1px dashed #debfc2' : '1px solid #ebe7e7',
-                  boxShadow: '0 1px 4px rgba(28,27,27,0.06)',
+                  border: job.status === 'draft' ? '1px dashed var(--outline-variant)' : undefined,
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.375rem' }}>
@@ -218,7 +220,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
                   </Link>
                   <Link
                     href={`/employer/applications?job=${job.id}`}
-                    style={{ flex: 1, textAlign: 'center', padding: '0.5rem', background: '#fff1f2', color: 'var(--color-accent)', borderRadius: '0.375rem', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}
+                    style={{ flex: 1, textAlign: 'center', padding: '0.5rem', background: 'var(--surface-container-low)', color: 'var(--color-accent)', borderRadius: '0.375rem', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}
                     className="active:wa-scale-95 wa-transition-transform"
                   >
                     Applications
@@ -233,30 +235,74 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
 
       {/* ── Desktop section ── */}
       <div className="wa-hidden wa-md:wa-block">
-        <div className="employer-jobs-page">
-          <header className="employer-jobs-header">
-            <h2 className="employer-jobs-header-title">My Jobs</h2>
-            <div className="employer-jobs-actions">
-              <Link href="/employer/jobs/import" className="btn btn-secondary btn-sm">
-                Import
-              </Link>
-              <Link href="/employer/jobs/new" className="btn btn-primary btn-sm">
-                Post Job
-              </Link>
-            </div>
-          </header>
-          <EmployerJobsBoard
-            jobs={boardItems}
-            filter={filter}
-            page={page}
-            pageSize={EMPLOYER_JOBS_PAGE_SIZE}
-            totalInFilter={totalInFilter}
-            totalInDb={totalInDb}
-            deletableInFilter={deletableRows}
-            closableInFilter={closableRows}
-            titleByIdInFilter={titleByIdInFilter}
+        <PortalPageFrame>
+          <PageHeader
+            title="My Jobs"
+            subtitle="Manage your job postings, review drafts, and track live roles."
+            action={(
+              <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <Link
+                  href="/employer/jobs/import"
+                  style={{
+                    padding: '0.625rem 1.25rem',
+                    background: 'var(--surface-container-high)',
+                    color: 'var(--color-accent)',
+                    borderRadius: '0.5rem',
+                    fontSize: '0.875rem',
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                  }}
+                >
+                  Import Jobs
+                </Link>
+                <Link
+                  href="/employer/jobs/new"
+                  style={{
+                    padding: '0.625rem 1.5rem',
+                    background: 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark, #670024) 100%)',
+                    color: '#fff',
+                    borderRadius: '0.5rem',
+                    fontSize: '0.875rem',
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                  }}
+                >
+                  Post a Job
+                </Link>
+              </div>
+            )}
           />
-        </div>
+
+          {boardItems.length === 0 ? (
+            <div className="stitch-card" style={{ padding: '2.5rem', textAlign: 'center' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>work_outline</span>
+              <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>No jobs yet</h3>
+              <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', maxWidth: '28rem', marginInline: 'auto' }}>
+                Post a single role or import multiple jobs to start receiving AI-matched candidates.
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
+                <Link href="/employer/jobs/new" style={{ padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
+                  Post your first job
+                </Link>
+                <Link href="/employer/jobs/import" style={{ padding: '0.625rem 1.25rem', border: '1px solid var(--outline-variant)', color: 'var(--color-on-surface)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
+                  Import jobs
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <EmployerJobsBoard
+              jobs={boardItems}
+              filter={filter}
+              page={page}
+              pageSize={EMPLOYER_JOBS_PAGE_SIZE}
+              totalInFilter={totalInFilter}
+              totalInDb={totalInDb}
+              deletableInFilter={deletableRows}
+              closableInFilter={closableRows}
+              titleByIdInFilter={titleByIdInFilter}
+            />
+          )}
+        </PortalPageFrame>
       </div>
     </>
   );

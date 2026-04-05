@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import type { CSSProperties } from 'react';
 import Link from 'next/link';
 import { JobApplication, JobApplicationStatus } from '@prisma/client';
 
@@ -17,6 +18,15 @@ const STATUS_LABELS: Record<JobApplicationStatus, string> = {
   OFFER: 'Offer',
   SAVED: 'Saved',
   REJECTED: 'Rejected',
+};
+
+const CARD_ACCENT: Record<JobApplicationStatus, string> = {
+  SAVED: '#64748b',
+  APPLIED: '#8c0f37',
+  PHONE_SCREEN: '#2563eb',
+  INTERVIEWING: '#d97706',
+  OFFER: '#16a34a',
+  REJECTED: '#dc2626',
 };
 
 export default function JobApplicationCard({
@@ -118,8 +128,13 @@ export default function JobApplicationCard({
   return (
     <div
       onClick={() => setIsEditing(true)}
-      className="stitch-card job-app-card"
-      style={{ padding: '0.75rem' }}
+      className="portal-kanban-card stitch-card job-app-card wa-cursor-pointer"
+      style={
+        {
+          padding: '0.75rem',
+          '--portal-kanban-accent': CARD_ACCENT[application.status],
+        } as CSSProperties
+      }
     >
       <div className="wa-flex wa-items-start wa-justify-between wa-gap-2 wa-mb-1">
         <h4 className="wa-font-bold wa-text-sm" style={{ color: 'var(--color-on-surface)' }}>

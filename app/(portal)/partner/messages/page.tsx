@@ -82,6 +82,7 @@ export default async function PartnerMessagesPage() {
 
           <div style={{ padding: '0 1rem' }}>
             <PortalTeamChatClient
+              surfaceVariant="partner"
               apiPath="/api/partner/messages"
               initial={{
                 thread: {
@@ -101,9 +102,10 @@ export default async function PartnerMessagesPage() {
         <div className="wa-hidden wa-md:wa-block">
           <PageHeader
             title="Messages"
-            subtitle="Direct line to your WorkforceAP partnership team - referrals, milestones, and resources."
+            subtitle="Direct line to your WorkforceAP partnership team — referrals, milestones, and resources."
           />
           <PortalTeamChatClient
+            surfaceVariant="partner"
             apiPath="/api/partner/messages"
             initial={{
               thread: {

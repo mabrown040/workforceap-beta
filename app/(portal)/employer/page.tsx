@@ -11,6 +11,8 @@ import { isSuperAdmin } from '@/lib/auth/roles';
 import { EMPLOYER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
+import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
+import { employerVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -154,17 +156,18 @@ export default async function EmployerDashboardPage() {
             Elite Talent<br/>at your fingertips.
           </h2>
         </div>
-        <div className="stitch-card" style={{ marginLeft: '1.5rem', marginRight: '1.5rem', marginBottom: '1rem', padding: '1.25rem' }}>
-          <p className="wa-text-[10px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold wa-text-[#8c0f37]" style={{ marginBottom: '0.75rem' }}>
-            Voice assistant
-          </p>
-          <PortalVoiceSession
-            sessionEndpoint="/api/employer/voice-session"
-            title="Employer voice assistant"
-            description="Ask about posting roles, reviewing applicants, or navigating the employer portal."
-            speakingLabel="Assistant is speaking…"
-            listeningLabel="Listening — ask your question"
-          />
+        <div style={{ marginLeft: '1.5rem', marginRight: '1.5rem', marginBottom: '1rem' }}>
+          <VoiceAgentSurface {...employerVoiceSurface}>
+            <PortalVoiceSession
+              sessionEndpoint="/api/employer/voice-session"
+              title="Employer voice assistant"
+              description="Ask about posting roles, reviewing applicants, or navigating the employer portal."
+              accent="#4f46e5"
+              accentDark="#4338ca"
+              speakingLabel="Assistant is speaking…"
+              listeningLabel="Listening — ask your question"
+            />
+          </VoiceAgentSurface>
         </div>
         {/* Stats row - horizontal scroll */}
         <div style={{ display:"flex", gap:"0.75rem", overflowX:"auto", scrollbarWidth:"none", paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingBottom:"0.5rem" }}>
@@ -286,17 +289,18 @@ export default async function EmployerDashboardPage() {
         </div>
       </header>
 
-      <section className="stitch-card" style={{ padding: '1.5rem', marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
-          Voice assistant
-        </h2>
-        <PortalVoiceSession
-          sessionEndpoint="/api/employer/voice-session"
-          title="Employer voice assistant"
-          description="Ask about posting roles, reviewing applicants, or navigating this portal."
-          speakingLabel="Assistant is speaking…"
-          listeningLabel="Listening — ask your question"
-        />
+      <section style={{ marginBottom: '2rem' }}>
+        <VoiceAgentSurface {...employerVoiceSurface}>
+          <PortalVoiceSession
+            sessionEndpoint="/api/employer/voice-session"
+            title="Employer voice assistant"
+            description="Ask about posting roles, reviewing applicants, or navigating this portal."
+            accent="#4f46e5"
+            accentDark="#4338ca"
+            speakingLabel="Assistant is speaking…"
+            listeningLabel="Listening — ask your question"
+          />
+        </VoiceAgentSurface>
       </section>
 
       {/* ── KPI Metric Cards ── */}

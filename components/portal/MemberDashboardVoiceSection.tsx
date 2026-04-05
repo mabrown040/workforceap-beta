@@ -2,6 +2,7 @@
 
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
+import { readinessVoiceSurface, resumeCoachVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
 
 /** Member home (`/dashboard`) — readiness + resume voice coaches. */
 export default function MemberDashboardVoiceSection() {
@@ -20,13 +21,7 @@ export default function MemberDashboardVoiceSection() {
           gap: '1.25rem',
         }}
       >
-        <VoiceAgentSurface
-          badge="Readiness coach"
-          subtext="Interviews, certifications, and next steps. Your program context is included automatically."
-          icon="🎯"
-          glowColor="#0d9488"
-          gradient="linear-gradient(135deg, #0d9488, #14b8a6, #5eead4)"
-        >
+        <VoiceAgentSurface {...readinessVoiceSurface}>
           <PortalVoiceSession
             sessionEndpoint="/api/member/readiness/voice-session"
             title="Career readiness"
@@ -37,13 +32,7 @@ export default function MemberDashboardVoiceSection() {
             listeningLabel="Listening — share where you are"
           />
         </VoiceAgentSurface>
-        <VoiceAgentSurface
-          badge="Resume coach"
-          subtext="Voice feedback on bullets and framing. Pair with your live draft when you use the rewriter."
-          icon="✨"
-          glowColor="#2563eb"
-          gradient="linear-gradient(135deg, #2563eb, #3b82f6, #38bdf8)"
-        >
+        <VoiceAgentSurface {...resumeCoachVoiceSurface}>
           <PortalVoiceSession
             sessionEndpoint="/api/member/resume-coach/session"
             retryWithoutDynamicVariables={false}

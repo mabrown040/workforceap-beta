@@ -14476,6 +14476,122 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
     min-height: 4rem;
 }
 
+/* Messaging polish — aligns with VoiceAgentSurface / stitch-card language */
+.member-counselor-chat__scroll {
+    border: 1px solid color-mix(in srgb, var(--color-accent, #8c0f37) 12%, var(--outline-variant, #e8e0dd));
+    background: linear-gradient(
+        165deg,
+        var(--surface-container-lowest, #fff) 0%,
+        color-mix(in srgb, var(--surface-container-low) 88%, transparent) 100%
+    );
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.75),
+        0 10px 40px color-mix(in srgb, var(--color-accent, #8c0f37) 8%, transparent);
+    border-radius: 14px;
+    padding: 1rem 1rem 0.85rem;
+}
+.member-counselor-chat__bubble {
+    box-shadow: 0 2px 14px rgba(28, 27, 27, 0.06);
+    border-radius: 16px 16px 16px 6px;
+    border: 1px solid color-mix(in srgb, var(--outline-variant) 80%, transparent);
+    background: color-mix(in srgb, var(--surface-container-high) 94%, #fff);
+}
+.member-counselor-chat__bubble--mine {
+    border-radius: 16px 16px 6px 16px;
+    background: linear-gradient(
+        145deg,
+        color-mix(in srgb, var(--color-accent) 14%, #fff),
+        color-mix(in srgb, var(--color-accent) 8%, #fff)
+    );
+    border: 1px solid color-mix(in srgb, var(--color-accent) 22%, transparent);
+    box-shadow: 0 6px 22px color-mix(in srgb, var(--color-accent) 14%, transparent);
+}
+.member-counselor-chat__input:focus {
+    outline: none;
+    border-color: color-mix(in srgb, var(--color-accent) 40%, var(--outline-variant));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 16%, transparent);
+}
+
+/* Kanban columns + cards — shared with job tracker + admin pipeline */
+.portal-kanban-column {
+    --portal-kanban-accent: var(--color-accent);
+    border-radius: 1rem;
+    padding: 1rem 0.85rem;
+    background: var(--surface-container-lowest);
+    border: 1px solid var(--outline-variant);
+    box-shadow: 0 8px 32px rgba(28, 27, 27, 0.05);
+}
+.portal-kanban-column__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid color-mix(in srgb, var(--portal-kanban-accent) 35%, transparent);
+}
+.portal-kanban-column__title {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-on-surface);
+}
+.portal-kanban-column__count {
+    background: color-mix(in srgb, var(--portal-kanban-accent) 16%, transparent);
+    color: var(--portal-kanban-accent);
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 0.15rem 0.5rem;
+    min-width: 1.5rem;
+    text-align: center;
+}
+.portal-kanban-card {
+    --portal-kanban-accent: var(--color-accent);
+    border-radius: 0.85rem;
+    padding: 0.75rem 0.85rem;
+    background: var(--surface-container-lowest);
+    border: 1px solid var(--outline-variant);
+    border-left: 3px solid var(--portal-kanban-accent);
+    box-shadow: 0 2px 12px rgba(28, 27, 27, 0.05);
+    transition: box-shadow 0.18s ease, transform 0.18s ease;
+}
+.portal-kanban-card:hover {
+    box-shadow: 0 10px 28px color-mix(in srgb, var(--portal-kanban-accent) 12%, rgba(0, 0, 0, 0.06));
+}
+.portal-kanban-card[draggable='true'] {
+    cursor: grab;
+}
+.portal-kanban-card[draggable='true']:active {
+    cursor: grabbing;
+}
+.portal-kanban-empty {
+    border: 1px dashed color-mix(in srgb, var(--portal-kanban-accent) 28%, var(--outline-variant));
+    border-radius: 0.75rem;
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--color-on-surface-variant);
+    background: color-mix(in srgb, var(--portal-kanban-accent) 4%, var(--surface-container-low));
+}
+.portal-kanban-dropzone {
+    min-height: min(60vh, 520px);
+    max-height: 70vh;
+    overflow-y: auto;
+    padding: 0.5rem;
+    border-radius: 10px;
+    border: 2px dashed transparent;
+    background: color-mix(in srgb, var(--portal-kanban-accent) 6%, var(--surface-container));
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease;
+}
+.portal-kanban-dropzone--active {
+    border-color: color-mix(in srgb, var(--portal-kanban-accent) 50%, transparent);
+    background: color-mix(in srgb, var(--portal-kanban-accent) 14%, var(--surface-container));
+}
+
 /* Program resources (learning hub) — class-based layout */
 .portal-resources-page {
     max-width: 900px;

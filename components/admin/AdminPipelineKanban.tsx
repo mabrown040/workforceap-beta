@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
+import type { CSSProperties } from 'react';
 import Link from 'next/link';
 import {
   PIPELINE_STAGE_COLORS,
@@ -95,46 +96,42 @@ export default function AdminPipelineKanban({ initialByStage }: { initialByStage
         const stageStudents = byStage[stage] ?? [];
         const isOver = dragOverStage === stage;
         return (
-          <div key={stage} style={{ minWidth: 0 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <span style={{ fontWeight: 600, fontSize: '0.85rem', color }}>{PIPELINE_STAGE_LABELS[stage]}</span>
-              <span
-                style={{
-                  background: color,
-                  color: 'white',
-                  borderRadius: '999px',
-                  fontSize: '0.75rem',
-                  padding: '0.1rem 0.45rem',
-                  fontWeight: 700,
-                }}
-              >
-                {stageStudents.length}
-              </span>
+          <div
+            key={stage}
+            className="portal-kanban-column"
+            style={
+              {
+                minWidth: 0,
+                '--portal-kanban-accent': color,
+              } as CSSProperties
+            }
+          >
+            <div className="portal-kanban-column__head">
+              <span className="portal-kanban-column__title">{PIPELINE_STAGE_LABELS[stage]}</span>
+              <span className="portal-kanban-column__count">{stageStudents.length}</span>
             </div>
             <div
               role="list"
+              className={`portal-kanban-dropzone${isOver ? ' portal-kanban-dropzone--active' : ''}`}
               onDragOver={(e) => {
                 e.preventDefault();
                 e.dataTransfer.dropEffect = 'move';
                 setDragOverStage(stage);
               }}
               onDrop={(e) => onDropOnColumn(e, stage)}
-              style={{
-                minHeight: 'min(60vh, 520px)',
-                maxHeight: '70vh',
-                overflowY: 'auto',
-                padding: '0.5rem',
-                borderRadius: '8px',
-                border: `2px dashed ${isOver ? color : 'transparent'}`,
-                background: isOver ? `${color}14` : 'var(--surface-container)',
-                transition: 'background 0.15s ease, border-color 0.15s ease',
-              }}
             >
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
                 {stageStudents.map((s) => (
                   <div
                     key={s.id}
                     role="listitem"
+                    className="portal-kanban-card"
+                    style={
+                      {
+                        '--portal-kanban-accent': color,
+                        padding: '0.55rem 0.65rem',
+                      } as CSSProperties
+                    }
                     draggable
                     onDragOver={(e) => {
                       e.preventDefault();
@@ -151,14 +148,6 @@ export default function AdminPipelineKanban({ initialByStage }: { initialByStage
                       e.dataTransfer.effectAllowed = 'move';
                     }}
                     onDragEnd={() => setDragOverStage(null)}
-                    style={{
-                      cursor: 'grab',
-                      borderRadius: '6px',
-                      border: `1px solid ${color}33`,
-                      borderLeft: `3px solid ${color}`,
-                      background: 'var(--surface-container-lowest)',
-                      padding: '0.5rem 0.6rem',
-                    }}
                   >
                     <Link
                       href={`/admin/members/${s.id}`}

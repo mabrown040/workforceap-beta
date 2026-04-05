@@ -120,7 +120,7 @@
   color: var(--color-on-surface-variant);
 }
 
-/* ── LinkedIn button ── */
+/* ── LinkedIn button (default — light sections) ── */
 .ld-linkedin-btn {
   display: inline-flex;
   align-items: center;
@@ -128,19 +128,46 @@
   padding: 0.65rem 1.25rem;
   font-weight: 600;
   font-size: 0.875rem;
-  color: var(--color-on-surface);
-  background: transparent;
-  border: 1px solid var(--outline-variant);
+  color: #0077b5;
+  background: #fff;
+  border: 2px solid #0077b5;
   border-radius: var(--radius-md);
   text-decoration: none;
-  transition: background var(--transition-fast), border-color var(--transition-fast);
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast),
+    box-shadow var(--transition-fast);
   width: fit-content;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
 .ld-linkedin-btn:hover {
-  background: var(--surface-container-high);
-  border-color: var(--color-accent);
-  color: var(--color-on-surface);
+  background: #e8f4fc;
+  border-color: #006097;
+  color: #006097;
+  box-shadow: 0 2px 8px rgba(0, 119, 181, 0.2);
+}
+
+.ld-linkedin-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-primary), 0 0 0 4px #fff;
+}
+
+/* Hero sits on dark `--color-primary` — previous transparent + dark text was nearly invisible */
+.ld-hero .ld-linkedin-btn {
+  color: #fff;
+  background: #0077b5;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+}
+
+.ld-hero .ld-linkedin-btn:hover {
+  background: #006097;
+  border-color: rgba(255, 255, 255, 0.55);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.ld-hero .ld-linkedin-btn:focus-visible {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 5px #0077b5;
 }
 
 /* ── Hero portrait ── */

@@ -369,7 +369,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
             onClick={() => toggleStep(i)}
             style={{
               display: 'flex', alignItems: 'flex-start', gap: '0.875rem',
-              background: checked[i] ? 'rgba(245,158,11,0.06)' : 'var(--surface-container-low)',
+              background: checked[i] ? ACCENT_BG : 'var(--surface-container-low)',
               border: `1px solid ${checked[i] ? ACCENT_BORDER : 'var(--surface-container-high)'}`,
               borderRadius: 10, padding: '0.875rem 1rem', cursor: 'pointer', textAlign: 'left',
               transition: 'background 0.2s, border-color 0.2s',

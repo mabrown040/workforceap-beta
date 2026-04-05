@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import PortalVoiceSession, { type VoiceSessionPhase } from '@/components/portal/PortalVoiceSession';
 import InterviewCoachingPanel from '@/components/portal/tools/InterviewCoachingPanel';
 import MockInterviewVideoRecorder from '@/components/portal/tools/MockInterviewVideoRecorder';
@@ -21,6 +21,7 @@ export default function VoiceInterviewScaffold() {
   const [recordingConsent, setRecordingConsent] = useState(false);
   const [playbackUrl, setPlaybackUrl] = useState<string | null>(null);
   const [videoErr, setVideoErr] = useState('');
+  const interviewVideoStreamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
     if (!ready) {
@@ -85,7 +86,7 @@ export default function VoiceInterviewScaffold() {
                   if (!e.target.checked) setRecordingConsent(false);
                 }}
               />
-              Record my camera and microphone during the session
+              Record my camera during the session (your voice is captured by the interview session)
             </label>
             <p style={{ margin: '0.35rem 0 0 1.5rem', fontSize: '0.82rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.45 }}>
               Saves a practice video to your secure WorkforceAP storage so you can review your delivery. Authorized staff may
@@ -137,6 +138,7 @@ export default function VoiceInterviewScaffold() {
                 phase={voicePhase}
                 role={role.trim()}
                 interviewType={interviewType}
+                externalStreamRef={interviewVideoStreamRef}
                 onUploadComplete={({ playbackUrl: u }) => setPlaybackUrl(u)}
                 onError={(m) => setVideoErr(m)}
               />
@@ -154,6 +156,8 @@ export default function VoiceInterviewScaffold() {
               speakingLabel="Interviewer is speaking…"
               listeningLabel="Your turn — take your time"
               liveTranscriptCoachLabel="Interviewer"
+              acquireVideoForRecording={wantRecording}
+              videoStreamRef={interviewVideoStreamRef}
               onTranscriptChunk={onTranscriptChunk}
               onPhaseChange={setVoicePhase}
             />

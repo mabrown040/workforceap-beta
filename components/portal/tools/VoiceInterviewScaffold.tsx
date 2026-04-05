@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import PortalVoiceSession, { type VoiceSessionPhase } from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { mockInterviewVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
@@ -23,7 +23,6 @@ export default function VoiceInterviewScaffold() {
   const [recordingConsent, setRecordingConsent] = useState(false);
   const [playbackUrl, setPlaybackUrl] = useState<string | null>(null);
   const [videoErr, setVideoErr] = useState('');
-  const interviewVideoStreamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
     if (!ready) {
@@ -131,8 +130,15 @@ export default function VoiceInterviewScaffold() {
         <div className="voice-interview-layout">
           <div className="stitch-card" style={{ padding: '1.25rem', borderRadius: 12 }}>
             <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
-              Mock interview for <strong>{role}</strong> ({interviewType}). Use a quiet space and allow microphone access
-              {wantRecording ? ' and camera access' : ''}.
+              Mock interview for <strong>{role}</strong> ({interviewType}). Use a quiet space and allow{' '}
+              <strong>microphone</strong> access to talk with the coach.
+              {wantRecording ? (
+                <>
+                  {' '}
+                  If you opted in below, your browser will ask for <strong>camera</strong> when the session starts so we
+                  can save a practice video — you can still do a voice-only interview without recording.
+                </>
+              ) : null}
             </p>
             {wantRecording ? (
               <MockInterviewVideoRecorder
@@ -140,7 +146,6 @@ export default function VoiceInterviewScaffold() {
                 phase={voicePhase}
                 role={role.trim()}
                 interviewType={interviewType}
-                externalStreamRef={interviewVideoStreamRef}
                 onUploadComplete={({ playbackUrl: u }) => setPlaybackUrl(u)}
                 onError={(m) => setVideoErr(m)}
               />
@@ -159,8 +164,6 @@ export default function VoiceInterviewScaffold() {
                 speakingLabel="Interviewer is speaking…"
                 listeningLabel="Your turn — take your time"
                 liveTranscriptCoachLabel="Interviewer"
-                acquireVideoForRecording={wantRecording}
-                videoStreamRef={interviewVideoStreamRef}
                 onTranscriptChunk={onTranscriptChunk}
                 onPhaseChange={setVoicePhase}
               />

@@ -34,6 +34,46 @@ export default async function JobsPage() {
     }
   }
 
+  // SSR: Prefetch first 20 jobs for SEO and faster initial load
+  let initialJobs: Array<{
+    id: string;
+    title: string;
+    location: string | null;
+    locationType: string;
+    jobType: string;
+    salaryMin: number | null;
+    salaryMax: number | null;
+    employer: { companyName: string; logoUrl: string | null };
+  }> = [];
+  let initialTotal = 0;
+
+  try {
+    const jobs = await prisma.job.findMany({
+      where: {
+        status: 'live',
+        ...(ageGroup === 'under14' ? { id: 'impossible-match' } : {}),
+        ...(ageGroup === 'youth14to17' ? {
+          youthAppropriate: true,
+          OR: [
+            { minimumAge: null },
+            { minimumAge: { lte: 17 } },
+          ],
+        } : {}),
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: 20,
+      include: {
+        employer: { select: { companyName: true, logoUrl: true } },
+      },
+    });
+    initialJobs = jobs;
+    initialTotal = jobs.length;
+  } catch {
+    // Fallback to empty state if query fails
+    initialJobs = [];
+    initialTotal = 0;
+  }
+
   return (
     <>
     <div className="inner-page">
@@ -89,12 +129,22 @@ export default async function JobsPage() {
                 </p>
               </div>
               <Suspense fallback={<JobsBoardSkeleton />}>
-                <JobsListingClient isAuthenticated={!!user} ageGroup={ageGroup} />
+                <JobsListingClient 
+                  isAuthenticated={!!user} 
+                  ageGroup={ageGroup} 
+                  initialJobs={initialJobs}
+                  initialTotal={initialTotal}
+                />
               </Suspense>
             </>
           ) : (
             <Suspense fallback={<JobsBoardSkeleton />}>
-              <JobsListingClient isAuthenticated={!!user} ageGroup={ageGroup} />
+              <JobsListingClient 
+                isAuthenticated={!!user} 
+                ageGroup={ageGroup}
+                initialJobs={initialJobs}
+                initialTotal={initialTotal}
+              />
             </Suspense>
           )}
         </div>

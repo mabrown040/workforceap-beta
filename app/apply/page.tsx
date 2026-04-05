@@ -131,6 +131,28 @@ const sPage = {
     border: '1px solid var(--outline-variant)',
   } as React.CSSProperties,
 
+  ssrFallback: {
+    padding: 'var(--space-6)',
+    background: 'var(--surface-container)',
+    borderRadius: 'var(--radius-lg)',
+    border: '1px solid var(--outline-variant)',
+    marginBottom: 'var(--space-6)',
+  } as React.CSSProperties,
+
+  ssrFallbackHeading: {
+    fontSize: 'var(--font-size-xl)',
+    fontWeight: 700,
+    color: 'var(--color-on-surface)',
+    marginBottom: 'var(--space-3)',
+  } as React.CSSProperties,
+
+  ssrFallbackText: {
+    fontSize: 'var(--font-size-base)',
+    color: 'var(--color-on-surface-variant)',
+    lineHeight: 'var(--line-height-normal)',
+    margin: 0,
+  } as React.CSSProperties,
+
   suppRow: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
@@ -246,6 +268,29 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           <Suspense fallback={<div style={{ padding: 'var(--space-4)', color: 'var(--color-on-surface-variant)' }}>Loading...</div>}>
             <ApplyRefCapture />
           </Suspense>
+
+          {/* SSR fallback: visible immediately without JS */}
+          <div style={sPage.ssrFallback}>
+            <h2 style={sPage.ssrFallbackHeading}>Start your application</h2>
+            <p style={sPage.ssrFallbackText}>
+              Loading application form… If it doesn&apos;t appear, call{' '}
+              <a href="tel:+15127771808" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>(512) 777-1808</a>
+              {' '}or email{' '}
+              <a href="mailto:info@workforceap.com" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>info@workforceap.com</a>.
+            </p>
+          </div>
+          <noscript>
+            <div style={sPage.ssrFallback}>
+              <h2 style={sPage.ssrFallbackHeading}>Start your application</h2>
+              <p style={sPage.ssrFallbackText}>
+                If the form doesn&apos;t load, call{' '}
+                <a href="tel:+15127771808" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>(512) 777-1808</a>
+                {' '}or email{' '}
+                <a href="mailto:info@workforceap.com" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>info@workforceap.com</a>.
+              </p>
+            </div>
+          </noscript>
+
           <Suspense fallback={<ApplyPageSkeleton />}>
             <ApplyEligibilityClient />
           </Suspense>

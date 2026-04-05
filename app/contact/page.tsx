@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
@@ -49,7 +50,9 @@ export default function ContactPage() {
                 <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '2rem', color: 'var(--color-on-surface)' }}>
                   Send Us a Message
                 </h2>
-                <ContactFormClient />
+                <Suspense fallback={null}>
+                  <ContactFormClient />
+                </Suspense>
               </div>
             </div>
 

@@ -200,6 +200,7 @@ export default function VoiceInterviewScaffold() {
               onClick={() => {
                 videoStreamRef.current?.getTracks().forEach((t) => t.stop());
                 videoStreamRef.current = null;
+                setVoiceSessionKey((k) => k + 1);
                 setReady(false);
                 setLastUserText('');
                 setPlaybackUrl(null);

@@ -11,11 +11,14 @@ export default function MemberWorkspaceShell({
   programTitle,
   completedCount,
   totalCount,
+  hasResume = true,
   children,
 }: {
   programTitle?: string;
   completedCount?: number;
   totalCount?: number;
+  /** Member has an original or enhanced resume on file */
+  hasResume?: boolean;
   children: React.ReactNode;
 }) {
   const pathname = usePathname() ?? '';
@@ -36,6 +39,9 @@ export default function MemberWorkspaceShell({
       navItems={MEMBER_PORTAL_NAV_ITEMS}
       workspaceLabel={PRODUCT_COPY.memberWorkspace}
       contextLabel="My account"
+      marketingSiteHref="https://www.workforceap.org/"
+      marketingSiteLabel="WorkforceAP.org"
+      showResumeUploadHint={hasResume === false}
       topBanner={topBanner}
       footer={<DashboardFooter />}
     >

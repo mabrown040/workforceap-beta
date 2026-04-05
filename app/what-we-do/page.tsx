@@ -350,7 +350,7 @@ export default function WhatWeDoPage() {
         </div>
       </section>
 
-      {/* ── The Architecture of Impact — Bento Grid ── */}
+      {/* ── Making an impact — Bento Grid ── */}
       <section style={{ padding: '6rem 0' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
@@ -362,8 +362,8 @@ export default function WhatWeDoPage() {
                 color: 'var(--color-on-surface)',
               }}
             >
-              The Architecture of{' '}
-              <span style={{ color: 'var(--color-accent)' }}>Impact</span>
+              Making an{' '}
+              <span style={{ color: 'var(--color-accent)' }}>impact</span>
             </h2>
           </div>
 
@@ -769,7 +769,7 @@ export default function WhatWeDoPage() {
 
       <section style={{ padding: '0 1rem 2rem', background: 'var(--color-surface)' }}>
         <div style={{ marginBottom: '1.25rem' }}>
-          <span style={{ display: 'block', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', marginBottom: '0.5rem', color: 'var(--color-accent)' }}>The Architecture of Impact</span>
+          <span style={{ display: 'block', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', marginBottom: '0.5rem', color: 'var(--color-accent)' }}>Making an impact</span>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 900, letterSpacing: '-0.025em', color: 'var(--color-on-surface)' }}>How the model works</h2>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

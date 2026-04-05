@@ -4069,6 +4069,26 @@ html.dark .program-skill-tag {
     display: none; /* Stitch no-line rule: remove bottom border */
 }
 .page-hero-content { position: relative; z-index: 1; }
+
+/* Blog listing — visual hero so the page doesn’t open on empty tonal space */
+.blog-page-hero {
+    background:
+        linear-gradient(180deg, rgba(28, 27, 27, 0.78) 0%, rgba(28, 27, 27, 0.88) 100%),
+        url('https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+    color: #f2f2f5;
+}
+.blog-page-hero::before {
+    opacity: 0.35;
+}
+.blog-page-hero h1,
+.blog-page-hero p {
+    color: #f2f2f5;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+html.dark .blog-page-hero h1,
+html.dark .blog-page-hero p {
+    color: #f2f2f5;
+}
 .page-hero h1 {
     font-size: clamp(2rem, 5vw, 3rem);
     font-weight: 900;
@@ -6030,12 +6050,12 @@ img.img-fade.loaded { opacity: 1; }
         opacity: 1;
         transform: none;
         display: none;
-        background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.06);
+        background: rgba(255,255,255,0.10);
+        border: 1px solid rgba(255,255,255,0.14);
         border-radius: 18px;
         padding: 0.35rem;
         margin: 0 0 0.75rem 0;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
         min-width: unset;
     }
     .dropdown-menu::before { display: none; }
@@ -6054,17 +6074,17 @@ img.img-fade.loaded { opacity: 1; }
         display: flex;
         align-items: center;
         border-radius: var(--radius-sm);
-        color: rgba(255,255,255,0.92);
+        color: rgba(255,255,255,0.92) !important;
         transition: background var(--transition-fast), color var(--transition-fast);
     }
     .dropdown-menu a:hover,
     .dropdown-menu a:active {
-        background: rgba(255,255,255,0.08);
-        color: var(--color-white);
+        background: rgba(255,255,255,0.14);
+        color: var(--color-white) !important;
         padding-left: 1.25rem;
     }
     .dropdown-menu a.active {
-        color: var(--color-gold);
+        color: var(--color-gold) !important;
     }
     .nav-cta, a.nav-cta {
         margin-top: 1rem !important;
@@ -8443,6 +8463,53 @@ html.dark .portal-nav {
     text-transform: uppercase;
     letter-spacing: 0.07em;
     color: var(--color-accent);
+}
+.workspace-shell-public-site-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.35rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--color-accent);
+    text-decoration: none;
+    max-width: 100%;
+}
+.workspace-shell-public-site-link:hover {
+    text-decoration: underline;
+    color: var(--color-accent-dark);
+}
+.workspace-resume-upload-hint {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding: 0.5rem 1rem;
+    background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+    border-bottom: 1px solid var(--outline-variant);
+    font-size: 0.8rem;
+    color: var(--color-on-surface);
+}
+.workspace-resume-upload-hint__text {
+    flex: 1 1 12rem;
+    line-height: 1.4;
+}
+.workspace-resume-upload-hint__cta {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.85rem;
+    border-radius: var(--radius-sm);
+    background: var(--color-accent);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-decoration: none;
+}
+.workspace-resume-upload-hint__cta:hover {
+    filter: brightness(1.05);
 }
 .workspace-shell-header__meta {
     display: flex;

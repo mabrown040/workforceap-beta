@@ -5,152 +5,14 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
-import AIToolCard from '@/components/portal/AIToolCard';
 import VoiceCoachesPromo from '@/components/portal/VoiceCoachesPromo';
+import AiToolsHubSection from '@/components/portal/AiToolsHubSection';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'AI Career Toolkit',
   description: 'AI-powered tools to strengthen your resume, practice interviews, and more.',
   path: '/dashboard/ai-tools',
 });
-
-const TOOLS = [
-  // Priority tools: Resume Writer first, AI Interview Coach second
-  {
-    id: 'my-resume',
-    title: 'My Resume',
-    icon: 'description',
-    description: 'Upload your resume PDF, view it inline, or generate one from your profile using AI.',
-    timeToComplete: '2 min',
-    status: 'available' as const,
-    href: '/dashboard/resume',
-    badge: 'UPLOAD',
-    accentBorder: true,
-  },
-  {
-    id: 'resume-rewriter',
-    title: 'Resume Rewriter',
-    icon: 'edit_note',
-    description: 'Paste your resume and job target. Get AI-improved bullets and phrasing tailored to pass ATS and impress recruiters.',
-    timeToComplete: '5-10 min',
-    status: 'available' as const,
-    href: '/dashboard/ai-tools/resume-rewriter',
-    rowSpan2: true,
-    exampleText: '"Managed team" becomes "Led cross-functional team of 12, delivering $2.4M project 3 weeks ahead of schedule"',
-  },
-  {
-    id: 'resume-analysis',
-    title: 'Resume Analysis',
-    icon: 'analytics',
-    description:
-      'Standalone AI review: overall strength, what is working, priority improvements, and quick wins — no job posting required.',
-    timeToComplete: '3-5 min',
-    status: 'available' as const,
-    href: '/dashboard/ai-tools/resume-analysis',
-  },
-  {
-    id: 'interview-coach',
-    title: 'AI Interview Coach',
-    icon: 'smart_toy',
-    description: 'Practice a live mock interview with an AI coach. Get asked real questions, give answers, and receive personalized feedback.',
-    timeToComplete: '15-20 min',
-    status: 'available' as const,
-    href: '/dashboard/ai-tools/interview-coach',
-  },
-  {
-    id: 'voice-interview',
-    title: 'Voice Interview',
-    icon: 'mic',
-    description: 'Voice-only mock interview with ElevenLabs and a live coaching panel (clarity, confidence, keywords).',
-    timeToComplete: '10-20 min',
-    status: 'available' as const,
-    href: '/dashboard/ai-tools/voice-interview',
-  },
-  {
-    id: 'job-match-scorer',
-    title: 'Job Match Scorer',
-    icon: 'target',
-    description: 'Paste a job description and your resume. Get a match score and specific gaps to address—so you know why you\'re not getting callbacks.',
-    timeToComplete: '3-5 min',
-    status: 'available' as const,
-    href: '/dashboard/ai-tools/job-match-scorer',
-  },
-  {
-    id: 'interview-practice',
-    title: 'Interview Practice',
-    icon: 'record_voice_over',
-    description: 'Generate role-specific interview questions with answer frameworks. Practice behavioral and technical questions.',
-    timeToComplete: '10-15 min',
-    status: 'available' as const,
-    href: '/dashboard/ai-tools/interview-practice',
-  },
-  {
-    id: 'cover-letter',
-    title: 'Cover Letter Builder',
-    icon: 'description',
-    description: 'Create a tailored cover letter that connects your experience to the job requirements.',
-    timeToComplete: '5-10 min',
-    status: 'available' as const,
-    href: '/dashboard/ai-tools/cover-letter',
-  },
-  {
-    id: 'linkedin-headline',
-    title: 'LinkedIn Headline',
-    icon: 'badge',
-    description: 'Craft a compelling LinkedIn headline that gets you noticed by recruiters.',
-    timeToComplete: '2-3 min',
-    status: 'available' as const,
-    href: '/dashboard/ai-tools/linkedin-headline',
-  },
-  {
-    id: 'linkedin-about',
-    title: 'LinkedIn About Section',
-    icon: 'person_pin',
-    description: 'Give us your role and a few bullets about yourself. We\'ll write a polished 3-paragraph About section.',
-    timeToComplete: '3-5 min',
-    status: 'available' as const,
-    href: '/dashboard/ai-tools/linkedin-about',
-  },
-  {
-    id: 'salary-negotiation',
-    title: 'Salary Negotiator',
-    icon: 'payments',
-    description: 'Got an offer? Get a word-for-word script for a phone call or email to negotiate.',
-    timeToComplete: '2-3 min',
-    status: 'available' as const,
-    href: '/dashboard/ai-tools/salary-negotiation',
-  },
-  {
-    id: 'gap-analyzer',
-    title: 'Gap Analyzer',
-    icon: 'history',
-    description: 'Detect employment gaps and get suggested framing for cover letters and interviews.',
-    timeToComplete: '3-5 min',
-    status: 'available' as const,
-    href: '/dashboard/ai-tools/gap-analyzer',
-  },
-  {
-    id: 'skill-mapper',
-    title: 'Skill Mapper',
-    icon: 'radar',
-    description:
-      'Search any occupation and see its top skills on a competency radar chart — powered by O*NET data from the U.S. Department of Labor.',
-    timeToComplete: '2 min',
-    status: 'available' as const,
-    href: '/dashboard/ai-tools/skill-mapper',
-  },
-  {
-    id: 'application-tracker',
-    title: 'Application Tracker',
-    icon: 'view_list',
-    description: 'Track your job applications. Add applications, update status, and see your progress.',
-    timeToComplete: 'Ongoing',
-    status: 'available' as const,
-    href: '/dashboard/job-applications',
-    badge: 'LIVE TRACKING',
-    accentBorder: true,
-  },
-];
 
 export default async function AIToolsPage() {
   const user = await getUser();
@@ -316,25 +178,33 @@ export default async function AIToolsPage() {
 
         <VoiceCoachesPromo />
 
-        <section style={{ padding: '0 clamp(1rem, 4vw, 1.5rem) 2rem', maxWidth: '1100px', margin: '0 auto' }}>
-          <div className="ai-tools-grid">
-            {TOOLS.map((tool) => (
-              <AIToolCard
-                key={tool.id}
-                id={tool.id}
-                title={tool.title}
-                description={tool.description}
-                timeToComplete={tool.timeToComplete}
-                status={tool.status}
-                href={'href' in tool ? tool.href : undefined}
-                icon={tool.icon}
-                badge={'badge' in tool ? tool.badge : undefined}
-                accentBorder={'accentBorder' in tool ? tool.accentBorder : undefined}
-                rowSpan2={'rowSpan2' in tool ? tool.rowSpan2 : undefined}
-                exampleText={'exampleText' in tool ? tool.exampleText : undefined}
-              />
-            ))}
-          </div>
+        <AiToolsHubSection />
+
+        <section
+          style={{
+            padding: '0 clamp(1rem, 4vw, 1.5rem) 1rem',
+            maxWidth: '1100px',
+            margin: '0 auto',
+            textAlign: 'center',
+          }}
+        >
+          <Link
+            href="/dashboard/ai-tools/voice-interview"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              fontSize: '0.88rem',
+              fontWeight: 600,
+              color: 'var(--color-accent)',
+              textDecoration: 'none',
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden>
+              mic
+            </span>
+            Voice mock interview (ElevenLabs)
+          </Link>
         </section>
 
         <section

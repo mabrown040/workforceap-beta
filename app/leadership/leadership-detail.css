@@ -41,6 +41,22 @@
   align-items: center;
 }
 
+/* No headshot yet: single column + quote card */
+.ld-hero-inner--text-only {
+  grid-template-columns: 1fr;
+  max-width: 48rem;
+}
+
+.ld-hero-quote-only {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.ld-hero-quote-card--standalone {
+  position: static;
+  max-width: 36rem;
+}
+
 /* ── Hero text ── */
 .ld-hero-text {
   display: flex;
@@ -572,6 +588,10 @@
   .ld-hero-inner {
     grid-template-columns: 1fr;
     gap: var(--space-8);
+  }
+
+  .ld-hero-inner--text-only {
+    max-width: var(--max-width);
   }
 
   .ld-hero-portrait-wrap {

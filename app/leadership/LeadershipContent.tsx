@@ -164,131 +164,6 @@ export default function LeadershipContent() {
         </div>
       </section>
 
-      {/* ── Lead Consultant ── */}
-      {leadConsultants.length > 0 ? (
-        <section className="content-section">
-          <div className="container" style={{ maxWidth: 1400 }}>
-            <div style={{ marginBottom: '3rem' }}>
-              <span
-                className="text-label-upper"
-                style={{
-                  color: 'var(--color-accent)',
-                  fontSize: '0.7rem',
-                  letterSpacing: '0.1em',
-                  display: 'block',
-                  marginBottom: '0.75rem',
-                }}
-              >
-                Advisory
-              </span>
-              <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', margin: 0 }}>
-                Lead Consultant
-              </h2>
-            </div>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                gap: '2rem',
-                alignItems: 'stretch',
-              }}
-            >
-              {leadConsultants.map((leader) => (
-                <Link
-                  key={leader.slug}
-                  href={`/leadership/${leader.slug}`}
-                  style={{ textDecoration: 'none', color: 'inherit' }}
-                >
-                  <article
-                    className="stitch-card"
-                    style={{
-                      background: 'var(--surface-container)',
-                      borderRadius: 'var(--radius-xl, 1rem)',
-                      overflow: 'hidden',
-                      height: '100%',
-                      transition: 'background 0.2s ease, transform 0.2s ease',
-                      cursor: 'pointer',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'var(--surface-container-high)';
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'var(--surface-container)';
-                      e.currentTarget.style.transform = 'translateY(0)';
-                    }}
-                  >
-                    <div
-                      style={{
-                        aspectRatio: '16/10',
-                        position: 'relative',
-                        overflow: 'hidden',
-                        maxHeight: 260,
-                      }}
-                    >
-                      <Image
-                        src={leader.image}
-                        alt={leader.name}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 480px"
-                        style={{ objectFit: 'cover' }}
-                      />
-                    </div>
-                    <div style={{ padding: '1.5rem 1.75rem 2rem' }}>
-                      <span
-                        className="text-label-upper"
-                        style={{
-                          color: 'var(--color-accent)',
-                          fontSize: '0.65rem',
-                          letterSpacing: '0.08em',
-                          display: 'block',
-                          marginBottom: '0.5rem',
-                        }}
-                      >
-                        {leader.role}
-                      </span>
-                      <h3
-                        style={{
-                          color: 'var(--color-on-surface)',
-                          fontSize: '1.25rem',
-                          fontWeight: 600,
-                          margin: '0 0 0.5rem',
-                        }}
-                      >
-                        {leader.name}
-                      </h3>
-                      {leader.missionRelevance ? (
-                        <p
-                          className="leader-mission-callout"
-                          style={{
-                            fontSize: '0.8rem',
-                            fontWeight: 500,
-                            marginBottom: '0.75rem',
-                            lineHeight: 1.5,
-                          }}
-                        >
-                          {leader.missionRelevance}
-                        </p>
-                      ) : null}
-                      <p
-                        style={{
-                          color: 'var(--color-on-surface-variant)',
-                          fontSize: '0.875rem',
-                          lineHeight: 1.65,
-                          margin: 0,
-                        }}
-                      >
-                        {leader.cardBio}
-                      </p>
-                    </div>
-                  </article>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      ) : null}
-
       {/* ── Board of Trustees ── */}
       <section
         className="content-section"
@@ -439,6 +314,165 @@ export default function LeadershipContent() {
           </div>
         </div>
       </section>
+
+      {/* ── Lead Consultant (bottom, before CTA) ── */}
+      {leadConsultants.length > 0 ? (
+        <section className="content-section">
+          <div className="container" style={{ maxWidth: 1400 }}>
+            <div style={{ marginBottom: '3rem' }}>
+              <span
+                className="text-label-upper"
+                style={{
+                  color: 'var(--color-accent)',
+                  fontSize: '0.7rem',
+                  letterSpacing: '0.1em',
+                  display: 'block',
+                  marginBottom: '0.75rem',
+                }}
+              >
+                Advisory
+              </span>
+              <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', margin: 0 }}>
+                Lead Consultant
+              </h2>
+            </div>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                gap: '2rem',
+                alignItems: 'stretch',
+              }}
+            >
+              {leadConsultants.map((leader) => (
+                <Link
+                  key={leader.slug}
+                  href={`/leadership/${leader.slug}`}
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  <article
+                    className="stitch-card"
+                    style={{
+                      background: 'var(--surface-container-lowest)',
+                      borderRadius: 'var(--radius-xl, 1rem)',
+                      overflow: 'hidden',
+                      height: '100%',
+                      transition: 'background 0.2s ease, transform 0.2s ease',
+                      cursor: 'pointer',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'var(--surface-container)';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'var(--surface-container-lowest)';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }}
+                  >
+                    {leader.image && leader.image.trim().length > 0 ? (
+                      <div
+                        style={{
+                          aspectRatio: '16/10',
+                          position: 'relative',
+                          overflow: 'hidden',
+                          maxHeight: 260,
+                        }}
+                      >
+                        <Image
+                          src={leader.image}
+                          alt={leader.name}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 480px"
+                          style={{ objectFit: 'cover' }}
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        aria-hidden
+                        style={{
+                          padding: '1.75rem 1.75rem 0',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.75rem',
+                        }}
+                      >
+                        <span
+                          className="material-symbols-outlined"
+                          style={{
+                            fontSize: '2.25rem',
+                            color: 'var(--color-accent)',
+                            opacity: 0.85,
+                          }}
+                        >
+                          support_agent
+                        </span>
+                        <span
+                          style={{
+                            fontSize: '0.75rem',
+                            fontWeight: 600,
+                            letterSpacing: '0.06em',
+                            textTransform: 'uppercase',
+                            color: 'var(--color-on-surface-variant)',
+                          }}
+                        >
+                          Photo coming soon
+                        </span>
+                      </div>
+                    )}
+                    <div style={{ padding: '1.5rem 1.75rem 2rem' }}>
+                      <span
+                        className="text-label-upper"
+                        style={{
+                          color: 'var(--color-accent)',
+                          fontSize: '0.65rem',
+                          letterSpacing: '0.08em',
+                          display: 'block',
+                          marginBottom: '0.5rem',
+                        }}
+                      >
+                        {leader.role}
+                      </span>
+                      <h3
+                        style={{
+                          color: 'var(--color-on-surface)',
+                          fontSize: '1.25rem',
+                          fontWeight: 600,
+                          margin: '0 0 0.5rem',
+                        }}
+                      >
+                        {leader.name}
+                      </h3>
+                      {leader.missionRelevance ? (
+                        <p
+                          className="leader-mission-callout"
+                          style={{
+                            fontSize: '0.8rem',
+                            fontWeight: 500,
+                            marginBottom: '0.75rem',
+                            lineHeight: 1.5,
+                          }}
+                        >
+                          {leader.missionRelevance}
+                        </p>
+                      ) : null}
+                      <p
+                        style={{
+                          color: 'var(--color-on-surface-variant)',
+                          fontSize: '0.875rem',
+                          lineHeight: 1.65,
+                          margin: 0,
+                        }}
+                      >
+                        {leader.cardBio}
+                      </p>
+                    </div>
+                  </article>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {/* ── CTA Section ── */}
       <section className="content-section">

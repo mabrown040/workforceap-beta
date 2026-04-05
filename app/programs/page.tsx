@@ -5,6 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ProgramsContent from './ProgramsContent';
+import ProgramsPageClient from './ProgramsPageClient';
 import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
@@ -16,6 +17,15 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 export default function ProgramsPage() {
+  const programs = [
+    { cat: 'IT & Cybersecurity', title: 'Cybersecurity (Google)', dur: '3–5 months', slug: 'cybersecurity-professional-certificate-google' },
+    { cat: 'AI & Software Dev', title: 'AI Developer (IBM)', dur: '3–5 months', slug: 'ai-professional-developer-certificate-ibm' },
+    { cat: 'Cloud & Data', title: 'AWS Cloud Technology', dur: '3–5 months', slug: 'aws-cloud-technology-amazon' },
+    { cat: 'Business', title: 'Project Management (Microsoft)', dur: '3–5 months', slug: 'project-management-professional-certificate-microsoft' },
+    { cat: 'AI & Software Dev', title: 'Software Developer (IBM)', dur: '4–6 months', slug: 'software-developer-professional-certificate-ibm' },
+    { cat: 'Cloud & Data', title: 'Data Analytics (Google)', dur: '3–5 months', slug: 'data-analytics-professional-certificate-google' },
+  ];
+
   return (
     <div className="inner-page programs-page">
       {/* ══════════════════════════════════════════════
@@ -111,46 +121,7 @@ export default function ProgramsPage() {
             </div>
           </section>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2.5rem' }}>
-            {[
-              { cat: 'IT & Cybersecurity', title: 'Cybersecurity (Google)', dur: '3–5 months', slug: 'cybersecurity-professional-certificate-google' },
-              { cat: 'AI & Software Dev', title: 'AI Developer (IBM)', dur: '3–5 months', slug: 'ai-professional-developer-certificate-ibm' },
-              { cat: 'Cloud & Data', title: 'AWS Cloud Technology', dur: '3–5 months', slug: 'aws-cloud-technology-amazon' },
-              { cat: 'Business', title: 'Project Management (Microsoft)', dur: '3–5 months', slug: 'project-management-professional-certificate-microsoft' },
-              { cat: 'AI & Software Dev', title: 'Software Developer (IBM)', dur: '4–6 months', slug: 'software-developer-professional-certificate-ibm' },
-              { cat: 'Cloud & Data', title: 'Data Analytics (Google)', dur: '3–5 months', slug: 'data-analytics-professional-certificate-google' },
-            ].map(({ cat, title, dur, slug }) => (
-              <Link
-                href={`/programs/${slug}`}
-                key={title}
-                style={{
-                  borderRadius: '0.75rem',
-                  padding: '1rem',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  border: '1px solid rgba(222,191,194,0.15)',
-                  background: 'var(--color-white, #fff)',
-                  minHeight: 192,
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
-                  textDecoration: 'none',
-                  color: 'inherit',
-                }}
-              >
-                <div>
-                  <span style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: '0.25rem', color: 'var(--color-accent)' }}>{cat}</span>
-                  <h3 style={{ fontSize: '0.875rem', fontWeight: 700, lineHeight: 1.25, margin: 0, color: 'var(--color-on-surface)' }}>{title}</h3>
-                </div>
-                <div style={{ marginTop: 'auto' }}>
-                  <p style={{ fontSize: '11px', fontWeight: 500, marginBottom: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{dur}</p>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ padding: '0.125rem 0.5rem', borderRadius: '4px', fontSize: '10px', fontWeight: 700, background: 'rgba(173,44,77,0.15)', color: 'var(--color-accent-dark)' }}>$0</span>
-                    <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent-dark)' }}>arrow_outward</span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <ProgramsPageClient programs={programs} />
 
           <div style={{ textAlign: 'center', marginTop: '1rem', marginBottom: '0.5rem' }}>
             <a href="#program-catalog" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-accent-dark)', textDecoration: 'none' }}>

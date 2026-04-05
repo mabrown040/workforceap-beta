@@ -89,6 +89,15 @@ export type PortalVoiceSessionProps = {
   suggestionsEndpoint?: string;
   /** Called when user accepts a suggestion */
   onAcceptSuggestion?: (s: ResumeSuggestion) => void;
+  /**
+   * When `delegatePostSessionSuggestions` is true, parsed post-session suggestions are passed here
+   * instead of rendering the default “done” suggestion cards inside this component.
+   */
+  onPostSessionSuggestions?: (suggestions: ResumeSuggestion[]) => void;
+  /** Do not show post-session Approve/Deny cards here — parent handles them (e.g. draft panel). */
+  delegatePostSessionSuggestions?: boolean;
+  /** When post-session parsing runs (after End session), for parent UI (e.g. draft panel loading line). */
+  onPostSessionParsingChange?: (parsing: boolean) => void;
   /** Fired when a new transcript line is captured (for live coaching UI) */
   onTranscriptChunk?: (chunk: { speaker: 'agent' | 'user'; text: string }) => void;
   /** Fired whenever session phase changes (e.g. sync MediaRecorder with voice session). */
@@ -156,6 +165,9 @@ export default function PortalVoiceSession({
   listeningLabel = 'Listening — speak when ready',
   suggestionsEndpoint,
   onAcceptSuggestion,
+  onPostSessionSuggestions,
+  delegatePostSessionSuggestions = false,
+  onPostSessionParsingChange,
   onTranscriptChunk,
   onPhaseChange,
   retryWithoutDynamicVariables = true,
@@ -532,6 +544,7 @@ export default function PortalVoiceSession({
     // Parse suggestions from transcript
     if (suggestionsEndpoint && transcriptRef.current.length > 0) {
       setParsingSuggestions(true);
+      onPostSessionParsingChange?.(true);
       try {
         const res = await fetch(suggestionsEndpoint, {
           method: 'POST',
@@ -540,12 +553,19 @@ export default function PortalVoiceSession({
         });
         if (res.ok) {
           const data = (await res.json()) as { suggestions: ResumeSuggestion[] };
-          setSuggestions(data.suggestions ?? []);
+          const list = data.suggestions ?? [];
+          if (delegatePostSessionSuggestions && onPostSessionSuggestions) {
+            onPostSessionSuggestions(list);
+            setSuggestions([]);
+          } else {
+            setSuggestions(list);
+          }
         }
       } catch (err) {
         console.error('[suggestion-parse]', err);
       } finally {
         setParsingSuggestions(false);
+        onPostSessionParsingChange?.(false);
       }
     }
   }

@@ -3,10 +3,10 @@
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { counselorStaffVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
-import { getCounselorTtsVoiceId } from '@/lib/portal/counselorVoice';
 
 /**
- * Staff counselor portal — dashboard-style voice chrome + female TTS override for ConvAI.
+ * Staff counselor portal — voice uses the ConvAI agent’s configured TTS (no client `voice_id` override;
+ * ElevenLabs rejects overrides when the agent disallows them — see workspace agent settings).
  */
 export default function CounselorPortalVoiceBlock() {
   return (
@@ -19,7 +19,6 @@ export default function CounselorPortalVoiceBlock() {
         accentDark="#86198f"
         speakingLabel="Assistant is speaking…"
         listeningLabel="Listening — ask your question"
-        conversationOverrides={{ tts: { voiceId: getCounselorTtsVoiceId() } }}
       />
     </VoiceAgentSurface>
   );

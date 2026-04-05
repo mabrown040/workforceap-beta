@@ -2,8 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Conversation } from '@elevenlabs/client';
-import { getCounselorTtsVoiceId } from '@/lib/portal/counselorVoice';
-
 type Phase = 'pre' | 'connecting' | 'active' | 'ending' | 'plan';
 
 const ACCENT = '#db2777';
@@ -89,7 +87,6 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
     try {
       const conv = await Conversation.startSession({
         signedUrl,
-        overrides: { tts: { voiceId: getCounselorTtsVoiceId() } },
         onConnect: () => setPhase('active'),
         onDisconnect: (details) => {
           if (!intentionalRef.current) {

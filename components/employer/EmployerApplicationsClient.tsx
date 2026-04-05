@@ -98,14 +98,14 @@ export default function EmployerApplicationsClient({ initialRows }: { initialRow
   }
 
   return (
-    <div>
+    <div className="employer-applications-shell">
       {error ? (
         <p className="employer-apps-error" role="alert">
           {error}
         </p>
       ) : null}
-      <div style={{ overflowX: 'auto' }}>
-        <table className="admin-table">
+      <div className="employer-applications-table-wrap" style={{ overflowX: 'auto' }}>
+        <table className="admin-table employer-applications-table">
           <thead>
             <tr>
               <th>Applicant</th>

@@ -163,20 +163,27 @@ function JobsNoResultsState() {
 
 export default function JobsListingClient({ 
   isAuthenticated = true, 
-  ageGroup = 'adult18plus' as 'under14' | 'youth14to17' | 'adult18plus'
+  ageGroup = 'adult18plus' as 'under14' | 'youth14to17' | 'adult18plus',
+  initialJobs = [] as Job[],
+  initialTotal = 0,
 }: { 
   isAuthenticated?: boolean;
   ageGroup?: 'under14' | 'youth14to17' | 'adult18plus';
+  initialJobs?: Job[];
+  initialTotal?: number;
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [jobs, setJobs] = useState<Job[]>([]);
+  // Use SSR data as initial state; skip loading state if we have initial data
+  const hasInitialData = initialJobs.length > 0;
+  const [jobs, setJobs] = useState<Job[]>(initialJobs);
   const [matchedJobs, setMatchedJobs] = useState<MatchedJob[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!hasInitialData);
   const [loadingMatches, setLoadingMatches] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [hasFetchedInitially, setHasFetchedInitially] = useState(hasInitialData);
 
   const qParam = searchParams.get('q') ?? '';
   const [qLocal, setQLocal] = useState(qParam);
@@ -243,12 +250,18 @@ export default function JobsListingClient({
 
     if (ageGroup) params.set('ageGroup', ageGroup);
     
+    // Skip the first fetch if we have SSR data and no filters are active
+    if (!hasFetchedInitially && !hasActiveFilters) {
+      setHasFetchedInitially(true);
+      return;
+    }
+    
     setLoading(true);
     fetch(`/api/dashboard/jobs?${params}`)
       .then((r) => r.json())
       .then(setJobs)
       .finally(() => setLoading(false));
-  }, [q, locationType, jobType, program, salaryMin, salaryMax, sort, ageGroup]);
+  }, [q, locationType, jobType, program, salaryMin, salaryMax, sort, ageGroup, hasFetchedInitially, hasActiveFilters]);
 
   useEffect(() => {
     if (!isAuthenticated) return;

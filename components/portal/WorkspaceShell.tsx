@@ -151,19 +151,25 @@ export default function WorkspaceShell({
 
   const isCollapsedDesktop = collapsed && wide;
   const headerRef = useRef<HTMLElement>(null);
+  const tabBarRef = useRef<HTMLElement | null>(null);
 
-  // Measure header height so tab bar sticks below it
+  // Measure header + optional tab bar so sticky regions and sidebar offset stay in sync
   useEffect(() => {
-    const el = headerRef.current;
-    if (!el) return;
+    const headerEl = headerRef.current;
+    const tabEl = tabBarRef.current;
     const update = () => {
-      document.documentElement.style.setProperty('--workspace-header-h', `${el.offsetHeight}px`);
+      const hh = headerEl?.offsetHeight ?? 0;
+      const th = tabEl?.offsetHeight ?? 0;
+      document.documentElement.style.setProperty('--workspace-header-h', `${hh}px`);
+      document.documentElement.style.setProperty('--workspace-tab-bar-h', `${th}px`);
+      document.documentElement.style.setProperty('--workspace-top-offset', `${hh + th}px`);
     };
     update();
     const ro = new ResizeObserver(update);
-    ro.observe(el);
+    if (headerEl) ro.observe(headerEl);
+    if (tabEl) ro.observe(tabEl);
     return () => ro.disconnect();
-  }, []);
+  }, [hasTabs, activeTab]);
 
   const firstHref = navItems[0]?.href ?? '/';
 
@@ -222,7 +228,7 @@ export default function WorkspaceShell({
       />
 
       {hasTabs && activeTab && (
-        <nav className="workspace-tab-bar" aria-label="Workspace tabs">
+        <nav ref={tabBarRef} className="workspace-tab-bar" aria-label="Workspace tabs">
           <div className="workspace-tab-bar-inner">
             {NAV_TAB_ORDER.map((tab) => {
               const meta = NAV_TAB_META[tab];

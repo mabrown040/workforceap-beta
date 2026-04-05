@@ -1,6 +1,7 @@
 'use client';
 
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
+import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 
 /** Member home (`/dashboard`) — readiness + resume voice coaches. */
 export default function MemberDashboardVoiceSection() {
@@ -15,22 +16,17 @@ export default function MemberDashboardVoiceSection() {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-          gap: '1rem',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '1.25rem',
         }}
       >
-        <div
-          className="stitch-card"
-          style={{
-            padding: '1.25rem',
-            border: '1px solid var(--outline-variant)',
-            borderRadius: '0.875rem',
-            background: 'var(--surface-container-lowest)',
-          }}
+        <VoiceAgentSurface
+          badge="Readiness coach"
+          subtext="Interviews, certifications, and next steps. Your program context is included automatically."
+          icon="🎯"
+          glowColor="#0d9488"
+          gradient="linear-gradient(135deg, #0d9488, #14b8a6, #5eead4)"
         >
-          <p className="wa-text-[10px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem' }}>
-            Readiness coach
-          </p>
           <PortalVoiceSession
             sessionEndpoint="/api/member/readiness/voice-session"
             title="Career readiness"
@@ -40,19 +36,14 @@ export default function MemberDashboardVoiceSection() {
             speakingLabel="Coach is speaking…"
             listeningLabel="Listening — share where you are"
           />
-        </div>
-        <div
-          className="stitch-card"
-          style={{
-            padding: '1.25rem',
-            border: '1px solid var(--outline-variant)',
-            borderRadius: '0.875rem',
-            background: 'var(--surface-container-lowest)',
-          }}
+        </VoiceAgentSurface>
+        <VoiceAgentSurface
+          badge="Resume coach"
+          subtext="Voice feedback on bullets and framing. Pair with your live draft when you use the rewriter."
+          icon="✨"
+          glowColor="#2563eb"
+          gradient="linear-gradient(135deg, #2563eb, #3b82f6, #38bdf8)"
         >
-          <p className="wa-text-[10px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem' }}>
-            Resume coach
-          </p>
           <PortalVoiceSession
             sessionEndpoint="/api/member/resume-coach/session"
             retryWithoutDynamicVariables={false}
@@ -63,7 +54,7 @@ export default function MemberDashboardVoiceSection() {
             speakingLabel="Coach is speaking…"
             listeningLabel="Listening — describe your background"
           />
-        </div>
+        </VoiceAgentSurface>
       </div>
     </section>
   );

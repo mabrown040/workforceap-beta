@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
+import { fetchPartnerPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 
 /** POST — signed URL for partner-facing voice assistant. Requires `ELEVENLABS_PARTNER_AGENT_ID`. */
 export async function POST() {
@@ -14,8 +15,15 @@ export async function POST() {
   }
 
   try {
-    const { signedUrl, expiresAt } = await startElevenLabsPortalSession('partner');
-    return NextResponse.json({ signedUrl, expiresAt });
+    const dynamicVariables = await fetchPartnerPortalDynamicVariables(user.id);
+    const { signedUrl, expiresAt, dynamicVariables: returned } = await startElevenLabsPortalSession('partner', {
+      dynamicVariables,
+    });
+    return NextResponse.json({
+      signedUrl,
+      expiresAt,
+      dynamicVariables: returned ?? dynamicVariables,
+    });
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Failed to start session';
     console.error('[partner/voice-session]', msg);

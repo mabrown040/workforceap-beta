@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
+import { fetchEmployerPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 
 /** POST — signed URL for employer ElevenLabs agent (hiring / portal help). */
 export async function POST() {
@@ -14,8 +15,15 @@ export async function POST() {
   }
 
   try {
-    const { signedUrl, expiresAt } = await startElevenLabsPortalSession('employer');
-    return NextResponse.json({ signedUrl, expiresAt });
+    const dynamicVariables = await fetchEmployerPortalDynamicVariables(user.id);
+    const { signedUrl, expiresAt, dynamicVariables: returned } = await startElevenLabsPortalSession('employer', {
+      dynamicVariables,
+    });
+    return NextResponse.json({
+      signedUrl,
+      expiresAt,
+      dynamicVariables: returned ?? dynamicVariables,
+    });
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Failed to start session';
     console.error('[employer/voice-session]', msg);

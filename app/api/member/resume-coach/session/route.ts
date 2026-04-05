@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { getProgramBySlug } from '@/lib/content/programs';
 import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
+import { fetchMemberPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 
 const FILE_RESUME_MAX = 6000;
@@ -15,15 +15,17 @@ async function getResumeCoachDynamicVariables(
   opts: { liveResumeDraft?: string }
 ): Promise<Record<string, string>> {
   try {
-    const dbUser = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { profile: true },
-    });
+    const [base, dbUser] = await Promise.all([
+      fetchMemberPortalDynamicVariables(userId),
+      prisma.user.findUnique({
+        where: { id: userId },
+        include: { profile: true },
+      }),
+    ]);
     if (!dbUser) {
       return {};
     }
 
-    const program = dbUser.enrolledProgram ? getProgramBySlug(dbUser.enrolledProgram) : null;
     const fileResume = (await getMemberResumePlainText(userId, FILE_RESUME_MAX)) ?? '';
     const draft = opts.liveResumeDraft?.trim() ?? '';
 
@@ -36,9 +38,7 @@ async function getResumeCoachDynamicVariables(
     const hasUsableResume = hasUsableFileText || hasUsableDraft;
 
     return {
-      member_name: dbUser.fullName ?? '',
-      program_title: program?.title ?? '',
-      program_skills: program?.skills?.join(', ') ?? '',
+      ...base,
       resume_text: fileResume.slice(0, FILE_RESUME_MAX),
       live_resume_draft: draft.slice(0, LIVE_DRAFT_MAX),
       /** True only when we have substantive extracted file text and/or a substantive live draft (voice start snapshot). */

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { chatCompletion } from '@/lib/ai/groq';
 import { getElevenLabsAgentId, startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
+import { fetchMemberPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
 
@@ -32,7 +33,15 @@ export async function POST(req: NextRequest) {
   // ── Mode 1: ElevenLabs Conversational AI ──────────────────────────────────
   if (ELEVENLABS_API_KEY && !nextQuestion && !forceText) {
     try {
-      const { signedUrl } = await startElevenLabsPortalSession('interview');
+      const member = await fetchMemberPortalDynamicVariables(user.id);
+      const dynamicVariables = {
+        ...member,
+        target_role: role,
+        interview_type: interviewType,
+      };
+      const { signedUrl, dynamicVariables: returnedVars } = await startElevenLabsPortalSession('interview', {
+        dynamicVariables,
+      });
       const agentId = getElevenLabsAgentId('interview') ?? '';
       return NextResponse.json({
         mode: 'voice',
@@ -40,6 +49,7 @@ export async function POST(req: NextRequest) {
         agentId,
         role,
         interviewType,
+        dynamicVariables: returnedVars ?? dynamicVariables,
         sessionId: `${user.id}-${Date.now()}`,
       });
     } catch (err) {

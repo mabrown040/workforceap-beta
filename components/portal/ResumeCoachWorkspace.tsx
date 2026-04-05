@@ -181,7 +181,7 @@ export default function ResumeCoachWorkspace() {
     setResumeText((prev) => {
       const o = s.original?.trim();
       if (o && prev.includes(o)) {
-        return prev.split(o).join(s.suggested);
+        return prev.replace(o, s.suggested);
       }
       const line = s.original
         ? `[Change] "${s.original}" → "${s.suggested}" (${s.context})`
@@ -214,7 +214,7 @@ export default function ResumeCoachWorkspace() {
     setLiveCoachSuggestions((prev) => {
       const out = [...prev];
       for (const s of found) {
-        const key = `${s.original ?? ''}→${s.suggested}`;
+        const key = suggestionDedupeKey(s);
         if (suggestionKeySeenRef.current.has(key)) continue;
         suggestionKeySeenRef.current.add(key);
         out.push({ ...s, id: newSuggestionId(), source: 'live' });

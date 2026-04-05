@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getUser } from '@/lib/auth/server';
+import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { generateSpeech } from '@/lib/ai/elevenlabs';
 
 /**
@@ -11,6 +13,16 @@ import { generateSpeech } from '@/lib/ai/elevenlabs';
  * Returns: audio/mpeg stream
  */
 export async function POST(req: NextRequest) {
+  const user = await getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { success: withinLimit } = await checkAIToolRateLimit(user.id);
+  if (!withinLimit) {
+    return NextResponse.json({ error: 'Rate limit exceeded. Try again later.' }, { status: 429 });
+  }
+
   try {
     const body = await req.json();
     const { text, voiceId } = body as { text: string; voiceId?: string };

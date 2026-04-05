@@ -2,6 +2,7 @@ import { createMember } from '@/lib/member/service';
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
 import { memberSignupSchema } from '@/lib/validation/member';
 import { checkSignupRateLimit } from '@/lib/rate-limit';
 
@@ -70,6 +71,7 @@ export async function POST(request: NextRequest) {
 
   const cookieStore = await cookies();
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookieOptions: getSupabaseCookieOptions(),
     cookies: {
       getAll() {
         return cookieStore.getAll();

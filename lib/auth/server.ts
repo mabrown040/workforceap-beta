@@ -1,6 +1,7 @@
 import { cache } from 'react';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
 
 /**
  * Creates a Supabase client for Server Components, Server Actions, and Route Handlers.
@@ -13,11 +14,7 @@ export async function createSupabaseServerClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
-      cookieOptions: {
-        path: '/',
-        maxAge: 60 * 60 * 24 * 7, // 7 days persistent
-        sameSite: 'lax',
-      },
+      cookieOptions: getSupabaseCookieOptions(),
       cookies: {
         getAll() {
           return cookieStore.getAll();

@@ -1,11 +1,19 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { translateOccupationDescription, translateSkillName, translateTaskLine } from '@/lib/onet/copy';
+import { checkPublicCareersGetRateLimit } from '@/lib/rate-limit';
+import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
 type Params = { params: Promise<{ onetCode: string }> };
 
-export async function GET(_request: Request, { params }: Params) {
+export async function GET(request: NextRequest, { params }: Params) {
+  const ip = getClientIpFromRequest(request);
+  const { success: withinLimit } = await checkPublicCareersGetRateLimit(ip);
+  if (!withinLimit) {
+    return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+  }
+
   const { onetCode: raw } = await params;
   const onetCode = decodeURIComponent(raw || '').trim();
   if (!onetCode) {

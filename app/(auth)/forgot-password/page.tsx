@@ -9,6 +9,7 @@ function ForgotPasswordForm() {
   const [email, setEmail] = useState(searchParams.get('email') ?? '');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,6 +31,11 @@ function ForgotPasswordForm() {
         return;
       }
 
+      setSuccessMessage(
+        typeof data?.message === 'string'
+          ? data.message
+          : 'If an account exists for that email, you will receive reset instructions shortly.'
+      );
       setStatus('success');
     } catch (err) {
       setStatus('error');
@@ -50,7 +56,7 @@ function ForgotPasswordForm() {
         <section className="page-hero">
           <div className="page-hero-content">
             <h1>Check your email</h1>
-            <p>We&apos;ve sent a password reset link to {email}. Click the link to set a new password.</p>
+            <p>{successMessage}</p>
             <Link href="/login" className="btn btn-primary" style={{ marginTop: '1rem' }}>
               Back to login
             </Link>

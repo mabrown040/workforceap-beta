@@ -23,6 +23,7 @@ export default function VoiceInterviewScaffold() {
   const [recordingConsent, setRecordingConsent] = useState(false);
   const [playbackUrl, setPlaybackUrl] = useState<string | null>(null);
   const [videoErr, setVideoErr] = useState('');
+  const [cameraPriming, setCameraPriming] = useState(false);
   /** Fresh mount for each run so voice UI state resets reliably after “Change role / style”. */
   const [voiceSessionKey, setVoiceSessionKey] = useState(0);
   const videoStreamRef = useRef<MediaStream | null>(null);
@@ -123,13 +124,46 @@ export default function VoiceInterviewScaffold() {
           <button
             type="button"
             className="btn btn-primary"
-            disabled={!canStart}
+            disabled={!canStart || cameraPriming}
             onClick={() => {
-              setVoiceSessionKey((k) => k + 1);
-              setReady(true);
+              void (async () => {
+                setVideoErr('');
+                setCameraPriming(true);
+                videoStreamRef.current?.getTracks().forEach((t) => t.stop());
+                videoStreamRef.current = null;
+
+                try {
+                  if (wantRecording) {
+                    try {
+                      const vs = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+                        audio: false,
+                      });
+                      videoStreamRef.current = vs;
+                    } catch {
+                      try {
+                        videoStreamRef.current = await navigator.mediaDevices.getUserMedia({
+                          video: true,
+                          audio: false,
+                        });
+                      } catch {
+                        setVideoErr(
+                          'Camera access was blocked or unavailable. Allow camera for this site in your browser settings, or turn off “Record my camera” and try again.'
+                        );
+                        return;
+                      }
+                    }
+                  }
+
+                  setVoiceSessionKey((k) => k + 1);
+                  setReady(true);
+                } finally {
+                  setCameraPriming(false);
+                }
+              })();
             }}
           >
-            Continue to voice session
+            {cameraPriming && wantRecording ? 'Requesting camera…' : 'Continue to voice session'}
           </button>
         </div>
       ) : (
@@ -174,8 +208,8 @@ export default function VoiceInterviewScaffold() {
                 liveTranscriptCoachLabel="Interviewer"
                 onTranscriptChunk={onTranscriptChunk}
                 onPhaseChange={setVoicePhase}
-                acquireVideoForRecording={wantRecording}
-                optionalCameraForRecording={wantRecording}
+                acquireVideoForRecording={false}
+                optionalCameraForRecording={false}
                 videoStreamRef={videoStreamRef}
               />
             </VoiceAgentSurface>

@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/db/prisma';
-import { checkAuthRateLimit, checkAIToolRateLimit } from '@/lib/rate-limit';
-import { getUser } from '@/lib/auth/server';
+import { checkAuthRateLimit } from '@/lib/rate-limit';
 import { applicationStatusForPublicLookup } from '@/lib/member/memberApplicationStatus';
 
 const bodySchema = z.object({
@@ -18,15 +17,6 @@ function getClientIp(request: NextRequest): string {
 }
 
 export async function POST(request: NextRequest) {
-  const user = await getUser();
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  const rateLimit = await checkAIToolRateLimit(user.id);
-  if (!rateLimit.success) {
-    return NextResponse.json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
-  }
-
   try {
     const ip = getClientIp(request);
     const { success: rateOk } = await checkAuthRateLimit(`apply-status:${ip}`);

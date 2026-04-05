@@ -8,6 +8,7 @@ import { getSlaStatusForThreads } from '@/lib/messages/superAdminMessageQueries'
 type Props = { params: Promise<{ threadId: string }> };
 
 export async function GET(_request: NextRequest, { params }: Props) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isSuperAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -161,4 +162,8 @@ export async function GET(_request: NextRequest, { params }: Props) {
   }
 
   return NextResponse.json({ error: 'Invalid thread' }, { status: 400 });
+  } catch (error) {
+    console.error('[admin/messages/thread/[threadId] GET] error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

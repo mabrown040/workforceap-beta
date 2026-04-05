@@ -33,7 +33,10 @@ const COMPARISON_ROWS = [
 
 export default function ProgramComparisonPage() {
   return (
-    <div className="inner-page" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
+    <div
+      className="inner-page marketing-stack marketing-stack--enter"
+      style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}
+    >
 
       <ProgramComparisonMobile rows={COMPARISON_ROWS} />
 

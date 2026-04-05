@@ -9,6 +9,7 @@ import CreateEmployerAccountClient from './CreateEmployerAccountClient';
 import OpenEmployerPortalButton from './OpenEmployerPortalButton';
 import ClearEmployerPortalContext from './ClearEmployerPortalContext';
 import PageHeader from '@/components/portal/PageHeader';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import AdminEmployerTierSelect from './AdminEmployerTierSelect';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -34,7 +35,7 @@ export default async function AdminEmployersPage() {
   ]);
 
   return (
-    <div>
+    <PortalPageFrame>
       <PageHeader title="Employers" subtitle="Employers with portal access. Create accounts below, or open a company's portal as a super-admin to help them post jobs." />
 
       {superAdmin && (
@@ -92,6 +93,6 @@ export default async function AdminEmployersPage() {
       )}
 
       <CreateEmployerAccountClient />
-    </div>
+    </PortalPageFrame>
   );
 }

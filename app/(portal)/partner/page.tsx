@@ -18,6 +18,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { partnerVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Partner Portal',
@@ -142,7 +143,7 @@ export default async function PartnerDashboardPage() {
         referralApplyUrl,
       }}
     >
-
+    <PortalPageFrame maxWidth="80rem">
     {/* ── MOBILE SECTION ── */}
     <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
       {/* Header */}
@@ -557,7 +558,7 @@ export default async function PartnerDashboardPage() {
       )}
     </div>
     </div>
-
+    </PortalPageFrame>
     </PortalEntryClient>
   );
 }

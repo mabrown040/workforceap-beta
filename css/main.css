@@ -1272,6 +1272,23 @@ html.dark .workspace-shell-header {
     background: var(--glass-bg);
     border-bottom-color: rgba(255,255,255,0.06);
 }
+/* Tab bar: same glass treatment as header (single dark-mode block; base rules stay in main workspace section). */
+html.dark .workspace-tab-bar {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur-xl);
+    -webkit-backdrop-filter: var(--glass-blur-xl);
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+html.dark .workspace-tab {
+    color: var(--color-on-surface-variant);
+}
+html.dark .workspace-tab:hover {
+    color: var(--color-on-surface);
+}
+html.dark .workspace-tab--active {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+}
 html.dark .workspace-shell-brand {
     color: var(--color-on-surface);
 }

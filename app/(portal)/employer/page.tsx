@@ -13,6 +13,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { employerVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Employer overview',
@@ -145,7 +146,7 @@ export default async function EmployerDashboardPage() {
         companyWebsite: employerRow.companyWebsite ?? '',
       }}
     >
-    <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
+    <PortalPageFrame>
       {/* ── Mobile Employer Dashboard (≤640px) ── */}
       <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Hero */}
@@ -494,7 +495,7 @@ export default async function EmployerDashboardPage() {
         )}
       </section>
       </div>{/* end desktop */}
-    </div>
+    </PortalPageFrame>
     </PortalEntryClient>
   );
 }

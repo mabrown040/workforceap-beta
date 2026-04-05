@@ -8,6 +8,7 @@ import PartnerAttentionClient from '@/components/partner/PartnerAttentionClient'
 import PartnerWorkflowTimeline from '@/components/partner/PartnerWorkflowTimeline';
 import { listPartnerWorkflowEvents } from '@/lib/portal/workflowEvents';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Attention queue',
@@ -42,16 +43,18 @@ export default async function PartnerAttentionPage({
   }));
 
   return (
-    <div style={{ paddingBottom: '6rem' }} className="wa-md:wa-pb-8">
-      <PageHeader
-        title="Attention queue"
-        subtitle="Risk-tiered queue with next best actions, owners, and a live workflow timeline."
-      />
-      <PartnerWorkflowTimeline events={events} />
-      <PartnerAttentionClient initialTier={initialTier} />
-      <div className="wa-md:wa-hidden">
-        <MobileBottomNav variant="partner" />
+    <PortalPageFrame>
+      <div style={{ paddingBottom: '6rem' }} className="wa-md:wa-pb-8">
+        <PageHeader
+          title="Attention queue"
+          subtitle="Risk-tiered queue with next best actions, owners, and a live workflow timeline."
+        />
+        <PartnerWorkflowTimeline events={events} />
+        <PartnerAttentionClient initialTier={initialTier} />
+        <div className="wa-md:wa-hidden">
+          <MobileBottomNav variant="partner" />
+        </div>
       </div>
-    </div>
+    </PortalPageFrame>
   );
 }

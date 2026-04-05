@@ -7,6 +7,7 @@ import { counselorAffiliationLabel } from '@/lib/counselor/counselorLabels';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import { counselorStudentStatusBadge } from '@/lib/counselor/memberStatus';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 export default async function CounselorPortalPage() {
   const user = await getUser();
@@ -83,7 +84,8 @@ export default async function CounselorPortalPage() {
   ];
 
   return (
-    <div style={{ maxWidth: '76rem', margin: '0 auto' }}>
+    <PortalPageFrame maxWidth="76rem">
+      <h1 className="wa-sr-only">Counselor Dashboard - Welcome back, {firstName}</h1>
       {/* ── Mobile Counselor View (≤640px) ── */}
       <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Hero */}
@@ -492,6 +494,6 @@ export default async function CounselorPortalPage() {
         </aside>
       </div>
       </div>{/* end desktop */}
-    </div>
+    </PortalPageFrame>
   );
 }

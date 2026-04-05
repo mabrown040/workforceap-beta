@@ -85,22 +85,22 @@ const PARTNERSHIP_TIERS = [
   {
     title: 'Standard',
     features: ['Post unlimited jobs', 'Access to active members and alumni', 'Direct candidate introductions'],
-    cta: 'Get Started',
-    href: '#employer-contact',
+    cta: 'Start Standard Intake',
+    href: '#employer-contact-form',
     featured: false,
   },
   {
     title: 'Strategic Partner',
     features: ['First access to graduating cohorts', 'Input on curriculum design', 'Co-branded success stories', 'Quarterly hiring events'],
-    cta: 'Become a Partner',
-    href: '#employer-contact',
+    cta: 'Start Partner Intake',
+    href: '#employer-contact-form',
     featured: true,
   },
   {
     title: 'Enterprise Upskill',
     features: ['Upskill your existing workforce', 'Custom training programs', 'Group enrollment discounts', 'Dedicated account manager'],
-    cta: 'Learn More',
-    href: '#employer-contact',
+    cta: 'Start Upskill Intake',
+    href: '#employer-contact-form',
     featured: false,
   },
 ];
@@ -188,13 +188,13 @@ export default function EmployersPage() {
               marginBottom: '2.5rem',
             }}
           >
-            Access a pipeline of industry-certified, ready-to-hire professionals.
-            We don&rsquo;t just find workers; we build the future workforce.
+            Start the employer intake with your hiring use case, role needs, volume, and timeline.
+            We will route you to the right partnership path and follow up with matched talent options.
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
             <Link
-              href="/employer"
+              href="#employer-contact-form"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -207,11 +207,11 @@ export default function EmployersPage() {
                 textDecoration: 'none',
               }}
             >
-              View Talent Portal
+              Start Employer Intake
               <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_forward</span>
             </Link>
             <Link
-              href="#employer-contact"
+              href="#employer-contact-form"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -224,7 +224,7 @@ export default function EmployersPage() {
                 textDecoration: 'none',
               }}
             >
-              Partner With Us
+              Request a Hiring Match
             </Link>
           </div>
         </div>
@@ -508,7 +508,7 @@ export default function EmployersPage() {
               A Streamlined Hiring{' '}
               <span style={{ color: 'var(--color-accent)' }}>Experience</span>
             </h2>
-            <p style={{ color: 'var(--color-on-surface-variant)' }}>Four simple steps from posting to partnership</p>
+            <p style={{ color: 'var(--color-on-surface-variant)' }}>Submit the employer intake and we will review it within 24–48 hours.</p>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0', position: 'relative' }} className="emp-process-grid">
@@ -723,9 +723,29 @@ export default function EmployersPage() {
                 Ready to Transform Your Hiring Process?
               </h2>
               <p style={{ color: 'rgba(255,203,209,0.9)', fontSize: '1.125rem', marginBottom: '1.5rem', lineHeight: 1.6 }}>
-                Join our growing network of partners building a more equitable and efficient workforce
-                through Workforce Advancement Project.
+                Tell us what roles you need, how many you are hiring, and when you need them filled.
+                We will route you into the right employer intake path and follow up with matched talent options.
               </p>
+              <div style={{ display: 'grid', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                  <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '1.1rem', marginTop: '0.15rem' }}>schedule</span>
+                  <p style={{ margin: 0, color: 'rgba(255,255,255,0.88)', fontSize: '0.95rem', lineHeight: 1.5 }}>
+                    Response time: 24–48 hours after submission.
+                  </p>
+                </div>
+                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                  <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '1.1rem', marginTop: '0.15rem' }}>groups</span>
+                  <p style={{ margin: 0, color: 'rgba(255,255,255,0.88)', fontSize: '0.95rem', lineHeight: 1.5 }}>
+                    For employers hiring now, building a pipeline, or planning an upskill program.
+                  </p>
+                </div>
+                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                  <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '1.1rem', marginTop: '0.15rem' }}>fact_check</span>
+                  <p style={{ margin: 0, color: 'rgba(255,255,255,0.88)', fontSize: '0.95rem', lineHeight: 1.5 }}>
+                    We review your use case, hiring volume, timeline, and role requirements before the first follow-up.
+                  </p>
+                </div>
+              </div>
               <div
                 style={{
                   marginTop: '1.5rem',
@@ -762,10 +782,10 @@ export default function EmployersPage() {
       <section style={{ padding: 'clamp(3rem, 6vw, 5rem) clamp(1rem, 4vw, 2rem)', textAlign: 'center' }}>
         <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>Ready to Hire?</h2>
         <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.1rem', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
-          Let&apos;s connect you with trained, motivated talent — at zero cost to your organization.
+          Tell us what you&apos;re hiring for, how many roles you have open, and your timeline so we can route you to the right employer intake path.
         </p>
-        <a href="/contact" className="btn btn-primary" style={{ fontSize: '1rem', padding: '0.875rem 2rem' }}>
-          Let&apos;s Talk
+        <a href="#employer-contact-form" className="btn btn-primary" style={{ fontSize: '1rem', padding: '0.875rem 2rem' }}>
+          Start Employer Intake
         </a>
       </section>
       </div>{/* end employers desktop */}
@@ -793,10 +813,10 @@ export default function EmployersPage() {
               Hire Certified,{' '}<span style={{ color: 'var(--color-accent, #ad2c4d)' }}>Job-Ready Talent</span>
             </h1>
             <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5, maxWidth: '26rem' }}>
-              Access industry-certified, ready-to-hire professionals.
+              Tell us what roles you need, how many openings you have, and when you need them filled.
             </p>
-            <Link href="#employer-contact" style={{ display: 'inline-block', marginTop: '1rem', padding: '0.75rem 1.5rem', borderRadius: '0.75rem', background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)', color: '#fff', fontWeight: 700, fontSize: '0.875rem', textDecoration: 'none' }}>
-              Partner With Us
+            <Link href="#employer-contact-form" style={{ display: 'inline-block', marginTop: '1rem', padding: '0.75rem 1.5rem', borderRadius: '0.75rem', background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)', color: '#fff', fontWeight: 700, fontSize: '0.875rem', textDecoration: 'none' }}>
+              Start Employer Intake
             </Link>
           </div>
         </section>
@@ -831,10 +851,10 @@ export default function EmployersPage() {
         {/* ── Why Partner — Value Cards ── */}
         <section style={{ padding: '2rem 1rem', background: 'var(--surface-container-low, #f5f2f1)' }}>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-on-surface)', letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>
-            Why Partner With Us
+            Why Employers Partner With Us
           </h2>
           <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.5 }}>
-            Workforce-aligned talent, backed by academic and professional partners.
+            Tell us your use case, hiring volume, and timeline so we can route you to the right intake path.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {VALUE_CARDS.map((card) => (
@@ -889,7 +909,7 @@ export default function EmployersPage() {
             A Streamlined Hiring Experience
           </h2>
           <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.5 }}>
-            Four simple steps from posting to partnership
+            Submit your employer intake and we will follow up within 24–48 hours.
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
             {PROCESS_STEPS.map((step) => (
@@ -977,13 +997,13 @@ export default function EmployersPage() {
         <section id="employer-contact" style={{ padding: '2.5rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#8c0f37' }}>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>Ready to Hire?</h2>
           <p style={{ fontSize: '0.875rem', marginBottom: '1.5rem', color: 'rgba(255,203,209,0.9)', maxWidth: '22rem' }}>
-            Partner with us to reach certified, job-ready candidates — no placement fees.
+            Start the employer intake and tell us what roles, volume, and timeline you need so we can route you quickly.
           </p>
           <Link
-            href="/contact"
+            href="#employer-contact-form"
             style={{ display: 'block', width: '100%', maxWidth: '24rem', fontWeight: 700, padding: '1rem', borderRadius: '0.75rem', textAlign: 'center', fontSize: '0.875rem', background: '#fff', color: '#8c0f37', textDecoration: 'none' }}
           >
-            Request Talent Partnership
+            Start Employer Intake
           </Link>
         </section>
       </div>{/* end employers mobile */}

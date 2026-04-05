@@ -7,6 +7,8 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import RecentSignupsTable from '@/components/admin/RecentSignupsTable';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin overview',
@@ -91,34 +93,60 @@ export default async function AdminPage() {
   }
 
   return (
-    <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
-      {/* ── Breadcrumb + Header ── */}
-      <header style={{ marginBottom: '2.5rem', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: '1rem' }}>
-        <div>
-          <nav style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-            <span style={{ fontSize: '0.625rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--color-on-surface-variant)' }}>Admin</span>
-            <span className="material-symbols-outlined" style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', opacity: 0.5 }}>chevron_right</span>
-            <span style={{ fontSize: '0.625rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--color-accent)' }}>Overview</span>
-          </nav>
-          <h1 className="text-display-sm" style={{ color: 'var(--color-on-surface)' }}>
-            Admin overview
-          </h1>
+    <PortalPageFrame>
+      {/* ── Mobile Header (≤md) ── */}
+      <div className="wa-md:wa-hidden" style={{ padding: '1.5rem 1.5rem 1rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div>
+            <p className="wa-text-[var(--color-on-surface-variant)] wa-text-xs wa-font-medium wa-tracking-widest wa-uppercase" style={{ marginBottom: '0.25rem' }}>Admin</p>
+            <h1 className="wa-text-2xl wa-font-extrabold wa-tracking-tight wa-text-[var(--color-on-surface)]">
+              Admin Overview
+            </h1>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <Link href="/admin/pipeline" style={{ padding: '0.625rem 1.5rem', background: 'var(--surface-container-high)', color: 'var(--color-accent)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>download</span>
-            Export Data
-          </Link>
-          <Link href="/admin/programs" style={{ padding: '0.625rem 1.5rem', background: 'linear-gradient(to right, var(--color-accent), #71333e)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none', boxShadow: '0 4px 24px rgba(0,0,0,0.3)', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>
-            Create New Track
-          </Link>
-        </div>
-      </header>
+      </div>
+
+      {/* ── Desktop Header ── */}
+      <div className="wa-hidden wa-md:wa-block" style={{ marginBottom: '2.5rem' }}>
+        <PageHeader
+          title="Admin Overview"
+          subtitle="Platform overview and key metrics"
+          action={
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <Link href="/admin/pipeline" style={{ padding: '0.625rem 1.5rem', background: 'var(--surface-container-high)', color: 'var(--color-accent)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>download</span>
+                Export Data
+              </Link>
+              <Link href="/admin/programs" style={{ padding: '0.625rem 1.5rem', background: 'linear-gradient(to right, var(--color-accent), #71333e)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none', boxShadow: '0 4px 24px rgba(0,0,0,0.3)', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>
+                Create New Track
+              </Link>
+            </div>
+          }
+        />
+      </div>
 
       {/* ── Pending Applications Alert ── */}
       {pendingApplications > 0 && (
-        <div style={{
+        <div className="wa-md:wa-hidden" style={{
+          margin: '0 1.5rem 1rem',
+          padding: '1rem 1.25rem',
+          background: 'rgba(173,44,77,0.1)',
+          borderRadius: '0.75rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}>
+          <span style={{ fontWeight: 600, color: 'var(--color-accent)', fontSize: '0.875rem' }}>
+            {pendingApplications} pending
+          </span>
+          <Link href="/admin/members" style={{ color: 'var(--color-accent)', fontWeight: 600, fontSize: '0.875rem', textDecoration: 'none' }}>
+            Review &rarr;
+          </Link>
+        </div>
+      )}
+      {pendingApplications > 0 && (
+        <div className="wa-hidden wa-md:wa-block" style={{
           padding: '1rem 1.5rem',
           background: 'rgba(173,44,77,0.1)',
           borderRadius: '0.75rem',
@@ -136,8 +164,33 @@ export default async function AdminPage() {
         </div>
       )}
 
-      {/* ── Metric Cards with border-b-2 hover accent ── */}
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
+      {/* ── Mobile Metric Cards ── */}
+      <section className="wa-md:wa-hidden" style={{ padding: '0 1.5rem', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
+          {metricCards.map((card) => (
+            <div
+              key={card.label}
+              style={{
+                padding: '1rem',
+                background: 'var(--surface-container)',
+                borderRadius: '0.75rem',
+                border: '1px solid var(--outline-variant)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                <div style={{ width: '2rem', height: '2rem', borderRadius: '0.5rem', background: `${card.accent}1a`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: card.accent }}>{card.icon}</span>
+                </div>
+              </div>
+              <span style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)', display: 'block', lineHeight: 1 }}>{card.value}</span>
+              <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '0.25rem', display: 'block' }}>{card.label}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Desktop Metric Cards ── */}
+      <section className="wa-hidden wa-md:wa-block" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
         {metricCards.map((card) => (
           <div
             key={card.label}
@@ -161,8 +214,7 @@ export default async function AdminPage() {
       </section>
 
       {/* ── Main Dashboard Layout ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
-
+      <div className="wa-hidden wa-md:wa-block" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
         {/* ── Left Column ── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
 
@@ -296,7 +348,7 @@ export default async function AdminPage() {
           </section>
         </div>
 
-        {/* ── Right Sidebar ── */}
+        {/* ── Right Column ── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
           {/* Status Monitor */}
@@ -350,6 +402,60 @@ export default async function AdminPage() {
           </div>
         </div>
       </div>
-    </div>
+
+      {/* ── Mobile Recent Signups Section ── */}
+      <section className="wa-md:wa-hidden" style={{ padding: '0 1.5rem', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+          <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">Recent Signups</h3>
+          <Link href="/admin/members" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration: 'none' }}>View all →</Link>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {recentUsers.slice(0, 5).map((u) => {
+            const initials = (u.fullName ?? '?').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
+            const track = u.enrolledProgram
+              ? (getProgramBySlug(u.enrolledProgram)?.title ?? u.enrolledProgram)
+              : 'Pending enrollment';
+            return (
+              <Link key={u.id} href={`/admin/members/${u.id}`} style={{ textDecoration: 'none' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem', background: 'var(--surface-container)', borderRadius: '0.75rem' }}>
+                  <div style={{
+                    width: '2.25rem', height: '2.25rem', borderRadius: '50%',
+                    background: 'var(--surface-container-highest)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-accent)', flexShrink: 0,
+                  }}>
+                    {initials}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p className="wa-text-sm wa-font-bold wa-text-[var(--color-on-surface)] wa-leading-tight">{u.fullName ?? 'Unknown'}</p>
+                    <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)] wa-truncate">{track}</p>
+                  </div>
+                  <span className="wa-text-xs wa-text-[var(--color-on-surface-variant)]">{timeAgo(u.createdAt)}</span>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ── Mobile Quick Actions ── */}
+      <section className="wa-md:wa-hidden" style={{ padding: '0 1.5rem', marginBottom: '6rem' }}>
+        <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]" style={{ marginBottom: '0.75rem' }}>Quick Actions</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+          {[
+            { icon: 'people', label: 'All Members', href: '/admin/members' },
+            { icon: 'business', label: 'Employers', href: '/admin/employers' },
+            { icon: 'handshake', label: 'Partners', href: '/admin/partners' },
+            { icon: 'work', label: 'Job Board', href: '/admin/jobs' },
+          ].map((action) => (
+            <a key={action.label} href={action.href}
+              className="active:scale-[0.97] wa-transition-transform" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1rem', borderRadius: '0.75rem', textDecoration: 'none', background: 'var(--surface-container-lowest)', border: '1px solid var(--outline-variant)' }}>
+              <span className="material-symbols-outlined" style={{ marginBottom: '0.5rem', color: 'var(--color-accent)' }}>{action.icon}</span>
+              <span className="wa-text-[11px] wa-font-bold wa-text-[var(--color-on-surface)] wa-tracking-tight">{action.label}</span>
+            </a>
+          ))}
+        </div>
+      </section>
+    </PortalPageFrame>
   );
 }

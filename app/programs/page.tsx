@@ -8,7 +8,7 @@ import ProgramsContent from './ProgramsContent';
 import ProgramsPageClient from './ProgramsPageClient';
 import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
-import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
+import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Career Training Programs — Nationwide Certificates',
@@ -17,17 +17,15 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 export default function ProgramsPage() {
-  const programs = [
-    { cat: 'IT & Cybersecurity', title: 'Cybersecurity (Google)', dur: '3–5 months', slug: 'cybersecurity-professional-certificate-google' },
-    { cat: 'AI & Software Dev', title: 'AI Developer (IBM)', dur: '3–5 months', slug: 'ai-professional-developer-certificate-ibm' },
-    { cat: 'Cloud & Data', title: 'AWS Cloud Technology', dur: '3–5 months', slug: 'aws-cloud-technology-amazon' },
-    { cat: 'Business', title: 'Project Management (Microsoft)', dur: '3–5 months', slug: 'project-management-professional-certificate-microsoft' },
-    { cat: 'AI & Software Dev', title: 'Software Developer (IBM)', dur: '4–6 months', slug: 'software-developer-professional-certificate-ibm' },
-    { cat: 'Cloud & Data', title: 'Data Analytics (Google)', dur: '3–5 months', slug: 'data-analytics-professional-certificate-google' },
-  ];
+  const programs = PROGRAMS.map((p) => ({
+    cat: p.categoryLabel,
+    title: p.title,
+    dur: p.duration,
+    slug: p.slug,
+  }));
 
   return (
-    <div className="inner-page programs-page">
+    <div className="inner-page programs-page marketing-stack marketing-stack--enter">
       {/* ══════════════════════════════════════════════
           MOBILE LAYOUT ≤640px — Stitch-aligned
           ══════════════════════════════════════════════ */}

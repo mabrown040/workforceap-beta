@@ -38,6 +38,31 @@ html.dark .partner-logos-small span {
   }
 }
 
+/* Center public “decision stack” pages (/programs, etc.) for consistent horizontal rhythm */
+.marketing-stack {
+  max-width: min(1200px, 100%);
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .marketing-stack--enter {
+    animation: marketing-stack-fade-in 0.42s ease-out both;
+  }
+}
+
+@keyframes marketing-stack-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /*
  * Stitch mobile columns use a light cream surface. In `html.dark`, `body` uses light text; without an
  * explicit color, children inherit it and become unreadable on #fcf9f8. Lock dark-on-light tokens here

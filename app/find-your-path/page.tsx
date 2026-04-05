@@ -14,7 +14,10 @@ export const metadata: Metadata = buildPageMetadata({
 
 export default function FindYourPathPage() {
   return (
-    <div className="inner-page" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
+    <div
+      className="inner-page marketing-stack marketing-stack--enter"
+      style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}
+    >
       {/* Desktop layout — hidden on mobile */}
       <div className="marketing-desktop">
 

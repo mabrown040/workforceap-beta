@@ -8704,6 +8704,18 @@ body:has(.workspace-drawer-overlay.open) {
     flex: 1;
     min-height: 0;
     min-width: 0;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: min(80rem, 100%);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+}
+.portal-page-frame {
+    box-sizing: border-box;
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
 }
 .workspace-sidebar-link:hover {
     background: var(--surface-container-high);

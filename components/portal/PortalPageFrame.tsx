@@ -16,7 +16,10 @@ export default function PortalPageFrame({
   children,
 }: PortalPageFrameProps) {
   return (
-    <div style={{ width: '100%', maxWidth, margin: '0 auto' }}>
+    <div
+      className="portal-page-frame"
+      style={{ width: '100%', maxWidth, margin: '0 auto' }}
+    >
       {title ? <PageHeader title={title} subtitle={subtitle} action={action} /> : null}
       {children}
     </div>

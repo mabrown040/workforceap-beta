@@ -33,10 +33,6 @@ export default async function DashboardLayout({
   );
 
   return (
-    <MemberWorkspaceShell
-      hasResume={hasResume}
-    >
-      {children}
-    </MemberWorkspaceShell>
+    <MemberWorkspaceShell hasResume={hasResume}>{children}</MemberWorkspaceShell>
   );
 }

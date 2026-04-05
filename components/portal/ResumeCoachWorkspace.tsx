@@ -7,11 +7,26 @@ import type { ResumeSuggestion, VoiceSessionPhase } from '@/components/portal/Po
 import { extractResumeCoachSuggestionsFromText } from '@/lib/ai/resumeCoachHeuristic';
 import { resumeCoachVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
 
-type LiveSuggestion = ResumeSuggestion & { id: string };
+type LiveSuggestion = ResumeSuggestion & { id: string; source?: 'live' | 'post' };
 
 function newSuggestionId(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
   return `s-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
+function suggestionDedupeKey(s: ResumeSuggestion): string {
+  return `${(s.original ?? '').trim()}→${s.suggested.trim()}`;
+}
+
+function mergeHydratedResume(local: string, server: string): string {
+  const p = local.trim();
+  const t = server.trim();
+  if (!t) return local;
+  if (!p) return t;
+  if (p === t) return local;
+  if (p.includes(t)) return local;
+  if (t.includes(p)) return t;
+  return `${p}\n\n--- From your saved resume ---\n${t}`;
 }
 
 /**
@@ -89,9 +104,13 @@ export default function ResumeCoachWorkspace() {
   const [resumeText, setResumeText] = useState('');
   const [hydrated, setHydrated] = useState(false);
   const [liveCoachSuggestions, setLiveCoachSuggestions] = useState<LiveSuggestion[]>([]);
+  const [postSessionParsing, setPostSessionParsing] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const agentSpeechBufRef = useRef('');
   const suggestionKeySeenRef = useRef<Set<string>>(new Set());
   const heuristicDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSavedTextRef = useRef<string | null>(null);
+  const saveDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Hydrate editor from stored resume on mount
   useEffect(() => {
@@ -100,19 +119,60 @@ export default function ResumeCoachWorkspace() {
       .then((r) => r.json())
       .then((d: { resumePlainText?: string | null }) => {
         if (cancelled) return;
-        const t = d.resumePlainText?.trim();
+        const t = d.resumePlainText?.trim() ?? '';
         if (t) {
-          setResumeText((prev) => (prev.trim() ? prev : t));
+          setResumeText((prev) => {
+            const merged = mergeHydratedResume(prev, t);
+            lastSavedTextRef.current = merged;
+            return merged;
+          });
+        } else {
+          lastSavedTextRef.current = '';
         }
         setHydrated(true);
       })
       .catch(() => {
-        if (!cancelled) setHydrated(true);
+        if (!cancelled) {
+          lastSavedTextRef.current = '';
+          setHydrated(true);
+        }
       });
     return () => {
       cancelled = true;
     };
   }, []);
+
+  // Debounced persist of plain text (matches coach draft to profile storage)
+  useEffect(() => {
+    if (!hydrated) return;
+    if (saveDebounceRef.current) clearTimeout(saveDebounceRef.current);
+    saveDebounceRef.current = setTimeout(() => {
+      saveDebounceRef.current = null;
+      const text = resumeText;
+      if (text === lastSavedTextRef.current) return;
+      setSaveStatus('saving');
+      fetch('/api/member/resume/plain-text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plainText: text }),
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error('save failed');
+          lastSavedTextRef.current = text;
+          setSaveStatus('saved');
+        })
+        .catch(() => setSaveStatus('error'));
+    }, 1800);
+    return () => {
+      if (saveDebounceRef.current) clearTimeout(saveDebounceRef.current);
+    };
+  }, [resumeText, hydrated]);
+
+  useEffect(() => {
+    if (saveStatus !== 'saved') return;
+    const t = setTimeout(() => setSaveStatus('idle'), 3200);
+    return () => clearTimeout(t);
+  }, [saveStatus]);
 
   // Pass live draft to the coach session as context
   const sessionPayload = useMemo(() => ({ liveResumeDraft: resumeText }), [resumeText]);
@@ -121,7 +181,7 @@ export default function ResumeCoachWorkspace() {
     setResumeText((prev) => {
       const o = s.original?.trim();
       if (o && prev.includes(o)) {
-        return prev.replace(o, s.suggested);
+        return prev.split(o).join(s.suggested);
       }
       const line = s.original
         ? `[Change] "${s.original}" → "${s.suggested}" (${s.context})`
@@ -157,7 +217,7 @@ export default function ResumeCoachWorkspace() {
         const key = `${s.original ?? ''}→${s.suggested}`;
         if (suggestionKeySeenRef.current.has(key)) continue;
         suggestionKeySeenRef.current.add(key);
-        out.push({ ...s, id: newSuggestionId() });
+        out.push({ ...s, id: newSuggestionId(), source: 'live' });
       }
       return out;
     });
@@ -180,12 +240,27 @@ export default function ResumeCoachWorkspace() {
     if (p === 'pre' || p === 'connecting') {
       agentSpeechBufRef.current = '';
       suggestionKeySeenRef.current.clear();
-      setLiveCoachSuggestions([]);
+      setLiveCoachSuggestions((prev) => prev.filter((x) => x.source === 'post'));
       if (heuristicDebounceRef.current) {
         clearTimeout(heuristicDebounceRef.current);
         heuristicDebounceRef.current = null;
       }
     }
+  }, []);
+
+  const onPostSessionSuggestions = useCallback((list: ResumeSuggestion[]) => {
+    setLiveCoachSuggestions((prev) => {
+      const keys = new Set(prev.map(suggestionDedupeKey));
+      const out = [...prev];
+      for (const s of list) {
+        const key = suggestionDedupeKey(s);
+        if (keys.has(key)) continue;
+        keys.add(key);
+        suggestionKeySeenRef.current.add(key);
+        out.push({ ...s, id: newSuggestionId(), source: 'post' });
+      }
+      return out;
+    });
   }, []);
 
   const dismissSuggestion = useCallback((id: string) => {
@@ -214,6 +289,9 @@ export default function ResumeCoachWorkspace() {
             retryWithoutDynamicVariables={false}
             pushLiveResumeDraftContext
             suggestionsEndpoint="/api/member/resume-coach/parse-suggestions"
+            delegatePostSessionSuggestions
+            onPostSessionSuggestions={onPostSessionSuggestions}
+            onPostSessionParsingChange={setPostSessionParsing}
             title="Talk through your resume"
             description="Practice your pitch, discuss experience bullets, or get advice on framing your background."
             accent="#2563eb"
@@ -233,12 +311,53 @@ export default function ResumeCoachWorkspace() {
           className="stitch-card"
           style={{ padding: '1.5rem', border: '1px solid var(--outline-variant)' }}
         >
-          <h4 style={{ fontSize: '0.95rem', marginBottom: '0.5rem' }}>Live Resume Draft</h4>
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'baseline',
+              justifyContent: 'space-between',
+              gap: '0.5rem',
+              marginBottom: '0.5rem',
+            }}
+          >
+            <h4 style={{ fontSize: '0.95rem', margin: 0 }}>Live Resume Draft</h4>
+            {hydrated && saveStatus !== 'idle' ? (
+              <span
+                style={{
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  color:
+                    saveStatus === 'error'
+                      ? '#b91c1c'
+                      : saveStatus === 'saving'
+                        ? 'var(--color-on-surface-variant)'
+                        : 'var(--color-on-surface-variant)',
+                }}
+              >
+                {saveStatus === 'saving' && 'Saving…'}
+                {saveStatus === 'saved' && 'Saved to profile'}
+                {saveStatus === 'error' && 'Could not save — try again'}
+              </span>
+            ) : null}
+          </div>
           <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem', marginBottom: '1rem' }}>
             {hydrated
               ? 'Edits here sync to the coach during the call. When the coach proposes a swap, it appears highlighted below — approve or decline before it is written into the draft.'
               : 'Loading your resume…'}
           </p>
+          {postSessionParsing ? (
+            <p
+              style={{
+                margin: '0 0 1rem',
+                fontSize: '0.8rem',
+                color: 'var(--color-on-surface-variant)',
+                fontStyle: 'italic',
+              }}
+            >
+              Extracting suggestions from your session…
+            </p>
+          ) : null}
 
           {hydrated && activeInlineSuggestion?.original?.trim() ? (
             <div style={{ marginBottom: '1rem' }}>
@@ -308,7 +427,11 @@ export default function ResumeCoachWorkspace() {
                   color: 'var(--color-on-surface-variant)',
                 }}
               >
-                {activeInlineSuggestion ? 'Other suggestions' : 'Live — apply to draft'}
+                {activeInlineSuggestion
+                  ? 'Other suggestions'
+                  : postSessionParsing
+                    ? 'Suggestions'
+                    : 'Apply to draft'}
               </p>
               {queuedCardSuggestions.map((s) => (
                 <div
@@ -320,6 +443,20 @@ export default function ResumeCoachWorkspace() {
                     background: 'var(--surface-container-low)',
                   }}
                 >
+                  {s.source === 'post' ? (
+                    <p
+                      style={{
+                        margin: '0 0 0.4rem',
+                        fontSize: '0.65rem',
+                        fontWeight: 700,
+                        letterSpacing: '0.06em',
+                        textTransform: 'uppercase',
+                        color: 'var(--color-on-surface-variant)',
+                      }}
+                    >
+                      After session
+                    </p>
+                  ) : null}
                   {s.original ? (
                     <p
                       style={{

@@ -46,6 +46,7 @@ export default async function BlogPage() {
   return (
     <div className="inner-page blog-page">
       <PageHero
+        className="blog-page-hero"
         title="Blog"
         subtitle="Career tips, program spotlights, success stories, and local insights."
       />

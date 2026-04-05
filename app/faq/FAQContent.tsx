@@ -15,7 +15,11 @@ const categories = [
 
 const faqData: Record<string, { q: string; a: string; link?: { text: string; href: string } }[]> = {
   'General Questions': [
-    { q: 'What is WorkforceAP?', a: 'WorkforceAP (Workforce Advancement Project) is a nonprofit that provides free, WIOA-aligned career training and certifications. We help individuals gain industry-recognized credentials and connect them with employers hiring for those roles.', link: { text: 'Learn About Our Mission', href: '/what-we-do' } },
+    {
+      q: 'What is Workforce Investment Project (WorkforceAP)?',
+      a: 'Workforce Advancement Project (WorkforceAP) is a nonprofit that provides free, WIOA-aligned career training and certifications. We help individuals gain industry-recognized credentials and connect them with employers hiring for those roles.',
+      link: { text: 'Learn About Our Mission', href: '/what-we-do' },
+    },
     { q: 'Who can apply?', a: 'To apply: (1) 16 years or older, (2) U.S. citizen or permanent resident, (3) high school diploma or GED (or in process), (4) committed to program completion, (5) willing to participate in job placement, (6) access to reliable internet and computer. We welcome applicants from all backgrounds.', link: { text: 'Start Your Application', href: '/apply' } },
     { q: 'Is there any cost?', a: 'No. Our programs are available at no cost to members. No hidden fees, no textbook costs, no application charges. This is made possible through grants, employer partnerships, and community funding.' },
     { q: 'How long are the programs?', a: 'Most programs take 3-5 months at 10 hours per week. Digital Literacy is shorter at 6-7 weeks. All programs are designed to be completed while working part-time or managing family responsibilities.', link: { text: 'View Programs', href: '/programs' } },

@@ -37,6 +37,9 @@ export default function WorkspaceShell({
   footer,
   headerBadge,
   contextLogoUrl,
+  marketingSiteHref,
+  marketingSiteLabel,
+  showResumeUploadHint,
   children,
 }: {
   portalRole: PortalRole;
@@ -54,6 +57,11 @@ export default function WorkspaceShell({
   footer?: React.ReactNode;
   /** Optional pill next to context (e.g. Hiring Partner tier) */
   headerBadge?: string;
+  /** Public marketing site — shown prominently in header when set (e.g. member portal). */
+  marketingSiteHref?: string;
+  marketingSiteLabel?: string;
+  /** Member: prompt to upload resume when none on file */
+  showResumeUploadHint?: boolean;
   children: React.ReactNode;
 }) {
   const pathname = usePathname() ?? '';
@@ -190,6 +198,19 @@ export default function WorkspaceShell({
               WorkforceAP
             </Link>
             <span className="workspace-shell-tagline">{workspaceLabel}</span>
+            {marketingSiteHref ? (
+              <Link
+                href={marketingSiteHref}
+                className="workspace-shell-public-site-link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span className="material-symbols-outlined" aria-hidden style={{ fontSize: '1rem' }}>
+                  open_in_new
+                </span>
+                {marketingSiteLabel ?? 'Public site'}
+              </Link>
+            ) : null}
           </div>
         </div>
         <div className="workspace-shell-header__meta">
@@ -210,6 +231,17 @@ export default function WorkspaceShell({
           <PortalHeaderActions />
         </div>
       </header>
+
+      {showResumeUploadHint ? (
+        <div className="workspace-resume-upload-hint" role="status">
+          <span className="workspace-resume-upload-hint__text">
+            No resume on file yet — upload one to power AI tools and your coach.
+          </span>
+          <Link href="/dashboard/resume" className="workspace-resume-upload-hint__cta">
+            Upload resume
+          </Link>
+        </div>
+      ) : null}
 
       {superAdmin && superAdminImpersonating && superAdminBackHref && (
         <div className="workspace-super-admin-banner">

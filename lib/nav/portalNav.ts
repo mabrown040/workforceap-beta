@@ -114,11 +114,12 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     tourTarget: 'tour-learning',
   },
   {
-    href: '/dashboard/learning/interest-profiler',
-    label: 'Interest Profiler',
+    href: '/dashboard/learning/find-your-career',
+    label: 'Find your career',
     group: 'workflows',
     tab: 'tools',
     Icon: Compass,
+    aliases: ['/dashboard/learning/interest-profiler'],
   },
   {
     href: '/dashboard/skills-assessment',

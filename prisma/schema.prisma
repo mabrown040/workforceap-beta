@@ -75,6 +75,8 @@ model User {
   needsComputerSupportFollowUp Boolean   @default(false) @map("needs_computer_support_follow_up")
   /// O*NET-backed quiz snapshot for dashboard / consistency (JSON CareerMatchResult shape).
   careerRecommendationJson    Json?     @map("career_recommendation_json")
+  /// Self-service WIA/WIOA screening answers + eligibility signal (not a legal determination).
+  wioaQualificationJson       Json?     @map("wioa_qualification_json")
   /// Admin pipeline board column; when null, stage is derived from enrollment, courses, certs, placement.
   pipelineBoardStage   PipelineBoardStage? @map("pipeline_board_stage")
 

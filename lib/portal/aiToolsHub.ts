@@ -39,7 +39,10 @@ export const AI_TOOLS_HUB: AiToolsHubCategory[] = [
     title: 'Skill mapping',
     icon: 'radar',
     description: 'Map skills to occupations with O*NET data.',
-    links: [{ label: 'Skill mapper', href: '/dashboard/ai-tools/skill-mapper' }],
+    links: [
+      { label: 'Skill mapper', href: '/dashboard/ai-tools/skill-mapper' },
+      { label: 'Learning Hub: Find your career', href: '/dashboard/learning/find-your-career' },
+    ],
   },
   {
     id: 'linkedin',

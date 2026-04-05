@@ -2,6 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
+import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
+import {
+  employerMessagingSurface,
+  partnerMessagingSurface,
+} from '@/lib/portal/messagingSurfaces';
 
 type MessageDto = {
   id: string;
@@ -35,9 +40,17 @@ type PortalTeamChatClientProps = {
   initial: InitialPayload;
   subtitle: string;
   emptyHint: string;
+  /** Matches voice-agent surfaces — partner vs employer gradient. */
+  surfaceVariant: 'partner' | 'employer';
 };
 
-export default function PortalTeamChatClient({ apiPath, initial, subtitle, emptyHint }: PortalTeamChatClientProps) {
+export default function PortalTeamChatClient({
+  apiPath,
+  initial,
+  subtitle,
+  emptyHint,
+  surfaceVariant,
+}: PortalTeamChatClientProps) {
   const { portalUserId } = initial;
   const [thread, setThread] = useState(initial.thread);
   const [messages, setMessages] = useState(initial.messages);
@@ -146,10 +159,12 @@ export default function PortalTeamChatClient({ apiPath, initial, subtitle, empty
   };
 
   const hint = useMemo(() => subtitle, [subtitle]);
+  const surface =
+    surfaceVariant === 'employer' ? employerMessagingSurface : partnerMessagingSurface;
 
   return (
-    <div className="member-counselor-chat">
-      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem', fontSize: '0.95rem' }}>{hint}</p>
+    <VoiceAgentSurface {...surface} subtext={hint}>
+      <div className="member-counselor-chat">
       {error ? (
         <p className="member-counselor-chat__error" role="alert">
           {error}
@@ -193,6 +208,7 @@ export default function PortalTeamChatClient({ apiPath, initial, subtitle, empty
           {sending ? 'Sending…' : 'Send'}
         </button>
       </form>
-    </div>
+      </div>
+    </VoiceAgentSurface>
   );
 }

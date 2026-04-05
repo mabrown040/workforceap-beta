@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import CareerCounselor from '@/components/portal/tools/CareerCounselor';
+import { studentCounselorVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
 import { getUser } from '@/lib/auth/server';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -37,15 +39,19 @@ export default async function CounselorPage() {
       {/* Mobile */}
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <div style={{ padding: '1.5rem 1rem' }}>
-          <CareerCounselor firstName={firstName} />
+          <VoiceAgentSurface {...studentCounselorVoiceSurface}>
+            <CareerCounselor firstName={firstName} />
+          </VoiceAgentSurface>
         </div>
         <MobileBottomNav variant="portal" />
       </div>
 
       {/* Desktop */}
       <div className="wa-hidden wa-md:wa-block">
-        <div style={{ maxWidth: 640, margin: '0 auto', padding: '3rem 1.5rem' }}>
-          <CareerCounselor firstName={firstName} />
+        <div style={{ maxWidth: 720, margin: '0 auto', padding: '3rem 1.5rem' }}>
+          <VoiceAgentSurface {...studentCounselorVoiceSurface}>
+            <CareerCounselor firstName={firstName} />
+          </VoiceAgentSurface>
         </div>
       </div>
     </div>

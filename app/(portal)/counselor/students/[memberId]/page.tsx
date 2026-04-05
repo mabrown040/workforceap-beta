@@ -318,7 +318,6 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
           <PageHeader title={member.fullName} subtitle={member.email} />
 
           <section style={{ marginTop: '1.5rem' }}>
-            <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Messages</h2>
             <AdminMemberCounselorChatClient
               messagesApiBase={`/api/counselor/members/${member.id}/messages`}
               initial={{

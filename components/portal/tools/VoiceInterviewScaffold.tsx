@@ -2,6 +2,8 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import PortalVoiceSession, { type VoiceSessionPhase } from '@/components/portal/PortalVoiceSession';
+import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
+import { mockInterviewVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
 import InterviewCoachingPanel from '@/components/portal/tools/InterviewCoachingPanel';
 import MockInterviewVideoRecorder from '@/components/portal/tools/MockInterviewVideoRecorder';
 
@@ -146,21 +148,23 @@ export default function VoiceInterviewScaffold() {
             {videoErr ? (
               <p style={{ color: '#b91c1c', fontSize: '0.85rem', marginBottom: '0.75rem' }}>{videoErr}</p>
             ) : null}
-            <PortalVoiceSession
-              sessionEndpoint="/api/member/voice-interview/session"
-              sessionPayload={{ role: role.trim(), interviewType }}
-              title="Voice mock interview"
-              description="Answer out loud. The coach will listen and respond like a real interviewer."
-              accent="#0f766e"
-              accentDark="#115e59"
-              speakingLabel="Interviewer is speaking…"
-              listeningLabel="Your turn — take your time"
-              liveTranscriptCoachLabel="Interviewer"
-              acquireVideoForRecording={wantRecording}
-              videoStreamRef={interviewVideoStreamRef}
-              onTranscriptChunk={onTranscriptChunk}
-              onPhaseChange={setVoicePhase}
-            />
+            <VoiceAgentSurface {...mockInterviewVoiceSurface}>
+              <PortalVoiceSession
+                sessionEndpoint="/api/member/voice-interview/session"
+                sessionPayload={{ role: role.trim(), interviewType }}
+                title="Voice mock interview"
+                description="Answer out loud. The coach will listen and respond like a real interviewer."
+                accent="#7c3aed"
+                accentDark="#5b21b6"
+                speakingLabel="Interviewer is speaking…"
+                listeningLabel="Your turn — take your time"
+                liveTranscriptCoachLabel="Interviewer"
+                acquireVideoForRecording={wantRecording}
+                videoStreamRef={interviewVideoStreamRef}
+                onTranscriptChunk={onTranscriptChunk}
+                onPhaseChange={setVoicePhase}
+              />
+            </VoiceAgentSurface>
             {playbackUrl ? (
               <p style={{ marginTop: '1rem', fontSize: '0.88rem' }}>
                 <a

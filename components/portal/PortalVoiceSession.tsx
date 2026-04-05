@@ -103,6 +103,16 @@ export type PortalVoiceSessionProps = {
    * changes while the session is active — keeps the agent aligned with the live editor after session start.
    */
   pushLiveResumeDraftContext?: boolean;
+  /**
+   * Show a scrollable live transcript during the call (from ElevenLabs `agent_response` / `user_transcript` events).
+   * Prefer this over separate Whisper/Web Speech layers — one mic, one pipeline, lower latency.
+   * @default true
+   */
+  showLiveTranscript?: boolean;
+  /** Label for agent lines in the live transcript panel */
+  liveTranscriptCoachLabel?: string;
+  /** Label for user lines in the live transcript panel */
+  liveTranscriptYouLabel?: string;
 };
 
 const PULSE_STYLE = `
@@ -137,10 +147,14 @@ export default function PortalVoiceSession({
   onPhaseChange,
   retryWithoutDynamicVariables = true,
   pushLiveResumeDraftContext = false,
+  showLiveTranscript = true,
+  liveTranscriptCoachLabel = 'Coach',
+  liveTranscriptYouLabel = 'You',
 }: PortalVoiceSessionProps) {
   const [phase, setPhase] = useState<Phase>('pre');
   const [voiceError, setVoiceError] = useState('');
   const [agentSpeaking, setAgentSpeaking] = useState(false);
+  const [liveLines, setLiveLines] = useState<Array<{ speaker: 'agent' | 'user'; text: string }>>([]);
   const [suggestions, setSuggestions] = useState<ResumeSuggestion[]>([]);
   const [parsingSuggestions, setParsingSuggestions] = useState(false);
   const [dismissed, setDismissed] = useState<Set<number>>(new Set());
@@ -150,6 +164,7 @@ export default function PortalVoiceSession({
   const phaseRef = useRef<Phase>('pre');
   const voiceErrorRef = useRef('');
   const lastLiveDraftSentRef = useRef<string | null>(null);
+  const liveTranscriptEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     phaseRef.current = phase;
@@ -180,6 +195,11 @@ export default function PortalVoiceSession({
       lastLiveDraftSentRef.current = null;
     }
   }, [phase]);
+
+  useEffect(() => {
+    if (!showLiveTranscript || liveLines.length === 0) return;
+    liveTranscriptEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [liveLines, showLiveTranscript]);
 
   useEffect(() => {
     if (phase !== 'active' || !pushLiveResumeDraftContext) return;
@@ -219,6 +239,7 @@ export default function PortalVoiceSession({
 
   async function startSession() {
     setVoiceError('');
+    setLiveLines([]);
     setPhase('connecting');
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -308,14 +329,18 @@ export default function PortalVoiceSession({
         if (ev.type === 'agent_response') {
           setAgentSpeaking(true);
           if (typeof ev.text === 'string' && ev.text.trim()) {
+            const t = ev.text.trim();
             transcriptRef.current.push({ speaker: 'agent', text: ev.text });
+            setLiveLines((prev) => [...prev, { speaker: 'agent', text: t }]);
             onTranscriptChunk?.({ speaker: 'agent', text: ev.text });
           }
         }
         if (ev.type === 'user_transcript') {
           setAgentSpeaking(false);
           if (typeof ev.text === 'string' && ev.text.trim()) {
+            const t = ev.text.trim();
             transcriptRef.current.push({ speaker: 'user', text: ev.text });
+            setLiveLines((prev) => [...prev, { speaker: 'user', text: t }]);
             onTranscriptChunk?.({ speaker: 'user', text: ev.text });
           }
         }
@@ -414,6 +439,7 @@ export default function PortalVoiceSession({
     setSuggestions([]);
     setDismissed(new Set());
     transcriptRef.current = [];
+    setLiveLines([]);
   }
 
   const bgSoft = `${accent}14`;
@@ -541,6 +567,107 @@ export default function PortalVoiceSession({
             {agentSpeaking ? 'Speaking' : 'Listening'}
           </span>
         </div>
+
+        {showLiveTranscript ? (
+          <div
+            role="log"
+            aria-live="polite"
+            aria-relevant="additions"
+            style={{
+              marginBottom: '1.25rem',
+              borderRadius: 12,
+              border: '1px solid var(--outline-variant)',
+              background: 'linear-gradient(180deg, var(--surface-container-low) 0%, var(--surface-container-lowest) 100%)',
+              overflow: 'hidden',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)',
+            }}
+          >
+            <div
+              style={{
+                padding: '0.5rem 0.75rem',
+                borderBottom: '1px solid var(--outline-variant)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '0.5rem',
+              }}
+            >
+              <span
+                style={{
+                  fontSize: '0.65rem',
+                  fontWeight: 700,
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  color: 'var(--color-on-surface-variant)',
+                }}
+              >
+                Live transcript
+              </span>
+              <span style={{ fontSize: '0.65rem', color: 'var(--color-on-surface-variant)', opacity: 0.85 }}>
+                Powered by your session
+              </span>
+            </div>
+            <div
+              style={{
+                maxHeight: 220,
+                overflowY: 'auto',
+                padding: '0.65rem 0.75rem 0.75rem',
+                fontSize: '0.84rem',
+                lineHeight: 1.45,
+              }}
+            >
+              {liveLines.length === 0 ? (
+                <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', fontStyle: 'italic' }}>
+                  {agentSpeaking
+                    ? 'Coach is speaking — text will appear here.'
+                    : 'Waiting for speech — your words will show up as you talk.'}
+                </p>
+              ) : (
+                liveLines.map((line, i) => {
+                  const isAgent = line.speaker === 'agent';
+                  return (
+                    <div
+                      key={`${line.speaker}-${i}-${line.text.slice(0, 24)}`}
+                      style={{
+                        marginBottom: i < liveLines.length - 1 ? '0.65rem' : 0,
+                        display: 'flex',
+                        gap: '0.5rem',
+                        alignItems: 'flex-start',
+                      }}
+                    >
+                      <span
+                        style={{
+                          flexShrink: 0,
+                          fontSize: '0.62rem',
+                          fontWeight: 800,
+                          letterSpacing: '0.06em',
+                          textTransform: 'uppercase',
+                          color: isAgent ? accent : 'var(--color-on-surface-variant)',
+                          minWidth: '3.25rem',
+                          marginTop: '0.15rem',
+                        }}
+                      >
+                        {isAgent ? liveTranscriptCoachLabel : liveTranscriptYouLabel}
+                      </span>
+                      <span
+                        style={{
+                          color: 'var(--color-on-surface)',
+                          wordBreak: 'break-word',
+                          borderLeft: `2px solid ${isAgent ? `${accent}55` : 'var(--outline-variant)'}`,
+                          paddingLeft: '0.5rem',
+                        }}
+                      >
+                        {line.text}
+                      </span>
+                    </div>
+                  );
+                })
+              )}
+              <div ref={liveTranscriptEndRef} />
+            </div>
+          </div>
+        ) : null}
+
         <button
           type="button"
           onClick={endSession}

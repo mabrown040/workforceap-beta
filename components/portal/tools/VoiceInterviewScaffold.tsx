@@ -3,7 +3,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import PortalVoiceSession, { type VoiceSessionPhase } from '@/components/portal/PortalVoiceSession';
 import InterviewCoachingPanel from '@/components/portal/tools/InterviewCoachingPanel';
-import BrowserSpeechCaptions from '@/components/portal/tools/BrowserSpeechCaptions';
 import MockInterviewVideoRecorder from '@/components/portal/tools/MockInterviewVideoRecorder';
 
 const INTERVIEW_TYPES = ['Behavioral', 'Technical', 'General'] as const;
@@ -145,9 +144,6 @@ export default function VoiceInterviewScaffold() {
             {videoErr ? (
               <p style={{ color: '#b91c1c', fontSize: '0.85rem', marginBottom: '0.75rem' }}>{videoErr}</p>
             ) : null}
-            <div style={{ marginBottom: '1rem' }}>
-              <BrowserSpeechCaptions active={ready} />
-            </div>
             <PortalVoiceSession
               sessionEndpoint="/api/member/voice-interview/session"
               sessionPayload={{ role: role.trim(), interviewType }}
@@ -157,6 +153,7 @@ export default function VoiceInterviewScaffold() {
               accentDark="#115e59"
               speakingLabel="Interviewer is speaking…"
               listeningLabel="Your turn — take your time"
+              liveTranscriptCoachLabel="Interviewer"
               onTranscriptChunk={onTranscriptChunk}
               onPhaseChange={setVoicePhase}
             />

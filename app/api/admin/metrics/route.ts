@@ -4,13 +4,18 @@ import { isAdmin } from '@/lib/auth/roles';
 import { getAdminMetrics } from '@/lib/admin/metrics';
 
 export async function GET() {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  if (!(await isAdmin(user.id))) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    if (!(await isAdmin(user.id))) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const metrics = await getAdminMetrics();
+    return NextResponse.json(metrics);
+  } catch (error) {
+    console.error('[api/admin/metrics] unexpected error', { error });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  const metrics = await getAdminMetrics();
-  return NextResponse.json(metrics);
 }

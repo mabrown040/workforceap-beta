@@ -3,16 +3,21 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
 export async function GET() {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const progress = await prisma.pathwayStepProgress.findMany({
-    where: { userId: user.id },
-  });
-  const byPathway = progress.reduce((acc, p) => {
-    if (!acc[p.pathwayId]) acc[p.pathwayId] = [];
-    acc[p.pathwayId].push(p);
-    return acc;
-  }, {} as Record<string, typeof progress>);
-  return NextResponse.json({ progress: byPathway });
+    const progress = await prisma.pathwayStepProgress.findMany({
+      where: { userId: user.id },
+    });
+    const byPathway = progress.reduce((acc, p) => {
+      if (!acc[p.pathwayId]) acc[p.pathwayId] = [];
+      acc[p.pathwayId].push(p);
+      return acc;
+    }, {} as Record<string, typeof progress>);
+    return NextResponse.json({ progress: byPathway });
+  } catch (error) {
+    console.error('[api/member/pathway-steps/progress] unexpected error', { error });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

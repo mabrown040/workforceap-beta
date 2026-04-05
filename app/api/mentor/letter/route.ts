@@ -9,31 +9,32 @@ import { prisma } from '@/lib/db/prisma';
  * The mentor must be the authenticated user.
  */
 export async function GET(req: NextRequest) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { searchParams } = new URL(req.url);
-  const mentorId = searchParams.get('mentorId');
+    const { searchParams } = new URL(req.url);
+    const mentorId = searchParams.get('mentorId');
 
-  if (!mentorId) return NextResponse.json({ error: 'mentorId required' }, { status: 400 });
+    if (!mentorId) return NextResponse.json({ error: 'mentorId required' }, { status: 400 });
 
-  const mentor = await prisma.mentor.findFirst({
-    where: { id: mentorId, userId: user.id, isActive: true },
-    include: {
-      sessions: {
-        where: { status: 'COMPLETED', hoursLogged: { not: null } },
-        select: { hoursLogged: true, scheduledAt: true },
+    const mentor = await prisma.mentor.findFirst({
+      where: { id: mentorId, userId: user.id, isActive: true },
+      include: {
+        sessions: {
+          where: { status: 'COMPLETED', hoursLogged: { not: null } },
+          select: { hoursLogged: true, scheduledAt: true },
+        },
       },
-    },
-  });
+    });
 
-  if (!mentor) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    if (!mentor) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  const totalHours = mentor.sessions.reduce((sum, s) => sum + (s.hoursLogged ?? 0), 0);
-  const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-  const year = new Date().getFullYear();
+    const totalHours = mentor.sessions.reduce((sum, s) => sum + (s.hoursLogged ?? 0), 0);
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    const year = new Date().getFullYear();
 
-  const html = `<!DOCTYPE html>
+    const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -81,10 +82,14 @@ export async function GET(req: NextRequest) {
 </body>
 </html>`;
 
-  return new NextResponse(html, {
-    headers: {
-      'Content-Type': 'text/html',
-      'Content-Disposition': `inline; filename="volunteer-letter-${mentor.fullName.replace(/\s+/g, '-').toLowerCase()}.html"`,
-    },
-  });
+    return new NextResponse(html, {
+      headers: {
+        'Content-Type': 'text/html',
+        'Content-Disposition': `inline; filename="volunteer-letter-${mentor.fullName.replace(/\s+/g, '-').toLowerCase()}.html"`,
+      },
+    });
+  } catch (error) {
+    console.error('[api/mentor/letter] unexpected error', { error });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

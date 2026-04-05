@@ -10,44 +10,49 @@ const BUCKET = 'member-resumes';
  * GET /api/member/resume/preview?variant=original|enhanced
  */
 export async function GET(req: NextRequest) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const variant = req.nextUrl.searchParams.get('variant') === 'enhanced' ? 'enhanced' : 'original';
+    const variant = req.nextUrl.searchParams.get('variant') === 'enhanced' ? 'enhanced' : 'original';
 
-  const profile = await prisma.profile.findUnique({
-    where: { userId: user.id },
-    select: { resumeOriginalPath: true, resumeEnhancedPath: true },
-  });
+    const profile = await prisma.profile.findUnique({
+      where: { userId: user.id },
+      select: { resumeOriginalPath: true, resumeEnhancedPath: true },
+    });
 
-  const path =
-    variant === 'enhanced' ? profile?.resumeEnhancedPath : profile?.resumeOriginalPath;
-  if (!path) {
-    return NextResponse.json({ error: 'No file for this variant' }, { status: 404 });
+    const path =
+      variant === 'enhanced' ? profile?.resumeEnhancedPath : profile?.resumeOriginalPath;
+    if (!path) {
+      return NextResponse.json({ error: 'No file for this variant' }, { status: 404 });
+    }
+
+    const supabase = getSupabaseAdmin();
+    const { data, error } = await supabase.storage.from(BUCKET).download(path);
+    if (error || !data) {
+      return NextResponse.json({ error: 'Could not load file' }, { status: 502 });
+    }
+
+    const buf = Buffer.from(await data.arrayBuffer());
+    const name = path.split('/').pop() ?? 'resume';
+    const lower = name.toLowerCase();
+    let contentType = 'application/octet-stream';
+    if (lower.endsWith('.pdf')) contentType = 'application/pdf';
+    else if (lower.endsWith('.docx'))
+      contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    else if (lower.endsWith('.doc')) contentType = 'application/msword';
+
+    return new NextResponse(buf, {
+      status: 200,
+      headers: {
+        'Content-Type': contentType,
+        'Content-Disposition': `inline; filename="${encodeURIComponent(name)}"`,
+        'Cache-Control': 'private, no-store, max-age=0',
+        'X-Content-Type-Options': 'nosniff',
+      },
+    });
+  } catch (error) {
+    console.error('[api/member/resume/preview] unexpected error', { error });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  const supabase = getSupabaseAdmin();
-  const { data, error } = await supabase.storage.from(BUCKET).download(path);
-  if (error || !data) {
-    return NextResponse.json({ error: 'Could not load file' }, { status: 502 });
-  }
-
-  const buf = Buffer.from(await data.arrayBuffer());
-  const name = path.split('/').pop() ?? 'resume';
-  const lower = name.toLowerCase();
-  let contentType = 'application/octet-stream';
-  if (lower.endsWith('.pdf')) contentType = 'application/pdf';
-  else if (lower.endsWith('.docx'))
-    contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-  else if (lower.endsWith('.doc')) contentType = 'application/msword';
-
-  return new NextResponse(buf, {
-    status: 200,
-    headers: {
-      'Content-Type': contentType,
-      'Content-Disposition': `inline; filename="${encodeURIComponent(name)}"`,
-      'Cache-Control': 'private, no-store, max-age=0',
-      'X-Content-Type-Options': 'nosniff',
-    },
-  });
 }

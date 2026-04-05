@@ -4,12 +4,17 @@ import { getPartnerForUser } from '@/lib/auth/roles';
 import { buildPartnerAttentionQueue } from '@/lib/partner/attentionQueue';
 
 export async function GET() {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const ctx = await getPartnerForUser(user.id);
-  if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    const ctx = await getPartnerForUser(user.id);
+    if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const members = await buildPartnerAttentionQueue(ctx.partnerId);
-  return NextResponse.json({ members });
+    const members = await buildPartnerAttentionQueue(ctx.partnerId);
+    return NextResponse.json({ members });
+  } catch (error) {
+    console.error('[api/partner/members/needs-attention] unexpected error', { error });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

@@ -299,6 +299,50 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ===== Graduate Testimonials ===== */}
+      <section style={{ padding: 'clamp(3rem, 6vw, 6rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1400px', margin: '0 auto' }}>
+        <h2 className="text-display-sm" style={{ marginBottom: '0.75rem', textAlign: 'center' }}>Real People. Real Results.</h2>
+        <p style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)', marginBottom: '3rem', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
+          Our graduates land jobs, earn more, and build careers — at zero cost.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+          {[
+            {
+              quote: "I went from unemployed to a $52K IT support role in 14 weeks. WorkforceAP didn&apos;t just train me — they placed me.",
+              name: "Marcus T.",
+              title: "IT Support Specialist",
+              program: "CompTIA A+ Cert Track",
+              wage: "$52K/yr",
+            },
+            {
+              quote: "As a single mom, I couldn&apos;t afford traditional school. WorkforceAP covered everything — training, certification, even interview coaching.",
+              name: "Destiny R.",
+              title: "Medical Billing Specialist",
+              program: "Healthcare Admin",
+              wage: "$44K/yr",
+            },
+            {
+              quote: "I had zero tech experience. Six months later I&apos;m a junior dev at a logistics company. The network WorkforceAP built around me made the difference.",
+              name: "Jerome W.",
+              title: "Junior Web Developer",
+              program: "Full-Stack Web Dev",
+              wage: "$58K/yr",
+            },
+          ].map((t) => (
+            <div key={t.name} className="stitch-card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <p style={{ fontSize: '1rem', lineHeight: 1.6, color: 'var(--color-on-surface)', fontStyle: 'italic', flex: 1 }}>
+                &ldquo;{t.quote}&rdquo;
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>{t.name}</span>
+                <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{t.title} · {t.program}</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-accent)' }}>{t.wage}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* ===== Milestone Journey — Horizontal Scrolling Cards ===== */}
       <section style={{ background: 'var(--surface-container-low)', padding: 'clamp(3rem, 6vw, 6rem) 0' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2rem)' }}>

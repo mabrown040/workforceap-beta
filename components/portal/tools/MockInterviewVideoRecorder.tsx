@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type MutableRefObject } from 'react';
 import { uploadMockInterviewVideo } from '@/lib/portal/mockInterviewVideoUpload';
 import type { VoiceSessionPhase } from '@/components/portal/PortalVoiceSession';
 
@@ -25,6 +25,8 @@ type Props = {
   phase: VoiceSessionPhase;
   role: string;
   interviewType: string;
+  /** Prefer stream acquired during voice Start (user gesture); same ref as `PortalVoiceSession` `videoStreamRef`. */
+  externalStreamRef?: MutableRefObject<MediaStream | null>;
   onUploadComplete?: (info: { playbackUrl: string | null }) => void;
   onError?: (message: string) => void;
 };
@@ -34,6 +36,7 @@ export default function MockInterviewVideoRecorder({
   phase,
   role,
   interviewType,
+  externalStreamRef,
   onUploadComplete,
   onError,
 }: Props) {
@@ -104,11 +107,30 @@ export default function MockInterviewVideoRecorder({
         chunksRef.current = [];
         mimeRef.current = pickMimeType() || '';
         try {
-          const stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
-            audio: true,
-          });
+          let stream: MediaStream;
+          const pre = externalStreamRef?.current;
+          if (pre && pre.getVideoTracks().length > 0) {
+            stream = pre;
+          } else {
+            try {
+              stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+                audio: true,
+              });
+            } catch {
+              stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+                audio: false,
+              });
+              setUploadHint(
+                'Recording video only — your voice is still captured by the interview session.'
+              );
+            }
+          }
           streamRef.current = stream;
+          if (externalStreamRef && stream === pre) {
+            externalStreamRef.current = null;
+          }
           const el = videoRef.current;
           if (el) {
             el.srcObject = stream;

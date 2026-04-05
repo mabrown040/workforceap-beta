@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type MutableRefObject } from 'react';
 import { Conversation } from '@elevenlabs/client';
 
 type VoiceDisconnectDetails = {
@@ -104,7 +104,7 @@ export type PortalVoiceSessionProps = {
    */
   pushLiveResumeDraftContext?: boolean;
   /**
-   * Show a scrollable live transcript during the call (from ElevenLabs `agent_response` / `user_transcript` events).
+   * Show a scrollable live transcript during the call (ElevenLabs `onMessage`: `role` + `message`).
    * Prefer this over separate Whisper/Web Speech layers — one mic, one pipeline, lower latency.
    * @default true
    */
@@ -113,6 +113,13 @@ export type PortalVoiceSessionProps = {
   liveTranscriptCoachLabel?: string;
   /** Label for user lines in the live transcript panel */
   liveTranscriptYouLabel?: string;
+  /**
+   * Request camera (video-only, no second mic) right after the mic probe — before network — so the
+   * permission prompt stays tied to the Start click. Requires `videoStreamRef`.
+   */
+  acquireVideoForRecording?: boolean;
+  /** Set when `acquireVideoForRecording`; pass the same ref to `MockInterviewVideoRecorder`. */
+  videoStreamRef?: MutableRefObject<MediaStream | null>;
 };
 
 const PULSE_STYLE = `
@@ -150,6 +157,8 @@ export default function PortalVoiceSession({
   showLiveTranscript = true,
   liveTranscriptCoachLabel = 'Coach',
   liveTranscriptYouLabel = 'You',
+  acquireVideoForRecording = false,
+  videoStreamRef,
 }: PortalVoiceSessionProps) {
   const [phase, setPhase] = useState<Phase>('pre');
   const [voiceError, setVoiceError] = useState('');
@@ -165,6 +174,15 @@ export default function PortalVoiceSession({
   const voiceErrorRef = useRef('');
   const lastLiveDraftSentRef = useRef<string | null>(null);
   const liveTranscriptEndRef = useRef<HTMLDivElement | null>(null);
+
+  function stopVideoRecordingStream() {
+    if (!videoStreamRef) return;
+    const s = videoStreamRef.current;
+    if (s) {
+      s.getTracks().forEach((t) => t.stop());
+      videoStreamRef.current = null;
+    }
+  }
 
   useEffect(() => {
     phaseRef.current = phase;
@@ -187,6 +205,7 @@ export default function PortalVoiceSession({
     return () => {
       intentionalRef.current = true;
       convRef.current?.endSession();
+      stopVideoRecordingStream();
     };
   }, []);
 
@@ -251,6 +270,23 @@ export default function PortalVoiceSession({
       return;
     }
 
+    if (acquireVideoForRecording && videoStreamRef) {
+      try {
+        const vs = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: false,
+        });
+        videoStreamRef.current = vs;
+      } catch {
+        logVoice('camera_denied');
+        setVoiceError(
+          'Camera: access is required for recording. Allow it in your browser and try again.'
+        );
+        setPhase('pre');
+        return;
+      }
+    }
+
     let signedUrl: string;
     let dynamicVariables: Record<string, string | number | boolean> | undefined;
     try {
@@ -276,6 +312,7 @@ export default function PortalVoiceSession({
       });
     } catch (err) {
       logVoice('signed_url_failed', err);
+      stopVideoRecordingStream();
       setVoiceError(
         `Server: ${err instanceof Error ? err.message : 'Could not start session.'}`
       );
@@ -317,6 +354,7 @@ export default function PortalVoiceSession({
         if (shouldSurfaceError) {
           const surfacedMessage = hasExistingError ? voiceErrorRef.current : disconnectMessage;
           setVoiceError(surfacedMessage);
+          stopVideoRecordingStream();
           setPhase('pre');
         } else {
           setPhase('done');
@@ -326,27 +364,40 @@ export default function PortalVoiceSession({
       },
       onMessage: (event: unknown) => {
         const ev = event as Record<string, unknown>;
-        if (ev.type === 'agent_response') {
+        // @elevenlabs/client passes { source, role, message, event_id } — not { type, text }.
+        const rawText =
+          typeof ev.message === 'string'
+            ? ev.message
+            : typeof ev.text === 'string'
+              ? ev.text
+              : '';
+        const text = rawText.trim();
+        if (!text) return;
+
+        const isAgent =
+          ev.role === 'agent' ||
+          ev.source === 'ai' ||
+          ev.type === 'agent_response';
+        const isUser =
+          ev.role === 'user' ||
+          ev.source === 'user' ||
+          ev.type === 'user_transcript';
+
+        if (isAgent) {
           setAgentSpeaking(true);
-          if (typeof ev.text === 'string' && ev.text.trim()) {
-            const t = ev.text.trim();
-            transcriptRef.current.push({ speaker: 'agent', text: ev.text });
-            setLiveLines((prev) => [...prev, { speaker: 'agent', text: t }]);
-            onTranscriptChunk?.({ speaker: 'agent', text: ev.text });
-          }
-        }
-        if (ev.type === 'user_transcript') {
+          transcriptRef.current.push({ speaker: 'agent', text });
+          setLiveLines((prev) => [...prev, { speaker: 'agent', text }]);
+          onTranscriptChunk?.({ speaker: 'agent', text });
+        } else if (isUser) {
           setAgentSpeaking(false);
-          if (typeof ev.text === 'string' && ev.text.trim()) {
-            const t = ev.text.trim();
-            transcriptRef.current.push({ speaker: 'user', text: ev.text });
-            setLiveLines((prev) => [...prev, { speaker: 'user', text: t }]);
-            onTranscriptChunk?.({ speaker: 'user', text: ev.text });
-          }
+          transcriptRef.current.push({ speaker: 'user', text });
+          setLiveLines((prev) => [...prev, { speaker: 'user', text }]);
+          onTranscriptChunk?.({ speaker: 'user', text });
         }
       },
       onError: (msg: unknown, context?: unknown) => {
         logVoice('runtime_error', { msg, context });
+        stopVideoRecordingStream();
         const errorText = formatVoiceRuntimeReason(String(msg) || 'Connection error', {
           ...(context as VoiceErrorContext | undefined),
         });
@@ -392,6 +443,7 @@ export default function PortalVoiceSession({
       }
     } catch (err) {
       logVoice('start_failed_final', err);
+      stopVideoRecordingStream();
       setVoiceError(
         `Voice session failed${
           retryWithoutDynamicVariables ? ' (including retry without dynamic variables if applicable)' : ''
@@ -433,6 +485,7 @@ export default function PortalVoiceSession({
     convRef.current?.endSession();
     convRef.current = null;
     intentionalRef.current = false;
+    stopVideoRecordingStream();
     setPhase('pre');
     setVoiceError('');
     setAgentSpeaking(false);

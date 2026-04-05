@@ -9,6 +9,7 @@ import PageHeader from '@/components/portal/PageHeader';
 import EmployerMatchHistoryClient from '@/components/employer/EmployerMatchHistoryClient';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Match history',
@@ -66,9 +67,9 @@ export default async function EmployerMatchesPage() {
       .join('')
       .toUpperCase();
 
-  const matchScoreColor = (score: number) => {
-    if (score >= 0.85) return '#166534';
-    if (score >= 0.7) return '#854d0e';
+  const matchScoreColor = (pct: number) => {
+    if (pct >= 85) return '#166534';
+    if (pct >= 70) return '#854d0e';
     return 'var(--color-on-surface-variant)';
   };
 
@@ -104,8 +105,10 @@ export default async function EmployerMatchesPage() {
               </Link>
             </div>
           ) : (
-            initialRows.map((row) => (
-              <div key={row.id} className="stitch-card">
+            initialRows.map((row) => {
+              const pct = matchScoreAsPercent(row.matchScore);
+              return (
+              <div key={row.id} className="stitch-card employer-match-card">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.625rem' }}>
                   <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '9999px', background: 'var(--surface-container-low)', color: 'var(--color-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 700, flexShrink: 0 }}>
                     {getInitials(row.student.fullName ?? '?')}
@@ -114,9 +117,19 @@ export default async function EmployerMatchesPage() {
                     <div className="wa-truncate" style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)' }}>{row.student.fullName}</div>
                     <div className="wa-truncate" style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{row.job.title}</div>
                   </div>
-                  <div style={{ flexShrink: 0, textAlign: 'right' }}>
-                    <div style={{ fontSize: '1rem', fontWeight: 800, color: matchScoreColor(row.matchScore) }}>{Math.round(row.matchScore * 100)}%</div>
-                    <div style={{ fontSize: '0.65rem', color: 'var(--color-on-surface-variant)' }}>match</div>
+                  <div
+                    style={{
+                      flexShrink: 0,
+                      textAlign: 'right',
+                      minWidth: '3.25rem',
+                      padding: '0.35rem 0.5rem',
+                      borderRadius: '0.5rem',
+                      background: 'color-mix(in srgb, var(--color-accent) 12%, transparent)',
+                      border: '1px solid color-mix(in srgb, var(--color-accent) 22%, transparent)',
+                    }}
+                  >
+                    <div style={{ fontSize: '1rem', fontWeight: 800, color: matchScoreColor(pct), lineHeight: 1.2 }}>{pct}%</div>
+                    <div style={{ fontSize: '0.6rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>match</div>
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -136,7 +149,8 @@ export default async function EmployerMatchesPage() {
                   </Link>
                 </div>
               </div>
-            ))
+            );
+            })
           )}
         </div>
         <MobileBottomNav variant="employer" />

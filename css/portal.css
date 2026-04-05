@@ -943,3 +943,41 @@ html.dark .job-app-card:hover {
   border: 2px solid var(--color-accent) !important;
   box-shadow: 0 8px 28px rgba(173, 44, 77, 0.2);
 }
+
+/* Employer — applicants table (glass card, token borders) */
+.employer-applications-shell {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--outline-variant);
+  background: color-mix(in srgb, var(--surface-container-lowest) 88%, var(--surface-container-low) 12%);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+  overflow: hidden;
+}
+
+.employer-applications-table-wrap {
+  margin: 0;
+}
+
+.employer-applications-table.admin-table {
+  margin: 0;
+}
+
+.employer-applications-table.admin-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: color-mix(in srgb, var(--surface-container) 92%, transparent);
+  backdrop-filter: blur(8px);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-on-surface-variant);
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+html.dark .employer-applications-table.admin-table thead th {
+  background: color-mix(in srgb, var(--surface-container-low) 95%, transparent);
+}
+
+.employer-applications-table.admin-table tbody tr:hover {
+  background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+}

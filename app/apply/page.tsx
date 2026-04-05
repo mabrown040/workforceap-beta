@@ -59,6 +59,41 @@ const sPage = {
     opacity: 0.85,
   } as React.CSSProperties,
 
+  heroFallback: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 'var(--space-3)',
+    margin: 'var(--space-6) auto 0',
+    padding: 'var(--space-4) var(--space-5)',
+    maxWidth: 640,
+    borderRadius: 'var(--radius-lg)',
+    background: 'rgba(255,255,255,0.08)',
+    border: '1px solid rgba(255,255,255,0.14)',
+    textAlign: 'left' as const,
+  } as React.CSSProperties,
+
+  heroFallbackTitle: {
+    fontSize: 'var(--font-size-sm)',
+    fontWeight: 700,
+    letterSpacing: '0.04em',
+    textTransform: 'uppercase' as const,
+    color: 'rgba(255,255,255,0.85)',
+    margin: 0,
+  } as React.CSSProperties,
+
+  heroFallbackText: {
+    fontSize: 'var(--font-size-sm)',
+    lineHeight: 'var(--line-height-normal)',
+    color: 'rgba(255,255,255,0.86)',
+    margin: 0,
+  } as React.CSSProperties,
+
+  heroFallbackActions: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: 'var(--space-3)',
+  } as React.CSSProperties,
+
   grid: {
     display: 'grid',
     gridTemplateColumns: '1fr 2fr',
@@ -139,6 +174,20 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           Answer a few quick questions, choose a program, then create your account so we can follow up with your next steps.
           <strong> No experience required. No cost to qualifying participants.</strong>
         </p>
+        <div style={sPage.heroFallback}>
+          <p style={sPage.heroFallbackTitle}>Need help or no JavaScript?</p>
+          <p style={sPage.heroFallbackText}>
+            You can still reach us directly. Call a counselor or send a message, and we&apos;ll help you start the application manually.
+          </p>
+          <div style={sPage.heroFallbackActions}>
+            <Link href="/contact" className="btn btn-outline" style={{ color: 'var(--color-white)', borderColor: 'rgba(255,255,255,0.3)' }}>
+              Contact a counselor
+            </Link>
+            <a href="tel:+15127771808" className="btn btn-primary" style={{ background: 'var(--color-gold)', color: 'var(--color-on-surface)' }}>
+              Call (512) 777-1808
+            </a>
+          </div>
+        </div>
       </section>
 
       {/* ── 12-col grid: sidebar + form ── */}

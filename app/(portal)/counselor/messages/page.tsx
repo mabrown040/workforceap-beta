@@ -7,6 +7,7 @@ import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import CounselorMessagesInboxClient from '@/components/portal/CounselorMessagesInboxClient';
 import { buildCounselorInboxRows } from '@/lib/messages/counselorInbox';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 export default async function CounselorMessagesHubPage() {
   const user = await getUser();
@@ -31,32 +32,19 @@ export default async function CounselorMessagesHubPage() {
   const rows = await buildCounselorInboxRows(memberIds);
 
   return (
-    <>
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem', maxWidth: '100%', overflowX: 'hidden' }}>
-        <div style={{ padding: '1.25rem 1rem 0.5rem' }}>
-          <h1
-            style={{
-              fontSize: '1.25rem',
-              fontWeight: 800,
-              color: 'var(--color-on-surface)',
-              letterSpacing: '-0.02em',
-              margin: 0,
-            }}
-          >
-            Student Messages
-          </h1>
-          <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>
-            Conversations with your students
-          </p>
+    <PortalPageFrame>
+      <>
+        {/* Mobile View */}
+        <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem', maxWidth: '100%', overflowX: 'hidden' }}>
+          <PageHeader title="Student Messages" subtitle="Conversations with your students" />
+          <div style={{ minHeight: '50vh' }}>
+            <CounselorMessagesInboxClient staffUserId={user.id} rows={rows} />
+          </div>
+          <MobileBottomNav variant="counselor" />
         </div>
-        <div style={{ minHeight: '50vh' }}>
-          <CounselorMessagesInboxClient staffUserId={user.id} rows={rows} />
-        </div>
-        <MobileBottomNav variant="counselor" />
-      </div>
 
-      <div className="wa-hidden wa-md:wa-block">
-        <div className="portal-main-content">
+        {/* Desktop View */}
+        <div className="wa-hidden wa-md:wa-block">
           <PageHeader title="Student Messages" subtitle="Search, open a thread, or view the full student profile." />
           <CounselorMessagesInboxClient staffUserId={user.id} rows={rows} />
           <p style={{ marginTop: '1rem', fontSize: '0.9rem' }}>
@@ -65,7 +53,7 @@ export default async function CounselorMessagesHubPage() {
             </Link>
           </p>
         </div>
-      </div>
-    </>
+      </>
+    </PortalPageFrame>
   );
 }

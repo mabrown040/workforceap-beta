@@ -8,15 +8,16 @@ import {
 } from '@/lib/auth/roles';
 
 export async function GET() {
-  const user = await getUser();
-  if (!user) {
-    return NextResponse.json(
-      { role: null, partner: null, employer: null, superAdmin: false, canAccessMemberDashboard: false },
-      { status: 200 }
-    );
-  }
-
   try {
+    const user = await getUser();
+    if (!user) {
+      console.error('[auth-me] User not authenticated');
+      return NextResponse.json(
+        { role: null, partner: null, employer: null, superAdmin: false, canAccessMemberDashboard: false },
+        { status: 200 }
+      );
+    }
+
     const [role, partnerCtx, superAdmin, employerNav] = await Promise.all([
       getProfileRole(user.id),
       getPartnerForUser(user.id),
@@ -35,7 +36,10 @@ export async function GET() {
       canAccessMemberDashboard,
     });
   } catch (err) {
-    console.error('[auth/me] error:', err);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('[auth-me] Fatal error in auth/me route:', err);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }

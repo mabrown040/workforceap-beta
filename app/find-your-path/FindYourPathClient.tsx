@@ -115,6 +115,10 @@ function programsFromSlugs(slugs: string[]): Program[] {
   return slugs.map((s) => getProgramBySlug(s)).filter(Boolean) as Program[];
 }
 
+function getApplyHref(slug: string) {
+  return `/apply?program=${encodeURIComponent(slug)}`;
+}
+
 function readStoredIpRiasec(): InterestProfilerRiasec | undefined {
   if (typeof window === 'undefined') return undefined;
   try {
@@ -143,6 +147,7 @@ function QuizResultsView({
 }) {
   const topProgram = programs[0];
   const topOcc = careerMatch?.topOccupations[0];
+  const topApplyHref = topProgram ? getApplyHref(topProgram.slug) : '/apply';
   return (
     <div className="quiz-results">
       {/* Sticky retake strip — stays visible while scrolling (feedback: button was easy to miss at bottom) */}
@@ -313,11 +318,11 @@ function QuizResultsView({
                 Partner: {program.partner}
               </div>
               <Link
-                href={`/apply?program=${program.slug}`}
+                href={getApplyHref(program.slug)}
                 className="btn btn-primary"
                 style={{ width: '100%', padding: '0.75rem', fontSize: '0.9rem' }}
               >
-                Apply Now →
+                Apply for this path →
               </Link>
               <Link
                 href={`/programs/${program.slug}`}
@@ -334,16 +339,47 @@ function QuizResultsView({
       {topProgram && (
         <div className="quiz-results-cta">
           <p className="quiz-results-cta-lead">
-            Your top match: <strong>{topProgram.title}</strong>. Published starting band is {salaryRangeDisplay(topProgram)} — your offer still depends on employer and proof.
+            Your strongest match is <strong>{topProgram.title}</strong>. The published starting band is {salaryRangeDisplay(topProgram)} and the fastest next step is to start your application now.
           </p>
           <p className="quiz-results-cta-sub">
-            Applications take about 10 minutes. We respond within 3–5 business days.
+            Choose the track that fits you best, then we’ll follow up within 3–5 business days.
           </p>
-          <Link href={`/apply?program=${topProgram.slug}`} className="btn btn-primary btn-large">
-            Start Your Application →
-          </Link>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
+            <Link href={topApplyHref} className="btn btn-primary btn-large">
+              Start {topProgram.title} Application →
+            </Link>
+            <Link href="/contact" className="btn btn-outline btn-large">
+              Talk to a counselor first
+            </Link>
+          </div>
+          {programs.length > 1 && (
+            <div style={{ marginTop: '1rem' }}>
+              <p className="quiz-results-cta-sub" style={{ marginBottom: '0.75rem' }}>
+                Or apply to a different matched program:
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center' }}>
+                {programs.slice(0, 3).map((program) => (
+                  <Link
+                    key={program.slug}
+                    href={getApplyHref(program.slug)}
+                    className="quiz-result-detail-link"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      padding: '0.55rem 0.85rem',
+                      borderRadius: '999px',
+                      border: '1px solid var(--outline-variant)',
+                      textDecoration: 'none',
+                    }}
+                  >
+                    Apply for {program.title}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
           <p className="quiz-results-cta-phone">
-            <a href="tel:+15127771808">Talk to someone first → (512) 777-1808</a>
+            <a href="tel:+15127771808">Prefer to talk first? Call (512) 777-1808</a>
           </p>
         </div>
       )}

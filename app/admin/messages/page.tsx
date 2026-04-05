@@ -4,6 +4,8 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import AdminSuperMessagesClient from '@/components/admin/AdminSuperMessagesClient';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Portal messages (super admin)',
@@ -16,5 +18,13 @@ export default async function AdminMessagesPage() {
   if (!user) redirect('/login?redirectTo=/admin/messages');
   if (!(await isSuperAdmin(user.id))) redirect('/admin');
 
-  return <AdminSuperMessagesClient />;
+  return (
+    <PortalPageFrame>
+      <PageHeader
+        title="Portal messages"
+        subtitle="Member, employer, and partner message threads with WorkforceAP staff."
+      />
+      <AdminSuperMessagesClient />
+    </PortalPageFrame>
+  );
 }

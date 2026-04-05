@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { counselorStudentStatusBadge } from '@/lib/counselor/memberStatus';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 function getInitials(name: string): string {
   return name
@@ -51,9 +52,11 @@ export default async function CounselorStudentsPage() {
   const enrolledCount = assignments.filter((a) => a.member.enrolledProgram).length;
 
   return (
-    <>
+    <PortalPageFrame>
       {/* ── Mobile ─────────────────────────────────────────── */}
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+        <PageHeader title="My students" subtitle="Members assigned to you for coaching and messaging." />
+
         {/* Stats row */}
         <div
           style={{
@@ -145,7 +148,20 @@ export default async function CounselorStudentsPage() {
         {/* Student list */}
         <div style={{ padding: '0 1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {assignments.length === 0 ? (
-            <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>No assigned students yet.</p>
+            <div style={{ borderRadius: '0.75rem', padding: '2.5rem 1.5rem', textAlign: 'center', background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)' }}>
+              <div style={{ width: '3.5rem', height: '3.5rem', borderRadius: '50%', background: 'var(--surface-container-highest)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-on-surface-variant)' }}>person_search</span>
+              </div>
+              <p style={{ fontWeight: 600, color: 'var(--color-on-surface)', marginBottom: '0.5rem', fontSize: '1rem' }}>
+                No students assigned yet
+              </p>
+              <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem', maxWidth: '20rem', margin: '0 auto 1.25rem' }}>
+                Students will appear here once assigned by an administrator.
+              </p>
+              <Link href="/counselor/messages" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
+                Open Messages
+              </Link>
+            </div>
           ) : (
             assignments.map((a) => {
               const initials = getInitials(a.member.fullName ?? 'U');
@@ -264,33 +280,31 @@ export default async function CounselorStudentsPage() {
 
       {/* ── Desktop ─────────────────────────────────────────── */}
       <div className="wa-hidden wa-md:wa-block">
-        <div className="portal-main-content">
-          <PageHeader title="My students" subtitle="Members assigned to you for coaching and messaging." />
+        <PageHeader title="My students" subtitle="Members assigned to you for coaching and messaging." />
 
-          {assignments.length === 0 ? (
-            <p style={{ color: 'var(--color-on-surface-variant)' }}>No assigned students yet.</p>
-          ) : (
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.5rem' }}>
-              {assignments.map((a) => (
-                <li key={a.id}>
-                  <Link
-                    href={`/counselor/students/${a.member.id}`}
-                    className="btn btn-outline"
-                    style={{ display: 'inline-flex', width: '100%', justifyContent: 'space-between' }}
-                  >
-                    <span>{a.member.fullName}</span>
-                    <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-                      {a.member.email}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        {assignments.length === 0 ? (
+          <p style={{ color: 'var(--color-on-surface-variant)' }}>No assigned students yet.</p>
+        ) : (
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.5rem' }}>
+            {assignments.map((a) => (
+              <li key={a.id}>
+                <Link
+                  href={`/counselor/students/${a.member.id}`}
+                  className="btn btn-outline"
+                  style={{ display: 'inline-flex', width: '100%', justifyContent: 'space-between' }}
+                >
+                  <span>{a.member.fullName}</span>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                    {a.member.email}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <MobileBottomNav variant="counselor" />
-    </>
+    </PortalPageFrame>
   );
 }

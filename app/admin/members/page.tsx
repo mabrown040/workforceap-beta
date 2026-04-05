@@ -11,6 +11,7 @@ import { calculateFitScore } from '@/lib/admin/fitScore';
 import { calculateHealthStatus } from '@/lib/admin/healthScore';
 import MembersTable from '@/components/admin/MembersTable';
 import PageHeader from '@/components/portal/PageHeader';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin – Members',
@@ -88,7 +89,7 @@ export default async function AdminMembersPage() {
   membersWithProgram.sort((a, b) => b.fitScore - a.fitScore);
 
   return (
-    <div>
+    <PortalPageFrame>
       <PageHeader
         title="Members"
         subtitle="View and manage member accounts."
@@ -96,6 +97,6 @@ export default async function AdminMembersPage() {
       />
 
       <MembersTable members={membersWithProgram} />
-    </div>
+    </PortalPageFrame>
   );
 }

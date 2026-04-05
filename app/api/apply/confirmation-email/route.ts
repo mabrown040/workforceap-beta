@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     });
     return NextResponse.json({ ok: result.ok });
   } catch (err) {
-    console.error('[confirmation-email] error:', err);
+    console.error('[app/api/apply/confirmation-email] unexpected error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -173,6 +173,8 @@ export default function PortalVoiceSession({
   const phaseRef = useRef<Phase>('pre');
   const voiceErrorRef = useRef('');
   const lastLiveDraftSentRef = useRef<string | null>(null);
+  const sessionPayloadRef = useRef(sessionPayload);
+  sessionPayloadRef.current = sessionPayload;
   const liveTranscriptEndRef = useRef<HTMLDivElement | null>(null);
 
   function stopVideoRecordingStream() {
@@ -209,8 +211,9 @@ export default function PortalVoiceSession({
     };
   }, []);
 
+  // Only clear when fully idle or finished — not during `connecting` (would race with draft sync).
   useEffect(() => {
-    if (phase !== 'active') {
+    if (phase === 'pre' || phase === 'done') {
       lastLiveDraftSentRef.current = null;
     }
   }, [phase]);
@@ -335,7 +338,9 @@ export default function PortalVoiceSession({
     const pushInitialLiveResumeDraft = (conv: Conversation) => {
       if (!pushLiveResumeDraftContext) return;
       const draft =
-        typeof sessionPayload?.liveResumeDraft === 'string' ? sessionPayload.liveResumeDraft : '';
+        typeof sessionPayloadRef.current?.liveResumeDraft === 'string'
+          ? sessionPayloadRef.current.liveResumeDraft
+          : '';
       const body = draft.trim()
         ? `${LIVE_RESUME_CONTEXT_PREFIX}${draft.slice(0, LIVE_RESUME_CONTEXT_MAX_BODY)}`
         : '[Live resume draft updated — the live draft is now empty.]';
@@ -348,10 +353,34 @@ export default function PortalVoiceSession({
       }
     };
 
+    const flushLiveResumeDraftAfterConnect = (conv: Conversation) => {
+      if (!pushLiveResumeDraftContext) return;
+      const draft =
+        typeof sessionPayloadRef.current?.liveResumeDraft === 'string'
+          ? sessionPayloadRef.current.liveResumeDraft
+          : '';
+      if (draft === lastLiveDraftSentRef.current) return;
+      const body = draft.trim()
+        ? `${LIVE_RESUME_CONTEXT_PREFIX}${draft.slice(0, LIVE_RESUME_CONTEXT_MAX_BODY)}`
+        : '[Live resume draft updated — the live draft is now empty.]';
+      try {
+        conv.sendContextualUpdate(body);
+        lastLiveDraftSentRef.current = draft;
+        logVoice('live_resume_context_after_connect', { len: body.length });
+      } catch (e) {
+        logVoice('live_resume_context_after_connect_failed', e);
+      }
+    };
+
     const sessionCallbacks = {
       onConnect: () => {
         logVoice('session_connected');
         setPhase('active');
+        // onConnect may run before `convRef` is assigned; flush after the current stack.
+        queueMicrotask(() => {
+          const conv = convRef.current;
+          if (conv) flushLiveResumeDraftAfterConnect(conv);
+        });
       },
       onDisconnect: (details: unknown) => {
         const typed = (details ?? {}) as VoiceDisconnectDetails;

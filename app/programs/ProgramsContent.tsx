@@ -1,25 +1,34 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import type { Program } from '@/lib/content/programs';
 import { getProgramExtra } from '@/lib/content/programExtras';
 import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
 import { ProgramIcon } from '@/components/ProgramIcon';
+import { programMatchesSearchQuery } from '@/lib/content/programCatalogSearch';
 
 const programs = PROGRAMS;
 
-const filters = [
-  { key: 'all', label: `All Programs (${WORKFORCEAP_PROGRAM_CATALOG_SIZE})` },
-  { key: 'digital-literacy', label: 'Digital Literacy (1)' },
-  { key: 'ai-software', label: 'AI & Software (2)' },
-  { key: 'cloud-data', label: 'Cloud & Data (3)' },
-  { key: 'it-cyber', label: 'IT & Cyber (6)' },
-  { key: 'business', label: 'Business (3)' },
-  { key: 'healthcare', label: 'Healthcare (1)' },
-  { key: 'manufacturing', label: 'Manufacturing (3)' },
+const FILTER_DEFS: { key: string; shortLabel: string }[] = [
+  { key: 'all', shortLabel: 'All Programs' },
+  { key: 'digital-literacy', shortLabel: 'Digital Literacy' },
+  { key: 'ai-software', shortLabel: 'AI & Software' },
+  { key: 'cloud-data', shortLabel: 'Cloud & Data' },
+  { key: 'it-cyber', shortLabel: 'IT & Cyber' },
+  { key: 'business', shortLabel: 'Business' },
+  { key: 'healthcare', shortLabel: 'Healthcare' },
+  { key: 'manufacturing', shortLabel: 'Manufacturing' },
 ];
+
+function categoryCounts(): Record<string, number> {
+  const m: Record<string, number> = {};
+  for (const p of PROGRAMS) {
+    m[p.category] = (m[p.category] ?? 0) + 1;
+  }
+  return m;
+}
 
 const CATEGORY_BORDER: Record<string, string> = {
   'it-cyber': '#2b7bb9',
@@ -136,18 +145,51 @@ function ProgramCard({ program }: { program: Program }) {
 
 export default function ProgramsContent({ sectionId = 'program-catalog' }: { sectionId?: string | null }) {
   const [activeFilter, setActiveFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const filtered = activeFilter === 'all'
-    ? programs
-    : programs.filter((p) => p.category === activeFilter);
+  const counts = useMemo(() => categoryCounts(), []);
+
+  const filterChips = useMemo(
+    () =>
+      FILTER_DEFS.map((f) => {
+        if (f.key === 'all') {
+          return { key: f.key, label: `${f.shortLabel} (${WORKFORCEAP_PROGRAM_CATALOG_SIZE})` };
+        }
+        const n = counts[f.key] ?? 0;
+        return { key: f.key, label: `${f.shortLabel} (${n})` };
+      }),
+    [counts]
+  );
+
+  const filtered = useMemo(() => {
+    const byCategory =
+      activeFilter === 'all' ? programs : programs.filter((p) => p.category === activeFilter);
+    return byCategory.filter((p) => programMatchesSearchQuery(p, searchQuery));
+  }, [activeFilter, searchQuery]);
 
   return (
     <section id={sectionId ?? undefined} className="content-section">
       <div className="container">
+        <div className="program-catalog-search-row" style={{ marginBottom: '1.25rem' }}>
+          <label htmlFor="program-catalog-search" className="sr-only">
+            Search programs
+          </label>
+          <input
+            id="program-catalog-search"
+            type="search"
+            className="program-catalog-search-input"
+            placeholder="Search programs by name, skill, partner, or topic…"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            autoComplete="off"
+            spellCheck={false}
+          />
+        </div>
         <div className="program-filters">
-          {filters.map((f) => (
+          {filterChips.map((f) => (
             <button
               key={f.key}
+              type="button"
               className={`filter-chip${activeFilter === f.key ? ' active' : ''}`}
               onClick={() => setActiveFilter(f.key)}
             >
@@ -155,11 +197,41 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
             </button>
           ))}
         </div>
+        {filtered.length === 0 ? (
+          <div
+            role="status"
+            style={{
+              textAlign: 'center',
+              padding: '2.5rem 1rem',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid var(--outline-variant)',
+              background: 'var(--surface-container-low)',
+            }}
+          >
+            <p style={{ margin: '0 0 1rem', fontSize: '1rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>
+              No programs match your filters.
+            </p>
+            <p style={{ margin: '0 0 1.25rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', maxWidth: '420px', marginLeft: 'auto', marginRight: 'auto' }}>
+              Try a different keyword or clear the search and category filters to see the full catalog.
+            </p>
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={() => {
+                setSearchQuery('');
+                setActiveFilter('all');
+              }}
+            >
+              Clear search and filters
+            </button>
+          </div>
+        ) : (
         <div className="programs-grid">
           {filtered.map((p) => (
-            <ProgramCard key={p.title} program={p} />
+            <ProgramCard key={p.slug} program={p} />
           ))}
         </div>
+        )}
         <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '.85rem', color: 'var(--color-on-surface-variant)', maxWidth: '640px', marginLeft: 'auto', marginRight: 'auto' }}>
           Bands are grounded in Lightcast/BLS-style data (Jan 2026). Your offer still depends on proof, role, and employer.
         </p>

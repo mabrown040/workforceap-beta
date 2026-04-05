@@ -5407,6 +5407,35 @@ html.dark .faq-section-heading {
 /* =============================================
    PROGRAMS PAGE
    ============================================= */
+/* Programs catalog — full-list search (not a featured subset) */
+.program-catalog-search-row {
+    max-width: 42rem;
+}
+.program-catalog-search-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.65rem 1rem;
+    font-size: 0.9375rem;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-gray-200);
+    background: var(--color-white);
+    color: var(--color-on-surface);
+    font-family: inherit;
+}
+.program-catalog-search-input::placeholder {
+    color: var(--color-on-surface-variant);
+}
+.program-catalog-search-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(173, 44, 77, 0.15);
+}
+html.dark .program-catalog-search-input {
+    background: var(--surface-container-low);
+    border-color: var(--outline-variant);
+    color: var(--color-on-surface);
+}
+
 .program-filters {
     display: flex;
     flex-wrap: wrap;

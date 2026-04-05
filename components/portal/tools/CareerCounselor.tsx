@@ -2,13 +2,14 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Conversation } from '@elevenlabs/client';
+import { getCounselorTtsVoiceId } from '@/lib/portal/counselorVoice';
 
 type Phase = 'pre' | 'connecting' | 'active' | 'ending' | 'plan';
 
-const AMBER = '#f59e0b';
-const AMBER_DARK = '#d97706';
-const AMBER_BG = 'rgba(245, 158, 11, 0.08)';
-const AMBER_BORDER = 'rgba(245, 158, 11, 0.2)';
+const ACCENT = '#db2777';
+const ACCENT_DARK = '#be185d';
+const ACCENT_BG = 'rgba(219, 39, 119, 0.1)';
+const ACCENT_BORDER = 'rgba(219, 39, 119, 0.28)';
 
 // Pulse animation keyframes injected once
 const PULSE_STYLE = `
@@ -88,6 +89,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
     try {
       const conv = await Conversation.startSession({
         signedUrl,
+        overrides: { tts: { voiceId: getCounselorTtsVoiceId() } },
         onConnect: () => setPhase('active'),
         onDisconnect: (details) => {
           if (!intentionalRef.current) {
@@ -181,9 +183,9 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
           <div style={{ position: 'relative', width: 96, height: 96 }}>
             <div style={{
               position: 'absolute', inset: 0, borderRadius: '50%',
-              background: `radial-gradient(circle at 35% 35%, ${AMBER}, ${AMBER_DARK})`,
+              background: `radial-gradient(circle at 35% 35%, ${ACCENT}, ${ACCENT_DARK})`,
               animation: 'cc-breathe 3.5s ease-in-out infinite',
-              boxShadow: `0 0 32px ${AMBER}55, 0 0 64px ${AMBER}22`,
+              boxShadow: `0 0 32px ${ACCENT}55, 0 0 64px ${ACCENT}22`,
             }} />
           </div>
         </div>
@@ -205,10 +207,10 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
         <button
           onClick={startSession}
           style={{
-            display: 'block', width: '100%', background: AMBER, color: '#1a1209',
+            display: 'block', width: '100%', background: ACCENT, color: '#fff',
             border: 0, borderRadius: 10, padding: '1rem', fontWeight: 700,
             fontSize: '1.05rem', cursor: 'pointer', marginBottom: '1.75rem',
-            boxShadow: `0 4px 24px ${AMBER}44`,
+            boxShadow: `0 4px 24px ${ACCENT}44`,
             transition: 'opacity 0.15s',
           }}
         >
@@ -226,7 +228,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
               "You'll get a personalized action plan after",
             ].map((item) => (
               <li key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                <span style={{ color: AMBER, marginTop: '0.1rem', flexShrink: 0 }}>✓</span>
+                <span style={{ color: ACCENT, marginTop: '0.1rem', flexShrink: 0 }}>✓</span>
                 {item}
               </li>
             ))}
@@ -244,7 +246,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
           <div style={{ position: 'relative', width: 80, height: 80 }}>
             <div style={{
               position: 'absolute', inset: 0, borderRadius: '50%',
-              background: `radial-gradient(circle at 35% 35%, ${AMBER}, ${AMBER_DARK})`,
+              background: `radial-gradient(circle at 35% 35%, ${ACCENT}, ${ACCENT_DARK})`,
               animation: 'cc-breathe 1.8s ease-in-out infinite',
             }} />
           </div>
@@ -266,15 +268,15 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
             {/* Pulse ring */}
             <div style={{
               position: 'absolute', inset: -8, borderRadius: '50%',
-              border: `2px solid ${AMBER}`,
+              border: `2px solid ${ACCENT}`,
               animation: 'cc-pulse-ring 2s ease-out infinite',
             }} />
             {/* Orb */}
             <div style={{
               position: 'absolute', inset: 0, borderRadius: '50%',
-              background: `radial-gradient(circle at 35% 35%, ${AMBER}, ${AMBER_DARK})`,
+              background: `radial-gradient(circle at 35% 35%, ${ACCENT}, ${ACCENT_DARK})`,
               animation: 'cc-breathe 2s ease-in-out infinite',
-              boxShadow: `0 0 40px ${AMBER}66`,
+              boxShadow: `0 0 40px ${ACCENT}66`,
             }} />
           </div>
         </div>
@@ -285,8 +287,8 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
           </div>
           <div style={{
             display: 'inline-block', padding: '0.25rem 0.75rem', borderRadius: 999,
-            background: AMBER_BG, border: `1px solid ${AMBER_BORDER}`,
-            fontSize: '0.8rem', color: AMBER, fontWeight: 600,
+            background: ACCENT_BG, border: `1px solid ${ACCENT_BORDER}`,
+            fontSize: '0.8rem', color: ACCENT, fontWeight: 600,
           }}>
             {agentSpeaking ? '🔊 Speaking' : '🎙️ Listening'}
           </div>
@@ -296,9 +298,9 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
           <button
             onClick={endSession}
             style={{
-              background: AMBER, color: '#1a1209', border: 0, borderRadius: 10,
+              background: ACCENT, color: '#fff', border: 0, borderRadius: 10,
               padding: '0.875rem', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer',
-              boxShadow: `0 4px 16px ${AMBER}33`,
+              boxShadow: `0 4px 16px ${ACCENT}33`,
             }}
           >
             End Session &amp; Get My Action Plan
@@ -329,9 +331,9 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
           <div style={{
             width: 64, height: 64, borderRadius: '50%',
-            background: `radial-gradient(circle at 35% 35%, ${AMBER}, ${AMBER_DARK})`,
+            background: `radial-gradient(circle at 35% 35%, ${ACCENT}, ${ACCENT_DARK})`,
             animation: 'cc-breathe 1.5s ease-in-out infinite',
-            boxShadow: `0 0 24px ${AMBER}44`,
+            boxShadow: `0 0 24px ${ACCENT}44`,
           }} />
         </div>
         <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.95rem' }}>
@@ -347,8 +349,8 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1.5rem' }}>
         <div style={{
           width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
-          background: `radial-gradient(circle at 35% 35%, ${AMBER}, ${AMBER_DARK})`,
-          boxShadow: `0 0 16px ${AMBER}44`,
+          background: `radial-gradient(circle at 35% 35%, ${ACCENT}, ${ACCENT_DARK})`,
+          boxShadow: `0 0 16px ${ACCENT}44`,
         }} />
         <div>
           <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>
@@ -368,7 +370,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
             style={{
               display: 'flex', alignItems: 'flex-start', gap: '0.875rem',
               background: checked[i] ? 'rgba(245,158,11,0.06)' : 'var(--surface-container-low)',
-              border: `1px solid ${checked[i] ? AMBER_BORDER : 'var(--surface-container-high)'}`,
+              border: `1px solid ${checked[i] ? ACCENT_BORDER : 'var(--surface-container-high)'}`,
               borderRadius: 10, padding: '0.875rem 1rem', cursor: 'pointer', textAlign: 'left',
               transition: 'background 0.2s, border-color 0.2s',
               width: '100%',
@@ -377,8 +379,8 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
             {/* Checkbox */}
             <div style={{
               width: 20, height: 20, borderRadius: 6, flexShrink: 0, marginTop: '0.1rem',
-              border: `2px solid ${checked[i] ? AMBER : 'var(--surface-container-high)'}`,
-              background: checked[i] ? AMBER : 'transparent',
+              border: `2px solid ${checked[i] ? ACCENT : 'var(--surface-container-high)'}`,
+              background: checked[i] ? ACCENT : 'transparent',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               transition: 'background 0.2s, border-color 0.2s',
             }}>
@@ -390,7 +392,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
             </div>
             <div>
               <div style={{
-                fontSize: '0.75rem', fontWeight: 700, color: AMBER,
+                fontSize: '0.75rem', fontWeight: 700, color: ACCENT,
                 marginBottom: '0.2rem', textTransform: 'uppercase', letterSpacing: '0.05em',
               }}>
                 Step {i + 1}
@@ -410,10 +412,10 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
 
       {/* Quick links to portal tools */}
       <div style={{
-        background: AMBER_BG, border: `1px solid ${AMBER_BORDER}`,
+        background: ACCENT_BG, border: `1px solid ${ACCENT_BORDER}`,
         borderRadius: 10, padding: '1rem', marginBottom: '1.5rem',
       }}>
-        <p style={{ fontSize: '0.8rem', fontWeight: 600, color: AMBER, marginBottom: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <p style={{ fontSize: '0.8rem', fontWeight: 600, color: ACCENT, marginBottom: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
           Ready to act? Jump to a tool:
         </p>
         <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '0.5rem' }}>

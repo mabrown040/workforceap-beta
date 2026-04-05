@@ -16,6 +16,8 @@ import { isSuperAdmin } from '@/lib/auth/roles';
 import { PARTNER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
+import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
+import { partnerVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Partner Portal',
@@ -155,28 +157,17 @@ export default async function PartnerDashboardPage() {
       </div>
 
       <div style={{ padding: '0 1.5rem 1rem' }}>
-        <div
-          className="stitch-card"
-          style={{
-            padding: '1.25rem',
-            border: '1px solid #ebe7e7',
-            borderRadius: '0.875rem',
-            background: '#fff',
-          }}
-        >
-          <p className="wa-text-[10px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold" style={{ color: '#8c0f37', marginBottom: '0.75rem' }}>
-            Voice assistant
-          </p>
+        <VoiceAgentSurface {...partnerVoiceSurface}>
           <PortalVoiceSession
             sessionEndpoint="/api/partner/voice-session"
             title="Partner voice assistant"
             description="Ask about referrals, member progress, or using the partner portal."
-            accent="#8c0f37"
-            accentDark="#5c1a2e"
+            accent="#ea580c"
+            accentDark="#c2410c"
             speakingLabel="Assistant is speaking…"
             listeningLabel="Listening — ask your question"
           />
-        </div>
+        </VoiceAgentSurface>
       </div>
 
       {/* 2×2 KPI Grid */}
@@ -333,26 +324,18 @@ export default async function PartnerDashboardPage() {
         </div>
       </div>
 
-      <section
-        className="stitch-card"
-        style={{
-          marginBottom: '2rem',
-          padding: '1.5rem',
-          border: '1px solid var(--outline-variant)',
-        }}
-      >
-        <h2 style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
-          Voice assistant
-        </h2>
-        <PortalVoiceSession
-          sessionEndpoint="/api/partner/voice-session"
-          title="Partner voice assistant"
-          description="Ask about referrals, member progress, or using the partner portal."
-          accent="#8c0f37"
-          accentDark="#5c1a2e"
-          speakingLabel="Assistant is speaking…"
-          listeningLabel="Listening — ask your question"
-        />
+      <section style={{ marginBottom: '2rem' }}>
+        <VoiceAgentSurface {...partnerVoiceSurface}>
+          <PortalVoiceSession
+            sessionEndpoint="/api/partner/voice-session"
+            title="Partner voice assistant"
+            description="Ask about referrals, member progress, or using the partner portal."
+            accent="#ea580c"
+            accentDark="#c2410c"
+            speakingLabel="Assistant is speaking…"
+            listeningLabel="Listening — ask your question"
+          />
+        </VoiceAgentSurface>
       </section>
 
       {/* ── Referral Link Attribution ── */}

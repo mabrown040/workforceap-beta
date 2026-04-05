@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, type MutableRefObject } from 'react';
 import { Conversation } from '@elevenlabs/client';
+import type { BaseSessionConfig } from '@elevenlabs/client';
 
 type VoiceDisconnectDetails = {
   reason?: string;
@@ -120,6 +121,11 @@ export type PortalVoiceSessionProps = {
   acquireVideoForRecording?: boolean;
   /** Set when `acquireVideoForRecording`; pass the same ref to `MockInterviewVideoRecorder`. */
   videoStreamRef?: MutableRefObject<MediaStream | null>;
+  /**
+   * ElevenLabs ConvAI session overrides (e.g. `{ tts: { voiceId } }` for a female counselor voice).
+   * Merged into `Conversation.startSession` alongside `signedUrl` / `dynamicVariables`.
+   */
+  conversationOverrides?: NonNullable<BaseSessionConfig['overrides']>;
 };
 
 const PULSE_STYLE = `
@@ -159,6 +165,7 @@ export default function PortalVoiceSession({
   liveTranscriptYouLabel = 'You',
   acquireVideoForRecording = false,
   videoStreamRef,
+  conversationOverrides,
 }: PortalVoiceSessionProps) {
   const [phase, setPhase] = useState<Phase>('pre');
   const [voiceError, setVoiceError] = useState('');
@@ -446,6 +453,7 @@ export default function PortalVoiceSession({
           const conv = await Conversation.startSession({
             signedUrl,
             dynamicVariables,
+            ...(conversationOverrides ? { overrides: conversationOverrides } : {}),
             ...sessionCallbacks,
           });
           convRef.current = conv;
@@ -458,6 +466,7 @@ export default function PortalVoiceSession({
           logVoice('start_retry', { plainSignedUrlOnly: true });
           const conv = await Conversation.startSession({
             signedUrl,
+            ...(conversationOverrides ? { overrides: conversationOverrides } : {}),
             ...sessionCallbacks,
           });
           convRef.current = conv;
@@ -467,6 +476,7 @@ export default function PortalVoiceSession({
         logVoice('start_attempt', { plain: true });
         const conv = await Conversation.startSession({
           signedUrl,
+          ...(conversationOverrides ? { overrides: conversationOverrides } : {}),
           ...sessionCallbacks,
         });
         convRef.current = conv;

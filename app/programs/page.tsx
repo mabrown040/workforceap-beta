@@ -9,6 +9,7 @@ import ProgramsPageClient from './ProgramsPageClient';
 import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
+import { PROGRAM_SUBGROUPS, orderedSubgroupIdsWithPrograms } from '@/lib/content/programSubgroup';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Career Training Programs — Nationwide Certificates',
@@ -23,6 +24,14 @@ export default function ProgramsPage() {
     dur: p.duration,
     slug: p.slug,
   }));
+
+  const mobileBrowseChips = [
+    { href: '#program-catalog', label: 'All' },
+    ...orderedSubgroupIdsWithPrograms(PROGRAMS).map((id) => ({
+      href: `#subgroup-${id}`,
+      label: PROGRAM_SUBGROUPS.find((s) => s.id === id)?.shortLabel ?? id,
+    })),
+  ];
 
   return (
     <div className="inner-page programs-page marketing-stack marketing-stack--enter">
@@ -55,10 +64,10 @@ export default function ProgramsPage() {
               msOverflowStyle: 'none',
             }}
           >
-            {['All Programs', 'AI & Software Dev', 'Cloud & Data', 'IT & Cybersecurity', 'Business', 'Healthcare'].map((label, i) => (
+            {mobileBrowseChips.map((chip, i) => (
               <a
-                key={label}
-                href="#program-catalog"
+                key={chip.href + chip.label}
+                href={chip.href}
                 style={{
                   flexShrink: 0,
                   padding: '0.625rem 1.25rem',
@@ -75,7 +84,7 @@ export default function ProgramsPage() {
                   ...(i === 0 ? { background: 'var(--color-accent)', color: 'var(--color-white, #fff)' } : { background: 'var(--surface-container-low)', color: 'var(--color-on-surface-variant)' }),
                 }}
               >
-                {label}
+                {chip.label}
               </a>
             ))}
           </div>
@@ -182,8 +191,8 @@ export default function ProgramsPage() {
                 Curated Excellence
               </span>
               <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>
-                Industry-Recognized{' '}
-                <span style={{ color: 'var(--color-accent)', fontStyle: 'italic' }}>Certifications.</span>
+                Industry-Recognized Certificate{' '}
+                <span style={{ color: 'var(--color-accent)', fontStyle: 'italic' }}>Programs &amp; Certifications.</span>
               </h1>
               <p
                 style={{

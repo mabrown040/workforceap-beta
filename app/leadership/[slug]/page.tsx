@@ -126,15 +126,17 @@ export default async function LeaderBioPage({ params }: Props) {
               ))}
             </div>
 
-            <a
-              href={leader.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="ld-linkedin-btn"
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden>open_in_new</span>
-              LinkedIn Profile
-            </a>
+            {leader.linkedin ? (
+              <a
+                href={leader.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ld-linkedin-btn"
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden>open_in_new</span>
+                LinkedIn Profile
+              </a>
+            ) : null}
           </div>
 
           {/* Right: portrait (7 col) */}

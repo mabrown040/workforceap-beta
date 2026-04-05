@@ -8,24 +8,20 @@ import { getProgramExtra } from '@/lib/content/programExtras';
 import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
 import { ProgramIcon } from '@/components/ProgramIcon';
 import { programMatchesSearchQuery } from '@/lib/content/programCatalogSearch';
+import {
+  PROGRAM_SUBGROUPS,
+  orderedSubgroupIdsWithPrograms,
+  subgroupForProgram,
+  type ProgramSubgroupId,
+} from '@/lib/content/programSubgroup';
 
 const programs = PROGRAMS;
 
-const FILTER_DEFS: { key: string; shortLabel: string }[] = [
-  { key: 'all', shortLabel: 'All Programs' },
-  { key: 'digital-literacy', shortLabel: 'Digital Literacy' },
-  { key: 'ai-software', shortLabel: 'AI & Software' },
-  { key: 'cloud-data', shortLabel: 'Cloud & Data' },
-  { key: 'it-cyber', shortLabel: 'IT & Cyber' },
-  { key: 'business', shortLabel: 'Business' },
-  { key: 'healthcare', shortLabel: 'Healthcare' },
-  { key: 'manufacturing', shortLabel: 'Manufacturing' },
-];
-
-function categoryCounts(): Record<string, number> {
-  const m: Record<string, number> = {};
+function subgroupCounts(): Record<ProgramSubgroupId, number> {
+  const m = {} as Record<ProgramSubgroupId, number>;
   for (const p of PROGRAMS) {
-    m[p.category] = (m[p.category] ?? 0) + 1;
+    const sg = subgroupForProgram(p);
+    m[sg] = (m[sg] ?? 0) + 1;
   }
   return m;
 }
@@ -144,28 +140,32 @@ function ProgramCard({ program }: { program: Program }) {
 }
 
 export default function ProgramsContent({ sectionId = 'program-catalog' }: { sectionId?: string | null }) {
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeSubgroup, setActiveSubgroup] = useState<ProgramSubgroupId | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const counts = useMemo(() => categoryCounts(), []);
+  const counts = useMemo(() => subgroupCounts(), []);
+  const subgroupOrder = useMemo(() => orderedSubgroupIdsWithPrograms(PROGRAMS), []);
 
-  const filterChips = useMemo(
-    () =>
-      FILTER_DEFS.map((f) => {
-        if (f.key === 'all') {
-          return { key: f.key, label: `${f.shortLabel} (${WORKFORCEAP_PROGRAM_CATALOG_SIZE})` };
-        }
-        const n = counts[f.key] ?? 0;
-        return { key: f.key, label: `${f.shortLabel} (${n})` };
-      }),
-    [counts]
-  );
+  const filterChips = useMemo((): { key: ProgramSubgroupId | 'all'; label: string }[] => {
+    const chips: { key: ProgramSubgroupId | 'all'; label: string }[] = [
+      { key: 'all', label: `All programs (${WORKFORCEAP_PROGRAM_CATALOG_SIZE})` },
+    ];
+    for (const id of subgroupOrder) {
+      const meta = PROGRAM_SUBGROUPS.find((s) => s.id === id);
+      const n = counts[id] ?? 0;
+      if (!meta || n === 0) continue;
+      chips.push({ key: id, label: `${meta.shortLabel} (${n})` });
+    }
+    return chips;
+  }, [counts, subgroupOrder]);
 
   const filtered = useMemo(() => {
-    const byCategory =
-      activeFilter === 'all' ? programs : programs.filter((p) => p.category === activeFilter);
-    return byCategory.filter((p) => programMatchesSearchQuery(p, searchQuery));
-  }, [activeFilter, searchQuery]);
+    const bySubgroup =
+      activeSubgroup === 'all'
+        ? programs
+        : programs.filter((p) => subgroupForProgram(p) === activeSubgroup);
+    return bySubgroup.filter((p) => programMatchesSearchQuery(p, searchQuery));
+  }, [activeSubgroup, searchQuery]);
 
   return (
     <section id={sectionId ?? undefined} className="content-section">
@@ -190,14 +190,54 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
             <button
               key={f.key}
               type="button"
-              className={`filter-chip${activeFilter === f.key ? ' active' : ''}`}
-              onClick={() => setActiveFilter(f.key)}
+              className={`filter-chip${activeSubgroup === f.key ? ' active' : ''}`}
+              onClick={() => setActiveSubgroup(f.key)}
             >
               {f.label}
             </button>
           ))}
         </div>
-        {filtered.length === 0 ? (
+
+        {activeSubgroup === 'all' && searchQuery.trim() === '' ? (
+          <div style={{ marginBottom: '2.5rem' }}>
+            {subgroupOrder.map((sgId) => {
+              const meta = PROGRAM_SUBGROUPS.find((s) => s.id === sgId);
+              const inGroup = programs.filter((p) => subgroupForProgram(p) === sgId);
+              if (!meta || inGroup.length === 0) return null;
+              return (
+                <div
+                  key={sgId}
+                  id={`subgroup-${sgId}`}
+                  style={{
+                    scrollMarginTop: '6rem',
+                    marginBottom: '2.5rem',
+                    paddingBottom: '2rem',
+                    borderBottom: '1px solid var(--outline-variant)',
+                  }}
+                >
+                  <h3
+                    style={{
+                      fontSize: '1.35rem',
+                      fontWeight: 800,
+                      color: 'var(--color-on-surface)',
+                      marginBottom: '0.35rem',
+                    }}
+                  >
+                    {meta.label}
+                  </h3>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', maxWidth: '42rem', marginBottom: '1.25rem' }}>
+                    {meta.description}
+                  </p>
+                  <div className="programs-grid">
+                    {inGroup.map((p) => (
+                      <ProgramCard key={p.slug} program={p} />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : filtered.length === 0 ? (
           <div
             role="status"
             style={{
@@ -219,7 +259,7 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
               className="btn btn-outline"
               onClick={() => {
                 setSearchQuery('');
-                setActiveFilter('all');
+                setActiveSubgroup('all');
               }}
             >
               Clear search and filters

@@ -231,6 +231,13 @@ html.dark .leadership-board-card .leadership-board-photo {
     }
 }
 
+/* Executive row — slightly smaller portraits so board section can read larger */
+.leadership-exec-photo {
+    max-width: min(100%, 280px);
+    margin-left: auto;
+    margin-right: auto;
+}
+
 /* Board — equal three columns (trustees), consistent photo size */
 .leadership-board-equal {
     display: grid;
@@ -256,7 +263,7 @@ html.dark .leadership-board-card .leadership-board-photo {
         width: 100% !important;
         height: auto !important;
         aspect-ratio: 1;
-        max-width: 200px;
+        max-width: 220px;
         margin: 0 auto 1rem;
     }
 

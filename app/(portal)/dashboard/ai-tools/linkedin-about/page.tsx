@@ -8,7 +8,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata = buildPageMetadata({
   title: 'LinkedIn About Section Generator',
-  description: 'Create a polished LinkedIn About section from your role and key points.',
+  description: 'Create a polished LinkedIn About section from your role and resume or bullet points.',
   path: '/dashboard/ai-tools/linkedin-about',
 });
 
@@ -59,7 +59,7 @@ export default async function LinkedInAboutPage() {
           <div>
             <h1 style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>LinkedIn About Section Generator</h1>
             <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0.15rem 0 0' }}>
-              Give us your role and a few bullets about yourself. We'll write a polished 3-paragraph About section ready to paste.
+              Add your target role and highlights. If you have a resume on file, we prefill from it and use the full text when generating your 3-paragraph About section.
             </p>
           </div>
         </div>

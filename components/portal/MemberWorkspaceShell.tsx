@@ -1,38 +1,18 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
 import WorkspaceShell from './WorkspaceShell';
-import ProgressBanner from './ProgressBanner';
 import DashboardFooter from './DashboardFooter';
 import { MEMBER_PORTAL_NAV_ITEMS } from '@/lib/nav/portalNav';
 import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
 
 export default function MemberWorkspaceShell({
-  programTitle,
-  completedCount,
-  totalCount,
   hasResume = true,
   children,
 }: {
-  programTitle?: string;
-  completedCount?: number;
-  totalCount?: number;
   /** Member has an original or enhanced resume on file */
   hasResume?: boolean;
   children: React.ReactNode;
 }) {
-  const pathname = usePathname() ?? '';
-  const showProgressBanner = !pathname.includes('/messages');
-
-  const topBanner =
-    showProgressBanner && programTitle != null && totalCount != null && totalCount > 0 ? (
-      <ProgressBanner
-        programTitle={programTitle}
-        completedCount={completedCount ?? 0}
-        totalCount={totalCount}
-      />
-    ) : null;
-
   return (
     <WorkspaceShell
       portalRole="member"
@@ -42,7 +22,6 @@ export default function MemberWorkspaceShell({
       marketingSiteHref="https://www.workforceap.org/"
       marketingSiteLabel="WorkforceAP.org"
       showResumeUploadHint={hasResume === false}
-      topBanner={topBanner}
       footer={<DashboardFooter />}
     >
       {children}

@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+
+const RESUME_PREFILL_MAX = 3500;
 
 export default function LinkedInAboutForm() {
   const [role, setRole] = useState('');
@@ -12,7 +14,43 @@ export default function LinkedInAboutForm() {
   const [output, setOutput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [resumeLoaded, setResumeLoaded] = useState(false);
+  const [resumeLoading, setResumeLoading] = useState(true);
   const { copy, copied } = useCopyToClipboard();
+  const userEditedBullets = useRef(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setResumeLoading(true);
+    fetch('/api/member/resume?includePlainText=1')
+      .then((r) => r.json())
+      .then(
+        (d: {
+          resumePlainText?: string | null;
+          hasOriginal?: boolean;
+          hasEnhanced?: boolean;
+        }) => {
+          if (cancelled) return;
+          const t = d.resumePlainText?.trim();
+          if (!t || t.length < 40) {
+            setResumeLoading(false);
+            return;
+          }
+          setResumeLoaded(true);
+          if (!userEditedBullets.current) {
+            const prefill = t.length > RESUME_PREFILL_MAX ? `${t.slice(0, RESUME_PREFILL_MAX)}\n…` : t;
+            setBullets((prev) => (prev.trim() ? prev : prefill));
+          }
+        }
+      )
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setResumeLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,6 +85,44 @@ export default function LinkedInAboutForm() {
 
   return (
     <form onSubmit={handleSubmit} className="portal-ai-tool-form">
+      {resumeLoading ? (
+        <p className="ai-tool-resume-hint" style={{ fontSize: '0.88rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
+          Checking for a saved resume…
+        </p>
+      ) : resumeLoaded ? (
+        <div
+          className="stitch-card"
+          style={{
+            marginBottom: '1.25rem',
+            padding: '0.85rem 1rem',
+            borderRadius: '10px',
+            background: 'var(--surface-container-low)',
+            border: '1px solid var(--outline-variant)',
+            fontSize: '0.88rem',
+            lineHeight: 1.45,
+          }}
+        >
+          <strong style={{ color: 'var(--color-on-surface)' }}>Resume on file</strong>
+          <span style={{ color: 'var(--color-on-surface-variant)' }}>
+            {' '}
+            — Text below is prefilled from your stored resume. Edit it or add focus bullets. The generator also uses your full resume on the server when available.
+          </span>
+          <div style={{ marginTop: '0.5rem' }}>
+            <Link href="/dashboard/resume" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+              View or update resume
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <p className="ai-tool-resume-hint" style={{ fontSize: '0.88rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
+          No resume text found yet.{' '}
+          <Link href="/dashboard/resume" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+            Upload a resume
+          </Link>{' '}
+          to prefill this section automatically next time.
+        </p>
+      )}
+
       <div className="form-group">
         <label htmlFor="role">Target role / job title</label>
         <input
@@ -60,13 +136,18 @@ export default function LinkedInAboutForm() {
         />
       </div>
       <div className="form-group">
-        <label htmlFor="bullets">3-5 bullet points about yourself</label>
+        <label htmlFor="bullets">Highlights (bullets or resume excerpt)</label>
         <textarea
           id="bullets"
           value={bullets}
-          onChange={(e) => setBullets(e.target.value)}
-          placeholder={'• 5 years in IT support\n• Led migration to cloud\n• CompTIA A+ certified\n• Passionate about helping teams succeed'}
-          rows={8}
+          onChange={(e) => {
+            userEditedBullets.current = true;
+            setBullets(e.target.value);
+          }}
+          placeholder={
+            '• 5 years in IT support\n• Led migration to cloud\n• CompTIA A+ certified\n\nOr paste your resume summary here — if you have a file on file, it may load automatically.'
+          }
+          rows={10}
           required
           disabled={loading}
         />

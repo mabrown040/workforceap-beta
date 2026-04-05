@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { getProgramBySlug } from '@/lib/content/programs';
 import MemberWorkspaceShell from '@/components/portal/MemberWorkspaceShell';
 
 export default async function DashboardLayout({
@@ -16,8 +15,6 @@ export default async function DashboardLayout({
     where: { id: user.id },
     select: {
       deletedAt: true,
-      enrolledProgram: true,
-      coursesCompleted: true,
       profile: {
         select: {
           resumeOriginalPath: true,
@@ -31,26 +28,11 @@ export default async function DashboardLayout({
     redirect('/login?deleted=1');
   }
 
-  const enrolledProgram = dbUser?.enrolledProgram ?? null;
-  const coursesCompleted = (dbUser?.coursesCompleted as string[] | null) ?? [];
-  const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
-  const totalCourses = program?.courses.length ?? 0;
-  const completedCount = program
-    ? coursesCompleted.filter((s) => program.courses.some((c) => c.slug === s)).length
-    : 0;
-
   const hasResume = !!(
     dbUser?.profile?.resumeOriginalPath || dbUser?.profile?.resumeEnhancedPath
   );
 
   return (
-    <MemberWorkspaceShell
-      programTitle={program?.title}
-      completedCount={completedCount}
-      totalCount={totalCourses}
-      hasResume={hasResume}
-    >
-      {children}
-    </MemberWorkspaceShell>
+    <MemberWorkspaceShell hasResume={hasResume}>{children}</MemberWorkspaceShell>
   );
 }

@@ -30,6 +30,7 @@ export type Leader = {
   name: string;
   role: string;
   title: string;
+  /** Public path to headshot, or empty string if none yet */
   image: string;
   founder: boolean;
   linkedin: string;
@@ -452,8 +453,8 @@ export const LEADERS: Leader[] = [
     name: 'Michael Brown II',
     role: 'Lead Consultant',
     title: 'Lead Consultant',
-    image:
-      'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80',
+    /** Empty until a real headshot is available — listing and bio pages omit the placeholder */
+    image: '',
     founder: false,
     linkedin: '',
     section: 'consultant',

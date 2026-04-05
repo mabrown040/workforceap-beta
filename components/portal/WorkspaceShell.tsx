@@ -82,9 +82,21 @@ export default function WorkspaceShell({
   useEffect(() => {
     const el = mainRef.current;
     if (!el) return;
-    el.inert = drawerOpen;
+    try {
+      if ('inert' in el) {
+        (el as HTMLElement & { inert?: boolean }).inert = drawerOpen;
+      }
+    } catch {
+      /* Safari / older browsers — skip; drawer overlay still blocks interaction */
+    }
     return () => {
-      el.inert = false;
+      try {
+        if ('inert' in el) {
+          (el as HTMLElement & { inert?: boolean }).inert = false;
+        }
+      } catch {
+        /* ignore */
+      }
     };
   }, [drawerOpen]);
 
@@ -173,6 +185,9 @@ export default function WorkspaceShell({
       document.documentElement.style.setProperty('--workspace-top-offset', `${hh + th}px`);
     };
     update();
+    if (typeof ResizeObserver === 'undefined') {
+      return;
+    }
     const ro = new ResizeObserver(update);
     if (headerEl) ro.observe(headerEl);
     if (tabEl) ro.observe(tabEl);

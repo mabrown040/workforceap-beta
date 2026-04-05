@@ -229,7 +229,7 @@ export default function MockInterviewVideoRecorder({
       cleanupStream();
       chunksRef.current = [];
     }
-  }, [phase, wantRecording, role, interviewType]);
+  }, [phase, wantRecording, role, interviewType, externalStreamRef]);
 
   if (!wantRecording) return null;
 

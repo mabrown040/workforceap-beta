@@ -16,7 +16,7 @@ import { isSuperAdmin } from '@/lib/auth/roles';
 import { MEMBER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { formatPortalDate } from '@/lib/formatDate';
-import MemberDashboardVoiceSection from '@/components/portal/MemberDashboardVoiceSection';
+import MemberDashboardVoiceSectionLazy from '@/components/portal/MemberDashboardVoiceSectionLazy';
 import MemberNextStepsStrip from '@/components/portal/MemberNextStepsStrip';
 import { getMemberEngagementSignals } from '@/lib/member/memberEngagementSignals';
 import { buildNextBestActions } from '@/lib/member/nextBestActions';
@@ -258,7 +258,7 @@ export default async function DashboardPage() {
         </section>
 
         <section style={{ padding: '0 1.5rem 1.25rem' }}>
-          <MemberDashboardVoiceSection />
+          <MemberDashboardVoiceSectionLazy />
         </section>
 
         {nextBestActions.length > 0 && (
@@ -409,7 +409,7 @@ export default async function DashboardPage() {
           }}
         >
           <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 2rem 1.5rem' }}>
-            <MemberDashboardVoiceSection />
+            <MemberDashboardVoiceSectionLazy />
           </div>
           <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 2rem' }}>
             <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />

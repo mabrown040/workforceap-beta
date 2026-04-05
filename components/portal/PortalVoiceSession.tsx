@@ -1,6 +1,13 @@
 ﻿'use client';
 
-import { useState, useEffect, useRef, type MutableRefObject } from 'react';
+import {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  type MutableRefObject,
+  type UIEvent,
+} from 'react';
 import { Conversation } from '@elevenlabs/client';
 import type { BaseSessionConfig } from '@elevenlabs/client';
 
@@ -194,7 +201,16 @@ export default function PortalVoiceSession({
   const lastLiveDraftSentRef = useRef<string | null>(null);
   const sessionPayloadRef = useRef(sessionPayload);
   sessionPayloadRef.current = sessionPayload;
-  const liveTranscriptEndRef = useRef<HTMLDivElement | null>(null);
+  /** Scroll container for live transcript — never use scrollIntoView (it scrolls the whole page). */
+  const liveTranscriptScrollRef = useRef<HTMLDivElement | null>(null);
+  /** User scrolled up inside the transcript → do not auto-follow new lines until they scroll back to bottom. */
+  const liveTranscriptStickBottomRef = useRef(true);
+
+  const onLiveTranscriptScroll = useCallback((e: UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+    liveTranscriptStickBottomRef.current = nearBottom;
+  }, []);
 
   function stopVideoRecordingStream() {
     if (!videoStreamRef) return;
@@ -239,7 +255,9 @@ export default function PortalVoiceSession({
 
   useEffect(() => {
     if (!showLiveTranscript || liveLines.length === 0) return;
-    liveTranscriptEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const el = liveTranscriptScrollRef.current;
+    if (!el || !liveTranscriptStickBottomRef.current) return;
+    el.scrollTop = el.scrollHeight;
   }, [liveLines, showLiveTranscript]);
 
   useEffect(() => {
@@ -293,6 +311,7 @@ export default function PortalVoiceSession({
   async function startSession() {
     setVoiceError('');
     setLiveLines([]);
+    liveTranscriptStickBottomRef.current = true;
     setPhase('connecting');
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -751,6 +770,8 @@ export default function PortalVoiceSession({
               </span>
             </div>
             <div
+              ref={liveTranscriptScrollRef}
+              onScroll={onLiveTranscriptScroll}
               style={{
                 maxHeight: 220,
                 overflowY: 'auto',
@@ -806,7 +827,6 @@ export default function PortalVoiceSession({
                   );
                 })
               )}
-              <div ref={liveTranscriptEndRef} />
             </div>
           </div>
         ) : null}

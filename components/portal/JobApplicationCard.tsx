@@ -49,13 +49,20 @@ export default function JobApplicationCard({
 
   if (isEditing) {
     return (
-      <div className="wa-bg-white wa-border-2 wa-border-[#8c0f37] wa-rounded-lg wa-p-4 wa-shadow-md">
+      <div className="stitch-card job-app-card job-app-card--editing" style={{ padding: '1rem' }}>
         <div className="wa-mb-4">
-          <label className="wa-block wa-text-xs wa-font-bold wa-uppercase wa-text-gray-700 wa-mb-2">Status</label>
+          <label className="wa-block wa-text-xs wa-font-bold wa-uppercase wa-mb-2" style={{ color: 'var(--color-on-surface-variant)' }}>
+            Status
+          </label>
           <select
             value={selectedStatus}
             onChange={e => setSelectedStatus(e.target.value as JobApplicationStatus)}
-            className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded wa-text-sm"
+            className="wa-w-full wa-px-3 wa-py-2 wa-rounded wa-text-sm"
+            style={{
+              border: '1px solid rgba(222,191,194,0.35)',
+              background: 'var(--surface-container-lowest)',
+              color: 'var(--color-on-surface)',
+            }}
           >
             {availableStatuses.map(status => (
               <option key={status} value={status}>
@@ -66,11 +73,18 @@ export default function JobApplicationCard({
         </div>
 
         <div className="wa-mb-4">
-          <label className="wa-block wa-text-xs wa-font-bold wa-uppercase wa-text-gray-700 wa-mb-2">Notes</label>
+          <label className="wa-block wa-text-xs wa-font-bold wa-uppercase wa-mb-2" style={{ color: 'var(--color-on-surface-variant)' }}>
+            Notes
+          </label>
           <textarea
             value={notes}
             onChange={e => setNotes(e.target.value)}
-            className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded wa-text-sm"
+            className="wa-w-full wa-px-3 wa-py-2 wa-rounded wa-text-sm"
+            style={{
+              border: '1px solid rgba(222,191,194,0.35)',
+              background: 'var(--surface-container-lowest)',
+              color: 'var(--color-on-surface)',
+            }}
             rows={3}
             placeholder="Add notes about this application..."
           />
@@ -79,13 +93,20 @@ export default function JobApplicationCard({
         <div className="wa-flex wa-gap-2">
           <button
             onClick={handleStatusChange}
-            className="wa-flex-1 wa-px-3 wa-py-2 wa-bg-[#8c0f37] wa-text-white wa-text-sm wa-font-medium wa-rounded hover:wa-bg-[#6b0a2a]"
+            type="button"
+            className="wa-flex-1 wa-px-3 wa-py-2 wa-text-white wa-text-sm wa-font-medium wa-rounded"
+            style={{ background: 'var(--color-accent-dark, #6b0c29)' }}
           >
             Save
           </button>
           <button
+            type="button"
             onClick={() => setIsEditing(false)}
-            className="wa-flex-1 wa-px-3 wa-py-2 wa-bg-gray-200 wa-text-gray-700 wa-text-sm wa-font-medium wa-rounded hover:wa-bg-gray-300"
+            className="wa-flex-1 wa-px-3 wa-py-2 wa-text-sm wa-font-medium wa-rounded"
+            style={{
+              background: 'var(--surface-container-high)',
+              color: 'var(--color-on-surface)',
+            }}
           >
             Cancel
           </button>
@@ -97,10 +118,13 @@ export default function JobApplicationCard({
   return (
     <div
       onClick={() => setIsEditing(true)}
-      className="wa-bg-white wa-border wa-rounded-lg wa-p-3 wa-cursor-pointer hover:wa-shadow-md wa-transition-shadow"
+      className="stitch-card job-app-card"
+      style={{ padding: '0.75rem' }}
     >
       <div className="wa-flex wa-items-start wa-justify-between wa-gap-2 wa-mb-1">
-        <h4 className="wa-font-bold wa-text-sm wa-text-gray-900">{application.role}</h4>
+        <h4 className="wa-font-bold wa-text-sm" style={{ color: 'var(--color-on-surface)' }}>
+          {application.role}
+        </h4>
         {application.curatedJobId && (
           <span
             className="wa-shrink-0 wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-wide wa-px-2 wa-py-0.5 wa-rounded wa-bg-amber-100 wa-text-amber-900"
@@ -110,13 +134,16 @@ export default function JobApplicationCard({
           </span>
         )}
       </div>
-      <p className="wa-text-xs wa-text-gray-600 wa-mb-2">{application.company}</p>
+      <p className="wa-text-xs wa-mb-2" style={{ color: 'var(--color-on-surface-variant)' }}>
+        {application.company}
+      </p>
 
       {application.curatedJobId && application.url && (
         <p className="wa-text-xs wa-mb-2">
           <Link
             href={application.url}
-            className="wa-text-[#8c0f37] wa-font-medium hover:wa-underline"
+            className="wa-font-medium hover:wa-underline"
+            style={{ color: 'var(--color-accent)' }}
             onClick={(e) => e.stopPropagation()}
           >
             View job posting →
@@ -125,22 +152,30 @@ export default function JobApplicationCard({
       )}
 
       {application.appliedAt && (
-        <p className="wa-text-xs wa-text-gray-500 wa-mb-1">
+        <p className="wa-text-xs wa-mb-1" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.9 }}>
           Applied {formatDate(application.appliedAt)} · {application.source}
         </p>
       )}
 
       {application.nextInterviewDate && (
-        <p className="wa-text-xs wa-text-[#8c0f37] wa-font-medium wa-mb-2">
-          🗓️ Interview: {formatDate(application.nextInterviewDate)}
+        <p className="wa-text-xs wa-font-medium wa-mb-2" style={{ color: 'var(--color-accent)' }}>
+          Interview: {formatDate(application.nextInterviewDate)}
         </p>
       )}
 
       {application.notes && (
-        <p className="wa-text-xs wa-text-gray-600 wa-border-t wa-pt-2 wa-mt-2">{application.notes}</p>
+        <p
+          className="wa-text-xs wa-border-t wa-pt-2 wa-mt-2"
+          style={{ color: 'var(--color-on-surface-variant)', borderColor: 'rgba(222,191,194,0.25)' }}
+        >
+          {application.notes}
+        </p>
       )}
 
-      <p className="wa-text-xs wa-text-gray-400 wa-mt-2 wa-pt-2 wa-border-t">
+      <p
+        className="wa-text-xs wa-mt-2 wa-pt-2 wa-border-t"
+        style={{ color: 'var(--color-on-surface-variant)', opacity: 0.7, borderColor: 'rgba(222,191,194,0.25)' }}
+      >
         Click to edit
       </p>
     </div>

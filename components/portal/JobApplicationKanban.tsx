@@ -28,13 +28,13 @@ const STATUS_LABELS: Record<JobApplicationStatus, string> = {
   REJECTED: 'Rejected',
 };
 
-const STATUS_COLORS: Record<JobApplicationStatus, { bg: string; badge: string; text: string }> = {
-  APPLIED: { bg: 'bg-gray-50', badge: 'bg-gray-100 text-gray-700', text: 'text-gray-600' },
-  PHONE_SCREEN: { bg: 'bg-blue-50', badge: 'bg-blue-100 text-blue-700', text: 'text-blue-600' },
-  INTERVIEWING: { bg: 'bg-amber-50', badge: 'bg-amber-100 text-amber-700', text: 'text-amber-600' },
-  OFFER: { bg: 'bg-green-50', badge: 'bg-green-100 text-green-700', text: 'text-green-600' },
-  SAVED: { bg: 'bg-slate-50', badge: 'bg-slate-200 text-slate-800', text: 'text-slate-600' },
-  REJECTED: { bg: 'bg-red-50', badge: 'bg-red-100 text-red-700', text: 'text-red-600' },
+const COLUMN_MODIFIERS: Record<JobApplicationStatus, string> = {
+  SAVED: 'portal-kanban-column--saved',
+  APPLIED: 'portal-kanban-column--applied',
+  PHONE_SCREEN: 'portal-kanban-column--phone',
+  INTERVIEWING: 'portal-kanban-column--interviewing',
+  OFFER: 'portal-kanban-column--offer',
+  REJECTED: 'portal-kanban-column--rejected',
 };
 
 const STATUS_BADGE_CLASSES: Record<JobApplicationStatus, string> = {
@@ -69,20 +69,19 @@ function MobileApplicationCard({
   };
 
   return (
-    <div
-      style={{
-        background: 'var(--surface-container)',
-        borderRadius: '0.75rem',
-        padding: '1rem',
-        marginBottom: '0.75rem',
-      }}
-    >
+    <div className="stitch-card" style={{ padding: '1rem', marginBottom: '0.75rem' }}>
       <div className="wa-flex wa-items-start wa-justify-between wa-gap-2">
         <div className="wa-flex-1 wa-min-w-0">
-          <p className="wa-font-bold wa-text-sm wa-text-gray-900 wa-truncate">{application.role}</p>
-          <p className="wa-text-xs wa-text-gray-600 wa-mt-0.5">{application.company}</p>
+          <p className="wa-font-bold wa-text-sm wa-truncate" style={{ color: 'var(--color-on-surface)' }}>
+            {application.role}
+          </p>
+          <p className="wa-text-xs wa-mt-0.5" style={{ color: 'var(--color-on-surface-variant)' }}>
+            {application.company}
+          </p>
           {application.appliedAt && (
-            <p className="wa-text-xs wa-text-gray-500 wa-mt-1">Applied {formatDate(application.appliedAt)}</p>
+            <p className="wa-text-xs wa-mt-1" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.85 }}>
+              Applied {formatDate(application.appliedAt)}
+            </p>
           )}
         </div>
         <span
@@ -148,8 +147,8 @@ export default function JobApplicationKanban({
     {/* Mobile card list — hidden on md+ */}
     <div className="wa-block wa-md:wa-hidden">
       {applications.length === 0 ? (
-        <div className="wa-text-center wa-py-12 wa-border-2 wa-border-dashed wa-border-gray-300 wa-rounded-lg">
-          <p className="wa-text-gray-500">No applications yet.</p>
+        <div className="portal-kanban-mobile-empty">
+          <p style={{ margin: 0 }}>No applications yet.</p>
         </div>
       ) : (
         <div>
@@ -176,15 +175,17 @@ export default function JobApplicationKanban({
 
     {/* Desktop kanban — hidden on mobile */}
     <div className="wa-hidden wa-md:wa-block">
-    <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 lg:wa-grid-cols-3 xl:wa-grid-cols-6 wa-gap-4">
+    <div className="portal-kanban">
       {STATUSES.map(status => (
-        <div key={status} className={`${STATUS_COLORS[status].bg} wa-rounded-lg wa-p-4 wa-min-h-[500px]`}>
+        <div key={status} className={`portal-kanban-column ${COLUMN_MODIFIERS[status]}`}>
           {/* Column Header */}
           <div className="wa-mb-4">
-            <h3 className="wa-text-sm wa-font-bold wa-uppercase wa-tracking-wide wa-text-gray-900">
+            <h3 className="portal-kanban-column-title">
               {STATUS_LABELS[status]}
             </h3>
-            <span className={`wa-inline-block wa-mt-2 wa-px-3 wa-py-1 wa-text-xs wa-font-bold wa-rounded-full ${STATUS_COLORS[status].badge}`}>
+            <span
+              className={`wa-inline-block wa-mt-2 wa-px-3 wa-py-1 wa-text-xs wa-font-bold wa-rounded-full ${STATUS_BADGE_CLASSES[status]}`}
+            >
               {grouped[status].length}
             </span>
           </div>
@@ -192,7 +193,7 @@ export default function JobApplicationKanban({
           {/* Cards */}
           <div className="wa-space-y-3">
             {grouped[status].length === 0 ? (
-              <div className={`wa-p-4 wa-text-center wa-text-sm ${STATUS_COLORS[status].text} wa-border wa-border-dashed wa-border-gray-300 wa-rounded`}>
+              <div className="portal-kanban-empty">
                 No applications
               </div>
             ) : (

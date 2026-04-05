@@ -269,6 +269,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     badgeKey: 'counselor_sla_breach_48h',
   },
   { href: '/admin/members', label: 'Members', group: 'workflows', Icon: Users },
+  { href: '/admin/wioa-screening', label: 'WIOA screening', group: 'workflows', Icon: ClipboardList },
   { href: '/admin/members/interview-ready', label: 'Interview ready', group: 'workflows', Icon: ListChecks },
   { href: '/admin/invites', label: 'Invites', group: 'workflows', Icon: MessageSquare },
   { href: '/admin/assessments', label: 'Assessments', group: 'workflows', Icon: ClipboardCheck },

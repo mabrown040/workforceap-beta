@@ -10,6 +10,8 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import { counselorStudentStatusBadge } from '@/lib/counselor/memberStatus';
 import CounselorNotesPanel from './CounselorNotesPanel';
 import StaffMemberResumePanel from '@/components/counselor/StaffMemberResumePanel';
+import WioaScreeningReadonly from '@/components/admin/WioaScreeningReadonly';
+import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 
 type Props = { params: Promise<{ memberId: string }> };
 
@@ -48,6 +50,11 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
       enrolledProgram: true,
       programInterest: true,
       assessmentScorePct: true,
+      wioaQualificationJson: true,
+      wioaReviewStatus: true,
+      wioaReviewedAt: true,
+      wioaReviewedByUserId: true,
+      wioaReviewNotes: true,
       profile: {
         select: {
           resumeOriginalPath: true,
@@ -88,6 +95,16 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
 
   const hasResumeFiles =
     !!(member.profile?.resumeOriginalPath || member.profile?.resumeEnhancedPath);
+
+  const wioaSnap = parseWioaQualificationSnapshot(member.wioaQualificationJson);
+  let wioaReviewerName: string | null = null;
+  if (member.wioaReviewedByUserId) {
+    const rev = await prisma.user.findUnique({
+      where: { id: member.wioaReviewedByUserId },
+      select: { fullName: true },
+    });
+    wioaReviewerName = rev?.fullName ?? null;
+  }
 
   return (
     <>
@@ -315,6 +332,18 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
           <CounselorNotesPanel memberId={member.id} />
         </div>
 
+        {wioaSnap ? (
+          <div style={{ padding: '0 1rem 1rem' }}>
+            <WioaScreeningReadonly
+              snapshot={wioaSnap}
+              reviewStatus={member.wioaReviewStatus}
+              reviewedAt={member.wioaReviewedAt?.toISOString() ?? null}
+              reviewerName={wioaReviewerName}
+              reviewNotes={member.wioaReviewNotes}
+            />
+          </div>
+        ) : null}
+
         {hasResumeFiles ? (
           <div style={{ padding: '0 1rem 1.5rem' }}>
             <div
@@ -344,6 +373,18 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
             ← Back to students
           </Link>
           <PageHeader title={member.fullName} subtitle={member.email} />
+
+          {wioaSnap ? (
+            <section style={{ marginTop: '1.5rem' }}>
+              <WioaScreeningReadonly
+                snapshot={wioaSnap}
+                reviewStatus={member.wioaReviewStatus}
+                reviewedAt={member.wioaReviewedAt?.toISOString() ?? null}
+                reviewerName={wioaReviewerName}
+                reviewNotes={member.wioaReviewNotes}
+              />
+            </section>
+          ) : null}
 
           {hasResumeFiles ? (
             <section style={{ marginTop: '1.5rem' }}>

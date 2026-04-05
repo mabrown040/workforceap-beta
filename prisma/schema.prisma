@@ -77,6 +77,12 @@ model User {
   careerRecommendationJson    Json?     @map("career_recommendation_json")
   /// Self-service WIA/WIOA screening answers + eligibility signal (not a legal determination).
   wioaQualificationJson       Json?     @map("wioa_qualification_json")
+  /// Staff review: pending | in_review | verified | not_eligible | needs_info
+  wioaReviewStatus            String?   @map("wioa_review_status")
+  wioaReviewedAt              DateTime? @map("wioa_reviewed_at")
+  wioaReviewedByUserId        String?   @map("wioa_reviewed_by_user_id")
+  wioaReviewNotes             String?   @map("wioa_review_notes") @db.Text
+  wioaReviewer                User?     @relation("WioaReviewStaff", fields: [wioaReviewedByUserId], references: [id], onDelete: SetNull)
   /// Admin pipeline board column; when null, stage is derived from enrollment, courses, certs, placement.
   pipelineBoardStage   PipelineBoardStage? @map("pipeline_board_stage")
 
@@ -139,8 +145,10 @@ model User {
 
   mentorProfile             Mentor?
   mentorSessions            MentorSession[] @relation("MentorSessionMember")
+  membersWioaReviewed       User[]          @relation("WioaReviewStaff")
 
   @@index([organizationId])
+  @@index([wioaReviewStatus])
   @@map("users")
 }
 

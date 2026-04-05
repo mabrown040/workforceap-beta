@@ -49,7 +49,13 @@ export async function POST(request: Request) {
 
   await prisma.user.update({
     where: { id: user.id },
-    data: { wioaQualificationJson: snapshot as object },
+    data: {
+      wioaQualificationJson: snapshot as object,
+      wioaReviewStatus: 'pending',
+      wioaReviewedAt: null,
+      wioaReviewedByUserId: null,
+      wioaReviewNotes: null,
+    },
   });
 
   const dbUser = await prisma.user.findUnique({

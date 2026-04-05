@@ -38,6 +38,13 @@ export type WioaQualificationSnapshot = {
   version: 1;
 };
 
+export function parseWioaQualificationSnapshot(raw: unknown): WioaQualificationSnapshot | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const o = raw as Record<string, unknown>;
+  if (o.version !== 1 || typeof o.submittedAt !== 'string' || typeof o.signal !== 'string') return null;
+  return o as unknown as WioaQualificationSnapshot;
+}
+
 const BARRIER_LABELS: Record<WioaBarrier, string> = {
   none: 'No major barrier right now',
   basic_skills: 'Basic skills / digital literacy',

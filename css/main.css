@@ -571,6 +571,23 @@ html.dark .workspace-sidebar-link.active {
 html.dark .workspace-shell-main-inner {
     color: var(--color-on-surface);
 }
+/* Tab bar matches glass header + member portal in dark mode (was light-only). */
+html.dark .workspace-tab-bar {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur-xl);
+    -webkit-backdrop-filter: var(--glass-blur-xl);
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+html.dark .workspace-tab {
+    color: var(--color-on-surface-variant);
+}
+html.dark .workspace-tab:hover {
+    color: var(--color-on-surface);
+}
+html.dark .workspace-tab--active {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+}
 html.dark .portal-shell-header {
     background: var(--glass-bg);
     backdrop-filter: var(--glass-blur-xl);

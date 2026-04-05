@@ -6029,12 +6029,12 @@ img.img-fade.loaded { opacity: 1; }
         opacity: 1;
         transform: none;
         display: none;
-        background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.06);
+        background: rgba(255,255,255,0.10);
+        border: 1px solid rgba(255,255,255,0.14);
         border-radius: 18px;
         padding: 0.35rem;
         margin: 0 0 0.75rem 0;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
         min-width: unset;
     }
     .dropdown-menu::before { display: none; }
@@ -6053,17 +6053,17 @@ img.img-fade.loaded { opacity: 1; }
         display: flex;
         align-items: center;
         border-radius: var(--radius-sm);
-        color: rgba(255,255,255,0.92);
+        color: rgba(255,255,255,0.92) !important;
         transition: background var(--transition-fast), color var(--transition-fast);
     }
     .dropdown-menu a:hover,
     .dropdown-menu a:active {
-        background: rgba(255,255,255,0.08);
-        color: var(--color-white);
+        background: rgba(255,255,255,0.14);
+        color: var(--color-white) !important;
         padding-left: 1.25rem;
     }
     .dropdown-menu a.active {
-        color: var(--color-gold);
+        color: var(--color-gold) !important;
     }
     .nav-cta, a.nav-cta {
         margin-top: 1rem !important;

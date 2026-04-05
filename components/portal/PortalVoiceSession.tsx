@@ -227,7 +227,19 @@ export default function PortalVoiceSession({
       typeof sessionPayload?.liveResumeDraft === 'string' ? sessionPayload.liveResumeDraft : '';
 
     if (lastLiveDraftSentRef.current === null) {
-      lastLiveDraftSentRef.current = draft;
+      const conv = convRef.current;
+      if (conv) {
+        const body = draft.trim()
+          ? `${LIVE_RESUME_CONTEXT_PREFIX}${draft.slice(0, LIVE_RESUME_CONTEXT_MAX_BODY)}`
+          : '[Live resume draft updated — the live draft is now empty.]';
+        try {
+          conv.sendContextualUpdate(body);
+          lastLiveDraftSentRef.current = draft;
+          logVoice('live_resume_context_initial_effect', { len: body.length });
+        } catch (e) {
+          logVoice('live_resume_context_initial_effect_failed', e);
+        }
+      }
       return;
     }
 
@@ -319,6 +331,22 @@ export default function PortalVoiceSession({
       setPhase('pre');
       return;
     }
+
+    const pushInitialLiveResumeDraft = (conv: Conversation) => {
+      if (!pushLiveResumeDraftContext) return;
+      const draft =
+        typeof sessionPayload?.liveResumeDraft === 'string' ? sessionPayload.liveResumeDraft : '';
+      const body = draft.trim()
+        ? `${LIVE_RESUME_CONTEXT_PREFIX}${draft.slice(0, LIVE_RESUME_CONTEXT_MAX_BODY)}`
+        : '[Live resume draft updated — the live draft is now empty.]';
+      try {
+        conv.sendContextualUpdate(body);
+        lastLiveDraftSentRef.current = draft;
+        logVoice('live_resume_context_initial', { len: body.length });
+      } catch (e) {
+        logVoice('live_resume_context_initial_failed', e);
+      }
+    };
 
     const sessionCallbacks = {
       onConnect: () => {
@@ -421,6 +449,7 @@ export default function PortalVoiceSession({
             ...sessionCallbacks,
           });
           convRef.current = conv;
+          pushInitialLiveResumeDraft(conv);
         } catch (firstErr) {
           logVoice('start_threw_with_dynamic_variables', firstErr);
           if (!retryWithoutDynamicVariables) {
@@ -432,6 +461,7 @@ export default function PortalVoiceSession({
             ...sessionCallbacks,
           });
           convRef.current = conv;
+          pushInitialLiveResumeDraft(conv);
         }
       } else {
         logVoice('start_attempt', { plain: true });
@@ -440,6 +470,7 @@ export default function PortalVoiceSession({
           ...sessionCallbacks,
         });
         convRef.current = conv;
+        pushInitialLiveResumeDraft(conv);
       }
     } catch (err) {
       logVoice('start_failed_final', err);

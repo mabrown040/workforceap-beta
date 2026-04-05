@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
 import AIToolCard from '@/components/portal/AIToolCard';
+import VoiceCoachesPromo from '@/components/portal/VoiceCoachesPromo';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'AI Career Toolkit',
@@ -312,6 +313,8 @@ export default async function AIToolsPage() {
             View my past results
           </Link>
         </section>
+
+        <VoiceCoachesPromo />
 
         <section style={{ padding: '0 clamp(1rem, 4vw, 1.5rem) 2rem', maxWidth: '1100px', margin: '0 auto' }}>
           <div className="ai-tools-grid">

@@ -22,10 +22,16 @@ const ENV_KEYS: Record<ElevenLabsPortalAgentKey, string> = {
   partner: 'ELEVENLABS_PARTNER_AGENT_ID',
 };
 
-/** Defaults preserve behavior if env is unset (interview + counselor only). */
+/**
+ * Defaults if env is unset — production should set `ELEVENLABS_*_AGENT_ID` per deploy.
+ * IDs match WorkforceAP agents in the ElevenLabs workspace (ConvAI).
+ */
 const FALLBACK_AGENT_IDS: Partial<Record<ElevenLabsPortalAgentKey, string>> = {
   interview: 'agent_9001kmy4g522e5ttvj88k5z1ygem',
   counselor: 'agent_2801kmznvsemfmms06r0e02es1b9',
+  employer: 'agent_0901kmznx45vf19s9psjrctqr6x5',
+  readiness: 'agent_5801kmznwny0e8gtmb726aaeevnt',
+  resume_coach: 'agent_6601kmznw90ffxkbk7mpbym73vh9',
 };
 
 export function getElevenLabsAgentId(key: ElevenLabsPortalAgentKey): string | undefined {

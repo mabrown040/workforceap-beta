@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
+import { fetchMemberPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 
 /** POST — signed URL for voice mock interview with role / style context. */
 export async function POST(req: NextRequest) {
@@ -17,7 +18,9 @@ export async function POST(req: NextRequest) {
   const role = body.role?.trim() || 'the candidate';
   const interviewType = body.interviewType?.trim() || 'Behavioral';
 
+  const member = await fetchMemberPortalDynamicVariables(user.id);
   const dynamicVariables = {
+    ...member,
     target_role: role,
     interview_type: interviewType,
   };

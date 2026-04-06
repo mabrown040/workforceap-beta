@@ -66,10 +66,10 @@ export async function POST(
             ? 'Counselor'
             : 'Student';
 
-    const oldToken = invitation.token;
-    const oldExpiresAt = invitation.expiresAt;
+    const previousToken = invitation.token;
+    const previousExpiresAt = invitation.expiresAt;
 
-    // Persist the new token first so any email sent always matches the DB.
+    // Persist new token before emailing so the message never contains a token that is not in the DB.
     await prisma.invitation.update({
       where: { id },
       data: { token: newToken, expiresAt },
@@ -84,18 +84,20 @@ export async function POST(
     });
 
     if (!emailResult.ok) {
-      // Revert to the previous token so the recipient is not left with a broken link.
-      await prisma.invitation.update({
-        where: { id },
-        data: { token: oldToken, expiresAt: oldExpiresAt },
-      });
-
+      try {
+        await prisma.invitation.update({
+          where: { id },
+          data: { token: previousToken, expiresAt: previousExpiresAt },
+        });
+      } catch (revertErr) {
+        console.error('[admin/invites resend] failed to revert token after email failure:', revertErr);
+      }
       return NextResponse.json(
         {
           error:
             emailResult.error === 'Email not configured'
               ? 'Email is not configured (RESEND_API_KEY). Copy the invite link from the list or configure Resend.'
-              : 'Failed to send email. The invitation link was not changed — you can try again.',
+              : 'Failed to send email. The previous invitation link is still valid — try again.',
           emailSent: false,
         },
         { status: 500 }

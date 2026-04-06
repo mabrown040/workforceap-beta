@@ -47,6 +47,14 @@ export default function VoiceInterviewScaffold() {
 
   const wantRecording = recordVideo && recordingConsent;
   const canStart = role.trim().length > 0 && (!recordVideo || recordingConsent);
+  const needsConsentForCamera = recordVideo && !recordingConsent && role.trim().length > 0;
+
+  const enterVoiceSession = useCallback(() => {
+    setVideoErr('');
+    setCameraPriming(false);
+    setVoiceSessionKey((k) => k + 1);
+    setReady(true);
+  }, []);
 
   return (
     <div>
@@ -123,6 +131,20 @@ export default function VoiceInterviewScaffold() {
                 </span>
               </label>
             ) : null}
+            {needsConsentForCamera ? (
+              <p
+                role="status"
+                style={{
+                  margin: '0.75rem 0 0',
+                  fontSize: '0.82rem',
+                  color: 'var(--color-accent)',
+                  fontWeight: 600,
+                }}
+              >
+                Check the consent box above to continue with camera recording, or turn off “Record my camera” for voice
+                only.
+              </p>
+            ) : null}
           </div>
 
           {videoErr && !ready ? (
@@ -149,8 +171,7 @@ export default function VoiceInterviewScaffold() {
                   setRecordVideo(false);
                   setRecordingConsent(false);
                   setVideoErr('');
-                  setVoiceSessionKey((k) => k + 1);
-                  setReady(true);
+                  enterVoiceSession();
                 }}
               >
                 Continue with voice only (no camera recording)
@@ -171,15 +192,23 @@ export default function VoiceInterviewScaffold() {
 
                 try {
                   if (wantRecording) {
+                    const md = typeof navigator !== 'undefined' ? navigator.mediaDevices : undefined;
+                    const gum = md?.getUserMedia?.bind(md);
+                    if (!gum) {
+                      setVideoErr(
+                        'Camera is not available in this browser or context (use HTTPS or turn off camera recording). You can continue with voice only below.'
+                      );
+                      return;
+                    }
                     try {
-                      const vs = await navigator.mediaDevices.getUserMedia({
+                      const vs = await gum({
                         video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
                         audio: false,
                       });
                       videoStreamRef.current = vs;
                     } catch {
                       try {
-                        videoStreamRef.current = await navigator.mediaDevices.getUserMedia({
+                        videoStreamRef.current = await gum({
                           video: true,
                           audio: false,
                         });
@@ -192,8 +221,12 @@ export default function VoiceInterviewScaffold() {
                     }
                   }
 
-                  setVoiceSessionKey((k) => k + 1);
-                  setReady(true);
+                  enterVoiceSession();
+                } catch (e) {
+                  console.error('[VoiceInterviewScaffold] start failed', e);
+                  setVideoErr(
+                    'Something went wrong starting the session. Try “Continue with voice only” below, or refresh the page.'
+                  );
                 } finally {
                   setCameraPriming(false);
                 }

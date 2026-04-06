@@ -166,6 +166,49 @@ export async function loadMemberCareerBriefBundle(userId: string, options?: { ac
   return { user: rows.user, careerBrief };
 }
 
+const emptyScoreBreakdown = (): ScoreBreakdown =>
+  buildScoreBreakdownFromRelations(null, [], [], [], [], [], [], [], null);
+
+/**
+ * Same as loadMemberCareerBriefBundle but survives transient DB errors: retries with a single
+ * user query + empty satellite rows so the dashboard still renders.
+ */
+export async function loadMemberCareerBriefBundleSafe(
+  userId: string,
+  options?: { activeMemberOnly?: boolean }
+): Promise<{ user: MemberCareerBriefUser | null; careerBrief: CareerBriefContext }> {
+  try {
+    return await loadMemberCareerBriefBundle(userId, options);
+  } catch (firstErr) {
+    console.error('[loadMemberCareerBriefBundleSafe] primary load failed', firstErr);
+    try {
+      const where = options?.activeMemberOnly ? { id: userId, deletedAt: null } : { id: userId };
+      const user = await prisma.user.findUnique({
+        where,
+        include: memberCareerBriefInclude,
+      });
+      if (!user) {
+        return { user: null, careerBrief: assembleCareerBriefContext(null, emptyScoreBreakdown()) };
+      }
+      const scoreBreakdown = buildScoreBreakdownFromRelations(
+        user,
+        [],
+        user.aiToolResults ?? [],
+        [],
+        [],
+        [],
+        user.jobApplications ?? [],
+        [],
+        null
+      );
+      return { user, careerBrief: assembleCareerBriefContext(user, scoreBreakdown) };
+    } catch (secondErr) {
+      console.error('[loadMemberCareerBriefBundleSafe] fallback failed', secondErr);
+      throw firstErr;
+    }
+  }
+}
+
 export async function getCareerBriefContext(userId: string): Promise<CareerBriefContext> {
   const { careerBrief } = await loadMemberCareerBriefBundle(userId);
   return careerBrief;

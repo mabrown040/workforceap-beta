@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
-import { loadMemberCareerBriefBundle } from '@/lib/content/careerBriefPersonalization';
+import { loadMemberCareerBriefBundleSafe } from '@/lib/content/careerBriefPersonalization';
 import { prisma } from '@/lib/db/prisma';
 import { buildMemberApplicationStatusView } from '@/lib/member/memberApplicationStatus';
 import DashboardHomeClient from '@/components/portal/DashboardHomeClient';
@@ -32,70 +32,108 @@ export default async function DashboardPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard');
 
-  const { user: dbUser, careerBrief } = await loadMemberCareerBriefBundle(user.id, { activeMemberOnly: true });
+  const { user: dbUser, careerBrief } = await loadMemberCareerBriefBundleSafe(user.id, { activeMemberOnly: true });
   if (!dbUser) redirect('/login');
 
-  const [intakeExtra, profileForCompleteness, engagementSignals] = await Promise.all([
-    prisma.user.findUnique({
-      where: { id: user.id },
-      select: {
-        interviewEligible: true,
-        interviewRequestedAt: true,
-        interviewCompletedAt: true,
-        preScreeningResponse: { select: { id: true } },
-        onboardingCompletedAt: true,
-        tourCompletedAt: true,
-        fullName: true,
-        phone: true,
-        programInterest: true,
-        careerRecommendationJson: true,
-        needsComputerSupportFollowUp: true,
-        profile: {
-          select: {
-            city: true,
-            state: true,
-            zip: true,
-            profilePhone: true,
-            referralSource: true,
-            dob: true,
-            isMinor: true,
-          },
+  const intakePromise = prisma.user.findUnique({
+    where: { id: user.id },
+    select: {
+      interviewEligible: true,
+      interviewRequestedAt: true,
+      interviewCompletedAt: true,
+      preScreeningResponse: { select: { id: true } },
+      onboardingCompletedAt: true,
+      tourCompletedAt: true,
+      fullName: true,
+      phone: true,
+      programInterest: true,
+      careerRecommendationJson: true,
+      needsComputerSupportFollowUp: true,
+      profile: {
+        select: {
+          city: true,
+          state: true,
+          zip: true,
+          profilePhone: true,
+          referralSource: true,
+          dob: true,
+          isMinor: true,
         },
       },
-    }),
-    prisma.profile.findUnique({
-      where: { userId: user.id },
-      select: {
-        profilePhone: true,
-        profileAddress: true,
-        profileLinkedin: true,
-        profileBio: true,
-        employmentStatus: true,
-        educationLevel: true,
-      },
-    }),
-    getMemberEngagementSignals(user.id),
+    },
+  });
+  const profilePromise = prisma.profile.findUnique({
+    where: { userId: user.id },
+    select: {
+      profilePhone: true,
+      profileAddress: true,
+      profileLinkedin: true,
+      profileBio: true,
+      employmentStatus: true,
+      educationLevel: true,
+    },
+  });
+  const engagementPromise = getMemberEngagementSignals(user.id);
+
+  const [intakeResult, profileResult, engagementResult] = await Promise.allSettled([
+    intakePromise,
+    profilePromise,
+    engagementPromise,
   ]);
+
+  const intakeExtra = intakeResult.status === 'fulfilled' ? intakeResult.value : null;
+  if (intakeResult.status === 'rejected') {
+    console.error('[dashboard] intake query failed', intakeResult.reason);
+  }
+
+  const profileForCompleteness = profileResult.status === 'fulfilled' ? profileResult.value : null;
+  if (profileResult.status === 'rejected') {
+    console.error('[dashboard] profile completeness query failed', profileResult.reason);
+  }
+
+  const engagementSignals =
+    engagementResult.status === 'fulfilled'
+      ? engagementResult.value
+      : {
+          hasResume: false,
+          jobApplicationCount: 0,
+          counselorUnreadCount: 0,
+          weeklyRecapUnopened: false,
+        };
+  if (engagementResult.status === 'rejected') {
+    console.error('[dashboard] engagement signals failed', engagementResult.reason);
+  }
 
   const careerMatchFromProfile = intakeExtra?.careerRecommendationJson as CareerMatchResult | null;
 
-  const recentTools = await prisma.aIToolResult.findMany({
-    where: { userId: user.id },
-    orderBy: { createdAt: 'desc' },
-    take: 3,
-    select: { id: true, toolType: true, inputSummary: true, createdAt: true },
-  });
+  const [toolsResult, applicationResult] = await Promise.allSettled([
+    prisma.aIToolResult.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: 'desc' },
+      take: 3,
+      select: { id: true, toolType: true, inputSummary: true, createdAt: true },
+    }),
+    prisma.application.findFirst({
+      where: { userId: user.id },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        status: true,
+        programInterest: true,
+        submittedAt: true,
+        createdAt: true,
+      },
+    }),
+  ]);
 
-  const latestApplication = await prisma.application.findFirst({
-    where: { userId: user.id },
-    orderBy: { createdAt: 'desc' },
-    select: {
-      status: true,
-      programInterest: true,
-      submittedAt: true,
-      createdAt: true,
-    },
-  });
+  const recentTools = toolsResult.status === 'fulfilled' ? toolsResult.value : [];
+  if (toolsResult.status === 'rejected') {
+    console.error('[dashboard] recent AI tools query failed', toolsResult.reason);
+  }
+
+  const latestApplication = applicationResult.status === 'fulfilled' ? applicationResult.value : null;
+  if (applicationResult.status === 'rejected') {
+    console.error('[dashboard] latest application query failed', applicationResult.reason);
+  }
 
   const showMemberOnboarding = intakeExtra?.onboardingCompletedAt == null;
   const showMemberTour =
@@ -191,7 +229,12 @@ export default async function DashboardPage() {
   const jobSearchUrl = careerBrief.jobSearchUrl;
 
   const showMatchedRoles = assessmentCompleted;
-  const superAdmin = await isSuperAdmin(user.id);
+  let superAdmin = false;
+  try {
+    superAdmin = await isSuperAdmin(user.id);
+  } catch (e) {
+    console.error('[dashboard] isSuperAdmin failed', e);
+  }
 
   /* Mobile progress percentage for orb */
   const mobilePct = totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : 0;

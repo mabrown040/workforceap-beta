@@ -650,6 +650,24 @@ html.dark .admin-table td {
 html.dark .admin-table tbody tr:hover {
     background: #1a1f27;
 }
+
+/* Admin jobs filter tabs — ensure label + count are visible in light mode (audit: invisible tab text) */
+.admin-jobs-filter-tabs .btn.btn-ghost {
+    color: var(--color-on-surface);
+    border: 1px solid var(--outline-variant);
+    background: var(--surface-container-low);
+}
+.admin-jobs-filter-tabs .btn.btn-ghost:hover {
+    background: var(--surface-container);
+    border-color: var(--outline);
+}
+.admin-jobs-filter-tabs .btn.btn-ghost.active {
+    background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    font-weight: 600;
+}
+
 html.dark .admin-jobs-filter-tabs .btn.btn-ghost {
     background: #1f2630;
     color: #e5e7eb;

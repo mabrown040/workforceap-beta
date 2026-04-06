@@ -11,10 +11,15 @@ export default async function PartnerPortalLayout({ children }: { children: Reac
   const ctx = await getPartnerForUser(user.id);
   if (!ctx) redirect('/dashboard');
 
-  const directPartnerUser = await prisma.partnerUser.findUnique({
-    where: { userId: user.id },
-    select: { id: true },
-  });
+  let directPartnerUser: { id: string } | null = null;
+  try {
+    directPartnerUser = await prisma.partnerUser.findUnique({
+      where: { userId: user.id },
+      select: { id: true },
+    });
+  } catch (e) {
+    console.error('[partner/layout] partnerUser lookup failed', e);
+  }
   const superUser = await isSuperAdmin(user.id);
   const superBanner = superUser && !directPartnerUser;
 

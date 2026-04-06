@@ -29,14 +29,22 @@ export default async function WeeklyRecapPage() {
 
   const weekStart = getWeekStart(new Date());
   const { generateWeeklyRecap } = await import('@/lib/recap/generate');
-  // Always regenerate so activity counts stay fresh
-  const recap = await generateWeeklyRecap(user.id, weekStart);
+  let recap: Awaited<ReturnType<typeof generateWeeklyRecap>> | null = null;
+  try {
+    recap = await generateWeeklyRecap(user.id, weekStart);
+  } catch (e) {
+    console.error('[WeeklyRecapPage] generateWeeklyRecap failed', e);
+  }
 
   if (recap && !recap.openedAt) {
-    await prisma.weeklyRecap.update({
-      where: { id: recap.id },
-      data: { openedAt: new Date() },
-    });
+    try {
+      await prisma.weeklyRecap.update({
+        where: { id: recap.id },
+        data: { openedAt: new Date() },
+      });
+    } catch (e) {
+      console.error('[WeeklyRecapPage] openedAt update failed', e);
+    }
   }
 
   const recapData = recap?.recapJson as {

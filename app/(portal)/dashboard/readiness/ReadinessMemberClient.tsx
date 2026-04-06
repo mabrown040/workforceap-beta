@@ -40,8 +40,6 @@ export default function ReadinessMemberClient({
     () => initialSections.length === 0 && loadError == null
   );
 
-  const expanded = useMemo(() => buildExpanded(sections), [sections]);
-
   const [expandedMap, setExpandedMap] = useState<Record<number, boolean>>(() =>
     initialSections.length ? buildExpanded(initialSections) : {}
   );

@@ -18,10 +18,10 @@ const navItems = [
     ],
   },
   { href: '/programs', label: 'Programs' },
-  { href: '/partners', label: 'Partners' },
-  { href: '/blog', label: 'Blog' },
-  { href: '/employers', label: 'Employers' },
   { href: '/find-your-path', label: 'Find Your Path' },
+  { href: '/partners', label: 'Partners' },
+  { href: '/employers', label: 'Employers' },
+  { href: '/blog', label: 'Blog' },
   { href: '/contact', label: 'Contact Us' },
 ];
 

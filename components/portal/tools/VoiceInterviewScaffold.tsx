@@ -37,6 +37,10 @@ export default function VoiceInterviewScaffold() {
     }
   }, [ready]);
 
+  useEffect(() => {
+    if (!ready) setVideoErr('');
+  }, [recordVideo, recordingConsent, ready]);
+
   const onTranscriptChunk = useCallback((chunk: { speaker: 'agent' | 'user'; text: string }) => {
     if (chunk.speaker === 'user') setLastUserText(chunk.text);
   }, []);
@@ -121,6 +125,39 @@ export default function VoiceInterviewScaffold() {
             ) : null}
           </div>
 
+          {videoErr && !ready ? (
+            <div
+              role="alert"
+              style={{
+                marginBottom: '1rem',
+                padding: '0.75rem 1rem',
+                borderRadius: 8,
+                background: 'color-mix(in srgb, #b91c1c 8%, transparent)',
+                border: '1px solid color-mix(in srgb, #b91c1c 35%, transparent)',
+                fontSize: '0.88rem',
+                lineHeight: 1.5,
+                color: 'var(--color-on-surface)',
+              }}
+            >
+              <p style={{ margin: '0 0 0.65rem' }}>{videoErr}</p>
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                onClick={() => {
+                  videoStreamRef.current?.getTracks().forEach((t) => t.stop());
+                  videoStreamRef.current = null;
+                  setRecordVideo(false);
+                  setRecordingConsent(false);
+                  setVideoErr('');
+                  setVoiceSessionKey((k) => k + 1);
+                  setReady(true);
+                }}
+              >
+                Continue with voice only (no camera recording)
+              </button>
+            </div>
+          ) : null}
+
           <button
             type="button"
             className="btn btn-primary"
@@ -148,7 +185,7 @@ export default function VoiceInterviewScaffold() {
                         });
                       } catch {
                         setVideoErr(
-                          'Camera access was blocked or unavailable. Allow camera for this site in your browser settings, or turn off “Record my camera” and try again.'
+                          'Camera access was blocked or unavailable. Allow camera for this site in your browser settings, or turn off “Record my camera” and try again—or continue with voice only below.'
                         );
                         return;
                       }

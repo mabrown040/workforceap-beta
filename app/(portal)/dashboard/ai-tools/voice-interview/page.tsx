@@ -47,17 +47,12 @@ export default async function VoiceInterviewPage() {
         </p>
       </div>
 
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        <div style={{ padding: '1rem', maxWidth: 980, margin: '0 auto' }}>
+      {/* Single scaffold — duplicate mobile/desktop mounts caused two independent button states */}
+      <div style={{ paddingBottom: '6rem' }}>
+        <div style={{ maxWidth: 980, margin: '0 auto', padding: '1rem 1rem 2rem' }}>
           <VoiceInterviewScaffold />
         </div>
         <MobileBottomNav variant="portal" />
-      </div>
-
-      <div className="wa-hidden wa-md:wa-block">
-        <div style={{ maxWidth: 980, margin: '0 auto', padding: '2rem 1.5rem' }}>
-          <VoiceInterviewScaffold />
-        </div>
       </div>
     </div>
   );

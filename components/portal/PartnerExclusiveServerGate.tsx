@@ -18,9 +18,14 @@ export default async function PartnerExclusiveServerGate() {
   const user = await getUser();
   if (!user) return null;
 
-  const [partnerCtx, superAdmin] = await Promise.all([getPartnerForUser(user.id), isSuperAdmin(user.id)]);
-  if (partnerCtx && !superAdmin) {
-    redirect('/partner');
+  try {
+    const [partnerCtx, superAdmin] = await Promise.all([getPartnerForUser(user.id), isSuperAdmin(user.id)]);
+    if (partnerCtx && !superAdmin) {
+      redirect('/partner');
+    }
+  } catch (e) {
+    console.error('[PartnerExclusiveServerGate] role lookup failed', e);
+    /* Fail open: allow member UI when DB is unavailable; partner redirect is best-effort */
   }
 
   return null;

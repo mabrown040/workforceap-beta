@@ -66,7 +66,15 @@ export async function POST(
             ? 'Counselor'
             : 'Student';
 
-    // Send email before rotating the token so a failed send does not invalidate the existing link.
+    const oldToken = invitation.token;
+    const oldExpiresAt = invitation.expiresAt;
+
+    // Persist the new token first so any email sent always matches the DB.
+    await prisma.invitation.update({
+      where: { id },
+      data: { token: newToken, expiresAt },
+    });
+
     const emailResult = await sendInvitationEmail({
       to: invitation.email,
       inviterName: invitation.invitedBy.fullName.trim() || 'A WorkforceAP admin',
@@ -76,6 +84,12 @@ export async function POST(
     });
 
     if (!emailResult.ok) {
+      // Revert to the previous token so the recipient is not left with a broken link.
+      await prisma.invitation.update({
+        where: { id },
+        data: { token: oldToken, expiresAt: oldExpiresAt },
+      });
+
       return NextResponse.json(
         {
           error:
@@ -87,11 +101,6 @@ export async function POST(
         { status: 500 }
       );
     }
-
-    await prisma.invitation.update({
-      where: { id },
-      data: { token: newToken, expiresAt },
-    });
 
     return NextResponse.json({ ok: true, message: 'Invitation resent.', emailSent: true });
   } catch (error) {

@@ -9,6 +9,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { calculateFitScore } from '@/lib/admin/fitScore';
 import { calculateHealthStatus } from '@/lib/admin/healthScore';
+import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import MembersTable from '@/components/admin/MembersTable';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
@@ -76,7 +77,7 @@ export default async function AdminMembersPage() {
     return {
       ...m,
       programTitle: m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.title : null,
-      coursesCompleted: (m.coursesCompleted as string[] | null) ?? [],
+      coursesCompleted: parseCourseSlugList(m.coursesCompleted),
       totalCourses: m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.courses.length ?? 0 : 0,
       partnerName: m.partnerReferrals[0]?.partner.name ?? null,
       partnerId: m.partnerReferrals[0]?.partner.id ?? null,

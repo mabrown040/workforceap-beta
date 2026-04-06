@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import type { Prisma } from '@prisma/client';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
@@ -25,10 +26,67 @@ export default async function DashboardProfilePage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/profile');
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: user.id },
-    include: { profile: true },
-  });
+  const userSelect = {
+    id: true,
+    fullName: true,
+    email: true,
+    phone: true,
+    createdAt: true,
+    enrolledProgram: true,
+    enrolledAt: true,
+    assessmentCompleted: true,
+    assessmentCompletedAt: true,
+    assessmentScore: true,
+    assessmentScorePct: true,
+    assessmentAnswers: true,
+    notificationsUpdates: true,
+    notificationsReminders: true,
+    profile: {
+      select: {
+        profilePhone: true,
+        profileAddress: true,
+        profileLinkedin: true,
+        profileBio: true,
+        financialAidInterest: true,
+        resumeEnhancedPath: true,
+        resumeOriginalPath: true,
+      },
+    },
+  } satisfies Prisma.UserSelect;
+
+  type DashboardProfileUser = Prisma.UserGetPayload<{ select: typeof userSelect }>;
+  type DashboardProfileUserFallback = Omit<DashboardProfileUser, 'profile'> & { profile: null };
+
+  let dbUser: DashboardProfileUser | DashboardProfileUserFallback | null = null;
+
+  try {
+    dbUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: userSelect,
+    });
+  } catch (error) {
+    console.error('[dashboard/profile] user+profile query failed, retrying without profile relation:', error);
+    const fallbackUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        phone: true,
+        createdAt: true,
+        enrolledProgram: true,
+        enrolledAt: true,
+        assessmentCompleted: true,
+        assessmentCompletedAt: true,
+        assessmentScore: true,
+        assessmentScorePct: true,
+        assessmentAnswers: true,
+        notificationsUpdates: true,
+        notificationsReminders: true,
+      },
+    });
+    dbUser = fallbackUser ? { ...fallbackUser, profile: null } : null;
+  }
 
   if (!dbUser) redirect('/login');
 
@@ -127,7 +185,7 @@ export default async function DashboardProfilePage() {
             <div>
               <p className="wa-text-[10px] wa-text-[#584144] wa-font-medium wa-uppercase wa-tracking-wider wa-mb-0.5">Location</p>
               <p className="wa-text-sm wa-font-semibold wa-text-[#1c1b1b]">
-                {[dbUser.profile?.city, dbUser.profile?.state].filter(Boolean).join(', ') || (dbUser.profile?.profileAddress ?? '—')}
+                {dbUser.profile?.profileAddress ?? '—'}
               </p>
             </div>
           </div>

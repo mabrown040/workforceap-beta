@@ -1,6 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import VoiceSectionErrorBoundary from '@/components/portal/VoiceSectionErrorBoundary';
 
 /**
  * Load voice panels only on the client so a bad ElevenLabs bundle / CSP edge case
@@ -12,5 +13,9 @@ const MemberDashboardVoiceSection = dynamic(
 );
 
 export default function MemberDashboardVoiceSectionLazy() {
-  return <MemberDashboardVoiceSection />;
+  return (
+    <VoiceSectionErrorBoundary>
+      <MemberDashboardVoiceSection />
+    </VoiceSectionErrorBoundary>
+  );
 }

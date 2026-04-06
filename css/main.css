@@ -1558,7 +1558,8 @@ body.mobile-nav-open .main-nav::after {
     }
 }
 .nav-container {
-    max-width: var(--max-width);
+    /* Wider than page content so primary links + Your account + Apply fit on one row */
+    max-width: min(100%, var(--max-width-lg));
     margin: 0 auto;
     padding: 0 1.5rem;
     display: flex;
@@ -1603,14 +1604,16 @@ body.mobile-nav-open .main-nav::after {
 .nav-menu {
     display: flex;
     align-items: center;
-    gap: 1.75rem;
+    gap: 1.35rem;
     margin: 0;
     margin-left: auto;
     padding: 0;
+    flex-wrap: nowrap;
+    min-width: 0;
 }
 .nav-menu a {
     color: var(--color-on-surface);
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 500;
     transition: color var(--transition-fast);
     position: relative;
@@ -1632,7 +1635,7 @@ body.mobile-nav-open .main-nav::after {
 .nav-menu .dropdown { position: relative; padding: 0.5rem 0; }
 .nav-menu .dropdown .dropdown-trigger {
     color: var(--color-on-surface);
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 500;
     font-family: inherit;
     cursor: pointer;
@@ -1719,6 +1722,68 @@ html:not(.dark) .main-nav.scrolled .nav-menu .dropdown .dropdown-trigger.active 
 .dropdown-menu a::after { display: none; }
 .dropdown-menu a { color: var(--color-on-surface) !important; }
 .dropdown-menu a:hover { background: rgba(173,44,77,0.06); color: var(--color-accent) !important; padding-left: 22px; }
+
+/* Login / Account: primary link + chevron opens portal shortcuts */
+.nav-login-split {
+    display: inline-flex;
+    align-items: stretch;
+    border-radius: var(--radius-sm, 4px);
+}
+.nav-menu .nav-login-primary {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 0.35rem 0.5rem 0;
+    min-height: 44px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--color-on-surface);
+}
+.nav-menu .nav-login-primary::after {
+    bottom: -2px;
+}
+.nav-login-flyout-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.2rem 0 0.15rem;
+    min-width: 2rem;
+    min-height: 44px;
+    margin: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    -webkit-tap-highlight-color: transparent;
+}
+.nav-login-flyout-chevron {
+    display: block;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid currentColor;
+    opacity: 0.55;
+    transition: transform var(--transition-fast), opacity var(--transition-fast);
+}
+.nav-login-dropdown:hover .nav-login-flyout-chevron,
+.nav-login-dropdown:focus-within .nav-login-flyout-chevron,
+.nav-login-dropdown.active .nav-login-flyout-chevron {
+    transform: rotate(180deg);
+    opacity: 0.85;
+}
+.nav-login-dropdown.active .nav-login-flyout-trigger {
+    color: var(--color-accent);
+}
+.nav-login-flyout-menu {
+    right: 0;
+    left: auto;
+    min-width: 200px;
+}
+html:not(.dark) .main-nav.scrolled .nav-menu .nav-login-primary {
+    color: rgba(255, 255, 255, 0.92);
+}
+html:not(.dark) .main-nav.scrolled .nav-menu .nav-login-flyout-trigger {
+    color: rgba(255, 255, 255, 0.92);
+}
 
 /* Glassmorphic nav link styles (desktop) */
 .nav-link-glass {
@@ -6037,6 +6102,31 @@ img.img-fade.loaded { opacity: 1; }
     .nav-menu > li > a:active,
     .nav-menu .dropdown > .dropdown-trigger:active {
         background: rgba(255,255,255,0.06);
+    }
+    .nav-menu .nav-login-split {
+        width: 100%;
+        display: flex;
+        align-items: stretch;
+        justify-content: space-between;
+        gap: 0.25rem;
+    }
+    .nav-menu .nav-login-primary {
+        flex: 1;
+        color: var(--color-white);
+        font-size: 1.0625rem;
+        display: flex;
+        align-items: center;
+        padding: 1rem 0.5rem;
+        min-height: 52px;
+        width: auto;
+        text-align: left;
+        border-radius: var(--radius-sm);
+    }
+    .nav-menu .nav-login-flyout-trigger {
+        flex-shrink: 0;
+        color: var(--color-white);
+        min-height: 52px;
+        padding: 1rem 0.75rem;
     }
     .nav-menu .dropdown .dropdown-trigger::after {
         border-top-color: rgba(255,255,255,0.4);

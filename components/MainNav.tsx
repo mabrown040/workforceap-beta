@@ -35,7 +35,18 @@ export default function MainNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
-  const [portalLinks, setPortalLinks] = useState<{ href: string; label: string }[]>([{ href: '/login', label: 'Sign in' }]);
+  /** Primary nav target + optional submenu for portal entry points */
+  const [portalState, setPortalState] = useState<{
+    primary: { href: string; label: string };
+    submenu: Array<{ href: string; label: string }>;
+  }>({
+    primary: { href: '/login', label: 'Login' },
+    submenu: [
+      { href: '/login?redirectTo=/dashboard', label: 'Member portal' },
+      { href: '/login?redirectTo=/employer', label: 'Employer portal' },
+      { href: '/login?redirectTo=/partner', label: 'Partner portal' },
+    ],
+  });
   const menuRef = useRef<HTMLUListElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const navContainerRef = useRef<HTMLDivElement>(null);
@@ -75,21 +86,49 @@ export default function MainNav() {
           };
           if (cancelled) return;
           if (!data.role) {
-            setPortalLinks([{ href: '/login', label: 'Sign in' }]);
+            setPortalState({
+              primary: { href: '/login', label: 'Login' },
+              submenu: [
+                { href: '/login?redirectTo=/dashboard', label: 'Member portal' },
+                { href: '/login?redirectTo=/employer', label: 'Employer portal' },
+                { href: '/login?redirectTo=/partner', label: 'Partner portal' },
+              ],
+            });
             return;
           }
           const partnerExclusive = !!data.partner && !data.superAdmin;
           if (partnerExclusive) {
-            setPortalLinks([{ href: '/partner', label: 'Partner Portal' }]);
+            setPortalState({
+              primary: { href: '/partner', label: 'Account' },
+              submenu: [{ href: '/partner', label: 'Partner dashboard' }],
+            });
             return;
           }
-          const links: { href: string; label: string }[] = [];
-          if (data.canAccessMemberDashboard) links.push({ href: '/dashboard', label: 'Member Portal' });
-          if (data.employer) links.push({ href: '/employer', label: 'Employer Portal' });
-          if (links.length === 0) links.push({ href: '/dashboard', label: 'Member Portal' });
-          setPortalLinks(links);
+          const sub: Array<{ href: string; label: string }> = [
+            { href: '/dashboard', label: 'Member dashboard' },
+          ];
+          if (data.employer) {
+            sub.push({ href: '/employer', label: 'Employer portal' });
+          }
+          if (data.partner && data.superAdmin) {
+            sub.push({ href: '/partner', label: 'Partner portal' });
+          }
+          sub.push({ href: '/account', label: 'Account settings' });
+          setPortalState({
+            primary: { href: '/dashboard', label: 'Account' },
+            submenu: sub,
+          });
         } catch {
-          if (!cancelled) setPortalLinks([{ href: '/login', label: 'Sign in' }]);
+          if (!cancelled) {
+            setPortalState({
+              primary: { href: '/login', label: 'Login' },
+              submenu: [
+                { href: '/login?redirectTo=/dashboard', label: 'Member portal' },
+                { href: '/login?redirectTo=/employer', label: 'Employer portal' },
+                { href: '/login?redirectTo=/partner', label: 'Partner portal' },
+              ],
+            });
+          }
         }
       })();
     };
@@ -161,8 +200,23 @@ export default function MainNav() {
 
   const portalHrefActive = (href: string) => {
     if (href === '/login' || href.startsWith('/login?')) return pathname === '/login';
-    return pathname === href || (href === '/dashboard' && pathname.startsWith('/dashboard')) || (href === '/employer' && pathname.startsWith('/employer')) || (href === '/partner' && pathname.startsWith('/partner'));
+    if (href === '/partner') return pathname.startsWith('/partner');
+    if (href === '/dashboard') {
+      return (
+        pathname.startsWith('/dashboard') ||
+        pathname.startsWith('/employer') ||
+        pathname.startsWith('/admin') ||
+        pathname.startsWith('/counselor') ||
+        pathname.startsWith('/mentor') ||
+        pathname.startsWith('/account')
+      );
+    }
+    return pathname === href || pathname.startsWith(`${href}/`);
   };
+
+  const loginDropdownId = `${navMenuId}-login-submenu`;
+  const isLoginMenuOpen = activeDropdown === '__login__';
+  const loginSubmenuItems = portalState.submenu.filter((item) => item.href !== portalState.primary.href);
 
   return (
     <nav className={`main-nav${scrolled ? ' scrolled' : ''}`} aria-label="Main navigation">
@@ -220,13 +274,64 @@ export default function MainNav() {
               </li>,
             ];
           })}
-          {portalLinks.map((pl) => (
-            <li key={`portal-${pl.href}-${pl.label}`}>
-              <Link href={pl.href} className={portalHrefActive(pl.href) ? 'active' : undefined} onClick={closeMobile}>
-                {pl.label}
+          <li
+            key="nav-login-portal"
+            className={`dropdown nav-login-dropdown${isLoginMenuOpen ? ' active' : ''}`}
+          >
+            <div className="nav-login-split">
+              <Link
+                href={portalState.primary.href}
+                className={`nav-login-primary${portalHrefActive(portalState.primary.href) ? ' active' : ''}`}
+                onClick={closeMobile}
+              >
+                {portalState.primary.label}
               </Link>
-            </li>
-          ))}
+              {loginSubmenuItems.length > 0 ? (
+                <button
+                  type="button"
+                  id={`${loginDropdownId}-trigger`}
+                  className={`nav-login-flyout-trigger${isLoginMenuOpen ? ' active' : ''}`}
+                  aria-expanded={isLoginMenuOpen}
+                  aria-haspopup="true"
+                  aria-controls={loginDropdownId}
+                  onClick={() => setActiveDropdown(isLoginMenuOpen ? null : '__login__')}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setActiveDropdown(isLoginMenuOpen ? null : '__login__');
+                    }
+                    if (e.key === 'Escape') setActiveDropdown(null);
+                    if (e.key === 'ArrowDown') {
+                      e.preventDefault();
+                      if (!isLoginMenuOpen) setActiveDropdown('__login__');
+                      queueMicrotask(() => {
+                        document.getElementById(loginDropdownId)?.querySelector<HTMLElement>('a[href]')?.focus();
+                      });
+                    }
+                  }}
+                  aria-label="More sign-in and portal options"
+                >
+                  <span className="nav-login-flyout-chevron" aria-hidden />
+                </button>
+              ) : null}
+            </div>
+            {loginSubmenuItems.length > 0 ? (
+              <ul className="dropdown-menu nav-login-flyout-menu" id={loginDropdownId} role="menu">
+                {loginSubmenuItems.map((item) => (
+                  <li key={item.href} role="none">
+                    <Link
+                      href={item.href}
+                      role="menuitem"
+                      className={portalHrefActive(item.href.split('?')[0]) ? 'active' : undefined}
+                      onClick={closeMobile}
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </li>
           <li>
             <Link href="/apply" className="nav-cta" onClick={closeMobile}>Apply Now</Link>
           </li>

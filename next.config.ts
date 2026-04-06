@@ -109,6 +109,10 @@ const nextConfig: NextConfig = {
       // Employer dashboard canonical redirect
       { source: '/employer/dashboard', destination: '/employer', permanent: true },
 
+      // Admin WIOA queue — short / legacy URLs
+      { source: '/admin/wioa', destination: '/admin/wioa-screening', permanent: false },
+      { source: '/admin/wioa/', destination: '/admin/wioa-screening', permanent: false },
+
       // Member portal: AI Tools, Career Brief, Learning, Weekly Recap live under /dashboard/*
       { source: '/ai-tools', destination: '/dashboard/ai-tools', permanent: true },
       { source: '/ai-tools/:path*', destination: '/dashboard/ai-tools/:path*', permanent: true },

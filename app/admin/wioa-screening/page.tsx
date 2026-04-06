@@ -24,14 +24,11 @@ export default async function AdminWioaScreeningQueuePage() {
   const hasAdmin = await isAdmin(user.id);
   if (!hasAdmin) redirect('/dashboard');
 
-  /* Exclude SQL NULL and JSON null so Prisma/Postgres JSON filters match real submissions */
+  /* Exclude SQL NULL and JSON `null` — use AnyNull (Prisma rejects DbNull/JsonNull in `not` for JSON fields). */
   const rows = await prisma.user.findMany({
     where: {
       deletedAt: null,
-      AND: [
-        { wioaQualificationJson: { not: Prisma.DbNull } },
-        { wioaQualificationJson: { not: Prisma.JsonNull } },
-      ],
+      wioaQualificationJson: { not: Prisma.AnyNull },
     },
     select: {
       id: true,

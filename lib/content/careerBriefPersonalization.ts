@@ -250,6 +250,11 @@ export async function loadMemberCareerBriefBundleSafe(
 }
 
 export async function getCareerBriefContext(userId: string): Promise<CareerBriefContext> {
-  const { careerBrief } = await loadMemberCareerBriefBundle(userId);
-  return careerBrief;
+  try {
+    const { careerBrief } = await loadMemberCareerBriefBundleSafe(userId);
+    return careerBrief;
+  } catch (e) {
+    console.error('[getCareerBriefContext]', e);
+    return assembleCareerBriefContext(null, emptyScoreBreakdown());
+  }
 }

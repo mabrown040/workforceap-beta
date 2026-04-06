@@ -94,7 +94,10 @@ export default function SalaryGuidePage() {
   const guideStats = salaryGuideSummaryStats(salaryRows);
 
   return (
-    <div className="inner-page salary-guide-page" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
+    <div
+      className="inner-page salary-guide-page marketing-stack marketing-stack--enter"
+      style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}
+    >
 
       {/* ===== MOBILE VIEW (≤640px) ===== */}
       <div className="marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: 'var(--color-surface)', color: 'var(--color-on-surface)', minHeight: '100vh' }}>

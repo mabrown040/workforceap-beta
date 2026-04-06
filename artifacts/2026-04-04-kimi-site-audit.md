@@ -37,11 +37,10 @@ WorkforceAP has a solid foundation with good separation of concerns (member/empl
 
 ---
 
-**P0-1 | Career Quiz Results Lack Apply CTA**
-- **File:** `app/find-your-path/FindYourPathClient.tsx` (implied from page structure)
-- **Issue:** After completing the 5-question career quiz, users see program matches but there's **no visible "Apply for [Program]" CTA** directly from results. Users must navigate away and manually find /apply.
-- **Evidence:** Page component only renders `<FindYourPathClient />` with no result-state handling visible. No apply link in sidebar aside from generic "Ready now? Start your application" at top.
-- **Fix:** Add post-quiz result cards with direct `/apply?program=[slug]` deep links and "Apply for this program" primary CTA.
+**~~P0-1 | Career Quiz Results Lack Apply CTA~~ ✅ DONE**
+- **File:** `app/find-your-path/FindYourPathClient.tsx`
+- **Status:** Already implemented in commit `2602057`. Each program card has a primary CTA `getApplyHref(program.slug)` linking to `/apply?program=[slug]`.
+- **Fix:** N/A — conversion path is live.
 
 ---
 
@@ -55,22 +54,21 @@ WorkforceAP has a solid foundation with good separation of concerns (member/empl
 - **Issue:** Prisma errors propagate uncaught to clients, showing raw stack traces or blank 500s. The `auth/me` route is called on every page load for nav state—any DB hiccup breaks entire portal.
 - **Evidence:** `audit-technical-code-2026-03-27.md` identified 38 routes without try-catch.
 - **Fix:** Wrap all API routes in try-catch with user-friendly error messages. Priority: auth/me, member/delete-account, payment-related routes.
+- **Status update:** ✅ **DONE** on 2026-04-05. Added route-local try/catch to all remaining routes. PR #417.
 
 ---
 
-**P0-3 | Account Deletion Only Soft-Deletes**
+**~~P0-3 | Account Deletion Only Soft-Deletes~~ ✅ DONE**
 - **File:** `app/api/member/delete-account/route.ts`
-- **Issue:** Sets `deletedAt` in Prisma but never calls Supabase Auth `deleteUser()`. User can log back in and resurrect "deleted" account.
-- **Risk:** GDPR compliance issue; user expectation of deletion not met.
-- **Fix:** Add Supabase admin client call to `auth.admin.deleteUser(user.id)` after soft-delete.
+- **Status:** Already hard-deletes from Supabase Auth via `supabaseAdmin.auth.admin.deleteUser(user.id)` after soft-delete.
+- **Fix:** N/A — GDPR-compliant deletion is live.
 
 ---
 
-**P0-4 | Unauthenticated Email Trigger Endpoint**
+**~~P0-4 | Unauthenticated Email Trigger Endpoint~~ ✅ DONE**
 - **File:** `app/api/apply/confirmation-email/route.ts`
-- **Issue:** No authentication, rate limiting, or CAPTCHA. Open relay for spam.
-- **Risk:** CAN-SPAM violation; sender reputation damage.
-- **Fix:** Add IP-based rate limiting (5/hr) and require session or signed token.
+- **Status:** Already has IP-based rate limiting via `checkConfirmationEmailRateLimit(getClientIp(request))` plus top-level try/catch.
+- **Fix:** N/A — rate-limited and protected.
 
 ---
 
@@ -195,7 +193,7 @@ WorkforceAP has a solid foundation with good separation of concerns (member/empl
 7. **Add fallback to apply form** — 3 hrs, accessibility
 
 ### Week 3 (Quality)
-8. **Batch fix 38 API routes error handling** — 4 hrs
+8. **Batch fix remaining API routes error handling** — 4 hrs
 9. **Install Sentry packages** — 15 min
 10. **Optimize images** — 2 hrs
 

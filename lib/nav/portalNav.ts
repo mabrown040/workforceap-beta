@@ -101,6 +101,13 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/dashboard/readiness', label: 'Career Readiness', group: 'insights', tab: 'journey', Icon: CheckCircle },
   { href: '/dashboard/weekly-recap', label: 'Weekly Recap', group: 'insights', tab: 'journey', Icon: BarChart3 },
   { href: '/dashboard/career-brief', label: 'Career Brief', group: 'insights', tab: 'journey', Icon: ClipboardList },
+  {
+    href: '/dashboard/learning/wioa-qualification',
+    label: 'WIOA screening',
+    group: 'insights',
+    tab: 'journey',
+    Icon: Shield,
+  },
   // ── Career Tools tab ──
   { href: '/dashboard/ai-tools', label: 'AI Tools', group: 'workflows', tab: 'tools', Icon: Sparkles, tourTarget: 'tour-ai-tools' },
   { href: '/dashboard/resume', label: 'Resume', group: 'workflows', tab: 'tools', Icon: FileText },
@@ -114,11 +121,12 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     tourTarget: 'tour-learning',
   },
   {
-    href: '/dashboard/learning/interest-profiler',
-    label: 'Interest Profiler',
+    href: '/dashboard/learning/find-your-career',
+    label: 'Find your career',
     group: 'workflows',
     tab: 'tools',
     Icon: Compass,
+    aliases: ['/dashboard/learning/interest-profiler'],
   },
   {
     href: '/dashboard/skills-assessment',
@@ -268,6 +276,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     badgeKey: 'counselor_sla_breach_48h',
   },
   { href: '/admin/members', label: 'Members', group: 'workflows', Icon: Users },
+  { href: '/admin/wioa-screening', label: 'WIOA screening', group: 'workflows', Icon: ClipboardList },
   { href: '/admin/members/interview-ready', label: 'Interview ready', group: 'workflows', Icon: ListChecks },
   { href: '/admin/invites', label: 'Invites', group: 'workflows', Icon: MessageSquare },
   { href: '/admin/assessments', label: 'Assessments', group: 'workflows', Icon: ClipboardCheck },

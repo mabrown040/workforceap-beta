@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
 
 export async function POST(
   _request: Request,
@@ -18,6 +19,12 @@ export async function POST(
       where: { id },
       data: { deletedAt: new Date() },
     });
+
+    const supabaseAdmin = getSupabaseAdmin();
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(id);
+    if (error) {
+      console.error('[admin/members/[id]/delete] Supabase auth delete error:', error.message);
+    }
 
     return NextResponse.json({ ok: true });
   } catch (error) {

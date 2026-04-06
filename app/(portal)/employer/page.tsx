@@ -11,6 +11,8 @@ import { isSuperAdmin } from '@/lib/auth/roles';
 import { EMPLOYER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
+import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
+import { employerVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -89,6 +91,11 @@ export default async function EmployerDashboardPage() {
   const hiresFromApplications = hiredApplications.length;
   const hiresTotal = hiresFromApplications + filledJobsCount;
 
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const applicationsLast30d = await prisma.jobPostingApplication.count({
+    where: { job: { employerId: ctx.employerId }, appliedAt: { gte: thirtyDaysAgo } },
+  });
+
   let avgMatchToHireDays: number | null = null;
   if (hiredApplications.length > 0) {
     const matchRows = await prisma.aIJobMatch.findMany({
@@ -117,10 +124,34 @@ export default async function EmployerDashboardPage() {
   const superAdmin = await isSuperAdmin(user.id);
 
   const kpiCards = [
-    { label: 'Total Candidates', value: totalApplications.toString(), trend: '+12%', trendColor: '#80d99f', borderAccent: true },
-    { label: 'Active Tracks', value: activeJobs.toString(), trend: `${inReview} in review`, trendColor: 'var(--color-on-surface-variant)' },
-    { label: 'Verified Hires', value: hiresTotal.toString(), trend: 'Compliance', trendColor: '#80d99f' },
-    { label: 'Avg. Time to Hire', value: avgMatchToHireDays === null ? '\u2014' : `${avgMatchToHireDays}d`, trend: avgMatchToHireDays !== null ? `-${avgMatchToHireDays}d` : '', trendColor: '#80d99f' },
+    {
+      label: 'Total Candidates',
+      value: totalApplications.toString(),
+      trend: applicationsLast30d > 0 ? `${applicationsLast30d} in last 30d` : 'No recent applicants',
+      trendColor: 'var(--color-on-surface-variant)',
+      borderAccent: true,
+    },
+    {
+      label: 'Active Tracks',
+      value: activeJobs.toString(),
+      trend: inReview > 0 ? `${inReview} awaiting go-live` : 'All live or closed',
+      trendColor: 'var(--color-on-surface-variant)',
+    },
+    {
+      label: 'Verified Hires',
+      value: hiresTotal.toString(),
+      trend: offerStageCount > 0 ? `${offerStageCount} offer${offerStageCount === 1 ? '' : 's'} out` : 'No open offers',
+      trendColor: 'var(--color-on-surface-variant)',
+    },
+    {
+      label: 'Avg. Time to Hire',
+      value: avgMatchToHireDays === null ? '\u2014' : `${avgMatchToHireDays}d`,
+      trend:
+        avgMatchToHireDays !== null
+          ? `Match → hire (when tracked)`
+          : 'Add hires to see timing',
+      trendColor: 'var(--color-on-surface-variant)',
+    },
   ];
 
   const placementCards = [
@@ -154,17 +185,18 @@ export default async function EmployerDashboardPage() {
             Elite Talent<br/>at your fingertips.
           </h2>
         </div>
-        <div className="stitch-card" style={{ marginLeft: '1.5rem', marginRight: '1.5rem', marginBottom: '1rem', padding: '1.25rem' }}>
-          <p className="wa-text-[10px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold wa-text-[#8c0f37]" style={{ marginBottom: '0.75rem' }}>
-            Voice assistant
-          </p>
-          <PortalVoiceSession
-            sessionEndpoint="/api/employer/voice-session"
-            title="Employer voice assistant"
-            description="Ask about posting roles, reviewing applicants, or navigating the employer portal."
-            speakingLabel="Assistant is speaking…"
-            listeningLabel="Listening — ask your question"
-          />
+        <div style={{ marginLeft: '1.5rem', marginRight: '1.5rem', marginBottom: '1rem' }}>
+          <VoiceAgentSurface {...employerVoiceSurface}>
+            <PortalVoiceSession
+              sessionEndpoint="/api/employer/voice-session"
+              title="Employer voice assistant"
+              description="Ask about posting roles, reviewing applicants, or navigating the employer portal."
+              accent="#4f46e5"
+              accentDark="#4338ca"
+              speakingLabel="Assistant is speaking…"
+              listeningLabel="Listening — ask your question"
+            />
+          </VoiceAgentSurface>
         </div>
         {/* Stats row - horizontal scroll */}
         <div style={{ display:"flex", gap:"0.75rem", overflowX:"auto", scrollbarWidth:"none", paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingBottom:"0.5rem" }}>
@@ -286,17 +318,18 @@ export default async function EmployerDashboardPage() {
         </div>
       </header>
 
-      <section className="stitch-card" style={{ padding: '1.5rem', marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
-          Voice assistant
-        </h2>
-        <PortalVoiceSession
-          sessionEndpoint="/api/employer/voice-session"
-          title="Employer voice assistant"
-          description="Ask about posting roles, reviewing applicants, or navigating this portal."
-          speakingLabel="Assistant is speaking…"
-          listeningLabel="Listening — ask your question"
-        />
+      <section style={{ marginBottom: '2rem' }}>
+        <VoiceAgentSurface {...employerVoiceSurface}>
+          <PortalVoiceSession
+            sessionEndpoint="/api/employer/voice-session"
+            title="Employer voice assistant"
+            description="Ask about posting roles, reviewing applicants, or navigating this portal."
+            accent="#4f46e5"
+            accentDark="#4338ca"
+            speakingLabel="Assistant is speaking…"
+            listeningLabel="Listening — ask your question"
+          />
+        </VoiceAgentSurface>
       </section>
 
       {/* ── KPI Metric Cards ── */}

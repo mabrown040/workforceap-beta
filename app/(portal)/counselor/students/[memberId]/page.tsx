@@ -9,6 +9,9 @@ import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messag
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { counselorStudentStatusBadge } from '@/lib/counselor/memberStatus';
 import CounselorNotesPanel from './CounselorNotesPanel';
+import StaffMemberResumePanel from '@/components/counselor/StaffMemberResumePanel';
+import WioaScreeningReadonly from '@/components/admin/WioaScreeningReadonly';
+import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 
 type Props = { params: Promise<{ memberId: string }> };
 
@@ -47,6 +50,17 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
       enrolledProgram: true,
       programInterest: true,
       assessmentScorePct: true,
+      wioaQualificationJson: true,
+      wioaReviewStatus: true,
+      wioaReviewedAt: true,
+      wioaReviewedByUserId: true,
+      wioaReviewNotes: true,
+      profile: {
+        select: {
+          resumeOriginalPath: true,
+          resumeEnhancedPath: true,
+        },
+      },
     },
   });
   if (!member) notFound();
@@ -78,6 +92,19 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
     enrolledProgram: member.enrolledProgram,
     assessmentScorePct: member.assessmentScorePct,
   });
+
+  const hasResumeFiles =
+    !!(member.profile?.resumeOriginalPath || member.profile?.resumeEnhancedPath);
+
+  const wioaSnap = parseWioaQualificationSnapshot(member.wioaQualificationJson);
+  let wioaReviewerName: string | null = null;
+  if (member.wioaReviewedByUserId) {
+    const rev = await prisma.user.findUnique({
+      where: { id: member.wioaReviewedByUserId },
+      select: { fullName: true },
+    });
+    wioaReviewerName = rev?.fullName ?? null;
+  }
 
   return (
     <>
@@ -304,6 +331,36 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
         <div style={{ padding: '0 1rem 1rem' }}>
           <CounselorNotesPanel memberId={member.id} />
         </div>
+
+        {wioaSnap ? (
+          <div style={{ padding: '0 1rem 1rem' }}>
+            <WioaScreeningReadonly
+              snapshot={wioaSnap}
+              reviewStatus={member.wioaReviewStatus}
+              reviewedAt={member.wioaReviewedAt?.toISOString() ?? null}
+              reviewerName={wioaReviewerName}
+              reviewNotes={member.wioaReviewNotes}
+            />
+          </div>
+        ) : null}
+
+        {hasResumeFiles ? (
+          <div style={{ padding: '0 1rem 1.5rem' }}>
+            <div
+              style={{
+                background: '#fff',
+                borderRadius: '0.75rem',
+                padding: '1.25rem',
+                border: '1px solid #ebe7e7',
+              }}
+            >
+              <h3 style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-on-surface)', margin: '0 0 1rem' }}>
+                Resumes
+              </h3>
+              <StaffMemberResumePanel memberId={member.id} />
+            </div>
+          </div>
+        ) : null}
       </div>
 
       {/* ── Desktop ─────────────────────────────────────────── */}
@@ -317,8 +374,31 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
           </Link>
           <PageHeader title={member.fullName} subtitle={member.email} />
 
+          {wioaSnap ? (
+            <section style={{ marginTop: '1.5rem' }}>
+              <WioaScreeningReadonly
+                snapshot={wioaSnap}
+                reviewStatus={member.wioaReviewStatus}
+                reviewedAt={member.wioaReviewedAt?.toISOString() ?? null}
+                reviewerName={wioaReviewerName}
+                reviewNotes={member.wioaReviewNotes}
+              />
+            </section>
+          ) : null}
+
+          {hasResumeFiles ? (
+            <section style={{ marginTop: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 700 }}>Resumes</h2>
+              <div
+                className="stitch-card"
+                style={{ padding: '1.25rem', border: '1px solid var(--outline-variant)' }}
+              >
+                <StaffMemberResumePanel memberId={member.id} />
+              </div>
+            </section>
+          ) : null}
+
           <section style={{ marginTop: '1.5rem' }}>
-            <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Messages</h2>
             <AdminMemberCounselorChatClient
               messagesApiBase={`/api/counselor/members/${member.id}/messages`}
               initial={{

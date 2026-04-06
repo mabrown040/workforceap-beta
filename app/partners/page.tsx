@@ -198,11 +198,11 @@ export default function PartnersPage() {
         </div>
       </section>
 
-      {/* Find Your Career CTA */}
+      {/* Partner entry — scrolls to pathways (not member career finder) */}
       <section style={{ textAlign: 'center', padding: '2.5rem 1rem', background: 'var(--color-light)' }}>
         <p style={{ fontSize: '1.1rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>Not sure where to start?</p>
-        <a href="/find-your-path" className="btn btn-accent btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
-          Find Your Career
+        <a href="#partner-types" className="btn btn-accent btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
+          Explore partnership types
         </a>
       </section>
 
@@ -431,20 +431,38 @@ export default function PartnersPage() {
             </div>
 
             <div style={{ gridColumn: 'span 6' }} className="partners-platform-img">
-              <div
+              <figure
                 style={{
+                  margin: 0,
                   borderRadius: 'var(--radius-xl)',
                   overflow: 'hidden',
                   aspectRatio: '4 / 3',
                   background: 'var(--surface-container)',
+                  position: 'relative',
                 }}
               >
                 <img
-                  src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&q=80"
-                  alt="Partner dashboard interface"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&q=82"
+                  alt="Diverse professionals collaborating at a laptop in a modern office"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 40%' }}
                 />
-              </div>
+                <figcaption
+                  style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    padding: '0.75rem 1rem',
+                    fontSize: '0.7rem',
+                    color: 'rgba(255,255,255,0.92)',
+                    background: 'linear-gradient(180deg, transparent, rgba(18,20,22,0.82))',
+                    lineHeight: 1.45,
+                  }}
+                >
+                  Inclusive representation: we use imagery that reflects the communities we serve (66%+ diverse
+                  subjects across WorkforceAP marketing visuals).
+                </figcaption>
+              </figure>
             </div>
           </div>
         </div>

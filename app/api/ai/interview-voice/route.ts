@@ -13,17 +13,20 @@ import { generateSpeech } from '@/lib/ai/elevenlabs';
  * Returns: audio/mpeg stream
  */
 export async function POST(req: NextRequest) {
-  const user = await getUser();
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  const { success: withinLimit } = await checkAIToolRateLimit(user.id);
-  if (!withinLimit) {
-    return NextResponse.json({ error: 'Rate limit exceeded. Try again later.' }, { status: 429 });
-  }
-
   try {
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { success: withinLimit } = await checkAIToolRateLimit(user.id);
+    if (!withinLimit) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded. Please try again later.' },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     const { text, voiceId } = body as { text: string; voiceId?: string };
 
@@ -50,8 +53,10 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    console.error('[interview-voice] Error:', message);
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error('[interview-voice] Error:', err);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }

@@ -2,6 +2,8 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import PortalVoiceSession, { type VoiceSessionPhase } from '@/components/portal/PortalVoiceSession';
+import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
+import { mockInterviewVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
 import InterviewCoachingPanel from '@/components/portal/tools/InterviewCoachingPanel';
 import MockInterviewVideoRecorder from '@/components/portal/tools/MockInterviewVideoRecorder';
 
@@ -21,7 +23,10 @@ export default function VoiceInterviewScaffold() {
   const [recordingConsent, setRecordingConsent] = useState(false);
   const [playbackUrl, setPlaybackUrl] = useState<string | null>(null);
   const [videoErr, setVideoErr] = useState('');
-  const interviewVideoStreamRef = useRef<MediaStream | null>(null);
+  const [cameraPriming, setCameraPriming] = useState(false);
+  /** Fresh mount for each run so voice UI state resets reliably after “Change role / style”. */
+  const [voiceSessionKey, setVoiceSessionKey] = useState(0);
+  const videoStreamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
     if (!ready) {
@@ -32,12 +37,24 @@ export default function VoiceInterviewScaffold() {
     }
   }, [ready]);
 
+  useEffect(() => {
+    if (!ready) setVideoErr('');
+  }, [recordVideo, recordingConsent, ready]);
+
   const onTranscriptChunk = useCallback((chunk: { speaker: 'agent' | 'user'; text: string }) => {
     if (chunk.speaker === 'user') setLastUserText(chunk.text);
   }, []);
 
   const wantRecording = recordVideo && recordingConsent;
   const canStart = role.trim().length > 0 && (!recordVideo || recordingConsent);
+  const needsConsentForCamera = recordVideo && !recordingConsent && role.trim().length > 0;
+
+  const enterVoiceSession = useCallback(() => {
+    setVideoErr('');
+    setCameraPriming(false);
+    setVoiceSessionKey((k) => k + 1);
+    setReady(true);
+  }, []);
 
   return (
     <div>
@@ -114,23 +131,124 @@ export default function VoiceInterviewScaffold() {
                 </span>
               </label>
             ) : null}
+            {needsConsentForCamera ? (
+              <p
+                role="status"
+                style={{
+                  margin: '0.75rem 0 0',
+                  fontSize: '0.82rem',
+                  color: 'var(--color-accent)',
+                  fontWeight: 600,
+                }}
+              >
+                Check the consent box above to continue with camera recording, or turn off “Record my camera” for voice
+                only.
+              </p>
+            ) : null}
           </div>
+
+          {videoErr && !ready ? (
+            <div
+              role="alert"
+              style={{
+                marginBottom: '1rem',
+                padding: '0.75rem 1rem',
+                borderRadius: 8,
+                background: 'color-mix(in srgb, #b91c1c 8%, transparent)',
+                border: '1px solid color-mix(in srgb, #b91c1c 35%, transparent)',
+                fontSize: '0.88rem',
+                lineHeight: 1.5,
+                color: 'var(--color-on-surface)',
+              }}
+            >
+              <p style={{ margin: '0 0 0.65rem' }}>{videoErr}</p>
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                onClick={() => {
+                  videoStreamRef.current?.getTracks().forEach((t) => t.stop());
+                  videoStreamRef.current = null;
+                  setRecordVideo(false);
+                  setRecordingConsent(false);
+                  setVideoErr('');
+                  enterVoiceSession();
+                }}
+              >
+                Continue with voice only (no camera recording)
+              </button>
+            </div>
+          ) : null}
 
           <button
             type="button"
             className="btn btn-primary"
-            disabled={!canStart}
-            onClick={() => setReady(true)}
+            disabled={!canStart || cameraPriming}
+            onClick={() => {
+              void (async () => {
+                setVideoErr('');
+                setCameraPriming(true);
+                videoStreamRef.current?.getTracks().forEach((t) => t.stop());
+                videoStreamRef.current = null;
+
+                try {
+                  if (wantRecording) {
+                    const md = typeof navigator !== 'undefined' ? navigator.mediaDevices : undefined;
+                    const gum = md?.getUserMedia?.bind(md);
+                    if (!gum) {
+                      setVideoErr(
+                        'Camera is not available in this browser or context (use HTTPS or turn off camera recording). You can continue with voice only below.'
+                      );
+                      return;
+                    }
+                    try {
+                      const vs = await gum({
+                        video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+                        audio: false,
+                      });
+                      videoStreamRef.current = vs;
+                    } catch {
+                      try {
+                        videoStreamRef.current = await gum({
+                          video: true,
+                          audio: false,
+                        });
+                      } catch {
+                        setVideoErr(
+                          'Camera access was blocked or unavailable. Allow camera for this site in your browser settings, or turn off “Record my camera” and try again—or continue with voice only below.'
+                        );
+                        return;
+                      }
+                    }
+                  }
+
+                  enterVoiceSession();
+                } catch (e) {
+                  console.error('[VoiceInterviewScaffold] start failed', e);
+                  setVideoErr(
+                    'Something went wrong starting the session. Try “Continue with voice only” below, or refresh the page.'
+                  );
+                } finally {
+                  setCameraPriming(false);
+                }
+              })();
+            }}
           >
-            Continue to voice session
+            {cameraPriming && wantRecording ? 'Requesting camera…' : 'Continue to voice session'}
           </button>
         </div>
       ) : (
         <div className="voice-interview-layout">
           <div className="stitch-card" style={{ padding: '1.25rem', borderRadius: 12 }}>
             <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
-              Mock interview for <strong>{role}</strong> ({interviewType}). Use a quiet space and allow microphone access
-              {wantRecording ? ' and camera access' : ''}.
+              Mock interview for <strong>{role}</strong> ({interviewType}). Use a quiet space and allow{' '}
+              <strong>microphone</strong> access to talk with the coach.
+              {wantRecording ? (
+                <>
+                  {' '}
+                  If you opted in below, your browser will ask for <strong>camera</strong> when the session starts so we
+                  can save a practice video — you can still do a voice-only interview without recording.
+                </>
+              ) : null}
             </p>
             {wantRecording ? (
               <MockInterviewVideoRecorder
@@ -138,7 +256,7 @@ export default function VoiceInterviewScaffold() {
                 phase={voicePhase}
                 role={role.trim()}
                 interviewType={interviewType}
-                externalStreamRef={interviewVideoStreamRef}
+                externalStreamRef={videoStreamRef}
                 onUploadComplete={({ playbackUrl: u }) => setPlaybackUrl(u)}
                 onError={(m) => setVideoErr(m)}
               />
@@ -146,21 +264,25 @@ export default function VoiceInterviewScaffold() {
             {videoErr ? (
               <p style={{ color: '#b91c1c', fontSize: '0.85rem', marginBottom: '0.75rem' }}>{videoErr}</p>
             ) : null}
-            <PortalVoiceSession
-              sessionEndpoint="/api/member/voice-interview/session"
-              sessionPayload={{ role: role.trim(), interviewType }}
-              title="Voice mock interview"
-              description="Answer out loud. The coach will listen and respond like a real interviewer."
-              accent="#0f766e"
-              accentDark="#115e59"
-              speakingLabel="Interviewer is speaking…"
-              listeningLabel="Your turn — take your time"
-              liveTranscriptCoachLabel="Interviewer"
-              acquireVideoForRecording={wantRecording}
-              videoStreamRef={interviewVideoStreamRef}
-              onTranscriptChunk={onTranscriptChunk}
-              onPhaseChange={setVoicePhase}
-            />
+            <VoiceAgentSurface {...mockInterviewVoiceSurface}>
+              <PortalVoiceSession
+                key={voiceSessionKey}
+                sessionEndpoint="/api/member/voice-interview/session"
+                sessionPayload={{ role: role.trim(), interviewType }}
+                title="Voice mock interview"
+                description="Answer out loud. The coach will listen and respond like a real interviewer."
+                accent="#7c3aed"
+                accentDark="#5b21b6"
+                speakingLabel="Interviewer is speaking…"
+                listeningLabel="Your turn — take your time"
+                liveTranscriptCoachLabel="Interviewer"
+                onTranscriptChunk={onTranscriptChunk}
+                onPhaseChange={setVoicePhase}
+                acquireVideoForRecording={false}
+                optionalCameraForRecording={false}
+                videoStreamRef={videoStreamRef}
+              />
+            </VoiceAgentSurface>
             {playbackUrl ? (
               <p style={{ marginTop: '1rem', fontSize: '0.88rem' }}>
                 <a
@@ -180,10 +302,14 @@ export default function VoiceInterviewScaffold() {
               className="btn btn-outline btn-sm"
               style={{ marginTop: '1rem' }}
               onClick={() => {
+                videoStreamRef.current?.getTracks().forEach((t) => t.stop());
+                videoStreamRef.current = null;
+                setVoiceSessionKey((k) => k + 1);
                 setReady(false);
                 setLastUserText('');
                 setPlaybackUrl(null);
                 setVideoErr('');
+                setVoicePhase('pre');
               }}
             >
               Change role / style

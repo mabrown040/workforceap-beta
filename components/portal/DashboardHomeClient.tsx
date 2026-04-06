@@ -1,8 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { MEMBER_APPLICATION_PROGRESS_STEPS } from '@/lib/member/memberApplicationStatus';
+import {
+  MEMBER_APPLICATION_PROGRESS_STEPS,
+  type MemberApplicationStage,
+} from '@/lib/member/memberApplicationStatus';
 import { trackFunnelEvent } from '@/lib/analytics/events';
 import { postMemberEvent } from '@/lib/events/client';
 import MemberPreScreeningForm from '@/components/portal/MemberPreScreeningForm';
@@ -21,6 +24,7 @@ export type DashboardApplicationStatusProps = {
   nextStep: string;
   showResponseEstimate: boolean;
   progressIndex: number | null;
+  stage: MemberApplicationStage;
 };
 
 type DashboardHomeClientProps = {
@@ -114,6 +118,15 @@ export default function DashboardHomeClient({
     { done: checklist.completeFirstCourse, label: 'Complete' },
   ];
 
+  const weekEyebrow = useMemo(() => {
+    const d = new Date();
+    const start = new Date(d);
+    const day = start.getDay();
+    const diff = start.getDate() - day + (day === 0 ? -6 : 1);
+    start.setDate(diff);
+    return `Week of ${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+  }, []);
+
   return (
     <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
       {age !== null && age < 18 ? <YouthDashboardNotice age={age} /> : null}
@@ -121,8 +134,12 @@ export default function DashboardHomeClient({
       {/* ── Header Section ── */}
       <header style={{ marginBottom: '2.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-          <span className="text-label-upper" style={{ color: 'var(--color-accent)', letterSpacing: '0.2em', fontSize: '0.625rem' }}>
-            Workforce Advancement Project {programTitle ? `/ ${programTitle}` : ''}
+          <span
+            className="text-label-upper"
+            style={{ color: 'var(--color-on-surface-variant)', letterSpacing: '0.08em', fontSize: '0.6875rem' }}
+          >
+            {weekEyebrow}
+            {programTitle ? ` · ${programTitle}` : ''}
           </span>
         </div>
         <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>
@@ -136,7 +153,7 @@ export default function DashboardHomeClient({
         </p>
       </header>
 
-      {nextBestActions.length > 0 && <MemberNextStepsStrip actions={nextBestActions} />}
+      {nextBestActions.length > 0 && <MemberNextStepsStrip actions={nextBestActions} fillRow />}
 
       {/* ── Bento Grid ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '1.5rem' }}>
@@ -217,15 +234,40 @@ export default function DashboardHomeClient({
                 <h3 style={{ fontWeight: 700, fontSize: '0.875rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Application Status</h3>
               </div>
               {applicationStatus.progressIndex !== null && (
-                <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1rem' }} aria-label="Application progress">
                   {MEMBER_APPLICATION_PROGRESS_STEPS.map((stepLabel, i) => {
                     const stepNum = i + 1;
-                    const done = stepNum < applicationStatus.progressIndex!;
-                    const current = stepNum === applicationStatus.progressIndex;
+                    const idx = applicationStatus.progressIndex!;
+                    const done = stepNum < idx;
+                    const current = stepNum === idx;
+                    const locked = stepNum > idx;
                     return (
-                      <div key={stepLabel} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem' }}>
-                        <div style={{ width: '100%', height: '3px', borderRadius: '9999px', background: done ? 'var(--color-accent)' : current ? 'var(--color-accent)' : 'var(--surface-container-highest)', opacity: current ? 0.6 : 1 }} />
-                        <span style={{ fontSize: '0.5625rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', opacity: 0.6 }}>{stepLabel}</span>
+                      <div key={stepLabel} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem' }}>
+                        <div
+                          style={{
+                            width: '100%',
+                            height: current ? '4px' : '3px',
+                            borderRadius: '9999px',
+                            background: done
+                              ? 'var(--color-accent)'
+                              : current
+                                ? 'var(--color-accent)'
+                                : 'var(--outline-variant)',
+                            opacity: locked ? 0.35 : 1,
+                            boxShadow: current ? '0 0 0 1px color-mix(in srgb, var(--color-accent) 40%, transparent)' : undefined,
+                          }}
+                        />
+                        <span
+                          style={{
+                            fontSize: '0.5625rem',
+                            fontWeight: current ? 700 : 600,
+                            color: locked ? 'var(--color-on-surface-variant)' : 'var(--color-on-surface)',
+                            opacity: locked ? 0.45 : 0.75,
+                            textAlign: 'center',
+                          }}
+                        >
+                          {stepLabel}
+                        </span>
                       </div>
                     );
                   })}

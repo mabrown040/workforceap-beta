@@ -64,11 +64,20 @@ export default function ProgramsDecisionJourneyNav({
           position: sticky;
           top: calc(var(--main-nav-layout-height) + 0.5rem);
           z-index: 40;
-          background: var(--surface-container-high);
+          background: color-mix(in srgb, var(--surface-container-high) 92%, transparent);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(222, 191, 194, 0.35);
           border-radius: var(--radius-xl);
           padding: 0.5rem;
           margin: 0 auto 1.5rem;
           max-width: 720px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+        }
+
+        html.dark .pdj-nav {
+          border-color: rgba(255, 255, 255, 0.08);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
         }
 
         .pdj-nav__list {

@@ -9,7 +9,9 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { calculateFitScore } from '@/lib/admin/fitScore';
 import { calculateHealthStatus } from '@/lib/admin/healthScore';
+import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import MembersTable from '@/components/admin/MembersTable';
+import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
@@ -29,32 +31,44 @@ export default async function AdminMembersPage() {
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-  const members = await prisma.user.findMany({
-    where: { deletedAt: null },
-    orderBy: { createdAt: 'desc' },
-    include: {
-      profile: true,
-      partnerReferrals: {
-        take: 1,
-        orderBy: { referredAt: 'desc' },
-        include: { partner: { select: { id: true, name: true } } },
+  let members;
+  let lastEventMap: Map<string, Date | null>;
+  let recentEventMap: Map<string, number>;
+
+  try {
+    members = await prisma.user.findMany({
+      where: { deletedAt: null },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        profile: true,
+        partnerReferrals: {
+          take: 1,
+          orderBy: { referredAt: 'desc' },
+          include: { partner: { select: { id: true, name: true } } },
+        },
       },
-    },
-  });
+    });
 
-  // Batch fetch last event dates and recent event counts
-  const lastEvents = await prisma.memberEvent.groupBy({
-    by: ['userId'],
-    _max: { createdAt: true },
-  });
-  const lastEventMap = new Map(lastEvents.map((e) => [e.userId, e._max.createdAt]));
+    const lastEvents = await prisma.memberEvent.groupBy({
+      by: ['userId'],
+      _max: { createdAt: true },
+    });
+    lastEventMap = new Map(lastEvents.map((e) => [e.userId, e._max.createdAt]));
 
-  const recentEvents = await prisma.memberEvent.groupBy({
-    by: ['userId'],
-    where: { createdAt: { gte: thirtyDaysAgo } },
-    _count: true,
-  });
-  const recentEventMap = new Map(recentEvents.map((e) => [e.userId, e._count]));
+    const recentEvents = await prisma.memberEvent.groupBy({
+      by: ['userId'],
+      where: { createdAt: { gte: thirtyDaysAgo } },
+      _count: true,
+    });
+    recentEventMap = new Map(recentEvents.map((e) => [e.userId, e._count]));
+  } catch (e) {
+    console.error('[admin/members] load failed', e);
+    return (
+      <PortalPageFrame>
+        <AdminDataLoadError title="Members list unavailable" />
+      </PortalPageFrame>
+    );
+  }
 
   const membersWithProgram = members.map((m) => {
     const fitScore = calculateFitScore({
@@ -76,7 +90,7 @@ export default async function AdminMembersPage() {
     return {
       ...m,
       programTitle: m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.title : null,
-      coursesCompleted: (m.coursesCompleted as string[] | null) ?? [],
+      coursesCompleted: parseCourseSlugList(m.coursesCompleted),
       totalCourses: m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.courses.length ?? 0 : 0,
       partnerName: m.partnerReferrals[0]?.partner.name ?? null,
       partnerId: m.partnerReferrals[0]?.partner.id ?? null,

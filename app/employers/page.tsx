@@ -127,9 +127,9 @@ export default function EmployersPage() {
             position: 'absolute',
             inset: 0,
             backgroundImage:
-              'url(https://images.unsplash.com/photo-1497366216548-37526070297c?w=1600&q=80)',
+              'url(https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1600&q=82)',
             backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            backgroundPosition: 'center 35%',
           }}
         />
         <div
@@ -803,7 +803,7 @@ export default function EmployersPage() {
             justifyContent: 'flex-end',
           }}
         >
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=70)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1000&q=78)', backgroundSize: 'cover', backgroundPosition: 'center 35%' }} />
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(18,20,22,0.5) 0%, rgba(18,20,22,0.88) 100%)' }} />
           <div style={{ position: 'relative', zIndex: 1 }}>
             <span style={{ display: 'inline-block', padding: '0.25rem 0.75rem', borderRadius: '9999px', background: 'rgba(255,255,255,0.12)', color: 'var(--color-gold, #ffbb00)', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>

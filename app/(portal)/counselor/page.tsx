@@ -5,9 +5,10 @@ import { prisma } from '@/lib/db/prisma';
 import Link from 'next/link';
 import { counselorAffiliationLabel } from '@/lib/counselor/counselorLabels';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
+import CounselorPortalVoiceBlock from '@/components/portal/CounselorPortalVoiceBlock';
 import { counselorStudentStatusBadge } from '@/lib/counselor/memberStatus';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import { getTimeOfDayGreeting } from '@/lib/time/greeting';
 
 export default async function CounselorPortalPage() {
   const user = await getUser();
@@ -75,6 +76,7 @@ export default async function CounselorPortalPage() {
   const needsAttentionCount = assignments.filter((a) => !a.member.enrolledProgram && !a.member.programInterest).length;
 
   const firstName = (dbUser.fullName ?? 'Counselor').split(' ')[0];
+  const greeting = getTimeOfDayGreeting();
 
   const statCards = [
     { icon: 'groups', label: 'Active Students', value: assignments.length, bg: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', iconColor: 'var(--color-accent)' },
@@ -92,22 +94,11 @@ export default async function CounselorPortalPage() {
         <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingTop:"1.5rem", paddingBottom:"0.5rem" }}>
           <p className="wa-text-[10px] wa-uppercase wa-tracking-[0.15em] wa-font-semibold wa-text-[#8c0f37]" style={{ marginBottom:"0.5rem" }}>Academic Overview</p>
           <h2 className="wa-text-3xl wa-font-extrabold wa-tracking-tight text-on-surface wa-leading-tight">
-            Morning,<br /><span style={{ color: 'var(--color-accent)' }}>Counselor</span>
+            {greeting},<br /><span style={{ color: 'var(--color-accent)' }}>{firstName}</span>
           </h2>
         </div>
-        <div className="stitch-card" style={{ marginLeft: '1.5rem', marginRight: '1.5rem', marginBottom: '1rem', padding: '1.25rem' }}>
-          <p className="wa-text-[10px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold wa-text-[#8c0f37]" style={{ marginBottom: '0.75rem' }}>
-            Voice assistant
-          </p>
-          <PortalVoiceSession
-            sessionEndpoint="/api/counselor/session"
-            title="Counselor voice assistant"
-            description="Talk through student support, outreach, or how to use this portal."
-            accent="#8c0f37"
-            accentDark="#670024"
-            speakingLabel="Assistant is speaking…"
-            listeningLabel="Listening — ask your question"
-          />
+        <div style={{ marginLeft: '1.5rem', marginRight: '1.5rem', marginBottom: '1rem' }}>
+          <CounselorPortalVoiceBlock />
         </div>
         {/* Stats grid */}
         <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem", marginTop:"1rem", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"1rem", marginBottom:"1.5rem" }}>
@@ -146,7 +137,16 @@ export default async function CounselorPortalPage() {
           <div style={{ display:"flex", flexDirection:"column", gap:"0.75rem" }}>
             {assignments.length === 0 ? (
               <div className="wa-bg-white" style={{ borderRadius:"0.75rem", padding:"1.5rem", textAlign:"center" }}>
-                <p className="wa-text-sm text-on-surface-variant">No students assigned yet.</p>
+                <p className="wa-text-sm text-on-surface-variant" style={{ marginBottom: '0.75rem' }}>
+                  No students assigned yet. Ask your admin to assign members to you.
+                </p>
+                <a
+                  href="mailto:info@workforceap.org?subject=Student%20assignments%20for%20counselor%20portal"
+                  className="wa-text-sm wa-font-semibold"
+                  style={{ color: 'var(--color-accent)' }}
+                >
+                  Email WorkforceAP
+                </a>
               </div>
             ) : (
               assignments.map((a) => {
@@ -200,19 +200,8 @@ export default async function CounselorPortalPage() {
         </p>
       </header>
 
-      <section className="stitch-card" style={{ padding: '1.5rem', marginBottom: '2.5rem' }}>
-        <h2 style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
-          Voice assistant
-        </h2>
-        <PortalVoiceSession
-          sessionEndpoint="/api/counselor/session"
-          title="Counselor voice assistant"
-          description="Talk through student support, outreach, or how to use this portal."
-          accent="#8c0f37"
-          accentDark="#670024"
-          speakingLabel="Assistant is speaking…"
-          listeningLabel="Listening — ask your question"
-        />
+      <section style={{ marginBottom: '2.5rem' }}>
+        <CounselorPortalVoiceBlock />
       </section>
 
       {/* ── Stat Cards ── */}
@@ -284,19 +273,22 @@ export default async function CounselorPortalPage() {
                 <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem', marginBottom: '1.5rem', maxWidth: '24rem', margin: '0 auto 1.5rem' }}>
                   Students will appear here once assigned by an administrator.
                 </p>
-                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <a
+                    href="mailto:info@workforceap.org?subject=Student%20assignments%20for%20counselor%20portal"
+                    style={{
+                      padding: '0.625rem 1.25rem',
+                      background: 'var(--color-accent)',
+                      color: '#fff',
+                      fontWeight: 600,
+                      borderRadius: '0.5rem',
+                      fontSize: '0.875rem',
+                      textDecoration: 'none',
+                    }}
+                  >
+                    Contact admin for assignments
+                  </a>
                   <Link href="/counselor/resources" style={{
-                    padding: '0.625rem 1.25rem',
-                    background: 'var(--color-accent)',
-                    color: '#fff',
-                    fontWeight: 600,
-                    borderRadius: '0.5rem',
-                    fontSize: '0.875rem',
-                    textDecoration: 'none',
-                  }}>
-                    Import Cohort
-                  </Link>
-                  <Link href="/counselor/messages" style={{
                     padding: '0.625rem 1.25rem',
                     background: 'var(--surface-container-high)',
                     color: 'var(--color-accent)',
@@ -305,7 +297,7 @@ export default async function CounselorPortalPage() {
                     fontSize: '0.875rem',
                     textDecoration: 'none',
                   }}>
-                    Browse Directory
+                    Counselor resources
                   </Link>
                 </div>
               </div>

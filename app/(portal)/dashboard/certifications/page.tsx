@@ -4,6 +4,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { PATHWAYS } from '@/lib/content/learningPathways';
+import { buildPathwayMilestones } from '@/lib/content/pathwayStepDisplay';
 import CertificationRoadmap from '@/components/portal/CertificationRoadmap';
 import CertificationReferenceSection from '@/components/portal/CertificationReferenceSection';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -41,6 +42,12 @@ export default async function DashboardCertificationsPage() {
     primaryPathway.steps.length > 0
       ? Math.round((completedSteps / primaryPathway.steps.length) * 100)
       : 0;
+
+  const pathwayMilestones = buildPathwayMilestones(primaryPathway, pathwayRows);
+  const currentMilestone = pathwayMilestones.find((m) => m.status === 'current');
+  const mobileProgressIcon = currentMilestone?.icon ?? 'route';
+  const mobileProgressTitle = currentMilestone?.label ?? primaryPathway.title;
+  const mobileProgressSubtitle = `${completedSteps} of ${primaryPathway.steps.length} modules · ${primaryPathway.title}`;
 
   const certRows = certs.map((c) => ({
     id: c.id,
@@ -161,12 +168,12 @@ export default async function DashboardCertificationsPage() {
                   className="material-symbols-outlined"
                   style={{ fontSize: '1.375rem', color: 'var(--color-blue)', fontVariationSettings: "'FILL' 1" }}
                 >
-                  storage
+                  {mobileProgressIcon}
                 </span>
               </div>
               <div>
-                <div style={{ fontWeight: 600, fontSize: '0.9375rem' }}>Data &amp; Storage</div>
-                <div style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>CompTIA · 4 of 6 modules</div>
+                <div style={{ fontWeight: 600, fontSize: '0.9375rem' }}>{mobileProgressTitle}</div>
+                <div style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>{mobileProgressSubtitle}</div>
               </div>
             </div>
             {/* SVG Progress bar */}
@@ -177,7 +184,11 @@ export default async function DashboardCertificationsPage() {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.375rem' }}>
               <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{pathwayPct}% complete</span>
-              <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Est. 2 weeks</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
+                {primaryPathway.estimatedWeeks > 0
+                  ? `~${primaryPathway.estimatedWeeks} wk program`
+                  : `${completedSteps}/${primaryPathway.steps.length} steps`}
+              </span>
             </div>
           </div>
         </section>
@@ -413,14 +424,9 @@ export default async function DashboardCertificationsPage() {
                 Your current certification journey. Complete each milestone to unlock the next.
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-                {[
-                  { icon: 'cloud', label: 'Cloud Fundamentals', status: 'complete' as const },
-                  { icon: 'security', label: 'Security Essentials', status: 'complete' as const },
-                  { icon: 'storage', label: 'Data & Storage', status: 'current' as const },
-                  { icon: 'admin_panel_settings', label: 'Governance & Compliance', status: 'locked' as const },
-                ].map((milestone) => (
+                {pathwayMilestones.map((milestone) => (
                   <div
-                    key={milestone.label}
+                    key={`${milestone.stepIndex}-${milestone.label}`}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -453,9 +459,7 @@ export default async function DashboardCertificationsPage() {
                     <div>
                       <div style={{ fontWeight: 'var(--font-weight-medium)', fontSize: 'var(--font-size-base)' }}>{milestone.label}</div>
                       <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>
-                        {milestone.status === 'complete' && 'Completed'}
-                        {milestone.status === 'current' && 'In progress'}
-                        {milestone.status === 'locked' && 'Locked'}
+                        {milestone.detail}
                       </div>
                     </div>
                   </div>

@@ -4,9 +4,12 @@ import type { NextBestAction } from '@/lib/member/nextBestActions';
 export default function MemberNextStepsStrip({
   actions,
   compact = false,
+  fillRow = false,
 }: {
   actions: NextBestAction[];
   compact?: boolean;
+  /** When one card: stretch to full width so the grid does not look half-empty */
+  fillRow?: boolean;
 }) {
   if (actions.length === 0) return null;
 
@@ -47,9 +50,12 @@ export default function MemberNextStepsStrip({
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: compact
-            ? 'repeat(auto-fill, minmax(240px, 1fr))'
-            : 'repeat(auto-fill, minmax(260px, 1fr))',
+          gridTemplateColumns:
+            fillRow && actions.length === 1
+              ? '1fr'
+              : compact
+                ? 'repeat(auto-fill, minmax(240px, 1fr))'
+                : 'repeat(auto-fill, minmax(260px, 1fr))',
           gap: compact ? '0.65rem' : '1rem',
         }}
       >

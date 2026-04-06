@@ -1,6 +1,7 @@
 'use client';
 
 import WorkspaceShell from './WorkspaceShell';
+import DashboardFooter from './DashboardFooter';
 import { EMPLOYER_PORTAL_NAV_ITEMS } from '@/lib/nav/portalNav';
 import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
 
@@ -32,6 +33,7 @@ export default function EmployerPortalShell({
       superAdminImpersonating={superAdminImpersonating}
       superAdminBackHref={superAdmin ? '/admin/employers' : undefined}
       superAdminBackLabel="Switch company"
+      footer={<DashboardFooter />}
     >
       {children}
     </WorkspaceShell>

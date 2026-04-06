@@ -36,6 +36,13 @@ export default async function CareerBriefPage() {
           </p>
           <h1>Weekly Career Brief</h1>
           <p>Guidance, tips, and opportunity updates to keep your job search on track.</p>
+          <p style={{ marginTop: '1rem', fontSize: '0.9rem' }}>
+            Exploring public training funding? Complete the{' '}
+            <Link href="/dashboard/learning/wioa-qualification" className="resource-back-link">
+              WIOA eligibility screening
+            </Link>{' '}
+            in the Learning Hub (informational — staff confirm eligibility).
+          </p>
         </div>
       </section>
 

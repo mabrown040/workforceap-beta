@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
+import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
+import { memberMessagingSurface } from '@/lib/portal/messagingSurfaces';
 
 type ThreadDto = {
   id: string;
@@ -174,8 +176,8 @@ export default function MemberCounselorChatClient({
   }, [counselorName, thread.counselorUserId]);
 
   return (
-    <div className="member-counselor-chat">
-      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem', fontSize: '0.95rem' }}>{subtitle}</p>
+    <VoiceAgentSurface {...memberMessagingSurface} subtext={subtitle}>
+      <div className="member-counselor-chat">
       {error ? (
         <p className="member-counselor-chat__error" role="alert">
           {error}
@@ -219,6 +221,7 @@ export default function MemberCounselorChatClient({
           {sending ? 'Sending…' : 'Send'}
         </button>
       </form>
-    </div>
+      </div>
+    </VoiceAgentSurface>
   );
 }

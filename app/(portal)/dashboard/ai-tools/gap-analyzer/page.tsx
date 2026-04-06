@@ -18,7 +18,7 @@ export default async function GapAnalyzerPage() {
 
   return (
     <>
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div style={{ paddingBottom: '6rem' }}>
         <div
           style={{
             padding: '1rem 1rem 1.25rem',
@@ -67,7 +67,7 @@ export default async function GapAnalyzerPage() {
           </div>
         </div>
 
-        <div style={{ padding: '1rem' }}>
+        <div style={{ maxWidth: 720, margin: '0 auto', padding: '1rem 1rem 2rem' }}>
           <div className="stitch-card" style={{ padding: '1rem', borderRadius: 12, marginBottom: '1rem', background: 'var(--surface-container-low)' }}>
             <p style={{ fontSize: '0.82rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>
               Upload your resume. We&apos;ll flag employment gaps and suggest framing language for cover letters
@@ -81,59 +81,6 @@ export default async function GapAnalyzerPage() {
         </div>
 
         <MobileBottomNav variant="portal" />
-      </div>
-
-      <div className="wa-hidden wa-md:wa-block" style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
-        <div
-          style={{
-            padding: '1.5rem 2rem',
-            borderBottom: '1px solid var(--surface-container-high)',
-            background: 'var(--surface-container-low)',
-          }}
-        >
-          <Link
-            href="/dashboard/ai-tools"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              fontSize: '0.85rem',
-              color: 'var(--color-on-surface-variant)',
-              textDecoration: 'none',
-              marginBottom: '0.75rem',
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>arrow_back</span>
-            Back to AI Tools
-          </Link>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <div
-              style={{
-                width: '44px',
-                height: '44px',
-                borderRadius: '12px',
-                background: 'var(--surface-container-highest)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.35rem', color: 'var(--color-accent)' }}>history</span>
-            </div>
-            <div>
-              <h1 style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>Resume Gap Analyzer</h1>
-              <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0.15rem 0 0' }}>
-                Upload your resume. We'll flag employment gaps and suggest framing language for cover letters and interviews.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div style={{ maxWidth: '720px', margin: '0 auto', padding: '2rem 1.5rem' }}>
-          <div className="stitch-card" style={{ padding: '1.5rem' }}>
-            <GapAnalyzerForm />
-          </div>
-        </div>
       </div>
     </>
   );

@@ -118,12 +118,20 @@ export default function EmployerApplicationChatClient({
       </div>
 
       <div
-        style={{ flex: 1, overflowY: 'auto', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.875rem' }}
+        className="member-counselor-chat__scroll"
+        style={{
+          flex: 1,
+          minHeight: 0,
+          maxHeight: 'none',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.65rem',
+        }}
         role="log"
         aria-live="polite"
       >
         {error ? (
-          <p style={{ color: '#ba1a1a', fontSize: '0.875rem' }} role="alert">
+          <p className="member-counselor-chat__error" role="alert">
             {error}
           </p>
         ) : null}
@@ -135,29 +143,15 @@ export default function EmployerApplicationChatClient({
           messages.map((m) => {
             const mine = m.isFromEmployer;
             return (
-              <div key={m.id} style={{ display: 'flex', justifyContent: mine ? 'flex-end' : 'flex-start' }}>
-                <div
-                  style={{
-                    maxWidth: '70%',
-                    background: mine ? 'var(--color-accent)' : '#f0edec',
-                    color: mine ? '#fff' : '#1c1b1b',
-                    borderRadius: mine ? '0.75rem 0.75rem 0 0.75rem' : '0.75rem 0.75rem 0.75rem 0',
-                    padding: '0.875rem 1rem',
-                  }}
-                >
-                  <p style={{ fontSize: '0.875rem', margin: 0 }}>{m.body}</p>
-                  <p
-                    style={{
-                      fontSize: '0.7rem',
-                      marginTop: '0.375rem',
-                      opacity: mine ? 0.85 : 1,
-                      color: mine ? 'rgba(255,255,255,0.85)' : '#8b7073',
-                      textAlign: mine ? 'right' : 'left',
-                    }}
-                  >
-                    {new Date(m.createdAt).toLocaleString()}
-                  </p>
-                </div>
+              <div
+                key={m.id}
+                className={`member-counselor-chat__bubble${mine ? ' member-counselor-chat__bubble--mine' : ''}`}
+                style={{ maxWidth: 'min(100%, 420px)', alignSelf: mine ? 'flex-end' : 'flex-start' }}
+              >
+                <div className="member-counselor-chat__bubble-body">{m.body}</div>
+                <time className="member-counselor-chat__bubble-time" dateTime={m.createdAt}>
+                  {new Date(m.createdAt).toLocaleString()}
+                </time>
               </div>
             );
           })
@@ -181,15 +175,8 @@ export default function EmployerApplicationChatClient({
           placeholder="Type a message…"
           rows={2}
           maxLength={5000}
-          style={{
-            flex: 1,
-            padding: '0.75rem 1rem',
-            border: '1px solid #debfc2',
-            borderRadius: '0.5rem',
-            fontSize: '0.875rem',
-            fontFamily: 'inherit',
-            resize: 'none',
-          }}
+          className="member-counselor-chat__input"
+          style={{ flex: 1, maxWidth: 'none', minHeight: '3rem' }}
         />
         <button
           type="submit"

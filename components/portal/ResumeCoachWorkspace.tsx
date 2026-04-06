@@ -2,8 +2,97 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
+import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import type { ResumeSuggestion, VoiceSessionPhase } from '@/components/portal/PortalVoiceSession';
 import { extractResumeCoachSuggestionsFromText } from '@/lib/ai/resumeCoachHeuristic';
+import { resumeCoachVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
+
+type LiveSuggestion = ResumeSuggestion & { id: string; source?: 'live' | 'post' };
+
+function newSuggestionId(): string {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+  return `s-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
+function suggestionDedupeKey(s: ResumeSuggestion): string {
+  return `${(s.original ?? '').trim()}→${s.suggested.trim()}`;
+}
+
+function mergeHydratedResume(local: string, server: string): string {
+  const p = local.trim();
+  const t = server.trim();
+  if (!t) return local;
+  if (!p) return t;
+  if (p === t) return local;
+  if (p.includes(t)) return local;
+  if (t.includes(p)) return t;
+  return `${p}\n\n--- From your saved resume ---\n${t}`;
+}
+
+/**
+ * Renders the draft with one pending swap highlighted: strikethrough original + proposed text (not applied until approved).
+ */
+function ResumeDraftPendingPreview({
+  resumeText,
+  original,
+  suggested,
+}: {
+  resumeText: string;
+  original: string;
+  suggested: string;
+}) {
+  const idx = resumeText.indexOf(original);
+  if (idx === -1) {
+    return (
+      <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-on-surface-variant)' }}>
+        That phrase is no longer in your draft — edit the text below or dismiss this suggestion.
+      </p>
+    );
+  }
+  return (
+    <div
+      role="region"
+      aria-label="Preview of suggested edit in your draft"
+      style={{
+        whiteSpace: 'pre-wrap',
+        wordBreak: 'break-word',
+        fontFamily: 'ui-monospace, monospace',
+        fontSize: '0.82rem',
+        lineHeight: 1.55,
+        padding: '0.75rem',
+        borderRadius: '0.5rem',
+        border: '2px solid rgba(37, 99, 235, 0.45)',
+        background: 'var(--surface-container-low)',
+        maxHeight: 'min(42vh, 340px)',
+        overflow: 'auto',
+        boxSizing: 'border-box',
+      }}
+    >
+      {resumeText.slice(0, idx)}
+      <mark
+        style={{
+          background: 'rgba(239, 68, 68, 0.22)',
+          textDecoration: 'line-through',
+          color: 'var(--color-on-surface)',
+          padding: '0 2px',
+        }}
+      >
+        {original}
+      </mark>
+      <mark
+        style={{
+          background: 'rgba(34, 197, 94, 0.35)',
+          color: 'var(--color-on-surface)',
+          fontWeight: 600,
+          padding: '0 2px',
+        }}
+      >
+        {suggested}
+      </mark>
+      {resumeText.slice(idx + original.length)}
+    </div>
+  );
+}
 
 /**
  * Coordinates voice coach suggestions → live text editor.
@@ -14,10 +103,14 @@ import { extractResumeCoachSuggestionsFromText } from '@/lib/ai/resumeCoachHeuri
 export default function ResumeCoachWorkspace() {
   const [resumeText, setResumeText] = useState('');
   const [hydrated, setHydrated] = useState(false);
-  const [liveCoachSuggestions, setLiveCoachSuggestions] = useState<ResumeSuggestion[]>([]);
+  const [liveCoachSuggestions, setLiveCoachSuggestions] = useState<LiveSuggestion[]>([]);
+  const [postSessionParsing, setPostSessionParsing] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const agentSpeechBufRef = useRef('');
   const suggestionKeySeenRef = useRef<Set<string>>(new Set());
   const heuristicDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSavedTextRef = useRef<string | null>(null);
+  const saveDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Hydrate editor from stored resume on mount
   useEffect(() => {
@@ -26,17 +119,60 @@ export default function ResumeCoachWorkspace() {
       .then((r) => r.json())
       .then((d: { resumePlainText?: string | null }) => {
         if (cancelled) return;
-        const t = d.resumePlainText?.trim();
+        const t = d.resumePlainText?.trim() ?? '';
         if (t) {
-          setResumeText((prev) => (prev.trim() ? prev : t));
+          setResumeText((prev) => {
+            const merged = mergeHydratedResume(prev, t);
+            lastSavedTextRef.current = merged;
+            return merged;
+          });
+        } else {
+          lastSavedTextRef.current = '';
         }
         setHydrated(true);
       })
       .catch(() => {
-        if (!cancelled) setHydrated(true);
+        if (!cancelled) {
+          lastSavedTextRef.current = '';
+          setHydrated(true);
+        }
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
+
+  // Debounced persist of plain text (matches coach draft to profile storage)
+  useEffect(() => {
+    if (!hydrated) return;
+    if (saveDebounceRef.current) clearTimeout(saveDebounceRef.current);
+    saveDebounceRef.current = setTimeout(() => {
+      saveDebounceRef.current = null;
+      const text = resumeText;
+      if (text === lastSavedTextRef.current) return;
+      setSaveStatus('saving');
+      fetch('/api/member/resume/plain-text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plainText: text }),
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error('save failed');
+          lastSavedTextRef.current = text;
+          setSaveStatus('saved');
+        })
+        .catch(() => setSaveStatus('error'));
+    }, 1800);
+    return () => {
+      if (saveDebounceRef.current) clearTimeout(saveDebounceRef.current);
+    };
+  }, [resumeText, hydrated]);
+
+  useEffect(() => {
+    if (saveStatus !== 'saved') return;
+    const t = setTimeout(() => setSaveStatus('idle'), 3200);
+    return () => clearTimeout(t);
+  }, [saveStatus]);
 
   // Pass live draft to the coach session as context
   const sessionPayload = useMemo(() => ({ liveResumeDraft: resumeText }), [resumeText]);
@@ -45,10 +181,8 @@ export default function ResumeCoachWorkspace() {
     setResumeText((prev) => {
       const o = s.original?.trim();
       if (o && prev.includes(o)) {
-        // In-place replace — user sees the change right where it is
-        return prev.replace(o, s.suggested);
+        return prev.split(o).join(s.suggested);
       }
-      // Fallback: append labeled block
       const line = s.original
         ? `[Change] "${s.original}" → "${s.suggested}" (${s.context})`
         : `[Add] ${s.suggested} (${s.context})`;
@@ -57,6 +191,20 @@ export default function ResumeCoachWorkspace() {
         : `--- Coach suggestion (accepted) ---\n${line}`;
     });
   }, []);
+
+  const activeInlineSuggestion = useMemo(() => {
+    for (const s of liveCoachSuggestions) {
+      const o = s.original?.trim();
+      if (o && resumeText.includes(o)) return s;
+    }
+    return null;
+  }, [liveCoachSuggestions, resumeText]);
+
+  const queuedCardSuggestions = useMemo(
+    () =>
+      liveCoachSuggestions.filter((s) => !activeInlineSuggestion || s.id !== activeInlineSuggestion.id),
+    [liveCoachSuggestions, activeInlineSuggestion]
+  );
 
   const flushAgentHeuristic = useCallback(() => {
     const text = agentSpeechBufRef.current;
@@ -69,7 +217,7 @@ export default function ResumeCoachWorkspace() {
         const key = `${s.original ?? ''}→${s.suggested}`;
         if (suggestionKeySeenRef.current.has(key)) continue;
         suggestionKeySeenRef.current.add(key);
-        out.push(s);
+        out.push({ ...s, id: newSuggestionId(), source: 'live' });
       }
       return out;
     });
@@ -92,12 +240,31 @@ export default function ResumeCoachWorkspace() {
     if (p === 'pre' || p === 'connecting') {
       agentSpeechBufRef.current = '';
       suggestionKeySeenRef.current.clear();
-      setLiveCoachSuggestions([]);
+      setLiveCoachSuggestions((prev) => prev.filter((x) => x.source === 'post'));
       if (heuristicDebounceRef.current) {
         clearTimeout(heuristicDebounceRef.current);
         heuristicDebounceRef.current = null;
       }
     }
+  }, []);
+
+  const onPostSessionSuggestions = useCallback((list: ResumeSuggestion[]) => {
+    setLiveCoachSuggestions((prev) => {
+      const keys = new Set(prev.map(suggestionDedupeKey));
+      const out = [...prev];
+      for (const s of list) {
+        const key = suggestionDedupeKey(s);
+        if (keys.has(key)) continue;
+        keys.add(key);
+        suggestionKeySeenRef.current.add(key);
+        out.push({ ...s, id: newSuggestionId(), source: 'post' });
+      }
+      return out;
+    });
+  }, []);
+
+  const dismissSuggestion = useCallback((id: string) => {
+    setLiveCoachSuggestions((prev) => prev.filter((x) => x.id !== id));
   }, []);
 
   return (
@@ -112,28 +279,19 @@ export default function ResumeCoachWorkspace() {
     >
       {/* Top/Left panel: Voice coach */}
       <div style={{ flex: '1 1 300px', minWidth: 280 }}>
-        <div
-          className="stitch-card"
-          style={{ padding: '1.5rem', border: '1px solid var(--outline-variant)' }}
+        <VoiceAgentSurface
+          {...resumeCoachVoiceSurface}
+          subtext="Voice feedback on bullets and framing. Your live draft syncs during the call — approve edits inline."
         >
-          <h2
-            style={{
-              fontSize: '0.75rem',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              color: 'var(--color-on-surface-variant)',
-              marginBottom: '1rem',
-            }}
-          >
-            Resume Coach (Voice)
-          </h2>
           <PortalVoiceSession
             sessionEndpoint="/api/member/resume-coach/session"
             sessionPayload={sessionPayload}
             retryWithoutDynamicVariables={false}
             pushLiveResumeDraftContext
             suggestionsEndpoint="/api/member/resume-coach/parse-suggestions"
+            delegatePostSessionSuggestions
+            onPostSessionSuggestions={onPostSessionSuggestions}
+            onPostSessionParsingChange={setPostSessionParsing}
             title="Talk through your resume"
             description="Practice your pitch, discuss experience bullets, or get advice on framing your background."
             accent="#2563eb"
@@ -144,7 +302,7 @@ export default function ResumeCoachWorkspace() {
             onTranscriptChunk={onTranscriptChunk}
             onPhaseChange={onVoicePhaseChange}
           />
-        </div>
+        </VoiceAgentSurface>
       </div>
 
       {/* Bottom/Right panel: Live resume draft (context textarea) */}
@@ -153,13 +311,104 @@ export default function ResumeCoachWorkspace() {
           className="stitch-card"
           style={{ padding: '1.5rem', border: '1px solid var(--outline-variant)' }}
         >
-          <h4 style={{ fontSize: '0.95rem', marginBottom: '0.5rem' }}>Live Resume Draft</h4>
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'baseline',
+              justifyContent: 'space-between',
+              gap: '0.5rem',
+              marginBottom: '0.5rem',
+            }}
+          >
+            <h4 style={{ fontSize: '0.95rem', margin: 0 }}>Live Resume Draft</h4>
+            {hydrated && saveStatus !== 'idle' ? (
+              <span
+                style={{
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  color:
+                    saveStatus === 'error'
+                      ? '#b91c1c'
+                      : saveStatus === 'saving'
+                        ? 'var(--color-on-surface-variant)'
+                        : 'var(--color-on-surface-variant)',
+                }}
+              >
+                {saveStatus === 'saving' && 'Saving…'}
+                {saveStatus === 'saved' && 'Saved to profile'}
+                {saveStatus === 'error' && 'Could not save — try again'}
+              </span>
+            ) : null}
+          </div>
           <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem', marginBottom: '1rem' }}>
             {hydrated
-              ? 'Edits you type here sync to the coach. When the coach says a clear swap (e.g. change \'old\' to \'new\'), use Apply below. More suggestions appear after you end the session.'
+              ? 'Edits here sync to the coach during the call. When the coach proposes a swap, it appears highlighted below — approve or decline before it is written into the draft.'
               : 'Loading your resume…'}
           </p>
-          {hydrated && liveCoachSuggestions.length > 0 ? (
+          {postSessionParsing ? (
+            <p
+              style={{
+                margin: '0 0 1rem',
+                fontSize: '0.8rem',
+                color: 'var(--color-on-surface-variant)',
+                fontStyle: 'italic',
+              }}
+            >
+              Extracting suggestions from your session…
+            </p>
+          ) : null}
+
+          {hydrated && activeInlineSuggestion?.original?.trim() ? (
+            <div style={{ marginBottom: '1rem' }}>
+              <p
+                style={{
+                  margin: '0 0 0.5rem',
+                  fontSize: '0.7rem',
+                  fontWeight: 700,
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                  color: 'var(--color-on-surface-variant)',
+                }}
+              >
+                Pending change (in session)
+              </p>
+              <ResumeDraftPendingPreview
+                resumeText={resumeText}
+                original={activeInlineSuggestion.original!.trim()}
+                suggested={activeInlineSuggestion.suggested}
+              />
+              <div
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '0.5rem',
+                  marginTop: '0.75rem',
+                  alignItems: 'center',
+                }}
+              >
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={() => {
+                    handleAccept(activeInlineSuggestion);
+                    dismissSuggestion(activeInlineSuggestion.id);
+                  }}
+                >
+                  Approve change
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm"
+                  onClick={() => dismissSuggestion(activeInlineSuggestion.id)}
+                >
+                  Disapprove
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          {hydrated && queuedCardSuggestions.length > 0 ? (
             <div
               style={{
                 marginBottom: '1rem',
@@ -178,11 +427,15 @@ export default function ResumeCoachWorkspace() {
                   color: 'var(--color-on-surface-variant)',
                 }}
               >
-                Live — apply to draft
+                {activeInlineSuggestion
+                  ? 'Other suggestions'
+                  : postSessionParsing
+                    ? 'Suggestions'
+                    : 'Apply to draft'}
               </p>
-              {liveCoachSuggestions.map((s, i) => (
+              {queuedCardSuggestions.map((s) => (
                 <div
-                  key={`${s.original ?? 'x'}-${s.suggested}-${i}`}
+                  key={s.id}
                   style={{
                     border: '1px solid var(--outline-variant)',
                     borderRadius: 10,
@@ -190,40 +443,71 @@ export default function ResumeCoachWorkspace() {
                     background: 'var(--surface-container-low)',
                   }}
                 >
+                  {s.source === 'post' ? (
+                    <p
+                      style={{
+                        margin: '0 0 0.4rem',
+                        fontSize: '0.65rem',
+                        fontWeight: 700,
+                        letterSpacing: '0.06em',
+                        textTransform: 'uppercase',
+                        color: 'var(--color-on-surface-variant)',
+                      }}
+                    >
+                      After session
+                    </p>
+                  ) : null}
                   {s.original ? (
-                    <p style={{ margin: '0 0 0.35rem', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
+                    <p
+                      style={{
+                        margin: '0 0 0.35rem',
+                        fontSize: '0.78rem',
+                        color: 'var(--color-on-surface-variant)',
+                      }}
+                    >
                       <span style={{ textDecoration: 'line-through' }}>{s.original}</span>
                       {' → '}
-                      <span style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>{s.suggested}</span>
+                      <span style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>
+                        {s.suggested}
+                      </span>
                     </p>
                   ) : (
                     <p style={{ margin: '0 0 0.35rem', fontSize: '0.82rem' }}>{s.suggested}</p>
                   )}
-                  <button
-                    type="button"
-                    className="btn btn-primary btn-sm"
-                    style={{ marginTop: '0.25rem' }}
-                    onClick={() => {
-                      handleAccept(s);
-                      setLiveCoachSuggestions((prev) => prev.filter((_, j) => j !== i));
-                    }}
-                  >
-                    Apply to draft
-                  </button>
+                  <p style={{ margin: '0 0 0.5rem', fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>
+                    {s.context}
+                  </p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-sm"
+                      onClick={() => {
+                        handleAccept(s);
+                        dismissSuggestion(s.id);
+                      }}
+                    >
+                      Apply to draft
+                    </button>
+                    <button type="button" className="btn btn-outline btn-sm" onClick={() => dismissSuggestion(s.id)}>
+                      Dismiss
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
           ) : null}
+
           {hydrated ? (
             <textarea
               value={resumeText}
               onChange={(e) => setResumeText(e.target.value)}
               rows={18}
               placeholder="Your resume will appear here…"
+              aria-label="Live resume draft"
               style={{
                 width: '100%',
                 resize: 'vertical',
-                fontFamily: 'monospace',
+                fontFamily: 'ui-monospace, monospace',
                 fontSize: '0.82rem',
                 lineHeight: 1.55,
                 padding: '0.75rem',
@@ -235,16 +519,18 @@ export default function ResumeCoachWorkspace() {
               }}
             />
           ) : (
-            <div style={{
-              height: 200,
-              background: 'var(--surface-container)',
-              borderRadius: '0.5rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'var(--color-on-surface-variant)',
-              fontSize: '0.875rem',
-            }}>
+            <div
+              style={{
+                height: 200,
+                background: 'var(--surface-container)',
+                borderRadius: '0.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'var(--color-on-surface-variant)',
+                fontSize: '0.875rem',
+              }}
+            >
               Loading…
             </div>
           )}

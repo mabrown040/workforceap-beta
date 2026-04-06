@@ -21,12 +21,25 @@ interface TourContextValue {
 
 const TourContext = createContext<TourContextValue | null>(null);
 
-export function useTour() {
+/** No-op tour API when `TourProvider` is missing — avoids crashing the whole portal tree. */
+function noopTourValue(): TourContextValue {
+  return {
+    isOpen: false,
+    currentStep: 0,
+    steps: [],
+    portal: 'member',
+    startTour: () => {},
+    endTour: () => {},
+    completeTour: async () => {},
+    nextStep: () => {},
+    prevStep: () => {},
+    goToStep: () => {},
+  };
+}
+
+export function useTour(): TourContextValue {
   const ctx = useContext(TourContext);
-  if (!ctx) {
-    throw new Error('useTour must be used within a TourProvider');
-  }
-  return ctx;
+  return ctx ?? noopTourValue();
 }
 
 interface TourProviderProps {

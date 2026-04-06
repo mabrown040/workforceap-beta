@@ -5,10 +5,15 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { PATHWAYS } from '@/lib/content/learningPathways';
+import { getProgramBySlug } from '@/lib/content/programs';
+import { buildPathwayMilestones } from '@/lib/content/pathwayStepDisplay';
 import LearningPathCard from '@/components/portal/LearningPathCard';
 import LearningHubDestinationCards from '@/components/portal/LearningHubDestinationCards';
+import LearningHubEnrolledCourses from '@/components/portal/LearningHubEnrolledCourses';
+import FindYourCareerSection from '@/components/portal/FindYourCareerSection';
 import LearningCivicBotPanel from '@/components/portal/LearningCivicBotPanel';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'The Learning Hub',
@@ -36,20 +41,20 @@ export default async function LearningPage() {
     }),
     prisma.user.findUnique({
       where: { id: user.id },
-      select: { enrolledProgram: true, assessmentCompleted: true },
+      select: { enrolledProgram: true, assessmentCompleted: true, coursesCompleted: true },
     }),
   ]);
   const isEnrolled = !!dbUser?.enrolledProgram;
+  const enrolledProgram = dbUser?.enrolledProgram ?? null;
+  const programMeta = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
+  const coursesForMember = programMeta?.courses ?? [];
+  const coursesCompletedSlugs = parseCourseSlugList(dbUser?.coursesCompleted);
+  const pathwayMilestones = buildPathwayMilestones(ACTIVE_PATHWAY, allProgress);
 
   const totalStepsAllPathways = PATHWAYS.reduce((sum, p) => sum + p.steps.length, 0);
   const completedAll = allProgress.filter((r) => r.status === 'completed').length;
   const overallPct =
     totalStepsAllPathways > 0 ? Math.round((completedAll / totalStepsAllPathways) * 100) : 0;
-
-  const progressActive = allProgress.filter((r) => r.pathwayId === ACTIVE_PATHWAY.id);
-  const completedCount = progressActive.filter((r) => r.status === 'completed').length;
-
-  const upcomingModules = ACTIVE_PATHWAY.steps.slice(0, 4);
 
   return (
     <>
@@ -92,6 +97,16 @@ export default async function LearningPage() {
         </div>
       </section>
 
+      <LearningHubEnrolledCourses
+        variant="mobile"
+        programTitle={programMeta?.title ?? null}
+        courses={coursesForMember}
+        completedSlugs={coursesCompletedSlugs}
+        assessmentCompleted={dbUser?.assessmentCompleted ?? false}
+      />
+
+      <FindYourCareerSection compact />
+
       {/* Current module card */}
       <section style={{ margin: '0 1.5rem 1.5rem' }}>
         <div className="wa-bg-gradient-to-br from-[#8c0f37] to-[#ad2c4d] wa-text-white" style={{ padding: '1.25rem', borderRadius: '0.75rem' }}>
@@ -122,17 +137,17 @@ export default async function LearningPage() {
         </div>
       </section>
 
-      {/* In-progress / upcoming modules — Stitch-aligned */}
+      {/* Pathway steps — synced from your pathway progress */}
       <section style={{ margin: '0 1.5rem 1.5rem' }}>
-        <h5 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest wa-text-[#584144]" style={{ marginBottom: '1rem' }}>Course Modules</h5>
+        <h5 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest wa-text-[#584144]" style={{ marginBottom: '1rem' }}>Pathway steps</h5>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          {upcomingModules.map((stepLabel, i) => {
-            const isCompleted = i < completedCount;
-            const isActive = i === completedCount;
-            const isLocked = i > completedCount;
+          {pathwayMilestones.slice(0, 4).map((m) => {
+            const isCompleted = m.status === 'complete';
+            const isActive = m.status === 'current';
+            const isLocked = m.status === 'locked';
             return (
               <div
-                key={i}
+                key={m.stepIndex}
                 className={`${isCompleted ? 'wa-bg-white wa-border-l-4 wa-border-[#7b5800]' : isActive ? 'wa-bg-white wa-border-l-4 wa-border-[#8c0f37]' : 'wa-bg-[#f6f3f2] wa-opacity-60'}`}
                 style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderRadius: '0.75rem', padding: '0.75rem 1rem', boxShadow: isCompleted || isActive ? '0 1px 2px rgba(0,0,0,0.05)' : undefined }}
               >
@@ -167,9 +182,9 @@ export default async function LearningPage() {
                     className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-tight"
                     style={{ marginBottom: '0.125rem', color: isCompleted ? 'var(--color-gold)' : isActive ? 'var(--color-accent)' : 'var(--color-on-surface-variant)' }}
                   >
-                    {isCompleted ? 'Completed' : isActive ? 'In Progress' : 'Locked'}
+                    {m.detail}
                   </p>
-                  <p className="wa-text-sm wa-font-semibold wa-text-[#1c1b1b] wa-truncate">{stepLabel}</p>
+                  <p className="wa-text-sm wa-font-semibold wa-text-[#1c1b1b] wa-truncate">{m.label}</p>
                 </div>
               </div>
             );
@@ -177,13 +192,14 @@ export default async function LearningPage() {
         </div>
       </section>
 
-      {/* Completed courses section (Stitch: in-progress vs completed separation) */}
-      {completedCount > 0 && (
+      {pathwayMilestones.some((m) => m.status === 'complete') && (
         <section style={{ margin: '0 1.5rem 1.5rem' }}>
           <h5 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest wa-text-[#584144]" style={{ marginBottom: '0.75rem' }}>Completed</h5>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {ACTIVE_PATHWAY.steps.slice(0, completedCount).map((stepLabel, i) => (
-              <div key={i} className="wa-bg-white wa-border-l-4 wa-border-[#7b5800]" style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderRadius: '0.75rem', padding: '0.75rem 1rem', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+            {pathwayMilestones
+              .filter((m) => m.status === 'complete')
+              .map((m) => (
+              <div key={m.stepIndex} className="wa-bg-white wa-border-l-4 wa-border-[#7b5800]" style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderRadius: '0.75rem', padding: '0.75rem 1rem', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
                 <div style={{ width: '2.25rem', height: '2.25rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'rgba(123,88,0,0.1)' }}>
                   <span className="material-symbols-outlined wa-text-base" style={{ color: 'var(--color-gold)', fontVariationSettings: "'FILL' 1" }}>
                     check_circle
@@ -191,7 +207,7 @@ export default async function LearningPage() {
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-tight wa-text-[#7b5800]" style={{ marginBottom: '0.125rem' }}>Completed</p>
-                  <p className="wa-text-sm wa-font-semibold wa-text-[#1c1b1b] wa-truncate">{stepLabel}</p>
+                  <p className="wa-text-sm wa-font-semibold wa-text-[#1c1b1b] wa-truncate">{m.label}</p>
                 </div>
               </div>
             ))}
@@ -247,6 +263,16 @@ export default async function LearningPage() {
           </div>
         </div>
       </div>
+
+      <LearningHubEnrolledCourses
+        variant="desktop"
+        programTitle={programMeta?.title ?? null}
+        courses={coursesForMember}
+        completedSlugs={coursesCompletedSlugs}
+        assessmentCompleted={dbUser?.assessmentCompleted ?? false}
+      />
+
+      <FindYourCareerSection />
 
       {/* Hero card + Course Milestones sidebar */}
       <div
@@ -342,10 +368,10 @@ export default async function LearningPage() {
             Course Milestones
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-            {ACTIVE_PATHWAY.steps.map((step, i) => {
-              const status = i === 0 ? 'completed' : i === 1 ? 'current' : 'locked';
+            {pathwayMilestones.map((m, i) => {
+              const status = m.status === 'complete' ? 'completed' : m.status === 'current' ? 'current' : 'locked';
               return (
-                <div key={step} style={{ display: 'flex', gap: 'var(--space-3)', position: 'relative' }}>
+                <div key={m.stepIndex} style={{ display: 'flex', gap: 'var(--space-3)', position: 'relative' }}>
                   {/* Timeline line */}
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '24px', flexShrink: 0 }}>
                     <div
@@ -372,7 +398,7 @@ export default async function LearningPage() {
                         {status === 'completed' ? 'check' : status === 'current' ? 'arrow_forward' : 'lock'}
                       </span>
                     </div>
-                    {i < ACTIVE_PATHWAY.steps.length - 1 && (
+                    {i < pathwayMilestones.length - 1 && (
                       <div style={{
                         width: '2px',
                         flexGrow: 1,
@@ -389,12 +415,10 @@ export default async function LearningPage() {
                       opacity: status === 'locked' ? 0.5 : 1,
                       fontSize: 'var(--font-size-sm)',
                     }}>
-                      {step}
+                      {m.label}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-                      {status === 'completed' && 'Done'}
-                      {status === 'current' && 'In progress'}
-                      {status === 'locked' && 'Locked'}
+                      {m.detail}
                     </div>
                   </div>
                 </div>

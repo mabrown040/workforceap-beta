@@ -89,7 +89,7 @@ async function acceptExistingUser(
   await prisma.$transaction(async (tx) => {
     await tx.user.update({
       where: { id: user.id },
-      data: { fullName: fullName || user.fullName },
+      data: { fullName: fullName || user.fullName, deletedAt: null },
     });
 
     if (invitation.role === 'admin') {

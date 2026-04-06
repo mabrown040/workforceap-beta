@@ -13,6 +13,7 @@ import LearningHubEnrolledCourses from '@/components/portal/LearningHubEnrolledC
 import FindYourCareerSection from '@/components/portal/FindYourCareerSection';
 import LearningCivicBotPanel from '@/components/portal/LearningCivicBotPanel';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'The Learning Hub',
@@ -47,7 +48,7 @@ export default async function LearningPage() {
   const enrolledProgram = dbUser?.enrolledProgram ?? null;
   const programMeta = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
   const coursesForMember = programMeta?.courses ?? [];
-  const coursesCompletedSlugs = (dbUser?.coursesCompleted as string[] | null) ?? [];
+  const coursesCompletedSlugs = parseCourseSlugList(dbUser?.coursesCompleted);
   const pathwayMilestones = buildPathwayMilestones(ACTIVE_PATHWAY, allProgress);
 
   const totalStepsAllPathways = PATHWAYS.reduce((sum, p) => sum + p.steps.length, 0);

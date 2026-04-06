@@ -4,8 +4,16 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { sendInvitationAcceptedEmail } from '@/lib/email';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { invitationRoleLabel, inviteAcceptLoginRedirect } from '@/lib/invitations/inviteRoleLabels';
+import { checkInviteAcceptRateLimit } from '@/lib/rate-limit';
+import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
 export async function POST(request: NextRequest) {
+  const ip = getClientIpFromRequest(request);
+  const { success: withinLimit } = await checkInviteAcceptRateLimit(ip);
+  if (!withinLimit) {
+    return NextResponse.json({ error: 'Too many attempts. Please try again in an hour.' }, { status: 429 });
+  }
+
   let body: unknown;
   try {
     body = await request.json();

@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
 
 const PORTAL_PATHS = [
   '/dashboard',
@@ -63,11 +64,7 @@ export async function middleware(request: NextRequest) {
   }
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookieOptions: {
-      path: '/',
-      maxAge: 60 * 60 * 24 * 7, // 7 days persistent
-      sameSite: 'lax',
-    },
+    cookieOptions: getSupabaseCookieOptions(),
     cookies: {
       getAll() {
         return request.cookies.getAll();

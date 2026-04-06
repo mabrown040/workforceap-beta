@@ -2,25 +2,26 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { getScoreBreakdown } from '@/lib/readiness/score';
+import { getScoreBreakdownSafe } from '@/lib/readiness/score';
 import ReadinessMemberClient from './ReadinessMemberClient';
 import ReadinessMobileScoreCard from '@/components/portal/ReadinessMobileScoreCard';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { readinessVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
+import { getMemberReadinessSections } from '@/lib/readiness/memberReadinessSections';
 import '@/css/counselor.css';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Career Readiness',
   description: 'Your job readiness checklist.',
-  path: '/dashboard',
+  path: '/dashboard/readiness',
 });
 
 /**
  * Map the 10-item score breakdown into 4 mobile-friendly categories.
  */
-function buildCategories(breakdown: Awaited<ReturnType<typeof getScoreBreakdown>>) {
+function buildCategories(breakdown: Awaited<ReturnType<typeof getScoreBreakdownSafe>>) {
   const pct = (earned: number, max: number) => (max > 0 ? Math.round((earned / max) * 100) : 0);
 
   // Resume: buildResume (20) + completeProfile (5) = 25 max
@@ -47,7 +48,7 @@ function buildCategories(breakdown: Awaited<ReturnType<typeof getScoreBreakdown>
   ];
 }
 
-function getPriorityAction(breakdown: Awaited<ReturnType<typeof getScoreBreakdown>>) {
+function getPriorityAction(breakdown: Awaited<ReturnType<typeof getScoreBreakdownSafe>>) {
   // Find highest-impact incomplete item
   const priorities: { key: keyof typeof breakdown; label: string; href: string; weight: number }[] = [
     { key: 'buildResume', label: 'Build or upload your resume to boost your score.', href: '/dashboard/profile#resume', weight: 20 },
@@ -72,7 +73,13 @@ export default async function DashboardReadinessPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/readiness');
 
-  const breakdown = await getScoreBreakdown(user.id);
+  const [breakdown, checklistSections] = await Promise.all([
+    getScoreBreakdownSafe(user.id),
+    getMemberReadinessSections(user.id).catch((e) => {
+      console.error('[dashboard/readiness] checklist load failed', e);
+      return null;
+    }),
+  ]);
   const overallScore = Math.min(100, Object.values(breakdown).reduce((sum, b) => sum + b.earned, 0));
   const categories = buildCategories(breakdown);
   const priorityAction = getPriorityAction(breakdown);
@@ -134,7 +141,10 @@ export default async function DashboardReadinessPage() {
               />
             </VoiceAgentSurface>
           </div>
-          <ReadinessMemberClient />
+          <ReadinessMemberClient
+            initialSections={checklistSections ?? []}
+            loadError={checklistSections === null ? 'We could not load your counselor checklist. Refresh the page or try again shortly.' : null}
+          />
         </div>
       </div>
     </>

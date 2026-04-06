@@ -135,7 +135,29 @@ function JobsEmptyState({ onClearFilters }: { onClearFilters: () => void }) {
   );
 }
 
-function JobsNoResultsState() {
+function JobsNoResultsState({ isAuthenticated }: { isAuthenticated: boolean }) {
+  if (isAuthenticated) {
+    return (
+      <div className="jobs-empty-state">
+        <div className="jobs-empty-state__icon" aria-hidden>
+          <Briefcase size={48} strokeWidth={1.5} />
+        </div>
+        <h3 className="jobs-empty-state__title">No openings listed yet</h3>
+        <p className="jobs-empty-state__text">
+          New roles appear as employer partners post them. If nothing matches your filters, try widening them—or message your
+          counselor about openings that fit your program and goals.
+        </p>
+        <div className="jobs-empty-state__actions">
+          <Link href="/dashboard/messages" className="btn btn-primary">
+            Message your counselor
+          </Link>
+          <Link href="/dashboard/ai-tools/job-match-scorer" className="btn btn-outline">
+            Improve job matches
+          </Link>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="jobs-empty-state">
       <div className="jobs-empty-state__icon" aria-hidden>
@@ -143,8 +165,8 @@ function JobsNoResultsState() {
       </div>
       <h3 className="jobs-empty-state__title">No jobs available right now</h3>
       <p className="jobs-empty-state__text">
-        New job opportunities are added regularly as our employer partners post openings. While you wait, 
-        explore our training programs and get job-ready — we'll help you find the right role when new positions become available.
+        New job opportunities are added regularly as our employer partners post openings. While you wait,
+        explore our training programs and get job-ready — we&apos;ll help you find the right role when new positions become available.
       </p>
       <div className="jobs-empty-state__actions">
         <Link href="/programs" className="btn btn-primary">
@@ -163,20 +185,27 @@ function JobsNoResultsState() {
 
 export default function JobsListingClient({ 
   isAuthenticated = true, 
-  ageGroup = 'adult18plus' as 'under14' | 'youth14to17' | 'adult18plus'
+  ageGroup = 'adult18plus' as 'under14' | 'youth14to17' | 'adult18plus',
+  initialJobs = [] as Job[],
+  initialTotal = 0,
 }: { 
   isAuthenticated?: boolean;
   ageGroup?: 'under14' | 'youth14to17' | 'adult18plus';
+  initialJobs?: Job[];
+  initialTotal?: number;
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [jobs, setJobs] = useState<Job[]>([]);
+  // Use SSR data as initial state; skip loading state if we have initial data
+  const hasInitialData = initialJobs.length > 0;
+  const [jobs, setJobs] = useState<Job[]>(initialJobs);
   const [matchedJobs, setMatchedJobs] = useState<MatchedJob[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!hasInitialData);
   const [loadingMatches, setLoadingMatches] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [hasFetchedInitially, setHasFetchedInitially] = useState(hasInitialData);
 
   const qParam = searchParams.get('q') ?? '';
   const [qLocal, setQLocal] = useState(qParam);
@@ -243,12 +272,18 @@ export default function JobsListingClient({
 
     if (ageGroup) params.set('ageGroup', ageGroup);
     
+    // Skip the first fetch if we have SSR data and no filters are active
+    if (!hasFetchedInitially && !hasActiveFilters) {
+      setHasFetchedInitially(true);
+      return;
+    }
+    
     setLoading(true);
     fetch(`/api/dashboard/jobs?${params}`)
       .then((r) => r.json())
       .then(setJobs)
       .finally(() => setLoading(false));
-  }, [q, locationType, jobType, program, salaryMin, salaryMax, sort, ageGroup]);
+  }, [q, locationType, jobType, program, salaryMin, salaryMax, sort, ageGroup, hasFetchedInitially, hasActiveFilters]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -335,48 +370,7 @@ export default function JobsListingClient({
         </select>
       </div>
 
-      <div className="job-filter-row">
-        <div className="job-filter-group">
-          <label htmlFor="job-filter-salary-min" className="job-filter-label">
-            Min salary ($/yr)
-          </label>
-          <input
-            id="job-filter-salary-min"
-            type="number"
-            min={0}
-            step={5000}
-            placeholder="50000"
-            aria-describedby="job-filter-salary-min-hint"
-            value={salaryMin}
-            onChange={(e) => updateUrl({ salaryMin: e.target.value || undefined })}
-            className="job-filter-input"
-          />
-          <span id="job-filter-salary-min-hint" className="job-filter-hint">
-            Annual USD, no commas (e.g. 50000 ≈ $50k).
-          </span>
-        </div>
-        <div className="job-filter-group">
-          <label htmlFor="job-filter-salary-max" className="job-filter-label">
-            Max salary ($/yr)
-          </label>
-          <input
-            id="job-filter-salary-max"
-            type="number"
-            min={0}
-            step={5000}
-            placeholder="120000"
-            aria-describedby="job-filter-salary-max-hint"
-            value={salaryMax}
-            onChange={(e) => updateUrl({ salaryMax: e.target.value || undefined })}
-            className="job-filter-input"
-          />
-          <span id="job-filter-salary-max-hint" className="job-filter-hint">
-            Leave blank for no upper limit.
-          </span>
-        </div>
-      </div>
-
-      <div className="job-filter-group">
+      <div className="job-filter-group job-filter-group--sort">
         <label htmlFor="job-filter-sort" className="job-filter-label">
           Sort by
         </label>
@@ -392,6 +386,41 @@ export default function JobsListingClient({
             </option>
           ))}
         </select>
+      </div>
+
+      <div className="job-filter-row">
+        <div className="job-filter-group">
+          <label htmlFor="job-filter-salary-min" className="job-filter-label">
+            Min salary ($/yr)
+          </label>
+          <input
+            id="job-filter-salary-min"
+            type="number"
+            min={0}
+            step={5000}
+            placeholder="e.g. 50000 (annual USD)"
+            title="Annual salary in USD, no commas"
+            value={salaryMin}
+            onChange={(e) => updateUrl({ salaryMin: e.target.value || undefined })}
+            className="job-filter-input"
+          />
+        </div>
+        <div className="job-filter-group">
+          <label htmlFor="job-filter-salary-max" className="job-filter-label">
+            Max salary ($/yr)
+          </label>
+          <input
+            id="job-filter-salary-max"
+            type="number"
+            min={0}
+            step={5000}
+            placeholder="Optional max (annual USD)"
+            title="Leave blank for no upper limit"
+            value={salaryMax}
+            onChange={(e) => updateUrl({ salaryMax: e.target.value || undefined })}
+            className="job-filter-input"
+          />
+        </div>
       </div>
 
       {hasActiveFilters && (
@@ -524,7 +553,7 @@ export default function JobsListingClient({
         hasActiveFilters ? (
           <JobsEmptyState onClearFilters={clearFilters} />
         ) : (
-          <JobsNoResultsState />
+          <JobsNoResultsState isAuthenticated={isAuthenticated} />
         )
       ) : (
         <>

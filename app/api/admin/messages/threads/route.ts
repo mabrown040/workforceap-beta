@@ -17,6 +17,7 @@ function parseInbox(raw: string | null): InboxFilter {
 }
 
 export async function GET(request: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isSuperAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -192,6 +193,10 @@ export async function GET(request: NextRequest) {
     alertsOnly: false,
     inbox,
   });
+  } catch (error) {
+    console.error('[admin/messages/threads GET] error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
 function mapThreadRow(

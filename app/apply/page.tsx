@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { Suspense } from 'react';
 import Footer from '@/components/Footer';
 import ApplyEligibilityClient from './ApplyEligibilityClient';
@@ -59,6 +60,41 @@ const sPage = {
     opacity: 0.85,
   } as React.CSSProperties,
 
+  heroFallback: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 'var(--space-3)',
+    margin: 'var(--space-6) auto 0',
+    padding: 'var(--space-4) var(--space-5)',
+    maxWidth: 640,
+    borderRadius: 'var(--radius-lg)',
+    background: 'rgba(255,255,255,0.08)',
+    border: '1px solid rgba(255,255,255,0.14)',
+    textAlign: 'left' as const,
+  } as React.CSSProperties,
+
+  heroFallbackTitle: {
+    fontSize: 'var(--font-size-sm)',
+    fontWeight: 700,
+    letterSpacing: '0.04em',
+    textTransform: 'uppercase' as const,
+    color: 'rgba(255,255,255,0.85)',
+    margin: 0,
+  } as React.CSSProperties,
+
+  heroFallbackText: {
+    fontSize: 'var(--font-size-sm)',
+    lineHeight: 'var(--line-height-normal)',
+    color: 'rgba(255,255,255,0.86)',
+    margin: 0,
+  } as React.CSSProperties,
+
+  heroFallbackActions: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: 'var(--space-3)',
+  } as React.CSSProperties,
+
   grid: {
     display: 'grid',
     gridTemplateColumns: '1fr 2fr',
@@ -93,6 +129,28 @@ const sPage = {
     borderRadius: 'var(--radius-lg)',
     padding: 'var(--space-8)',
     border: '1px solid var(--outline-variant)',
+  } as React.CSSProperties,
+
+  ssrFallback: {
+    padding: 'var(--space-6)',
+    background: 'var(--surface-container)',
+    borderRadius: 'var(--radius-lg)',
+    border: '1px solid var(--outline-variant)',
+    marginBottom: 'var(--space-6)',
+  } as React.CSSProperties,
+
+  ssrFallbackHeading: {
+    fontSize: 'var(--font-size-xl)',
+    fontWeight: 700,
+    color: 'var(--color-on-surface)',
+    marginBottom: 'var(--space-3)',
+  } as React.CSSProperties,
+
+  ssrFallbackText: {
+    fontSize: 'var(--font-size-base)',
+    color: 'var(--color-on-surface-variant)',
+    lineHeight: 'var(--line-height-normal)',
+    margin: 0,
   } as React.CSSProperties,
 
   suppRow: {
@@ -139,6 +197,20 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           Answer a few quick questions, choose a program, then create your account so we can follow up with your next steps.
           <strong> No experience required. No cost to qualifying participants.</strong>
         </p>
+        <div style={sPage.heroFallback}>
+          <p style={sPage.heroFallbackTitle}>Need help or no JavaScript?</p>
+          <p style={sPage.heroFallbackText}>
+            You can still reach us directly. Call a counselor or send a message, and we&apos;ll help you start the application manually.
+          </p>
+          <div style={sPage.heroFallbackActions}>
+            <Link href="/contact" className="btn btn-outline" style={{ color: 'var(--color-white)', borderColor: 'rgba(255,255,255,0.3)' }}>
+              Contact a counselor
+            </Link>
+            <a href="tel:+15127771808" className="btn btn-primary" style={{ background: 'var(--color-gold)', color: 'var(--color-on-surface)' }}>
+              Call (512) 777-1808
+            </a>
+          </div>
+        </div>
       </section>
 
       {/* ── 12-col grid: sidebar + form ── */}
@@ -196,6 +268,29 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           <Suspense fallback={<div style={{ padding: 'var(--space-4)', color: 'var(--color-on-surface-variant)' }}>Loading...</div>}>
             <ApplyRefCapture />
           </Suspense>
+
+          {/* SSR fallback: visible immediately without JS */}
+          <div style={sPage.ssrFallback}>
+            <h2 style={sPage.ssrFallbackHeading}>Start your application</h2>
+            <p style={sPage.ssrFallbackText}>
+              Loading application form… If it doesn&apos;t appear, call{' '}
+              <a href="tel:+15127771808" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>(512) 777-1808</a>
+              {' '}or email{' '}
+              <a href="mailto:info@workforceap.com" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>info@workforceap.com</a>.
+            </p>
+          </div>
+          <noscript>
+            <div style={sPage.ssrFallback}>
+              <h2 style={sPage.ssrFallbackHeading}>Start your application</h2>
+              <p style={sPage.ssrFallbackText}>
+                If the form doesn&apos;t load, call{' '}
+                <a href="tel:+15127771808" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>(512) 777-1808</a>
+                {' '}or email{' '}
+                <a href="mailto:info@workforceap.com" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>info@workforceap.com</a>.
+              </p>
+            </div>
+          </noscript>
+
           <Suspense fallback={<ApplyPageSkeleton />}>
             <ApplyEligibilityClient />
           </Suspense>

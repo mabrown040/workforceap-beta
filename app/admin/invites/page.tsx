@@ -43,6 +43,7 @@ export default function AdminInvitesPage() {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const inviteSent = searchParams.get('invite') === 'sent';
+  const inviteSavedNoEmail = searchParams.get('invite') === 'saved_no_email';
 
   useEffect(() => {
     async function fetchData() {
@@ -136,6 +137,13 @@ export default function AdminInvitesPage() {
       {inviteSent ? (
         <div className="admin-inline-feedback" role="status" style={{ marginBottom: '1rem' }}>
           <p>Invitation sent successfully.</p>
+        </div>
+      ) : null}
+      {inviteSavedNoEmail ? (
+        <div className="admin-inline-feedback admin-inline-feedback--error" role="status" style={{ marginBottom: '1rem' }}>
+          <p>
+            Invitation was saved, but email delivery is not configured. Share the invite link manually or resend after email is configured.
+          </p>
         </div>
       ) : null}
 

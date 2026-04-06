@@ -23,14 +23,19 @@ export type LeaderSpotlightCard = {
 export type LeaderPartnerTile = { icon: string; name: string; desc: string };
 export type LeaderAchievementTile = { icon: string; title: string; desc: string };
 
+export type LeaderSection = 'executive' | 'board' | 'consultant';
+
 export type Leader = {
   slug: string;
   name: string;
   role: string;
   title: string;
+  /** Public path to headshot, or empty string if none yet */
   image: string;
   founder: boolean;
   linkedin: string;
+  /** Optional grouping for /leadership layout (defaults inferred from role when omitted). */
+  section?: LeaderSection;
   /** Short scannable excerpt for the card */
   cardBio: string;
   /** One line: why this leader makes WorkforceAP credible (mission, employer trust, community, outcomes) */
@@ -442,6 +447,40 @@ export const LEADERS: Leader[] = [
         desc: 'Operation Enduring Freedom and mission-critical leadership in contested environments.',
       },
     ],
+  },
+  {
+    slug: 'michael-brown-ii',
+    name: 'Michael Brown II',
+    role: 'Lead Consultant',
+    title: 'Lead Consultant',
+    /** Empty until a real headshot is available — listing and bio pages omit the placeholder */
+    image: '',
+    founder: false,
+    linkedin: '',
+    section: 'consultant',
+    cardBio:
+      'Consultant to Workforce Advancement Project on program design, employer alignment, and scaling high-touch career services for underserved communities.',
+    missionRelevance:
+      'Bridges strategy and delivery — helping WorkforceAP turn training partnerships into measurable placement and retention outcomes.',
+    bioBlocks: [
+      {
+        type: 'paragraph',
+        text:
+          'Michael Brown II serves as Lead Consultant to Workforce Advancement Project, advising on curriculum alignment, partner engagement, and how we scale personalized support without losing accountability to members and employers.',
+      },
+      {
+        type: 'paragraph',
+        text:
+          'His work focuses on connecting program operations to labor-market demand — so certificates and credentials translate into interviews, offers, and careers that last.',
+      },
+    ],
+    stats: [
+      { label: 'Focus', value: 'Program & partner alignment' },
+      { label: 'Outcome', value: 'Placement-ready talent pipelines' },
+    ],
+    heroBadge: 'Lead Consultant',
+    heroQuote:
+      'Strategy only matters when it shows up in a member’s next opportunity.',
   },
 ];
 

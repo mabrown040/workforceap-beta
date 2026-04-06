@@ -9,6 +9,7 @@ import EmployerApplicationsClient from '@/components/employer/EmployerApplicatio
 import EmployerApplicationsPager from '@/components/employer/EmployerApplicationsPager';
 import MobileApplicationsClient from '@/components/employer/MobileApplicationsClient';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 const PAGE_SIZE = 25;
 
@@ -62,13 +63,10 @@ export default async function EmployerApplicationsPage({
   }));
 
   return (
-    <div>
+    <>
       {/* ── Mobile Applications View (≤640px) ── */}
       <div className="wa-block wa-md:wa-hidden wa-pb-24">
-        <div className="wa-px-4 wa-pt-6 wa-pb-3">
-          <h1 className="wa-text-2xl wa-font-extrabold wa-tracking-tight wa-mb-1" style={{ color: 'var(--color-on-surface)' }}>Applicants</h1>
-          <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)' }}>Review and update candidate status.</p>
-        </div>
+        <PageHeader title="Applicants" subtitle="Review and update candidate status." />
         <MobileApplicationsClient initialRows={initialRows} />
         <div className="wa-px-4">
           <EmployerApplicationsPager page={page} totalPages={totalPages} />
@@ -77,13 +75,15 @@ export default async function EmployerApplicationsPage({
       </div>
       {/* ── Desktop View ── */}
       <div className="wa-hidden wa-md:wa-block">
-        <PageHeader
-          title="Applicants"
-          subtitle="Update application status as you review candidates. Invalid workflow steps are blocked."
-        />
-        <EmployerApplicationsClient initialRows={initialRows} />
-        <EmployerApplicationsPager page={page} totalPages={totalPages} />
+        <PortalPageFrame>
+          <PageHeader
+            title="Applicants"
+            subtitle="Update application status as you review candidates. Invalid workflow steps are blocked."
+          />
+          <EmployerApplicationsClient initialRows={initialRows} />
+          <EmployerApplicationsPager page={page} totalPages={totalPages} />
+        </PortalPageFrame>
       </div>
-    </div>
+    </>
   );
 }

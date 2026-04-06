@@ -1,6 +1,13 @@
 ﻿'use client';
 
-import { useState, useEffect, useRef, type MutableRefObject } from 'react';
+import {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  type MutableRefObject,
+  type UIEvent,
+} from 'react';
 import { Conversation } from '@elevenlabs/client';
 import type { BaseSessionConfig } from '@elevenlabs/client';
 
@@ -89,6 +96,15 @@ export type PortalVoiceSessionProps = {
   suggestionsEndpoint?: string;
   /** Called when user accepts a suggestion */
   onAcceptSuggestion?: (s: ResumeSuggestion) => void;
+  /**
+   * When `delegatePostSessionSuggestions` is true, parsed post-session suggestions are passed here
+   * instead of rendering the default “done” suggestion cards inside this component.
+   */
+  onPostSessionSuggestions?: (suggestions: ResumeSuggestion[]) => void;
+  /** Do not show post-session Approve/Deny cards here — parent handles them (e.g. draft panel). */
+  delegatePostSessionSuggestions?: boolean;
+  /** When post-session parsing runs (after End session), for parent UI (e.g. draft panel loading line). */
+  onPostSessionParsingChange?: (parsing: boolean) => void;
   /** Fired when a new transcript line is captured (for live coaching UI) */
   onTranscriptChunk?: (chunk: { speaker: 'agent' | 'user'; text: string }) => void;
   /** Fired whenever session phase changes (e.g. sync MediaRecorder with voice session). */
@@ -119,6 +135,12 @@ export type PortalVoiceSessionProps = {
    * permission prompt stays tied to the Start click. Requires `videoStreamRef`.
    */
   acquireVideoForRecording?: boolean;
+  /**
+   * When `acquireVideoForRecording` is true and camera permission fails, still start the voice session.
+   * Recording UI can retry camera later or show video-only errors without blocking the interview.
+   * @default false
+   */
+  optionalCameraForRecording?: boolean;
   /** Set when `acquireVideoForRecording`; pass the same ref to `MockInterviewVideoRecorder`. */
   videoStreamRef?: MutableRefObject<MediaStream | null>;
   /**
@@ -156,6 +178,9 @@ export default function PortalVoiceSession({
   listeningLabel = 'Listening — speak when ready',
   suggestionsEndpoint,
   onAcceptSuggestion,
+  onPostSessionSuggestions,
+  delegatePostSessionSuggestions = false,
+  onPostSessionParsingChange,
   onTranscriptChunk,
   onPhaseChange,
   retryWithoutDynamicVariables = true,
@@ -164,6 +189,7 @@ export default function PortalVoiceSession({
   liveTranscriptCoachLabel = 'Coach',
   liveTranscriptYouLabel = 'You',
   acquireVideoForRecording = false,
+  optionalCameraForRecording = false,
   videoStreamRef,
   conversationOverrides,
 }: PortalVoiceSessionProps) {
@@ -180,7 +206,18 @@ export default function PortalVoiceSession({
   const phaseRef = useRef<Phase>('pre');
   const voiceErrorRef = useRef('');
   const lastLiveDraftSentRef = useRef<string | null>(null);
-  const liveTranscriptEndRef = useRef<HTMLDivElement | null>(null);
+  const sessionPayloadRef = useRef(sessionPayload);
+  sessionPayloadRef.current = sessionPayload;
+  /** Scroll container for live transcript — never use scrollIntoView (it scrolls the whole page). */
+  const liveTranscriptScrollRef = useRef<HTMLDivElement | null>(null);
+  /** User scrolled up inside the transcript → do not auto-follow new lines until they scroll back to bottom. */
+  const liveTranscriptStickBottomRef = useRef(true);
+
+  const onLiveTranscriptScroll = useCallback((e: UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+    liveTranscriptStickBottomRef.current = nearBottom;
+  }, []);
 
   function stopVideoRecordingStream() {
     if (!videoStreamRef) return;
@@ -216,15 +253,18 @@ export default function PortalVoiceSession({
     };
   }, []);
 
+  // Only clear when fully idle or finished — not during `connecting` (would race with draft sync).
   useEffect(() => {
-    if (phase !== 'active') {
+    if (phase === 'pre' || phase === 'done') {
       lastLiveDraftSentRef.current = null;
     }
   }, [phase]);
 
   useEffect(() => {
     if (!showLiveTranscript || liveLines.length === 0) return;
-    liveTranscriptEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const el = liveTranscriptScrollRef.current;
+    if (!el || !liveTranscriptStickBottomRef.current) return;
+    el.scrollTop = el.scrollHeight;
   }, [liveLines, showLiveTranscript]);
 
   useEffect(() => {
@@ -278,6 +318,7 @@ export default function PortalVoiceSession({
   async function startSession() {
     setVoiceError('');
     setLiveLines([]);
+    liveTranscriptStickBottomRef.current = true;
     setPhase('connecting');
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -290,19 +331,31 @@ export default function PortalVoiceSession({
     }
 
     if (acquireVideoForRecording && videoStreamRef) {
+      let vs: MediaStream | null = null;
       try {
-        const vs = await navigator.mediaDevices.getUserMedia({
+        vs = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
           audio: false,
         });
-        videoStreamRef.current = vs;
       } catch {
-        logVoice('camera_denied');
-        setVoiceError(
-          'Camera: access is required for recording. Allow it in your browser and try again.'
-        );
-        setPhase('pre');
-        return;
+        try {
+          vs = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        } catch {
+          /* handled below */
+        }
+      }
+      if (vs) {
+        videoStreamRef.current = vs;
+      } else {
+        logVoice('camera_denied', { optional: optionalCameraForRecording });
+        if (!optionalCameraForRecording) {
+          setVoiceError(
+            'Camera: access is required for recording. Allow it in your browser and try again.'
+          );
+          setPhase('pre');
+          return;
+        }
+        videoStreamRef.current = null;
       }
     }
 
@@ -342,7 +395,9 @@ export default function PortalVoiceSession({
     const pushInitialLiveResumeDraft = (conv: Conversation) => {
       if (!pushLiveResumeDraftContext) return;
       const draft =
-        typeof sessionPayload?.liveResumeDraft === 'string' ? sessionPayload.liveResumeDraft : '';
+        typeof sessionPayloadRef.current?.liveResumeDraft === 'string'
+          ? sessionPayloadRef.current.liveResumeDraft
+          : '';
       const body = draft.trim()
         ? `${LIVE_RESUME_CONTEXT_PREFIX}${draft.slice(0, LIVE_RESUME_CONTEXT_MAX_BODY)}`
         : '[Live resume draft updated — the live draft is now empty.]';
@@ -355,10 +410,34 @@ export default function PortalVoiceSession({
       }
     };
 
+    const flushLiveResumeDraftAfterConnect = (conv: Conversation) => {
+      if (!pushLiveResumeDraftContext) return;
+      const draft =
+        typeof sessionPayloadRef.current?.liveResumeDraft === 'string'
+          ? sessionPayloadRef.current.liveResumeDraft
+          : '';
+      if (draft === lastLiveDraftSentRef.current) return;
+      const body = draft.trim()
+        ? `${LIVE_RESUME_CONTEXT_PREFIX}${draft.slice(0, LIVE_RESUME_CONTEXT_MAX_BODY)}`
+        : '[Live resume draft updated — the live draft is now empty.]';
+      try {
+        conv.sendContextualUpdate(body);
+        lastLiveDraftSentRef.current = draft;
+        logVoice('live_resume_context_after_connect', { len: body.length });
+      } catch (e) {
+        logVoice('live_resume_context_after_connect_failed', e);
+      }
+    };
+
     const sessionCallbacks = {
       onConnect: () => {
         logVoice('session_connected');
         setPhase('active');
+        // onConnect may run before `convRef` is assigned; flush after the current stack.
+        queueMicrotask(() => {
+          const conv = convRef.current;
+          if (conv) flushLiveResumeDraftAfterConnect(conv);
+        });
       },
       onDisconnect: (details: unknown) => {
         const typed = (details ?? {}) as VoiceDisconnectDetails;
@@ -503,6 +582,7 @@ export default function PortalVoiceSession({
     // Parse suggestions from transcript
     if (suggestionsEndpoint && transcriptRef.current.length > 0) {
       setParsingSuggestions(true);
+      onPostSessionParsingChange?.(true);
       try {
         const res = await fetch(suggestionsEndpoint, {
           method: 'POST',
@@ -511,12 +591,19 @@ export default function PortalVoiceSession({
         });
         if (res.ok) {
           const data = (await res.json()) as { suggestions: ResumeSuggestion[] };
-          setSuggestions(data.suggestions ?? []);
+          const list = data.suggestions ?? [];
+          if (delegatePostSessionSuggestions && onPostSessionSuggestions) {
+            onPostSessionSuggestions(list);
+            setSuggestions([]);
+          } else {
+            setSuggestions(list);
+          }
         }
       } catch (err) {
         console.error('[suggestion-parse]', err);
       } finally {
         setParsingSuggestions(false);
+        onPostSessionParsingChange?.(false);
       }
     }
   }
@@ -702,6 +789,8 @@ export default function PortalVoiceSession({
               </span>
             </div>
             <div
+              ref={liveTranscriptScrollRef}
+              onScroll={onLiveTranscriptScroll}
               style={{
                 maxHeight: 220,
                 overflowY: 'auto',
@@ -757,7 +846,6 @@ export default function PortalVoiceSession({
                   );
                 })
               )}
-              <div ref={liveTranscriptEndRef} />
             </div>
           </div>
         ) : null}

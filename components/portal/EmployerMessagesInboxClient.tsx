@@ -108,8 +108,12 @@ export default function EmployerMessagesInboxClient({
     textAlign: 'left',
     padding: '1rem 1.25rem',
     cursor: 'pointer',
-    borderBottom: '1px solid #f0edec',
-    background: active ? '#fff1f2' : unread ? '#fff8f8' : 'transparent',
+    borderBottom: '1px solid rgba(222, 191, 194, 0.2)',
+    background: active
+      ? 'color-mix(in srgb, var(--color-accent) 12%, var(--surface-container-lowest))'
+      : unread
+        ? 'color-mix(in srgb, var(--color-accent) 6%, transparent)'
+        : 'transparent',
     borderLeft: active ? '3px solid var(--color-accent)' : '3px solid transparent',
   });
 

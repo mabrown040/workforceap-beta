@@ -95,7 +95,11 @@ export default async function DashboardProfilePage() {
   const lastName = nameParts.slice(1).join(' ') ?? '';
 
   const program = dbUser.enrolledProgram ? getProgramBySlug(dbUser.enrolledProgram) : null;
-  const assessmentAnswers = dbUser.assessmentAnswers as Record<number, string> | null;
+  const rawAnswers = dbUser.assessmentAnswers;
+  const assessmentAnswers =
+    rawAnswers && typeof rawAnswers === 'object' && !Array.isArray(rawAnswers)
+      ? (rawAnswers as Record<string, unknown>)
+      : null;
 
   const initials = dbUser.fullName
     ? dbUser.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
@@ -336,11 +340,15 @@ export default async function DashboardProfilePage() {
             <summary style={{ cursor: 'pointer', fontWeight: 600 }}>View My Answers</summary>
             {assessmentAnswers && (
               <ul style={{ marginTop: '1rem', paddingLeft: '1.25rem', fontSize: '0.9rem' }}>
-                {ASSESSMENT_QUESTIONS.map((q) => (
-                  <li key={q.id} style={{ marginBottom: '0.5rem' }}>
-                    Q{q.id}: {q.question} → {assessmentAnswers[q.id] ?? '—'}
-                  </li>
-                ))}
+                {ASSESSMENT_QUESTIONS.map((q) => {
+                  const v = assessmentAnswers[String(q.id)] ?? assessmentAnswers[q.id as unknown as string];
+                  const text = v == null ? '—' : typeof v === 'string' ? v : JSON.stringify(v);
+                  return (
+                    <li key={q.id} style={{ marginBottom: '0.5rem' }}>
+                      Q{q.id}: {q.question} → {text}
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </details>

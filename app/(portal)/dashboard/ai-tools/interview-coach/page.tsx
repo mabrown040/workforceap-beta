@@ -54,17 +54,11 @@ export default async function InterviewCoachPage() {
         </h1>
       </div>
 
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        <div style={{ padding: '1rem' }}>
+      <div style={{ paddingBottom: '6rem' }}>
+        <div style={{ maxWidth: 980, margin: '0 auto', padding: '1rem 1rem 2rem' }}>
           <InterviewCoach />
         </div>
         <MobileBottomNav variant="portal" />
-      </div>
-
-      <div className="wa-hidden wa-md:wa-block">
-        <div style={{ maxWidth: 980, margin: '0 auto', padding: '2rem 1.5rem' }}>
-          <InterviewCoach />
-        </div>
       </div>
     </div>
   );

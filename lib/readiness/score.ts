@@ -149,3 +149,13 @@ export async function getScoreBreakdown(userId: string): Promise<ScoreBreakdown>
     lastEvent
   );
 }
+
+/** Same as getScoreBreakdown but returns a zeroed breakdown if Prisma fails (flaky DB, timeouts). */
+export async function getScoreBreakdownSafe(userId: string): Promise<ScoreBreakdown> {
+  try {
+    return await getScoreBreakdown(userId);
+  } catch (e) {
+    console.error('[getScoreBreakdownSafe]', userId, e);
+    return buildScoreBreakdownFromRelations(null, [], [], [], [], [], [], [], null);
+  }
+}

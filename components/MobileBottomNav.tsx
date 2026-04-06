@@ -20,7 +20,7 @@ const PORTAL_TABS = [
   { href: '/dashboard', label: 'Journey', icon: 'map', tourTarget: 'tour-dashboard' },
   { href: '/dashboard/ai-tools', label: 'AI Tools', icon: 'auto_awesome', tourTarget: 'tour-ai-tools' },
   { href: '/dashboard/messages', label: 'Messages', icon: 'chat', tourTarget: 'tour-messages' },
-  { href: '/profile', label: 'Profile', icon: 'person', tourTarget: 'tour-profile' },
+  { href: '/dashboard/profile', label: 'Profile', icon: 'person', tourTarget: 'tour-profile' },
 ];
 
 const EMPLOYER_TABS = [

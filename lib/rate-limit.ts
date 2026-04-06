@@ -19,6 +19,9 @@ let partnerSignupRateLimiter: Ratelimit | null = null;
 let confirmationEmailRateLimiter: Ratelimit | null = null;
 let careersRecommendRateLimiter: Ratelimit | null = null;
 let interestProfilerRateLimiter: Ratelimit | null = null;
+let forgotPasswordRateLimiter: Ratelimit | null = null;
+let publicCareersGetRateLimiter: Ratelimit | null = null;
+let inviteAcceptRateLimiter: Ratelimit | null = null;
 
 if (redisUrl && redisToken) {
   const redis = new Redis({ url: redisUrl, token: redisToken });
@@ -77,6 +80,21 @@ if (redisUrl && redisToken) {
     redis,
     limiter: Ratelimit.slidingWindow(40, '1 h'),
     prefix: 'ratelimit:interest-profiler',
+  });
+  forgotPasswordRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(5, '1 h'),
+    prefix: 'ratelimit:forgot-password',
+  });
+  publicCareersGetRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(120, '1 h'),
+    prefix: 'ratelimit:careers-public-get',
+  });
+  inviteAcceptRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(10, '1 h'),
+    prefix: 'ratelimit:invite-accept',
   });
 }
 
@@ -149,5 +167,26 @@ export async function checkCareersRecommendRateLimit(ip: string): Promise<{ succ
 export async function checkInterestProfilerRateLimit(userId: string): Promise<{ success: boolean }> {
   if (!interestProfilerRateLimiter) return { success: true };
   const result = await interestProfilerRateLimiter.limit(userId);
+  return { success: result.success };
+}
+
+/** Forgot-password / reset email requests — per IP; fail-open without Redis (dev). */
+export async function checkForgotPasswordRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!forgotPasswordRateLimiter) return { success: true };
+  const result = await forgotPasswordRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/** Public GET /api/careers/* (occupation detail, program matches) — per IP; fail-open without Redis. */
+export async function checkPublicCareersGetRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!publicCareersGetRateLimiter) return { success: true };
+  const result = await publicCareersGetRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/** Invitation acceptance (account creation) — per IP; fail-open without Redis. */
+export async function checkInviteAcceptRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!inviteAcceptRateLimiter) return { success: true };
+  const result = await inviteAcceptRateLimiter.limit(ip);
   return { success: result.success };
 }

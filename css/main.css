@@ -650,6 +650,24 @@ html.dark .admin-table td {
 html.dark .admin-table tbody tr:hover {
     background: #1a1f27;
 }
+
+/* Admin jobs filter tabs — ensure label + count are visible in light mode (audit: invisible tab text) */
+.admin-jobs-filter-tabs .btn.btn-ghost {
+    color: var(--color-on-surface);
+    border: 1px solid var(--outline-variant);
+    background: var(--surface-container-low);
+}
+.admin-jobs-filter-tabs .btn.btn-ghost:hover {
+    background: var(--surface-container);
+    border-color: var(--outline);
+}
+.admin-jobs-filter-tabs .btn.btn-ghost.active {
+    background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    font-weight: 600;
+}
+
 html.dark .admin-jobs-filter-tabs .btn.btn-ghost {
     background: #1f2630;
     color: #e5e7eb;
@@ -1272,12 +1290,30 @@ html.dark .workspace-shell-header {
     background: var(--glass-bg);
     border-bottom-color: rgba(255,255,255,0.06);
 }
+/* Tab bar: same glass treatment as header (single dark-mode block; base rules stay in main workspace section). */
+html.dark .workspace-tab-bar {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur-xl);
+    -webkit-backdrop-filter: var(--glass-blur-xl);
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+html.dark .workspace-tab {
+    color: var(--color-on-surface-variant);
+}
+html.dark .workspace-tab:hover {
+    color: var(--color-on-surface);
+}
+html.dark .workspace-tab--active {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+}
 html.dark .workspace-shell-brand {
     color: var(--color-on-surface);
 }
 html.dark .workspace-sidebar {
     background: linear-gradient(to right, var(--color-background-dark), #1c1f22);
     border-right-color: transparent;
+    border-left-color: color-mix(in srgb, var(--color-accent) 35%, transparent);
 }
 html.dark .workspace-sidebar-link {
     color: rgba(226,226,229,0.5);
@@ -1540,7 +1576,8 @@ body.mobile-nav-open .main-nav::after {
     }
 }
 .nav-container {
-    max-width: var(--max-width);
+    /* Wider than page content so primary links + Your account + Apply fit on one row */
+    max-width: min(100%, var(--max-width-lg));
     margin: 0 auto;
     padding: 0 1.5rem;
     display: flex;
@@ -1585,14 +1622,16 @@ body.mobile-nav-open .main-nav::after {
 .nav-menu {
     display: flex;
     align-items: center;
-    gap: 1.75rem;
+    gap: 1.35rem;
     margin: 0;
     margin-left: auto;
     padding: 0;
+    flex-wrap: nowrap;
+    min-width: 0;
 }
 .nav-menu a {
     color: var(--color-on-surface);
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 500;
     transition: color var(--transition-fast);
     position: relative;
@@ -1614,7 +1653,7 @@ body.mobile-nav-open .main-nav::after {
 .nav-menu .dropdown { position: relative; padding: 0.5rem 0; }
 .nav-menu .dropdown .dropdown-trigger {
     color: var(--color-on-surface);
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 500;
     font-family: inherit;
     cursor: pointer;
@@ -1701,6 +1740,68 @@ html:not(.dark) .main-nav.scrolled .nav-menu .dropdown .dropdown-trigger.active 
 .dropdown-menu a::after { display: none; }
 .dropdown-menu a { color: var(--color-on-surface) !important; }
 .dropdown-menu a:hover { background: rgba(173,44,77,0.06); color: var(--color-accent) !important; padding-left: 22px; }
+
+/* Login / Account: primary link + chevron opens portal shortcuts */
+.nav-login-split {
+    display: inline-flex;
+    align-items: stretch;
+    border-radius: var(--radius-sm, 4px);
+}
+.nav-menu .nav-login-primary {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 0.35rem 0.5rem 0;
+    min-height: 44px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--color-on-surface);
+}
+.nav-menu .nav-login-primary::after {
+    bottom: -2px;
+}
+.nav-login-flyout-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.2rem 0 0.15rem;
+    min-width: 2rem;
+    min-height: 44px;
+    margin: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    -webkit-tap-highlight-color: transparent;
+}
+.nav-login-flyout-chevron {
+    display: block;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid currentColor;
+    opacity: 0.55;
+    transition: transform var(--transition-fast), opacity var(--transition-fast);
+}
+.nav-login-dropdown:hover .nav-login-flyout-chevron,
+.nav-login-dropdown:focus-within .nav-login-flyout-chevron,
+.nav-login-dropdown.active .nav-login-flyout-chevron {
+    transform: rotate(180deg);
+    opacity: 0.85;
+}
+.nav-login-dropdown.active .nav-login-flyout-trigger {
+    color: var(--color-accent);
+}
+.nav-login-flyout-menu {
+    right: 0;
+    left: auto;
+    min-width: 200px;
+}
+html:not(.dark) .main-nav.scrolled .nav-menu .nav-login-primary {
+    color: rgba(255, 255, 255, 0.92);
+}
+html:not(.dark) .main-nav.scrolled .nav-menu .nav-login-flyout-trigger {
+    color: rgba(255, 255, 255, 0.92);
+}
 
 /* Glassmorphic nav link styles (desktop) */
 .nav-link-glass {
@@ -2402,6 +2503,14 @@ a.btn-accent:hover {
     flex-wrap: wrap;
     gap: 1rem 1.5rem;
     align-items: flex-end;
+}
+@media (min-width: 1100px) {
+    .job-filter-group--sort {
+        margin-left: auto;
+    }
+    .job-filter-group--sort .job-filter-select {
+        min-width: 180px;
+    }
 }
 .job-filter-group {
     display: flex;
@@ -4051,6 +4160,26 @@ html.dark .program-skill-tag {
     display: none; /* Stitch no-line rule: remove bottom border */
 }
 .page-hero-content { position: relative; z-index: 1; }
+
+/* Blog listing — visual hero so the page doesn’t open on empty tonal space */
+.blog-page-hero {
+    background:
+        linear-gradient(180deg, rgba(28, 27, 27, 0.78) 0%, rgba(28, 27, 27, 0.88) 100%),
+        url('https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+    color: #f2f2f5;
+}
+.blog-page-hero::before {
+    opacity: 0.35;
+}
+.blog-page-hero h1,
+.blog-page-hero p {
+    color: #f2f2f5;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+html.dark .blog-page-hero h1,
+html.dark .blog-page-hero p {
+    color: #f2f2f5;
+}
 .page-hero h1 {
     font-size: clamp(2rem, 5vw, 3rem);
     font-weight: 900;
@@ -6000,6 +6129,31 @@ img.img-fade.loaded { opacity: 1; }
     .nav-menu .dropdown > .dropdown-trigger:active {
         background: rgba(255,255,255,0.06);
     }
+    .nav-menu .nav-login-split {
+        width: 100%;
+        display: flex;
+        align-items: stretch;
+        justify-content: space-between;
+        gap: 0.25rem;
+    }
+    .nav-menu .nav-login-primary {
+        flex: 1;
+        color: var(--color-white);
+        font-size: 1.0625rem;
+        display: flex;
+        align-items: center;
+        padding: 1rem 0.5rem;
+        min-height: 52px;
+        width: auto;
+        text-align: left;
+        border-radius: var(--radius-sm);
+    }
+    .nav-menu .nav-login-flyout-trigger {
+        flex-shrink: 0;
+        color: var(--color-white);
+        min-height: 52px;
+        padding: 1rem 0.75rem;
+    }
     .nav-menu .dropdown .dropdown-trigger::after {
         border-top-color: rgba(255,255,255,0.4);
         transition: transform var(--transition-base);
@@ -6012,12 +6166,12 @@ img.img-fade.loaded { opacity: 1; }
         opacity: 1;
         transform: none;
         display: none;
-        background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.06);
+        background: rgba(255,255,255,0.10);
+        border: 1px solid rgba(255,255,255,0.14);
         border-radius: 18px;
         padding: 0.35rem;
         margin: 0 0 0.75rem 0;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
         min-width: unset;
     }
     .dropdown-menu::before { display: none; }
@@ -6036,17 +6190,17 @@ img.img-fade.loaded { opacity: 1; }
         display: flex;
         align-items: center;
         border-radius: var(--radius-sm);
-        color: rgba(255,255,255,0.92);
+        color: rgba(255,255,255,0.92) !important;
         transition: background var(--transition-fast), color var(--transition-fast);
     }
     .dropdown-menu a:hover,
     .dropdown-menu a:active {
-        background: rgba(255,255,255,0.08);
-        color: var(--color-white);
+        background: rgba(255,255,255,0.14);
+        color: var(--color-white) !important;
         padding-left: 1.25rem;
     }
     .dropdown-menu a.active {
-        color: var(--color-gold);
+        color: var(--color-gold) !important;
     }
     .nav-cta, a.nav-cta {
         margin-top: 1rem !important;
@@ -8361,6 +8515,9 @@ html.dark .portal-nav {
     flex-direction: column;
     background: var(--surface-container-lowest);
     color: var(--color-on-surface);
+    /* Set by WorkspaceShell (header + tab bar height) for sticky sidebar alignment */
+    --workspace-tab-bar-h: 0px;
+    --workspace-top-offset: calc(var(--workspace-header-h, 3.25rem) + var(--workspace-tab-bar-h, 0px));
 }
 .workspace-shell-header {
     display: flex;
@@ -8423,6 +8580,53 @@ html.dark .portal-nav {
     letter-spacing: 0.07em;
     color: var(--color-accent);
 }
+.workspace-shell-public-site-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.35rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--color-accent);
+    text-decoration: none;
+    max-width: 100%;
+}
+.workspace-shell-public-site-link:hover {
+    text-decoration: underline;
+    color: var(--color-accent-dark);
+}
+.workspace-resume-upload-hint {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding: 0.5rem 1rem;
+    background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+    border-bottom: 1px solid var(--outline-variant);
+    font-size: 0.8rem;
+    color: var(--color-on-surface);
+}
+.workspace-resume-upload-hint__text {
+    flex: 1 1 12rem;
+    line-height: 1.4;
+}
+.workspace-resume-upload-hint__cta {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.85rem;
+    border-radius: var(--radius-sm);
+    background: var(--color-accent);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-decoration: none;
+}
+.workspace-resume-upload-hint__cta:hover {
+    filter: brightness(1.05);
+}
 .workspace-shell-header__meta {
     display: flex;
     align-items: center;
@@ -8452,12 +8656,15 @@ html.dark .portal-nav {
 .workspace-tab-bar-inner {
     display: flex;
     gap: 0;
-    max-width: var(--max-width);
+    max-width: min(var(--max-width), 100%);
     margin: 0 auto;
-    padding: 0 0.5rem;
+    padding: 0 max(0.5rem, env(safe-area-inset-left)) 0 max(0.5rem, env(safe-area-inset-right));
     overflow-x: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    flex-wrap: nowrap;
+    justify-content: safe center;
+    scroll-snap-type: x proximity;
 }
 .workspace-tab-bar-inner::-webkit-scrollbar {
     display: none;
@@ -8476,6 +8683,7 @@ html.dark .portal-nav {
     transition: color 0.15s, border-color 0.15s;
     flex-shrink: 0;
     white-space: nowrap;
+    scroll-snap-align: center;
 }
 .workspace-tab:hover {
     color: var(--color-on-surface);
@@ -8687,6 +8895,47 @@ body:has(.workspace-drawer-overlay.open) {
     flex: 1;
     min-height: 0;
     min-width: 0;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: min(80rem, 100%);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+}
+.portal-page-frame {
+    box-sizing: border-box;
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+}
+.portal-minimal-footer {
+    margin-top: 3rem;
+    padding: 1.25rem 1rem 2rem;
+    border-top: 1px solid var(--outline-variant);
+    background: var(--surface-container-low);
+}
+.portal-minimal-footer__inner {
+    max-width: var(--max-width, 72rem);
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    color: var(--color-on-surface-variant);
+}
+.portal-minimal-footer__inner a {
+    color: var(--color-accent);
+    font-weight: 600;
+    text-decoration: none;
+}
+.portal-minimal-footer__inner a:hover {
+    text-decoration: underline;
+}
+.portal-minimal-footer__sep {
+    opacity: 0.45;
+    user-select: none;
 }
 .workspace-sidebar-link:hover {
     background: var(--surface-container-high);
@@ -8696,7 +8945,7 @@ body:has(.workspace-drawer-overlay.open) {
     background: rgba(173, 44, 77, 0.1);
     color: var(--color-accent);
     font-weight: 600;
-    box-shadow: inset 2px 0 0 var(--color-accent);
+    box-shadow: inset 3px 0 0 var(--color-accent);
 }
 .workspace-sidebar-footer {
     margin-top: 1.5rem;
@@ -8791,12 +9040,19 @@ html.dark .workspace-sidebar-signout:hover {
         display: flex;
     }
     .workspace-sidebar {
-        position: relative;
+        position: sticky;
+        top: var(--workspace-top-offset, calc(var(--workspace-header-h, 3.25rem) + var(--workspace-tab-bar-h, 0px)));
+        align-self: flex-start;
+        max-height: calc(100vh - var(--workspace-top-offset, calc(var(--workspace-header-h, 3.25rem) + var(--workspace-tab-bar-h, 0px))));
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
         transform: none !important;
         width: 260px;
         flex-shrink: 0;
         box-shadow: none;
         border-right: 1px solid var(--color-border);
+        border-left: 3px solid color-mix(in srgb, var(--color-accent) 28%, transparent);
     }
     .workspace-sidebar.open {
         box-shadow: none;
@@ -11630,6 +11886,46 @@ html.dark .admin-super-messages-bubble.is-staff {
 .dashboard-program-course-name {
     min-width: 0;
     overflow-wrap: anywhere;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.5rem;
+}
+.dashboard-program-course-check {
+    font-size: 1.05rem;
+    color: #16a34a;
+    flex-shrink: 0;
+    font-variation-settings: 'FILL' 1;
+}
+.dashboard-program-course-lock {
+    font-size: 1rem;
+    color: var(--color-on-surface-variant);
+    opacity: 0.55;
+    flex-shrink: 0;
+}
+.dashboard-program-course-title--done {
+    text-decoration: line-through;
+    color: var(--color-on-surface-variant);
+}
+.dashboard-program-up-next {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    border: 1px solid color-mix(in srgb, var(--color-accent) 35%, transparent);
+    padding: 0.1rem 0.4rem;
+    border-radius: 999px;
+}
+.dashboard-program-course-list li.is-next {
+    background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+    margin: 0 -0.5rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    border-radius: var(--radius-sm);
+}
+.dashboard-program-course-list li.is-locked {
+    opacity: 0.72;
 }
 .dashboard-program-course-list li:last-child {
     border-bottom: none;
@@ -11648,6 +11944,17 @@ html.dark .admin-super-messages-bubble.is-staff {
 .dashboard-program-badge.pending {
     background: var(--color-gray-100);
     color: var(--color-on-surface-variant);
+}
+.dashboard-program-badge.next {
+    background: rgba(173, 44, 77, 0.1);
+    color: var(--color-accent);
+    border: 1px solid color-mix(in srgb, var(--color-accent) 25%, transparent);
+}
+html.dark .dashboard-program-course-list li {
+    border-bottom-color: var(--outline-variant);
+}
+html.dark .dashboard-program-badge.pending {
+    background: var(--surface-container-high);
 }
 
 @media (max-width: 480px) {

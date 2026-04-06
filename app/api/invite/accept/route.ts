@@ -4,8 +4,16 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { sendInvitationAcceptedEmail } from '@/lib/email';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { invitationRoleLabel, inviteAcceptLoginRedirect } from '@/lib/invitations/inviteRoleLabels';
+import { checkInviteAcceptRateLimit } from '@/lib/rate-limit';
+import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
 export async function POST(request: NextRequest) {
+  const ip = getClientIpFromRequest(request);
+  const { success: withinLimit } = await checkInviteAcceptRateLimit(ip);
+  if (!withinLimit) {
+    return NextResponse.json({ error: 'Too many attempts. Please try again in an hour.' }, { status: 429 });
+  }
+
   let body: unknown;
   try {
     body = await request.json();
@@ -23,53 +31,61 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid or missing token' }, { status: 400 });
   }
 
-  const invitation = await prisma.invitation.findUnique({
-    where: { token },
-    include: {
-      invitedBy: { select: { id: true, fullName: true, email: true } },
-      subgroup: { select: { id: true } },
-    },
-  });
-
-  if (!invitation) {
-    return NextResponse.json({ error: 'Invitation not found' }, { status: 404 });
-  }
-
-  if (invitation.status !== 'pending') {
-    return NextResponse.json(
-      { error: invitation.status === 'accepted' ? 'Already accepted' : 'Invitation no longer valid' },
-      { status: 400 }
-    );
-  }
-
-  if (new Date() > invitation.expiresAt) {
-    await prisma.invitation.update({
-      where: { id: invitation.id },
-      data: { status: 'expired' },
+  try {
+    const invitation = await prisma.invitation.findUnique({
+      where: { token },
+      include: {
+        invitedBy: { select: { id: true, fullName: true, email: true } },
+        subgroup: { select: { id: true } },
+      },
     });
-    return NextResponse.json({ error: 'Invitation has expired' }, { status: 400 });
-  }
 
-  const existingUser = await prisma.user.findUnique({
-    where: { email: invitation.email },
-    include: { profile: true, userRoles: { include: { role: true } } },
-  });
-
-  if (existingUser) {
-    if (!fullName) {
-      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+    if (!invitation) {
+      return NextResponse.json({ error: 'Invitation not found' }, { status: 404 });
     }
-    return acceptExistingUser(existingUser, invitation, fullName, request);
-  }
 
-  if (!fullName || !password || password.length < 8) {
+    if (invitation.status !== 'pending') {
+      return NextResponse.json(
+        { error: invitation.status === 'accepted' ? 'Already accepted' : 'Invitation no longer valid' },
+        { status: 400 }
+      );
+    }
+
+    if (new Date() > invitation.expiresAt) {
+      await prisma.invitation.update({
+        where: { id: invitation.id },
+        data: { status: 'expired' },
+      });
+      return NextResponse.json({ error: 'Invitation has expired' }, { status: 400 });
+    }
+
+    const existingUser = await prisma.user.findUnique({
+      where: { email: invitation.email },
+      include: { profile: true, userRoles: { include: { role: true } } },
+    });
+
+    if (existingUser) {
+      if (!fullName) {
+        return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+      }
+      return acceptExistingUser(existingUser, invitation, fullName, request);
+    }
+
+    if (!fullName || !password || password.length < 8) {
+      return NextResponse.json(
+        { error: 'Name and password (min 8 chars) are required for new accounts' },
+        { status: 400 }
+      );
+    }
+
+    return createNewUserAndAccept(invitation, fullName, phone, password, request);
+  } catch (e) {
+    console.error('[api/invite/accept]', e);
     return NextResponse.json(
-      { error: 'Name and password (min 8 chars) are required for new accounts' },
-      { status: 400 }
+      { error: 'Something went wrong accepting this invitation. Please try again.' },
+      { status: 500 }
     );
   }
-
-  return createNewUserAndAccept(invitation, fullName, phone, password, request);
 }
 
 async function acceptExistingUser(
@@ -89,7 +105,7 @@ async function acceptExistingUser(
   await prisma.$transaction(async (tx) => {
     await tx.user.update({
       where: { id: user.id },
-      data: { fullName: fullName || user.fullName },
+      data: { fullName: fullName || user.fullName, deletedAt: null },
     });
 
     if (invitation.role === 'admin') {

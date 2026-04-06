@@ -50,7 +50,7 @@ export function trackApplyFunnel(
 }
 
 export function trackLearningHubNavigate(
-  destination: 'career_library' | 'program_resources' | 'interest_profiler'
+  destination: 'career_library' | 'program_resources' | 'wioa_screening'
 ) {
   pushEvent({
     event: 'learning_hub_navigate',

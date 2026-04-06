@@ -5,20 +5,25 @@ import { prisma } from '@/lib/db/prisma';
 import { runMentorStatusUpdate } from '@/lib/admin/mentorStatusUpdate';
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const { id } = await params;
-  const body = await req.json().catch(() => ({}));
-  const action = body?.action as 'approve' | 'deactivate' | 'activate';
+    const { id } = await params;
+    const body = await req.json().catch(() => ({}));
+    const action = body?.action as 'approve' | 'deactivate' | 'activate';
 
-  const result = await runMentorStatusUpdate(id, action);
-  if (!result.ok) {
-    if (result.error === 'Not found') return NextResponse.json({ error: 'Not found' }, { status: 404 });
-    return NextResponse.json({ error: result.error }, { status: 400 });
+    const result = await runMentorStatusUpdate(id, action);
+    if (!result.ok) {
+      if (result.error === 'Not found') return NextResponse.json({ error: 'Not found' }, { status: 404 });
+      return NextResponse.json({ error: result.error }, { status: 400 });
+    }
+
+    const mentor = await prisma.mentor.findUnique({ where: { id } });
+    return NextResponse.json({ mentor });
+  } catch (error) {
+    console.error('[admin/mentors/[id] PATCH] error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  const mentor = await prisma.mentor.findUnique({ where: { id } });
-  return NextResponse.json({ mentor });
 }

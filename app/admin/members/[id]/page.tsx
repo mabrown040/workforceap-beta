@@ -9,7 +9,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { memberTrainingProfileComplete } from '@/lib/platform/trainingEnrollmentGate';
-import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import StaffMemberResumePanel from '@/components/counselor/StaffMemberResumePanel';
 import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
 import MemberDetailActions from '@/components/admin/MemberDetailActions';
 import MemberPartnerSection from '@/components/admin/MemberPartnerSection';
@@ -22,30 +22,11 @@ import CreateSuccessToast from './CreateSuccessToast';
 import { formatPhone } from '@/lib/formatPhone';
 import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
 import { ClipboardList, CheckCircle } from 'lucide-react';
+import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
+import type { WioaReviewStatus } from '@/lib/wioa/wioaReview';
+import AdminMemberWioaReviewPanel from '@/components/admin/AdminMemberWioaReviewPanel';
 import PageHeader from '@/components/portal/PageHeader';
 import '@/css/counselor.css';
-
-const BUCKET = 'member-resumes';
-
-async function getResumeUrls(originalPath: string | null, enhancedPath: string | null) {
-  if (!originalPath && !enhancedPath) return { originalUrl: null, enhancedUrl: null };
-  const supabase = getSupabaseAdmin();
-  const [originalUrl, enhancedUrl] = await Promise.all([
-    originalPath
-      ? supabase.storage
-          .from(BUCKET)
-          .createSignedUrl(originalPath, 3600)
-          .then((r) => r.data?.signedUrl ?? null)
-      : Promise.resolve(null),
-    enhancedPath
-      ? supabase.storage
-          .from(BUCKET)
-          .createSignedUrl(enhancedPath, 3600)
-          .then((r) => r.data?.signedUrl ?? null)
-      : Promise.resolve(null),
-  ]);
-  return { originalUrl, enhancedUrl };
-}
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Member Detail',
@@ -70,7 +51,34 @@ export default async function AdminMemberDetailPage({
     await Promise.all([
     prisma.user.findUnique({
       where: { id },
-      include: { profile: true },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        phone: true,
+        deletedAt: true,
+        enrolledProgram: true,
+        enrolledAt: true,
+        programChangedAt: true,
+        coursesCompleted: true,
+        assessmentCompleted: true,
+        assessmentCompletedAt: true,
+        assessmentScore: true,
+        assessmentScorePct: true,
+        programInterest: true,
+        assessmentAnswers: true,
+        interviewEligible: true,
+        interviewRequestedAt: true,
+        interviewCompletedAt: true,
+        workspaceEmail: true,
+        workspaceEmailProvisioned: true,
+        wioaQualificationJson: true,
+        wioaReviewStatus: true,
+        wioaReviewedAt: true,
+        wioaReviewedByUserId: true,
+        wioaReviewNotes: true,
+        profile: true,
+      },
     }),
     prisma.partner.findMany({
       where: { active: true },
@@ -115,6 +123,15 @@ export default async function AdminMemberDetailPage({
 
   if (!member || member.deletedAt) notFound();
 
+  let wioaReviewerName: string | null = null;
+  if (member.wioaReviewedByUserId) {
+    const rev = await prisma.user.findUnique({
+      where: { id: member.wioaReviewedByUserId },
+      select: { fullName: true },
+    });
+    wioaReviewerName = rev?.fullName ?? null;
+  }
+
   const preScreening = await prisma.preScreeningResponse.findUnique({
     where: { userId: member.id },
   });
@@ -142,11 +159,6 @@ export default async function AdminMemberDetailPage({
   const coursesCompleted = (member.coursesCompleted as string[] | null) ?? [];
   const completedCount = program ? coursesCompleted.filter((s) => program.courses.some((c) => c.slug === s)).length : 0;
   const assessmentAnswers = member.assessmentAnswers as Record<number, string> | null;
-  const { originalUrl, enhancedUrl } = await getResumeUrls(
-    member.profile?.resumeOriginalPath ?? null,
-    member.profile?.resumeEnhancedPath ?? null
-  );
-
   const chatThread = await getOrCreateMemberCounselorThread(member.id);
   const chatMsgs = await prisma.message.findMany({
     where: { threadId: chatThread.id },
@@ -161,6 +173,8 @@ export default async function AdminMemberDetailPage({
         })
       : [];
   const chatNameById = new Map(chatAuthors.map((n) => [n.id, n.fullName]));
+
+  const wioaSnap = parseWioaQualificationSnapshot(member.wioaQualificationJson);
 
   const counselorChatInitial = {
     staffUserId: user.id,
@@ -213,6 +227,17 @@ export default async function AdminMemberDetailPage({
           <p><strong>LinkedIn:</strong> {member.profile?.profileLinkedin ? <a href={member.profile.profileLinkedin} target="_blank" rel="noopener noreferrer">{member.profile.profileLinkedin}</a> : '—'}</p>
           <p><strong>Bio:</strong> {member.profile?.profileBio ?? '—'}</p>
         </section>
+
+        {wioaSnap && (
+          <AdminMemberWioaReviewPanel
+            memberId={member.id}
+            snapshot={wioaSnap}
+            reviewStatus={(member.wioaReviewStatus as WioaReviewStatus | null) ?? null}
+            reviewedAt={member.wioaReviewedAt?.toISOString() ?? null}
+            reviewerName={wioaReviewerName}
+            reviewNotes={member.wioaReviewNotes}
+          />
+        )}
 
         {preScreening && (
           <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
@@ -345,20 +370,7 @@ export default async function AdminMemberDetailPage({
         {(member.profile?.resumeOriginalPath || member.profile?.resumeEnhancedPath) && (
           <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
             <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Resumes</h2>
-            {member.profile?.resumeOriginalPath && (
-              <p style={{ marginBottom: '0.5rem' }}>
-                <strong>Original:</strong>{' '}
-                {originalUrl ? <a href={originalUrl} target="_blank" rel="noopener noreferrer">View</a> : '—'}{' '}
-                {originalUrl ? <a href={originalUrl} download>Download</a> : ''}
-              </p>
-            )}
-            {member.profile?.resumeEnhancedPath && (
-              <p>
-                <strong>Enhanced:</strong>{' '}
-                {enhancedUrl ? <a href={enhancedUrl} target="_blank" rel="noopener noreferrer">View</a> : '—'}{' '}
-                {enhancedUrl ? <a href={enhancedUrl} download>Download</a> : ''}
-              </p>
-            )}
+            <StaffMemberResumePanel memberId={member.id} />
           </section>
         )}
 

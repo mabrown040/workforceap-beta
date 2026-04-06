@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState, useCallback } from 'react';
 import { employerMatchPipelineLabel } from '@/lib/employer/aiMatchPipelineLabels';
+import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
 
 export type EmployerMatchHistoryRow = {
   id: string;
@@ -99,7 +100,7 @@ export default function EmployerMatchHistoryClient({ initialRows }: { initialRow
                     </Link>
                   </td>
                   <td>{row.job.title}</td>
-                  <td>{row.matchScore}%</td>
+                  <td style={{ fontWeight: 600 }}>{matchScoreAsPercent(row.matchScore)}%</td>
                   <td>
                     <select
                       className="form-control"

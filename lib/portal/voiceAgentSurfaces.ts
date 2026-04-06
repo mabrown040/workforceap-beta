@@ -7,7 +7,7 @@ type Surface = {
 };
 
 export const readinessVoiceSurface: Surface = {
-  badge: 'Readiness coach',
+  badge: 'Workforce Readiness & career coach',
   subtext: 'Interviews, certifications, and next steps. Program context is included automatically.',
   icon: '🎯',
   glowColor: '#0d9488',

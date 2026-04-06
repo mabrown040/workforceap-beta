@@ -13,6 +13,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { employerVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Employer overview',
@@ -90,6 +91,11 @@ export default async function EmployerDashboardPage() {
   const hiresFromApplications = hiredApplications.length;
   const hiresTotal = hiresFromApplications + filledJobsCount;
 
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const applicationsLast30d = await prisma.jobPostingApplication.count({
+    where: { job: { employerId: ctx.employerId }, appliedAt: { gte: thirtyDaysAgo } },
+  });
+
   let avgMatchToHireDays: number | null = null;
   if (hiredApplications.length > 0) {
     const matchRows = await prisma.aIJobMatch.findMany({
@@ -118,10 +124,34 @@ export default async function EmployerDashboardPage() {
   const superAdmin = await isSuperAdmin(user.id);
 
   const kpiCards = [
-    { label: 'Total Candidates', value: totalApplications.toString(), trend: '+12%', trendColor: '#80d99f', borderAccent: true },
-    { label: 'Active Tracks', value: activeJobs.toString(), trend: `${inReview} in review`, trendColor: 'var(--color-on-surface-variant)' },
-    { label: 'Verified Hires', value: hiresTotal.toString(), trend: 'Compliance', trendColor: '#80d99f' },
-    { label: 'Avg. Time to Hire', value: avgMatchToHireDays === null ? '\u2014' : `${avgMatchToHireDays}d`, trend: avgMatchToHireDays !== null ? `-${avgMatchToHireDays}d` : '', trendColor: '#80d99f' },
+    {
+      label: 'Total Candidates',
+      value: totalApplications.toString(),
+      trend: applicationsLast30d > 0 ? `${applicationsLast30d} in last 30d` : 'No recent applicants',
+      trendColor: 'var(--color-on-surface-variant)',
+      borderAccent: true,
+    },
+    {
+      label: 'Active Tracks',
+      value: activeJobs.toString(),
+      trend: inReview > 0 ? `${inReview} awaiting go-live` : 'All live or closed',
+      trendColor: 'var(--color-on-surface-variant)',
+    },
+    {
+      label: 'Verified Hires',
+      value: hiresTotal.toString(),
+      trend: offerStageCount > 0 ? `${offerStageCount} offer${offerStageCount === 1 ? '' : 's'} out` : 'No open offers',
+      trendColor: 'var(--color-on-surface-variant)',
+    },
+    {
+      label: 'Avg. Time to Hire',
+      value: avgMatchToHireDays === null ? '\u2014' : `${avgMatchToHireDays}d`,
+      trend:
+        avgMatchToHireDays !== null
+          ? `Match → hire (when tracked)`
+          : 'Add hires to see timing',
+      trendColor: 'var(--color-on-surface-variant)',
+    },
   ];
 
   const placementCards = [
@@ -145,7 +175,7 @@ export default async function EmployerDashboardPage() {
         companyWebsite: employerRow.companyWebsite ?? '',
       }}
     >
-    <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
+    <PortalPageFrame>
       {/* ── Mobile Employer Dashboard (≤640px) ── */}
       <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Hero */}
@@ -494,7 +524,7 @@ export default async function EmployerDashboardPage() {
         )}
       </section>
       </div>{/* end desktop */}
-    </div>
+    </PortalPageFrame>
     </PortalEntryClient>
   );
 }

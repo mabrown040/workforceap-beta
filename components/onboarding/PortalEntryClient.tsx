@@ -74,7 +74,7 @@ export default function PortalEntryClient(props: PortalEntryClientProps) {
       {portal === 'partner' && wizardOpen ? (
         <PartnerOnboardingWizard {...props.wizardProps} onComplete={onWizardDone} />
       ) : null}
-      {isSuperAdmin ? <OnboardingDevReset portal={portal} /> : null}
+      {isSuperAdmin && process.env.NODE_ENV !== 'production' ? <OnboardingDevReset portal={portal} /> : null}
       {children}
     </>
   );

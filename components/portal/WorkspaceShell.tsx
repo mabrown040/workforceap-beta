@@ -37,6 +37,9 @@ export default function WorkspaceShell({
   footer,
   headerBadge,
   contextLogoUrl,
+  marketingSiteHref,
+  marketingSiteLabel,
+  showResumeUploadHint,
   children,
 }: {
   portalRole: PortalRole;
@@ -54,6 +57,11 @@ export default function WorkspaceShell({
   footer?: React.ReactNode;
   /** Optional pill next to context (e.g. Hiring Partner tier) */
   headerBadge?: string;
+  /** Public marketing site — shown prominently in header when set (e.g. member portal). */
+  marketingSiteHref?: string;
+  marketingSiteLabel?: string;
+  /** Member: prompt to upload resume when none on file */
+  showResumeUploadHint?: boolean;
   children: React.ReactNode;
 }) {
   const pathname = usePathname() ?? '';
@@ -74,9 +82,21 @@ export default function WorkspaceShell({
   useEffect(() => {
     const el = mainRef.current;
     if (!el) return;
-    el.inert = drawerOpen;
+    try {
+      if ('inert' in el) {
+        (el as HTMLElement & { inert?: boolean }).inert = drawerOpen;
+      }
+    } catch {
+      /* Safari / older browsers — skip; drawer overlay still blocks interaction */
+    }
     return () => {
-      el.inert = false;
+      try {
+        if ('inert' in el) {
+          (el as HTMLElement & { inert?: boolean }).inert = false;
+        }
+      } catch {
+        /* ignore */
+      }
     };
   }, [drawerOpen]);
 
@@ -151,19 +171,28 @@ export default function WorkspaceShell({
 
   const isCollapsedDesktop = collapsed && wide;
   const headerRef = useRef<HTMLElement>(null);
+  const tabBarRef = useRef<HTMLElement | null>(null);
 
-  // Measure header height so tab bar sticks below it
+  // Measure header + optional tab bar so sticky regions and sidebar offset stay in sync
   useEffect(() => {
-    const el = headerRef.current;
-    if (!el) return;
+    const headerEl = headerRef.current;
+    const tabEl = tabBarRef.current;
     const update = () => {
-      document.documentElement.style.setProperty('--workspace-header-h', `${el.offsetHeight}px`);
+      const hh = headerEl?.offsetHeight ?? 0;
+      const th = tabEl?.offsetHeight ?? 0;
+      document.documentElement.style.setProperty('--workspace-header-h', `${hh}px`);
+      document.documentElement.style.setProperty('--workspace-tab-bar-h', `${th}px`);
+      document.documentElement.style.setProperty('--workspace-top-offset', `${hh + th}px`);
     };
     update();
+    if (typeof ResizeObserver === 'undefined') {
+      return;
+    }
     const ro = new ResizeObserver(update);
-    ro.observe(el);
+    if (headerEl) ro.observe(headerEl);
+    if (tabEl) ro.observe(tabEl);
     return () => ro.disconnect();
-  }, []);
+  }, [hasTabs, activeTab]);
 
   const firstHref = navItems[0]?.href ?? '/';
 
@@ -184,6 +213,19 @@ export default function WorkspaceShell({
               WorkforceAP
             </Link>
             <span className="workspace-shell-tagline">{workspaceLabel}</span>
+            {marketingSiteHref ? (
+              <Link
+                href={marketingSiteHref}
+                className="workspace-shell-public-site-link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span className="material-symbols-outlined" aria-hidden style={{ fontSize: '1rem' }}>
+                  open_in_new
+                </span>
+                {marketingSiteLabel ?? 'Public site'}
+              </Link>
+            ) : null}
           </div>
         </div>
         <div className="workspace-shell-header__meta">
@@ -205,6 +247,17 @@ export default function WorkspaceShell({
         </div>
       </header>
 
+      {showResumeUploadHint ? (
+        <div className="workspace-resume-upload-hint" role="status">
+          <span className="workspace-resume-upload-hint__text">
+            No resume on file yet — upload one to power AI tools and your coach.
+          </span>
+          <Link href="/dashboard/resume" className="workspace-resume-upload-hint__cta">
+            Upload resume
+          </Link>
+        </div>
+      ) : null}
+
       {superAdmin && superAdminImpersonating && superAdminBackHref && (
         <div className="workspace-super-admin-banner">
           Viewing as <strong>{contextLabel}</strong>.{' '}
@@ -222,7 +275,7 @@ export default function WorkspaceShell({
       />
 
       {hasTabs && activeTab && (
-        <nav className="workspace-tab-bar" aria-label="Workspace tabs">
+        <nav ref={tabBarRef} className="workspace-tab-bar" aria-label="Workspace tabs">
           <div className="workspace-tab-bar-inner">
             {NAV_TAB_ORDER.map((tab) => {
               const meta = NAV_TAB_META[tab];

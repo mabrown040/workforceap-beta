@@ -10,6 +10,7 @@ import { getOrCreateEmployerMessageThread } from '@/lib/messages/portalThreads';
 import { serializeMessage } from '@/lib/messages/counselorThread';
 import { buildEmployerInbox } from '@/lib/messages/employerInbox';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Messages',
@@ -35,13 +36,10 @@ export default async function EmployerMessagesPage() {
 
   return (
     <>
+      <h1 className="wa-sr-only">Messages</h1>
+      {/* ── Mobile section ── */}
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem', maxWidth: '100%', overflowX: 'hidden' }}>
-        <div style={{ padding: '1rem 1rem 0.75rem' }}>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 0.25rem' }}>Messages</h1>
-          <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-            Candidates and WorkforceAP team
-          </p>
-        </div>
+        <PageHeader title="Messages" subtitle="Candidates and WorkforceAP team" />
         <EmployerMessagesInboxClient
           portalUserId={user.id}
           teamRow={teamRow}
@@ -57,8 +55,9 @@ export default async function EmployerMessagesPage() {
         <MobileBottomNav variant="employer" />
       </div>
 
+      {/* ── Desktop section ── */}
       <div className="wa-hidden wa-md:wa-block">
-        <div>
+        <PortalPageFrame>
           <PageHeader
             title="Messages"
             subtitle="Chat with applicants, candidates, and the WorkforceAP team about jobs and hiring."
@@ -75,7 +74,7 @@ export default async function EmployerMessagesPage() {
               messages: serializedMessages,
             }}
           />
-        </div>
+        </PortalPageFrame>
       </div>
     </>
   );

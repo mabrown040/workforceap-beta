@@ -9,6 +9,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { readinessVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
+import { getMemberReadinessSections } from '@/lib/readiness/memberReadinessSections';
 import '@/css/counselor.css';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -72,7 +73,13 @@ export default async function DashboardReadinessPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/readiness');
 
-  const breakdown = await getScoreBreakdownSafe(user.id);
+  const [breakdown, checklistSections] = await Promise.all([
+    getScoreBreakdownSafe(user.id),
+    getMemberReadinessSections(user.id).catch((e) => {
+      console.error('[dashboard/readiness] checklist load failed', e);
+      return null;
+    }),
+  ]);
   const overallScore = Math.min(100, Object.values(breakdown).reduce((sum, b) => sum + b.earned, 0));
   const categories = buildCategories(breakdown);
   const priorityAction = getPriorityAction(breakdown);
@@ -134,7 +141,10 @@ export default async function DashboardReadinessPage() {
               />
             </VoiceAgentSurface>
           </div>
-          <ReadinessMemberClient />
+          <ReadinessMemberClient
+            initialSections={checklistSections ?? []}
+            loadError={checklistSections === null ? 'We could not load your counselor checklist. Refresh the page or try again shortly.' : null}
+          />
         </div>
       </div>
     </>

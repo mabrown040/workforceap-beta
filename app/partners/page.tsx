@@ -198,11 +198,11 @@ export default function PartnersPage() {
         </div>
       </section>
 
-      {/* Find Your Career CTA */}
+      {/* Partner entry — scrolls to pathways (not member career finder) */}
       <section style={{ textAlign: 'center', padding: '2.5rem 1rem', background: 'var(--color-light)' }}>
         <p style={{ fontSize: '1.1rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>Not sure where to start?</p>
-        <a href="/find-your-path" className="btn btn-accent btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
-          Find Your Career
+        <a href="#partner-types" className="btn btn-accent btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
+          Explore partnership types
         </a>
       </section>
 

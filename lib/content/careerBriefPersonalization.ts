@@ -203,8 +203,48 @@ export async function loadMemberCareerBriefBundleSafe(
       );
       return { user, careerBrief: assembleCareerBriefContext(user, scoreBreakdown) };
     } catch (secondErr) {
-      console.error('[loadMemberCareerBriefBundleSafe] fallback failed', secondErr);
-      throw firstErr;
+      console.error('[loadMemberCareerBriefBundleSafe] include-based fallback failed', secondErr);
+      try {
+        const user = await prisma.user.findUnique({
+          where: options?.activeMemberOnly ? { id: userId, deletedAt: null } : { id: userId },
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            enrolledProgram: true,
+            enrolledAt: true,
+            assessmentCompleted: true,
+            assessmentCompletedAt: true,
+            assessmentScorePct: true,
+            coursesCompleted: true,
+            profile: true,
+            applications: { orderBy: { createdAt: 'desc' }, take: 1 },
+            jobApplications: true,
+            aiToolResults: { select: { toolType: true } },
+          },
+        });
+        if (!user) {
+          return { user: null, careerBrief: assembleCareerBriefContext(null, emptyScoreBreakdown()) };
+        }
+        const scoreBreakdown = buildScoreBreakdownFromRelations(
+          user,
+          [],
+          user.aiToolResults ?? [],
+          [],
+          [],
+          [],
+          user.jobApplications ?? [],
+          [],
+          null
+        );
+        return {
+          user: user as unknown as MemberCareerBriefUser,
+          careerBrief: assembleCareerBriefContext(user as unknown as MemberCareerBriefUser, scoreBreakdown),
+        };
+      } catch (thirdErr) {
+        console.error('[loadMemberCareerBriefBundleSafe] minimal select failed', thirdErr);
+        throw firstErr;
+      }
     }
   }
 }

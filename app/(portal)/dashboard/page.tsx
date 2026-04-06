@@ -18,9 +18,11 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import { formatPortalDate } from '@/lib/formatDate';
 import MemberDashboardVoiceSectionLazy from '@/components/portal/MemberDashboardVoiceSectionLazy';
 import MemberNextStepsStrip from '@/components/portal/MemberNextStepsStrip';
+import PortalEntryErrorBoundary from '@/components/portal/PortalEntryErrorBoundary';
 import { getMemberEngagementSignals } from '@/lib/member/memberEngagementSignals';
 import { buildNextBestActions } from '@/lib/member/nextBestActions';
 import { getProfileCompleteness } from '@/lib/resume/profileCompleteness';
+import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Member overview',
@@ -32,6 +34,31 @@ export default async function DashboardPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard');
 
+  try {
+    return await renderMemberDashboard(user);
+  } catch (err) {
+    console.error('[dashboard] unhandled render error', err);
+    return (
+      <div className="portal-error-fallback" style={{ padding: '2rem', maxWidth: '36rem', margin: '0 auto' }}>
+        <h1 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>We couldn&apos;t load your dashboard</h1>
+        <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.6 }}>
+          Something went wrong while loading this page. This is usually temporary. Try again, or open another section from
+          the menu.
+        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <a href="/dashboard" className="btn btn-primary">
+            Try again
+          </a>
+          <a href="https://www.workforceap.org/" className="btn btn-ghost" target="_blank" rel="noopener noreferrer">
+            WorkforceAP home
+          </a>
+        </div>
+      </div>
+    );
+  }
+}
+
+async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof getUser>>>) {
   const { user: dbUser, careerBrief } = await loadMemberCareerBriefBundleSafe(user.id, { activeMemberOnly: true });
   if (!dbUser) redirect('/login');
 
@@ -163,7 +190,7 @@ export default async function DashboardPage() {
   const firstName = dbUser.fullName?.split(' ')[0] ?? 'there';
   const enrolledProgram = dbUser.enrolledProgram ?? null;
   const assessmentCompleted = dbUser.assessmentCompleted ?? false;
-  const coursesCompleted = (dbUser.coursesCompleted as string[] | null) ?? [];
+  const coursesCompleted = parseCourseSlugList(dbUser.coursesCompleted);
   
   const userAge = intakeExtra?.profile?.dob 
     ? Math.floor((Date.now() - new Date(intakeExtra.profile.dob).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
@@ -435,6 +462,7 @@ export default async function DashboardPage() {
 
       {/* ── Desktop view (hidden on mobile) ── */}
       <div className="wa-hidden wa-md:wa-block">
+        <PortalEntryErrorBoundary>
         <PortalEntryClient
           portal="member"
           showOnboardingWizard={showMemberOnboarding}
@@ -510,6 +538,7 @@ export default async function DashboardPage() {
             </section>
           )}
         </PortalEntryClient>
+        </PortalEntryErrorBoundary>
       </div>
 
       {/* Bottom nav — mobile only */}

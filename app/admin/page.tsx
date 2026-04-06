@@ -7,6 +7,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import RecentSignupsTable from '@/components/admin/RecentSignupsTable';
+import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 
@@ -23,55 +24,68 @@ export default async function AdminPage() {
   const hasAdmin = await isAdmin(user.id);
   if (!hasAdmin) redirect('/dashboard');
 
-  const [totalMembers, assessmentsCompleted, recentUsers, recentPlacements, pendingApplications, workforcePlacements] =
-    await Promise.all([
-    prisma.user.count({ where: { deletedAt: null } }),
-    prisma.user.count({ where: { assessmentCompleted: true, deletedAt: null } }),
-    prisma.user.findMany({
-      where: { deletedAt: null },
-      orderBy: { createdAt: 'desc' },
-      take: 10,
-      select: {
-        id: true,
-        fullName: true,
-        email: true,
-        enrolledProgram: true,
-        enrolledAt: true,
-        assessmentScorePct: true,
-        assessmentCompleted: true,
-        createdAt: true,
-      },
-    }),
-    prisma.placementRecord.findMany({
-      orderBy: { placedAt: 'desc' },
-      take: 10,
-      include: {
-        user: {
-          select: { id: true, fullName: true, enrolledProgram: true, enrolledAt: true },
+  let totalMembers: number;
+  let assessmentsCompleted: number;
+  let recentUsers;
+  let recentPlacements;
+  let pendingApplications: number;
+  let activeInTraining: number;
+  let programsCompleted: number;
+
+  try {
+    [totalMembers, assessmentsCompleted, recentUsers, recentPlacements, pendingApplications] = await Promise.all([
+      prisma.user.count({ where: { deletedAt: null } }),
+      prisma.user.count({ where: { assessmentCompleted: true, deletedAt: null } }),
+      prisma.user.findMany({
+        where: { deletedAt: null },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+        select: {
+          id: true,
+          fullName: true,
+          email: true,
+          enrolledProgram: true,
+          enrolledAt: true,
+          assessmentScorePct: true,
+          assessmentCompleted: true,
+          createdAt: true,
         },
+      }),
+      prisma.placementRecord.findMany({
+        orderBy: { placedAt: 'desc' },
+        take: 10,
+        include: {
+          user: {
+            select: { id: true, fullName: true, enrolledProgram: true, enrolledAt: true },
+          },
+        },
+      }),
+      prisma.application.count({ where: { status: 'PENDING' } }),
+    ]);
+
+    activeInTraining = await prisma.user.count({
+      where: {
+        deletedAt: null,
+        assessmentCompleted: true,
+        enrolledProgram: { not: null },
       },
-    }),
-    prisma.application.count({ where: { status: 'PENDING' } }),
-    prisma.placedOutcome.count(),
-  ]);
+    });
 
-  const activeInTraining = await prisma.user.count({
-    where: {
-      deletedAt: null,
-      assessmentCompleted: true,
-      enrolledProgram: { not: null },
-    },
-  });
-
-  const programsCompleted = await prisma.user.count({
-    where: {
-      deletedAt: null,
-      assessmentCompleted: true,
-      enrolledProgram: { not: null },
-    },
-  });
-
-  const totalPlacements = await prisma.placementRecord.count();
+    programsCompleted = await prisma.user.count({
+      where: {
+        deletedAt: null,
+        assessmentCompleted: true,
+        enrolledProgram: { not: null },
+      },
+    });
+  } catch (e) {
+    console.error('[admin/page] load failed', e);
+    return (
+      <PortalPageFrame>
+        <AdminDataLoadError title="Admin overview unavailable" />
+      </PortalPageFrame>
+    );
+  }
 
   const metricCards: Array<{
     icon: string;

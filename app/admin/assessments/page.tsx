@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import AssessmentsTable from '@/components/admin/AssessmentsTable';
+import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import { TableSkeleton } from '@/components/ui/Skeleton';
 import PageHeader from '@/components/portal/PageHeader';
 
@@ -47,21 +48,27 @@ export default async function AdminAssessmentsPage({
     ...(andConditions.length > 0 && { AND: andConditions }),
   };
 
-  const users = await prisma.user.findMany({
-    where,
-    orderBy: { assessmentCompletedAt: 'desc' },
-    select: {
-      id: true,
-      fullName: true,
-      email: true,
-      phone: true,
-      programInterest: true,
-      assessmentScore: true,
-      assessmentScorePct: true,
-      assessmentCompletedAt: true,
-      assessmentAnswers: true,
-    },
-  });
+  let users;
+  try {
+    users = await prisma.user.findMany({
+      where,
+      orderBy: { assessmentCompletedAt: 'desc' },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        phone: true,
+        programInterest: true,
+        assessmentScore: true,
+        assessmentScorePct: true,
+        assessmentCompletedAt: true,
+        assessmentAnswers: true,
+      },
+    });
+  } catch (e) {
+    console.error('[admin/assessments] load failed', e);
+    return <AdminDataLoadError title="Assessments unavailable" />;
+  }
 
   return (
     <div>

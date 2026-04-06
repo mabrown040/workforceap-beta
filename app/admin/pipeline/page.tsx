@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db/prisma';
 import { getPipelineStage, type PipelineStage } from '@/lib/pipeline/stage';
 import Link from 'next/link';
@@ -5,6 +6,9 @@ import PageHeader from '@/components/portal/PageHeader';
 import AdminPipelineKanban, {
   type PipelineKanbanMember,
 } from '@/components/admin/AdminPipelineKanban';
+import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
+import { getUser } from '@/lib/auth/server';
+import { isAdmin } from '@/lib/auth/roles';
 
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
@@ -44,34 +48,45 @@ function toKanbanMember(s: {
 }
 
 export default async function AdminPipelinePage() {
-  const students = await prisma.user.findMany({
-    where: { deletedAt: null },
-    orderBy: { createdAt: 'desc' },
-    select: {
-      id: true,
-      fullName: true,
-      email: true,
-      phone: true,
-      enrolledProgram: true,
-      enrolledAt: true,
-      assessmentCompleted: true,
-      coursesCompleted: true,
-      deletedAt: true,
-      createdAt: true,
-      pipelineBoardStage: true,
-      placementRecord: {
-        select: { employerName: true, jobTitle: true, salaryOffered: true, placedAt: true },
+  // Defense in depth: middleware also requires a session for /admin/*; this enforces admin role.
+  const user = await getUser();
+  if (!user) redirect('/login?redirectTo=/admin/pipeline');
+  if (!(await isAdmin(user.id))) redirect('/dashboard');
+
+  let students;
+  try {
+    students = await prisma.user.findMany({
+      where: { deletedAt: null },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        phone: true,
+        enrolledProgram: true,
+        enrolledAt: true,
+        assessmentCompleted: true,
+        coursesCompleted: true,
+        deletedAt: true,
+        createdAt: true,
+        pipelineBoardStage: true,
+        placementRecord: {
+          select: { employerName: true, jobTitle: true, salaryOffered: true, placedAt: true },
+        },
+        userCertifications: {
+          select: { certName: true, earnedAt: true },
+        },
+        applications: {
+          select: { status: true, submittedAt: true },
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
       },
-      userCertifications: {
-        select: { certName: true, earnedAt: true },
-      },
-      applications: {
-        select: { status: true, submittedAt: true },
-        orderBy: { createdAt: 'desc' },
-        take: 1,
-      },
-    },
-  });
+    });
+  } catch (e) {
+    console.error('[admin/pipeline] load failed', e);
+    return <AdminDataLoadError title="Pipeline unavailable" message="We could not load pipeline data. Try again shortly." />;
+  }
 
   const byStage: Record<PipelineStage, PipelineKanbanMember[]> = {
     applied: [],

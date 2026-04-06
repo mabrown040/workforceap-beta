@@ -11,8 +11,8 @@ export async function uploadMemberResumeFile(
     return { ok: false, error: 'File too large (max 5MB)' };
   }
   const ext = file.name.split('.').pop()?.toLowerCase();
-  if (!['pdf', 'doc', 'docx'].includes(ext || '')) {
-    return { ok: false, error: 'Only PDF, DOC, DOCX allowed' };
+  if (!['pdf', 'doc', 'docx', 'txt'].includes(ext || '')) {
+    return { ok: false, error: 'Only PDF, DOC, DOCX, TXT allowed' };
   }
 
   const prepare = await fetch('/api/member/resume/upload', {

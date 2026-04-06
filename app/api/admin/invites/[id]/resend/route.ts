@@ -56,11 +56,6 @@ export async function POST(
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + INVITE_EXPIRY_DAYS);
 
-    await prisma.invitation.update({
-      where: { id },
-      data: { token: newToken, expiresAt },
-    });
-
     const inviteUrl = `${SITE_URL}/invite?token=${newToken}`;
     const roleLabel =
       invitation.role === 'admin'
@@ -71,6 +66,7 @@ export async function POST(
             ? 'Counselor'
             : 'Student';
 
+    // Send email before rotating the token so a failed send does not invalidate the existing link.
     const emailResult = await sendInvitationEmail({
       to: invitation.email,
       inviterName: invitation.invitedBy.fullName.trim() || 'A WorkforceAP admin',
@@ -81,12 +77,23 @@ export async function POST(
 
     if (!emailResult.ok) {
       return NextResponse.json(
-        { error: 'Failed to send email. Please try again.' },
+        {
+          error:
+            emailResult.error === 'Email not configured'
+              ? 'Email is not configured (RESEND_API_KEY). Copy the invite link from the list or configure Resend.'
+              : 'Failed to send email. The invitation link was not changed — you can try again.',
+          emailSent: false,
+        },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ ok: true, message: 'Invitation resent.' });
+    await prisma.invitation.update({
+      where: { id },
+      data: { token: newToken, expiresAt },
+    });
+
+    return NextResponse.json({ ok: true, message: 'Invitation resent.', emailSent: true });
   } catch (error) {
     console.error('[admin/invites/[id]/resend POST] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

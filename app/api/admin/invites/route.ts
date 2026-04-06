@@ -168,14 +168,29 @@ export async function POST(request: NextRequest) {
 
   if (!emailResult.ok) {
     console.error('Invitation email failed:', emailResult.error);
-    return NextResponse.json(
-      { error: 'Invitation created but email failed to send. You can resend from the invites list.' },
-      { status: 500 }
-    );
+    // Invitation row already exists — returning 200 so admins can copy the link instead of
+    // hitting "pending invitation already exists" on retry (common when RESEND_API_KEY is unset).
+    return NextResponse.json({
+      ok: true,
+      emailSent: false,
+      inviteUrl,
+      warning:
+        emailResult.error === 'Email not configured'
+          ? 'Invitation saved, but outbound email is not configured (set RESEND_API_KEY). Copy the link below to share manually.'
+          : 'Invitation saved, but the email could not be sent. Copy the link below or use Resend from the list.',
+      invitation: {
+        id: invitation.id,
+        email: invitation.email,
+        role: invitation.role,
+        status: invitation.status,
+        expiresAt: invitation.expiresAt,
+      },
+    });
   }
 
   return NextResponse.json({
     ok: true,
+    emailSent: true,
     invitation: {
       id: invitation.id,
       email: invitation.email,

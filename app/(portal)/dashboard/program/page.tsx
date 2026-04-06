@@ -5,6 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
+import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
 import ProgramPicker from '@/components/portal/ProgramPicker';
 import { ProgramIcon } from '@/components/ProgramIcon';
@@ -34,7 +35,7 @@ export default async function ProgramPage() {
 
   const enrolledSlug = dbUser?.enrolledProgram ?? null;
   const program = enrolledSlug ? getProgramBySlug(enrolledSlug) : null;
-  const coursesCompleted = (dbUser?.coursesCompleted as string[] | null) ?? [];
+  const coursesCompleted = parseCourseSlugList(dbUser?.coursesCompleted);
 
   if (!enrolledSlug || !program) {
     return (
@@ -51,6 +52,8 @@ export default async function ProgramPage() {
 
   const completedSet = new Set(coursesCompleted);
   const completedCount = program.courses.filter((c) => completedSet.has(c.slug)).length;
+  const nextCourseSlug =
+    program.courses.find((c) => !completedSet.has(c.slug))?.slug ?? null;
 
   return (
     <>
@@ -99,11 +102,23 @@ export default async function ProgramPage() {
         <ul className="dashboard-program-course-list">
           {program.courses.map((c) => {
             const done = completedSet.has(c.slug);
+            const isNext = !done && c.slug === nextCourseSlug;
+            const isLocked = !done && !isNext;
             return (
-              <li key={c.slug}>
-                <span className="dashboard-program-course-name">{c.name}</span>
-                <span className={`dashboard-program-badge ${done ? 'complete' : 'pending'}`}>
-                  {done ? 'Complete' : 'Not Started'}
+              <li
+                key={c.slug}
+                className={
+                  done ? 'is-done' : isNext ? 'is-next' : isLocked ? 'is-locked' : ''
+                }
+              >
+                <span className="dashboard-program-course-name">
+                  {done ? <span className="dashboard-program-course-check material-symbols-outlined" aria-hidden>check_circle</span> : null}
+                  {isLocked ? <span className="dashboard-program-course-lock material-symbols-outlined" aria-hidden>lock</span> : null}
+                  <span className={done ? 'dashboard-program-course-title--done' : undefined}>{c.name}</span>
+                  {isNext ? <span className="dashboard-program-up-next">Up next</span> : null}
+                </span>
+                <span className={`dashboard-program-badge ${done ? 'complete' : isNext ? 'next' : 'pending'}`}>
+                  {done ? 'Complete' : isNext ? 'Current' : 'Locked'}
                 </span>
               </li>
             );

@@ -2486,6 +2486,14 @@ a.btn-accent:hover {
     gap: 1rem 1.5rem;
     align-items: flex-end;
 }
+@media (min-width: 1100px) {
+    .job-filter-group--sort {
+        margin-left: auto;
+    }
+    .job-filter-group--sort .job-filter-select {
+        min-width: 180px;
+    }
+}
 .job-filter-group {
     display: flex;
     flex-direction: column;
@@ -8882,6 +8890,35 @@ body:has(.workspace-drawer-overlay.open) {
     padding-left: max(0px, env(safe-area-inset-left));
     padding-right: max(0px, env(safe-area-inset-right));
 }
+.portal-minimal-footer {
+    margin-top: 3rem;
+    padding: 1.25rem 1rem 2rem;
+    border-top: 1px solid var(--outline-variant);
+    background: var(--surface-container-low);
+}
+.portal-minimal-footer__inner {
+    max-width: var(--max-width, 72rem);
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    color: var(--color-on-surface-variant);
+}
+.portal-minimal-footer__inner a {
+    color: var(--color-accent);
+    font-weight: 600;
+    text-decoration: none;
+}
+.portal-minimal-footer__inner a:hover {
+    text-decoration: underline;
+}
+.portal-minimal-footer__sep {
+    opacity: 0.45;
+    user-select: none;
+}
 .workspace-sidebar-link:hover {
     background: var(--surface-container-high);
     color: var(--color-on-surface);
@@ -8890,7 +8927,7 @@ body:has(.workspace-drawer-overlay.open) {
     background: rgba(173, 44, 77, 0.1);
     color: var(--color-accent);
     font-weight: 600;
-    box-shadow: inset 2px 0 0 var(--color-accent);
+    box-shadow: inset 3px 0 0 var(--color-accent);
 }
 .workspace-sidebar-footer {
     margin-top: 1.5rem;
@@ -11831,6 +11868,46 @@ html.dark .admin-super-messages-bubble.is-staff {
 .dashboard-program-course-name {
     min-width: 0;
     overflow-wrap: anywhere;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.5rem;
+}
+.dashboard-program-course-check {
+    font-size: 1.05rem;
+    color: #16a34a;
+    flex-shrink: 0;
+    font-variation-settings: 'FILL' 1;
+}
+.dashboard-program-course-lock {
+    font-size: 1rem;
+    color: var(--color-on-surface-variant);
+    opacity: 0.55;
+    flex-shrink: 0;
+}
+.dashboard-program-course-title--done {
+    text-decoration: line-through;
+    color: var(--color-on-surface-variant);
+}
+.dashboard-program-up-next {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    border: 1px solid color-mix(in srgb, var(--color-accent) 35%, transparent);
+    padding: 0.1rem 0.4rem;
+    border-radius: 999px;
+}
+.dashboard-program-course-list li.is-next {
+    background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+    margin: 0 -0.5rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    border-radius: var(--radius-sm);
+}
+.dashboard-program-course-list li.is-locked {
+    opacity: 0.72;
 }
 .dashboard-program-course-list li:last-child {
     border-bottom: none;
@@ -11849,6 +11926,17 @@ html.dark .admin-super-messages-bubble.is-staff {
 .dashboard-program-badge.pending {
     background: var(--color-gray-100);
     color: var(--color-on-surface-variant);
+}
+.dashboard-program-badge.next {
+    background: rgba(173, 44, 77, 0.1);
+    color: var(--color-accent);
+    border: 1px solid color-mix(in srgb, var(--color-accent) 25%, transparent);
+}
+html.dark .dashboard-program-course-list li {
+    border-bottom-color: var(--outline-variant);
+}
+html.dark .dashboard-program-badge.pending {
+    background: var(--surface-container-high);
 }
 
 @media (max-width: 480px) {

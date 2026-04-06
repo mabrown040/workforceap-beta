@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
+import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
 
 /**
  * On mount, loads plain text from the member's uploaded resume (if any) and
@@ -15,7 +16,10 @@ export function useHydrateMemberResumePlainText(setText: Dispatch<SetStateAction
       .then((d: { resumePlainText?: string | null }) => {
         if (cancelled) return;
         const t = d.resumePlainText?.trim();
-        if (t) setText((prev) => (prev.trim() ? prev : t));
+        if (t) {
+          const plain = stripMarkdownForPreview(t, 12000);
+          setText((prev) => (prev.trim() ? prev : plain));
+        }
       })
       .catch(() => {});
     return () => {

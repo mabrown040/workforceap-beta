@@ -37,28 +37,16 @@ type InitialPayload = {
 
 function CareerTipCard() {
   return (
-    <div className="portal-messages-tip-card">
-      <div
-        style={{
-          width: '64px',
-          height: '64px',
-          borderRadius: '9999px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginBottom: '1rem',
-          background: 'rgba(255,255,255,0.12)',
-          backdropFilter: 'blur(8px)',
-        }}
-      >
-        <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '30px' }}>
-          tips_and_updates
-        </span>
+    <div className="portal-messages-tip-card portal-messages-tip-card--compact" role="note">
+      <span className="material-symbols-outlined portal-messages-tip-card__icon" aria-hidden>
+        tips_and_updates
+      </span>
+      <div className="portal-messages-tip-card__text">
+        <strong className="portal-messages-tip-card__title">Career tip</strong>
+        <p className="portal-messages-tip-card__body">
+          Replying within 24 hours helps your counselor support you faster.
+        </p>
       </div>
-      <h4 style={{ color: '#fff', fontWeight: 700, margin: '0 0 4px' }}>Career Tip</h4>
-      <p style={{ color: 'rgba(255,255,255,0.88)', fontSize: '12px', lineHeight: 1.6, margin: 0 }}>
-        Responding to your counselor within 24 hours increases your placement rate by 30%.
-      </p>
     </div>
   );
 }

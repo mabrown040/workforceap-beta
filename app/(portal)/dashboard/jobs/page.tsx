@@ -6,7 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 import { isExcludedPublicEmployerName } from '@/lib/jobs/publicJobFilters';
 import { getAgeGroup } from '@/lib/util/ageCalculation';
 import PageHero from '@/components/PageHero';
-import Footer from '@/components/Footer';
+import PortalFooter from '@/components/portal/PortalFooter';
 import JobsListingClient from './JobsListingClient';
 import JobsBoardSkeleton from './JobsBoardSkeleton';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -151,7 +151,7 @@ export default async function JobsPage() {
           )}
         </div>
       </section>
-      <Footer />
+      <PortalFooter />
     </div>
       <MobileBottomNav variant="portal" />
     </>

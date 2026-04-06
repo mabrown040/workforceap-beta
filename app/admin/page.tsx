@@ -73,11 +73,17 @@ export default async function AdminPage() {
 
   const totalPlacements = await prisma.placementRecord.count();
 
-  const metricCards = [
-    { icon: 'groups', label: 'Total Members', value: totalMembers.toLocaleString(), accent: 'var(--color-accent)' },
-    { icon: 'task_alt', label: 'Assessments Completed', value: assessmentsCompleted.toLocaleString(), accent: '#3b82f6' },
-    { icon: 'model_training', label: 'Active in Training', value: activeInTraining.toLocaleString(), accent: '#80d99f' },
-    { icon: 'school', label: 'Programs Enrolled', value: programsCompleted.toLocaleString(), accent: '#fbbf24' },
+  const metricCards: Array<{
+    icon: string;
+    label: string;
+    value: string;
+    accent: string;
+    href: string;
+  }> = [
+    { icon: 'groups', label: 'Total Members', value: totalMembers.toLocaleString(), accent: 'var(--color-accent)', href: '/admin/members' },
+    { icon: 'task_alt', label: 'Assessments Completed', value: assessmentsCompleted.toLocaleString(), accent: '#3b82f6', href: '/admin/assessments' },
+    { icon: 'model_training', label: 'Active in Training', value: activeInTraining.toLocaleString(), accent: '#80d99f', href: '/admin/members' },
+    { icon: 'school', label: 'Programs Enrolled', value: programsCompleted.toLocaleString(), accent: '#fbbf24', href: '/admin/programs' },
   ];
 
   function timeAgo(date: Date) {
@@ -164,53 +170,44 @@ export default async function AdminPage() {
         </div>
       )}
 
-      {/* ── Mobile Metric Cards ── */}
-      <section className="wa-md:wa-hidden" style={{ padding: '0 1.5rem', marginBottom: '1.5rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
+      {/* ── Metric row (single treatment — desktop + mobile) ── */}
+      <section style={{ padding: '0 1.5rem', marginBottom: '2rem' }}>
+        <div
+          className="wa-admin-metric-row"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+            gap: '1rem',
+          }}
+        >
           {metricCards.map((card) => (
-            <div
+            <Link
               key={card.label}
+              href={card.href}
+              className="stitch-card admin-metric-card"
               style={{
-                padding: '1rem',
-                background: 'var(--surface-container)',
-                borderRadius: '0.75rem',
-                border: '1px solid var(--outline-variant)',
+                padding: '1.25rem',
+                transition: 'transform 0.15s, box-shadow 0.2s',
+                cursor: 'pointer',
+                position: 'relative',
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'block',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                <div style={{ width: '2rem', height: '2rem', borderRadius: '0.5rem', background: `${card.accent}1a`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: card.accent }}>{card.icon}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '0.5rem', background: `${card.accent}1a`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span className="material-symbols-outlined" style={{ color: card.accent }}>{card.icon}</span>
                 </div>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.5 }} aria-hidden>
+                  arrow_forward
+                </span>
               </div>
-              <span style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)', display: 'block', lineHeight: 1 }}>{card.value}</span>
-              <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '0.25rem', display: 'block' }}>{card.label}</span>
-            </div>
+              <span style={{ fontSize: 'clamp(1.35rem, 4vw, 2rem)', fontWeight: 700, color: 'var(--color-on-surface)', display: 'block', lineHeight: 1 }}>{card.value}</span>
+              <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: '0.35rem', display: 'block' }}>{card.label}</span>
+            </Link>
           ))}
         </div>
-      </section>
-
-      {/* ── Desktop Metric Cards ── */}
-      <section className="wa-hidden wa-md:wa-block" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
-        {metricCards.map((card) => (
-          <div
-            key={card.label}
-            className="stitch-card admin-metric-card"
-            style={{
-              padding: '1.5rem',
-              transition: 'border-color 0.2s, transform 0.15s',
-              cursor: 'default',
-              position: 'relative',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-              <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '0.5rem', background: `${card.accent}1a`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span className="material-symbols-outlined" style={{ color: card.accent }}>{card.icon}</span>
-              </div>
-            </div>
-            <span style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--color-on-surface)', display: 'block', lineHeight: 1 }}>{card.value}</span>
-            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '0.25rem', display: 'block' }}>{card.label}</span>
-          </div>
-        ))}
       </section>
 
       {/* ── Main Dashboard Layout ── */}
@@ -359,12 +356,17 @@ export default async function AdminPage() {
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               {[
-                { label: 'Gateway', status: 'Live', color: '#80d99f' },
-                { label: 'Database', status: '99.9%', color: '#80d99f' },
-                { label: 'LMS', status: 'Scheduled', color: '#fbbf24' },
+                { label: 'Gateway', status: 'Live', color: '#80d99f', icon: 'check_circle' },
+                { label: 'Database', status: '99.9%', color: '#80d99f', icon: 'check_circle' },
+                { label: 'LMS', status: 'Scheduled sync', color: '#fbbf24', icon: 'schedule' },
               ].map((item) => (
-                <div key={item.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>{item.label}</span>
+                <div key={item.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-on-surface)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: item.color }} aria-hidden>
+                      {item.icon}
+                    </span>
+                    {item.label}
+                  </span>
                   <span style={{ fontSize: '0.75rem', fontWeight: 700, color: item.color }}>{item.status}</span>
                 </div>
               ))}

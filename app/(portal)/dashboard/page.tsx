@@ -24,6 +24,7 @@ import { getMemberEngagementSignals } from '@/lib/member/memberEngagementSignals
 import { buildNextBestActions } from '@/lib/member/nextBestActions';
 import { getProfileCompleteness } from '@/lib/resume/profileCompleteness';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
+import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Member overview',
@@ -184,6 +185,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         nextStepHref: applicationStatusView.nextStepHref,
         showResponseEstimate: applicationStatusView.showResponseEstimate,
         progressIndex: applicationStatusView.progressIndex,
+        stage: applicationStatusView.stage,
       }
     : null;
   const noApplicationOnFile = !latestApplication;
@@ -283,17 +285,68 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     career_counselor: 'Career Counselor',
   };
 
-  /* Journey timeline steps derived from applicationStatus */
+  const interviewCompleted = !!intakeExtra?.interviewCompletedAt;
+  const interviewRequested = !!intakeExtra?.interviewRequestedAt;
+  const interviewEligibleFlag = intakeExtra?.interviewEligible ?? false;
+
+  /* Journey timeline — complete / active (next) / locked (future) */
   const journeySteps = [
-    { label: 'Profile Verified', done: true },
     {
-      label: applicationStatus?.nextStep ?? 'Assessment',
-      done: assessmentCompleted,
-      active: !assessmentCompleted,
-      detail: assessmentCompleted ? 'Completed' : 'Active Task • 45 mins',
+      label: 'Profile verified',
+      done: !!enrolledProgram,
+      active: !enrolledProgram,
+      locked: false,
+      detail: enrolledProgram ? 'Program on file' : 'Choose a program',
     },
-    { label: 'Interview Scheduled', done: false, pending: !assessmentCompleted },
-    { label: 'Enrollment Confirmed', done: false, pending: true },
+    {
+      label: 'Skills assessment',
+      done: assessmentCompleted,
+      active: !!enrolledProgram && !assessmentCompleted,
+      locked: !enrolledProgram,
+      detail: assessmentCompleted ? 'Completed' : enrolledProgram ? 'Complete to unlock training' : 'Locked until enrolled',
+    },
+    {
+      label: 'Interview',
+      done: interviewCompleted,
+      active:
+        assessmentCompleted &&
+        !interviewCompleted &&
+        (interviewRequested || interviewEligibleFlag),
+      locked:
+        !assessmentCompleted ||
+        (assessmentCompleted &&
+          !interviewCompleted &&
+          !interviewRequested &&
+          !interviewEligibleFlag),
+      detail: interviewCompleted
+        ? 'Complete'
+        : interviewRequested
+          ? 'Scheduled — watch your email'
+          : interviewEligibleFlag
+            ? 'Request or attend your interview'
+            : 'Awaiting counselor',
+    },
+    {
+      label: 'Enrollment confirmed',
+      done: completedCount > 0,
+      active:
+        !!enrolledProgram &&
+        assessmentCompleted &&
+        completedCount === 0 &&
+        (!interviewEligibleFlag || interviewCompleted),
+      locked:
+        !enrolledProgram ||
+        !assessmentCompleted ||
+        (interviewEligibleFlag && !interviewCompleted),
+      detail:
+        completedCount > 0
+          ? 'Training in progress'
+          : enrolledProgram && assessmentCompleted
+            ? interviewEligibleFlag && !interviewCompleted
+              ? 'Complete interview first'
+              : 'Start your first course'
+            : 'Complete prior steps first',
+    },
   ];
 
   return (
@@ -305,7 +358,9 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         {/* Welcome greeting + progress orb */}
         <section style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", padding:"1.5rem 1.5rem 1rem" }}>
           <div style={{ display:"flex", flexDirection:"column", gap:"0.25rem", maxWidth:"60%" }}>
-            <p className="wa-text-[var(--color-on-surface-variant)] wa-text-xs wa-font-medium wa-tracking-widest wa-uppercase">Member Dashboard</p>
+            <p className="wa-text-[var(--color-on-surface-variant)] wa-text-xs wa-font-medium wa-tracking-[0.08em] wa-uppercase">
+              Week of {formatPortalDate(new Date())}
+            </p>
             <h2 className="wa-text-2xl wa-font-extrabold wa-tracking-tight wa-text-[var(--color-on-surface)]">
               Welcome back, {firstName}
             </h2>
@@ -324,7 +379,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
             </svg>
             <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
               <span className="wa-text-base wa-font-bold wa-text-[var(--color-accent-dark)]">{mobilePct}%</span>
-              <span className="wa-text-[8px] wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-gold)]">Done</span>
+              <span className="wa-text-[8px] wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-gold)]">Progress</span>
             </div>
           </div>
         </section>
@@ -335,32 +390,32 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
         {nextBestActions.length > 0 && (
           <section style={{ padding: '0 1.5rem 1rem' }}>
-            <MemberNextStepsStrip actions={nextBestActions} compact />
+            <MemberNextStepsStrip actions={nextBestActions} compact fillRow />
           </section>
         )}
 
         {/* Next step card */}
         {applicationStatus?.nextStep && (
           <section style={{ padding:"0 1.5rem", marginBottom:"1.5rem" }}>
-            <div style={{ padding:"1px", borderRadius:"0.75rem", background:"linear-gradient(135deg,var(--color-accent),var(--color-accent))", boxShadow:"0 1px 3px rgba(0,0,0,0.1)" }}>
-              <div style={{ background:"var(--surface-container-lowest)", borderRadius:"11px", padding:"1.25rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
+            <div style={{ borderRadius:"0.75rem", overflow:"hidden", boxShadow:"0 4px 20px rgba(173,44,77,0.25)" }}>
+              <div style={{ background:"var(--color-accent)", padding:"1.25rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
-                  <div style={{ display:"flex", flexDirection:"column", gap:"0.25rem" }}>
-                    <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ display:"inline-flex", alignItems:"center", padding:"0.125rem 0.5rem", borderRadius:"9999px", background:"color-mix(in srgb, var(--color-accent) 10%, transparent)", color:"var(--color-accent)" }}>
+                  <div style={{ display:"flex", flexDirection:"column", gap:"0.35rem" }}>
+                    <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-[0.12em]" style={{ color:"rgba(255,255,255,0.92)" }}>
                       Priority
                     </span>
-                    <h2 className="wa-text-lg wa-font-bold wa-text-[var(--color-on-surface)] wa-tracking-tight">
+                    <h2 className="wa-text-lg wa-font-bold wa-tracking-tight" style={{ color:"#fff", margin:0 }}>
                       {applicationStatus.nextStep}
                     </h2>
                   </div>
-                  <span className="material-symbols-outlined wa-text-[var(--color-gold)] wa-text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
+                  <span className="material-symbols-outlined wa-text-xl" style={{ color:"#ffbb00", fontVariationSettings: "'FILL' 1" }} aria-hidden>bolt</span>
                 </div>
-                <p className="wa-text-[var(--color-on-surface-variant)] wa-text-sm wa-leading-relaxed">
+                <p className="wa-text-sm wa-leading-relaxed" style={{ color:"rgba(255,255,255,0.9)", margin:0 }}>
                   Your next action for{' '}
                   {applicationStatus.programInterest ?? program?.title ?? 'your program'}.
                 </p>
-                <Link href={applicationStatus.nextStepHref} className="wa-font-bold wa-text-sm wa-tracking-wide active:scale-[0.98] wa-transition-transform" style={{ display:"block", width:"100%", background:"linear-gradient(135deg,var(--color-accent),var(--color-accent))", color:"white", padding:"0.75rem", borderRadius:"0.375rem", textDecoration:"none", textAlign:"center", cursor:"pointer", boxSizing:"border-box" }}>
-                  Take Action
+                <Link href={applicationStatus.nextStepHref} className="wa-font-bold wa-text-sm wa-tracking-wide active:scale-[0.98] wa-transition-transform" style={{ display:"block", width:"100%", background:"#fff", color:"var(--color-accent)", padding:"0.75rem", borderRadius:"0.5rem", textDecoration:"none", textAlign:"center", cursor:"pointer", boxSizing:"border-box" }}>
+                  Take action
                 </Link>
               </div>
             </div>
@@ -376,27 +431,29 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">Application Journey</h3>
           <div style={{ position:"relative", marginLeft:"1rem" }}>
             <div style={{ position:"absolute", left:"11px", top:"0.5rem", bottom:"0.5rem", width:"2px", background:"var(--surface-container-high)" }} />
-            {journeySteps.map((step, i) => (
-              <div key={i} style={{ position:"relative", display:"flex", alignItems:"flex-start", gap:"1.25rem", paddingBottom:"1.75rem", opacity: step.pending ? 0.4 : 1 }}>
+            {journeySteps.map((step, i) => {
+              const locked = 'locked' in step && step.locked;
+              return (
+              <div key={i} style={{ position:"relative", display:"flex", alignItems:"flex-start", gap:"1.25rem", paddingBottom:"1.75rem", opacity: locked ? 0.45 : 1 }}>
                 {step.done ? (
                   <div style={{ position:"relative", zIndex:10, width:"1.5rem", height:"1.5rem", borderRadius:"9999px", background:"var(--color-accent)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                     <span className="material-symbols-outlined" style={{ color:"var(--color-white)", fontSize:"0.75rem" }}>check</span>
                   </div>
                 ) : step.active ? (
-                  <div style={{ position:"relative", zIndex:10, width:"1.5rem", height:"1.5rem", borderRadius:"9999px", background:"var(--surface-container-lowest)", border:"4px solid var(--color-accent-dark)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                    <div style={{ width:"0.5rem", height:"0.5rem", borderRadius:"9999px", background:"var(--color-accent)" }} />
+                  <div style={{ position:"relative", zIndex:10, width:"1.5rem", height:"1.5rem", borderRadius:"9999px", background:"var(--surface-container-lowest)", border:"3px solid var(--color-accent)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }} title="Current step">
+                    <div style={{ width:"0.45rem", height:"0.45rem", borderRadius:"9999px", background:"var(--color-accent)" }} />
                   </div>
                 ) : (
-                  <div style={{ position:"relative", zIndex:10, width:"1.5rem", height:"1.5rem", borderRadius:"9999px", background:"var(--surface-container-high)", border:"2px solid var(--outline-variant)", flexShrink:0 }} />
+                  <div style={{ position:"relative", zIndex:10, width:"1.5rem", height:"1.5rem", borderRadius:"9999px", background:"var(--surface-container-high)", border:"2px solid var(--outline-variant)", flexShrink:0 }} title={locked ? 'Locked — complete prior steps' : 'Upcoming'} />
                 )}
                 <div>
-                  <p className={`wa-font-bold wa-text-sm wa-leading-none wa-mb-1 ${step.active ? 'wa-text-[var(--color-accent-dark)]' : 'wa-text-[var(--color-on-surface)]'}`}>
+                  <p className={`wa-font-bold wa-text-sm wa-leading-none wa-mb-1 ${step.active && !step.done ? 'wa-text-[var(--color-accent-dark)]' : 'wa-text-[var(--color-on-surface)]'}`}>
                     {step.label}
                   </p>
                   {step.detail && <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)]">{step.detail}</p>}
                 </div>
               </div>
-            ))}
+            );})}
           </div>
         </section>
 
@@ -452,7 +509,11 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                   <span className="material-symbols-outlined" style={{ fontSize:'1.1rem', color:'var(--color-accent)', flexShrink:0 }}>smart_toy</span>
                   <div style={{ flex:1, minWidth:0 }}>
                     <p className="wa-text-xs wa-font-bold wa-text-[#1c1b1b] wa-leading-tight">{AI_TOOL_LABELS[r.toolType] ?? r.toolType}</p>
-                    {r.inputSummary && <p className="wa-text-[11px] wa-text-[#584144] wa-leading-snug wa-truncate" style={{ marginTop:'0.1rem' }}>{r.inputSummary}</p>}
+                    {r.inputSummary && (
+                      <p className="wa-text-[11px] wa-text-[#584144] wa-leading-snug wa-truncate" style={{ marginTop: '0.1rem' }}>
+                        {stripMarkdownForPreview(r.inputSummary)}
+                      </p>
+                    )}
                   </div>
                   <span className="wa-text-[10px] wa-text-[#584144] wa-whitespace-nowrap" style={{ flexShrink:0 }}>{formatPortalDate(r.createdAt)}</span>
                 </div>
@@ -531,7 +592,20 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                     <span className="material-symbols-outlined" style={{ fontSize:'1.25rem', color:'var(--color-accent)', flexShrink:0 }}>smart_toy</span>
                     <div style={{ flex:1, minWidth:0 }}>
                       <p style={{ fontSize:'0.875rem', fontWeight:600, margin:0, color:'var(--color-on-surface)' }}>{AI_TOOL_LABELS[r.toolType] ?? r.toolType}</p>
-                      {r.inputSummary && <p style={{ fontSize:'0.8rem', color:'var(--color-on-surface-variant)', margin:'0.1rem 0 0', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{r.inputSummary}</p>}
+                      {r.inputSummary && (
+                      <p
+                        style={{
+                          fontSize: '0.8rem',
+                          color: 'var(--color-on-surface-variant)',
+                          margin: '0.1rem 0 0',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {stripMarkdownForPreview(r.inputSummary)}
+                      </p>
+                    )}
                     </div>
                     <span style={{ fontSize:'0.75rem', color:'var(--color-on-surface-variant)', flexShrink:0 }}>{formatPortalDate(r.createdAt)}</span>
                   </div>

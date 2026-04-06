@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { safeParseResponseJson } from '@/lib/http/safeFetchJson';
 
 type InviteData = {
   valid: boolean;
@@ -38,10 +39,20 @@ function InviteContent() {
       return;
     }
     fetch(`/api/invite/validate?token=${encodeURIComponent(token)}`)
-      .then((res) => res.json())
-      .then((d) => {
-        setData(d);
-        if (d.valid && d.email) setFullName(d.email.split('@')[0] || '');
+      .then((res) => safeParseResponseJson<InviteData>(res))
+      .then(({ ok, data, parseError, status }) => {
+        if (parseError || !data) {
+          setData({
+            valid: false,
+            error:
+              status >= 500
+                ? 'The server could not load this invitation. Please try again shortly.'
+                : 'Failed to load invitation',
+          });
+          return;
+        }
+        setData(data);
+        if (data.valid && data.email) setFullName(data.email.split('@')[0] || '');
       })
       .catch(() => setData({ valid: false, error: 'Failed to load invitation' }))
       .finally(() => setLoading(false));
@@ -65,7 +76,15 @@ function InviteContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
-      const result = await res.json();
+      const parsed = await safeParseResponseJson<{ error?: string; redirectTo?: string }>(res);
+      if (parsed.parseError || !parsed.data) {
+        throw new Error(
+          parsed.status >= 500
+            ? 'The server returned an incomplete response. Please try again.'
+            : 'Could not read the server response. Please try again.'
+        );
+      }
+      const result = parsed.data;
 
       if (!res.ok) {
         throw new Error(result.error ?? 'Failed to accept invitation');

@@ -42,9 +42,10 @@ export default function MainNav() {
   }>({
     primary: { href: '/login', label: 'Login' },
     submenu: [
-      { href: '/login?redirectTo=/dashboard', label: 'Member portal' },
-      { href: '/login?redirectTo=/employer', label: 'Employer portal' },
-      { href: '/login?redirectTo=/partner', label: 'Partner portal' },
+      { href: '/login?redirectTo=/counselor', label: 'Counselor' },
+      { href: '/login?redirectTo=/partner', label: 'Partner' },
+      { href: '/login?redirectTo=/employer', label: 'Employer' },
+      { href: '/login?redirectTo=/dashboard', label: 'Member' },
     ],
   });
   const menuRef = useRef<HTMLUListElement>(null);
@@ -89,9 +90,10 @@ export default function MainNav() {
             setPortalState({
               primary: { href: '/login', label: 'Login' },
               submenu: [
-                { href: '/login?redirectTo=/dashboard', label: 'Member portal' },
-                { href: '/login?redirectTo=/employer', label: 'Employer portal' },
-                { href: '/login?redirectTo=/partner', label: 'Partner portal' },
+                { href: '/login?redirectTo=/counselor', label: 'Counselor' },
+                { href: '/login?redirectTo=/partner', label: 'Partner' },
+                { href: '/login?redirectTo=/employer', label: 'Employer' },
+                { href: '/login?redirectTo=/dashboard', label: 'Member' },
               ],
             });
             return;
@@ -99,8 +101,12 @@ export default function MainNav() {
           const partnerExclusive = !!data.partner && !data.superAdmin;
           if (partnerExclusive) {
             setPortalState({
-              primary: { href: '/partner', label: 'Account' },
-              submenu: [{ href: '/partner', label: 'Partner dashboard' }],
+              primary: { href: '/partner', label: 'Partner' },
+              submenu: [
+                { href: '/login?redirectTo=/counselor', label: 'Counselor' },
+                { href: '/login?redirectTo=/employer', label: 'Employer' },
+                { href: '/login?redirectTo=/dashboard', label: 'Member' },
+              ],
             });
             return;
           }
@@ -123,9 +129,10 @@ export default function MainNav() {
             setPortalState({
               primary: { href: '/login', label: 'Login' },
               submenu: [
-                { href: '/login?redirectTo=/dashboard', label: 'Member portal' },
-                { href: '/login?redirectTo=/employer', label: 'Employer portal' },
-                { href: '/login?redirectTo=/partner', label: 'Partner portal' },
+                { href: '/login?redirectTo=/counselor', label: 'Counselor' },
+                { href: '/login?redirectTo=/partner', label: 'Partner' },
+                { href: '/login?redirectTo=/employer', label: 'Employer' },
+                { href: '/login?redirectTo=/dashboard', label: 'Member' },
               ],
             });
           }

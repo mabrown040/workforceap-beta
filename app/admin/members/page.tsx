@@ -31,12 +31,10 @@ export default async function AdminMembersPage() {
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-  let members;
-  const lastEventMap: Map<string, Date | null> = new Map();
-  const recentEventMap: Map<string, number> = new Map();
-
-  try {
-    members = await prisma.user.findMany({
+  // Run member list and event aggregates in parallel. Full-table `memberEvent` groupBy
+  // can time out or fail under load; degrading aggregates must not hide the member list.
+  const [membersResult, lastEventsResult, recentEventsResult] = await Promise.allSettled([
+    prisma.user.findMany({
       where: { deletedAt: null },
       orderBy: { createdAt: 'desc' },
       include: {
@@ -47,10 +45,20 @@ export default async function AdminMembersPage() {
           include: { partner: { select: { id: true, name: true } } },
         },
       },
-    });
+    }),
+    prisma.memberEvent.groupBy({
+      by: ['userId'],
+      _max: { createdAt: true },
+    }),
+    prisma.memberEvent.groupBy({
+      by: ['userId'],
+      where: { createdAt: { gte: thirtyDaysAgo } },
+      _count: { _all: true },
+    }),
+  ]);
 
-  } catch (e) {
-    console.error('[admin/members] load failed', e);
+  if (membersResult.status === 'rejected') {
+    console.error('[admin/members] user list load failed', membersResult.reason);
     return (
       <PortalPageFrame>
         <AdminDataLoadError title="Members list unavailable" />
@@ -58,28 +66,24 @@ export default async function AdminMembersPage() {
     );
   }
 
-  // Keep the members list usable even if activity rollups fail in some environments.
-  try {
-    const [lastEvents, recentEvents] = await Promise.all([
-      prisma.memberEvent.groupBy({
-        by: ['userId'],
-        _max: { createdAt: true },
-      }),
-      prisma.memberEvent.groupBy({
-        by: ['userId'],
-        where: { createdAt: { gte: thirtyDaysAgo } },
-        _count: true,
-      }),
-    ]);
+  const members = membersResult.value;
 
-    for (const e of lastEvents) {
-      lastEventMap.set(e.userId, e._max.createdAt);
+  const lastEventMap: Map<string, Date | null> = new Map();
+  if (lastEventsResult.status === 'fulfilled') {
+    for (const row of lastEventsResult.value) {
+      lastEventMap.set(row.userId, row._max.createdAt);
     }
-    for (const e of recentEvents) {
-      recentEventMap.set(e.userId, e._count);
+  } else {
+    console.error('[admin/members] last-event aggregate failed', lastEventsResult.reason);
+  }
+
+  const recentEventMap: Map<string, number> = new Map();
+  if (recentEventsResult.status === 'fulfilled') {
+    for (const row of recentEventsResult.value) {
+      recentEventMap.set(row.userId, row._count._all);
     }
-  } catch (e) {
-    console.error('[admin/members] activity rollup failed; rendering members without health recency data', e);
+  } else {
+    console.error('[admin/members] recent-event aggregate failed', recentEventsResult.reason);
   }
 
   const membersWithProgram = members.map((m) => {

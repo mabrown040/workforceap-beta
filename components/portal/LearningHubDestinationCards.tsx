@@ -60,10 +60,9 @@ export default function LearningHubDestinationCards() {
                 <ShieldCheck size={26} strokeWidth={1.75} />
               </span>
               <span className="learning-hub-card-body">
-                <span className="learning-hub-card-title">WIOA eligibility screening</span>
+                <span className="learning-hub-card-title">Funding eligibility check</span>
                 <span className="learning-hub-card-desc">
-                  Short self-screening for funded training — prepares you for staff and American Job Center visits (not a
-                  legal determination).
+                  Quick self-screening to see if you qualify for funded training through a government workforce program.
                 </span>
               </span>
               <ChevronRight className="learning-hub-card-chevron" aria-hidden size={22} />

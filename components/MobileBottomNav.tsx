@@ -45,8 +45,15 @@ const PARTNER_TABS = [
   { href: '/partner/outcomes', label: 'Outcomes', icon: 'bar_chart' },
 ];
 
+const ADMIN_TABS = [
+  { href: '/admin', label: 'Overview', icon: 'dashboard' },
+  { href: '/admin/members', label: 'Members', icon: 'groups' },
+  { href: '/admin/pipeline', label: 'Pipeline', icon: 'account_tree' },
+  { href: '/admin/exports', label: 'Exports', icon: 'download' },
+];
+
 interface MobileBottomNavProps {
-  variant?: 'marketing' | 'portal' | 'employer' | 'counselor' | 'partner';
+  variant?: 'marketing' | 'portal' | 'employer' | 'counselor' | 'partner' | 'admin';
 }
 
 export default function MobileBottomNav({ variant = 'marketing' }: MobileBottomNavProps) {
@@ -56,6 +63,7 @@ export default function MobileBottomNav({ variant = 'marketing' }: MobileBottomN
     : variant === 'employer' ? EMPLOYER_TABS
     : variant === 'counselor' ? COUNSELOR_TABS
     : variant === 'partner' ? PARTNER_TABS
+    : variant === 'admin' ? ADMIN_TABS
     : MARKETING_TABS;
 
   return (

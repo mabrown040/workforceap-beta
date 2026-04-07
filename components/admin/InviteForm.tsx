@@ -216,7 +216,7 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
             {role === 'counselor' && partners.length > 0 && (
               <div style={{ marginBottom: '1rem' }}>
                 <label htmlFor="invite-counselor-partner" style={labelStyle}>
-                  Partner affiliation (optional)
+                  Partner affiliation (for counselors)
                 </label>
                 <select
                   id="invite-counselor-partner"
@@ -240,7 +240,7 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
             {role === 'partner' && subgroups.length > 0 && (
               <div style={{ marginBottom: '1rem' }}>
                 <label htmlFor="invite-subgroup" style={labelStyle}>
-                  Subgroup (optional)
+                  Subgroup (for partners)
                 </label>
                 <select
                   id="invite-subgroup"
@@ -261,7 +261,7 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
             {role === 'member' && programs.length > 0 && (
               <div style={{ marginBottom: '1rem' }}>
                 <label htmlFor="invite-program" style={labelStyle}>
-                  Program pre-assignment (optional)
+                  Assign to program (for students)
                 </label>
                 <select
                   id="invite-program"

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import { isMissingPrismaEnumValue } from '@/lib/db/prismaEnumFallback';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 
 /** Same private bucket as resumes; path prefix isolates mock interview videos. */
@@ -99,22 +100,29 @@ export async function POST(request: Request) {
 
       const inputSummary = [role || 'Role n/a', interviewType || 'General'].join(' · ').slice(0, 500);
 
-      await prisma.aIToolResult.create({
-        data: {
-          userId: user.id,
-          toolType: 'voice_interview_video',
-          inputSummary,
-          output: JSON.stringify({
-            storagePath: path,
-            durationMs,
-            mimeType,
-            role: role || undefined,
-            interviewType: interviewType || undefined,
-            byteSize,
-            recordedAt: new Date().toISOString(),
-          }),
-        },
-      });
+      try {
+        await prisma.aIToolResult.create({
+          data: {
+            userId: user.id,
+            toolType: 'voice_interview_video',
+            inputSummary,
+            output: JSON.stringify({
+              storagePath: path,
+              durationMs,
+              mimeType,
+              role: role || undefined,
+              interviewType: interviewType || undefined,
+              byteSize,
+              recordedAt: new Date().toISOString(),
+            }),
+          },
+        });
+      } catch (error) {
+        if (!isMissingPrismaEnumValue(error, 'voice_interview_video')) throw error;
+        console.warn(
+          '[voice-interview/recording] skipping AI history save because database is missing enum value voice_interview_video'
+        );
+      }
 
       const supabase = getSupabaseAdmin();
       const { data: signed } = await supabase.storage.from(BUCKET).createSignedUrl(path, 3600);

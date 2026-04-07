@@ -31,9 +31,10 @@ export default async function AdminMembersPage() {
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-  let members;
-  try {
-    members = await prisma.user.findMany({
+  // Run member list and event aggregates in parallel. Full-table `memberEvent` groupBy
+  // can time out or fail under load; degrading aggregates must not hide the member list.
+  const [membersResult, lastEventsResult, recentEventsResult] = await Promise.allSettled([
+    prisma.user.findMany({
       where: { deletedAt: null },
       orderBy: { createdAt: 'desc' },
       include: {
@@ -44,10 +45,20 @@ export default async function AdminMembersPage() {
           include: { partner: { select: { id: true, name: true } } },
         },
       },
-    });
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    console.error('[admin/members] user list load failed', msg, e);
+    }),
+    prisma.memberEvent.groupBy({
+      by: ['userId'],
+      _max: { createdAt: true },
+    }),
+    prisma.memberEvent.groupBy({
+      by: ['userId'],
+      where: { createdAt: { gte: thirtyDaysAgo } },
+      _count: { _all: true },
+    }),
+  ]);
+
+  if (membersResult.status === 'rejected') {
+    console.error('[admin/members] user list load failed', membersResult.reason);
     return (
       <PortalPageFrame>
         <AdminDataLoadError title="Members list unavailable" />
@@ -55,29 +66,29 @@ export default async function AdminMembersPage() {
     );
   }
 
-  /** Activity aggregates can fail independently (timeouts, huge member_events). List still works without them. */
-  let lastEventMap = new Map<string, Date | null>();
-  let recentEventMap = new Map<string, number>();
-  let eventAggregatesOk = false;
-  try {
-    const [lastEvents, recentEvents] = await Promise.all([
-      prisma.memberEvent.groupBy({
-        by: ['userId'],
-        _max: { createdAt: true },
-      }),
-      prisma.memberEvent.groupBy({
-        by: ['userId'],
-        where: { createdAt: { gte: thirtyDaysAgo } },
-        _count: true,
-      }),
-    ]);
-    lastEventMap = new Map(lastEvents.map((e) => [e.userId, e._max.createdAt]));
-    recentEventMap = new Map(recentEvents.map((e) => [e.userId, e._count]));
-    eventAggregatesOk = true;
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    console.error('[admin/members] member event aggregates failed (health column omitted)', msg, e);
+  const members = membersResult.value;
+
+  const lastEventMap: Map<string, Date | null> = new Map();
+  if (lastEventsResult.status === 'fulfilled') {
+    for (const row of lastEventsResult.value) {
+      lastEventMap.set(row.userId, row._max.createdAt);
+    }
+  } else {
+    console.error('[admin/members] last-event aggregate failed', lastEventsResult.reason);
   }
+
+  const recentEventMap: Map<string, number> = new Map();
+  if (recentEventsResult.status === 'fulfilled') {
+    for (const row of recentEventsResult.value) {
+      recentEventMap.set(row.userId, row._count._all);
+    }
+  } else {
+    console.error('[admin/members] recent-event aggregate failed', recentEventsResult.reason);
+  }
+
+  /** Health needs both aggregates; one failure + zeros mislabels members as inactive/at-risk. */
+  const eventAggregatesOk =
+    lastEventsResult.status === 'fulfilled' && recentEventsResult.status === 'fulfilled';
 
   const membersWithProgram = members.map((m) => {
     const fitScore = calculateFitScore({

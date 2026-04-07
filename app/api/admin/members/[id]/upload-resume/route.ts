@@ -12,9 +12,10 @@ const ALLOWED_MIME_TYPES = new Set([
   'application/pdf',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'text/plain',
 ]);
 
-const ALLOWED_EXTENSIONS = new Set(['pdf', 'doc', 'docx']);
+const ALLOWED_EXTENSIONS = new Set(['pdf', 'doc', 'docx', 'txt']);
 
 // Magic bytes for allowed file types
 const MAGIC_BYTES: Array<{ ext: string; bytes: number[] }> = [
@@ -27,6 +28,9 @@ function validateFileType(buffer: Buffer, mimeType: string, fileName: string): b
   const ext = fileName.split('.').pop()?.toLowerCase() || '';
   if (!ALLOWED_EXTENSIONS.has(ext)) return false;
   if (!ALLOWED_MIME_TYPES.has(mimeType)) return false;
+
+  // For txt files, skip magic bytes check as text files don't have standard magic bytes
+  if (ext === 'txt') return true;
 
   // Check magic bytes
   if (buffer.length < 4) return false;
@@ -78,7 +82,7 @@ export async function POST(
     }
     const buffer = Buffer.from(await file.arrayBuffer());
     if (!validateFileType(buffer, file.type || '', file.name)) {
-      return NextResponse.json({ error: 'Invalid file type. Only PDF, DOC, and DOCX files are allowed.' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid file type. Only PDF, DOC, DOCX, and TXT files are allowed.' }, { status: 400 });
     }
     const ext = file.name.split('.').pop()?.toLowerCase() || 'pdf';
     const path = `${userId}/resume-original.${ext}`;

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { AIToolType } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
+import { isMissingPrismaEnumValue } from '@/lib/db/prismaEnumFallback';
 
 function compactPreview(output: string): string {
   const text = output.replace(/\s+/g, ' ').trim();
@@ -26,31 +27,51 @@ export default async function ToolHistoryPanel({
   toolTypes,
   title = 'Recent saved runs',
   limit = 5,
+  emptyMessage = 'No saved runs yet for this tool. This history section will appear after your first run.',
 }: {
   userId: string;
   toolType?: AIToolType;
   toolTypes?: AIToolType[];
   title?: string;
   limit?: number;
+  emptyMessage?: string;
 }) {
   const resolvedToolTypes = (toolTypes?.length ? toolTypes : toolType ? [toolType] : []) as AIToolType[];
   if (resolvedToolTypes.length === 0) return null;
 
   const historyHrefTool = resolvedToolTypes[0];
-  const rows = await prisma.aIToolResult.findMany({
-    where: {
+  let rows: Array<{
+    id: string;
+    inputSummary: string;
+    output: string;
+    createdAt: Date;
+  }> = [];
+  let historyUnavailable = false;
+
+  try {
+    rows = await prisma.aIToolResult.findMany({
+      where: {
+        userId,
+        toolType: resolvedToolTypes.length === 1 ? resolvedToolTypes[0] : { in: resolvedToolTypes },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      select: {
+        id: true,
+        inputSummary: true,
+        output: true,
+        createdAt: true,
+      },
+    });
+  } catch (error) {
+    const missingEnum = resolvedToolTypes.some((value) => isMissingPrismaEnumValue(error, value));
+    if (!missingEnum) throw error;
+    historyUnavailable = true;
+    console.error('[ToolHistoryPanel] missing database enum value for tool history', {
       userId,
-      toolType: resolvedToolTypes.length === 1 ? resolvedToolTypes[0] : { in: resolvedToolTypes },
-    },
-    orderBy: { createdAt: 'desc' },
-    take: limit,
-    select: {
-      id: true,
-      inputSummary: true,
-      output: true,
-      createdAt: true,
-    },
-  });
+      toolTypes: resolvedToolTypes,
+    });
+  }
 
   return (
     <section className="stitch-card" style={{ padding: '1rem', borderRadius: 12, marginTop: '1rem' }}>
@@ -77,9 +98,13 @@ export default async function ToolHistoryPanel({
         </Link>
       </div>
 
-      {rows.length === 0 ? (
+      {historyUnavailable ? (
         <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-on-surface-variant)' }}>
-          No saved runs yet for this tool. This history section will appear after your first run.
+          Saved history is temporarily unavailable while this tool finishes syncing in the database.
+        </p>
+      ) : rows.length === 0 ? (
+        <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-on-surface-variant)' }}>
+          {emptyMessage}
         </p>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>

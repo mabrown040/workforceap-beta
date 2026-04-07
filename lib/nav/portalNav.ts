@@ -317,6 +317,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin/invites', label: 'Invites', group: 'content', Icon: MessageSquare },
 
   // ── Insights — metrics and reporting ──
+  { href: '/admin/exports', label: 'Exports', group: 'insights', Icon: Download },
   { href: '/admin/metrics', label: 'Metrics', group: 'insights', Icon: LineChart },
   { href: '/admin/weekly-recap', label: 'Weekly recap', group: 'insights', Icon: BarChart3 },
   { href: '/admin/ai-tools', label: 'AI tools', group: 'insights', Icon: Sparkles },

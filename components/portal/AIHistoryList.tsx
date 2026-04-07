@@ -79,6 +79,10 @@ export default function AIHistoryList({ results, initialFilter = '' }: { results
             <option value="linkedin_about">LinkedIn About</option>
             <option value="salary_negotiation">Salary Negotiation</option>
             <option value="gap_analyzer">Gap Analyzer</option>
+            <option value="interview_coach">Interview Coach</option>
+            <option value="voice_interview_video">Voice Interview Recording</option>
+            <option value="career_counselor">Career Counselor</option>
+            <option value="skill_assessment">Skill Assessment</option>
           </select>
         </label>
       </div>

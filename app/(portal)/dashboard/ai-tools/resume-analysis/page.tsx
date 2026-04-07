@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import ResumeStrengthForm from '@/components/portal/tools/ResumeStrengthForm';
 import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Resume Analysis',
@@ -75,6 +76,8 @@ export default async function ResumeAnalysisPage() {
           </div>
 
           <ResumeStrengthForm />
+
+          <ToolHistoryPanel userId={user.id} toolType="resume_analysis" />
         </div>
 
         <MobileBottomNav variant="portal" />

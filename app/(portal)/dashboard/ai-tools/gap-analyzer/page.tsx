@@ -5,6 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import GapAnalyzerForm from '@/components/portal/tools/GapAnalyzerForm';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export const metadata = buildPageMetadata({
   title: 'Resume Gap Analyzer',
@@ -78,6 +79,8 @@ export default async function GapAnalyzerPage() {
           <div className="stitch-card" style={{ padding: '1rem', borderRadius: 12 }}>
             <GapAnalyzerForm />
           </div>
+
+          <ToolHistoryPanel userId={user.id} toolType="gap_analyzer" />
         </div>
 
         <MobileBottomNav variant="portal" />

@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import ResumeRewriterClient from './ResumeRewriterClient';
 import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Resume Rewriter',
@@ -227,6 +228,12 @@ export default async function ResumeRewriterPage() {
           >
             <ResumeRewriterClient />
           </div>
+
+          <ToolHistoryPanel
+            userId={user.id}
+            toolType="resume_rewriter"
+            title="Recent resume helper + rewriter runs"
+          />
 
           <div
             className="stitch-card resume-rewriter-knowledge-card"

@@ -5,6 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import LinkedInAboutForm from '@/components/portal/tools/LinkedInAboutForm';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export const metadata = buildPageMetadata({
   title: 'LinkedIn About Section Generator',
@@ -70,6 +71,7 @@ export default async function LinkedInAboutPage() {
         <div className="stitch-card" style={{ padding: '1.5rem' }}>
           <LinkedInAboutForm />
         </div>
+        <ToolHistoryPanel userId={user.id} toolType="linkedin_about" />
       </div>
     </div>
       <MobileBottomNav variant="portal" />

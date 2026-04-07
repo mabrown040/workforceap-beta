@@ -19,14 +19,16 @@ export default async function ResourcesPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/resources');
 
-  const resources = await getMemberResources();
-  let resourcesProgress: Awaited<ReturnType<typeof prisma.resourceProgress.findMany>> = [];
-  try {
-    resourcesProgress = await prisma.resourceProgress.findMany({ where: { userId: user.id } });
-  } catch (e) {
-    console.error('[resources page] progress query failed', e);
-    /* Page still useful with static catalog; progress badges are best-effort */
-  }
+  const [resources, resourcesProgress] = await Promise.all([
+    getMemberResources(),
+    prisma.resourceProgress
+      .findMany({ where: { userId: user.id } })
+      .catch((e) => {
+        console.error('[resources page] progress query failed', e);
+        /* Page still useful with static catalog; progress badges are best-effort */
+        return [] as Awaited<ReturnType<typeof prisma.resourceProgress.findMany>>;
+      }),
+  ]);
   const progressByResource = Object.fromEntries(
     resourcesProgress.map((p) => [p.resourceId, { completedAt: p.completedAt, savedAt: p.savedAt }])
   );

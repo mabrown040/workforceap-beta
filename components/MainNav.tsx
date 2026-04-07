@@ -113,7 +113,7 @@ export default function MainNav() {
           if (data.partner && data.superAdmin) {
             sub.push({ href: '/partner', label: 'Partner portal' });
           }
-          sub.push({ href: '/account', label: 'Account settings' });
+          sub.push({ href: '/dashboard/account', label: 'Account settings' });
           setPortalState({
             primary: { href: '/dashboard', label: 'Account' },
             submenu: sub,
@@ -208,7 +208,8 @@ export default function MainNav() {
         pathname.startsWith('/admin') ||
         pathname.startsWith('/counselor') ||
         pathname.startsWith('/mentor') ||
-        pathname.startsWith('/account')
+        pathname.startsWith('/account') ||
+        pathname.startsWith('/dashboard/account')
       );
     }
     return pathname === href || pathname.startsWith(`${href}/`);

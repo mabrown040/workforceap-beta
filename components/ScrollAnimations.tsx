@@ -50,6 +50,14 @@ export default function ScrollAnimations() {
   const pathname = usePathname();
 
   useEffect(() => {
+    const selectorList = animatableSelectors.join(',');
+
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.querySelectorAll(selectorList).forEach((el) => el.classList.add('visible'));
+      document.querySelectorAll('.animate-on-scroll, .reveal').forEach((el) => el.classList.add('visible'));
+      return;
+    }
+
     const animateObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -62,8 +70,6 @@ export default function ScrollAnimations() {
       },
       { root: null, rootMargin: '0px 0px -80px 0px', threshold: 0.08 }
     );
-
-    const selectorList = animatableSelectors.join(',');
 
     const observeAnimatable = (el: Element, index: number) => {
       if (!el.classList.contains('animate-on-scroll')) {

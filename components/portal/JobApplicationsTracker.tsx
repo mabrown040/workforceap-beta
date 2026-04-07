@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { JobApplication } from '@prisma/client';
 import JobApplicationForm from './JobApplicationForm';
 import JobApplicationKanban from './JobApplicationKanban';
+import PortalEmptyState from './PortalEmptyState';
 
 interface JobApplicationsTrackerProps {
   userId: string;
@@ -115,15 +116,12 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
 
       {/* Kanban */}
       {applications.length === 0 ? (
-        <div className="wa-text-center wa-py-12 wa-border-2 wa-border-dashed wa-border-gray-300 wa-rounded-lg">
-          <p className="wa-text-gray-500 wa-mb-3">No applications yet.</p>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="wa-text-[#8c0f37] wa-font-medium hover:wa-underline"
-          >
-            Add your first application
-          </button>
-        </div>
+        <PortalEmptyState
+          title="No applications yet"
+          description="Track roles you apply to—add one manually or apply from the job board."
+          primaryAction={{ label: 'Add application', onClick: () => setIsModalOpen(true) }}
+          secondaryAction={{ label: 'Browse jobs', href: '/dashboard/jobs' }}
+        />
       ) : (
         <JobApplicationKanban
           applications={applications}

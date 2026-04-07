@@ -16,7 +16,7 @@ export default function LearningHubDestinationCards() {
         <ul className="learning-hub-destinations" role="list">
           <li>
             <Link
-              href="/resources"
+              href="/dashboard/career-library"
               className="learning-hub-card"
               onClick={() => trackLearningHubNavigate('career_library')}
             >

@@ -117,7 +117,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     group: 'workflows',
     tab: 'tools',
     Icon: Library,
-    aliases: ['/resources'],
+    aliases: ['/resources', '/dashboard/career-library'],
     tourTarget: 'tour-learning',
   },
   {
@@ -165,7 +165,15 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     tourTarget: 'tour-messages',
   },
   { href: '/dashboard/resources', label: 'Program Resources', group: 'workflows', tab: 'connect', Icon: Layers, tourTarget: 'tour-resources' },
-  { href: '/dashboard/guide', label: 'Member Guide', group: 'manage', tab: 'connect', Icon: HelpCircle },
+  {
+    href: '/dashboard/help',
+    label: 'Help & Support',
+    group: 'manage',
+    tab: 'connect',
+    Icon: HelpCircle,
+    aliases: ['/help'],
+  },
+  { href: '/dashboard/guide', label: 'Member Guide', group: 'manage', tab: 'connect', Icon: BookOpen },
   // ── Me tab ──
   {
     href: '/dashboard/profile',
@@ -173,7 +181,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     group: 'manage',
     tab: 'me',
     Icon: User,
-    aliases: ['/profile'],
+    aliases: ['/profile', '/account'],
     tourTarget: 'tour-profile',
   },
   { href: '/dashboard/settings', label: 'Settings', group: 'manage', tab: 'me', Icon: Settings },

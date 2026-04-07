@@ -12,7 +12,11 @@ const SKIP_PREFIXES = [
   '/certifications',
   '/profile',
   '/resources',
+  '/help',
   '/account',
+  '/dashboard/help',
+  '/dashboard/account',
+  '/dashboard/career-library',
 ];
 
 /**

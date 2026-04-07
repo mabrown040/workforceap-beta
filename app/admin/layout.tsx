@@ -8,6 +8,8 @@ import OrgBrandingBar from '@/components/platform/OrgBrandingBar';
 import { getDefaultOrgBranding } from '@/lib/platform/defaultOrgTheme';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   robots: {
     index: false,

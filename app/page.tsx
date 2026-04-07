@@ -102,8 +102,8 @@ export default async function HomePage() {
               fontSize: 'clamp(2.25rem, 6vw + 1rem, 4.5rem)',
             }}
           >
-            Empowering People.{' '}
-            <span style={{ color: 'var(--color-accent)' }}>Advancing Futures.</span>
+            Free Career Training for Austin Talent.{' '}
+            <span style={{ color: 'var(--color-accent)' }}>Built with employers.</span>
           </h1>
 
           <p style={{
@@ -113,12 +113,13 @@ export default async function HomePage() {
             marginBottom: '2.5rem',
             lineHeight: 1.7,
           }}>
-            Occupational and career training at no cost to members — {WORKFORCEAP_PROGRAM_CATALOG_SIZE} specialized programs, professional guidance, and Workforce Readiness with AI-powered tools designed to help people move forward.
+            Occupational and career training at no tuition cost for qualifying members — {WORKFORCEAP_PROGRAM_CATALOG_SIZE}{' '}
+            specialized programs, professional guidance, and AI-powered readiness tools built around real hiring pathways.
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
             <Link href="/find-your-path" className="btn btn-primary btn-large" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.25rem)' }}>
-              Find Your Career
+              Take Career Pathfinder Quiz
             </Link>
             <ExperimentedCtaLink
               experiment="home_apply_primary_cta"
@@ -146,6 +147,18 @@ export default async function HomePage() {
               For Employers
             </Link>
           </div>
+          <p
+            style={{
+              marginTop: '1rem',
+              color: 'var(--home-hero-fg-muted, rgba(242, 242, 245, 0.88))',
+              fontSize: '0.95rem',
+              lineHeight: 1.6,
+              maxWidth: '760px',
+            }}
+          >
+            Employer-aligned. No participant debt. Success = you get hired. Most completed applications receive an
+            initial response within 3-5 business days.
+          </p>
         </div>
       </section>
 

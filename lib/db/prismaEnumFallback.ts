@@ -21,5 +21,11 @@ export function isMissingPrismaEnumValue(error: unknown, enumValue: string): boo
   const message = getPrismaErrorMessage(error);
   if (!message.includes(enumValue)) return false;
 
-  return /(enum|invalid|value).*?(not found|does not exist|invalid|unknown)/i.test(message);
+  return (
+    /invalid input value for enum/i.test(message) ||
+    /invalid value for argument/i.test(message) ||
+    /not a valid enum/i.test(message) ||
+    /did not match any variant/i.test(message) ||
+    /enum.*?(not found|does not exist|unknown|invalid)/i.test(message)
+  );
 }

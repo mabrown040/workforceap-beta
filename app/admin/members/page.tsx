@@ -32,8 +32,8 @@ export default async function AdminMembersPage() {
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
   let members;
-  let lastEventMap: Map<string, Date | null>;
-  let recentEventMap: Map<string, number>;
+  const lastEventMap: Map<string, Date | null> = new Map();
+  const recentEventMap: Map<string, number> = new Map();
 
   try {
     members = await prisma.user.findMany({
@@ -49,18 +49,6 @@ export default async function AdminMembersPage() {
       },
     });
 
-    const lastEvents = await prisma.memberEvent.groupBy({
-      by: ['userId'],
-      _max: { createdAt: true },
-    });
-    lastEventMap = new Map(lastEvents.map((e) => [e.userId, e._max.createdAt]));
-
-    const recentEvents = await prisma.memberEvent.groupBy({
-      by: ['userId'],
-      where: { createdAt: { gte: thirtyDaysAgo } },
-      _count: true,
-    });
-    recentEventMap = new Map(recentEvents.map((e) => [e.userId, e._count]));
   } catch (e) {
     console.error('[admin/members] load failed', e);
     return (
@@ -68,6 +56,30 @@ export default async function AdminMembersPage() {
         <AdminDataLoadError title="Members list unavailable" />
       </PortalPageFrame>
     );
+  }
+
+  // Keep the members list usable even if activity rollups fail in some environments.
+  try {
+    const [lastEvents, recentEvents] = await Promise.all([
+      prisma.memberEvent.groupBy({
+        by: ['userId'],
+        _max: { createdAt: true },
+      }),
+      prisma.memberEvent.groupBy({
+        by: ['userId'],
+        where: { createdAt: { gte: thirtyDaysAgo } },
+        _count: true,
+      }),
+    ]);
+
+    for (const e of lastEvents) {
+      lastEventMap.set(e.userId, e._max.createdAt);
+    }
+    for (const e of recentEvents) {
+      recentEventMap.set(e.userId, e._count);
+    }
+  } catch (e) {
+    console.error('[admin/members] activity rollup failed; rendering members without health recency data', e);
   }
 
   const membersWithProgram = members.map((m) => {

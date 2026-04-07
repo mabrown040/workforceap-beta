@@ -3,7 +3,17 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser, isSuperAdmin } from '@/lib/auth/roles';
 
-const SKIP_PREFIXES = ['/partner', '/employer', '/counselor', '/admin', '/certifications', '/profile'];
+/** Paths where we skip partner→/partner redirect (dedicated shells or legacy redirects). */
+const SKIP_PREFIXES = [
+  '/partner',
+  '/employer',
+  '/counselor',
+  '/admin',
+  '/certifications',
+  '/profile',
+  '/resources',
+  '/account',
+];
 
 /**
  * Partner-only accounts should not use member portal surfaces. Redirect server-side

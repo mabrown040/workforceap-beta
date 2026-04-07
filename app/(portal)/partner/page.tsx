@@ -149,7 +149,7 @@ export default async function PartnerDashboardPage() {
     <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
       {/* Header */}
       <div style={{ padding: '1.5rem 1.5rem 0.75rem' }}>
-        <p className="wa-text-[10px] wa-uppercase wa-tracking-[0.15em] wa-font-bold wa-text-[#8c0f37] wa-mb-1">Partner Overview</p>
+        <p className="wa-text-[11px] wa-uppercase wa-tracking-[0.15em] wa-font-bold wa-text-[#8c0f37] wa-mb-1">Partner Dashboard</p>
         <h1 className="wa-text-3xl wa-font-extrabold wa-tracking-tight" style={{ color: 'var(--color-on-surface)', lineHeight: 1.1 }}>
           {ctx.partner.name}
         </h1>
@@ -176,28 +176,50 @@ export default async function PartnerDashboardPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', padding: '1rem 1.5rem' }}>
         {/* Active Members */}
         <div style={{ background: '#fff', borderRadius: '0.875rem', padding: '1rem', border: '1px solid #ebe7e7', borderLeft: '4px solid #8c0f37' }}>
-          <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Active Members</p>
+          <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Active Members</p>
           <p className="wa-text-3xl wa-font-black" style={{ color: 'var(--color-accent)', lineHeight: 1 }}>{total}</p>
           <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Referred to date</p>
         </div>
         {/* Placements */}
         <div style={{ background: '#fff', borderRadius: '0.875rem', padding: '1rem', border: '1px solid #ebe7e7' }}>
-          <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Placements</p>
+          <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Placements</p>
           <p className="wa-text-3xl wa-font-black" style={{ color: 'var(--color-on-surface)', lineHeight: 1 }}>{placements}</p>
           <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Verified hires</p>
         </div>
         {/* Certifications */}
         <div style={{ background: '#fff', borderRadius: '0.875rem', padding: '1rem', border: '1px solid #ebe7e7' }}>
-          <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Certificates</p>
+          <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Certificates</p>
           <p className="wa-text-3xl wa-font-black" style={{ color: 'var(--color-gold)', lineHeight: 1 }}>{completions}</p>
           <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Earned by members</p>
         </div>
         {/* Needs Review */}
         <div style={{ background: '#fff', borderRadius: '0.875rem', padding: '1rem', border: '1px solid #ebe7e7', borderLeft: '4px solid #8c0f37' }}>
-          <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ color: 'var(--color-accent)', marginBottom: '0.25rem' }}>Needs Review</p>
+          <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ color: 'var(--color-accent)', marginBottom: '0.25rem' }}>Needs Review</p>
           <p className="wa-text-3xl wa-font-black" style={{ color: 'var(--color-accent)', lineHeight: 1 }}>{pendingMilestonesCount}</p>
           <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Open milestones</p>
         </div>
+      </div>
+
+      {/* Next Step Guidance */}
+      <div style={{ padding: '0 1.5rem 1rem' }}>
+        <Link href={nextAction.href} style={{ textDecoration: 'none' }}>
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(173,44,77,0.08) 0%, rgba(173,44,77,0.02) 100%)',
+            border: '1px solid rgba(173,44,77,0.15)',
+            borderRadius: '0.875rem',
+            padding: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+          }}>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem', flexShrink: 0 }}>lightbulb</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p className="wa-text-sm wa-font-semibold" style={{ color: 'var(--color-on-surface)', margin: 0 }}>{nextAction.label}</p>
+              <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', margin: '0.125rem 0 0' }}>{nextAction.tip}</p>
+            </div>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem', flexShrink: 0 }}>arrow_forward_ios</span>
+          </div>
+        </Link>
       </div>
 
       {/* Recent Members */}
@@ -225,9 +247,9 @@ export default async function PartnerDashboardPage() {
                       <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>{p.programTitle}</p>
                     </div>
                     <span style={{
-                      padding: '0.15rem 0.5rem',
+                      padding: '0.2rem 0.6rem',
                       borderRadius: '9999px',
-                      fontSize: '0.625rem',
+                      fontSize: '0.75rem',
                       fontWeight: 700,
                       textTransform: 'uppercase',
                       background: isPlaced ? '#dcfce7' : 'rgba(173,44,77,0.08)',
@@ -330,6 +352,20 @@ export default async function PartnerDashboardPage() {
         <CopyReferralLink url={referralApplyUrl} />
       </section>
 
+      {/* ── Next Step ── */}
+      <section style={{ marginBottom: '2rem' }}>
+        <Link href={nextAction.href} style={{ textDecoration: 'none' }}>
+          <div className="portal-alert portal-alert--accent" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', flexShrink: 0 }}>lightbulb</span>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-on-surface)', margin: 0 }}>{nextAction.label}</p>
+              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0.125rem 0 0' }}>{nextAction.tip}</p>
+            </div>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem', flexShrink: 0 }}>arrow_forward</span>
+          </div>
+        </Link>
+      </section>
+
       {/* ── Journey Snapshot (5-col) ── */}
       <section style={{ marginBottom: '2rem' }}>
         <p className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Journey Snapshot</p>
@@ -344,7 +380,7 @@ export default async function PartnerDashboardPage() {
               }}
             >
               <p style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--color-on-surface)', lineHeight: 1 }}>{stageCounts[s] ?? 0}</p>
-              <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>{PIPELINE_STAGE_LABELS[s]}</p>
+              <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>{PIPELINE_STAGE_LABELS[s]}</p>
             </div>
           ))}
         </div>
@@ -366,7 +402,7 @@ export default async function PartnerDashboardPage() {
             <section>
               <div className="portal-section-header">
                 <div>
-                  <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Member pipeline</p>
+                  <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Member pipeline</p>
                   <h2 className="portal-section-title">Who you referred and where they are now.</h2>
                 </div>
               </div>
@@ -390,14 +426,14 @@ export default async function PartnerDashboardPage() {
                           </div>
                           <div>
                             <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{p.member.fullName}</p>
-                            <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>
-                              ID: {p.member.id.slice(0, 8)} &middot; Last updated {p.progress}% complete
+                            <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
+                              {p.progress}% complete
                             </p>
                           </div>
                         </div>
                         <span style={{
                           padding: '0.2rem 0.6rem',
-                          fontSize: '0.625rem',
+                          fontSize: '0.75rem',
                           fontWeight: 700,
                           textTransform: 'uppercase',
                           letterSpacing: '0.05em',
@@ -441,7 +477,7 @@ export default async function PartnerDashboardPage() {
                     <div style={{ width: `${referralLinkUsagePct}%`, height: '100%', background: 'var(--color-green)', borderRadius: '9999px', transition: 'width 0.3s' }} />
                   </div>
                   <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0', lineHeight: 1.4 }}>
-                    Of people in your referral list, how many submitted an application with your partner link attached.
+                    Share of your referred members who applied using your referral link.
                   </p>
                 </div>
               </div>
@@ -475,7 +511,7 @@ export default async function PartnerDashboardPage() {
               {/* Near Completion */}
               {nearCompletion.length > 0 && (
                 <div className="stitch-card stitch-card--padded">
-                  <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>Near completion</p>
+                  <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>Near completion</p>
                   <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
                     {nearCompletion.length} member{nearCompletion.length !== 1 ? 's' : ''} at 70%+ — a check-in could help them finish.
                   </p>

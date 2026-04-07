@@ -69,7 +69,7 @@ export default function PartnerReferredMembersMobile({ rows }: { rows: PartnerMe
             >
               {chip.label}
               {chip.count > 0 ? (
-                <span style={{ marginLeft: '0.375rem', fontSize: '0.625rem', opacity: 0.85 }}>{chip.count}</span>
+                <span style={{ marginLeft: '0.375rem', fontSize: '0.75rem', opacity: 0.85 }}>{chip.count}</span>
               ) : null}
             </button>
           );
@@ -156,9 +156,9 @@ export default function PartnerReferredMembersMobile({ rows }: { rows: PartnerMe
                   <span
                     style={{
                       flexShrink: 0,
-                      padding: '0.15rem 0.5rem',
+                      padding: '0.2rem 0.6rem',
                       borderRadius: '9999px',
-                      fontSize: '0.6rem',
+                      fontSize: '0.75rem',
                       fontWeight: 700,
                       textTransform: 'uppercase',
                       background: badgeBg,

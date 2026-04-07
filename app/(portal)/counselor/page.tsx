@@ -82,10 +82,10 @@ export default async function CounselorPortalPage() {
   const greeting = getTimeOfDayGreeting();
 
   const statCards = [
-    { icon: 'groups', label: 'Active Students', value: assignments.length, bg: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', iconColor: 'var(--color-accent)' },
-    { icon: 'mark_email_unread', label: 'Unread Messages', value: messagesNeedingReply, bg: 'rgba(59,130,246,0.1)', iconColor: '#3b82f6' },
-    { icon: 'school', label: 'Enrolled Modules', value: enrolledCount, bg: 'rgba(128,217,159,0.1)', iconColor: '#80d99f' },
-    { icon: 'warning', label: 'Needs Attention', value: needsAttentionCount, bg: 'rgba(251,191,36,0.1)', iconColor: '#fbbf24' },
+    { icon: 'groups', label: 'Your Students', value: assignments.length, bg: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', iconColor: 'var(--color-accent)' },
+    { icon: 'mark_email_unread', label: 'Awaiting Reply', value: messagesNeedingReply, bg: 'rgba(59,130,246,0.1)', iconColor: '#3b82f6' },
+    { icon: 'school', label: 'In a Program', value: enrolledCount, bg: 'rgba(128,217,159,0.1)', iconColor: '#80d99f' },
+    { icon: 'warning', label: 'No Program Yet', value: needsAttentionCount, bg: 'rgba(251,191,36,0.1)', iconColor: '#fbbf24' },
   ];
 
   return (
@@ -95,7 +95,7 @@ export default async function CounselorPortalPage() {
       <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Hero */}
         <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingTop:"1.5rem", paddingBottom:"0.5rem" }}>
-          <p className="wa-text-[10px] wa-uppercase wa-tracking-[0.15em] wa-font-semibold wa-text-[#8c0f37]" style={{ marginBottom:"0.5rem" }}>Academic Overview</p>
+          <p className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold wa-text-[#8c0f37]" style={{ marginBottom:"0.5rem" }}>Counselor Dashboard</p>
           <h2 className="wa-text-3xl wa-font-extrabold wa-tracking-tight text-on-surface wa-leading-tight">
             {greeting},<br /><span style={{ color: 'var(--color-accent)' }}>{firstName}</span>
           </h2>
@@ -107,18 +107,18 @@ export default async function CounselorPortalPage() {
         <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem", marginTop:"1rem", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"1rem", marginBottom:"1.5rem" }}>
           <div className="wa-text-white" style={{gridColumn:"span 2", borderRadius:"0.75rem", padding:"1.25rem", position:"relative", overflow:"hidden", background: 'var(--color-accent)'}}>
             <div style={{ position:"relative", zIndex:10 }}>
-              <p className="wa-text-[10px] wa-uppercase wa-tracking-widest" style={{ opacity:0.8, marginBottom:"0.25rem" }}>Active Students</p>
+              <p className="wa-text-[11px] wa-uppercase wa-tracking-widest" style={{ opacity:0.85, marginBottom:"0.25rem" }}>Your Students</p>
               <p className="wa-text-4xl wa-font-bold wa-tracking-tighter">{assignments.length}</p>
             </div>
             <span className="material-symbols-outlined -wa-right-2 -wa-bottom-2" style={{position:"absolute", opacity:0.1, fontSize: '100px'}}>group</span>
           </div>
           <div className="bg-surface-container-low" style={{ borderRadius:"0.75rem", padding:"1rem" }}>
-            <p className="wa-text-[10px] wa-uppercase wa-tracking-widest text-on-surface-variant" style={{ marginBottom:"0.25rem" }}>Enrolled</p>
+            <p className="wa-text-[11px] wa-uppercase wa-tracking-widest text-on-surface-variant" style={{ marginBottom:"0.25rem" }}>In a Program</p>
             <p className="wa-text-2xl wa-font-bold text-on-surface">{enrolledCount}</p>
             <div style={{marginTop:"0.5rem", width:"2rem", height:"0.25rem", borderRadius:"9999px", background: 'var(--color-gold)'}} />
           </div>
           <div className="bg-surface-container-low" style={{ borderRadius:"0.75rem", padding:"1rem" }}>
-            <p className="wa-text-[10px] wa-uppercase wa-tracking-widest text-on-surface-variant" style={{ marginBottom:"0.25rem" }}>Messages</p>
+            <p className="wa-text-[11px] wa-uppercase wa-tracking-widest text-on-surface-variant" style={{ marginBottom:"0.25rem" }}>Awaiting Reply</p>
             <p className="wa-text-2xl wa-font-bold text-on-surface">{messagesNeedingReply}</p>
             <div style={{marginTop:"0.5rem", width:"2rem", height:"0.25rem", borderRadius:"9999px", background: 'var(--color-accent)'}} />
           </div>
@@ -171,16 +171,16 @@ export default async function CounselorPortalPage() {
                     </div>
                     <div style={{ flex:1, minWidth:0 }}>
                       <h4 className="wa-font-bold text-on-surface wa-text-base wa-truncate">{a.member.fullName}</h4>
-                      <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-wider wa-truncate" style={{marginBottom:"0.25rem", color: 'var(--color-accent)'}}>{prog}</p>
+                      <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider wa-truncate" style={{marginBottom:"0.25rem", color: 'var(--color-accent)'}}>{prog}</p>
                       <div style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
                         <div className="bg-surface-container" style={{ flex:1, height:"0.25rem", borderRadius:"9999px", overflow:"hidden" }}>
                           <div style={{height:"100%", borderRadius:"9999px", width: `${progressPct}%`, background: 'var(--color-accent)'}} />
                         </div>
-                        <span className="wa-text-[10px] wa-font-bold text-on-surface-variant">{progressPct}%</span>
+                        <span className="wa-text-[11px] wa-font-bold text-on-surface-variant">{progressPct}%</span>
                       </div>
                     </div>
                     <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:"0.5rem" }}>
-                      <span className="wa-text-[9px] wa-font-bold wa-uppercase wa-tracking-wider" style={Object.assign({ paddingLeft:"0.5rem", paddingRight:"0.5rem", paddingTop:"0.125rem", paddingBottom:"0.125rem", borderRadius:"0.25rem" }, statusStyle)}>{statusLabel}</span>
+                      <span className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider" style={Object.assign({ paddingLeft:"0.5rem", paddingRight:"0.5rem", paddingTop:"2px", paddingBottom:"2px", borderRadius:"0.25rem" }, statusStyle)}>{statusLabel}</span>
                       <span className="material-symbols-outlined text-surface-container-highest">chevron_right</span>
                     </div>
                   </Link>
@@ -196,7 +196,7 @@ export default async function CounselorPortalPage() {
       {/* ── Welcome Header ── */}
       <PageHeader
         title={`Welcome back, ${firstName}.`}
-        subtitle="Your academic oversight panel is synchronized"
+        subtitle="See your assigned students, track their progress, and respond to messages."
       />
 
       <section style={{ marginBottom: '2.5rem' }}>
@@ -283,7 +283,7 @@ export default async function CounselorPortalPage() {
                             padding: '0.25rem 0.75rem',
                             background: isEnrolled ? 'rgba(128,217,159,0.1)' : 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
                             color: isEnrolled ? '#80d99f' : 'var(--color-accent)',
-                            fontSize: '0.625rem',
+                            fontSize: '0.75rem',
                             fontWeight: 700,
                             textTransform: 'uppercase',
                             letterSpacing: '0.05em',
@@ -302,28 +302,28 @@ export default async function CounselorPortalPage() {
             )}
           </section>
 
-          {/* System Diagnostics */}
+          {/* System Status */}
           <section>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 600, letterSpacing: '-0.02em', marginBottom: '1.25rem', color: 'var(--color-on-surface)' }}>
-              System Diagnostics
+              System Status
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div className="stitch-card stitch-card--padded">
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
-                    <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Curriculum Sync Status</p>
+                    <p className="portal-section-title" style={{ marginBottom: '0.25rem' }}>Data Sync</p>
                     <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{affiliation}</p>
                   </div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#80d99f', background: 'rgba(128,217,159,0.1)', padding: '0.25rem 0.75rem', borderRadius: '9999px' }}>Healthy</span>
+                  <span className="status-badge status-badge-active">Healthy</span>
                 </div>
               </div>
               <div className="stitch-card stitch-card--padded">
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
-                    <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>AI Teaching Assistant</p>
-                    <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>GPT Integration</p>
+                    <p className="portal-section-title" style={{ marginBottom: '0.25rem' }}>AI Assistant</p>
+                    <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>Available</p>
                   </div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#80d99f', background: 'rgba(128,217,159,0.1)', padding: '0.25rem 0.75rem', borderRadius: '9999px' }}>Operational</span>
+                  <span className="status-badge status-badge-active">Online</span>
                 </div>
               </div>
             </div>

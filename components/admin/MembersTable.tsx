@@ -4,14 +4,13 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { formatPhone } from '@/lib/formatPhone';
+import { formatPortalDate } from '@/lib/formatDate';
 import type { HealthStatus } from '@/lib/admin/healthScore';
 
-/** Dates from the server are ISO strings after RSC → client serialization. */
 function formatMemberDate(value: string | Date | null | undefined): string | null {
   if (value == null) return null;
-  const d = typeof value === 'string' || typeof value === 'number' ? new Date(value) : value;
-  if (Number.isNaN(d.getTime())) return null;
-  return d.toLocaleDateString();
+  const s = formatPortalDate(value);
+  return s === '' ? null : s;
 }
 
 type Member = {

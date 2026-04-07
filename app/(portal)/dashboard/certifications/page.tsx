@@ -17,7 +17,7 @@ import {
 } from '@/components/portal/CertificationVaultActions';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Certificates & Achievements — The Verification Vault',
+  title: 'My Certificates',
   description: 'Track credentials, download certificates, and follow your certification roadmap.',
   path: '/dashboard/certifications',
 });
@@ -66,10 +66,10 @@ export default async function DashboardCertificationsPage() {
         {/* Header */}
         <div style={{ padding: '1.25rem 1rem 0.5rem' }}>
           <h2 style={{ fontSize: '1.375rem', fontWeight: 700, lineHeight: 1.25, marginBottom: '0.25rem' }}>
-            Verification Vault
+            My Certificates
           </h2>
           <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-            Your credentials and certificate progress.
+            Certificates and credentials you&apos;ve earned.
           </p>
         </div>
 
@@ -246,8 +246,8 @@ export default async function DashboardCertificationsPage() {
       <div className="wa-hidden wa-md:wa-block">
         <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto' }}>
           <PageHeader
-            title="The Verification Vault"
-            subtitle="Your credentials, milestones, and industry verifications in one place. Track progress across WorkforceAP certificate pathways and download proof of achievement."
+            title="My Certificates"
+            subtitle="Certificates and credentials you've earned through training. Track your progress and download proof of what you've completed."
             breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Certifications' }]}
           />
 

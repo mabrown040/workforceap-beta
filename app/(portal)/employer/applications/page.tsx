@@ -66,7 +66,7 @@ export default async function EmployerApplicationsPage({
     <>
       {/* ── Mobile Applications View (≤640px) ── */}
       <div className="wa-block wa-md:wa-hidden wa-pb-24">
-        <PageHeader title="Applicants" subtitle="Review and update candidate status." />
+        <PageHeader title={`Applicants (${totalCount})`} subtitle="Review candidates and update their status." />
         <MobileApplicationsClient initialRows={initialRows} />
         <div className="wa-px-4">
           <EmployerApplicationsPager page={page} totalPages={totalPages} />
@@ -77,8 +77,9 @@ export default async function EmployerApplicationsPage({
       <div className="wa-hidden wa-md:wa-block">
         <PortalPageFrame>
           <PageHeader
-            title="Applicants"
-            subtitle="Update application status as you review candidates. Invalid workflow steps are blocked."
+            title={`Applicants (${totalCount})`}
+            subtitle="Review candidates and update their status as you move them through your hiring process."
+            breadcrumbs={[{ label: 'Employer Portal', href: '/employer' }, { label: 'Applicants' }]}
           />
           <EmployerApplicationsClient initialRows={initialRows} />
           <EmployerApplicationsPager page={page} totalPages={totalPages} />

@@ -64,7 +64,7 @@ export default async function LearningPage() {
     <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
       {/* Header */}
       <div style={{ padding: '1.5rem 1.5rem 0', marginBottom: '1.5rem' }}>
-        <p className="wa-text-[10px] wa-font-medium wa-tracking-[0.1em] wa-uppercase wa-text-[#8c0f37]" style={{ display: 'block', marginBottom: '0.5rem' }}>Curriculum Oversight</p>
+        <p className="wa-text-[11px] wa-font-medium wa-tracking-[0.1em] wa-uppercase wa-text-[#8c0f37]" style={{ display: 'block', marginBottom: '0.5rem' }}>Your Learning</p>
         <h2 className="wa-text-3xl wa-font-bold wa-tracking-tight wa-text-[#1c1b1b] wa-leading-tight">The Learning Hub</h2>
       </div>
 

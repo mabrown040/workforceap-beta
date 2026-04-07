@@ -10,8 +10,8 @@ import PortalStatCard from '@/components/portal/PortalStatCard';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Training & Job Readiness',
-  description: 'Access your Coursera courses and track job-readiness milestones.',
+  title: 'My Training',
+  description: 'Complete your courses and track your progress toward getting job-ready.',
   path: '/dashboard/training',
 });
 
@@ -48,11 +48,11 @@ export default async function TrainingPage() {
     <>
     <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto' }}>
       <PageHeader
-        title="Training & Job Readiness"
-        subtitle={`Complete your ${program.title} courses on Coursera. Track progress, mark courses complete, and prepare for the workforce.`}
+        title="My Training"
+        subtitle={`Complete your ${program.title} courses on Coursera (our online learning partner). Track your progress and mark courses done as you finish them.`}
         breadcrumbs={[
           { label: 'Member Portal', href: '/dashboard' },
-          { label: 'Training & Job Readiness' },
+          { label: 'My Training' },
         ]}
       />
 
@@ -148,7 +148,7 @@ export default async function TrainingPage() {
           <h2 style={{ fontSize: 'var(--font-size-h3)', fontWeight: 'var(--font-weight-bold)', margin: 0 }}>Your Courses</h2>
         </div>
         <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-6)' }}>
-          {program.title} — Coursera. Complete courses in order and mark them done as you go.
+          {program.title} on Coursera (our online partner). Complete courses in order and mark each one done as you finish.
         </p>
 
         <TrainingCourseList

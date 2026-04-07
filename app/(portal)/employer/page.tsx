@@ -180,10 +180,10 @@ export default async function EmployerDashboardPage() {
       {/* ── Mobile Employer Dashboard (≤640px) ── */}
       <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Hero */}
-        <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingTop:"1.5rem", paddingBottom:"1rem" }}>
-          <p className="wa-text-[10px] wa-uppercase wa-tracking-[0.15em] wa-font-semibold wa-text-[#8c0f37]" style={{ marginBottom:"0.25rem" }}>Overview</p>
-          <h2 className="wa-text-3xl wa-font-extrabold wa-tracking-tight text-on-surface wa-leading-tight">
-            Elite Talent<br/>at your fingertips.
+        <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingTop:"1.5rem", paddingBottom:"0.5rem" }}>
+          <p className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold wa-text-[#8c0f37]" style={{ marginBottom:"0.25rem" }}>Employer Portal</p>
+          <h2 className="wa-text-2xl wa-font-extrabold wa-tracking-tight text-on-surface wa-leading-tight">
+            {totalApplications > 0 ? `${totalApplications} candidate${totalApplications !== 1 ? 's' : ''} waiting` : 'Your talent pipeline'}
           </h2>
         </div>
         <div style={{ marginLeft: '1.5rem', marginRight: '1.5rem', marginBottom: '1rem' }}>
@@ -207,7 +207,7 @@ export default async function EmployerDashboardPage() {
             { label: 'In Review', value: inReview, color: 'var(--secondary)' },
           ].map((s) => (
             <div key={s.label} className="wa-bg-white" style={{ minWidth:"130px", flex:1, padding:"1rem", borderRadius:"0.75rem", boxShadow:"0 1px 2px rgba(0,0,0,0.05)" }}>
-              <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-wider text-on-surface-variant/60" style={{ marginBottom:"0.25rem" }}>{s.label}</p>
+              <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider text-on-surface-variant/60" style={{ marginBottom:"0.25rem" }}>{s.label}</p>
               <p className="wa-text-2xl wa-font-bold" style={{ color: s.color }}>{s.value}</p>
             </div>
           ))}
@@ -222,31 +222,42 @@ export default async function EmployerDashboardPage() {
           ].map((s, i, arr) => (
             <div key={s.label} style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
               <div style={{ flex:1, textAlign:"center" }}>
-                <p className="wa-text-[10px] wa-font-bold text-on-surface-variant/50 wa-uppercase wa-tracking-tighter">{s.label}</p>
+                <p className="wa-text-[11px] wa-font-bold text-on-surface-variant/50 wa-uppercase wa-tracking-tighter">{s.label}</p>
                 <p className="wa-text-sm wa-font-bold text-on-surface">{s.value}</p>
               </div>
               {i < arr.length - 1 && <div className="bg-outline-variant/30" style={{ width: '1px', height:"1.25rem" }} />}
             </div>
           ))}
         </div>
-        {/* Quick actions */}
+        {/* Quick actions — Review Apps is primary when candidates exist */}
         <div style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginTop:"1rem", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"0.75rem" }}>
+          {totalApplications > 0 ? (
+            <Link href="/employer/applications"
+              className="wa-text-white active:scale-[0.98] wa-transition-all" style={{gridColumn:"span 2", padding:"1rem", borderRadius:"0.75rem", display:"flex", alignItems:"center", justifyContent:"space-between", textDecoration:"none", background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent))'}}>
+              <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
+                <span className="material-symbols-outlined">grading</span>
+                <span className="wa-font-bold wa-tracking-tight">Review {totalApplications} Candidate{totalApplications !== 1 ? 's' : ''}</span>
+              </div>
+              <span className="material-symbols-outlined" style={{ opacity:0.6 }}>arrow_forward</span>
+            </Link>
+          ) : (
+            <Link href="/employer/jobs/new"
+              className="wa-text-white active:scale-[0.98] wa-transition-all" style={{gridColumn:"span 2", padding:"1rem", borderRadius:"0.75rem", display:"flex", alignItems:"center", justifyContent:"space-between", textDecoration:"none", background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent))'}}>
+              <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
+                <span className="material-symbols-outlined">add_circle</span>
+                <span className="wa-font-bold wa-tracking-tight">Post Your First Role</span>
+              </div>
+              <span className="material-symbols-outlined" style={{ opacity:0.6 }}>arrow_forward</span>
+            </Link>
+          )}
           <Link href="/employer/jobs/new"
-            className="wa-text-white active:scale-[0.98] wa-transition-all" style={{gridColumn:"span 2", padding:"1rem", borderRadius:"0.75rem", display:"flex", alignItems:"center", justifyContent:"space-between", textDecoration:"none", background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent))'}}>
-            <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
-              <span className="material-symbols-outlined">add_circle</span>
-              <span className="wa-font-bold wa-tracking-tight">Post a Role</span>
-            </div>
-            <span className="material-symbols-outlined" style={{ opacity:0.6 }}>arrow_forward</span>
-          </Link>
-          <Link href="/employer/applications"
-            className="bg-surface-container-high text-on-surface active:scale-[0.98] wa-transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", flexDirection:"column", gap:"0.5rem", alignItems:"flex-start", textDecoration:"none" }}>
-            <span className="material-symbols-outlined wa-text-[#7b5800]">grading</span>
-            <span className="wa-text-sm wa-font-bold wa-leading-tight">Review Apps</span>
+            className="bg-surface-container-high text-on-surface active:scale-[0.98] wa-transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", flexDirection:"column", gap:"0.5rem", alignItems:"flex-start", textDecoration:"none", minHeight:"44px" }}>
+            <span className="material-symbols-outlined wa-text-[#8c0f37]">add_circle</span>
+            <span className="wa-text-sm wa-font-bold wa-leading-tight">Post a Role</span>
           </Link>
           <Link href="/employer/messages"
-            className="bg-surface-container-high text-on-surface active:scale-[0.98] wa-transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", flexDirection:"column", gap:"0.5rem", alignItems:"flex-start", textDecoration:"none" }}>
-            <span className="material-symbols-outlined wa-text-[#8c0f37]">forum</span>
+            className="bg-surface-container-high text-on-surface active:scale-[0.98] wa-transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", flexDirection:"column", gap:"0.5rem", alignItems:"flex-start", textDecoration:"none", minHeight:"44px" }}>
+            <span className="material-symbols-outlined wa-text-[#7b5800]">forum</span>
             <span className="wa-text-sm wa-font-bold wa-leading-tight">Messages</span>
           </Link>
         </div>
@@ -271,12 +282,12 @@ export default async function EmployerDashboardPage() {
                   <div style={{ flex:1, minWidth:0 }}>
                     <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
                       <h4 className="wa-font-bold text-on-surface wa-text-sm wa-truncate">{app.student.fullName}</h4>
-                      <span className="wa-text-[10px] text-on-surface-variant/60 wa-font-medium" style={{ marginLeft:"0.5rem", flexShrink:0 }}>
+                      <span className="wa-text-[11px] text-on-surface-variant/60 wa-font-medium" style={{ marginLeft:"0.5rem", flexShrink:0 }}>
                         {new Date(app.appliedAt).toLocaleDateString()}
                       </span>
                     </div>
                     <p className="wa-text-xs wa-text-[#7b5800] wa-font-semibold wa-uppercase wa-tracking-wider wa-truncate" style={{ marginBottom:"0.25rem" }}>{app.job.title}</p>
-                    <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-tighter" style={{paddingLeft:"0.5rem", paddingRight:"0.5rem", paddingTop:"0.5", paddingBottom:"0.5", borderRadius:"9999px", background: app.status === 'pending' ? '#fff1f2' : '#fef3c7',
+                    <span className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-tighter" style={{paddingLeft:"0.5rem", paddingRight:"0.5rem", paddingTop:"2px", paddingBottom:"2px", borderRadius:"9999px", background: app.status === 'pending' ? '#fff1f2' : '#fef3c7',
                         color: app.status === 'pending' ? 'var(--color-accent)' : 'var(--color-gold)',}}>
                       {app.status}
                     </span>

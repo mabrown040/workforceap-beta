@@ -11,7 +11,7 @@ type ResumeTranscriptTurn = { speaker: 'agent' | 'user'; text: string };
 
 function normalizeTranscript(input: Array<{ speaker: string; text: string }>): ResumeTranscriptTurn[] {
   return input
-    .map((turn) => ({
+    .map((turn): ResumeTranscriptTurn => ({
       speaker: turn.speaker === 'agent' ? 'agent' : 'user',
       text: typeof turn.text === 'string' ? turn.text.trim() : '',
     }))

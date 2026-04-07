@@ -7,6 +7,21 @@ import { invitationRoleLabel, inviteAcceptLoginRedirect } from '@/lib/invitation
 import { checkInviteAcceptRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
+async function findAuthUserIdByEmail(admin: ReturnType<typeof getSupabaseAdmin>, email: string): Promise<string | null> {
+  const normalized = email.toLowerCase().trim();
+  let page = 1;
+  const perPage = 200;
+  for (let i = 0; i < 25; i++) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage });
+    if (error || !data?.users?.length) return null;
+    const found = data.users.find((u) => u.email?.toLowerCase() === normalized);
+    if (found?.id) return found.id;
+    if (data.users.length < perPage) return null;
+    page++;
+  }
+  return null;
+}
+
 export async function POST(request: NextRequest) {
   const ip = getClientIpFromRequest(request);
   const { success: withinLimit } = await checkInviteAcceptRateLimit(ip);
@@ -274,16 +289,13 @@ async function createNewUserAndAccept(
       }
       // Orphaned Supabase auth user (previous attempt created auth but DB tx failed).
       // Look up the existing auth user and continue with DB record creation.
-      const { data: userByEmail } = await supabase.auth.admin.listUsers();
-      const orphanedAuthUser = userByEmail?.users?.find(
-        (u) => u.email?.toLowerCase() === invitation.email.toLowerCase()
-      );
-      if (orphanedAuthUser) {
+      const orphanedAuthUserId = await findAuthUserIdByEmail(supabase, invitation.email);
+      if (orphanedAuthUserId) {
         // Update password in case it changed between attempts
         if (password) {
-          await supabase.auth.admin.updateUser(orphanedAuthUser.id, { password });
+          await supabase.auth.admin.updateUserById(orphanedAuthUserId, { password });
         }
-        return finishNewUserDbSetup(orphanedAuthUser.id, invitation, fullName, phone, request);
+        return finishNewUserDbSetup(orphanedAuthUserId, invitation, fullName, phone, request);
       }
     }
     return NextResponse.json(

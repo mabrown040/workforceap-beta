@@ -82,7 +82,7 @@ export default function AIHistoryList({ results, initialFilter = '' }: { results
             <option value="interview_coach">Interview Coach</option>
             <option value="voice_interview_video">Voice Interview Recording</option>
             <option value="career_counselor">Career Counselor</option>
-            <option value="skill_assessment">Skill Assessment</option>
+            <option value="skill_assessment">Skill Mapper / Skill Assessment</option>
           </select>
         </label>
       </div>

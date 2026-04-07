@@ -16,7 +16,7 @@ const TOOL_LABELS: Record<string, string> = {
   salary_negotiation: 'Salary Negotiation',
   gap_analyzer: 'Gap Analyzer',
   career_counselor: 'Career Counselor',
-  skill_assessment: 'Skill Assessment',
+  skill_assessment: 'Skill Mapper / Skill Assessment',
 };
 
 export async function GET(request: Request) {

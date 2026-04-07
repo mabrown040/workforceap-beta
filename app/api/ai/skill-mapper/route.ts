@@ -6,6 +6,8 @@ import {
 } from '@/lib/ai/onetSkills';
 import { isOnetConfigured } from '@/lib/onet/client';
 import { getUser } from '@/lib/auth/server';
+import { ensureUserInDb } from '@/lib/auth/ensureUser';
+import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { trackEvent } from '@/lib/events/track';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { captureApiError } from '@/lib/observability/captureApiError';
@@ -44,6 +46,22 @@ export async function GET(req: NextRequest) {
     if (code) {
       const skills = await getOccupationSkills(code);
       const radarData = mapSkillsToRadarAxes(skills);
+
+      try {
+        await ensureUserInDb(user);
+        await saveAIToolResult(
+          user.id,
+          'skill_assessment',
+          `Skill mapper lookup (${code})`,
+          JSON.stringify({
+            occupationCode: code,
+            radarAxes: radarData,
+            skills: skills.slice(0, 20),
+          })
+        );
+      } catch (saveErr) {
+        console.error('Skill mapper: failed to save result', saveErr);
+      }
 
       await trackEvent({
         userId: user.id,

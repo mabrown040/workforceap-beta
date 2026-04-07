@@ -26,7 +26,7 @@ const TOOL_LABELS: Record<string, string> = {
   interview_coach: 'AI Interview Coach',
   voice_interview_video: 'Mock Interview Video',
   career_counselor: 'Career Counselor',
-  skill_assessment: 'Skill Assessment',
+  skill_assessment: 'Skill Mapper / Skill Assessment',
 };
 
 type Props = { searchParams: Promise<{ tool?: string }> };

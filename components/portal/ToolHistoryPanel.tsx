@@ -23,16 +23,25 @@ function formatOutput(output: string): string {
 export default async function ToolHistoryPanel({
   userId,
   toolType,
+  toolTypes,
   title = 'Recent saved runs',
   limit = 5,
 }: {
   userId: string;
-  toolType: AIToolType;
+  toolType?: AIToolType;
+  toolTypes?: AIToolType[];
   title?: string;
   limit?: number;
 }) {
+  const resolvedToolTypes = (toolTypes?.length ? toolTypes : toolType ? [toolType] : []) as AIToolType[];
+  if (resolvedToolTypes.length === 0) return null;
+
+  const historyHrefTool = resolvedToolTypes[0];
   const rows = await prisma.aIToolResult.findMany({
-    where: { userId, toolType },
+    where: {
+      userId,
+      toolType: resolvedToolTypes.length === 1 ? resolvedToolTypes[0] : { in: resolvedToolTypes },
+    },
     orderBy: { createdAt: 'desc' },
     take: limit,
     select: {
@@ -56,7 +65,7 @@ export default async function ToolHistoryPanel({
       >
         <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{title}</h3>
         <Link
-          href={`/dashboard/ai-tools/history?tool=${toolType}`}
+          href={`/dashboard/ai-tools/history?tool=${historyHrefTool}`}
           style={{
             fontSize: '0.8rem',
             color: 'var(--color-accent)',
@@ -70,7 +79,7 @@ export default async function ToolHistoryPanel({
 
       {rows.length === 0 ? (
         <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-on-surface-variant)' }}>
-          No saved runs yet for this tool.
+          No saved runs yet for this tool. This history section will appear after your first run.
         </p>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>

@@ -498,6 +498,7 @@ async function createNewUserAndAccept(
       // Check if a DB record exists for this email
       const existing = await prisma.user.findFirst({
         where: { email: inviteEmail },
+        select: { id: true, fullName: true, email: true },
       });
       if (existing) {
         return acceptExistingUser(existing, invitation, fullName, request);

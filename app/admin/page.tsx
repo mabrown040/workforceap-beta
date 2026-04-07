@@ -133,11 +133,11 @@ export default async function AdminPage() {
           subtitle="Platform management and oversight."
           action={
             <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <Link href="/admin/pipeline" style={{ padding: '0.625rem 1.5rem', background: 'var(--surface-container-high)', color: 'var(--color-accent)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Link href="/admin/pipeline" className="btn btn-outline">
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>download</span>
                 Export Data
               </Link>
-              <Link href="/admin/programs" style={{ padding: '0.625rem 1.5rem', background: 'linear-gradient(to right, var(--color-accent), #71333e)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none', boxShadow: '0 4px 24px rgba(0,0,0,0.3)', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Link href="/admin/programs" className="btn btn-primary">
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>
                 Create New Track
               </Link>
@@ -148,37 +148,21 @@ export default async function AdminPage() {
 
       {/* ── Pending Applications Alert ── */}
       {pendingApplications > 0 && (
-        <div className="wa-md:wa-hidden" style={{
-          margin: '0 1.5rem 1rem',
-          padding: '1rem 1.25rem',
-          background: 'rgba(173,44,77,0.1)',
-          borderRadius: '0.75rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}>
-          <span style={{ fontWeight: 600, color: 'var(--color-accent)', fontSize: '0.875rem' }}>
+        <div className="wa-md:wa-hidden portal-alert portal-alert--accent" style={{ margin: '0 1.5rem 1rem' }}>
+          <span className="portal-alert__label">
             {pendingApplications} pending
           </span>
-          <Link href="/admin/members" style={{ color: 'var(--color-accent)', fontWeight: 600, fontSize: '0.875rem', textDecoration: 'none' }}>
+          <Link href="/admin/members" className="portal-alert__action">
             Review &rarr;
           </Link>
         </div>
       )}
       {pendingApplications > 0 && (
-        <div className="wa-hidden wa-md:wa-block" style={{
-          padding: '1rem 1.5rem',
-          background: 'rgba(173,44,77,0.1)',
-          borderRadius: '0.75rem',
-          marginBottom: '1.5rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}>
-          <span style={{ fontWeight: 600, color: 'var(--color-accent)', fontSize: '0.875rem' }}>
+        <div className="wa-hidden wa-md:wa-block portal-alert portal-alert--accent" style={{ marginBottom: '1.5rem' }}>
+          <span className="portal-alert__label">
             {pendingApplications} pending application{pendingApplications === 1 ? '' : 's'} awaiting review
           </span>
-          <Link href="/admin/members" style={{ color: 'var(--color-accent)', fontWeight: 600, fontSize: '0.875rem', textDecoration: 'none' }}>
+          <Link href="/admin/members" className="portal-alert__action">
             Review &rarr;
           </Link>
         </div>
@@ -186,14 +170,7 @@ export default async function AdminPage() {
 
       {/* ── Metric row (single treatment — desktop + mobile) ── */}
       <section style={{ padding: '0 1.5rem', marginBottom: '2rem' }}>
-        <div
-          className="wa-admin-metric-row"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-            gap: '1rem',
-          }}
-        >
+        <div className="portal-grid-metrics">
           {metricCards.map((card) => (
             <Link
               key={card.label}
@@ -225,7 +202,7 @@ export default async function AdminPage() {
       </section>
 
       {/* ── Main Dashboard Layout ── */}
-      <div className="wa-hidden wa-md:wa-block" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
+      <div className="wa-hidden wa-md:wa-block portal-grid-2col" style={{ gap: '2rem' }}>
         {/* ── Left Column ── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
 
@@ -337,20 +314,20 @@ export default async function AdminPage() {
           {/* System Configuration Grid */}
           <section>
             <h3 style={{ fontSize: '1.125rem', fontWeight: 600, letterSpacing: '-0.02em', marginBottom: '1.25rem', color: 'var(--color-on-surface)' }}>System Configuration</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+            <div className="portal-grid-3col">
               {[
                 { icon: 'language', label: 'Global Nodes', desc: 'Partners and organizations', href: '/admin/partners' },
                 { icon: 'verified_user', label: 'Compliance', desc: 'Assessments and reviews', href: '/admin/assessments' },
                 { icon: 'database', label: 'Data Clusters', desc: 'Programs and training tracks', href: '/admin/programs' },
               ].map((item) => (
-                <Link key={item.label} href={item.href} style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <div className="stitch-card" style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', transition: 'background-color 0.15s' }}>
+                <Link key={item.label} href={item.href} className="portal-action-row" style={{ gap: '1rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <div style={{ padding: '0.625rem', background: 'rgba(173,44,77,0.1)', borderRadius: '0.5rem' }}>
                       <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem' }}>{item.icon}</span>
                     </div>
                     <div>
-                      <h4 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{item.label}</h4>
-                      <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', marginTop: '0.125rem' }}>{item.desc}</p>
+                      <h4 className="portal-action-row__title">{item.label}</h4>
+                      <p className="portal-action-row__desc">{item.desc}</p>
                     </div>
                   </div>
                 </Link>

@@ -343,23 +343,21 @@ export default async function EmployerDashboardPage() {
       )}
 
       {/* ── Talent Pipeline + Verification Tools ── */}
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
+      <section className="portal-grid-2col" style={{ marginBottom: '3rem' }}>
         {/* Pipeline */}
         <div className="stitch-card stitch-card--padded-lg">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--color-on-surface)' }}>Talent Pipeline</h2>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <span className="material-symbols-outlined" style={{ padding: '0.5rem', background: 'var(--surface-container-lowest)', borderRadius: '0.375rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>filter_list</span>
-            </div>
+          <div className="portal-section-header" style={{ marginBottom: '2rem' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--color-on-surface)', margin: 0 }}>Talent Pipeline</h2>
+            <span className="material-symbols-outlined" style={{ padding: '0.5rem', background: 'var(--surface-container-lowest)', borderRadius: '0.375rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>filter_list</span>
           </div>
 
           {/* Placement snapshot stats */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+          <div className="portal-grid-metrics" style={{ marginBottom: '2rem' }}>
             {placementCards.map((card) => (
               <div key={card.label} style={{ background: 'var(--surface-container-low)', padding: '1rem', borderRadius: '0.5rem' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', display: 'block', marginBottom: '0.5rem' }}>{card.icon}</span>
-                <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)', letterSpacing: '-0.02em' }}>{card.value}</p>
-                <p style={{ fontSize: '0.625rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>{card.label}</p>
+                <p className="portal-stat-value" style={{ fontSize: '1.5rem' }}>{card.value}</p>
+                <p className="portal-stat-label" style={{ fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{card.label}</p>
               </div>
             ))}
           </div>
@@ -371,24 +369,18 @@ export default async function EmployerDashboardPage() {
               { label: 'Manage postings', desc: 'Edit drafts, track what is live, and close roles once filled.', href: '/employer/jobs' },
               { label: 'Review applicants', desc: 'See recent submissions, respond quickly, and keep placements moving.', href: '/employer/applications' },
             ].map((item) => (
-              <Link key={item.label} href={item.href} style={{ textDecoration: 'none', color: 'inherit' }}>
-                <div style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '1rem', background: 'var(--surface-container-low)', borderRadius: '0.5rem',
-                  transition: 'background-color 0.15s', cursor: 'pointer',
-                }}>
-                  <div>
-                    <h4 style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-on-surface)', marginBottom: '0.125rem' }}>{item.label}</h4>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{item.desc}</p>
-                  </div>
-                  <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4 }}>chevron_right</span>
+              <Link key={item.label} href={item.href} className="portal-action-row">
+                <div>
+                  <h4 className="portal-action-row__title">{item.label}</h4>
+                  <p className="portal-action-row__desc">{item.desc}</p>
                 </div>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4 }}>chevron_right</span>
               </Link>
             ))}
           </div>
 
           <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(88,65,68,0.1)', textAlign: 'center' }}>
-            <Link href="/employer/jobs" style={{ color: 'var(--color-accent)', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
+            <Link href="/employer/jobs" className="portal-section-action">
               View all job postings
             </Link>
           </div>
@@ -396,8 +388,8 @@ export default async function EmployerDashboardPage() {
 
         {/* Verification + Featured */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div className="stitch-card">
-            <h3 style={{ fontWeight: 700, fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
+          <div className="stitch-card stitch-card--padded">
+            <h3 className="portal-section-title" style={{ marginBottom: '1.5rem' }}>
               Pipeline Summary
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -406,14 +398,11 @@ export default async function EmployerDashboardPage() {
                 { icon: 'history_edu', label: 'In Review', value: inReview, status: 'Pending', color: 'var(--color-on-surface-variant)' },
                 { icon: 'gavel', label: 'Filled/Closed', value: filledPositions, status: 'Complete', color: 'var(--color-on-surface-variant)' },
               ].map((item) => (
-                <div key={item.label} style={{
-                  background: 'var(--surface-container-lowest)', padding: '1rem', borderRadius: '0.5rem',
-                  display: 'flex', alignItems: 'center', gap: '0.75rem',
-                }}>
+                <div key={item.label} className="portal-pipeline-item">
                   <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>{item.icon}</span>
                   <div style={{ flex: 1 }}>
-                    <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{item.label}</p>
-                    <p style={{ fontSize: '0.625rem', color: 'var(--color-on-surface-variant)' }}>{item.value} {item.status.toLowerCase()}</p>
+                    <p className="portal-pipeline-item__label">{item.label}</p>
+                    <p className="portal-pipeline-item__meta">{item.value} {item.status.toLowerCase()}</p>
                   </div>
                   <span className="material-symbols-outlined" style={{ color: item.color, fontSize: '1.25rem' }}>
                     {item.value > 0 ? 'check_circle' : 'pending'}
@@ -421,39 +410,25 @@ export default async function EmployerDashboardPage() {
                 </div>
               ))}
             </div>
-            <Link href="/employer/jobs" style={{
+            <Link href="/employer/jobs" className="btn btn-outline" style={{
               display: 'block', width: '100%', marginTop: '1.5rem',
-              padding: '0.5rem', textAlign: 'center',
-              border: '1px solid var(--outline-variant)', borderRadius: '0.5rem',
-              fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface)',
-              textDecoration: 'none',
+              textAlign: 'center', fontSize: '0.75rem',
             }}>
               Manage Postings
             </Link>
           </div>
 
-          <div style={{
-            background: 'var(--color-accent)', padding: '1.5rem', borderRadius: '0.75rem',
-            color: '#fff', position: 'relative', overflow: 'hidden',
-          }}>
+          <div className="portal-promo-card">
             <div style={{ position: 'relative', zIndex: 1 }}>
-              <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem' }}>Workforce Advancement</h3>
-              <p style={{ fontSize: '0.75rem', marginBottom: '1rem', opacity: 0.9 }}>
+              <h3 className="portal-promo-card__title">Workforce Advancement</h3>
+              <p className="portal-promo-card__desc">
                 Access credentialed graduates from our training programs.
               </p>
-              <Link href="/employer/jobs/new" style={{
-                display: 'inline-block', padding: '0.5rem 1rem',
-                background: 'rgba(255,255,255,0.9)', color: 'var(--color-accent)',
-                borderRadius: '0.5rem', fontSize: '0.625rem', fontWeight: 700,
-                textTransform: 'uppercase', letterSpacing: '0.05em', textDecoration: 'none',
-              }}>
+              <Link href="/employer/jobs/new" className="portal-promo-card__cta">
                 Post a Job
               </Link>
             </div>
-            <span className="material-symbols-outlined" style={{
-              position: 'absolute', bottom: '-1rem', right: '-1rem',
-              fontSize: '6rem', opacity: 0.1, color: '#fff',
-            }}>school</span>
+            <span className="material-symbols-outlined portal-promo-card__bg-icon">school</span>
           </div>
         </div>
       </section>
@@ -477,7 +452,7 @@ export default async function EmployerDashboardPage() {
             </p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+          <div className="portal-grid-3col">
             {recentApplications.map((app) => (
               <div key={app.id} className="stitch-card stitch-card--padded">
                 <div style={{ marginBottom: '1rem' }}>
@@ -489,11 +464,8 @@ export default async function EmployerDashboardPage() {
                     {app.appliedAt.toLocaleDateString()}
                   </p>
                 </div>
-                <Link href={`/employer/jobs/${app.jobId}`} style={{
-                  display: 'block', width: '100%', padding: '0.625rem',
-                  textAlign: 'center', background: 'var(--surface-container-highest)',
-                  color: 'var(--color-on-surface)', fontSize: '0.875rem', fontWeight: 600,
-                  borderRadius: '0.5rem', textDecoration: 'none',
+                <Link href={`/employer/jobs/${app.jobId}`} className="btn btn-outline" style={{
+                  display: 'block', width: '100%', textAlign: 'center',
                 }}>
                   View Details
                 </Link>

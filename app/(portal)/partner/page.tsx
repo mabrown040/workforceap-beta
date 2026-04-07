@@ -287,34 +287,11 @@ export default async function PartnerDashboardPage() {
         subtitle={`${ctx.partner.name} referrals, progress, and placement outcomes in one place.`}
         action={
           <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <Link href="/partner/outcomes" style={{
-              padding: '0.625rem 1.25rem',
-              background: 'var(--surface-container-high)',
-              color: 'var(--color-accent)',
-              borderRadius: '0.5rem',
-              fontSize: '0.875rem',
-              fontWeight: 600,
-              textDecoration: 'none',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-            }}>
+            <Link href="/partner/outcomes" className="btn btn-outline">
               <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>summarize</span>
               Outcomes snapshot
             </Link>
-            <Link href="/apply" style={{
-              padding: '0.625rem 1.25rem',
-              background: 'linear-gradient(to right, var(--color-accent), #71333e)',
-              color: '#fff',
-              borderRadius: '0.5rem',
-              fontSize: '0.875rem',
-              fontWeight: 600,
-              textDecoration: 'none',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.3)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-            }}>
+            <Link href="/apply" className="btn btn-primary">
               <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>person_add</span>
               New Referral
             </Link>
@@ -355,7 +332,7 @@ export default async function PartnerDashboardPage() {
 
       {/* ── Journey Snapshot (5-col) ── */}
       <section style={{ marginBottom: '2rem' }}>
-        <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>Journey Snapshot</p>
+        <p className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Journey Snapshot</p>
         <div className="portal-grid-metrics">
           {JOURNEY_STAGES.map((s, i) => (
             <div

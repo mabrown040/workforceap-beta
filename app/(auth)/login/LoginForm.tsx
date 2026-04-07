@@ -8,9 +8,9 @@ import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 /* ─── portal destination data (unchanged business logic) ─── */
 const PORTAL_DESTINATIONS: { redirectTo: string; title: string; desc: string }[] = [
   {
-    redirectTo: '/dashboard',
-    title: 'Member (student) portal',
-    desc: 'Training progress, learning hub, applications, and career tools after you enroll or apply.',
+    redirectTo: '/counselor',
+    title: 'Counselor portal',
+    desc: 'Student roster, messaging, and resources for counseling partners.',
   },
   {
     redirectTo: '/partner',
@@ -21,6 +21,11 @@ const PORTAL_DESTINATIONS: { redirectTo: string; title: string; desc: string }[]
     redirectTo: '/employer',
     title: 'Employer portal',
     desc: 'Job postings, Workforce AP applicants, and hiring workflows for your company.',
+  },
+  {
+    redirectTo: '/dashboard',
+    title: 'Member portal',
+    desc: 'Training progress, learning hub, applications, and career tools after you enroll or apply.',
   },
 ];
 

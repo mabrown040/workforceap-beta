@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
@@ -28,9 +27,5 @@ export default async function LoginPage({
     redirect(`/login?redirectTo=${encodeURIComponent(normalizedRedirect)}`);
   }
 
-  return (
-    <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--surface-container-lowest)' }}>Loading...</div>}>
-      <LoginForm />
-    </Suspense>
-  );
+  return <LoginForm initialRedirectTo={normalizedRedirect} />;
 }

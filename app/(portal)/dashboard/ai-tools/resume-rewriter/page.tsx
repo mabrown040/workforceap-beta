@@ -64,7 +64,7 @@ export default async function ResumeRewriterPage() {
           </div>
         </div>
 
-        {/* ── Decorative controls (visual only — real options live in ResumeRewriterClient) ── */}
+        {/* ── Workflow summary — the actual mode picker lives in ResumeRewriterClient ── */}
         <div
           style={{
             borderBottom: '1px solid var(--surface-container-high)',
@@ -82,12 +82,12 @@ export default async function ResumeRewriterPage() {
               flexWrap: 'wrap',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', color: 'var(--color-on-surface-variant)' }} aria-hidden>
                 record_voice_over
               </span>
               <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', whiteSpace: 'nowrap' }}>
-                Voice &amp; Tone
+                Available workflows
               </span>
               <div
                 style={{
@@ -96,28 +96,29 @@ export default async function ResumeRewriterPage() {
                   background: 'var(--surface-container-highest)',
                   padding: 3,
                   gap: 2,
+                  flexWrap: 'wrap',
                 }}
               >
-                {['Analytical', 'Leadership', 'Creative'].map((tone) => (
+                {['Voice coach', 'Text rewrite'].map((workflow) => (
                   <span
-                    key={tone}
+                    key={workflow}
                     style={{
                       fontSize: '0.73rem',
                       padding: '0.3rem 0.75rem',
                       borderRadius: 999,
-                      background: tone === 'Leadership' ? 'var(--color-accent)' : 'transparent',
-                      color: tone === 'Leadership' ? '#fff' : 'var(--color-on-surface-variant)',
+                      background: workflow === 'Voice coach' ? 'var(--color-accent)' : 'transparent',
+                      color: workflow === 'Voice coach' ? '#fff' : 'var(--color-on-surface-variant)',
                       fontWeight: 600,
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    {tone}
+                    {workflow}
                   </span>
                 ))}
               </div>
             </div>
 
-            <label
+            <div
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -131,7 +132,7 @@ export default async function ResumeRewriterPage() {
                 check_box
               </span>
               ATS Optimized
-            </label>
+            </div>
 
             <div style={{ flex: 1, minWidth: 8 }} />
 
@@ -153,7 +154,7 @@ export default async function ResumeRewriterPage() {
               <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden>
                 auto_fix_high
               </span>
-              Optimize Bullets
+              Guided bullet rewrite
             </span>
           </div>
         </div>
@@ -214,7 +215,7 @@ export default async function ResumeRewriterPage() {
           <div className="stitch-card" style={{ padding: '1.25rem', borderRadius: 16, marginBottom: '1.25rem', background: 'var(--surface-container-low)' }}>
             <p style={{ fontSize: '0.82rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>
               Paste your resume bullets. Our AI rewrites them with strong action verbs, quantifiable impact, and keyword
-              density tuned for ATS and recruiters. Use voice or text mode inside the tool.
+              density tuned for ATS and recruiters. Choose voice coach or text rewrite in the tool below.
             </p>
           </div>
 

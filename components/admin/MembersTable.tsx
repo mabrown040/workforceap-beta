@@ -6,6 +6,14 @@ import { Plus } from 'lucide-react';
 import { formatPhone } from '@/lib/formatPhone';
 import type { HealthStatus } from '@/lib/admin/healthScore';
 
+/** Dates from the server are ISO strings after RSC → client serialization. */
+function formatMemberDate(value: string | Date | null | undefined): string | null {
+  if (value == null) return null;
+  const d = typeof value === 'string' || typeof value === 'number' ? new Date(value) : value;
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString();
+}
+
 type Member = {
   id: string;
   fullName: string;
@@ -13,10 +21,10 @@ type Member = {
   phone: string | null;
   profile: { profilePhone?: string | null } | null;
   enrolledProgram: string | null;
-  enrolledAt: Date | null;
+  enrolledAt: Date | string | null;
   assessmentScorePct: number | null;
   assessmentCompleted: boolean | null;
-  updatedAt: Date;
+  updatedAt: Date | string;
   programTitle: string | null | undefined;
   coursesCompleted: string[];
   totalCourses: number;
@@ -159,7 +167,7 @@ export default function MembersTable({ members }: MembersTableProps) {
             {filtered.map((m) => {
               const rawPhone = m.profile?.profilePhone ?? m.phone;
               const phoneDisplay = formatPhone(rawPhone);
-              const lastActive = m.updatedAt.toLocaleDateString();
+              const lastActive = formatMemberDate(m.updatedAt) ?? '—';
               const narrowDetails = [rawPhone ? `Phone: ${phoneDisplay}` : null, `Last active: ${lastActive}`]
                 .filter(Boolean)
                 .join(' · ');
@@ -204,7 +212,7 @@ export default function MembersTable({ members }: MembersTableProps) {
                     </span>
                   ) : '—'}
                 </td>
-                <td>{m.enrolledAt?.toLocaleDateString() ?? '—'}</td>
+                <td>{formatMemberDate(m.enrolledAt) ?? '—'}</td>
                 <td>
                   <span className={
                     m.assessmentScorePct != null

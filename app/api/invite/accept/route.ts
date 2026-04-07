@@ -168,6 +168,7 @@ async function ensureAppUserForInvite(
         enrolledProgram: data.enrolledProgram ?? undefined,
         enrolledAt: data.enrolledAt ?? undefined,
       },
+      select: { id: true },
     });
     return;
   }
@@ -192,6 +193,7 @@ async function ensureAppUserForInvite(
       enrolledProgram: data.enrolledProgram,
       enrolledAt: data.enrolledAt,
     },
+    select: { id: true },
   });
 }
 
@@ -336,6 +338,7 @@ async function acceptExistingUser(
       await tx.user.update({
         where: { id: user.id },
         data: { fullName: fullName || user.fullName, deletedAt: null },
+        select: { id: true },
       });
 
       // Ensure the user has a profile row (may be missing for older/imported accounts)
@@ -382,6 +385,7 @@ async function acceptExistingUser(
             enrolledAt: new Date(),
             programChangedAt: new Date(),
           },
+          select: { id: true },
         });
       }
 

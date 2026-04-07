@@ -45,6 +45,41 @@ async function ensurePartnerUserLink(userId: string, partnerId: string) {
   });
 }
 
+async function ensurePartnerInviteUser(params: {
+  userId: string;
+  organizationId: string;
+  email: string;
+  fullName: string;
+}) {
+  const existing = await prisma.user.findFirst({
+    where: { id: params.userId },
+    select: { id: true },
+  });
+
+  if (existing) {
+    await prisma.user.update({
+      where: { id: params.userId },
+      data: {
+        organizationId: params.organizationId,
+        email: params.email,
+        fullName: params.fullName,
+      },
+      select: { id: true },
+    });
+    return;
+  }
+
+  await prisma.user.create({
+    data: {
+      id: params.userId,
+      organizationId: params.organizationId,
+      email: params.email,
+      fullName: params.fullName,
+    },
+    select: { id: true },
+  });
+}
+
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const adminUser = await getUser();
   if (!adminUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -87,15 +122,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   }
 
   try {
-    await prisma.user.upsert({
-      where: { id: authUserId },
-      create: {
-        id: authUserId,
-        organizationId: partner.organizationId,
-        email,
-        fullName: displayName,
-      },
-      update: { email },
+    await ensurePartnerInviteUser({
+      userId: authUserId,
+      organizationId: partner.organizationId,
+      email,
+      fullName: displayName,
     });
 
     await ensurePartnerUserLink(authUserId, partnerId);

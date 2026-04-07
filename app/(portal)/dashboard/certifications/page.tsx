@@ -5,6 +5,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { PATHWAYS } from '@/lib/content/learningPathways';
 import { buildPathwayMilestones } from '@/lib/content/pathwayStepDisplay';
+import PageHeader from '@/components/portal/PageHeader';
 import CertificationRoadmap from '@/components/portal/CertificationRoadmap';
 import CertificationReferenceSection from '@/components/portal/CertificationReferenceSection';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -244,41 +245,16 @@ export default async function DashboardCertificationsPage() {
       {/* ── DESKTOP ── */}
       <div className="wa-hidden wa-md:wa-block">
         <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto' }}>
-          {/* Breadcrumb */}
-          <nav
-            aria-label="Breadcrumb"
-            style={{
-              fontSize: 'var(--font-size-sm)',
-              color: 'var(--color-on-surface-variant)',
-              marginBottom: 'var(--space-6)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-2)',
-            }}
-          >
-            <a href="/dashboard" style={{ color: 'var(--color-accent)', textDecoration: 'none' }}>Member Portal</a>
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>chevron_right</span>
-            <span>Certificates &amp; Achievements</span>
-          </nav>
-
-          {/* Page heading */}
-          <header style={{ marginBottom: 'var(--space-8)' }}>
-            <h2 style={{ fontSize: 'var(--font-size-h1)', fontWeight: 'var(--font-weight-bold)', lineHeight: 'var(--line-height-tight)', marginBottom: 'var(--space-2)' }}>
-              The Verification Vault
-            </h2>
-            <p style={{ color: 'var(--color-on-surface-variant)', fontSize: 'var(--font-size-base)', maxWidth: '640px' }}>
-              Your credentials, milestones, and industry verifications in one place. Track progress across WorkforceAP certificate pathways and download proof of achievement.
-            </p>
-          </header>
+          <PageHeader
+            title="The Verification Vault"
+            subtitle="Your credentials, milestones, and industry verifications in one place. Track progress across WorkforceAP certificate pathways and download proof of achievement."
+            breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Certifications' }]}
+          />
 
           {/* 3-column stats bar */}
           <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-              gap: 'var(--space-4)',
-              marginBottom: 'var(--space-8)',
-            }}
+            className="portal-grid-metrics"
+            style={{ marginBottom: 'var(--space-8)' }}
           >
             {/* Total Credentials */}
             <div
@@ -394,12 +370,8 @@ export default async function DashboardCertificationsPage() {
 
           {/* Main bento grid */}
           <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: 'var(--space-4)',
-              marginBottom: 'var(--space-12)',
-            }}
+            className="portal-grid-metrics"
+            style={{ marginBottom: 'var(--space-12)' }}
           >
             {/* Active Pathway card (large) */}
             <div

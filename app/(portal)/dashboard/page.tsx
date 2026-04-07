@@ -576,19 +576,16 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           {showMatchedRoles && userAge !== null && userAge < 14 ? null : <MatchedRoles />}
           {recentTools.length > 0 && (
             <section style={{ padding:'1.5rem 2rem', borderTop:'1px solid var(--surface-container-high)', maxWidth:'900px', margin:'0 auto' }}>
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'0.75rem' }}>
+              <div className="portal-section-header">
                 <h2 style={{ fontSize:'1rem', fontWeight:700, margin:0, color:'var(--color-on-surface)' }}>Recent AI Activity</h2>
-                <Link
-                  href="/dashboard/ai-tools/history"
-                  style={{ display:'inline-flex', alignItems:'center', gap:'0.3rem', fontSize:'0.8rem', fontWeight:600, color:'var(--color-accent)', textDecoration:'none' }}
-                >
+                <Link href="/dashboard/ai-tools/history" className="portal-section-action">
                   View all
                   <span className="material-symbols-outlined" style={{ fontSize:'0.9rem' }}>arrow_forward</span>
                 </Link>
               </div>
               <div style={{ display:'flex', flexDirection:'column', gap:'0.5rem' }}>
                 {recentTools.map((r) => (
-                  <div key={r.id} style={{ display:'flex', alignItems:'center', gap:'1rem', padding:'0.75rem 1rem', borderRadius:'10px', background:'var(--surface-container-low)', border:'1px solid var(--surface-container-high)' }}>
+                  <div key={r.id} className="stitch-card stitch-card--padded-sm" style={{ display:'flex', alignItems:'center', gap:'1rem' }}>
                     <span className="material-symbols-outlined" style={{ fontSize:'1.25rem', color:'var(--color-accent)', flexShrink:0 }}>smart_toy</span>
                     <div style={{ flex:1, minWidth:0 }}>
                       <p style={{ fontSize:'0.875rem', fontWeight:600, margin:0, color:'var(--color-on-surface)' }}>{AI_TOOL_LABELS[r.toolType] ?? r.toolType}</p>

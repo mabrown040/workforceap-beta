@@ -139,6 +139,35 @@
     padding: 2rem;
 }
 
+/* ── Portal Stat Card (icon + value + label) ── */
+.portal-stat-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem;
+}
+.portal-stat-card__icon {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.portal-stat-card__body {
+    min-width: 0;
+}
+.portal-stat-card__body .portal-stat-value {
+    font-size: 1.75rem;
+    line-height: 1;
+}
+.portal-stat-card__body .portal-stat-label {
+    margin-top: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
 /* Portal breadcrumb (used above PageHeader) */
 .portal-breadcrumb {
     font-size: 0.8rem;

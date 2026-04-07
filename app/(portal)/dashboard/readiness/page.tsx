@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getScoreBreakdownSafe } from '@/lib/readiness/score';
+import PageHeader from '@/components/portal/PageHeader';
 import ReadinessMemberClient from './ReadinessMemberClient';
 import ReadinessMobileScoreCard from '@/components/portal/ReadinessMobileScoreCard';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -124,10 +125,11 @@ export default async function DashboardReadinessPage() {
       {/* ── DESKTOP ── */}
       <div className="wa-hidden wa-md:wa-block">
         <div>
-          <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Your Career Readiness</h1>
-          <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
-            Track your progress from training to career. Your counselor updates this checklist as you hit milestones.
-          </p>
+          <PageHeader
+            title="Your Career Readiness"
+            subtitle="Track your progress from training to career. Your counselor updates this checklist as you hit milestones."
+            breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Career Readiness' }]}
+          />
           <div style={{ marginBottom: '1.5rem' }}>
             <VoiceAgentSurface {...readinessVoiceSurface}>
               <PortalVoiceSession

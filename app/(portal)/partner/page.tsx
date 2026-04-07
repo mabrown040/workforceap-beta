@@ -375,12 +375,10 @@ export default async function PartnerDashboardPage() {
 
       {total === 0 ? (
         <PortalEmptyState
-          icon="group_add"
+          icon={<span className="material-symbols-outlined">group_add</span>}
           title="No referred members yet"
           description={`Send applicants to workforceap.org/apply and have them list ${ctx.partner.name} when asked how they heard about WorkforceAP.`}
-          actions={[
-            { label: 'Open referral guide', href: '/partner/guide', variant: 'primary' },
-          ]}
+          primaryAction={{ label: 'Open referral guide', href: '/partner/guide' }}
         />
       ) : (
         <>

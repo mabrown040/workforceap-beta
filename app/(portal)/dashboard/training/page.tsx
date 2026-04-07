@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import TrainingCourseList from '@/components/portal/TrainingCourseList';
 import PageHeader from '@/components/portal/PageHeader';
+import PortalStatCard from '@/components/portal/PortalStatCard';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -57,73 +58,33 @@ export default async function TrainingPage() {
 
       {/* Stats row */}
       <div className="portal-grid-metrics" style={{ marginBottom: 'var(--space-8)' }}>
-        {/* Program card */}
-        <div className="stitch-card stitch-card--padded" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
-          <span
-            className="material-symbols-outlined"
-            style={{
-              fontSize: '2rem',
-              color: 'var(--color-accent)',
-              background: 'rgba(173,44,77,0.12)',
-              borderRadius: 'var(--radius-lg)',
-              padding: 'var(--space-3)',
-              fontVariationSettings: "'FILL' 1",
-            }}
-          >
-            school
-          </span>
-          <div>
-            <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>Current Program</div>
-            <div style={{ fontWeight: 'var(--font-weight-bold)', fontSize: 'var(--font-size-base)' }}>{program.title}</div>
-          </div>
-        </div>
+        <PortalStatCard
+          icon="school"
+          label="Current Program"
+          value={program.title}
+          iconColor="var(--color-accent)"
+          iconBg="rgba(173,44,77,0.12)"
+        />
 
-        {/* Courses completed */}
-        <div className="stitch-card stitch-card--padded" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
-          <span
-            className="material-symbols-outlined"
-            style={{
-              fontSize: '2rem',
-              color: 'var(--color-green)',
-              background: 'rgba(74,155,79,0.12)',
-              borderRadius: 'var(--radius-lg)',
-              padding: 'var(--space-3)',
-              fontVariationSettings: "'FILL' 1",
-            }}
-          >
-            task_alt
-          </span>
-          <div>
-            <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>Courses Completed</div>
-            <div style={{ fontWeight: 'var(--font-weight-bold)', fontSize: '1.5rem' }}>{completedCount} <span style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'var(--font-weight-normal)', color: 'var(--color-on-surface-variant)' }}>/ {program.courses.length}</span></div>
-          </div>
-        </div>
+        <PortalStatCard
+          icon="task_alt"
+          label="Courses Completed"
+          value={`${completedCount} / ${program.courses.length}`}
+          iconColor="var(--color-green)"
+          iconBg="rgba(74,155,79,0.12)"
+        />
 
-        {/* Progress */}
-        <div className="stitch-card stitch-card--padded">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-3)' }}>
-            <span
-              className="material-symbols-outlined"
-              style={{
-                fontSize: '2rem',
-                color: 'var(--color-blue)',
-                background: 'rgba(43,123,185,0.12)',
-                borderRadius: 'var(--radius-lg)',
-                padding: 'var(--space-3)',
-                fontVariationSettings: "'FILL' 1",
-              }}
-            >
-              trending_up
-            </span>
-            <div>
-              <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>Overall Progress</div>
-              <div style={{ fontWeight: 'var(--font-weight-bold)', fontSize: '1.25rem' }}>{progressPct}%</div>
-            </div>
-          </div>
-          <div style={{ height: '6px', background: 'var(--surface-container-highest)', borderRadius: 'var(--radius-full)', overflow: 'hidden' }}>
+        <PortalStatCard
+          icon="trending_up"
+          label="Overall Progress"
+          value={`${progressPct}%`}
+          iconColor="var(--color-blue)"
+          iconBg="rgba(43,123,185,0.12)"
+        >
+          <div style={{ height: '6px', background: 'var(--surface-container-highest)', borderRadius: 'var(--radius-full)', overflow: 'hidden', marginTop: '0.75rem' }}>
             <div style={{ height: '100%', width: `${progressPct}%`, background: 'var(--color-blue)', borderRadius: 'var(--radius-full)', transition: 'var(--transition-base)' }} />
           </div>
-        </div>
+        </PortalStatCard>
       </div>
 
       {/* Quick actions */}

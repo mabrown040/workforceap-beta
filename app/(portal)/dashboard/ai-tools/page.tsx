@@ -7,6 +7,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
 import VoiceCoachesPromo from '@/components/portal/VoiceCoachesPromo';
 import AiToolsHubSection from '@/components/portal/AiToolsHubSection';
+import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'AI Career Toolkit',
@@ -33,6 +34,12 @@ export default async function AIToolsPage() {
   return (
     <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
       <div className="wa-pb-24 wa-md:wa-pb-0">
+        <div className="wa-hidden wa-md:wa-block" style={{ padding: '1.5rem 1.5rem 0', maxWidth: '1100px', margin: '0 auto' }}>
+          <PortalBreadcrumb items={[
+            { label: 'Member Portal', href: '/dashboard' },
+            { label: 'AI Career Toolkit' },
+          ]} />
+        </div>
         <section
           style={{
             padding: 'clamp(2rem, 4vw, 3rem) 1.5rem 2rem',

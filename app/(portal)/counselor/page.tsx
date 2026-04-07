@@ -10,6 +10,7 @@ import { counselorStudentStatusBadge } from '@/lib/counselor/memberStatus';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
+import PortalStatCard from '@/components/portal/PortalStatCard';
 import { getTimeOfDayGreeting } from '@/lib/time/greeting';
 
 export default async function CounselorPortalPage() {
@@ -205,30 +206,14 @@ export default async function CounselorPortalPage() {
       {/* ── Stat Cards ── */}
       <section className="portal-grid-metrics" style={{ marginBottom: '2.5rem' }}>
         {statCards.map((card) => (
-          <div
+          <PortalStatCard
             key={card.label}
-            className="stitch-card stitch-card--padded"
-            style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '1rem',
-              transition: 'transform 0.15s, box-shadow 0.15s',
-              cursor: 'default',
-            }}
-          >
-            <div style={{
-              width: '2.75rem', height: '2.75rem', borderRadius: '0.75rem',
-              background: card.bg,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
-            }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: card.iconColor }}>{card.icon}</span>
-            </div>
-            <div>
-              <p style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--color-on-surface)', lineHeight: 1 }}>{card.value}</p>
-              <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', marginTop: '0.25rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{card.label}</p>
-            </div>
-          </div>
+            icon={card.icon}
+            label={card.label}
+            value={card.value}
+            iconColor={card.iconColor}
+            iconBg={card.bg}
+          />
         ))}
       </section>
 

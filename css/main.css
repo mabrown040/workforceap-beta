@@ -4164,7 +4164,7 @@ html.dark .program-skill-tag {
 /* Blog listing — visual hero so the page doesn’t open on empty tonal space */
 .blog-page-hero {
     background:
-        linear-gradient(180deg, rgba(28, 27, 27, 0.78) 0%, rgba(28, 27, 27, 0.88) 100%),
+        linear-gradient(180deg, rgba(28, 27, 27, 0.84) 0%, rgba(28, 27, 27, 0.93) 100%),
         url('https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
     color: #f2f2f5;
 }
@@ -4174,7 +4174,7 @@ html.dark .program-skill-tag {
 .blog-page-hero h1,
 .blog-page-hero p {
     color: #f2f2f5;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 html.dark .blog-page-hero h1,
 html.dark .blog-page-hero p {

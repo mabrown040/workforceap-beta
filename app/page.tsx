@@ -157,7 +157,7 @@ export default async function HomePage() {
             }}
           >
             Employer-aligned. No participant debt. Success = you get hired. Most completed applications receive an
-            initial response within 24-48 hours.
+            initial response within 3-5 business days.
           </p>
         </div>
       </section>

@@ -64,7 +64,6 @@ export async function POST(request: NextRequest) {
     const inviteEmail = String(invitation.email).trim().toLowerCase();
     const existingUser = await prisma.user.findUnique({
       where: { email: inviteEmail },
-      include: { profile: true },
     });
 
     if (existingUser) {
@@ -92,7 +91,7 @@ export async function POST(request: NextRequest) {
 }
 
 async function acceptExistingUser(
-  user: { id: string; fullName: string; email: string; profile: { role: string } | null },
+  user: { id: string; fullName: string; email: string },
   invitation: {
     id: string;
     role: string;
@@ -278,17 +277,9 @@ async function createNewUserAndAccept(
       // Check if a DB record exists for this email
       const existing = await prisma.user.findUnique({
         where: { email: inviteEmail },
-        include: { profile: true },
       });
       if (existing) {
-        return acceptExistingUser(
-          {
-            ...existing,
-          } as Parameters<typeof acceptExistingUser>[0],
-          invitation,
-          fullName,
-          request
-        );
+        return acceptExistingUser(existing, invitation, fullName, request);
       }
       // Orphaned Supabase auth user (previous attempt created auth but DB tx failed).
       // Look up the existing auth user and continue with DB record creation.

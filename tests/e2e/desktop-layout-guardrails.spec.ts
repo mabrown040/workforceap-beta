@@ -135,6 +135,7 @@ const DESKTOP_PORTAL_ROUTES: PortalRouteCheck[] = [
 ];
 
 const PROTECTED_PORTAL_PATHS = ['/dashboard', '/partner', '/employer', '/admin'];
+const AUTH_STORAGE_STATE = process.env.PLAYWRIGHT_ADMIN_STORAGE_STATE || process.env.PLAYWRIGHT_STORAGE_STATE;
 
 test.describe('Desktop layout guardrails', () => {
   for (const route of DESKTOP_ROUTES) {
@@ -299,3 +300,128 @@ test.describe('Desktop portal guardrails (unauth)', () => {
     });
   }
 });
+
+if (AUTH_STORAGE_STATE) {
+  test.describe('Desktop portal guardrails (authenticated)', () => {
+    test.use({ storageState: AUTH_STORAGE_STATE });
+
+    const AUTH_PORTAL_ROUTES = [
+      {
+        name: 'dashboard',
+        path: '/dashboard',
+        centeredSelectors: [
+          'main .container',
+          'main .workspace-shell-main',
+          'main .portal-shell-main',
+          'main [style*="max-width"]',
+        ],
+      },
+      {
+        name: 'dashboard-ai-tools',
+        path: '/dashboard/ai-tools',
+        centeredSelectors: [
+          'main .container',
+          'main .workspace-shell-main',
+          'main .portal-shell-main',
+          'main [style*="max-width"]',
+        ],
+      },
+      {
+        name: 'dashboard-jobs',
+        path: '/dashboard/jobs',
+        centeredSelectors: [
+          'main .container',
+          'main .workspace-shell-main',
+          'main .portal-shell-main',
+          'main [style*="max-width"]',
+        ],
+      },
+      {
+        name: 'partner',
+        path: '/partner',
+        centeredSelectors: [
+          'main .container',
+          'main .workspace-shell-main',
+          'main .portal-shell-main',
+          'main [style*="max-width"]',
+        ],
+      },
+      {
+        name: 'employer',
+        path: '/employer',
+        centeredSelectors: [
+          'main .container',
+          'main .workspace-shell-main',
+          'main .portal-shell-main',
+          'main [style*="max-width"]',
+        ],
+      },
+      {
+        name: 'admin-jobs',
+        path: '/admin/jobs?filter=all',
+        centeredSelectors: [
+          'main .container',
+          'main .workspace-shell-main',
+          'main .portal-shell-main',
+          'main [style*="max-width"]',
+        ],
+      },
+    ];
+
+    for (const route of AUTH_PORTAL_ROUTES) {
+      test(`${route.name} keeps centered portal shell (authenticated desktop)`, async ({ page }) => {
+        await page.emulateMedia({ colorScheme: 'light' });
+        await page.setViewportSize({ width: 1440, height: 900 });
+        await page.goto(route.path, { waitUntil: 'networkidle' });
+        await expect(page).not.toHaveURL(/\/login/);
+        await page.waitForTimeout(200);
+
+        const result = await page.evaluate((data: { selectors: string[] }) => {
+          const viewportWidth = window.innerWidth;
+          const html = document.documentElement;
+          const body = document.body;
+          const overflowOk =
+            html.scrollWidth <= viewportWidth + 1 &&
+            body.scrollWidth <= viewportWidth + 1;
+
+          const candidates: Array<{
+            selector: string;
+            centerDelta: number;
+            left: number;
+            right: number;
+            width: number;
+          }> = [];
+
+          for (const selector of data.selectors) {
+            const elements = Array.from(document.querySelectorAll(selector));
+            for (const el of elements) {
+              const rect = el.getBoundingClientRect();
+              if (rect.width < 420 || rect.width > viewportWidth - 6 || rect.height < 60) continue;
+              const style = window.getComputedStyle(el);
+              if (style.display === 'none' || style.visibility === 'hidden') continue;
+              if (rect.bottom < 0 || rect.top > window.innerHeight * 2) continue;
+              const leftGap = rect.left;
+              const rightGap = viewportWidth - rect.right;
+              candidates.push({
+                selector,
+                centerDelta: Math.abs(leftGap - rightGap),
+                left: rect.left,
+                right: rect.right,
+                width: rect.width,
+              });
+            }
+          }
+
+          const bestCandidate =
+            candidates.sort((a, b) => a.centerDelta - b.centerDelta)[0] ?? null;
+
+          return { overflowOk, bestCandidate };
+        }, { selectors: route.centeredSelectors });
+
+        expect(result.overflowOk, `${route.path} overflows horizontally on desktop`).toBeTruthy();
+        expect(result.bestCandidate, `${route.path} missing centered portal shell candidate`).not.toBeNull();
+        expect(result.bestCandidate?.centerDelta ?? 999, `${route.path} portal shell center drift`).toBeLessThanOrEqual(60);
+      });
+    }
+  });
+}

@@ -527,17 +527,21 @@ async function finishNewUserDbSetup(
   }
 
   const invitationId = invitation.id;
+  let txStep = 'start';
   try {
     await prisma.$transaction(async (tx) => {
       inviteAcceptLog('tx:start', { invitationId });
 
+      txStep = 'find_member_role';
       let memberRole = await findRoleByName(tx, 'member');
       if (!memberRole) {
+        txStep = 'create_member_role';
         inviteAcceptLog('tx:role_member_create', { invitationId });
         memberRole = await tx.role.create({ data: { name: 'member' } });
       }
 
       const inviteEmailNorm = String(invitation.email).trim().toLowerCase();
+      txStep = 'ensure_app_user';
       inviteAcceptLog('tx:ensure_app_user', { invitationId });
       await ensureAppUserForInvite(tx, authUserId, {
         organizationId,
@@ -549,6 +553,7 @@ async function finishNewUserDbSetup(
       });
 
       if (invitation.role !== 'counselor') {
+        txStep = 'ensure_member_role';
         inviteAcceptLog('tx:user_role_member_upsert', { invitationId });
         await tx.userRole.upsert({
           where: { userId_roleId: { userId: authUserId, roleId: memberRole.id } },
@@ -557,6 +562,7 @@ async function finishNewUserDbSetup(
         });
       }
 
+      txStep = 'ensure_profile';
       inviteAcceptLog('tx:ensure_profile', { invitationId });
       await ensureProfileRow(tx, authUserId, {
         role: profileRoleForInvitation(invitation.role),
@@ -564,8 +570,10 @@ async function finishNewUserDbSetup(
       });
 
       if (invitation.role === 'admin') {
+        txStep = 'find_admin_role';
         const adminRole = await findRoleByName(tx, 'admin');
         if (adminRole) {
+          txStep = 'ensure_admin_role';
           inviteAcceptLog('tx:user_role_admin_upsert', { invitationId });
           await tx.userRole.upsert({
             where: { userId_roleId: { userId: authUserId, roleId: adminRole.id } },
@@ -576,20 +584,25 @@ async function finishNewUserDbSetup(
       }
 
       if (invitation.role === 'partner' && invitation.subgroupId) {
+        txStep = 'load_partner_subgroup';
         inviteAcceptLog('tx:partner_subgroup', { invitationId });
         const subgroup = await tx.subgroup.findUnique({
           where: { id: invitation.subgroupId },
           select: { partnerId: true },
         });
         if (subgroup?.partnerId) {
+          txStep = 'ensure_partner_user';
           await ensurePartnerUserLink(tx, authUserId, subgroup.partnerId);
         }
+        txStep = 'ensure_member_subgroup';
         await ensureMemberSubgroupLink(tx, authUserId, invitation.subgroupId, invitation.invitedById);
       }
 
       if (invitation.role === 'counselor') {
+        txStep = 'find_counselor_role';
         const counselorRoleRow = await findRoleByName(tx, 'counselor');
         if (counselorRoleRow) {
+          txStep = 'ensure_counselor_role';
           inviteAcceptLog('tx:user_role_counselor_upsert', { invitationId });
           await tx.userRole.upsert({
             where: { userId_roleId: { userId: authUserId, roleId: counselorRoleRow.id } },
@@ -597,10 +610,12 @@ async function finishNewUserDbSetup(
             update: {},
           });
         }
+        txStep = 'ensure_counselor_row';
         inviteAcceptLog('tx:ensure_counselor', { invitationId });
         await ensureCounselorRow(tx, authUserId, invitation.partnerId ?? null);
       }
 
+      txStep = 'accept_invitation';
       inviteAcceptLog('tx:invitation_accept_update', { invitationId });
       await tx.invitation.update({
         where: { id: invitation.id },
@@ -614,8 +629,16 @@ async function finishNewUserDbSetup(
   } catch (dbError) {
     inviteAcceptLog('tx:failed', { invitationId, err: dbError });
     console.error('[finishNewUserDbSetup] transaction failed:', dbError);
+    const prismaCode =
+      dbError && typeof dbError === 'object' && 'code' in dbError
+        ? ((dbError as { code?: string }).code ?? null)
+        : null;
     return NextResponse.json(
-      { error: 'Failed to complete signup. Please try again.' },
+      {
+        error: 'Failed to complete signup. Please try again.',
+        debugTxStep: txStep,
+        prismaCode,
+      },
       { status: 500 }
     );
   }

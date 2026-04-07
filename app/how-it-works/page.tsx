@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { prisma } from '@/lib/db/prisma';
+import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { toVideoEmbedUrl } from '@/lib/platform/videoEmbed';
 import { MARKETING_JOURNEY_STEPS } from '@/lib/content/marketingJourneySteps';
@@ -53,15 +54,17 @@ const PHASES = [
 
 export default async function HowItWorksPage() {
   let overviewVideoEmbed: string | null = null;
-  try {
-    const orgId = await getDefaultOrganizationId();
-    const org = await prisma.organization.findUnique({
-      where: { id: orgId },
-      select: { overviewVideoUrl: true },
-    });
-    if (org?.overviewVideoUrl) overviewVideoEmbed = toVideoEmbedUrl(org.overviewVideoUrl);
-  } catch {
-    overviewVideoEmbed = null;
+  if (!shouldSkipOptionalDbQueriesAtBuild()) {
+    try {
+      const orgId = await getDefaultOrganizationId();
+      const org = await prisma.organization.findUnique({
+        where: { id: orgId },
+        select: { overviewVideoUrl: true },
+      });
+      if (org?.overviewVideoUrl) overviewVideoEmbed = toVideoEmbedUrl(org.overviewVideoUrl);
+    } catch {
+      overviewVideoEmbed = null;
+    }
   }
 
   return (

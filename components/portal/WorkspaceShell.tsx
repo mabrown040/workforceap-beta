@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, startTransition } from 'react';
 import { ChevronLeft, ChevronRight, Menu } from 'lucide-react';
 import { getBestActiveHref, isActiveRoute } from '@/lib/nav/activeRoute';
 import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
@@ -143,16 +143,23 @@ export default function WorkspaceShell({
         });
         if (!r.ok) return;
         const data = (await r.json()) as Partial<Record<NavBadgeKey, number>>;
-        if (!cancelled) setBadges(data);
+        if (!cancelled) {
+          startTransition(() => setBadges(data));
+        }
       } catch {
         /* ignore */
       }
     };
-    void load();
+
+    const deferId = window.setTimeout(() => {
+      if (!cancelled) void load();
+    }, 0);
+
     const onRefresh = () => void load();
     window.addEventListener('wa-nav-badges-refresh', onRefresh);
     return () => {
       cancelled = true;
+      window.clearTimeout(deferId);
       window.removeEventListener('wa-nav-badges-refresh', onRefresh);
     };
   }, [portalRole]);

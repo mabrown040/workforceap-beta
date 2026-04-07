@@ -12053,6 +12053,28 @@ html.dark .dashboard-program-badge.pending {
 .admin-table tbody tr[data-clickable] {
     cursor: pointer;
 }
+
+/* Horizontal scroll + sticky first column (member name) on small screens */
+@media (max-width: 900px) {
+    .admin-table--sticky-first {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-on-scroll,
+    .reveal {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+    .photo-highlight-bg {
+        transform: none !important;
+    }
+}
 .admin-score-high {
     color: var(--color-green);
     font-weight: 600;

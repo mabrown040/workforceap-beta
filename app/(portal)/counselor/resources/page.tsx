@@ -76,7 +76,7 @@ export default async function CounselorResourcesPage() {
       ) : null}
 
       <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', maxWidth: '40rem', lineHeight: 1.6, padding: '0 1rem' }}>
-        <Link href="/help">Help &amp; support</Link> for account and access issues.
+        <Link href="/dashboard/help">Help &amp; support</Link> for account and access issues.
       </p>
       <MobileBottomNav variant="counselor" />
     </div>
@@ -144,7 +144,7 @@ export default async function CounselorResourcesPage() {
       ) : null}
 
       <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', maxWidth: '40rem', lineHeight: 1.6, marginTop: '1.5rem' }}>
-        <Link href="/help">Help &amp; support</Link> for account and access issues.
+        <Link href="/dashboard/help">Help &amp; support</Link> for account and access issues.
       </p>
     </div>
     </PortalPageFrame>

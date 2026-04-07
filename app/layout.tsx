@@ -4,6 +4,7 @@ import JsonLd from '@/components/JsonLd';
 import ConditionalMarketingNav from '@/components/ConditionalMarketingNav';
 import ScrollAnimationsWrapper from '@/components/ScrollAnimationsWrapper';
 import ConversionMetrics from '@/components/analytics/ConversionMetrics';
+import PortalMetrics from '@/components/analytics/PortalMetrics';
 import OrgBrandingStyle from '@/components/platform/OrgBrandingStyle';
 import ThemeInitScript from '@/components/theme/ThemeInitScript';
 import { getDefaultOrgBranding } from '@/lib/platform/defaultOrgTheme';
@@ -85,6 +86,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <main id="main-content">{children}</main>
         <ScrollAnimationsWrapper />
         <ConversionMetrics />
+        <PortalMetrics />
         <SafeVercelMetrics />
       </body>
     </html>

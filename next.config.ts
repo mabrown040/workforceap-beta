@@ -113,6 +113,14 @@ const nextConfig: NextConfig = {
       { source: '/admin/wioa', destination: '/admin/wioa-screening', permanent: false },
       { source: '/admin/wioa/', destination: '/admin/wioa-screening', permanent: false },
 
+      // Member workspace canonical URLs (legacy paths → /dashboard/*)
+      { source: '/resources', destination: '/dashboard/career-library', permanent: false },
+      { source: '/resources/', destination: '/dashboard/career-library', permanent: false },
+      { source: '/help', destination: '/dashboard/help', permanent: false },
+      { source: '/help/', destination: '/dashboard/help', permanent: false },
+      { source: '/account', destination: '/dashboard/account', permanent: false },
+      { source: '/account/', destination: '/dashboard/account', permanent: false },
+
       // Member portal: AI Tools, Career Brief, Learning, Weekly Recap live under /dashboard/*
       { source: '/ai-tools', destination: '/dashboard/ai-tools', permanent: true },
       { source: '/ai-tools/:path*', destination: '/dashboard/ai-tools/:path*', permanent: true },

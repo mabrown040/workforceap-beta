@@ -17,8 +17,8 @@ export default async function CounselorLayout({ children }: { children: React.Re
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/counselor');
 
-  const allowed = (await isCounselor(user.id)) || (await isAdmin(user.id));
-  if (!allowed) redirect('/dashboard');
+  const [allowedCounselor, allowedAdmin] = await Promise.all([isCounselor(user.id), isAdmin(user.id)]);
+  if (!allowedCounselor && !allowedAdmin) redirect('/dashboard');
 
   let subtitle = 'Counselor';
   try {
@@ -28,7 +28,7 @@ export default async function CounselorLayout({ children }: { children: React.Re
     });
     subtitle = counselor
       ? counselorAffiliationLabel(counselor.partner?.name)
-      : (await isAdmin(user.id))
+      : allowedAdmin
         ? 'Admin preview'
         : 'Counselor';
   } catch (e) {

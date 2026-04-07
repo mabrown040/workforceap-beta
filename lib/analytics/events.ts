@@ -147,6 +147,14 @@ export function trackConversionRouteView(route: string) {
   });
 }
 
+/** Member / employer / partner / counselor / admin workspace views (for GA4 exploration). */
+export function trackPortalRouteView(route: string) {
+  pushEvent({
+    event: 'portal_route_view',
+    portal_route: route,
+  });
+}
+
 export function trackWebVitalMetric(
   name: string,
   value: number,

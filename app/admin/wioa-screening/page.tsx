@@ -7,9 +7,10 @@ import { isAdmin } from '@/lib/auth/roles';
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
-import { wioaReviewLabel } from '@/lib/wioa/wioaReview';
+import { wioaReviewLabel, WIOA_REVIEW_STATUSES } from '@/lib/wioa/wioaReview';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import WioaReviewFilterBar from '@/components/admin/WioaReviewFilterBar';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin – WIOA screening queue',
@@ -17,18 +18,31 @@ export const metadata: Metadata = buildPageMetadata({
   path: '/admin/wioa-screening',
 });
 
-export default async function AdminWioaScreeningQueuePage() {
+type PageProps = {
+  searchParams?: Promise<{ review?: string | string[] }>;
+};
+
+function normalizeReviewParam(raw: string | string[] | undefined): string | null {
+  const v = Array.isArray(raw) ? raw[0] : raw;
+  if (!v || typeof v !== 'string') return null;
+  return (WIOA_REVIEW_STATUSES as readonly string[]).includes(v) ? v : null;
+}
+
+export default async function AdminWioaScreeningQueuePage({ searchParams }: PageProps) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/wioa-screening');
 
   const hasAdmin = await isAdmin(user.id);
   if (!hasAdmin) redirect('/dashboard');
 
-  /* Exclude SQL NULL and JSON `null` — use AnyNull (Prisma rejects DbNull/JsonNull in `not` for JSON fields). */
+  const sp = (await searchParams) ?? {};
+  const reviewFilter = normalizeReviewParam(sp.review);
+
   const rows = await prisma.user.findMany({
     where: {
       deletedAt: null,
       wioaQualificationJson: { not: Prisma.AnyNull },
+      ...(reviewFilter ? { wioaReviewStatus: reviewFilter } : {}),
     },
     select: {
       id: true,
@@ -66,14 +80,20 @@ export default async function AdminWioaScreeningQueuePage() {
         }
       />
 
+      <WioaReviewFilterBar active={reviewFilter} />
+
       {enriched.length === 0 ? (
-        <p style={{ color: 'var(--color-on-surface-variant)' }}>No self-screenings submitted yet.</p>
+        <p style={{ color: 'var(--color-on-surface-variant)' }}>
+          {reviewFilter ? 'No rows match this filter.' : 'No self-screenings submitted yet.'}
+        </p>
       ) : (
         <div style={{ overflowX: 'auto' }}>
-          <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+          <table className="admin-table admin-table--sticky-first" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
             <thead>
               <tr style={{ textAlign: 'left', borderBottom: '2px solid var(--outline-variant)' }}>
-                <th style={{ padding: '0.5rem' }}>Member</th>
+                <th style={{ padding: '0.5rem', position: 'sticky', left: 0, background: 'var(--surface-container, #1e2022)', zIndex: 1 }}>
+                  Member
+                </th>
                 <th style={{ padding: '0.5rem' }}>Submitted</th>
                 <th style={{ padding: '0.5rem' }}>Signal</th>
                 <th style={{ padding: '0.5rem' }}>Review</th>
@@ -83,7 +103,7 @@ export default async function AdminWioaScreeningQueuePage() {
             <tbody>
               {enriched.map((r) => (
                 <tr key={r.id} style={{ borderBottom: '1px solid var(--outline-variant)' }}>
-                  <td style={{ padding: '0.5rem' }}>
+                  <td style={{ padding: '0.5rem', position: 'sticky', left: 0, background: 'var(--surface-container-low, #1a1c1e)', zIndex: 1 }}>
                     <strong>{r.fullName}</strong>
                     <br />
                     <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{r.email}</span>

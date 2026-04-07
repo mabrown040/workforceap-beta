@@ -12,3 +12,6 @@
 ## 2024-03-24 - Accessibility for inline instructional text in custom forms
 **Learning:** When building custom forms without standard UI component libraries like Radix, inline instructional or helper text placed adjacent to inputs is not automatically read by screen readers, leading to confusing or incomplete experiences.
 **Action:** Always map helper or hint text directly to the associated `<input>` using the `aria-describedby` attribute pointing to the ID of the helper text container.
+## 2026-04-07 - Accessible Confirmation Modals
+**Learning:** Custom confirmation dialogs lacking semantic roles and linked descriptions are confusing for screen reader users, who may not realize a modal has appeared or what the input field expects. In custom modal implementations, inputs requiring explicit typing (like typing 'DELETE') need properly linked or explicit labels.
+**Action:** Always add `role="dialog"`, `aria-modal="true"`, `aria-labelledby`, and `aria-describedby` to the modal container. Provide an `aria-label` for isolated text inputs inside dialogs if an explicit `<label>` tag is not present.

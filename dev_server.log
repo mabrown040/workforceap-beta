@@ -1,0 +1,50 @@
+
+> workforceap@1.0.0 dev /app
+> next dev
+
+   ▲ Next.js 15.5.14
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.0.2:3000
+   - Environments: .env.local
+   - Experiments (use with caution):
+     · clientTraceMetadata
+
+ ✓ Starting...
+ ○ Compiling /instrumentation ...
+ ✓ Compiled /instrumentation in 6.4s (1133 modules)
+ ✓ Ready in 10s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 2.2s (852 modules)
+ ○ Compiling /login ...
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (184kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (139kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (215kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ ✓ Compiled /login in 18.8s (3449 modules)
+prisma:error
+Invalid `prisma.organization.findUnique()` invocation:
+
+
+Can't reach database server at `host:6543`
+
+Please make sure your database server is running at `host:6543`.
+Image with src "/images/logo-tight.png" is using quality "85" which is not configured in images.qualities. This config will be required starting in Next.js 16.
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+ GET /login 200 in 21757ms
+ ○ Compiling /api/auth/me ...
+ ✓ Compiled /api/auth/me in 9.1s (3485 modules)
+[auth-me] User not authenticated
+ GET /api/auth/me 200 in 9842ms
+prisma:error
+Invalid `prisma.organization.findUnique()` invocation:
+
+
+Can't reach database server at `host:6543`
+
+Please make sure your database server is running at `host:6543`.
+Image with src "/images/logo-tight.png" is using quality "85" which is not configured in images.qualities. This config will be required starting in Next.js 16.
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+ GET /login?redirectTo=%2Fdashboard%2Fprofile 200 in 6793ms
+[auth-me] User not authenticated
+ GET /api/auth/me 200 in 128ms
+ ELIFECYCLE  Command failed.
+[?25h

@@ -59,9 +59,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invitation has expired' }, { status: 400 });
     }
 
+    // Match admin invite storage (lowercased) and avoid an unnecessary user_roles/roles join:
+    // accept flow does not read userRoles; a broken roles join would 500 both branches here.
+    const inviteEmail = String(invitation.email).trim().toLowerCase();
     const existingUser = await prisma.user.findUnique({
-      where: { email: invitation.email },
-      include: { profile: true, userRoles: { include: { role: true } } },
+      where: { email: inviteEmail },
     });
 
     if (existingUser) {
@@ -89,7 +91,7 @@ export async function POST(request: NextRequest) {
 }
 
 async function acceptExistingUser(
-  user: { id: string; fullName: string; email: string; profile: { role: string } | null; userRoles: { role: { name: string } }[] },
+  user: { id: string; fullName: string; email: string },
   invitation: {
     id: string;
     role: string;
@@ -247,10 +249,24 @@ async function createNewUserAndAccept(
   password: string,
   request: NextRequest
 ) {
-  const supabase = getSupabaseAdmin();
+  const inviteEmail = String(invitation.email).trim().toLowerCase();
+
+  let supabase: ReturnType<typeof getSupabaseAdmin>;
+  try {
+    supabase = getSupabaseAdmin();
+  } catch (err) {
+    console.error('[createNewUserAndAccept] Supabase admin client unavailable:', err);
+    return NextResponse.json(
+      {
+        error:
+          'Account signup is temporarily unavailable. If this continues, contact support.',
+      },
+      { status: 503 }
+    );
+  }
 
   const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-    email: invitation.email,
+    email: inviteEmail,
     password,
     email_confirm: true,
     user_metadata: { full_name: fullName, phone },
@@ -259,24 +275,17 @@ async function createNewUserAndAccept(
   if (authError) {
     if (authError.message.includes('already') || authError.code === 'user_already_exists') {
       // Check if a DB record exists for this email
-      const existing = await prisma.user.findUnique({ where: { email: invitation.email } });
+      const existing = await prisma.user.findUnique({
+        where: { email: inviteEmail },
+      });
       if (existing) {
-        return acceptExistingUser(
-          {
-            ...existing,
-            profile: null,
-            userRoles: [],
-          } as Parameters<typeof acceptExistingUser>[0],
-          invitation,
-          fullName,
-          request
-        );
+        return acceptExistingUser(existing, invitation, fullName, request);
       }
       // Orphaned Supabase auth user (previous attempt created auth but DB tx failed).
       // Look up the existing auth user and continue with DB record creation.
       const { data: userByEmail } = await supabase.auth.admin.listUsers({ perPage: 1000 });
       const orphanedAuthUser = userByEmail?.users?.find(
-        (u) => u.email?.toLowerCase() === invitation.email.toLowerCase()
+        (u) => u.email?.toLowerCase() === inviteEmail
       );
       if (orphanedAuthUser) {
         // Update password in case it changed between attempts
@@ -316,7 +325,19 @@ async function finishNewUserDbSetup(
   phone: string | null,
   _request: NextRequest
 ) {
-  const organizationId = await getDefaultOrganizationId();
+  let organizationId: string;
+  try {
+    organizationId = await getDefaultOrganizationId();
+  } catch (err) {
+    console.error('[finishNewUserDbSetup] default organization missing:', err);
+    return NextResponse.json(
+      {
+        error:
+          'Server configuration error: default organization is not set up. Please contact support.',
+      },
+      { status: 500 }
+    );
+  }
 
   try {
     await prisma.$transaction(async (tx) => {
@@ -331,7 +352,7 @@ async function finishNewUserDbSetup(
         create: {
           id: authUserId,
           organizationId,
-          email: invitation.email,
+          email: String(invitation.email).trim().toLowerCase(),
           fullName,
           phone,
           enrolledProgram: invitation.role === 'member' ? invitation.programSlug : null,
@@ -341,6 +362,7 @@ async function finishNewUserDbSetup(
           fullName,
           phone,
           deletedAt: null,
+          email: String(invitation.email).trim().toLowerCase(),
           enrolledProgram: invitation.role === 'member' ? invitation.programSlug : undefined,
           enrolledAt: invitation.role === 'member' ? new Date() : undefined,
         },

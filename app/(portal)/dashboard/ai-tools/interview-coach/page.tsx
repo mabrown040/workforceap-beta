@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import InterviewCoach from '@/components/portal/tools/InterviewCoach';
+import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 import { getUser } from '@/lib/auth/server';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -57,6 +58,7 @@ export default async function InterviewCoachPage() {
       <div style={{ paddingBottom: '6rem' }}>
         <div style={{ maxWidth: 980, margin: '0 auto', padding: '1rem 1rem 2rem' }}>
           <InterviewCoach />
+          <ToolHistoryPanel userId={user.id} toolType="interview_coach" />
         </div>
         <MobileBottomNav variant="portal" />
       </div>

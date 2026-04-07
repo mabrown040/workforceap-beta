@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import SalaryNegotiationForm from '@/components/portal/tools/SalaryNegotiationForm';
 import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export const metadata = buildPageMetadata({
   title: 'Salary Negotiation Script',
@@ -63,6 +64,7 @@ export default async function SalaryNegotiationPage() {
         <div className="stitch-card" style={{ padding: '1.5rem' }}>
           <SalaryNegotiationForm />
         </div>
+        <ToolHistoryPanel userId={user.id} toolType="salary_negotiation" />
       </div>
     </div>
       <MobileBottomNav variant="portal" />

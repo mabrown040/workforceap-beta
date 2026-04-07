@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import VoiceInterviewScaffold from '@/components/portal/tools/VoiceInterviewScaffold';
+import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 import { getUser } from '@/lib/auth/server';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -51,6 +52,11 @@ export default async function VoiceInterviewPage() {
       <div style={{ paddingBottom: '6rem' }}>
         <div style={{ maxWidth: 980, margin: '0 auto', padding: '1rem 1rem 2rem' }}>
           <VoiceInterviewScaffold />
+          <ToolHistoryPanel
+            userId={user.id}
+            toolType="voice_interview_video"
+            title="Recent saved interview recordings"
+          />
         </div>
         <MobileBottomNav variant="portal" />
       </div>

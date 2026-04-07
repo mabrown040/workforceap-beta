@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import CoverLetterForm from '@/components/portal/tools/CoverLetterForm';
 import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Cover Letter Builder',
@@ -71,6 +72,8 @@ export default async function CoverLetterPage() {
           <div className="stitch-card" style={{ padding: '1rem', borderRadius: 12 }}>
             <CoverLetterForm />
           </div>
+
+          <ToolHistoryPanel userId={user.id} toolType="cover_letter" />
         </div>
 
         <MobileBottomNav variant="portal" />

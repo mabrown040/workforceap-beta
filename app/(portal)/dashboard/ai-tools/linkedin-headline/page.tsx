@@ -5,6 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import LinkedInHeadlineForm from '@/components/portal/tools/LinkedInHeadlineForm';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'LinkedIn Headline Generator',
@@ -70,6 +71,7 @@ export default async function LinkedInHeadlinePage() {
         <div className="stitch-card" style={{ padding: '1.5rem' }}>
           <LinkedInHeadlineForm />
         </div>
+        <ToolHistoryPanel userId={user.id} toolType="linkedin_headline" />
       </div>
     </div>
       <MobileBottomNav variant="portal" />

@@ -24,7 +24,9 @@ const TOOL_LABELS: Record<string, string> = {
   salary_negotiation: 'Salary Negotiation',
   gap_analyzer: 'Gap Analyzer',
   interview_coach: 'AI Interview Coach',
+  voice_interview_video: 'Mock Interview Video',
   career_counselor: 'Career Counselor',
+  skill_assessment: 'Skill Mapper / Skill Assessment',
 };
 
 type Props = { searchParams: Promise<{ tool?: string }> };

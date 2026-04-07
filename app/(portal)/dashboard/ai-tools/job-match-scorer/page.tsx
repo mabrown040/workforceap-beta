@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import JobMatchScorerForm from '@/components/portal/tools/JobMatchScorerForm';
 import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export const metadata = buildPageMetadata({
   title: 'Job Match Scorer',
@@ -82,6 +83,8 @@ export default async function JobMatchScorerPage() {
             </h2>
             <JobMatchScorerForm />
           </div>
+
+          <ToolHistoryPanel userId={user.id} toolType="job_match_scorer" />
 
           <div
             style={{

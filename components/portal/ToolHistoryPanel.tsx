@@ -1,0 +1,124 @@
+import Link from 'next/link';
+import type { AIToolType } from '@prisma/client';
+import { prisma } from '@/lib/db/prisma';
+
+function compactPreview(output: string): string {
+  const text = output.replace(/\s+/g, ' ').trim();
+  if (!text) return 'No output captured.';
+  if (text.length <= 180) return text;
+  return `${text.slice(0, 180)}…`;
+}
+
+function formatOutput(output: string): string {
+  const trimmed = output.trim();
+  if (!trimmed) return 'No output captured.';
+  try {
+    const parsed = JSON.parse(trimmed);
+    return JSON.stringify(parsed, null, 2);
+  } catch {
+    return output;
+  }
+}
+
+export default async function ToolHistoryPanel({
+  userId,
+  toolType,
+  title = 'Recent saved runs',
+  limit = 5,
+}: {
+  userId: string;
+  toolType: AIToolType;
+  title?: string;
+  limit?: number;
+}) {
+  const rows = await prisma.aIToolResult.findMany({
+    where: { userId, toolType },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+    select: {
+      id: true,
+      inputSummary: true,
+      output: true,
+      createdAt: true,
+    },
+  });
+
+  return (
+    <section className="stitch-card" style={{ padding: '1rem', borderRadius: 12, marginTop: '1rem' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '0.75rem',
+          marginBottom: '0.75rem',
+        }}
+      >
+        <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{title}</h3>
+        <Link
+          href={`/dashboard/ai-tools/history?tool=${toolType}`}
+          style={{
+            fontSize: '0.8rem',
+            color: 'var(--color-accent)',
+            textDecoration: 'none',
+            fontWeight: 600,
+          }}
+        >
+          View all
+        </Link>
+      </div>
+
+      {rows.length === 0 ? (
+        <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-on-surface-variant)' }}>
+          No saved runs yet for this tool.
+        </p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+          {rows.map((row) => (
+            <details
+              key={row.id}
+              style={{
+                border: '1px solid var(--outline-variant)',
+                borderRadius: 10,
+                background: 'var(--surface-container-low)',
+                padding: '0.6rem 0.75rem',
+              }}
+            >
+              <summary style={{ cursor: 'pointer' }}>
+                <div style={{ display: 'inline-flex', flexDirection: 'column', gap: '0.2rem', maxWidth: '100%' }}>
+                  <span style={{ fontSize: '0.84rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>
+                    {row.inputSummary}
+                  </span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
+                    {row.createdAt.toLocaleString()}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '0.78rem',
+                      color: 'var(--color-on-surface-variant)',
+                      lineHeight: 1.45,
+                    }}
+                  >
+                    {compactPreview(row.output)}
+                  </span>
+                </div>
+              </summary>
+              <pre
+                style={{
+                  margin: '0.65rem 0 0',
+                  whiteSpace: 'pre-wrap',
+                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                  fontSize: '0.76rem',
+                  lineHeight: 1.45,
+                  color: 'var(--color-on-surface)',
+                }}
+              >
+                {formatOutput(row.output)}
+              </pre>
+            </details>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}

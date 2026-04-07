@@ -5,6 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import SkillMapperClient from '@/components/portal/tools/SkillMapperClient';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Skill Mapper',
@@ -71,6 +72,11 @@ export default async function SkillMapperPage() {
           <div className="stitch-card" style={{ padding: '1rem', borderRadius: 12 }}>
             <SkillMapperClient />
           </div>
+          <ToolHistoryPanel
+            userId={user.id}
+            toolType="skill_assessment"
+            title="Recent skill mapper lookups"
+          />
         </div>
 
         <MobileBottomNav variant="portal" />

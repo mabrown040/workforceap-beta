@@ -6,6 +6,13 @@ type DesktopRouteCheck = {
   centeredSelectors: string[];
 };
 
+type PortalRouteCheck = {
+  name: string;
+  path: string;
+  centeredSelectors: string[];
+  centerTarget: 'viewport' | 'right-panel';
+};
+
 const DESKTOP_ROUTES: DesktopRouteCheck[] = [
   {
     name: 'homepage',
@@ -86,6 +93,49 @@ const DESKTOP_ROUTES: DesktopRouteCheck[] = [
   },
 ];
 
+const DESKTOP_PORTAL_ROUTES: PortalRouteCheck[] = [
+  {
+    name: 'login',
+    path: '/login?redirectTo=/dashboard',
+    centeredSelectors: [
+      'main div[style*="max-width: 420"]',
+      'main div[style*="max-width:420"]',
+    ],
+    centerTarget: 'right-panel',
+  },
+  {
+    name: 'signup',
+    path: '/signup',
+    centeredSelectors: [
+      'main div[style*="max-width: 440"]',
+      'main div[style*="max-width:440"]',
+    ],
+    centerTarget: 'right-panel',
+  },
+  {
+    name: 'forgot-password',
+    path: '/forgot-password',
+    centeredSelectors: [
+      'main div[style*="max-width: 420"]',
+      'main div[style*="max-width:420"]',
+    ],
+    centerTarget: 'viewport',
+  },
+  {
+    name: 'partner-signup',
+    path: '/partner-signup',
+    centeredSelectors: [
+      'main .container[style*="max-width: 560"]',
+      'main .container[style*="max-width:560"]',
+      'main div[style*="max-width: 560"]',
+      'main div[style*="max-width:560"]',
+    ],
+    centerTarget: 'viewport',
+  },
+];
+
+const PROTECTED_PORTAL_PATHS = ['/dashboard', '/partner', '/employer', '/admin'];
+
 test.describe('Desktop layout guardrails', () => {
   for (const route of DESKTOP_ROUTES) {
     test(`${route.name} keeps centered shell and no horizontal overflow`, async ({ page }) => {
@@ -157,6 +207,95 @@ test.describe('Desktop layout guardrails', () => {
         result.bestCandidate?.centerDelta ?? 999,
         `${route.path} centered shell is imbalanced left/right`
       ).toBeLessThanOrEqual(36);
+    });
+  }
+});
+
+test.describe('Desktop portal guardrails (unauth)', () => {
+  const evaluatePortalDesktopLayout = async (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    page: any,
+    selectors: string[],
+    centerTarget: 'viewport' | 'right-panel',
+  ) =>
+    page.evaluate(
+      (data: { selectors: string[]; centerTarget: 'viewport' | 'right-panel' }) => {
+        const viewportWidth = window.innerWidth;
+        const html = document.documentElement;
+        const body = document.body;
+        const overflowOk =
+          html.scrollWidth <= viewportWidth + 1 &&
+          body.scrollWidth <= viewportWidth + 1;
+
+        const candidates: Array<{ selector: string; centerX: number; width: number; left: number; right: number }> = [];
+
+        for (const selector of data.selectors) {
+          const elements = Array.from(document.querySelectorAll(selector));
+          for (const el of elements) {
+            const rect = el.getBoundingClientRect();
+            if (rect.width < 280 || rect.width > 640 || rect.height < 120) continue;
+            const style = window.getComputedStyle(el);
+            if (style.display === 'none' || style.visibility === 'hidden') continue;
+            if (rect.bottom < 0 || rect.top > window.innerHeight) continue;
+            candidates.push({
+              selector,
+              centerX: rect.left + rect.width / 2,
+              width: rect.width,
+              left: rect.left,
+              right: rect.right,
+            });
+          }
+        }
+
+        const expectedCenterX = data.centerTarget === 'right-panel' ? viewportWidth * 0.75 : viewportWidth * 0.5;
+        const bestCandidate =
+          candidates
+            .sort((a, b) => Math.abs(a.centerX - expectedCenterX) - Math.abs(b.centerX - expectedCenterX))[0] ?? null;
+
+        return { overflowOk, bestCandidate, expectedCenterX };
+      },
+      { selectors, centerTarget },
+    );
+
+  for (const route of DESKTOP_PORTAL_ROUTES) {
+    test(`${route.name} keeps desktop portal shell aligned`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme: 'light' });
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.goto(route.path, { waitUntil: 'domcontentloaded' });
+      await page.waitForTimeout(250);
+
+      const result = await evaluatePortalDesktopLayout(page, route.centeredSelectors, route.centerTarget);
+
+      expect(result.overflowOk, `${route.path} overflows horizontally on desktop viewport`).toBeTruthy();
+      expect(result.bestCandidate, `${route.path} did not expose a desktop portal shell candidate`).not.toBeNull();
+      expect(
+        Math.abs((result.bestCandidate?.centerX ?? 0) - result.expectedCenterX),
+        `${route.path} primary shell is misaligned for desktop target`,
+      ).toBeLessThanOrEqual(110);
+      expect(result.bestCandidate?.left ?? 0, `${route.path} shell is clipped on the left`).toBeGreaterThanOrEqual(12);
+      expect(result.bestCandidate?.right ?? 9999, `${route.path} shell is clipped on the right`).toBeLessThanOrEqual(1428);
+    });
+  }
+
+  for (const protectedPath of PROTECTED_PORTAL_PATHS) {
+    test(`unauth ${protectedPath} redirects to login and stays aligned`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme: 'light' });
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.goto(protectedPath, { waitUntil: 'domcontentloaded' });
+      await page.waitForTimeout(250);
+
+      await expect(page).toHaveURL(/\/login\?/);
+      const redirectedUrl = new URL(page.url());
+      expect(redirectedUrl.pathname).toBe('/login');
+      expect(redirectedUrl.searchParams.get('redirectTo')).toBe(protectedPath);
+
+      const result = await evaluatePortalDesktopLayout(
+        page,
+        ['main div[style*="max-width: 420"]', 'main div[style*="max-width:420"]'],
+        'right-panel',
+      );
+      expect(result.overflowOk, `login redirect shell overflows on ${protectedPath}`).toBeTruthy();
+      expect(result.bestCandidate, `login redirect shell missing on ${protectedPath}`).not.toBeNull();
     });
   }
 });

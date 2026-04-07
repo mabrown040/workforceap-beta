@@ -274,14 +274,14 @@ async function createNewUserAndAccept(
       }
       // Orphaned Supabase auth user (previous attempt created auth but DB tx failed).
       // Look up the existing auth user and continue with DB record creation.
-      const { data: userByEmail } = await supabase.auth.admin.listUsers();
+      const { data: userByEmail } = await supabase.auth.admin.listUsers({ perPage: 1000 });
       const orphanedAuthUser = userByEmail?.users?.find(
         (u) => u.email?.toLowerCase() === invitation.email.toLowerCase()
       );
       if (orphanedAuthUser) {
         // Update password in case it changed between attempts
         if (password) {
-          await supabase.auth.admin.updateUser(orphanedAuthUser.id, { password });
+          await supabase.auth.admin.updateUserById(orphanedAuthUser.id, { password });
         }
         return finishNewUserDbSetup(orphanedAuthUser.id, invitation, fullName, phone, request);
       }

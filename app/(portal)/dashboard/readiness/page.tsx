@@ -14,8 +14,8 @@ import { getMemberReadinessSections } from '@/lib/readiness/memberReadinessSecti
 import '@/css/counselor.css';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Career Readiness',
-  description: 'Your job readiness checklist.',
+  title: 'Job Readiness Checklist',
+  description: 'Track your progress toward being job-ready.',
   path: '/dashboard/readiness',
 });
 
@@ -126,9 +126,9 @@ export default async function DashboardReadinessPage() {
       <div className="wa-hidden wa-md:wa-block">
         <div>
           <PageHeader
-            title="Your Career Readiness"
-            subtitle="Track your progress from training to career. Your counselor updates this checklist as you hit milestones."
-            breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Career Readiness' }]}
+            title="Job Readiness Checklist"
+            subtitle="Track your progress from training to landing a job. Your counselor updates this as you hit milestones."
+            breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Job Readiness' }]}
           />
           <div style={{ marginBottom: '1.5rem' }}>
             <VoiceAgentSurface {...readinessVoiceSurface}>

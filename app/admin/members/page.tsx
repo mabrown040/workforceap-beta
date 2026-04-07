@@ -86,6 +86,10 @@ export default async function AdminMembersPage() {
     console.error('[admin/members] recent-event aggregate failed', recentEventsResult.reason);
   }
 
+  /** Health needs both aggregates; one failure + zeros mislabels members as inactive/at-risk. */
+  const eventAggregatesOk =
+    lastEventsResult.status === 'fulfilled' && recentEventsResult.status === 'fulfilled';
+
   const membersWithProgram = members.map((m) => {
     const fitScore = calculateFitScore({
       enrolledProgram: m.enrolledProgram,
@@ -97,11 +101,13 @@ export default async function AdminMembersPage() {
       phone: m.phone,
     });
 
-    const healthStatus = calculateHealthStatus({
-      lastEventAt: lastEventMap.get(m.id) ?? null,
-      recentEventCount: recentEventMap.get(m.id) ?? 0,
-      enrolledAt: m.enrolledAt,
-    });
+    const healthStatus = eventAggregatesOk
+      ? calculateHealthStatus({
+          lastEventAt: lastEventMap.get(m.id) ?? null,
+          recentEventCount: recentEventMap.get(m.id) ?? 0,
+          enrolledAt: m.enrolledAt,
+        })
+      : undefined;
 
     return {
       ...m,

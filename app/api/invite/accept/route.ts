@@ -100,6 +100,78 @@ async function findRoleByName(tx: InviteTx, name: string) {
   return tx.role.findFirst({ where: { name } });
 }
 
+/** Debug breadcrumbs for preview/Vercel logs (no PII). */
+function inviteAcceptLog(
+  step: string,
+  data: { invitationId?: string; err?: unknown }
+) {
+  const err = data.err;
+  const extra =
+    err && typeof err === 'object' && 'code' in err
+      ? { prismaCode: (err as { code?: string }).code }
+      : {};
+  console.error('[invite-accept]', step, {
+    invitationId: data.invitationId,
+    ...extra,
+  });
+}
+
+async function ensureAppUserForInvite(
+  tx: InviteTx,
+  authUserId: string,
+  data: {
+    organizationId: string;
+    email: string;
+    fullName: string;
+    phone: string | null;
+    enrolledProgram: string | null;
+    enrolledAt: Date | null;
+  }
+) {
+  // Live DB may lack users.email unique index; avoid upsert which assumes schema constraints.
+  const byId = await tx.user.findFirst({
+    where: { id: authUserId },
+    select: { id: true },
+  });
+  if (byId) {
+    await tx.user.update({
+      where: { id: authUserId },
+      data: {
+        organizationId: data.organizationId,
+        email: data.email,
+        fullName: data.fullName,
+        phone: data.phone,
+        deletedAt: null,
+        enrolledProgram: data.enrolledProgram ?? undefined,
+        enrolledAt: data.enrolledAt ?? undefined,
+      },
+    });
+    return;
+  }
+
+  const byEmail = await tx.user.findFirst({
+    where: { email: data.email },
+    select: { id: true },
+  });
+  if (byEmail) {
+    throw new Error(
+      'INVITE_ACCEPT_EMAIL_USER_ID_MISMATCH: public.users has this email on a different id than Supabase auth'
+    );
+  }
+
+  await tx.user.create({
+    data: {
+      id: authUserId,
+      organizationId: data.organizationId,
+      email: data.email,
+      fullName: data.fullName,
+      phone: data.phone,
+      enrolledProgram: data.enrolledProgram,
+      enrolledAt: data.enrolledAt,
+    },
+  });
+}
+
 async function ensureCounselorRow(tx: InviteTx, userId: string, partnerId: string | null) {
   const existing = await tx.counselor.findFirst({
     where: { userId },
@@ -191,7 +263,7 @@ export async function POST(request: NextRequest) {
       if (!fullName) {
         return NextResponse.json({ error: 'Name is required' }, { status: 400 });
       }
-      return acceptExistingUser(existingUser, invitation, fullName, request);
+      return await acceptExistingUser(existingUser, invitation, fullName, request);
     }
 
     if (!fullName || !password || password.length < 8) {
@@ -201,8 +273,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return createNewUserAndAccept(invitation, fullName, phone, password, request);
+    inviteAcceptLog('route:before_createNewUser', { invitationId: invitation.id });
+    return await createNewUserAndAccept(invitation, fullName, phone, password, request);
   } catch (e) {
+    inviteAcceptLog('route:outer_catch', { err: e });
     console.error('[api/invite/accept]', e);
     return NextResponse.json(
       { error: 'Something went wrong accepting this invitation. Please try again.' },
@@ -390,6 +464,7 @@ async function createNewUserAndAccept(
     return NextResponse.json({ error: 'Account creation failed' }, { status: 500 });
   }
 
+  inviteAcceptLog('supabase:user_created', { invitationId: invitation.id });
   return finishNewUserDbSetup(authUser.id, invitation, fullName, phone, request);
 }
 
@@ -423,36 +498,30 @@ async function finishNewUserDbSetup(
     );
   }
 
+  const invitationId = invitation.id;
   try {
     await prisma.$transaction(async (tx) => {
+      inviteAcceptLog('tx:start', { invitationId });
+
       let memberRole = await findRoleByName(tx, 'member');
       if (!memberRole) {
+        inviteAcceptLog('tx:role_member_create', { invitationId });
         memberRole = await tx.role.create({ data: { name: 'member' } });
       }
 
-      // Upsert user in case a previous attempt partially created the record
-      await tx.user.upsert({
-        where: { id: authUserId },
-        create: {
-          id: authUserId,
-          organizationId,
-          email: String(invitation.email).trim().toLowerCase(),
-          fullName,
-          phone,
-          enrolledProgram: invitation.role === 'member' ? invitation.programSlug : null,
-          enrolledAt: invitation.role === 'member' ? new Date() : null,
-        },
-        update: {
-          fullName,
-          phone,
-          deletedAt: null,
-          email: String(invitation.email).trim().toLowerCase(),
-          enrolledProgram: invitation.role === 'member' ? invitation.programSlug : undefined,
-          enrolledAt: invitation.role === 'member' ? new Date() : undefined,
-        },
+      const inviteEmailNorm = String(invitation.email).trim().toLowerCase();
+      inviteAcceptLog('tx:ensure_app_user', { invitationId });
+      await ensureAppUserForInvite(tx, authUserId, {
+        organizationId,
+        email: inviteEmailNorm,
+        fullName,
+        phone,
+        enrolledProgram: invitation.role === 'member' ? invitation.programSlug : null,
+        enrolledAt: invitation.role === 'member' ? new Date() : null,
       });
 
       if (invitation.role !== 'counselor') {
+        inviteAcceptLog('tx:user_role_member_upsert', { invitationId });
         await tx.userRole.upsert({
           where: { userId_roleId: { userId: authUserId, roleId: memberRole.id } },
           create: { userId: authUserId, roleId: memberRole.id },
@@ -460,6 +529,7 @@ async function finishNewUserDbSetup(
         });
       }
 
+      inviteAcceptLog('tx:ensure_profile', { invitationId });
       await ensureProfileRow(tx, authUserId, {
         role: profileRoleForInvitation(invitation.role),
         profilePhone: phone,
@@ -468,6 +538,7 @@ async function finishNewUserDbSetup(
       if (invitation.role === 'admin') {
         const adminRole = await findRoleByName(tx, 'admin');
         if (adminRole) {
+          inviteAcceptLog('tx:user_role_admin_upsert', { invitationId });
           await tx.userRole.upsert({
             where: { userId_roleId: { userId: authUserId, roleId: adminRole.id } },
             create: { userId: authUserId, roleId: adminRole.id },
@@ -477,6 +548,7 @@ async function finishNewUserDbSetup(
       }
 
       if (invitation.role === 'partner' && invitation.subgroupId) {
+        inviteAcceptLog('tx:partner_subgroup', { invitationId });
         const subgroup = await tx.subgroup.findUnique({
           where: { id: invitation.subgroupId },
           select: { partnerId: true },
@@ -490,15 +562,18 @@ async function finishNewUserDbSetup(
       if (invitation.role === 'counselor') {
         const counselorRoleRow = await findRoleByName(tx, 'counselor');
         if (counselorRoleRow) {
+          inviteAcceptLog('tx:user_role_counselor_upsert', { invitationId });
           await tx.userRole.upsert({
             where: { userId_roleId: { userId: authUserId, roleId: counselorRoleRow.id } },
             create: { userId: authUserId, roleId: counselorRoleRow.id },
             update: {},
           });
         }
+        inviteAcceptLog('tx:ensure_counselor', { invitationId });
         await ensureCounselorRow(tx, authUserId, invitation.partnerId ?? null);
       }
 
+      inviteAcceptLog('tx:invitation_accept_update', { invitationId });
       await tx.invitation.update({
         where: { id: invitation.id },
         data: {
@@ -509,6 +584,7 @@ async function finishNewUserDbSetup(
       });
     });
   } catch (dbError) {
+    inviteAcceptLog('tx:failed', { invitationId, err: dbError });
     console.error('[finishNewUserDbSetup] transaction failed:', dbError);
     return NextResponse.json(
       { error: 'Failed to complete signup. Please try again.' },

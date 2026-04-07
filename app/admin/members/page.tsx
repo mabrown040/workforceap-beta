@@ -32,9 +32,6 @@ export default async function AdminMembersPage() {
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
   let members;
-  let lastEventMap: Map<string, Date | null>;
-  let recentEventMap: Map<string, number>;
-
   try {
     members = await prisma.user.findMany({
       where: { deletedAt: null },
@@ -48,26 +45,38 @@ export default async function AdminMembersPage() {
         },
       },
     });
-
-    const lastEvents = await prisma.memberEvent.groupBy({
-      by: ['userId'],
-      _max: { createdAt: true },
-    });
-    lastEventMap = new Map(lastEvents.map((e) => [e.userId, e._max.createdAt]));
-
-    const recentEvents = await prisma.memberEvent.groupBy({
-      by: ['userId'],
-      where: { createdAt: { gte: thirtyDaysAgo } },
-      _count: true,
-    });
-    recentEventMap = new Map(recentEvents.map((e) => [e.userId, e._count]));
   } catch (e) {
-    console.error('[admin/members] load failed', e);
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error('[admin/members] user list load failed', msg, e);
     return (
       <PortalPageFrame>
         <AdminDataLoadError title="Members list unavailable" />
       </PortalPageFrame>
     );
+  }
+
+  /** Activity aggregates can fail independently (timeouts, huge member_events). List still works without them. */
+  let lastEventMap = new Map<string, Date | null>();
+  let recentEventMap = new Map<string, number>();
+  let eventAggregatesOk = false;
+  try {
+    const [lastEvents, recentEvents] = await Promise.all([
+      prisma.memberEvent.groupBy({
+        by: ['userId'],
+        _max: { createdAt: true },
+      }),
+      prisma.memberEvent.groupBy({
+        by: ['userId'],
+        where: { createdAt: { gte: thirtyDaysAgo } },
+        _count: true,
+      }),
+    ]);
+    lastEventMap = new Map(lastEvents.map((e) => [e.userId, e._max.createdAt]));
+    recentEventMap = new Map(recentEvents.map((e) => [e.userId, e._count]));
+    eventAggregatesOk = true;
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error('[admin/members] member event aggregates failed (health column omitted)', msg, e);
   }
 
   const membersWithProgram = members.map((m) => {
@@ -81,11 +90,13 @@ export default async function AdminMembersPage() {
       phone: m.phone,
     });
 
-    const healthStatus = calculateHealthStatus({
-      lastEventAt: lastEventMap.get(m.id) ?? null,
-      recentEventCount: recentEventMap.get(m.id) ?? 0,
-      enrolledAt: m.enrolledAt,
-    });
+    const healthStatus = eventAggregatesOk
+      ? calculateHealthStatus({
+          lastEventAt: lastEventMap.get(m.id) ?? null,
+          recentEventCount: recentEventMap.get(m.id) ?? 0,
+          enrolledAt: m.enrolledAt,
+        })
+      : undefined;
 
     return {
       ...m,

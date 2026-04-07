@@ -102,107 +102,118 @@ async function acceptExistingUser(
   fullName: string,
   _request: NextRequest
 ) {
-  await prisma.$transaction(async (tx) => {
-    await tx.user.update({
-      where: { id: user.id },
-      data: { fullName: fullName || user.fullName, deletedAt: null },
-    });
+  try {
+    await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: user.id },
+        data: { fullName: fullName || user.fullName, deletedAt: null },
+      });
 
-    if (invitation.role === 'admin') {
-      const adminRole = await tx.role.findUnique({ where: { name: 'admin' } });
-      if (adminRole) {
-        await tx.userRole.upsert({
-          where: { userId_roleId: { userId: user.id, roleId: adminRole.id } },
-          create: { userId: user.id, roleId: adminRole.id },
-          update: {},
-        });
-      }
-      const profile = await tx.profile.findUnique({ where: { userId: user.id } });
-      if (profile) {
+      // Ensure the user has a profile row (may be missing for older/imported accounts)
+      await tx.profile.upsert({
+        where: { userId: user.id },
+        create: {
+          userId: user.id,
+          role: invitation.role === 'counselor' ? 'counselor' : invitation.role === 'admin' ? 'admin' : 'member',
+          consentTerms: false,
+          consentCommunications: false,
+        },
+        update: {},
+      });
+
+      if (invitation.role === 'admin') {
+        const adminRole = await tx.role.findUnique({ where: { name: 'admin' } });
+        if (adminRole) {
+          await tx.userRole.upsert({
+            where: { userId_roleId: { userId: user.id, roleId: adminRole.id } },
+            create: { userId: user.id, roleId: adminRole.id },
+            update: {},
+          });
+        }
         await tx.profile.update({
           where: { userId: user.id },
           data: { role: 'admin' },
         });
       }
-    }
 
-    if (invitation.role === 'partner' && invitation.subgroupId) {
-      const partner = await tx.subgroup.findUnique({
-        where: { id: invitation.subgroupId },
-        select: { partnerId: true },
-      });
-      if (partner?.partnerId) {
-        await tx.partnerUser.upsert({
-          where: { userId: user.id },
-          create: { partnerId: partner.partnerId, userId: user.id },
+      if (invitation.role === 'partner' && invitation.subgroupId) {
+        const partner = await tx.subgroup.findUnique({
+          where: { id: invitation.subgroupId },
+          select: { partnerId: true },
+        });
+        if (partner?.partnerId) {
+          await tx.partnerUser.upsert({
+            where: { userId: user.id },
+            create: { partnerId: partner.partnerId, userId: user.id },
+            update: {},
+          });
+        }
+        await tx.memberSubgroup.upsert({
+          where: {
+            memberId_subgroupId: { memberId: user.id, subgroupId: invitation.subgroupId },
+          },
+          create: {
+            memberId: user.id,
+            subgroupId: invitation.subgroupId,
+            assignedBy: invitation.invitedById,
+            assignmentType: 'manual_admin',
+          },
           update: {},
         });
       }
-      await tx.memberSubgroup.upsert({
-        where: {
-          memberId_subgroupId: { memberId: user.id, subgroupId: invitation.subgroupId },
-        },
-        create: {
-          memberId: user.id,
-          subgroupId: invitation.subgroupId,
-          assignedBy: invitation.invitedById,
-          assignmentType: 'manual_admin',
-        },
-        update: {},
-      });
-    }
 
-    if (invitation.role === 'member' && invitation.programSlug) {
-      await tx.user.update({
-        where: { id: user.id },
-        data: {
-          enrolledProgram: invitation.programSlug,
-          enrolledAt: new Date(),
-          programChangedAt: new Date(),
-        },
-      });
-    }
-
-    if (invitation.role === 'counselor') {
-      await tx.profile.upsert({
-        where: { userId: user.id },
-        create: {
-          userId: user.id,
-          role: 'counselor',
-          consentTerms: false,
-          consentCommunications: false,
-        },
-        update: { role: 'counselor' },
-      });
-      const counselorRoleRow = await tx.role.findUnique({ where: { name: 'counselor' } });
-      if (counselorRoleRow) {
-        await tx.userRole.upsert({
-          where: { userId_roleId: { userId: user.id, roleId: counselorRoleRow.id } },
-          create: { userId: user.id, roleId: counselorRoleRow.id },
-          update: {},
-        });
-      }
-      const existingCounselor = await tx.counselor.findUnique({ where: { userId: user.id } });
-      if (!existingCounselor) {
-        await tx.counselor.create({
+      if (invitation.role === 'member' && invitation.programSlug) {
+        await tx.user.update({
+          where: { id: user.id },
           data: {
-            userId: user.id,
-            partnerId: invitation.partnerId ?? null,
-            active: true,
+            enrolledProgram: invitation.programSlug,
+            enrolledAt: new Date(),
+            programChangedAt: new Date(),
           },
         });
       }
-    }
 
-    await tx.invitation.update({
-      where: { id: invitation.id },
-      data: {
-        status: 'accepted',
-        acceptedAt: new Date(),
-        acceptedById: user.id,
-      },
+      if (invitation.role === 'counselor') {
+        await tx.profile.update({
+          where: { userId: user.id },
+          data: { role: 'counselor' },
+        });
+        const counselorRoleRow = await tx.role.findUnique({ where: { name: 'counselor' } });
+        if (counselorRoleRow) {
+          await tx.userRole.upsert({
+            where: { userId_roleId: { userId: user.id, roleId: counselorRoleRow.id } },
+            create: { userId: user.id, roleId: counselorRoleRow.id },
+            update: {},
+          });
+        }
+        const existingCounselor = await tx.counselor.findUnique({ where: { userId: user.id } });
+        if (!existingCounselor) {
+          await tx.counselor.create({
+            data: {
+              userId: user.id,
+              partnerId: invitation.partnerId ?? null,
+              active: true,
+            },
+          });
+        }
+      }
+
+      await tx.invitation.update({
+        where: { id: invitation.id },
+        data: {
+          status: 'accepted',
+          acceptedAt: new Date(),
+          acceptedById: user.id,
+        },
+      });
     });
-  });
+  } catch (dbError) {
+    console.error('[acceptExistingUser] transaction failed:', dbError);
+    return NextResponse.json(
+      { error: 'Failed to update your account with the new role. Please try again.' },
+      { status: 500 }
+    );
+  }
 
   const roleLabel = invitationRoleLabel(invitation.role);
 
@@ -237,7 +248,6 @@ async function createNewUserAndAccept(
   request: NextRequest
 ) {
   const supabase = getSupabaseAdmin();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
   const { data: authData, error: authError } = await supabase.auth.admin.createUser({
     email: invitation.email,
@@ -248,6 +258,7 @@ async function createNewUserAndAccept(
 
   if (authError) {
     if (authError.message.includes('already') || authError.code === 'user_already_exists') {
+      // Check if a DB record exists for this email
       const existing = await prisma.user.findUnique({ where: { email: invitation.email } });
       if (existing) {
         return acceptExistingUser(
@@ -261,6 +272,19 @@ async function createNewUserAndAccept(
           request
         );
       }
+      // Orphaned Supabase auth user (previous attempt created auth but DB tx failed).
+      // Look up the existing auth user and continue with DB record creation.
+      const { data: userByEmail } = await supabase.auth.admin.listUsers();
+      const orphanedAuthUser = userByEmail?.users?.find(
+        (u) => u.email?.toLowerCase() === invitation.email.toLowerCase()
+      );
+      if (orphanedAuthUser) {
+        // Update password in case it changed between attempts
+        if (password) {
+          await supabase.auth.admin.updateUser(orphanedAuthUser.id, { password });
+        }
+        return finishNewUserDbSetup(orphanedAuthUser.id, invitation, fullName, phone, request);
+      }
     }
     return NextResponse.json(
       { error: authError.message },
@@ -273,6 +297,25 @@ async function createNewUserAndAccept(
     return NextResponse.json({ error: 'Account creation failed' }, { status: 500 });
   }
 
+  return finishNewUserDbSetup(authUser.id, invitation, fullName, phone, request);
+}
+
+async function finishNewUserDbSetup(
+  authUserId: string,
+  invitation: {
+    id: string;
+    email: string;
+    role: string;
+    invitedById: string;
+    subgroupId: string | null;
+    partnerId: string | null;
+    programSlug: string | null;
+    invitedBy: { fullName: string; email: string };
+  },
+  fullName: string,
+  phone: string | null,
+  _request: NextRequest
+) {
   const organizationId = await getDefaultOrganizationId();
 
   try {
@@ -282,9 +325,11 @@ async function createNewUserAndAccept(
         memberRole = await tx.role.create({ data: { name: 'member' } });
       }
 
-      await tx.user.create({
-        data: {
-          id: authUser.id,
+      // Upsert user in case a previous attempt partially created the record
+      await tx.user.upsert({
+        where: { id: authUserId },
+        create: {
+          id: authUserId,
           organizationId,
           email: invitation.email,
           fullName,
@@ -292,17 +337,36 @@ async function createNewUserAndAccept(
           enrolledProgram: invitation.role === 'member' ? invitation.programSlug : null,
           enrolledAt: invitation.role === 'member' ? new Date() : null,
         },
+        update: {
+          fullName,
+          phone,
+          deletedAt: null,
+          enrolledProgram: invitation.role === 'member' ? invitation.programSlug : undefined,
+          enrolledAt: invitation.role === 'member' ? new Date() : undefined,
+        },
       });
 
       if (invitation.role !== 'counselor') {
-        await tx.userRole.create({
-          data: { userId: authUser.id, roleId: memberRole.id },
+        await tx.userRole.upsert({
+          where: { userId_roleId: { userId: authUserId, roleId: memberRole.id } },
+          create: { userId: authUserId, roleId: memberRole.id },
+          update: {},
         });
       }
 
-      await tx.profile.create({
-        data: {
-          userId: authUser.id,
+      await tx.profile.upsert({
+        where: { userId: authUserId },
+        create: {
+          userId: authUserId,
+          profilePhone: phone,
+          role:
+            invitation.role === 'member'
+              ? 'member'
+              : invitation.role === 'counselor'
+                ? 'counselor'
+                : invitation.role,
+        },
+        update: {
           profilePhone: phone,
           role:
             invitation.role === 'member'
@@ -316,12 +380,14 @@ async function createNewUserAndAccept(
       if (invitation.role === 'admin') {
         const adminRole = await tx.role.findUnique({ where: { name: 'admin' } });
         if (adminRole) {
-          await tx.userRole.create({
-            data: { userId: authUser.id, roleId: adminRole.id },
+          await tx.userRole.upsert({
+            where: { userId_roleId: { userId: authUserId, roleId: adminRole.id } },
+            create: { userId: authUserId, roleId: adminRole.id },
+            update: {},
           });
         }
         await tx.profile.update({
-          where: { userId: authUser.id },
+          where: { userId: authUserId },
           data: { role: 'admin' },
         });
       }
@@ -332,34 +398,45 @@ async function createNewUserAndAccept(
           select: { partnerId: true },
         });
         if (subgroup?.partnerId) {
-          await tx.partnerUser.create({
-            data: { partnerId: subgroup.partnerId, userId: authUser.id },
+          await tx.partnerUser.upsert({
+            where: { userId: authUserId },
+            create: { partnerId: subgroup.partnerId, userId: authUserId },
+            update: {},
           });
         }
-        await tx.memberSubgroup.create({
-          data: {
-            memberId: authUser.id,
+        await tx.memberSubgroup.upsert({
+          where: {
+            memberId_subgroupId: { memberId: authUserId, subgroupId: invitation.subgroupId },
+          },
+          create: {
+            memberId: authUserId,
             subgroupId: invitation.subgroupId,
             assignedBy: invitation.invitedById,
             assignmentType: 'manual_admin',
           },
+          update: {},
         });
       }
 
       if (invitation.role === 'counselor') {
         const counselorRoleRow = await tx.role.findUnique({ where: { name: 'counselor' } });
         if (counselorRoleRow) {
-          await tx.userRole.create({
-            data: { userId: authUser.id, roleId: counselorRoleRow.id },
+          await tx.userRole.upsert({
+            where: { userId_roleId: { userId: authUserId, roleId: counselorRoleRow.id } },
+            create: { userId: authUserId, roleId: counselorRoleRow.id },
+            update: {},
           });
         }
-        await tx.counselor.create({
-          data: {
-            userId: authUser.id,
-            partnerId: invitation.partnerId ?? null,
-            active: true,
-          },
-        });
+        const existingCounselor = await tx.counselor.findUnique({ where: { userId: authUserId } });
+        if (!existingCounselor) {
+          await tx.counselor.create({
+            data: {
+              userId: authUserId,
+              partnerId: invitation.partnerId ?? null,
+              active: true,
+            },
+          });
+        }
       }
 
       await tx.invitation.update({
@@ -367,12 +444,12 @@ async function createNewUserAndAccept(
         data: {
           status: 'accepted',
           acceptedAt: new Date(),
-          acceptedById: authUser.id,
+          acceptedById: authUserId,
         },
       });
     });
   } catch (dbError) {
-    console.error('Accept invite DB error:', dbError);
+    console.error('[finishNewUserDbSetup] transaction failed:', dbError);
     return NextResponse.json(
       { error: 'Failed to complete signup. Please try again.' },
       { status: 500 }

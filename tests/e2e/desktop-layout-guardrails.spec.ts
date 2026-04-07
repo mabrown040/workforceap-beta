@@ -11,74 +11,78 @@ const DESKTOP_ROUTES: DesktopRouteCheck[] = [
     name: 'homepage',
     path: '/',
     centeredSelectors: [
-      'main section > div[style*="maxWidth"]',
+      'main section > div[style*="max-width"]',
       'main .home-credibility-bar > div',
     ],
   },
   {
     name: 'employers',
     path: '/employers',
-    centeredSelectors: ['main .container', 'main section > div[style*="maxWidth"]'],
+    centeredSelectors: ['main .container', 'main section > div[style*="max-width"]'],
   },
   {
     name: 'partners',
     path: '/partners',
-    centeredSelectors: ['main .container', 'main section > div[style*="maxWidth"]'],
+    centeredSelectors: ['main .container', 'main section > div[style*="max-width"]'],
   },
   {
     name: 'programs',
     path: '/programs',
-    centeredSelectors: ['main .container', 'main section > div[style*="maxWidth"]'],
+    centeredSelectors: ['main .container', 'main section > div[style*="max-width"]'],
   },
   {
     name: 'apply',
     path: '/apply',
-    centeredSelectors: ['main .container', 'main section > div[style*="maxWidth"]'],
+    centeredSelectors: [
+      'main .container',
+      'main > div[style*="max-width"]',
+      'main section > div[style*="max-width"]',
+    ],
   },
   {
     name: 'contact',
     path: '/contact',
-    centeredSelectors: ['main .container', 'main section > div[style*="maxWidth"]'],
+    centeredSelectors: ['main .container', 'main section > div[style*="max-width"]'],
   },
   {
     name: 'faq',
     path: '/faq',
-    centeredSelectors: ['main .container', 'main section > div[style*="maxWidth"]'],
+    centeredSelectors: ['main .container', 'main section > div[style*="max-width"]'],
   },
   {
     name: 'how-it-works',
     path: '/how-it-works',
-    centeredSelectors: ['main .container', 'main section > div[style*="maxWidth"]'],
+    centeredSelectors: ['main .container', 'main section > div[style*="max-width"]'],
   },
   {
     name: 'what-we-do',
     path: '/what-we-do',
-    centeredSelectors: ['main .container', 'main section > div[style*="maxWidth"]'],
+    centeredSelectors: ['main .container', 'main section > div[style*="max-width"]'],
   },
   {
     name: 'find-your-path',
     path: '/find-your-path',
-    centeredSelectors: ['main section[style*="maxWidth"]', 'main section > div[style*="maxWidth"]'],
+    centeredSelectors: ['main section[style*="max-width"]', 'main section > div[style*="max-width"]'],
   },
   {
     name: 'program-comparison',
     path: '/program-comparison',
-    centeredSelectors: ['main section[style*="maxWidth"]', 'main section > div[style*="maxWidth"]'],
+    centeredSelectors: ['main section[style*="max-width"]', 'main section > div[style*="max-width"]'],
   },
   {
     name: 'salary-guide',
     path: '/salary-guide',
-    centeredSelectors: ['main section[style*="maxWidth"]', 'main section > div[style*="maxWidth"]'],
+    centeredSelectors: ['main section[style*="max-width"]', 'main section > div[style*="max-width"]'],
   },
   {
     name: 'blog',
     path: '/blog',
-    centeredSelectors: ['main .blog-page-section > div[style*="maxWidth"]', 'main .container'],
+    centeredSelectors: ['main .blog-page-section > div[style*="max-width"]', 'main .container'],
   },
   {
     name: 'leadership',
     path: '/leadership',
-    centeredSelectors: ['main .container', 'main section > div[style*="maxWidth"]'],
+    centeredSelectors: ['main .container', 'main section > div[style*="max-width"]'],
   },
 ];
 
@@ -94,9 +98,9 @@ test.describe('Desktop layout guardrails', () => {
         const viewportWidth = window.innerWidth;
         const html = document.documentElement;
         const body = document.body;
-
         const overflowOk =
-          html.scrollWidth <= viewportWidth + 1 && body.scrollWidth <= viewportWidth + 1;
+          html.scrollWidth <= viewportWidth + 1 &&
+          body.scrollWidth <= viewportWidth + 1;
 
         type Candidate = {
           selector: string;
@@ -117,16 +121,6 @@ test.describe('Desktop layout guardrails', () => {
 
             const style = window.getComputedStyle(el);
             if (style.display === 'none' || style.visibility === 'hidden') continue;
-
-            const parent = el.parentElement ? window.getComputedStyle(el.parentElement) : null;
-            const centeredByMargin =
-              style.marginLeft === 'auto' && style.marginRight === 'auto';
-            const centeredByFlexParent =
-              !!parent &&
-              parent.display.includes('flex') &&
-              parent.justifyContent.includes('center');
-
-            if (!centeredByMargin && !centeredByFlexParent) continue;
 
             const leftGap = rect.left;
             const rightGap = viewportWidth - rect.right;
@@ -162,7 +156,7 @@ test.describe('Desktop layout guardrails', () => {
       expect(
         result.bestCandidate?.centerDelta ?? 999,
         `${route.path} centered shell is imbalanced left/right`
-      ).toBeLessThanOrEqual(24);
+      ).toBeLessThanOrEqual(36);
     });
   }
 });

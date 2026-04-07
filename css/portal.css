@@ -101,6 +101,14 @@
     }
 }
 
+/* Wide auto-fit grid for bento / two-column content (not small metric tiles) */
+.portal-grid-bento {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
 /* 2-column and 3-column card grids */
 .portal-grid-2col {
     display: grid;

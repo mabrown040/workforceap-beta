@@ -370,7 +370,7 @@ export default async function DashboardCertificationsPage() {
 
           {/* Main bento grid */}
           <div
-            className="portal-grid-metrics"
+            className="portal-grid-bento"
             style={{ marginBottom: 'var(--space-12)' }}
           >
             {/* Active Pathway card (large) */}

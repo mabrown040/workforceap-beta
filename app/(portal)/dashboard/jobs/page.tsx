@@ -5,7 +5,8 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { isExcludedPublicEmployerName } from '@/lib/jobs/publicJobFilters';
 import { getAgeGroup } from '@/lib/util/ageCalculation';
-import PageHeader from '@/components/portal/PageHeader';
+import PageHero from '@/components/PageHero';
+import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
 import PortalFooter from '@/components/portal/PortalFooter';
 import JobsListingClient from './JobsListingClient';
 import JobsBoardSkeleton from './JobsBoardSkeleton';
@@ -79,10 +80,14 @@ export default async function JobsPage() {
   return (
     <>
     <div className="inner-page">
-      <PageHeader
+      <PageHero
+        beforeTitle={
+          <PortalBreadcrumb
+            items={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Job Board' }]}
+          />
+        }
         title="Job Board"
         subtitle="Browse openings from employers hiring WorkforceAP graduates and members. Create a free account or log in to apply."
-        breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Job Board' }]}
       />
       <section className="content-section" style={{ paddingTop: '1rem' }}>
         <div className="container">

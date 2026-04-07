@@ -396,7 +396,7 @@ export default async function PartnerDashboardPage() {
       ) : (
         <>
           {/* ── Main Bento: Member Pipeline + Sidebar ── */}
-          <div className="portal-grid-metrics" style={{ marginBottom: '2rem' }}>
+          <div className="portal-grid-bento" style={{ marginBottom: '2rem' }}>
 
             {/* Member Pipeline */}
             <section>

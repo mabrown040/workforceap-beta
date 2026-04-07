@@ -52,7 +52,7 @@ function InviteContent() {
           return;
         }
         setData(data);
-        if (data.valid && data.email) setFullName(data.email.split('@')[0] || '');
+        if (data.valid && data.email) setFullName('');
       })
       .catch(() => setData({ valid: false, error: 'Failed to load invitation' }))
       .finally(() => setLoading(false));
@@ -199,8 +199,8 @@ function InviteContent() {
             Program: <strong>{data.program.title}</strong>
           </p>
         )}
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
-          Complete the form below to accept this invitation.
+        <p style={{ fontSize: '0.9375rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
+          Fill in the form below to accept and get started.
         </p>
 
         <form onSubmit={handleSubmit}>
@@ -263,19 +263,19 @@ function InviteContent() {
 
           <div style={{ marginBottom: '1.5rem' }}>
             <label htmlFor="invite-password" style={labelStyle}>
-              Password (required for new accounts)
+              Create a password
             </label>
             <input
               id="invite-password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Min 8 characters — leave blank if you already have an account"
+              placeholder="At least 8 characters"
               minLength={8}
               style={inputStyle}
             />
-            <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
-              New to WorkforceAP? Enter a password to create your account. Already have an account? Leave blank to add this role.
+            <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
+              First time here? Create a password. Already have an account? Leave this blank.
             </p>
           </div>
 

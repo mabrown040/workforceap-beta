@@ -48,7 +48,7 @@ export default async function AdminNewInvitePage({ searchParams }: InviteFormPag
       <PageHeader
         breadcrumbs={[{ label: 'Invites', href: '/admin/invites' }, { label: 'New Invite' }]}
         title="Send New Invite"
-        subtitle="This form posts directly to the server and works even if client-side modal actions are unavailable."
+        subtitle="Invite someone to join WorkforceAP. They'll get an email with a link to sign up."
       />
 
       {error ? (
@@ -72,12 +72,12 @@ export default async function AdminNewInvitePage({ searchParams }: InviteFormPag
             <option value="counselor">Counselor</option>
           </select>
           <small style={{ color: 'var(--color-on-surface-variant)' }}>
-            Optional fields below are applied only when relevant for the selected role.
+            The fields below change based on which role you pick.
           </small>
         </label>
 
         <label className="form-group" style={{ margin: 0 }}>
-          <span>Subgroup (partner invites only)</span>
+          <span>Subgroup (for partners)</span>
           <select name="subgroupId" defaultValue="">
             <option value="">None</option>
             {subgroups.map((sg) => (
@@ -89,7 +89,7 @@ export default async function AdminNewInvitePage({ searchParams }: InviteFormPag
         </label>
 
         <label className="form-group" style={{ margin: 0 }}>
-          <span>Partner affiliation (counselor invites only)</span>
+          <span>Partner affiliation (for counselors)</span>
           <select name="partnerId" defaultValue="">
             <option value="">WorkforceAP (organization counselor)</option>
             {partners.map((partner) => (
@@ -101,7 +101,7 @@ export default async function AdminNewInvitePage({ searchParams }: InviteFormPag
         </label>
 
         <label className="form-group" style={{ margin: 0 }}>
-          <span>Program pre-assignment (student invites only)</span>
+          <span>Assign to program (for students)</span>
           <select name="programSlug" defaultValue="">
             <option value="">None</option>
             {PROGRAMS.map((program) => (

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { buildPageMetadata } from '@/app/seo';
 import { prisma } from '@/lib/db/prisma';
+import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import PageHero from '@/components/PageHero';
@@ -16,6 +17,7 @@ import { getDefaultImage } from '@/lib/blog/defaultImages';
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateStaticParams() {
+  if (shouldSkipOptionalDbQueriesAtBuild()) return [];
   try {
     const posts = await prisma.blogPost.findMany({
       where: { OR: [{ published: true }, { scheduledAt: { lte: new Date() } }] },
@@ -30,6 +32,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const now = new Date();
+  if (shouldSkipOptionalDbQueriesAtBuild()) return {};
   let post = null;
   try {
     post = await prisma.blogPost.findUnique({
@@ -61,6 +64,7 @@ const categoryProgramMap: Record<string, string[]> = {
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
   const now = new Date();
+  if (shouldSkipOptionalDbQueriesAtBuild()) notFound();
   let post = null;
   try {
     post = await prisma.blogPost.findUnique({

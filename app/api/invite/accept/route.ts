@@ -9,6 +9,17 @@ import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { Prisma } from '@prisma/client';
 
 type InviteTx = Prisma.TransactionClient;
+type AcceptInvitation = {
+  id: string;
+  email: string;
+  role: string;
+  invitedById: string;
+  subgroupId: string | null;
+  partnerId: string | null;
+  programSlug: string | null;
+  status: string;
+  expiresAt: Date;
+};
 
 function profileRoleForInvitation(role: string): string {
   return role === 'member' ? 'member' : role === 'counselor' ? 'counselor' : role;
@@ -98,6 +109,18 @@ async function ensureMemberSubgroupLink(
 
 async function findRoleByName(tx: InviteTx, name: string) {
   return tx.role.findFirst({ where: { name } });
+}
+
+async function loadInviterForNotification(invitedById: string) {
+  try {
+    return await prisma.user.findFirst({
+      where: { id: invitedById },
+      select: { fullName: true, email: true },
+    });
+  } catch (err) {
+    inviteAcceptLog('notify:inviter_lookup_failed', { err });
+    return null;
+  }
 }
 
 /** Debug breadcrumbs for preview/Vercel logs (no PII). */
@@ -224,12 +247,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid or missing token' }, { status: 400 });
   }
 
+  let debugStep = 'load_invitation';
   try {
     const invitation = await prisma.invitation.findFirst({
       where: { token },
-      include: {
-        invitedBy: { select: { id: true, fullName: true, email: true } },
-        subgroup: { select: { id: true } },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        invitedById: true,
+        subgroupId: true,
+        partnerId: true,
+        programSlug: true,
+        status: true,
+        expiresAt: true,
       },
     });
 
@@ -255,8 +286,10 @@ export async function POST(request: NextRequest) {
     // Match admin invite storage (lowercased) and avoid an unnecessary user_roles/roles join:
     // accept flow does not read userRoles; a broken roles join would 500 both branches here.
     const inviteEmail = String(invitation.email).trim().toLowerCase();
+    debugStep = 'lookup_existing_user';
     const existingUser = await prisma.user.findFirst({
       where: { email: inviteEmail },
+      select: { id: true, fullName: true, email: true },
     });
 
     if (existingUser) {
@@ -273,13 +306,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    debugStep = 'create_new_user';
     inviteAcceptLog('route:before_createNewUser', { invitationId: invitation.id });
     return await createNewUserAndAccept(invitation, fullName, phone, password, request);
   } catch (e) {
     inviteAcceptLog('route:outer_catch', { err: e });
     console.error('[api/invite/accept]', e);
     return NextResponse.json(
-      { error: 'Something went wrong accepting this invitation. Please try again.' },
+      {
+        error: 'Something went wrong accepting this invitation. Please try again.',
+        debugStep,
+      },
       { status: 500 }
     );
   }
@@ -287,15 +324,7 @@ export async function POST(request: NextRequest) {
 
 async function acceptExistingUser(
   user: { id: string; fullName: string; email: string },
-  invitation: {
-    id: string;
-    role: string;
-    invitedById: string;
-    subgroupId: string | null;
-    partnerId: string | null;
-    programSlug: string | null;
-    invitedBy: { fullName: string; email: string };
-  },
+  invitation: AcceptInvitation,
   fullName: string,
   _request: NextRequest
 ) {
@@ -376,13 +405,16 @@ async function acceptExistingUser(
   }
 
   const roleLabel = invitationRoleLabel(invitation.role);
+  const inviter = await loadInviterForNotification(invitation.invitedById);
 
-  sendInvitationAcceptedEmail({
-    to: invitation.invitedBy.email,
-    accepterName: fullName || user.fullName,
-    accepterEmail: user.email,
-    role: roleLabel,
-  }).catch((err) => console.error('Invitation accepted email failed:', err));
+  if (inviter?.email) {
+    sendInvitationAcceptedEmail({
+      to: inviter.email,
+      accepterName: fullName || user.fullName,
+      accepterEmail: user.email,
+      role: roleLabel,
+    }).catch((err) => console.error('Invitation accepted email failed:', err));
+  }
 
   return NextResponse.json({
     ok: true,
@@ -392,16 +424,7 @@ async function acceptExistingUser(
 }
 
 async function createNewUserAndAccept(
-  invitation: {
-    id: string;
-    email: string;
-    role: string;
-    invitedById: string;
-    subgroupId: string | null;
-    partnerId: string | null;
-    programSlug: string | null;
-    invitedBy: { fullName: string; email: string };
-  },
+  invitation: AcceptInvitation,
   fullName: string,
   phone: string | null,
   password: string,
@@ -423,12 +446,26 @@ async function createNewUserAndAccept(
     );
   }
 
-  const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-    email: inviteEmail,
-    password,
-    email_confirm: true,
-    user_metadata: { full_name: fullName, phone },
-  });
+  let authData: Awaited<ReturnType<typeof supabase.auth.admin.createUser>>['data'];
+  let authError: Awaited<ReturnType<typeof supabase.auth.admin.createUser>>['error'];
+  try {
+    ({ data: authData, error: authError } = await supabase.auth.admin.createUser({
+      email: inviteEmail,
+      password,
+      email_confirm: true,
+      user_metadata: { full_name: fullName, phone },
+    }));
+  } catch (err) {
+    inviteAcceptLog('supabase:create_user_threw', { invitationId: invitation.id, err });
+    console.error('[createNewUserAndAccept] createUser threw:', err);
+    return NextResponse.json(
+      {
+        error: 'Something went wrong accepting this invitation. Please try again.',
+        debugStep: 'create_auth_user',
+      },
+      { status: 500 }
+    );
+  }
 
   if (authError) {
     if (authError.message.includes('already') || authError.code === 'user_already_exists') {
@@ -470,16 +507,7 @@ async function createNewUserAndAccept(
 
 async function finishNewUserDbSetup(
   authUserId: string,
-  invitation: {
-    id: string;
-    email: string;
-    role: string;
-    invitedById: string;
-    subgroupId: string | null;
-    partnerId: string | null;
-    programSlug: string | null;
-    invitedBy: { fullName: string; email: string };
-  },
+  invitation: AcceptInvitation,
   fullName: string,
   phone: string | null,
   _request: NextRequest
@@ -593,13 +621,16 @@ async function finishNewUserDbSetup(
   }
 
   const roleLabel = invitationRoleLabel(invitation.role);
+  const inviter = await loadInviterForNotification(invitation.invitedById);
 
-  sendInvitationAcceptedEmail({
-    to: invitation.invitedBy.email,
-    accepterName: fullName,
-    accepterEmail: invitation.email,
-    role: roleLabel,
-  }).catch((err) => console.error('Invitation accepted email failed:', err));
+  if (inviter?.email) {
+    sendInvitationAcceptedEmail({
+      to: inviter.email,
+      accepterName: fullName,
+      accepterEmail: invitation.email,
+      role: roleLabel,
+    }).catch((err) => console.error('Invitation accepted email failed:', err));
+  }
 
   return NextResponse.json({
     ok: true,

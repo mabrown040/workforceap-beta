@@ -24,6 +24,27 @@ async function findAuthUserIdByEmail(admin: ReturnType<typeof getSupabaseAdmin>,
   return null;
 }
 
+async function ensurePartnerUserLink(userId: string, partnerId: string) {
+  const existing = await prisma.partnerUser.findFirst({
+    where: { userId },
+    select: { id: true, partnerId: true },
+  });
+
+  if (existing) {
+    if (existing.partnerId !== partnerId) {
+      await prisma.partnerUser.update({
+        where: { id: existing.id },
+        data: { partnerId },
+      });
+    }
+    return;
+  }
+
+  await prisma.partnerUser.create({
+    data: { partnerId, userId },
+  });
+}
+
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const adminUser = await getUser();
   if (!adminUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -77,11 +98,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       update: { email },
     });
 
-    await prisma.partnerUser.upsert({
-      where: { userId: authUserId },
-      create: { partnerId, userId: authUserId },
-      update: { partnerId },
-    });
+    await ensurePartnerUserLink(authUserId, partnerId);
   } catch (e) {
     console.error('Partner invite DB error:', e);
     return NextResponse.json({ error: 'Failed to link partner user' }, { status: 500 });

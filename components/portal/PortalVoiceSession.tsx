@@ -364,6 +364,7 @@ export default function PortalVoiceSession({
     try {
       const res = await fetch(sessionEndpoint, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: sessionPayload ? JSON.stringify(sessionPayload) : '{}',
       });

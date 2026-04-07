@@ -3,6 +3,7 @@
  * Set these in Vercel / `.env` alongside `ELEVENLABS_API_KEY`.
  */
 
+import { clampElevenLabsDynamicVariables } from '@/lib/ai/clampElevenLabsDynamicVariables';
 import { createConversationalSession } from '@/lib/ai/elevenlabs';
 
 export type ElevenLabsPortalAgentKey =
@@ -52,15 +53,18 @@ export async function startElevenLabsPortalSession(
 ): Promise<{
   signedUrl: string;
   expiresAt?: string;
-  dynamicVariables?: Record<string, string | number | boolean>;
+  dynamicVariables?: Record<string, string>;
 }> {
   const agentId = getElevenLabsAgentId(key);
   if (!agentId) {
     throw new Error(`No ElevenLabs agent ID for "${key}". Set ${ENV_KEYS[key]}.`);
   }
   const session = await createConversationalSession(agentId);
+  const dynamicVariables = options?.dynamicVariables
+    ? clampElevenLabsDynamicVariables(options.dynamicVariables)
+    : undefined;
   return {
     ...session,
-    ...(options?.dynamicVariables ? { dynamicVariables: options.dynamicVariables } : {}),
+    ...(dynamicVariables ? { dynamicVariables } : {}),
   };
 }

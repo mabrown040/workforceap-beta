@@ -469,7 +469,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 <div style={{ height:"7rem", position:"relative", background: `linear-gradient(135deg, ${prog.categoryColor} 0%, var(--surface-container-highest) 100%)` }}>
                 </div>
                 <div style={{ padding:"1rem", display:"flex", flexDirection:"column", gap:"0.25rem" }}>
-                  <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-widest" style={{ color: 'var(--color-gold)' }}>{prog.partner || 'WorkforceAP'}</p>
+                  <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-widest" style={{ color: 'var(--color-gold)' }}>{prog.partner || 'WorkforceAP'}</p>
                   <h4 className="wa-font-bold wa-text-sm wa-text-[var(--color-on-surface)] wa-leading-tight">{prog.title}</h4>
                 </div>
               </div>
@@ -490,7 +490,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
               <a key={action.label} href={action.href}
                 className="active:scale-[0.97] wa-transition-transform" style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"1rem", borderRadius:"0.75rem", textDecoration:"none", background:"var(--surface-container-lowest)", border:"1px solid var(--outline-variant)", boxShadow:"0 1px 4px rgba(0,0,0,0.05)" }}>
                 <span className="material-symbols-outlined" style={{ marginBottom:"0.5rem", color:"var(--color-accent)" }}>{action.icon}</span>
-                <span className="wa-text-[11px] wa-font-bold wa-text-[var(--color-on-surface)] wa-tracking-tight">{action.label}</span>
+                <span className="wa-text-xs wa-font-bold wa-text-[var(--color-on-surface)] wa-tracking-tight">{action.label}</span>
               </a>
             ))}
           </div>
@@ -510,12 +510,12 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                   <div style={{ flex:1, minWidth:0 }}>
                     <p className="wa-text-xs wa-font-bold wa-text-[#1c1b1b] wa-leading-tight">{AI_TOOL_LABELS[r.toolType] ?? r.toolType}</p>
                     {r.inputSummary && (
-                      <p className="wa-text-[11px] wa-text-[#584144] wa-leading-snug wa-truncate" style={{ marginTop: '0.1rem' }}>
+                      <p className="wa-text-xs wa-text-[#584144] wa-leading-snug wa-truncate" style={{ marginTop: '0.1rem' }}>
                         {stripMarkdownForPreview(r.inputSummary)}
                       </p>
                     )}
                   </div>
-                  <span className="wa-text-[10px] wa-text-[#584144] wa-whitespace-nowrap" style={{ flexShrink:0 }}>{formatPortalDate(r.createdAt)}</span>
+                  <span className="wa-text-[11px] wa-text-[#584144] wa-whitespace-nowrap" style={{ flexShrink:0 }}>{formatPortalDate(r.createdAt)}</span>
                 </div>
               ))}
             </div>
@@ -576,19 +576,16 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           {showMatchedRoles && userAge !== null && userAge < 14 ? null : <MatchedRoles />}
           {recentTools.length > 0 && (
             <section style={{ padding:'1.5rem 2rem', borderTop:'1px solid var(--surface-container-high)', maxWidth:'900px', margin:'0 auto' }}>
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'0.75rem' }}>
+              <div className="portal-section-header">
                 <h2 style={{ fontSize:'1rem', fontWeight:700, margin:0, color:'var(--color-on-surface)' }}>Recent AI Activity</h2>
-                <Link
-                  href="/dashboard/ai-tools/history"
-                  style={{ display:'inline-flex', alignItems:'center', gap:'0.3rem', fontSize:'0.8rem', fontWeight:600, color:'var(--color-accent)', textDecoration:'none' }}
-                >
+                <Link href="/dashboard/ai-tools/history" className="portal-section-action">
                   View all
                   <span className="material-symbols-outlined" style={{ fontSize:'0.9rem' }}>arrow_forward</span>
                 </Link>
               </div>
               <div style={{ display:'flex', flexDirection:'column', gap:'0.5rem' }}>
                 {recentTools.map((r) => (
-                  <div key={r.id} style={{ display:'flex', alignItems:'center', gap:'1rem', padding:'0.75rem 1rem', borderRadius:'10px', background:'var(--surface-container-low)', border:'1px solid var(--surface-container-high)' }}>
+                  <div key={r.id} className="stitch-card stitch-card--padded-sm" style={{ display:'flex', alignItems:'center', gap:'1rem' }}>
                     <span className="material-symbols-outlined" style={{ fontSize:'1.25rem', color:'var(--color-accent)', flexShrink:0 }}>smart_toy</span>
                     <div style={{ flex:1, minWidth:0 }}>
                       <p style={{ fontSize:'0.875rem', fontWeight:600, margin:0, color:'var(--color-on-surface)' }}>{AI_TOOL_LABELS[r.toolType] ?? r.toolType}</p>

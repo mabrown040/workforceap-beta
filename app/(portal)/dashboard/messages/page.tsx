@@ -4,6 +4,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
+import PageHeader from '@/components/portal/PageHeader';
 import MemberCounselorChatClient from '@/components/portal/MemberCounselorChatClient';
 import MemberMessagesMobileClient from '@/components/portal/MemberMessagesMobileClient';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -74,7 +75,10 @@ export default async function MemberMessagesPage() {
 
       {/* ── Desktop view ── */}
       <div className="wa-hidden wa-md:wa-block">
-        <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Messages</h1>
+        <PageHeader
+          title="Messages"
+          breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Messages' }]}
+        />
         <MemberCounselorChatClient
           initial={{
             memberUserId: user.id,

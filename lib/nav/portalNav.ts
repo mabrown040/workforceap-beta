@@ -39,7 +39,7 @@ import {
 
 export type PortalRole = 'member' | 'employer' | 'partner' | 'admin' | 'group' | 'counselor';
 
-export type NavGroup = 'primary' | 'workflows' | 'insights' | 'manage';
+export type NavGroup = 'primary' | 'workflows' | 'people' | 'pipeline' | 'content' | 'insights' | 'manage';
 
 export type NavTab = 'journey' | 'tools' | 'connect' | 'me';
 
@@ -87,23 +87,26 @@ export const NAV_TAB_ORDER: NavTab[] = ['journey', 'tools', 'connect', 'me'];
 export const NAV_GROUP_LABELS: Record<NavGroup, string | null> = {
   primary: null,
   workflows: 'Workflows',
+  people: 'People',
+  pipeline: 'Pipeline',
+  content: 'Content',
   insights: 'Insights',
   manage: 'Manage',
 };
 
-export const GROUP_ORDER: NavGroup[] = ['primary', 'workflows', 'insights', 'manage'];
+export const GROUP_ORDER: NavGroup[] = ['primary', 'people', 'pipeline', 'content', 'workflows', 'insights', 'manage'];
 
 export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   // ── My Journey tab ──
   { href: '/dashboard', label: 'Overview', group: 'primary', tab: 'journey', Icon: Home, tourTarget: 'tour-dashboard' },
   { href: '/dashboard/program', label: 'My Program', group: 'primary', tab: 'journey', Icon: BookOpen, tourTarget: 'tour-programs' },
   { href: '/dashboard/training', label: 'Training', group: 'primary', tab: 'journey', Icon: GraduationCap },
-  { href: '/dashboard/readiness', label: 'Career Readiness', group: 'insights', tab: 'journey', Icon: CheckCircle },
+  { href: '/dashboard/readiness', label: 'Job Readiness', group: 'insights', tab: 'journey', Icon: CheckCircle },
   { href: '/dashboard/weekly-recap', label: 'Weekly Recap', group: 'insights', tab: 'journey', Icon: BarChart3 },
-  { href: '/dashboard/career-brief', label: 'Career Brief', group: 'insights', tab: 'journey', Icon: ClipboardList },
+  { href: '/dashboard/career-brief', label: 'Career Plan', group: 'insights', tab: 'journey', Icon: ClipboardList },
   {
     href: '/dashboard/learning/wioa-qualification',
-    label: 'WIOA screening',
+    label: 'Funding eligibility',
     group: 'insights',
     tab: 'journey',
     Icon: Shield,
@@ -272,45 +275,57 @@ export const PARTNER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
 /** @deprecated Subgroup leader UI removed; keep empty for typing */
 export const GROUP_PORTAL_NAV_ITEMS: PortalNavItem[] = [];
 
-/** Admin ops — same WorkspaceShell grouping pattern as employer/partner/member. */
+/** Admin ops — grouped by function so the sidebar is scannable at a glance. */
 export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
+  // ── Primary ──
   { href: '/admin', label: 'Overview', group: 'primary', Icon: BarChart3 },
+
+  // ── People — everyone in the system ──
+  { href: '/admin/members', label: 'Members', group: 'people', Icon: Users },
+  { href: '/admin/employers', label: 'Employers', group: 'people', Icon: Building2 },
+  { href: '/admin/partners', label: 'Partners', group: 'people', Icon: Handshake },
+  { href: '/admin/counselors', label: 'Counselors', group: 'people', Icon: Users },
+  { href: '/admin/subgroups', label: 'Subgroups', group: 'people', Icon: UsersRound },
+  { href: '/admin/mentors', label: 'Mentors', group: 'people', Icon: GraduationCap },
   {
     href: '/admin/messages',
-    label: 'Counselor messages',
-    group: 'workflows',
+    label: 'Messages',
+    group: 'people',
     Icon: MessageSquare,
     requiresSuperAdminContext: true,
     badgeKey: 'counselor_sla_breach_48h',
   },
-  { href: '/admin/members', label: 'Members', group: 'workflows', Icon: Users },
-  { href: '/admin/wioa-screening', label: 'WIOA screening', group: 'workflows', Icon: ClipboardList },
-  { href: '/admin/members/interview-ready', label: 'Interview ready', group: 'workflows', Icon: ListChecks },
-  { href: '/admin/invites', label: 'Invites', group: 'workflows', Icon: MessageSquare },
-  { href: '/admin/assessments', label: 'Assessments', group: 'workflows', Icon: ClipboardCheck },
-  { href: '/admin/programs', label: 'Programs', group: 'workflows', Icon: BookOpen },
+
+  // ── Pipeline — training, progress, outcomes ──
+  { href: '/admin/pipeline', label: 'Pipeline', group: 'pipeline', Icon: GitBranch },
+  { href: '/admin/members/interview-ready', label: 'Job ready', group: 'pipeline', Icon: ListChecks },
+  { href: '/admin/programs', label: 'Programs', group: 'pipeline', Icon: BookOpen },
   {
     href: '/admin/program-change-requests',
-    label: 'Program changes',
-    group: 'workflows',
+    label: 'Program requests',
+    group: 'pipeline',
     Icon: ArrowLeftRight,
   },
-  { href: '/admin/career-mappings', label: 'Career mappings', group: 'workflows', Icon: Target },
-  { href: '/admin/mentors', label: 'Mentors', group: 'manage', Icon: GraduationCap },
-  { href: '/admin/settings', label: 'Settings', group: 'manage', Icon: Settings },
-  { href: '/admin/blog', label: 'Blog', group: 'workflows', Icon: FileText },
-  { href: '/admin/jobs', label: 'Jobs', group: 'workflows', Icon: Briefcase },
-  { href: '/admin/employers', label: 'Employers', group: 'workflows', Icon: Building2 },
-  { href: '/admin/counselors', label: 'Counselors', group: 'workflows', Icon: Users },
-  { href: '/admin/partners', label: 'Partners', group: 'workflows', Icon: Handshake },
-  { href: '/admin/subgroups', label: 'Subgroups', group: 'workflows', Icon: UsersRound },
-  { href: '/admin/pipeline', label: 'Pipeline', group: 'workflows', Icon: GitBranch },
+  { href: '/admin/assessments', label: 'Assessments', group: 'pipeline', Icon: ClipboardCheck },
+  { href: '/admin/wioa-screening', label: 'Funding eligibility', group: 'pipeline', Icon: ClipboardList },
+  { href: '/admin/career-mappings', label: 'Career paths', group: 'pipeline', Icon: Target },
+  { href: '/admin/certifications', label: 'Certificates', group: 'pipeline', Icon: Award },
+
+  // ── Content — jobs, blog, invites ──
+  { href: '/admin/jobs', label: 'Jobs', group: 'content', Icon: Briefcase },
+  { href: '/admin/blog', label: 'Blog', group: 'content', Icon: FileText },
+  { href: '/admin/invites', label: 'Invites', group: 'content', Icon: MessageSquare },
+
+  // ── Insights — metrics and reporting ──
+  { href: '/admin/exports', label: 'Exports', group: 'insights', Icon: Download },
   { href: '/admin/metrics', label: 'Metrics', group: 'insights', Icon: LineChart },
-  { href: '/admin/diagnostics', label: 'Diagnostics', group: 'insights', Icon: Activity },
   { href: '/admin/weekly-recap', label: 'Weekly recap', group: 'insights', Icon: BarChart3 },
   { href: '/admin/ai-tools', label: 'AI tools', group: 'insights', Icon: Sparkles },
+  { href: '/admin/diagnostics', label: 'Diagnostics', group: 'insights', Icon: Activity },
   { href: '/admin/audit-logs', label: 'Audit logs', group: 'insights', Icon: Shield, requiresSuperAdminContext: true },
-  { href: '/admin/certifications', label: 'Certificates', group: 'insights', Icon: Award },
+
+  // ── Manage ──
+  { href: '/admin/settings', label: 'Settings', group: 'manage', Icon: Settings },
 ];
 
 export const COUNSELOR_PORTAL_NAV_ITEMS: PortalNavItem[] = [

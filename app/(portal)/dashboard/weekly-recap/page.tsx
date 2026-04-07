@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import PageHeader from '@/components/portal/PageHeader';
 import WeeklyRecapClient from '@/components/portal/WeeklyRecapClient';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
@@ -58,15 +58,11 @@ export default async function WeeklyRecapPage() {
   return (
     <>
     <div className="inner-page">
-      <section className="page-hero">
-        <div className="page-hero-content">
-          <Link href="/dashboard/career-brief" className="resource-back-link">
-            ← Back to Career Brief
-          </Link>
-          <h1>Your Weekly Recap</h1>
-          <p>Your personalized summary and recommended next actions.</p>
-        </div>
-      </section>
+      <PageHeader
+        title="Your Weekly Recap"
+        subtitle="Your personalized summary and recommended next actions."
+        breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Weekly Recap' }]}
+      />
 
       <section className="content-section">
         <div className="container">

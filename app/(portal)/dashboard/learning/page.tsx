@@ -7,6 +7,7 @@ import { prisma } from '@/lib/db/prisma';
 import { PATHWAYS } from '@/lib/content/learningPathways';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { buildPathwayMilestones } from '@/lib/content/pathwayStepDisplay';
+import PageHeader from '@/components/portal/PageHeader';
 import LearningPathCard from '@/components/portal/LearningPathCard';
 import LearningHubDestinationCards from '@/components/portal/LearningHubDestinationCards';
 import LearningHubEnrolledCourses from '@/components/portal/LearningHubEnrolledCourses';
@@ -63,7 +64,7 @@ export default async function LearningPage() {
     <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
       {/* Header */}
       <div style={{ padding: '1.5rem 1.5rem 0', marginBottom: '1.5rem' }}>
-        <p className="wa-text-[10px] wa-font-medium wa-tracking-[0.1em] wa-uppercase wa-text-[#8c0f37]" style={{ display: 'block', marginBottom: '0.5rem' }}>Curriculum Oversight</p>
+        <p className="wa-text-[11px] wa-font-medium wa-tracking-[0.1em] wa-uppercase wa-text-[#8c0f37]" style={{ display: 'block', marginBottom: '0.5rem' }}>Your Learning</p>
         <h2 className="wa-text-3xl wa-font-bold wa-tracking-tight wa-text-[#1c1b1b] wa-leading-tight">The Learning Hub</h2>
       </div>
 
@@ -222,24 +223,11 @@ export default async function LearningPage() {
       {/* Top bar: label + heading + progress */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 'var(--space-4)', marginBottom: 'var(--space-8)' }}>
         <div>
-          <p
-            style={{
-              fontSize: 'var(--font-size-sm)',
-              fontWeight: 'var(--font-weight-medium)',
-              color: 'var(--color-accent)',
-              textTransform: 'uppercase' as const,
-              letterSpacing: '0.06em',
-              marginBottom: 'var(--space-2)',
-            }}
-          >
-            Curriculum Oversight
-          </p>
-          <h2 style={{ fontSize: 'var(--font-size-h1)', fontWeight: 'var(--font-weight-bold)', lineHeight: 'var(--line-height-tight)', margin: 0 }}>
-            The Learning Hub
-          </h2>
-          <p style={{ color: 'var(--color-on-surface-variant)', marginTop: 'var(--space-2)', maxWidth: '560px' }}>
-            Your pathways, searchable career resources, and program-specific tools — organized so you always know where to look next.
-          </p>
+          <PageHeader
+            title="The Learning Hub"
+            subtitle="Your pathways, searchable career resources, and program-specific tools — organized so you always know where to look next."
+            breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Learning Hub' }]}
+          />
         </div>
 
         {/* Overall completion */}
@@ -443,7 +431,7 @@ export default async function LearningPage() {
           Step-by-step tracks toward job-ready skills. Your progress syncs as you complete steps.
         </p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 'var(--space-4)' }}>
+        <div className="portal-grid-metrics">
           {PATHWAYS.map((pathway, idx) => {
             const isLocked = idx > 1;
             const icon = MODULE_ICONS[pathway.category] ?? 'school';

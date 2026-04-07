@@ -72,14 +72,13 @@ export default async function NewJobPage() {
       </div>
 
       <div className="wa-hidden wa-md:wa-block">
-        <div style={{ marginBottom: '1.5rem' }}>
-          <Link href="/employer/jobs" style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
-            ← Back to My Jobs
-          </Link>
-        </div>
         <PageHeader
           title="Post New Job"
           subtitle="Create a job posting. Save as draft or submit for admin review."
+          breadcrumbs={[
+            { label: 'Job Postings', href: '/employer/jobs' },
+            { label: 'New Job' },
+          ]}
         />
         <JobForm companyName={employer?.companyName ?? ''} programSlugs={programSlugs} />
       </div>

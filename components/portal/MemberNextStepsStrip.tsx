@@ -32,7 +32,7 @@ export default function MemberNextStepsStrip({
       >
         <h3
           style={{
-            fontSize: compact ? '0.7rem' : '0.75rem',
+            fontSize: compact ? '0.75rem' : '0.8rem',
             fontWeight: 700,
             letterSpacing: '0.12em',
             textTransform: 'uppercase',
@@ -42,7 +42,7 @@ export default function MemberNextStepsStrip({
         >
           Your next steps
         </h3>
-        <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', opacity: 0.85 }}>
+        <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
           Picked for you based on your progress
         </span>
       </div>
@@ -86,7 +86,7 @@ export default function MemberNextStepsStrip({
             </h4>
             <p
               style={{
-                fontSize: compact ? '0.78rem' : '0.82rem',
+                fontSize: compact ? '0.8125rem' : '0.875rem',
                 color: 'var(--color-on-surface-variant)',
                 lineHeight: 1.5,
                 margin: 0,
@@ -100,8 +100,8 @@ export default function MemberNextStepsStrip({
               className="btn btn-primary"
               style={{
                 alignSelf: 'flex-start',
-                fontSize: compact ? '0.75rem' : '0.8rem',
-                padding: compact ? '0.4rem 0.85rem' : '0.45rem 1rem',
+                fontSize: compact ? '0.8rem' : '0.85rem',
+                padding: compact ? '0.5rem 0.85rem' : '0.55rem 1rem',
                 textDecoration: 'none',
                 marginTop: '0.25rem',
               }}

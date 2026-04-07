@@ -129,17 +129,17 @@ export default async function AdminPage() {
       {/* ── Desktop Header ── */}
       <div className="wa-hidden wa-md:wa-block" style={{ marginBottom: '2.5rem' }}>
         <PageHeader
-          title="Admin Overview"
-          subtitle="Platform overview and key metrics"
+          title="Admin Dashboard"
+          subtitle="See who's signing up, how training is going, and where members are getting placed."
           action={
             <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <Link href="/admin/pipeline" style={{ padding: '0.625rem 1.5rem', background: 'var(--surface-container-high)', color: 'var(--color-accent)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>download</span>
-                Export Data
+              <Link href="/admin/pipeline" className="btn btn-outline">
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>account_tree</span>
+                Pipeline
               </Link>
-              <Link href="/admin/programs" style={{ padding: '0.625rem 1.5rem', background: 'linear-gradient(to right, var(--color-accent), #71333e)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none', boxShadow: '0 4px 24px rgba(0,0,0,0.3)', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>
-                Create New Track
+              <Link href="/admin/members" className="btn btn-primary">
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>groups</span>
+                All Members
               </Link>
             </div>
           }
@@ -148,37 +148,21 @@ export default async function AdminPage() {
 
       {/* ── Pending Applications Alert ── */}
       {pendingApplications > 0 && (
-        <div className="wa-md:wa-hidden" style={{
-          margin: '0 1.5rem 1rem',
-          padding: '1rem 1.25rem',
-          background: 'rgba(173,44,77,0.1)',
-          borderRadius: '0.75rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}>
-          <span style={{ fontWeight: 600, color: 'var(--color-accent)', fontSize: '0.875rem' }}>
+        <div className="wa-md:wa-hidden portal-alert portal-alert--accent" style={{ margin: '0 1.5rem 1rem' }}>
+          <span className="portal-alert__label">
             {pendingApplications} pending
           </span>
-          <Link href="/admin/members" style={{ color: 'var(--color-accent)', fontWeight: 600, fontSize: '0.875rem', textDecoration: 'none' }}>
+          <Link href="/admin/members" className="portal-alert__action">
             Review &rarr;
           </Link>
         </div>
       )}
       {pendingApplications > 0 && (
-        <div className="wa-hidden wa-md:wa-block" style={{
-          padding: '1rem 1.5rem',
-          background: 'rgba(173,44,77,0.1)',
-          borderRadius: '0.75rem',
-          marginBottom: '1.5rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}>
-          <span style={{ fontWeight: 600, color: 'var(--color-accent)', fontSize: '0.875rem' }}>
+        <div className="wa-hidden wa-md:wa-block portal-alert portal-alert--accent" style={{ marginBottom: '1.5rem' }}>
+          <span className="portal-alert__label">
             {pendingApplications} pending application{pendingApplications === 1 ? '' : 's'} awaiting review
           </span>
-          <Link href="/admin/members" style={{ color: 'var(--color-accent)', fontWeight: 600, fontSize: '0.875rem', textDecoration: 'none' }}>
+          <Link href="/admin/members" className="portal-alert__action">
             Review &rarr;
           </Link>
         </div>
@@ -186,14 +170,7 @@ export default async function AdminPage() {
 
       {/* ── Metric row (single treatment — desktop + mobile) ── */}
       <section style={{ padding: '0 1.5rem', marginBottom: '2rem' }}>
-        <div
-          className="wa-admin-metric-row"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-            gap: '1rem',
-          }}
-        >
+        <div className="portal-grid-metrics">
           {metricCards.map((card) => (
             <Link
               key={card.label}
@@ -218,14 +195,14 @@ export default async function AdminPage() {
                 </span>
               </div>
               <span style={{ fontSize: 'clamp(1.35rem, 4vw, 2rem)', fontWeight: 700, color: 'var(--color-on-surface)', display: 'block', lineHeight: 1 }}>{card.value}</span>
-              <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: '0.35rem', display: 'block' }}>{card.label}</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: '0.35rem', display: 'block' }}>{card.label}</span>
             </Link>
           ))}
         </div>
       </section>
 
       {/* ── Main Dashboard Layout ── */}
-      <div className="wa-hidden wa-md:wa-block" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
+      <div className="wa-hidden wa-md:wa-block portal-grid-2col" style={{ gap: '2rem' }}>
         {/* ── Left Column ── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
 
@@ -268,7 +245,7 @@ export default async function AdminPage() {
                               <Link href={`/admin/members/${u.id}`} style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)', textDecoration: 'none' }}>
                                 {u.fullName ?? 'Unknown'}
                               </Link>
-                              <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>{u.email}</p>
+                              <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{u.email}</p>
                             </div>
                           </div>
                         </td>
@@ -293,7 +270,7 @@ export default async function AdminPage() {
                   <thead>
                     <tr style={{ borderBottom: '1px solid rgba(226,226,229,0.05)' }}>
                       {['Student', 'Employer', 'Role', 'Program', 'Days', 'Salary', 'Date'].map((h) => (
-                        <th key={h} style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(226,226,229,0.4)', fontWeight: 600 }}>{h}</th>
+                        <th key={h} style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', fontWeight: 600 }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -334,23 +311,23 @@ export default async function AdminPage() {
             </div>
           )}
 
-          {/* System Configuration Grid */}
+          {/* Quick Links */}
           <section>
-            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, letterSpacing: '-0.02em', marginBottom: '1.25rem', color: 'var(--color-on-surface)' }}>System Configuration</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, letterSpacing: '-0.02em', marginBottom: '1.25rem', color: 'var(--color-on-surface)' }}>Quick Links</h3>
+            <div className="portal-grid-3col">
               {[
-                { icon: 'language', label: 'Global Nodes', desc: 'Partners and organizations', href: '/admin/partners' },
-                { icon: 'verified_user', label: 'Compliance', desc: 'Assessments and reviews', href: '/admin/assessments' },
-                { icon: 'database', label: 'Data Clusters', desc: 'Programs and training tracks', href: '/admin/programs' },
+                { icon: 'handshake', label: 'Partners', desc: 'Community organizations', href: '/admin/partners' },
+                { icon: 'task_alt', label: 'Assessments', desc: 'Skills assessments and scores', href: '/admin/assessments' },
+                { icon: 'school', label: 'Programs', desc: 'Training tracks and courses', href: '/admin/programs' },
               ].map((item) => (
-                <Link key={item.label} href={item.href} style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <div className="stitch-card" style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', transition: 'background-color 0.15s' }}>
+                <Link key={item.label} href={item.href} className="portal-action-row" style={{ gap: '1rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <div style={{ padding: '0.625rem', background: 'rgba(173,44,77,0.1)', borderRadius: '0.5rem' }}>
                       <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem' }}>{item.icon}</span>
                     </div>
                     <div>
-                      <h4 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{item.label}</h4>
-                      <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', marginTop: '0.125rem' }}>{item.desc}</p>
+                      <h4 className="portal-action-row__title">{item.label}</h4>
+                      <p className="portal-action-row__desc">{item.desc}</p>
                     </div>
                   </div>
                 </Link>
@@ -362,38 +339,48 @@ export default async function AdminPage() {
         {/* ── Right Column ── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
-          {/* Status Monitor */}
+          {/* At a Glance */}
           <div className="stitch-card" style={{ padding: '1.5rem' }}>
-            <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.2em', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#80d99f', display: 'inline-block' }} />
-              Status Monitor
+            <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
+              At a Glance
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              {[
-                { label: 'Gateway', status: 'Live', color: '#80d99f', icon: 'check_circle' },
-                { label: 'Database', status: '99.9%', color: '#80d99f', icon: 'check_circle' },
-                { label: 'LMS', status: 'Scheduled sync', color: '#fbbf24', icon: 'schedule' },
-              ].map((item) => (
-                <div key={item.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
-                  <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-on-surface)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: item.color }} aria-hidden>
-                      {item.icon}
-                    </span>
-                    {item.label}
+              <Link href="/admin/members" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', textDecoration: 'none' }}>
+                <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-on-surface)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden>groups</span>
+                  Total Members
+                </span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-accent)' }}>{totalMembers}</span>
+              </Link>
+              <Link href="/admin/pipeline" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', textDecoration: 'none' }}>
+                <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-on-surface)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#80d99f' }} aria-hidden>model_training</span>
+                  In Training
+                </span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#80d99f' }}>{activeInTraining}</span>
+              </Link>
+              <Link href="/admin/assessments" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', textDecoration: 'none' }}>
+                <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-on-surface)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#3b82f6' }} aria-hidden>task_alt</span>
+                  Assessments Done
+                </span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#3b82f6' }}>{assessmentsCompleted}</span>
+              </Link>
+              {pendingApplications > 0 && (
+                <Link href="/admin/members" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', textDecoration: 'none' }}>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-on-surface)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#fbbf24' }} aria-hidden>pending_actions</span>
+                    Pending Review
                   </span>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: item.color }}>{item.status}</span>
-                </div>
-              ))}
-              <div style={{ paddingTop: '1rem', borderTop: '1px solid rgba(226,226,229,0.05)' }}>
-                <div style={{ fontSize: '0.625rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>PLATFORM</div>
-                <div style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: 'var(--color-on-surface)' }}>Workforce Advancement Project</div>
-              </div>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#fbbf24' }}>{pendingApplications}</span>
+                </Link>
+              )}
             </div>
           </div>
 
-          {/* System Feed */}
+          {/* Recent Activity */}
           <div className="stitch-card-elevated" style={{ padding: '1.5rem' }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1.5rem', color: 'var(--color-on-surface)' }}>System Feed</h3>
+            <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1.5rem', color: 'var(--color-on-surface)' }}>Recent Activity</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative', paddingLeft: '2.5rem' }}>
               <div style={{ position: 'absolute', left: '0.75rem', top: '2.5rem', bottom: 0, width: '1px', background: 'rgba(226,226,229,0.1)' }} />
               {recentUsers.slice(0, 4).map((u, i) => (
@@ -406,13 +393,13 @@ export default async function AdminPage() {
                   <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
                     {u.fullName ?? 'New user'} signed up
                   </span>
-                  <span style={{ display: 'block', fontSize: '0.625rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
                     {timeAgo(u.createdAt)}
                   </span>
                 </div>
               ))}
             </div>
-            <Link href="/admin/members" style={{ display: 'block', width: '100%', marginTop: '2rem', padding: '0.5rem', textAlign: 'center', fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>
+            <Link href="/admin/members" style={{ display: 'block', width: '100%', marginTop: '2rem', padding: '0.5rem', textAlign: 'center', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>
               View All Members
             </Link>
           </div>

@@ -96,6 +96,10 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
       <PageHeader
         title={member.fullName}
         subtitle="Read-only overview. Contact information, assessments, and benefit requests are not shown in the partner portal."
+        breadcrumbs={[
+          { label: 'Referred Members', href: '/partner/referred-members' },
+          { label: 'Member Details' },
+        ]}
       />
 
       <section style={{ marginBottom: '1.5rem', padding: '1rem', background: 'var(--color-light)', borderRadius: '8px' }}>

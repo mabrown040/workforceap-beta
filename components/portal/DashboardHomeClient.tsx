@@ -136,7 +136,7 @@ export default function DashboardHomeClient({
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
           <span
             className="text-label-upper"
-            style={{ color: 'var(--color-on-surface-variant)', letterSpacing: '0.08em', fontSize: '0.6875rem' }}
+            style={{ color: 'var(--color-on-surface-variant)', letterSpacing: '0.08em', fontSize: '0.75rem' }}
           >
             {weekEyebrow}
             {programTitle ? ` · ${programTitle}` : ''}
@@ -197,7 +197,7 @@ export default function DashboardHomeClient({
                       ) : (
                         <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--color-on-surface-variant)', marginBottom: '1rem' }} />
                       )}
-                      <span style={{ fontSize: '0.5625rem', fontWeight: 700, textTransform: 'uppercase' }}>{item.label}</span>
+                      <span style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase' }}>{item.label}</span>
                     </div>
                   );
                 })}
@@ -259,10 +259,10 @@ export default function DashboardHomeClient({
                         />
                         <span
                           style={{
-                            fontSize: '0.5625rem',
+                            fontSize: '0.6875rem',
                             fontWeight: current ? 700 : 600,
                             color: locked ? 'var(--color-on-surface-variant)' : 'var(--color-on-surface)',
-                            opacity: locked ? 0.45 : 0.75,
+                            opacity: locked ? 0.45 : 0.85,
                             textAlign: 'center',
                           }}
                         >
@@ -279,7 +279,7 @@ export default function DashboardHomeClient({
               </div>
               <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>{applicationStatus.nextStep}</p>
               {applicationStatus.showResponseEstimate && (
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', opacity: 0.5, marginTop: '0.5rem' }}>
+                <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', opacity: 0.8, marginTop: '0.5rem' }}>
                   We typically respond within 24-48 hours on business days.
                 </p>
               )}
@@ -301,12 +301,12 @@ export default function DashboardHomeClient({
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.75rem' }}>
                 {state === 'C' && assessmentScorePct != null && (
-                  <span style={{ padding: '0.25rem 0.5rem', background: 'var(--surface-container-lowest)', fontSize: '0.625rem', borderRadius: '0.25rem', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <span style={{ padding: '0.25rem 0.5rem', background: 'var(--surface-container-lowest)', fontSize: '0.75rem', borderRadius: '0.25rem', border: '1px solid rgba(255,255,255,0.05)' }}>
                     Assessment: {assessmentScorePct}%
                   </span>
                 )}
                 {enrolledAt && (
-                  <span style={{ padding: '0.25rem 0.5rem', background: 'var(--surface-container-lowest)', fontSize: '0.625rem', borderRadius: '0.25rem', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <span style={{ padding: '0.25rem 0.5rem', background: 'var(--surface-container-lowest)', fontSize: '0.75rem', borderRadius: '0.25rem', border: '1px solid rgba(255,255,255,0.05)' }}>
                     Enrolled: {formatPortalDate(enrolledAt)}
                   </span>
                 )}
@@ -365,7 +365,7 @@ export default function DashboardHomeClient({
                 <div style={{ height: '12rem', borderRadius: '0.75rem', overflow: 'hidden', marginBottom: '1rem', position: 'relative', background: 'var(--surface-container-highest)' }}>
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--color-background-dark), transparent)', opacity: 0.8 }} />
                   <div style={{ position: 'absolute', bottom: '1rem', left: '1rem' }}>
-                    <span style={{ padding: '0.25rem 0.5rem', background: 'var(--color-accent)', color: '#fff', fontSize: '0.625rem', fontWeight: 700, borderRadius: '0.25rem' }}>GET STARTED</span>
+                    <span style={{ padding: '0.25rem 0.5rem', background: 'var(--color-accent)', color: '#fff', fontSize: '0.6875rem', fontWeight: 700, borderRadius: '0.25rem' }}>GET STARTED</span>
                   </div>
                 </div>
                 <h4 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>Choose Your Program</h4>
@@ -384,7 +384,7 @@ export default function DashboardHomeClient({
                 <div style={{ height: '12rem', borderRadius: '0.75rem', overflow: 'hidden', marginBottom: '1rem', position: 'relative', background: 'var(--surface-container-highest)' }}>
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--color-background-dark), transparent)', opacity: 0.8 }} />
                   <div style={{ position: 'absolute', bottom: '1rem', left: '1rem' }}>
-                    <span style={{ padding: '0.25rem 0.5rem', background: 'var(--color-accent)', color: '#fff', fontSize: '0.625rem', fontWeight: 700, borderRadius: '0.25rem' }}>NEXT STEP</span>
+                    <span style={{ padding: '0.25rem 0.5rem', background: 'var(--color-accent)', color: '#fff', fontSize: '0.6875rem', fontWeight: 700, borderRadius: '0.25rem' }}>NEXT STEP</span>
                   </div>
                 </div>
                 <h4 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>Complete Your Skills Assessment</h4>
@@ -403,7 +403,7 @@ export default function DashboardHomeClient({
                 <div style={{ height: '12rem', borderRadius: '0.75rem', overflow: 'hidden', marginBottom: '1rem', position: 'relative', background: 'var(--surface-container-highest)' }}>
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--color-background-dark), transparent)', opacity: 0.8 }} />
                   <div style={{ position: 'absolute', bottom: '1rem', left: '1rem' }}>
-                    <span style={{ padding: '0.25rem 0.5rem', background: 'var(--surface-container-highest)', color: 'var(--color-on-surface)', fontSize: '0.625rem', fontWeight: 700, borderRadius: '0.25rem' }}>IN PROGRESS</span>
+                    <span style={{ padding: '0.25rem 0.5rem', background: 'var(--surface-container-highest)', color: 'var(--color-on-surface)', fontSize: '0.6875rem', fontWeight: 700, borderRadius: '0.25rem' }}>IN PROGRESS</span>
                   </div>
                 </div>
                 <h4 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>{nextMilestone}</h4>
@@ -422,7 +422,7 @@ export default function DashboardHomeClient({
                 <div style={{ height: '12rem', borderRadius: '0.75rem', overflow: 'hidden', marginBottom: '1rem', position: 'relative', background: 'linear-gradient(135deg, rgba(173,44,77,0.2), var(--surface-container-highest))' }}>
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--color-background-dark), transparent)', opacity: 0.8 }} />
                   <div style={{ position: 'absolute', bottom: '1rem', left: '1rem' }}>
-                    <span style={{ padding: '0.25rem 0.5rem', background: 'var(--color-accent)', color: '#fff', fontSize: '0.625rem', fontWeight: 700, borderRadius: '0.25rem' }}>COMPLETE</span>
+                    <span style={{ padding: '0.25rem 0.5rem', background: 'var(--color-accent)', color: '#fff', fontSize: '0.6875rem', fontWeight: 700, borderRadius: '0.25rem' }}>COMPLETE</span>
                   </div>
                 </div>
                 <h4 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>Career Readiness</h4>
@@ -431,7 +431,7 @@ export default function DashboardHomeClient({
                 </p>
                 <Link href="/dashboard/readiness" style={{ display: 'inline-block', padding: '0.5rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.8125rem', fontWeight: 600, textDecoration: 'none' }}
                   onClick={() => handleDashboardAction('career_readiness_clicked')}>
-                  View Career Readiness
+                  Build Job Readiness
                 </Link>
               </div>
             )}
@@ -446,7 +446,7 @@ export default function DashboardHomeClient({
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: '1rem' }}>
                   Recommended next step for your career journey.
                 </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.625rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', opacity: 0.6, textTransform: 'uppercase' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.6875rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', opacity: 0.8, textTransform: 'uppercase' }}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                     <span className="material-symbols-outlined" style={{ fontSize: '0.75rem' }}>schedule</span> Recommended
                   </span>
@@ -505,7 +505,7 @@ export default function DashboardHomeClient({
                   <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-on-surface-variant)' }}>{item.icon}</span>
                   <div>
                     <h5 style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{item.label}</h5>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', opacity: 0.6 }}>{item.desc}</p>
+                    <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>{item.desc}</p>
                   </div>
                   <span className="material-symbols-outlined" style={{ marginLeft: 'auto', fontSize: '1.25rem', color: 'var(--color-on-surface-variant)', opacity: 0.3 }}>chevron_right</span>
                 </div>

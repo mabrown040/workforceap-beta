@@ -198,6 +198,7 @@ export default async function AdminMemberDetailPage({
         <CreateSuccessToast />
       </Suspense>
       <PageHeader
+        breadcrumbs={[{ label: 'Members', href: '/admin/members' }, { label: 'Member Details' }]}
         title={member.fullName}
         subtitle={member.email}
         action={

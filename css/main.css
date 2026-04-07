@@ -8698,6 +8698,8 @@ html.dark .portal-nav {
 .workspace-tab--active {
     color: var(--color-accent);
     border-bottom-color: var(--color-accent);
+    border-bottom-width: 3px;
+    font-weight: 700;
 }
 .workspace-tab-icon {
     font-size: 1.25rem;
@@ -8816,6 +8818,11 @@ body:has(.workspace-drawer-overlay.open) {
 }
 .workspace-sidebar-group {
     list-style: none;
+}
+.workspace-sidebar-group + .workspace-sidebar-group {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--color-border, rgba(222, 191, 194, 0.12));
 }
 .workspace-sidebar-group-label {
     font-size: 0.68rem;
@@ -8952,6 +8959,7 @@ body:has(.workspace-drawer-overlay.open) {
     background: rgba(173, 44, 77, 0.1);
     color: var(--color-accent);
     font-weight: 600;
+    box-shadow: inset 3px 0 0 var(--color-accent);
     box-shadow: inset 3px 0 0 var(--color-accent);
 }
 .workspace-sidebar-footer {

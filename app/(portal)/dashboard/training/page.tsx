@@ -5,11 +5,13 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import TrainingCourseList from '@/components/portal/TrainingCourseList';
+import PageHeader from '@/components/portal/PageHeader';
+import PortalStatCard from '@/components/portal/PortalStatCard';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Training & Job Readiness',
-  description: 'Access your Coursera courses and track job-readiness milestones.',
+  title: 'My Training',
+  description: 'Complete your courses and track your progress toward getting job-ready.',
   path: '/dashboard/training',
 });
 
@@ -45,147 +47,44 @@ export default async function TrainingPage() {
   return (
     <>
     <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto' }}>
-      {/* Breadcrumb */}
-      <nav
-        aria-label="Breadcrumb"
-        style={{
-          fontSize: 'var(--font-size-sm)',
-          color: 'var(--color-on-surface-variant)',
-          marginBottom: 'var(--space-6)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 'var(--space-2)',
-        }}
-      >
-        <a href="/dashboard" style={{ color: 'var(--color-accent)', textDecoration: 'none' }}>Member Portal</a>
-        <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>chevron_right</span>
-        <span>Training &amp; Job Readiness</span>
-      </nav>
-
-      {/* Header row */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 'var(--space-4)', marginBottom: 'var(--space-8)' }}>
-        <div>
-          <div
-            style={{
-              fontSize: 'var(--font-size-sm)',
-              fontWeight: 'var(--font-weight-medium)',
-              color: 'var(--color-accent)',
-              textTransform: 'uppercase' as const,
-              letterSpacing: '0.06em',
-              marginBottom: 'var(--space-2)',
-            }}
-          >
-            WorkforceAP Training
-          </div>
-          <h1 style={{ fontSize: 'var(--font-size-h1)', fontWeight: 'var(--font-weight-bold)', lineHeight: 'var(--line-height-tight)', margin: 0, marginBottom: 'var(--space-2)' }}>
-            Training &amp; Job Readiness
-          </h1>
-          <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '560px', margin: 0 }}>
-            Complete your {program.title} courses on Coursera. Track progress, mark courses complete, and prepare for the workforce.
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="My Training"
+        subtitle={`Complete your ${program.title} courses on Coursera (our online learning partner). Track your progress and mark courses done as you finish them.`}
+        breadcrumbs={[
+          { label: 'Member Portal', href: '/dashboard' },
+          { label: 'My Training' },
+        ]}
+      />
 
       {/* Stats row */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: 'var(--space-4)',
-          marginBottom: 'var(--space-8)',
-        }}
-      >
-        {/* Program card */}
-        <div
-          style={{
-            background: 'var(--surface-container)',
-            borderRadius: 'var(--radius-xl)',
-            padding: 'var(--space-6)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--space-4)',
-          }}
-        >
-          <span
-            className="material-symbols-outlined"
-            style={{
-              fontSize: '2rem',
-              color: 'var(--color-accent)',
-              background: 'rgba(173,44,77,0.12)',
-              borderRadius: 'var(--radius-lg)',
-              padding: 'var(--space-3)',
-              fontVariationSettings: "'FILL' 1",
-            }}
-          >
-            school
-          </span>
-          <div>
-            <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>Current Program</div>
-            <div style={{ fontWeight: 'var(--font-weight-bold)', fontSize: 'var(--font-size-base)' }}>{program.title}</div>
-          </div>
-        </div>
+      <div className="portal-grid-metrics" style={{ marginBottom: 'var(--space-8)' }}>
+        <PortalStatCard
+          icon="school"
+          label="Current Program"
+          value={program.title}
+          iconColor="var(--color-accent)"
+          iconBg="rgba(173,44,77,0.12)"
+        />
 
-        {/* Courses completed */}
-        <div
-          style={{
-            background: 'var(--surface-container)',
-            borderRadius: 'var(--radius-xl)',
-            padding: 'var(--space-6)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--space-4)',
-          }}
-        >
-          <span
-            className="material-symbols-outlined"
-            style={{
-              fontSize: '2rem',
-              color: 'var(--color-green)',
-              background: 'rgba(74,155,79,0.12)',
-              borderRadius: 'var(--radius-lg)',
-              padding: 'var(--space-3)',
-              fontVariationSettings: "'FILL' 1",
-            }}
-          >
-            task_alt
-          </span>
-          <div>
-            <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>Courses Completed</div>
-            <div style={{ fontWeight: 'var(--font-weight-bold)', fontSize: '1.5rem' }}>{completedCount} <span style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'var(--font-weight-normal)', color: 'var(--color-on-surface-variant)' }}>/ {program.courses.length}</span></div>
-          </div>
-        </div>
+        <PortalStatCard
+          icon="task_alt"
+          label="Courses Completed"
+          value={`${completedCount} / ${program.courses.length}`}
+          iconColor="var(--color-green)"
+          iconBg="rgba(74,155,79,0.12)"
+        />
 
-        {/* Progress */}
-        <div
-          style={{
-            background: 'var(--surface-container)',
-            borderRadius: 'var(--radius-xl)',
-            padding: 'var(--space-6)',
-          }}
+        <PortalStatCard
+          icon="trending_up"
+          label="Overall Progress"
+          value={`${progressPct}%`}
+          iconColor="var(--color-blue)"
+          iconBg="rgba(43,123,185,0.12)"
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-3)' }}>
-            <span
-              className="material-symbols-outlined"
-              style={{
-                fontSize: '2rem',
-                color: 'var(--color-blue)',
-                background: 'rgba(43,123,185,0.12)',
-                borderRadius: 'var(--radius-lg)',
-                padding: 'var(--space-3)',
-                fontVariationSettings: "'FILL' 1",
-              }}
-            >
-              trending_up
-            </span>
-            <div>
-              <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>Overall Progress</div>
-              <div style={{ fontWeight: 'var(--font-weight-bold)', fontSize: '1.25rem' }}>{progressPct}%</div>
-            </div>
-          </div>
-          <div style={{ height: '6px', background: 'var(--surface-container-highest)', borderRadius: 'var(--radius-full)', overflow: 'hidden' }}>
+          <div style={{ height: '6px', background: 'var(--surface-container-highest)', borderRadius: 'var(--radius-full)', overflow: 'hidden', marginTop: '0.75rem' }}>
             <div style={{ height: '100%', width: `${progressPct}%`, background: 'var(--color-blue)', borderRadius: 'var(--radius-full)', transition: 'var(--transition-base)' }} />
           </div>
-        </div>
+        </PortalStatCard>
       </div>
 
       {/* Quick actions */}
@@ -249,7 +148,7 @@ export default async function TrainingPage() {
           <h2 style={{ fontSize: 'var(--font-size-h3)', fontWeight: 'var(--font-weight-bold)', margin: 0 }}>Your Courses</h2>
         </div>
         <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-6)' }}>
-          {program.title} — Coursera. Complete courses in order and mark them done as you go.
+          {program.title} on Coursera (our online partner). Complete courses in order and mark each one done as you finish.
         </p>
 
         <TrainingCourseList

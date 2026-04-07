@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import MentorSessionForm from '@/components/portal/MentorSessionForm';
+import PageHeader from '@/components/portal/PageHeader';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
@@ -18,6 +19,13 @@ export default async function MentorProfilePage({ params }: { params: Promise<{ 
 
   return (
     <>
+      <PageHeader
+        title="Mentor Profile"
+        breadcrumbs={[
+          { label: 'Mentors', href: '/dashboard/mentors' },
+          { label: 'Mentor Profile' },
+        ]}
+      />
       {/* Mobile */}
       <div className="wa-md:wa-hidden" style={{ padding: '1rem', paddingBottom: '6rem' }}>
         <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{mentor.fullName}</h1>

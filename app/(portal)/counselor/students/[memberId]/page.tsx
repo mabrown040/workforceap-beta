@@ -372,7 +372,14 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
           >
             ← Back to students
           </Link>
-          <PageHeader title={member.fullName} subtitle={member.email} />
+          <PageHeader
+            title={member.fullName}
+            subtitle={member.email}
+            breadcrumbs={[
+              { label: 'Students', href: '/counselor/students' },
+              { label: 'Student Details' },
+            ]}
+          />
 
           {wioaSnap ? (
             <section style={{ marginTop: '1.5rem' }}>

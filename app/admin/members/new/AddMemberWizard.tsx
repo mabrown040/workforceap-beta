@@ -479,7 +479,7 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
               e.preventDefault();
               e.currentTarget.classList.remove('dragover');
               const file = e.dataTransfer.files?.[0];
-              if (file && ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.type)) {
+              if (file && ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'].includes(file.type)) {
                 const input = document.getElementById('wizard-resume-input') as HTMLInputElement;
                 if (input) {
                   const dt = new DataTransfer();
@@ -490,8 +490,8 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
               }
             }}
           >
-            <input id="wizard-resume-input" type="file" accept=".pdf,.doc,.docx" onChange={handleFileUpload} disabled={!!loading} style={{ display: 'none' }} />
-            {loading === 'parse' ? <span>Parsing…</span> : resumeFile ? <span>{resumeFile.name}</span> : <span>Drag and drop PDF, DOC, or DOCX here (max 5MB)<br />or click to browse</span>}
+            <input id="wizard-resume-input" type="file" accept=".pdf,.doc,.docx,.txt" onChange={handleFileUpload} disabled={!!loading} style={{ display: 'none' }} />
+            {loading === 'parse' ? <span>Parsing…</span> : resumeFile ? <span>{resumeFile.name}</span> : <span>Drag and drop PDF, DOC, DOCX, or TXT here (max 5MB)<br />or click to browse</span>}
           </div>
           {!resumeFile && (
             <button type="button" className="wizard-skip-link" onClick={() => setStep(5)}>

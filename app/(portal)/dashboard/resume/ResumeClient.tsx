@@ -210,7 +210,7 @@ export default function ResumeClient({
           <input
             id="resume-file-input"
             type="file"
-            accept=".pdf,.doc,.docx"
+            accept=".pdf,.doc,.docx,.txt"
             onChange={handleFileInput}
             style={{ display: 'none' }}
           />
@@ -218,7 +218,7 @@ export default function ResumeClient({
             {uploading ? 'Uploading…' : 'Drag and drop your resume here, or click to browse'}
           </p>
           <p style={{ margin: '0.5rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-            PDF, DOC, DOCX — max 5MB
+            PDF, DOC, DOCX, TXT — max 5MB
           </p>
         </div>
         {uploadError && <p style={{ color: '#c00', marginTop: '0.5rem' }}>{uploadError}</p>}

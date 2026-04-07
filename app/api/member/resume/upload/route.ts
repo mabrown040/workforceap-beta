@@ -6,7 +6,7 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 /** Create bucket `member-resumes` in Supabase Dashboard → Storage if it does not exist (private bucket is fine). */
 const BUCKET = 'member-resumes';
 
-const ALLOWED_EXT = new Set(['pdf', 'doc', 'docx']);
+const ALLOWED_EXT = new Set(['pdf', 'doc', 'docx', 'txt']);
 
 function safeExt(fileName: string): string | null {
   const ext = fileName.split('.').pop()?.toLowerCase() || '';
@@ -19,7 +19,7 @@ function resumePathForUser(userId: string, ext: string) {
 
 function isValidCompletePath(userId: string, path: string): boolean {
   if (!path.startsWith(`${userId}/`)) return false;
-  return /^[^/]+\/resume-original\.(pdf|doc|docx)$/.test(path);
+  return /^[^/]+\/resume-original\.(pdf|doc|docx|txt)$/.test(path);
 }
 
 function storageErrorMessage(error: { message?: string } | null): string {
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
       const fileName = typeof body.fileName === 'string' ? body.fileName : '';
       const ext = safeExt(fileName);
       if (!ext) {
-        return NextResponse.json({ error: 'Only PDF, DOC, DOCX allowed' }, { status: 400 });
+        return NextResponse.json({ error: 'Only PDF, DOC, DOCX, TXT allowed' }, { status: 400 });
       }
 
       const supabase = getSupabaseAdmin();

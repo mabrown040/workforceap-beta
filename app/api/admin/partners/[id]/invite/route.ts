@@ -79,7 +79,6 @@ async function ensurePartnerInviteUser(params: {
     select: { id: true },
   });
 }
-
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const adminUser = await getUser();
   if (!adminUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

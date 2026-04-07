@@ -2,6 +2,7 @@
 
 import WorkspaceShell from './WorkspaceShell';
 import DashboardFooter from './DashboardFooter';
+import DashboardPageErrorBoundary from './DashboardPageErrorBoundary';
 import { MEMBER_PORTAL_NAV_ITEMS } from '@/lib/nav/portalNav';
 import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
 
@@ -24,7 +25,7 @@ export default function MemberWorkspaceShell({
       showResumeUploadHint={hasResume === false}
       footer={<DashboardFooter />}
     >
-      {children}
+      <DashboardPageErrorBoundary>{children}</DashboardPageErrorBoundary>
     </WorkspaceShell>
   );
 }

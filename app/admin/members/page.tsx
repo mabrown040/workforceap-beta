@@ -31,12 +31,10 @@ export default async function AdminMembersPage() {
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-  let members;
-  let lastEventMap: Map<string, Date | null>;
-  let recentEventMap: Map<string, number>;
-
-  try {
-    members = await prisma.user.findMany({
+  // Run member list and event aggregates in parallel. Full-table `memberEvent` groupBy
+  // can time out or fail under load; degrading aggregates must not hide the member list.
+  const [membersResult, lastEventsResult, recentEventsResult] = await Promise.allSettled([
+    prisma.user.findMany({
       where: { deletedAt: null },
       orderBy: { createdAt: 'desc' },
       include: {
@@ -47,27 +45,45 @@ export default async function AdminMembersPage() {
           include: { partner: { select: { id: true, name: true } } },
         },
       },
-    });
-
-    const lastEvents = await prisma.memberEvent.groupBy({
+    }),
+    prisma.memberEvent.groupBy({
       by: ['userId'],
       _max: { createdAt: true },
-    });
-    lastEventMap = new Map(lastEvents.map((e) => [e.userId, e._max.createdAt]));
-
-    const recentEvents = await prisma.memberEvent.groupBy({
+    }),
+    prisma.memberEvent.groupBy({
       by: ['userId'],
       where: { createdAt: { gte: thirtyDaysAgo } },
-      _count: true,
-    });
-    recentEventMap = new Map(recentEvents.map((e) => [e.userId, e._count]));
-  } catch (e) {
-    console.error('[admin/members] load failed', e);
+      _count: { _all: true },
+    }),
+  ]);
+
+  if (membersResult.status === 'rejected') {
+    console.error('[admin/members] user list load failed', membersResult.reason);
     return (
       <PortalPageFrame>
         <AdminDataLoadError title="Members list unavailable" />
       </PortalPageFrame>
     );
+  }
+
+  const members = membersResult.value;
+
+  const lastEventMap: Map<string, Date | null> = new Map();
+  if (lastEventsResult.status === 'fulfilled') {
+    for (const row of lastEventsResult.value) {
+      lastEventMap.set(row.userId, row._max.createdAt);
+    }
+  } else {
+    console.error('[admin/members] last-event aggregate failed', lastEventsResult.reason);
+  }
+
+  const recentEventMap: Map<string, number> = new Map();
+  if (recentEventsResult.status === 'fulfilled') {
+    for (const row of recentEventsResult.value) {
+      recentEventMap.set(row.userId, row._count._all);
+    }
+  } else {
+    console.error('[admin/members] recent-event aggregate failed', recentEventsResult.reason);
   }
 
   const membersWithProgram = members.map((m) => {

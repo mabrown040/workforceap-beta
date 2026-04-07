@@ -1,27 +1,17 @@
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser, isSuperAdmin } from '@/lib/auth/roles';
-import { prisma } from '@/lib/db/prisma';
 import PartnerPortalShell from '@/components/portal/PartnerPortalShell';
 
 export default async function PartnerPortalLayout({ children }: { children: React.ReactNode }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/partner');
 
-  const ctx = await getPartnerForUser(user.id);
+  const superUser = await isSuperAdmin(user.id);
+  const ctx = await getPartnerForUser(user.id, { isSuperAdminHint: superUser });
   if (!ctx) redirect('/dashboard');
 
-  let directPartnerUser: { id: string } | null = null;
-  try {
-    directPartnerUser = await prisma.partnerUser.findUnique({
-      where: { userId: user.id },
-      select: { id: true },
-    });
-  } catch (e) {
-    console.error('[partner/layout] partnerUser lookup failed', e);
-  }
-  const superUser = await isSuperAdmin(user.id);
-  const superBanner = superUser && !directPartnerUser;
+  const superBanner = superUser && !ctx.hasDirectPartnerLink;
 
   return (
     <PartnerPortalShell

@@ -28,13 +28,15 @@ export async function getNavBadgeCountsForUser(
   }
 
   if (role === 'employer') {
-    const ctx = await getEmployerForUser(userId);
+    const sa = await isSuperAdmin(userId);
+    const ctx = await getEmployerForUser(userId, { isSuperAdminHint: sa });
     if (!ctx) return {};
     return getEmployerBadgeCounts(ctx.employerId);
   }
 
   if (role === 'partner') {
-    const ctx = await getPartnerForUser(userId);
+    const sa = await isSuperAdmin(userId);
+    const ctx = await getPartnerForUser(userId, { isSuperAdminHint: sa });
     if (!ctx) return {};
     return getPartnerBadgeCounts(ctx.partnerId);
   }

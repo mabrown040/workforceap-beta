@@ -33,7 +33,8 @@ export default async function PartnerExclusiveServerGate() {
   if (!user) return null;
 
   try {
-    const [partnerCtx, superAdmin] = await Promise.all([getPartnerForUser(user.id), isSuperAdmin(user.id)]);
+    const superAdmin = await isSuperAdmin(user.id);
+    const partnerCtx = await getPartnerForUser(user.id, { isSuperAdminHint: superAdmin });
     if (partnerCtx && !superAdmin) {
       redirect('/partner');
     }

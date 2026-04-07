@@ -8,9 +8,9 @@ type Props = { children: ReactNode };
 type State = { error: Error | null };
 
 /**
- * Catches client-side render errors on `/dashboard` (hydration, browser APIs, etc.)
- * without replacing the whole member shell — `dashboard/error.tsx` only handles
- * errors that bubble past the layout’s children.
+ * Catches client-side render errors in member workspace main content (all `/dashboard/*`
+ * routes) without replacing the shell — `dashboard/error.tsx` handles errors that bubble
+ * past this boundary (e.g. in WorkspaceShell chrome).
  */
 export default class DashboardPageErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {

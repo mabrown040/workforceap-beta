@@ -19,7 +19,6 @@ import { formatPortalDate } from '@/lib/formatDate';
 import MemberDashboardVoiceSectionLazy from '@/components/portal/MemberDashboardVoiceSectionLazy';
 import MemberNextStepsStrip from '@/components/portal/MemberNextStepsStrip';
 import PortalEntryErrorBoundary from '@/components/portal/PortalEntryErrorBoundary';
-import DashboardPageErrorBoundary from '@/components/portal/DashboardPageErrorBoundary';
 import { getMemberEngagementSignals } from '@/lib/member/memberEngagementSignals';
 import { buildNextBestActions } from '@/lib/member/nextBestActions';
 import { getProfileCompleteness } from '@/lib/resume/profileCompleteness';
@@ -350,7 +349,6 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   ];
 
   return (
-    <DashboardPageErrorBoundary>
     <>
       <h1 className="wa-sr-only">Welcome back, {firstName}</h1>
       {/* ── Mobile-only hero + dashboard (≤640px) ── */}
@@ -617,6 +615,5 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       {/* Bottom nav — mobile only */}
       <MobileBottomNav variant="portal" />
     </>
-    </DashboardPageErrorBoundary>
   );
 }

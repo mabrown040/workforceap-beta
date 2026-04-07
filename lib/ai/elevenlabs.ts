@@ -134,16 +134,24 @@ export async function createConversationalSession(agentId: string): Promise<{
     throw new Error(`ElevenLabs Conversational API error (${response.status}): ${errorText}`);
   }
 
-  const data = (await response.json()) as { signed_url?: string; expires_at_unix_secs?: number };
-  if (!data.signed_url) {
-    throw new Error('ElevenLabs did not return signed_url');
+  const data = (await response.json()) as Record<string, unknown>;
+  const signedUrl =
+    (typeof data.signed_url === 'string' ? data.signed_url : undefined) ??
+    (typeof data.signedUrl === 'string' ? data.signedUrl : undefined);
+  if (!signedUrl) {
+    throw new Error('ElevenLabs did not return a signed conversation URL');
   }
 
+  const unix =
+    typeof data.expires_at_unix_secs === 'number'
+      ? data.expires_at_unix_secs
+      : typeof data.expires_at_unix_secs === 'string'
+        ? Number(data.expires_at_unix_secs)
+        : NaN;
+
   return {
-    signedUrl: data.signed_url,
-    expiresAt: data.expires_at_unix_secs
-      ? new Date(data.expires_at_unix_secs * 1000).toISOString()
-      : undefined,
+    signedUrl,
+    expiresAt: Number.isFinite(unix) ? new Date(unix * 1000).toISOString() : undefined,
   };
 }
 

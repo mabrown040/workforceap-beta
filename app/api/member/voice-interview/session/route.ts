@@ -26,13 +26,23 @@ export async function POST(req: NextRequest) {
   };
 
   try {
-    const { signedUrl, expiresAt } = await startElevenLabsPortalSession('interview', {
+    const { signedUrl, expiresAt, dynamicVariables: safeVars } = await startElevenLabsPortalSession('interview', {
       dynamicVariables,
     });
-    return NextResponse.json({ signedUrl, expiresAt, dynamicVariables });
+    return NextResponse.json({
+      signedUrl,
+      expiresAt,
+      dynamicVariables: safeVars,
+    });
   } catch (e) {
-    const msg = e instanceof Error ? e.message : 'Failed to start session';
-    console.error('[member/voice-interview/session]', msg);
-    return NextResponse.json({ error: msg }, { status: 503 });
+    console.error('[member/voice-interview/session]', e);
+    const raw = e instanceof Error ? e.message : 'Failed to start session';
+    const publicMsg =
+      /ELEVENLABS_API_KEY|not set|xi-api-key/i.test(raw) || /No ElevenLabs agent ID/i.test(raw)
+        ? 'Voice coaching is temporarily unavailable. Please try again later.'
+        : raw.length > 280
+          ? `${raw.slice(0, 280)}…`
+          : raw;
+    return NextResponse.json({ error: publicMsg }, { status: 503 });
   }
 }

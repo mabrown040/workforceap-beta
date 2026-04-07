@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import SalaryNegotiationForm from '@/components/portal/tools/SalaryNegotiationForm';
+import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata = buildPageMetadata({
@@ -27,21 +28,13 @@ export default async function SalaryNegotiationPage() {
           background: 'var(--surface-container-low)',
         }}
       >
-        <Link
-          href="/dashboard/ai-tools"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.35rem',
-            fontSize: '0.85rem',
-            color: 'var(--color-on-surface-variant)',
-            textDecoration: 'none',
-            marginBottom: '0.75rem',
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>arrow_back</span>
-          Back to AI Tools
-        </Link>
+        <PageHeader
+          title="Salary Negotiation Script"
+          breadcrumbs={[
+            { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
+            { label: 'Salary Negotiation' },
+          ]}
+        />
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <div
             style={{

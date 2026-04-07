@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import CoverLetterForm from '@/components/portal/tools/CoverLetterForm';
+import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -26,21 +27,13 @@ export default async function CoverLetterPage() {
             background: 'var(--surface-container-low)',
           }}
         >
-          <Link
-            href="/dashboard/ai-tools"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.3rem',
-              fontSize: '0.85rem',
-              color: 'var(--color-accent)',
-              textDecoration: 'none',
-              marginBottom: '0.75rem',
-              fontWeight: 500,
-            }}
-          >
-            ← AI Tools
-          </Link>
+          <PageHeader
+            title="Cover Letter Builder"
+            breadcrumbs={[
+              { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
+              { label: 'Cover Letter' },
+            ]}
+          />
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
             <div
               style={{

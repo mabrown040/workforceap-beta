@@ -11,6 +11,7 @@ import { PIPELINE_STAGE_LABELS } from '@/lib/pipeline/stage';
 import CopyReferralLink from '@/components/partner/CopyReferralLink';
 import PartnerMembersList from '@/components/portal/PartnerMembersList';
 import PageHeader from '@/components/portal/PageHeader';
+import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { PARTNER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
@@ -281,49 +282,45 @@ export default async function PartnerDashboardPage() {
     <div className="partner-impact-console">
 
       {/* ── Header ── */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '2rem' }}>
-        <div>
-          <h1 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>
-            Partner overview
-          </h1>
-          <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1rem' }}>
-            {ctx.partner.name} referrals, progress, and placement outcomes in one place.
-          </p>
-        </div>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <Link href="/partner/outcomes" style={{
-            padding: '0.625rem 1.25rem',
-            background: 'var(--surface-container-high)',
-            color: 'var(--color-accent)',
-            borderRadius: '0.5rem',
-            fontSize: '0.875rem',
-            fontWeight: 600,
-            textDecoration: 'none',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-          }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>summarize</span>
-            Outcomes snapshot
-          </Link>
-          <Link href="/apply" style={{
-            padding: '0.625rem 1.25rem',
-            background: 'linear-gradient(to right, var(--color-accent), #71333e)',
-            color: '#fff',
-            borderRadius: '0.5rem',
-            fontSize: '0.875rem',
-            fontWeight: 600,
-            textDecoration: 'none',
-            boxShadow: '0 4px 24px rgba(0,0,0,0.3)',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-          }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>person_add</span>
-            New Referral
-          </Link>
-        </div>
-      </div>
+      <PageHeader
+        title="Partner overview"
+        subtitle={`${ctx.partner.name} referrals, progress, and placement outcomes in one place.`}
+        action={
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <Link href="/partner/outcomes" style={{
+              padding: '0.625rem 1.25rem',
+              background: 'var(--surface-container-high)',
+              color: 'var(--color-accent)',
+              borderRadius: '0.5rem',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+            }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>summarize</span>
+              Outcomes snapshot
+            </Link>
+            <Link href="/apply" style={{
+              padding: '0.625rem 1.25rem',
+              background: 'linear-gradient(to right, var(--color-accent), #71333e)',
+              color: '#fff',
+              borderRadius: '0.5rem',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              textDecoration: 'none',
+              boxShadow: '0 4px 24px rgba(0,0,0,0.3)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+            }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>person_add</span>
+              New Referral
+            </Link>
+          </div>
+        }
+      />
 
       <section style={{ marginBottom: '2rem' }}>
         <VoiceAgentSurface {...partnerVoiceSurface}>
@@ -359,13 +356,12 @@ export default async function PartnerDashboardPage() {
       {/* ── Journey Snapshot (5-col) ── */}
       <section style={{ marginBottom: '2rem' }}>
         <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>Journey Snapshot</p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '0.75rem' }}>
+        <div className="portal-grid-metrics">
           {JOURNEY_STAGES.map((s, i) => (
             <div
               key={s}
-              className="stitch-card"
+              className="stitch-card stitch-card--padded-sm"
               style={{
-                padding: '1.25rem 1rem',
                 textAlign: 'center',
                 borderLeft: i === 0 ? '3px solid var(--color-accent)' : 'none',
               }}
@@ -378,34 +374,25 @@ export default async function PartnerDashboardPage() {
       </section>
 
       {total === 0 ? (
-        <section className="partner-panel" style={{ textAlign: 'center', padding: '3rem 2rem' }}>
-          <div style={{
-            width: '4rem', height: '4rem', borderRadius: '50%',
-            background: 'var(--surface-container-highest)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 1.25rem',
-          }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1.75rem', color: 'var(--color-on-surface-variant)' }}>group_add</span>
-          </div>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>No referred members yet</h2>
-          <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '28rem', margin: '0 auto 1.5rem' }}>
-            Send applicants to <strong>workforceap.org/apply</strong> and have them list <strong>{ctx.partner.name}</strong> when asked how they heard about WorkforceAP.
-          </p>
-          <Link href="/partner/guide" className="btn btn-primary">
-            Open referral guide
-          </Link>
-        </section>
+        <PortalEmptyState
+          icon="group_add"
+          title="No referred members yet"
+          description={`Send applicants to workforceap.org/apply and have them list ${ctx.partner.name} when asked how they heard about WorkforceAP.`}
+          actions={[
+            { label: 'Open referral guide', href: '/partner/guide', variant: 'primary' },
+          ]}
+        />
       ) : (
         <>
           {/* ── Main Bento: Member Pipeline + Sidebar ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>
+          <div className="portal-grid-metrics" style={{ marginBottom: '2rem' }}>
 
             {/* Member Pipeline */}
             <section>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+              <div className="portal-section-header">
                 <div>
                   <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Member pipeline</p>
-                  <h2 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>Who you referred and where they are now.</h2>
+                  <h2 className="portal-section-title">Who you referred and where they are now.</h2>
                 </div>
               </div>
 
@@ -416,7 +403,7 @@ export default async function PartnerDashboardPage() {
                   const stageLabel = (PIPELINE_STAGE_LABELS as Record<string, string>)[p.stage] ?? p.stage;
                   return (
                     <Link key={p.member.id} href={`/partner/referred-members/${p.member.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                      <div className="stitch-card" style={{ padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background-color 0.15s' }}>
+                      <div className="stitch-card stitch-card--padded-sm" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background-color 0.15s' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                           <div style={{
                             width: '2.5rem', height: '2.5rem', borderRadius: '50%',
@@ -459,7 +446,7 @@ export default async function PartnerDashboardPage() {
             <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
               {/* Placement rate + referral link usage */}
-              <div className="stitch-card" style={{ padding: '1.5rem' }}>
+              <div className="stitch-card stitch-card--padded">
                 <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Partner Insights</h3>
                 <div style={{ marginBottom: '1.25rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.375rem' }}>
@@ -512,7 +499,7 @@ export default async function PartnerDashboardPage() {
 
               {/* Near Completion */}
               {nearCompletion.length > 0 && (
-                <div className="stitch-card" style={{ padding: '1.5rem' }}>
+                <div className="stitch-card stitch-card--padded">
                   <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>Near completion</p>
                   <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
                     {nearCompletion.length} member{nearCompletion.length !== 1 ? 's' : ''} at 70%+ — a check-in could help them finish.

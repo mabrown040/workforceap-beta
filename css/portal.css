@@ -44,7 +44,137 @@
     }
 }
 
-/* Dashboard metric card grid */
+/* =============================================
+   Portal Layout Utilities — Stitch Design System
+   Shared classes to replace repeated inline styles
+   ============================================= */
+
+/* Standard content section with consistent vertical spacing */
+.portal-section {
+    margin-bottom: 1.5rem;
+}
+.portal-section--lg {
+    margin-bottom: 2.5rem;
+}
+
+/* Section header row — title left, optional action right */
+.portal-section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+.portal-section-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-on-surface-variant);
+    margin: 0;
+}
+.portal-section-action {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+.portal-section-action:hover {
+    text-decoration: underline;
+}
+
+/* Metrics card grid — responsive auto-fit */
+.portal-grid-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+@media (max-width: 640px) {
+    .portal-grid-metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
+    }
+}
+
+/* 2-column and 3-column card grids */
+.portal-grid-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+.portal-grid-3col {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+}
+
+/* Stat value + label typography */
+.portal-stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--color-on-surface);
+    margin: 0;
+}
+.portal-stat-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-on-surface-variant);
+    margin: 0.25rem 0 0;
+}
+
+/* Stitch card padding variants */
+.stitch-card--padded {
+    padding: 1.5rem;
+}
+.stitch-card--padded-sm {
+    padding: 1rem;
+}
+.stitch-card--padded-lg {
+    padding: 2rem;
+}
+
+/* Portal breadcrumb (used above PageHeader) */
+.portal-breadcrumb {
+    font-size: 0.8rem;
+    color: var(--color-on-surface-variant);
+    margin-bottom: 0.5rem;
+}
+.portal-breadcrumb a {
+    color: var(--color-accent);
+    text-decoration: none;
+    font-weight: 500;
+}
+.portal-breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+/* Empty state — CSS fallback for inline styles in PortalEmptyState component */
+.portal-empty-state {
+    text-align: center;
+    padding: 2rem 1.25rem;
+    border-radius: var(--radius-lg, 12px);
+    border: 2px dashed var(--outline-variant, #e5e5e5);
+    background: var(--surface-container-low, #fafafa);
+    max-width: 28rem;
+    margin: 0 auto;
+}
+.portal-empty-state .material-symbols-outlined {
+    font-size: 2.5rem;
+    color: var(--color-on-surface-variant);
+}
+@media (min-width: 769px) {
+    .portal-empty-state .material-symbols-outlined {
+        font-size: 3rem;
+    }
+}
+
+/* Dashboard metric card grid (legacy alias) */
 .dashboard-metrics-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

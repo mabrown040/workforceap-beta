@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
+import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { EMPLOYER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
@@ -290,33 +291,16 @@ export default async function EmployerDashboardPage() {
       {/* ── Desktop View ── */}
       <div className="wa-hidden wa-md:wa-block">
       {/* ── Header ── */}
-      <header style={{ marginBottom: '2.5rem', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: '1.5rem' }}>
-        <div>
-          <h1 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>
-            Talent Intelligence
-          </h1>
-          <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '42rem' }}>
-            Strategic oversight of your cross-functional talent pipeline and credentialed candidate pools.
-          </p>
-        </div>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <Link href="/employer/jobs/import" style={{
-            padding: '0.625rem 1.25rem', background: 'var(--surface-container-high)',
-            color: 'var(--color-accent)', borderRadius: '0.5rem', fontSize: '0.875rem',
-            fontWeight: 600, textDecoration: 'none',
-          }}>
-            Import Jobs
-          </Link>
-          <Link href="/employer/jobs/new" data-tour="tour-post-job" style={{
-            padding: '0.625rem 1.5rem',
-            background: 'linear-gradient(135deg, var(--color-accent) 0%, #670024 100%)',
-            color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem',
-            fontWeight: 600, textDecoration: 'none', boxShadow: '0 4px 24px rgba(0,0,0,0.3)',
-          }}>
-            Post a Job
-          </Link>
-        </div>
-      </header>
+      <PageHeader
+        title="Talent Intelligence"
+        subtitle="Strategic oversight of your cross-functional talent pipeline and credentialed candidate pools."
+        action={
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <Link href="/employer/jobs/import" className="btn btn-outline">Import Jobs</Link>
+            <Link href="/employer/jobs/new" data-tour="tour-post-job" className="btn btn-primary">Post a Job</Link>
+          </div>
+        }
+      />
 
       <section style={{ marginBottom: '2rem' }}>
         <VoiceAgentSurface {...employerVoiceSurface}>
@@ -333,7 +317,7 @@ export default async function EmployerDashboardPage() {
       </section>
 
       {/* ── KPI Metric Cards ── */}
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
+      <section className="portal-grid-metrics" style={{ marginBottom: '3rem' }}>
         {kpiCards.map((card) => (
           <div key={card.label} className="metric-card" style={card.borderAccent ? { borderLeft: '4px solid var(--color-accent)' } : {}}>
             <p className="metric-label" style={{ marginBottom: '0.5rem' }}>{card.label}</p>
@@ -347,26 +331,21 @@ export default async function EmployerDashboardPage() {
 
       {/* ── Empty State ── */}
       {jobs.length === 0 && (
-        <section className="stitch-card" style={{ padding: '2rem', textAlign: 'center', marginBottom: '2rem' }}>
-          <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>Welcome -- start with your first posting</h3>
-          <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem', maxWidth: '36rem', margin: '0 auto 1rem' }}>
-            You do not have any job drafts or live roles yet. Post a single role, or import a list from a spreadsheet or careers URL.
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
-            <Link href="/employer/jobs/new" style={{ padding: '0.5rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.8125rem', fontWeight: 600, textDecoration: 'none' }}>
-              Post your first job
-            </Link>
-            <Link href="/employer/jobs/import" style={{ padding: '0.5rem 1.25rem', border: '1px solid var(--outline-variant)', color: 'var(--color-on-surface)', borderRadius: '0.5rem', fontSize: '0.8125rem', fontWeight: 600, textDecoration: 'none' }}>
-              Import jobs
-            </Link>
-          </div>
+        <section className="portal-section--lg">
+          <PortalEmptyState
+            title="Welcome — start with your first posting"
+            description="You do not have any job drafts or live roles yet. Post a single role, or import a list from a spreadsheet or careers URL."
+            icon={<span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-on-surface-variant)' }}>work</span>}
+            primaryAction={{ label: 'Post your first job', href: '/employer/jobs/new' }}
+            secondaryAction={{ label: 'Import jobs', href: '/employer/jobs/import' }}
+          />
         </section>
       )}
 
       {/* ── Talent Pipeline + Verification Tools ── */}
       <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
         {/* Pipeline */}
-        <div className="stitch-card" style={{ padding: '2rem' }}>
+        <div className="stitch-card stitch-card--padded-lg">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--color-on-surface)' }}>Talent Pipeline</h2>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -481,18 +460,18 @@ export default async function EmployerDashboardPage() {
 
       {/* ── Recent Activity ── */}
       <section style={{ marginBottom: '3rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
+        <div className="portal-section-header">
           <div>
-            <p className="text-label-upper" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Recent activity</p>
+            <p className="portal-section-title" style={{ marginBottom: '0.25rem' }}>Recent activity</p>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>Latest Applicants</h2>
           </div>
-          <Link href="/employer/applications" style={{ color: 'var(--color-accent)', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none', borderBottom: '1px solid rgba(173,44,77,0.2)', paddingBottom: '0.125rem' }}>
+          <Link href="/employer/applications" className="portal-section-action">
             View all applications
           </Link>
         </div>
 
         {recentApplications.length === 0 ? (
-          <div className="stitch-card" style={{ padding: '2rem', textAlign: 'center' }}>
+          <div className="stitch-card stitch-card--padded-lg" style={{ textAlign: 'center' }}>
             <p style={{ color: 'var(--color-on-surface-variant)' }}>
               No applications yet. Publish a job or import your current openings to start collecting candidates.
             </p>
@@ -500,7 +479,7 @@ export default async function EmployerDashboardPage() {
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
             {recentApplications.map((app) => (
-              <div key={app.id} className="stitch-card" style={{ padding: '1.5rem' }}>
+              <div key={app.id} className="stitch-card stitch-card--padded">
                 <div style={{ marginBottom: '1rem' }}>
                   <h4 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>{app.student.fullName}</h4>
                   <p style={{ fontSize: '0.75rem', color: 'var(--color-accent)', fontWeight: 500, marginBottom: '0.75rem' }}>

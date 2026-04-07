@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/db/prisma';
 import { isAIConfigured } from '@/lib/ai/groq';
@@ -21,13 +20,10 @@ export default async function AdminBlogEditPage({ params }: Props) {
 
   return (
     <div style={{ paddingTop: '1.5rem' }}>
-      <Link
-        href="/admin/blog"
-        style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'inline-block' }}
-      >
-        ← Back to Blog
-      </Link>
-      <PageHeader title={`Edit: ${post.title}`} />
+      <PageHeader
+        breadcrumbs={[{ label: 'Blog', href: '/admin/blog' }, { label: 'Edit Post' }]}
+        title={`Edit: ${post.title}`}
+      />
       <BlogPostEditor mode="edit" post={{ ...post, scheduledAt: post.scheduledAt ? post.scheduledAt.toISOString() : null }} aiEnabled={isAIConfigured()} />
     </div>
   );

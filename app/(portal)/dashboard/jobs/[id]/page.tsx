@@ -8,6 +8,7 @@ import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
 import JobApplyButton from './JobApplyButton';
 import { formatJobSalaryRange } from '@/lib/jobs/formatSalary';
+import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 type Props = { params: Promise<{ id: string }> };
@@ -65,6 +66,13 @@ export default async function JobDetailPage({ params }: Props) {
   return (
     <>
     <div className="inner-page">
+      <PageHeader
+        title="Job Details"
+        breadcrumbs={[
+          { label: 'Job Board', href: '/dashboard/jobs' },
+          { label: 'Job Details' },
+        ]}
+      />
       <PageHero
         title={job.title}
         subtitle={`${job.employer.companyName} · ${job.location ?? LOCATION_LABELS[job.locationType] ?? job.locationType} · ${JOB_TYPE_LABELS[job.jobType] ?? job.jobType}`}

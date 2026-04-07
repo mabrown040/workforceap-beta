@@ -5,6 +5,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import TrainingCourseList from '@/components/portal/TrainingCourseList';
+import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -45,67 +46,19 @@ export default async function TrainingPage() {
   return (
     <>
     <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto' }}>
-      {/* Breadcrumb */}
-      <nav
-        aria-label="Breadcrumb"
-        style={{
-          fontSize: 'var(--font-size-sm)',
-          color: 'var(--color-on-surface-variant)',
-          marginBottom: 'var(--space-6)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 'var(--space-2)',
-        }}
-      >
-        <a href="/dashboard" style={{ color: 'var(--color-accent)', textDecoration: 'none' }}>Member Portal</a>
-        <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>chevron_right</span>
-        <span>Training &amp; Job Readiness</span>
-      </nav>
-
-      {/* Header row */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 'var(--space-4)', marginBottom: 'var(--space-8)' }}>
-        <div>
-          <div
-            style={{
-              fontSize: 'var(--font-size-sm)',
-              fontWeight: 'var(--font-weight-medium)',
-              color: 'var(--color-accent)',
-              textTransform: 'uppercase' as const,
-              letterSpacing: '0.06em',
-              marginBottom: 'var(--space-2)',
-            }}
-          >
-            WorkforceAP Training
-          </div>
-          <h1 style={{ fontSize: 'var(--font-size-h1)', fontWeight: 'var(--font-weight-bold)', lineHeight: 'var(--line-height-tight)', margin: 0, marginBottom: 'var(--space-2)' }}>
-            Training &amp; Job Readiness
-          </h1>
-          <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '560px', margin: 0 }}>
-            Complete your {program.title} courses on Coursera. Track progress, mark courses complete, and prepare for the workforce.
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="Training & Job Readiness"
+        subtitle={`Complete your ${program.title} courses on Coursera. Track progress, mark courses complete, and prepare for the workforce.`}
+        breadcrumbs={[
+          { label: 'Member Portal', href: '/dashboard' },
+          { label: 'Training & Job Readiness' },
+        ]}
+      />
 
       {/* Stats row */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: 'var(--space-4)',
-          marginBottom: 'var(--space-8)',
-        }}
-      >
+      <div className="portal-grid-metrics" style={{ marginBottom: 'var(--space-8)' }}>
         {/* Program card */}
-        <div
-          style={{
-            background: 'var(--surface-container)',
-            borderRadius: 'var(--radius-xl)',
-            padding: 'var(--space-6)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--space-4)',
-          }}
-        >
+        <div className="stitch-card stitch-card--padded" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
           <span
             className="material-symbols-outlined"
             style={{
@@ -126,16 +79,7 @@ export default async function TrainingPage() {
         </div>
 
         {/* Courses completed */}
-        <div
-          style={{
-            background: 'var(--surface-container)',
-            borderRadius: 'var(--radius-xl)',
-            padding: 'var(--space-6)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--space-4)',
-          }}
-        >
+        <div className="stitch-card stitch-card--padded" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
           <span
             className="material-symbols-outlined"
             style={{
@@ -156,13 +100,7 @@ export default async function TrainingPage() {
         </div>
 
         {/* Progress */}
-        <div
-          style={{
-            background: 'var(--surface-container)',
-            borderRadius: 'var(--radius-xl)',
-            padding: 'var(--space-6)',
-          }}
-        >
+        <div className="stitch-card stitch-card--padded">
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-3)' }}>
             <span
               className="material-symbols-outlined"

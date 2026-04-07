@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { PROGRAMS } from '@/lib/content/programs';
+import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'New Invite',
@@ -44,16 +45,11 @@ export default async function AdminNewInvitePage({ searchParams }: InviteFormPag
 
   return (
     <div style={{ maxWidth: '680px', paddingTop: '1.5rem' }}>
-      <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-        <Link href="/admin/invites" className="btn btn-outline">
-          Back to Invites
-        </Link>
-      </div>
-
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Send New Invite</h1>
-      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>
-        This form posts directly to the server and works even if client-side modal actions are unavailable.
-      </p>
+      <PageHeader
+        breadcrumbs={[{ label: 'Invites', href: '/admin/invites' }, { label: 'New Invite' }]}
+        title="Send New Invite"
+        subtitle="This form posts directly to the server and works even if client-side modal actions are unavailable."
+      />
 
       {error ? (
         <div className="admin-inline-feedback admin-inline-feedback--error" role="alert" style={{ marginBottom: '1rem' }}>

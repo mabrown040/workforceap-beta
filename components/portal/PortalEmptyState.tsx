@@ -30,18 +30,7 @@ export default function PortalEmptyState({
   className = '',
 }: PortalEmptyStateProps) {
   return (
-    <div
-      className={`portal-empty-state ${className}`.trim()}
-      style={{
-        textAlign: 'center',
-        padding: '2rem 1.25rem',
-        borderRadius: 'var(--radius-lg, 12px)',
-        border: '2px dashed var(--outline-variant, #e5e5e5)',
-        background: 'var(--surface-container-low, #fafafa)',
-        maxWidth: '28rem',
-        margin: '0 auto',
-      }}
-    >
+    <div className={`portal-empty-state ${className}`.trim()}>
       {icon ? <div style={{ marginBottom: '0.75rem', display: 'flex', justifyContent: 'center' }}>{icon}</div> : null}
       <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-on-surface, #1a1a1a)' }}>
         {title}

@@ -129,8 +129,8 @@ export default async function AdminPage() {
       {/* ── Desktop Header ── */}
       <div className="wa-hidden wa-md:wa-block" style={{ marginBottom: '2.5rem' }}>
         <PageHeader
-          title="Admin Overview"
-          subtitle="Platform overview and key metrics"
+          title="Admin Dashboard"
+          subtitle="Platform management and oversight."
           action={
             <div style={{ display: 'flex', gap: '0.75rem' }}>
               <Link href="/admin/pipeline" style={{ padding: '0.625rem 1.5rem', background: 'var(--surface-container-high)', color: 'var(--color-accent)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>

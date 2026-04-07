@@ -80,6 +80,10 @@ export default async function NewJobPage() {
         <PageHeader
           title="Post New Job"
           subtitle="Create a job posting. Save as draft or submit for admin review."
+          breadcrumbs={[
+            { label: 'Job Postings', href: '/employer/jobs' },
+            { label: 'New Job' },
+          ]}
         />
         <JobForm companyName={employer?.companyName ?? ''} programSlugs={programSlugs} />
       </div>

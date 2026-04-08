@@ -15,6 +15,7 @@ import ResumeClient from '@/app/(portal)/dashboard/resume/ResumeClient';
 import ResumeCoachWorkspace from '@/components/portal/ResumeCoachWorkspace';
 import { getProfileCompleteness } from '@/lib/resume/profileCompleteness';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import PortalCard from '@/components/portal/ui/PortalCard';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'My Profile',
@@ -138,15 +139,29 @@ export default async function DashboardProfilePage() {
         <section className="wa-pt-6 wa-pb-4 wa-text-center wa-px-6">
           <div className="wa-flex wa-flex-col wa-items-center">
             {/* Avatar */}
-            <div className="wa-w-24 wa-h-24 wa-rounded-full wa-bg-[#ad2c4d] wa-flex wa-items-center wa-justify-center wa-text-white wa-text-3xl wa-font-bold wa-mb-4 wa-shadow-sm">
+            <div
+              className="wa-w-24 wa-h-24 wa-rounded-full wa-flex wa-items-center wa-justify-center wa-text-3xl wa-font-bold wa-mb-4 wa-shadow-sm"
+              style={{ background: 'var(--color-accent)', color: 'var(--color-white)' }}
+            >
               {initials}
             </div>
             {/* Identity */}
-            <h2 className="wa-text-2xl wa-font-extrabold wa-tracking-tight wa-text-[#1c1b1b] wa-mb-1">{dbUser.fullName ?? 'Your Name'}</h2>
-            <div className="wa-inline-flex wa-items-center wa-px-3 wa-py-1 wa-rounded-full bg-[#ffbb00]/20 wa-text-[#7b5800] wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-wider wa-mb-2">
+            <h2
+              className="wa-text-2xl wa-font-extrabold wa-tracking-tight wa-mb-1"
+              style={{ color: 'var(--color-on-surface)' }}
+            >
+              {dbUser.fullName ?? 'Your Name'}
+            </h2>
+            <div
+              className="wa-inline-flex wa-items-center wa-px-3 wa-py-1 wa-rounded-full wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-wider wa-mb-2"
+              style={{
+                background: 'color-mix(in srgb, var(--color-gold) 20%, transparent)',
+                color: 'color-mix(in srgb, var(--color-gold) 55%, var(--color-on-surface))',
+              }}
+            >
               {program?.title ?? 'WorkforceAP Member'}
             </div>
-            <p className="wa-text-[#584144] wa-text-sm wa-font-medium">
+            <p className="wa-text-sm wa-font-medium" style={{ color: 'var(--color-on-surface-variant)' }}>
               {dbUser.createdAt
                 ? `Member since ${new Date(dbUser.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`
                 : 'WorkforceAP Member'}
@@ -155,15 +170,23 @@ export default async function DashboardProfilePage() {
         </section>
 
         {/* Completion meter */}
-        <section className="wa-mx-6 wa-mb-5 wa-bg-[#f2eeed] wa-p-5 wa-rounded-xl">
-          <div className="wa-flex wa-justify-between wa-items-end wa-mb-2">
-            <p className="wa-text-[#1c1b1b] wa-font-semibold wa-text-sm wa-tracking-tight">Profile {profilePct}% complete</p>
-            <span className="wa-text-[#8c0f37] wa-text-xs wa-font-bold">Fill in missing info</span>
-          </div>
-          <div className="wa-h-1.5 wa-w-full wa-bg-[#debfc2] wa-rounded-full wa-overflow-hidden">
-            <div className="wa-h-full wa-bg-[#8c0f37] wa-rounded-full wa-transition-all" style={{ width: `${profilePct}%` }} />
-          </div>
-        </section>
+        <div className="wa-mx-6 wa-mb-5">
+          <PortalCard
+            className="portal-card--flat"
+            title={`Profile ${profilePct}% complete`}
+            action={<span className="wa-text-xs wa-font-bold" style={{ color: 'var(--color-accent)' }}>Fill in missing info</span>}
+          >
+            <div
+              className="wa-h-1.5 wa-w-full wa-rounded-full wa-overflow-hidden"
+              style={{ background: 'color-mix(in srgb, var(--outline-variant) 55%, transparent)' }}
+            >
+              <div
+                className="wa-h-full wa-rounded-full wa-transition-all"
+                style={{ width: `${profilePct}%`, background: 'var(--color-accent-dark)' }}
+              />
+            </div>
+          </PortalCard>
+        </div>
 
         {/* Personal info card */}
         <div className="wa-mx-6 wa-mb-4 wa-bg-[#fcf9f8] wa-p-5 wa-rounded-xl wa-border border-[#debfc2]/30">

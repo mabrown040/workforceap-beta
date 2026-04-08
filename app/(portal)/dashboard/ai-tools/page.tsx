@@ -8,6 +8,7 @@ import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization'
 import VoiceCoachesPromo from '@/components/portal/VoiceCoachesPromo';
 import AiToolsHubSection from '@/components/portal/AiToolsHubSection';
 import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
+import PortalCard from '@/components/portal/ui/PortalCard';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'AI Career Toolkit',
@@ -32,7 +33,7 @@ export default async function AIToolsPage() {
   }
 
   return (
-    <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
+    <div style={{ background: 'var(--surface-container-lowest)', minHeight: '100vh' }}>
       <div className="wa-pb-24 wa-md:wa-pb-0">
         <div className="wa-hidden wa-md:wa-block" style={{ padding: '1.5rem 1.5rem 0', maxWidth: '1100px', margin: '0 auto' }}>
           <PortalBreadcrumb items={[
@@ -44,7 +45,7 @@ export default async function AIToolsPage() {
           style={{
             padding: 'clamp(2rem, 4vw, 3rem) 1.5rem 2rem',
             textAlign: 'center',
-            background: 'linear-gradient(180deg, var(--surface-container-low) 0%, var(--color-surface) 100%)',
+            background: 'linear-gradient(180deg, var(--surface-container-low) 0%, var(--surface-container-lowest) 100%)',
           }}
         >
           <p
@@ -91,45 +92,57 @@ export default async function AIToolsPage() {
             AI-powered tools to strengthen your resume, practice interviews, and stand out to employers.
           </p>
 
-          <div
-            className="wa-block wa-md:wa-hidden"
-            style={{
-              marginBottom: '1.25rem',
-              position: 'relative',
-              height: '7rem',
-              width: '100%',
-              maxWidth: '520px',
-              marginLeft: 'auto',
-              marginRight: 'auto',
-              borderRadius: '0.75rem',
-              overflow: 'hidden',
-              padding: '1.25rem',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'flex-end',
-              background: 'linear-gradient(135deg, #8c0f37 0%, #ad2c4d 100%)',
-            }}
-          >
-            <div
-              style={{
-                position: 'absolute',
-                top: 0,
-                right: 0,
-                width: '7rem',
-                height: '7rem',
-                borderRadius: '9999px',
-                marginRight: '-3rem',
-                marginTop: '-3rem',
-                background: 'rgba(250, 204, 21, 0.15)',
-                filter: 'blur(40px)',
-              }}
-            />
-            <h2 className="wa-text-base wa-font-bold" style={{ color: '#fff', margin: 0, position: 'relative', zIndex: 1 }}>
-              Smart Recommendations
-            </h2>
-            <p style={{ color: 'rgba(255, 228, 232, 0.95)', fontSize: '0.75rem', margin: '0.25rem 0 0', position: 'relative', zIndex: 1 }}>
-              AI-driven paths tailored for your goals.
-            </p>
+          <div className="wa-block wa-md:wa-hidden" style={{ maxWidth: '520px', margin: '0 auto 1.25rem' }}>
+            <PortalCard
+              className="portal-card--flat"
+            >
+              <div
+                style={{
+                  position: 'relative',
+                  height: '7rem',
+                  overflow: 'hidden',
+                  borderRadius: '0.75rem',
+                  padding: '1.25rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'flex-end',
+                  background:
+                    'linear-gradient(135deg, var(--color-accent-dark) 0%, var(--color-accent) 100%)',
+                }}
+              >
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    width: '7rem',
+                    height: '7rem',
+                    borderRadius: '9999px',
+                    marginRight: '-3rem',
+                    marginTop: '-3rem',
+                    background: 'color-mix(in srgb, var(--color-gold) 18%, transparent)',
+                    filter: 'blur(40px)',
+                  }}
+                />
+                <h2
+                  className="wa-text-base wa-font-bold"
+                  style={{ color: 'var(--color-white)', margin: 0, position: 'relative', zIndex: 1 }}
+                >
+                  Smart Recommendations
+                </h2>
+                <p
+                  style={{
+                    color: 'color-mix(in srgb, var(--color-white) 92%, transparent)',
+                    fontSize: '0.75rem',
+                    margin: '0.25rem 0 0',
+                    position: 'relative',
+                    zIndex: 1,
+                  }}
+                >
+                  AI-driven paths tailored for your goals.
+                </p>
+              </div>
+            </PortalCard>
           </div>
 
           {suggestedActions.length > 0 && (
@@ -138,19 +151,7 @@ export default async function AIToolsPage() {
                 <Link
                   key={a.href + a.label}
                   href={a.href}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.4rem',
-                    padding: '0.45rem 1rem',
-                    fontSize: '0.85rem',
-                    fontWeight: 600,
-                    borderRadius: '8px',
-                    background: 'var(--color-accent)',
-                    color: '#fff',
-                    textDecoration: 'none',
-                    transition: 'background 0.2s',
-                  }}
+                  className="btn btn-primary"
                 >
                   {a.label}
                   <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>
@@ -163,18 +164,7 @@ export default async function AIToolsPage() {
 
           <Link
             href="/dashboard/ai-tools/history"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              padding: '0.45rem 1rem',
-              fontSize: '0.85rem',
-              fontWeight: 500,
-              borderRadius: '8px',
-              border: '1px solid var(--surface-container-highest)',
-              color: 'var(--color-on-surface-variant)',
-              textDecoration: 'none',
-            }}
+            className="btn btn-outline"
           >
             <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
               history

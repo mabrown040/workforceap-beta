@@ -99,25 +99,35 @@ export default async function DashboardReadinessPage() {
           </p>
         </div>
 
-        <div style={{ padding: '0 1rem 1rem' }}>
-          <VoiceAgentSurface {...readinessVoiceSurface}>
-            <PortalVoiceSession
-              sessionEndpoint="/api/member/readiness/voice-session"
-              title="Talk through your readiness plan"
-              description="Ask about interviews, certifications, LinkedIn, or your next milestone."
-              accent="#0d9488"
-              accentDark="#0f766e"
-              speakingLabel="Coach is speaking…"
-              listeningLabel="Listening — share where you are"
-            />
-          </VoiceAgentSurface>
-        </div>
-
         <ReadinessMobileScoreCard
           overallScore={overallScore}
           categories={categories}
           priorityAction={priorityAction}
         />
+
+        <div className="portal-pad-x" style={{ marginTop: '1rem' }}>
+          <details className="stitch-card" style={{ padding: '0.75rem 0.9rem' }}>
+            <summary style={{ cursor: 'pointer', fontWeight: 800, color: 'var(--color-on-surface)', listStyle: 'none' }}>
+              Readiness coach
+              <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
+                (tap to open)
+              </span>
+            </summary>
+            <div style={{ marginTop: '0.75rem' }}>
+              <VoiceAgentSurface {...readinessVoiceSurface}>
+                <PortalVoiceSession
+                  sessionEndpoint="/api/member/readiness/voice-session"
+                  title="Talk through your readiness plan"
+                  description="Ask about interviews, certifications, LinkedIn, or your next milestone."
+                  accent="#0d9488"
+                  accentDark="#0f766e"
+                  speakingLabel="Coach is speaking…"
+                  listeningLabel="Listening — share where you are"
+                />
+              </VoiceAgentSurface>
+            </div>
+          </details>
+        </div>
 
         <MobileBottomNav variant="portal" />
       </div>

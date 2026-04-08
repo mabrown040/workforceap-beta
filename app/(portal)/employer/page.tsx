@@ -16,6 +16,7 @@ import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { employerVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import StatusBadge from '@/components/portal/StatusBadge';
+import PortalCard from '@/components/portal/ui/PortalCard';
 import {
   employerJobPostingApplicationStatusBadgeVariant,
   employerJobPostingApplicationStatusLabel,
@@ -186,23 +187,15 @@ export default async function EmployerDashboardPage() {
       <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Hero */}
         <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingTop:"1.5rem", paddingBottom:"0.5rem" }}>
-          <p className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold wa-text-[#8c0f37]" style={{ marginBottom:"0.25rem" }}>Employer Portal</p>
+          <p
+            className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold"
+            style={{ marginBottom:"0.25rem", color: 'var(--color-accent)' }}
+          >
+            Employer Portal
+          </p>
           <h2 className="wa-text-2xl wa-font-extrabold wa-tracking-tight text-on-surface wa-leading-tight">
             {totalApplications > 0 ? `${totalApplications} candidate${totalApplications !== 1 ? 's' : ''} waiting` : 'Your talent pipeline'}
           </h2>
-        </div>
-        <div style={{ marginLeft: '1.5rem', marginRight: '1.5rem', marginBottom: '1rem' }}>
-          <VoiceAgentSurface {...employerVoiceSurface}>
-            <PortalVoiceSession
-              sessionEndpoint="/api/employer/voice-session"
-              title="Employer voice assistant"
-              description="Ask about posting roles, reviewing applicants, or navigating the employer portal."
-              accent="#4f46e5"
-              accentDark="#4338ca"
-              speakingLabel="Assistant is speaking…"
-              listeningLabel="Listening — ask your question"
-            />
-          </VoiceAgentSurface>
         </div>
         {/* Stats row - horizontal scroll */}
         <div style={{ display:"flex", gap:"0.75rem", overflowX:"auto", scrollbarWidth:"none", paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingBottom:"0.5rem" }}>
@@ -211,14 +204,18 @@ export default async function EmployerDashboardPage() {
             { label: 'Candidates', value: totalApplications, color: 'var(--on-surface)' },
             { label: 'In Review', value: inReview, color: 'var(--secondary)' },
           ].map((s) => (
-            <div key={s.label} className="wa-bg-white" style={{ minWidth:"130px", flex:1, padding:"1rem", borderRadius:"0.75rem", boxShadow:"0 1px 2px rgba(0,0,0,0.05)" }}>
-              <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider text-on-surface-variant/60" style={{ marginBottom:"0.25rem" }}>{s.label}</p>
-              <p className="wa-text-2xl wa-font-bold" style={{ color: s.color }}>{s.value}</p>
+            <div
+              key={s.label}
+              className="portal-kpi-card"
+              style={{ minWidth:"130px", flex:1, padding:"1rem", borderRadius:"0.75rem" }}
+            >
+              <p className="portal-kpi-card__label" style={{ marginBottom:"0.25rem" }}>{s.label}</p>
+              <p className="portal-kpi-card__value" style={{ color: s.color }}>{s.value}</p>
             </div>
           ))}
         </div>
         {/* Pipeline summary strip */}
-        <div className="bg-surface-container-low" style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginTop:"0.75rem", padding:"1rem", borderRadius:"0.75rem", display:"flex", justifyContent:"space-between", alignItems:"center", textAlign:"center" }}>
+        <div className="portal-kpi-card" style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginTop:"0.75rem", padding:"1rem", borderRadius:"0.75rem", display:"flex", justifyContent:"space-between", alignItems:"center", textAlign:"center" }}>
           {[
             { label: 'Screened', value: Math.max(0, totalApplications - inReview) },
             { label: 'Interview', value: inReview },
@@ -233,6 +230,19 @@ export default async function EmployerDashboardPage() {
               {i < arr.length - 1 && <div className="bg-outline-variant/30" style={{ width: '1px', height:"1.25rem" }} />}
             </div>
           ))}
+        </div>
+        <div style={{ marginLeft: '1.5rem', marginRight: '1.5rem', marginTop: '1rem' }}>
+          <VoiceAgentSurface {...employerVoiceSurface}>
+            <PortalVoiceSession
+              sessionEndpoint="/api/employer/voice-session"
+              title="Employer voice assistant"
+              description="Ask about posting roles, reviewing applicants, or navigating the employer portal."
+              accent="#4f46e5"
+              accentDark="#4338ca"
+              speakingLabel="Assistant is speaking…"
+              listeningLabel="Listening — ask your question"
+            />
+          </VoiceAgentSurface>
         </div>
         {/* Quick actions — Review Apps is primary when candidates exist */}
         <div style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginTop:"1rem", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"0.75rem" }}>
@@ -257,12 +267,12 @@ export default async function EmployerDashboardPage() {
           )}
           <Link href="/employer/jobs/new"
             className="bg-surface-container-high text-on-surface active:scale-[0.98] wa-transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", flexDirection:"column", gap:"0.5rem", alignItems:"flex-start", textDecoration:"none", minHeight:"44px" }}>
-            <span className="material-symbols-outlined wa-text-[#8c0f37]">add_circle</span>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>add_circle</span>
             <span className="wa-text-sm wa-font-bold wa-leading-tight">Post a Role</span>
           </Link>
           <Link href="/employer/messages"
             className="bg-surface-container-high text-on-surface active:scale-[0.98] wa-transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", flexDirection:"column", gap:"0.5rem", alignItems:"flex-start", textDecoration:"none", minHeight:"44px" }}>
-            <span className="material-symbols-outlined wa-text-[#7b5800]">forum</span>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-gold)' }}>forum</span>
             <span className="wa-text-sm wa-font-bold wa-leading-tight">Messages</span>
           </Link>
         </div>
@@ -270,7 +280,13 @@ export default async function EmployerDashboardPage() {
         <div style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginTop:"1.5rem" }}>
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:"1rem" }}>
             <h3 className="wa-text-xl wa-font-bold wa-tracking-tight text-on-surface">Recent Applicants</h3>
-            <Link href="/employer/applications" className="wa-text-xs wa-font-bold wa-text-[#8c0f37] wa-uppercase wa-tracking-widest" style={{ textDecoration:"none" }}>View All</Link>
+            <Link
+              href="/employer/applications"
+              className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest"
+              style={{ textDecoration:"none", color: 'var(--color-accent)' }}
+            >
+              View All
+            </Link>
           </div>
           <div style={{ display:"flex", flexDirection:"column", gap:"0.75rem" }}>
             {recentApplications.length === 0 ? (
@@ -283,7 +299,10 @@ export default async function EmployerDashboardPage() {
             ) : (
               recentApplications.slice(0, 5).map((app) => (
                 <Link key={app.id} href={`/employer/jobs/${app.jobId}`}
-                  className="wa-bg-white active:scale-[0.98] wa-transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", alignItems:"center", gap:"0.75rem", textDecoration:"none" }}>
+                  className="active:scale-[0.98] wa-transition-all"
+                  style={{ textDecoration:"none" }}
+                >
+                  <PortalCard>
                   <div className="bg-surface-container-high" style={{ width:"2.5rem", height:"2.5rem", borderRadius:"9999px", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                     <span className="material-symbols-outlined wa-text-[18px] text-on-surface-variant">person</span>
                   </div>
@@ -294,12 +313,18 @@ export default async function EmployerDashboardPage() {
                         {new Date(app.appliedAt).toLocaleDateString()}
                       </span>
                     </div>
-                    <p className="wa-text-xs wa-text-[#7b5800] wa-font-semibold wa-uppercase wa-tracking-wider wa-truncate" style={{ marginBottom:"0.25rem" }}>{app.job.title}</p>
+                    <p
+                      className="wa-text-xs wa-font-semibold wa-uppercase wa-tracking-wider wa-truncate"
+                      style={{ marginBottom:"0.25rem", color: 'var(--color-gold)' }}
+                    >
+                      {app.job.title}
+                    </p>
                     <StatusBadge
                       label={employerJobPostingApplicationStatusLabel(app.status)}
                       variant={employerJobPostingApplicationStatusBadgeVariant(app.status)}
                     />
                   </div>
+                  </PortalCard>
                 </Link>
               ))
             )}

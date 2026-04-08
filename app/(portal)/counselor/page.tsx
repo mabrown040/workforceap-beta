@@ -13,6 +13,8 @@ import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import PortalStatCard from '@/components/portal/PortalStatCard';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { getTimeOfDayGreeting } from '@/lib/time/greeting';
+import { getProgramBySlug } from '@/lib/content/programs';
+import PortalCard from '@/components/portal/ui/PortalCard';
 
 export default async function CounselorPortalPage() {
   const user = await getUser();
@@ -43,6 +45,7 @@ export default async function CounselorPortalPage() {
               programInterest: true,
               enrolledProgram: true,
               assessmentScorePct: true,
+              coursesCompleted: true,
             },
           },
         },
@@ -95,17 +98,25 @@ export default async function CounselorPortalPage() {
       {/* ── Mobile Counselor View (≤640px) ── */}
       <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Hero */}
-        <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingTop:"1.5rem", paddingBottom:"0.5rem" }}>
-          <p className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold wa-text-[#8c0f37]" style={{ marginBottom:"0.5rem" }}>Counselor Dashboard</p>
+        <div className="portal-pad-x" style={{ paddingTop:"1.5rem", paddingBottom:"0.5rem" }}>
+          <p className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold" style={{ color: 'var(--color-accent)', marginBottom:"0.5rem" }}>Counselor Dashboard</p>
           <h2 className="wa-text-3xl wa-font-extrabold wa-tracking-tight text-on-surface wa-leading-tight">
             {greeting},<br /><span style={{ color: 'var(--color-accent)' }}>{firstName}</span>
           </h2>
         </div>
-        <div style={{ marginLeft: '1.5rem', marginRight: '1.5rem', marginBottom: '1rem' }}>
-          <CounselorPortalVoiceBlock />
+        <div className="portal-pad-x" style={{ marginBottom: '1rem' }}>
+          <details className="portal-card portal-card--compact">
+            <summary className="portal-card__summary">
+              Counselor assistant
+              <span className="portal-card__summary-hint">(tap to open)</span>
+            </summary>
+            <div className="portal-card__body">
+              <CounselorPortalVoiceBlock />
+            </div>
+          </details>
         </div>
         {/* Stats grid */}
-        <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem", marginTop:"1rem", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"1rem", marginBottom:"1.5rem" }}>
+        <div className="portal-pad-x" style={{ marginTop:"1rem", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"1rem", marginBottom:"1.5rem" }}>
           <div className="wa-text-white" style={{gridColumn:"span 2", borderRadius:"0.75rem", padding:"1.25rem", position:"relative", overflow:"hidden", background: 'var(--color-accent)'}}>
             <div style={{ position:"relative", zIndex:10 }}>
               <p className="wa-text-[11px] wa-uppercase wa-tracking-widest" style={{ opacity:0.85, marginBottom:"0.25rem" }}>Your Students</p>
@@ -125,7 +136,7 @@ export default async function CounselorPortalPage() {
           </div>
         </div>
         {/* Filter chips */}
-        <div style={{ display:"flex", gap:"0.5rem", overflowX:"auto", scrollbarWidth:"none", paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingBottom:"0.75rem" }}>
+        <div className="portal-pad-x" style={{ display:"flex", gap:"0.5rem", overflowX:"auto", scrollbarWidth:"none", paddingBottom:"0.75rem" }}>
           {['All', 'At Risk', 'Upcoming Session', 'New'].map((f, i) => (
             <span key={f} className="wa-text-xs wa-font-semibold" style={Object.assign({ flexShrink:0, paddingLeft:"1rem", paddingRight:"1rem", paddingTop:"0.5rem", paddingBottom:"0.5rem", borderRadius:"9999px", cursor:"pointer" }, i === 0 ? { background: 'var(--color-accent)', color: '#fff' } : { background: 'var(--surface-container-highest)', color: 'var(--on-surface)' })}>
               {f}
@@ -133,7 +144,7 @@ export default async function CounselorPortalPage() {
           ))}
         </div>
         {/* Student roster */}
-        <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem" }}>
+        <div className="portal-pad-x">
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1rem" }}>
             <h3 className="wa-text-lg wa-font-bold wa-tracking-tight">Active Roster</h3>
             <span className="material-symbols-outlined text-on-surface-variant wa-text-xl">sort</span>
@@ -150,9 +161,17 @@ export default async function CounselorPortalPage() {
             ) : (
               assignments.map((a) => {
                 const prog = a.member.enrolledProgram ?? a.member.programInterest ?? 'Unknown Program';
-                const isEnrolled = !!a.member.enrolledProgram;
-                const hasInterest = !!a.member.programInterest;
-                const progressPct = isEnrolled ? 100 : hasInterest ? 50 : 0;
+                const enrolledSlug = a.member.enrolledProgram ?? null;
+                const program = enrolledSlug ? getProgramBySlug(enrolledSlug) : null;
+                const completed = (a.member.coursesCompleted as string[] | null) ?? [];
+                const completedSet = new Set(completed);
+                const totalCourses = program?.courses.length ?? 0;
+                const completedCount =
+                  program && totalCourses > 0
+                    ? program.courses.filter((c) => completedSet.has(c.slug)).length
+                    : 0;
+                const trainingProgressPct =
+                  program && totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : null;
                 const rosterBadge = counselorStudentStatusBadge({
                   enrolledProgram: a.member.enrolledProgram,
                   assessmentScorePct: a.member.assessmentScorePct,
@@ -163,20 +182,37 @@ export default async function CounselorPortalPage() {
                   assessmentScorePct: a.member.assessmentScorePct,
                 });
                 return (
-                  <Link key={a.id} href={`/counselor/students/${a.memberId}`}
-                    className="wa-bg-white active:scale-[0.98] wa-transition-all" style={{ borderRadius:"0.75rem", padding:"1rem", display:"flex", alignItems:"center", gap:"0.75rem", textDecoration:"none" }}>
+                  <Link
+                    key={a.id}
+                    href={`/counselor/students/${a.memberId}`}
+                    className="portal-kpi-card active:scale-[0.98] wa-transition-all"
+                    style={{
+                      borderRadius: '0.75rem',
+                      padding: '1rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem',
+                      textDecoration: 'none',
+                    }}
+                  >
                     <div className="bg-surface-container-high" style={{ width:"3rem", height:"3rem", borderRadius:"0.75rem", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                       <span className="material-symbols-outlined text-on-surface-variant">person</span>
                     </div>
                     <div style={{ flex:1, minWidth:0 }}>
                       <h4 className="wa-font-bold text-on-surface wa-text-base wa-truncate">{a.member.fullName}</h4>
                       <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider wa-truncate" style={{marginBottom:"0.25rem", color: 'var(--color-accent)'}}>{prog}</p>
-                      <div style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
-                        <div className="bg-surface-container" style={{ flex:1, height:"0.25rem", borderRadius:"9999px", overflow:"hidden" }}>
-                          <div style={{height:"100%", borderRadius:"9999px", width: `${progressPct}%`, background: 'var(--color-accent)'}} />
+                      {trainingProgressPct === null ? (
+                        <p className="wa-text-[11px] wa-font-semibold text-on-surface-variant" style={{ margin: 0 }}>
+                          {enrolledSlug ? 'Training progress unavailable' : 'Not enrolled'}
+                        </p>
+                      ) : (
+                        <div style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
+                          <div className="bg-surface-container" style={{ flex:1, height:"0.25rem", borderRadius:"9999px", overflow:"hidden" }}>
+                            <div style={{height:"100%", borderRadius:"9999px", width: `${trainingProgressPct}%`, background: 'var(--color-accent)'}} />
+                          </div>
+                          <span className="wa-text-[11px] wa-font-bold text-on-surface-variant">{trainingProgressPct}%</span>
                         </div>
-                        <span className="wa-text-[11px] wa-font-bold text-on-surface-variant">{progressPct}%</span>
-                      </div>
+                      )}
                     </div>
                     <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:"0.5rem" }}>
                       <StatusBadge label={statusLabel} variant={badgeVariant} />

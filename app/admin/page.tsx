@@ -51,6 +51,7 @@ export default async function AdminPage() {
   let recentPlacements: PlacementWithUser[];
   let pendingApplications: number;
   let activeInTraining: number;
+  let programsEnrolled: number;
   let programsCompleted: number;
 
   function logPrismaReason(label: string, reason: unknown) {
@@ -129,15 +130,14 @@ export default async function AdminPage() {
       pendingApplications = pendingApplicationsResult.value;
     }
 
-    const [activeResult, programsResult] = await Promise.allSettled([
+    const [enrolledResult, programsResult] = await Promise.allSettled([
       prisma.user.count({
         where: {
           deletedAt: null,
-          assessmentCompleted: true,
           enrolledProgram: { not: null },
         },
       }),
-      // programsCompleted: count members who completed ALL courses in their program.
+      // Count members who completed ALL courses in their enrolled program.
       // Can't filter JSON array length in Prisma, so fetch and count in JS.
       prisma.user.findMany({
         where: {
@@ -148,11 +148,11 @@ export default async function AdminPage() {
       }),
     ]);
 
-    if (activeResult.status === 'rejected') {
-      logPrismaReason('activeInTraining', activeResult.reason);
-      activeInTraining = 0;
+    if (enrolledResult.status === 'rejected') {
+      logPrismaReason('programsEnrolled', enrolledResult.reason);
+      programsEnrolled = 0;
     } else {
-      activeInTraining = activeResult.value;
+      programsEnrolled = enrolledResult.value;
     }
 
     if (programsResult.status === 'rejected') {
@@ -167,6 +167,8 @@ export default async function AdminPage() {
         return program.courses.every((c) => completed.includes(c.slug));
       }).length;
     }
+
+    activeInTraining = Math.max(0, programsEnrolled - programsCompleted);
   } catch (e) {
     logPrismaReason('critical block', e);
     return (
@@ -186,7 +188,8 @@ export default async function AdminPage() {
     { icon: 'groups', label: 'Total Members', value: totalMembers.toLocaleString(), accent: 'var(--color-accent)', href: '/admin/members' },
     { icon: 'task_alt', label: 'Assessments Completed', value: assessmentsCompleted.toLocaleString(), accent: '#3b82f6', href: '/admin/assessments' },
     { icon: 'model_training', label: 'Active in Training', value: activeInTraining.toLocaleString(), accent: '#80d99f', href: '/admin/members' },
-    { icon: 'school', label: 'Programs Enrolled', value: programsCompleted.toLocaleString(), accent: '#fbbf24', href: '/admin/programs' },
+    { icon: 'school', label: 'Programs Enrolled', value: programsEnrolled.toLocaleString(), accent: '#fbbf24', href: '/admin/programs' },
+    { icon: 'workspace_premium', label: 'Programs Completed', value: programsCompleted.toLocaleString(), accent: '#fbbf24', href: '/admin/programs' },
   ];
 
   function timeAgo(date: Date) {
@@ -444,7 +447,7 @@ export default async function AdminPage() {
               <Link href="/admin/pipeline" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', textDecoration: 'none' }}>
                 <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-on-surface)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#80d99f' }} aria-hidden>model_training</span>
-                  In Training
+                  Active in Training
                 </span>
                 <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#80d99f' }}>{activeInTraining}</span>
               </Link>

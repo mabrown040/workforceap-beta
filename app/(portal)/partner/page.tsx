@@ -124,8 +124,10 @@ export default async function PartnerDashboardPage() {
   const referralLinkUsagePct =
     total > 0 ? Math.min(100, Math.round((referredMembersAppliedViaLink / total) * 100)) : 0;
 
-  // Pending milestones count (open milestones needing review)
-  const pendingMilestonesCount = stageCounts['in_training'] ?? 0;
+  // Members currently in training. Previously mislabeled as "Needs Review" /
+  // "pending milestones" — the system has no milestone approval workflow yet.
+  // TODO: When a real milestone approval model exists, count actual pending items here.
+  const inTrainingCount = stageCounts['in_training'] ?? 0;
 
   // Recent members for mobile (top 4)
   const recentMembers = pipelineMembers.slice(0, 4);
@@ -155,7 +157,7 @@ export default async function PartnerDashboardPage() {
           {ctx.partner.name}
         </h1>
         <p className="wa-text-sm wa-font-medium" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
-          Strategic Partner
+          {partnerRow.organizationType || 'Partner'}
         </p>
       </div>
 
@@ -193,11 +195,11 @@ export default async function PartnerDashboardPage() {
           <p className="wa-text-3xl wa-font-black" style={{ color: 'var(--color-gold)', lineHeight: 1 }}>{completions}</p>
           <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Earned by members</p>
         </div>
-        {/* Needs Review */}
+        {/* In Training */}
         <div style={{ background: '#fff', borderRadius: '0.875rem', padding: '1rem', border: '1px solid #ebe7e7', borderLeft: '4px solid #8c0f37' }}>
-          <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ color: 'var(--color-accent)', marginBottom: '0.25rem' }}>Needs Review</p>
-          <p className="wa-text-3xl wa-font-black" style={{ color: 'var(--color-accent)', lineHeight: 1 }}>{pendingMilestonesCount}</p>
-          <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Open milestones</p>
+          <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ color: 'var(--color-accent)', marginBottom: '0.25rem' }}>In Training</p>
+          <p className="wa-text-3xl wa-font-black" style={{ color: 'var(--color-accent)', lineHeight: 1 }}>{inTrainingCount}</p>
+          <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Active learners</p>
         </div>
       </div>
 
@@ -272,7 +274,7 @@ export default async function PartnerDashboardPage() {
             <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }}>flag</span>
             <div style={{ flex: 1 }}>
               <p className="wa-text-sm wa-font-semibold" style={{ color: 'var(--color-on-surface)', margin: 0 }}>Review Milestones</p>
-              <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>{pendingMilestonesCount} pending approval</p>
+              <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>{inTrainingCount} currently in training</p>
             </div>
             <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem' }}>arrow_forward_ios</span>
           </Link>

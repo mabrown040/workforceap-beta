@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { PATHWAYS } from '@/lib/content/learningPathways';
+import { getPathwayForProgram } from '@/lib/content/learningPathways';
 import { buildPathwayMilestones } from '@/lib/content/pathwayStepDisplay';
 import PageHeader from '@/components/portal/PageHeader';
 import CertificationRoadmap from '@/components/portal/CertificationRoadmap';
@@ -26,7 +26,14 @@ export default async function DashboardCertificationsPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/certifications');
 
-  const primaryPathway = PATHWAYS[0];
+  // Look up the member's enrolled program to show the correct pathway.
+  // Previously hardcoded to PATHWAYS[0] — all members saw IT Support.
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { enrolledProgram: true },
+  });
+  const primaryPathway = getPathwayForProgram(dbUser?.enrolledProgram ?? null);
+
   const [certs, pathwayRows] = await Promise.all([
     prisma.userCertification.findMany({
       where: { userId: user.id },

@@ -41,3 +41,35 @@ export const PATHWAYS: LearningPathway[] = [
     estimatedWeeks: 18,
   },
 ];
+
+/**
+ * Map a program's categoryLabel to the matching pathway category.
+ * Programs use labels like 'IT & Cybersecurity'; pathways use 'Technology'.
+ */
+const CATEGORY_TO_PATHWAY: Record<string, string> = {
+  'IT & Cybersecurity': 'Technology',
+  'Data & AI': 'Data & AI',
+  'Business': 'Business',
+  'Technology': 'Technology',
+};
+
+/**
+ * Look up the learning pathway that matches a member's enrolled program.
+ *
+ * INVARIANT: Every member should see the pathway that matches their actual
+ * program, not a hardcoded PATHWAYS[0]. Falls back to PATHWAYS[0] when
+ * the program is null, not found, or has no matching pathway category.
+ */
+export function getPathwayForProgram(programSlug: string | null): LearningPathway {
+  if (!programSlug) return PATHWAYS[0];
+
+  // Inline require to avoid circular dependency (programs imports from other content modules)
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { getProgramBySlug } = require('@/lib/content/programs');
+  const program = getProgramBySlug(programSlug);
+  if (!program) return PATHWAYS[0];
+
+  const targetCategory = CATEGORY_TO_PATHWAY[program.categoryLabel] ?? program.categoryLabel;
+  const match = PATHWAYS.find((p) => p.category === targetCategory);
+  return match ?? PATHWAYS[0];
+}

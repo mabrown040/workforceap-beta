@@ -564,7 +564,7 @@ export default function WhatWeDoPage() {
                 position: 'relative',
               }}
             >
-              Join individuals who are transforming their careers through employer-aligned training and certifications.
+              Join individuals who are launching new careers through employer-aligned training and certifications.
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem', position: 'relative' }}>
               <Link
@@ -881,7 +881,7 @@ export default function WhatWeDoPage() {
             Ready to build the future?
           </h2>
           <p style={{ fontSize: '0.95rem', lineHeight: 1.7, marginBottom: '1.5rem', color: 'rgba(255,255,255,0.86)' }}>
-            Join individuals who are transforming their careers through employer-aligned training and certifications.
+            Join individuals who are launching new careers through employer-aligned training and certifications.
           </p>
           <div style={{ display: 'flex', width: '100%', flexDirection: 'column', gap: '0.75rem' }}>
             <Link

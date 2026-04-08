@@ -4,6 +4,7 @@ import { getUser } from '@/lib/auth/server';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { chatCompletion } from '@/lib/ai/groq';
 import { prisma } from '@/lib/db/prisma';
+import { sendVoiceInterviewTranscriptEmail } from '@/lib/email';
 
 const ALLOWED_TYPES = ['technical', 'behavioral', 'general'] as const;
 type InterviewType = (typeof ALLOWED_TYPES)[number];
@@ -187,6 +188,51 @@ export async function POST(req: NextRequest) {
       `${interviewType} interview feedback for ${role}`,
       JSON.stringify({ sessionId, role, interviewType, answers, questions, transcriptTurns, feedback })
     );
+
+    try {
+      const dbUser = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { fullName: true, email: true },
+      });
+
+      const adminUsers = await prisma.user.findMany({
+        where: {
+          profile: {
+            is: {
+              role: { in: ['admin', 'super_admin'] },
+            },
+          },
+        },
+        select: { email: true },
+      });
+
+      const configuredRecipients = (process.env.VOICE_INTERVIEW_TRANSCRIPT_EMAILS ?? '')
+        .split(',')
+        .map((email) => email.trim())
+        .filter(Boolean);
+
+      const recipientEmails = Array.from(
+        new Set([
+          ...configuredRecipients,
+          ...adminUsers.map((entry) => entry.email).filter(Boolean),
+        ])
+      );
+
+      if (recipientEmails.length > 0) {
+        await sendVoiceInterviewTranscriptEmail({
+          to: recipientEmails,
+          memberName: dbUser?.fullName?.trim() || user.email || 'WorkforceAP member',
+          memberEmail: dbUser?.email?.trim() || user.email || null,
+          role,
+          interviewType,
+          transcriptTurns,
+          feedback,
+          sessionId,
+        });
+      }
+    } catch (emailErr) {
+      console.error('Interview transcript email error:', emailErr);
+    }
 
     return NextResponse.json({ feedback });
   } catch (error) {

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/lib/auth/server';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 import { checkAuthRateLimit } from '@/lib/rate-limit';
+import { prisma } from '@/lib/db/prisma';
 
 export async function POST(request: Request) {
   let body: { email?: string; password?: string; redirectTo?: string };
@@ -47,5 +48,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Login failed. Please try again.' }, { status: 401 });
   }
 
-  return NextResponse.redirect(new URL(redirectTo, request.url), 302);
+  const profile = await prisma.profile.findUnique({
+    where: { userId: data.user.id },
+    select: { role: true },
+  });
+
+  const roleAwareRedirect =
+    profile?.role === 'super_admin'
+      ? '/admin'
+      : redirectTo === '/dashboard' && profile?.role === 'admin'
+        ? '/admin'
+        : redirectTo;
+
+  return NextResponse.redirect(new URL(roleAwareRedirect, request.url), 302);
 }

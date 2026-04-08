@@ -2,9 +2,9 @@
 
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
-import { readinessVoiceSurface, resumeCoachVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
+import { mockInterviewVoiceSurface, readinessVoiceSurface, resumeCoachVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
 
-/** Member home (`/dashboard`) — readiness + resume voice coaches. */
+/** Member home (`/dashboard`) — show all three voice options in a tighter horizontal row on desktop. */
 export default function MemberDashboardVoiceSection() {
   return (
     <section aria-label="Voice assistants">
@@ -17,14 +17,15 @@ export default function MemberDashboardVoiceSection() {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '1.25rem',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: '1rem',
+          alignItems: 'start',
         }}
       >
         <VoiceAgentSurface {...readinessVoiceSurface}>
           <PortalVoiceSession
             sessionEndpoint="/api/member/readiness/voice-session"
-            title="Career readiness"
+            title="Career Readiness"
             description="Talk through interviews, certifications, and next steps with your coach."
             accent="#0d9488"
             accentDark="#0f766e"
@@ -36,12 +37,23 @@ export default function MemberDashboardVoiceSection() {
           <PortalVoiceSession
             sessionEndpoint="/api/member/resume-coach/session"
             retryWithoutDynamicVariables={false}
-            title="Resume & experience"
+            title="Resume & Experience"
             description="Practice how you describe your background and target role out loud."
             accent="#2563eb"
             accentDark="#1d4ed8"
             speakingLabel="Coach is speaking…"
             listeningLabel="Listening — describe your background"
+          />
+        </VoiceAgentSurface>
+        <VoiceAgentSurface {...mockInterviewVoiceSurface}>
+          <PortalVoiceSession
+            sessionEndpoint="/api/member/voice-interview/session"
+            title="Voice Interviewer"
+            description="Practice interview answers out loud with a live mock interviewer."
+            accent="#7c3aed"
+            accentDark="#5b21b6"
+            speakingLabel="Interviewer is speaking…"
+            listeningLabel="Listening — answer the question"
           />
         </VoiceAgentSurface>
       </div>

@@ -44,6 +44,77 @@ function getFrom(): string {
   return process.env.EMAIL_FROM || 'noreply@workforceap.org';
 }
 
+export async function sendVoiceInterviewTranscriptEmail(params: {
+  to: string[];
+  memberName: string;
+  memberEmail?: string | null;
+  role: string;
+  interviewType: string;
+  transcriptTurns: { role: 'agent' | 'user'; text: string }[];
+  feedback?: string;
+  sessionId: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendVoiceInterviewTranscriptEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+
+  const recipients = Array.from(
+    new Set(
+      params.to
+        .map((email) => email.trim().toLowerCase())
+        .filter(Boolean)
+    )
+  );
+  if (recipients.length === 0) {
+    return { ok: false, error: 'No recipients configured' };
+  }
+
+  const transcriptHtml = params.transcriptTurns.length
+    ? params.transcriptTurns
+        .map((turn) => {
+          const speaker = turn.role === 'agent' ? 'Interviewer' : 'Candidate';
+          return `<p style="margin:0 0 0.75rem;"><strong>${speaker}:</strong> ${escapeHtml(turn.text)}</p>`;
+        })
+        .join('')
+    : '<p style="margin:0;">No transcript turns were captured.</p>';
+
+  const bodyHtml = `
+    <p>A voice interview transcript was saved and emailed automatically.</p>
+    <ul>
+      <li><strong>Member:</strong> ${escapeHtml(params.memberName)}</li>
+      ${params.memberEmail ? `<li><strong>Member email:</strong> ${escapeHtml(params.memberEmail)}</li>` : ''}
+      <li><strong>Target role:</strong> ${escapeHtml(params.role)}</li>
+      <li><strong>Interview type:</strong> ${escapeHtml(params.interviewType)}</li>
+      <li><strong>Session ID:</strong> ${escapeHtml(params.sessionId)}</li>
+    </ul>
+    ${params.feedback ? `<p><strong>Coaching feedback</strong></p><p style="white-space:pre-wrap;">${escapeHtml(params.feedback)}</p>` : ''}
+    <p><strong>Transcript</strong></p>
+    <div style="padding:16px;border-radius:12px;background:#f8f5f3;border:1px solid #eadfdb;">${transcriptHtml}</div>
+  `;
+
+  const html = brandedEmailLayout({
+    title: 'Voice interview transcript',
+    bodyHtml,
+    ctaText: 'Open admin',
+    ctaUrl: `${SITE_URL}/admin`,
+  });
+
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: recipients,
+      subject: sanitizeEmailSubjectLine(`Voice interview transcript — ${params.memberName} — ${params.role}`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendVoiceInterviewTranscriptEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
 /** Notify member when a counselor is assigned (member portal Messages) */
 export async function sendCounselorAssignedEmail(params: {
   to: string;

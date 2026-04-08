@@ -111,7 +111,7 @@ export default async function EmployerCandidateProfilePage({
                   <li key={m.id} style={{ marginBottom: '0.35rem' }}>
                     <span style={{ fontWeight: 600 }}>{m.job.title}</span>
                     {' · '}
-                    <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.35rem' }}>
+                    <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem', display: 'inline-flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.35rem' }}>
                       <span>{matchScoreAsPercent(m.matchScore)}% match</span>
                       <StatusBadge
                         label={employerMatchPipelineLabel(m.status)}

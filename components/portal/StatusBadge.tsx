@@ -21,6 +21,11 @@ const VARIANT_STYLES: Record<BadgeVariant, { background: string; color: string }
   accent:  { background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', color: 'var(--color-accent)' },
 };
 
+/** Background/text colors for a variant — shared with non-StatusBadge UIs that must match. */
+export function getStatusBadgeVariantStyle(variant: BadgeVariant): { background: string; color: string } {
+  return VARIANT_STYLES[variant];
+}
+
 export default function StatusBadge({
   label,
   variant = 'neutral',
@@ -30,7 +35,7 @@ export default function StatusBadge({
   variant?: BadgeVariant;
   className?: string;
 }) {
-  const { background, color } = VARIANT_STYLES[variant];
+  const { background, color } = getStatusBadgeVariantStyle(variant);
 
   return (
     <span

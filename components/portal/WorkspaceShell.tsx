@@ -130,6 +130,14 @@ export default function WorkspaceShell({
     return () => mq.removeEventListener('change', fn);
   }, []);
 
+  /** Enables `html[data-portal-role="…"]` rules in main.css (e.g. member mobile header chrome). */
+  useEffect(() => {
+    document.documentElement.setAttribute('data-portal-role', portalRole);
+    return () => {
+      document.documentElement.removeAttribute('data-portal-role');
+    };
+  }, [portalRole]);
+
   useEffect(() => {
     try {
       setCollapsed(localStorage.getItem(collapseKey) === '1');

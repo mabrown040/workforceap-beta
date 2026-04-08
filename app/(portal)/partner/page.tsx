@@ -22,6 +22,7 @@ import { partnerVoiceSurface } from '@/lib/portal/voice';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import StatusBadge from '@/components/portal/StatusBadge';
 import PortalKpiCard from '@/components/portal/PortalKpiCard';
+import PortalCard from '@/components/portal/ui/PortalCard';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Partner Portal',
@@ -178,20 +179,6 @@ export default async function PartnerDashboardPage() {
         </p>
       </div>
 
-      <div className="portal-pad-x" style={{ paddingBottom: '0.75rem' }}>
-        <VoiceAgentSurface {...partnerVoiceSurface}>
-          <PortalVoiceSession
-            sessionEndpoint="/api/partner/voice-session"
-            title="Partner voice assistant"
-            description="Ask about referrals, member progress, or using the partner portal."
-            accent="#ea580c"
-            accentDark="#c2410c"
-            speakingLabel="Assistant is speaking…"
-            listeningLabel="Listening — ask your question"
-          />
-        </VoiceAgentSurface>
-      </div>
-
       {/* 2×2 KPI Grid */}
       <div className="portal-kpi-grid portal-pad-x" style={{ paddingTop: '1rem', paddingBottom: '1rem' }}>
         <PortalKpiCard accent="accent" label="Active Members" value={activeMembersCount} hint="In progress" />
@@ -292,13 +279,23 @@ export default async function PartnerDashboardPage() {
       <div style={{ padding: '0 1.5rem 1rem' }}>
         <p className="wa-text-sm wa-font-bold" style={{ color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>Quick Actions</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <Link href="/partner/milestones" className="active:scale-[0.98] wa-transition-all" style={{ background: '#fff', border: '1px solid #ebe7e7', borderRadius: '0.875rem', padding: '0.875rem 1rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }}>flag</span>
-            <div style={{ flex: 1 }}>
-              <p className="wa-text-sm wa-font-semibold" style={{ color: 'var(--color-on-surface)', margin: 0 }}>Milestones & Updates</p>
-              <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>{inTrainingCount} currently in training</p>
-            </div>
-            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem' }}>arrow_forward_ios</span>
+          <Link href="/partner/milestones" className="wa-no-underline active:scale-[0.98] wa-transition-all">
+            <PortalCard className="portal-card--compact">
+              <div className="portal-inbox-row__inner" style={{ padding: '0.1rem 0' }}>
+                <div className="portal-inbox-row__badge" aria-hidden>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }}>flag</span>
+                </div>
+                <div className="portal-inbox-row__main">
+                  <div className="portal-inbox-row__top">
+                    <div className="portal-inbox-row__title">Milestones & Updates</div>
+                  </div>
+                  <div className="portal-inbox-row__preview">{inTrainingCount} currently in training</div>
+                </div>
+                <div className="portal-inbox-row__badge" aria-hidden>
+                  <span className="material-symbols-outlined" style={{ opacity: 0.7 }}>arrow_forward_ios</span>
+                </div>
+              </div>
+            </PortalCard>
           </Link>
 
           <Link href="/partner/outcomes" className="wa-no-underline active:scale-[0.98] wa-transition-all">

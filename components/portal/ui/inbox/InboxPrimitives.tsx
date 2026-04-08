@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
-import { PortalInput } from '@/components/portal/ui/PortalInput';
+import PortalInput from '@/components/portal/ui/PortalInput';
 
 export function InboxShell({
   children,

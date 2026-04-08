@@ -73,11 +73,11 @@ export default async function PartnerSettingsPage() {
     <div>
       <PageHeader
         title="Settings"
-        subtitle="Your organization profile and notification defaults (read-only). Request changes through WorkforceAP staff — updates require approval."
+        subtitle="Your organization profile and notification preferences."
       />
 
       <div className="stitch-card" style={{ padding: '1.25rem', maxWidth: 640, marginBottom: '1rem' }}>
-        <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>Organization</h2>
+        <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Organization</h2>
         {row('Name', partner.name)}
         {row('Slug', partner.slug, { mono: true })}
         {row('Referral code', partner.referralCode, { mono: true })}
@@ -88,7 +88,7 @@ export default async function PartnerSettingsPage() {
       </div>
 
       <div className="stitch-card" style={{ padding: '1.25rem', maxWidth: 640, marginBottom: '1rem' }}>
-        <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>Primary contact</h2>
+        <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Primary contact</h2>
         {row('Contact name', partner.contactName)}
         {row('Email', partner.contactEmail)}
         {row('Phone', partner.contactPhone)}

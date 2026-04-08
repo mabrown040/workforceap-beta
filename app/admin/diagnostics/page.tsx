@@ -27,11 +27,25 @@ export default async function AdminDiagnosticsPage() {
     method: 'page_load',
   });
 
-  const [recentDiagnostics, recentImports, recentRecommendations] = await Promise.all([
+  const [recentDiagnostics, recentImports, recentRecommendations, enrolledUsersForDrift] = await Promise.all([
     prisma.workflowDiagnostic.findMany({ orderBy: { createdAt: 'desc' }, take: 50 }),
     prisma.workflowDiagnostic.findMany({ where: { workflow: { startsWith: 'employer_import' } }, orderBy: { createdAt: 'desc' }, take: 10 }),
     prisma.workflowDiagnostic.findMany({ where: { workflow: { in: ['admin_job_matches', 'admin_match_suggestions'] } }, orderBy: { createdAt: 'desc' }, take: 10 }),
+    prisma.user.findMany({
+      where: { enrolledProgram: { not: null }, deletedAt: null },
+      select: {
+        id: true,
+        fullName: true,
+        enrolledProgram: true,
+        courseEnrollment: { select: { programSlug: true } },
+      },
+      take: 500,
+    }),
   ]);
+
+  const driftRecords = enrolledUsersForDrift.filter((u) =>
+    !u.courseEnrollment || u.enrolledProgram !== u.courseEnrollment.programSlug
+  );
 
   return (
     <div>
@@ -40,8 +54,57 @@ export default async function AdminDiagnosticsPage() {
         subtitle="Trace brittle workflows, fallback paths, and likely abandonment / false-confidence moments."
       />
 
+      {/* Enrollment drift detection */}
       <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Key funnels and signals</h2>
+        <h2 className="portal-section-heading">
+          Enrollment drift {driftRecords.length > 0 ? `(${driftRecords.length} found)` : ''}
+        </h2>
+        {driftRecords.length === 0 ? (
+          <div className="stitch-card stitch-card--padded" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-green)', fontSize: '1.25rem' }}>check_circle</span>
+            <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>
+              No enrollment drift detected. User.enrolledProgram and CourseEnrollment are in sync for all {enrolledUsersForDrift.length} enrolled members.
+            </span>
+          </div>
+        ) : (
+          <div className="stitch-card" style={{ overflow: 'auto' }}>
+            <table className="dashboard-table">
+              <thead>
+                <tr>
+                  <th>Member</th>
+                  <th>User.enrolledProgram</th>
+                  <th>CourseEnrollment</th>
+                  <th>Issue</th>
+                </tr>
+              </thead>
+              <tbody>
+                {driftRecords.slice(0, 25).map((u) => (
+                  <tr key={u.id}>
+                    <td>
+                      <a href={`/admin/members/${u.id}/lifecycle`} style={{ color: 'var(--color-accent)', textDecoration: 'none', fontWeight: 500 }}>
+                        {u.fullName ?? u.id}
+                      </a>
+                    </td>
+                    <td style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem' }}>{u.enrolledProgram}</td>
+                    <td style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem' }}>{u.courseEnrollment?.programSlug ?? '—'}</td>
+                    <td style={{ fontSize: '0.8rem', color: 'var(--color-accent)' }}>
+                      {!u.courseEnrollment ? 'No CourseEnrollment record' : 'Program slug mismatch'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {driftRecords.length > 25 && (
+              <p style={{ padding: '0.75rem 1rem', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                Showing 25 of {driftRecords.length}. Use the <a href="/api/admin/lifecycle/drift" style={{ color: 'var(--color-accent)' }}>drift API</a> for full results.
+              </p>
+            )}
+          </div>
+        )}
+      </section>
+
+      <section style={{ marginBottom: '2rem' }}>
+        <h2 className="portal-section-heading">Key funnels and signals</h2>
         <div style={{ display: 'grid', gap: '1rem' }}>
           {FUNNEL_DEFINITIONS.map((funnel) => (
             <article key={funnel.funnel} className="admin-card" style={{ padding: '1rem', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)' }}>
@@ -59,17 +122,17 @@ export default async function AdminDiagnosticsPage() {
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Recent import diagnostics</h2>
+        <h2 className="portal-section-heading">Recent import diagnostics</h2>
         <DiagnosticsTable rows={recentImports} />
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Recent recommendation diagnostics</h2>
+        <h2 className="portal-section-heading">Recent recommendation diagnostics</h2>
         <DiagnosticsTable rows={recentRecommendations} />
       </section>
 
       <section>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Latest workflow log</h2>
+        <h2 className="portal-section-heading">Latest workflow log</h2>
         <DiagnosticsTable rows={recentDiagnostics} />
       </section>
     </div>

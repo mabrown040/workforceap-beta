@@ -127,8 +127,16 @@ export default function JobApplicationCard({
 
   return (
     <div
+      role="button"
+      tabIndex={0}
       onClick={() => setIsEditing(true)}
-      className="portal-kanban-card stitch-card job-app-card wa-cursor-pointer"
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setIsEditing(true);
+        }
+      }}
+      className="portal-kanban-card stitch-card job-app-card wa-cursor-pointer focus-visible:wa-outline focus-visible:wa-outline-2 focus-visible:wa-outline-[var(--color-accent)]"
       style={
         {
           padding: '0.75rem',

@@ -15,6 +15,7 @@ import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { employerVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import StatusBadge from '@/components/portal/StatusBadge';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Employer overview',
@@ -290,10 +291,10 @@ export default async function EmployerDashboardPage() {
                       </span>
                     </div>
                     <p className="wa-text-xs wa-text-[#7b5800] wa-font-semibold wa-uppercase wa-tracking-wider wa-truncate" style={{ marginBottom:"0.25rem" }}>{app.job.title}</p>
-                    <span className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-tighter" style={{paddingLeft:"0.5rem", paddingRight:"0.5rem", paddingTop:"2px", paddingBottom:"2px", borderRadius:"9999px", background: app.status === 'pending' ? '#fff1f2' : '#fef3c7',
-                        color: app.status === 'pending' ? 'var(--color-accent)' : 'var(--color-gold)',}}>
-                      {app.status}
-                    </span>
+                    <StatusBadge
+                      label={app.status}
+                      variant={app.status === 'pending' ? 'accent' : app.status === 'hired' ? 'success' : 'warning'}
+                    />
                   </div>
                 </Link>
               ))

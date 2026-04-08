@@ -10,6 +10,7 @@ import EmployerJobsBoard from '@/components/employer/EmployerJobsBoard';
 import { assessJobPostingReadiness } from '@/lib/employer/jobReadiness';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import StatusBadge from '@/components/portal/StatusBadge';
 import {
   EMPLOYER_JOBS_PAGE_SIZE,
   employerJobsListHref,
@@ -115,12 +116,11 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
   const titleByIdInFilter: Record<string, string> = {};
   for (const r of titlesInFilter) titleByIdInFilter[r.id] = r.title;
 
-  const statusBadgeStyle = (status: string): React.CSSProperties => {
-    if (status === 'live') return { background: '#dcfce7', color: '#166534' };
-    if (status === 'draft') return { background: '#f3f4f6', color: '#6b7280' };
-    if (status === 'filled') return { background: '#dbeafe', color: '#1e40af' };
-    if (status === 'pending') return { background: '#fef9c3', color: '#854d0e' };
-    return { background: '#f3f4f6', color: '#6b7280' };
+  const jobStatusVariant = (status: string): import('@/components/portal/StatusBadge').BadgeVariant => {
+    if (status === 'live') return 'success';
+    if (status === 'filled') return 'info';
+    if (status === 'pending') return 'warning';
+    return 'neutral';
   };
 
   const FILTER_CHIPS = [
@@ -213,9 +213,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
                   <h3 className="wa-truncate" style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0, flex: 1, paddingRight: '0.5rem' }}>
                     {job.title}
                   </h3>
-                  <span style={{ ...statusBadgeStyle(job.status), padding: '0.125rem 0.5rem', borderRadius: '9999px', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', flexShrink: 0 }}>
-                    {job.statusLabel}
-                  </span>
+                  <StatusBadge label={job.statusLabel} variant={jobStatusVariant(job.status)} />
                 </div>
                 <p style={{ fontSize: '0.775rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem' }}>{job.location}</p>
                 <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.75rem' }}>

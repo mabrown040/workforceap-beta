@@ -11,6 +11,7 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import PortalStatCard from '@/components/portal/PortalStatCard';
+import StatusBadge from '@/components/portal/StatusBadge';
 import { getTimeOfDayGreeting } from '@/lib/time/greeting';
 
 export default async function CounselorPortalPage() {
@@ -157,7 +158,7 @@ export default async function CounselorPortalPage() {
                   assessmentScorePct: a.member.assessmentScorePct,
                 });
                 const statusLabel = rosterBadge.label;
-                const statusStyle = rosterBadge.style;
+                const badgeVariant = statusLabel === 'At Risk' ? 'error' as const : statusLabel === 'Needs focus' ? 'warning' as const : 'success' as const;
                 return (
                   <Link key={a.id} href={`/counselor/students/${a.memberId}`}
                     className="wa-bg-white active:scale-[0.98] wa-transition-all" style={{ borderRadius:"0.75rem", padding:"1rem", display:"flex", alignItems:"center", gap:"0.75rem", textDecoration:"none" }}>
@@ -175,7 +176,7 @@ export default async function CounselorPortalPage() {
                       </div>
                     </div>
                     <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:"0.5rem" }}>
-                      <span className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider" style={Object.assign({ paddingLeft:"0.5rem", paddingRight:"0.5rem", paddingTop:"2px", paddingBottom:"2px", borderRadius:"0.25rem" }, statusStyle)}>{statusLabel}</span>
+                      <StatusBadge label={statusLabel} variant={badgeVariant} />
                       <span className="material-symbols-outlined text-surface-container-highest">chevron_right</span>
                     </div>
                   </Link>
@@ -274,19 +275,10 @@ export default async function CounselorPortalPage() {
                         </div>
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                          <span style={{
-                            padding: '0.25rem 0.75rem',
-                            background: isEnrolled ? 'rgba(128,217,159,0.1)' : 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
-                            color: isEnrolled ? '#80d99f' : 'var(--color-accent)',
-                            fontSize: '0.75rem',
-                            fontWeight: 700,
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.05em',
-                            borderRadius: '9999px',
-                            border: `1px solid ${isEnrolled ? 'rgba(128,217,159,0.2)' : 'rgba(173,44,77,0.2)'}`,
-                          }}>
-                            {isEnrolled ? 'Enrolled' : 'Not enrolled'}
-                          </span>
+                          <StatusBadge
+                            label={isEnrolled ? 'Enrolled' : 'Not enrolled'}
+                            variant={isEnrolled ? 'success' : 'accent'}
+                          />
                           <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4 }}>more_vert</span>
                         </div>
                       </div>

@@ -20,6 +20,7 @@ import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { partnerVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import StatusBadge from '@/components/portal/StatusBadge';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Partner Portal',
@@ -251,17 +252,10 @@ export default async function PartnerDashboardPage() {
                       <p className="wa-text-sm wa-font-semibold" style={{ color: 'var(--color-on-surface)', margin: 0 }}>{p.member.fullName}</p>
                       <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>{p.programTitle}</p>
                     </div>
-                    <span style={{
-                      padding: '0.2rem 0.6rem',
-                      borderRadius: '9999px',
-                      fontSize: '0.75rem',
-                      fontWeight: 700,
-                      textTransform: 'uppercase',
-                      background: isPlaced ? '#dcfce7' : 'rgba(173,44,77,0.08)',
-                      color: isPlaced ? '#166534' : 'var(--color-accent)',
-                    }}>
-                      {stageLabel}
-                    </span>
+                    <StatusBadge
+                      label={stageLabel}
+                      variant={isPlaced ? 'success' : 'accent'}
+                    />
                   </div>
                 </Link>
               );
@@ -434,19 +428,10 @@ export default async function PartnerDashboardPage() {
                             </p>
                           </div>
                         </div>
-                        <span style={{
-                          padding: '0.2rem 0.6rem',
-                          fontSize: '0.75rem',
-                          fontWeight: 700,
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em',
-                          borderRadius: '9999px',
-                          background: p.stage === 'placed' ? 'rgba(128,217,159,0.1)' : 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
-                          color: p.stage === 'placed' ? '#80d99f' : 'var(--color-accent)',
-                          border: `1px solid ${p.stage === 'placed' ? 'rgba(128,217,159,0.2)' : 'rgba(173,44,77,0.2)'}`,
-                        }}>
-                          {stageLabel}
-                        </span>
+                        <StatusBadge
+                          label={stageLabel}
+                          variant={p.stage === 'placed' ? 'success' : 'accent'}
+                        />
                       </div>
                     </Link>
                   );

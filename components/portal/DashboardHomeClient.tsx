@@ -490,46 +490,31 @@ export default function DashboardHomeClient({
           </div>
         </section>
 
-        {/* ── This Week Links ── */}
+        {/* ── Quick Actions (merged This Week + Quick Links — deduplicated) ── */}
         <section style={{ gridColumn: 'span 12' }}>
-          <h3 className="portal-section-heading">This Week</h3>
-          <div style={{ display: 'grid', gap: '0.75rem' }}>
+          <h3 className="portal-section-heading">Quick Actions</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.75rem' }}>
             {[
               { href: '/dashboard/weekly-recap', label: 'Weekly recap', desc: 'Milestones and reminders', icon: 'event_note', action: 'weekly_recap_clicked' },
-              { href: '/dashboard/learning', label: 'Learning hub', desc: 'Resources and your paths', icon: 'school', action: 'learning_hub_clicked' },
-              { href: '/dashboard/ai-tools', label: 'Career tools', desc: 'Resume, interview practice, job match', icon: 'auto_awesome', action: 'ai_tools_clicked' },
+              { href: '/dashboard/ai-tools', label: 'Career tools', desc: 'Resume, interview, job match', icon: 'auto_awesome', action: 'ai_tools_clicked' },
+              { href: '/dashboard/learning', label: 'Learning hub', desc: 'Pathways and resources', icon: 'school', action: 'learning_hub_clicked' },
+              { href: '/dashboard/messages', label: 'Messages', desc: 'Counselor and team threads', icon: 'forum', action: 'quicklink_messages_clicked' },
+              { href: '/dashboard/skills-assessment', label: 'Assessments', desc: 'Skills evaluation', icon: 'history_edu', action: 'quicklink_assessments_clicked' },
+              { href: '/dashboard/resources', label: 'Resources', desc: 'Program materials', icon: 'terminal', action: 'quicklink_resources_clicked' },
             ].map((item) => (
               <Link key={item.href} href={item.href} style={{ textDecoration: 'none', color: 'inherit' }}
                 onClick={() => handleDashboardAction(item.action)}>
-                <div className="stitch-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.5rem' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-on-surface-variant)' }}>{item.icon}</span>
-                  <div>
+                <div className="stitch-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-on-surface-variant)' }}>{item.icon}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <h5 style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{item.label}</h5>
-                    <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>{item.desc}</p>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{item.desc}</p>
                   </div>
-                  <span className="material-symbols-outlined" style={{ marginLeft: 'auto', fontSize: '1.25rem', color: 'var(--color-on-surface-variant)', opacity: 0.3 }}>chevron_right</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.3, flexShrink: 0 }}>chevron_right</span>
                 </div>
               </Link>
             ))}
           </div>
-        </section>
-
-        {/* ── Quick-Link Bottom Cards ── */}
-        <section style={{ gridColumn: 'span 12', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginTop: '1rem' }}>
-          {[
-            { icon: 'terminal', label: 'Resources', href: '/dashboard/resources' },
-            { icon: 'history_edu', label: 'Assessments', href: '/dashboard/skills-assessment' },
-            { icon: 'forum', label: 'Messages', href: '/dashboard/messages' },
-            { icon: 'auto_awesome', label: 'Career Tools', href: '/dashboard/ai-tools' },
-          ].map((item) => (
-            <Link key={item.label} href={item.href} style={{ textDecoration: 'none', color: 'inherit' }}
-              onClick={() => handleDashboardAction(`quicklink_${item.label.toLowerCase()}_clicked`)}>
-              <div style={{ background: 'var(--surface-container-low)', padding: '1rem', borderRadius: '0.75rem', transition: 'background-color 0.15s' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem', display: 'block' }}>{item.icon}</span>
-                <h5 style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface)' }}>{item.label}</h5>
-              </div>
-            </Link>
-          ))}
         </section>
 
         {/* ── Recent Activity (collapsed) ── */}

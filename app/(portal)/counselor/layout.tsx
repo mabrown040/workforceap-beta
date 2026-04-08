@@ -29,7 +29,7 @@ export default async function CounselorLayout({ children }: { children: React.Re
     subtitle = counselor
       ? counselorAffiliationLabel(counselor.partner?.name)
       : allowedAdmin
-        ? 'Admin preview'
+        ? 'Viewing as admin'
         : 'Counselor';
   } catch (e) {
     console.error('[counselor/layout] affiliation query failed', e);

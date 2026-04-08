@@ -38,8 +38,6 @@ async function bootstrapVercelShareCookie(page: Page): Promise<void> {
   if (!shareUrl) return;
   // Visiting the share URL sets an auth cookie for protected previews.
   await page.goto(shareUrl, { waitUntil: 'domcontentloaded' });
-  // Give the preview a moment to set the bypass cookie.
-  await page.waitForTimeout(750);
 }
 
 /** Real login against deployed site (prod/staging). Never commit values — set in shell or CI secrets. */
@@ -60,9 +58,9 @@ export async function loginMemberPortal(page: Page): Promise<void> {
     throw new Error('Set E2E_MEMBER_EMAIL and E2E_MEMBER_PASSWORD');
   }
   await bootstrapVercelShareCookie(page);
-  // Important: once the cookie is bootstrapped, do NOT keep using `_vercel_share` on app routes.
-  // In headless runs this can trigger a redirect to `vercel.com/login` instead of the app.
-  await page.goto('/login', { waitUntil: 'domcontentloaded' });
+  const shareToken = getVercelShareToken();
+  const loginPath = shareToken ? `/login?_vercel_share=${encodeURIComponent(shareToken)}` : '/login';
+  await page.goto(loginPath);
   await page.getByLabel(/institutional id/i).fill(email);
   await page.getByLabel(/access key/i).fill(password);
   await page.getByRole('button', { name: /authenticate access/i }).click();

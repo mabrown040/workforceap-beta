@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { counselorStudentStatusBadge } from '@/lib/counselor/memberStatus';
+import StatusBadge from '@/components/portal/StatusBadge';
 import CounselorNotesPanel from './CounselorNotesPanel';
 import StaffMemberResumePanel from '@/components/counselor/StaffMemberResumePanel';
 import WioaScreeningReadonly from '@/components/admin/WioaScreeningReadonly';
@@ -170,20 +171,10 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 >
                   {program}
                 </p>
-                <span
-                  style={{
-                    padding: '0.125rem 0.625rem',
-                    borderRadius: '9999px',
-                    background: enrollmentBadge.style.background,
-                    color: enrollmentBadge.style.color,
-                    fontSize: '9px',
-                    fontWeight: 700,
-                    textTransform: 'uppercase' as const,
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  {enrollmentBadge.label}
-                </span>
+                <StatusBadge
+                  label={enrollmentBadge.label}
+                  variant={enrollmentBadge.label === 'At Risk' ? 'error' : enrollmentBadge.label === 'Needs focus' ? 'warning' : 'success'}
+                />
               </div>
             </div>
 
@@ -307,18 +298,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                     check_circle
                   </span>
                 ) : mod.inProgress ? (
-                  <span
-                    style={{
-                      padding: '0.125rem 0.5rem',
-                      borderRadius: '9999px',
-                      background: '#fef3c7',
-                      color: 'var(--color-gold)',
-                      fontSize: '0.7rem',
-                      fontWeight: 600,
-                    }}
-                  >
-                    In Progress
-                  </span>
+                  <StatusBadge label="In Progress" variant="warning" />
                 ) : (
                   <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>Not started</span>
                 )}

@@ -390,8 +390,13 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </div>
         </section>
 
-        {/* ── Voice section ── */}
-        <section style={{ padding: '0 1.25rem 1rem' }}>
+        <section style={{ padding: '0 1.5rem 0.75rem' }}>
+          <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)]" style={{ margin: 0, lineHeight: 1.5 }}>
+            Training progress is based on completed courses. Your application steps are shown below.
+          </p>
+        </section>
+
+        <section style={{ padding: '0 1.5rem 1.25rem' }}>
           <MemberDashboardVoiceSectionLazy />
         </section>
 

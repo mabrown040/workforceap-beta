@@ -103,14 +103,25 @@ export default async function CounselorPortalPage() {
             {greeting}, <span style={{ color: 'var(--color-accent)' }}>{firstName}</span>
           </h2>
         </div>
-
-        {/* Hero stats: students full-width + 2x mini */}
-        <div style={{ padding: '0 1.25rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
-          <div style={{ gridColumn: 'span 2', borderRadius: '1rem', padding: '1.25rem', position: 'relative', overflow: 'hidden', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', boxShadow: '0 4px 20px rgba(173,44,77,0.3)' }}>
-            <div style={{ position: 'relative', zIndex: 1 }}>
-              <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.82)', marginBottom: '0.25rem' }}>Your Students</p>
-              <p style={{ fontSize: '2.75rem', fontWeight: 800, letterSpacing: '-0.04em', color: '#fff', lineHeight: 1, margin: 0 }}>{assignments.length}</p>
-              <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.75)', marginTop: '0.375rem' }}>assigned to you</p>
+        <div style={{ marginLeft: '1.5rem', marginRight: '1.5rem', marginBottom: '1rem' }}>
+          <details className="stitch-card" style={{ padding: '0.75rem 0.9rem' }}>
+            <summary style={{ cursor: 'pointer', fontWeight: 800, color: 'var(--color-on-surface)', listStyle: 'none' }}>
+              Counselor assistant
+              <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
+                (tap to open)
+              </span>
+            </summary>
+            <div style={{ marginTop: '0.75rem' }}>
+              <CounselorPortalVoiceBlock />
+            </div>
+          </details>
+        </div>
+        {/* Stats grid */}
+        <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem", marginTop:"1rem", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"1rem", marginBottom:"1.5rem" }}>
+          <div className="wa-text-white" style={{gridColumn:"span 2", borderRadius:"0.75rem", padding:"1.25rem", position:"relative", overflow:"hidden", background: 'var(--color-accent)'}}>
+            <div style={{ position:"relative", zIndex:10 }}>
+              <p className="wa-text-[11px] wa-uppercase wa-tracking-widest" style={{ opacity:0.85, marginBottom:"0.25rem" }}>Your Students</p>
+              <p className="wa-text-4xl wa-font-bold wa-tracking-tighter">{assignments.length}</p>
             </div>
             <span className="material-symbols-outlined" style={{ position: 'absolute', bottom: '-1rem', right: '-1rem', fontSize: '8rem', opacity: 0.07, color: '#fff', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">group</span>
           </div>

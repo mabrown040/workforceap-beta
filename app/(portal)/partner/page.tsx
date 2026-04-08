@@ -179,7 +179,7 @@ export default async function PartnerDashboardPage() {
         </p>
       </div>
 
-      <div style={{ padding: '0 1.5rem 1rem' }}>
+      <div style={{ padding: '0 1.5rem 0.75rem' }}>
         <VoiceAgentSurface {...partnerVoiceSurface}>
           <PortalVoiceSession
             sessionEndpoint="/api/partner/voice-session"

@@ -8722,59 +8722,14 @@ html:not(.dark) .workspace-shell-header {
     gap: 0.5rem 0.75rem;
 }
 
-/* Member portal (mobile): bottom nav is primary navigation.
-   Keep a slim header bar with hamburger + WAP logo so the user knows
-   where they are. The full sidebar drawer (all pages) opens from the
-   hamburger. Hide the text brand block and most header chrome. */
+/* Member portal (mobile): bottom nav is primary; minimize top chrome. */
 @media (max-width: 767px) {
-  /* Slim header — just enough for menu button + logo */
-  html[data-portal-role="member"] .workspace-shell-header {
-    height: 3.25rem !important;
-    min-height: 3.25rem !important;
-    padding: 0 0.75rem !important;
-  }
-  /* Hide text-based brand block — logo image replaces it via ::after pseudo */
-  html[data-portal-role="member"] .workspace-shell-brand-block {
-    display: none !important;
-  }
-  /* Inject WAP logo image next to the hamburger button */
-  html[data-portal-role="member"] .workspace-shell-header__brand::after {
-    content: '';
-    display: block;
-    width: 5.5rem;
-    height: 1.5rem;
-    background-image: url('/images/logo-tight.png');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: left center;
-    margin-left: 0.25rem;
-    opacity: 0.92;
-  }
-  /* Keep meta visible but strip gap — only show super-admin switcher */
-  html[data-portal-role="member"] .workspace-shell-header__meta {
-    gap: 0 !important;
-  }
-  /* Hide everything in meta EXCEPT the super-admin portal switcher */
-  html[data-portal-role="member"] .workspace-shell-header__meta > *:not(.super-admin-view-switcher) {
-    display: none !important;
-  }
-  /* Menu button: proper 44px touch target */
-  html[data-portal-role="member"] .workspace-menu-btn {
-    display: flex !important;
-    min-width: 44px;
-    min-height: 44px;
-  }
-  /* Sidebar starts below the slim header — no ::before needed since real header is above */
-  html[data-portal-role="member"] .workspace-sidebar {
-    top: 3.25rem;
-    height: calc(100vh - 3.25rem);
-  }
-  html[data-portal-role="member"] .workspace-sidebar.open::before {
+  html[data-portal-role="member"] .workspace-shell-header__brand .workspace-shell-brand-block {
     display: none;
   }
-  /* Add top buffer so content doesn't hug the header */
-  html[data-portal-role="member"] .workspace-shell-main-inner {
-    padding-top: 1rem;
+
+  html[data-portal-role="member"] .workspace-shell-header__meta .workspace-shell-context--chip {
+    display: none;
   }
 }
 .workspace-shell-context {

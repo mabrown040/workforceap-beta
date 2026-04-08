@@ -192,6 +192,25 @@ export async function POST(request: NextRequest) {
         },
       });
 
+      // INVARIANT: CourseEnrollment must stay in sync with User.enrolledProgram.
+      // Self-serve enroll (POST /api/member/enroll) and admin create both do this.
+      // Signup must do the same so inactivity crons and reporting see consistent state.
+      if (programSlug) {
+        await tx.courseEnrollment.upsert({
+          where: { userId: user.id },
+          create: {
+            organizationId,
+            userId: user.id,
+            programSlug,
+            enrolledAt: new Date(),
+          },
+          update: {
+            programSlug,
+            enrolledAt: new Date(),
+          },
+        });
+      }
+
       await tx.profile.upsert({
         where: { userId: user.id },
         create: {

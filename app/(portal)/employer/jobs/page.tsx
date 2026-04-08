@@ -19,21 +19,13 @@ import {
   prismaWhereDeletableInListFilter,
   prismaWhereEmployerJobList,
 } from '@/lib/employer/employerJobsListQuery';
+import { employerJobStatusBadgeVariant, employerJobStatusLabel } from '@/lib/employer/jobStatusDisplay';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'My Jobs',
   description: 'Manage your job postings.',
   path: '/employer/jobs',
 });
-
-const STATUS_LABELS: Record<string, string> = {
-  draft: 'Draft',
-  pending: 'In review',
-  approved: 'Approved',
-  live: 'Live',
-  filled: 'Filled',
-  closed: 'Closed',
-};
 
 type SearchProps = { searchParams: Promise<{ page?: string; filter?: string }> };
 
@@ -105,7 +97,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
       requirementsCount: j.requirements?.length ?? 0,
       suggestedProgramsCount: j.suggestedPrograms?.length ?? 0,
       status: j.status,
-      statusLabel: STATUS_LABELS[j.status] ?? j.status,
+      statusLabel: employerJobStatusLabel(j.status),
       applicationsCount: j._count.applications,
       updatedAt: j.updatedAt.toISOString(),
       readinessLevel: readiness.level,
@@ -115,13 +107,6 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
 
   const titleByIdInFilter: Record<string, string> = {};
   for (const r of titlesInFilter) titleByIdInFilter[r.id] = r.title;
-
-  const jobStatusVariant = (status: string): import('@/components/portal/StatusBadge').BadgeVariant => {
-    if (status === 'live') return 'success';
-    if (status === 'filled') return 'info';
-    if (status === 'pending') return 'warning';
-    return 'neutral';
-  };
 
   const FILTER_CHIPS = [
     { value: '', label: 'All' },
@@ -213,7 +198,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
                   <h3 className="wa-truncate" style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0, flex: 1, paddingRight: '0.5rem' }}>
                     {job.title}
                   </h3>
-                  <StatusBadge label={job.statusLabel} variant={jobStatusVariant(job.status)} />
+                  <StatusBadge label={job.statusLabel} variant={employerJobStatusBadgeVariant(job.status)} />
                 </div>
                 <p style={{ fontSize: '0.775rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem' }}>{job.location}</p>
                 <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.75rem' }}>

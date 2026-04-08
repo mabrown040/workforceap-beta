@@ -11,6 +11,8 @@ import EmployerMatchStatusSelect from '@/components/employer/EmployerMatchStatus
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
+import StatusBadge from '@/components/portal/StatusBadge';
+import { employerAiMatchStatusBadgeVariant, employerMatchPipelineLabel } from '@/lib/employer/aiMatchPipelineLabels';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Candidate pipeline',
@@ -135,9 +137,15 @@ export default async function EmployerPipelinePage() {
                             <div className="wa-truncate" style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{m.student.fullName}</div>
                             <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{m.student.enrolledProgram ?? 'No program'}</div>
                           </div>
-                          <div style={{ flexShrink: 0, textAlign: 'right' }}>
+                          <div style={{ flexShrink: 0, textAlign: 'right', minWidth: 0, maxWidth: '42%' }}>
                             <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)' }}>{matchScoreAsPercent(m.matchScore)}%</div>
-                            <div style={{ fontSize: '0.65rem', color: 'var(--color-on-surface-variant)', textTransform: 'capitalize' }}>{m.status.replace(/_/g, ' ')}</div>
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.25rem' }}>
+                              <StatusBadge
+                                className="wa-truncate max-w-full"
+                                label={employerMatchPipelineLabel(m.status)}
+                                variant={employerAiMatchStatusBadgeVariant(m.status)}
+                              />
+                            </div>
                           </div>
                         </div>
                         <EmployerMatchStatusSelect jobId={job.id} studentId={m.student.id} initialStatus={m.status} compact />

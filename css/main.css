@@ -8703,6 +8703,17 @@ html.dark .portal-nav {
 .workspace-shell-header__meta .portal-shell-header__actions {
     gap: 0.5rem 0.75rem;
 }
+
+/* Member portal (mobile): bottom nav is primary; minimize top chrome. */
+@media (max-width: 767px) {
+  html[data-portal-role="member"] .workspace-shell-header__brand .workspace-shell-brand-block {
+    display: none;
+  }
+
+  html[data-portal-role="member"] .workspace-shell-header__meta .workspace-shell-context--chip {
+    display: none;
+  }
+}
 .workspace-shell-context {
     font-size: 0.78rem;
     color: var(--color-on-surface-variant);

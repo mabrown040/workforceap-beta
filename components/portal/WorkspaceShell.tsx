@@ -29,6 +29,7 @@ export default function WorkspaceShell({
   navItems,
   workspaceLabel,
   contextLabel,
+  minimalMobileHeader = false,
   superAdmin,
   superAdminImpersonating,
   superAdminBackHref,
@@ -46,6 +47,8 @@ export default function WorkspaceShell({
   navItems: PortalNavItem[];
   workspaceLabel: string;
   contextLabel: string;
+  /** Reduce header chrome on mobile when bottom nav is primary (member portal). */
+  minimalMobileHeader?: boolean;
   /** Optional square logo next to company name (employer portal). */
   contextLogoUrl?: string | null;
   superAdmin?: boolean;
@@ -205,7 +208,10 @@ export default function WorkspaceShell({
 
   return (
     <div className="workspace-shell-root">
-      <header ref={headerRef} className="workspace-shell-header">
+      <header
+        ref={headerRef}
+        className={`workspace-shell-header${minimalMobileHeader ? ' workspace-shell-header--minimal-mobile' : ''}`}
+      >
         <div className="workspace-shell-header__brand">
           <button
             type="button"

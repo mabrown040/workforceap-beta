@@ -87,9 +87,9 @@ export default async function CounselorPortalPage() {
 
   const statCards = [
     { icon: 'groups', label: 'Your Students', value: assignments.length, bg: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', iconColor: 'var(--color-accent)' },
-    { icon: 'mark_email_unread', label: 'Awaiting Reply', value: messagesNeedingReply, bg: 'rgba(59,130,246,0.1)', iconColor: '#3b82f6' },
-    { icon: 'school', label: 'In a Program', value: enrolledCount, bg: 'rgba(128,217,159,0.1)', iconColor: '#80d99f' },
-    { icon: 'warning', label: 'No Program Yet', value: needsAttentionCount, bg: 'rgba(251,191,36,0.1)', iconColor: '#fbbf24' },
+    { icon: 'mark_email_unread', label: 'Awaiting Reply', value: messagesNeedingReply, bg: 'color-mix(in srgb, var(--color-blue) 12%, transparent)', iconColor: 'var(--color-blue)' },
+    { icon: 'school', label: 'In a Program', value: enrolledCount, bg: 'color-mix(in srgb, var(--color-green) 12%, transparent)', iconColor: 'var(--color-green)' },
+    { icon: 'warning', label: 'No Program Yet', value: needsAttentionCount, bg: 'color-mix(in srgb, var(--color-gold) 14%, transparent)', iconColor: 'var(--color-gold)' },
   ];
 
   return (
@@ -134,14 +134,6 @@ export default async function CounselorPortalPage() {
             <p className="wa-text-2xl wa-font-bold text-on-surface">{messagesNeedingReply}</p>
             <div style={{marginTop:"0.5rem", width:"2rem", height:"0.25rem", borderRadius:"9999px", background: 'var(--color-accent)'}} />
           </div>
-        </div>
-        {/* Filter chips */}
-        <div className="portal-pad-x" style={{ display:"flex", gap:"0.5rem", overflowX:"auto", scrollbarWidth:"none", paddingBottom:"0.75rem" }}>
-          {['All', 'At Risk', 'Upcoming Session', 'New'].map((f, i) => (
-            <span key={f} className="wa-text-xs wa-font-semibold" style={Object.assign({ flexShrink:0, paddingLeft:"1rem", paddingRight:"1rem", paddingTop:"0.5rem", paddingBottom:"0.5rem", borderRadius:"9999px", cursor:"pointer" }, i === 0 ? { background: 'var(--color-accent)', color: '#fff' } : { background: 'var(--surface-container-highest)', color: 'var(--on-surface)' })}>
-              {f}
-            </span>
-          ))}
         </div>
         {/* Student roster */}
         <div className="portal-pad-x">

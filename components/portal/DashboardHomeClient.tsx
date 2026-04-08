@@ -156,23 +156,22 @@ export default function DashboardHomeClient({
       {nextBestActions.length > 0 && <MemberNextStepsStrip actions={nextBestActions} fillRow />}
 
       {/* ── Bento Grid ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '1.5rem' }}>
+      <div className="portal-bento-grid">
 
         {/* ── Main Progress Card (large, spans 8) ── */}
         {(state === 'B' || state === 'C' || state === 'D') && programTitle && (
-          <section className="stitch-card" style={{ gridColumn: 'span 8', position: 'relative', overflow: 'hidden' }}>
-            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom right, rgba(173,44,77,0.05), transparent)', opacity: 0.5, pointerEvents: 'none' }} />
-            <div style={{ position: 'relative', zIndex: 1, padding: '0.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '3rem' }}>
-                <div>
-                  <h2 style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>
+          <section className="portal-card portal-card--flat" style={{ gridColumn: 'span 8' }}>
+            <div className="portal-card__body">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem', gap: '1rem' }}>
+                <div style={{ minWidth: 0 }}>
+                  <h2 style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '0.35rem', color: 'var(--color-on-surface)' }}>
                     {state === 'D' ? 'Program Complete' : `Current Milestone: ${nextMilestone ?? programTitle}`}
                   </h2>
-                  <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', opacity: 0.7 }}>
+                  <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                     {completedCount} of {totalCourses} courses {state === 'D' ? 'completed' : 'done'}
                   </p>
                 </div>
-                <div style={{ textAlign: 'right' }}>
+                <div style={{ textAlign: 'right', flexShrink: 0 }}>
                   <span style={{ fontSize: '3rem', fontWeight: 700, color: 'var(--color-accent)', letterSpacing: '-0.04em' }}>
                     {progressPct}<span style={{ fontSize: '1.25rem' }}>%</span>
                   </span>
@@ -180,8 +179,8 @@ export default function DashboardHomeClient({
               </div>
 
               {/* Progress Bar */}
-              <div style={{ position: 'relative', width: '100%', height: '6px', background: 'var(--surface-container-highest)', borderRadius: '9999px', marginBottom: '2rem' }}>
-                <div style={{ position: 'absolute', top: 0, left: 0, height: '100%', background: 'var(--color-accent)', borderRadius: '9999px', boxShadow: '0 0 15px rgba(173,44,77,0.4)', width: `${progressPct}%`, transition: 'width 0.5s ease' }} />
+              <div style={{ position: 'relative', width: '100%', height: '8px', background: 'var(--surface-container-highest)', borderRadius: '9999px', marginBottom: '2rem' }}>
+                <div style={{ position: 'absolute', top: 0, left: 0, height: '100%', background: 'var(--color-accent)', borderRadius: '9999px', width: `${progressPct}%`, transition: 'width 0.5s ease' }} />
               </div>
 
               {/* Milestone Journey */}
@@ -207,10 +206,14 @@ export default function DashboardHomeClient({
         )}
 
         {/* ── Side Card: Application Status or Today ── */}
-        <aside className="stitch-card-elevated" style={{
-          gridColumn: (state === 'B' || state === 'C' || state === 'D') && programTitle ? 'span 4' : 'span 12',
-          borderLeft: '4px solid var(--color-accent)',
-        }}>
+        <aside
+          className="portal-card portal-card--flat"
+          style={{
+            gridColumn: (state === 'B' || state === 'C' || state === 'D') && programTitle ? 'span 4' : 'span 12',
+            borderLeft: '4px solid var(--color-accent)',
+          }}
+        >
+          <div className="portal-card__body">
           {/* Application Status */}
           {noApplicationOnFile ? (
             <div>
@@ -254,7 +257,6 @@ export default function DashboardHomeClient({
                                 ? 'var(--color-accent)'
                                 : 'var(--outline-variant)',
                             opacity: locked ? 0.35 : 1,
-                            boxShadow: current ? '0 0 0 1px color-mix(in srgb, var(--color-accent) 40%, transparent)' : undefined,
                           }}
                         />
                         <span
@@ -313,22 +315,26 @@ export default function DashboardHomeClient({
               </div>
             </div>
           )}
+          </div>
         </aside>
 
         {/* ── Pre-Screening Section ── */}
         {assessmentDone && !preScreeningDone && (
-          <section className="stitch-card" style={{ gridColumn: 'span 12' }}>
+          <section className="portal-card portal-card--flat" style={{ gridColumn: 'span 12' }}>
+            <div className="portal-card__body">
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
               <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>assignment</span>
               <h3 style={{ fontWeight: 700, fontSize: '0.875rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Pre-screening (before your interview)</h3>
             </div>
             <MemberPreScreeningForm />
+            </div>
           </section>
         )}
 
         {/* ── Interview Section ── */}
         {assessmentDone && preScreeningDone && interviewEligible && !interviewCompletedAt && (
-          <section className="stitch-card" style={{ gridColumn: 'span 12' }}>
+          <section className="portal-card portal-card--flat" style={{ gridColumn: 'span 12' }}>
+            <div className="portal-card__body">
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
               <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>videocam</span>
               <h3 style={{ fontWeight: 700, fontSize: '0.875rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Interview</h3>
@@ -341,6 +347,7 @@ export default function DashboardHomeClient({
             ) : (
               <MemberInterviewRequestButton />
             )}
+            </div>
           </section>
         )}
 

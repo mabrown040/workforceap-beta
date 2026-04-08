@@ -27,7 +27,7 @@ export default async function AdminDiagnosticsPage() {
     method: 'page_load',
   });
 
-  const [recentDiagnostics, recentImports, recentRecommendations, enrolledUsersForDrift] = await Promise.all([
+  const [recentDiagnostics, recentImports, recentRecommendations, enrolledUsersForDrift, totalEnrolledForDrift] = await Promise.all([
     prisma.workflowDiagnostic.findMany({ orderBy: { createdAt: 'desc' }, take: 50 }),
     prisma.workflowDiagnostic.findMany({ where: { workflow: { startsWith: 'employer_import' } }, orderBy: { createdAt: 'desc' }, take: 10 }),
     prisma.workflowDiagnostic.findMany({ where: { workflow: { in: ['admin_job_matches', 'admin_match_suggestions'] } }, orderBy: { createdAt: 'desc' }, take: 10 }),
@@ -39,7 +39,11 @@ export default async function AdminDiagnosticsPage() {
         enrolledProgram: true,
         courseEnrollment: { select: { programSlug: true } },
       },
+      orderBy: { id: 'asc' },
       take: 500,
+    }),
+    prisma.user.count({
+      where: { enrolledProgram: { not: null }, deletedAt: null },
     }),
   ]);
 
@@ -63,7 +67,11 @@ export default async function AdminDiagnosticsPage() {
           <div className="stitch-card stitch-card--padded" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <span className="material-symbols-outlined" style={{ color: 'var(--color-green)', fontSize: '1.25rem' }}>check_circle</span>
             <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>
-              No enrollment drift detected. User.enrolledProgram and CourseEnrollment are in sync for all {enrolledUsersForDrift.length} enrolled members.
+              {totalEnrolledForDrift === enrolledUsersForDrift.length ? (
+                <>No enrollment drift detected. User.enrolledProgram and CourseEnrollment are in sync for all {totalEnrolledForDrift} enrolled members.</>
+              ) : (
+                <>No enrollment drift detected among the {enrolledUsersForDrift.length} enrolled members checked ({totalEnrolledForDrift} total enrolled; sample capped at 500, ordered by user id).</>
+              )}
             </span>
           </div>
         ) : (

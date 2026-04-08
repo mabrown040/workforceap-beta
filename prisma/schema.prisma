@@ -894,18 +894,33 @@ model SubgroupLeader {
 
 // --- Pipeline & Placement Tracking ---
 
+/// Canonical placement record — single source of truth for operational
+/// tracking AND WIOA/grant reporting. All placement surfaces (partner
+/// pipeline, admin placements, weekly digest, outcome reporting) read
+/// from this model.
+///
+/// INVARIANT: There is exactly one PlacementRecord per member (unique on
+/// userId). Edits create a new MemberEvent for audit trail.
 model PlacementRecord {
   id            String    @id @default(uuid())
   userId        String    @unique @map("user_id")
   employerName  String    @map("employer_name")
   jobTitle      String    @map("job_title")
   startDate     DateTime? @map("start_date") @db.Date
-  salaryOffered Int?      @map("salary_offered") // annual, in whole dollars
+  salaryOffered Int?      @map("salary_offered") // annual, in whole dollars — wage at placement
   placedAt      DateTime  @default(now()) @map("placed_at")
   placedBy      String?   @map("placed_by") // counselor or admin userId
   notes         String?   @db.Text
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // ── WIOA / grant-reporting fields (all optional until reporting is live) ──
+  programSlug          String?  @map("program_slug")
+  wageAtFollowUp       Int?     @map("wage_at_follow_up") // annual, 90/180-day follow-up
+  retentionStatus      String?  @map("retention_status") // e.g. "retained_90d", "retained_180d", "separated"
+  startDateVerified    Boolean  @default(false) @map("start_date_verified")
+  fundingSource        String?  @map("funding_source") // e.g. "WIOA_Adult", "WIOA_Youth", "TAA"
+  grantReportingNotes  String?  @map("grant_reporting_notes") @db.Text
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -913,7 +928,9 @@ model PlacementRecord {
   @@map("placement_records")
 }
 
-// WorkforceAP-reported placements for grant metrics (separate from counselor PlacementRecord).
+/// @deprecated Use PlacementRecord with WIOA/grant fields instead.
+/// Kept for backward compatibility during migration. New code should
+/// write to PlacementRecord and read grant fields from there.
 model PlacedOutcome {
   id             String   @id @default(uuid())
   userId         String   @unique @map("user_id")

@@ -109,7 +109,9 @@ export default async function AdminMemberDetailPage({
       where: { memberId: id, active: true },
       include: { counselor: { select: { userId: true, user: { select: { fullName: true } } } } },
     }),
-    prisma.placedOutcome.findUnique({ where: { userId: id } }),
+    // Read from canonical PlacementRecord (includes WIOA fields).
+    // PlacedOutcome is deprecated; PlacementRecord is the source of truth.
+    prisma.placementRecord.findUnique({ where: { userId: id } }),
     prisma.courseEnrollment.findUnique({
       where: { userId: id },
       select: {
@@ -322,7 +324,7 @@ export default async function AdminMemberDetailPage({
         </section>
 
         <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
-          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>WorkforceAP placement (grants)</h2>
+          <h2 className="portal-section-heading">Placement record</h2>
           <AdminMemberPlacedOutcomeForm
             memberId={member.id}
             initial={
@@ -330,10 +332,15 @@ export default async function AdminMemberDetailPage({
                 ? {
                     employerName: placedOutcomeRow.employerName,
                     jobTitle: placedOutcomeRow.jobTitle,
-                    startingSalary: placedOutcomeRow.startingSalary,
+                    startingSalary: placedOutcomeRow.salaryOffered,
                     placedAt: placedOutcomeRow.placedAt.toISOString(),
                     programSlug: placedOutcomeRow.programSlug,
                     notes: placedOutcomeRow.notes,
+                    wageAtFollowUp: placedOutcomeRow.wageAtFollowUp,
+                    retentionStatus: placedOutcomeRow.retentionStatus,
+                    startDateVerified: placedOutcomeRow.startDateVerified,
+                    fundingSource: placedOutcomeRow.fundingSource,
+                    grantReportingNotes: placedOutcomeRow.grantReportingNotes,
                   }
                 : null
             }

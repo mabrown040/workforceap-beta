@@ -195,46 +195,35 @@ export default async function EmployerDashboardPage() {
             {totalApplications > 0 ? `${totalApplications} candidate${totalApplications !== 1 ? 's' : ''} in pipeline` : 'Your talent pipeline'}
           </h2>
         </div>
-
-        {/* Metric strip */}
-        <div className="portal-card-scroll-row" style={{ padding: '0 1.25rem 0.5rem' }}>
+        {/* Stats row - horizontal scroll */}
+        <div style={{ display:"flex", gap:"0.75rem", overflowX:"auto", scrollbarWidth:"none", paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingBottom:"0.5rem" }}>
           {[
-            { label: 'Open Roles', value: activeJobs, icon: 'work', accent: 'accent' as const },
-            { label: 'Candidates', value: totalApplications, icon: 'groups', accent: 'neutral' as const },
-            { label: 'In Review', value: inReview, icon: 'pending', accent: 'neutral' as const },
-            { label: 'Hired', value: hiresTotal, icon: 'person_check', accent: 'green' as const },
+            { label: 'Open Roles', value: activeJobs, color: 'var(--color-accent)' },
+            { label: 'Candidates', value: totalApplications, color: 'var(--on-surface)' },
+            { label: 'In Review', value: inReview, color: 'var(--secondary)' },
           ].map((s) => (
-            <div key={s.label} className="portal-metric-card" style={{ minWidth: '120px', flexShrink: 0 }}>
-              <div className={`portal-metric-card__icon-wrap portal-metric-card__icon-wrap--${s.accent}`}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>{s.icon}</span>
-              </div>
-              <p className="portal-metric-card__value" style={{ fontSize: '1.5rem' }}>{s.value}</p>
-              <p className="portal-metric-card__label">{s.label}</p>
+            <div key={s.label} className="wa-bg-white" style={{ minWidth:"130px", flex:1, padding:"1rem", borderRadius:"0.75rem", boxShadow:"0 1px 2px rgba(0,0,0,0.05)" }}>
+              <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider text-on-surface-variant/60" style={{ marginBottom:"0.25rem" }}>{s.label}</p>
+              <p className="wa-text-2xl wa-font-bold" style={{ color: s.color }}>{s.value}</p>
             </div>
           ))}
         </div>
-
-        {/* Pipeline funnel card */}
-        <div style={{ margin: '0.75rem 1.25rem 0', padding: '1rem', borderRadius: '0.875rem', background: 'var(--surface-container-low)', border: '1px solid rgba(255,255,255,0.04)' }}>
-          <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>Pipeline Funnel</p>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            {[
-              { label: 'Screened', value: Math.max(0, totalApplications - inReview) },
-              { label: 'Interview', value: inReview },
-              { label: 'Offer', value: offerStageCount },
-              { label: 'Hired', value: filledPositions },
-            ].map((s, i, arr) => (
-              <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <div style={{ textAlign: 'center' }}>
-                  <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>{s.label}</p>
-                  <p style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-on-surface)', letterSpacing: '-0.03em', margin: 0 }}>{s.value}</p>
-                </div>
-                {i < arr.length - 1 && (
-                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', opacity: 0.3 }}>chevron_right</span>
-                )}
+        {/* Pipeline summary strip */}
+        <div className="bg-surface-container-low" style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginTop:"0.75rem", padding:"1rem", borderRadius:"0.75rem", display:"flex", justifyContent:"space-between", alignItems:"center", textAlign:"center" }}>
+          {[
+            { label: 'Screened', value: Math.max(0, totalApplications - inReview) },
+            { label: 'Interview', value: inReview },
+            { label: 'Offer', value: offerStageCount },
+            { label: 'Hired', value: filledPositions },
+          ].map((s, i, arr) => (
+            <div key={s.label} style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
+              <div style={{ flex:1, textAlign:"center" }}>
+                <p className="wa-text-[11px] wa-font-bold text-on-surface-variant/50 wa-uppercase wa-tracking-tighter">{s.label}</p>
+                <p className="wa-text-sm wa-font-bold text-on-surface">{s.value}</p>
               </div>
-            ))}
-          </div>
+              {i < arr.length - 1 && <div className="bg-outline-variant/30" style={{ width: '1px', height:"1.25rem" }} />}
+            </div>
+          ))}
         </div>
         <div style={{ marginLeft: '1.5rem', marginRight: '1.5rem', marginTop: '1rem' }}>
           <VoiceAgentSurface {...employerVoiceSurface}>
@@ -249,8 +238,8 @@ export default async function EmployerDashboardPage() {
             />
           </VoiceAgentSurface>
         </div>
-        {/* Quick actions */}
-        <div style={{ margin: '1rem 1.25rem 0', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+        {/* Quick actions — Review Apps is primary when candidates exist */}
+        <div style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginTop:"1rem", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"0.75rem" }}>
           {totalApplications > 0 ? (
             <Link href="/employer/applications"
               style={{ gridColumn: 'span 2', padding: '1rem 1.25rem', borderRadius: '0.875rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', textDecoration: 'none', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', boxShadow: '0 4px 16px rgba(173,44,77,0.3)' }}>

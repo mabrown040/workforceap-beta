@@ -383,9 +383,9 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 strokeLinecap="round"
               />
             </svg>
-            <div className="portal-progress-ring__inner">
-              <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-accent)', lineHeight: 1 }}>{mobilePct}%</span>
-              <span style={{ fontSize: '0.5rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-gold)', marginTop: '0.15rem' }}>Progress</span>
+            <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
+              <span className="wa-text-base wa-font-bold wa-text-[var(--color-accent-dark)]">{mobilePct}%</span>
+              <span className="wa-text-[8px] wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-gold)]">Training progress</span>
             </div>
           </div>
         </section>

@@ -92,7 +92,7 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
         opts.mobile
           ? { overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }
           : {
-              borderRight: '1px solid #ebe7e7',
+              borderRight: '1px solid var(--outline-variant)',
               overflowY: 'auto',
               width: 300,
               flexShrink: 0,
@@ -111,12 +111,13 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
           style={{
             width: '100%',
             padding: '0.625rem 0.875rem',
-            border: '1px solid #debfc2',
+            border: '1px solid var(--outline-variant)',
             borderRadius: '0.5rem',
             fontSize: '0.875rem',
-            background: '#f6f3f2',
+            background: 'var(--surface-container-lowest)',
             outline: 'none',
             fontFamily: 'inherit',
+            color: 'var(--color-on-surface)',
           }}
         />
       </div>
@@ -129,12 +130,12 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
             <span style={{ fontWeight: 700, fontSize: '0.875rem' }}>{r.memberName}</span>
-            <span style={{ fontSize: '0.7rem', color: '#8b7073' }}>{r.timeLabel}</span>
+            <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>{r.timeLabel}</span>
           </div>
           <p
             style={{
               fontSize: '0.8rem',
-              color: '#584144',
+              color: 'var(--color-on-surface-variant)',
               margin: 0,
               whiteSpace: 'nowrap',
               overflow: 'hidden',
@@ -168,7 +169,7 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
     <div
       style={{
         padding: '1rem 1.5rem',
-        borderBottom: '1px solid #ebe7e7',
+        borderBottom: '1px solid var(--outline-variant)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -202,7 +203,7 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
         </div>
         <div style={{ minWidth: 0 }}>
           <p style={{ fontWeight: 700, fontSize: '0.875rem', margin: 0 }}>{chat.member.fullName}</p>
-          <p style={{ fontSize: '0.75rem', color: '#584144', margin: 0 }} className="wa-truncate">
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: 0 }} className="wa-truncate">
             {rows.find((x) => x.memberId === chat.member.id)?.programSubtitle ?? '—'}
           </p>
         </div>
@@ -211,13 +212,14 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
         href={`/counselor/students/${chat.member.id}`}
         style={{
           padding: '0.5rem 0.875rem',
-          background: '#f0edec',
-          color: '#1c1b1b',
+          background: 'var(--surface-container)',
+          color: 'var(--color-on-surface)',
           borderRadius: '0.375rem',
           fontSize: '0.8rem',
           fontWeight: 600,
           textDecoration: 'none',
           flexShrink: 0,
+          border: '1px solid var(--outline-variant)',
         }}
       >
         View Profile
@@ -252,7 +254,12 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>{listPane({ mobile: true })}</div>
         ) : (
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
-            <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid #ebe7e7' }}>
+            <div
+              style={{
+                padding: '0.75rem 1rem',
+                borderBottom: '1px solid color-mix(in srgb, var(--outline-variant, #e8e0dd) 70%, transparent)',
+              }}
+            >
               <button
                 type="button"
                 onClick={() => setMobileList(true)}
@@ -287,14 +294,23 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
           maxWidth: '1000px',
           margin: '0 auto',
           height: 'min(85vh, 900px)',
-          border: '1px solid var(--color-border, #ebe7e7)',
+          border: '1px solid color-mix(in srgb, var(--outline-variant, #e8e0dd) 70%, transparent)',
           borderRadius: '0.75rem',
           overflow: 'hidden',
           flexDirection: 'row',
         }}
       >
         {listPane({ mobile: false })}
-        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', minHeight: 0, background: '#fff' }}>
+        <div
+          style={{
+            flex: 1,
+            minWidth: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: 0,
+            background: 'var(--surface-container-lowest)',
+          }}
+        >
           {chatHeader}
           {chatBody}
         </div>

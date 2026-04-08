@@ -20,6 +20,7 @@ import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { partnerVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import StatusBadge from '@/components/portal/StatusBadge';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Partner Portal',
@@ -230,7 +231,12 @@ export default async function PartnerDashboardPage() {
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {recentMembers.length === 0 ? (
-            <p className="wa-text-sm" style={{ color: 'var(--color-on-surface-variant)', padding: '1rem 0' }}>No members yet. Share your referral link to get started.</p>
+            <PortalEmptyState
+              title="No members yet"
+              description="Share your referral link to start connecting applicants with WorkforceAP."
+              icon={<span className="material-symbols-outlined">group_add</span>}
+              primaryAction={{ label: 'Referral guide', href: '/partner/guide' }}
+            />
           ) : (
             recentMembers.map((p) => {
               const initials = (p.member.fullName ?? '?').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
@@ -246,17 +252,10 @@ export default async function PartnerDashboardPage() {
                       <p className="wa-text-sm wa-font-semibold" style={{ color: 'var(--color-on-surface)', margin: 0 }}>{p.member.fullName}</p>
                       <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>{p.programTitle}</p>
                     </div>
-                    <span style={{
-                      padding: '0.2rem 0.6rem',
-                      borderRadius: '9999px',
-                      fontSize: '0.75rem',
-                      fontWeight: 700,
-                      textTransform: 'uppercase',
-                      background: isPlaced ? '#dcfce7' : 'rgba(173,44,77,0.08)',
-                      color: isPlaced ? '#166534' : 'var(--color-accent)',
-                    }}>
-                      {stageLabel}
-                    </span>
+                    <StatusBadge
+                      label={stageLabel}
+                      variant={isPlaced ? 'success' : 'accent'}
+                    />
                   </div>
                 </Link>
               );
@@ -400,11 +399,9 @@ export default async function PartnerDashboardPage() {
 
             {/* Member Pipeline */}
             <section>
-              <div className="portal-section-header">
-                <div>
-                  <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Member pipeline</p>
-                  <h2 className="portal-section-title">Who you referred and where they are now.</h2>
-                </div>
+              <div style={{ marginBottom: '1rem' }}>
+                <h2 className="portal-section-heading" style={{ marginBottom: '0.25rem' }}>Member pipeline</h2>
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>Who you referred and where they are now.</p>
               </div>
 
               {/* Member cards */}
@@ -431,19 +428,10 @@ export default async function PartnerDashboardPage() {
                             </p>
                           </div>
                         </div>
-                        <span style={{
-                          padding: '0.2rem 0.6rem',
-                          fontSize: '0.75rem',
-                          fontWeight: 700,
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em',
-                          borderRadius: '9999px',
-                          background: p.stage === 'placed' ? 'rgba(128,217,159,0.1)' : 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
-                          color: p.stage === 'placed' ? '#80d99f' : 'var(--color-accent)',
-                          border: `1px solid ${p.stage === 'placed' ? 'rgba(128,217,159,0.2)' : 'rgba(173,44,77,0.2)'}`,
-                        }}>
-                          {stageLabel}
-                        </span>
+                        <StatusBadge
+                          label={stageLabel}
+                          variant={p.stage === 'placed' ? 'success' : 'accent'}
+                        />
                       </div>
                     </Link>
                   );
@@ -458,7 +446,7 @@ export default async function PartnerDashboardPage() {
 
               {/* Placement rate + referral link usage */}
               <div className="stitch-card stitch-card--padded">
-                <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Partner Insights</h3>
+                <h3 className="portal-section-title" style={{ marginBottom: '1.25rem' }}>Partner Insights</h3>
                 <div style={{ marginBottom: '1.25rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.375rem' }}>
                     <span style={{ color: 'var(--color-on-surface)' }}>Placement rate</span>
@@ -494,16 +482,7 @@ export default async function PartnerDashboardPage() {
                 <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem', lineHeight: 1.5 }}>
                   Guides, templates, and tools to maximize your referral impact.
                 </p>
-                <Link href="/partner/guide" style={{
-                  display: 'inline-block',
-                  padding: '0.5rem 1rem',
-                  background: 'var(--color-accent)',
-                  color: '#fff',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  textDecoration: 'none',
-                }}>
+                <Link href="/partner/guide" className="btn btn-primary" style={{ fontSize: '0.75rem' }}>
                   Explore Resources
                 </Link>
               </div>
@@ -511,7 +490,7 @@ export default async function PartnerDashboardPage() {
               {/* Near Completion */}
               {nearCompletion.length > 0 && (
                 <div className="stitch-card stitch-card--padded">
-                  <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>Near completion</p>
+                  <p className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Near completion</p>
                   <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
                     {nearCompletion.length} member{nearCompletion.length !== 1 ? 's' : ''} at 70%+ — a check-in could help them finish.
                   </p>

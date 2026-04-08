@@ -11,6 +11,7 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import PortalStatCard from '@/components/portal/PortalStatCard';
+import StatusBadge from '@/components/portal/StatusBadge';
 import { getTimeOfDayGreeting } from '@/lib/time/greeting';
 
 export default async function CounselorPortalPage() {
@@ -139,18 +140,13 @@ export default async function CounselorPortalPage() {
           </div>
           <div style={{ display:"flex", flexDirection:"column", gap:"0.75rem" }}>
             {assignments.length === 0 ? (
-              <div className="wa-bg-white" style={{ borderRadius:"0.75rem", padding:"1.5rem", textAlign:"center" }}>
-                <p className="wa-text-sm text-on-surface-variant" style={{ marginBottom: '0.75rem' }}>
-                  No students assigned yet. Ask your admin to assign members to you.
-                </p>
-                <a
-                  href="mailto:info@workforceap.org?subject=Student%20assignments%20for%20counselor%20portal"
-                  className="wa-text-sm wa-font-semibold"
-                  style={{ color: 'var(--color-accent)' }}
-                >
-                  Email WorkforceAP
-                </a>
-              </div>
+              <PortalEmptyState
+                title="No students assigned yet"
+                description="Students will appear here once assigned by an administrator. In the meantime, explore the counselor guide."
+                icon={<span className="material-symbols-outlined">person_search</span>}
+                primaryAction={{ label: 'Counselor guide', href: '/counselor/guide' }}
+                secondaryAction={{ label: 'Resources', href: '/counselor/resources' }}
+              />
             ) : (
               assignments.map((a) => {
                 const prog = a.member.enrolledProgram ?? a.member.programInterest ?? 'Unknown Program';
@@ -162,7 +158,7 @@ export default async function CounselorPortalPage() {
                   assessmentScorePct: a.member.assessmentScorePct,
                 });
                 const statusLabel = rosterBadge.label;
-                const statusStyle = rosterBadge.style;
+                const badgeVariant = statusLabel === 'At Risk' ? 'error' as const : statusLabel === 'Needs focus' ? 'warning' as const : 'success' as const;
                 return (
                   <Link key={a.id} href={`/counselor/students/${a.memberId}`}
                     className="wa-bg-white active:scale-[0.98] wa-transition-all" style={{ borderRadius:"0.75rem", padding:"1rem", display:"flex", alignItems:"center", gap:"0.75rem", textDecoration:"none" }}>
@@ -180,7 +176,7 @@ export default async function CounselorPortalPage() {
                       </div>
                     </div>
                     <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:"0.5rem" }}>
-                      <span className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider" style={Object.assign({ paddingLeft:"0.5rem", paddingRight:"0.5rem", paddingTop:"2px", paddingBottom:"2px", borderRadius:"0.25rem" }, statusStyle)}>{statusLabel}</span>
+                      <StatusBadge label={statusLabel} variant={badgeVariant} />
                       <span className="material-symbols-outlined text-surface-container-highest">chevron_right</span>
                     </div>
                   </Link>
@@ -199,12 +195,12 @@ export default async function CounselorPortalPage() {
         subtitle="See your assigned students, track their progress, and respond to messages."
       />
 
-      <section style={{ marginBottom: '2.5rem' }}>
+      <section style={{ marginBottom: '2rem' }}>
         <CounselorPortalVoiceBlock />
       </section>
 
       {/* ── Stat Cards ── */}
-      <section className="portal-grid-metrics" style={{ marginBottom: '2.5rem' }}>
+      <section className="portal-grid-metrics" style={{ marginBottom: '2rem' }}>
         {statCards.map((card) => (
           <PortalStatCard
             key={card.label}
@@ -225,8 +221,8 @@ export default async function CounselorPortalPage() {
 
           {/* Your Students */}
           <section>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--color-on-surface)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+              <h3 className="portal-section-heading" style={{ margin: 0 }}>
                 Your Students
               </h3>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -279,19 +275,10 @@ export default async function CounselorPortalPage() {
                         </div>
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                          <span style={{
-                            padding: '0.25rem 0.75rem',
-                            background: isEnrolled ? 'rgba(128,217,159,0.1)' : 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
-                            color: isEnrolled ? '#80d99f' : 'var(--color-accent)',
-                            fontSize: '0.75rem',
-                            fontWeight: 700,
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.05em',
-                            borderRadius: '9999px',
-                            border: `1px solid ${isEnrolled ? 'rgba(128,217,159,0.2)' : 'rgba(173,44,77,0.2)'}`,
-                          }}>
-                            {isEnrolled ? 'Enrolled' : 'Not enrolled'}
-                          </span>
+                          <StatusBadge
+                            label={isEnrolled ? 'Enrolled' : 'Not enrolled'}
+                            variant={isEnrolled ? 'success' : 'accent'}
+                          />
                           <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4 }}>more_vert</span>
                         </div>
                       </div>
@@ -304,7 +291,7 @@ export default async function CounselorPortalPage() {
 
           {/* System Status */}
           <section>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 600, letterSpacing: '-0.02em', marginBottom: '1.25rem', color: 'var(--color-on-surface)' }}>
+            <h3 className="portal-section-heading">
               System Status
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -335,7 +322,7 @@ export default async function CounselorPortalPage() {
 
           {/* Quick Insights */}
           <section className="stitch-card stitch-card--padded">
-            <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Quick Insights</h3>
+            <h3 className="portal-section-title" style={{ marginBottom: '1.25rem' }}>Quick Insights</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>Active students</span>
@@ -350,50 +337,43 @@ export default async function CounselorPortalPage() {
                 <span style={{ fontSize: '0.875rem', fontWeight: 700, color: messagesNeedingReply > 0 ? 'var(--color-accent)' : 'var(--color-on-surface)' }}>{messagesNeedingReply}</span>
               </div>
               <div style={{ borderTop: '1px solid rgba(226,226,229,0.08)', paddingTop: '1rem', marginTop: '0.25rem' }}>
-                <Link href="/counselor/messages" style={{
-                  display: 'block', width: '100%',
-                  padding: '0.625rem', textAlign: 'center',
-                  background: 'var(--color-accent)', color: '#fff',
-                  borderRadius: '0.5rem', fontSize: '0.75rem', fontWeight: 700,
-                  textDecoration: 'none',
-                }}>
+                <Link href="/counselor/messages" className="btn btn-primary btn-full-width" style={{ fontSize: '0.75rem' }}>
                   Open Messages
                 </Link>
               </div>
             </div>
           </section>
 
-          {/* Upcoming Events */}
+          {/* Quick Links */}
           <section>
-            <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Upcoming Events</h3>
+            <h3 className="portal-section-title" style={{ marginBottom: '1.25rem' }}>Quick Links</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {[
-                { day: '02', month: 'Apr', title: 'Cohort Check-in', desc: 'Weekly sync with all active students' },
-                { day: '08', month: 'Apr', title: 'Module Reviews Due', desc: 'Assess enrolled module progress' },
-                { day: '15', month: 'Apr', title: 'Partner Meeting', desc: `${affiliation} quarterly review` },
-              ].map((ev) => (
-                <div key={ev.title} className="stitch-card stitch-card--padded-sm" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <div style={{
-                    width: '3rem', minWidth: '3rem', textAlign: 'center',
-                    background: 'var(--surface-container-highest)', borderRadius: '0.5rem', padding: '0.5rem 0',
-                  }}>
-                    <p style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-accent)', lineHeight: 1 }}>{ev.day}</p>
-                    <p style={{ fontSize: '0.5rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)' }}>{ev.month}</p>
+                { href: '/counselor/students', icon: 'groups', title: 'My Students', desc: 'View roster and student details' },
+                { href: '/counselor/messages', icon: 'forum', title: 'Messages', desc: 'Reply to student threads' },
+                { href: '/counselor/resources', icon: 'menu_book', title: 'Resources', desc: 'Guides and reference links' },
+              ].map((link) => (
+                <Link key={link.href} href={link.href} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <div className="stitch-card stitch-card--padded-sm" style={{ display: 'flex', alignItems: 'center', gap: '1rem', transition: 'background-color 0.15s' }}>
+                    <div style={{
+                      width: '2.75rem', minWidth: '2.75rem', height: '2.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', borderRadius: '0.625rem',
+                    }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>{link.icon}</span>
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{link.title}</p>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{link.desc}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{ev.title}</p>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{ev.desc}</p>
-                  </div>
-                </div>
+                </Link>
               ))}
             </div>
           </section>
 
           {/* Counselor Actions */}
           <section>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-              <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>Counselor Actions</h3>
-            </div>
+            <h3 className="portal-section-title" style={{ marginBottom: '1.25rem' }}>Counselor Actions</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               {needsAttentionCount > 0 && (
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>

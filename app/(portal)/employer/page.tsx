@@ -15,6 +15,7 @@ import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { employerVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import StatusBadge from '@/components/portal/StatusBadge';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Employer overview',
@@ -269,9 +270,12 @@ export default async function EmployerDashboardPage() {
           </div>
           <div style={{ display:"flex", flexDirection:"column", gap:"0.75rem" }}>
             {recentApplications.length === 0 ? (
-              <div className="wa-bg-white" style={{ borderRadius:"0.75rem", padding:"1.25rem", textAlign:"center" }}>
-                <p className="wa-text-sm text-on-surface-variant">No applications yet. Post a role to get started.</p>
-              </div>
+              <PortalEmptyState
+                title="No applications yet"
+                description="Post a role to start receiving candidates from the WorkforceAP talent pool."
+                icon={<span className="material-symbols-outlined">inbox</span>}
+                primaryAction={{ label: 'Post a job', href: '/employer/jobs/new' }}
+              />
             ) : (
               recentApplications.slice(0, 5).map((app) => (
                 <Link key={app.id} href={`/employer/jobs/${app.jobId}`}
@@ -287,10 +291,10 @@ export default async function EmployerDashboardPage() {
                       </span>
                     </div>
                     <p className="wa-text-xs wa-text-[#7b5800] wa-font-semibold wa-uppercase wa-tracking-wider wa-truncate" style={{ marginBottom:"0.25rem" }}>{app.job.title}</p>
-                    <span className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-tighter" style={{paddingLeft:"0.5rem", paddingRight:"0.5rem", paddingTop:"2px", paddingBottom:"2px", borderRadius:"9999px", background: app.status === 'pending' ? '#fff1f2' : '#fef3c7',
-                        color: app.status === 'pending' ? 'var(--color-accent)' : 'var(--color-gold)',}}>
-                      {app.status}
-                    </span>
+                    <StatusBadge
+                      label={app.status}
+                      variant={app.status === 'pending' ? 'accent' : app.status === 'hired' ? 'success' : 'warning'}
+                    />
                   </div>
                 </Link>
               ))
@@ -303,8 +307,8 @@ export default async function EmployerDashboardPage() {
       <div className="wa-hidden wa-md:wa-block">
       {/* ── Header ── */}
       <PageHeader
-        title="Talent Intelligence"
-        subtitle="Strategic oversight of your cross-functional talent pipeline and credentialed candidate pools."
+        title="Employer overview"
+        subtitle="Manage job postings, review applicants, and track your hiring pipeline."
         action={
           <div style={{ display: 'flex', gap: '0.75rem' }}>
             <Link href="/employer/jobs/import" className="btn btn-outline">Import Jobs</Link>
@@ -327,20 +331,7 @@ export default async function EmployerDashboardPage() {
         </VoiceAgentSurface>
       </section>
 
-      {/* ── KPI Metric Cards ── */}
-      <section className="portal-grid-metrics" style={{ marginBottom: '3rem' }}>
-        {kpiCards.map((card) => (
-          <div key={card.label} className="metric-card" style={card.borderAccent ? { borderLeft: '4px solid var(--color-accent)' } : {}}>
-            <p className="metric-label" style={{ marginBottom: '0.5rem' }}>{card.label}</p>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-              <span className="metric-value">{card.value}</span>
-              {card.trend && <span style={{ fontSize: '0.75rem', fontWeight: 500, color: card.trendColor }}>{card.trend}</span>}
-            </div>
-          </div>
-        ))}
-      </section>
-
-      {/* ── Empty State ── */}
+      {/* ── Empty State (shown first for cold-start clarity) ── */}
       {jobs.length === 0 && (
         <section className="portal-section--lg">
           <PortalEmptyState
@@ -353,12 +344,25 @@ export default async function EmployerDashboardPage() {
         </section>
       )}
 
+      {/* ── KPI Metric Cards ── */}
+      <section className="portal-grid-metrics" style={{ marginBottom: '2rem' }}>
+        {kpiCards.map((card) => (
+          <div key={card.label} className={`metric-card${card.borderAccent ? ' metric-card--accent' : ''}`}>
+            <p className="metric-label" style={{ marginBottom: '0.5rem' }}>{card.label}</p>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+              <span className="metric-value">{card.value}</span>
+              {card.trend && <span style={{ fontSize: '0.75rem', fontWeight: 500, color: card.trendColor }}>{card.trend}</span>}
+            </div>
+          </div>
+        ))}
+      </section>
+
       {/* ── Talent Pipeline + Verification Tools ── */}
-      <section className="portal-grid-2col" style={{ marginBottom: '3rem' }}>
+      <section className="portal-grid-2col" style={{ marginBottom: '2rem' }}>
         {/* Pipeline */}
         <div className="stitch-card stitch-card--padded-lg">
           <div className="portal-section-header" style={{ marginBottom: '2rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--color-on-surface)', margin: 0 }}>Talent Pipeline</h2>
+            <h2 className="portal-section-heading" style={{ margin: 0 }}>Talent Pipeline</h2>
             <span className="material-symbols-outlined" style={{ padding: '0.5rem', background: 'var(--surface-container-lowest)', borderRadius: '0.375rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>filter_list</span>
           </div>
 
@@ -445,12 +449,9 @@ export default async function EmployerDashboardPage() {
       </section>
 
       {/* ── Recent Activity ── */}
-      <section style={{ marginBottom: '3rem' }}>
+      <section style={{ marginBottom: '2rem' }}>
         <div className="portal-section-header">
-          <div>
-            <p className="portal-section-title" style={{ marginBottom: '0.25rem' }}>Recent activity</p>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>Latest Applicants</h2>
-          </div>
+          <h2 className="portal-section-heading" style={{ margin: 0 }}>Latest Applicants</h2>
           <Link href="/employer/applications" className="portal-section-action">
             View all applications
           </Link>

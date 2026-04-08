@@ -209,17 +209,17 @@ export default async function AdminPage() {
           {/* Recent Signups Table with initials avatars */}
           <div style={{ background: 'var(--surface-container-low)', borderRadius: '0.75rem', overflow: 'hidden', boxShadow: '0 4px 32px rgba(0,0,0,0.2)' }}>
             <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(226,226,229,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--surface-container)' }}>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--color-on-surface)' }}>Recent Signups</h3>
+              <h3 className="portal-section-heading" style={{ margin: 0 }}>Recent Signups</h3>
               <Link href="/admin/members" style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-accent)', textDecoration: 'none' }}>
                 View all &rarr;
               </Link>
             </div>
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+              <table className="dashboard-table">
                 <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(226,226,229,0.05)' }}>
+                  <tr>
                     {['Member', 'Track', 'Joined'].map((h) => (
-                      <th key={h} style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', fontWeight: 600 }}>{h}</th>
+                      <th key={h}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -230,8 +230,8 @@ export default async function AdminPage() {
                       ? (getProgramBySlug(u.enrolledProgram)?.title ?? u.enrolledProgram)
                       : 'Pending enrollment';
                     return (
-                      <tr key={u.id} style={{ borderBottom: '1px solid rgba(226,226,229,0.05)' }}>
-                        <td style={{ padding: '1rem 1.5rem' }}>
+                      <tr key={u.id}>
+                        <td>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                             <div style={{
                               width: '2.25rem', height: '2.25rem', borderRadius: '50%',
@@ -249,8 +249,8 @@ export default async function AdminPage() {
                             </div>
                           </div>
                         </td>
-                        <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>{track}</td>
-                        <td style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{timeAgo(u.createdAt)}</td>
+                        <td>{track}</td>
+                        <td style={{ fontSize: '0.75rem' }}>{timeAgo(u.createdAt)}</td>
                       </tr>
                     );
                   })}
@@ -263,14 +263,14 @@ export default async function AdminPage() {
           {recentPlacements.length > 0 && (
             <div style={{ background: 'var(--surface-container-low)', borderRadius: '0.75rem', overflow: 'hidden', boxShadow: '0 4px 32px rgba(0,0,0,0.2)' }}>
               <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(226,226,229,0.05)', background: 'var(--surface-container)' }}>
-                <h3 style={{ fontSize: '1.125rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--color-on-surface)' }}>Recent Placements</h3>
+                <h3 className="portal-section-heading" style={{ margin: 0 }}>Recent Placements</h3>
               </div>
               <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+                <table className="dashboard-table">
                   <thead>
-                    <tr style={{ borderBottom: '1px solid rgba(226,226,229,0.05)' }}>
+                    <tr>
                       {['Student', 'Employer', 'Role', 'Program', 'Days', 'Salary', 'Date'].map((h) => (
-                        <th key={h} style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', fontWeight: 600 }}>{h}</th>
+                        <th key={h}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -283,25 +283,25 @@ export default async function AdminPage() {
                         ? Math.floor((p.placedAt.getTime() - p.user.enrolledAt.getTime()) / (1000 * 60 * 60 * 24))
                         : null;
                       return (
-                        <tr key={p.id} style={{ borderBottom: '1px solid rgba(226,226,229,0.05)', transition: 'background-color 0.15s' }}>
-                          <td style={{ padding: '1rem 1.5rem' }}>
+                        <tr key={p.id}>
+                          <td>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                               <div style={{ width: '2rem', height: '2rem', borderRadius: '0.25rem', background: 'var(--surface-container-highest)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)' }}>
                                 {(p.user.fullName ?? '?').split(' ').map((n) => n[0]).join('').slice(0, 2)}
                               </div>
-                              <Link href={`/admin/members/${p.user.id}`} style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-on-surface)', textDecoration: 'none' }}>
+                              <Link href={`/admin/members/${p.user.id}`} style={{ fontWeight: 500, color: 'var(--color-on-surface)', textDecoration: 'none' }}>
                                 {p.user.fullName}
                               </Link>
                             </div>
                           </td>
-                          <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem' }}>{p.employerName}</td>
-                          <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem' }}>{p.jobTitle}</td>
-                          <td style={{ padding: '1rem 1.5rem', fontSize: '0.85rem' }}>{programTitle}</td>
-                          <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem' }}>{daysToPlacement != null ? `${daysToPlacement}d` : '\u2014'}</td>
-                          <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: '#80d99f', fontWeight: 600 }}>
+                          <td>{p.employerName}</td>
+                          <td>{p.jobTitle}</td>
+                          <td>{programTitle}</td>
+                          <td>{daysToPlacement != null ? `${daysToPlacement}d` : '\u2014'}</td>
+                          <td style={{ color: '#80d99f', fontWeight: 600 }}>
                             {p.salaryOffered ? `$${p.salaryOffered.toLocaleString()}` : '\u2014'}
                           </td>
-                          <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem' }}>{p.placedAt.toLocaleDateString()}</td>
+                          <td>{p.placedAt.toLocaleDateString()}</td>
                         </tr>
                       );
                     })}
@@ -313,7 +313,7 @@ export default async function AdminPage() {
 
           {/* Quick Links */}
           <section>
-            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, letterSpacing: '-0.02em', marginBottom: '1.25rem', color: 'var(--color-on-surface)' }}>Quick Links</h3>
+            <h3 className="portal-section-heading">Quick Links</h3>
             <div className="portal-grid-3col">
               {[
                 { icon: 'handshake', label: 'Partners', desc: 'Community organizations', href: '/admin/partners' },
@@ -341,7 +341,7 @@ export default async function AdminPage() {
 
           {/* At a Glance */}
           <div className="stitch-card" style={{ padding: '1.5rem' }}>
-            <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
+            <h3 className="portal-section-title" style={{ marginBottom: '1.5rem' }}>
               At a Glance
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -380,7 +380,7 @@ export default async function AdminPage() {
 
           {/* Recent Activity */}
           <div className="stitch-card-elevated" style={{ padding: '1.5rem' }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1.5rem', color: 'var(--color-on-surface)' }}>Recent Activity</h3>
+            <h3 className="portal-section-heading" style={{ marginBottom: '1.5rem' }}>Recent Activity</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative', paddingLeft: '2.5rem' }}>
               <div style={{ position: 'absolute', left: '0.75rem', top: '2.5rem', bottom: 0, width: '1px', background: 'rgba(226,226,229,0.1)' }} />
               {recentUsers.slice(0, 4).map((u, i) => (
@@ -399,9 +399,11 @@ export default async function AdminPage() {
                 </div>
               ))}
             </div>
-            <Link href="/admin/members" style={{ display: 'block', width: '100%', marginTop: '2rem', padding: '0.5rem', textAlign: 'center', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>
-              View All Members
-            </Link>
+            <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+              <Link href="/admin/members" className="portal-section-action">
+                View all members
+              </Link>
+            </div>
           </div>
         </div>
       </div>

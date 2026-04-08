@@ -209,7 +209,7 @@ export default async function AdminPage() {
           {/* Recent Signups Table with initials avatars */}
           <div style={{ background: 'var(--surface-container-low)', borderRadius: '0.75rem', overflow: 'hidden', boxShadow: '0 4px 32px rgba(0,0,0,0.2)' }}>
             <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(226,226,229,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--surface-container)' }}>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--color-on-surface)' }}>Recent Signups</h3>
+              <h3 className="portal-section-heading" style={{ margin: 0 }}>Recent Signups</h3>
               <Link href="/admin/members" style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-accent)', textDecoration: 'none' }}>
                 View all &rarr;
               </Link>
@@ -263,7 +263,7 @@ export default async function AdminPage() {
           {recentPlacements.length > 0 && (
             <div style={{ background: 'var(--surface-container-low)', borderRadius: '0.75rem', overflow: 'hidden', boxShadow: '0 4px 32px rgba(0,0,0,0.2)' }}>
               <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(226,226,229,0.05)', background: 'var(--surface-container)' }}>
-                <h3 style={{ fontSize: '1.125rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--color-on-surface)' }}>Recent Placements</h3>
+                <h3 className="portal-section-heading" style={{ margin: 0 }}>Recent Placements</h3>
               </div>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
@@ -313,7 +313,7 @@ export default async function AdminPage() {
 
           {/* Quick Links */}
           <section>
-            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, letterSpacing: '-0.02em', marginBottom: '1.25rem', color: 'var(--color-on-surface)' }}>Quick Links</h3>
+            <h3 className="portal-section-heading">Quick Links</h3>
             <div className="portal-grid-3col">
               {[
                 { icon: 'handshake', label: 'Partners', desc: 'Community organizations', href: '/admin/partners' },
@@ -341,7 +341,7 @@ export default async function AdminPage() {
 
           {/* At a Glance */}
           <div className="stitch-card" style={{ padding: '1.5rem' }}>
-            <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
+            <h3 className="portal-section-title" style={{ marginBottom: '1.5rem' }}>
               At a Glance
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -380,7 +380,7 @@ export default async function AdminPage() {
 
           {/* Recent Activity */}
           <div className="stitch-card-elevated" style={{ padding: '1.5rem' }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1.5rem', color: 'var(--color-on-surface)' }}>Recent Activity</h3>
+            <h3 className="portal-section-heading" style={{ marginBottom: '1.5rem' }}>Recent Activity</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative', paddingLeft: '2.5rem' }}>
               <div style={{ position: 'absolute', left: '0.75rem', top: '2.5rem', bottom: 0, width: '1px', background: 'rgba(226,226,229,0.1)' }} />
               {recentUsers.slice(0, 4).map((u, i) => (
@@ -399,9 +399,11 @@ export default async function AdminPage() {
                 </div>
               ))}
             </div>
-            <Link href="/admin/members" style={{ display: 'block', width: '100%', marginTop: '2rem', padding: '0.5rem', textAlign: 'center', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>
-              View All Members
-            </Link>
+            <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+              <Link href="/admin/members" className="portal-section-action">
+                View all members
+              </Link>
+            </div>
           </div>
         </div>
       </div>

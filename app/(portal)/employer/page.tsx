@@ -306,8 +306,8 @@ export default async function EmployerDashboardPage() {
       <div className="wa-hidden wa-md:wa-block">
       {/* ── Header ── */}
       <PageHeader
-        title="Talent Intelligence"
-        subtitle="Strategic oversight of your cross-functional talent pipeline and credentialed candidate pools."
+        title="Employer overview"
+        subtitle="Manage job postings, review applicants, and track your hiring pipeline."
         action={
           <div style={{ display: 'flex', gap: '0.75rem' }}>
             <Link href="/employer/jobs/import" className="btn btn-outline">Import Jobs</Link>
@@ -330,20 +330,7 @@ export default async function EmployerDashboardPage() {
         </VoiceAgentSurface>
       </section>
 
-      {/* ── KPI Metric Cards ── */}
-      <section className="portal-grid-metrics" style={{ marginBottom: '3rem' }}>
-        {kpiCards.map((card) => (
-          <div key={card.label} className="metric-card" style={card.borderAccent ? { borderLeft: '4px solid var(--color-accent)' } : {}}>
-            <p className="metric-label" style={{ marginBottom: '0.5rem' }}>{card.label}</p>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-              <span className="metric-value">{card.value}</span>
-              {card.trend && <span style={{ fontSize: '0.75rem', fontWeight: 500, color: card.trendColor }}>{card.trend}</span>}
-            </div>
-          </div>
-        ))}
-      </section>
-
-      {/* ── Empty State ── */}
+      {/* ── Empty State (shown first for cold-start clarity) ── */}
       {jobs.length === 0 && (
         <section className="portal-section--lg">
           <PortalEmptyState
@@ -356,12 +343,25 @@ export default async function EmployerDashboardPage() {
         </section>
       )}
 
+      {/* ── KPI Metric Cards ── */}
+      <section className="portal-grid-metrics" style={{ marginBottom: '2rem' }}>
+        {kpiCards.map((card) => (
+          <div key={card.label} className={`metric-card${card.borderAccent ? ' metric-card--accent' : ''}`}>
+            <p className="metric-label" style={{ marginBottom: '0.5rem' }}>{card.label}</p>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+              <span className="metric-value">{card.value}</span>
+              {card.trend && <span style={{ fontSize: '0.75rem', fontWeight: 500, color: card.trendColor }}>{card.trend}</span>}
+            </div>
+          </div>
+        ))}
+      </section>
+
       {/* ── Talent Pipeline + Verification Tools ── */}
-      <section className="portal-grid-2col" style={{ marginBottom: '3rem' }}>
+      <section className="portal-grid-2col" style={{ marginBottom: '2rem' }}>
         {/* Pipeline */}
         <div className="stitch-card stitch-card--padded-lg">
           <div className="portal-section-header" style={{ marginBottom: '2rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--color-on-surface)', margin: 0 }}>Talent Pipeline</h2>
+            <h2 className="portal-section-heading" style={{ margin: 0 }}>Talent Pipeline</h2>
             <span className="material-symbols-outlined" style={{ padding: '0.5rem', background: 'var(--surface-container-lowest)', borderRadius: '0.375rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>filter_list</span>
           </div>
 
@@ -448,12 +448,9 @@ export default async function EmployerDashboardPage() {
       </section>
 
       {/* ── Recent Activity ── */}
-      <section style={{ marginBottom: '3rem' }}>
+      <section style={{ marginBottom: '2rem' }}>
         <div className="portal-section-header">
-          <div>
-            <p className="portal-section-title" style={{ marginBottom: '0.25rem' }}>Recent activity</p>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>Latest Applicants</h2>
-          </div>
+          <h2 className="portal-section-heading" style={{ margin: 0 }}>Latest Applicants</h2>
           <Link href="/employer/applications" className="portal-section-action">
             View all applications
           </Link>

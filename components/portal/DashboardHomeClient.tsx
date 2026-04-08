@@ -347,7 +347,7 @@ export default function DashboardHomeClient({
         {/* ── Today / Next Step Cards (full width) ── */}
         <section style={{ gridColumn: 'span 12' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.5rem' }}>
-            <h3 style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--color-on-surface)' }}>
+            <h3 className="portal-section-heading" style={{ margin: 0 }}>
               {state === 'D' ? 'Career Next Steps' : 'Active Curriculum'}
             </h3>
             {state !== 'A' && (
@@ -492,7 +492,7 @@ export default function DashboardHomeClient({
 
         {/* ── This Week Links ── */}
         <section style={{ gridColumn: 'span 12' }}>
-          <h3 style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '1rem', color: 'var(--color-on-surface)' }}>This Week</h3>
+          <h3 className="portal-section-heading">This Week</h3>
           <div style={{ display: 'grid', gap: '0.75rem' }}>
             {[
               { href: '/dashboard/weekly-recap', label: 'Weekly recap', desc: 'Milestones and reminders', icon: 'event_note', action: 'weekly_recap_clicked' },

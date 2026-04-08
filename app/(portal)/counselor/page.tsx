@@ -194,12 +194,12 @@ export default async function CounselorPortalPage() {
         subtitle="See your assigned students, track their progress, and respond to messages."
       />
 
-      <section style={{ marginBottom: '2.5rem' }}>
+      <section style={{ marginBottom: '2rem' }}>
         <CounselorPortalVoiceBlock />
       </section>
 
       {/* ── Stat Cards ── */}
-      <section className="portal-grid-metrics" style={{ marginBottom: '2.5rem' }}>
+      <section className="portal-grid-metrics" style={{ marginBottom: '2rem' }}>
         {statCards.map((card) => (
           <PortalStatCard
             key={card.label}
@@ -220,8 +220,8 @@ export default async function CounselorPortalPage() {
 
           {/* Your Students */}
           <section>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--color-on-surface)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+              <h3 className="portal-section-heading" style={{ margin: 0 }}>
                 Your Students
               </h3>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -299,7 +299,7 @@ export default async function CounselorPortalPage() {
 
           {/* System Status */}
           <section>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 600, letterSpacing: '-0.02em', marginBottom: '1.25rem', color: 'var(--color-on-surface)' }}>
+            <h3 className="portal-section-heading">
               System Status
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -330,7 +330,7 @@ export default async function CounselorPortalPage() {
 
           {/* Quick Insights */}
           <section className="stitch-card stitch-card--padded">
-            <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Quick Insights</h3>
+            <h3 className="portal-section-title" style={{ marginBottom: '1.25rem' }}>Quick Insights</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>Active students</span>
@@ -345,13 +345,7 @@ export default async function CounselorPortalPage() {
                 <span style={{ fontSize: '0.875rem', fontWeight: 700, color: messagesNeedingReply > 0 ? 'var(--color-accent)' : 'var(--color-on-surface)' }}>{messagesNeedingReply}</span>
               </div>
               <div style={{ borderTop: '1px solid rgba(226,226,229,0.08)', paddingTop: '1rem', marginTop: '0.25rem' }}>
-                <Link href="/counselor/messages" style={{
-                  display: 'block', width: '100%',
-                  padding: '0.625rem', textAlign: 'center',
-                  background: 'var(--color-accent)', color: '#fff',
-                  borderRadius: '0.5rem', fontSize: '0.75rem', fontWeight: 700,
-                  textDecoration: 'none',
-                }}>
+                <Link href="/counselor/messages" className="btn btn-primary btn-full-width" style={{ fontSize: '0.75rem' }}>
                   Open Messages
                 </Link>
               </div>
@@ -360,7 +354,7 @@ export default async function CounselorPortalPage() {
 
           {/* Quick Links */}
           <section>
-            <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Quick Links</h3>
+            <h3 className="portal-section-title" style={{ marginBottom: '1.25rem' }}>Quick Links</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {[
                 { href: '/counselor/students', icon: 'groups', title: 'My Students', desc: 'View roster and student details' },
@@ -387,9 +381,7 @@ export default async function CounselorPortalPage() {
 
           {/* Counselor Actions */}
           <section>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-              <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>Counselor Actions</h3>
-            </div>
+            <h3 className="portal-section-title" style={{ marginBottom: '1.25rem' }}>Counselor Actions</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               {needsAttentionCount > 0 && (
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>

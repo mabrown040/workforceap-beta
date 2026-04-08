@@ -405,11 +405,9 @@ export default async function PartnerDashboardPage() {
 
             {/* Member Pipeline */}
             <section>
-              <div className="portal-section-header">
-                <div>
-                  <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Member pipeline</p>
-                  <h2 className="portal-section-title">Who you referred and where they are now.</h2>
-                </div>
+              <div style={{ marginBottom: '1rem' }}>
+                <h2 className="portal-section-heading" style={{ marginBottom: '0.25rem' }}>Member pipeline</h2>
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>Who you referred and where they are now.</p>
               </div>
 
               {/* Member cards */}
@@ -463,7 +461,7 @@ export default async function PartnerDashboardPage() {
 
               {/* Placement rate + referral link usage */}
               <div className="stitch-card stitch-card--padded">
-                <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Partner Insights</h3>
+                <h3 className="portal-section-title" style={{ marginBottom: '1.25rem' }}>Partner Insights</h3>
                 <div style={{ marginBottom: '1.25rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.375rem' }}>
                     <span style={{ color: 'var(--color-on-surface)' }}>Placement rate</span>
@@ -499,16 +497,7 @@ export default async function PartnerDashboardPage() {
                 <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem', lineHeight: 1.5 }}>
                   Guides, templates, and tools to maximize your referral impact.
                 </p>
-                <Link href="/partner/guide" style={{
-                  display: 'inline-block',
-                  padding: '0.5rem 1rem',
-                  background: 'var(--color-accent)',
-                  color: '#fff',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  textDecoration: 'none',
-                }}>
+                <Link href="/partner/guide" className="btn btn-primary" style={{ fontSize: '0.75rem' }}>
                   Explore Resources
                 </Link>
               </div>
@@ -516,7 +505,7 @@ export default async function PartnerDashboardPage() {
               {/* Near Completion */}
               {nearCompletion.length > 0 && (
                 <div className="stitch-card stitch-card--padded">
-                  <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>Near completion</p>
+                  <p className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Near completion</p>
                   <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
                     {nearCompletion.length} member{nearCompletion.length !== 1 ? 's' : ''} at 70%+ — a check-in could help them finish.
                   </p>

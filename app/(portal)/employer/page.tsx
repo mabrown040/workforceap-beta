@@ -389,7 +389,7 @@ export default async function EmployerDashboardPage() {
       {/* ── Talent Pipeline + Verification Tools ── */}
       <section className="portal-grid-2col" style={{ marginBottom: '2rem' }}>
         {/* Pipeline */}
-        <div className="stitch-card stitch-card--padded-lg">
+        <div className="portal-card portal-card--flat portal-card--padded-lg">
           <div className="portal-section-header" style={{ marginBottom: '2rem' }}>
             <h2 className="portal-section-heading" style={{ margin: 0 }}>Talent Pipeline</h2>
             <span className="material-symbols-outlined" style={{ padding: '0.5rem', background: 'var(--surface-container-lowest)', borderRadius: '0.375rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>filter_list</span>
@@ -432,7 +432,7 @@ export default async function EmployerDashboardPage() {
 
         {/* Verification + Featured */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div className="stitch-card stitch-card--padded">
+          <div className="portal-card portal-card--flat portal-card--padded">
             <h3 className="portal-section-title" style={{ marginBottom: '1.5rem' }}>
               Pipeline Summary
             </h3>
@@ -487,7 +487,7 @@ export default async function EmployerDashboardPage() {
         </div>
 
         {recentApplications.length === 0 ? (
-          <div className="stitch-card stitch-card--padded-lg" style={{ textAlign: 'center' }}>
+          <div className="portal-card portal-card--flat portal-card--padded-lg" style={{ textAlign: 'center' }}>
             <p style={{ color: 'var(--color-on-surface-variant)' }}>
               No applications yet. Publish a job or import your current openings to start collecting candidates.
             </p>
@@ -495,7 +495,7 @@ export default async function EmployerDashboardPage() {
         ) : (
           <div className="portal-grid-3col">
             {recentApplications.map((app) => (
-              <div key={app.id} className="stitch-card stitch-card--padded">
+              <div key={app.id} className="portal-card portal-card--flat portal-card--padded">
                 <div style={{ marginBottom: '1rem' }}>
                   <h4 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>{app.student.fullName}</h4>
                   <p style={{ fontSize: '0.75rem', color: 'var(--color-accent)', fontWeight: 500, marginBottom: '0.75rem' }}>

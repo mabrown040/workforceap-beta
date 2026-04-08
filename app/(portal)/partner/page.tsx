@@ -415,7 +415,7 @@ export default async function PartnerDashboardPage() {
           {JOURNEY_STAGES.map((s, i) => (
             <div
               key={s}
-              className="stitch-card stitch-card--padded-sm"
+              className="portal-card portal-card--flat portal-card--padded-sm"
               style={{
                 textAlign: 'center',
                 borderLeft: i === 0 ? '3px solid var(--color-accent)' : 'none',
@@ -454,7 +454,7 @@ export default async function PartnerDashboardPage() {
                   const stageLabel = (PIPELINE_STAGE_LABELS as Record<string, string>)[p.stage] ?? p.stage;
                   return (
                     <Link key={p.member.id} href={`/partner/referred-members/${p.member.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                      <div className="stitch-card stitch-card--padded-sm" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background-color 0.15s' }}>
+                      <div className="portal-card portal-card--flat portal-card--padded-sm" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background-color 0.15s' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                           <div style={{
                             width: '2.5rem', height: '2.5rem', borderRadius: '50%',
@@ -488,7 +488,7 @@ export default async function PartnerDashboardPage() {
             <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
               {/* Placement rate + referral link usage */}
-              <div className="stitch-card stitch-card--padded">
+              <div className="portal-card portal-card--flat portal-card--padded">
                 <h3 className="portal-section-title" style={{ marginBottom: '1.25rem' }}>Partner Insights</h3>
                 <div style={{ marginBottom: '1.25rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.375rem' }}>
@@ -532,7 +532,7 @@ export default async function PartnerDashboardPage() {
 
               {/* Near Completion */}
               {nearCompletion.length > 0 && (
-                <div className="stitch-card stitch-card--padded">
+                <div className="portal-card portal-card--flat portal-card--padded">
                   <p className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Near completion</p>
                   <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
                     {nearCompletion.length} member{nearCompletion.length !== 1 ? 's' : ''} at 70%+ — a check-in could help them finish.

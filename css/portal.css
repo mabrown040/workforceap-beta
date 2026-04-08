@@ -581,9 +581,13 @@
 .ai-tools-hub-card {
     padding: 1.1rem 1.15rem;
     height: 100%;
-    border-radius: var(--radius-lg, 12px);
-    border: 1px solid var(--outline-variant);
+}
+/* Shell + tint when composed with portal-card (replaces legacy stitch-card) */
+.ai-tools-hub-card.portal-card {
     background: var(--surface-container-low);
+}
+.ai-tools-hub-card.portal-card:hover {
+    background: var(--surface-container-high);
 }
 
 /* AI Tools index — one responsive grid (mobile 2-col, desktop auto-fill) */

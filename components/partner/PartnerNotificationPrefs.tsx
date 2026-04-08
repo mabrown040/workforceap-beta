@@ -40,7 +40,7 @@ export default function PartnerNotificationPrefs({ initial }: { initial: Prefs }
   }, [prefs]);
 
   return (
-    <div className="stitch-card" style={{ padding: '1.25rem', maxWidth: 640, marginBottom: '1.25rem' }}>
+    <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', maxWidth: 640, marginBottom: '1.25rem' }}>
       <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Email notifications</h2>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {PREF_LABELS.map(({ key, label, desc }) => (

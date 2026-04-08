@@ -68,7 +68,7 @@ export default async function LinkedInHeadlinePage() {
 
       {/* Main content */}
       <div style={{ maxWidth: '720px', margin: '0 auto', padding: '2rem 1.5rem' }}>
-        <div className="stitch-card" style={{ padding: '1.5rem' }}>
+        <div className="portal-card portal-card--flat" style={{ padding: '1.5rem' }}>
           <LinkedInHeadlineForm />
         </div>
         <ToolHistoryPanel userId={user.id} toolType="linkedin_headline" />

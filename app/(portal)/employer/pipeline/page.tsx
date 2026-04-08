@@ -87,7 +87,7 @@ export default async function EmployerPipelinePage() {
           {PIPELINE_STRIP.map((stage) => (
             <div
               key={stage.label}
-              className="stitch-card"
+              className="portal-card portal-card--flat"
               style={{ flexShrink: 0, textAlign: 'center', padding: '0.625rem 1rem', minWidth: '80px' }}
             >
               <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-accent)' }}>{stage.count}</div>
@@ -99,7 +99,7 @@ export default async function EmployerPipelinePage() {
         {/* Cards by job */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '0 1rem' }}>
           {jobs.length === 0 ? (
-            <div className="stitch-card" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
+            <div className="portal-card portal-card--flat" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>account_tree</span>
               <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>No pipeline yet</p>
               <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Post a job to receive AI-matched candidates.</p>
@@ -108,7 +108,7 @@ export default async function EmployerPipelinePage() {
               </Link>
             </div>
           ) : allMatches.length === 0 ? (
-            <div className="stitch-card" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
+            <div className="portal-card portal-card--flat" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>psychology</span>
               <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>No matches yet</p>
               <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>AI matches will appear once your jobs are live.</p>
@@ -127,7 +127,7 @@ export default async function EmployerPipelinePage() {
                     {matches.map((m) => (
                       <div
                         key={m.id}
-                        className="stitch-card"
+                        className="portal-card portal-card--flat"
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                           <div style={{ width: '2.25rem', height: '2.25rem', borderRadius: '9999px', background: 'var(--surface-container-low)', color: 'var(--color-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, flexShrink: 0 }}>
@@ -182,7 +182,7 @@ export default async function EmployerPipelinePage() {
           />
 
           {jobs.length === 0 ? (
-            <div className="stitch-card" style={{ padding: '2.5rem', textAlign: 'center' }}>
+            <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>account_tree</span>
               <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>No pipeline yet</h3>
               <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
@@ -201,7 +201,7 @@ export default async function EmployerPipelinePage() {
               </Link>
             </div>
           ) : allMatches.length === 0 ? (
-            <div className="stitch-card" style={{ padding: '2.5rem', textAlign: 'center' }}>
+            <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>psychology</span>
               <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>No AI-suggested matches yet</h3>
               <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>

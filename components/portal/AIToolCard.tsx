@@ -91,7 +91,7 @@ export default function AIToolCard({
 
   return (
     <div
-      className="stitch-card"
+      className="portal-card portal-card--flat"
       style={{
         padding: '1.5rem',
         display: 'flex',

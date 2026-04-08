@@ -252,18 +252,13 @@ export default async function CounselorPortalPage() {
 
           {/* Your Students */}
           <section>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+            <div style={{ marginBottom: '1rem' }}>
               <h3 className="portal-section-heading" style={{ margin: 0 }}>
                 Your Students
               </h3>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button style={{ padding: '0.5rem', background: 'var(--surface-container)', borderRadius: '0.5rem', border: 'none', color: 'var(--color-on-surface-variant)', cursor: 'pointer' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>filter_list</span>
-                </button>
-                <button style={{ padding: '0.5rem', background: 'var(--surface-container)', borderRadius: '0.5rem', border: 'none', color: 'var(--color-on-surface-variant)', cursor: 'pointer' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>sort</span>
-                </button>
-              </div>
+              <p className="portal-page-subtitle" style={{ margin: '0.35rem 0 0', fontSize: '0.85rem' }}>
+                Sorted by most recently assigned.
+              </p>
             </div>
 
             {assignments.length === 0 ? (
@@ -285,7 +280,7 @@ export default async function CounselorPortalPage() {
                       href={`/counselor/students/${assignment.member.id}`}
                       style={{ textDecoration: 'none', color: 'inherit' }}
                     >
-                      <div className="stitch-card stitch-card--padded" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background-color 0.15s' }}>
+                      <div className="portal-card portal-card--flat portal-card--padded-sm" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background-color 0.15s' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                           <div style={{
                             width: '3rem', height: '3rem', borderRadius: '0.5rem',
@@ -326,7 +321,7 @@ export default async function CounselorPortalPage() {
               System Status
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div className="stitch-card stitch-card--padded">
+              <div className="portal-card portal-card--flat portal-card--padded-sm">
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
                     <p className="portal-section-title" style={{ marginBottom: '0.25rem' }}>Data Sync</p>
@@ -335,7 +330,7 @@ export default async function CounselorPortalPage() {
                   <StatusBadge label="Healthy" variant="success" />
                 </div>
               </div>
-              <div className="stitch-card stitch-card--padded">
+              <div className="portal-card portal-card--flat portal-card--padded-sm">
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
                     <p className="portal-section-title" style={{ marginBottom: '0.25rem' }}>AI Assistant</p>
@@ -352,7 +347,7 @@ export default async function CounselorPortalPage() {
         <aside style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
 
           {/* Quick Insights */}
-          <section className="stitch-card stitch-card--padded">
+          <section className="portal-card portal-card--flat portal-card--padded">
             <h3 className="portal-section-title" style={{ marginBottom: '1.25rem' }}>Quick Insights</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -385,7 +380,7 @@ export default async function CounselorPortalPage() {
                 { href: '/counselor/resources', icon: 'menu_book', title: 'Resources', desc: 'Guides and reference links' },
               ].map((link) => (
                 <Link key={link.href} href={link.href} style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <div className="stitch-card stitch-card--padded-sm" style={{ display: 'flex', alignItems: 'center', gap: '1rem', transition: 'background-color 0.15s' }}>
+                  <div className="portal-card portal-card--flat portal-card--padded-sm" style={{ display: 'flex', alignItems: 'center', gap: '1rem', transition: 'background-color 0.15s' }}>
                     <div style={{
                       width: '2.75rem', minWidth: '2.75rem', height: '2.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
                       background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', borderRadius: '0.625rem',

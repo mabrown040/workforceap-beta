@@ -62,7 +62,7 @@ export default function MemberNextStepsStrip({
         {actions.map((a) => (
           <div
             key={a.id}
-            className="stitch-card"
+            className="portal-card portal-card--flat"
             style={{
               padding: compact ? '0.85rem' : '1rem',
               borderLeft:

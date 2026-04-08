@@ -212,7 +212,7 @@ export default async function ResumeRewriterPage() {
         </div>
 
         <div style={{ maxWidth: 1120, margin: '0 auto', padding: '1rem 1rem 2rem' }}>
-          <div className="stitch-card" style={{ padding: '1.25rem', borderRadius: 16, marginBottom: '1.25rem', background: 'var(--surface-container-low)' }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', borderRadius: 16, marginBottom: '1.25rem', background: 'var(--surface-container-low)' }}>
             <p style={{ fontSize: '0.82rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>
               Paste your resume bullets. Our AI rewrites them with strong action verbs, quantifiable impact, and keyword
               density tuned for ATS and recruiters. Choose voice coach or text rewrite in the tool below.
@@ -220,7 +220,7 @@ export default async function ResumeRewriterPage() {
           </div>
 
           <div
-            className="stitch-card"
+            className="portal-card portal-card--flat"
             style={{
               padding: '1.75rem',
               borderRadius: 16,
@@ -237,7 +237,7 @@ export default async function ResumeRewriterPage() {
           />
 
           <div
-            className="stitch-card resume-rewriter-knowledge-card"
+            className="portal-card portal-card--flat resume-rewriter-knowledge-card"
             style={{
               borderRadius: 16,
               overflow: 'hidden',

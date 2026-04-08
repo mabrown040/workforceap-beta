@@ -221,12 +221,12 @@ export default function DashboardHomeClient({
                 <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>description</span>
                 <h3 style={{ fontWeight: 700, fontSize: '0.875rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Program Application</h3>
               </div>
-              <div className="stitch-card" style={{ marginBottom: '1rem' }}>
+              <div className="portal-card portal-card--flat portal-card--padded-sm" style={{ marginBottom: '1rem' }}>
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
                   We do not have an application on file for this account yet.
                 </p>
               </div>
-              <Link href="/apply" className="btn btn-primary" style={{ width: '100%', display: 'block', textAlign: 'center', padding: '0.5rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.75rem', fontWeight: 600 }}>
+              <Link href="/apply" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
                 Start your application
               </Link>
             </div>
@@ -275,7 +275,7 @@ export default function DashboardHomeClient({
                   })}
                 </div>
               )}
-              <div className="stitch-card" style={{ marginBottom: '0.75rem' }}>
+              <div className="portal-card portal-card--flat portal-card--padded-sm" style={{ marginBottom: '0.75rem' }}>
                 <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Current status</p>
                 <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{applicationStatus.label}</p>
               </div>
@@ -293,7 +293,7 @@ export default function DashboardHomeClient({
                 <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>neurology</span>
                 <h3 style={{ fontWeight: 700, fontSize: '0.875rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Today</h3>
               </div>
-              <div className="stitch-card">
+              <div className="portal-card portal-card--flat portal-card--padded-sm">
                 <p style={{ fontSize: '0.875rem', fontStyle: 'italic', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
                   {state === 'A' && "Choose a program to get started on your career path. All programs are offered at no cost."}
                   {state === 'B' && `Complete your skills assessment to unlock your ${programTitle} training.`}
@@ -368,7 +368,7 @@ export default function DashboardHomeClient({
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
             {/* Primary Action Card */}
             {state === 'A' && (
-              <div className="stitch-card" style={{ cursor: 'pointer' }}>
+              <div className="portal-card portal-card--flat portal-card--padded" style={{ cursor: 'pointer' }}>
                 <div style={{ height: '12rem', borderRadius: '0.75rem', overflow: 'hidden', marginBottom: '1rem', position: 'relative', background: 'var(--surface-container-highest)' }}>
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--color-background-dark), transparent)', opacity: 0.8 }} />
                   <div style={{ position: 'absolute', bottom: '1rem', left: '1rem' }}>
@@ -379,7 +379,7 @@ export default function DashboardHomeClient({
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: '1rem' }}>
                   Select one of our no-cost career programs. Funding is tied to a single program.
                 </p>
-                <Link href="/dashboard/program" className="btn btn-primary" style={{ display: 'inline-block', padding: '0.5rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.8125rem', fontWeight: 600, textDecoration: 'none' }}
+                <Link href="/dashboard/program" className="btn btn-primary"
                   onClick={() => handleDashboardAction('choose_program_clicked')}>
                   Choose Your Program
                 </Link>
@@ -387,7 +387,7 @@ export default function DashboardHomeClient({
             )}
 
             {state === 'B' && (
-              <div className="stitch-card" style={{ cursor: 'pointer' }}>
+              <div className="portal-card portal-card--flat portal-card--padded" style={{ cursor: 'pointer' }}>
                 <div style={{ height: '12rem', borderRadius: '0.75rem', overflow: 'hidden', marginBottom: '1rem', position: 'relative', background: 'var(--surface-container-highest)' }}>
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--color-background-dark), transparent)', opacity: 0.8 }} />
                   <div style={{ position: 'absolute', bottom: '1rem', left: '1rem' }}>
@@ -398,7 +398,7 @@ export default function DashboardHomeClient({
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: '1rem' }}>
                   A quick assessment tailors your {programTitle} learning path and unlocks role matching.
                 </p>
-                <Link href="/dashboard/assessment" style={{ display: 'inline-block', padding: '0.5rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.8125rem', fontWeight: 600, textDecoration: 'none' }}
+                <Link href="/dashboard/assessment" className="btn btn-primary"
                   onClick={() => handleDashboardAction('assessment_clicked')}>
                   Take Assessment
                 </Link>
@@ -406,7 +406,7 @@ export default function DashboardHomeClient({
             )}
 
             {state === 'C' && nextMilestone && (
-              <div className="stitch-card" style={{ cursor: 'pointer' }}>
+              <div className="portal-card portal-card--flat portal-card--padded" style={{ cursor: 'pointer' }}>
                 <div style={{ height: '12rem', borderRadius: '0.75rem', overflow: 'hidden', marginBottom: '1rem', position: 'relative', background: 'var(--surface-container-highest)' }}>
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--color-background-dark), transparent)', opacity: 0.8 }} />
                   <div style={{ position: 'absolute', bottom: '1rem', left: '1rem' }}>
@@ -417,7 +417,7 @@ export default function DashboardHomeClient({
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: '1rem' }}>
                   {completedCount} of {totalCourses} courses done. Finish training to move toward job-ready.
                 </p>
-                <Link href="/dashboard/training" style={{ display: 'inline-block', padding: '0.5rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.8125rem', fontWeight: 600, textDecoration: 'none' }}
+                <Link href="/dashboard/training" className="btn btn-primary"
                   onClick={() => handleDashboardAction('continue_training_clicked')}>
                   Continue Training
                 </Link>
@@ -425,7 +425,7 @@ export default function DashboardHomeClient({
             )}
 
             {state === 'D' && (
-              <div className="stitch-card" style={{ cursor: 'pointer' }}>
+              <div className="portal-card portal-card--flat portal-card--padded" style={{ cursor: 'pointer' }}>
                 <div style={{ height: '12rem', borderRadius: '0.75rem', overflow: 'hidden', marginBottom: '1rem', position: 'relative', background: 'linear-gradient(135deg, rgba(173,44,77,0.2), var(--surface-container-highest))' }}>
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--color-background-dark), transparent)', opacity: 0.8 }} />
                   <div style={{ position: 'absolute', bottom: '1rem', left: '1rem' }}>
@@ -436,7 +436,7 @@ export default function DashboardHomeClient({
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: '1rem' }}>
                   You've finished {programTitle}. Build readiness and apply for jobs.
                 </p>
-                <Link href="/dashboard/readiness" style={{ display: 'inline-block', padding: '0.5rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.8125rem', fontWeight: 600, textDecoration: 'none' }}
+                <Link href="/dashboard/readiness" className="btn btn-primary"
                   onClick={() => handleDashboardAction('career_readiness_clicked')}>
                   Build Job Readiness
                 </Link>
@@ -445,7 +445,7 @@ export default function DashboardHomeClient({
 
             {/* Secondary Recommended Action Card */}
             {primaryAction && state !== 'A' && (
-              <div className="stitch-card" style={{ cursor: 'pointer' }}>
+              <div className="portal-card portal-card--flat portal-card--padded" style={{ cursor: 'pointer' }}>
                 <div style={{ height: '12rem', borderRadius: '0.75rem', overflow: 'hidden', marginBottom: '1rem', position: 'relative', background: 'var(--surface-container-highest)' }}>
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--color-background-dark), transparent)', opacity: 0.8 }} />
                 </div>
@@ -463,7 +463,7 @@ export default function DashboardHomeClient({
 
             {/* How It Works card for state A */}
             {state === 'A' && (
-              <div className="stitch-card" style={{ cursor: 'pointer' }}>
+              <div className="portal-card portal-card--flat portal-card--padded" style={{ cursor: 'pointer' }}>
                 <div style={{ height: '12rem', borderRadius: '0.75rem', overflow: 'hidden', marginBottom: '1rem', position: 'relative', background: 'var(--surface-container-highest)' }}>
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--color-background-dark), transparent)', opacity: 0.8 }} />
                 </div>
@@ -480,7 +480,7 @@ export default function DashboardHomeClient({
 
             {/* Job search card for state D */}
             {state === 'D' && jobSearchUrl && (
-              <div className="stitch-card" style={{ cursor: 'pointer' }}>
+              <div className="portal-card portal-card--flat portal-card--padded" style={{ cursor: 'pointer' }}>
                 <div style={{ height: '12rem', borderRadius: '0.75rem', overflow: 'hidden', marginBottom: '1rem', position: 'relative', background: 'var(--surface-container-highest)' }}>
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--color-background-dark), transparent)', opacity: 0.8 }} />
                 </div>
@@ -511,7 +511,7 @@ export default function DashboardHomeClient({
             ].map((item) => (
               <Link key={item.href} href={item.href} style={{ textDecoration: 'none', color: 'inherit' }}
                 onClick={() => handleDashboardAction(item.action)}>
-                <div className="stitch-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem' }}>
+                <div className="portal-card portal-card--flat" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-on-surface-variant)' }}>{item.icon}</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <h5 style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{item.label}</h5>
@@ -526,12 +526,12 @@ export default function DashboardHomeClient({
 
         {/* ── Recent Activity (collapsed) ── */}
         {recentActivity.length > 0 && (state === 'C' || state === 'D') && (
-          <section className="stitch-card" style={{ gridColumn: 'span 12' }}>
+          <section className="portal-card portal-card--flat portal-card--padded" style={{ gridColumn: 'span 12' }}>
             <details>
               <summary style={{ cursor: 'pointer', fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>Recent Activity</summary>
               <ul style={{ listStyle: 'none', padding: 0, marginTop: '1rem' }}>
                 {recentActivity.map((a, i) => (
-                  <li key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <li key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', borderBottom: '1px solid color-mix(in srgb, var(--outline-variant) 40%, transparent)', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                     <span>{a.label}</span>
                     <span style={{ opacity: 0.5 }}>{formatPortalDate(a.timestamp)}</span>
                   </li>
@@ -543,7 +543,7 @@ export default function DashboardHomeClient({
 
         {/* ── Onboarding Checklist (collapsed) ── */}
         {!checklistAllDone && (
-          <section className="stitch-card" style={{ gridColumn: 'span 12' }}>
+          <section className="portal-card portal-card--flat portal-card--padded" style={{ gridColumn: 'span 12' }}>
             <details>
               <summary style={{ cursor: 'pointer', fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>Onboarding Checklist</summary>
               <ul style={{ listStyle: 'none', padding: 0, marginTop: '1rem' }}>

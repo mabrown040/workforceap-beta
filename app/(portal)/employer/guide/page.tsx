@@ -109,7 +109,7 @@ export default async function EmployerGuidePage() {
               icon: 'handshake',
             },
           ].map((step, i) => (
-            <div key={step.num} className="stitch-card" style={{ padding: '2rem', position: 'relative', overflow: 'hidden' }}>
+            <div key={step.num} className="portal-card portal-card--flat" style={{ padding: '2rem', position: 'relative', overflow: 'hidden' }}>
               <div style={{ position: 'absolute', top: '1rem', right: '1.25rem', fontSize: '3.5rem', fontWeight: 900, color: 'var(--color-accent)', opacity: 0.06, lineHeight: 1, letterSpacing: '-0.05em', userSelect: 'none' }}>
                 {step.num}
               </div>
@@ -161,7 +161,7 @@ export default async function EmployerGuidePage() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', marginBottom: '3.5rem' }}>
         {/* Candidate differentiators */}
-        <section className="stitch-card" style={{ padding: '2rem' }}>
+        <section className="portal-card portal-card--flat" style={{ padding: '2rem' }}>
           <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>
             What sets WorkforceAP candidates apart
           </h2>
@@ -241,7 +241,7 @@ export default async function EmployerGuidePage() {
         </h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1rem' }}>
           {FAQS.map((faq) => (
-            <div key={faq.q} className="stitch-card" style={{ padding: '1.25rem' }}>
+            <div key={faq.q} className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
               <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem', letterSpacing: '-0.01em' }}>
                 {faq.q}
               </h3>

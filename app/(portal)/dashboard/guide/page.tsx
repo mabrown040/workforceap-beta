@@ -5,6 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import StatusBadge from '@/components/portal/StatusBadge';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Member guide',
@@ -203,30 +204,8 @@ export default async function MemberGuidePage() {
                     }}>
                       Step {step.num}
                     </span>
-                    {isDone && (
-                      <span style={{
-                        fontSize: '0.625rem',
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
-                        color: 'var(--color-green)',
-                        background: 'color-mix(in srgb, var(--color-green) 12%, transparent)',
-                        padding: '0.125rem 0.5rem',
-                        borderRadius: '9999px',
-                      }}>Done</span>
-                    )}
-                    {isActive && (
-                      <span style={{
-                        fontSize: '0.625rem',
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
-                        color: 'var(--color-accent)',
-                        background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
-                        padding: '0.125rem 0.5rem',
-                        borderRadius: '9999px',
-                      }}>Up next</span>
-                    )}
+                    {isDone && <StatusBadge label="Done" variant="success" />}
+                    {isActive && <StatusBadge label="Up next" variant="accent" />}
                   </div>
                   <h3 style={{
                     fontSize: '1rem',

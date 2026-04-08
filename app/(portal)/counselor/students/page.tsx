@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
+import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import StatusBadge from '@/components/portal/StatusBadge';
 
@@ -149,20 +150,13 @@ export default async function CounselorStudentsPage() {
         {/* Student list */}
         <div style={{ padding: '0 1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {assignments.length === 0 ? (
-            <div style={{ borderRadius: '0.75rem', padding: '2.5rem 1.5rem', textAlign: 'center', background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)' }}>
-              <div style={{ width: '3.5rem', height: '3.5rem', borderRadius: '50%', background: 'var(--surface-container-highest)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-on-surface-variant)' }}>person_search</span>
-              </div>
-              <p style={{ fontWeight: 600, color: 'var(--color-on-surface)', marginBottom: '0.5rem', fontSize: '1rem' }}>
-                No students assigned yet
-              </p>
-              <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem', maxWidth: '20rem', margin: '0 auto 1.25rem' }}>
-                Students will appear here once assigned by an administrator.
-              </p>
-              <Link href="/counselor/messages" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
-                Open Messages
-              </Link>
-            </div>
+            <PortalEmptyState
+              title="No students assigned yet"
+              description="Students will appear here once assigned by an administrator."
+              icon={<span className="material-symbols-outlined">person_search</span>}
+              primaryAction={{ label: 'Open Messages', href: '/counselor/messages' }}
+              secondaryAction={{ label: 'Counselor guide', href: '/counselor/guide' }}
+            />
           ) : (
             assignments.map((a) => {
               const initials = getInitials(a.member.fullName ?? 'U');
@@ -190,7 +184,7 @@ export default async function CounselorStudentsPage() {
                       display: 'flex',
                       alignItems: 'center',
                       gap: '0.875rem',
-                      border: '1px solid #ebe7e7',
+                      border: '1px solid var(--outline-variant)',
                     }}
                   >
                     {/* Avatar */}
@@ -199,7 +193,7 @@ export default async function CounselorStudentsPage() {
                         width: 44,
                         height: 44,
                         borderRadius: '0.625rem',
-                        background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent))',
+                        background: 'var(--color-accent)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -275,7 +269,13 @@ export default async function CounselorStudentsPage() {
         <PageHeader title="My students" subtitle="Members assigned to you for coaching and messaging." />
 
         {assignments.length === 0 ? (
-          <p style={{ color: 'var(--color-on-surface-variant)' }}>No assigned students yet.</p>
+          <PortalEmptyState
+            title="No students assigned yet"
+            description="Students will appear here once assigned by an administrator."
+            icon={<span className="material-symbols-outlined">person_search</span>}
+            primaryAction={{ label: 'Open Messages', href: '/counselor/messages' }}
+            secondaryAction={{ label: 'Counselor guide', href: '/counselor/guide' }}
+          />
         ) : (
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.5rem' }}>
             {assignments.map((a) => (

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { Prisma } from '@prisma/client';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
@@ -26,14 +27,28 @@ export default async function AdminPage() {
 
   let totalMembers: number;
   let assessmentsCompleted: number;
-  let recentUsers;
-  let recentPlacements;
+  let recentUsers: Awaited<ReturnType<typeof prisma.user.findMany>>;
+  let recentPlacements: Awaited<ReturnType<typeof prisma.placementRecord.findMany>>;
   let pendingApplications: number;
   let activeInTraining: number;
   let programsCompleted: number;
 
+  function logPrismaReason(label: string, reason: unknown) {
+    const msg = reason instanceof Error ? reason.message : String(reason);
+    const code = reason instanceof Prisma.PrismaClientKnownRequestError ? reason.code : undefined;
+    console.error(`[admin/page] ${label} failed`, code ?? '(no code)', msg);
+  }
+
   try {
-    [totalMembers, assessmentsCompleted, recentUsers, recentPlacements, pendingApplications] = await Promise.all([
+    // Match /admin/members: do not fail the whole dashboard when optional slices fail
+    // (e.g. RLS/role differences on applications or placement_records vs users).
+    const [
+      totalMembersResult,
+      assessmentsCompletedResult,
+      recentUsersResult,
+      recentPlacementsResult,
+      pendingApplicationsResult,
+    ] = await Promise.allSettled([
       prisma.user.count({ where: { deletedAt: null } }),
       prisma.user.count({ where: { assessmentCompleted: true, deletedAt: null } }),
       prisma.user.findMany({
@@ -63,23 +78,69 @@ export default async function AdminPage() {
       prisma.application.count({ where: { status: 'PENDING' } }),
     ]);
 
-    activeInTraining = await prisma.user.count({
-      where: {
-        deletedAt: null,
-        assessmentCompleted: true,
-        enrolledProgram: { not: null },
-      },
-    });
+    if (totalMembersResult.status === 'rejected') {
+      logPrismaReason('totalMembers', totalMembersResult.reason);
+      throw totalMembersResult.reason;
+    }
+    if (assessmentsCompletedResult.status === 'rejected') {
+      logPrismaReason('assessmentsCompleted', assessmentsCompletedResult.reason);
+      throw assessmentsCompletedResult.reason;
+    }
+    if (recentUsersResult.status === 'rejected') {
+      logPrismaReason('recentUsers', recentUsersResult.reason);
+      throw recentUsersResult.reason;
+    }
 
-    programsCompleted = await prisma.user.count({
-      where: {
-        deletedAt: null,
-        assessmentCompleted: true,
-        enrolledProgram: { not: null },
-      },
-    });
+    totalMembers = totalMembersResult.value;
+    assessmentsCompleted = assessmentsCompletedResult.value;
+    recentUsers = recentUsersResult.value;
+
+    if (recentPlacementsResult.status === 'rejected') {
+      logPrismaReason('placementRecord.findMany', recentPlacementsResult.reason);
+      recentPlacements = [];
+    } else {
+      recentPlacements = recentPlacementsResult.value;
+    }
+
+    if (pendingApplicationsResult.status === 'rejected') {
+      logPrismaReason('application.count', pendingApplicationsResult.reason);
+      pendingApplications = 0;
+    } else {
+      pendingApplications = pendingApplicationsResult.value;
+    }
+
+    const [activeResult, programsResult] = await Promise.allSettled([
+      prisma.user.count({
+        where: {
+          deletedAt: null,
+          assessmentCompleted: true,
+          enrolledProgram: { not: null },
+        },
+      }),
+      prisma.user.count({
+        where: {
+          deletedAt: null,
+          assessmentCompleted: true,
+          enrolledProgram: { not: null },
+        },
+      }),
+    ]);
+
+    if (activeResult.status === 'rejected') {
+      logPrismaReason('activeInTraining', activeResult.reason);
+      activeInTraining = 0;
+    } else {
+      activeInTraining = activeResult.value;
+    }
+
+    if (programsResult.status === 'rejected') {
+      logPrismaReason('programsCompleted', programsResult.reason);
+      programsCompleted = 0;
+    } else {
+      programsCompleted = programsResult.value;
+    }
   } catch (e) {
-    console.error('[admin/page] load failed', e);
+    logPrismaReason('critical block', e);
     return (
       <PortalPageFrame>
         <AdminDataLoadError title="Admin overview unavailable" />

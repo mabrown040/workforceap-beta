@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { getProgramBySlug } from '@/lib/content/programs';
 import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
@@ -43,6 +44,7 @@ export default async function CounselorStudentsPage() {
               enrolledProgram: true,
               programInterest: true,
               assessmentScorePct: true,
+              coursesCompleted: true,
             },
           },
         },
@@ -135,6 +137,17 @@ export default async function CounselorStudentsPage() {
             assignments.map((a) => {
               const initials = getInitials(a.member.fullName ?? 'U');
               const program = a.member.enrolledProgram ?? a.member.programInterest ?? '—';
+              const enrolledSlug = a.member.enrolledProgram ?? null;
+              const programMeta = enrolledSlug ? getProgramBySlug(enrolledSlug) : null;
+              const completed = (a.member.coursesCompleted as string[] | null) ?? [];
+              const completedSet = new Set(completed);
+              const totalCourses = programMeta?.courses.length ?? 0;
+              const completedCount =
+                programMeta && totalCourses > 0
+                  ? programMeta.courses.filter((c) => completedSet.has(c.slug)).length
+                  : 0;
+              const trainingProgressPct =
+                programMeta && totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : null;
               const statusBadge = counselorStudentStatusBadge({
                 enrolledProgram: a.member.enrolledProgram,
                 assessmentScorePct: a.member.assessmentScorePct,
@@ -198,29 +211,35 @@ export default async function CounselorStudentsPage() {
                       >
                         {program}
                       </p>
-                      {/* Progress bar placeholder */}
-                      <div
-                        style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-                      >
-                        <div
-                          style={{
-                            flex: 1,
-                            height: 4,
-                            background: 'var(--surface-container)',
-                            borderRadius: '9999px',
-                            overflow: 'hidden',
-                          }}
-                        >
+                      {trainingProgressPct === null ? (
+                        <p style={{ margin: 0, fontSize: '11px', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
+                          {enrolledSlug ? 'Training progress unavailable' : 'Not enrolled'}
+                        </p>
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                           <div
                             style={{
-                              height: '100%',
-                              width: a.member.enrolledProgram ? '50%' : '10%',
-                              background: 'var(--color-accent)',
+                              flex: 1,
+                              height: 4,
+                              background: 'var(--surface-container)',
                               borderRadius: '9999px',
+                              overflow: 'hidden',
                             }}
-                          />
+                          >
+                            <div
+                              style={{
+                                height: '100%',
+                                width: `${trainingProgressPct}%`,
+                                background: 'var(--color-accent)',
+                                borderRadius: '9999px',
+                              }}
+                            />
+                          </div>
+                          <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
+                            {trainingProgressPct}%
+                          </span>
                         </div>
-                      </div>
+                      )}
                     </div>
 
                     {/* Status + chevron */}

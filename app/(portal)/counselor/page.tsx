@@ -13,6 +13,7 @@ import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import PortalStatCard from '@/components/portal/PortalStatCard';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { getTimeOfDayGreeting } from '@/lib/time/greeting';
+import { getProgramBySlug } from '@/lib/content/programs';
 
 export default async function CounselorPortalPage() {
   const user = await getUser();
@@ -43,6 +44,7 @@ export default async function CounselorPortalPage() {
               programInterest: true,
               enrolledProgram: true,
               assessmentScorePct: true,
+              coursesCompleted: true,
             },
           },
         },
@@ -150,9 +152,17 @@ export default async function CounselorPortalPage() {
             ) : (
               assignments.map((a) => {
                 const prog = a.member.enrolledProgram ?? a.member.programInterest ?? 'Unknown Program';
-                const isEnrolled = !!a.member.enrolledProgram;
-                const hasInterest = !!a.member.programInterest;
-                const progressPct = isEnrolled ? 100 : hasInterest ? 50 : 0;
+                const enrolledSlug = a.member.enrolledProgram ?? null;
+                const program = enrolledSlug ? getProgramBySlug(enrolledSlug) : null;
+                const completed = (a.member.coursesCompleted as string[] | null) ?? [];
+                const completedSet = new Set(completed);
+                const totalCourses = program?.courses.length ?? 0;
+                const completedCount =
+                  program && totalCourses > 0
+                    ? program.courses.filter((c) => completedSet.has(c.slug)).length
+                    : 0;
+                const trainingProgressPct =
+                  program && totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : null;
                 const rosterBadge = counselorStudentStatusBadge({
                   enrolledProgram: a.member.enrolledProgram,
                   assessmentScorePct: a.member.assessmentScorePct,
@@ -171,12 +181,18 @@ export default async function CounselorPortalPage() {
                     <div style={{ flex:1, minWidth:0 }}>
                       <h4 className="wa-font-bold text-on-surface wa-text-base wa-truncate">{a.member.fullName}</h4>
                       <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider wa-truncate" style={{marginBottom:"0.25rem", color: 'var(--color-accent)'}}>{prog}</p>
-                      <div style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
-                        <div className="bg-surface-container" style={{ flex:1, height:"0.25rem", borderRadius:"9999px", overflow:"hidden" }}>
-                          <div style={{height:"100%", borderRadius:"9999px", width: `${progressPct}%`, background: 'var(--color-accent)'}} />
+                      {trainingProgressPct === null ? (
+                        <p className="wa-text-[11px] wa-font-semibold text-on-surface-variant" style={{ margin: 0 }}>
+                          {enrolledSlug ? 'Training progress unavailable' : 'Not enrolled'}
+                        </p>
+                      ) : (
+                        <div style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
+                          <div className="bg-surface-container" style={{ flex:1, height:"0.25rem", borderRadius:"9999px", overflow:"hidden" }}>
+                            <div style={{height:"100%", borderRadius:"9999px", width: `${trainingProgressPct}%`, background: 'var(--color-accent)'}} />
+                          </div>
+                          <span className="wa-text-[11px] wa-font-bold text-on-surface-variant">{trainingProgressPct}%</span>
                         </div>
-                        <span className="wa-text-[11px] wa-font-bold text-on-surface-variant">{progressPct}%</span>
-                      </div>
+                      )}
                     </div>
                     <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:"0.5rem" }}>
                       <StatusBadge label={statusLabel} variant={badgeVariant} />

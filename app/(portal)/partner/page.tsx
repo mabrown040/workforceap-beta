@@ -29,6 +29,7 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 const JOURNEY_STAGES = ['applied', 'enrolled', 'in_training', 'certified', 'placed'] as const;
+const ACTIVE_STAGES = ['applied', 'enrolled', 'in_training', 'certified'] as const;
 
 export default async function PartnerDashboardPage() {
   const user = await getUser();
@@ -124,9 +125,21 @@ export default async function PartnerDashboardPage() {
   const referralLinkUsagePct =
     total > 0 ? Math.min(100, Math.round((referredMembersAppliedViaLink / total) * 100)) : 0;
 
-  // Members currently in training. Previously mislabeled as "Needs Review" /
-  // "pending milestones" — the system has no milestone approval workflow yet.
-  // TODO: When a real milestone approval model exists, count actual pending items here.
+  // "Active members" = referred members currently in an active stage (not placed / not closed).
+  const activeMembersCount = pipelineMembers.filter((p) =>
+    (ACTIVE_STAGES as readonly string[]).includes(p.stage)
+  ).length;
+
+  // "Needs review" = a real, reviewable outreach queue based on current signals:
+  // - early stages (applied/enrolled): likely need follow-up to move forward
+  // - stalled training: in_training but progress still near-zero
+  const needsReviewMembers = pipelineMembers.filter((p) => {
+    if (p.stage === 'applied' || p.stage === 'enrolled') return true;
+    if (p.stage === 'in_training' && (p.progress ?? 0) < 10) return true;
+    return false;
+  });
+  const needsReviewCount = needsReviewMembers.length;
+
   const inTrainingCount = stageCounts['in_training'] ?? 0;
 
   // Recent members for mobile (top 4)
@@ -180,8 +193,8 @@ export default async function PartnerDashboardPage() {
         {/* Active Members */}
         <div style={{ background: '#fff', borderRadius: '0.875rem', padding: '1rem', border: '1px solid #ebe7e7', borderLeft: '4px solid #8c0f37' }}>
           <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Active Members</p>
-          <p className="wa-text-3xl wa-font-black" style={{ color: 'var(--color-accent)', lineHeight: 1 }}>{total}</p>
-          <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Referred to date</p>
+          <p className="wa-text-3xl wa-font-black" style={{ color: 'var(--color-accent)', lineHeight: 1 }}>{activeMembersCount}</p>
+          <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>In progress</p>
         </div>
         {/* Placements */}
         <div style={{ background: '#fff', borderRadius: '0.875rem', padding: '1rem', border: '1px solid #ebe7e7' }}>
@@ -195,11 +208,11 @@ export default async function PartnerDashboardPage() {
           <p className="wa-text-3xl wa-font-black" style={{ color: 'var(--color-gold)', lineHeight: 1 }}>{completions}</p>
           <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Earned by members</p>
         </div>
-        {/* In Training */}
+        {/* Needs Review */}
         <div style={{ background: '#fff', borderRadius: '0.875rem', padding: '1rem', border: '1px solid #ebe7e7', borderLeft: '4px solid #8c0f37' }}>
-          <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ color: 'var(--color-accent)', marginBottom: '0.25rem' }}>In Training</p>
-          <p className="wa-text-3xl wa-font-black" style={{ color: 'var(--color-accent)', lineHeight: 1 }}>{inTrainingCount}</p>
-          <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Active learners</p>
+          <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ color: 'var(--color-accent)', marginBottom: '0.25rem' }}>Needs Review</p>
+          <p className="wa-text-3xl wa-font-black" style={{ color: 'var(--color-accent)', lineHeight: 1 }}>{needsReviewCount}</p>
+          <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Applied/enrolled or stalled</p>
         </div>
       </div>
 
@@ -273,7 +286,7 @@ export default async function PartnerDashboardPage() {
           <Link href="/partner/milestones" className="active:scale-[0.98] wa-transition-all" style={{ background: '#fff', border: '1px solid #ebe7e7', borderRadius: '0.875rem', padding: '0.875rem 1rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }}>flag</span>
             <div style={{ flex: 1 }}>
-              <p className="wa-text-sm wa-font-semibold" style={{ color: 'var(--color-on-surface)', margin: 0 }}>Review Milestones</p>
+              <p className="wa-text-sm wa-font-semibold" style={{ color: 'var(--color-on-surface)', margin: 0 }}>Milestones & Updates</p>
               <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>{inTrainingCount} currently in training</p>
             </div>
             <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem' }}>arrow_forward_ios</span>

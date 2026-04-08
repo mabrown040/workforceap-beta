@@ -14,7 +14,22 @@ function memberFirstName(fullName: string): string {
 }
 
 /**
+ * Milestone → Partner notification preference mapping.
+ *
+ * INVARIANT: Every PartnerMilestone type must map to exactly one Partner boolean
+ * preference field. If a new milestone is added, add it here or it will default
+ * to sending (fail-open for backwards compat).
+ */
+const MILESTONE_PREF_KEY: Record<PartnerMilestone, string> = {
+  'Program enrollment': 'notifyOnEnrollment',
+  'Course completed': 'notifyOnCourse',
+  'Certification earned': 'notifyOnCertified',
+  'Job placement': 'notifyOnPlaced',
+};
+
+/**
  * Notifies the referring partner (via PartnerReferral) when a member hits a milestone.
+ * Respects Partner.notifyOn* preferences — skips email when the partner has opted out.
  * No-ops when there is no referral, no contact email, or Resend is not configured.
  */
 export async function sendPartnerMilestoneEmail(
@@ -25,13 +40,28 @@ export async function sendPartnerMilestoneEmail(
   const referral = await prisma.partnerReferral.findFirst({
     where: { memberId },
     include: {
-      partner: { select: { contactEmail: true, name: true } },
+      partner: {
+        select: {
+          contactEmail: true,
+          name: true,
+          notifyOnEnrollment: true,
+          notifyOnCourse: true,
+          notifyOnCertified: true,
+          notifyOnPlaced: true,
+        },
+      },
       member: { select: { fullName: true } },
     },
   });
 
   if (!referral) return;
   if (!referral.partner.contactEmail?.trim()) return;
+
+  // Respect partner notification preferences
+  const prefKey = MILESTONE_PREF_KEY[milestone];
+  if (prefKey && (referral.partner as Record<string, unknown>)[prefKey] === false) {
+    return;
+  }
 
   const resendKey = process.env.RESEND_API_KEY;
   const emailFrom = process.env.EMAIL_FROM || 'noreply@workforceap.org';

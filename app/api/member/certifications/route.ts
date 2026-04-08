@@ -4,6 +4,7 @@ import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
+import { trackEvent } from '@/lib/events/track';
 
 const toggleSchema = z.object({
   certName: z.string().min(1).max(200),
@@ -62,6 +63,14 @@ export async function POST(request: Request) {
       update: {},
     });
     if (!existing) {
+      // Lifecycle event: certification_earned
+      trackEvent({
+        userId: user.id,
+        eventName: 'certification_earned',
+        entityType: 'UserCertification',
+        metadata: { certName },
+      }).catch(() => {});
+
       sendPartnerMilestoneEmail(user.id, 'Certification earned', {
         Certification: certName,
       }).catch((err) => console.error('Partner milestone email failed:', err));

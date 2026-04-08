@@ -137,6 +137,7 @@ export async function POST(request: Request) {
 
   try {
     await prisma.$transaction(async (tx) => {
+      const enrolledAt = new Date();
       await tx.user.create({
         data: {
           id: authUser.id,
@@ -145,7 +146,20 @@ export async function POST(request: Request) {
           fullName,
           phone: phone || null,
           enrolledProgram: programSlug,
-          enrolledAt: new Date(),
+          enrolledAt,
+        },
+      });
+
+      // INVARIANT: CourseEnrollment must stay in sync with User.enrolledProgram.
+      // The member self-enrollment flow (POST /api/member/enroll) does this in a
+      // transaction. Admin creation must do the same.
+      await tx.courseEnrollment.create({
+        data: {
+          organizationId,
+          userId: authUser.id,
+          programSlug,
+          enrolledAt,
+          enrolledByAdminId: user.id,
         },
       });
 

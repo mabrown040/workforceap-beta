@@ -38,6 +38,8 @@ async function bootstrapVercelShareCookie(page: Page): Promise<void> {
   if (!shareUrl) return;
   // Visiting the share URL sets an auth cookie for protected previews.
   await page.goto(shareUrl, { waitUntil: 'domcontentloaded' });
+  // Then navigate within the same origin so subsequent relative page.goto('/login') stays on the app.
+  await page.goto('/login', { waitUntil: 'domcontentloaded' });
 }
 
 /** Real login against deployed site (prod/staging). Never commit values — set in shell or CI secrets. */

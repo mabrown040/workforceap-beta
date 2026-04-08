@@ -171,6 +171,109 @@ This document maps **where state mutates**, **what side effects run**, and **whe
 
 ---
 
-## 6. Validation note
+## 6. DB: migrations, queries, index gaps
 
-This memo was built by **reading** the referenced files and `prisma/schema.prisma` in-repo. Re-run grep for `enrolledProgram`, `courseEnrollment`, `trackEvent`, `sendPartner`, `recordPartnerWorkflowEvent`, and `placementRecord` / `placedOutcome` when behavior changes.
+**Migrations:** `prisma/migrations/` holds **65** SQL migrations (incremental portal/partner/employer/WIOA/messaging changes). Production DDL truth = applied migration history + `schema.prisma`.
+
+**Query / index risks (verified patterns):**
+
+- **`MemberEvent` groupBy crons** — `app/api/cron/weekly-recap-email/route.ts`, `inactive-nudge/route.ts`, and `automations/route.ts` call `prisma.memberEvent.groupBy({ by: ['userId'], _max: { createdAt: true } })` **without a time bound**, so work scales with **table size**. Schema has separate indexes on `userId`, `eventName`, and `createdAt` (`prisma/schema.prisma` `MemberEvent`), but **no composite** `(user_id, created_at)` optimized for “last event per user”.
+- **At-risk counting** — After groupBy, code filters users in JS and runs another `user.count` — fine at small scale; under load, consider **SQL-side** aggregates or materialized “last activity” per user.
+- **Partner digest** — `partner-outcome-digest` loops partners and loads referrals with nested member data — typical N+1 pattern; monitor as referral volume grows.
+
+**Recommendation:** Run `EXPLAIN ANALYZE` on production-like data for `member_events` groupBy before adding indexes; composite index on `(user_id, created_at DESC)` is a common fix if the planner scans heavily.
+
+---
+
+## 7. Notifications: sends, recipients, prefs, duplicate logic
+
+**Send surfaces:**
+
+- **`lib/email.ts`** — Member and admin transactional mail (recap, nudge, applications, jobs, invites, etc.).
+- **`lib/notifications/partner-notify.ts`** — `sendPartnerMilestoneEmail`, `sendPartnerNewMemberAssignedEmail` (partner contact email from `Partner`, not per–partner-user).
+
+**Preference enforcement:**
+
+| Pref | Where stored | Enforced by |
+|------|----------------|-------------|
+| `User.notificationsUpdates` | DB | `GET /api/cron/weekly-recap` |
+| `User.notificationsReminders` | DB | `inactive-nudge`, `automations` |
+| `Partner.notifyOn*` | DB | **Not** enforced for milestone emails; **partial** on `partner-outcome-digest` (`notifyOnEnrollment` only in query) |
+
+**Duplicate / brittle logic:**
+
+- **`inactive-nudge` vs `automations`** — Same implementation pattern; only `inactive-nudge` is scheduled in `vercel.json`.
+- **Partner milestone** — One function for all milestone types; prefs not branched; no idempotency token in code.
+- **`applicant-followup`** — No member opt-out check.
+
+---
+
+## 8. Events: mutations → emit gaps (matrix)
+
+| Mutation area | `MemberEvent` (`trackEvent` / `POST /api/events`) | `PortalWorkflowEvent` |
+|---------------|--------------------------------------------------|-------------------------|
+| Apply signup | Yes (`apply_signup_completed`) | No |
+| Admin member create | No | No |
+| Self-serve enroll | No | No |
+| Admin program patch | No | No |
+| Program change approved | No | No |
+| Invite accept (member program) | No | No |
+| Course complete | No | No |
+| Certification earned | No | No |
+| `PlacementRecord` upsert | No | No |
+| `PlacedOutcome` upsert | No | No |
+| Admin partner referral assign | No | No |
+| Partner referral owner assign | Via partner API | Yes (`referral_assign`) |
+| Employer job / application updates | Some `trackEvent` on employer routes | Yes (employer workflow helpers) |
+
+**Note:** Client `postMemberEvent` covers **UI** actions (dashboard, admin review), not full server lifecycle coverage.
+
+---
+
+## 9. Tests: coverage on lifecycle paths
+
+**Unit tests** (`**/*.test.ts`, not e2e): ~20 files under `lib/`, `emails/` — strong on **pure helpers** (auth, member status, employer matching, email HTML). **No** dedicated tests for `app/api/member/enroll`, `courses/complete`, `certifications`, `admin/placements`, or crons.
+
+**E2E** (`tests/e2e/*.spec.ts`): Portal smoke, auth, signup, employer/partner auth, revenue flows — **navigation / smoke**, not lifecycle invariants or email side effects.
+
+**Gap:** No regression tests for **User ↔ CourseEnrollment** consistency or **partner notify** flags.
+
+---
+
+## 10. Portal UI: screens → backend dependencies
+
+| Route group | Representative pages | Primary reads / writes |
+|-------------|----------------------|-------------------------|
+| `app/(portal)/dashboard/**` | `page.tsx`, `program`, `learning`, `profile`, `weekly-recap` | `User` (enrollment, prefs), program catalog, `WeeklyRecap`, client `postMemberEvent` |
+| `app/(portal)/partner/**` | `page`, `referred-members`, `outcomes`, `attention`, `milestones` | `PartnerReferral` bundle, `PlacementRecord`, `memberEvent` lists, `portalWorkflowEvent` on attention |
+| `app/(portal)/employer/**` | `page`, `jobs`, `applications`, `pipeline` | `Job`, `AIJobMatch`, `JobPostingApplication`, employer APIs |
+| `app/(portal)/counselor/**` | `page`, `students`, `messages` | `CounselorAssignment`, member fields on `User` |
+
+**Surfacing risk:** Member/partner UIs overwhelmingly reflect **`User`** + **`PlacementRecord`**. Anything written only to **`CourseEnrollment`** or **`PlacedOutcome`** may **not** match what members and partners see.
+
+---
+
+## 11. Automations: jobs and hook model
+
+**Scheduled jobs (`vercel.json`):** `weekly-recap` (Sun 18:00 UTC), `inactive-nudge` (daily 10:00 UTC), `applicant-followup` (daily 11:00 UTC), `weekly-recap-email` (Fri 22:00 UTC), `partner-outcome-digest` (Mon 13:00 UTC). All require `Authorization: Bearer ${CRON_SECRET}`.
+
+**Hook model today:** **Inline** — HTTP handlers and crons call Prisma + Resend + `trackEvent` directly. **No** queue, **no** outbox table, **no** unified “domain event” emitter for lifecycle.
+
+**Evolution:** See §4 — domain services + optional outbox for retries, deduplication, and webhook fan-out.
+
+---
+
+## 12. Claude / implementer handoff notes
+
+1. **Enrollment:** Any new write to `User.enrolledProgram` must be evaluated against **`CourseEnrollment`** (upsert or intentional omission).
+2. **Placement:** Clarify **`PlacementRecord`** (partner pipeline) vs **`PlacedOutcome`** (grant form) before automating “placement” notifications or metrics.
+3. **Partner email:** Wire **`Partner.notifyOn*`** into `sendPartnerMilestoneEmail` (or per-milestone helpers) before trusting UI toggles (when editing becomes available).
+4. **MemberEvent:** Either emit events for enroll/complete/cert or **stop** using unbounded `groupBy` for “activity” — prefer **derived last-activity** from source tables or add **composite DB index** after profiling.
+5. **Cron duplication:** Remove or alias `app/api/cron/automations` vs `inactive-nudge` to avoid drift.
+6. **Tests:** Add **API-level** tests for program-change approval and placement creation **before** refactors that touch those paths.
+
+---
+
+## 13. Validation note
+
+This memo was built by **reading** the referenced files and `prisma/schema.prisma` in-repo. Re-run grep for `enrolledProgram`, `courseEnrollment`, `trackEvent`, `sendPartner`, `recordPartnerWorkflowEvent`, and `placementRecord` / `placedOutcome` when behavior changes. For DB performance claims, validate with `EXPLAIN ANALYZE` on target environments.

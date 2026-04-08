@@ -324,12 +324,22 @@ html.dark .portal-kpi-card {
 .portal-card__inner {
     padding: 1.25rem;
 }
+.portal-card__body {
+    padding: 1.25rem;
+    color: var(--color-on-surface);
+}
 .portal-card__header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 1rem;
     margin-bottom: 0.85rem;
+}
+.portal-card__headings {
+    min-width: 0;
+}
+.portal-card__action {
+    flex-shrink: 0;
 }
 .portal-card__title {
     margin: 0;

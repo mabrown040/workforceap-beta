@@ -13,6 +13,12 @@ const bodySchema = z.object({
   placedAt: z.string().datetime().optional(),
   programSlug: z.string().max(120).optional().nullable(),
   notes: z.string().max(8000).optional().nullable(),
+  // WIOA / grant-reporting fields (all optional)
+  wageAtFollowUp: z.number().int().min(0).optional().nullable(),
+  retentionStatus: z.string().max(60).optional().nullable(),
+  startDateVerified: z.boolean().optional(),
+  fundingSource: z.string().max(120).optional().nullable(),
+  grantReportingNotes: z.string().max(8000).optional().nullable(),
 });
 
 type Props = { params: Promise<{ id: string }> };
@@ -59,7 +65,7 @@ export async function POST(request: NextRequest, { params }: Props) {
 
   const prior = await prisma.placementRecord.findUnique({ where: { userId: memberId } });
 
-  // Write to canonical PlacementRecord
+  // Write to canonical PlacementRecord (includes WIOA fields)
   const placement = await prisma.placementRecord.upsert({
     where: { userId: memberId },
     create: {
@@ -71,6 +77,11 @@ export async function POST(request: NextRequest, { params }: Props) {
       placedBy: user.id,
       programSlug,
       notes: d.notes?.trim() || null,
+      wageAtFollowUp: d.wageAtFollowUp ?? null,
+      retentionStatus: d.retentionStatus?.trim() || null,
+      startDateVerified: d.startDateVerified ?? false,
+      fundingSource: d.fundingSource?.trim() || null,
+      grantReportingNotes: d.grantReportingNotes?.trim() || null,
     },
     update: {
       employerName: d.employerName,
@@ -79,6 +90,11 @@ export async function POST(request: NextRequest, { params }: Props) {
       placedAt,
       programSlug,
       notes: d.notes?.trim() || null,
+      wageAtFollowUp: d.wageAtFollowUp ?? null,
+      retentionStatus: d.retentionStatus?.trim() || null,
+      startDateVerified: d.startDateVerified ?? false,
+      fundingSource: d.fundingSource?.trim() || null,
+      grantReportingNotes: d.grantReportingNotes?.trim() || null,
     },
   });
 
@@ -138,6 +154,11 @@ export async function POST(request: NextRequest, { params }: Props) {
       placedAt: placement.placedAt.toISOString(),
       programSlug: placement.programSlug,
       notes: placement.notes,
+      wageAtFollowUp: placement.wageAtFollowUp,
+      retentionStatus: placement.retentionStatus,
+      startDateVerified: placement.startDateVerified,
+      fundingSource: placement.fundingSource,
+      grantReportingNotes: placement.grantReportingNotes,
     },
   });
 }

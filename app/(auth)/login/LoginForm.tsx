@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 
 /* ─── portal destination data (unchanged business logic) ─── */
@@ -276,11 +275,14 @@ const s = {
   } as React.CSSProperties,
 } as const;
 
-export default function LoginForm() {
+type LoginFormProps = {
+  initialRedirectTo?: string;
+};
+
+export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFormProps) {
   /* ─── business logic (preserved exactly) ─── */
-  const searchParams = useSearchParams();
-  const redirectParam = searchParams.get('redirectTo');
-  const redirectTo = sanitizeRedirectPath(redirectParam, '/dashboard');
+  const redirectTo = sanitizeRedirectPath(initialRedirectTo, '/dashboard');
+  const redirectParam = initialRedirectTo;
 
   const destinationActive = (target: string) => {
     if (target === '/dashboard') {

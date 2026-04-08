@@ -180,7 +180,7 @@ export default async function CounselorStudentsPage() {
                       display: 'flex',
                       alignItems: 'center',
                       gap: '0.875rem',
-                      border: '1px solid #ebe7e7',
+                      border: '1px solid var(--outline-variant)',
                     }}
                   >
                     {/* Avatar */}
@@ -189,7 +189,7 @@ export default async function CounselorStudentsPage() {
                         width: 44,
                         height: 44,
                         borderRadius: '0.625rem',
-                        background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent))',
+                        background: 'var(--color-accent)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',

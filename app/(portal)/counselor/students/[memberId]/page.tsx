@@ -9,6 +9,8 @@ import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messag
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { counselorStudentStatusBadge } from '@/lib/counselor/memberStatus';
 import StatusBadge from '@/components/portal/StatusBadge';
+import { getProgramBySlug } from '@/lib/content/programs';
+import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import CounselorNotesPanel from './CounselorNotesPanel';
 import StaffMemberResumePanel from '@/components/counselor/StaffMemberResumePanel';
 import WioaScreeningReadonly from '@/components/admin/WioaScreeningReadonly';
@@ -51,6 +53,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
       enrolledProgram: true,
       programInterest: true,
       assessmentScorePct: true,
+      coursesCompleted: true,
       wioaQualificationJson: true,
       wioaReviewStatus: true,
       wioaReviewedAt: true,
@@ -93,6 +96,14 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
     enrolledProgram: member.enrolledProgram,
     assessmentScorePct: member.assessmentScorePct,
   });
+
+  // Program progress — real data from enrolled program courses
+  const programMeta = member.enrolledProgram ? getProgramBySlug(member.enrolledProgram) : null;
+  const programCourses = programMeta?.courses ?? [];
+  const completedSlugs = new Set(parseCourseSlugList(member.coursesCompleted));
+  const progressPct = programCourses.length > 0
+    ? Math.round((programCourses.filter((c) => completedSlugs.has(c.slug)).length / programCourses.length) * 100)
+    : 0;
 
   const hasResumeFiles =
     !!(member.profile?.resumeOriginalPath || member.profile?.resumeEnhancedPath);
@@ -139,7 +150,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               background: '#fff',
               borderRadius: '1rem',
               padding: '1.25rem',
-              border: '1px solid #ebe7e7',
+              border: '1px solid var(--outline-variant)',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
@@ -149,7 +160,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                   width: 56,
                   height: 56,
                   borderRadius: '0.875rem',
-                  background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent))',
+                  background: 'var(--color-accent)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -182,46 +193,16 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
             <div style={{ display: 'flex', gap: '0.625rem' }}>
               <Link
                 href="/counselor/messages"
-                style={{
-                  flex: 1,
-                  padding: '0.625rem 0',
-                  background: 'var(--surface-container)',
-                  border: 'none',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  color: 'var(--color-on-surface)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.375rem',
-                  textDecoration: 'none',
-                }}
+                className="btn btn-outline"
+                style={{ flex: 1, fontSize: '0.8rem' }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
-                  chat
-                </span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>chat</span>
                 Message
               </Link>
               <button
                 disabled
-                style={{
-                  flex: 1,
-                  padding: '0.625rem 0',
-                  background: 'var(--color-accent)',
-                  border: 'none',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  color: '#fff',
-                  cursor: 'not-allowed',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.375rem',
-                  opacity: 0.5,
-                }}
+                className="btn btn-primary"
+                style={{ flex: 1, fontSize: '0.8rem', opacity: 0.5, cursor: 'not-allowed' }}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
                   event
@@ -239,71 +220,57 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               background: '#fff',
               borderRadius: '0.75rem',
               padding: '1.25rem',
-              border: '1px solid #ebe7e7',
+              border: '1px solid var(--outline-variant)',
             }}
           >
             <h3 style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)', margin: '0 0 1rem' }}>
               Program Progress
             </h3>
-            {/* Overall progress bar */}
-            <div style={{ marginBottom: '1rem' }}>
-              <div
-                style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.375rem' }}
-              >
-                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
-                  Overall Completion
-                </span>
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)' }}>68%</span>
-              </div>
-              <div
-                style={{
-                  height: 6,
-                  background: 'var(--surface-container)',
-                  borderRadius: '9999px',
-                  overflow: 'hidden',
-                }}
-              >
-                <div
-                  style={{
-                    height: '100%',
-                    width: '68%',
-                    background: 'linear-gradient(90deg,#8c0f37,#ad2c4d)',
-                    borderRadius: '9999px',
-                  }}
-                />
-              </div>
-            </div>
-            {/* Module list */}
-            {[
-              { name: 'Module 1: Introduction', done: true },
-              { name: 'Module 2: Core Skills', done: true },
-              { name: 'Module 3: Applied Practice', done: false, inProgress: true },
-              { name: 'Module 4: Capstone', done: false },
-            ].map((mod) => (
-              <div
-                key={mod.name}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  fontSize: '0.8rem',
-                  padding: '0.375rem 0',
-                  borderTop: '1px solid #f0edec',
-                  opacity: mod.done || mod.inProgress ? 1 : 0.5,
-                }}
-              >
-                <span style={{ color: 'var(--color-on-surface-variant)' }}>{mod.name}</span>
-                {mod.done ? (
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#166534' }}>
-                    check_circle
-                  </span>
-                ) : mod.inProgress ? (
-                  <StatusBadge label="In Progress" variant="warning" />
-                ) : (
-                  <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>Not started</span>
-                )}
-              </div>
-            ))}
+            {programCourses.length === 0 ? (
+              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                {member.enrolledProgram ? 'No course data available for this program.' : 'Not enrolled in a program yet.'}
+              </p>
+            ) : (
+              <>
+                {/* Overall progress bar */}
+                <div style={{ marginBottom: '1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.375rem' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
+                      Overall Completion
+                    </span>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)' }}>{progressPct}%</span>
+                  </div>
+                  <div style={{ height: 6, background: 'var(--surface-container)', borderRadius: '9999px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${progressPct}%`, background: 'var(--color-accent)', borderRadius: '9999px' }} />
+                  </div>
+                </div>
+                {/* Course list */}
+                {programCourses.map((course) => {
+                  const done = completedSlugs.has(course.slug);
+                  return (
+                    <div
+                      key={course.slug}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        fontSize: '0.8rem',
+                        padding: '0.375rem 0',
+                        borderTop: '1px solid var(--outline-variant)',
+                        opacity: done ? 1 : 0.6,
+                      }}
+                    >
+                      <span style={{ color: 'var(--color-on-surface-variant)' }}>{course.name}</span>
+                      {done ? (
+                        <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#166534' }}>check_circle</span>
+                      ) : (
+                        <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>Not started</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </>
+            )}
           </div>
         </div>
 
@@ -331,7 +298,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 background: '#fff',
                 borderRadius: '0.75rem',
                 padding: '1.25rem',
-                border: '1px solid #ebe7e7',
+                border: '1px solid var(--outline-variant)',
               }}
             >
               <h3 style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-on-surface)', margin: '0 0 1rem' }}>

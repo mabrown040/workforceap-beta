@@ -5,6 +5,8 @@ import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import MentorStatusButtons from '@/components/admin/MentorStatusButtons';
+import PageHeader from '@/components/portal/PageHeader';
+import PortalCard from '@/components/portal/ui/PortalCard';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin – Mentors',
@@ -31,40 +33,45 @@ export default async function AdminMentorsPage() {
   });
 
   return (
-    <main style={{ padding: '1.5rem', maxWidth: '90rem', margin: '0 auto' }}>
-      <h1 style={{ fontSize: '1.9rem', fontWeight: 700, marginBottom: '0.35rem' }}>Mentor management</h1>
-      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', maxWidth: '48rem', lineHeight: 1.5 }}>
-        Approve new mentor applications, or deactivate access. Approved mentors receive an email when{' '}
-        <code style={{ fontSize: '0.85em' }}>RESEND_API_KEY</code> is configured.
-      </p>
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '52rem' }}>
+    <div className="portal-pad-x" style={{ paddingTop: '1.5rem', paddingBottom: '1.5rem', maxWidth: '90rem', margin: '0 auto' }}>
+      <PageHeader
+        title="Mentor management"
+        subtitle="Approve mentor applications, or deactivate access. Approved mentors receive an email when RESEND_API_KEY is configured."
+        breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Mentors' }]}
+      />
+
+      <PortalCard className="portal-card--flat">
+        <div style={{ overflowX: 'auto' }}>
+          <table className="admin-table admin-table--sticky-first" style={{ minWidth: '52rem' }}>
           <thead>
-            <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border-subtle)' }}>
-              <th style={{ padding: '0.65rem 0.5rem' }}>Name</th>
-              <th style={{ padding: '0.65rem 0.5rem' }}>Company</th>
-              <th style={{ padding: '0.65rem 0.5rem' }}>Industry</th>
-              <th style={{ padding: '0.65rem 0.5rem' }}>Status</th>
-              <th style={{ padding: '0.65rem 0.5rem' }}>Applied Date</th>
-              <th style={{ padding: '0.65rem 0.5rem' }}>Actions</th>
+            <tr>
+              <th>Name</th>
+              <th>Company</th>
+              <th>Industry</th>
+              <th>Status</th>
+              <th>Applied Date</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {mentors.map((mentor) => (
-              <tr key={mentor.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                <td style={{ padding: '0.7rem 0.5rem' }}>{mentor.fullName}</td>
-                <td style={{ padding: '0.7rem 0.5rem' }}>{mentor.company}</td>
-                <td style={{ padding: '0.7rem 0.5rem' }}>{mentor.industry}</td>
-                <td style={{ padding: '0.7rem 0.5rem' }}>{mentor.approvedAt ? (mentor.isActive ? 'Approved' : 'Deactivated') : 'Pending'}</td>
-                <td style={{ padding: '0.7rem 0.5rem' }}>{mentor.createdAt.toLocaleDateString()}</td>
-                <td style={{ padding: '0.7rem 0.5rem' }}>
+              <tr key={mentor.id}>
+                <td>{mentor.fullName}</td>
+                <td>{mentor.company}</td>
+                <td>{mentor.industry}</td>
+                <td>
+                  {mentor.approvedAt ? (mentor.isActive ? 'Approved' : 'Deactivated') : 'Pending'}
+                </td>
+                <td>{mentor.createdAt.toLocaleDateString()}</td>
+                <td>
                   <MentorStatusButtons mentorId={mentor.id} approvedAt={mentor.approvedAt} isActive={mentor.isActive} />
                 </td>
               </tr>
             ))}
           </tbody>
-        </table>
-      </div>
-    </main>
+          </table>
+        </div>
+      </PortalCard>
+    </div>
   );
 }

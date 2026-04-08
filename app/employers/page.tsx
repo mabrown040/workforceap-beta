@@ -271,7 +271,7 @@ export default function EmployersPage() {
             { stat: '90%', label: 'Retention Rate' },
             { stat: '$0', label: 'Upfront Cost to You' },
           ].map((item) => (
-            <div key={item.label} className="stitch-card" style={{ padding: '2rem' }}>
+            <div key={item.label} className="portal-card portal-card--flat" style={{ padding: '2rem' }}>
               <div style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-accent)', lineHeight: 1 }}>{item.stat}</div>
               <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>{item.label}</div>
             </div>
@@ -301,7 +301,7 @@ export default function EmployersPage() {
 
       {/* ===== Employer Testimonial ===== */}
       <section style={{ padding: 'clamp(2rem, 4vw, 4rem) clamp(1rem, 4vw, 2rem)', maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
-        <div className="stitch-card" style={{ padding: '2.5rem', background: 'var(--surface-container-low)' }}>
+        <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', background: 'var(--surface-container-low)' }}>
           <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '1rem', display: 'block' }}>format_quote</span>
           <blockquote style={{ fontSize: '1.1rem', lineHeight: 1.7, fontStyle: 'italic', color: 'var(--color-on-surface)', marginBottom: '1rem' }}>
             &ldquo;WorkforceAP connected us with three candidates who were immediately productive. The quality of preparation was unlike anything we&apos;ve seen from traditional staffing.&rdquo;

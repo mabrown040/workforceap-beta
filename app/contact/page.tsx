@@ -45,7 +45,7 @@ export default function ContactPage() {
           <div className="editorial-grid" style={{ gap: '3rem' }}>
             {/* Contact Form Section (Left 7 Columns) */}
             <div style={{ gridColumn: 'span 12' }} className="lg-col-span-7">
-              <div className="stitch-card" style={{ padding: '2.5rem' }}>
+              <div className="portal-card portal-card--flat" style={{ padding: '2.5rem' }}>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '2rem', color: 'var(--color-on-surface)' }}>
                   Send Us a Message
                 </h2>
@@ -57,7 +57,7 @@ export default function ContactPage() {
             <div style={{ gridColumn: 'span 12' }} className="lg-col-span-5">
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 {/* Location Card */}
-                <div className="stitch-card-elevated" style={{ padding: '2rem', display: 'flex', alignItems: 'flex-start', gap: '1.5rem' }}>
+                <div className="portal-card portal-card--elevated" style={{ padding: '2rem', display: 'flex', alignItems: 'flex-start', gap: '1.5rem' }}>
                   <div style={{ background: 'rgba(173,44,77,0.1)', padding: '0.75rem', borderRadius: 'var(--radius-lg)', color: 'var(--color-accent)', flexShrink: 0 }}>
                     <span className="material-symbols-outlined">location_on</span>
                   </div>
@@ -71,7 +71,7 @@ export default function ContactPage() {
                 </div>
 
                 {/* Email Card */}
-                <div className="stitch-card-elevated" style={{ padding: '2rem', display: 'flex', alignItems: 'flex-start', gap: '1.5rem' }}>
+                <div className="portal-card portal-card--elevated" style={{ padding: '2rem', display: 'flex', alignItems: 'flex-start', gap: '1.5rem' }}>
                   <div style={{ background: 'rgba(173,44,77,0.1)', padding: '0.75rem', borderRadius: 'var(--radius-lg)', color: 'var(--color-accent)', flexShrink: 0 }}>
                     <span className="material-symbols-outlined">alternate_email</span>
                   </div>
@@ -84,7 +84,7 @@ export default function ContactPage() {
                 </div>
 
                 {/* Phone Card */}
-                <div className="stitch-card-elevated" style={{ padding: '2rem', display: 'flex', alignItems: 'flex-start', gap: '1.5rem' }}>
+                <div className="portal-card portal-card--elevated" style={{ padding: '2rem', display: 'flex', alignItems: 'flex-start', gap: '1.5rem' }}>
                   <div style={{ background: 'rgba(173,44,77,0.1)', padding: '0.75rem', borderRadius: 'var(--radius-lg)', color: 'var(--color-accent)', flexShrink: 0 }}>
                     <span className="material-symbols-outlined">call</span>
                   </div>

@@ -172,7 +172,7 @@ export default async function HowItWorksPage() {
                   return (
                     <div
                       key={step.num}
-                      className="stitch-card"
+                      className="portal-card portal-card--flat"
                       style={{
                         padding: '1.5rem',
                         ...(isHighlight ? { borderLeft: `4px solid var(--color-accent)` } : {}),
@@ -228,7 +228,7 @@ export default async function HowItWorksPage() {
           <div className="editorial-grid" style={{ gap: '1.5rem' }}>
             {/* Loaner Laptop */}
             <div style={{ gridColumn: 'span 12' }} className="hiw-benefit-wide">
-              <div className="stitch-card-elevated" style={{ padding: '3rem', position: 'relative', overflow: 'hidden' }}>
+              <div className="portal-card portal-card--elevated" style={{ padding: '3rem', position: 'relative', overflow: 'hidden' }}>
                 <div style={{ maxWidth: '60%' }}>
                   <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>Loaner Laptop Program</h2>
                   <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '2rem', lineHeight: 1.7 }}>
@@ -275,7 +275,7 @@ export default async function HowItWorksPage() {
 
             {/* Career Training Benefits */}
             <div style={{ gridColumn: 'span 12' }}>
-              <div className="stitch-card" style={{ padding: '3rem' }}>
+              <div className="portal-card portal-card--flat" style={{ padding: '3rem' }}>
                 <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '2rem' }}>Career Training Benefits</h2>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '2rem' }}>
                   {[

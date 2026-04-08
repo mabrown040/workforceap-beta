@@ -187,17 +187,6 @@
 .bg-surface-container-high { background: var(--surface-container-high); }
 .bg-surface-container-highest { background: var(--surface-container-highest); }
 
-/* Stitch Card — no borders, tonal layering only */
-.stitch-card {
-    background: var(--surface-container);
-    border-radius: var(--radius-xl);
-    padding: var(--space-6);
-    transition: background-color var(--transition-base);
-}
-.stitch-card:hover {
-    background: var(--surface-container-high);
-}
-
 /* Portal layout utilities (uniform, Apple-like spacing) */
 .portal-pad {
     padding-left: 1.5rem;
@@ -222,12 +211,6 @@
     text-transform: uppercase;
     color: var(--color-on-surface-variant);
 }
-.stitch-card-elevated {
-    background: var(--surface-container-high);
-    border-radius: var(--radius-xl);
-    padding: var(--space-6);
-}
-
 /* Member dashboard bento — consistent rhythm, collapses on small screens */
 .portal-bento-grid {
     display: grid;
@@ -332,7 +315,7 @@ html.dark .portal-kpi-card {
 .portal-card--flat {
     box-shadow: none;
 }
-/* Standalone padding when not using PortalCard header/body slots (replaces stitch-card padding) */
+/* Standalone padding when not using PortalCard header/body slots */
 .portal-card--padded {
     padding: 1.5rem;
 }
@@ -15056,7 +15039,7 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
     min-height: 4rem;
 }
 
-/* Messaging polish — aligns with VoiceAgentSurface / stitch-card language */
+/* Messaging polish — aligns with VoiceAgentSurface / portal surfaces */
 .member-counselor-chat__scroll {
     border: 1px solid color-mix(in srgb, var(--color-accent, #8c0f37) 12%, var(--outline-variant, #e8e0dd));
     background: linear-gradient(

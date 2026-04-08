@@ -267,7 +267,7 @@ export default async function AdminPage() {
             <Link
               key={card.label}
               href={card.href}
-              className="stitch-card admin-metric-card"
+              className="portal-card portal-card--flat admin-metric-card"
               style={{
                 padding: '1.25rem',
                 transition: 'transform 0.15s, box-shadow 0.2s',
@@ -432,7 +432,7 @@ export default async function AdminPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
           {/* At a Glance */}
-          <div className="stitch-card" style={{ padding: '1.5rem' }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1.5rem' }}>
             <h3 className="portal-section-title" style={{ marginBottom: '1.5rem' }}>
               At a Glance
             </h3>
@@ -471,7 +471,7 @@ export default async function AdminPage() {
           </div>
 
           {/* Recent Activity */}
-          <div className="stitch-card-elevated" style={{ padding: '1.5rem' }}>
+          <div className="portal-card portal-card--elevated" style={{ padding: '1.5rem' }}>
             <h3 className="portal-section-heading" style={{ marginBottom: '1.5rem' }}>Recent Activity</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative', paddingLeft: '2.5rem' }}>
               <div style={{ position: 'absolute', left: '0.75rem', top: '2.5rem', bottom: 0, width: '1px', background: 'rgba(226,226,229,0.1)' }} />

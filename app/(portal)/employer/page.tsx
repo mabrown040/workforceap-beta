@@ -191,19 +191,6 @@ export default async function EmployerDashboardPage() {
             {totalApplications > 0 ? `${totalApplications} candidate${totalApplications !== 1 ? 's' : ''} waiting` : 'Your talent pipeline'}
           </h2>
         </div>
-        <div style={{ marginLeft: '1.5rem', marginRight: '1.5rem', marginBottom: '1rem' }}>
-          <VoiceAgentSurface {...employerVoiceSurface}>
-            <PortalVoiceSession
-              sessionEndpoint="/api/employer/voice-session"
-              title="Employer voice assistant"
-              description="Ask about posting roles, reviewing applicants, or navigating the employer portal."
-              accent="#4f46e5"
-              accentDark="#4338ca"
-              speakingLabel="Assistant is speaking…"
-              listeningLabel="Listening — ask your question"
-            />
-          </VoiceAgentSurface>
-        </div>
         {/* Stats row - horizontal scroll */}
         <div style={{ display:"flex", gap:"0.75rem", overflowX:"auto", scrollbarWidth:"none", paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingBottom:"0.5rem" }}>
           {[
@@ -233,6 +220,19 @@ export default async function EmployerDashboardPage() {
               {i < arr.length - 1 && <div className="bg-outline-variant/30" style={{ width: '1px', height:"1.25rem" }} />}
             </div>
           ))}
+        </div>
+        <div style={{ marginLeft: '1.5rem', marginRight: '1.5rem', marginTop: '1rem' }}>
+          <VoiceAgentSurface {...employerVoiceSurface}>
+            <PortalVoiceSession
+              sessionEndpoint="/api/employer/voice-session"
+              title="Employer voice assistant"
+              description="Ask about posting roles, reviewing applicants, or navigating the employer portal."
+              accent="#4f46e5"
+              accentDark="#4338ca"
+              speakingLabel="Assistant is speaking…"
+              listeningLabel="Listening — ask your question"
+            />
+          </VoiceAgentSurface>
         </div>
         {/* Quick actions — Review Apps is primary when candidates exist */}
         <div style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginTop:"1rem", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"0.75rem" }}>

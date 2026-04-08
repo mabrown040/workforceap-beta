@@ -202,6 +202,10 @@
     padding-left: 1.5rem;
     padding-right: 1.5rem;
 }
+.portal-pad-x {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
 .portal-stack {
     display: flex;
     flex-direction: column;

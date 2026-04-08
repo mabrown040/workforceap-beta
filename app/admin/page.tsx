@@ -137,12 +137,14 @@ export default async function AdminPage() {
           enrolledProgram: { not: null },
         },
       }),
-      prisma.user.count({
+      // programsCompleted: count members who completed ALL courses in their program.
+      // Can't filter JSON array length in Prisma, so fetch and count in JS.
+      prisma.user.findMany({
         where: {
           deletedAt: null,
-          assessmentCompleted: true,
           enrolledProgram: { not: null },
         },
+        select: { enrolledProgram: true, coursesCompleted: true },
       }),
     ]);
 
@@ -157,7 +159,13 @@ export default async function AdminPage() {
       logPrismaReason('programsCompleted', programsResult.reason);
       programsCompleted = 0;
     } else {
-      programsCompleted = programsResult.value;
+      // Count members whose coursesCompleted covers all courses in their program.
+      programsCompleted = programsResult.value.filter((u) => {
+        const program = u.enrolledProgram ? getProgramBySlug(u.enrolledProgram) : null;
+        if (!program || program.courses.length === 0) return false;
+        const completed = (u.coursesCompleted as string[] | null) ?? [];
+        return program.courses.every((c) => completed.includes(c.slug));
+      }).length;
     }
   } catch (e) {
     logPrismaReason('critical block', e);

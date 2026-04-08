@@ -102,35 +102,9 @@ export default async function CounselorStudentsPage() {
           ))}
         </div>
 
-        {/* Filter chips */}
-        <div
-          style={{
-            display: 'flex', flexWrap: 'wrap',
-            gap: '0.625rem',
-            padding: '1rem 1rem 0',
-            scrollbarWidth: 'none',
-          }}
-        >
-          {['All', 'At Risk', 'Upcoming Session'].map((chip, i) => (
-            <button
-              key={chip}
-              style={{
-                flexShrink: 0,
-                padding: '0.375rem 1rem',
-                borderRadius: '9999px',
-                border: 'none',
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                letterSpacing: '0.04em',
-                cursor: 'pointer',
-                background: i === 0 ? 'var(--color-accent)' : 'var(--outline-variant)',
-                color: i === 0 ? '#fff' : 'var(--color-on-surface)',
-              }}
-            >
-              {chip}
-            </button>
-          ))}
-        </div>
+        {/* TODO: Add real filter chips (At Risk, Upcoming Session) when
+             student list is converted to a client component with filter state.
+             Removed non-functional decorative chips that looked clickable. */}
 
         {/* Header */}
         <div

@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { PATHWAYS } from '@/lib/content/learningPathways';
+import { PATHWAYS, getPathwayForProgram } from '@/lib/content/learningPathways';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { buildPathwayMilestones } from '@/lib/content/pathwayStepDisplay';
 import PageHeader from '@/components/portal/PageHeader';
@@ -34,8 +34,6 @@ export default async function LearningPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/learning');
 
-  const ACTIVE_PATHWAY = PATHWAYS[0];
-
   const [allProgress, dbUser] = await Promise.all([
     prisma.pathwayStepProgress.findMany({
       where: { userId: user.id },
@@ -47,6 +45,9 @@ export default async function LearningPage() {
   ]);
   const isEnrolled = !!dbUser?.enrolledProgram;
   const enrolledProgram = dbUser?.enrolledProgram ?? null;
+  // Use the member's enrolled program to determine their pathway.
+  // Previously hardcoded to PATHWAYS[0] — all members saw IT Support.
+  const ACTIVE_PATHWAY = getPathwayForProgram(enrolledProgram);
   const programMeta = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
   const coursesForMember = programMeta?.courses ?? [];
   const coursesCompletedSlugs = parseCourseSlugList(dbUser?.coursesCompleted);

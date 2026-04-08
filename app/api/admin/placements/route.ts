@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
     eventName: 'placement_recorded',
     entityType: 'PlacementRecord',
     entityId: placement.id,
-    metadata: { employerName, jobTitle, isNew: !prior, daysToPlacement },
+    metadata: { employerName, jobTitle, isNew: !prior, isEdit: !!prior, daysToPlacement },
   }).catch(() => {});
 
   if (!prior) {

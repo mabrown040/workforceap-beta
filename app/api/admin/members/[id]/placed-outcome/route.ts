@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { trackEvent } from '@/lib/events/track';
+import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 
 const bodySchema = z.object({
   employerName: z.string().min(1).max(300).trim(),
@@ -15,6 +17,17 @@ const bodySchema = z.object({
 
 type Props = { params: Promise<{ id: string }> };
 
+/**
+ * POST /api/admin/members/[id]/placed-outcome
+ *
+ * Unified placement write — updates PlacementRecord (canonical) AND
+ * PlacedOutcome (legacy, kept in sync during migration period).
+ *
+ * INVARIANT: PlacementRecord is the single source of truth for placements.
+ * This route writes to both models to avoid breaking any surface that still
+ * reads PlacedOutcome. Once PlacedOutcome is fully retired, remove the
+ * legacy upsert below.
+ */
 export async function POST(request: NextRequest, { params }: Props) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -24,7 +37,7 @@ export async function POST(request: NextRequest, { params }: Props) {
 
   const member = await prisma.user.findFirst({
     where: { id: memberId, deletedAt: null },
-    select: { id: true },
+    select: { id: true, enrolledProgram: true },
   });
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
@@ -42,8 +55,36 @@ export async function POST(request: NextRequest, { params }: Props) {
 
   const d = parsed.data;
   const placedAt = d.placedAt ? new Date(d.placedAt) : new Date();
+  const programSlug = d.programSlug?.trim() || member.enrolledProgram || null;
 
-  const row = await prisma.placedOutcome.upsert({
+  const prior = await prisma.placementRecord.findUnique({ where: { userId: memberId } });
+
+  // Write to canonical PlacementRecord
+  const placement = await prisma.placementRecord.upsert({
+    where: { userId: memberId },
+    create: {
+      userId: memberId,
+      employerName: d.employerName,
+      jobTitle: d.jobTitle,
+      salaryOffered: d.startingSalary ?? null,
+      placedAt,
+      placedBy: user.id,
+      programSlug,
+      notes: d.notes?.trim() || null,
+    },
+    update: {
+      employerName: d.employerName,
+      jobTitle: d.jobTitle,
+      salaryOffered: d.startingSalary ?? null,
+      placedAt,
+      programSlug,
+      notes: d.notes?.trim() || null,
+    },
+  });
+
+  // Keep legacy PlacedOutcome in sync during migration period.
+  // TODO: Remove once PlacedOutcome is fully retired.
+  await prisma.placedOutcome.upsert({
     where: { userId: memberId },
     create: {
       userId: memberId,
@@ -51,7 +92,7 @@ export async function POST(request: NextRequest, { params }: Props) {
       jobTitle: d.jobTitle,
       startingSalary: d.startingSalary ?? null,
       placedAt,
-      programSlug: d.programSlug?.trim() || null,
+      programSlug,
       notes: d.notes?.trim() || null,
     },
     update: {
@@ -59,21 +100,44 @@ export async function POST(request: NextRequest, { params }: Props) {
       jobTitle: d.jobTitle,
       startingSalary: d.startingSalary ?? null,
       placedAt,
-      programSlug: d.programSlug?.trim() || null,
+      programSlug,
       notes: d.notes?.trim() || null,
     },
   });
 
+  // Lifecycle event: placement edits create new events for audit trail.
+  trackEvent({
+    userId: memberId,
+    eventName: 'placement_recorded',
+    entityType: 'PlacementRecord',
+    entityId: placement.id,
+    metadata: {
+      employerName: d.employerName,
+      jobTitle: d.jobTitle,
+      isNew: !prior,
+      isEdit: !!prior,
+      recordedBy: user.id,
+    },
+  }).catch(() => {});
+
+  // Partner milestone email on first placement only
+  if (!prior) {
+    sendPartnerMilestoneEmail(memberId, 'Job placement', {
+      Employer: d.employerName,
+      Role: d.jobTitle,
+    }).catch((err) => console.error('Partner milestone email failed:', err));
+  }
+
   return NextResponse.json({
     ok: true,
     placedOutcome: {
-      id: row.id,
-      employerName: row.employerName,
-      jobTitle: row.jobTitle,
-      startingSalary: row.startingSalary,
-      placedAt: row.placedAt.toISOString(),
-      programSlug: row.programSlug,
-      notes: row.notes,
+      id: placement.id,
+      employerName: placement.employerName,
+      jobTitle: placement.jobTitle,
+      startingSalary: placement.salaryOffered,
+      placedAt: placement.placedAt.toISOString(),
+      programSlug: placement.programSlug,
+      notes: placement.notes,
     },
   });
 }

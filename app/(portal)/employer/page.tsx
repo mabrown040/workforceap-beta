@@ -16,6 +16,10 @@ import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { employerVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import StatusBadge from '@/components/portal/StatusBadge';
+import {
+  employerJobPostingApplicationStatusBadgeVariant,
+  employerJobPostingApplicationStatusLabel,
+} from '@/lib/employer/jobPostingApplicationStatus';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Employer overview',
@@ -292,8 +296,8 @@ export default async function EmployerDashboardPage() {
                     </div>
                     <p className="wa-text-xs wa-text-[#7b5800] wa-font-semibold wa-uppercase wa-tracking-wider wa-truncate" style={{ marginBottom:"0.25rem" }}>{app.job.title}</p>
                     <StatusBadge
-                      label={app.status}
-                      variant={app.status === 'pending' ? 'accent' : app.status === 'hired' ? 'success' : 'warning'}
+                      label={employerJobPostingApplicationStatusLabel(app.status)}
+                      variant={employerJobPostingApplicationStatusBadgeVariant(app.status)}
                     />
                   </div>
                 </Link>

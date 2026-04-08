@@ -2,6 +2,8 @@
 
 import { useState, useCallback } from 'react';
 import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
+import StatusBadge from '@/components/portal/StatusBadge';
+import { employerAiMatchStatusBadgeVariant, employerMatchPipelineLabel } from '@/lib/employer/aiMatchPipelineLabels';
 
 type MatchRow = {
   id: string;
@@ -69,7 +71,10 @@ export default function EmployerPipelineClient({
               </div>
             </div>
             <div className="employer-pipeline-match-actions">
-              <span className="employer-pipeline-status">{m.status.replace(/_/g, ' ')}</span>
+              <StatusBadge
+                label={employerMatchPipelineLabel(m.status)}
+                variant={employerAiMatchStatusBadgeVariant(m.status)}
+              />
               <select
                 value={m.status}
                 disabled={busy === m.student.id}

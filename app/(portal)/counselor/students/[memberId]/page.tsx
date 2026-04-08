@@ -7,8 +7,9 @@ import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounse
 import Link from 'next/link';
 import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import { counselorStudentStatusBadge } from '@/lib/counselor/memberStatus';
+import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
 import CounselorNotesPanel from './CounselorNotesPanel';
+import StatusBadge from '@/components/portal/StatusBadge';
 import StaffMemberResumePanel from '@/components/counselor/StaffMemberResumePanel';
 import WioaScreeningReadonly from '@/components/admin/WioaScreeningReadonly';
 import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
@@ -92,6 +93,10 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
     enrolledProgram: member.enrolledProgram,
     assessmentScorePct: member.assessmentScorePct,
   });
+  const enrollmentBadgeVariant = counselorStudentStatusBadgeVariant({
+    enrolledProgram: member.enrolledProgram,
+    assessmentScorePct: member.assessmentScorePct,
+  });
 
   const hasResumeFiles =
     !!(member.profile?.resumeOriginalPath || member.profile?.resumeEnhancedPath);
@@ -170,20 +175,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 >
                   {program}
                 </p>
-                <span
-                  style={{
-                    padding: '0.125rem 0.625rem',
-                    borderRadius: '9999px',
-                    background: enrollmentBadge.style.background,
-                    color: enrollmentBadge.style.color,
-                    fontSize: '9px',
-                    fontWeight: 700,
-                    textTransform: 'uppercase' as const,
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  {enrollmentBadge.label}
-                </span>
+                <StatusBadge label={enrollmentBadge.label} variant={enrollmentBadgeVariant} />
               </div>
             </div>
 

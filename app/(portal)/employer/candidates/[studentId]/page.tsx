@@ -8,6 +8,12 @@ import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
+import StatusBadge from '@/components/portal/StatusBadge';
+import { employerAiMatchStatusBadgeVariant, employerMatchPipelineLabel } from '@/lib/employer/aiMatchPipelineLabels';
+import {
+  employerJobPostingApplicationStatusBadgeVariant,
+  employerJobPostingApplicationStatusLabel,
+} from '@/lib/employer/jobPostingApplicationStatus';
 
 export async function generateMetadata({
   params,
@@ -105,8 +111,12 @@ export default async function EmployerCandidateProfilePage({
                   <li key={m.id} style={{ marginBottom: '0.35rem' }}>
                     <span style={{ fontWeight: 600 }}>{m.job.title}</span>
                     {' · '}
-                    <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>
-                      {matchScoreAsPercent(m.matchScore)}% match · {m.status.replace(/_/g, ' ')}
+                    <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.35rem' }}>
+                      <span>{matchScoreAsPercent(m.matchScore)}% match</span>
+                      <StatusBadge
+                        label={employerMatchPipelineLabel(m.status)}
+                        variant={employerAiMatchStatusBadgeVariant(m.status)}
+                      />
                     </span>
                     {highlightJobId === m.jobId ? (
                       <span style={{ marginLeft: '0.35rem', fontSize: '0.7rem', color: 'var(--color-accent)', fontWeight: 700 }}>(selected)</span>
@@ -126,7 +136,10 @@ export default async function EmployerCandidateProfilePage({
                       {a.job.title}
                     </Link>
                     {' · '}
-                    <span style={{ textTransform: 'capitalize' }}>{a.status}</span>
+                    <StatusBadge
+                      label={employerJobPostingApplicationStatusLabel(a.status)}
+                      variant={employerJobPostingApplicationStatusBadgeVariant(a.status)}
+                    />
                   </li>
                 ))}
               </ul>
@@ -203,7 +216,11 @@ export default async function EmployerCandidateProfilePage({
                       {m.job.title}
                     </Link>
                     {' — '}
-                    {matchScoreAsPercent(m.matchScore)}% · {m.status.replace(/_/g, ' ')}
+                    {matchScoreAsPercent(m.matchScore)}% ·{' '}
+                    <StatusBadge
+                      label={employerMatchPipelineLabel(m.status)}
+                      variant={employerAiMatchStatusBadgeVariant(m.status)}
+                    />
                   </li>
                 ))}
               </ul>
@@ -219,7 +236,10 @@ export default async function EmployerCandidateProfilePage({
                       {a.job.title}
                     </Link>
                     {' — '}
-                    <span style={{ textTransform: 'capitalize' }}>{a.status}</span>
+                    <StatusBadge
+                      label={employerJobPostingApplicationStatusLabel(a.status)}
+                      variant={employerJobPostingApplicationStatusBadgeVariant(a.status)}
+                    />
                   </li>
                 ))}
               </ul>

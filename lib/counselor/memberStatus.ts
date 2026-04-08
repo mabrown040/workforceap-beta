@@ -1,3 +1,5 @@
+import type { BadgeVariant } from '@/components/portal/StatusBadge';
+
 type StatusStyle = { background: string; color: string };
 
 /** Counselor roster / student header: enrolled in a program ⇒ on track; otherwise at risk. */
@@ -30,4 +32,17 @@ export function counselorStudentStatusBadge(member: {
     return { label: 'On Track', style: { background: '#dcfce7', color: '#166534' } };
   }
   return { label: 'Needs focus', style: { background: '#fef3c7', color: '#92400e' } };
+}
+
+/** Same rules as {@link counselorStudentStatusBadge}, for shared StatusBadge variants. */
+export function counselorStudentStatusBadgeVariant(member: {
+  enrolledProgram: string | null;
+  assessmentScorePct: number | null;
+}): BadgeVariant {
+  const enrolled = !!member.enrolledProgram;
+  if (!enrolled) return 'error';
+  const r = member.assessmentScorePct;
+  if (r == null) return 'success';
+  if (r >= 55) return 'success';
+  return 'warning';
 }

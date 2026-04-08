@@ -71,8 +71,8 @@ export default async function AdminWioaScreeningQueuePage({ searchParams }: Page
     console.error('[admin/wioa-screening] failed to load queue', error);
     const message = error instanceof Error ? error.message : String(error ?? '');
     const looksLikeSchemaDrift =
-      error instanceof Prisma.PrismaClientKnownRequestError ||
-      error instanceof Prisma.PrismaClientUnknownRequestError ||
+      (error instanceof Prisma.PrismaClientKnownRequestError ||
+        error instanceof Prisma.PrismaClientUnknownRequestError) &&
       /wioa_qualification_json|wioa_review_status|wioa_reviewed_at/i.test(message);
 
     if (looksLikeSchemaDrift) {

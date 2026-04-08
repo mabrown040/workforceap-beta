@@ -30,10 +30,10 @@ export default async function WioaQualificationPage() {
     console.error('[member/wioa-qualification] failed to load qualification snapshot', error);
     const message = error instanceof Error ? error.message : String(error ?? '');
     const looksLikeSchemaDrift =
-      error instanceof Prisma.PrismaClientKnownRequestError ||
-      error instanceof Prisma.PrismaClientUnknownRequestError ||
-      /column .*wioa_qualification_json.* does not exist/i.test(message) ||
-      /wioa_qualification_json/i.test(message);
+      (error instanceof Prisma.PrismaClientKnownRequestError ||
+        error instanceof Prisma.PrismaClientUnknownRequestError) &&
+      (/column .*wioa_qualification_json.* does not exist/i.test(message) ||
+        /wioa_qualification_json/i.test(message));
 
     if (looksLikeSchemaDrift) {
       return (

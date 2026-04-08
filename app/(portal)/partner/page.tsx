@@ -191,10 +191,10 @@ export default async function PartnerDashboardPage() {
 
       {/* 2×2 KPI Grid */}
       <div className="portal-kpi-grid portal-pad-x" style={{ paddingTop: '1rem', paddingBottom: '1rem' }}>
-        <PortalKpiCard accent label="Active Members" value={activeMembersCount} sub="In progress" />
-        <PortalKpiCard label="Placements" value={placements} sub="Verified hires" tone="neutral" />
-        <PortalKpiCard label="Certificates" value={completions} sub="Earned by members" tone="gold" />
-        <PortalKpiCard accent label="Needs Review" value={needsReviewCount} sub="Applied/enrolled or stalled" />
+        <PortalKpiCard accent="accent" label="Active Members" value={activeMembersCount} hint="In progress" />
+        <PortalKpiCard accent="neutral" label="Placements" value={placements} hint="Verified hires" />
+        <PortalKpiCard accent="gold" label="Certificates" value={completions} hint="Earned by members" />
+        <PortalKpiCard accent="accent" label="Needs Review" value={needsReviewCount} hint="Applied/enrolled or stalled" />
       </div>
 
       {/* Next Step Guidance */}

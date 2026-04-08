@@ -461,25 +461,100 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </div>
         </section>
 
-        {/* Recommended programs — horizontal scroll cards */}
-        <section style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
-          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", padding:"0 1.5rem" }}>
-            <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">Recommended Programs</h3>
-            <a href="/programs" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>View All</a>
-          </div>
-          <div style={{ display:"flex", gap:"1rem", overflowX:"auto", padding:"0 1.5rem 0.5rem", scrollbarWidth:"none", msOverflowStyle:"none" }}>
-            {PROGRAMS.slice(0, 3).map((prog, i) => (
-              <div key={i} style={{ minWidth:"220px", borderRadius:"0.75rem", overflow:"hidden", display:"flex", flexDirection:"column", boxShadow:"0 1px 3px rgba(0,0,0,0.08)", flexShrink:0, background:"var(--surface-container)" }}>
-                <div style={{ height:"7rem", position:"relative", background: `linear-gradient(135deg, ${prog.categoryColor} 0%, var(--surface-container-highest) 100%)` }}>
+        {/* Recommended programs (only when not enrolled) OR “keep going” actions (when enrolled) */}
+        {!enrolledProgram ? (
+          <section style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", padding:"0 1.5rem" }}>
+              <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">Recommended Programs</h3>
+              <a href="/programs" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>View All</a>
+            </div>
+            <div style={{ display:"flex", gap:"1rem", overflowX:"auto", padding:"0 1.5rem 0.5rem", scrollbarWidth:"none", msOverflowStyle:"none" }}>
+              {PROGRAMS.slice(0, 3).map((prog, i) => (
+                <div
+                  key={i}
+                  className="portal-card portal-card--flat"
+                  style={{
+                    minWidth:"220px",
+                    overflow:"hidden",
+                    flexShrink:0,
+                    background:"var(--surface-container-lowest)",
+                    borderRadius:"0.75rem",
+                  }}
+                >
+                  <div style={{ height:"7rem", position:"relative", background: `linear-gradient(135deg, ${prog.categoryColor} 0%, var(--surface-container-highest) 100%)` }} />
+                  <div style={{ padding:"1rem", display:"flex", flexDirection:"column", gap:"0.25rem" }}>
+                    <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-widest" style={{ color: 'var(--color-gold)' }}>{prog.partner || 'WorkforceAP'}</p>
+                    <h4 className="wa-font-bold wa-text-sm wa-text-[var(--color-on-surface)] wa-leading-tight">{prog.title}</h4>
+                  </div>
                 </div>
-                <div style={{ padding:"1rem", display:"flex", flexDirection:"column", gap:"0.25rem" }}>
-                  <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-widest" style={{ color: 'var(--color-gold)' }}>{prog.partner || 'WorkforceAP'}</p>
-                  <h4 className="wa-font-bold wa-text-sm wa-text-[var(--color-on-surface)] wa-leading-tight">{prog.title}</h4>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
+        ) : (
+          <section style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", padding:"0 1.5rem" }}>
+              <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">
+                Next milestones
+              </h3>
+              <a href="/dashboard/training" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>
+                Training
+              </a>
+            </div>
+            <div style={{ display:"flex", gap:"0.75rem", overflowX:"auto", padding:"0 1.5rem 0.5rem", scrollbarWidth:"none", msOverflowStyle:"none" }}>
+              {[
+                {
+                  eyebrow: program?.title ?? 'Your program',
+                  title: nextIncompleteCourse?.name ? `Continue: ${nextIncompleteCourse.name}` : 'Continue your training',
+                  desc: nextIncompleteCourse?.name ? 'Pick up where you left off.' : 'Open your training track and keep progressing.',
+                  href: '/dashboard/training',
+                  icon: 'school',
+                },
+                {
+                  eyebrow: 'Career Tools',
+                  title: 'Practice interview answers',
+                  desc: 'Build confidence for recruiter screens and counselor interviews.',
+                  href: '/dashboard/ai-tools/interview-practice',
+                  icon: 'record_voice_over',
+                },
+                {
+                  eyebrow: 'Connect',
+                  title: 'Browse job board',
+                  desc: 'Explore roles that fit your program and interests.',
+                  href: '/dashboard/jobs',
+                  icon: 'work',
+                },
+              ].map((card) => (
+                <a
+                  key={card.href}
+                  href={card.href}
+                  className="wa-no-underline active:scale-[0.98] wa-transition-transform"
+                  style={{ minWidth:"240px", flexShrink:0 }}
+                >
+                  <div className="portal-card portal-card--flat" style={{ borderRadius:"0.75rem" }}>
+                    <div className="portal-card__body" style={{ padding:"1rem" }}>
+                      <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:"0.75rem" }}>
+                        <div style={{ minWidth:0 }}>
+                          <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-widest" style={{ color:'var(--color-on-surface-variant)', margin:0 }}>
+                            {card.eyebrow}
+                          </p>
+                          <p className="wa-text-sm wa-font-bold wa-tracking-tight" style={{ color:'var(--color-on-surface)', margin:"0.35rem 0 0" }}>
+                            {card.title}
+                          </p>
+                        </div>
+                        <span className="material-symbols-outlined" style={{ color:'var(--color-accent)', fontSize:"1.1rem", flexShrink:0 }}>
+                          {card.icon}
+                        </span>
+                      </div>
+                      <p className="wa-text-xs" style={{ color:'var(--color-on-surface-variant)', margin:"0.5rem 0 0", lineHeight:1.4 }}>
+                        {card.desc}
+                      </p>
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Quick Actions 2x2 grid */}
         <section style={{ padding:"0 1.5rem", marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>

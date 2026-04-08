@@ -241,35 +241,32 @@ export default function DashboardHomeClient({
       )}
 
       {/* ── Bento Grid ── */}
-      <div className="portal-bento-grid" style={{ padding: '0 2rem' }}>
+      <div className="portal-bento-grid">
 
         {/* ── Main Progress Card ── */}
         {(state === 'B' || state === 'C' || state === 'D') && programTitle && (
-          <section className="portal-card portal-card--flat" style={{ gridColumn: 'span 7' }}>
+          <section className="portal-card portal-card--flat" style={{ gridColumn: 'span 8' }}>
             <div className="portal-card__body">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', gap: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem', gap: '1rem' }}>
                 <div style={{ minWidth: 0 }}>
-                  <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem' }}>
-                    {state === 'D' ? 'Program Complete' : 'Current Milestone'}
-                  </p>
-                  <h2 style={{ fontSize: '1.375rem', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '0.25rem', color: 'var(--color-on-surface)', lineHeight: 1.2 }}>
-                    {state === 'D' ? programTitle : (nextMilestone ?? programTitle)}
+                  <h2 style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '0.35rem', color: 'var(--color-on-surface)' }}>
+                    {state === 'D' ? 'Program Complete' : `Current Milestone: ${nextMilestone ?? programTitle}`}
                   </h2>
-                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
+                  <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                     {completedCount} of {totalCourses} courses {state === 'D' ? 'completed' : 'done'}
                   </p>
                 </div>
-                <div style={{ textAlign: 'right', flexShrink: 0, background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)', borderRadius: '0.75rem', padding: '0.75rem 1rem' }}>
-                  <span style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-accent)', letterSpacing: '-0.04em', display: 'block', lineHeight: 1 }}>
-                    {progressPct}<span style={{ fontSize: '1rem' }}>%</span>
+                <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                  <span style={{ fontSize: '3rem', fontWeight: 700, color: 'var(--color-accent)', letterSpacing: '-0.04em' }}>
+                    {progressPct}<span style={{ fontSize: '1.25rem' }}>%</span>
                   </span>
                   <span style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>Progress</span>
                 </div>
               </div>
 
-              {/* Progress bar */}
-              <div className="portal-progress-bar" style={{ marginBottom: '1.75rem' }}>
-                <div className="portal-progress-bar__fill" style={{ width: `${progressPct}%` }} />
+              {/* Progress Bar */}
+              <div style={{ position: 'relative', width: '100%', height: '8px', background: 'var(--surface-container-highest)', borderRadius: '9999px', marginBottom: '2rem' }}>
+                <div style={{ position: 'absolute', top: 0, left: 0, height: '100%', background: 'var(--color-accent)', borderRadius: '9999px', width: `${progressPct}%`, transition: 'width 0.5s ease' }} />
               </div>
 
               {/* Milestone journey dots */}
@@ -297,19 +294,74 @@ export default function DashboardHomeClient({
           </section>
         )}
 
-        {/* ── Application Status Card ── */}
+        {/* ── Side Card: Application Status or Today ── */}
         <aside
-          className="portal-card portal-card--flat portal-card--accent-bar"
-          style={{ gridColumn: (state === 'B' || state === 'C' || state === 'D') && programTitle ? 'span 5' : 'span 12' }}
+          className="portal-card portal-card--flat"
+          style={{
+            gridColumn: (state === 'B' || state === 'C' || state === 'D') && programTitle ? 'span 4' : 'span 12',
+            borderLeft: '4px solid var(--color-accent)',
+          }}
         >
           <div className="portal-card__body">
-            {noApplicationOnFile ? (
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1rem' }}>
-                  <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--accent">
-                    <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>description</span>
-                  </div>
-                  <h3 style={{ fontWeight: 700, fontSize: '0.875rem', letterSpacing: '0.08em', textTransform: 'uppercase', margin: 0 }}>Apply Now</h3>
+          {/* Application Status */}
+          {noApplicationOnFile ? (
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>description</span>
+                <h3 style={{ fontWeight: 700, fontSize: '0.875rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Program Application</h3>
+              </div>
+              <div className="stitch-card" style={{ marginBottom: '1rem' }}>
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                  We do not have an application on file for this account yet.
+                </p>
+              </div>
+              <Link href="/apply" className="btn btn-primary" style={{ width: '100%', display: 'block', textAlign: 'center', padding: '0.5rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.75rem', fontWeight: 600 }}>
+                Start your application
+              </Link>
+            </div>
+          ) : applicationStatus ? (
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>task_alt</span>
+                <h3 style={{ fontWeight: 700, fontSize: '0.875rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Application Status</h3>
+              </div>
+              {applicationStatus.progressIndex !== null && (
+                <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1rem' }} aria-label="Application progress">
+                  {MEMBER_APPLICATION_PROGRESS_STEPS.map((stepLabel, i) => {
+                    const stepNum = i + 1;
+                    const idx = applicationStatus.progressIndex!;
+                    const done = stepNum < idx;
+                    const current = stepNum === idx;
+                    const locked = stepNum > idx;
+                    return (
+                      <div key={stepLabel} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem' }}>
+                        <div
+                          style={{
+                            width: '100%',
+                            height: current ? '4px' : '3px',
+                            borderRadius: '9999px',
+                            background: done
+                              ? 'var(--color-accent)'
+                              : current
+                                ? 'var(--color-accent)'
+                                : 'var(--outline-variant)',
+                            opacity: locked ? 0.35 : 1,
+                          }}
+                        />
+                        <span
+                          style={{
+                            fontSize: '0.6875rem',
+                            fontWeight: current ? 700 : 600,
+                            color: locked ? 'var(--color-on-surface-variant)' : 'var(--color-on-surface)',
+                            opacity: locked ? 0.45 : 0.85,
+                            textAlign: 'center',
+                          }}
+                        >
+                          {stepLabel}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.65, marginBottom: '1.25rem' }}>
                   No application on file yet. Starting your application is free and takes about 5 minutes.
@@ -384,7 +436,20 @@ export default function DashboardHomeClient({
                   )}
                 </div>
               </div>
-            )}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.75rem' }}>
+                {state === 'C' && assessmentScorePct != null && (
+                  <span style={{ padding: '0.25rem 0.5rem', background: 'var(--surface-container-lowest)', fontSize: '0.75rem', borderRadius: '0.25rem', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    Assessment: {assessmentScorePct}%
+                  </span>
+                )}
+                {enrolledAt && (
+                  <span style={{ padding: '0.25rem 0.5rem', background: 'var(--surface-container-lowest)', fontSize: '0.75rem', borderRadius: '0.25rem', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    Enrolled: {formatPortalDate(enrolledAt)}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
           </div>
         </aside>
 
@@ -392,13 +457,11 @@ export default function DashboardHomeClient({
         {assessmentDone && !preScreeningDone && (
           <section className="portal-card portal-card--flat" style={{ gridColumn: 'span 12' }}>
             <div className="portal-card__body">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1rem' }}>
-                <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--accent">
-                  <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>assignment</span>
-                </div>
-                <h3 style={{ fontWeight: 700, fontSize: '0.875rem', letterSpacing: '0.08em', textTransform: 'uppercase', margin: 0 }}>Pre-Screening (before your interview)</h3>
-              </div>
-              <MemberPreScreeningForm />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+              <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>assignment</span>
+              <h3 style={{ fontWeight: 700, fontSize: '0.875rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Pre-screening (before your interview)</h3>
+            </div>
+            <MemberPreScreeningForm />
             </div>
           </section>
         )}
@@ -407,19 +470,18 @@ export default function DashboardHomeClient({
         {assessmentDone && preScreeningDone && interviewEligible && !interviewCompletedAt && (
           <section className="portal-card portal-card--flat" style={{ gridColumn: 'span 12' }}>
             <div className="portal-card__body">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1rem' }}>
-                <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--blue">
-                  <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>videocam</span>
-                </div>
-                <h3 style={{ fontWeight: 700, fontSize: '0.875rem', letterSpacing: '0.08em', textTransform: 'uppercase', margin: 0 }}>Interview</h3>
-              </div>
-              {interviewRequestedAt ? (
-                <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
-                  We received your interview request on {formatPortalDateTime(interviewRequestedAt)}. A counselor will reach out by email.
-                </p>
-              ) : (
-                <MemberInterviewRequestButton />
-              )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+              <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>videocam</span>
+              <h3 style={{ fontWeight: 700, fontSize: '0.875rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Interview</h3>
+            </div>
+            {interviewRequestedAt ? (
+              <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
+                We received your interview request on{' '}
+                {formatPortalDateTime(interviewRequestedAt)}. A counselor will reach out by email.
+              </p>
+            ) : (
+              <MemberInterviewRequestButton />
+            )}
             </div>
           </section>
         )}

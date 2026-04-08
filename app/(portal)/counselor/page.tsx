@@ -139,14 +139,6 @@ export default async function CounselorPortalPage() {
             <p className="portal-metric-card__label">Awaiting Reply</p>
           </div>
         </div>
-        {/* Filter chips */}
-        <div className="portal-pad-x" style={{ display:"flex", gap:"0.5rem", overflowX:"auto", scrollbarWidth:"none", paddingBottom:"0.75rem" }}>
-          {['All', 'At Risk', 'Upcoming Session', 'New'].map((f, i) => (
-            <span key={f} className="wa-text-xs wa-font-semibold" style={Object.assign({ flexShrink:0, paddingLeft:"1rem", paddingRight:"1rem", paddingTop:"0.5rem", paddingBottom:"0.5rem", borderRadius:"9999px", cursor:"pointer" }, i === 0 ? { background: 'var(--color-accent)', color: '#fff' } : { background: 'var(--surface-container-highest)', color: 'var(--on-surface)' })}>
-              {f}
-            </span>
-          ))}
-        </div>
         {/* Student roster */}
         <div className="portal-pad-x">
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1rem" }}>

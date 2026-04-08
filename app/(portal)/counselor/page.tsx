@@ -104,7 +104,17 @@ export default async function CounselorPortalPage() {
           </h2>
         </div>
         <div style={{ marginLeft: '1.5rem', marginRight: '1.5rem', marginBottom: '1rem' }}>
-          <CounselorPortalVoiceBlock />
+          <details className="stitch-card" style={{ padding: '0.75rem 0.9rem' }}>
+            <summary style={{ cursor: 'pointer', fontWeight: 800, color: 'var(--color-on-surface)', listStyle: 'none' }}>
+              Counselor assistant
+              <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
+                (tap to open)
+              </span>
+            </summary>
+            <div style={{ marginTop: '0.75rem' }}>
+              <CounselorPortalVoiceBlock />
+            </div>
+          </details>
         </div>
         {/* Stats grid */}
         <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem", marginTop:"1rem", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"1rem", marginBottom:"1.5rem" }}>

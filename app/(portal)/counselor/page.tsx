@@ -283,8 +283,8 @@ export default async function CounselorPortalPage() {
                       href={`/counselor/students/${assignment.member.id}`}
                       style={{ textDecoration: 'none', color: 'inherit' }}
                     >
-                      <div className="portal-activity-item" style={{ justifyContent: 'space-between', transition: 'background 0.15s' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', flex: 1, minWidth: 0 }}>
+                      <div className="portal-card portal-card--flat portal-card--padded-sm" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background-color 0.15s' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                           <div style={{
                             width: '2.75rem', height: '2.75rem', borderRadius: '0.75rem',
                             background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
@@ -382,9 +382,18 @@ export default async function CounselorPortalPage() {
                 { href: '/counselor/messages', icon: 'forum', title: 'Messages', desc: 'Reply to student threads', accent: 'blue' },
                 { href: '/counselor/resources', icon: 'menu_book', title: 'Resources', desc: 'Guides and reference links', accent: 'gold' },
               ].map((link) => (
-                <Link key={link.href} href={link.href} className="portal-quick-action-item" style={{ textDecoration: 'none' }}>
-                  <div className={`portal-quick-action-item__icon portal-metric-card__icon-wrap--${link.accent}`} style={{ width: '2.25rem', height: '2.25rem', borderRadius: '0.625rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">{link.icon}</span>
+                <Link key={link.href} href={link.href} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <div className="portal-card portal-card--flat portal-card--padded-sm" style={{ display: 'flex', alignItems: 'center', gap: '1rem', transition: 'background-color 0.15s' }}>
+                    <div style={{
+                      width: '2.75rem', minWidth: '2.75rem', height: '2.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', borderRadius: '0.625rem',
+                    }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>{link.icon}</span>
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{link.title}</p>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{link.desc}</p>
+                    </div>
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p className="portal-quick-action-item__label">{link.title}</p>

@@ -344,6 +344,16 @@ html.dark .portal-kpi-card {
 .portal-card--flat {
     box-shadow: none;
 }
+/* Standalone padding when not using PortalCard header/body slots (replaces stitch-card padding) */
+.portal-card--padded {
+    padding: 1.5rem;
+}
+.portal-card--padded-sm {
+    padding: 1rem;
+}
+.portal-card--padded-lg {
+    padding: 2rem;
+}
 .portal-card__inner {
     padding: 1.5rem;
 }
@@ -394,7 +404,8 @@ html.dark .portal-kpi-card {
     width: 100%;
     font-family: inherit;
     font-size: 0.9rem;
-    line-height: 1.2;
+    line-height: 1.25;
+    min-height: 48px;
     padding: 0.625rem 0.875rem;
     border-radius: 0.75rem;
     border: 1px solid color-mix(in srgb, var(--outline-variant) 75%, transparent);
@@ -408,6 +419,11 @@ html.dark .portal-kpi-card {
 .portal-input:focus {
     border-color: color-mix(in srgb, var(--color-accent) 55%, var(--outline-variant));
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 18%, transparent);
+}
+textarea.portal-input,
+.portal-textarea.portal-input {
+    min-height: 6rem;
+    line-height: 1.45;
 }
 
 .portal-inbox {

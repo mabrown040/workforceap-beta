@@ -680,9 +680,24 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 {recentTools.map((r) => (
-                  <div key={r.id} className="portal-activity-item">
-                    <div className="portal-activity-item__icon">
-                      <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>smart_toy</span>
+                  <div key={r.id} className="portal-card portal-card--flat portal-card--padded-sm" style={{ display:'flex', alignItems:'center', gap:'1rem' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize:'1.25rem', color:'var(--color-accent)', flexShrink:0 }}>smart_toy</span>
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <p style={{ fontSize:'0.875rem', fontWeight:600, margin:0, color:'var(--color-on-surface)' }}>{AI_TOOL_LABELS[r.toolType] ?? r.toolType}</p>
+                      {r.inputSummary && (
+                      <p
+                        style={{
+                          fontSize: '0.8rem',
+                          color: 'var(--color-on-surface-variant)',
+                          margin: '0.1rem 0 0',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {stripMarkdownForPreview(r.inputSummary)}
+                      </p>
+                    )}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p style={{ fontSize: '0.875rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>

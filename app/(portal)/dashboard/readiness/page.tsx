@@ -106,7 +106,7 @@ export default async function DashboardReadinessPage() {
         />
 
         <div className="portal-pad-x" style={{ marginTop: '1rem' }}>
-          <details className="stitch-card" style={{ padding: '0.75rem 0.9rem' }}>
+          <details className="portal-card portal-card--flat" style={{ padding: '0.75rem 0.9rem' }}>
             <summary style={{ cursor: 'pointer', fontWeight: 800, color: 'var(--color-on-surface)', listStyle: 'none' }}>
               Readiness coach
               <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>

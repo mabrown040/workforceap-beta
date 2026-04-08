@@ -413,24 +413,21 @@ export default async function PartnerDashboardPage() {
 
       {/* ── Journey Snapshot (5-col metric strip) ── */}
       <section style={{ marginBottom: '2rem' }}>
-        <div className="portal-dash-section-header">
-          <h2 className="portal-dash-section-header__title">Journey Snapshot</h2>
-        </div>
-        <div className="portal-metric-strip">
-          {(JOURNEY_STAGES as readonly string[]).map((s, i) => {
-            const stageKey = s as typeof JOURNEY_STAGES[number];
-            const accents = ['accent', 'blue', 'gold', 'green', 'accent'] as const;
-            const icons = ['person_add', 'school', 'menu_book', 'workspace_premium', 'work'] as const;
-            return (
-              <div key={s} className="portal-metric-card">
-                <div className={`portal-metric-card__icon-wrap portal-metric-card__icon-wrap--${accents[i] ?? 'accent'}`}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>{icons[i]}</span>
-                </div>
-                <p className="portal-metric-card__value" style={{ fontSize: '1.75rem' }}>{stageCounts[stageKey] ?? 0}</p>
-                <p className="portal-metric-card__label">{(PIPELINE_STAGE_LABELS as Record<string, string>)[s]}</p>
-              </div>
-            );
-          })}
+        <p className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Journey Snapshot</p>
+        <div className="portal-grid-metrics">
+          {JOURNEY_STAGES.map((s, i) => (
+            <div
+              key={s}
+              className="portal-card portal-card--flat portal-card--padded-sm"
+              style={{
+                textAlign: 'center',
+                borderLeft: i === 0 ? '3px solid var(--color-accent)' : 'none',
+              }}
+            >
+              <p style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--color-on-surface)', lineHeight: 1 }}>{stageCounts[s] ?? 0}</p>
+              <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>{PIPELINE_STAGE_LABELS[s]}</p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -463,8 +460,8 @@ export default async function PartnerDashboardPage() {
                   const stageLabel = (PIPELINE_STAGE_LABELS as Record<string, string>)[p.stage] ?? p.stage;
                   return (
                     <Link key={p.member.id} href={`/partner/referred-members/${p.member.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                      <div className="portal-activity-item" style={{ justifyContent: 'space-between' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: 0 }}>
+                      <div className="portal-card portal-card--flat portal-card--padded-sm" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background-color 0.15s' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                           <div style={{
                             width: '2.25rem', height: '2.25rem', borderRadius: '9999px',
                             background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
@@ -503,8 +500,8 @@ export default async function PartnerDashboardPage() {
             <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
               {/* Placement rate + referral link usage */}
-              <div className="portal-card portal-card--flat portal-card--padded portal-card--gradient-accent">
-                <h3 style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Partner Insights</h3>
+              <div className="portal-card portal-card--flat portal-card--padded">
+                <h3 className="portal-section-title" style={{ marginBottom: '1.25rem' }}>Partner Insights</h3>
                 <div style={{ marginBottom: '1.25rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.5rem' }}>
                     <span style={{ color: 'var(--color-on-surface)' }}>Placement rate</span>

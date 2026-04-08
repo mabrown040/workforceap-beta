@@ -14,6 +14,7 @@ import PortalStatCard from '@/components/portal/PortalStatCard';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { getTimeOfDayGreeting } from '@/lib/time/greeting';
 import { getProgramBySlug } from '@/lib/content/programs';
+import PortalCard from '@/components/portal/ui/PortalCard';
 
 export default async function CounselorPortalPage() {
   const user = await getUser();
@@ -98,20 +99,18 @@ export default async function CounselorPortalPage() {
       <div className="wa-block wa-md:wa-hidden portal-mobile-content">
         {/* Hero */}
         <div className="portal-pad-x" style={{ paddingTop:"1.5rem", paddingBottom:"0.5rem" }}>
-          <p className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold wa-text-[#8c0f37]" style={{ marginBottom:"0.5rem" }}>Counselor Dashboard</p>
+          <p className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold" style={{ color: 'var(--color-accent)', marginBottom:"0.5rem" }}>Counselor Dashboard</p>
           <h2 className="wa-text-3xl wa-font-extrabold wa-tracking-tight text-on-surface wa-leading-tight">
             {greeting},<br /><span style={{ color: 'var(--color-accent)' }}>{firstName}</span>
           </h2>
         </div>
         <div className="portal-pad-x" style={{ marginBottom: '1rem' }}>
-          <details className="stitch-card" style={{ padding: '0.75rem 0.9rem' }}>
-            <summary style={{ cursor: 'pointer', fontWeight: 800, color: 'var(--color-on-surface)', listStyle: 'none' }}>
+          <details className="portal-card portal-card--compact">
+            <summary className="portal-card__summary">
               Counselor assistant
-              <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
-                (tap to open)
-              </span>
+              <span className="portal-card__summary-hint">(tap to open)</span>
             </summary>
-            <div style={{ marginTop: '0.75rem' }}>
+            <div className="portal-card__body">
               <CounselorPortalVoiceBlock />
             </div>
           </details>

@@ -187,12 +187,15 @@ export default async function EmployerDashboardPage() {
       {/* ── Mobile Employer Dashboard (≤640px) ── */}
       <div className="wa-block wa-md:wa-hidden portal-mobile-content">
         {/* Hero */}
-        <div style={{ padding: '1.5rem 1.25rem 0.75rem' }}>
-          <p style={{ fontSize: '0.6875rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--color-accent)', marginBottom: '0.35rem' }}>
+        <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingTop:"1.5rem", paddingBottom:"0.5rem" }}>
+          <p
+            className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold"
+            style={{ marginBottom:"0.25rem", color: 'var(--color-accent)' }}
+          >
             Employer Portal
           </p>
-          <h2 style={{ fontSize: '1.625rem', fontWeight: 800, letterSpacing: '-0.025em', color: 'var(--color-on-surface)', lineHeight: 1.15, margin: 0 }}>
-            {totalApplications > 0 ? `${totalApplications} candidate${totalApplications !== 1 ? 's' : ''} in pipeline` : 'Your talent pipeline'}
+          <h2 className="wa-text-2xl wa-font-extrabold wa-tracking-tight text-on-surface wa-leading-tight">
+            {totalApplications > 0 ? `${totalApplications} candidate${totalApplications !== 1 ? 's' : ''} waiting` : 'Your talent pipeline'}
           </h2>
         </div>
         {/* Stats row - horizontal scroll */}
@@ -265,19 +268,16 @@ export default async function EmployerDashboardPage() {
               <span className="material-symbols-outlined" style={{ color: 'rgba(255,255,255,0.7)' }}>arrow_forward</span>
             </Link>
           )}
-          {([
-            { href: '/employer/jobs/new', icon: 'add_circle', label: 'Post a Role', iconColor: 'var(--color-accent)' },
-            { href: '/employer/messages', icon: 'forum', label: 'Messages', iconColor: 'var(--color-gold)' },
-            { href: '/employer/jobs', icon: 'work', label: 'My Jobs', iconColor: 'var(--color-blue, #2b7bb9)' },
-            { href: '/employer/pipeline', icon: 'account_tree', label: 'Pipeline', iconColor: 'var(--color-green, #4a9b4f)' },
-          ] as const).map((a) => (
-            <Link key={a.href} href={a.href} className="portal-quick-grid-item">
-              <div className="portal-quick-grid-item__icon" style={{ background: 'var(--surface-container-high)' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: a.iconColor, fontVariationSettings: "'FILL' 1" }}>{a.icon}</span>
-              </div>
-              <span className="portal-quick-grid-item__label">{a.label}</span>
-            </Link>
-          ))}
+          <Link href="/employer/jobs/new"
+            className="bg-surface-container-high text-on-surface active:scale-[0.98] wa-transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", flexDirection:"column", gap:"0.5rem", alignItems:"flex-start", textDecoration:"none", minHeight:"44px" }}>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>add_circle</span>
+            <span className="wa-text-sm wa-font-bold wa-leading-tight">Post a Role</span>
+          </Link>
+          <Link href="/employer/messages"
+            className="bg-surface-container-high text-on-surface active:scale-[0.98] wa-transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", flexDirection:"column", gap:"0.5rem", alignItems:"flex-start", textDecoration:"none", minHeight:"44px" }}>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-gold)' }}>forum</span>
+            <span className="wa-text-sm wa-font-bold wa-leading-tight">Messages</span>
+          </Link>
         </div>
         {/* Recent applicants */}
         <div style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginTop:"1.5rem" }}>

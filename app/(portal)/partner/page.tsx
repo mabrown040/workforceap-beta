@@ -167,11 +167,14 @@ export default async function PartnerDashboardPage() {
     {/* ── MOBILE SECTION ── */}
     <div className="wa-block wa-md:wa-hidden portal-mobile-content">
       {/* Header */}
-      <div style={{ padding: '1.5rem 1.25rem 0.5rem' }}>
-        <p style={{ fontSize: '0.6875rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--color-accent)', marginBottom: '0.35rem' }}>
+      <div style={{ padding: '1.5rem 1.5rem 0.75rem' }}>
+        <p
+          className="wa-text-[11px] wa-uppercase wa-tracking-[0.15em] wa-font-bold wa-mb-1"
+          style={{ color: 'var(--color-accent)' }}
+        >
           Partner Dashboard
         </p>
-        <h1 style={{ fontSize: '1.625rem', fontWeight: 800, letterSpacing: '-0.025em', color: 'var(--color-on-surface)', lineHeight: 1.15, margin: 0 }}>
+        <h1 className="wa-text-3xl wa-font-extrabold wa-tracking-tight" style={{ color: 'var(--color-on-surface)', lineHeight: 1.1 }}>
           {ctx.partner.name}
         </h1>
         <p style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>

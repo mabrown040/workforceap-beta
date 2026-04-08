@@ -163,10 +163,8 @@ export default async function CounselorStudentsPage() {
                   style={{ textDecoration: 'none' }}
                 >
                   <div
-                    className="active:scale-[0.98] wa-transition-all"
+                    className="portal-kpi-card active:scale-[0.98] wa-transition-all"
                     style={{
-                      background: '#fff',
-                      borderRadius: '0.75rem',
                       padding: '1rem',
                       display: 'flex',
                       alignItems: 'center',

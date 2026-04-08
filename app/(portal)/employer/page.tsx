@@ -16,6 +16,7 @@ import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { employerVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import StatusBadge from '@/components/portal/StatusBadge';
+import PortalCard from '@/components/portal/ui/PortalCard';
 import {
   employerJobPostingApplicationStatusBadgeVariant,
   employerJobPostingApplicationStatusLabel,
@@ -287,7 +288,10 @@ export default async function EmployerDashboardPage() {
             ) : (
               recentApplications.slice(0, 5).map((app) => (
                 <Link key={app.id} href={`/employer/jobs/${app.jobId}`}
-                  className="wa-bg-white active:scale-[0.98] wa-transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", alignItems:"center", gap:"0.75rem", textDecoration:"none" }}>
+                  className="active:scale-[0.98] wa-transition-all"
+                  style={{ textDecoration:"none" }}
+                >
+                  <PortalCard>
                   <div className="bg-surface-container-high" style={{ width:"2.5rem", height:"2.5rem", borderRadius:"9999px", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                     <span className="material-symbols-outlined wa-text-[18px] text-on-surface-variant">person</span>
                   </div>
@@ -304,6 +308,7 @@ export default async function EmployerDashboardPage() {
                       variant={employerJobPostingApplicationStatusBadgeVariant(app.status)}
                     />
                   </div>
+                  </PortalCard>
                 </Link>
               ))
             )}

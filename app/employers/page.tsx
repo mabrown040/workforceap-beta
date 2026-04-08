@@ -492,7 +492,7 @@ export default function EmployersPage() {
         </div>
       </section>
 
-      {/* ── A Streamlined Hiring Experience — 4-step process ── */}
+      {/* ── How Hiring Works — 4-step process ── */}
       <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
@@ -505,7 +505,7 @@ export default function EmployersPage() {
                 marginBottom: '0.75rem',
               }}
             >
-              A Streamlined Hiring{' '}
+              How Hiring{' '}
               <span style={{ color: 'var(--color-accent)' }}>Experience</span>
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)' }}>Submit the employer intake and we will review it within 24–48 hours.</p>
@@ -720,7 +720,7 @@ export default function EmployersPage() {
                   letterSpacing: '-0.02em',
                 }}
               >
-                Ready to Transform Your Hiring Process?
+                Ready to Hire Certified Talent?
               </h2>
               <p style={{ color: 'rgba(255,203,209,0.9)', fontSize: '1.125rem', marginBottom: '1.5rem', lineHeight: 1.6 }}>
                 Tell us what roles you need, how many you are hiring, and when you need them filled.
@@ -906,7 +906,7 @@ export default function EmployersPage() {
         {/* ── Hiring Process — 4 Steps ── */}
         <section style={{ padding: '2rem 1rem', background: 'var(--surface-container-low, #f5f2f1)' }}>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-on-surface)', letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>
-            A Streamlined Hiring Experience
+            How Hiring Works
           </h2>
           <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.5 }}>
             Submit your employer intake and we will follow up within 24–48 hours.

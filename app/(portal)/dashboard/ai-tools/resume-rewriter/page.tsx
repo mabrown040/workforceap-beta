@@ -10,7 +10,7 @@ import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Resume Rewriter',
-  description: 'AI-powered resume improvement tailored to your target job.',
+  description: 'Rewrite your resume to match your target job.',
   path: '/dashboard/ai-tools/resume-rewriter',
 });
 

@@ -152,7 +152,7 @@ export default function PartnersPage() {
               marginBottom: '2rem',
             }}
           >
-            Elevate Your Community&rsquo;s{' '}
+            Build Your Community&rsquo;s{' '}
             <span
               style={{
                 background: 'linear-gradient(135deg, var(--color-accent-light), var(--color-gold))',

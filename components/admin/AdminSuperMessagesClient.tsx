@@ -11,7 +11,6 @@ import {
   InboxRowLayout,
   InboxSearch,
   InboxShell,
-  InboxUnreadBadge,
 } from '@/components/portal/ui/inbox/InboxPrimitives';
 
 type SlaInfo = {
@@ -428,11 +427,7 @@ export default function AdminSuperMessagesClient() {
                       title={threadListTitle(t)}
                       meta={kindLabel}
                       preview={t.lastMessagePreview}
-                      badge={
-                        alertBadge ? (
-                          <span className="portal-inbox-unread">{alertBadge}</span>
-                        ) : undefined
-                      }
+                      badge={alertBadge ? <span className="portal-inbox-unread">{alertBadge}</span> : undefined}
                     />
                   </InboxRowButton>
                 );

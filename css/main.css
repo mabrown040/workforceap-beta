@@ -223,6 +223,12 @@
     }
 }
 
+.stitch-card-elevated {
+    background: var(--surface-container-high);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+}
+
 /* 12-Column Editorial Grid */
 .editorial-grid {
     display: grid;

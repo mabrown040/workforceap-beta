@@ -7,6 +7,11 @@ import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 /* ─── portal destination data (unchanged business logic) ─── */
 const PORTAL_DESTINATIONS: { redirectTo: string; title: string; desc: string }[] = [
   {
+    redirectTo: '/admin',
+    title: 'Admin portal',
+    desc: 'Operations, member oversight, and back-office tools for workforce staff.',
+  },
+  {
     redirectTo: '/counselor',
     title: 'Counselor portal',
     desc: 'Student roster, messaging, and resources for counseling partners.',

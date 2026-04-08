@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
+import PartnerNotificationPrefs from '@/components/partner/PartnerNotificationPrefs';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Partner settings',
@@ -93,21 +94,22 @@ export default async function PartnerSettingsPage() {
         {row('Phone', partner.contactPhone)}
       </div>
 
-      <div className="stitch-card" style={{ padding: '1.25rem', maxWidth: 640, marginBottom: '1.25rem' }}>
-        <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>Email notifications (defaults)</h2>
-        {row('New enrollment', partner.notifyOnEnrollment, { bool: true })}
-        {row('Course milestones', partner.notifyOnCourse, { bool: true })}
-        {row('Certified', partner.notifyOnCertified, { bool: true })}
-        {row('Placed', partner.notifyOnPlaced, { bool: true })}
-      </div>
+      <PartnerNotificationPrefs
+        initial={{
+          notifyOnEnrollment: partner.notifyOnEnrollment,
+          notifyOnCourse: partner.notifyOnCourse,
+          notifyOnCertified: partner.notifyOnCertified,
+          notifyOnPlaced: partner.notifyOnPlaced,
+        }}
+      />
 
       <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: 640, lineHeight: 1.6, marginBottom: '1rem' }}>
-        To change contact details, branding, or notification preferences, email{' '}
+        To change contact details or branding, email{' '}
         <a href="mailto:info@workforceap.org">info@workforceap.org</a> or use the{' '}
         <Link href="/contact" style={{ color: 'var(--color-accent)' }}>
           contact form
         </Link>
-        . Our team will confirm updates with you.
+        .
       </p>
     </div>
   );

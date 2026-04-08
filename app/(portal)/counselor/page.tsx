@@ -97,13 +97,13 @@ export default async function CounselorPortalPage() {
       {/* ── Mobile Counselor View (≤640px) ── */}
       <div className="wa-block wa-md:wa-hidden portal-mobile-content">
         {/* Hero */}
-        <div style={{ padding: '1.5rem 1.25rem 0.75rem' }}>
-          <p style={{ fontSize: '0.6875rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--color-accent)', marginBottom: '0.35rem' }}>Counselor Dashboard</p>
-          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '-0.025em', color: 'var(--color-on-surface)', lineHeight: 1.15, margin: 0 }}>
-            {greeting}, <span style={{ color: 'var(--color-accent)' }}>{firstName}</span>
+        <div className="portal-pad-x" style={{ paddingTop:"1.5rem", paddingBottom:"0.5rem" }}>
+          <p className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold wa-text-[#8c0f37]" style={{ marginBottom:"0.5rem" }}>Counselor Dashboard</p>
+          <h2 className="wa-text-3xl wa-font-extrabold wa-tracking-tight text-on-surface wa-leading-tight">
+            {greeting},<br /><span style={{ color: 'var(--color-accent)' }}>{firstName}</span>
           </h2>
         </div>
-        <div style={{ marginLeft: '1.5rem', marginRight: '1.5rem', marginBottom: '1rem' }}>
+        <div className="portal-pad-x" style={{ marginBottom: '1rem' }}>
           <details className="stitch-card" style={{ padding: '0.75rem 0.9rem' }}>
             <summary style={{ cursor: 'pointer', fontWeight: 800, color: 'var(--color-on-surface)', listStyle: 'none' }}>
               Counselor assistant
@@ -117,7 +117,7 @@ export default async function CounselorPortalPage() {
           </details>
         </div>
         {/* Stats grid */}
-        <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem", marginTop:"1rem", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"1rem", marginBottom:"1.5rem" }}>
+        <div className="portal-pad-x" style={{ marginTop:"1rem", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"1rem", marginBottom:"1.5rem" }}>
           <div className="wa-text-white" style={{gridColumn:"span 2", borderRadius:"0.75rem", padding:"1.25rem", position:"relative", overflow:"hidden", background: 'var(--color-accent)'}}>
             <div style={{ position:"relative", zIndex:10 }}>
               <p className="wa-text-[11px] wa-uppercase wa-tracking-widest" style={{ opacity:0.85, marginBottom:"0.25rem" }}>Your Students</p>

@@ -22,7 +22,6 @@ import { partnerVoiceSurface } from '@/lib/portal/voice';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import StatusBadge from '@/components/portal/StatusBadge';
 import PortalKpiCard from '@/components/portal/PortalKpiCard';
-import PortalCard from '@/components/portal/ui/PortalCard';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Partner Portal',
@@ -179,7 +178,7 @@ export default async function PartnerDashboardPage() {
         </p>
       </div>
 
-      <div style={{ padding: '0 1.5rem 0.75rem' }}>
+      <div className="portal-pad-x" style={{ paddingBottom: '0.75rem' }}>
         <VoiceAgentSurface {...partnerVoiceSurface}>
           <PortalVoiceSession
             sessionEndpoint="/api/partner/voice-session"
@@ -194,31 +193,11 @@ export default async function PartnerDashboardPage() {
       </div>
 
       {/* 2×2 KPI Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', padding: '1rem 1.5rem' }}>
-        {/* Active Members */}
-        <div style={{ background: '#fff', borderRadius: '0.875rem', padding: '1rem', border: '1px solid #ebe7e7', borderLeft: '4px solid #8c0f37' }}>
-          <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Active Members</p>
-          <p className="wa-text-3xl wa-font-black" style={{ color: 'var(--color-accent)', lineHeight: 1 }}>{activeMembersCount}</p>
-          <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>In progress</p>
-        </div>
-        {/* Placements */}
-        <div style={{ background: '#fff', borderRadius: '0.875rem', padding: '1rem', border: '1px solid #ebe7e7' }}>
-          <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Placements</p>
-          <p className="wa-text-3xl wa-font-black" style={{ color: 'var(--color-on-surface)', lineHeight: 1 }}>{placements}</p>
-          <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Verified hires</p>
-        </div>
-        {/* Certifications */}
-        <div style={{ background: '#fff', borderRadius: '0.875rem', padding: '1rem', border: '1px solid #ebe7e7' }}>
-          <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Certificates</p>
-          <p className="wa-text-3xl wa-font-black" style={{ color: 'var(--color-gold)', lineHeight: 1 }}>{completions}</p>
-          <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Earned by members</p>
-        </div>
-        {/* Needs Review */}
-        <div style={{ background: '#fff', borderRadius: '0.875rem', padding: '1rem', border: '1px solid #ebe7e7', borderLeft: '4px solid #8c0f37' }}>
-          <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ color: 'var(--color-accent)', marginBottom: '0.25rem' }}>Needs Review</p>
-          <p className="wa-text-3xl wa-font-black" style={{ color: 'var(--color-accent)', lineHeight: 1 }}>{needsReviewCount}</p>
-          <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Applied/enrolled or stalled</p>
-        </div>
+      <div className="portal-kpi-grid portal-pad-x" style={{ paddingTop: '1rem', paddingBottom: '1rem' }}>
+        <PortalKpiCard accent label="Active Members" value={activeMembersCount} sub="In progress" />
+        <PortalKpiCard label="Placements" value={placements} sub="Verified hires" tone="neutral" />
+        <PortalKpiCard label="Certificates" value={completions} sub="Earned by members" tone="gold" />
+        <PortalKpiCard accent label="Needs Review" value={needsReviewCount} sub="Applied/enrolled or stalled" />
       </div>
 
       {/* Next Step Guidance */}

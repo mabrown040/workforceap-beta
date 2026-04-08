@@ -202,14 +202,18 @@ export default async function EmployerDashboardPage() {
             { label: 'Candidates', value: totalApplications, color: 'var(--on-surface)' },
             { label: 'In Review', value: inReview, color: 'var(--secondary)' },
           ].map((s) => (
-            <div key={s.label} className="wa-bg-white" style={{ minWidth:"130px", flex:1, padding:"1rem", borderRadius:"0.75rem", boxShadow:"0 1px 2px rgba(0,0,0,0.05)" }}>
-              <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider text-on-surface-variant/60" style={{ marginBottom:"0.25rem" }}>{s.label}</p>
-              <p className="wa-text-2xl wa-font-bold" style={{ color: s.color }}>{s.value}</p>
+            <div
+              key={s.label}
+              className="portal-kpi-card"
+              style={{ minWidth:"130px", flex:1, padding:"1rem", borderRadius:"0.75rem" }}
+            >
+              <p className="portal-kpi-card__label" style={{ marginBottom:"0.25rem" }}>{s.label}</p>
+              <p className="portal-kpi-card__value" style={{ color: s.color }}>{s.value}</p>
             </div>
           ))}
         </div>
         {/* Pipeline summary strip */}
-        <div className="bg-surface-container-low" style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginTop:"0.75rem", padding:"1rem", borderRadius:"0.75rem", display:"flex", justifyContent:"space-between", alignItems:"center", textAlign:"center" }}>
+        <div className="portal-kpi-card" style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginTop:"0.75rem", padding:"1rem", borderRadius:"0.75rem", display:"flex", justifyContent:"space-between", alignItems:"center", textAlign:"center" }}>
           {[
             { label: 'Screened', value: Math.max(0, totalApplications - inReview) },
             { label: 'Interview', value: inReview },

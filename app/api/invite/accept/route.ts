@@ -197,6 +197,34 @@ async function ensureAppUserForInvite(
   });
 }
 
+/**
+ * INVARIANT: CourseEnrollment must stay in sync with User.enrolledProgram.
+ * Called inside invite-accept transactions when the invitation assigns a program.
+ */
+async function ensureCourseEnrollmentForInvite(
+  tx: InviteTx,
+  userId: string,
+  organizationId: string,
+  programSlug: string,
+  adminId?: string | null
+) {
+  await tx.courseEnrollment.upsert({
+    where: { userId },
+    create: {
+      organizationId,
+      userId,
+      programSlug,
+      enrolledAt: new Date(),
+      enrolledByAdminId: adminId ?? null,
+    },
+    update: {
+      programSlug,
+      enrolledAt: new Date(),
+      enrolledByAdminId: adminId ?? null,
+    },
+  });
+}
+
 async function ensureCounselorRow(tx: InviteTx, userId: string, partnerId: string | null) {
   const existing = await tx.counselor.findFirst({
     where: { userId },
@@ -387,6 +415,16 @@ async function acceptExistingUser(
           },
           select: { id: true },
         });
+        txStep = 'sync_course_enrollment_existing';
+        const existingUserOrg = await tx.user.findUnique({
+          where: { id: user.id },
+          select: { organizationId: true },
+        });
+        if (existingUserOrg) {
+          await ensureCourseEnrollmentForInvite(
+            tx, user.id, existingUserOrg.organizationId, invitation.programSlug, invitation.invitedById
+          );
+        }
       }
 
       if (invitation.role === 'counselor') {
@@ -578,6 +616,13 @@ async function finishNewUserDbSetup(
         enrolledProgram: invitation.role === 'member' ? invitation.programSlug : null,
         enrolledAt: invitation.role === 'member' ? new Date() : null,
       });
+
+      if (invitation.role === 'member' && invitation.programSlug) {
+        txStep = 'sync_course_enrollment_new';
+        await ensureCourseEnrollmentForInvite(
+          tx, authUserId, organizationId, invitation.programSlug, invitation.invitedById
+        );
+      }
 
       if (invitation.role !== 'counselor') {
         txStep = 'ensure_member_role';

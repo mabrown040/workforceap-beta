@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { sendCourseCompletedEmail } from '@/lib/email';
+import { trackEvent } from '@/lib/events/track';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -56,6 +57,15 @@ export async function POST(request: Request) {
 
   const courseMeta = program.courses.find((c) => c.slug === courseSlug);
   const courseName = courseMeta?.name ?? courseSlug;
+
+  // Lifecycle event: course_completed
+  trackEvent({
+    userId: user.id,
+    eventName: 'course_completed',
+    entityType: 'Course',
+    entityId: courseSlug,
+    metadata: { courseName, programSlug: dbUser.enrolledProgram, completedCount: updated.length },
+  }).catch(() => {});
 
   sendPartnerMilestoneEmail(user.id, 'Course completed', {
     Course: courseName,

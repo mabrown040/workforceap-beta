@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { trackEvent } from '@/lib/events/track';
 const patchSchema = z.object({
   status: z.enum(['APPROVED', 'DENIED']),
   adminNote: z.string().max(4000).optional().nullable(),
@@ -49,8 +50,47 @@ export async function PATCH(
         where: { id: existing.userId },
         data: { enrolledProgram: existing.requestedProgramSlug },
       });
+
+      // INVARIANT: CourseEnrollment must stay in sync with User.enrolledProgram.
+      // When a program change is approved, update CourseEnrollment to reflect the
+      // new program. Use upsert in case CourseEnrollment was never created (legacy data).
+      const memberForOrg = await tx.user.findUnique({
+        where: { id: existing.userId },
+        select: { organizationId: true },
+      });
+      if (memberForOrg) {
+        await tx.courseEnrollment.upsert({
+          where: { userId: existing.userId },
+          create: {
+            organizationId: memberForOrg.organizationId,
+            userId: existing.userId,
+            programSlug: existing.requestedProgramSlug,
+            enrolledAt: new Date(),
+            enrolledByAdminId: user.id,
+          },
+          update: {
+            programSlug: existing.requestedProgramSlug,
+            enrolledByAdminId: user.id,
+          },
+        });
+      }
     }
   });
+
+  // Lifecycle event for approved program changes
+  if (nextStatus === 'APPROVED') {
+    trackEvent({
+      userId: existing.userId,
+      eventName: 'program_change_approved',
+      entityType: 'ProgramChangeRequest',
+      entityId: id,
+      metadata: {
+        from: existing.currentProgramSlug,
+        to: existing.requestedProgramSlug,
+        approvedBy: user.id,
+      },
+    }).catch(() => {});
+  }
 
   const updated = await prisma.programChangeRequest.findUnique({
     where: { id },

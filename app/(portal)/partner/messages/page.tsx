@@ -63,7 +63,7 @@ export default async function PartnerMessagesPage() {
                     flexShrink: 0,
                   }}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: '#fff' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: '#fff' }} aria-hidden="true">
                     support_agent
                   </span>
                 </div>
@@ -73,7 +73,7 @@ export default async function PartnerMessagesPage() {
                     {serializedMessages.length > 0 ? last?.body ?? 'No messages yet' : 'No messages yet — ask us anything'}
                   </div>
                 </div>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--outline-variant)', flexShrink: 0 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--outline-variant)', flexShrink: 0 }} aria-hidden="true">
                   chevron_right
                 </span>
               </div>

@@ -26,7 +26,7 @@ function ResourceCard({ href, icon, label, desc }: { href: string; icon: string;
         <span
           className="material-symbols-outlined"
           style={{ fontSize: '1.25rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1", flexShrink: 0 }}
-        >
+         aria-hidden="true">
           {icon}
         </span>
         <div>

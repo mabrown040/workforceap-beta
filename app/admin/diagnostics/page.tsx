@@ -61,7 +61,7 @@ export default async function AdminDiagnosticsPage() {
         </h2>
         {driftRecords.length === 0 ? (
           <div className="stitch-card stitch-card--padded" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <span className="material-symbols-outlined" style={{ color: 'var(--color-green)', fontSize: '1.25rem' }}>check_circle</span>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-green)', fontSize: '1.25rem' }} aria-hidden="true">check_circle</span>
             <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>
               No enrollment drift detected. User.enrolledProgram and CourseEnrollment are in sync for all {enrolledUsersForDrift.length} enrolled members.
             </span>

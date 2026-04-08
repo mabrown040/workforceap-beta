@@ -71,7 +71,7 @@ export default async function AIHistoryPage({ searchParams }: Props) {
             marginBottom: '0.75rem',
           }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>arrow_back</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden="true">arrow_back</span>
           Back to AI Tools
         </Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -86,7 +86,7 @@ export default async function AIHistoryPage({ searchParams }: Props) {
               justifyContent: 'center',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.35rem', color: 'var(--color-accent)' }}>history</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.35rem', color: 'var(--color-accent)' }} aria-hidden="true">history</span>
           </div>
           <div>
             <h1 style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>My AI Results</h1>
@@ -107,7 +107,7 @@ export default async function AIHistoryPage({ searchParams }: Props) {
               textAlign: 'center',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem', display: 'block' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem', display: 'block' }} aria-hidden="true">
               folder_open
             </span>
             <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>No results yet. Use an AI tool to get started.</p>
@@ -127,7 +127,7 @@ export default async function AIHistoryPage({ searchParams }: Props) {
               }}
             >
               Go to AI Tools
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_forward</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
             </Link>
           </div>
         ) : (

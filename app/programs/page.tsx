@@ -122,7 +122,7 @@ export default function ProgramsPage() {
                   </div>
                 </div>
                 <Link href="/programs/digital-literacy-empowerment-class" style={{ width: '2.5rem', height: '2.5rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-white, #fff)', color: 'var(--color-accent-dark)', flexShrink: 0 }} aria-label="Open Digital Literacy program">
-                  <span className="material-symbols-outlined">arrow_forward</span>
+                  <span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
                 </Link>
               </div>
             </div>
@@ -133,7 +133,7 @@ export default function ProgramsPage() {
           <div style={{ textAlign: 'center', marginTop: '1rem', marginBottom: '0.5rem' }}>
             <a href="#program-catalog" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-accent-dark)', textDecoration: 'none' }}>
               See all programs
-              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_forward</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
             </a>
           </div>
         </div>
@@ -165,10 +165,10 @@ export default function ProgramsPage() {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <span className="material-symbols-outlined" style={{ color: 'var(--color-gold)', flexShrink: 0 }}>psychology</span>
+              <span className="material-symbols-outlined" style={{ color: 'var(--color-gold)', flexShrink: 0 }} aria-hidden="true">psychology</span>
               <span style={{ fontSize: '0.875rem', fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1.3 }}>Can&apos;t decide? Take 2-min quiz</span>
             </div>
-            <span className="material-symbols-outlined" style={{ flexShrink: 0 }}>arrow_forward</span>
+            <span className="material-symbols-outlined" style={{ flexShrink: 0 }} aria-hidden="true">arrow_forward</span>
           </Link>
         </div>
       </div>
@@ -332,7 +332,7 @@ export default function ProgramsPage() {
                       display: 'block',
                       fontVariationSettings: "'FILL' 1",
                     }}
-                  >
+                   aria-hidden="true">
                     {step.icon}
                   </span>
                   <h4 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-accent)' }}>

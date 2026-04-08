@@ -43,6 +43,7 @@ export default function AIToolCard({
       href={href}
       className="ai-tool-cta"
       onClick={handleClick}
+      aria-label={`Launch tool: ${title}`}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -67,7 +68,7 @@ export default function AIToolCard({
       }}
     >
       Launch tool
-      <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_forward</span>
+      <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
     </Link>
   ) : (
     <span
@@ -115,7 +116,7 @@ export default function AIToolCard({
             justifyContent: 'center',
           }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: '1.35rem', color: 'var(--color-accent)' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.35rem', color: 'var(--color-accent)' }} aria-hidden="true">
             {icon}
           </span>
         </div>

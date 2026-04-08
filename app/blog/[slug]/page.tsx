@@ -150,7 +150,7 @@ export default async function BlogPostPage({ params }: Props) {
             borderRadius: '12px',
           }}>
             <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 22, color: 'var(--color-accent)' }}>menu_book</span>
+              <span className="material-symbols-outlined" style={{ fontSize: 22, color: 'var(--color-accent)' }} aria-hidden="true">menu_book</span>
               Related Resources
             </h3>
             
@@ -176,7 +176,7 @@ export default async function BlogPostPage({ params }: Props) {
                       }}
                     >
                       <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }}>school</span>
+                        <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }} aria-hidden="true">school</span>
                         {program.title}
                       </span>
                       <ArrowRight size={16} style={{ opacity: 0.5 }} />
@@ -201,7 +201,7 @@ export default async function BlogPostPage({ params }: Props) {
                   fontSize: '0.9375rem',
                 }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }}>help</span>
+                <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }} aria-hidden="true">help</span>
                 Read FAQ
                 <ArrowRight size={16} style={{ opacity: 0.5 }} />
               </Link>

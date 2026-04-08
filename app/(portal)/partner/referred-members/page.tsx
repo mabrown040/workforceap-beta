@@ -55,7 +55,7 @@ export default async function PartnerReferredMembersPage() {
                   border: '1px solid #ebe7e7',
                 }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>download</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">download</span>
                 Export CSV
               </a>
             </div>

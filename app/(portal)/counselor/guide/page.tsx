@@ -150,7 +150,7 @@ export default async function CounselorGuidePage() {
               alignSelf: 'flex-start',
             }}>
               View your students
-              <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>arrow_forward</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">arrow_forward</span>
             </Link>
           </div>
         </div>
@@ -175,7 +175,7 @@ export default async function CounselorGuidePage() {
                   justifyContent: 'center',
                   flexShrink: 0,
                 }}>
-                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1rem' }}>{item.icon}</span>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1rem' }} aria-hidden="true">{item.icon}</span>
                 </div>
                 <p style={{ fontSize: '0.9375rem', color: 'var(--color-on-surface)', lineHeight: 1.5, paddingTop: '0.25rem' }}>{item.text}</p>
               </div>
@@ -200,9 +200,9 @@ export default async function CounselorGuidePage() {
                 borderRadius: '0.625rem',
                 textDecoration: 'none',
               }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }}>{item.icon}</span>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }} aria-hidden="true">{item.icon}</span>
                 <span style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-on-surface)', flex: 1 }}>{item.label}</span>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4, fontSize: '1rem' }}>chevron_right</span>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4, fontSize: '1rem' }} aria-hidden="true">chevron_right</span>
               </Link>
             ))}
           </div>
@@ -241,7 +241,7 @@ export default async function CounselorGuidePage() {
                 fontWeight: 800,
                 color: s.done ? '#80d99f' : 'var(--color-accent)',
               }}>
-                {s.done ? <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>check</span> : s.stage}
+                {s.done ? <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">check</span> : s.stage}
               </div>
               <div>
                 <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>{s.label}</p>

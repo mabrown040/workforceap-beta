@@ -74,7 +74,7 @@ export default function VoiceCoachesPromo() {
                   Mock interview for your target role
                 </span>
               </span>
-              <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', opacity: 0.7 }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', opacity: 0.7 }} aria-hidden="true">
                 chevron_right
               </span>
             </Link>
@@ -101,7 +101,7 @@ export default function VoiceCoachesPromo() {
                   Open voice mode from the rewriter workflow
                 </span>
               </span>
-              <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', opacity: 0.7 }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', opacity: 0.7 }} aria-hidden="true">
                 chevron_right
               </span>
             </Link>

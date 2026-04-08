@@ -54,7 +54,7 @@ export default async function FindYourCareerPage() {
           <span
             className="material-symbols-outlined"
             style={{ fontSize: '1.25rem', color: 'var(--color-accent)', flexShrink: 0, marginTop: '0.125rem' }}
-          >
+           aria-hidden="true">
             lightbulb
           </span>
           <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-on-surface)', lineHeight: 1.5 }}>
@@ -82,7 +82,7 @@ export default async function FindYourCareerPage() {
                   <span
                     className="material-symbols-outlined"
                     style={{ color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}
-                  >
+                   aria-hidden="true">
                     {tool.icon}
                   </span>
                   <strong style={{ fontSize: '1.05rem' }}>{tool.title}</strong>
@@ -136,7 +136,7 @@ export default async function FindYourCareerPage() {
                 <span
                   className="material-symbols-outlined"
                   style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}
-                >
+                 aria-hidden="true">
                   {link.icon}
                 </span>
                 <div>

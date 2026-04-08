@@ -95,7 +95,7 @@ export default async function AdminMemberLifecyclePage({
       {hasDrift && (
         <div className="portal-alert portal-alert--accent" style={{ marginBottom: '1.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>warning</span>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }} aria-hidden="true">warning</span>
             <span style={{ fontWeight: 600, color: 'var(--color-accent)', fontSize: '0.875rem' }}>
               Enrollment drift detected
             </span>

@@ -53,7 +53,7 @@ export default function DashboardSidebar({ open = false, onClose }: DashboardSid
       <div style={{ marginBottom: '1.5rem', padding: '0 0.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
           <div style={{ width: '2rem', height: '2rem', borderRadius: 'var(--radius-sm, 4px)', background: 'var(--color-accent, #ad2c4d)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span className="material-symbols-outlined" style={{ color: 'var(--color-white)', fontSize: '1.125rem' }}>account_balance</span>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-white)', fontSize: '1.125rem' }} aria-hidden="true">account_balance</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span style={{ color: 'var(--color-accent)', fontWeight: 700 }}>WorkforceAP</span>

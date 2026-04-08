@@ -132,7 +132,7 @@ export default function FAQContent() {
                           transition: 'background-color 0.15s, color 0.15s',
                         }}
                       >
-                        <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>{cat.icon}</span>
+                        <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">{cat.icon}</span>
                         {key}
                       </button>
                     );
@@ -149,7 +149,7 @@ export default function FAQContent() {
               borderRadius: '0.75rem',
               border: '1px solid var(--outline-variant)',
             }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', marginBottom: '0.5rem', display: 'block' }}>support_agent</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', marginBottom: '0.5rem', display: 'block' }} aria-hidden="true">support_agent</span>
               <p style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-on-surface)', marginBottom: '0.375rem' }}>Still need support?</p>
               <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem', lineHeight: 1.5 }}>
                 Our team responds within 24-48 hours.
@@ -184,7 +184,7 @@ export default function FAQContent() {
                 alignItems: 'center',
                 gap: '1rem',
               }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)' }}>handshake</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)' }} aria-hidden="true">handshake</span>
                 <div>
                   <p style={{ fontWeight: 600, color: 'var(--color-on-surface)', fontSize: '0.95rem' }}>Employer Partnership Inquiries</p>
                   <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
@@ -197,7 +197,7 @@ export default function FAQContent() {
             {/* Section heading */}
             <div style={{ marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }} aria-hidden="true">
                   {categories.find((c) => c.key === activeCategory)?.icon ?? 'help_outline'}
                 </span>
                 {activeCategory}
@@ -248,7 +248,7 @@ export default function FAQContent() {
                           transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
                           flexShrink: 0,
                         }}
-                      >
+                       aria-hidden="true">
                         expand_more
                       </span>
                     </button>
@@ -270,7 +270,7 @@ export default function FAQContent() {
                               }}
                             >
                               {item.link.text}
-                              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_forward</span>
+                              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
                             </Link>
                           </p>
                         )}
@@ -336,7 +336,7 @@ export default function FAQContent() {
             aspectRatio: '4/3',
           }}>
             <div style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '3rem', display: 'block', marginBottom: '0.5rem', opacity: 0.3 }}>forum</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '3rem', display: 'block', marginBottom: '0.5rem', opacity: 0.3 }} aria-hidden="true">forum</span>
               <p style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em' }}>We&rsquo;re here to help</p>
             </div>
           </div>

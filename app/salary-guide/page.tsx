@@ -231,7 +231,7 @@ export default function SalaryGuidePage() {
             color: 'var(--color-accent)', fontSize: '0.7rem', fontWeight: 700,
             letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '1rem',
           }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>analytics</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">analytics</span>
             Salary Intelligence
           </span>
           <h1 className="text-display-lg" style={{ marginBottom: '1rem' }}>2025 Salary Intelligence</h1>
@@ -256,7 +256,7 @@ export default function SalaryGuidePage() {
                   <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Featured</span>
                   <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginTop: '0.25rem' }}>AI / Machine Learning Salary Bands</h3>
                 </div>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.5rem' }}>smart_toy</span>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.5rem' }} aria-hidden="true">smart_toy</span>
               </div>
               {/* Visual salary bars */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -286,7 +286,7 @@ export default function SalaryGuidePage() {
                 padding: '1.5rem', border: '1px solid var(--surface-container-highest)',
                 flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center',
               }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-gold)', marginBottom: '0.5rem' }}>apartment</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-gold)', marginBottom: '0.5rem' }} aria-hidden="true">apartment</span>
                 <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Cost of Living Factor</span>
                 <span style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--color-on-surface)', marginTop: '0.25rem' }}>National</span>
                 <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Ranges anchored to national data</span>
@@ -297,7 +297,7 @@ export default function SalaryGuidePage() {
                 padding: '1.5rem', color: 'white', flex: 1,
                 display: 'flex', flexDirection: 'column', justifyContent: 'center',
               }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>local_fire_department</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }} aria-hidden="true">local_fire_department</span>
                 <span style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.8 }}>Market Heat</span>
                 <span style={{ fontSize: '2rem', fontWeight: 900, marginTop: '0.25rem' }}>{guideStats.over100Count} Tracks</span>
                 <span style={{ fontSize: '0.8rem', opacity: 0.85, marginTop: '0.25rem' }}>Top out above $100K</span>
@@ -389,7 +389,7 @@ export default function SalaryGuidePage() {
           <div className="salary-guide-insights salary-guide-insights-grid" style={{ marginTop: '3rem' }}>
             {insights.map((item) => (
               <div key={item.title} style={{ background: 'var(--surface-container-low)', borderRadius: 'var(--radius-lg, 12px)', padding: '1.5rem' }}>
-                <div style={{ marginBottom: '.5rem' }}><span className="material-symbols-outlined" style={{ fontSize: 24, color: 'var(--color-accent)' }}>{item.icon}</span></div>
+                <div style={{ marginBottom: '.5rem' }}><span className="material-symbols-outlined" style={{ fontSize: 24, color: 'var(--color-accent)' }} aria-hidden="true">{item.icon}</span></div>
                 <strong>{item.title}</strong>
                 <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '.9rem', marginTop: '.4rem' }}>{item.desc}</p>
               </div>
@@ -433,7 +433,7 @@ export default function SalaryGuidePage() {
             padding: '2.5rem', textAlign: 'center', marginBottom: '2rem',
             border: '1px solid var(--surface-container-highest)',
           }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'block' }}>download</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'block' }} aria-hidden="true">download</span>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>Start Your Career Track</h3>
             <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', marginBottom: '1.5rem', maxWidth: '480px', marginLeft: 'auto', marginRight: 'auto' }}>
               Apply for free to unlock your personalized salary roadmap, counselor support, and employer connections.

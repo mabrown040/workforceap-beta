@@ -258,7 +258,7 @@ export default function AuditLogsClient({
                 </td>
                 <td style={{ padding: '0.625rem 0.5rem' }}>
                   {e.metadata ? (
-                    <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)' }} aria-hidden="true">
                       {expandedId === e.id ? 'expand_less' : 'expand_more'}
                     </span>
                   ) : (

@@ -223,11 +223,11 @@ export default async function AdminPage() {
           action={
             <div style={{ display: 'flex', gap: '0.75rem' }}>
               <Link href="/admin/pipeline" className="btn btn-outline">
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>account_tree</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">account_tree</span>
                 Pipeline
               </Link>
               <Link href="/admin/members" className="btn btn-primary">
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>groups</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">groups</span>
                 All Members
               </Link>
             </div>
@@ -277,7 +277,7 @@ export default async function AdminPage() {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
                 <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '0.5rem', background: `${card.accent}1a`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span className="material-symbols-outlined" style={{ color: card.accent }}>{card.icon}</span>
+                  <span className="material-symbols-outlined" style={{ color: card.accent }} aria-hidden="true">{card.icon}</span>
                 </div>
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.5 }} aria-hidden>
                   arrow_forward
@@ -412,7 +412,7 @@ export default async function AdminPage() {
                 <Link key={item.label} href={item.href} className="portal-action-row" style={{ gap: '1rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <div style={{ padding: '0.625rem', background: 'rgba(173,44,77,0.1)', borderRadius: '0.5rem' }}>
-                      <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem' }}>{item.icon}</span>
+                      <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem' }} aria-hidden="true">{item.icon}</span>
                     </div>
                     <div>
                       <h4 className="portal-action-row__title">{item.label}</h4>
@@ -475,7 +475,7 @@ export default async function AdminPage() {
               {recentUsers.slice(0, 4).map((u, i) => (
                 <div key={u.id} style={{ position: 'relative' }}>
                   <div style={{ position: 'absolute', left: '-2.5rem', top: '0.125rem', width: '1.5rem', height: '1.5rem', borderRadius: '50%', background: 'var(--surface-container)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${i === 0 ? 'rgba(173,44,77,0.2)' : 'rgba(226,226,229,0.1)'}` }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.75rem', color: i === 0 ? 'var(--color-accent)' : 'var(--color-on-surface-variant)' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.75rem', color: i === 0 ? 'var(--color-accent)' : 'var(--color-on-surface-variant)' }} aria-hidden="true">
                       {i === 0 ? 'person_add' : 'verified'}
                     </span>
                   </div>
@@ -544,7 +544,7 @@ export default async function AdminPage() {
           ].map((action) => (
             <a key={action.label} href={action.href}
               className="active:scale-[0.97] wa-transition-transform" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1rem', borderRadius: '0.75rem', textDecoration: 'none', background: 'var(--surface-container-lowest)', border: '1px solid var(--outline-variant)' }}>
-              <span className="material-symbols-outlined" style={{ marginBottom: '0.5rem', color: 'var(--color-accent)' }}>{action.icon}</span>
+              <span className="material-symbols-outlined" style={{ marginBottom: '0.5rem', color: 'var(--color-accent)' }} aria-hidden="true">{action.icon}</span>
               <span className="wa-text-[11px] wa-font-bold wa-text-[var(--color-on-surface)] wa-tracking-tight">{action.label}</span>
             </a>
           ))}

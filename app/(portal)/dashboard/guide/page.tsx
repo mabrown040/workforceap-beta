@@ -178,9 +178,9 @@ export default async function MemberGuidePage() {
                     transition: 'all 0.2s',
                   }}>
                     {isDone ? (
-                      <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '1.125rem' }}>check</span>
+                      <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '1.125rem' }} aria-hidden="true">check</span>
                     ) : (
-                      <span className="material-symbols-outlined" style={{ color: isActive ? '#fff' : 'var(--color-on-surface-variant)', fontSize: '1.125rem' }}>{step.icon}</span>
+                      <span className="material-symbols-outlined" style={{ color: isActive ? '#fff' : 'var(--color-on-surface-variant)', fontSize: '1.125rem' }} aria-hidden="true">{step.icon}</span>
                     )}
                   </div>
                 </div>
@@ -234,7 +234,7 @@ export default async function MemberGuidePage() {
                       letterSpacing: '-0.01em',
                     }}>
                       {step.cta}
-                      <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_forward</span>
+                      <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
                     </Link>
                   )}
                   {!isActive && !isDone && (
@@ -249,7 +249,7 @@ export default async function MemberGuidePage() {
                       marginTop: '0.375rem',
                     }}>
                       {step.cta}
-                      <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>arrow_forward</span>
+                      <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">arrow_forward</span>
                     </Link>
                   )}
                 </div>
@@ -276,7 +276,7 @@ export default async function MemberGuidePage() {
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }}>{b.icon}</span>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }} aria-hidden="true">{b.icon}</span>
               </div>
               <div>
                 <h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>{b.title}</h3>

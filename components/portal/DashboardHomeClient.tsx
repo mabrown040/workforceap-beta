@@ -191,7 +191,7 @@ export default function DashboardHomeClient({
                   return (
                     <div key={item.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '60px', opacity: item.done ? 0.4 : isCurrent ? 1 : 0.2, color: isCurrent ? 'var(--color-accent)' : 'var(--color-on-surface-variant)' }}>
                       {item.done ? (
-                        <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', marginBottom: '0.5rem', fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                        <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', marginBottom: '0.5rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">check_circle</span>
                       ) : isCurrent ? (
                         <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--color-accent)', marginBottom: '1rem', animation: 'pulse 2s infinite' }} />
                       ) : (
@@ -215,7 +215,7 @@ export default function DashboardHomeClient({
           {noApplicationOnFile ? (
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>description</span>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }} aria-hidden="true">description</span>
                 <h3 style={{ fontWeight: 700, fontSize: '0.875rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Program Application</h3>
               </div>
               <div className="stitch-card" style={{ marginBottom: '1rem' }}>
@@ -230,7 +230,7 @@ export default function DashboardHomeClient({
           ) : applicationStatus ? (
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>task_alt</span>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }} aria-hidden="true">task_alt</span>
                 <h3 style={{ fontWeight: 700, fontSize: '0.875rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Application Status</h3>
               </div>
               {applicationStatus.progressIndex !== null && (
@@ -288,7 +288,7 @@ export default function DashboardHomeClient({
             /* Today card when no application status */
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>neurology</span>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }} aria-hidden="true">neurology</span>
                 <h3 style={{ fontWeight: 700, fontSize: '0.875rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Today</h3>
               </div>
               <div className="stitch-card">
@@ -319,7 +319,7 @@ export default function DashboardHomeClient({
         {assessmentDone && !preScreeningDone && (
           <section className="stitch-card" style={{ gridColumn: 'span 12' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-              <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>assignment</span>
+              <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }} aria-hidden="true">assignment</span>
               <h3 style={{ fontWeight: 700, fontSize: '0.875rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Pre-screening (before your interview)</h3>
             </div>
             <MemberPreScreeningForm />
@@ -330,7 +330,7 @@ export default function DashboardHomeClient({
         {assessmentDone && preScreeningDone && interviewEligible && !interviewCompletedAt && (
           <section className="stitch-card" style={{ gridColumn: 'span 12' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-              <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>videocam</span>
+              <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }} aria-hidden="true">videocam</span>
               <h3 style={{ fontWeight: 700, fontSize: '0.875rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Interview</h3>
             </div>
             {interviewRequestedAt ? (
@@ -448,7 +448,7 @@ export default function DashboardHomeClient({
                 </p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.6875rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', opacity: 0.8, textTransform: 'uppercase' }}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.75rem' }}>schedule</span> Recommended
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.75rem' }} aria-hidden="true">schedule</span> Recommended
                   </span>
                 </div>
               </div>
@@ -505,12 +505,12 @@ export default function DashboardHomeClient({
               <Link key={item.href} href={item.href} style={{ textDecoration: 'none', color: 'inherit' }}
                 onClick={() => handleDashboardAction(item.action)}>
                 <div className="stitch-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-on-surface-variant)' }}>{item.icon}</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-on-surface-variant)' }} aria-hidden="true">{item.icon}</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <h5 style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{item.label}</h5>
                     <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{item.desc}</p>
                   </div>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.3, flexShrink: 0 }}>chevron_right</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.3, flexShrink: 0 }} aria-hidden="true">chevron_right</span>
                 </div>
               </Link>
             ))}
@@ -548,7 +548,7 @@ export default function DashboardHomeClient({
                   { done: checklist.completeFirstCourse, label: 'Complete first course' },
                 ]).map(({ done, label }) => (
                   <li key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.875rem', color: done ? 'var(--color-on-surface-variant)' : 'var(--color-accent)' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: done ? 'var(--color-green)' : 'var(--surface-container-highest)', fontVariationSettings: done ? "'FILL' 1" : "'FILL' 0" }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: done ? 'var(--color-green)' : 'var(--surface-container-highest)', fontVariationSettings: done ? "'FILL' 1" : "'FILL' 0" }} aria-hidden="true">
                       {done ? 'check_circle' : 'circle'}
                     </span>
                     <span style={{ textDecoration: done ? 'line-through' : 'none' }}>{label}</span>

@@ -111,7 +111,7 @@ export default async function CounselorPortalPage() {
               <p className="wa-text-[11px] wa-uppercase wa-tracking-widest" style={{ opacity:0.85, marginBottom:"0.25rem" }}>Your Students</p>
               <p className="wa-text-4xl wa-font-bold wa-tracking-tighter">{assignments.length}</p>
             </div>
-            <span className="material-symbols-outlined -wa-right-2 -wa-bottom-2" style={{position:"absolute", opacity:0.1, fontSize: '100px'}}>group</span>
+            <span className="material-symbols-outlined -wa-right-2 -wa-bottom-2" style={{position:"absolute", opacity:0.1, fontSize: '100px'}} aria-hidden="true">group</span>
           </div>
           <div className="bg-surface-container-low" style={{ borderRadius:"0.75rem", padding:"1rem" }}>
             <p className="wa-text-[11px] wa-uppercase wa-tracking-widest text-on-surface-variant" style={{ marginBottom:"0.25rem" }}>In a Program</p>
@@ -136,14 +136,14 @@ export default async function CounselorPortalPage() {
         <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem" }}>
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1rem" }}>
             <h3 className="wa-text-lg wa-font-bold wa-tracking-tight">Active Roster</h3>
-            <span className="material-symbols-outlined text-on-surface-variant wa-text-xl">sort</span>
+            <span className="material-symbols-outlined text-on-surface-variant wa-text-xl" aria-hidden="true">sort</span>
           </div>
           <div style={{ display:"flex", flexDirection:"column", gap:"0.75rem" }}>
             {assignments.length === 0 ? (
               <PortalEmptyState
                 title="No students assigned yet"
                 description="Students will appear here once assigned by an administrator. In the meantime, explore the counselor guide."
-                icon={<span className="material-symbols-outlined">person_search</span>}
+                icon={<span className="material-symbols-outlined" aria-hidden="true">person_search</span>}
                 primaryAction={{ label: 'Counselor guide', href: '/counselor/guide' }}
                 secondaryAction={{ label: 'Resources', href: '/counselor/resources' }}
               />
@@ -166,7 +166,7 @@ export default async function CounselorPortalPage() {
                   <Link key={a.id} href={`/counselor/students/${a.memberId}`}
                     className="wa-bg-white active:scale-[0.98] wa-transition-all" style={{ borderRadius:"0.75rem", padding:"1rem", display:"flex", alignItems:"center", gap:"0.75rem", textDecoration:"none" }}>
                     <div className="bg-surface-container-high" style={{ width:"3rem", height:"3rem", borderRadius:"0.75rem", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                      <span className="material-symbols-outlined text-on-surface-variant">person</span>
+                      <span className="material-symbols-outlined text-on-surface-variant" aria-hidden="true">person</span>
                     </div>
                     <div style={{ flex:1, minWidth:0 }}>
                       <h4 className="wa-font-bold text-on-surface wa-text-base wa-truncate">{a.member.fullName}</h4>
@@ -180,7 +180,7 @@ export default async function CounselorPortalPage() {
                     </div>
                     <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:"0.5rem" }}>
                       <StatusBadge label={statusLabel} variant={badgeVariant} />
-                      <span className="material-symbols-outlined text-surface-container-highest">chevron_right</span>
+                      <span className="material-symbols-outlined text-surface-container-highest" aria-hidden="true">chevron_right</span>
                     </div>
                   </Link>
                 );
@@ -230,10 +230,10 @@ export default async function CounselorPortalPage() {
               </h3>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button style={{ padding: '0.5rem', background: 'var(--surface-container)', borderRadius: '0.5rem', border: 'none', color: 'var(--color-on-surface-variant)', cursor: 'pointer' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>filter_list</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">filter_list</span>
                 </button>
                 <button style={{ padding: '0.5rem', background: 'var(--surface-container)', borderRadius: '0.5rem', border: 'none', color: 'var(--color-on-surface-variant)', cursor: 'pointer' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>sort</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">sort</span>
                 </button>
               </div>
             </div>
@@ -242,7 +242,7 @@ export default async function CounselorPortalPage() {
               <PortalEmptyState
                 title="No students assigned yet"
                 description="Students will appear here once assigned by an administrator."
-                icon={<span className="material-symbols-outlined">person_search</span>}
+                icon={<span className="material-symbols-outlined" aria-hidden="true">person_search</span>}
                 primaryAction={{ label: 'Contact admin for assignments', href: 'mailto:info@workforceap.org?subject=Student%20assignments%20for%20counselor%20portal' }}
                 secondaryAction={{ label: 'Counselor resources', href: '/counselor/resources' }}
               />
@@ -282,7 +282,7 @@ export default async function CounselorPortalPage() {
                             label={isEnrolled ? 'Enrolled' : 'Not enrolled'}
                             variant={isEnrolled ? 'success' : 'accent'}
                           />
-                          <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4 }}>more_vert</span>
+                          <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4 }} aria-hidden="true">more_vert</span>
                         </div>
                       </div>
                     </Link>
@@ -362,7 +362,7 @@ export default async function CounselorPortalPage() {
                       width: '2.75rem', minWidth: '2.75rem', height: '2.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
                       background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', borderRadius: '0.625rem',
                     }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>{link.icon}</span>
+                      <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">{link.icon}</span>
                     </div>
                     <div>
                       <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{link.title}</p>

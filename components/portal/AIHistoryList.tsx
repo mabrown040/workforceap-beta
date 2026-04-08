@@ -21,6 +21,8 @@ export default function AIHistoryList({ results, initialFilter = '' }: { results
     ? results.filter((r) => r.toolType === filter || r.toolLabel.toLowerCase().includes(filter.toLowerCase()))
     : results;
 
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
   const formatOutput = (output: string, toolType: string): string => {
     if (toolType === 'interview_practice') {
       try {
@@ -108,9 +110,24 @@ export default function AIHistoryList({ results, initialFilter = '' }: { results
                 <button
                   type="button"
                   className="btn btn-outline btn-sm"
-                  onClick={() => navigator.clipboard.writeText(formatOutput(r.output, r.toolType))}
+                  aria-label="Copy result"
+                  onClick={() => {
+                    navigator.clipboard.writeText(formatOutput(r.output, r.toolType));
+                    setCopiedId(r.id);
+                    setTimeout(() => setCopiedId(null), 2000);
+                  }}
                 >
-                  Copy
+                  {copiedId === r.id ? (
+                    <>
+                      <span className="material-symbols-outlined" style={{ fontSize: '1rem', marginRight: '4px' }} aria-hidden="true">check</span>
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined" style={{ fontSize: '1rem', marginRight: '4px' }} aria-hidden="true">content_copy</span>
+                      Copy
+                    </>
+                  )}
                 </button>
               </div>
             )}

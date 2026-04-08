@@ -153,7 +153,7 @@ export default async function AIToolsPage() {
                   }}
                 >
                   {a.label}
-                  <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }} aria-hidden="true">
                     arrow_forward
                   </span>
                 </Link>
@@ -176,7 +176,7 @@ export default async function AIToolsPage() {
               textDecoration: 'none',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
               history
             </span>
             View my past results
@@ -250,7 +250,7 @@ export default async function AIToolsPage() {
                 <span
                   className="material-symbols-outlined"
                   style={{ fontSize: '1.5rem', color: 'var(--color-accent)', marginBottom: '0.5rem', display: 'block' }}
-                >
+                 aria-hidden="true">
                   {item.icon}
                 </span>
                 <div className="metric-value" style={{ fontSize: '1.125rem', fontWeight: 700 }}>

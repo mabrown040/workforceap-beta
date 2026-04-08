@@ -318,7 +318,7 @@ export default function SignupForm() {
     return (
       <div style={{ ...s.wrapper, justifyContent: 'center', alignItems: 'center' }}>
         <div style={{ textAlign: 'center', maxWidth: 440, padding: 'var(--space-8)' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 56, color: 'var(--color-green)', marginBottom: 'var(--space-4)', display: 'block' }}>mark_email_read</span>
+          <span className="material-symbols-outlined" style={{ fontSize: 56, color: 'var(--color-green)', marginBottom: 'var(--space-4)', display: 'block' }} aria-hidden="true">mark_email_read</span>
           <h2 style={{ ...s.heading, marginBottom: 'var(--space-4)' }}>Check your email</h2>
           <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-6)', lineHeight: 'var(--line-height-normal)' }}>
             We&apos;ve sent you a verification link. Click it to activate your account, then you can log in.
@@ -349,7 +349,7 @@ export default function SignupForm() {
         </div>
 
         <div style={s.brandContent}>
-          <span className="material-symbols-outlined" style={{ fontSize: 48, opacity: 0.9, marginBottom: 'var(--space-4)', display: 'block' }}>account_balance</span>
+          <span className="material-symbols-outlined" style={{ fontSize: 48, opacity: 0.9, marginBottom: 'var(--space-4)', display: 'block' }} aria-hidden="true">account_balance</span>
           <h1 style={{ fontSize: 'clamp(1.75rem, 3vw, 2.5rem)', fontWeight: 800, lineHeight: 1.15, marginBottom: 'var(--space-4)', letterSpacing: '-0.02em' }}>
             The modern institutional archive
           </h1>
@@ -377,11 +377,11 @@ export default function SignupForm() {
           {/* Social login */}
           <div style={s.socialRow}>
             <button type="button" style={s.socialBtn}>
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>domain</span>
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">domain</span>
               Google
             </button>
             <button type="button" style={s.socialBtn}>
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>code</span>
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">code</span>
               GitHub
             </button>
           </div>
@@ -448,7 +448,7 @@ export default function SignupForm() {
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                   aria-pressed={showPassword}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 20 }} aria-hidden="true">
                     {showPassword ? 'visibility_off' : 'visibility'}
                   </span>
                 </button>

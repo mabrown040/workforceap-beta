@@ -435,7 +435,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
               <div key={i} style={{ position:"relative", display:"flex", alignItems:"flex-start", gap:"1.25rem", paddingBottom:"1.75rem", opacity: locked ? 0.45 : 1 }}>
                 {step.done ? (
                   <div style={{ position:"relative", zIndex:10, width:"1.5rem", height:"1.5rem", borderRadius:"9999px", background:"var(--color-accent)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                    <span className="material-symbols-outlined" style={{ color:"var(--color-white)", fontSize:"0.75rem" }}>check</span>
+                    <span className="material-symbols-outlined" style={{ color:"var(--color-white)", fontSize:"0.75rem" }} aria-hidden="true">check</span>
                   </div>
                 ) : step.active ? (
                   <div style={{ position:"relative", zIndex:10, width:"1.5rem", height:"1.5rem", borderRadius:"9999px", background:"var(--surface-container-lowest)", border:"3px solid var(--color-accent)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }} title="Current step">
@@ -487,7 +487,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
             ].map((action) => (
               <a key={action.label} href={action.href}
                 className="active:scale-[0.97] wa-transition-transform" style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"1rem", borderRadius:"0.75rem", textDecoration:"none", background:"var(--surface-container-lowest)", border:"1px solid var(--outline-variant)", boxShadow:"0 1px 4px rgba(0,0,0,0.05)" }}>
-                <span className="material-symbols-outlined" style={{ marginBottom:"0.5rem", color:"var(--color-accent)" }}>{action.icon}</span>
+                <span className="material-symbols-outlined" style={{ marginBottom:"0.5rem", color:"var(--color-accent)" }} aria-hidden="true">{action.icon}</span>
                 <span className="wa-text-xs wa-font-bold wa-text-[var(--color-on-surface)] wa-tracking-tight">{action.label}</span>
               </a>
             ))}
@@ -504,7 +504,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
             <div style={{ display:'flex', flexDirection:'column', gap:'0.5rem' }}>
               {recentTools.map((r) => (
                 <div key={r.id} style={{ display:'flex', alignItems:'center', gap:'0.75rem', padding:'0.75rem', borderRadius:'0.75rem', background:'#ffffff', border:'1px solid rgba(222,191,194,0.3)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize:'1.1rem', color:'var(--color-accent)', flexShrink:0 }}>smart_toy</span>
+                  <span className="material-symbols-outlined" style={{ fontSize:'1.1rem', color:'var(--color-accent)', flexShrink:0 }} aria-hidden="true">smart_toy</span>
                   <div style={{ flex:1, minWidth:0 }}>
                     <p className="wa-text-xs wa-font-bold wa-text-[#1c1b1b] wa-leading-tight">{AI_TOOL_LABELS[r.toolType] ?? r.toolType}</p>
                     {r.inputSummary && (
@@ -578,13 +578,13 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 <h2 style={{ fontSize:'1rem', fontWeight:700, margin:0, color:'var(--color-on-surface)' }}>Recent AI Activity</h2>
                 <Link href="/dashboard/ai-tools/history" className="portal-section-action">
                   View all
-                  <span className="material-symbols-outlined" style={{ fontSize:'0.9rem' }}>arrow_forward</span>
+                  <span className="material-symbols-outlined" style={{ fontSize:'0.9rem' }} aria-hidden="true">arrow_forward</span>
                 </Link>
               </div>
               <div style={{ display:'flex', flexDirection:'column', gap:'0.5rem' }}>
                 {recentTools.map((r) => (
                   <div key={r.id} className="stitch-card stitch-card--padded-sm" style={{ display:'flex', alignItems:'center', gap:'1rem' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize:'1.25rem', color:'var(--color-accent)', flexShrink:0 }}>smart_toy</span>
+                    <span className="material-symbols-outlined" style={{ fontSize:'1.25rem', color:'var(--color-accent)', flexShrink:0 }} aria-hidden="true">smart_toy</span>
                     <div style={{ flex:1, minWidth:0 }}>
                       <p style={{ fontSize:'0.875rem', fontWeight:600, margin:0, color:'var(--color-on-surface)' }}>{AI_TOOL_LABELS[r.toolType] ?? r.toolType}</p>
                       {r.inputSummary && (

@@ -40,7 +40,7 @@ export default function ContactMobileSection() {
               marginBottom: '1rem',
             }}
           >
-            <span className="material-symbols-outlined" style={{ color: '#8c0f37' }}>alternate_email</span>
+            <span className="material-symbols-outlined" style={{ color: '#8c0f37' }} aria-hidden="true">alternate_email</span>
           </div>
           <p style={{ marginBottom: '0.25rem', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#8c0f37' }}>Email</p>
           <p style={{ wordBreak: 'break-word', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>info@workforceap.org</p>
@@ -58,7 +58,7 @@ export default function ContactMobileSection() {
               marginBottom: '1rem',
             }}
           >
-            <span className="material-symbols-outlined" style={{ color: '#7b5800' }}>phone</span>
+            <span className="material-symbols-outlined" style={{ color: '#7b5800' }} aria-hidden="true">phone</span>
           </div>
           <p style={{ marginBottom: '0.25rem', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#7b5800' }}>Phone</p>
           <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>(512) 777-1808</p>
@@ -76,7 +76,7 @@ export default function ContactMobileSection() {
               marginBottom: '1rem',
             }}
           >
-            <span className="material-symbols-outlined" style={{ color: '#8c0f37' }}>location_on</span>
+            <span className="material-symbols-outlined" style={{ color: '#8c0f37' }} aria-hidden="true">location_on</span>
           </div>
           <p style={{ marginBottom: '0.25rem', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#8c0f37' }}>Location</p>
           <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>Austin, TX</p>
@@ -94,7 +94,7 @@ export default function ContactMobileSection() {
               marginBottom: '1rem',
             }}
           >
-            <span className="material-symbols-outlined" style={{ color: '#8c0f37' }}>schedule</span>
+            <span className="material-symbols-outlined" style={{ color: '#8c0f37' }} aria-hidden="true">schedule</span>
           </div>
           <p style={{ marginBottom: '0.25rem', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#8c0f37' }}>Hours</p>
           <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>Mon–Fri 9–5 CT</p>

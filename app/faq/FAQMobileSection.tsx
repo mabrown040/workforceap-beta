@@ -83,7 +83,7 @@ export default function FAQMobileSection() {
         {/* Search Bar */}
         <div style={{ position: 'relative' }}>
           <div style={{ position: 'absolute', top: 0, bottom: 0, left: '1rem', display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
-            <span className="material-symbols-outlined text-[#8b7073]">search</span>
+            <span className="material-symbols-outlined text-[#8b7073]" aria-hidden="true">search</span>
           </div>
           <label htmlFor="faq-search-input" className="sr-only">Search frequently asked questions</label>
           <input
@@ -173,7 +173,7 @@ export default function FAQMobileSection() {
             })
           ) : (
             <div style={{ textAlign: 'center', paddingTop: '3rem', paddingBottom: '3rem', color: '#584144' }}>
-              <span className="material-symbols-outlined text-4xl opacity-30" style={{ display: 'block', marginBottom: '0.75rem' }}>search_off</span>
+              <span className="material-symbols-outlined text-4xl opacity-30" style={{ display: 'block', marginBottom: '0.75rem' }} aria-hidden="true">search_off</span>
               <p className="font-medium">No results found for &ldquo;{search}&rdquo;</p>
               <button
                 className="text-[#8c0f37] font-semibold text-sm"
@@ -197,7 +197,7 @@ export default function FAQMobileSection() {
             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
           >
             Contact Us
-            <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">
+            <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1" aria-hidden="true">
               arrow_forward
             </span>
           </Link>

@@ -215,12 +215,12 @@ export default async function PartnerDashboardPage() {
             alignItems: 'center',
             gap: '0.75rem',
           }}>
-            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem', flexShrink: 0 }}>lightbulb</span>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem', flexShrink: 0 }} aria-hidden="true">lightbulb</span>
             <div style={{ flex: 1, minWidth: 0 }}>
               <p className="wa-text-sm wa-font-semibold" style={{ color: 'var(--color-on-surface)', margin: 0 }}>{nextAction.label}</p>
               <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', margin: '0.125rem 0 0' }}>{nextAction.tip}</p>
             </div>
-            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem', flexShrink: 0 }}>arrow_forward_ios</span>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem', flexShrink: 0 }} aria-hidden="true">arrow_forward_ios</span>
           </div>
         </Link>
       </div>
@@ -236,7 +236,7 @@ export default async function PartnerDashboardPage() {
             <PortalEmptyState
               title="No members yet"
               description="Share your referral link to start connecting applicants with WorkforceAP."
-              icon={<span className="material-symbols-outlined">group_add</span>}
+              icon={<span className="material-symbols-outlined" aria-hidden="true">group_add</span>}
               primaryAction={{ label: 'Referral guide', href: '/partner/guide' }}
             />
           ) : (
@@ -271,28 +271,28 @@ export default async function PartnerDashboardPage() {
         <p className="wa-text-sm wa-font-bold" style={{ color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>Quick Actions</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           <Link href="/partner/milestones" className="active:scale-[0.98] wa-transition-all" style={{ background: '#fff', border: '1px solid #ebe7e7', borderRadius: '0.875rem', padding: '0.875rem 1rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }}>flag</span>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }} aria-hidden="true">flag</span>
             <div style={{ flex: 1 }}>
               <p className="wa-text-sm wa-font-semibold" style={{ color: 'var(--color-on-surface)', margin: 0 }}>Review Milestones</p>
               <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>{inTrainingCount} currently in training</p>
             </div>
-            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem' }}>arrow_forward_ios</span>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem' }} aria-hidden="true">arrow_forward_ios</span>
           </Link>
           <Link href="/partner/outcomes" className="active:scale-[0.98] wa-transition-all" style={{ background: '#fff', border: '1px solid #ebe7e7', borderRadius: '0.875rem', padding: '0.875rem 1rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <span className="material-symbols-outlined" style={{ color: 'var(--color-gold)', fontSize: '1.25rem' }}>bar_chart</span>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-gold)', fontSize: '1.25rem' }} aria-hidden="true">bar_chart</span>
             <div style={{ flex: 1 }}>
               <p className="wa-text-sm wa-font-semibold" style={{ color: 'var(--color-on-surface)', margin: 0 }}>Outcomes</p>
               <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>View placement reports</p>
             </div>
-            <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.125rem' }}>arrow_forward_ios</span>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.125rem' }} aria-hidden="true">arrow_forward_ios</span>
           </Link>
           <Link href="/partner/exports" className="active:scale-[0.98] wa-transition-all" style={{ background: '#fff', border: '1px solid #ebe7e7', borderRadius: '0.875rem', padding: '0.875rem 1rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <span className="material-symbols-outlined" style={{ color: '#474646', fontSize: '1.25rem' }}>download</span>
+            <span className="material-symbols-outlined" style={{ color: '#474646', fontSize: '1.25rem' }} aria-hidden="true">download</span>
             <div style={{ flex: 1 }}>
               <p className="wa-text-sm wa-font-semibold" style={{ color: 'var(--color-on-surface)', margin: 0 }}>Export Data</p>
               <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>CSV, PDF reports</p>
             </div>
-            <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.125rem' }}>arrow_forward_ios</span>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.125rem' }} aria-hidden="true">arrow_forward_ios</span>
           </Link>
         </div>
       </div>
@@ -311,11 +311,11 @@ export default async function PartnerDashboardPage() {
         action={
           <div style={{ display: 'flex', gap: '0.75rem' }}>
             <Link href="/partner/outcomes" className="btn btn-outline">
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>summarize</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">summarize</span>
               Outcomes snapshot
             </Link>
             <Link href="/apply" className="btn btn-primary">
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>person_add</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">person_add</span>
               New Referral
             </Link>
           </div>
@@ -357,12 +357,12 @@ export default async function PartnerDashboardPage() {
       <section style={{ marginBottom: '2rem' }}>
         <Link href={nextAction.href} style={{ textDecoration: 'none' }}>
           <div className="portal-alert portal-alert--accent" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', flexShrink: 0 }}>lightbulb</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', flexShrink: 0 }} aria-hidden="true">lightbulb</span>
             <div style={{ flex: 1 }}>
               <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-on-surface)', margin: 0 }}>{nextAction.label}</p>
               <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0.125rem 0 0' }}>{nextAction.tip}</p>
             </div>
-            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem', flexShrink: 0 }}>arrow_forward</span>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem', flexShrink: 0 }} aria-hidden="true">arrow_forward</span>
           </div>
         </Link>
       </section>
@@ -389,7 +389,7 @@ export default async function PartnerDashboardPage() {
 
       {total === 0 ? (
         <PortalEmptyState
-          icon={<span className="material-symbols-outlined">group_add</span>}
+          icon={<span className="material-symbols-outlined" aria-hidden="true">group_add</span>}
           title="No referred members yet"
           description={`Send applicants to workforceap.org/apply and have them list ${ctx.partner.name} when asked how they heard about WorkforceAP.`}
           primaryAction={{ label: 'Open referral guide', href: '/partner/guide' }}
@@ -479,7 +479,7 @@ export default async function PartnerDashboardPage() {
                 background: 'linear-gradient(135deg, rgba(173,44,77,0.15) 0%, rgba(173,44,77,0.05) 100%)',
                 border: '1px solid rgba(173,44,77,0.15)',
               }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'block' }}>menu_book</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'block' }} aria-hidden="true">menu_book</span>
                 <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-on-surface)', marginBottom: '0.375rem' }}>Resource Center</h3>
                 <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem', lineHeight: 1.5 }}>
                   Guides, templates, and tools to maximize your referral impact.

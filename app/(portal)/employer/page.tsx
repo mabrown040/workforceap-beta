@@ -240,29 +240,29 @@ export default async function EmployerDashboardPage() {
             <Link href="/employer/applications"
               className="wa-text-white active:scale-[0.98] wa-transition-all" style={{gridColumn:"span 2", padding:"1rem", borderRadius:"0.75rem", display:"flex", alignItems:"center", justifyContent:"space-between", textDecoration:"none", background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent))'}}>
               <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
-                <span className="material-symbols-outlined">grading</span>
+                <span className="material-symbols-outlined" aria-hidden="true">grading</span>
                 <span className="wa-font-bold wa-tracking-tight">Review {totalApplications} Candidate{totalApplications !== 1 ? 's' : ''}</span>
               </div>
-              <span className="material-symbols-outlined" style={{ opacity:0.6 }}>arrow_forward</span>
+              <span className="material-symbols-outlined" style={{ opacity:0.6 }} aria-hidden="true">arrow_forward</span>
             </Link>
           ) : (
             <Link href="/employer/jobs/new"
               className="wa-text-white active:scale-[0.98] wa-transition-all" style={{gridColumn:"span 2", padding:"1rem", borderRadius:"0.75rem", display:"flex", alignItems:"center", justifyContent:"space-between", textDecoration:"none", background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent))'}}>
               <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
-                <span className="material-symbols-outlined">add_circle</span>
+                <span className="material-symbols-outlined" aria-hidden="true">add_circle</span>
                 <span className="wa-font-bold wa-tracking-tight">Post Your First Role</span>
               </div>
-              <span className="material-symbols-outlined" style={{ opacity:0.6 }}>arrow_forward</span>
+              <span className="material-symbols-outlined" style={{ opacity:0.6 }} aria-hidden="true">arrow_forward</span>
             </Link>
           )}
           <Link href="/employer/jobs/new"
             className="bg-surface-container-high text-on-surface active:scale-[0.98] wa-transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", flexDirection:"column", gap:"0.5rem", alignItems:"flex-start", textDecoration:"none", minHeight:"44px" }}>
-            <span className="material-symbols-outlined wa-text-[#8c0f37]">add_circle</span>
+            <span className="material-symbols-outlined wa-text-[#8c0f37]" aria-hidden="true">add_circle</span>
             <span className="wa-text-sm wa-font-bold wa-leading-tight">Post a Role</span>
           </Link>
           <Link href="/employer/messages"
             className="bg-surface-container-high text-on-surface active:scale-[0.98] wa-transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", flexDirection:"column", gap:"0.5rem", alignItems:"flex-start", textDecoration:"none", minHeight:"44px" }}>
-            <span className="material-symbols-outlined wa-text-[#7b5800]">forum</span>
+            <span className="material-symbols-outlined wa-text-[#7b5800]" aria-hidden="true">forum</span>
             <span className="wa-text-sm wa-font-bold wa-leading-tight">Messages</span>
           </Link>
         </div>
@@ -277,7 +277,7 @@ export default async function EmployerDashboardPage() {
               <PortalEmptyState
                 title="No applications yet"
                 description="Post a role to start receiving candidates from the WorkforceAP talent pool."
-                icon={<span className="material-symbols-outlined">inbox</span>}
+                icon={<span className="material-symbols-outlined" aria-hidden="true">inbox</span>}
                 primaryAction={{ label: 'Post a job', href: '/employer/jobs/new' }}
               />
             ) : (
@@ -285,7 +285,7 @@ export default async function EmployerDashboardPage() {
                 <Link key={app.id} href={`/employer/jobs/${app.jobId}`}
                   className="wa-bg-white active:scale-[0.98] wa-transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", alignItems:"center", gap:"0.75rem", textDecoration:"none" }}>
                   <div className="bg-surface-container-high" style={{ width:"2.5rem", height:"2.5rem", borderRadius:"9999px", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                    <span className="material-symbols-outlined wa-text-[18px] text-on-surface-variant">person</span>
+                    <span className="material-symbols-outlined wa-text-[18px] text-on-surface-variant" aria-hidden="true">person</span>
                   </div>
                   <div style={{ flex:1, minWidth:0 }}>
                     <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
@@ -341,7 +341,7 @@ export default async function EmployerDashboardPage() {
           <PortalEmptyState
             title="Welcome — start with your first posting"
             description="You do not have any job drafts or live roles yet. Post a single role, or import a list from a spreadsheet or careers URL."
-            icon={<span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-on-surface-variant)' }}>work</span>}
+            icon={<span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-on-surface-variant)' }} aria-hidden="true">work</span>}
             primaryAction={{ label: 'Post your first job', href: '/employer/jobs/new' }}
             secondaryAction={{ label: 'Import jobs', href: '/employer/jobs/import' }}
           />
@@ -367,14 +367,14 @@ export default async function EmployerDashboardPage() {
         <div className="stitch-card stitch-card--padded-lg">
           <div className="portal-section-header" style={{ marginBottom: '2rem' }}>
             <h2 className="portal-section-heading" style={{ margin: 0 }}>Talent Pipeline</h2>
-            <span className="material-symbols-outlined" style={{ padding: '0.5rem', background: 'var(--surface-container-lowest)', borderRadius: '0.375rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>filter_list</span>
+            <span className="material-symbols-outlined" style={{ padding: '0.5rem', background: 'var(--surface-container-lowest)', borderRadius: '0.375rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }} aria-hidden="true">filter_list</span>
           </div>
 
           {/* Placement snapshot stats */}
           <div className="portal-grid-metrics" style={{ marginBottom: '2rem' }}>
             {placementCards.map((card) => (
               <div key={card.label} style={{ background: 'var(--surface-container-low)', padding: '1rem', borderRadius: '0.5rem' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', display: 'block', marginBottom: '0.5rem' }}>{card.icon}</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', display: 'block', marginBottom: '0.5rem' }} aria-hidden="true">{card.icon}</span>
                 <p className="portal-stat-value" style={{ fontSize: '1.5rem' }}>{card.value}</p>
                 <p className="portal-stat-label" style={{ fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{card.label}</p>
               </div>
@@ -393,7 +393,7 @@ export default async function EmployerDashboardPage() {
                   <h4 className="portal-action-row__title">{item.label}</h4>
                   <p className="portal-action-row__desc">{item.desc}</p>
                 </div>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4 }}>chevron_right</span>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4 }} aria-hidden="true">chevron_right</span>
               </Link>
             ))}
           </div>
@@ -418,12 +418,12 @@ export default async function EmployerDashboardPage() {
                 { icon: 'gavel', label: 'Filled/Closed', value: filledPositions, status: 'Complete', color: 'var(--color-on-surface-variant)' },
               ].map((item) => (
                 <div key={item.label} className="portal-pipeline-item">
-                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>{item.icon}</span>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">{item.icon}</span>
                   <div style={{ flex: 1 }}>
                     <p className="portal-pipeline-item__label">{item.label}</p>
                     <p className="portal-pipeline-item__meta">{item.value} {item.status.toLowerCase()}</p>
                   </div>
-                  <span className="material-symbols-outlined" style={{ color: item.color, fontSize: '1.25rem' }}>
+                  <span className="material-symbols-outlined" style={{ color: item.color, fontSize: '1.25rem' }} aria-hidden="true">
                     {item.value > 0 ? 'check_circle' : 'pending'}
                   </span>
                 </div>
@@ -447,7 +447,7 @@ export default async function EmployerDashboardPage() {
                 Post a Job
               </Link>
             </div>
-            <span className="material-symbols-outlined portal-promo-card__bg-icon">school</span>
+            <span className="material-symbols-outlined portal-promo-card__bg-icon" aria-hidden="true">school</span>
           </div>
         </div>
       </section>

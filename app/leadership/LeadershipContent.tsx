@@ -305,7 +305,7 @@ export default function LeadershipContent() {
                       opacity: 0.7,
                       fontSize: '1.25rem',
                     }}
-                  >
+                   aria-hidden="true">
                     arrow_forward
                   </span>
                 </article>
@@ -403,7 +403,7 @@ export default function LeadershipContent() {
                             color: 'var(--color-accent)',
                             opacity: 0.85,
                           }}
-                        >
+                         aria-hidden="true">
                           support_agent
                         </span>
                         <span
@@ -495,7 +495,7 @@ export default function LeadershipContent() {
                 opacity: 0.85,
                 display: 'block',
               }}
-            >
+             aria-hidden="true">
               group_add
             </span>
             <h2
@@ -541,7 +541,7 @@ export default function LeadershipContent() {
                   transition: 'transform 0.15s ease, box-shadow 0.15s ease',
                 }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '1.15rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.15rem' }} aria-hidden="true">
                   mail
                 </span>
                 Get in Touch
@@ -563,7 +563,7 @@ export default function LeadershipContent() {
                   transition: 'background 0.15s ease',
                 }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '1.15rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.15rem' }} aria-hidden="true">
                   school
                 </span>
                 View Programs

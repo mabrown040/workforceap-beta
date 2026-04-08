@@ -39,7 +39,7 @@ export default async function VoiceInterviewPage() {
           <Link href="/dashboard/ai-tools" style={{ color: 'var(--color-accent)', textDecoration: 'none', fontWeight: 500 }}>
             AI Tools
           </Link>
-          <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>chevron_right</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }} aria-hidden="true">chevron_right</span>
           <span style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>Voice Interview</span>
         </nav>
         <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>Voice Interview</h1>

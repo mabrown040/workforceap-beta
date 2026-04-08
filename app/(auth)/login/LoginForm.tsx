@@ -352,7 +352,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
         <div style={s.brandBgOverlay} />
         <div style={s.brandContent}>
           <div style={s.brandBadge}>
-            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>verified_user</span>
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">verified_user</span>
             Enterprise Trust
           </div>
           <h1 style={{ ...s.brandHeading, marginTop: 'var(--space-6)' }}>
@@ -446,7 +446,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                   aria-pressed={showPassword}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 20 }} aria-hidden="true">
                     {showPassword ? 'visibility_off' : 'visibility'}
                   </span>
                 </button>
@@ -494,11 +494,11 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
           {/* Social buttons */}
           <div style={s.socialRow}>
             <button type="button" style={s.socialBtn}>
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>domain</span>
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">domain</span>
               Institutional
             </button>
             <button type="button" style={s.socialBtn}>
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>fingerprint</span>
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">fingerprint</span>
               Biometric
             </button>
           </div>

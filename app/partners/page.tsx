@@ -135,7 +135,7 @@ export default function PartnersPage() {
               marginBottom: '1.5rem',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', verticalAlign: '-2px', marginRight: '0.35rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', verticalAlign: '-2px', marginRight: '0.35rem' }} aria-hidden="true">
               handshake
             </span>
             A Legacy of Opportunity
@@ -193,7 +193,7 @@ export default function PartnersPage() {
             }}
           >
             Find Your Role
-            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_downward</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_downward</span>
           </Link>
         </div>
       </section>
@@ -327,7 +327,7 @@ export default function PartnersPage() {
                     color: 'var(--color-accent)',
                     fontVariationSettings: "'FILL' 1",
                   }}
-                >
+                 aria-hidden="true">
                   {pt.icon}
                 </span>
                 <h3
@@ -360,7 +360,7 @@ export default function PartnersPage() {
                   }}
                 >
                   {pt.nextStep.text}
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_forward</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
                 </Link>
               </div>
             ))}
@@ -414,7 +414,7 @@ export default function PartnersPage() {
                         fontVariationSettings: "'FILL' 1",
                         flexShrink: 0,
                       }}
-                    >
+                     aria-hidden="true">
                       {f.icon}
                     </span>
                     <div>
@@ -472,7 +472,7 @@ export default function PartnersPage() {
       <section style={{ padding: '6rem 0' }}>
         <div className="container" style={{ maxWidth: '720px' }}>
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.5rem', display: 'block' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.5rem', display: 'block' }} aria-hidden="true">
               help
             </span>
             <h2
@@ -559,7 +559,7 @@ export default function PartnersPage() {
                 }}
               >
                 Become a Partner
-                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_forward</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
               </Link>
               <Link
                 href="/employers"

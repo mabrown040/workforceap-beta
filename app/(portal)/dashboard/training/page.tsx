@@ -108,7 +108,7 @@ export default async function TrainingPage() {
             padding: '0.7rem 1.5rem',
           }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>open_in_new</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">open_in_new</span>
           Open Coursera
         </a>
         <a
@@ -121,7 +121,7 @@ export default async function TrainingPage() {
             padding: '0.7rem 1.5rem',
           }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>workspace_premium</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">workspace_premium</span>
           View Certificates
         </a>
         <a
@@ -134,7 +134,7 @@ export default async function TrainingPage() {
             padding: '0.7rem 1.5rem',
           }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>work</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">work</span>
           Job Readiness
         </a>
       </div>
@@ -142,7 +142,7 @@ export default async function TrainingPage() {
       {/* Course list section */}
       <section>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-2)' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
             menu_book
           </span>
           <h2 style={{ fontSize: 'var(--font-size-h3)', fontWeight: 'var(--font-weight-bold)', margin: 0 }}>Your Courses</h2>

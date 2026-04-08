@@ -39,8 +39,8 @@ export default async function WioaQualificationPage() {
       return (
         <>
           <PortalRouteFallback
-            title="WIOA screening is temporarily unavailable"
-            description="We could not load your saved WIOA screening answers right now. You can keep using the rest of the portal and try this page again shortly."
+            title="WIOA screening is not enabled yet"
+            description="This WorkforceAP environment does not have WIOA screening storage enabled yet. If you need WIOA guidance right now, message your counselor and we’ll help you with the next steps."
           />
           <MobileBottomNav variant="portal" />
         </>

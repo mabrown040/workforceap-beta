@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { PortalInput } from '@/components/portal/ui/PortalInput';
 import {
   InboxEmpty,
   InboxHeader,
@@ -12,6 +11,7 @@ import {
   InboxRowLayout,
   InboxSearch,
   InboxShell,
+  InboxUnreadBadge,
 } from '@/components/portal/ui/inbox/InboxPrimitives';
 
 type SlaInfo = {
@@ -331,30 +331,6 @@ export default function AdminSuperMessagesClient() {
 
   return (
     <div className="admin-main-content admin-super-messages">
-      <header style={{ marginBottom: '1.5rem' }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.35rem' }}>Portal messages</h1>
-        <p className="admin-muted-text" style={{ maxWidth: '48rem', lineHeight: 1.55 }}>
-          Members, employers, and partners each have a thread with WorkforceAP. Member threads use the counselor SLA
-          (&gt;48h without reply). Employer and partner threads show when their last message needs a staff reply.
-        </p>
-        {stats ? (
-          <ul
-            className="admin-super-messages-stats"
-            style={{ marginTop: '1rem', display: 'flex', flexWrap: 'wrap', gap: '1rem', listStyle: 'none', padding: 0 }}
-          >
-            <li>
-              <strong>{stats.threadsWithMessages}</strong> member threads with messages
-            </li>
-            <li>
-              <strong style={{ color: 'var(--color-accent)' }}>{stats.slaBreaches48h}</strong> member SLA &gt;48h
-            </li>
-            <li>
-              <strong>{stats.slaBreaches72h}</strong> member SLA &gt;72h
-            </li>
-          </ul>
-        ) : null}
-      </header>
-
       <InboxShell>
         <InboxPane
           variant="list"
@@ -365,7 +341,25 @@ export default function AdminSuperMessagesClient() {
             overflowY: 'auto',
           }}
         >
-          <InboxHeader title="Threads" subtitle="Filter + search, then open a thread." />
+          <InboxHeader
+            title="Threads"
+            subtitle="Filter + search, then open a thread."
+            right={
+              stats ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                  <span className="portal-inbox-unread" title="Threads with messages">
+                    {stats.threadsWithMessages} threads
+                  </span>
+                  <span className="portal-inbox-unread" title="Member SLA >48h">
+                    {stats.slaBreaches48h} &gt;48h
+                  </span>
+                  <span className="portal-inbox-unread" title="Member SLA >72h">
+                    {stats.slaBreaches72h} &gt;72h
+                  </span>
+                </div>
+              ) : null
+            }
+          />
 
           <div className="portal-inbox__search" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
@@ -385,18 +379,7 @@ export default function AdminSuperMessagesClient() {
               ))}
             </div>
 
-            <div>
-              <div className="admin-form-hint" style={{ marginBottom: '0.35rem' }}>
-                Search names, email, or message text
-              </div>
-              <PortalInput
-                type="search"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Keyword…"
-                autoComplete="off"
-              />
-            </div>
+            <InboxSearch value={search} onChange={setSearch} placeholder="Search name, email, or message…" />
 
             <label className="admin-form-hint" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
               <input
@@ -445,7 +428,11 @@ export default function AdminSuperMessagesClient() {
                       title={threadListTitle(t)}
                       meta={kindLabel}
                       preview={t.lastMessagePreview}
-                      badge={alertBadge ? <span className="portal-inbox-unread">{alertBadge}</span> : undefined}
+                      badge={
+                        alertBadge ? (
+                          <span className="portal-inbox-unread">{alertBadge}</span>
+                        ) : undefined
+                      }
                     />
                   </InboxRowButton>
                 );

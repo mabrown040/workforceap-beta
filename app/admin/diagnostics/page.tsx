@@ -51,7 +51,7 @@ export default async function AdminDiagnosticsPage() {
     <div>
       <PageHeader
         title="Diagnostics"
-        subtitle="Trace brittle workflows, fallback paths, and likely abandonment / false-confidence moments."
+        subtitle="Trace brittle workflows, fallback paths, and likely abandonment moments across key admin workflows."
       />
 
       {/* Enrollment drift detection */}

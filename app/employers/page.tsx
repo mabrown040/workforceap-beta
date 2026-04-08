@@ -265,7 +265,7 @@ export default function EmployersPage() {
 
       {/* ===== Employer Stats ===== */}
       <section style={{ padding: 'clamp(2rem, 4vw, 4rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1200px', margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem', textAlign: 'center' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 100%), 1fr))', gap: '2rem', textAlign: 'center' }}>
           {[
             { stat: '200+', label: 'Graduates Placed' },
             { stat: '90%', label: 'Retention Rate' },

@@ -228,6 +228,10 @@
     display: grid;
     grid-template-columns: repeat(12, 1fr);
     gap: var(--space-6);
+    min-width: 0;
+}
+.editorial-grid > * {
+    min-width: 0;
 }
 @media (max-width: 768px) {
     .editorial-grid > * {

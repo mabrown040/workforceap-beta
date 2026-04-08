@@ -166,7 +166,7 @@ export default async function HowItWorksPage() {
                 <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{phase.title}</h3>
                 <span className="text-label-upper" style={{ color: 'var(--color-accent)' }}>{phase.label}</span>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1.5rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(260px, 100%), 1fr))', gap: '1.5rem' }}>
                 {phase.steps.map((step) => {
                   const isHighlight = step.num === 1 || step.num === 7 || step.num === 9 || step.num === 10;
                   return (
@@ -229,7 +229,7 @@ export default async function HowItWorksPage() {
             {/* Loaner Laptop */}
             <div style={{ gridColumn: 'span 12' }} className="hiw-benefit-wide">
               <div className="portal-card portal-card--elevated" style={{ padding: '3rem', position: 'relative', overflow: 'hidden' }}>
-                <div style={{ maxWidth: '60%' }}>
+                <div style={{ maxWidth: 'min(42rem, 100%)' }}>
                   <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>Loaner Laptop Program</h2>
                   <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '2rem', lineHeight: 1.7 }}>
                     Access to technology shouldn&rsquo;t be a barrier to education. We provide high-performance laptops to members who need them for the duration of their training program.

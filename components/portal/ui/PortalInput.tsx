@@ -1,5 +1,8 @@
 import type { InputHTMLAttributes, TextareaHTMLAttributes } from 'react';
-import clsx from 'clsx';
+
+function cx(...parts: Array<string | false | null | undefined>) {
+  return parts.filter(Boolean).join(' ');
+}
 
 type BaseProps = {
   label?: string;
@@ -19,17 +22,17 @@ export function PortalInput({
   const inputId = id ?? props.name;
   const describedById = hint || error ? `${inputId ?? 'portal-input'}__hint` : undefined;
   return (
-    <label className={clsx('portal-field', className)}>
+    <label className={cx('portal-field', className)}>
       {label ? <span className="portal-field__label">{label}</span> : null}
       <input
         id={inputId}
-        className={clsx('portal-input', error && 'portal-input--error')}
+        className={cx('portal-input', error && 'portal-input--error')}
         aria-invalid={!!error}
         aria-describedby={describedById}
         {...props}
       />
       {hint || error ? (
-        <span id={describedById} className={clsx('portal-field__hint', error && 'portal-field__hint--error')}>
+        <span id={describedById} className={cx('portal-field__hint', error && 'portal-field__hint--error')}>
           {error ?? hint}
         </span>
       ) : null}
@@ -48,17 +51,17 @@ export function PortalTextarea({
   const inputId = id ?? props.name;
   const describedById = hint || error ? `${inputId ?? 'portal-textarea'}__hint` : undefined;
   return (
-    <label className={clsx('portal-field', className)}>
+    <label className={cx('portal-field', className)}>
       {label ? <span className="portal-field__label">{label}</span> : null}
       <textarea
         id={inputId}
-        className={clsx('portal-input portal-textarea', error && 'portal-input--error')}
+        className={cx('portal-input portal-textarea', error && 'portal-input--error')}
         aria-invalid={!!error}
         aria-describedby={describedById}
         {...props}
       />
       {hint || error ? (
-        <span id={describedById} className={clsx('portal-field__hint', error && 'portal-field__hint--error')}>
+        <span id={describedById} className={cx('portal-field__hint', error && 'portal-field__hint--error')}>
           {error ?? hint}
         </span>
       ) : null}

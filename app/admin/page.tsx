@@ -7,7 +7,6 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
-import RecentSignupsTable from '@/components/admin/RecentSignupsTable';
 import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
@@ -18,6 +17,27 @@ export const metadata: Metadata = buildPageMetadata({
   path: '/admin',
 });
 
+type RecentSignupRow = Prisma.UserGetPayload<{
+  select: {
+    id: true;
+    fullName: true;
+    email: true;
+    enrolledProgram: true;
+    enrolledAt: true;
+    assessmentScorePct: true;
+    assessmentCompleted: true;
+    createdAt: true;
+  };
+}>;
+
+type PlacementWithUser = Prisma.PlacementRecordGetPayload<{
+  include: {
+    user: {
+      select: { id: true; fullName: true; enrolledProgram: true; enrolledAt: true };
+    };
+  };
+}>;
+
 export default async function AdminPage() {
   const user = await getUser();
   if (!user) redirect('/login');
@@ -25,36 +45,10 @@ export default async function AdminPage() {
   const hasAdmin = await isAdmin(user.id);
   if (!hasAdmin) redirect('/dashboard');
 
-  // Define types matching the selected fields from Prisma queries
-  type RecentUser = {
-    id: string;
-    fullName: string;
-    email: string;
-    enrolledProgram: string | null;
-    enrolledAt: Date | null;
-    assessmentScorePct: number | null;
-    assessmentCompleted: boolean;
-    createdAt: Date;
-  };
-
-  type RecentPlacement = {
-    id: string;
-    employerName: string;
-    jobTitle: string;
-    salaryOffered: number | null;
-    placedAt: Date;
-    user: {
-      id: string;
-      fullName: string;
-      enrolledProgram: string | null;
-      enrolledAt: Date | null;
-    };
-  };
-
   let totalMembers: number;
   let assessmentsCompleted: number;
-  let recentUsers: RecentUser[];
-  let recentPlacements: RecentPlacement[];
+  let recentUsers: RecentSignupRow[];
+  let recentPlacements: PlacementWithUser[];
   let pendingApplications: number;
   let activeInTraining: number;
   let programsCompleted: number;

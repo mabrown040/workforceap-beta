@@ -37,10 +37,13 @@ export async function GET(request: Request) {
     },
   });
 
-  // At-risk students: enrolled but no events in 14+ days.
+  // At-risk students: enrolled, have at least one event, and none in the last
+  // 14 days (i.e. most recent activity is 14+ days ago). Users with no events
+  // are excluded — same semantics as max(createdAt) < fourteenDaysAgo on
+  // groupBy, not "no recent event" for zero-event accounts.
   // PERF: Instead of unfiltered groupBy across entire member_events table,
   // find users who DO have recent events (bounded 14-day scan), then count
-  // enrolled users NOT in that set.
+  // enrolled users with events who are NOT in that set.
   const recentlyActive = await prisma.memberEvent.groupBy({
     by: ['userId'],
     where: { createdAt: { gte: fourteenDaysAgo } },
@@ -50,6 +53,7 @@ export async function GET(request: Request) {
     where: {
       deletedAt: null,
       enrolledProgram: { not: null },
+      memberEvents: { some: {} },
       id: { notIn: [...activeUserIds] },
     },
   });

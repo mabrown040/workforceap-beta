@@ -53,7 +53,11 @@ export default function PortalEntryClient(props: PortalEntryClientProps) {
   useEffect(() => {
     setWizardOpen(showOnboardingWizard);
     if (!showOnboardingWizard && showTour) {
-      startTour(tourSteps, portal);
+      // Delay tour start so the user can orient on the page first.
+      // Without this, tooltips appear immediately on first load,
+      // competing with the actual page content for attention.
+      const timer = setTimeout(() => startTour(tourSteps, portal), 1500);
+      return () => clearTimeout(timer);
     }
   }, [showOnboardingWizard, showTour, tourSteps, portal, startTour]);
 

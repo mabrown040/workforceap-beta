@@ -85,19 +85,75 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
   };
 
   const listPane = (opts: { mobile: boolean }) => (
-    <InboxPane variant="list" style={opts.mobile ? { flex: 1 } : { width: 320, flexShrink: 0 }}>
-      <InboxHeader title="Students" subtitle={rows.length > 0 ? 'Open a thread or search by name.' : undefined} />
-      <InboxSearch value={search} onChange={setSearch} placeholder="Search students…" />
-      <InboxList>
-        {filtered.length === 0 ? (
-          <InboxEmpty title="No matching students" description="Try a different search term." />
-        ) : (
-          filtered.map((r) => (
-            <InboxRowButton
-              key={r.memberId}
-              active={selectedId === r.memberId}
-              unread={r.unreadCount > 0}
-              onClick={() => selectMember(r.memberId, opts.mobile)}
+    <div
+      style={
+        opts.mobile
+          ? { overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }
+          : {
+              borderRight: '1px solid var(--outline-variant)',
+              overflowY: 'auto',
+              width: 300,
+              flexShrink: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              minHeight: 0,
+            }
+      }
+    >
+      <div style={{ padding: '1rem' }}>
+        <input
+          type="search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search students…"
+          style={{
+            width: '100%',
+            padding: '0.625rem 0.875rem',
+            border: '1px solid var(--outline-variant)',
+            borderRadius: '0.5rem',
+            fontSize: '0.875rem',
+            background: 'var(--surface-container-lowest)',
+            outline: 'none',
+            fontFamily: 'inherit',
+            color: 'var(--color-on-surface)',
+          }}
+        />
+      </div>
+      {filtered.map((r) => (
+        <button
+          key={r.memberId}
+          type="button"
+          onClick={() => selectMember(r.memberId, opts.mobile)}
+          style={rowStyle(selectedId === r.memberId, r.unreadCount > 0)}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+            <span style={{ fontWeight: 700, fontSize: '0.875rem' }}>{r.memberName}</span>
+            <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>{r.timeLabel}</span>
+          </div>
+          <p
+            style={{
+              fontSize: '0.8rem',
+              color: 'var(--color-on-surface-variant)',
+              margin: 0,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
+            {r.preview}
+          </p>
+          {r.unreadCount > 0 && (
+            <span
+              style={{
+                marginTop: '0.375rem',
+                display: 'inline-block',
+                padding: '0.125rem 0.5rem',
+                borderRadius: '9999px',
+                background: 'var(--color-accent)',
+                color: '#fff',
+                fontSize: '0.65rem',
+                fontWeight: 700,
+              }}
             >
               <InboxRowLayout
                 title={r.memberName}
@@ -236,14 +292,32 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
         )}
       </div>
 
-      <div className="wa-hidden wa-md:wa-block">
-        <InboxShell>
-          {listPane({ mobile: false })}
-          <InboxPane variant="thread" style={{ flex: 1, background: 'var(--surface-container-lowest)' }}>
-            {chatHeader}
-            {chatBody}
-          </InboxPane>
-        </InboxShell>
+      <div
+        className="wa-hidden wa-md:wa-flex"
+        style={{
+          maxWidth: '1000px',
+          margin: '0 auto',
+          height: 'min(85vh, 900px)',
+          border: '1px solid color-mix(in srgb, var(--outline-variant, #e8e0dd) 70%, transparent)',
+          borderRadius: '0.75rem',
+          overflow: 'hidden',
+          flexDirection: 'row',
+        }}
+      >
+        {listPane({ mobile: false })}
+        <div
+          style={{
+            flex: 1,
+            minWidth: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: 0,
+            background: 'var(--surface-container-lowest)',
+          }}
+        >
+          {chatHeader}
+          {chatBody}
+        </div>
       </div>
     </>
     </VoiceAgentSurface>

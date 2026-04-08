@@ -120,38 +120,102 @@ export default function EmployerMessagesInboxClient({
       variant="list"
       style={
         opts.mobile
-          ? { overflowY: 'auto', flex: 1 }
+          ? { overflowY: 'auto', display: 'flex', flexDirection: 'column', minHeight: 0, flex: 1 }
           : {
-              width: 320,
-              flexShrink: 0,
               borderRight: '1px solid color-mix(in srgb, var(--outline-variant, #e8e0dd) 70%, transparent)',
               overflowY: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              minHeight: 0,
             }
       }
     >
-      <InboxHeader title="Inbox" subtitle="Team + candidates" />
-      <InboxSearch value={search} onChange={setSearch} placeholder="Search conversations…" />
-      <InboxList>
-        {showTeam ? (
-          <InboxRowButton
-            active={sel.kind === 'team'}
-            unread={teamRow.unreadCount > 0}
-            onClick={() => void onSelect({ kind: 'team' }, opts.mobile)}
+      <div style={{ padding: '1rem' }}>
+        <input
+          type="search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search conversations…"
+          style={{
+            width: '100%',
+            padding: '0.625rem 0.875rem',
+            border: '1px solid color-mix(in srgb, var(--color-accent) 22%, var(--outline-variant, #e8e0dd))',
+            borderRadius: '0.5rem',
+            fontSize: '0.875rem',
+            background: 'var(--surface-container-lowest)',
+            outline: 'none',
+            fontFamily: 'inherit',
+            color: 'var(--color-on-surface)',
+          }}
+        />
+      </div>
+      {showTeam && (
+        <button
+          type="button"
+          onClick={() => void onSelect({ kind: 'team' }, opts.mobile)}
+          style={rowStyle(sel.kind === 'team', teamRow.unreadCount > 0)}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.375rem' }}>
+            <span style={{ fontWeight: 700, fontSize: '0.875rem' }}>{teamRow.title}</span>
+          </div>
+          <p
+            style={{
+              fontSize: '0.8rem',
+              color: 'var(--color-on-surface-variant)',
+              margin: 0,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
           >
-            <InboxRowLayout
-              title={teamRow.title}
-              preview={teamRow.preview}
-              badge={<InboxUnreadBadge count={teamRow.unreadCount} />}
-            />
-          </InboxRowButton>
-        ) : null}
-
-        {filteredCandidates.map((c) => (
-          <InboxRowButton
-            key={c.applicationId}
-            active={sel.kind === 'candidate' && sel.applicationId === c.applicationId}
-            unread={c.unreadCount > 0}
-            onClick={() => void onSelect({ kind: 'candidate', applicationId: c.applicationId }, opts.mobile)}
+            {teamRow.preview}
+          </p>
+          {teamRow.unreadCount > 0 && (
+            <span
+              style={{
+                display: 'inline-block',
+                marginTop: '0.375rem',
+                padding: '0.125rem 0.5rem',
+                borderRadius: '9999px',
+                background: 'var(--color-accent)',
+                color: '#fff',
+                fontSize: '0.65rem',
+                fontWeight: 700,
+              }}
+            >
+              {teamRow.unreadCount} new
+            </span>
+          )}
+        </button>
+      )}
+      {filteredCandidates.map((c) => (
+        <button
+          key={c.applicationId}
+          type="button"
+          onClick={() => void onSelect({ kind: 'candidate', applicationId: c.applicationId }, opts.mobile)}
+          style={rowStyle(
+            sel.kind === 'candidate' && sel.applicationId === c.applicationId,
+            c.unreadCount > 0
+          )}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.375rem' }}>
+            <span style={{ fontWeight: 700, fontSize: '0.875rem' }}>{c.studentName}</span>
+          </div>
+          <p
+            style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}
+            className="wa-truncate"
+          >
+            {c.jobTitle}
+          </p>
+          <p
+            style={{
+              fontSize: '0.8rem',
+              color: 'var(--color-on-surface-variant)',
+              margin: 0,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
           >
             <InboxRowLayout title={c.studentName} meta={c.jobTitle} preview={c.preview} badge={<InboxUnreadBadge count={c.unreadCount} />} />
           </InboxRowButton>
@@ -237,11 +301,33 @@ export default function EmployerMessagesInboxClient({
       </div>
 
       {/* Desktop split */}
-      <div className="wa-hidden wa-md:wa-block">
-        <InboxShell>
+      <div
+        className="wa-hidden wa-md:wa-flex"
+        style={{
+          maxWidth: '1000px',
+          margin: '0 auto',
+          height: 'min(85vh, 900px)',
+          border: '1px solid color-mix(in srgb, var(--outline-variant, #e8e0dd) 70%, transparent)',
+          borderRadius: '0.75rem',
+          overflow: 'hidden',
+          flexDirection: 'row',
+        }}
+      >
+        <div style={{ width: 320, flexShrink: 0, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           {listPane({ mobile: false })}
-          <InboxPane variant="thread">{threadPane}</InboxPane>
-        </InboxShell>
+        </div>
+        <div
+          style={{
+            flex: 1,
+            minWidth: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: 0,
+            background: 'var(--surface-container-lowest)',
+          }}
+        >
+          {threadPane}
+        </div>
       </div>
     </>
     </VoiceAgentSurface>

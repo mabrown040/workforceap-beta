@@ -1,8 +1,16 @@
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import MentorStatusButtons from '@/components/admin/MentorStatusButtons';
+
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Admin – Mentors',
+  description: 'Approve mentor applications and manage mentor access.',
+  path: '/admin/mentors',
+});
 
 export default async function AdminMentorsPage() {
   const user = await getUser();

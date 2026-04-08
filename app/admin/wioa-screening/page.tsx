@@ -10,6 +10,7 @@ import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 import { wioaReviewLabel, WIOA_REVIEW_STATUSES } from '@/lib/wioa/wioaReview';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import PortalRouteFallback from '@/components/portal/PortalRouteFallback';
 import WioaReviewFilterBar from '@/components/admin/WioaReviewFilterBar';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -20,6 +21,16 @@ export const metadata: Metadata = buildPageMetadata({
 
 type PageProps = {
   searchParams?: Promise<{ review?: string | string[] }>;
+};
+
+type WioaQueueRow = {
+  id: string;
+  fullName: string;
+  email: string;
+  wioaQualificationJson: Prisma.JsonValue;
+  wioaReviewStatus: string | null;
+  wioaReviewedAt: Date | null;
+  updatedAt: Date;
 };
 
 function normalizeReviewParam(raw: string | string[] | undefined): string | null {
@@ -38,22 +49,42 @@ export default async function AdminWioaScreeningQueuePage({ searchParams }: Page
   const sp = (await searchParams) ?? {};
   const reviewFilter = normalizeReviewParam(sp.review);
 
-  const rows = await prisma.user.findMany({
-    where: {
-      deletedAt: null,
-      wioaQualificationJson: { not: Prisma.AnyNull },
-      ...(reviewFilter ? { wioaReviewStatus: reviewFilter } : {}),
-    },
-    select: {
-      id: true,
-      fullName: true,
-      email: true,
-      wioaQualificationJson: true,
-      wioaReviewStatus: true,
-      wioaReviewedAt: true,
-      updatedAt: true,
-    },
-  });
+  let rows: WioaQueueRow[] = [];
+  try {
+    rows = await prisma.user.findMany({
+      where: {
+        deletedAt: null,
+        wioaQualificationJson: { not: Prisma.DbNull },
+        ...(reviewFilter ? { wioaReviewStatus: reviewFilter } : {}),
+      },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        wioaQualificationJson: true,
+        wioaReviewStatus: true,
+        wioaReviewedAt: true,
+        updatedAt: true,
+      },
+    });
+  } catch (error) {
+    console.error('[admin/wioa-screening] failed to load queue', error);
+    const message = error instanceof Error ? error.message : String(error ?? '');
+    const looksLikeSchemaDrift =
+      error instanceof Prisma.PrismaClientKnownRequestError ||
+      error instanceof Prisma.PrismaClientUnknownRequestError ||
+      /wioa_qualification_json|wioa_review_status|wioa_reviewed_at/i.test(message);
+
+    if (looksLikeSchemaDrift) {
+      return (
+        <PortalRouteFallback
+          title="WIOA screening queue is temporarily unavailable"
+          description="The WIOA review data could not be loaded right now. Other admin views are still available while we reconnect this queue."
+        />
+      );
+    }
+    throw error;
+  }
 
   const enriched = rows
     .map((r) => {

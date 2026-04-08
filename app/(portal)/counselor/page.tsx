@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { counselorAffiliationLabel } from '@/lib/counselor/counselorLabels';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import CounselorPortalVoiceBlock from '@/components/portal/CounselorPortalVoiceBlock';
-import { counselorStudentStatusBadge } from '@/lib/counselor/memberStatus';
+import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
@@ -158,7 +158,10 @@ export default async function CounselorPortalPage() {
                   assessmentScorePct: a.member.assessmentScorePct,
                 });
                 const statusLabel = rosterBadge.label;
-                const badgeVariant = statusLabel === 'At Risk' ? 'error' as const : statusLabel === 'Needs focus' ? 'warning' as const : 'success' as const;
+                const badgeVariant = counselorStudentStatusBadgeVariant({
+                  enrolledProgram: a.member.enrolledProgram,
+                  assessmentScorePct: a.member.assessmentScorePct,
+                });
                 return (
                   <Link key={a.id} href={`/counselor/students/${a.memberId}`}
                     className="wa-bg-white active:scale-[0.98] wa-transition-all" style={{ borderRadius:"0.75rem", padding:"1rem", display:"flex", alignItems:"center", gap:"0.75rem", textDecoration:"none" }}>
@@ -301,7 +304,7 @@ export default async function CounselorPortalPage() {
                     <p className="portal-section-title" style={{ marginBottom: '0.25rem' }}>Data Sync</p>
                     <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{affiliation}</p>
                   </div>
-                  <span className="status-badge status-badge-active">Healthy</span>
+                  <StatusBadge label="Healthy" variant="success" />
                 </div>
               </div>
               <div className="stitch-card stitch-card--padded">
@@ -310,7 +313,7 @@ export default async function CounselorPortalPage() {
                     <p className="portal-section-title" style={{ marginBottom: '0.25rem' }}>AI Assistant</p>
                     <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>Available</p>
                   </div>
-                  <span className="status-badge status-badge-active">Online</span>
+                  <StatusBadge label="Online" variant="success" />
                 </div>
               </div>
             </div>

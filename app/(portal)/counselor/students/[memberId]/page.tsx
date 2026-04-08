@@ -7,7 +7,7 @@ import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounse
 import Link from 'next/link';
 import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import { counselorStudentStatusBadge } from '@/lib/counselor/memberStatus';
+import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
@@ -93,6 +93,10 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
   const initials = getInitials(member.fullName ?? 'U');
   const program = member.enrolledProgram ?? member.programInterest ?? '—';
   const enrollmentBadge = counselorStudentStatusBadge({
+    enrolledProgram: member.enrolledProgram,
+    assessmentScorePct: member.assessmentScorePct,
+  });
+  const enrollmentBadgeVariant = counselorStudentStatusBadgeVariant({
     enrolledProgram: member.enrolledProgram,
     assessmentScorePct: member.assessmentScorePct,
   });
@@ -182,10 +186,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 >
                   {program}
                 </p>
-                <StatusBadge
-                  label={enrollmentBadge.label}
-                  variant={enrollmentBadge.label === 'At Risk' ? 'error' : enrollmentBadge.label === 'Needs focus' ? 'warning' : 'success'}
-                />
+                <StatusBadge label={enrollmentBadge.label} variant={enrollmentBadgeVariant} />
               </div>
             </div>
 

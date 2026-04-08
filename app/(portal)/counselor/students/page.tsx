@@ -5,7 +5,7 @@ import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import { counselorStudentStatusBadge } from '@/lib/counselor/memberStatus';
+import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import StatusBadge from '@/components/portal/StatusBadge';
@@ -165,6 +165,10 @@ export default async function CounselorStudentsPage() {
                 enrolledProgram: a.member.enrolledProgram,
                 assessmentScorePct: a.member.assessmentScorePct,
               });
+              const statusVariant = counselorStudentStatusBadgeVariant({
+                enrolledProgram: a.member.enrolledProgram,
+                assessmentScorePct: a.member.assessmentScorePct,
+              });
               return (
                 <Link
                   key={a.id}
@@ -247,10 +251,7 @@ export default async function CounselorStudentsPage() {
 
                     {/* Status + chevron */}
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.375rem' }}>
-                      <StatusBadge
-                        label={statusBadge.label}
-                        variant={statusBadge.label === 'At Risk' ? 'error' : statusBadge.label === 'Needs focus' ? 'warning' : 'success'}
-                      />
+                      <StatusBadge label={statusBadge.label} variant={statusVariant} />
                       <span className="material-symbols-outlined" style={{ color: 'var(--outline-variant)', fontSize: '18px' }}>
                         chevron_right
                       </span>

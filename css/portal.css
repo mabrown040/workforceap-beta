@@ -102,7 +102,7 @@
 /* Metrics card grid — responsive auto-fit */
 .portal-grid-metrics {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
     gap: 1rem;
     margin-bottom: 1.5rem;
 }
@@ -138,17 +138,6 @@
     font-weight: 600;
     color: var(--color-on-surface-variant);
     margin: 0.25rem 0 0;
-}
-
-/* Stitch card padding variants */
-.stitch-card--padded {
-    padding: 1.5rem;
-}
-.stitch-card--padded-sm {
-    padding: 1rem;
-}
-.stitch-card--padded-lg {
-    padding: 2rem;
 }
 
 /* Metric card accent variant — left border highlight for priority metrics */
@@ -581,9 +570,13 @@
 .ai-tools-hub-card {
     padding: 1.1rem 1.15rem;
     height: 100%;
-    border-radius: var(--radius-lg, 12px);
-    border: 1px solid var(--outline-variant);
+}
+/* Shell + tint when composed with portal-card */
+.ai-tools-hub-card.portal-card {
     background: var(--surface-container-low);
+}
+.ai-tools-hub-card.portal-card:hover {
+    background: var(--surface-container-high);
 }
 
 /* AI Tools index — one responsive grid (mobile 2-col, desktop auto-fill) */
@@ -1179,7 +1172,7 @@
   background: var(--surface-container);
 }
 
-/* Job application kanban — align with stitch-card + status tints */
+/* Job application kanban — portal surfaces + status tints */
 .portal-kanban {
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));

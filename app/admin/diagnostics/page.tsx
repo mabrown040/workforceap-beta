@@ -60,14 +60,14 @@ export default async function AdminDiagnosticsPage() {
           Enrollment drift {driftRecords.length > 0 ? `(${driftRecords.length} found)` : ''}
         </h2>
         {driftRecords.length === 0 ? (
-          <div className="stitch-card stitch-card--padded" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div className="portal-card portal-card--flat portal-card--padded" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <span className="material-symbols-outlined" style={{ color: 'var(--color-green)', fontSize: '1.25rem' }}>check_circle</span>
             <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>
               No enrollment drift detected. User.enrolledProgram and CourseEnrollment are in sync for all {enrolledUsersForDrift.length} enrolled members.
             </span>
           </div>
         ) : (
-          <div className="stitch-card" style={{ overflow: 'auto' }}>
+          <div className="portal-card portal-card--flat" style={{ overflow: 'auto' }}>
             <table className="dashboard-table">
               <thead>
                 <tr>

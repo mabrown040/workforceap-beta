@@ -74,7 +74,7 @@ export default async function ToolHistoryPanel({
   }
 
   return (
-    <section className="stitch-card" style={{ padding: '1rem', borderRadius: 12, marginTop: '1rem' }}>
+    <section className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: 12, marginTop: '1rem' }}>
       <div
         style={{
           display: 'flex',

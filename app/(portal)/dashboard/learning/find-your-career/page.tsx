@@ -70,7 +70,7 @@ export default async function FindYourCareerPage() {
             <li key={tool.href}>
               <Link
                 href={tool.href}
-                className="stitch-card"
+                className="portal-card portal-card--flat"
                 style={{
                   display: 'block',
                   padding: '1.25rem',

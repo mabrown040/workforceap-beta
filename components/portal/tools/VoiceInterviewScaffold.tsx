@@ -59,7 +59,7 @@ export default function VoiceInterviewScaffold() {
   return (
     <div>
       {!ready ? (
-        <div className="stitch-card" style={{ padding: '1.25rem', marginBottom: '1.25rem', borderRadius: 12 }}>
+        <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', marginBottom: '1.25rem', borderRadius: 12 }}>
           <div className="form-group">
             <label htmlFor="vi-role">Target role</label>
             <input
@@ -238,7 +238,7 @@ export default function VoiceInterviewScaffold() {
         </div>
       ) : (
         <div className="voice-interview-layout">
-          <div className="stitch-card" style={{ padding: '1.25rem', borderRadius: 12 }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', borderRadius: 12 }}>
             <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
               Mock interview for <strong>{role}</strong> ({interviewType}). Use a quiet space and allow{' '}
               <strong>microphone</strong> access to talk with the coach.

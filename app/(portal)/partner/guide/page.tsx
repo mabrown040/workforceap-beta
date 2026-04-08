@@ -81,7 +81,7 @@ export default async function PartnerGuidePage() {
       </header>
 
       {/* Who is WorkforceAP for */}
-      <section className="stitch-card" style={{ padding: '2rem', marginBottom: '2rem' }}>
+      <section className="portal-card portal-card--flat" style={{ padding: '2rem', marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.75rem', letterSpacing: '-0.02em' }}>
           Who is WorkforceAP for?
         </h2>
@@ -141,7 +141,7 @@ export default async function PartnerGuidePage() {
               }}>
                 {step.num}
               </div>
-              <div className="stitch-card" style={{ flex: 1, padding: '1.25rem' }}>
+              <div className="portal-card portal-card--flat" style={{ flex: 1, padding: '1.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.5rem' }}>
                   <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem' }}>{step.icon}</span>
                   <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)', letterSpacing: '-0.01em' }}>{step.title}</h3>
@@ -184,7 +184,7 @@ export default async function PartnerGuidePage() {
             { label: 'Completed assessment', value: assessmentCount, icon: 'assignment_turned_in' },
             { label: 'Placed in jobs', value: placedCount, icon: 'work' },
           ].map((stat) => (
-            <div key={stat.label} className="stitch-card" style={{ padding: '1.5rem', textAlign: 'center' }}>
+            <div key={stat.label} className="portal-card portal-card--flat" style={{ padding: '1.5rem', textAlign: 'center' }}>
               <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.5rem', display: 'block', marginBottom: '0.75rem' }}>{stat.icon}</span>
               <p style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-on-surface)', letterSpacing: '-0.04em', lineHeight: 1, marginBottom: '0.375rem' }}>
                 {stat.value}
@@ -204,7 +204,7 @@ export default async function PartnerGuidePage() {
         </h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {FAQS.map((faq) => (
-            <div key={faq.q} className="stitch-card" style={{ padding: '1.25rem' }}>
+            <div key={faq.q} className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
               <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem', letterSpacing: '-0.01em' }}>
                 {faq.q}
               </h3>

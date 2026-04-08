@@ -175,7 +175,7 @@ export default async function EmployerCandidateProfilePage({
           }
         />
         <div style={{ display: 'grid', gap: '1rem', maxWidth: '720px' }}>
-          <div className="stitch-card" style={{ padding: '1.25rem' }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
             <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>Contact</h2>
             <p style={{ margin: 0 }}>
               <strong>Email:</strong> {student.email}
@@ -189,7 +189,7 @@ export default async function EmployerCandidateProfilePage({
               </p>
             ) : null}
           </div>
-          <div className="stitch-card" style={{ padding: '1.25rem' }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
             <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>Program & readiness</h2>
             <p style={{ margin: 0 }}>
               <strong>Enrolled program:</strong> {student.enrolledProgram ?? '—'}
@@ -207,7 +207,7 @@ export default async function EmployerCandidateProfilePage({
             ) : null}
           </div>
           {matches.length > 0 ? (
-            <div className="stitch-card" style={{ padding: '1.25rem' }}>
+            <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
               <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>AI matches</h2>
               <ul style={{ margin: 0, paddingLeft: '1.2rem' }}>
                 {matches.map((m) => (
@@ -227,7 +227,7 @@ export default async function EmployerCandidateProfilePage({
             </div>
           ) : null}
           {applications.length > 0 ? (
-            <div className="stitch-card" style={{ padding: '1.25rem' }}>
+            <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
               <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>Applications</h2>
               <ul style={{ margin: 0, paddingLeft: '1.2rem' }}>
                 {applications.map((a) => (

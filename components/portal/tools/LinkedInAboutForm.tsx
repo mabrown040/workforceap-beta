@@ -91,7 +91,7 @@ export default function LinkedInAboutForm() {
         </p>
       ) : resumeLoaded ? (
         <div
-          className="stitch-card"
+          className="portal-card portal-card--flat"
           style={{
             marginBottom: '1.25rem',
             padding: '0.85rem 1rem',

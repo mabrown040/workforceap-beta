@@ -308,7 +308,7 @@ export default function ResumeCoachWorkspace() {
       {/* Bottom/Right panel: Live resume draft (context textarea) */}
       <div style={{ flex: '1 1 300px', minWidth: 280 }}>
         <div
-          className="stitch-card"
+          className="portal-card portal-card--flat"
           style={{ padding: '1.5rem', border: '1px solid var(--outline-variant)' }}
         >
           <div

@@ -72,7 +72,7 @@ function MobileApplicationCard({
 
   return (
     <div
-      className="portal-kanban-card stitch-card"
+      className="portal-kanban-card"
       style={
         {
           padding: '1rem',

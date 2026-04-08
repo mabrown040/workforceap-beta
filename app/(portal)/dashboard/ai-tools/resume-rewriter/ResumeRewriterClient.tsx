@@ -17,7 +17,7 @@ const MODE_KEY = 'resumeWorkMode';
 function ResumeModeSelector({ onSelect, onDismiss }: { onSelect: (mode: WorkMode) => void; onDismiss: () => void }) {
   return (
     <div
-      className="stitch-card"
+      className="portal-card portal-card--flat"
       style={{
         padding: '1.25rem',
         borderRadius: 16,

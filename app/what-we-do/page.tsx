@@ -385,7 +385,7 @@ export default function WhatWeDoPage() {
               return (
                 <div
                   key={item.title}
-                  className="stitch-card"
+                  className="portal-card portal-card--flat"
                   style={{
                     ...spanStyles[item.span],
                     padding: '2.5rem',

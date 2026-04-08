@@ -664,7 +664,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
               </div>
               <div style={{ display:'flex', flexDirection:'column', gap:'0.5rem' }}>
                 {recentTools.map((r) => (
-                  <div key={r.id} className="stitch-card stitch-card--padded-sm" style={{ display:'flex', alignItems:'center', gap:'1rem' }}>
+                  <div key={r.id} className="portal-card portal-card--flat portal-card--padded-sm" style={{ display:'flex', alignItems:'center', gap:'1rem' }}>
                     <span className="material-symbols-outlined" style={{ fontSize:'1.25rem', color:'var(--color-accent)', flexShrink:0 }}>smart_toy</span>
                     <div style={{ flex:1, minWidth:0 }}>
                       <p style={{ fontSize:'0.875rem', fontWeight:600, margin:0, color:'var(--color-on-surface)' }}>{AI_TOOL_LABELS[r.toolType] ?? r.toolType}</p>

@@ -116,7 +116,7 @@ export default async function CounselorGuidePage() {
           gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
           gap: '1rem',
         }}>
-          <div className="stitch-card" style={{ padding: '1.5rem', borderLeft: '4px solid var(--color-accent)' }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1.5rem', borderLeft: '4px solid var(--color-accent)' }}>
             <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem' }}>
               Members assigned
             </p>
@@ -124,7 +124,7 @@ export default async function CounselorGuidePage() {
               {totalAssigned}
             </p>
           </div>
-          <div className="stitch-card" style={{ padding: '1.5rem', borderLeft: needsAttentionCount > 0 ? '4px solid #fbbf24' : '4px solid rgba(88,65,68,0.1)' }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1.5rem', borderLeft: needsAttentionCount > 0 ? '4px solid #fbbf24' : '4px solid rgba(88,65,68,0.1)' }}>
             <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem' }}>
               Need attention this week
             </p>
@@ -132,7 +132,7 @@ export default async function CounselorGuidePage() {
               {needsAttentionCount}
             </p>
           </div>
-          <div className="stitch-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.75rem' }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.75rem' }}>
             <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
               View your full student roster to see where each member is in their journey.
             </p>
@@ -158,7 +158,7 @@ export default async function CounselorGuidePage() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', marginBottom: '2.5rem' }}>
         {/* What you can do */}
-        <section className="stitch-card" style={{ padding: '2rem' }}>
+        <section className="portal-card portal-card--flat" style={{ padding: '2rem' }}>
           <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>
             What you can do here
           </h2>
@@ -210,7 +210,7 @@ export default async function CounselorGuidePage() {
       </div>
 
       {/* Member Journey Reference */}
-      <section className="stitch-card" style={{ padding: '2rem', marginBottom: '2.5rem' }}>
+      <section className="portal-card portal-card--flat" style={{ padding: '2rem', marginBottom: '2.5rem' }}>
         <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>
           Member journey reference
         </h2>
@@ -257,9 +257,9 @@ export default async function CounselorGuidePage() {
         <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>
           Common questions
         </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(320px, 100%), 1fr))', gap: '1rem' }}>
           {FAQS.map((faq) => (
-            <div key={faq.q} className="stitch-card" style={{ padding: '1.25rem' }}>
+            <div key={faq.q} className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
               <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem', letterSpacing: '-0.01em' }}>
                 {faq.q}
               </h3>

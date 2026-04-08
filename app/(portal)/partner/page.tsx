@@ -179,22 +179,46 @@ export default async function PartnerDashboardPage() {
         </p>
       </div>
 
-      {/* KPI metric strip */}
-      <div className="portal-card-scroll-row" style={{ padding: '1rem 1.25rem 0.5rem' }}>
-        {[
-          { label: 'Active Members', value: activeMembersCount, icon: 'groups', accent: 'accent' as const },
-          { label: 'Placements', value: placements, icon: 'person_check', accent: 'green' as const },
-          { label: 'Certificates', value: completions, icon: 'workspace_premium', accent: 'gold' as const },
-          { label: 'Needs Review', value: needsReviewCount, icon: 'pending_actions', accent: 'accent' as const },
-        ].map((s) => (
-          <div key={s.label} className="portal-metric-card" style={{ minWidth: '120px', flexShrink: 0 }}>
-            <div className={`portal-metric-card__icon-wrap portal-metric-card__icon-wrap--${s.accent}`}>
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>{s.icon}</span>
-            </div>
-            <p className="portal-metric-card__value" style={{ fontSize: '1.5rem' }}>{s.value}</p>
-            <p className="portal-metric-card__label">{s.label}</p>
-          </div>
-        ))}
+      <div style={{ padding: '0 1.5rem 1rem' }}>
+        <VoiceAgentSurface {...partnerVoiceSurface}>
+          <PortalVoiceSession
+            sessionEndpoint="/api/partner/voice-session"
+            title="Partner voice assistant"
+            description="Ask about referrals, member progress, or using the partner portal."
+            accent="#ea580c"
+            accentDark="#c2410c"
+            speakingLabel="Assistant is speaking…"
+            listeningLabel="Listening — ask your question"
+          />
+        </VoiceAgentSurface>
+      </div>
+
+      {/* 2×2 KPI Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', padding: '1rem 1.5rem' }}>
+        {/* Active Members */}
+        <div style={{ background: '#fff', borderRadius: '0.875rem', padding: '1rem', border: '1px solid #ebe7e7', borderLeft: '4px solid #8c0f37' }}>
+          <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Active Members</p>
+          <p className="wa-text-3xl wa-font-black" style={{ color: 'var(--color-accent)', lineHeight: 1 }}>{activeMembersCount}</p>
+          <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>In progress</p>
+        </div>
+        {/* Placements */}
+        <div style={{ background: '#fff', borderRadius: '0.875rem', padding: '1rem', border: '1px solid #ebe7e7' }}>
+          <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Placements</p>
+          <p className="wa-text-3xl wa-font-black" style={{ color: 'var(--color-on-surface)', lineHeight: 1 }}>{placements}</p>
+          <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Verified hires</p>
+        </div>
+        {/* Certifications */}
+        <div style={{ background: '#fff', borderRadius: '0.875rem', padding: '1rem', border: '1px solid #ebe7e7' }}>
+          <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Certificates</p>
+          <p className="wa-text-3xl wa-font-black" style={{ color: 'var(--color-gold)', lineHeight: 1 }}>{completions}</p>
+          <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Earned by members</p>
+        </div>
+        {/* Needs Review */}
+        <div style={{ background: '#fff', borderRadius: '0.875rem', padding: '1rem', border: '1px solid #ebe7e7', borderLeft: '4px solid #8c0f37' }}>
+          <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ color: 'var(--color-accent)', marginBottom: '0.25rem' }}>Needs Review</p>
+          <p className="wa-text-3xl wa-font-black" style={{ color: 'var(--color-accent)', lineHeight: 1 }}>{needsReviewCount}</p>
+          <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Applied/enrolled or stalled</p>
+        </div>
       </div>
 
       {/* Next Step Guidance */}
@@ -289,23 +313,13 @@ export default async function PartnerDashboardPage() {
       <div style={{ padding: '0 1.5rem 1rem' }}>
         <p className="wa-text-sm wa-font-bold" style={{ color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>Quick Actions</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <Link href="/partner/milestones" className="wa-no-underline active:scale-[0.98] wa-transition-all">
-            <PortalCard className="portal-card--compact">
-              <div className="portal-inbox-row__inner" style={{ padding: '0.1rem 0' }}>
-                <div className="portal-inbox-row__badge" aria-hidden>
-                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }}>flag</span>
-                </div>
-                <div className="portal-inbox-row__main">
-                  <div className="portal-inbox-row__top">
-                    <div className="portal-inbox-row__title">Milestones & Updates</div>
-                  </div>
-                  <div className="portal-inbox-row__preview">{inTrainingCount} currently in training</div>
-                </div>
-                <div className="portal-inbox-row__badge" aria-hidden>
-                  <span className="material-symbols-outlined" style={{ opacity: 0.7 }}>arrow_forward_ios</span>
-                </div>
-              </div>
-            </PortalCard>
+          <Link href="/partner/milestones" className="active:scale-[0.98] wa-transition-all" style={{ background: '#fff', border: '1px solid #ebe7e7', borderRadius: '0.875rem', padding: '0.875rem 1rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }}>flag</span>
+            <div style={{ flex: 1 }}>
+              <p className="wa-text-sm wa-font-semibold" style={{ color: 'var(--color-on-surface)', margin: 0 }}>Milestones & Updates</p>
+              <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>{inTrainingCount} currently in training</p>
+            </div>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem' }}>arrow_forward_ios</span>
           </Link>
 
           <Link href="/partner/outcomes" className="wa-no-underline active:scale-[0.98] wa-transition-all">

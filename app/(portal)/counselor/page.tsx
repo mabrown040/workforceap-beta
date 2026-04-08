@@ -14,7 +14,6 @@ import PortalStatCard from '@/components/portal/PortalStatCard';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { getTimeOfDayGreeting } from '@/lib/time/greeting';
 import { getProgramBySlug } from '@/lib/content/programs';
-import PortalCard from '@/components/portal/ui/PortalCard';
 
 export default async function CounselorPortalPage() {
   const user = await getUser();

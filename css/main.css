@@ -196,16 +196,6 @@
     padding-left: 1.5rem;
     padding-right: 1.5rem;
 }
-
-/* Portal layout utilities (uniform, Apple-like spacing) */
-.portal-pad {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-}
-.portal-pad-x {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-}
 .portal-stack {
     display: flex;
     flex-direction: column;
@@ -221,12 +211,6 @@
     text-transform: uppercase;
     color: var(--color-on-surface-variant);
 }
-.stitch-card-elevated {
-    background: var(--surface-container-high);
-    border-radius: var(--radius-xl);
-    padding: var(--space-6);
-}
-
 /* Member dashboard bento — consistent rhythm, collapses on small screens */
 .portal-bento-grid {
     display: grid;
@@ -344,7 +328,7 @@ html.dark .portal-kpi-card {
 .portal-card--flat {
     box-shadow: none;
 }
-/* Standalone padding when not using PortalCard header/body slots (replaces stitch-card padding) */
+/* Standalone padding when not using PortalCard header/body slots */
 .portal-card--padded {
     padding: 1.5rem;
 }

@@ -571,7 +571,7 @@
     padding: 1.1rem 1.15rem;
     height: 100%;
 }
-/* Shell + tint when composed with portal-card (replaces legacy stitch-card) */
+/* Shell + tint when composed with portal-card */
 .ai-tools-hub-card.portal-card {
     background: var(--surface-container-low);
 }
@@ -1172,58 +1172,6 @@
 
 .portal-messages-link-row:hover {
   background: var(--surface-container);
-}
-
-/* ── Admin messaging: filter tabs + stat chips ── */
-
-.portal-messages-filter-tab {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.3rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  border: 1px solid color-mix(in srgb, var(--outline-variant, #e8e0dd) 70%, transparent);
-  background: var(--surface-container);
-  color: var(--color-on-surface-variant);
-  transition: all 0.15s ease;
-}
-.portal-messages-filter-tab:hover {
-  background: color-mix(in srgb, var(--color-accent) 10%, transparent);
-}
-.portal-messages-filter-tab--active {
-  background: var(--color-accent-dark, #6b0c29);
-  color: #fff;
-  border-color: transparent;
-}
-.portal-messages-filter-tab:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.portal-messages-stat-chip {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.2rem 0.5rem;
-  border-radius: 6px;
-  font-size: 0.65rem;
-  font-weight: 600;
-  background: var(--surface-container);
-  color: var(--color-on-surface-variant);
-}
-.portal-messages-stat-chip--warn {
-  background: color-mix(in srgb, #f59e0b 15%, transparent);
-  color: #d97706;
-}
-.portal-messages-stat-chip--danger {
-  background: color-mix(in srgb, #ef4444 15%, transparent);
-  color: #dc2626;
-}
-
-.portal-messages-thread-btn--active {
-  background: color-mix(in srgb, var(--color-accent) 14%, transparent);
-  border-color: color-mix(in srgb, var(--color-accent) 25%, transparent);
 }
 
 /* Job application kanban — portal surfaces + status tints */

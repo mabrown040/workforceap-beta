@@ -18,137 +18,138 @@ datasource db {
 // --- Core tables ---
 
 model Organization {
-  id             String   @id @default(uuid())
-  name           String
-  slug           String   @unique
-  customDomain   String?  @unique @map("custom_domain")
-  logo           String?
-  primaryColor   String?  @map("primary_color")
-  billingType    String   @default("flat") @map("billing_type")
-  plan           String   @default("nonprofit")
-  active         Boolean  @default(true)
-  overviewVideoUrl String? @map("overview_video_url")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  id               String   @id @default(uuid())
+  name             String
+  slug             String   @unique
+  customDomain     String?  @unique @map("custom_domain")
+  logo             String?
+  primaryColor     String?  @map("primary_color")
+  billingType      String   @default("flat") @map("billing_type")
+  plan             String   @default("nonprofit")
+  active           Boolean  @default(true)
+  overviewVideoUrl String?  @map("overview_video_url")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
 
-  users          User[]
-  partners       Partner[]
-  employers      Employer[]
-  jobs           Job[]
-  programCatalog OrganizationProgramCatalog[]
-  preScreenings  PreScreeningResponse[]
+  users             User[]
+  partners          Partner[]
+  employers         Employer[]
+  jobs              Job[]
+  programCatalog    OrganizationProgramCatalog[]
+  preScreenings     PreScreeningResponse[]
   courseEnrollments CourseEnrollment[]
 
   @@map("organizations")
 }
 
 model User {
-  id                     String    @id @default(uuid())
-  organizationId         String    @map("organization_id")
-  email                  String    @unique
-  fullName               String    @map("full_name")
-  phone                  String?
-  assessmentCompleted    Boolean   @default(false) @map("assessment_completed")
-  assessmentCompletedAt  DateTime? @map("assessment_completed_at")
-  assessmentScore        Int?      @map("assessment_score")
-  assessmentScorePct     Int?      @map("assessment_score_pct")
-  programInterest        String?   @map("program_interest")
-  assessmentAnswers      Json?     @map("assessment_answers")
-  enrolledProgram        String?   @map("enrolled_program")
-  enrolledAt             DateTime? @map("enrolled_at")
-  programChangedAt       DateTime? @map("program_changed_at")
-  coursesCompleted       Json?     @map("courses_completed") // array of course slugs
-  notificationsUpdates   Boolean   @default(true) @map("notifications_updates")
-  notificationsReminders Boolean   @default(true) @map("notifications_reminders")
-  deletedAt              DateTime? @map("deleted_at")
-  createdAt              DateTime  @default(now()) @map("created_at")
-  updatedAt              DateTime  @updatedAt @map("updated_at")
-  interviewEligible      Boolean   @default(false) @map("interview_eligible")
-  interviewRequestedAt   DateTime? @map("interview_requested_at")
-  interviewCompletedAt   DateTime? @map("interview_completed_at")
-  onboardingCompletedAt  DateTime? @map("onboarding_completed_at")
-  onboardingPortal       String?   @map("onboarding_portal")
-  tourCompletedAt        DateTime? @map("tour_completed_at")
-  workspaceEmail               String?   @map("workspace_email")
-  workspaceEmailProvisioned    Boolean   @default(false) @map("workspace_email_provisioned")
+  id                           String              @id @default(uuid())
+  organizationId               String              @map("organization_id")
+  email                        String              @unique
+  fullName                     String              @map("full_name")
+  phone                        String?
+  assessmentCompleted          Boolean             @default(false) @map("assessment_completed")
+  assessmentCompletedAt        DateTime?           @map("assessment_completed_at")
+  assessmentScore              Int?                @map("assessment_score")
+  assessmentScorePct           Int?                @map("assessment_score_pct")
+  programInterest              String?             @map("program_interest")
+  assessmentAnswers            Json?               @map("assessment_answers")
+  enrolledProgram              String?             @map("enrolled_program")
+  enrolledAt                   DateTime?           @map("enrolled_at")
+  programChangedAt             DateTime?           @map("program_changed_at")
+  coursesCompleted             Json?               @map("courses_completed") // array of course slugs
+  notificationsUpdates         Boolean             @default(true) @map("notifications_updates")
+  notificationsReminders       Boolean             @default(true) @map("notifications_reminders")
+  deletedAt                    DateTime?           @map("deleted_at")
+  createdAt                    DateTime            @default(now()) @map("created_at")
+  updatedAt                    DateTime            @updatedAt @map("updated_at")
+  interviewEligible            Boolean             @default(false) @map("interview_eligible")
+  interviewRequestedAt         DateTime?           @map("interview_requested_at")
+  interviewCompletedAt         DateTime?           @map("interview_completed_at")
+  onboardingCompletedAt        DateTime?           @map("onboarding_completed_at")
+  onboardingPortal             String?             @map("onboarding_portal")
+  tourCompletedAt              DateTime?           @map("tour_completed_at")
+  workspaceEmail               String?             @map("workspace_email")
+  workspaceEmailProvisioned    Boolean             @default(false) @map("workspace_email_provisioned")
   /// Set when career quiz indicates no reliable computer; counselors can follow up.
-  needsComputerSupportFollowUp Boolean   @default(false) @map("needs_computer_support_follow_up")
+  needsComputerSupportFollowUp Boolean             @default(false) @map("needs_computer_support_follow_up")
   /// O*NET-backed quiz snapshot for dashboard / consistency (JSON CareerMatchResult shape).
-  careerRecommendationJson    Json?     @map("career_recommendation_json")
+  careerRecommendationJson     Json?               @map("career_recommendation_json")
   /// Self-service WIA/WIOA screening answers + eligibility signal (not a legal determination).
-  wioaQualificationJson       Json?     @map("wioa_qualification_json")
+  wioaQualificationJson        Json?               @map("wioa_qualification_json")
   /// Staff review: pending | in_review | verified | not_eligible | needs_info
-  wioaReviewStatus            String?   @map("wioa_review_status")
-  wioaReviewedAt              DateTime? @map("wioa_reviewed_at")
-  wioaReviewedByUserId        String?   @map("wioa_reviewed_by_user_id")
-  wioaReviewNotes             String?   @map("wioa_review_notes") @db.Text
-  wioaReviewer                User?     @relation("WioaReviewStaff", fields: [wioaReviewedByUserId], references: [id], onDelete: SetNull)
+  wioaReviewStatus             String?             @map("wioa_review_status")
+  wioaReviewedAt               DateTime?           @map("wioa_reviewed_at")
+  wioaReviewedByUserId         String?             @map("wioa_reviewed_by_user_id")
+  wioaReviewNotes              String?             @map("wioa_review_notes") @db.Text
+  wioaReviewer                 User?               @relation("WioaReviewStaff", fields: [wioaReviewedByUserId], references: [id], onDelete: SetNull)
   /// Admin pipeline board column; when null, stage is derived from enrollment, courses, certs, placement.
-  pipelineBoardStage   PipelineBoardStage? @map("pipeline_board_stage")
+  pipelineBoardStage           PipelineBoardStage? @map("pipeline_board_stage")
 
-  organization         Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
-  profile              Profile?
-  readinessChecklist   ReadinessChecklist[]
-  applications         Application[]
-  jobApplications      JobApplication[]
-  benefitRequests      BenefitRequest[]
-  learningProgress     LearningProgress[]
-  aiToolResults        AIToolResult[]
-  userCertifications   UserCertification[]
-  userRoles            UserRole[]
-  auditLogs            AuditLog[] @relation("ActorAuditLogs")
-  goals                Goal[]
-  resourceProgress     ResourceProgress[]
-  memberEvents         MemberEvent[]
-  workflowDiagnostics  WorkflowDiagnostic[] @relation("WorkflowDiagnosticActor")
-  weeklyRecaps         WeeklyRecap[]
-  pathwayStepProgress  PathwayStepProgress[]
+  organization           Organization            @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  profile                Profile?
+  readinessChecklist     ReadinessChecklist[]
+  applications           Application[]
+  jobApplications        JobApplication[]
+  benefitRequests        BenefitRequest[]
+  learningProgress       LearningProgress[]
+  aiToolResults          AIToolResult[]
+  userCertifications     UserCertification[]
+  userRoles              UserRole[]
+  auditLogs              AuditLog[]              @relation("ActorAuditLogs")
+  goals                  Goal[]
+  resourceProgress       ResourceProgress[]
+  memberEvents           MemberEvent[]
+  workflowDiagnostics    WorkflowDiagnostic[]    @relation("WorkflowDiagnosticActor")
+  weeklyRecaps           WeeklyRecap[]
+  pathwayStepProgress    PathwayStepProgress[]
   trainingAccessRequests TrainingAccessRequest[]
-  invitationsSent      Invitation[] @relation("InvitationInviter")
-  invitationsAccepted  Invitation[] @relation("InvitationAccepter")
+  invitationsSent        Invitation[]            @relation("InvitationInviter")
+  invitationsAccepted    Invitation[]            @relation("InvitationAccepter")
 
   counselorProfile     Counselor?
   counselorAssignments CounselorAssignment[] @relation("MemberAssignments")
   partnerReferrals     PartnerReferral[]     @relation("MemberReferrals")
-  placementRecord    PlacementRecord?
-  placedOutcome      PlacedOutcome?
-  counselorNotes     CounselorNote[]  @relation("MemberNotes")
-  notesAuthored      CounselorNote[]  @relation("NoteAuthor")
-  partnerUser        PartnerUser?
-  employer           Employer?
+  placementRecord      PlacementRecord?
+  placedOutcome        PlacedOutcome?
+  counselorNotes       CounselorNote[]       @relation("MemberNotes")
+  notesAuthored        CounselorNote[]       @relation("NoteAuthor")
+  partnerUser          PartnerUser?
+  employer             Employer?
 
-  jobPostingApplications JobPostingApplication[]
-  aiJobMatches       AIJobMatch[]
-  jobsApproved       Job[]            @relation("JobApprover")
-  programChangeRequests ProgramChangeRequest[]
-  programChangeReviews ProgramChangeRequest[] @relation("ProgramChangeReviewer")
-  partnerOutreachAbout    PartnerOutreachLog[] @relation("PartnerOutreachMember")
-  partnerOutreachAuthored   PartnerOutreachLog[] @relation("PartnerOutreachAuthor")
-  assignedPartnerReferrals  PartnerReferral[]    @relation("PartnerReferralAssignee")
-  portalWorkflowEvents      PortalWorkflowEvent[]
+  jobPostingApplications   JobPostingApplication[]
+  aiJobMatches             AIJobMatch[]
+  jobsApproved             Job[]                   @relation("JobApprover")
+  programChangeRequests    ProgramChangeRequest[]
+  programChangeReviews     ProgramChangeRequest[]  @relation("ProgramChangeReviewer")
+  partnerOutreachAbout     PartnerOutreachLog[]    @relation("PartnerOutreachMember")
+  partnerOutreachAuthored  PartnerOutreachLog[]    @relation("PartnerOutreachAuthor")
+  assignedPartnerReferrals PartnerReferral[]       @relation("PartnerReferralAssignee")
+  portalWorkflowEvents     PortalWorkflowEvent[]
 
-  subgroupsLed       Subgroup[]       @relation("SubgroupLeader")
-  subgroupsCreated   Subgroup[]       @relation("SubgroupCreator")
-  memberSubgroups    MemberSubgroup[]
+  subgroupsLed            Subgroup[]       @relation("SubgroupLeader")
+  subgroupsCreated        Subgroup[]       @relation("SubgroupCreator")
+  memberSubgroups         MemberSubgroup[]
   memberSubgroupsAssigned MemberSubgroup[] @relation("MemberSubgroupAssigner")
-  subgroupLeaderRows SubgroupLeader[]
+  subgroupLeaderRows      SubgroupLeader[]
 
-  messageThreadsAsMember    MessageThread[] @relation("MemberMessageThreads")
-  messageThreadsAsCounselor MessageThread[] @relation("CounselorMessageThreads")
-  messageThreadsAsStaff     MessageThread[] @relation("StaffPortalMessageThreads")
-  messagesAuthored          Message[]
+  messageThreadsAsMember      MessageThread[]       @relation("MemberMessageThreads")
+  messageThreadsAsCounselor   MessageThread[]       @relation("CounselorMessageThreads")
+  messageThreadsAsStaff       MessageThread[]       @relation("StaffPortalMessageThreads")
+  messagesAuthored            Message[]
   applicationMessagesAuthored ApplicationMessage[]
-  preScreeningResponse      PreScreeningResponse?
-  preScreeningDraft         PreScreeningDraft?
-  courseEnrollment          CourseEnrollment?
-  adminCourseEnrollments    CourseEnrollment[] @relation("AdminCourseEnrollments")
+  preScreeningResponse        PreScreeningResponse?
+  preScreeningDraft           PreScreeningDraft?
+  courseEnrollment            CourseEnrollment?
+  adminCourseEnrollments      CourseEnrollment[]    @relation("AdminCourseEnrollments")
 
-  mentorProfile             Mentor?
-  mentorSessions            MentorSession[] @relation("MentorSessionMember")
-  membersWioaReviewed       User[]          @relation("WioaReviewStaff")
+  mentorProfile       Mentor?
+  mentorSessions      MentorSession[] @relation("MentorSessionMember")
+  membersWioaReviewed User[]          @relation("WioaReviewStaff")
 
   @@index([organizationId])
   @@index([wioaReviewStatus])
+  @@index([enrolledProgram])
   @@map("users")
 }
 
@@ -179,24 +180,24 @@ model Profile {
   consentTerms          Boolean   @default(false) @map("consent_terms")
   consentCommunications Boolean   @default(false) @map("consent_communications")
   smsOptIn              Boolean   @default(false) @map("sms_opt_in")
-  financialAidInterest Boolean?  @map("financial_aid_interest")
-  
+  financialAidInterest  Boolean?  @map("financial_aid_interest")
+
   // Minor (under 18) data handling for high school partnerships
-  isMinor               Boolean   @default(false) @map("is_minor")
-  parentGuardianName    String?   @map("parent_guardian_name")
-  parentGuardianEmail   String?   @map("parent_guardian_email")
-  parentGuardianPhone   String?   @map("parent_guardian_phone")
-  parentalConsentGiven  Boolean   @default(false) @map("parental_consent_given")
-  parentalConsentDate   DateTime? @map("parental_consent_date")
-  schoolName            String?   @map("school_name")
-  schoolDistrict        String?   @map("school_district")
-  gradeLevel            String?   @map("grade_level")
-  studentId             String?   @map("student_id")
-  ferpaConsentGiven     Boolean   @default(false) @map("ferpa_consent_given")
-  
-  role                  String    @default("member")
-  createdAt             DateTime  @default(now()) @map("created_at")
-  updatedAt             DateTime  @updatedAt @map("updated_at")
+  isMinor              Boolean   @default(false) @map("is_minor")
+  parentGuardianName   String?   @map("parent_guardian_name")
+  parentGuardianEmail  String?   @map("parent_guardian_email")
+  parentGuardianPhone  String?   @map("parent_guardian_phone")
+  parentalConsentGiven Boolean   @default(false) @map("parental_consent_given")
+  parentalConsentDate  DateTime? @map("parental_consent_date")
+  schoolName           String?   @map("school_name")
+  schoolDistrict       String?   @map("school_district")
+  gradeLevel           String?   @map("grade_level")
+  studentId            String?   @map("student_id")
+  ferpaConsentGiven    Boolean   @default(false) @map("ferpa_consent_given")
+
+  role      String   @default("member")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -204,17 +205,17 @@ model Profile {
 }
 
 model ReadinessChecklist {
-  id           String    @id @default(uuid())
-  userId       String    @map("user_id")
-  section      Int       // 1–13
-  itemKey      String    @map("item_key")
-  completed    Boolean   @default(false)
-  completedAt  DateTime? @map("completed_at")
-  completedBy  String?   @map("completed_by") // counselor user_id
-  notes        String?   @db.Text
-  valueText    String?   @map("value_text") @db.Text // for free-text fields (job titles, elevator pitch, etc.)
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  section     Int // 1–13
+  itemKey     String    @map("item_key")
+  completed   Boolean   @default(false)
+  completedAt DateTime? @map("completed_at")
+  completedBy String?   @map("completed_by") // counselor user_id
+  notes       String?   @db.Text
+  valueText   String?   @map("value_text") @db.Text // for free-text fields (job titles, elevator pitch, etc.)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -224,21 +225,21 @@ model ReadinessChecklist {
 }
 
 model Application {
-  id             String   @id @default(uuid())
-  userId         String   @map("user_id")
-  status         ApplicationStatus @default(PENDING)
-  programInterest String  @map("program_interest")
-  programRankedSlugs Json? @map("program_ranked_slugs")
-  recommendedOnetCode   String? @map("recommended_onet_code")
-  recommendedCareerTitle String? @map("recommended_career_title")
-  notes          String?  @db.Text
-  submittedAt    DateTime? @map("submitted_at")
-  referralSource   String?   @map("referral_source")
-  referralPartnerId String?  @map("referral_partner_id")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  id                     String            @id @default(uuid())
+  userId                 String            @map("user_id")
+  status                 ApplicationStatus @default(PENDING)
+  programInterest        String            @map("program_interest")
+  programRankedSlugs     Json?             @map("program_ranked_slugs")
+  recommendedOnetCode    String?           @map("recommended_onet_code")
+  recommendedCareerTitle String?           @map("recommended_career_title")
+  notes                  String?           @db.Text
+  submittedAt            DateTime?         @map("submitted_at")
+  referralSource         String?           @map("referral_source")
+  referralPartnerId      String?           @map("referral_partner_id")
+  createdAt              DateTime          @default(now()) @map("created_at")
+  updatedAt              DateTime          @updatedAt @map("updated_at")
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   referralPartner Partner? @relation(fields: [referralPartnerId], references: [id], onDelete: SetNull)
 
   @@index([userId])
@@ -285,14 +286,14 @@ model UserRole {
 }
 
 model Resource {
-  id             String   @id @default(uuid())
+  id             String       @id @default(uuid())
   title          String
   type           ResourceType
   url            String?
   path           String?
-  visibilityRule String?  @map("visibility_rule") // e.g. "member", "admin", "case_manager"
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  visibilityRule String?      @map("visibility_rule") // e.g. "member", "admin", "case_manager"
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
 
   @@map("resources")
 }
@@ -304,20 +305,20 @@ enum ResourceType {
 }
 
 model JobApplication {
-  id          String              @id @default(uuid())
-  userId      String              @map("user_id")
-  company     String
-  role        String
-  status      JobApplicationStatus @default(SAVED)
-  appliedAt   DateTime?           @map("applied_at")
-  source      JobApplicationSource @default(OTHER)
-  nextInterviewDate DateTime?     @map("next_interview_date")
-  notes       String?             @db.Text
-  url         String?
+  id                String               @id @default(uuid())
+  userId            String               @map("user_id")
+  company           String
+  role              String
+  status            JobApplicationStatus @default(SAVED)
+  appliedAt         DateTime?            @map("applied_at")
+  source            JobApplicationSource @default(OTHER)
+  nextInterviewDate DateTime?            @map("next_interview_date")
+  notes             String?              @db.Text
+  url               String?
   /// When set, this row is linked to a curated employer job on the member job board.
-  curatedJobId String?            @map("curated_job_id")
-  createdAt   DateTime            @default(now()) @map("created_at")
-  updatedAt   DateTime            @updatedAt @map("updated_at")
+  curatedJobId      String?              @map("curated_job_id")
+  createdAt         DateTime             @default(now()) @map("created_at")
+  updatedAt         DateTime             @updatedAt @map("updated_at")
 
   user       User @relation(fields: [userId], references: [id], onDelete: Cascade)
   curatedJob Job? @relation(fields: [curatedJobId], references: [id], onDelete: SetNull)
@@ -345,12 +346,12 @@ enum JobApplicationSource {
 }
 
 model BenefitRequest {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  benefit   String   // linkedin_premium, coursera
+  id        String               @id @default(uuid())
+  userId    String               @map("user_id")
+  benefit   String // linkedin_premium, coursera
   status    BenefitRequestStatus @default(PENDING)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime             @default(now()) @map("created_at")
+  updatedAt DateTime             @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -368,19 +369,19 @@ enum BenefitRequestStatus {
 
 /// Member-initiated request to switch enrollment program (counselor/admin review).
 model ProgramChangeRequest {
-  id                   String                  @id @default(uuid())
-  userId               String                  @map("user_id")
-  currentProgramSlug   String?                 @map("current_program_slug")
-  requestedProgramSlug String                  @map("requested_program_slug")
-  reason               String                  @db.Text
+  id                   String                     @id @default(uuid())
+  userId               String                     @map("user_id")
+  currentProgramSlug   String?                    @map("current_program_slug")
+  requestedProgramSlug String                     @map("requested_program_slug")
+  reason               String                     @db.Text
   status               ProgramChangeRequestStatus @default(PENDING)
-  adminNote            String?                 @map("admin_note") @db.Text
-  reviewedById         String?                 @map("reviewed_by_id")
-  reviewedAt           DateTime?               @map("reviewed_at")
-  createdAt            DateTime                @default(now()) @map("created_at")
-  updatedAt            DateTime                @updatedAt @map("updated_at")
+  adminNote            String?                    @map("admin_note") @db.Text
+  reviewedById         String?                    @map("reviewed_by_id")
+  reviewedAt           DateTime?                  @map("reviewed_at")
+  createdAt            DateTime                   @default(now()) @map("created_at")
+  updatedAt            DateTime                   @updatedAt @map("updated_at")
 
-  user       User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   reviewedBy User? @relation("ProgramChangeReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
 
   @@index([userId])
@@ -408,13 +409,13 @@ enum PipelineBoardStage {
 }
 
 model LearningProgress {
-  id         String   @id @default(uuid())
-  userId     String   @map("user_id")
-  pathwayId  String   @map("pathway_id")
-  completed  Boolean  @default(false)
-  progress   Int      @default(0) // 0-100
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  pathwayId String   @map("pathway_id")
+  completed Boolean  @default(false)
+  progress  Int      @default(0) // 0-100
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -424,19 +425,19 @@ model LearningProgress {
 }
 
 model Goal {
-  id               String    @id @default(uuid())
-  userId           String    @map("user_id")
-  goalType         String    @map("goal_type") // build_resume, practice_interviews, apply_to_jobs, etc.
-  title            String
-  description      String?   @db.Text
-  targetMetricType String?   @map("target_metric_type")
-  targetMetricValue Int?     @map("target_metric_value")
-  currentMetricValue Int     @default(0) @map("current_metric_value")
-  status           GoalStatus @default(ACTIVE)
-  targetDate       DateTime? @map("target_date")
-  completedAt      DateTime? @map("completed_at")
-  createdAt        DateTime  @default(now()) @map("created_at")
-  updatedAt        DateTime  @updatedAt @map("updated_at")
+  id                 String     @id @default(uuid())
+  userId             String     @map("user_id")
+  goalType           String     @map("goal_type") // build_resume, practice_interviews, apply_to_jobs, etc.
+  title              String
+  description        String?    @db.Text
+  targetMetricType   String?    @map("target_metric_type")
+  targetMetricValue  Int?       @map("target_metric_value")
+  currentMetricValue Int        @default(0) @map("current_metric_value")
+  status             GoalStatus @default(ACTIVE)
+  targetDate         DateTime?  @map("target_date")
+  completedAt        DateTime?  @map("completed_at")
+  createdAt          DateTime   @default(now()) @map("created_at")
+  updatedAt          DateTime   @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -452,17 +453,17 @@ enum GoalStatus {
 }
 
 model ResourceProgress {
-  id             String    @id @default(uuid())
-  userId         String    @map("user_id")
-  resourceId     String    @map("resource_id") // matches content id e.g. ats-resume-template
-  viewedAt       DateTime? @map("viewed_at")
-  completedAt    DateTime? @map("completed_at")
-  downloadedAt   DateTime? @map("downloaded_at")
-  savedAt       DateTime?  @map("saved_at")
-  viewCount      Int       @default(0) @map("view_count")
-  completionStatus String  @default("not_started") @map("completion_status") // not_started, in_progress, completed
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
+  id               String    @id @default(uuid())
+  userId           String    @map("user_id")
+  resourceId       String    @map("resource_id") // matches content id e.g. ats-resume-template
+  viewedAt         DateTime? @map("viewed_at")
+  completedAt      DateTime? @map("completed_at")
+  downloadedAt     DateTime? @map("downloaded_at")
+  savedAt          DateTime? @map("saved_at")
+  viewCount        Int       @default(0) @map("view_count")
+  completionStatus String    @default("not_started") @map("completion_status") // not_started, in_progress, completed
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -515,17 +516,17 @@ model WorkflowDiagnostic {
 }
 
 model WeeklyRecap {
-  id                    String   @id @default(uuid())
-  userId                String   @map("user_id")
-  weekStartDate         DateTime @map("week_start_date")
-  weekEndDate           DateTime @map("week_end_date")
-  recapJson             Json     @map("recap_json")
-  readinessScoreSnapshot Int?    @map("readiness_score_snapshot")
-  goalsSnapshotJson     Json?    @map("goals_snapshot_json")
-  generatedAt           DateTime @default(now()) @map("generated_at")
-  openedAt              DateTime? @map("opened_at")
-  emailedAt             DateTime? @map("emailed_at")
-  createdAt             DateTime @default(now()) @map("created_at")
+  id                     String    @id @default(uuid())
+  userId                 String    @map("user_id")
+  weekStartDate          DateTime  @map("week_start_date")
+  weekEndDate            DateTime  @map("week_end_date")
+  recapJson              Json      @map("recap_json")
+  readinessScoreSnapshot Int?      @map("readiness_score_snapshot")
+  goalsSnapshotJson      Json?     @map("goals_snapshot_json")
+  generatedAt            DateTime  @default(now()) @map("generated_at")
+  openedAt               DateTime? @map("opened_at")
+  emailedAt              DateTime? @map("emailed_at")
+  createdAt              DateTime  @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -535,16 +536,16 @@ model WeeklyRecap {
 }
 
 model PathwayStepProgress {
-  id         String    @id @default(uuid())
-  userId     String    @map("user_id")
-  pathwayId  String    @map("pathway_id")
-  stepIndex  Int       @map("step_index") // 0-based index into pathway steps
-  stepTitle  String    @map("step_title")
-  status     String    @default("pending") // pending, in_progress, completed
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  pathwayId   String    @map("pathway_id")
+  stepIndex   Int       @map("step_index") // 0-based index into pathway steps
+  stepTitle   String    @map("step_title")
+  status      String    @default("pending") // pending, in_progress, completed
   completedAt DateTime? @map("completed_at")
-  notes      String?   @db.Text
-  createdAt  DateTime  @default(now()) @map("created_at")
-  updatedAt  DateTime  @updatedAt @map("updated_at")
+  notes       String?   @db.Text
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -554,17 +555,17 @@ model PathwayStepProgress {
 }
 
 model TrainingAccessRequest {
-  id          String   @id @default(uuid())
-  userId      String   @map("user_id")
-  providerKey String   @map("provider_key") // coursera, linkedin_premium
+  id          String               @id @default(uuid())
+  userId      String               @map("user_id")
+  providerKey String               @map("provider_key") // coursera, linkedin_premium
   status      TrainingAccessStatus @default(PENDING)
-  requestedAt DateTime @default(now()) @map("requested_at")
-  approvedAt  DateTime? @map("approved_at")
-  activatedAt DateTime? @map("activated_at")
-  rejectedAt  DateTime? @map("rejected_at")
-  notes       String?  @db.Text
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  requestedAt DateTime             @default(now()) @map("requested_at")
+  approvedAt  DateTime?            @map("approved_at")
+  activatedAt DateTime?            @map("activated_at")
+  rejectedAt  DateTime?            @map("rejected_at")
+  notes       String?              @db.Text
+  createdAt   DateTime             @default(now()) @map("created_at")
+  updatedAt   DateTime             @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -599,12 +600,12 @@ model AutomationRule {
 }
 
 model AIToolResult {
-  id           String       @id @default(uuid())
-  userId       String       @map("user_id")
-  toolType     AIToolType   @map("tool_type")
-  inputSummary String       @map("input_summary")
-  output       String       @db.Text
-  createdAt    DateTime     @default(now()) @map("created_at")
+  id           String     @id @default(uuid())
+  userId       String     @map("user_id")
+  toolType     AIToolType @map("tool_type")
+  inputSummary String     @map("input_summary")
+  output       String     @db.Text
+  createdAt    DateTime   @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -630,11 +631,11 @@ enum AIToolType {
 }
 
 model UserCertification {
-  id         String   @id @default(uuid())
-  userId     String   @map("user_id")
-  certName   String   @map("cert_name")
-  earnedAt   DateTime @map("earned_at")
-  createdAt  DateTime @default(now()) @map("created_at")
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  certName  String   @map("cert_name")
+  earnedAt  DateTime @map("earned_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -664,41 +665,40 @@ model BlogPost {
   @@map("blog_posts")
 }
 
-
 // --- Partner Portal ---
 
 model Partner {
-  id           String    @id @default(uuid())
-  organizationId String  @map("organization_id")
-  name         String
-  slug         String    @unique  // e.g. "workforce-solutions-austin"
-  referralCode String    @unique @map("referral_code")
-  logoUrl      String?   @map("logo_url")
-  contactName  String?   @map("contact_name")
-  contactEmail String?   @map("contact_email")
-  contactPhone String?   @map("contact_phone")
-  active       Boolean   @default(true)
-  notes        String?   @db.Text  // internal admin notes
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  name           String
+  slug           String   @unique // e.g. "workforce-solutions-austin"
+  referralCode   String   @unique @map("referral_code")
+  logoUrl        String?  @map("logo_url")
+  contactName    String?  @map("contact_name")
+  contactEmail   String?  @map("contact_email")
+  contactPhone   String?  @map("contact_phone")
+  active         Boolean  @default(true)
+  notes          String?  @db.Text // internal admin notes
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
-  notifyOnEnrollment   Boolean @default(true) @map("notify_on_enrollment")
-  notifyOnCourse       Boolean @default(false) @map("notify_on_course")
-  notifyOnCertified    Boolean @default(true) @map("notify_on_certified")
-  notifyOnPlaced       Boolean @default(true) @map("notify_on_placed")
+  notifyOnEnrollment    Boolean   @default(true) @map("notify_on_enrollment")
+  notifyOnCourse        Boolean   @default(false) @map("notify_on_course")
+  notifyOnCertified     Boolean   @default(true) @map("notify_on_certified")
+  notifyOnPlaced        Boolean   @default(true) @map("notify_on_placed")
   onboardingCompletedAt DateTime? @map("onboarding_completed_at")
   tourCompletedAt       DateTime? @map("tour_completed_at")
-  organizationType    String?   @map("organization_type")
+  organizationType      String?   @map("organization_type")
 
-  counselors    Counselor[]
-  referrals     PartnerReferral[]
-  partnerUsers  PartnerUser[]
-  subgroups     Subgroup[]
-  outreachLogs    PartnerOutreachLog[]
-  workflowEvents  PortalWorkflowEvent[]
+  counselors           Counselor[]
+  referrals            PartnerReferral[]
+  partnerUsers         PartnerUser[]
+  subgroups            Subgroup[]
+  outreachLogs         PartnerOutreachLog[]
+  workflowEvents       PortalWorkflowEvent[]
   referredApplications Application[]
-  messageThread MessageThread?
-  invitations Invitation[]
+  messageThread        MessageThread?
+  invitations          Invitation[]
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
 
@@ -723,7 +723,7 @@ model Counselor {
   id        String   @id @default(uuid())
   // Null partnerId = WorkforceAP org counselor; set when tied to a partner org
   partnerId String?  @map("partner_id")
-  userId    String   @unique @map("user_id")  // links to User (must have role = counselor)
+  userId    String   @unique @map("user_id") // links to User (must have role = counselor)
   title     String?
   active    Boolean  @default(true)
   createdAt DateTime @default(now()) @map("created_at")
@@ -740,7 +740,7 @@ model Counselor {
 model CounselorAssignment {
   id          String   @id @default(uuid())
   counselorId String   @map("counselor_id")
-  memberId    String   @map("member_id")  // User.id of the student
+  memberId    String   @map("member_id") // User.id of the student
   assignedAt  DateTime @default(now()) @map("assigned_at")
   active      Boolean  @default(true)
   notes       String?  @db.Text
@@ -764,25 +764,25 @@ enum MessageThreadKind {
 
 // Portal ↔ team chat: member–counselor, employer–admin, partner–admin (Realtime on messages + message_threads)
 model MessageThread {
-  id                   String             @id @default(uuid())
-  kind                 MessageThreadKind  @default(member) @map("kind")
-  memberId             String?            @unique @map("member_id")
-  employerId           String?            @unique @map("employer_id")
-  partnerId            String?            @unique @map("partner_id")
-  counselorUserId      String?            @map("counselor_user_id")
-  memberLastReadAt     DateTime?          @map("member_last_read_at")
-  counselorLastReadAt  DateTime?          @map("counselor_last_read_at")
-  portalUserLastReadAt DateTime?          @map("portal_user_last_read_at")
-  staffLastReadAt      DateTime?          @map("staff_last_read_at")
-  createdAt            DateTime           @default(now()) @map("created_at")
-  updatedAt            DateTime           @updatedAt @map("updated_at")
+  id                   String            @id @default(uuid())
+  kind                 MessageThreadKind @default(member) @map("kind")
+  memberId             String?           @unique @map("member_id")
+  employerId           String?           @unique @map("employer_id")
+  partnerId            String?           @unique @map("partner_id")
+  counselorUserId      String?           @map("counselor_user_id")
+  memberLastReadAt     DateTime?         @map("member_last_read_at")
+  counselorLastReadAt  DateTime?         @map("counselor_last_read_at")
+  portalUserLastReadAt DateTime?         @map("portal_user_last_read_at")
+  staffLastReadAt      DateTime?         @map("staff_last_read_at")
+  createdAt            DateTime          @default(now()) @map("created_at")
+  updatedAt            DateTime          @updatedAt @map("updated_at")
 
-  member   User?     @relation("MemberMessageThreads", fields: [memberId], references: [id], onDelete: Cascade)
-  employer Employer? @relation(fields: [employerId], references: [id], onDelete: Cascade)
-  partner  Partner?  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
-  counselor   User?    @relation("CounselorMessageThreads", fields: [counselorUserId], references: [id], onDelete: SetNull)
-  staffUserId String?  @map("staff_user_id")
-  staffUser   User?    @relation("StaffPortalMessageThreads", fields: [staffUserId], references: [id], onDelete: SetNull)
+  member      User?     @relation("MemberMessageThreads", fields: [memberId], references: [id], onDelete: Cascade)
+  employer    Employer? @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  partner     Partner?  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  counselor   User?     @relation("CounselorMessageThreads", fields: [counselorUserId], references: [id], onDelete: SetNull)
+  staffUserId String?   @map("staff_user_id")
+  staffUser   User?     @relation("StaffPortalMessageThreads", fields: [staffUserId], references: [id], onDelete: SetNull)
   messages    Message[]
 
   @@index([counselorUserId])
@@ -805,11 +805,11 @@ model Message {
 }
 
 model PartnerReferral {
-  id                      String   @id @default(uuid())
-  partnerId               String   @map("partner_id")
-  memberId                String   @map("member_id")
-  referredAt              DateTime @default(now()) @map("referred_at")
-  assignedPartnerUserId   String?  @map("assigned_partner_user_id")
+  id                    String   @id @default(uuid())
+  partnerId             String   @map("partner_id")
+  memberId              String   @map("member_id")
+  referredAt            DateTime @default(now()) @map("referred_at")
+  assignedPartnerUserId String?  @map("assigned_partner_user_id")
 
   partner             Partner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
   member              User    @relation("MemberReferrals", fields: [memberId], references: [id], onDelete: Cascade)
@@ -845,11 +845,11 @@ model Subgroup {
   createdAt   DateTime     @default(now()) @map("created_at")
   createdBy   String       @map("created_by")
 
-  leader   User              @relation("SubgroupLeader", fields: [leaderId], references: [id], onDelete: Restrict)
-  creator  User              @relation("SubgroupCreator", fields: [createdBy], references: [id], onDelete: Restrict)
-  partner  Partner?          @relation(fields: [partnerId], references: [id], onDelete: SetNull)
-  members  MemberSubgroup[]
-  leaders  SubgroupLeader[]
+  leader      User             @relation("SubgroupLeader", fields: [leaderId], references: [id], onDelete: Restrict)
+  creator     User             @relation("SubgroupCreator", fields: [createdBy], references: [id], onDelete: Restrict)
+  partner     Partner?         @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+  members     MemberSubgroup[]
+  leaders     SubgroupLeader[]
   invitations Invitation[]
 
   @@index([type])
@@ -859,11 +859,11 @@ model Subgroup {
 }
 
 model MemberSubgroup {
-  id             String                     @id @default(uuid())
-  memberId       String                     @map("member_id")
-  subgroupId     String                     @map("subgroup_id")
-  assignedAt     DateTime                   @default(now()) @map("assigned_at")
-  assignedBy     String?                    @map("assigned_by")
+  id             String                       @id @default(uuid())
+  memberId       String                       @map("member_id")
+  subgroupId     String                       @map("subgroup_id")
+  assignedAt     DateTime                     @default(now()) @map("assigned_at")
+  assignedBy     String?                      @map("assigned_by")
   assignmentType MemberSubgroupAssignmentType @map("assignment_type")
 
   member   User     @relation(fields: [memberId], references: [id], onDelete: Cascade)
@@ -878,9 +878,9 @@ model MemberSubgroup {
 
 model SubgroupLeader {
   id         String   @id @default(uuid())
-  subgroupId String  @map("subgroup_id")
-  userId     String  @map("user_id")
-  role       String  @default("secondary") // primary, secondary
+  subgroupId String   @map("subgroup_id")
+  userId     String   @map("user_id")
+  role       String   @default("secondary") // primary, secondary
   addedAt    DateTime @default(now()) @map("added_at")
 
   subgroup Subgroup @relation(fields: [subgroupId], references: [id], onDelete: Cascade)
@@ -899,7 +899,7 @@ model PlacementRecord {
   userId        String    @unique @map("user_id")
   employerName  String    @map("employer_name")
   jobTitle      String    @map("job_title")
-  startDate     DateTime? @db.Date @map("start_date")
+  startDate     DateTime? @map("start_date") @db.Date
   salaryOffered Int?      @map("salary_offered") // annual, in whole dollars
   placedAt      DateTime  @default(now()) @map("placed_at")
   placedBy      String?   @map("placed_by") // counselor or admin userId
@@ -964,14 +964,15 @@ model CounselorNote {
   @@index([authorId])
   @@map("counselor_notes")
 }
+
 model AuditLog {
-  id           String   @id @default(uuid())
-  actorUserId  String?  @map("actor_user_id")
-  action       String
-  targetType   String   @map("target_type")
-  targetId     String?  @map("target_id")
-  metadata     Json?
-  createdAt    DateTime @default(now()) @map("created_at")
+  id          String   @id @default(uuid())
+  actorUserId String?  @map("actor_user_id")
+  action      String
+  targetType  String   @map("target_type")
+  targetId    String?  @map("target_id")
+  metadata    Json?
+  createdAt   DateTime @default(now()) @map("created_at")
 
   actor User? @relation("ActorAuditLogs", fields: [actorUserId], references: [id], onDelete: SetNull)
 
@@ -1008,16 +1009,16 @@ model Invitation {
   invitedById     String           @map("invited_by")
   token           String           @unique
   status          InvitationStatus @default(pending)
-  personalMessage String?         @map("personal_message") @db.Text
-  expiresAt      DateTime         @map("expires_at")
+  personalMessage String?          @map("personal_message") @db.Text
+  expiresAt       DateTime         @map("expires_at")
   createdAt       DateTime         @default(now()) @map("created_at")
   acceptedAt      DateTime?        @map("accepted_at")
   acceptedById    String?          @map("accepted_by")
 
-  invitedBy  User  @relation("InvitationInviter", fields: [invitedById], references: [id], onDelete: Cascade)
-  acceptedBy User? @relation("InvitationAccepter", fields: [acceptedById], references: [id], onDelete: SetNull)
+  invitedBy  User      @relation("InvitationInviter", fields: [invitedById], references: [id], onDelete: Cascade)
+  acceptedBy User?     @relation("InvitationAccepter", fields: [acceptedById], references: [id], onDelete: SetNull)
   subgroup   Subgroup? @relation(fields: [subgroupId], references: [id], onDelete: SetNull)
-  partner    Partner? @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+  partner    Partner?  @relation(fields: [partnerId], references: [id], onDelete: SetNull)
 
   @@index([email])
   @@index([token])
@@ -1030,30 +1031,30 @@ model Invitation {
 // --- Employer Portal & Job Management ---
 
 model Employer {
-  id                 String    @id @default(uuid())
-  organizationId     String    @map("organization_id")
-  userId             String    @unique @map("user_id")
-  tier               String    @default("basic") @map("tier")
-  companyName        String    @map("company_name")
-  companyWebsite     String?   @map("company_website")
-  companyDescription String?   @map("company_description")
-  companySize        String?   @map("company_size")
-  industry           String?   @map("industry")
-  logoUrl            String?   @map("logo_url")
-  contactName        String    @map("contact_name")
-  contactEmail       String    @map("contact_email")
-  contactPhone       String?   @map("contact_phone")
-  status             String    @default("active") // active, inactive
-  createdAt          DateTime  @default(now()) @map("created_at")
-  updatedAt          DateTime  @updatedAt @map("updated_at")
+  id                    String    @id @default(uuid())
+  organizationId        String    @map("organization_id")
+  userId                String    @unique @map("user_id")
+  tier                  String    @default("basic") @map("tier")
+  companyName           String    @map("company_name")
+  companyWebsite        String?   @map("company_website")
+  companyDescription    String?   @map("company_description")
+  companySize           String?   @map("company_size")
+  industry              String?   @map("industry")
+  logoUrl               String?   @map("logo_url")
+  contactName           String    @map("contact_name")
+  contactEmail          String    @map("contact_email")
+  contactPhone          String?   @map("contact_phone")
+  status                String    @default("active") // active, inactive
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
   onboardingCompletedAt DateTime? @map("onboarding_completed_at")
   tourCompletedAt       DateTime? @map("tour_completed_at")
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
-  jobs Job[]
+  user           User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization          @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  jobs           Job[]
   workflowEvents PortalWorkflowEvent[]
-  messageThread MessageThread?
+  messageThread  MessageThread?
 
   @@index([organizationId])
   @@map("employers")
@@ -1087,41 +1088,41 @@ enum JobStatusEnum {
 }
 
 model Job {
-  id                     String          @id @default(uuid())
-  organizationId         String          @map("organization_id")
-  employerId             String          @map("employer_id")
-  title                  String
-  location               String?
-  locationType           JobLocationType @default(onsite) @map("location_type")
-  jobType                JobTypeEnum     @default(fulltime) @map("job_type")
-  salaryMin              Int?            @map("salary_min")
-  salaryMax              Int?            @map("salary_max")
-  description            String          @db.Text
-  sourceUrl              String?         @map("source_url")
-  importProvider         String?         @map("import_provider")
-  importMethod           String?         @map("import_method")
-  requirements           String[]        @default([])
-  preferredCertifications String[]       @default([]) @map("preferred_certifications")
-  suggestedPrograms      String[]        @default([]) @map("suggested_programs")
-  minimumAge             Int?            @map("minimum_age")
-  youthAppropriate       Boolean         @default(false) @map("youth_appropriate")
-  requiresWorkPermit     Boolean         @default(false) @map("requires_work_permit")
-  status                 JobStatusEnum   @default(draft)
-  applicationsCount      Int             @default(0) @map("applications_count")
-  createdAt              DateTime        @default(now()) @map("created_at")
-  updatedAt              DateTime        @updatedAt @map("updated_at")
-  approvedAt             DateTime?       @map("approved_at")
-  approvedById            String?         @map("approved_by")
-  aiMatchesComputedAt    DateTime?       @map("ai_matches_computed_at")
-  matchSuggestionsLastSentAt DateTime?   @map("match_suggestions_last_sent_at")
-  matchSuggestionsLastStatus String?     @map("match_suggestions_last_status")
-  matchSuggestionsLastError  String?     @map("match_suggestions_last_error") @db.Text
+  id                         String          @id @default(uuid())
+  organizationId             String          @map("organization_id")
+  employerId                 String          @map("employer_id")
+  title                      String
+  location                   String?
+  locationType               JobLocationType @default(onsite) @map("location_type")
+  jobType                    JobTypeEnum     @default(fulltime) @map("job_type")
+  salaryMin                  Int?            @map("salary_min")
+  salaryMax                  Int?            @map("salary_max")
+  description                String          @db.Text
+  sourceUrl                  String?         @map("source_url")
+  importProvider             String?         @map("import_provider")
+  importMethod               String?         @map("import_method")
+  requirements               String[]        @default([])
+  preferredCertifications    String[]        @default([]) @map("preferred_certifications")
+  suggestedPrograms          String[]        @default([]) @map("suggested_programs")
+  minimumAge                 Int?            @map("minimum_age")
+  youthAppropriate           Boolean         @default(false) @map("youth_appropriate")
+  requiresWorkPermit         Boolean         @default(false) @map("requires_work_permit")
+  status                     JobStatusEnum   @default(draft)
+  applicationsCount          Int             @default(0) @map("applications_count")
+  createdAt                  DateTime        @default(now()) @map("created_at")
+  updatedAt                  DateTime        @updatedAt @map("updated_at")
+  approvedAt                 DateTime?       @map("approved_at")
+  approvedById               String?         @map("approved_by")
+  aiMatchesComputedAt        DateTime?       @map("ai_matches_computed_at")
+  matchSuggestionsLastSentAt DateTime?       @map("match_suggestions_last_sent_at")
+  matchSuggestionsLastStatus String?         @map("match_suggestions_last_status")
+  matchSuggestionsLastError  String?         @map("match_suggestions_last_error") @db.Text
 
-  employer   Employer   @relation(fields: [employerId], references: [id], onDelete: Cascade)
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
-  approvedBy User?      @relation("JobApprover", fields: [approvedById], references: [id], onDelete: SetNull)
-  applications JobPostingApplication[]
-  aiMatches  AIJobMatch[]
+  employer          Employer                @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  organization      Organization            @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  approvedBy        User?                   @relation("JobApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  applications      JobPostingApplication[]
+  aiMatches         AIJobMatch[]
   memberTrackerRows JobApplication[]
 
   @@index([employerId])
@@ -1132,28 +1133,28 @@ model Job {
 
 // Admin-managed program catalog (org-scoped); syncs with static slugs in lib/content/programs for enroll path.
 model OrganizationProgramCatalog {
-  id               String   @id @default(uuid())
-  organizationId   String   @map("organization_id")
-  programSlug      String   @map("program_slug")
+  id               String    @id @default(uuid())
+  organizationId   String    @map("organization_id")
+  programSlug      String    @map("program_slug")
   name             String
-  description      String?  @db.Text
+  description      String?   @db.Text
   category         String
-  deliveryType     String   @map("delivery_type")
-  deliveryUrl      String?  @map("delivery_url")
-  deliveryDetails  String?  @map("delivery_details") @db.Text
-  certifications   String[] @default([])
+  deliveryType     String    @map("delivery_type")
+  deliveryUrl      String?   @map("delivery_url")
+  deliveryDetails  String?   @map("delivery_details") @db.Text
+  certifications   String[]  @default([])
   duration         String?
   cost             Float?
-  certCost         Float?   @map("cert_cost")
-  bookCost         Float?   @map("book_cost")
-  miscCost         Float?   @map("misc_cost")
-  status           String   @default("active")
-  displayOrder     Int      @default(0) @map("display_order")
-  featured         Boolean  @default(false)
+  certCost         Float?    @map("cert_cost")
+  bookCost         Float?    @map("book_cost")
+  miscCost         Float?    @map("misc_cost")
+  status           String    @default("active")
+  displayOrder     Int       @default(0) @map("display_order")
+  featured         Boolean   @default(false)
   programStartDate DateTime? @map("program_start_date") @db.Date
   programEndDate   DateTime? @map("program_end_date") @db.Date
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
@@ -1164,24 +1165,25 @@ model OrganizationProgramCatalog {
 
 // One row per member enrollment (mirrors User.enrolledProgram); enrolledByAdminId skips self-serve profile gate.
 model CourseEnrollment {
-  id                 String   @id @default(uuid())
-  organizationId     String   @map("organization_id")
-  userId             String   @unique @map("user_id")
-  programSlug        String   @map("program_slug")
-  enrolledAt         DateTime @default(now()) @map("enrolled_at")
-  enrolledByAdminId  String?  @map("enrolled_by_admin_id")
-  createdAt          DateTime @default(now()) @map("created_at")
-  updatedAt          DateTime @updatedAt @map("updated_at")
+  id                String   @id @default(uuid())
+  organizationId    String   @map("organization_id")
+  userId            String   @unique @map("user_id")
+  programSlug       String   @map("program_slug")
+  enrolledAt        DateTime @default(now()) @map("enrolled_at")
+  enrolledByAdminId String?  @map("enrolled_by_admin_id")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
 
-  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
-  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  enrolledByAdmin  User?        @relation("AdminCourseEnrollments", fields: [enrolledByAdminId], references: [id], onDelete: SetNull)
-  fundingSource             FundingSource?  @map("funding_source")
-  fundingNotes              String?         @map("funding_notes") @db.Text
-  workspaceEmailProvisioned Boolean         @default(false) @map("workspace_email_provisioned")
-  workspaceEmail            String?         @map("workspace_email")
+  organization              Organization   @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  user                      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  enrolledByAdmin           User?          @relation("AdminCourseEnrollments", fields: [enrolledByAdminId], references: [id], onDelete: SetNull)
+  fundingSource             FundingSource? @map("funding_source")
+  fundingNotes              String?        @map("funding_notes") @db.Text
+  workspaceEmailProvisioned Boolean        @default(false) @map("workspace_email_provisioned")
+  workspaceEmail            String?        @map("workspace_email")
 
   @@index([organizationId])
+  @@index([programSlug])
   @@map("course_enrollments")
 }
 
@@ -1237,24 +1239,24 @@ enum JobPostingApplicationStatus {
 }
 
 model JobPostingApplication {
-  id              String                      @id @default(uuid())
-  jobId           String                      @map("job_id")
-  studentId       String                      @map("student_id")
-  status          JobPostingApplicationStatus @default(pending)
-  coverLetter     String?                     @map("cover_letter") @db.Text
-  resumeUrl       String?                     @map("resume_url")
-  resumePath      String?                     @map("resume_path")
-  profileShared   Boolean                     @default(false) @map("profile_shared")
-  appliedAt       DateTime                    @default(now()) @map("applied_at")
-  employerNotes   String?                     @map("employer_notes") @db.Text
-  statusUpdatedAt DateTime?                   @map("status_updated_at")
-  interviewScheduledAt DateTime?              @map("interview_scheduled_at")
-  interviewNotes  String?                     @map("interview_notes") @db.Text
-  lastEmployerMessageAt DateTime?             @map("last_employer_message_at")
-  lastApplicantMessageAt DateTime?            @map("last_applicant_message_at")
+  id                     String                      @id @default(uuid())
+  jobId                  String                      @map("job_id")
+  studentId              String                      @map("student_id")
+  status                 JobPostingApplicationStatus @default(pending)
+  coverLetter            String?                     @map("cover_letter") @db.Text
+  resumeUrl              String?                     @map("resume_url")
+  resumePath             String?                     @map("resume_path")
+  profileShared          Boolean                     @default(false) @map("profile_shared")
+  appliedAt              DateTime                    @default(now()) @map("applied_at")
+  employerNotes          String?                     @map("employer_notes") @db.Text
+  statusUpdatedAt        DateTime?                   @map("status_updated_at")
+  interviewScheduledAt   DateTime?                   @map("interview_scheduled_at")
+  interviewNotes         String?                     @map("interview_notes") @db.Text
+  lastEmployerMessageAt  DateTime?                   @map("last_employer_message_at")
+  lastApplicantMessageAt DateTime?                   @map("last_applicant_message_at")
 
-  job    Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  job      Job                  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  student  User                 @relation(fields: [studentId], references: [id], onDelete: Cascade)
   messages ApplicationMessage[]
 
   @@unique([jobId, studentId])
@@ -1265,11 +1267,11 @@ model JobPostingApplication {
 }
 
 model ApplicationMessage {
-  id            String   @id @default(uuid())
-  applicationId String   @map("application_id")
-  authorId      String   @map("author_id")
-  body          String   @db.Text
-  createdAt     DateTime @default(now()) @map("created_at")
+  id            String    @id @default(uuid())
+  applicationId String    @map("application_id")
+  authorId      String    @map("author_id")
+  body          String    @db.Text
+  createdAt     DateTime  @default(now()) @map("created_at")
   readAt        DateTime? @map("read_at")
 
   application JobPostingApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
@@ -1333,16 +1335,16 @@ enum AIJobMatchStatus {
 }
 
 model AIJobMatch {
-  id          String         @id @default(uuid())
-  jobId       String         @map("job_id")
-  studentId   String         @map("student_id")
-  matchScore  Int            @map("match_score")
-  matchReasons String[]      @default([]) @map("match_reasons")
-  status      AIJobMatchStatus @default(suggested)
-  statusUpdatedAt DateTime?  @map("status_updated_at")
-  createdAt   DateTime       @default(now()) @map("created_at")
+  id              String           @id @default(uuid())
+  jobId           String           @map("job_id")
+  studentId       String           @map("student_id")
+  matchScore      Int              @map("match_score")
+  matchReasons    String[]         @default([]) @map("match_reasons")
+  status          AIJobMatchStatus @default(suggested)
+  statusUpdatedAt DateTime?        @map("status_updated_at")
+  createdAt       DateTime         @default(now()) @map("created_at")
 
-  job    Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  job     Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
   student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([jobId, studentId])
@@ -1350,8 +1352,6 @@ model AIJobMatch {
   @@index([studentId])
   @@map("ai_job_matches")
 }
-
-
 
 // ─── Mentor Portal ───────────────────────────────────────────────────────────
 
@@ -1370,9 +1370,9 @@ model Mentor {
   id                String    @id @default(uuid())
   userId            String    @unique @map("user_id")
   fullName          String    @map("full_name")
-  title             String    // e.g. "Senior Software Engineer at Google"
+  title             String // e.g. "Senior Software Engineer at Google"
   company           String
-  industry          String    // e.g. "Technology", "Healthcare", "Finance"
+  industry          String // e.g. "Technology", "Healthcare", "Finance"
   bio               String    @db.Text
   linkedinUrl       String?   @map("linkedin_url")
   availableHours    Int       @default(2) @map("available_hours") // hours/month available
@@ -1382,8 +1382,8 @@ model Mentor {
   createdAt         DateTime  @default(now()) @map("created_at")
   updatedAt         DateTime  @updatedAt @map("updated_at")
 
-  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  sessions   MentorSession[]
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions    MentorSession[]
   specialties MentorSpecialty[]
 
   @@map("mentors")
@@ -1436,36 +1436,36 @@ enum CareerRecommendationType {
 }
 
 model OnetOccupation {
-  onetCode           String   @id @map("onet_code")
-  title              String
-  description        String?  @db.Text
-  jobFamily          String?  @map("job_family")
-  brightOutlook      Boolean? @map("bright_outlook")
-  educationLevel     String?  @map("education_level")
-  experienceLevel    String?  @map("experience_level")
-  trainingLevel      String?  @map("training_level")
-  salaryLow          Int?     @map("salary_low")
-  salaryMedian       Int?     @map("salary_median")
-  salaryHigh         Int?     @map("salary_high")
-  outlookSummary     String?  @map("outlook_summary") @db.Text
-  isActive           Boolean  @default(true) @map("is_active")
-  rawJson            Json?    @map("raw_json")
-  updatedAt          DateTime @updatedAt @map("updated_at")
+  onetCode        String   @id @map("onet_code")
+  title           String
+  description     String?  @db.Text
+  jobFamily       String?  @map("job_family")
+  brightOutlook   Boolean? @map("bright_outlook")
+  educationLevel  String?  @map("education_level")
+  experienceLevel String?  @map("experience_level")
+  trainingLevel   String?  @map("training_level")
+  salaryLow       Int?     @map("salary_low")
+  salaryMedian    Int?     @map("salary_median")
+  salaryHigh      Int?     @map("salary_high")
+  outlookSummary  String?  @map("outlook_summary") @db.Text
+  isActive        Boolean  @default(true) @map("is_active")
+  rawJson         Json?    @map("raw_json")
+  updatedAt       DateTime @updatedAt @map("updated_at")
 
-  skills            OnetOccupationSkill[]
-  tasks             OnetOccupationTask[]
-  technologies      OnetOccupationTech[]
-  relatedFrom       OnetRelatedOccupation[] @relation("RelatedFrom")
-  relatedTo         OnetRelatedOccupation[] @relation("RelatedTo")
-  programMappings   CareerProgramMapping[]
+  skills          OnetOccupationSkill[]
+  tasks           OnetOccupationTask[]
+  technologies    OnetOccupationTech[]
+  relatedFrom     OnetRelatedOccupation[] @relation("RelatedFrom")
+  relatedTo       OnetRelatedOccupation[] @relation("RelatedTo")
+  programMappings CareerProgramMapping[]
 
   @@map("onet_occupations")
 }
 
 model OnetOccupationSkill {
-  id         String   @id @default(uuid())
-  onetCode   String   @map("onet_code")
-  skillName  String   @map("skill_name")
+  id         String @id @default(uuid())
+  onetCode   String @map("onet_code")
+  skillName  String @map("skill_name")
   importance Int?
   level      Int?
 
@@ -1476,9 +1476,9 @@ model OnetOccupationSkill {
 }
 
 model OnetOccupationTask {
-  id         String   @id @default(uuid())
-  onetCode   String   @map("onet_code")
-  taskText   String   @map("task_text") @db.Text
+  id         String @id @default(uuid())
+  onetCode   String @map("onet_code")
+  taskText   String @map("task_text") @db.Text
   importance Int?
 
   occupation OnetOccupation @relation(fields: [onetCode], references: [onetCode], onDelete: Cascade)
@@ -1488,10 +1488,10 @@ model OnetOccupationTask {
 }
 
 model OnetOccupationTech {
-  id              String   @id @default(uuid())
-  onetCode        String   @map("onet_code")
-  technologyName  String   @map("technology_name")
-  category        String?
+  id             String  @id @default(uuid())
+  onetCode       String  @map("onet_code")
+  technologyName String  @map("technology_name")
+  category       String?
 
   occupation OnetOccupation @relation(fields: [onetCode], references: [onetCode], onDelete: Cascade)
 
@@ -1500,12 +1500,12 @@ model OnetOccupationTech {
 }
 
 model OnetRelatedOccupation {
-  id                 String   @id @default(uuid())
-  onetCode           String   @map("onet_code")
-  relatedOnetCode    String   @map("related_onet_code")
-  relationshipType   String?  @map("relationship_type")
+  id               String  @id @default(uuid())
+  onetCode         String  @map("onet_code")
+  relatedOnetCode  String  @map("related_onet_code")
+  relationshipType String? @map("relationship_type")
 
-  occupation      OnetOccupation @relation("RelatedFrom", fields: [onetCode], references: [onetCode], onDelete: Cascade)
+  occupation        OnetOccupation @relation("RelatedFrom", fields: [onetCode], references: [onetCode], onDelete: Cascade)
   relatedOccupation OnetOccupation @relation("RelatedTo", fields: [relatedOnetCode], references: [onetCode], onDelete: Cascade)
 
   @@index([onetCode])
@@ -1514,16 +1514,16 @@ model OnetRelatedOccupation {
 }
 
 model CareerProgramMapping {
-  id                  String                   @id @default(uuid())
-  onetCode            String                   @map("onet_code")
-  programSlug         String                   @map("program_slug")
-  priority            Int                      @default(1)
-  experienceBand      CareerExperienceBand     @map("experience_band")
-  recommendationType  CareerRecommendationType @map("recommendation_type")
-  whyRecommended      String?                  @map("why_recommended") @db.Text
-  isActive            Boolean                  @default(true) @map("is_active")
-  createdAt           DateTime                 @default(now()) @map("created_at")
-  updatedAt           DateTime                 @updatedAt @map("updated_at")
+  id                 String                   @id @default(uuid())
+  onetCode           String                   @map("onet_code")
+  programSlug        String                   @map("program_slug")
+  priority           Int                      @default(1)
+  experienceBand     CareerExperienceBand     @map("experience_band")
+  recommendationType CareerRecommendationType @map("recommendation_type")
+  whyRecommended     String?                  @map("why_recommended") @db.Text
+  isActive           Boolean                  @default(true) @map("is_active")
+  createdAt          DateTime                 @default(now()) @map("created_at")
+  updatedAt          DateTime                 @updatedAt @map("updated_at")
 
   occupation OnetOccupation @relation(fields: [onetCode], references: [onetCode], onDelete: Cascade)
 

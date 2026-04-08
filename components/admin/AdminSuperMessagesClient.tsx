@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import PortalInput from '@/components/portal/ui/PortalInput';
+import { PortalInput } from '@/components/portal/ui/PortalInput';
 import {
   InboxEmpty,
   InboxHeader,

@@ -269,9 +269,12 @@ export default async function EmployerDashboardPage() {
           </div>
           <div style={{ display:"flex", flexDirection:"column", gap:"0.75rem" }}>
             {recentApplications.length === 0 ? (
-              <div className="wa-bg-white" style={{ borderRadius:"0.75rem", padding:"1.25rem", textAlign:"center" }}>
-                <p className="wa-text-sm text-on-surface-variant">No applications yet. Post a role to get started.</p>
-              </div>
+              <PortalEmptyState
+                title="No applications yet"
+                description="Post a role to start receiving candidates from the WorkforceAP talent pool."
+                icon={<span className="material-symbols-outlined">inbox</span>}
+                primaryAction={{ label: 'Post a job', href: '/employer/jobs/new' }}
+              />
             ) : (
               recentApplications.slice(0, 5).map((app) => (
                 <Link key={app.id} href={`/employer/jobs/${app.jobId}`}

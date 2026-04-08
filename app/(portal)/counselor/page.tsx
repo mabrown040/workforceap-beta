@@ -139,18 +139,13 @@ export default async function CounselorPortalPage() {
           </div>
           <div style={{ display:"flex", flexDirection:"column", gap:"0.75rem" }}>
             {assignments.length === 0 ? (
-              <div className="wa-bg-white" style={{ borderRadius:"0.75rem", padding:"1.5rem", textAlign:"center" }}>
-                <p className="wa-text-sm text-on-surface-variant" style={{ marginBottom: '0.75rem' }}>
-                  No students assigned yet. Ask your admin to assign members to you.
-                </p>
-                <a
-                  href="mailto:info@workforceap.org?subject=Student%20assignments%20for%20counselor%20portal"
-                  className="wa-text-sm wa-font-semibold"
-                  style={{ color: 'var(--color-accent)' }}
-                >
-                  Email WorkforceAP
-                </a>
-              </div>
+              <PortalEmptyState
+                title="No students assigned yet"
+                description="Students will appear here once assigned by an administrator. In the meantime, explore the counselor guide."
+                icon={<span className="material-symbols-outlined">person_search</span>}
+                primaryAction={{ label: 'Counselor guide', href: '/counselor/guide' }}
+                secondaryAction={{ label: 'Resources', href: '/counselor/resources' }}
+              />
             ) : (
               assignments.map((a) => {
                 const prog = a.member.enrolledProgram ?? a.member.programInterest ?? 'Unknown Program';
@@ -363,28 +358,29 @@ export default async function CounselorPortalPage() {
             </div>
           </section>
 
-          {/* Upcoming Events */}
+          {/* Quick Links */}
           <section>
-            <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Upcoming Events</h3>
+            <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Quick Links</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {[
-                { day: '02', month: 'Apr', title: 'Cohort Check-in', desc: 'Weekly sync with all active students' },
-                { day: '08', month: 'Apr', title: 'Module Reviews Due', desc: 'Assess enrolled module progress' },
-                { day: '15', month: 'Apr', title: 'Partner Meeting', desc: `${affiliation} quarterly review` },
-              ].map((ev) => (
-                <div key={ev.title} className="stitch-card stitch-card--padded-sm" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <div style={{
-                    width: '3rem', minWidth: '3rem', textAlign: 'center',
-                    background: 'var(--surface-container-highest)', borderRadius: '0.5rem', padding: '0.5rem 0',
-                  }}>
-                    <p style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-accent)', lineHeight: 1 }}>{ev.day}</p>
-                    <p style={{ fontSize: '0.5rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)' }}>{ev.month}</p>
+                { href: '/counselor/students', icon: 'groups', title: 'My Students', desc: 'View roster and student details' },
+                { href: '/counselor/messages', icon: 'forum', title: 'Messages', desc: 'Reply to student threads' },
+                { href: '/counselor/resources', icon: 'menu_book', title: 'Resources', desc: 'Guides and reference links' },
+              ].map((link) => (
+                <Link key={link.href} href={link.href} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <div className="stitch-card stitch-card--padded-sm" style={{ display: 'flex', alignItems: 'center', gap: '1rem', transition: 'background-color 0.15s' }}>
+                    <div style={{
+                      width: '2.75rem', minWidth: '2.75rem', height: '2.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', borderRadius: '0.625rem',
+                    }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>{link.icon}</span>
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{link.title}</p>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{link.desc}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{ev.title}</p>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{ev.desc}</p>
-                  </div>
-                </div>
+                </Link>
               ))}
             </div>
           </section>

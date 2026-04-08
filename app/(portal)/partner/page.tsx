@@ -230,7 +230,12 @@ export default async function PartnerDashboardPage() {
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {recentMembers.length === 0 ? (
-            <p className="wa-text-sm" style={{ color: 'var(--color-on-surface-variant)', padding: '1rem 0' }}>No members yet. Share your referral link to get started.</p>
+            <PortalEmptyState
+              title="No members yet"
+              description="Share your referral link to start connecting applicants with WorkforceAP."
+              icon={<span className="material-symbols-outlined">group_add</span>}
+              primaryAction={{ label: 'Referral guide', href: '/partner/guide' }}
+            />
           ) : (
             recentMembers.map((p) => {
               const initials = (p.member.fullName ?? '?').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();

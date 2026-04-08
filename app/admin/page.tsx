@@ -25,10 +25,36 @@ export default async function AdminPage() {
   const hasAdmin = await isAdmin(user.id);
   if (!hasAdmin) redirect('/dashboard');
 
+  // Define types matching the selected fields from Prisma queries
+  type RecentUser = {
+    id: string;
+    fullName: string;
+    email: string;
+    enrolledProgram: string | null;
+    enrolledAt: Date | null;
+    assessmentScorePct: number | null;
+    assessmentCompleted: boolean;
+    createdAt: Date;
+  };
+
+  type RecentPlacement = {
+    id: string;
+    employerName: string;
+    jobTitle: string;
+    salaryOffered: number | null;
+    placedAt: Date;
+    user: {
+      id: string;
+      fullName: string;
+      enrolledProgram: string | null;
+      enrolledAt: Date | null;
+    };
+  };
+
   let totalMembers: number;
   let assessmentsCompleted: number;
-  let recentUsers: Awaited<ReturnType<typeof prisma.user.findMany>>;
-  let recentPlacements: Awaited<ReturnType<typeof prisma.placementRecord.findMany>>;
+  let recentUsers: RecentUser[];
+  let recentPlacements: RecentPlacement[];
   let pendingApplications: number;
   let activeInTraining: number;
   let programsCompleted: number;

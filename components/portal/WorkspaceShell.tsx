@@ -82,7 +82,7 @@ export default function WorkspaceShell({
   const hasTabs = navItems.some((i) => i.tab);
   const activeTab = hasTabs ? getActiveTab(pathname, navItems) : null;
   const desktopNavItems = hasTabs && activeTab ? navItems.filter((i) => i.tab === activeTab) : navItems;
-  const mobileDrawerNavItems = hasTabs && activeTab ? navItems.filter((i) => i.tab === activeTab) : navItems;
+  const mobileDrawerNavItems = navItems;
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [wide, setWide] = useState(false);

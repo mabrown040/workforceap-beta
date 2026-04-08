@@ -167,7 +167,12 @@ export default async function PartnerDashboardPage() {
     <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
       {/* Header */}
       <div style={{ padding: '1.5rem 1.5rem 0.75rem' }}>
-        <p className="wa-text-[11px] wa-uppercase wa-tracking-[0.15em] wa-font-bold wa-text-[#8c0f37] wa-mb-1">Partner Dashboard</p>
+        <p
+          className="wa-text-[11px] wa-uppercase wa-tracking-[0.15em] wa-font-bold wa-mb-1"
+          style={{ color: 'var(--color-accent)' }}
+        >
+          Partner Dashboard
+        </p>
         <h1 className="wa-text-3xl wa-font-extrabold wa-tracking-tight" style={{ color: 'var(--color-on-surface)', lineHeight: 1.1 }}>
           {ctx.partner.name}
         </h1>

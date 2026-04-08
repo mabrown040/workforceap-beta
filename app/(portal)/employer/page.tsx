@@ -187,7 +187,12 @@ export default async function EmployerDashboardPage() {
       <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Hero */}
         <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingTop:"1.5rem", paddingBottom:"0.5rem" }}>
-          <p className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold wa-text-[#8c0f37]" style={{ marginBottom:"0.25rem" }}>Employer Portal</p>
+          <p
+            className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold"
+            style={{ marginBottom:"0.25rem", color: 'var(--color-accent)' }}
+          >
+            Employer Portal
+          </p>
           <h2 className="wa-text-2xl wa-font-extrabold wa-tracking-tight text-on-surface wa-leading-tight">
             {totalApplications > 0 ? `${totalApplications} candidate${totalApplications !== 1 ? 's' : ''} waiting` : 'Your talent pipeline'}
           </h2>
@@ -262,12 +267,12 @@ export default async function EmployerDashboardPage() {
           )}
           <Link href="/employer/jobs/new"
             className="bg-surface-container-high text-on-surface active:scale-[0.98] wa-transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", flexDirection:"column", gap:"0.5rem", alignItems:"flex-start", textDecoration:"none", minHeight:"44px" }}>
-            <span className="material-symbols-outlined wa-text-[#8c0f37]">add_circle</span>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>add_circle</span>
             <span className="wa-text-sm wa-font-bold wa-leading-tight">Post a Role</span>
           </Link>
           <Link href="/employer/messages"
             className="bg-surface-container-high text-on-surface active:scale-[0.98] wa-transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", flexDirection:"column", gap:"0.5rem", alignItems:"flex-start", textDecoration:"none", minHeight:"44px" }}>
-            <span className="material-symbols-outlined wa-text-[#7b5800]">forum</span>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-gold)' }}>forum</span>
             <span className="wa-text-sm wa-font-bold wa-leading-tight">Messages</span>
           </Link>
         </div>
@@ -275,7 +280,13 @@ export default async function EmployerDashboardPage() {
         <div style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginTop:"1.5rem" }}>
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:"1rem" }}>
             <h3 className="wa-text-xl wa-font-bold wa-tracking-tight text-on-surface">Recent Applicants</h3>
-            <Link href="/employer/applications" className="wa-text-xs wa-font-bold wa-text-[#8c0f37] wa-uppercase wa-tracking-widest" style={{ textDecoration:"none" }}>View All</Link>
+            <Link
+              href="/employer/applications"
+              className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest"
+              style={{ textDecoration:"none", color: 'var(--color-accent)' }}
+            >
+              View All
+            </Link>
           </div>
           <div style={{ display:"flex", flexDirection:"column", gap:"0.75rem" }}>
             {recentApplications.length === 0 ? (
@@ -302,7 +313,12 @@ export default async function EmployerDashboardPage() {
                         {new Date(app.appliedAt).toLocaleDateString()}
                       </span>
                     </div>
-                    <p className="wa-text-xs wa-text-[#7b5800] wa-font-semibold wa-uppercase wa-tracking-wider wa-truncate" style={{ marginBottom:"0.25rem" }}>{app.job.title}</p>
+                    <p
+                      className="wa-text-xs wa-font-semibold wa-uppercase wa-tracking-wider wa-truncate"
+                      style={{ marginBottom:"0.25rem", color: 'var(--color-gold)' }}
+                    >
+                      {app.job.title}
+                    </p>
                     <StatusBadge
                       label={employerJobPostingApplicationStatusLabel(app.status)}
                       variant={employerJobPostingApplicationStatusBadgeVariant(app.status)}

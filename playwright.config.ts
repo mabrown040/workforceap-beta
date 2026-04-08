@@ -14,7 +14,9 @@ export default defineConfig({
   reporter: 'html',
   use: {
     baseURL,
-    trace: 'on-first-retry',
+    trace: process.env.PLAYWRIGHT_TRACE ?? 'on-first-retry',
+    video: process.env.PLAYWRIGHT_VIDEO ? 'on' : 'off',
+    screenshot: process.env.PLAYWRIGHT_SCREENSHOT ? 'on' : 'off',
   },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },

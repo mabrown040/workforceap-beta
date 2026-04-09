@@ -67,8 +67,8 @@ export default async function AdminProgramsPage() {
       ) : (
         <>
           {/* Desktop table */}
-          <div className="wa-hidden wa-md:wa-block" style={{ overflowX: 'auto' }}>
-            <table className="admin-table">
+          <div className="wa-hidden wa-md:wa-block employer-applications-shell" style={{ overflowX: 'auto' }}>
+            <table className="admin-table employer-applications-table">
               <thead>
                 <tr>
                   <th>Program</th>
@@ -85,9 +85,17 @@ export default async function AdminProgramsPage() {
                     : '—';
                   return (
                     <tr key={p.slug}>
-                      <td>{p.title}</td>
-                      <td>{stats.count}</td>
-                      <td>{avgScore}</td>
+                      <td style={{ fontWeight: 600 }}>{p.title}</td>
+                      <td>
+                        <span style={{ fontWeight: 700, color: stats.count > 0 ? 'var(--color-accent)' : 'var(--color-on-surface-variant)' }}>
+                          {stats.count}
+                        </span>
+                      </td>
+                      <td>
+                        <span style={{ fontWeight: 700, color: typeof avgScore === 'number' && avgScore >= 70 ? 'var(--color-green, #4a9b4f)' : 'var(--color-on-surface)' }}>
+                          {avgScore}{typeof avgScore === 'number' ? '%' : ''}
+                        </span>
+                      </td>
                       <td>{stats.completed}</td>
                     </tr>
                   );
@@ -96,30 +104,55 @@ export default async function AdminProgramsPage() {
             </table>
           </div>
 
-          {/* Mobile cards */}
-          <div className="wa-md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+          {/* Mobile cards — portal-metric style */}
+          <div className="wa-md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {PROGRAMS.map((p) => {
               const stats = byProgram.get(p.slug) ?? { count: 0, scores: [], completed: 0 };
               const avgScore = stats.scores.length > 0
                 ? Math.round(stats.scores.reduce((a, b) => a + b, 0) / stats.scores.length)
-                : '—';
+                : null;
+              const progressPct = stats.count > 0 && stats.completed > 0
+                ? Math.min(100, Math.round((stats.completed / (stats.count * 5)) * 100))
+                : 0;
               return (
-                <div
-                  key={p.slug}
-                  style={{
-                    background: 'var(--surface-container)',
-                    borderRadius: 'var(--radius-lg)',
-                    padding: '0.875rem 1rem',
-                  }}
-                >
-                  <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{p.title}</div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                    <span>Enrolled: <strong style={{ color: 'var(--color-on-surface)' }}>{stats.count}</strong></span>
-                    <span>Avg Score: <strong style={{ color: 'var(--color-on-surface)' }}>{avgScore}%</strong></span>
+                <div key={p.slug} className="portal-card portal-card--flat" style={{ padding: '1.125rem' }}>
+                  {/* Header */}
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.875rem' }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>
+                        {p.category ?? 'Program'}
+                      </p>
+                      <p style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.3 }}>{p.title}</p>
+                    </div>
+                    {stats.count > 0 && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.25rem 0.625rem', borderRadius: '9999px', background: 'rgba(173,44,77,0.1)', flexShrink: 0 }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>school</span>
+                        <span style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--color-accent)' }}>{stats.count}</span>
+                      </div>
+                    )}
                   </div>
-                  <div style={{ marginTop: '0.25rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                    Courses Completed: <strong style={{ color: 'var(--color-on-surface)' }}>{stats.completed}</strong>
+                  {/* Metric row */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.625rem', marginBottom: progressPct > 0 ? '0.875rem' : 0 }}>
+                    <div>
+                      <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>Enrolled</p>
+                      <p style={{ fontSize: '1.25rem', fontWeight: 800, color: stats.count > 0 ? 'var(--color-accent)' : 'var(--color-on-surface-variant)', margin: 0, letterSpacing: '-0.03em' }}>{stats.count}</p>
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>Avg Score</p>
+                      <p style={{ fontSize: '1.25rem', fontWeight: 800, color: avgScore !== null && avgScore >= 70 ? 'var(--color-green, #4a9b4f)' : 'var(--color-on-surface)', margin: 0, letterSpacing: '-0.03em' }}>
+                        {avgScore !== null ? `${avgScore}%` : '—'}
+                      </p>
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>Courses</p>
+                      <p style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-on-surface)', margin: 0, letterSpacing: '-0.03em' }}>{stats.completed}</p>
+                    </div>
                   </div>
+                  {progressPct > 0 && (
+                    <div className="portal-progress-bar portal-progress-bar--thin">
+                      <div className="portal-progress-bar__fill" style={{ width: `${progressPct}%` }} />
+                    </div>
+                  )}
                 </div>
               );
             })}

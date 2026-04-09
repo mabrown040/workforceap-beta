@@ -5,7 +5,7 @@ import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import type { ResumeSuggestion, VoiceSessionPhase } from '@/components/portal/PortalVoiceSession';
 import { extractResumeCoachSuggestionsFromText } from '@/lib/ai/resumeCoachHeuristic';
-import { resumeCoachVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
+import { resumeCoachVoiceSurface } from '@/lib/portal/voice';
 
 type LiveSuggestion = ResumeSuggestion & { id: string; source?: 'live' | 'post' };
 

@@ -2,7 +2,7 @@
 
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
-import { mockInterviewVoiceSurface, readinessVoiceSurface, resumeCoachVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
+import { mockInterviewVoiceSurface, readinessVoiceSurface, resumeCoachVoiceSurface } from '@/lib/portal/voice';
 
 /** Member home (`/dashboard`) — show all three voice options in a tighter horizontal row on desktop. */
 export default function MemberDashboardVoiceSection() {

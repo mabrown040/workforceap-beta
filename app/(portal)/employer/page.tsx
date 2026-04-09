@@ -13,7 +13,7 @@ import { EMPLOYER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
-import { employerVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
+import { employerVoiceSurface } from '@/lib/portal/voice';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import StatusBadge from '@/components/portal/StatusBadge';
 import PortalCard from '@/components/portal/ui/PortalCard';

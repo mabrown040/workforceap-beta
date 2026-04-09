@@ -335,6 +335,13 @@ html.dark .portal-kpi-card {
 .portal-card--padded-lg {
     padding: 2rem;
 }
+.portal-card--compact .portal-card__body,
+.portal-card--compact .portal-card__inner {
+    padding: 0.875rem 1rem;
+}
+.portal-card--compact .portal-card__header {
+    margin-bottom: 0.65rem;
+}
 .portal-card__inner {
     padding: 1.5rem;
 }

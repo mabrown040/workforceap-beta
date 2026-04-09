@@ -9,7 +9,7 @@ import ReadinessMobileScoreCard from '@/components/portal/ReadinessMobileScoreCa
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
-import { readinessVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
+import { readinessVoiceSurface } from '@/lib/portal/voice';
 import { getMemberReadinessSections } from '@/lib/readiness/memberReadinessSections';
 import '@/css/counselor.css';
 

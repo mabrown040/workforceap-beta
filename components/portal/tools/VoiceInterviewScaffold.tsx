@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import PortalVoiceSession, { type VoiceSessionPhase } from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
-import { mockInterviewVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
+import { mockInterviewVoiceSurface } from '@/lib/portal/voice';
 import InterviewCoachingPanel from '@/components/portal/tools/InterviewCoachingPanel';
 import MockInterviewVideoRecorder from '@/components/portal/tools/MockInterviewVideoRecorder';
 

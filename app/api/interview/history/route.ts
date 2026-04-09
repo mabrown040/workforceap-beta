@@ -169,8 +169,8 @@ export async function POST(req: NextRequest) {
     : [];
   const transcriptTurns: { role: 'agent' | 'user'; text: string }[] = Array.isArray(body.transcriptTurns)
     ? body.transcriptTurns
-        .map((turn) => ({
-          role: (turn?.role === 'agent' ? 'agent' : 'user') as 'agent' | 'user',
+        .map((turn): { role: 'agent' | 'user'; text: string } => ({
+          role: turn?.role === 'agent' ? 'agent' : 'user',
           text: typeof turn?.text === 'string' ? turn.text.trim() : '',
         }))
         .filter((turn) => turn.text.length > 0)

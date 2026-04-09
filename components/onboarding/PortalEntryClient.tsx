@@ -49,17 +49,24 @@ export default function PortalEntryClient(props: PortalEntryClientProps) {
   const [wizardOpen, setWizardOpen] = useState(showOnboardingWizard);
   const router = useRouter();
   const { startTour } = useTour();
+  const tourAutoStartKey = `wa:tour:auto-started:${portal}`;
 
   useEffect(() => {
     setWizardOpen(showOnboardingWizard);
     if (!showOnboardingWizard && showTour) {
+      const alreadyAutoStarted =
+        typeof window !== 'undefined' && window.sessionStorage.getItem(tourAutoStartKey) === '1';
+      if (alreadyAutoStarted) return;
       // Delay tour start so the user can orient on the page first.
       // Without this, tooltips appear immediately on first load,
       // competing with the actual page content for attention.
       const timer = setTimeout(() => startTour(tourSteps, portal), 1500);
+      if (typeof window !== 'undefined') {
+        window.sessionStorage.setItem(tourAutoStartKey, '1');
+      }
       return () => clearTimeout(timer);
     }
-  }, [showOnboardingWizard, showTour, tourSteps, portal, startTour]);
+  }, [showOnboardingWizard, showTour, tourSteps, portal, startTour, tourAutoStartKey]);
 
   const onWizardDone = () => {
     setWizardOpen(false);

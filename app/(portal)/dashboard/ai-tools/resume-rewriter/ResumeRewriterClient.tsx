@@ -228,7 +228,7 @@ function ResumeRewriterWithPrefill() {
   );
 }
 
-export default function ResumeRewriterClient() {
+export default function ResumeRewriterClient({ onModeChange }: { onModeChange?: (mode: WorkMode) => void }) {
   const [mode, setMode] = useState<WorkMode>('text');
   const [showSelector, setShowSelector] = useState(false);
   const [hydrated, setHydrated] = useState(false);
@@ -248,6 +248,7 @@ export default function ResumeRewriterClient() {
     window.localStorage.setItem(MODE_KEY, nextMode);
     setMode(nextMode);
     setShowSelector(false);
+    onModeChange?.(nextMode);
   };
 
   return (

@@ -18,6 +18,11 @@ export default async function ResumeRewriterPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools/resume-rewriter');
 
+  const modePills = [
+    { key: 'voice', label: 'Voice coach' },
+    { key: 'text', label: 'Text rewrite' },
+  ] as const;
+
   return (
     <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
       <div style={{ paddingBottom: '6rem' }}>
@@ -99,32 +104,22 @@ export default async function ResumeRewriterPage() {
                   flexWrap: 'wrap',
                 }}
               >
-                <span
-                  style={{
-                    fontSize: '0.73rem',
-                    padding: '0.3rem 0.75rem',
-                    borderRadius: 999,
-                    background: 'transparent',
-                    color: 'var(--color-on-surface-variant)',
-                    fontWeight: 600,
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  Voice coach
-                </span>
-                <span
-                  style={{
-                    fontSize: '0.73rem',
-                    padding: '0.3rem 0.75rem',
-                    borderRadius: 999,
-                    background: 'transparent',
-                    color: 'var(--color-on-surface-variant)',
-                    fontWeight: 600,
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  Text rewrite
-                </span>
+                {modePills.map((pill) => (
+                  <span
+                    key={pill.key}
+                    style={{
+                      fontSize: '0.73rem',
+                      padding: '0.3rem 0.75rem',
+                      borderRadius: 999,
+                      background: 'transparent',
+                      color: 'var(--color-on-surface-variant)',
+                      fontWeight: 600,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {pill.label}
+                  </span>
+                ))}
               </div>
             </div>
 

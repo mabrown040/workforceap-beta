@@ -71,13 +71,6 @@ function tryParseJson(raw: string): unknown {
   }
 }
 
-function formatMarkdownProse(text: string): string {
-  return text
-    .replace(/^#+\s+/gm, '') // strip heading markers — we'll handle them via styling
-    .replace(/\*\*([^*]+)\*\*/g, '$1') // strip bold markers for clean text
-    .trim();
-}
-
 // ─── Tool-specific renderers ─────────────────────────────────────────────────
 
 function SkillAssessmentRenderer({ raw }: { raw: string }) {
@@ -206,7 +199,7 @@ function CoverLetterRenderer({ raw }: { raw: string }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
       {paragraphs.map((para, i) => (
-        <p key={i} style={{ fontSize: '0.9rem', color: 'var(--color-on-surface)', lineHeight: 1.7, margin: 0, fontStyle: i === 0 && para.toLowerCase().includes('dear') ? 'normal' : 'normal' }}>
+        <p key={i} style={{ fontSize: '0.9rem', color: 'var(--color-on-surface)', lineHeight: 1.7, margin: 0 }}>
           {para.replace(/\*\*/g, '')}
         </p>
       ))}

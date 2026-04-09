@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { withCsvBranding } from '@/lib/export/brandingHeader';
 import { loadPartnerReferralBundle, toPartnerMembersListRows } from '@/lib/partner/referralBundle';
 
 function csvEscape(value: string): string {
@@ -67,14 +68,11 @@ export async function GET(request: NextRequest) {
     }),
   ];
 
-  const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-  const brandingHeader = [
-    `# Workforce Advancement Project — Partner ${preset === 'outcomes' ? 'Outcomes' : 'Referrals'} Export`,
-    `# workforceap.org | Generated: ${date}`,
-    `# Partner: ${ctx.partner.name}`,
-    '#',
-  ].join('\r\n');
-  const csv = `${brandingHeader}\r\n${lines.join('\r\n')}`;
+  const csv = withCsvBranding(
+    lines.join('\r\n'),
+    `Partner ${preset === 'outcomes' ? 'Outcomes' : 'Referrals'} Export`,
+    `Partner: ${ctx.partner.name}`,
+  );
   const suffix = preset === 'outcomes' ? 'outcomes' : 'referrals';
 
   return new NextResponse(csv, {

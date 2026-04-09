@@ -2,6 +2,8 @@
  * Shared CSV utilities — used by admin, partner, and member export routes.
  */
 
+import { buildCsvBrandingLines } from '@/lib/export/brandingHeader';
+
 /** Escape a value for CSV: wrap in quotes if it contains special chars. */
 export function csvEscape(value: string): string {
   if (/[",\n\r]/.test(value)) return `"${value.replace(/"/g, '""')}"`;
@@ -24,16 +26,7 @@ export function buildCsv(
 
   if (!options?.reportTitle) return data;
 
-  const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-  const brandingLines = [
-    `# Workforce Advancement Project — ${options.reportTitle}`,
-    `# workforceap.org | Generated: ${date}`,
-    options.notes ? `# ${options.notes}` : null,
-    '#',
-  ]
-    .filter(Boolean)
-    .join('\r\n');
-
+  const brandingLines = buildCsvBrandingLines(options.reportTitle, options.notes);
   return `${brandingLines}\r\n${data}`;
 }
 

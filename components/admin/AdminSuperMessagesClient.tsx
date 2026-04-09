@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
+import { adminMessagingSurface } from '@/lib/portal/messagingSurfaces';
 import {
   InboxEmpty,
   InboxHeader,
@@ -330,7 +332,8 @@ export default function AdminSuperMessagesClient() {
 
   return (
     <div className="admin-main-content admin-super-messages">
-      <InboxShell>
+      <VoiceAgentSurface {...adminMessagingSurface} headline="Portal messages" subtext="Admin view, styled like the member portal.">
+        <InboxShell>
         <InboxPane
           variant="list"
           style={{
@@ -633,6 +636,7 @@ export default function AdminSuperMessagesClient() {
           )}
         </InboxPane>
       </InboxShell>
+      </VoiceAgentSurface>
     </div>
   );
 }

@@ -65,34 +65,66 @@ export default async function AdminProgramsPage() {
           <Link href="/admin/members" className="btn btn-primary">View Members</Link>
         </div>
       ) : (
-      <div style={{ overflowX: 'auto' }}>
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Program</th>
-              <th>Enrolled</th>
-              <th>Avg Score %</th>
-              <th>Courses Completed</th>
-            </tr>
-          </thead>
-          <tbody>
+        <>
+          {/* Desktop table */}
+          <div className="wa-hidden wa-md:wa-block" style={{ overflowX: 'auto' }}>
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Program</th>
+                  <th>Enrolled</th>
+                  <th>Avg Score %</th>
+                  <th>Courses Completed</th>
+                </tr>
+              </thead>
+              <tbody>
+                {PROGRAMS.map((p) => {
+                  const stats = byProgram.get(p.slug) ?? { count: 0, scores: [], completed: 0 };
+                  const avgScore = stats.scores.length > 0
+                    ? Math.round(stats.scores.reduce((a, b) => a + b, 0) / stats.scores.length)
+                    : '—';
+                  return (
+                    <tr key={p.slug}>
+                      <td>{p.title}</td>
+                      <td>{stats.count}</td>
+                      <td>{avgScore}</td>
+                      <td>{stats.completed}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile cards */}
+          <div className="wa-md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
             {PROGRAMS.map((p) => {
               const stats = byProgram.get(p.slug) ?? { count: 0, scores: [], completed: 0 };
               const avgScore = stats.scores.length > 0
                 ? Math.round(stats.scores.reduce((a, b) => a + b, 0) / stats.scores.length)
                 : '—';
               return (
-                <tr key={p.slug}>
-                  <td>{p.title}</td>
-                  <td>{stats.count}</td>
-                  <td>{avgScore}</td>
-                  <td>{stats.completed}</td>
-                </tr>
+                <div
+                  key={p.slug}
+                  style={{
+                    background: 'var(--surface-container)',
+                    borderRadius: 'var(--radius-lg)',
+                    padding: '0.875rem 1rem',
+                  }}
+                >
+                  <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{p.title}</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                    <span>Enrolled: <strong style={{ color: 'var(--color-on-surface)' }}>{stats.count}</strong></span>
+                    <span>Avg Score: <strong style={{ color: 'var(--color-on-surface)' }}>{avgScore}%</strong></span>
+                  </div>
+                  <div style={{ marginTop: '0.25rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                    Courses Completed: <strong style={{ color: 'var(--color-on-surface)' }}>{stats.completed}</strong>
+                  </div>
+                </div>
               );
             })}
-          </tbody>
-        </table>
-      </div>
+          </div>
+        </>
       )}
     </div>
   );

@@ -27,7 +27,7 @@ const BENTO_ITEMS = [
   {
     icon: 'verified',
     title: 'Validated Outcomes',
-    desc: 'Industry-recognized certificates. Skills assessments. Job placement support. We measure what matters — jobs landed. Empower you today for the future workforce.',
+    desc: 'Industry-recognized certificates. Skills assessments. Job placement support. We measure what matters — jobs landed.',
     span: 'small',
   },
   {

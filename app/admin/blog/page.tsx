@@ -38,66 +38,133 @@ export default async function AdminBlogPage() {
           </div>
         }
       />
-      <table className="admin-table">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Category</th>
-            <th>Status</th>
-            <th>Go live</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {posts.map((post) => (
-            <tr key={post.id}>
-              <td>{post.title}</td>
-              <td>{post.category ?? '—'}</td>
-              <td>
-                <span
-                  style={{
-                    padding: '0.2rem 0.5rem',
-                    borderRadius: '4px',
-                    fontSize: '0.8rem',
-                    background: post.published
-                      ? 'rgba(173, 44, 77, 0.12)'
-                      : post.scheduledAt
-                      ? 'rgba(37, 99, 235, 0.1)'
-                      : 'var(--surface-container)',
-                    color: post.published
-                      ? 'var(--color-accent)'
-                      : post.scheduledAt
-                      ? '#2563eb'
-                      : 'var(--color-on-surface-variant)',
-                  }}
-                >
-                  {post.published ? 'Published' : post.scheduledAt ? (
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                      <Clock size={12} /> Scheduled
-                    </span>
-                  ) : 'Draft'}
-                </span>
-              </td>
-              <td style={{ color: 'var(--color-on-surface-variant)' }}>
-                {post.publishedAt
-                  ? new Date(post.publishedAt).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
-                    })
-                  : '—'}
-              </td>
-              <td>
-                <BlogPostActions
-                  id={post.id}
-                  slug={post.slug}
-                  published={post.published}
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+
+      {posts.length > 0 && (
+        <>
+          {/* Desktop table */}
+          <div className="wa-hidden wa-md:wa-block">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Status</th>
+                  <th>Go live</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {posts.map((post) => (
+                  <tr key={post.id}>
+                    <td>{post.title}</td>
+                    <td>{post.category ?? '—'}</td>
+                    <td>
+                      <span
+                        style={{
+                          padding: '0.2rem 0.5rem',
+                          borderRadius: '4px',
+                          fontSize: '0.8rem',
+                          background: post.published
+                            ? 'rgba(173, 44, 77, 0.12)'
+                            : post.scheduledAt
+                            ? 'rgba(37, 99, 235, 0.1)'
+                            : 'var(--surface-container)',
+                          color: post.published
+                            ? 'var(--color-accent)'
+                            : post.scheduledAt
+                            ? '#2563eb'
+                            : 'var(--color-on-surface-variant)',
+                        }}
+                      >
+                        {post.published ? 'Published' : post.scheduledAt ? (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <Clock size={12} /> Scheduled
+                          </span>
+                        ) : 'Draft'}
+                      </span>
+                    </td>
+                    <td style={{ color: 'var(--color-on-surface-variant)' }}>
+                      {post.publishedAt
+                        ? new Date(post.publishedAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                          })
+                        : '—'}
+                    </td>
+                    <td>
+                      <BlogPostActions
+                        id={post.id}
+                        slug={post.slug}
+                        published={post.published}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile cards */}
+          <div className="wa-md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+            {posts.map((post) => (
+              <div
+                key={post.id}
+                style={{
+                  background: 'var(--surface-container)',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: '0.875rem 1rem',
+                }}
+              >
+                <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{post.title}</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{post.category ?? '—'}</span>
+                  <span
+                    style={{
+                      padding: '0.2rem 0.5rem',
+                      borderRadius: '4px',
+                      fontSize: '0.75rem',
+                      background: post.published
+                        ? 'rgba(173, 44, 77, 0.12)'
+                        : post.scheduledAt
+                        ? 'rgba(37, 99, 235, 0.1)'
+                        : 'var(--surface-container)',
+                      color: post.published
+                        ? 'var(--color-accent)'
+                        : post.scheduledAt
+                        ? '#2563eb'
+                        : 'var(--color-on-surface-variant)',
+                    }}
+                  >
+                    {post.published ? 'Published' : post.scheduledAt ? (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                        <Clock size={12} /> Scheduled
+                      </span>
+                    ) : 'Draft'}
+                  </span>
+                </div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem' }}>
+                  Go live: {post.publishedAt
+                    ? new Date(post.publishedAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      })
+                    : '—'}
+                </div>
+                <div>
+                  <BlogPostActions
+                    id={post.id}
+                    slug={post.slug}
+                    published={post.published}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
       {posts.length === 0 && (
         <div className="admin-empty-state">
           <h3>No blog posts yet</h3>

@@ -408,6 +408,7 @@ export default async function AdminPage() {
             <h3 className="portal-section-heading">Quick Links</h3>
             <div className="portal-grid-3col">
               {[
+                { icon: 'mark_email_unread', label: 'Messages', desc: 'Portal threads and staff replies', href: '/admin/messages' },
                 { icon: 'handshake', label: 'Partners', desc: 'Community organizations', href: '/admin/partners' },
                 { icon: 'task_alt', label: 'Assessments', desc: 'Skills assessments and scores', href: '/admin/assessments' },
                 { icon: 'school', label: 'Programs', desc: 'Training tracks and courses', href: '/admin/programs' },

@@ -89,7 +89,7 @@ export default async function HowItWorksPage() {
                 Member Experience
               </span>
               <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', marginBottom: '2rem', lineHeight: 0.95 }}>
-                Your better future{' '}
+                Start your path{' '}
                 <span style={{ color: 'var(--color-accent)' }}>starts here.</span>
               </h1>
               <p style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', maxWidth: '36rem', lineHeight: 1.7, marginBottom: '2.5rem' }}>
@@ -399,7 +399,7 @@ export default async function HowItWorksPage() {
               color: 'var(--color-on-surface)',
             }}
           >
-            Your better future{' '}
+            Start your path{' '}
             <span style={{ color: '#ad2c4d' }}>starts here.</span>
           </h2>
           <p style={{ fontSize: '0.875rem', lineHeight: 1.6, color: '#584144' }}>

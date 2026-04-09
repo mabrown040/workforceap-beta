@@ -2,8 +2,10 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounselorChatClient';
 import type { CounselorInboxRow } from '@/lib/messages/counselorInbox';
+import { counselorStaffMessagingSurface } from '@/lib/portal/messagingSurfaces';
 import {
   InboxEmpty,
   InboxHeader,
@@ -193,6 +195,7 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
     );
 
   return (
+    <VoiceAgentSurface {...counselorStaffMessagingSurface} headline="Student messages" subtext="Staff view, aligned with the member portal.">
     <>
       <div className="wa-md:wa-hidden wa-flex wa-flex-col" style={{ flex: 1, minHeight: 0 }}>
         {mobileList ? (
@@ -243,5 +246,6 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
         </InboxShell>
       </div>
     </>
+    </VoiceAgentSurface>
   );
 }

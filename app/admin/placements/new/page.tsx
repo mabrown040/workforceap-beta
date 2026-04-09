@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import PageHeader from '@/components/portal/PageHeader';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 export default function RecordPlacementPage() {
   const router = useRouter();
@@ -19,7 +21,10 @@ export default function RecordPlacementPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!memberId.trim()) { setError('Member ID is required'); return; }
+    if (!memberId.trim()) {
+      setError('Member ID is required');
+      return;
+    }
     setError('');
     setLoading(true);
     try {
@@ -48,62 +53,93 @@ export default function RecordPlacementPage() {
   }
 
   const field: React.CSSProperties = {
-    display: 'block', width: '100%', padding: '0.5rem 0.75rem',
-    border: '1px solid var(--color-border, #ccc)', borderRadius: '6px',
-    fontSize: '0.95rem', marginTop: '0.25rem', boxSizing: 'border-box',
+    display: 'block',
+    width: '100%',
+    padding: '0.75rem 0.875rem',
+    border: '1px solid var(--outline-variant)',
+    borderRadius: '0.75rem',
+    fontSize: '0.95rem',
+    marginTop: '0.35rem',
+    boxSizing: 'border-box',
+    background: 'var(--surface-container-low)',
+    color: 'var(--color-on-surface)',
   };
 
   return (
-    <div style={{ maxWidth: 520, margin: '2rem auto', padding: '0 1rem' }}>
-      <h1 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '1.5rem' }}>Record Placement</h1>
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <label>
-          Member ID *
-          <input style={field} value={memberId} onChange={e => setMemberId(e.target.value)}
-            placeholder="User UUID" required />
-        </label>
-        <label>
-          Employer Name *
-          <input style={field} value={employerName} onChange={e => setEmployerName(e.target.value)}
-            placeholder="Acme Corp" required />
-        </label>
-        <label>
-          Job Title *
-          <input style={field} value={jobTitle} onChange={e => setJobTitle(e.target.value)}
-            placeholder="Software Engineer" required />
-        </label>
-        <label>
-          Starting Salary (annual $, optional)
-          <input style={field} type="number" min={0} value={startingSalary}
-            onChange={e => setStartingSalary(e.target.value)} placeholder="55000" />
-        </label>
-        <label>
-          Start Date (optional)
-          <input style={field} type="date" value={placedAt}
-            onChange={e => setPlacedAt(e.target.value)} />
-        </label>
-        <label>
-          Notes (optional)
-          <textarea style={{ ...field, minHeight: 80, resize: 'vertical' }} value={notes}
-            onChange={e => setNotes(e.target.value)} />
-        </label>
-        {error && <p style={{ color: 'red', margin: 0 }}>{error}</p>}
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button type="submit" disabled={loading} style={{
-            padding: '0.6rem 1.4rem', background: 'var(--color-blue, #2563eb)',
-            color: 'white', border: 'none', borderRadius: '6px', fontWeight: 600,
-            cursor: loading ? 'not-allowed' : 'pointer',
-          }}>
-            {loading ? 'Saving…' : 'Save Placement'}
-          </button>
-          <button type="button" onClick={() => router.push('/admin/pipeline')} style={{
-            padding: '0.6rem 1.2rem', background: 'transparent',
-            border: '1px solid var(--color-border, #ccc)', borderRadius: '6px', cursor: 'pointer',
-          }}>
-            Cancel
-          </button>
+    <PortalPageFrame>
+      <PageHeader
+        title="Record Placement"
+        subtitle="Add a confirmed placement outcome for a member and send them to the placed stage."
+      />
+
+      <div className="portal-card portal-card--flat" style={{ maxWidth: 640, margin: '0 auto' }}>
+        <div className="portal-card__body">
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <label>
+              <span style={{ fontWeight: 600 }}>Member ID *</span>
+              <input
+                style={field}
+                value={memberId}
+                onChange={(e) => setMemberId(e.target.value)}
+                placeholder="User UUID"
+                required
+              />
+            </label>
+            <label>
+              <span style={{ fontWeight: 600 }}>Employer Name *</span>
+              <input
+                style={field}
+                value={employerName}
+                onChange={(e) => setEmployerName(e.target.value)}
+                placeholder="Acme Corp"
+                required
+              />
+            </label>
+            <label>
+              <span style={{ fontWeight: 600 }}>Job Title *</span>
+              <input
+                style={field}
+                value={jobTitle}
+                onChange={(e) => setJobTitle(e.target.value)}
+                placeholder="Software Engineer"
+                required
+              />
+            </label>
+            <label>
+              <span style={{ fontWeight: 600 }}>Starting Salary (annual $, optional)</span>
+              <input
+                style={field}
+                type="number"
+                min={0}
+                value={startingSalary}
+                onChange={(e) => setStartingSalary(e.target.value)}
+                placeholder="55000"
+              />
+            </label>
+            <label>
+              <span style={{ fontWeight: 600 }}>Start Date (optional)</span>
+              <input style={field} type="date" value={placedAt} onChange={(e) => setPlacedAt(e.target.value)} />
+            </label>
+            <label>
+              <span style={{ fontWeight: 600 }}>Notes (optional)</span>
+              <textarea
+                style={{ ...field, minHeight: 96, resize: 'vertical' }}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+              />
+            </label>
+            {error && <p style={{ color: 'var(--color-error)', margin: 0 }}>{error}</p>}
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <button type="submit" disabled={loading} className="btn btn-primary">
+                {loading ? 'Saving…' : 'Save Placement'}
+              </button>
+              <button type="button" onClick={() => router.push('/admin/pipeline')} className="btn btn-outline">
+                Cancel
+              </button>
+            </div>
+          </form>
         </div>
-      </form>
-    </div>
+      </div>
+    </PortalPageFrame>
   );
 }

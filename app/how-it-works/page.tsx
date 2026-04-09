@@ -90,7 +90,7 @@ export default async function HowItWorksPage() {
               </span>
               <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', marginBottom: '2rem', lineHeight: 0.95 }}>
                 Start your path{' '}
-                <span style={{ color: 'var(--color-accent)' }}>starts here.</span>
+                <span style={{ color: 'var(--color-accent)' }}>here.</span>
               </h1>
               <p style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', maxWidth: '36rem', lineHeight: 1.7, marginBottom: '2.5rem' }}>
                 We provide the tools, training, and long-term support needed to bridge the gap between where you are and where you want to be.
@@ -400,7 +400,7 @@ export default async function HowItWorksPage() {
             }}
           >
             Start your path{' '}
-            <span style={{ color: '#ad2c4d' }}>starts here.</span>
+            <span style={{ color: '#ad2c4d' }}>here.</span>
           </h2>
           <p style={{ fontSize: '0.875rem', lineHeight: 1.6, color: '#584144' }}>
             10 steps from application to career growth.

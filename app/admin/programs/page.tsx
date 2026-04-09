@@ -115,7 +115,7 @@ export default async function AdminProgramsPage() {
                   <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{p.title}</div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                     <span>Enrolled: <strong style={{ color: 'var(--color-on-surface)' }}>{stats.count}</strong></span>
-                    <span>Avg Score: <strong style={{ color: 'var(--color-on-surface)' }}>{avgScore}%</strong></span>
+                    <span>Avg Score: <strong style={{ color: 'var(--color-on-surface)' }}>{typeof avgScore === 'number' ? `${avgScore}%` : avgScore}</strong></span>
                   </div>
                   <div style={{ marginTop: '0.25rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                     Courses Completed: <strong style={{ color: 'var(--color-on-surface)' }}>{stats.completed}</strong>

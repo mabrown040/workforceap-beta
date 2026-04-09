@@ -92,19 +92,15 @@ export function mapSkillsToRadarAxes(
     {
       axis: 'Design',
       keywords: [
-        // ── Exact O*NET ability names (from /abilities endpoint) ──
+        // ── O*NET abilities (from /abilities endpoint) — creative/visual only ──
         'originality', 'fluency of ideas', 'flexibility of closure', 'speed of closure',
-        'spatial orientation', 'visualization', 'perceptual speed', 'selective attention',
-        'time sharing', 'near vision', 'far vision', 'visual color discrimination',
-        'depth perception', 'glare sensitivity',
-        // ── Exact O*NET knowledge names (from /knowledge endpoint) ──
-        'fine arts', 'design', 'communications and media', 'history and archeology',
-        'philosophy and theology', 'sociology and anthropology', 'foreign language',
-        // ── Exact O*NET skill names related to design/creative ──
-        'active listening', 'speaking', 'writing', 'reading comprehension',
+        'spatial orientation', 'visualization', 'perceptual speed', 'visual color discrimination',
+        // ── O*NET knowledge (from /knowledge endpoint) — design-relevant only ──
+        'fine arts', 'design', 'communications and media',
+        // ── O*NET skills — creative / design-adjacent only (avoid universal communication skills) ──
         'thinking creatively', 'updating and using relevant knowledge',
-        // ── Core design terms (substring match) ──
-        'ux', 'ui', 'graphic', 'visual', 'aesthetic', 'typography', 'color', 'branding',
+        // ── Core design terms (substring match); avoid short "ui" (false positives in "equipment", "building") ──
+        'ux', 'graphic', 'visual', 'aesthetic', 'typography', 'color', 'branding',
         'prototyping', 'wireframing', 'user experience', 'user interface', 'interaction',
         'artistic', 'illustration', 'multimedia', 'animation', 'video production',
         'photography', 'layout', 'drafting', 'blueprint', 'sketch', 'storyboard',

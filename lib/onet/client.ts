@@ -10,12 +10,19 @@ export type OnetSearchOccupation = { code: string; title: string };
 
 let lastCallAt = 0;
 const MIN_INTERVAL_MS = 220;
+/** Serializes throttle waits so concurrent callers (e.g. Promise.all) cannot bypass the interval. */
+let throttleQueue: Promise<void> = Promise.resolve();
 
 async function throttle(): Promise<void> {
-  const now = Date.now();
-  const wait = Math.max(0, MIN_INTERVAL_MS - (now - lastCallAt));
-  if (wait > 0) await new Promise((r) => setTimeout(r, wait));
-  lastCallAt = Date.now();
+  const run = async () => {
+    const now = Date.now();
+    const wait = Math.max(0, MIN_INTERVAL_MS - (now - lastCallAt));
+    if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+    lastCallAt = Date.now();
+  };
+  const job = throttleQueue.then(run);
+  throttleQueue = job.catch(() => {});
+  await job;
 }
 
 function getApiKey(): string | undefined {

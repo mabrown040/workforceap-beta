@@ -70,7 +70,6 @@ export default function AdminMemberDbActions({
       const data = await res.json().catch(() => ({}));
       if (!res.ok) { setSaveMsg({ type: 'err', text: data.error ?? 'Save failed' }); return; }
       setSaveMsg({ type: 'ok', text: 'Profile updated successfully.' });
-      setEditOpen(false);
     } catch {
       setSaveMsg({ type: 'err', text: 'Network error' });
     } finally {

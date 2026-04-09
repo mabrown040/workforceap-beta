@@ -14627,11 +14627,6 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
     margin-top: 0.75rem;
 }
 @media (max-width: 768px) {
-    .admin-member-review-desktop,
-    .admin-invites-desktop,
-    .admin-subgroup-desktop {
-        display: none;
-    }
     .admin-members-desktop,
     .admin-partners-desktop,
     .admin-counselors-desktop,

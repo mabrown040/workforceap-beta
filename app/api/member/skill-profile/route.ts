@@ -72,23 +72,33 @@ const RESUME_SKILL_HINTS: Array<[string, string, number]> = [
 
 const RADAR_AXES = ['Analytics', 'Engineering', 'Design', 'Strategy', 'Ethics', 'Research'];
 
-function extractResumeSkillProfile(resumeText: string): { axis: string; value: number }[] {
+type ResumeProfileResult = {
+  profile: { axis: string; value: number }[];
+  matched: Record<string, string[]>; // axis → matched keywords for transparency
+};
+
+function extractResumeSkillProfile(resumeText: string): ResumeProfileResult {
   const lower = resumeText.toLowerCase();
   const axisScores: Record<string, number[]> = {};
-  RADAR_AXES.forEach((a) => { axisScores[a] = []; });
+  const axisMatched: Record<string, string[]> = {};
+  RADAR_AXES.forEach((a) => { axisScores[a] = []; axisMatched[a] = []; });
 
   for (const [keyword, axis, score] of RESUME_SKILL_HINTS) {
     if (lower.includes(keyword)) {
       axisScores[axis].push(score);
+      axisMatched[axis].push(keyword);
     }
   }
 
-  return RADAR_AXES.map((axis) => {
-    const scores = axisScores[axis];
-    if (scores.length === 0) return { axis, value: 0 };
-    const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
-    return { axis, value: avg / 100 };
-  });
+  return {
+    profile: RADAR_AXES.map((axis) => {
+      const scores = axisScores[axis];
+      if (scores.length === 0) return { axis, value: 0 };
+      const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+      return { axis, value: avg / 100 };
+    }),
+    matched: axisMatched,
+  };
 }
 
 // Cert name → skill score boosts per axis
@@ -164,6 +174,7 @@ export async function GET() {
 
   // Attempt to extract resume text for richer skill inference
   let resumeProfile: { axis: string; value: number }[] = RADAR_AXES.map((a) => ({ axis: a, value: 0 }));
+  let resumeMatchedKeywords: Record<string, string[]> = {};
   let resumeSkillsAvailable = false;
 
   const resumePath = profile?.resumeEnhancedPath ?? profile?.resumeOriginalPath;
@@ -177,7 +188,9 @@ export async function GET() {
       });
 
       if (lastRewrite?.output) {
-        resumeProfile = extractResumeSkillProfile(lastRewrite.output);
+        const extracted = extractResumeSkillProfile(lastRewrite.output);
+        resumeProfile = extracted.profile;
+        resumeMatchedKeywords = extracted.matched;
         resumeSkillsAvailable = resumeProfile.some((p) => p.value > 0);
       }
     } catch {
@@ -273,6 +286,7 @@ export async function GET() {
     skillProfile: finalProfile,
     certNames,
     resumeSkills: resumeSkillsAvailable ? resumeProfile : [],
+    resumeMatchedKeywords: resumeSkillsAvailable ? resumeMatchedKeywords : {},
     hasCerts: certNames.length > 0,
     hasResumeSkills: resumeSkillsAvailable,
     hasSavedAssessment: !!savedAssessmentProfile,

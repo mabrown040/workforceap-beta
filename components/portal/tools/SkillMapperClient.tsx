@@ -54,9 +54,12 @@ function RadarChart({ data }: { data: { axis: string; value: number }[] }) {
 }
 
 function DualRadarChart({ memberData, targetData }: { memberData: { axis: string; value: number }[]; targetData: { axis: string; value: number }[] }) {
-  const size = 240;
+  const size = 260;
   const cx = size / 2, cy = size / 2, r = 90;
-  const axes = ['Analytics', 'Technical', 'Communication', 'Leadership', 'Creative'];
+  // Derive axes from whichever dataset has more entries (prefer target occupation axes)
+  const axes = targetData.length >= memberData.length
+    ? targetData.map(d => d.axis)
+    : memberData.map(d => d.axis);
   const n = axes.length;
   const angle = (i: number) => (Math.PI * 2 * i) / n - Math.PI / 2;
   const pt = (i: number, v: number) => ({
@@ -114,6 +117,7 @@ export default function SkillMapperClient() {
   const [memberProfile, setMemberProfile] = useState<{ axis: string; value: number }[]>([]);
   const [memberCerts, setMemberCerts] = useState<string[]>([]);
   const [resumeSkills, setResumeSkills] = useState<{ axis: string; value: number }[]>([]);
+  const [resumeMatchedKeywords, setResumeMatchedKeywords] = useState<Record<string, string[]>>({});
   const [hasInterestProfiler, setHasInterestProfiler] = useState(false);
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [profileLoaded, setProfileLoaded] = useState(false);
@@ -161,6 +165,7 @@ export default function SkillMapperClient() {
           if (data.skillProfile) setMemberProfile(data.skillProfile);
           if (data.certNames) setMemberCerts(data.certNames);
           if (data.resumeSkills) setResumeSkills(data.resumeSkills);
+          if (data.resumeMatchedKeywords) setResumeMatchedKeywords(data.resumeMatchedKeywords);
           if (typeof data.hasInterestProfiler === 'boolean') setHasInterestProfiler(data.hasInterestProfiler);
           setProfileLoaded(true);
         })
@@ -504,11 +509,29 @@ export default function SkillMapperClient() {
             </div>
           )}
 
-          {/* Resume-derived skill comparison note */}
+          {/* Resume skill source transparency */}
           {!loadingProfile && resumeSkills.length > 0 && resumeSkills.some(r => r.value > 0) && (
-            <div style={{ marginTop: '0.75rem', padding: '0.75rem 1rem', background: 'rgba(43,123,185,0.07)', border: '1px solid rgba(43,123,185,0.15)', borderRadius: '0.75rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
-              <span style={{ fontWeight: 700, color: 'var(--color-blue, #2b7bb9)' }}>Resume skills detected</span> — your profile includes skills extracted from your resume. Run the{' '}
-              <a href="/dashboard/ai-tools/resume-rewriter" style={{ color: 'var(--color-accent)' }}>Resume Rewriter</a> again after updates to refresh.
+            <div style={{ marginTop: '0.875rem', padding: '0.875rem 1rem', background: 'rgba(43,123,185,0.06)', border: '1px solid rgba(43,123,185,0.15)', borderRadius: '0.75rem' }}>
+              <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-blue, #2b7bb9)', margin: '0 0 0.5rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>description</span>
+                Resume skills detected
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                {resumeSkills.filter(r => r.value > 0).map(r => {
+                  const keywords = (resumeMatchedKeywords as Record<string, string[]>)[r.axis] ?? [];
+                  return (
+                    <div key={r.axis} style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
+                      <span style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{r.axis}:</span>{' '}
+                      {keywords.length > 0
+                        ? keywords.slice(0, 4).join(', ') + (keywords.length > 4 ? ` +${keywords.length - 4} more` : '')
+                        : 'detected'}
+                    </div>
+                  );
+                })}
+              </div>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0' }}>
+                <a href="/dashboard/ai-tools/resume-rewriter" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Re-run Resume Rewriter</a> after updates to refresh.
+              </p>
             </div>
           )}
         </div>

@@ -45,13 +45,6 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: '/sw.js',
-        headers: [
-          { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
-          { key: 'Service-Worker-Allowed', value: '/' },
-        ],
-      },
-      {
         source: '/dashboard/:path*',
         headers: [
           { key: 'X-Frame-Options', value: 'DENY' },
@@ -142,6 +135,10 @@ const nextConfig: NextConfig = {
       { source: '/career-brief/:path*', destination: '/dashboard/career-brief/:path*', permanent: true },
       { source: '/learning', destination: '/dashboard/learning', permanent: true },
       { source: '/weekly-recap', destination: '/dashboard/weekly-recap', permanent: true },
+
+      // Member portal legacy route fixes (QA-ISSUE-001)
+      { source: '/dashboard/plan', destination: '/dashboard/career-brief', permanent: true },
+      { source: '/dashboard/weekly-focus', destination: '/dashboard/weekly-recap', permanent: true },
     ];
   },
 };

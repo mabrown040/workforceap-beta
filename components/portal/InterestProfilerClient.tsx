@@ -238,6 +238,23 @@ export default function InterestProfilerClient() {
           )}
         </section>
 
+        {/* Skill profile connection */}
+        <div style={{ padding: '1rem 1.125rem', background: 'rgba(173,44,77,0.07)', border: '1px solid rgba(173,44,77,0.15)', borderRadius: '0.875rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'flex-start', gap: '0.875rem' }}>
+          <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.375rem', flexShrink: 0, marginTop: '0.125rem', fontVariationSettings: "'FILL' 1" }}>radar</span>
+          <div>
+            <p style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)', margin: '0 0 0.25rem' }}>
+              Your answers are feeding your Skill Profile
+            </p>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.5 }}>
+              These results have been saved and blended into your radar chart in the{' '}
+              <Link href="/dashboard/ai-tools/skill-mapper" style={{ color: 'var(--color-accent)', fontWeight: 700 }}>
+                Skill Mapper
+              </Link>
+              . Go there to compare your profile against any O*NET occupation.
+            </p>
+          </div>
+        </div>
+
         <p style={{ fontSize: '0.8rem', lineHeight: 1.6, color: 'var(--color-on-surface-variant)' }}>
           O*NET Interest Profiler™ is a trademark of the U.S. Department of Labor. This site uses O*NET Web Services under
           the terms described at{' '}

@@ -148,20 +148,25 @@ function mapSkillsPayload(data: unknown): { name: string; importance: number | n
 export async function getOccupationSkills(onetCode: string) {
   const code = encodeURIComponent(onetCode.trim());
   try {
-    // Details endpoint includes standardized importance values.
-    const details = await onetGet<unknown>(`online/occupations/${code}/details/skills`, {
-      sort: 'importance',
-      start: 1,
-      end: 25,
-    });
-    const mappedDetails = mapSkillsPayload(details);
-    if (mappedDetails.length > 0) return mappedDetails;
+    // Fetch skills, abilities, and knowledge in parallel — all three are needed
+    // so that Design (abilities: visualization, originality) and Research
+    // (knowledge: Fine Arts, Science) axes get data.
+    const [skillsRes, abilitiesRes, knowledgeRes] = await Promise.allSettled([
+      onetGet<unknown>(`online/occupations/${code}/details/skills`, { sort: 'importance', start: 1, end: 30 }),
+      onetGet<unknown>(`online/occupations/${code}/details/abilities`, { sort: 'importance', start: 1, end: 30 }),
+      onetGet<unknown>(`online/occupations/${code}/details/knowledge`, { sort: 'importance', start: 1, end: 20 }),
+    ]);
 
-    // Backward-compatible fallback for tenants that still mirror summary responses.
-    const summary = await onetGet<unknown>(`online/occupations/${code}/summary/skills`, {
-      start: 1,
-      end: 25,
-    });
+    const combined: { name: string; importance: number | null; level: number | null }[] = [];
+
+    if (skillsRes.status === 'fulfilled') combined.push(...mapSkillsPayload(skillsRes.value));
+    if (abilitiesRes.status === 'fulfilled') combined.push(...mapSkillsPayload(abilitiesRes.value));
+    if (knowledgeRes.status === 'fulfilled') combined.push(...mapSkillsPayload(knowledgeRes.value));
+
+    if (combined.length > 0) return combined;
+
+    // Fallback to summary/skills only
+    const summary = await onetGet<unknown>(`online/occupations/${code}/summary/skills`, { start: 1, end: 25 });
     return mapSkillsPayload(summary);
   } catch {
     return [];

@@ -38,19 +38,23 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  // Build a bag-of-words from occupation metadata
-  const occText = [
-    occ.title,
-    occ.description ?? '',
-    occ.jobFamily ?? '',
-    occ.outlookSummary ?? '',
-    occ.skills.map((s) => s.skillName).join(' '),
-    occ.tasks.map((t) => t.taskText).join(' '),
-  ]
-    .join(' ')
-    .toLowerCase();
+  // Build a token set from occupation metadata (whole-word matching)
+  const occTokens = new Set(
+    [
+      occ.title,
+      occ.description ?? '',
+      occ.jobFamily ?? '',
+      occ.outlookSummary ?? '',
+      occ.skills.map((s) => s.skillName).join(' '),
+      occ.tasks.map((t) => t.taskText).join(' '),
+    ]
+      .join(' ')
+      .toLowerCase()
+      .split(/\W+/)
+      .filter((w) => w.length > 3)
+  );
 
-  // Score each program by keyword overlap
+  // Score each program by whole-word token overlap with the occupation token set
   const matches = PROGRAMS.map((prog) => {
     const progKeywords = [
       prog.title,
@@ -65,7 +69,7 @@ export async function GET(request: NextRequest) {
       .filter((w) => w.length > 3);
 
     const uniqueKw = [...new Set(progKeywords)];
-    const hits = uniqueKw.filter((kw) => occText.includes(kw));
+    const hits = uniqueKw.filter((kw) => occTokens.has(kw));
     const score = uniqueKw.length > 0 ? hits.length / uniqueKw.length : 0;
 
     let recommendationType: 'primary' | 'bridge' | 'stretch';

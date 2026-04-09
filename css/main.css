@@ -11217,10 +11217,6 @@ body:has(.dashboard-drawer-overlay.open) {
     align-self: flex-end;
     margin-left: auto;
 }
-.admin-super-messages-bubbles {
-    display: flex;
-    flex-direction: column;
-}
 .admin-super-messages-bubble-meta {
     display: flex;
     flex-wrap: wrap;

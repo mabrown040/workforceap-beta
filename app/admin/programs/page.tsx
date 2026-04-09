@@ -111,8 +111,9 @@ export default async function AdminProgramsPage() {
               const avgScore = stats.scores.length > 0
                 ? Math.round(stats.scores.reduce((a, b) => a + b, 0) / stats.scores.length)
                 : null;
-              const progressPct = stats.count > 0 && stats.completed > 0
-                ? Math.min(100, Math.round((stats.completed / (stats.count * 5)) * 100))
+              const totalCourseSlots = stats.count * (p.courses.length || 1);
+              const progressPct = totalCourseSlots > 0 && stats.completed > 0
+                ? Math.min(100, Math.round((stats.completed / totalCourseSlots) * 100))
                 : 0;
               return (
                 <div key={p.slug} className="portal-card portal-card--flat" style={{ padding: '1.125rem' }}>

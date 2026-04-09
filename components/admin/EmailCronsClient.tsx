@@ -55,14 +55,14 @@ function timeAgo(isoString: string): string {
 
 export default function EmailCronsClient({ crons: initialCrons, categoryColors }: Props) {
   const [crons, setCrons] = useState(initialCrons);
-  const [triggering, setTriggering] = useState<string | null>(null);
-  const [toggling, setToggling] = useState<string | null>(null);
+  const [triggeringIds, setTriggeringIds] = useState<Set<string>>(() => new Set());
+  const [togglingIds, setTogglingIds] = useState<Set<string>>(() => new Set());
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [triggerResults, setTriggerResults] = useState<Record<string, { ok: boolean; result: unknown; error?: string }>>({});
   const [filterCategory, setFilterCategory] = useState<string>('all');
 
   const handleTrigger = async (cron: CronWithStatus) => {
-    setTriggering(cron.id);
+    setTriggeringIds(prev => new Set(prev).add(cron.id));
     setTriggerResults(prev => ({ ...prev, [cron.id]: undefined as unknown as { ok: boolean; result: unknown } }));
     try {
       const res = await fetch(`/api/admin/email-crons/${cron.id}/trigger`, {
@@ -94,12 +94,16 @@ export default function EmailCronsClient({ crons: initialCrons, categoryColors }
     } catch (e) {
       setTriggerResults(prev => ({ ...prev, [cron.id]: { ok: false, result: null, error: e instanceof Error ? e.message : 'Network error' } }));
     } finally {
-      setTriggering(null);
+      setTriggeringIds(prev => {
+        const next = new Set(prev);
+        next.delete(cron.id);
+        return next;
+      });
     }
   };
 
   const handleToggle = async (cron: CronWithStatus) => {
-    setToggling(cron.id);
+    setTogglingIds(prev => new Set(prev).add(cron.id));
     const newEnabled = !cron.enabled;
     try {
       const res = await fetch(`/api/admin/email-crons/${cron.id}/toggle`, {
@@ -112,7 +116,11 @@ export default function EmailCronsClient({ crons: initialCrons, categoryColors }
         setCrons(prev => prev.map(c => c.id === cron.id ? { ...c, enabled: newEnabled } : c));
       }
     } finally {
-      setToggling(null);
+      setTogglingIds(prev => {
+        const next = new Set(prev);
+        next.delete(cron.id);
+        return next;
+      });
     }
   };
 
@@ -149,8 +157,8 @@ export default function EmailCronsClient({ crons: initialCrons, categoryColors }
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
         {filtered.map(cron => {
           const isExpanded = expandedId === cron.id;
-          const isTriggeringThis = triggering === cron.id;
-          const isTogglingThis = toggling === cron.id;
+          const isTriggeringThis = triggeringIds.has(cron.id);
+          const isTogglingThis = togglingIds.has(cron.id);
           const triggerResult = triggerResults[cron.id];
           const accentColor = categoryColors[cron.category] ?? 'var(--color-accent)';
 

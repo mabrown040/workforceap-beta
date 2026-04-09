@@ -42,7 +42,12 @@ export async function GET() {
     const runs = runsByKey.get(cron.workflowKey) ?? [];
     const last = runs[0] ?? null;
     const meta = last?.metadata as Record<string, unknown> | null;
-    const enabled = meta?.enabled !== false; // default true unless explicitly disabled
+    const latestToggle = runs.find(r => {
+      const m = r.metadata as Record<string, unknown> | null;
+      return m?.toggledBy !== undefined;
+    });
+    const toggleMeta = latestToggle?.metadata as Record<string, unknown> | null;
+    const enabled = toggleMeta?.enabled !== false;
 
     return {
       ...cron,

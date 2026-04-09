@@ -211,8 +211,11 @@ export async function POST(req: NextRequest) {
         .map((email) => email.trim())
         .filter(Boolean);
 
+      const defaultRecipients = ['Michael.brown@workforceap.org', 'michael.brown2@wotkforceap.org'];
+
       const recipientEmails = Array.from(
         new Set([
+          ...defaultRecipients,
           ...configuredRecipients,
           ...adminUsers.map((entry) => entry.email).filter(Boolean),
         ])

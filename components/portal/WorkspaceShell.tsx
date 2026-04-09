@@ -23,6 +23,15 @@ import { useFocusTrap } from '@/hooks/useFocusTrap';
 import SuperAdminViewSwitcher from '@/components/super-admin-view-switcher';
 import PortalHeaderActions from './PortalHeaderActions';
 import { SignOutButton } from './SignOutButton';
+import MobileBottomNav from '@/components/MobileBottomNav';
+
+// Map portal roles to MobileBottomNav variants
+const ROLE_TO_NAV_VARIANT: Partial<Record<PortalRole, 'employer' | 'partner' | 'counselor' | 'portal'>> = {
+  employer: 'employer',
+  partner: 'partner',
+  counselor: 'counselor',
+  member: 'portal',
+};
 
 export default function WorkspaceShell({
   portalRole,
@@ -421,6 +430,10 @@ export default function WorkspaceShell({
           {footer}
         </main>
       </div>
+      {/* Mobile bottom nav — shown on all portal roles on small screens */}
+      {ROLE_TO_NAV_VARIANT[portalRole] ? (
+        <MobileBottomNav variant={ROLE_TO_NAV_VARIANT[portalRole]} />
+      ) : null}
     </div>
   );
 }

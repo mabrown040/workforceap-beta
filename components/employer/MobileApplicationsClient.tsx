@@ -158,7 +158,7 @@ export default function MobileApplicationsClient({
       <div style={{ padding: '0 1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {visible.length === 0 ? (
           <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', textAlign: 'center' }}>
-            <span className="material-symbols-outlined text-3xl block mb-2" style={{ color: 'var(--outline-variant)' }}>inbox</span>
+            <span className="material-symbols-outlined text-3xl block mb-2" style={{ color: 'var(--outline-variant)' }} aria-hidden="true">inbox</span>
             <p className="text-sm" style={{ color: 'var(--color-on-surface-variant)' }}>No applications found.</p>
           </div>
         ) : (
@@ -212,7 +212,7 @@ export default function MobileApplicationsClient({
                   <span
                     className="material-symbols-outlined text-[18px] flex-shrink-0 mt-1 transition-transform"
                     style={{ color: 'var(--color-accent)', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
-                  >
+                   aria-hidden="true">
                     expand_more
                   </span>
                 </button>

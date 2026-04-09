@@ -136,7 +136,7 @@ export default function MobileBottomNav({ variant = 'marketing' }: MobileBottomN
                 lineHeight: 1,
                 fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0",
               }}
-            >
+             aria-hidden="true">
               {icon}
             </span>
             <span className="marketing-bottom-nav__label">{label}</span>

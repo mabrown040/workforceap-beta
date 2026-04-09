@@ -72,7 +72,7 @@ export default function ProgramComparisonMobile({ rows }: { rows: ComparisonRow[
                   pointerEvents: 'none',
                   fontSize: '1.25rem',
                 }}
-              >
+               aria-hidden="true">
                 expand_more
               </span>
             </div>
@@ -110,7 +110,7 @@ export default function ProgramComparisonMobile({ rows }: { rows: ComparisonRow[
                   pointerEvents: 'none',
                   fontSize: '1.25rem',
                 }}
-              >
+               aria-hidden="true">
                 expand_more
               </span>
             </div>

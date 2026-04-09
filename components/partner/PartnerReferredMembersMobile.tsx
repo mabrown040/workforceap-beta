@@ -79,7 +79,7 @@ export default function PartnerReferredMembersMobile({ rows }: { rows: PartnerMe
       <div style={{ padding: '0 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         {rows.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }} aria-hidden="true">
               group
             </span>
             <p className="wa-text-sm wa-font-semibold" style={{ color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>

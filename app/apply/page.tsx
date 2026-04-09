@@ -189,7 +189,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
       {/* ── Hero ── */}
       <section style={sPage.hero}>
         <div style={sPage.heroLabel}>
-          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>assured_workload</span>
+          <span className="material-symbols-outlined" style={{ fontSize: 16 }} aria-hidden="true">assured_workload</span>
           Institutional Portal
         </div>
         <h1 style={sPage.heroHeading}>Program Admission</h1>
@@ -241,7 +241,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
                     {i + 1}
                   </span>
                   <div>
-                    <span className="material-symbols-outlined" style={{ fontSize: 16, verticalAlign: 'middle', marginRight: 4, color: i === 0 ? 'var(--color-accent)' : 'var(--color-on-surface-variant)' }}>{step.icon}</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: 16, verticalAlign: 'middle', marginRight: 4, color: i === 0 ? 'var(--color-accent)' : 'var(--color-on-surface-variant)' }} aria-hidden="true">{step.icon}</span>
                     <span style={{ fontSize: 'var(--font-size-sm)', fontWeight: i === 0 ? 700 : 500, color: i === 0 ? 'var(--color-on-surface)' : 'var(--color-on-surface-variant)' }}>{step.label}</span>
                   </div>
                 </li>
@@ -300,7 +300,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
       {/* ── Supplemental cards ── */}
       <div className="apply-supp-row" style={sPage.suppRow}>
         <div style={sPage.suppCard}>
-          <span className="material-symbols-outlined" style={{ fontSize: 28, color: 'var(--color-green)', flexShrink: 0, marginTop: 2 }}>lock</span>
+          <span className="material-symbols-outlined" style={{ fontSize: 28, color: 'var(--color-green)', flexShrink: 0, marginTop: 2 }} aria-hidden="true">lock</span>
           <div>
             <h4 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>Encrypted Transmission</h4>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)', margin: 0 }}>
@@ -309,7 +309,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           </div>
         </div>
         <div style={sPage.suppCard}>
-          <span className="material-symbols-outlined" style={{ fontSize: 28, color: 'var(--color-blue)', flexShrink: 0, marginTop: 2 }}>bolt</span>
+          <span className="material-symbols-outlined" style={{ fontSize: 28, color: 'var(--color-blue)', flexShrink: 0, marginTop: 2 }} aria-hidden="true">bolt</span>
           <div>
             <h4 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>Rapid Processing</h4>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)', margin: 0 }}>

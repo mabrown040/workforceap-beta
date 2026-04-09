@@ -172,7 +172,7 @@ function ResumeRewriterWithPrefill() {
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', lineHeight: 1.4 }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>description</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden="true">description</span>
                 <span style={{ fontSize: '0.88rem', fontWeight: 600 }}>
                   Your uploaded resume has been loaded. Edit below or{' '}
                   <button
@@ -213,7 +213,7 @@ function ResumeRewriterWithPrefill() {
                 marginBottom: '0.75rem',
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>upload_file</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden="true">upload_file</span>
               <span style={{ fontSize: '0.88rem' }}>
                 No resume uploaded yet.{' '}
                 <Link href="/dashboard/resume" style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'underline' }}>

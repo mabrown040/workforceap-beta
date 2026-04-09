@@ -188,24 +188,24 @@ export default async function HomePage() {
               boxShadow: '0 8px 32px rgba(173,44,77,0.15)',
             }}>
               <div style={{ width: '3rem', height: '3rem', background: 'rgba(173,44,77,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent)', marginBottom: '1.5rem' }}>
-                <span className="material-symbols-outlined">person</span>
+                <span className="material-symbols-outlined" aria-hidden="true">person</span>
               </div>
               <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Members</h3>
               <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }}>check_circle</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">check_circle</span>
                   No tuition costs for training
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }}>check_circle</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">check_circle</span>
                   {WORKFORCEAP_PROGRAM_CATALOG_SIZE} high-demand career tracks
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }}>check_circle</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">check_circle</span>
                   Workforce Readiness through AI-powered tools
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }}>check_circle</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">check_circle</span>
                   Placement support assistance
                 </li>
               </ul>
@@ -217,20 +217,20 @@ export default async function HomePage() {
             {/* For Partners */}
             <div className="portal-card portal-card--flat" style={{ background: 'var(--surface-container-lowest)', padding: '2rem' }}>
               <div style={{ width: '3rem', height: '3rem', background: 'rgba(200,198,197,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c8c6c5', marginBottom: '1.5rem' }}>
-                <span className="material-symbols-outlined">handshake</span>
+                <span className="material-symbols-outlined" aria-hidden="true">handshake</span>
               </div>
               <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Partners</h3>
               <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }}>check_circle</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }} aria-hidden="true">check_circle</span>
                   Educational resource sharing
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }}>check_circle</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }} aria-hidden="true">check_circle</span>
                   Scalable workforce solutions
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }}>check_circle</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }} aria-hidden="true">check_circle</span>
                   Community impact analytics
                 </li>
               </ul>
@@ -242,20 +242,20 @@ export default async function HomePage() {
             {/* For Employers */}
             <div className="portal-card portal-card--flat" style={{ background: 'var(--surface-container-lowest)', padding: '2rem' }}>
               <div style={{ width: '3rem', height: '3rem', background: 'rgba(255,187,0,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-gold)', marginBottom: '1.5rem' }}>
-                <span className="material-symbols-outlined">business</span>
+                <span className="material-symbols-outlined" aria-hidden="true">business</span>
               </div>
               <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Employers</h3>
               <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }}>check_circle</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }} aria-hidden="true">check_circle</span>
                   Vetted talent ready for work
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }}>check_circle</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }} aria-hidden="true">check_circle</span>
                   Customized curriculum options
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }}>check_circle</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }} aria-hidden="true">check_circle</span>
                   Structured hiring introductions when it fits your process
                 </li>
               </ul>
@@ -418,7 +418,7 @@ export default async function HomePage() {
                     padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-full, 50px)',
                     background: 'var(--surface-container-lowest)', fontSize: '0.75rem', fontWeight: 600,
                   }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>schedule</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">schedule</span>
                     {p.static?.duration ?? '3-5 months'}
                   </span>
                   {/* Cert badge */}
@@ -428,7 +428,7 @@ export default async function HomePage() {
                     background: 'rgba(173,44,77,0.15)', color: 'var(--color-accent)',
                     fontSize: '0.75rem', fontWeight: 600,
                   }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>verified</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">verified</span>
                     Certificate track
                   </span>
                 </div>

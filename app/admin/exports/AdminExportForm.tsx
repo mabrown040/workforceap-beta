@@ -187,7 +187,7 @@ export default function AdminExportForm({ programs, stages }: Props) {
           className="btn btn-primary"
           style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
             {downloading ? 'hourglass_top' : 'download'}
           </span>
           {downloading ? 'Preparing...' : 'Download CSV'}
@@ -208,7 +208,7 @@ export default function AdminExportForm({ programs, stages }: Props) {
             className="btn btn-outline"
             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>filter_alt_off</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">filter_alt_off</span>
             Clear Filters
           </button>
         )}

@@ -118,7 +118,7 @@ export default async function CounselorStudentsPage() {
           }}
         >
           <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>Active Roster</span>
-          <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', fontSize: '20px' }}>
+          <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', fontSize: '20px' }} aria-hidden="true">
             sort
           </span>
         </div>
@@ -129,7 +129,7 @@ export default async function CounselorStudentsPage() {
             <PortalEmptyState
               title="No students assigned yet"
               description="Students will appear here once assigned by an administrator."
-              icon={<span className="material-symbols-outlined">person_search</span>}
+              icon={<span className="material-symbols-outlined" aria-hidden="true">person_search</span>}
               primaryAction={{ label: 'Open Messages', href: '/counselor/messages' }}
               secondaryAction={{ label: 'Counselor guide', href: '/counselor/guide' }}
             />
@@ -243,7 +243,7 @@ export default async function CounselorStudentsPage() {
                     {/* Status + chevron */}
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.375rem' }}>
                       <StatusBadge label={statusBadge.label} variant={statusVariant} />
-                      <span className="material-symbols-outlined" style={{ color: 'var(--outline-variant)', fontSize: '18px' }}>
+                      <span className="material-symbols-outlined" style={{ color: 'var(--outline-variant)', fontSize: '18px' }} aria-hidden="true">
                         chevron_right
                       </span>
                     </div>
@@ -263,7 +263,7 @@ export default async function CounselorStudentsPage() {
           <PortalEmptyState
             title="No students assigned yet"
             description="Students will appear here once assigned by an administrator."
-            icon={<span className="material-symbols-outlined">person_search</span>}
+            icon={<span className="material-symbols-outlined" aria-hidden="true">person_search</span>}
             primaryAction={{ label: 'Open Messages', href: '/counselor/messages' }}
             secondaryAction={{ label: 'Counselor guide', href: '/counselor/guide' }}
           />

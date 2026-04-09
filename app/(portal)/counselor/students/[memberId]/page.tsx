@@ -140,7 +140,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               textDecoration: 'none',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
               arrow_back
             </span>
             All Students
@@ -197,7 +197,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 className="btn btn-outline"
                 style={{ flex: 1, fontSize: '0.8rem' }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>chat</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">chat</span>
                 Message
               </Link>
               <button
@@ -205,7 +205,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 className="btn btn-primary"
                 style={{ flex: 1, fontSize: '0.8rem', opacity: 0.5, cursor: 'not-allowed' }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
                   event
                 </span>
                 Schedule
@@ -263,7 +263,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                     >
                       <span style={{ color: 'var(--color-on-surface-variant)' }}>{course.name}</span>
                       {done ? (
-                        <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#166534' }}>check_circle</span>
+                        <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#166534' }} aria-hidden="true">check_circle</span>
                       ) : (
                         <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>Not started</span>
                       )}

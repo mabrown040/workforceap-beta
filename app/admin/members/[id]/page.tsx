@@ -12,6 +12,7 @@ import { memberTrainingProfileComplete } from '@/lib/platform/trainingEnrollment
 import StaffMemberResumePanel from '@/components/counselor/StaffMemberResumePanel';
 import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
 import MemberDetailActions from '@/components/admin/MemberDetailActions';
+import AdminMemberDbActions from '@/components/admin/AdminMemberDbActions';
 import MemberPartnerSection from '@/components/admin/MemberPartnerSection';
 import MemberSubgroupSection from '@/components/admin/MemberSubgroupSection';
 import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounselorChatClient';
@@ -220,6 +221,27 @@ export default async function AdminMemberDetailPage({
       />
 
       <div style={{ display: 'grid', gap: '1.5rem', maxWidth: '800px' }}>
+        {/* Admin DB actions — password reset, profile edit */}
+        <section className="portal-profile-section-card">
+          <div className="portal-profile-section-card__header">
+            <h2 className="portal-profile-section-card__title">Admin Actions</h2>
+            <span style={{ fontSize: '0.625rem', fontWeight: 800, padding: '0.15rem 0.4rem', borderRadius: '9999px', background: 'rgba(173,44,77,0.1)', color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Super admin</span>
+          </div>
+          <div className="portal-profile-section-card__body">
+            <AdminMemberDbActions
+              memberId={id}
+              memberName={member.fullName}
+              memberEmail={member.email}
+              currentFullName={member.fullName}
+              currentPhone={member.phone}
+              currentProfilePhone={member.profile?.profilePhone ?? null}
+              currentProfileAddress={member.profile?.profileAddress ?? null}
+              currentProfileBio={member.profile?.profileBio ?? null}
+              currentProfileLinkedin={member.profile?.profileLinkedin ?? null}
+            />
+          </div>
+        </section>
+
         <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
           <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Profile</h2>
           <p><strong>Phone:</strong> {formatPhone(member.phone ?? member.profile?.profilePhone)}</p>

@@ -462,10 +462,48 @@ export type AiResultRendererProps = {
   compact?: boolean;
 };
 
+/** Strip markdown heading markers (####, ###, ##, #) for clean PDF/copy text */
+function cleanForExport(text: string): string {
+  return text
+    .replace(/^#{1,6}\s+/gm, '')  // strip heading markers at start of lines
+    .replace(/\*\*([^*]+)\*\*/g, '$1')  // strip bold markers
+    .trim();
+}
+
+/** Serialize interview Q&A JSON array into readable numbered text */
+function serializeInterviewForExport(raw: string): string {
+  try {
+    const jsonMatch = raw.match(/\[[\s\S]*\]/);
+    const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : raw);
+    const arr: Array<Record<string, unknown>> = Array.isArray(parsed) ? parsed : (parsed?.questions ?? []);
+    if (!arr.length) return cleanForExport(raw);
+    return arr.map((q, i) => {
+      const question = String(q.question ?? q.Question ?? '');
+      const type = String(q.type ?? q.Type ?? '');
+      const tip = String(q.tip ?? q.Tip ?? '');
+      const sample = String(q.sample_answer ?? q.sampleAnswer ?? '');
+      const parts = [`${i + 1}. ${question}`];
+      if (type) parts.push(`   Type: ${type}`);
+      if (tip) parts.push(`   Tip: ${tip}`);
+      if (sample) parts.push(`   Sample Answer: ${sample}`);
+      return parts.join('\n');
+    }).join('\n\n');
+  } catch {
+    return cleanForExport(raw);
+  }
+}
+
 export default function AiResultRenderer({ toolType, output, inputSummary, showCopy = true, showDownload = true, compact = false }: AiResultRendererProps) {
   const raw = typeof output === 'string' ? output : JSON.stringify(output);
   const toolLabel = TOOL_LABELS[toolType] ?? toolType;
   const pdfTitle = inputSummary ? `${toolLabel} — ${inputSummary}` : toolLabel;
+  // For copy/download: clean text of markdown markers / serialize structured data
+  const exportText = (() => {
+    if (['interview_practice', 'interview_coach'].includes(toolType)) return serializeInterviewForExport(raw);
+    if (['resume_rewriter', 'resume_analysis', 'cover_letter', 'linkedin_about',
+      'salary_negotiation', 'gap_analyzer', 'career_counselor'].includes(toolType)) return cleanForExport(raw);
+    return raw;
+  })();
 
   let body: React.ReactNode;
 
@@ -505,10 +543,33 @@ export default function AiResultRenderer({ toolType, output, inputSummary, showC
       {body}
       {(showCopy || showDownload) && (
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', paddingTop: '0.5rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-          {showCopy && <CopyButton text={raw} />}
+          {showCopy && <CopyButton text={exportText} />}
           {showDownload && toolType !== 'skill_assessment' && (
-            <DownloadPdfButton text={raw} title={pdfTitle} toolName={toolLabel} />
+            <DownloadPdfButton text={exportText} title={pdfTitle} toolName={toolLabel} />
           )}
+          {showDownload && toolType === 'skill_assessment' && (() => {
+            // Skill assessment: build a readable text summary for PDF
+            try {
+              const parsed = JSON.parse(raw) as {
+                occupationTitle?: string; occupationCode?: string;
+                radarAxes?: Array<{ axis: string; value: number; maxValue?: number }>;
+                skills?: Array<{ name: string; score: number }>;
+                gaps?: Array<{ skill: string; current?: number; target?: number }>;
+              };
+              const lines = [
+                parsed.occupationTitle ? `Occupation: ${parsed.occupationTitle}` : '',
+                parsed.occupationCode ? `O*NET Code: ${parsed.occupationCode}` : '',
+                '',
+                '## Skill Profile',
+                ...(parsed.radarAxes ?? []).map(a => `${a.axis}: ${a.value}%`),
+                '',
+                '## Top Skills',
+                ...(parsed.skills ?? []).slice(0, 15).map(s => `${s.name}: ${s.score}%`),
+                ...(parsed.gaps?.length ? ['', '## Skill Gaps', ...(parsed.gaps ?? []).map(g => `${g.skill}: ${g.current ?? 0}% → ${g.target ?? 0}%`)] : []),
+              ].filter(l => l !== null).join('\n');
+              return <DownloadPdfButton text={lines} title={pdfTitle} toolName={toolLabel} />;
+            } catch { return null; }
+          })()}
         </div>
       )}
     </div>

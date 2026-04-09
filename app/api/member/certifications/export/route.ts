@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import { withCsvBranding } from '@/lib/export/brandingHeader';
 
 export async function GET() {
   const user = await getUser();
@@ -17,10 +18,12 @@ export async function GET() {
     ...certs.map((c) => `"${c.certName}","${c.earnedAt.toISOString().split('T')[0]}"`)
   ].join('\n');
 
-  return new NextResponse(rows, {
+  const csv = withCsvBranding(rows, 'My Certificates', `${certs.length} certificate${certs.length !== 1 ? 's' : ''} on file`);
+
+  return new NextResponse(csv, {
     headers: {
       'Content-Type': 'text/csv',
-      'Content-Disposition': 'attachment; filename="my-certificates.csv"',
+      'Content-Disposition': 'attachment; filename="workforceap-certificates.csv"',
     },
   });
 }

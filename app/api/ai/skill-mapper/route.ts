@@ -28,6 +28,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const occupation = searchParams.get('occupation')?.trim() ?? '';
   const code = searchParams.get('code')?.trim() ?? '';
+  const occupationTitle = searchParams.get('title')?.trim() ?? null;
 
   const { success } = await checkAIToolRateLimit(user.id);
   if (!success) {
@@ -54,9 +55,11 @@ export async function GET(req: NextRequest) {
           'skill_assessment',
           `Skill mapper lookup (${code})`,
           JSON.stringify({
+            occupationTitle: occupationTitle ?? code,
             occupationCode: code,
             radarAxes: radarData,
             skills: skills.slice(0, 20),
+            gaps: [], // populated by client from profile comparison
           })
         );
       } catch (saveErr) {
@@ -72,6 +75,7 @@ export async function GET(req: NextRequest) {
       });
 
       return NextResponse.json({
+        occupationTitle: occupationTitle ?? code,
         occupationCode: code,
         skills: skills.slice(0, 20), // Top 20 skills
         radarAxes: radarData,

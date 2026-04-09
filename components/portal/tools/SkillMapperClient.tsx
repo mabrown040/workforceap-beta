@@ -101,18 +101,55 @@ export default function SkillMapperClient() {
   const [query, setQuery] = useState('');
   const [occupations, setOccupations] = useState<{ code: string; title: string; description: string }[]>([]);
   const [selectedTitle, setSelectedTitle] = useState('');
+  const [selectedCode, setSelectedCode] = useState('');
   const [radarData, setRadarData] = useState<{ axis: string; value: number }[]>([]);
   const [skills, setSkills] = useState<{ name: string; score: number; importance: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingSkills, setLoadingSkills] = useState(false);
+  const [exportingPdf, setExportingPdf] = useState(false);
   const [error, setError] = useState('');
   const [usingDemo, setUsingDemo] = useState(false);
 
   // Profile tab state
   const [memberProfile, setMemberProfile] = useState<{ axis: string; value: number }[]>([]);
   const [memberCerts, setMemberCerts] = useState<string[]>([]);
+  const [resumeSkills, setResumeSkills] = useState<{ axis: string; value: number }[]>([]);
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [profileLoaded, setProfileLoaded] = useState(false);
+
+  const exportSkillMap = async () => {
+    if (!selectedTitle || !radarData.length) return;
+    setExportingPdf(true);
+    try {
+      // Build a text summary of the skill map for PDF rendering
+      const lines = [
+        `Occupation: ${selectedTitle}`,
+        selectedCode ? `O*NET Code: ${selectedCode}` : '',
+        '',
+        '## Skill Profile (Radar Axes)',
+        ...radarData.map(r => `${r.axis}: ${Math.round(r.value * 100)}%`),
+        '',
+        '## Top Skills',
+        ...skills.slice(0, 15).map(s => `${s.name}: ${s.score}% (${s.importance})`),
+      ].filter(Boolean).join('\n');
+
+      const res = await fetch('/api/ai/export-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: lines, title: `Skill Map — ${selectedTitle}`, toolName: 'Skill Mapper' }),
+      });
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `workforceap-skill-map-${selectedTitle.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setExportingPdf(false);
+    }
+  };
 
   useEffect(() => {
     if (activeTab === 'profile' && !profileLoaded) {
@@ -122,6 +159,7 @@ export default function SkillMapperClient() {
         .then(data => {
           if (data.skillProfile) setMemberProfile(data.skillProfile);
           if (data.certNames) setMemberCerts(data.certNames);
+          if (data.resumeSkills) setResumeSkills(data.resumeSkills);
           setProfileLoaded(true);
         })
         .catch(() => setProfileLoaded(true))
@@ -149,9 +187,9 @@ export default function SkillMapperClient() {
   };
 
   const handleSelect = async (code: string, title: string) => {
-    setSelectedTitle(title); setLoadingSkills(true); setError(''); setUsingDemo(false);
+    setSelectedTitle(title); setSelectedCode(code); setLoadingSkills(true); setError(''); setUsingDemo(false);
     try {
-      const res = await fetch(`/api/ai/skill-mapper?code=${code}`);
+      const res = await fetch(`/api/ai/skill-mapper?code=${encodeURIComponent(code)}&title=${encodeURIComponent(title)}`);
       const data = await res.json();
       if (data.radarAxes) {
         setRadarData(data.radarAxes.map((a: { axis: string; value: number }) => ({ axis: a.axis, value: (a.value ?? 0) / 100 })));
@@ -266,11 +304,27 @@ export default function SkillMapperClient() {
                   ))}
                 </div>
               </div>
-              {memberProfile.length > 0 && (
-                <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', marginTop: '-1rem', marginBottom: '1rem' }}>
-                  💡 Switch to <strong>My Skills Profile</strong> tab to compare your certs against this occupation.
-                </p>
-              )}
+              {/* Export + profile compare prompt */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => void exportSkillMap()}
+                  disabled={exportingPdf}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.4rem 0.875rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-accent)', fontWeight: 700, fontSize: '0.8125rem', cursor: exportingPdf ? 'default' : 'pointer', opacity: exportingPdf ? 0.6 : 1 }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', fontVariationSettings: "'FILL' 1" }}>
+                    {exportingPdf ? 'hourglass_empty' : 'download'}
+                  </span>
+                  {exportingPdf ? 'Saving…' : 'Export Skill Map PDF'}
+                </button>
+                {memberProfile.length > 0 && (
+                  <button type="button" onClick={() => setActiveTab('profile')}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.4rem 0.875rem', borderRadius: '0.5rem', border: '1px solid rgba(173,44,77,0.2)', background: 'rgba(173,44,77,0.06)', color: 'var(--color-accent)', fontWeight: 700, fontSize: '0.8125rem', cursor: 'pointer' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', fontVariationSettings: "'FILL' 1" }}>compare_arrows</span>
+                    Compare with my profile
+                  </button>
+                )}
+              </div>
             </>
           )}
         </div>
@@ -392,7 +446,20 @@ export default function SkillMapperClient() {
 
           {!loadingProfile && profileLoaded && memberProfile.every(p => p.value === 0) && memberCerts.length === 0 && (
             <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-on-surface-variant)' }}>
-              <p>No skill data yet. Earn certifications in the <a href="/dashboard/certifications" style={{ color: 'var(--color-accent)' }}>Verification Vault</a> to build your profile.</p>
+              <p style={{ marginBottom: '0.75rem' }}>No skill data yet. Build your profile by:</p>
+              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.375rem', fontSize: '0.875rem' }}>
+                <li>• <a href="/dashboard/certifications" style={{ color: 'var(--color-accent)' }}>Add earned certifications</a></li>
+                <li>• <a href="/dashboard/ai-tools/resume-rewriter" style={{ color: 'var(--color-accent)' }}>Run the AI Resume Rewriter</a> (we extract skills automatically)</li>
+                <li>• Use the <strong>Occupation Search</strong> tab to map an O*NET occupation</li>
+              </ul>
+            </div>
+          )}
+
+          {/* Resume-derived skill comparison note */}
+          {!loadingProfile && resumeSkills.length > 0 && resumeSkills.some(r => r.value > 0) && (
+            <div style={{ marginTop: '0.75rem', padding: '0.75rem 1rem', background: 'rgba(43,123,185,0.07)', border: '1px solid rgba(43,123,185,0.15)', borderRadius: '0.75rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
+              <span style={{ fontWeight: 700, color: 'var(--color-blue, #2b7bb9)' }}>Resume skills detected</span> — your profile includes skills extracted from your resume. Run the{' '}
+              <a href="/dashboard/ai-tools/resume-rewriter" style={{ color: 'var(--color-accent)' }}>Resume Rewriter</a> again after updates to refresh.
             </div>
           )}
         </div>

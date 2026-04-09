@@ -351,74 +351,77 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   return (
     <>
       <h1 className="wa-sr-only">Welcome back, {firstName}</h1>
-      {/* ── Mobile-only hero + dashboard (≤640px) ── */}
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        {/* Welcome greeting + progress orb */}
-        <section style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", padding:"1.5rem 1.5rem 1rem" }}>
-          <div style={{ display:"flex", flexDirection:"column", gap:"0.25rem", maxWidth:"60%" }}>
-            <p className="wa-text-[var(--color-on-surface-variant)] wa-text-xs wa-font-medium wa-tracking-[0.08em] wa-uppercase">
-              Week of {formatPortalDate(new Date())}
+
+      {/* ── Mobile-only dashboard (≤767px) ── */}
+      <div className="wa-md:wa-hidden portal-mobile-content">
+
+        {/* ── Hero: greeting + progress ring ── */}
+        <section style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '1.5rem 1.25rem 1rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', maxWidth: '62%' }}>
+            <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', margin: 0 }}>
+              {formatPortalDate(new Date())}
             </p>
-            <h2 className="wa-text-2xl wa-font-extrabold wa-tracking-tight wa-text-[var(--color-on-surface)]">
-              Welcome back, {firstName}
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.2 }}>
+              Hi, {firstName}
             </h2>
+            {program && (
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>
+                {program.title}
+              </p>
+            )}
           </div>
-          {/* Progress orb */}
-          <div style={{ position:"relative", display:"flex", alignItems:"center", justifyContent:"center", width:"5rem", height:"5rem", flexShrink:0 }}>
-            <svg style={{ width:"100%", height:"100%", transform:"rotate(-90deg)" }} viewBox="0 0 96 96">
-              <circle cx="48" cy="48" r="40" fill="transparent" stroke="var(--surface-container-high)" strokeWidth="6" />
+
+          {/* Progress ring */}
+          <div className="portal-progress-ring" style={{ width: '5.25rem', height: '5.25rem', flexShrink: 0 }}>
+            <svg style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }} viewBox="0 0 96 96" aria-hidden>
+              <circle cx="48" cy="48" r="40" fill="transparent" stroke="var(--surface-container-high)" strokeWidth="7" />
               <circle
                 cx="48" cy="48" r="40" fill="transparent"
-                stroke="var(--color-accent)" strokeWidth="6"
+                stroke="var(--color-accent)" strokeWidth="7"
                 strokeDasharray={orbCircumference}
                 strokeDashoffset={orbDashoffset}
                 strokeLinecap="round"
               />
             </svg>
-            <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
-              <span className="wa-text-base wa-font-bold wa-text-[var(--color-accent-dark)]">{mobilePct}%</span>
-              <span className="wa-text-[8px] wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-gold)]">Training progress</span>
+            <div className="portal-progress-ring__inner">
+              <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-accent)', lineHeight: 1 }}>{mobilePct}%</span>
+              <span style={{ fontSize: '0.5rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-gold)', marginTop: '0.15rem' }}>Progress</span>
             </div>
           </div>
         </section>
 
-        <section style={{ padding: '0 1.5rem 0.75rem' }}>
-          <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)]" style={{ margin: 0, lineHeight: 1.5 }}>
-            Training progress is based on completed courses. Your application steps are shown below.
-          </p>
-        </section>
-
-        <section style={{ padding: '0 1.5rem 1.25rem' }}>
+        {/* ── Voice section ── */}
+        <section style={{ padding: '0 1.25rem 1rem' }}>
           <MemberDashboardVoiceSectionLazy />
         </section>
 
         {nextBestActions.length > 0 && (
-          <section style={{ padding: '0 1.5rem 1rem' }}>
+          <section style={{ padding: '0 1.25rem 1rem' }}>
             <MemberNextStepsStrip actions={nextBestActions} compact fillRow />
           </section>
         )}
 
-        {/* Next step card */}
+        {/* ── Priority next-step card ── */}
         {applicationStatus?.nextStep && (
-          <section style={{ padding:"0 1.5rem", marginBottom:"1.5rem" }}>
-            <div style={{ borderRadius:"0.75rem", overflow:"hidden", boxShadow:"0 4px 20px rgba(173,44,77,0.25)" }}>
-              <div style={{ background:"var(--color-accent)", padding:"1.25rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
-                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
-                  <div style={{ display:"flex", flexDirection:"column", gap:"0.35rem" }}>
-                    <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-[0.12em]" style={{ color:"rgba(255,255,255,0.92)" }}>
-                      Priority
-                    </span>
-                    <h2 className="wa-text-lg wa-font-bold wa-tracking-tight" style={{ color:"#fff", margin:0 }}>
+          <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
+            <div style={{ borderRadius: '1rem', overflow: 'hidden', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', boxShadow: '0 6px 24px rgba(173,44,77,0.3)' }}>
+              <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div>
+                    <p style={{ fontSize: '0.6rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'rgba(255,255,255,0.82)', margin: '0 0 0.35rem' }}>Priority Action</p>
+                    <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: '#fff', margin: 0, lineHeight: 1.3 }}>
                       {applicationStatus.nextStep}
                     </h2>
                   </div>
-                  <span className="material-symbols-outlined wa-text-xl" style={{ color:"#ffbb00", fontVariationSettings: "'FILL' 1" }} aria-hidden>bolt</span>
+                  <span className="material-symbols-outlined" style={{ color: '#ffbb00', fontVariationSettings: "'FILL' 1", flexShrink: 0, marginLeft: '0.5rem' }} aria-hidden>bolt</span>
                 </div>
-                <p className="wa-text-sm wa-leading-relaxed" style={{ color:"rgba(255,255,255,0.9)", margin:0 }}>
-                  Your next action for{' '}
-                  {applicationStatus.programInterest ?? program?.title ?? 'your program'}.
+                <p style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.88)', margin: 0, lineHeight: 1.5 }}>
+                  For {applicationStatus.programInterest ?? program?.title ?? 'your program'}.
                 </p>
-                <Link href={applicationStatus.nextStepHref} className="wa-font-bold wa-text-sm wa-tracking-wide active:scale-[0.98] wa-transition-transform" style={{ display:"block", width:"100%", background:"#fff", color:"var(--color-accent)", padding:"0.75rem", borderRadius:"0.5rem", textDecoration:"none", textAlign:"center", cursor:"pointer", boxSizing:"border-box" }}>
+                <Link
+                  href={applicationStatus.nextStepHref}
+                  style={{ display: 'block', width: '100%', background: '#fff', color: 'var(--color-accent)', padding: '0.75rem', borderRadius: '0.625rem', textDecoration: 'none', textAlign: 'center', fontWeight: 700, fontSize: '0.875rem', boxSizing: 'border-box' }}
+                >
                   Take action
                 </Link>
               </div>
@@ -426,129 +429,111 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </section>
         )}
 
-        <div style={{ padding: '0 1.5rem' }}>
+        {/* ── Career path ── */}
+        <div style={{ padding: '0 1.25rem', marginBottom: '0.75rem' }}>
           <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
         </div>
 
-        {/* Application journey timeline */}
-        <section style={{ padding:"0 1.5rem", marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"1rem" }}>
-          <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">application journey</h3>
-          <div style={{ position:"relative", marginLeft:"1rem" }}>
-            <div style={{ position:"absolute", left:"11px", top:"0.5rem", bottom:"0.5rem", width:"2px", background:"var(--surface-container-high)" }} />
+        {/* ── Application journey timeline ── */}
+        <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }}>
+          <div className="portal-dash-section-header">
+            <h3 className="portal-dash-section-header__title">Application Journey</h3>
+          </div>
+          <div className="portal-journey-timeline">
             {journeySteps.map((step, i) => {
               const locked = 'locked' in step && step.locked;
               return (
-              <div key={i} style={{ position:"relative", display:"flex", alignItems:"flex-start", gap:"1.25rem", paddingBottom:"1.75rem", opacity: locked ? 0.45 : 1 }}>
-                {step.done ? (
-                  <div style={{ position:"relative", zIndex:10, width:"1.5rem", height:"1.5rem", borderRadius:"9999px", background:"var(--color-accent)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                    <span className="material-symbols-outlined" style={{ color:"var(--color-white)", fontSize:"0.75rem" }}>check</span>
+                <div key={i} className="portal-journey-step" style={{ opacity: locked ? 0.42 : 1 }}>
+                  <div className={`portal-journey-step__dot portal-journey-step__dot--${step.done ? 'done' : step.active ? 'active' : 'locked'}`}>
+                    {step.done && (
+                      <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '0.75rem', fontVariationSettings: "'FILL' 1" }}>check</span>
+                    )}
+                    {step.active && !step.done && <div className="portal-dot-pulse" />}
                   </div>
-                ) : step.active ? (
-                  <div style={{ position:"relative", zIndex:10, width:"1.5rem", height:"1.5rem", borderRadius:"9999px", background:"var(--surface-container-lowest)", border:"3px solid var(--color-accent)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }} title="Current step">
-                    <div style={{ width:"0.45rem", height:"0.45rem", borderRadius:"9999px", background:"var(--color-accent)" }} />
+                  <div className="portal-journey-step__content">
+                    <p className={`portal-journey-step__label${step.active && !step.done ? ' portal-journey-step__label--active' : ''}`}>
+                      {step.label}
+                    </p>
+                    {step.detail && <p className="portal-journey-step__detail">{step.detail}</p>}
                   </div>
-                ) : (
-                  <div style={{ position:"relative", zIndex:10, width:"1.5rem", height:"1.5rem", borderRadius:"9999px", background:"var(--surface-container-high)", border:"2px solid var(--outline-variant)", flexShrink:0 }} title={locked ? 'Locked — complete prior steps' : 'Upcoming'} />
-                )}
-                <div>
-                  <p className={`wa-font-bold wa-text-sm wa-leading-none wa-mb-1 ${step.active && !step.done ? 'wa-text-[var(--color-accent-dark)]' : 'wa-text-[var(--color-on-surface)]'}`}>
-                    {step.label}
-                  </p>
-                  {step.detail && <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)]">{step.detail}</p>}
                 </div>
-              </div>
-            );})}
+              );
+            })}
           </div>
         </section>
 
-        {/* Recommended programs (only when not enrolled) OR “keep going” actions (when enrolled) */}
+        {/* ── Programs / Next Milestones scroll row ── */}
         {!enrolledProgram ? (
-          <section style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", padding:"0 1.5rem" }}>
-              <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">Recommended Programs</h3>
-              <a href="/programs" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>View All</a>
+          <section style={{ marginBottom: '1.5rem' }}>
+            <div className="portal-dash-section-header" style={{ padding: '0 1.25rem' }}>
+              <h3 className="portal-dash-section-header__title">Recommended Programs</h3>
+              <a href="/programs" className="portal-dash-section-header__action">View All</a>
             </div>
-            <div style={{ display:"flex", gap:"1rem", overflowX:"auto", padding:"0 1.5rem 0.5rem", scrollbarWidth:"none", msOverflowStyle:"none" }}>
-              {PROGRAMS.slice(0, 3).map((prog, i) => (
-                <div
-                  key={i}
-                  className="portal-card portal-card--flat"
-                  style={{
-                    minWidth:"220px",
-                    overflow:"hidden",
-                    flexShrink:0,
-                    background:"var(--surface-container-lowest)",
-                    borderRadius:"0.75rem",
-                  }}
-                >
-                  <div style={{ height:"7rem", position:"relative", background: `linear-gradient(135deg, ${prog.categoryColor} 0%, var(--surface-container-highest) 100%)` }} />
-                  <div style={{ padding:"1rem", display:"flex", flexDirection:"column", gap:"0.25rem" }}>
-                    <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-widest" style={{ color: 'var(--color-gold)' }}>{prog.partner || 'WorkforceAP'}</p>
-                    <h4 className="wa-font-bold wa-text-sm wa-text-[var(--color-on-surface)] wa-leading-tight">{prog.title}</h4>
+            <div className="portal-card-scroll-row" style={{ padding: '0 1.25rem' }}>
+              {PROGRAMS.slice(0, 4).map((prog, i) => (
+                <a key={i} href="/programs" className="portal-mini-action-card" style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <div
+                    className="portal-mini-action-card__header"
+                    style={{ background: `linear-gradient(135deg, ${prog.categoryColor ?? 'var(--surface-container-high)'} 0%, var(--surface-container-highest) 100%)`, position: 'relative' }}
+                  >
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.45), transparent)' }} />
                   </div>
-                </div>
+                  <div className="portal-mini-action-card__body">
+                    <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-gold)', margin: 0 }}>
+                      {prog.partner ?? 'WorkforceAP'}
+                    </p>
+                    <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0.2rem 0 0', lineHeight: 1.3 }}>
+                      {prog.title}
+                    </p>
+                  </div>
+                </a>
               ))}
             </div>
           </section>
         ) : (
-          <section style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", padding:"0 1.5rem" }}>
-              <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">
-                Next milestones
-              </h3>
-              <a href="/dashboard/training" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>
-                Training
-              </a>
+          <section style={{ marginBottom: '1.5rem' }}>
+            <div className="portal-dash-section-header" style={{ padding: '0 1.25rem' }}>
+              <h3 className="portal-dash-section-header__title">Next Milestones</h3>
+              <a href="/dashboard/training" className="portal-dash-section-header__action">Training</a>
             </div>
-            <div style={{ display:"flex", gap:"0.75rem", overflowX:"auto", padding:"0 1.5rem 0.5rem", scrollbarWidth:"none", msOverflowStyle:"none" }}>
-              {[
+            <div className="portal-card-scroll-row" style={{ padding: '0 1.25rem' }}>
+              {([
                 {
-                  eyebrow: program?.title ?? 'Your program',
-                  title: nextIncompleteCourse?.name ? `Continue: ${nextIncompleteCourse.name}` : 'Continue your training',
-                  desc: nextIncompleteCourse?.name ? 'Pick up where you left off.' : 'Open your training track and keep progressing.',
+                  eyebrow: program?.title ?? 'Your Program',
+                  title: nextIncompleteCourse?.name ? `Continue: ${nextIncompleteCourse.name}` : 'Continue Training',
+                  desc: nextIncompleteCourse?.name ? 'Pick up where you left off.' : 'Open your training track.',
                   href: '/dashboard/training',
                   icon: 'school',
+                  gradient: 'portal-action-card-gradient--tools',
                 },
                 {
                   eyebrow: 'Career Tools',
-                  title: 'Practice interview answers',
-                  desc: 'Build confidence for recruiter screens and counselor interviews.',
+                  title: 'Practice Interviews',
+                  desc: 'Build confidence for screens.',
                   href: '/dashboard/ai-tools/interview-practice',
                   icon: 'record_voice_over',
+                  gradient: 'portal-action-card-gradient--career',
                 },
                 {
-                  eyebrow: 'Connect',
-                  title: 'Browse job board',
-                  desc: 'Explore roles that fit your program and interests.',
+                  eyebrow: 'Jobs',
+                  title: 'Browse Job Board',
+                  desc: 'Explore roles that fit your program.',
                   href: '/dashboard/jobs',
                   icon: 'work',
+                  gradient: 'portal-action-card-gradient--tech',
                 },
-              ].map((card) => (
-                <a
-                  key={card.href}
-                  href={card.href}
-                  className="wa-no-underline active:scale-[0.98] wa-transition-transform"
-                  style={{ minWidth:"240px", flexShrink:0 }}
-                >
-                  <div className="portal-card portal-card--flat" style={{ borderRadius:"0.75rem" }}>
-                    <div className="portal-card__body" style={{ padding:"1rem" }}>
-                      <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:"0.75rem" }}>
-                        <div style={{ minWidth:0 }}>
-                          <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-widest" style={{ color:'var(--color-on-surface-variant)', margin:0 }}>
-                            {card.eyebrow}
-                          </p>
-                          <p className="wa-text-sm wa-font-bold wa-tracking-tight" style={{ color:'var(--color-on-surface)', margin:"0.35rem 0 0" }}>
-                            {card.title}
-                          </p>
-                        </div>
-                        <span className="material-symbols-outlined" style={{ color:'var(--color-accent)', fontSize:"1.1rem", flexShrink:0 }}>
-                          {card.icon}
-                        </span>
-                      </div>
-                      <p className="wa-text-xs" style={{ color:'var(--color-on-surface-variant)', margin:"0.5rem 0 0", lineHeight:1.4 }}>
-                        {card.desc}
-                      </p>
+              ] as const).map((card) => (
+                <a key={card.href} href={card.href} className="portal-mini-action-card" style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <div className={`portal-mini-action-card__header ${card.gradient}`} style={{ position: 'relative' }}>
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.5), transparent)' }} />
+                    <div style={{ position: 'absolute', top: '0.625rem', right: '0.625rem', width: '1.75rem', height: '1.75rem', borderRadius: '0.4rem', background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '0.9rem', fontVariationSettings: "'FILL' 1" }}>{card.icon}</span>
                     </div>
+                    <p style={{ position: 'absolute', bottom: '0.625rem', left: '0.75rem', fontSize: '0.55rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.8)', margin: 0 }}>{card.eyebrow}</p>
+                  </div>
+                  <div className="portal-mini-action-card__body">
+                    <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.3 }}>{card.title}</p>
+                    <p style={{ fontSize: '0.6875rem', color: 'var(--color-on-surface-variant)', margin: '0.2rem 0 0', lineHeight: 1.4 }}>{card.desc}</p>
                   </div>
                 </a>
               ))}
@@ -556,45 +541,54 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </section>
         )}
 
-        {/* Quick Actions 2x2 grid */}
-        <section style={{ padding:"0 1.5rem", marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
-          <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">Quick Actions</h3>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.75rem" }}>
-            {[
+        {/* ── Quick Actions 2x2 ── */}
+        <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }}>
+          <div className="portal-dash-section-header">
+            <h3 className="portal-dash-section-header__title">Quick Actions</h3>
+          </div>
+          <div className="portal-quick-grid-2x2">
+            {([
               { icon: 'upload_file', label: 'Upload Resume', href: '/dashboard/ai-tools/resume-rewriter' },
               { icon: 'event_available', label: 'Book Coaching', href: '/dashboard/messages' },
-              { icon: 'forum', label: 'Practice Interview', href: '/dashboard/ai-tools/interview-practice' },
-              { icon: 'psychology', label: 'AI Resume Help', href: '/dashboard/ai-tools' },
-            ].map((action) => (
-              <a key={action.label} href={action.href}
-                className="active:scale-[0.97] wa-transition-transform" style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"1rem", borderRadius:"0.75rem", textDecoration:"none", background:"var(--surface-container-lowest)", border:"1px solid var(--outline-variant)", boxShadow:"0 1px 4px rgba(0,0,0,0.05)" }}>
-                <span className="material-symbols-outlined" style={{ marginBottom:"0.5rem", color:"var(--color-accent)" }}>{action.icon}</span>
-                <span className="wa-text-xs wa-font-bold wa-text-[var(--color-on-surface)] wa-tracking-tight">{action.label}</span>
+              { icon: 'forum', label: 'Interview Prep', href: '/dashboard/ai-tools/interview-practice' },
+              { icon: 'auto_awesome', label: 'AI Tools', href: '/dashboard/ai-tools' },
+            ] as const).map((action) => (
+              <a key={action.label} href={action.href} className="portal-quick-grid-item">
+                <div className="portal-quick-grid-item__icon">
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>{action.icon}</span>
+                </div>
+                <span className="portal-quick-grid-item__label">{action.label}</span>
               </a>
             ))}
           </div>
         </section>
 
-        {/* Recent AI Activity */}
+        {/* ── Recent AI Activity ── */}
         {recentTools.length > 0 && (
-          <section style={{ padding:'0 1.5rem', marginBottom:'1.5rem', display:'flex', flexDirection:'column', gap:'0.75rem' }}>
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-              <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#584144]">Recent AI Activity</h3>
-              <Link href="/dashboard/ai-tools/history" className="wa-text-xs wa-font-bold wa-text-[#8c0f37]" style={{ textDecoration:'none' }}>View all →</Link>
+          <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }}>
+            <div className="portal-dash-section-header">
+              <h3 className="portal-dash-section-header__title">Recent AI Activity</h3>
+              <Link href="/dashboard/ai-tools/history" className="portal-dash-section-header__action">View all</Link>
             </div>
-            <div style={{ display:'flex', flexDirection:'column', gap:'0.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {recentTools.map((r) => (
-                <div key={r.id} style={{ display:'flex', alignItems:'center', gap:'0.75rem', padding:'0.75rem', borderRadius:'0.75rem', background:'#ffffff', border:'1px solid rgba(222,191,194,0.3)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize:'1.1rem', color:'var(--color-accent)', flexShrink:0 }}>smart_toy</span>
-                  <div style={{ flex:1, minWidth:0 }}>
-                    <p className="wa-text-xs wa-font-bold wa-text-[#1c1b1b] wa-leading-tight">{AI_TOOL_LABELS[r.toolType] ?? r.toolType}</p>
+                <div key={r.id} className="portal-activity-item">
+                  <div className="portal-activity-item__icon">
+                    <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>smart_toy</span>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>
+                      {AI_TOOL_LABELS[r.toolType] ?? r.toolType}
+                    </p>
                     {r.inputSummary && (
-                      <p className="wa-text-xs wa-text-[#584144] wa-leading-snug wa-truncate" style={{ marginTop: '0.1rem' }}>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.1rem 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {stripMarkdownForPreview(r.inputSummary)}
                       </p>
                     )}
                   </div>
-                  <span className="wa-text-[11px] wa-text-[#584144] wa-whitespace-nowrap" style={{ flexShrink:0 }}>{formatPortalDate(r.createdAt)}</span>
+                  <span style={{ fontSize: '0.6875rem', color: 'var(--color-on-surface-variant)', flexShrink: 0, marginLeft: '0.5rem' }}>
+                    {formatPortalDate(r.createdAt)}
+                  </span>
                 </div>
               ))}
             </div>
@@ -654,36 +648,33 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           />
           {showMatchedRoles && userAge !== null && userAge < 14 ? null : <MatchedRoles />}
           {recentTools.length > 0 && (
-            <section style={{ padding:'1.5rem 2rem', borderTop:'1px solid var(--surface-container-high)', maxWidth:'900px', margin:'0 auto' }}>
-              <div className="portal-section-header">
-                <h2 style={{ fontSize:'1rem', fontWeight:700, margin:0, color:'var(--color-on-surface)' }}>Recent AI Activity</h2>
+            <section style={{ padding: '1.5rem 2rem 2rem', maxWidth: '900px', margin: '0 auto' }}>
+              <div className="portal-section-header" style={{ marginBottom: '1rem' }}>
+                <h2 className="portal-section-heading" style={{ margin: 0 }}>Recent AI Activity</h2>
                 <Link href="/dashboard/ai-tools/history" className="portal-section-action">
                   View all
-                  <span className="material-symbols-outlined" style={{ fontSize:'0.9rem' }}>arrow_forward</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>arrow_forward</span>
                 </Link>
               </div>
-              <div style={{ display:'flex', flexDirection:'column', gap:'0.5rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 {recentTools.map((r) => (
-                  <div key={r.id} className="portal-card portal-card--flat portal-card--padded-sm" style={{ display:'flex', alignItems:'center', gap:'1rem' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize:'1.25rem', color:'var(--color-accent)', flexShrink:0 }}>smart_toy</span>
-                    <div style={{ flex:1, minWidth:0 }}>
-                      <p style={{ fontSize:'0.875rem', fontWeight:600, margin:0, color:'var(--color-on-surface)' }}>{AI_TOOL_LABELS[r.toolType] ?? r.toolType}</p>
-                      {r.inputSummary && (
-                      <p
-                        style={{
-                          fontSize: '0.8rem',
-                          color: 'var(--color-on-surface-variant)',
-                          margin: '0.1rem 0 0',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {stripMarkdownForPreview(r.inputSummary)}
-                      </p>
-                    )}
+                  <div key={r.id} className="portal-activity-item">
+                    <div className="portal-activity-item__icon">
+                      <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>smart_toy</span>
                     </div>
-                    <span style={{ fontSize:'0.75rem', color:'var(--color-on-surface-variant)', flexShrink:0 }}>{formatPortalDate(r.createdAt)}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontSize: '0.875rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>
+                        {AI_TOOL_LABELS[r.toolType] ?? r.toolType}
+                      </p>
+                      {r.inputSummary && (
+                        <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0.1rem 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {stripMarkdownForPreview(r.inputSummary)}
+                        </p>
+                      )}
+                    </div>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', flexShrink: 0 }}>
+                      {formatPortalDate(r.createdAt)}
+                    </span>
                   </div>
                 ))}
               </div>

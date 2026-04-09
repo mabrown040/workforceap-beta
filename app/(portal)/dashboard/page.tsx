@@ -432,7 +432,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
         {/* Application journey timeline */}
         <section style={{ padding:"0 1.5rem", marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"1rem" }}>
-          <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">Application Journey</h3>
+          <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">application journey</h3>
           <div style={{ position:"relative", marginLeft:"1rem" }}>
             <div style={{ position:"absolute", left:"11px", top:"0.5rem", bottom:"0.5rem", width:"2px", background:"var(--surface-container-high)" }} />
             {journeySteps.map((step, i) => {

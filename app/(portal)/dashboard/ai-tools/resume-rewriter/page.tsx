@@ -99,22 +99,32 @@ export default async function ResumeRewriterPage() {
                   flexWrap: 'wrap',
                 }}
               >
-                {['Voice coach', 'Text rewrite'].map((workflow) => (
-                  <span
-                    key={workflow}
-                    style={{
-                      fontSize: '0.73rem',
-                      padding: '0.3rem 0.75rem',
-                      borderRadius: 999,
-                      background: workflow === 'Voice coach' ? 'var(--color-accent)' : 'transparent',
-                      color: workflow === 'Voice coach' ? '#fff' : 'var(--color-on-surface-variant)',
-                      fontWeight: 600,
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {workflow}
-                  </span>
-                ))}
+                <span
+                  style={{
+                    fontSize: '0.73rem',
+                    padding: '0.3rem 0.75rem',
+                    borderRadius: 999,
+                    background: 'transparent',
+                    color: 'var(--color-on-surface-variant)',
+                    fontWeight: 600,
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  Voice coach
+                </span>
+                <span
+                  style={{
+                    fontSize: '0.73rem',
+                    padding: '0.3rem 0.75rem',
+                    borderRadius: 999,
+                    background: 'transparent',
+                    color: 'var(--color-on-surface-variant)',
+                    fontWeight: 600,
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  Text rewrite
+                </span>
               </div>
             </div>
 

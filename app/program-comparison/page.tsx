@@ -52,7 +52,7 @@ export default function ProgramComparisonPage() {
               color: 'var(--color-accent)', fontSize: '0.7rem', fontWeight: 700,
               letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '1rem',
             }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>compare_arrows</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">compare_arrows</span>
               Curator Comparison
             </span>
             <h1 className="text-display-lg" style={{ marginBottom: '1rem' }}>
@@ -101,7 +101,7 @@ export default function ProgramComparisonPage() {
                 background: 'rgba(173,44,77,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: 'var(--color-accent)',
               }}>
-                <span className="material-symbols-outlined">route</span>
+                <span className="material-symbols-outlined" aria-hidden="true">route</span>
               </div>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Need a Personalized Path?</h3>
               <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, fontSize: '0.9rem' }}>
@@ -109,7 +109,7 @@ export default function ProgramComparisonPage() {
               </p>
               <div style={{ marginTop: 'auto' }}>
                 <Link href="/find-your-path" className="btn btn-primary btn-small" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>explore</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">explore</span>
                   Take the Quiz
                 </Link>
               </div>
@@ -125,7 +125,7 @@ export default function ProgramComparisonPage() {
                 width: '3rem', height: '3rem', borderRadius: 'var(--radius-lg)',
                 background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <span className="material-symbols-outlined">school</span>
+                <span className="material-symbols-outlined" aria-hidden="true">school</span>
               </div>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Fellowship Grant</h3>
               <p style={{ opacity: 0.9, lineHeight: 1.7, fontSize: '0.9rem' }}>
@@ -136,7 +136,7 @@ export default function ProgramComparisonPage() {
                   background: 'white', color: 'var(--color-accent)', fontWeight: 700,
                   display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
                 }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_forward</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
                   Apply Now
                 </Link>
               </div>

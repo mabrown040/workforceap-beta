@@ -207,7 +207,7 @@ export default async function AdminMemberDetailPage({
         action={
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             <Link href={`/admin/members/${id}/lifecycle`} className="btn btn-outline">
-              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', marginRight: '0.25rem', verticalAlign: 'middle' }}>timeline</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', marginRight: '0.25rem', verticalAlign: 'middle' }} aria-hidden="true">timeline</span>
               Lifecycle
             </Link>
             <Link href={`/admin/members/${id}/readiness`} className="btn btn-outline">

@@ -54,7 +54,7 @@ export default function StartTourButton({ className, style, variant = 'outline' 
       className={className}
       style={{ ...baseStyles, ...style }}
     >
-      <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>route</span>
+      <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">route</span>
       Take Tour
     </button>
   );

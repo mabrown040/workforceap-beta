@@ -123,7 +123,7 @@ export default async function EmployerGuidePage() {
                 justifyContent: 'center',
                 marginBottom: '1.25rem',
               }}>
-                <span className="material-symbols-outlined" style={{ color: i === 0 ? '#fff' : 'var(--color-accent)', fontSize: '1.25rem' }}>{step.icon}</span>
+                <span className="material-symbols-outlined" style={{ color: i === 0 ? '#fff' : 'var(--color-accent)', fontSize: '1.25rem' }} aria-hidden="true">{step.icon}</span>
               </div>
               <h3 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.625rem', letterSpacing: '-0.02em' }}>
                 {step.title}
@@ -146,7 +146,7 @@ export default async function EmployerGuidePage() {
                   letterSpacing: '-0.01em',
                 }}>
                   {step.cta}
-                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>arrow_forward</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">arrow_forward</span>
                 </Link>
               )}
               {i === 2 && (
@@ -179,7 +179,7 @@ export default async function EmployerGuidePage() {
                   flexShrink: 0,
                   marginTop: '0.125rem',
                 }}>
-                  <span className="material-symbols-outlined" style={{ color: '#80d99f', fontSize: '0.875rem' }}>check</span>
+                  <span className="material-symbols-outlined" style={{ color: '#80d99f', fontSize: '0.875rem' }} aria-hidden="true">check</span>
                 </div>
                 <p style={{ fontSize: '0.9375rem', color: 'var(--color-on-surface)', lineHeight: 1.5 }}>{item}</p>
               </div>
@@ -201,7 +201,7 @@ export default async function EmployerGuidePage() {
               textDecoration: 'none',
               boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
             }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>post_add</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">post_add</span>
               Post your first job
             </Link>
           </div>
@@ -225,9 +225,9 @@ export default async function EmployerGuidePage() {
                 textDecoration: 'none',
                 transition: 'background 0.15s',
               }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }}>{item.icon}</span>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }} aria-hidden="true">{item.icon}</span>
                 <span style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-on-surface)', flex: 1 }}>{item.label}</span>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4, fontSize: '1rem' }}>chevron_right</span>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4, fontSize: '1rem' }} aria-hidden="true">chevron_right</span>
               </Link>
             ))}
           </div>
@@ -290,7 +290,7 @@ export default async function EmployerGuidePage() {
           whiteSpace: 'nowrap',
         }}>
           Post a job
-          <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_forward</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
         </Link>
       </div>
     </div>

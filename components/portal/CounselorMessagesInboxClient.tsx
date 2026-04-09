@@ -224,7 +224,7 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
                   padding: 0,
                 }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">
                   arrow_back
                 </span>
                 All conversations

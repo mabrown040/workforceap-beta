@@ -213,7 +213,7 @@ export default function ProgramsPageClient({ programs }: ProgramsPageClientProps
                   >
                     $0
                   </span>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent-dark)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent-dark)' }} aria-hidden="true">
                     arrow_outward
                   </span>
                 </div>

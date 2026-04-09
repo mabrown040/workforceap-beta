@@ -70,7 +70,7 @@ export default async function ProgramPage({ params }: Props) {
               textDecoration: 'none',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>arrow_back</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden="true">arrow_back</span>
             Programs
           </Link>
 
@@ -99,7 +99,7 @@ export default async function ProgramPage({ params }: Props) {
                 background: 'rgba(123,88,0,0.1)',
               }}
             >
-              <span className="material-symbols-outlined" style={{ color: '#7b5800', fontSize: '0.875rem' }}>verified</span>
+              <span className="material-symbols-outlined" style={{ color: '#7b5800', fontSize: '0.875rem' }} aria-hidden="true">verified</span>
               <span style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#7b5800' }}>Verified Cert</span>
             </div>
           </div>
@@ -108,26 +108,26 @@ export default async function ProgramPage({ params }: Props) {
 
           <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', fontSize: '0.75rem', fontWeight: 500, background: '#f0edec', color: '#584144' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>schedule</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">schedule</span>
               {program.duration}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', fontSize: '0.75rem', fontWeight: 500, background: '#f0edec', color: '#584144' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>bolt</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">bolt</span>
               {salaryRangeDisplay(program)}
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', marginBottom: '1rem' }}>
             <div style={{ borderRadius: '0.75rem', padding: '0.75rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', background: '#f0edec', minHeight: '7rem' }}>
-              <span className="material-symbols-outlined" style={{ color: '#8c0f37', fontSize: '1.25rem' }}>workspace_premium</span>
+              <span className="material-symbols-outlined" style={{ color: '#8c0f37', fontSize: '1.25rem' }} aria-hidden="true">workspace_premium</span>
               <p style={{ fontSize: '10px', fontWeight: 700, lineHeight: 1.25, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-on-surface)', margin: 0 }}>Industry Recognized</p>
             </div>
             <div style={{ borderRadius: '0.75rem', padding: '0.75rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', background: '#8c0f37', minHeight: '7rem', boxShadow: '0 4px 12px rgba(140,15,55,0.2)' }}>
-              <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '1.25rem' }}>payments</span>
+              <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '1.25rem' }} aria-hidden="true">payments</span>
               <p style={{ fontSize: '10px', fontWeight: 700, lineHeight: 1.25, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#fff', margin: 0 }}>$0 Cost</p>
             </div>
             <div style={{ borderRadius: '0.75rem', padding: '0.75rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', background: '#f0edec', minHeight: '7rem' }}>
-              <span className="material-symbols-outlined" style={{ color: '#7b5800', fontSize: '1.25rem' }}>handshake</span>
+              <span className="material-symbols-outlined" style={{ color: '#7b5800', fontSize: '1.25rem' }} aria-hidden="true">handshake</span>
               <p style={{ fontSize: '10px', fontWeight: 700, lineHeight: 1.25, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-on-surface)', margin: 0 }}>Placement Support</p>
             </div>
           </div>
@@ -272,7 +272,7 @@ export default async function ProgramPage({ params }: Props) {
               borderRadius: '12px',
             }}>
               <h3 style={{ fontSize: '1.125rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--color-accent)' }}>help</span>
+                <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--color-accent)' }} aria-hidden="true">help</span>
                 Have Questions?
               </h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
@@ -286,7 +286,7 @@ export default async function ProgramPage({ params }: Props) {
                   textDecoration: 'none',
                   color: 'var(--color-on-surface)',
                 }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }}>menu_book</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }} aria-hidden="true">menu_book</span>
                   <span>Read FAQ</span>
                   <ArrowRight size={16} style={{ marginLeft: 'auto', opacity: 0.5 }} />
                 </Link>
@@ -300,7 +300,7 @@ export default async function ProgramPage({ params }: Props) {
                   textDecoration: 'none',
                   color: 'var(--color-on-surface)',
                 }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }}>schedule</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }} aria-hidden="true">schedule</span>
                   <span>How It Works</span>
                   <ArrowRight size={16} style={{ marginLeft: 'auto', opacity: 0.5 }} />
                 </Link>
@@ -315,7 +315,7 @@ export default async function ProgramPage({ params }: Props) {
                   textDecoration: 'none',
                   color: 'var(--color-on-surface)',
                 }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }}>payments</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }} aria-hidden="true">payments</span>
                   <span>Salary Guide</span>
                   <ArrowRight size={16} style={{ marginLeft: 'auto', opacity: 0.5 }} />
                 </Link>
@@ -330,7 +330,7 @@ export default async function ProgramPage({ params }: Props) {
                   textDecoration: 'none',
                   color: 'var(--color-on-surface)',
                 }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }}>work</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }} aria-hidden="true">work</span>
                   <span>Career Tips</span>
                   <ArrowRight size={16} style={{ marginLeft: 'auto', opacity: 0.5 }} />
                 </Link>

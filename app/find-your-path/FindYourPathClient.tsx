@@ -685,7 +685,7 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
                     <span className="material-symbols-outlined" style={{
                       fontSize: '1.25rem',
                       color: isSelected ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
-                    }}>{icon}</span>
+                    }} aria-hidden="true">{icon}</span>
                   )}
                   <span className="radio-dot" aria-hidden style={{ display: 'none' }} />
                   <span style={{ fontSize: '0.9rem' }}>{a.label}</span>
@@ -734,7 +734,7 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
                 onClick={handleBack}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_back</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_back</span>
                 Back
               </button>
             ) : <span />}

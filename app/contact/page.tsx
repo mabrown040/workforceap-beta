@@ -59,7 +59,7 @@ export default function ContactPage() {
                 {/* Location Card */}
                 <div className="portal-card portal-card--elevated" style={{ padding: '2rem', display: 'flex', alignItems: 'flex-start', gap: '1.5rem' }}>
                   <div style={{ background: 'rgba(173,44,77,0.1)', padding: '0.75rem', borderRadius: 'var(--radius-lg)', color: 'var(--color-accent)', flexShrink: 0 }}>
-                    <span className="material-symbols-outlined">location_on</span>
+                    <span className="material-symbols-outlined" aria-hidden="true">location_on</span>
                   </div>
                   <div>
                     <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>Our Location</h3>
@@ -73,7 +73,7 @@ export default function ContactPage() {
                 {/* Email Card */}
                 <div className="portal-card portal-card--elevated" style={{ padding: '2rem', display: 'flex', alignItems: 'flex-start', gap: '1.5rem' }}>
                   <div style={{ background: 'rgba(173,44,77,0.1)', padding: '0.75rem', borderRadius: 'var(--radius-lg)', color: 'var(--color-accent)', flexShrink: 0 }}>
-                    <span className="material-symbols-outlined">alternate_email</span>
+                    <span className="material-symbols-outlined" aria-hidden="true">alternate_email</span>
                   </div>
                   <div>
                     <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>Email</h3>
@@ -86,7 +86,7 @@ export default function ContactPage() {
                 {/* Phone Card */}
                 <div className="portal-card portal-card--elevated" style={{ padding: '2rem', display: 'flex', alignItems: 'flex-start', gap: '1.5rem' }}>
                   <div style={{ background: 'rgba(173,44,77,0.1)', padding: '0.75rem', borderRadius: 'var(--radius-lg)', color: 'var(--color-accent)', flexShrink: 0 }}>
-                    <span className="material-symbols-outlined">call</span>
+                    <span className="material-symbols-outlined" aria-hidden="true">call</span>
                   </div>
                   <div>
                     <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>Phone</h3>
@@ -111,7 +111,7 @@ export default function ContactPage() {
                   border: '1px solid var(--outline-variant)',
                 }}>
                   <div style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', display: 'block', marginBottom: '0.5rem', opacity: 0.4 }}>map</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', display: 'block', marginBottom: '0.5rem', opacity: 0.4 }} aria-hidden="true">map</span>
                     <p style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Austin, TX</p>
                   </div>
                 </div>
@@ -124,7 +124,7 @@ export default function ContactPage() {
       {/* Editorial Quote Section */}
       <section className="content-section" style={{ textAlign: 'center', maxWidth: '56rem', margin: '0 auto', paddingTop: '4rem', borderTop: '1px solid rgba(88,65,68,0.1)' }}>
         <div className="container">
-          <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '2.5rem', marginBottom: '1.5rem', display: 'block', fontVariationSettings: "'FILL' 1" }}>format_quote</span>
+          <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '2.5rem', marginBottom: '1.5rem', display: 'block', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">format_quote</span>
           <p style={{ fontSize: '1.5rem', fontWeight: 300, fontStyle: 'italic', color: 'var(--color-on-surface-variant)', lineHeight: 1.6, maxWidth: '40rem', margin: '0 auto' }}>
             &ldquo;We believe everyone deserves a clear path to a meaningful career. That starts with being available and responsive to the people we serve.&rdquo;
           </p>

@@ -30,7 +30,7 @@ export default function LearningCivicBotPanel() {
           gap: 'var(--space-3)',
         }}
       >
-        <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', fontVariationSettings: "'FILL' 1" }}>
+        <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
           smart_toy
         </span>
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -107,7 +107,7 @@ export default function LearningCivicBotPanel() {
             window.setTimeout(() => setNotice(null), 6000);
           }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">
             send
           </span>
         </button>

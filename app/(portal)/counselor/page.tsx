@@ -113,18 +113,18 @@ export default async function CounselorPortalPage() {
               <p style={{ fontSize: '2.75rem', fontWeight: 800, letterSpacing: '-0.04em', color: '#fff', lineHeight: 1, margin: 0 }}>{assignments.length}</p>
               <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.75)', marginTop: '0.375rem' }}>assigned to you</p>
             </div>
-            <span className="material-symbols-outlined" style={{ position: 'absolute', bottom: '-1rem', right: '-1rem', fontSize: '8rem', opacity: 0.07, color: '#fff', fontVariationSettings: "'FILL' 1" }}>group</span>
+            <span className="material-symbols-outlined" style={{ position: 'absolute', bottom: '-1rem', right: '-1rem', fontSize: '8rem', opacity: 0.07, color: '#fff', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">group</span>
           </div>
           <div className="portal-metric-card">
             <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--gold">
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>school</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">school</span>
             </div>
             <p className="portal-metric-card__value" style={{ fontSize: '1.5rem' }}>{enrolledCount}</p>
             <p className="portal-metric-card__label">In a Program</p>
           </div>
           <div className="portal-metric-card">
             <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--accent">
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>mark_email_unread</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">mark_email_unread</span>
             </div>
             <p className="portal-metric-card__value" style={{ fontSize: '1.5rem', color: messagesNeedingReply > 0 ? 'var(--color-accent)' : undefined }}>{messagesNeedingReply}</p>
             <p className="portal-metric-card__label">Awaiting Reply</p>
@@ -142,14 +142,14 @@ export default async function CounselorPortalPage() {
         <div className="portal-pad-x">
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1rem" }}>
             <h3 className="wa-text-lg wa-font-bold wa-tracking-tight">Active Roster</h3>
-            <span className="material-symbols-outlined text-on-surface-variant wa-text-xl">sort</span>
+            <span className="material-symbols-outlined text-on-surface-variant wa-text-xl" aria-hidden="true">sort</span>
           </div>
           <div style={{ display:"flex", flexDirection:"column", gap:"0.75rem" }}>
             {assignments.length === 0 ? (
               <PortalEmptyState
                 title="No students assigned yet"
                 description="Students will appear here once assigned by an administrator. In the meantime, explore the counselor guide."
-                icon={<span className="material-symbols-outlined">person_search</span>}
+                icon={<span className="material-symbols-outlined" aria-hidden="true">person_search</span>}
                 primaryAction={{ label: 'Counselor guide', href: '/counselor/guide' }}
                 secondaryAction={{ label: 'Resources', href: '/counselor/resources' }}
               />
@@ -191,7 +191,7 @@ export default async function CounselorPortalPage() {
                     }}
                   >
                     <div className="bg-surface-container-high" style={{ width:"3rem", height:"3rem", borderRadius:"0.75rem", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                      <span className="material-symbols-outlined text-on-surface-variant">person</span>
+                      <span className="material-symbols-outlined text-on-surface-variant" aria-hidden="true">person</span>
                     </div>
                     <div style={{ flex:1, minWidth:0 }}>
                       <h4 className="wa-font-bold text-on-surface wa-text-base wa-truncate">{a.member.fullName}</h4>
@@ -211,7 +211,7 @@ export default async function CounselorPortalPage() {
                     </div>
                     <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:"0.5rem" }}>
                       <StatusBadge label={statusLabel} variant={badgeVariant} />
-                      <span className="material-symbols-outlined text-surface-container-highest">chevron_right</span>
+                      <span className="material-symbols-outlined text-surface-container-highest" aria-hidden="true">chevron_right</span>
                     </div>
                   </Link>
                 );
@@ -238,7 +238,7 @@ export default async function CounselorPortalPage() {
         {statCards.map((card) => (
           <div key={card.label} className="portal-metric-card">
             <div className="portal-metric-card__icon-wrap" style={{ background: card.bg }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: card.iconColor, fontVariationSettings: "'FILL' 1" }}>{card.icon}</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: card.iconColor, fontVariationSettings: "'FILL' 1" }} aria-hidden="true">{card.icon}</span>
             </div>
             <p className="portal-metric-card__value" style={{ color: card.value > 0 && card.label === 'Awaiting Reply' ? 'var(--color-accent)' : undefined }}>{card.value}</p>
             <p className="portal-metric-card__label">{card.label}</p>
@@ -267,7 +267,7 @@ export default async function CounselorPortalPage() {
               <PortalEmptyState
                 title="No students assigned yet"
                 description="Students will appear here once assigned by an administrator."
-                icon={<span className="material-symbols-outlined">person_search</span>}
+                icon={<span className="material-symbols-outlined" aria-hidden="true">person_search</span>}
                 primaryAction={{ label: 'Contact admin for assignments', href: 'mailto:info@workforceap.org?subject=Student%20assignments%20for%20counselor%20portal' }}
                 secondaryAction={{ label: 'Counselor resources', href: '/counselor/resources' }}
               />
@@ -307,7 +307,7 @@ export default async function CounselorPortalPage() {
                             label={isEnrolled ? 'Enrolled' : 'Not enrolled'}
                             variant={isEnrolled ? 'success' : 'accent'}
                           />
-                          <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.35, fontSize: '1rem' }}>chevron_right</span>
+                          <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.35, fontSize: '1rem' }} aria-hidden="true">chevron_right</span>
                         </div>
                       </div>
                     </Link>
@@ -383,13 +383,13 @@ export default async function CounselorPortalPage() {
               ].map((link) => (
                 <Link key={link.href} href={link.href} className="portal-quick-action-item" style={{ textDecoration: 'none' }}>
                   <div className={`portal-quick-action-item__icon portal-metric-card__icon-wrap--${link.accent}`} style={{ width: '2.25rem', height: '2.25rem', borderRadius: '0.625rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>{link.icon}</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">{link.icon}</span>
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p className="portal-quick-action-item__label">{link.title}</p>
                     <p className="portal-quick-action-item__desc">{link.desc}</p>
                   </div>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.3, flexShrink: 0 }}>chevron_right</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.3, flexShrink: 0 }} aria-hidden="true">chevron_right</span>
                 </Link>
               ))}
             </div>

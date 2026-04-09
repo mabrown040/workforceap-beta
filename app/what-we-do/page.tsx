@@ -409,7 +409,7 @@ export default function WhatWeDoPage() {
                       color: i === 0 ? 'rgba(255,255,255,0.9)' : 'var(--color-accent)',
                       fontVariationSettings: "'FILL' 1",
                     }}
-                  >
+                   aria-hidden="true">
                     {item.icon}
                   </span>
                   <h3
@@ -582,7 +582,7 @@ export default function WhatWeDoPage() {
                 }}
               >
                 Apply Now
-                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_forward</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
               </Link>
               <Link
                 href="/programs"
@@ -791,7 +791,7 @@ export default function WhatWeDoPage() {
                     color: index === 1 ? '#fff' : 'var(--color-accent)',
                   }}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'inherit' }}>{item.icon}</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'inherit' }} aria-hidden="true">{item.icon}</span>
                 </div>
                 <div style={{ minWidth: 0 }}>
                   <h3 style={{ fontSize: '1.125rem', fontWeight: 800, marginBottom: '0.5rem', color: index === 1 ? '#fff' : 'var(--color-on-surface)', overflowWrap: 'anywhere' }}>{item.title}</h3>

@@ -24,7 +24,7 @@ export default function PortalStatCard({
         <span
           className="material-symbols-outlined"
           style={{ fontSize: '1.5rem', color: iconColor, fontVariationSettings: "'FILL' 1" }}
-        >
+         aria-hidden="true">
           {icon}
         </span>
       </div>

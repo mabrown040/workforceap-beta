@@ -1,9 +1,11 @@
 'use client';
 
-import Link from 'next/link';
+import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
+import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
+import { mockInterviewVoiceSurface, readinessVoiceSurface, resumeCoachVoiceSurface } from '@/lib/portal/voice';
 
 /**
- * Highlights voice AI coaches on the AI toolkit hub (ElevenLabs).
+ * AI toolkit voice section: all three member voice options visible immediately, stacked vertically.
  */
 export default function VoiceCoachesPromo() {
   return (
@@ -15,98 +17,58 @@ export default function VoiceCoachesPromo() {
         padding: '0 clamp(1rem, 4vw, 1.5rem)',
       }}
     >
-      <div
-        style={{
-          borderRadius: '1rem',
-          padding: '1px',
-          background: 'linear-gradient(135deg, #2563eb 0%, #0d9488 45%, #ad2c4d 100%)',
-          boxShadow: '0 20px 50px rgba(37, 99, 235, 0.15)',
-        }}
-      >
-        <div
-          style={{
-            borderRadius: '0.94rem',
-            background: 'var(--surface-container-lowest)',
-            padding: '1.35rem clamp(1rem, 3vw, 1.75rem)',
-            display: 'grid',
-            gap: '1.25rem',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-            alignItems: 'center',
-          }}
+      <div style={{ marginBottom: '1rem' }}>
+        <p
+          className="wa-text-[10px] wa-uppercase wa-tracking-[0.14em] wa-font-bold"
+          style={{ color: 'var(--color-accent)', margin: '0 0 0.5rem' }}
         >
-          <div>
-            <p
-              className="wa-text-[10px] wa-uppercase wa-tracking-[0.14em] wa-font-bold"
-              style={{ color: 'var(--color-accent)', margin: '0 0 0.5rem' }}
-            >
-              Voice AI
-            </p>
-            <h2 style={{ margin: '0 0 0.5rem', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-on-surface)' }}>
-              Talk it out with your coaches
-            </h2>
-            <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
-              Natural voice sessions powered by ElevenLabs. Your program and organization context is passed to the coach
-              automatically.
-            </p>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-            <Link
-              href="/dashboard/ai-tools/voice-interview"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem',
-                padding: '0.85rem 1rem',
-                borderRadius: '12px',
-                textDecoration: 'none',
-                background: 'linear-gradient(135deg, rgba(140,15,55,0.09), rgba(173,44,77,0.05))',
-                border: '1px solid rgba(140,15,55,0.15)',
-                color: 'var(--color-on-surface)',
-                transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-              }}
-            >
-              <span style={{ fontSize: '1.35rem' }} aria-hidden>
-                🎙
-              </span>
-              <span style={{ flex: 1 }}>
-                <span style={{ display: 'block', fontWeight: 700, fontSize: '0.92rem' }}>Voice Interview</span>
-                <span style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
-                  Mock interview for your target role
-                </span>
-              </span>
-              <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', opacity: 0.7 }} aria-hidden="true">
-                chevron_right
-              </span>
-            </Link>
-            <Link
-              href="/dashboard/ai-tools/resume-rewriter"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem',
-                padding: '0.85rem 1rem',
-                borderRadius: '12px',
-                textDecoration: 'none',
-                background: 'linear-gradient(135deg, rgba(37,99,235,0.08), rgba(13,148,136,0.05))',
-                border: '1px solid rgba(37,99,235,0.18)',
-                color: 'var(--color-on-surface)',
-              }}
-            >
-              <span style={{ fontSize: '1.35rem' }} aria-hidden>
-                ✨
-              </span>
-              <span style={{ flex: 1 }}>
-                <span style={{ display: 'block', fontWeight: 700, fontSize: '0.92rem' }}>Resume Rewriter + Voice</span>
-                <span style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
-                  Open voice mode from the rewriter workflow
-                </span>
-              </span>
-              <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', opacity: 0.7 }} aria-hidden="true">
-                chevron_right
-              </span>
-            </Link>
-          </div>
-        </div>
+          Voice AI
+        </p>
+        <h2 style={{ margin: '0 0 0.5rem', fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-on-surface)' }}>
+          Talk it out with your coaches
+        </h2>
+        <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55, maxWidth: '42rem' }}>
+          Natural voice sessions powered by ElevenLabs. Your program and organization context is passed to the coach automatically.
+        </p>
+      </div>
+
+      <div style={{ display: 'grid', gap: '0.9rem' }}>
+        <VoiceAgentSurface {...readinessVoiceSurface}>
+          <PortalVoiceSession
+            sessionEndpoint="/api/member/readiness/voice-session"
+            title="Career Readiness"
+            description="Talk through interviews, certifications, and next steps with your coach."
+            accent="#0d9488"
+            accentDark="#0f766e"
+            speakingLabel="Coach is speaking…"
+            listeningLabel="Listening — share where you are"
+          />
+        </VoiceAgentSurface>
+
+        <VoiceAgentSurface {...resumeCoachVoiceSurface}>
+          <PortalVoiceSession
+            sessionEndpoint="/api/member/resume-coach/session"
+            retryWithoutDynamicVariables={false}
+            title="Resume & Experience"
+            description="Practice how you describe your background and target role out loud."
+            accent="#2563eb"
+            accentDark="#1d4ed8"
+            speakingLabel="Coach is speaking…"
+            listeningLabel="Listening — describe your background"
+          />
+        </VoiceAgentSurface>
+
+        <VoiceAgentSurface {...mockInterviewVoiceSurface}>
+          <PortalVoiceSession
+            sessionEndpoint="/api/member/voice-interview/session"
+            title="Voice Interviewer"
+            description="Practice interview answers out loud with a live mock interviewer."
+            accent="#7c3aed"
+            accentDark="#5b21b6"
+            speakingLabel="Interviewer is speaking…"
+            listeningLabel="Listening — answer the question"
+          />
+        </VoiceAgentSurface>
       </div>
     </section>
   );

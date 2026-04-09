@@ -29,6 +29,7 @@ export default function WorkspaceShell({
   navItems,
   workspaceLabel,
   contextLabel,
+  minimalMobileHeader = false,
   superAdmin,
   superAdminImpersonating,
   superAdminBackHref,
@@ -46,6 +47,8 @@ export default function WorkspaceShell({
   navItems: PortalNavItem[];
   workspaceLabel: string;
   contextLabel: string;
+  /** Reduce header chrome on mobile when bottom nav is primary (member portal). */
+  minimalMobileHeader?: boolean;
   /** Optional square logo next to company name (employer portal). */
   contextLogoUrl?: string | null;
   superAdmin?: boolean;
@@ -68,7 +71,8 @@ export default function WorkspaceShell({
   const activeHref = getBestActiveHref(pathname, navItemsForActiveRoute(navItems));
   const hasTabs = navItems.some((i) => i.tab);
   const activeTab = hasTabs ? getActiveTab(pathname, navItems) : null;
-  const filteredNavItems = hasTabs && activeTab ? navItems.filter((i) => i.tab === activeTab) : navItems;
+  const desktopNavItems = hasTabs && activeTab ? navItems.filter((i) => i.tab === activeTab) : navItems;
+  const mobileDrawerNavItems = navItems;
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [wide, setWide] = useState(false);
@@ -126,6 +130,14 @@ export default function WorkspaceShell({
     return () => mq.removeEventListener('change', fn);
   }, []);
 
+  /** Enables `html[data-portal-role="…"]` rules in main.css (e.g. member mobile header chrome). */
+  useEffect(() => {
+    document.documentElement.setAttribute('data-portal-role', portalRole);
+    return () => {
+      document.documentElement.removeAttribute('data-portal-role');
+    };
+  }, [portalRole]);
+
   useEffect(() => {
     try {
       setCollapsed(localStorage.getItem(collapseKey) === '1');
@@ -177,6 +189,7 @@ export default function WorkspaceShell({
   };
 
   const isCollapsedDesktop = collapsed && wide;
+  const isMobileDrawer = drawerOpen && !wide;
   const headerRef = useRef<HTMLElement>(null);
   const tabBarRef = useRef<HTMLElement | null>(null);
 
@@ -205,7 +218,10 @@ export default function WorkspaceShell({
 
   return (
     <div className="workspace-shell-root">
-      <header ref={headerRef} className="workspace-shell-header">
+      <header
+        ref={headerRef}
+        className={`workspace-shell-header${minimalMobileHeader ? ' workspace-shell-header--minimal-mobile' : ''}`}
+      >
         <div className="workspace-shell-header__brand">
           <button
             type="button"
@@ -328,7 +344,8 @@ export default function WorkspaceShell({
             <nav aria-label={`${workspaceLabel} navigation`} className="workspace-sidebar-nav">
               <ul className="workspace-sidebar-list workspace-sidebar-list--root">
                 {GROUP_ORDER.map((group) => {
-                  const inGroup = filteredNavItems.filter((i) => i.group === group);
+                  const list = wide ? desktopNavItems : mobileDrawerNavItems;
+                  const inGroup = list.filter((i) => i.group === group);
                   if (inGroup.length === 0) return null;
                   const groupLabel = NAV_GROUP_LABELS[group];
                   return (

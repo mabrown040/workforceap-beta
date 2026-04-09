@@ -15,9 +15,23 @@ export const metadata: Metadata = buildPageMetadata({
   path: '/dashboard/learning/wioa-qualification',
 });
 
+const WIOA_AVAILABLE = process.env.NEXT_PUBLIC_WIOA_ENABLED === '1';
+
 export default async function WioaQualificationPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/learning/wioa-qualification');
+
+  if (!WIOA_AVAILABLE) {
+    return (
+      <>
+        <PortalRouteFallback
+          title="WIOA screening is not enabled yet"
+          description="This WorkforceAP environment does not have WIOA screening storage enabled yet. If you need WIOA guidance right now, message your counselor and we’ll help you with the next steps."
+        />
+        <MobileBottomNav variant="portal" />
+      </>
+    );
+  }
 
   let initial = null;
   try {
@@ -39,8 +53,8 @@ export default async function WioaQualificationPage() {
       return (
         <>
           <PortalRouteFallback
-            title="WIOA screening is temporarily unavailable"
-            description="We could not load your saved WIOA screening answers right now. You can keep using the rest of the portal and try this page again shortly."
+            title="WIOA screening is not enabled yet"
+            description="This WorkforceAP environment does not have WIOA screening storage enabled yet. If you need WIOA guidance right now, message your counselor and we’ll help you with the next steps."
           />
           <MobileBottomNav variant="portal" />
         </>

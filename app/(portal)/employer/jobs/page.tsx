@@ -128,7 +128,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
               href="/employer/jobs/new"
               style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.5rem 0.875rem', background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent-dark))', color: '#fff', borderRadius: '0.5rem', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">add</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>
               Post Job
             </Link>
           )}
@@ -159,8 +159,8 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
         {/* Job cards */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem', padding: '0 1rem' }}>
           {boardItems.length === 0 && totalInDb > 0 ? (
-            <div className="stitch-card" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }} aria-hidden="true">filter_alt_off</span>
+            <div className="portal-card portal-card--flat" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>filter_alt_off</span>
               <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>Nothing in this view</p>
               <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>
                 Try another filter or see all postings.
@@ -173,22 +173,22 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
               </Link>
             </div>
           ) : boardItems.length === 0 ? (
-            <div className="stitch-card" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }} aria-hidden="true">work_outline</span>
+            <div className="portal-card portal-card--flat" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>work_outline</span>
               <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>No jobs yet</p>
               <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Post your first role to start receiving AI-matched candidates.</p>
               <Link
                 href="/employer/jobs/new"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">add</span>Post a Job
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>Post a Job
               </Link>
             </div>
           ) : (
             boardItems.map((job) => (
               <div
                 key={job.id}
-                className="stitch-card"
+                className="portal-card portal-card--flat"
                 style={{
                   padding: '1rem',
                   border: job.status === 'draft' ? '1px dashed var(--outline-variant)' : undefined,
@@ -203,7 +203,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
                 <p style={{ fontSize: '0.775rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem' }}>{job.location}</p>
                 <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.75rem' }}>
                   <span style={{ fontSize: '0.775rem', color: 'var(--color-on-surface-variant)', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">person</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>person</span>
                     {job.applicationsCount} applicants
                   </span>
                 </div>
@@ -271,8 +271,8 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
           />
 
           {totalInDb === 0 ? (
-            <div className="stitch-card" style={{ padding: '2.5rem', textAlign: 'center' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }} aria-hidden="true">work_outline</span>
+            <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>work_outline</span>
               <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>No jobs yet</h3>
               <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', maxWidth: '28rem', marginInline: 'auto' }}>
                 Post a single role or import multiple jobs to start receiving AI-matched candidates.

@@ -3,10 +3,10 @@ import { test, expect } from '@playwright/test';
 test.describe('Auth flows', () => {
   test('login page loads and has form', async ({ page }) => {
     await page.goto('/login');
-    await expect(page.getByRole('heading', { name: /log in/i })).toBeVisible();
-    await expect(page.getByLabel(/email/i)).toBeVisible();
-    await expect(page.getByLabel(/password/i)).toBeVisible();
-    await expect(page.getByRole('button', { name: /log in/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /welcome back/i })).toBeVisible();
+    await expect(page.getByRole('textbox', { name: /institutional id/i })).toBeVisible();
+    await expect(page.getByRole('textbox', { name: /access key/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /authenticate access/i })).toBeVisible();
   });
 
   test('forgot password page loads', async ({ page }) => {
@@ -36,13 +36,13 @@ test.describe('Auth flows', () => {
 
   test('login page links to signup', async ({ page }) => {
     await page.goto('/login');
-    await expect(page.getByRole('link', { name: /sign up/i })).toBeVisible();
-    await page.getByRole('link', { name: /sign up/i }).click();
+    await expect(page.getByRole('link', { name: /request credentials/i })).toBeVisible();
+    await page.getByRole('link', { name: /request credentials/i }).click();
     await expect(page).toHaveURL('/signup');
   });
 
   test('login page links to forgot password', async ({ page }) => {
     await page.goto('/login');
-    await expect(page.getByRole('link', { name: /forgot password/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /recover key/i })).toBeVisible();
   });
 });

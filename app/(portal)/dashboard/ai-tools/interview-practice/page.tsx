@@ -73,14 +73,14 @@ export default async function InterviewPracticePage() {
         </div>
 
         <div style={{ maxWidth: 1160, margin: '0 auto', padding: '1rem 1rem 2rem' }}>
-          <div className="stitch-card" style={{ padding: '1rem', borderRadius: 12, marginBottom: '1rem', background: 'var(--surface-container-low)' }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: 12, marginBottom: '1rem', background: 'var(--surface-container-low)' }}>
             <p style={{ fontSize: '0.82rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>
               Generate tailored interview questions for any role. Choose behavioral, technical, or situational focus and get
               structured prompts you can practice out loud or in writing.
             </p>
           </div>
 
-          <div className="stitch-card" style={{ padding: '1.25rem', borderRadius: 12, marginBottom: '1.5rem' }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', borderRadius: 12, marginBottom: '1.5rem' }}>
             <InterviewPracticeForm />
           </div>
 

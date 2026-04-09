@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildNextBestActions } from './nextBestActions.ts';
+import { buildNextBestActions } from './nextBestActions';
 
 test('buildNextBestActions prioritizes new application on file', () => {
   const actions = buildNextBestActions({

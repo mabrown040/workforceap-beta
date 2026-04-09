@@ -96,6 +96,8 @@ export const NAV_GROUP_LABELS: Record<NavGroup, string | null> = {
 
 export const GROUP_ORDER: NavGroup[] = ['primary', 'people', 'pipeline', 'content', 'workflows', 'insights', 'manage'];
 
+const WIOA_AVAILABLE = process.env.NEXT_PUBLIC_WIOA_ENABLED === '1';
+
 export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   // ── My Journey tab ──
   { href: '/dashboard', label: 'Overview', group: 'primary', tab: 'journey', Icon: Home, tourTarget: 'tour-dashboard' },
@@ -104,13 +106,17 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/dashboard/readiness', label: 'Job Readiness', group: 'insights', tab: 'journey', Icon: CheckCircle },
   { href: '/dashboard/weekly-recap', label: 'Weekly Recap', group: 'insights', tab: 'journey', Icon: BarChart3 },
   { href: '/dashboard/career-brief', label: 'Career Plan', group: 'insights', tab: 'journey', Icon: ClipboardList },
-  {
-    href: '/dashboard/learning/wioa-qualification',
-    label: 'Funding eligibility',
-    group: 'insights',
-    tab: 'journey',
-    Icon: Shield,
-  },
+  ...(WIOA_AVAILABLE
+    ? [
+        {
+          href: '/dashboard/learning/wioa-qualification',
+          label: 'Funding eligibility',
+          group: 'insights',
+          tab: 'journey',
+          Icon: Shield,
+        } as PortalNavItem,
+      ]
+    : []),
   // ── Career Tools tab ──
   { href: '/dashboard/ai-tools', label: 'AI Tools', group: 'workflows', tab: 'tools', Icon: Sparkles, tourTarget: 'tour-ai-tools' },
   { href: '/dashboard/resume', label: 'Resume', group: 'workflows', tab: 'tools', Icon: FileText },

@@ -61,7 +61,7 @@ export default async function SalaryNegotiationPage() {
 
       {/* Main content */}
       <div style={{ maxWidth: '720px', margin: '0 auto', padding: '2rem 1.5rem' }}>
-        <div className="stitch-card" style={{ padding: '1.5rem' }}>
+        <div className="portal-card portal-card--flat" style={{ padding: '1.5rem' }}>
           <SalaryNegotiationForm />
         </div>
         <ToolHistoryPanel userId={user.id} toolType="salary_negotiation" />

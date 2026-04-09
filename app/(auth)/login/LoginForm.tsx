@@ -7,6 +7,11 @@ import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 /* ─── portal destination data (unchanged business logic) ─── */
 const PORTAL_DESTINATIONS: { redirectTo: string; title: string; desc: string }[] = [
   {
+    redirectTo: '/admin',
+    title: 'Admin portal',
+    desc: 'Operations, member oversight, and back-office tools for workforce staff.',
+  },
+  {
     redirectTo: '/counselor',
     title: 'Counselor portal',
     desc: 'Student roster, messaging, and resources for counseling partners.',
@@ -294,7 +299,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -307,7 +312,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, redirectTo }),
+        body: JSON.stringify({ email, password, redirectTo, rememberMe }),
         credentials: 'include',
         redirect: 'manual',
       });
@@ -463,7 +468,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                 style={{ accentColor: 'var(--color-accent)' }}
               />
               <label htmlFor="remember" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', cursor: 'pointer' }}>
-                Maintain session
+                Stay signed in for 7 days
               </label>
             </div>
 

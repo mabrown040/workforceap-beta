@@ -9,7 +9,7 @@ export default function AiToolsHubSection() {
       <h2 className="wa-sr-only">Career toolkit categories</h2>
       <div className="ai-tools-hub-grid">
         {AI_TOOLS_HUB.map((cat) => (
-          <div key={cat.id} className="ai-tools-hub-card stitch-card">
+          <div key={cat.id} className="ai-tools-hub-card portal-card portal-card--flat">
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', marginBottom: '0.75rem' }}>
               <span
                 className="material-symbols-outlined"

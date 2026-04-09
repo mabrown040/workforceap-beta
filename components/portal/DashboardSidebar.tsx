@@ -64,12 +64,13 @@ export default function DashboardSidebar({ open = false, onClose }: DashboardSid
 
       <div className="dashboard-sidebar-inner" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <nav aria-label="Member portal navigation" className="dashboard-sidebar-nav" style={{ flex: 1 }}>
-          <ul className="dashboard-sidebar-list" style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <ul className="dashboard-sidebar-list" style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
             {(['core', 'tools', 'more'] as const).map((group) => (
               <li key={group}>
                 {GROUP_LABELS[group] ? (
-                  <div className="text-label-upper" style={{ padding: '1rem 0.75rem 0.5rem', color: 'var(--color-on-surface-variant)', fontSize: '0.625rem', opacity: 0.6 }}>
-                    {GROUP_LABELS[group]}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '1.25rem 0.75rem 0.375rem', marginTop: '0.25rem' }}>
+                    <span className="dashboard-sidebar-group-label">{GROUP_LABELS[group]}</span>
+                    <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.05)' }} />
                   </div>
                 ) : null}
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
@@ -91,21 +92,25 @@ export default function DashboardSidebar({ open = false, onClose }: DashboardSid
                             display: 'flex',
                             alignItems: 'center',
                             gap: '0.75rem',
-                            padding: '0.625rem 0.75rem',
+                            padding: '0.5rem 0.75rem 0.5rem 1rem',
                             borderRadius: 'var(--radius-lg, 12px)',
                             color: isActive ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
                             background: isActive ? 'rgba(173,44,77,0.1)' : 'transparent',
-                            borderRight: isActive ? '2px solid var(--color-accent)' : '2px solid transparent',
                             textDecoration: 'none',
                             transition: 'all 150ms ease',
+                            fontWeight: isActive ? 700 : 500,
+                            fontSize: '0.875rem',
                           }}
                         >
                           {Lucide ? (
-                            <span className="dashboard-sidebar-icon" aria-hidden="true">
-                              <Lucide size={20} className="text-current" />
+                            <span className="dashboard-sidebar-icon" aria-hidden="true" style={{ opacity: isActive ? 1 : 0.7 }}>
+                              <Lucide size={18} strokeWidth={isActive ? 2.5 : 2} className="text-current" />
                             </span>
                           ) : null}
                           {label}
+                          {isActive && (
+                            <span style={{ marginLeft: 'auto', width: '6px', height: '6px', borderRadius: '50%', background: 'var(--color-accent)', flexShrink: 0 }} />
+                          )}
                         </Link>
                       </li>
                     );

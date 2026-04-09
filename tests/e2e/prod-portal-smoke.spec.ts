@@ -41,4 +41,13 @@ test.describe('Production portal smoke (env login)', () => {
       timeout: 20_000,
     });
   });
+
+  test('member messages inbox has no fake rows', async ({ page }) => {
+    await loginMemberPortal(page);
+    await page.goto('/dashboard/messages', { waitUntil: 'networkidle' });
+
+    // Member inbox must not show hardcoded demo rows.
+    await expect(page.getByText('Program Team')).toHaveCount(0);
+    await expect(page.getByText('Career Services')).toHaveCount(0);
+  });
 });

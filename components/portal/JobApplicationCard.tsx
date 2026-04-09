@@ -59,7 +59,7 @@ export default function JobApplicationCard({
 
   if (isEditing) {
     return (
-      <div className="stitch-card job-app-card job-app-card--editing" style={{ padding: '1rem' }}>
+      <div className="portal-card portal-card--flat job-app-card job-app-card--editing" style={{ padding: '1rem' }}>
         <div className="wa-mb-4">
           <label className="wa-block wa-text-xs wa-font-bold wa-uppercase wa-mb-2" style={{ color: 'var(--color-on-surface-variant)' }}>
             Status
@@ -128,7 +128,7 @@ export default function JobApplicationCard({
   return (
     <div
       onClick={() => setIsEditing(true)}
-      className="portal-kanban-card stitch-card job-app-card wa-cursor-pointer"
+      className="portal-kanban-card job-app-card wa-cursor-pointer"
       style={
         {
           padding: '0.75rem',

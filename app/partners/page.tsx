@@ -152,7 +152,7 @@ export default function PartnersPage() {
               marginBottom: '2rem',
             }}
           >
-            Elevate Your Community&rsquo;s{' '}
+            Build Your Community&rsquo;s{' '}
             <span
               style={{
                 background: 'linear-gradient(135deg, var(--color-accent-light), var(--color-gold))',
@@ -308,7 +308,7 @@ export default function PartnersPage() {
             {PARTNER_TYPES.map((pt) => (
               <div
                 key={pt.type}
-                className="stitch-card"
+                className="portal-card portal-card--flat"
                 style={{
                   gridColumn: `span ${pt.colSpan}`,
                   padding: '2.5rem',
@@ -589,7 +589,7 @@ export default function PartnersPage() {
           .partners-narrative-text { grid-column: span 12 !important; }
           .partners-platform-text { grid-column: span 12 !important; }
           .partners-platform-img { grid-column: span 12 !important; }
-          #partner-types .stitch-card { grid-column: span 12 !important; }
+          #partner-types .portal-card.portal-card--flat { grid-column: span 12 !important; }
         }
       `}</style>
 

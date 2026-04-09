@@ -108,7 +108,7 @@ export default async function AdminMemberLifecyclePage({
 
       {/* Summary cards */}
       <div className="portal-grid-metrics" style={{ marginBottom: '2rem' }}>
-        <div className="stitch-card stitch-card--padded">
+        <div className="portal-card portal-card--flat portal-card--padded">
           <p className="portal-section-title" style={{ marginBottom: '0.5rem' }}>Enrolled Program</p>
           <p style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>
             {member.enrolledProgram ?? '—'}
@@ -119,7 +119,7 @@ export default async function AdminMemberLifecyclePage({
             </p>
           )}
         </div>
-        <div className="stitch-card stitch-card--padded">
+        <div className="portal-card portal-card--flat portal-card--padded">
           <p className="portal-section-title" style={{ marginBottom: '0.5rem' }}>CourseEnrollment</p>
           {enrollment ? (
             <>
@@ -134,7 +134,7 @@ export default async function AdminMemberLifecyclePage({
             <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>No record</p>
           )}
         </div>
-        <div className="stitch-card stitch-card--padded">
+        <div className="portal-card portal-card--flat portal-card--padded">
           <p className="portal-section-title" style={{ marginBottom: '0.5rem' }}>Progress</p>
           <p style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>
             {completedCourses.length} course{completedCourses.length !== 1 ? 's' : ''} completed

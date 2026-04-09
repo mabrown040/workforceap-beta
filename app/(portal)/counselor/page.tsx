@@ -96,43 +96,38 @@ export default async function CounselorPortalPage() {
     <PortalPageFrame maxWidth="76rem">
       <h1 className="wa-sr-only">Counselor Dashboard - Welcome back, {firstName}</h1>
       {/* ── Mobile Counselor View (≤640px) ── */}
-      <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="wa-block wa-md:wa-hidden portal-mobile-content">
         {/* Hero */}
-        <div className="portal-pad-x" style={{ paddingTop:"1.5rem", paddingBottom:"0.5rem" }}>
-          <p className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold" style={{ color: 'var(--color-accent)', marginBottom:"0.5rem" }}>Counselor Dashboard</p>
-          <h2 className="wa-text-3xl wa-font-extrabold wa-tracking-tight text-on-surface wa-leading-tight">
-            {greeting},<br /><span style={{ color: 'var(--color-accent)' }}>{firstName}</span>
+        <div style={{ padding: '1.5rem 1.25rem 0.75rem' }}>
+          <p style={{ fontSize: '0.6875rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--color-accent)', marginBottom: '0.35rem' }}>Counselor Dashboard</p>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '-0.025em', color: 'var(--color-on-surface)', lineHeight: 1.15, margin: 0 }}>
+            {greeting}, <span style={{ color: 'var(--color-accent)' }}>{firstName}</span>
           </h2>
         </div>
-        <div className="portal-pad-x" style={{ marginBottom: '1rem' }}>
-          <details className="portal-card portal-card--compact">
-            <summary className="portal-card__summary">
-              Counselor assistant
-              <span className="portal-card__summary-hint">(tap to open)</span>
-            </summary>
-            <div className="portal-card__body">
-              <CounselorPortalVoiceBlock />
+
+        {/* Hero stats: students full-width + 2x mini */}
+        <div style={{ padding: '0 1.25rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
+          <div style={{ gridColumn: 'span 2', borderRadius: '1rem', padding: '1.25rem', position: 'relative', overflow: 'hidden', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', boxShadow: '0 4px 20px rgba(173,44,77,0.3)' }}>
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.82)', marginBottom: '0.25rem' }}>Your Students</p>
+              <p style={{ fontSize: '2.75rem', fontWeight: 800, letterSpacing: '-0.04em', color: '#fff', lineHeight: 1, margin: 0 }}>{assignments.length}</p>
+              <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.75)', marginTop: '0.375rem' }}>assigned to you</p>
             </div>
-          </details>
-        </div>
-        {/* Stats grid */}
-        <div className="portal-pad-x" style={{ marginTop:"1rem", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"1rem", marginBottom:"1.5rem" }}>
-          <div className="wa-text-white" style={{gridColumn:"span 2", borderRadius:"0.75rem", padding:"1.25rem", position:"relative", overflow:"hidden", background: 'var(--color-accent)'}}>
-            <div style={{ position:"relative", zIndex:10 }}>
-              <p className="wa-text-[11px] wa-uppercase wa-tracking-widest" style={{ opacity:0.85, marginBottom:"0.25rem" }}>Your Students</p>
-              <p className="wa-text-4xl wa-font-bold wa-tracking-tighter">{assignments.length}</p>
+            <span className="material-symbols-outlined" style={{ position: 'absolute', bottom: '-1rem', right: '-1rem', fontSize: '8rem', opacity: 0.07, color: '#fff', fontVariationSettings: "'FILL' 1" }}>group</span>
+          </div>
+          <div className="portal-metric-card">
+            <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--gold">
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>school</span>
             </div>
-            <span className="material-symbols-outlined -wa-right-2 -wa-bottom-2" style={{position:"absolute", opacity:0.1, fontSize: '100px'}}>group</span>
+            <p className="portal-metric-card__value" style={{ fontSize: '1.5rem' }}>{enrolledCount}</p>
+            <p className="portal-metric-card__label">In a Program</p>
           </div>
-          <div className="bg-surface-container-low" style={{ borderRadius:"0.75rem", padding:"1rem" }}>
-            <p className="wa-text-[11px] wa-uppercase wa-tracking-widest text-on-surface-variant" style={{ marginBottom:"0.25rem" }}>In a Program</p>
-            <p className="wa-text-2xl wa-font-bold text-on-surface">{enrolledCount}</p>
-            <div style={{marginTop:"0.5rem", width:"2rem", height:"0.25rem", borderRadius:"9999px", background: 'var(--color-gold)'}} />
-          </div>
-          <div className="bg-surface-container-low" style={{ borderRadius:"0.75rem", padding:"1rem" }}>
-            <p className="wa-text-[11px] wa-uppercase wa-tracking-widest text-on-surface-variant" style={{ marginBottom:"0.25rem" }}>Awaiting Reply</p>
-            <p className="wa-text-2xl wa-font-bold text-on-surface">{messagesNeedingReply}</p>
-            <div style={{marginTop:"0.5rem", width:"2rem", height:"0.25rem", borderRadius:"9999px", background: 'var(--color-accent)'}} />
+          <div className="portal-metric-card">
+            <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--accent">
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>mark_email_unread</span>
+            </div>
+            <p className="portal-metric-card__value" style={{ fontSize: '1.5rem', color: messagesNeedingReply > 0 ? 'var(--color-accent)' : undefined }}>{messagesNeedingReply}</p>
+            <p className="portal-metric-card__label">Awaiting Reply</p>
           </div>
         </div>
         {/* Filter chips */}
@@ -239,16 +234,15 @@ export default async function CounselorPortalPage() {
       </section>
 
       {/* ── Stat Cards ── */}
-      <section className="portal-grid-metrics" style={{ marginBottom: '2rem' }}>
+      <section className="portal-metric-strip" style={{ marginBottom: '2rem' }}>
         {statCards.map((card) => (
-          <PortalStatCard
-            key={card.label}
-            icon={card.icon}
-            label={card.label}
-            value={card.value}
-            iconColor={card.iconColor}
-            iconBg={card.bg}
-          />
+          <div key={card.label} className="portal-metric-card">
+            <div className="portal-metric-card__icon-wrap" style={{ background: card.bg }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: card.iconColor, fontVariationSettings: "'FILL' 1" }}>{card.icon}</span>
+            </div>
+            <p className="portal-metric-card__value" style={{ color: card.value > 0 && card.label === 'Awaiting Reply' ? 'var(--color-accent)' : undefined }}>{card.value}</p>
+            <p className="portal-metric-card__label">{card.label}</p>
+          </div>
         ))}
       </section>
 
@@ -278,7 +272,7 @@ export default async function CounselorPortalPage() {
                 secondaryAction={{ label: 'Counselor resources', href: '/counselor/resources' }}
               />
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
                 {assignments.map((assignment) => {
                   const isEnrolled = !!assignment.member.enrolledProgram;
                   const initials = (assignment.member.fullName ?? '?').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
@@ -288,32 +282,32 @@ export default async function CounselorPortalPage() {
                       href={`/counselor/students/${assignment.member.id}`}
                       style={{ textDecoration: 'none', color: 'inherit' }}
                     >
-                      <div className="portal-card portal-card--flat portal-card--padded-sm" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background-color 0.15s' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      <div className="portal-activity-item" style={{ justifyContent: 'space-between', transition: 'background 0.15s' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', flex: 1, minWidth: 0 }}>
                           <div style={{
-                            width: '3rem', height: '3rem', borderRadius: '0.5rem',
-                            background: 'var(--surface-container-highest)',
+                            width: '2.75rem', height: '2.75rem', borderRadius: '0.75rem',
+                            background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-accent)',
+                            fontSize: '0.875rem', fontWeight: 700, color: '#fff', flexShrink: 0,
                           }}>
                             {initials}
                           </div>
-                          <div>
-                            <h4 style={{ fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.125rem' }}>
+                          <div style={{ minWidth: 0 }}>
+                            <h4 style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: '0 0 0.125rem' }}>
                               {assignment.member.fullName}
                             </h4>
-                            <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', fontWeight: 500 }}>
-                              {assignment.member.programInterest || 'No program specified'} &middot; {assignment.member.email}
+                            <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {assignment.member.programInterest || 'No program'} · {assignment.member.email}
                             </p>
                           </div>
                         </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', flexShrink: 0 }}>
                           <StatusBadge
                             label={isEnrolled ? 'Enrolled' : 'Not enrolled'}
                             variant={isEnrolled ? 'success' : 'accent'}
                           />
-                          <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4 }}>more_vert</span>
+                          <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.35, fontSize: '1rem' }}>chevron_right</span>
                         </div>
                       </div>
                     </Link>
@@ -380,26 +374,22 @@ export default async function CounselorPortalPage() {
 
           {/* Quick Links */}
           <section>
-            <h3 className="portal-section-title" style={{ marginBottom: '1.25rem' }}>Quick Links</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <h3 className="portal-section-title" style={{ marginBottom: '1rem' }}>Quick Links</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {[
-                { href: '/counselor/students', icon: 'groups', title: 'My Students', desc: 'View roster and student details' },
-                { href: '/counselor/messages', icon: 'forum', title: 'Messages', desc: 'Reply to student threads' },
-                { href: '/counselor/resources', icon: 'menu_book', title: 'Resources', desc: 'Guides and reference links' },
+                { href: '/counselor/students', icon: 'groups', title: 'My Students', desc: 'View roster and student details', accent: 'accent' },
+                { href: '/counselor/messages', icon: 'forum', title: 'Messages', desc: 'Reply to student threads', accent: 'blue' },
+                { href: '/counselor/resources', icon: 'menu_book', title: 'Resources', desc: 'Guides and reference links', accent: 'gold' },
               ].map((link) => (
-                <Link key={link.href} href={link.href} style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <div className="portal-card portal-card--flat portal-card--padded-sm" style={{ display: 'flex', alignItems: 'center', gap: '1rem', transition: 'background-color 0.15s' }}>
-                    <div style={{
-                      width: '2.75rem', minWidth: '2.75rem', height: '2.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', borderRadius: '0.625rem',
-                    }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>{link.icon}</span>
-                    </div>
-                    <div>
-                      <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{link.title}</p>
-                      <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{link.desc}</p>
-                    </div>
+                <Link key={link.href} href={link.href} className="portal-quick-action-item" style={{ textDecoration: 'none' }}>
+                  <div className={`portal-quick-action-item__icon portal-metric-card__icon-wrap--${link.accent}`} style={{ width: '2.25rem', height: '2.25rem', borderRadius: '0.625rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>{link.icon}</span>
                   </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p className="portal-quick-action-item__label">{link.title}</p>
+                    <p className="portal-quick-action-item__desc">{link.desc}</p>
+                  </div>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.3, flexShrink: 0 }}>chevron_right</span>
                 </Link>
               ))}
             </div>

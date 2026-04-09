@@ -164,49 +164,58 @@ export default async function PartnerDashboardPage() {
     >
     <PortalPageFrame maxWidth="80rem">
     {/* ── MOBILE SECTION ── */}
-    <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+    <div className="wa-block wa-md:wa-hidden portal-mobile-content">
       {/* Header */}
-      <div style={{ padding: '1.5rem 1.5rem 0.75rem' }}>
-        <p
-          className="wa-text-[11px] wa-uppercase wa-tracking-[0.15em] wa-font-bold wa-mb-1"
-          style={{ color: 'var(--color-accent)' }}
-        >
+      <div style={{ padding: '1.5rem 1.25rem 0.5rem' }}>
+        <p style={{ fontSize: '0.6875rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--color-accent)', marginBottom: '0.35rem' }}>
           Partner Dashboard
         </p>
-        <h1 className="wa-text-3xl wa-font-extrabold wa-tracking-tight" style={{ color: 'var(--color-on-surface)', lineHeight: 1.1 }}>
+        <h1 style={{ fontSize: '1.625rem', fontWeight: 800, letterSpacing: '-0.025em', color: 'var(--color-on-surface)', lineHeight: 1.15, margin: 0 }}>
           {ctx.partner.name}
         </h1>
-        <p className="wa-text-sm wa-font-medium" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
-          {partnerRow.organizationType || 'Partner'}
+        <p style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
+          {partnerRow.organizationType || 'Partner Organization'}
         </p>
       </div>
 
-      {/* 2×2 KPI Grid */}
-      <div className="portal-kpi-grid portal-pad-x" style={{ paddingTop: '1rem', paddingBottom: '1rem' }}>
-        <PortalKpiCard accent="accent" label="Active Members" value={activeMembersCount} hint="In progress" />
-        <PortalKpiCard accent="neutral" label="Placements" value={placements} hint="Verified hires" />
-        <PortalKpiCard accent="gold" label="Certificates" value={completions} hint="Earned by members" />
-        <PortalKpiCard accent="accent" label="Needs Review" value={needsReviewCount} hint="Applied/enrolled or stalled" />
+      {/* KPI metric strip */}
+      <div className="portal-card-scroll-row" style={{ padding: '1rem 1.25rem 0.5rem' }}>
+        {[
+          { label: 'Active Members', value: activeMembersCount, icon: 'groups', accent: 'accent' as const },
+          { label: 'Placements', value: placements, icon: 'person_check', accent: 'green' as const },
+          { label: 'Certificates', value: completions, icon: 'workspace_premium', accent: 'gold' as const },
+          { label: 'Needs Review', value: needsReviewCount, icon: 'pending_actions', accent: 'accent' as const },
+        ].map((s) => (
+          <div key={s.label} className="portal-metric-card" style={{ minWidth: '120px', flexShrink: 0 }}>
+            <div className={`portal-metric-card__icon-wrap portal-metric-card__icon-wrap--${s.accent}`}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>{s.icon}</span>
+            </div>
+            <p className="portal-metric-card__value" style={{ fontSize: '1.5rem' }}>{s.value}</p>
+            <p className="portal-metric-card__label">{s.label}</p>
+          </div>
+        ))}
       </div>
 
       {/* Next Step Guidance */}
-      <div style={{ padding: '0 1.5rem 1rem' }}>
+      <div style={{ padding: '0.75rem 1.25rem 1rem' }}>
         <Link href={nextAction.href} style={{ textDecoration: 'none' }}>
           <div style={{
-            background: 'linear-gradient(135deg, rgba(173,44,77,0.08) 0%, rgba(173,44,77,0.02) 100%)',
-            border: '1px solid rgba(173,44,77,0.15)',
+            background: 'linear-gradient(135deg, rgba(173,44,77,0.1) 0%, rgba(173,44,77,0.03) 100%)',
+            border: '1px solid rgba(173,44,77,0.18)',
             borderRadius: '0.875rem',
-            padding: '1rem',
+            padding: '1rem 1.125rem',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.75rem',
+            gap: '0.875rem',
           }}>
-            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem', flexShrink: 0 }}>lightbulb</span>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <p className="wa-text-sm wa-font-semibold" style={{ color: 'var(--color-on-surface)', margin: 0 }}>{nextAction.label}</p>
-              <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', margin: '0.125rem 0 0' }}>{nextAction.tip}</p>
+            <div style={{ width: '2.25rem', height: '2.25rem', borderRadius: '0.625rem', background: 'rgba(173,44,77,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>lightbulb</span>
             </div>
-            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem', flexShrink: 0 }}>arrow_forward_ios</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.3 }}>{nextAction.label}</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>{nextAction.tip}</p>
+            </div>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem', flexShrink: 0 }}>chevron_right</span>
           </div>
         </Link>
       </div>
@@ -408,23 +417,26 @@ export default async function PartnerDashboardPage() {
         </Link>
       </section>
 
-      {/* ── Journey Snapshot (5-col) ── */}
+      {/* ── Journey Snapshot (5-col metric strip) ── */}
       <section style={{ marginBottom: '2rem' }}>
-        <p className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Journey Snapshot</p>
-        <div className="portal-grid-metrics">
-          {JOURNEY_STAGES.map((s, i) => (
-            <div
-              key={s}
-              className="portal-card portal-card--flat portal-card--padded-sm"
-              style={{
-                textAlign: 'center',
-                borderLeft: i === 0 ? '3px solid var(--color-accent)' : 'none',
-              }}
-            >
-              <p style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--color-on-surface)', lineHeight: 1 }}>{stageCounts[s] ?? 0}</p>
-              <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>{PIPELINE_STAGE_LABELS[s]}</p>
-            </div>
-          ))}
+        <div className="portal-dash-section-header">
+          <h2 className="portal-dash-section-header__title">Journey Snapshot</h2>
+        </div>
+        <div className="portal-metric-strip">
+          {(JOURNEY_STAGES as readonly string[]).map((s, i) => {
+            const stageKey = s as typeof JOURNEY_STAGES[number];
+            const accents = ['accent', 'blue', 'gold', 'green', 'accent'] as const;
+            const icons = ['person_add', 'school', 'menu_book', 'workspace_premium', 'work'] as const;
+            return (
+              <div key={s} className="portal-metric-card">
+                <div className={`portal-metric-card__icon-wrap portal-metric-card__icon-wrap--${accents[i] ?? 'accent'}`}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>{icons[i]}</span>
+                </div>
+                <p className="portal-metric-card__value" style={{ fontSize: '1.75rem' }}>{stageCounts[stageKey] ?? 0}</p>
+                <p className="portal-metric-card__label">{(PIPELINE_STAGE_LABELS as Record<string, string>)[s]}</p>
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -442,39 +454,48 @@ export default async function PartnerDashboardPage() {
 
             {/* Member Pipeline */}
             <section>
-              <div style={{ marginBottom: '1rem' }}>
-                <h2 className="portal-section-heading" style={{ marginBottom: '0.25rem' }}>Member pipeline</h2>
-                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>Who you referred and where they are now.</p>
+              <div className="portal-section-header" style={{ marginBottom: '1rem' }}>
+                <h2 className="portal-heading-with-bar portal-section-heading" style={{ margin: 0 }}>Member Pipeline</h2>
+                <Link href="/partner/referred-members" className="portal-section-action">
+                  View all
+                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>arrow_forward</span>
+                </Link>
               </div>
 
               {/* Member cards */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem', marginBottom: '1.5rem' }}>
                 {pipelineMembers.slice(0, 5).map((p) => {
                   const initials = (p.member.fullName ?? '?').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
                   const stageLabel = (PIPELINE_STAGE_LABELS as Record<string, string>)[p.stage] ?? p.stage;
                   return (
                     <Link key={p.member.id} href={`/partner/referred-members/${p.member.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                      <div className="portal-card portal-card--flat portal-card--padded-sm" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background-color 0.15s' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <div className="portal-activity-item" style={{ justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: 0 }}>
                           <div style={{
-                            width: '2.5rem', height: '2.5rem', borderRadius: '50%',
-                            background: 'var(--surface-container-highest)',
+                            width: '2.25rem', height: '2.25rem', borderRadius: '9999px',
+                            background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-accent)',
+                            fontSize: '0.75rem', fontWeight: 700, color: '#fff', flexShrink: 0,
                           }}>
                             {initials}
                           </div>
-                          <div>
-                            <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{p.member.fullName}</p>
-                            <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-                              {p.progress}% complete
-                            </p>
+                          <div style={{ minWidth: 0 }}>
+                            <p style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0 }}>{p.member.fullName}</p>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.2rem' }}>
+                              <div className="portal-progress-bar portal-progress-bar--thin" style={{ width: '60px' }}>
+                                <div className="portal-progress-bar__fill" style={{ width: `${p.progress}%` }} />
+                              </div>
+                              <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>{p.progress}%</span>
+                            </div>
                           </div>
                         </div>
-                        <StatusBadge
-                          label={stageLabel}
-                          variant={p.stage === 'placed' ? 'success' : 'accent'}
-                        />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', flexShrink: 0 }}>
+                          <StatusBadge
+                            label={stageLabel}
+                            variant={p.stage === 'placed' ? 'success' : 'accent'}
+                          />
+                          <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.3 }}>chevron_right</span>
+                        </div>
                       </div>
                     </Link>
                   );
@@ -485,30 +506,30 @@ export default async function PartnerDashboardPage() {
             </section>
 
             {/* Partner Insights Sidebar */}
-            <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
               {/* Placement rate + referral link usage */}
-              <div className="portal-card portal-card--flat portal-card--padded">
-                <h3 className="portal-section-title" style={{ marginBottom: '1.25rem' }}>Partner Insights</h3>
+              <div className="portal-card portal-card--flat portal-card--padded portal-card--gradient-accent">
+                <h3 style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Partner Insights</h3>
                 <div style={{ marginBottom: '1.25rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.375rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.5rem' }}>
                     <span style={{ color: 'var(--color-on-surface)' }}>Placement rate</span>
-                    <span style={{ color: 'var(--color-accent)' }}>{conversionRate}%</span>
+                    <span style={{ color: 'var(--color-accent)', fontSize: '1rem' }}>{conversionRate}%</span>
                   </div>
-                  <div style={{ width: '100%', height: '6px', background: 'var(--surface-container-highest)', borderRadius: '9999px', overflow: 'hidden' }}>
-                    <div style={{ width: `${conversionRate}%`, height: '100%', background: 'var(--color-accent)', borderRadius: '9999px', transition: 'width 0.3s' }} />
+                  <div className="portal-progress-bar">
+                    <div className="portal-progress-bar__fill" style={{ width: `${conversionRate}%` }} />
                   </div>
                 </div>
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.375rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.5rem' }}>
                     <span style={{ color: 'var(--color-on-surface)' }}>Referral link usage</span>
-                    <span style={{ color: 'var(--color-green)' }}>{referralLinkUsagePct}%</span>
+                    <span style={{ color: 'var(--color-green)', fontSize: '1rem' }}>{referralLinkUsagePct}%</span>
                   </div>
-                  <div style={{ width: '100%', height: '6px', background: 'var(--surface-container-highest)', borderRadius: '9999px', overflow: 'hidden' }}>
-                    <div style={{ width: `${referralLinkUsagePct}%`, height: '100%', background: 'var(--color-green)', borderRadius: '9999px', transition: 'width 0.3s' }} />
+                  <div className="portal-progress-bar portal-progress-bar--gold">
+                    <div className="portal-progress-bar__fill" style={{ width: `${referralLinkUsagePct}%`, background: 'var(--color-green)' }} />
                   </div>
                   <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0', lineHeight: 1.4 }}>
-                    Share of your referred members who applied using your referral link.
+                    Members who applied using your referral link.
                   </p>
                 </div>
               </div>

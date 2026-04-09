@@ -3,11 +3,11 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
-import { getScoreBreakdownSafe } from '@/lib/readiness/score';
-import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
+import { loadMemberCareerBriefBundleSafe } from '@/lib/content/careerBriefPersonalization';
+import { buildScoreBreakdownFromRelations } from '@/lib/readiness/score';
+import { fetchCareerBriefRelations } from '@/lib/content/careerBriefPersonalization';
+import { getProgramBySlug } from '@/lib/content/programs';
 import { parseProgramSalaryRange, salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
-import { prisma } from '@/lib/db/prisma';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -131,23 +131,25 @@ export default async function CareerBriefPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/career-brief');
 
-  const [context, breakdown, dbUser] = await Promise.all([
-    getCareerBriefContext(user.id),
-    getScoreBreakdownSafe(user.id),
-    prisma.user.findUnique({
-      where: { id: user.id },
-      select: {
-        enrolledProgram: true,
-        programInterest: true,
-        assessmentScorePct: true,
-        coursesCompleted: true,
-        enrolledAt: true,
-      },
-    }),
-  ]);
+  // Single round-trip: fetchCareerBriefRelations loads all relations in one call.
+  // assembleCareerBriefContext + buildScoreBreakdown reuse those rows — no duplicate queries.
+  const rows = await fetchCareerBriefRelations(user.id);
+  const { assembleCareerBriefContext } = await import('@/lib/content/careerBriefPersonalization');
+  const breakdown = buildScoreBreakdownFromRelations(
+    rows.user, rows.goals, rows.aiResults, rows.resourceProgress,
+    rows.learningProgress, rows.pathwaySteps, rows.jobApps, rows.certs, rows.lastEvent
+  );
+  const context = assembleCareerBriefContext(rows.user, breakdown);
 
+  // Prefer enrolledProgram, fall back to programInterest for pre-enrollment members
+  const dbUser = rows.user;
   const enrolledProgram = dbUser?.enrolledProgram ?? null;
-  const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
+  const programInterestSlug = dbUser?.applications?.[0]?.programInterest ?? null;
+  const program = enrolledProgram
+    ? getProgramBySlug(enrolledProgram)
+    : programInterestSlug
+      ? getProgramBySlug(programInterestSlug) ?? null
+      : null;
   const programSlug = program?.slug ?? null;
   const salaryRange = program ? parseProgramSalaryRange(program.salary) : null;
   const salaryDisplay = program ? salaryRangeDisplay(program) : null;
@@ -163,7 +165,7 @@ export default async function CareerBriefPage() {
   if (!breakdown.addApplications.done) actionItems.push({ label: 'Log 3+ job applications', href: '/dashboard/job-applications', icon: 'work', priority: 'high' });
   if (!breakdown.completePathwaySteps.done) actionItems.push({ label: 'Continue your training pathway', href: '/dashboard/training', icon: 'school', priority: 'medium' });
   if (!breakdown.trackCertifications.done) actionItems.push({ label: 'Add earned certifications', href: '/dashboard/certifications', icon: 'workspace_premium', priority: 'medium' });
-  if (!breakdown.setGoals.done) actionItems.push({ label: 'Set your career goals', href: '/dashboard/career-brief', icon: 'flag', priority: 'low' });
+  if (!breakdown.setGoals.done) actionItems.push({ label: 'Set your career goals', href: '/dashboard/ai-tools/skill-mapper', icon: 'flag', priority: 'low' });
   if (context.jobSearchUrl && breakdown.addApplications.done) {
     actionItems.push({ label: `Search ${context.programShortLabel ?? 'tech'} jobs in your area`, href: context.jobSearchUrl, icon: 'search', priority: 'medium' });
   }

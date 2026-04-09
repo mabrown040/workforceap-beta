@@ -9,6 +9,7 @@ import { trackEvent } from '@/lib/events/track';
 const toggleSchema = z.object({
   certName: z.string().min(1).max(200),
   earned: z.boolean(),
+  earnedAt: z.string().datetime().optional(), // ISO string from manual add form
 });
 
 export async function GET() {
@@ -45,7 +46,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
   }
 
-  const { certName, earned } = parsed.data;
+  const { certName, earned, earnedAt: earnedAtStr } = parsed.data;
+  // Use the user-provided date if supplied and valid, otherwise default to now
+  const earnedAt = earnedAtStr ? new Date(earnedAtStr) : new Date();
 
   if (earned) {
     const existing = await prisma.userCertification.findUnique({
@@ -58,9 +61,12 @@ export async function POST(request: Request) {
       create: {
         userId: user.id,
         certName,
-        earnedAt: new Date(),
+        earnedAt,
       },
-      update: {},
+      update: {
+        // Update earnedAt only when a specific date is provided (manual add)
+        ...(earnedAtStr ? { earnedAt } : {}),
+      },
     });
     if (!existing) {
       // Lifecycle event: certification_earned

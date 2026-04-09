@@ -45,20 +45,43 @@ export default function CertificationAddForm() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ certName: finalName, earned: true }),
+        body: JSON.stringify({ certName: finalName, earned: true, earnedAt: new Date(earnedDate).toISOString() }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) { setError(data.error ?? 'Could not add certificate.'); return; }
 
-      // Optionally upload a file
+      // Optionally upload a file — surface errors before showing success
       const file = fileRef.current?.files?.[0];
       if (file) {
         setUploading(true);
-        const fd = new FormData();
-        fd.append('file', file);
-        fd.append('certName', finalName);
-        await fetch('/api/member/certifications/upload', { method: 'POST', body: fd, credentials: 'include' }).catch(() => {});
-        setUploading(false);
+        try {
+          const fd = new FormData();
+          fd.append('file', file);
+          fd.append('certName', finalName);
+          const uploadRes = await fetch('/api/member/certifications/upload', {
+            method: 'POST', body: fd, credentials: 'include',
+          });
+          if (!uploadRes.ok) {
+            const uploadData = await uploadRes.json().catch(() => ({})) as { error?: string };
+            // File upload failed — cert is still recorded; warn the user
+            const uploadErr = uploadData.error ?? `File upload failed (${uploadRes.status})`;
+            setError(`Certificate added, but file was not attached: ${uploadErr}`);
+            setSaving(false);
+            setUploading(false);
+            // Still show partial success after a moment
+            setTimeout(() => { setError(null); setSuccess(true); }, 2500);
+            return;
+          }
+        } catch {
+          // Network error on upload — cert recorded, file not attached
+          setError('Certificate added, but file could not be uploaded. Try again later.');
+          setSaving(false);
+          setUploading(false);
+          setTimeout(() => { setError(null); setSuccess(true); }, 2500);
+          return;
+        } finally {
+          setUploading(false);
+        }
       }
 
       setSuccess(true);

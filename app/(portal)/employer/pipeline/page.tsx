@@ -7,6 +7,7 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
 import { prisma } from '@/lib/db/prisma';
 import EmployerPipelineClient from '@/components/employer/EmployerPipelineClient';
+import EmployerKanban from '@/components/employer/EmployerKanban';
 import EmployerMatchStatusSelect from '@/components/employer/EmployerMatchStatusSelect';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
@@ -220,27 +221,18 @@ export default async function EmployerPipelinePage() {
               </Link>
             </div>
           ) : (
-            <div className="employer-pipeline-jobs">
-              {jobs.map((job) => {
-                const matches = byJob.get(job.id) ?? [];
-                if (matches.length === 0) return null;
-                const initialMatches = matches.map((m) => ({
-                  id: m.id,
-                  matchScore: m.matchScore,
-                  matchReasons: m.matchReasons,
-                  status: m.status,
-                  student: m.student,
-                }));
-                return (
-                  <EmployerPipelineClient
-                    key={job.id}
-                    jobId={job.id}
-                    jobTitle={job.title}
-                    initialMatches={initialMatches}
-                  />
-                );
-              })}
-            </div>
+            /* Kanban view — all jobs flattened into unified drag-and-drop columns */
+            <EmployerKanban
+              initialMatches={allMatches.map(m => ({
+                id: m.id,
+                jobId: m.jobId,
+                jobTitle: jobs.find(j => j.id === m.jobId)?.title ?? 'Job',
+                matchScore: m.matchScore,
+                matchReasons: m.matchReasons,
+                status: m.status,
+                student: m.student,
+              }))}
+            />
           )}
         </PortalPageFrame>
       </div>

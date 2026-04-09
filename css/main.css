@@ -8952,39 +8952,55 @@ html:not(.dark) .workspace-shell-header {
 }
 
 /* Member portal (mobile): bottom nav is primary navigation.
-   Keep a slim header bar with ONLY the hamburger menu button so the
-   full sidebar drawer (all pages) is still reachable. Hide all other
-   header chrome and the duplicate tab bar. */
+   Keep a slim header bar with hamburger + WAP logo so the user knows
+   where they are. The full sidebar drawer (all pages) opens from the
+   hamburger. Hide the text brand block and most header chrome. */
 @media (max-width: 767px) {
-  /* Shrink header to a minimal strip — just enough for the menu button */
+  /* Slim header — just enough for menu button + logo */
   html[data-portal-role="member"] .workspace-shell-header {
-    height: 3rem !important;
-    min-height: 3rem !important;
+    height: 3.25rem !important;
+    min-height: 3.25rem !important;
     padding: 0 0.75rem !important;
   }
-  /* Hide brand text, context chip, and most actions — keep only the menu button
-     and the SuperAdminViewSwitcher so admins can still switch portals. */
+  /* Hide text-based brand block — logo image replaces it via ::after pseudo */
   html[data-portal-role="member"] .workspace-shell-brand-block {
     display: none !important;
   }
+  /* Inject WAP logo image next to the hamburger button */
+  html[data-portal-role="member"] .workspace-shell-header__brand::after {
+    content: '';
+    display: block;
+    width: 5.5rem;
+    height: 1.5rem;
+    background-image: url('/images/logo-tight.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: left center;
+    margin-left: 0.25rem;
+    opacity: 0.92;
+  }
+  /* Keep meta visible but strip gap — only show super-admin switcher */
   html[data-portal-role="member"] .workspace-shell-header__meta {
-    /* Keep meta visible but strip its gap so only the switcher shows */
     gap: 0 !important;
   }
-  /* Hide everything inside meta EXCEPT the super-admin portal switcher */
+  /* Hide everything in meta EXCEPT the super-admin portal switcher */
   html[data-portal-role="member"] .workspace-shell-header__meta > *:not(.super-admin-view-switcher) {
     display: none !important;
   }
-  /* Menu button stays visible and gets a proper touch target */
+  /* Menu button: proper 44px touch target */
   html[data-portal-role="member"] .workspace-menu-btn {
     display: flex !important;
     min-width: 44px;
     min-height: 44px;
   }
-  /* Sidebar anchors to top (below the slim 3rem header) */
+  /* Sidebar starts below the slim header */
   html[data-portal-role="member"] .workspace-sidebar {
-    top: 3rem;
-    height: calc(100vh - 3rem);
+    top: 3.25rem;
+    height: calc(100vh - 3.25rem);
+  }
+  /* Add top buffer so content doesn't hug the header */
+  html[data-portal-role="member"] .workspace-shell-main-inner {
+    padding-top: 1rem;
   }
 }
 .workspace-shell-context {

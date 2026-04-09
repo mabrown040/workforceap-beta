@@ -185,34 +185,89 @@ export async function GET() {
     }
   }
 
-  // Also check if we have a saved skill assessment we can pull axes from
+  // Pull all skill_assessment records — look for both O*NET lookups and Interest Profiler
   let savedAssessmentProfile: { axis: string; value: number }[] | null = null;
+  let interestProfilerProfile: { axis: string; value: number }[] | null = null;
+  let hasInterestProfiler = false;
+
   try {
-    const lastAssessment = await prisma.aIToolResult.findFirst({
+    const assessments = await prisma.aIToolResult.findMany({
       where: { userId: user.id, toolType: 'skill_assessment' },
       orderBy: { createdAt: 'desc' },
-      select: { output: true },
+      take: 5,
+      select: { output: true, createdAt: true },
     });
-    if (lastAssessment?.output) {
-      const parsed = JSON.parse(lastAssessment.output) as {
-        radarAxes?: Array<{ axis: string; value: number; maxValue?: number }>;
-      };
-      if (parsed.radarAxes?.length) {
-        savedAssessmentProfile = parsed.radarAxes.map((a) => ({
-          axis: a.axis,
-          value: (a.value ?? 0) / (a.maxValue ?? 100),
-        }));
+
+    for (const row of assessments) {
+      if (!row.output) continue;
+      try {
+        const parsed = JSON.parse(row.output) as {
+          source?: string;
+          radarAxes?: Array<{ axis: string; value: number; maxValue?: number }>;
+          riasec?: {
+            realistic?: number; investigative?: number; artistic?: number;
+            social?: number; enterprising?: number; conventional?: number;
+          };
+        };
+
+        // Interest Profiler result
+        if (parsed.source === 'interest_profiler' && parsed.riasec && !interestProfilerProfile) {
+          hasInterestProfiler = true;
+          const r = parsed.riasec;
+          const vals = Object.values(r).filter((v): v is number => typeof v === 'number');
+          const maxR = Math.max(...vals, 1);
+          // RIASEC → radar axes mapping
+          interestProfilerProfile = [
+            { axis: 'Analytics', value: Math.min(1, ((r.investigative ?? 0) * 0.6 + (r.conventional ?? 0) * 0.4) / maxR) },
+            { axis: 'Engineering', value: Math.min(1, ((r.realistic ?? 0) * 0.7 + (r.investigative ?? 0) * 0.3) / maxR) },
+            { axis: 'Design', value: Math.min(1, ((r.artistic ?? 0) * 0.75 + (r.investigative ?? 0) * 0.25) / maxR) },
+            { axis: 'Strategy', value: Math.min(1, ((r.enterprising ?? 0) * 0.6 + (r.conventional ?? 0) * 0.4) / maxR) },
+            { axis: 'Ethics', value: Math.min(1, ((r.social ?? 0) * 0.7 + (r.conventional ?? 0) * 0.3) / maxR) },
+            { axis: 'Research', value: Math.min(1, ((r.investigative ?? 0) * 0.5 + (r.artistic ?? 0) * 0.5) / maxR) },
+          ];
+        }
+
+        // O*NET skill mapper result
+        if (!parsed.source && parsed.radarAxes?.length && !savedAssessmentProfile) {
+          savedAssessmentProfile = parsed.radarAxes.map((a) => ({
+            axis: a.axis,
+            value: (a.value ?? 0) / (a.maxValue ?? 100),
+          }));
+        }
+      } catch {
+        // Non-fatal
       }
     }
   } catch {
     // Non-fatal
   }
 
-  // Merge: cert profile + resume signals → normalized member profile
+  // Merge strategy:
+  // 1. O*NET skill mapper (most precise) → base
+  // 2. Interest Profiler (30 questions) → enrichment
+  // 3. Certs + resume → gap-fill for axes with no signal
   const mergedProfile = mergeProfiles(certProfile, resumeProfile);
 
-  // If we have a saved O*NET skill assessment use that as the primary profile
-  const finalProfile = savedAssessmentProfile ?? mergedProfile;
+  let finalProfile: { axis: string; value: number }[];
+  if (savedAssessmentProfile) {
+    // Blend O*NET lookup with IP if available
+    finalProfile = RADAR_AXES.map((axis) => {
+      const onet = savedAssessmentProfile!.find((p) => p.axis === axis)?.value ?? 0;
+      const ip = interestProfilerProfile?.find((p) => p.axis === axis)?.value ?? 0;
+      const base = mergedProfile.find((p) => p.axis === axis)?.value ?? 0;
+      // Weight: O*NET 50% + IP 30% + certs/resume 20%
+      return { axis, value: Math.min(1, onet * 0.5 + ip * 0.3 + base * 0.2) };
+    });
+  } else if (interestProfilerProfile) {
+    // Blend IP with certs/resume
+    finalProfile = RADAR_AXES.map((axis) => {
+      const ip = interestProfilerProfile!.find((p) => p.axis === axis)?.value ?? 0;
+      const base = mergedProfile.find((p) => p.axis === axis)?.value ?? 0;
+      return { axis, value: Math.min(1, ip * 0.65 + base * 0.35) };
+    });
+  } else {
+    finalProfile = mergedProfile;
+  }
 
   return NextResponse.json({
     skillProfile: finalProfile,
@@ -221,5 +276,6 @@ export async function GET() {
     hasCerts: certNames.length > 0,
     hasResumeSkills: resumeSkillsAvailable,
     hasSavedAssessment: !!savedAssessmentProfile,
+    hasInterestProfiler,
   });
 }

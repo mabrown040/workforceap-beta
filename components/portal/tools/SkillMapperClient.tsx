@@ -114,6 +114,7 @@ export default function SkillMapperClient() {
   const [memberProfile, setMemberProfile] = useState<{ axis: string; value: number }[]>([]);
   const [memberCerts, setMemberCerts] = useState<string[]>([]);
   const [resumeSkills, setResumeSkills] = useState<{ axis: string; value: number }[]>([]);
+  const [hasInterestProfiler, setHasInterestProfiler] = useState(false);
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [profileLoaded, setProfileLoaded] = useState(false);
 
@@ -160,6 +161,7 @@ export default function SkillMapperClient() {
           if (data.skillProfile) setMemberProfile(data.skillProfile);
           if (data.certNames) setMemberCerts(data.certNames);
           if (data.resumeSkills) setResumeSkills(data.resumeSkills);
+          if (typeof data.hasInterestProfiler === 'boolean') setHasInterestProfiler(data.hasInterestProfiler);
           setProfileLoaded(true);
         })
         .catch(() => setProfileLoaded(true))
@@ -445,13 +447,60 @@ export default function SkillMapperClient() {
           )}
 
           {!loadingProfile && profileLoaded && memberProfile.every(p => p.value === 0) && memberCerts.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-on-surface-variant)' }}>
-              <p style={{ marginBottom: '0.75rem' }}>No skill data yet. Build your profile by:</p>
-              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.375rem', fontSize: '0.875rem' }}>
-                <li>• <a href="/dashboard/certifications" style={{ color: 'var(--color-accent)' }}>Add earned certifications</a></li>
-                <li>• <a href="/dashboard/ai-tools/resume-rewriter" style={{ color: 'var(--color-accent)' }}>Run the AI Resume Rewriter</a> (we extract skills automatically)</li>
-                <li>• Use the <strong>Occupation Search</strong> tab to map an O*NET occupation</li>
-              </ul>
+            <div style={{ padding: '1.5rem', color: 'var(--color-on-surface-variant)' }}>
+              <p style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', marginBottom: '0.875rem' }}>Build your skill profile</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+                <a href="/dashboard/learning/interest-profiler" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.875rem', background: 'rgba(173,44,77,0.06)', border: '1px solid rgba(173,44,77,0.15)', borderRadius: '0.75rem', textDecoration: 'none' }}>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem', flexShrink: 0, fontVariationSettings: "'FILL' 1" }}>quiz</span>
+                  <div>
+                    <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-accent)', margin: '0 0 0.2rem' }}>Take the 30-question Interest Profiler</p>
+                    <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>~10 minutes — generates your full radar from O*NET interest data</p>
+                  </div>
+                </a>
+                <a href="/dashboard/ai-tools/resume-rewriter" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.875rem', background: 'var(--surface-container-low)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '0.75rem', textDecoration: 'none' }}>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--color-blue, #2b7bb9)', fontSize: '1.25rem', flexShrink: 0, fontVariationSettings: "'FILL' 1" }}>description</span>
+                  <div>
+                    <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)', margin: '0 0 0.2rem' }}>Run the AI Resume Rewriter</p>
+                    <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>We extract skills from your resume and map them to this radar automatically</p>
+                  </div>
+                </a>
+                <a href="/dashboard/certifications" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.875rem', background: 'var(--surface-container-low)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '0.75rem', textDecoration: 'none' }}>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--color-green, #4a9b4f)', fontSize: '1.25rem', flexShrink: 0, fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
+                  <div>
+                    <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)', margin: '0 0 0.2rem' }}>Add earned certifications</p>
+                    <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>Certs like CompTIA A+, IBM AI, Google Data Analytics enrich the Engineering and Analytics axes</p>
+                  </div>
+                </a>
+              </div>
+            </div>
+          )}
+
+          {/* Interest Profiler CTA — shown when profile exists but no IP data yet */}
+          {!loadingProfile && profileLoaded && !hasInterestProfiler && memberProfile.some(p => p.value > 0) && (
+            <div style={{ marginTop: '0.875rem', padding: '1rem 1.125rem', background: 'rgba(173,44,77,0.06)', border: '1px solid rgba(173,44,77,0.15)', borderRadius: '0.875rem', display: 'flex', alignItems: 'flex-start', gap: '0.875rem' }}>
+              <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.375rem', flexShrink: 0, marginTop: '0.125rem', fontVariationSettings: "'FILL' 1" }}>quiz</span>
+              <div>
+                <p style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)', margin: '0 0 0.25rem' }}>
+                  Take the 30-question Interest Profiler
+                </p>
+                <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem', lineHeight: 1.5 }}>
+                  Your current profile is based on certifications and resume. Complete the O*NET Interest Profiler to significantly enrich your radar chart with interest-based signals.
+                </p>
+                <a href="/dashboard/learning/interest-profiler" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.4rem 0.875rem', borderRadius: '0.5rem', background: 'var(--color-accent)', color: '#fff', fontWeight: 700, fontSize: '0.8125rem', textDecoration: 'none' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', fontVariationSettings: "'FILL' 1" }}>arrow_forward</span>
+                  Start 30-question assessment (~10 min)
+                </a>
+              </div>
+            </div>
+          )}
+
+          {/* IP complete confirmation */}
+          {!loadingProfile && profileLoaded && hasInterestProfiler && (
+            <div style={{ marginTop: '0.875rem', padding: '0.75rem 1rem', background: 'rgba(74,155,79,0.07)', border: '1px solid rgba(74,155,79,0.2)', borderRadius: '0.75rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-green, #4a9b4f)', flexShrink: 0, fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+              <span><strong style={{ color: 'var(--color-green, #4a9b4f)' }}>Interest Profiler complete</strong> — your 30-question results are blended into this radar.{' '}
+                <a href="/dashboard/learning/interest-profiler" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Retake</a>
+              </span>
             </div>
           )}
 

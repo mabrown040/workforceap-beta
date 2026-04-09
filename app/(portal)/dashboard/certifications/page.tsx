@@ -15,6 +15,7 @@ import {
   DownloadAllCertificatesButton,
   CertificationViewButton,
 } from '@/components/portal/CertificationVaultActions';
+import CertificationAddForm from '@/components/portal/CertificationAddForm';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'My Certificates',
@@ -145,8 +146,9 @@ export default async function DashboardCertificationsPage() {
               ))
             )}
           </div>
-          <div style={{ paddingTop: '0.75rem' }}>
+          <div style={{ paddingTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
             <DownloadAllCertificatesButton certs={certRows} />
+            <CertificationAddForm />
           </div>
         </section>
 
@@ -501,6 +503,9 @@ export default async function DashboardCertificationsPage() {
                 </ul>
               ) : null}
               <DownloadAllCertificatesButton certs={certRows} />
+              <div style={{ marginTop: '0.75rem' }}>
+                <CertificationAddForm />
+              </div>
             </div>
 
             {/* Achievement badge with SVG ring */}

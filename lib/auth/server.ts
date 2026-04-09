@@ -1,7 +1,7 @@
 import { cache } from 'react';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
+import { getSupabaseCookieOptions, SESSION_ONLY_COOKIE } from '@/lib/supabaseCookieOptions';
 
 export function hasSupabaseServerEnv() {
   return Boolean(
@@ -23,11 +23,14 @@ export async function createSupabaseServerClient() {
     throw new Error('NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are required');
   }
 
+  // Preserve "session only" preference across server-side token refreshes
+  const sessionOnly = cookieStore.get(SESSION_ONLY_COOKIE)?.value === '1';
+
   return createServerClient(
     url,
     anonKey,
     {
-      cookieOptions: getSupabaseCookieOptions(),
+      cookieOptions: getSupabaseCookieOptions(sessionOnly),
       cookies: {
         getAll() {
           return cookieStore.getAll();
@@ -35,8 +38,15 @@ export async function createSupabaseServerClient() {
         setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
           try {
             cookiesToSet.forEach(({ name, value, options }) => {
-              const opts = options as { path?: string; maxAge?: number; secure?: boolean; sameSite?: 'lax' | 'strict' | 'none'; httpOnly?: boolean } | undefined;
-              cookieStore.set(name, value, opts ?? {});
+              if (sessionOnly) {
+                // Strip maxAge/expires to keep the session ephemeral
+                const { maxAge: _1, expires: _2, ...rest } = (options ?? {}) as Record<string, unknown>;
+                const opts = rest as { path?: string; secure?: boolean; sameSite?: 'lax' | 'strict' | 'none'; httpOnly?: boolean } | undefined;
+                cookieStore.set(name, value, opts ?? {});
+              } else {
+                const opts = options as { path?: string; maxAge?: number; secure?: boolean; sameSite?: 'lax' | 'strict' | 'none'; httpOnly?: boolean } | undefined;
+                cookieStore.set(name, value, opts ?? {});
+              }
             });
           } catch (err) {
             console.error('Supabase setAll cookies error:', err);

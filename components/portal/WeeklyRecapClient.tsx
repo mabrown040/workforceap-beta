@@ -40,6 +40,12 @@ function actionHref(action: string): { href: string; icon: string } {
   return { href: '/dashboard', icon: 'arrow_forward' };
 }
 
+/** Weekly recap stores raw Goal.status values (e.g. COMPLETED, ACTIVE). */
+function isGoalDoneStatus(status: string): boolean {
+  const u = status.trim().toUpperCase();
+  return u === 'COMPLETED' || u === 'COMPLETE' || u === 'DONE';
+}
+
 export default function WeeklyRecapClient({ recap, recapData, weekStart }: Props) {
   if (!recap || !recapData) {
     return (
@@ -113,7 +119,7 @@ export default function WeeklyRecapClient({ recap, recapData, weekStart }: Props
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {goals.map((g, i) => {
-              const done = g.status === 'complete' || g.status === 'done';
+              const done = isGoalDoneStatus(g.status);
               return (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: done ? 'var(--color-green, #4a9b4f)' : 'var(--color-on-surface-variant)', fontVariationSettings: done ? "'FILL' 1" : "'FILL' 0", flexShrink: 0 }}>

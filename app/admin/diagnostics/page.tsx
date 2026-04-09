@@ -18,6 +18,7 @@ const STATUS_COLOR: Record<string, string> = {
   ok: 'rgba(74,155,79,0.12)',
   success: 'rgba(74,155,79,0.12)',
   inspection: 'rgba(43,123,185,0.1)',
+  fallback: 'rgba(255,187,0,0.1)',
   fallback_used: 'rgba(255,187,0,0.1)',
   warn: 'rgba(255,187,0,0.1)',
   error: 'rgba(173,44,77,0.1)',
@@ -29,6 +30,7 @@ const STATUS_TEXT_COLOR: Record<string, string> = {
   ok: 'var(--color-green, #4a9b4f)',
   success: 'var(--color-green, #4a9b4f)',
   inspection: 'var(--color-blue, #2b7bb9)',
+  fallback: 'var(--color-gold)',
   fallback_used: 'var(--color-gold)',
   warn: 'var(--color-gold)',
   error: 'var(--color-accent)',
@@ -39,7 +41,7 @@ const STATUS_TEXT_COLOR: Record<string, string> = {
 function statusIcon(status: string): string {
   if (status === 'ok' || status === 'success') return 'check_circle';
   if (status === 'inspection') return 'search';
-  if (status === 'fallback_used' || status === 'warn') return 'warning';
+  if (status === 'fallback' || status === 'fallback_used' || status === 'warn') return 'warning';
   return 'error';
 }
 
@@ -150,7 +152,8 @@ export default async function AdminDiagnosticsPage() {
     return acc;
   }, {});
   const errorCount = (statusCounts['error'] ?? 0) + (statusCounts['errored'] ?? 0) + (statusCounts['failed'] ?? 0);
-  const warnCount = (statusCounts['warn'] ?? 0) + (statusCounts['fallback_used'] ?? 0);
+  const warnCount =
+    (statusCounts['warn'] ?? 0) + (statusCounts['fallback'] ?? 0) + (statusCounts['fallback_used'] ?? 0);
   const okCount = (statusCounts['ok'] ?? 0) + (statusCounts['success'] ?? 0);
 
   return (
@@ -238,6 +241,14 @@ export default async function AdminDiagnosticsPage() {
                 ))}
               </tbody>
             </table>
+            {driftRecords.length > 25 ? (
+              <p style={{ margin: '0.75rem 0 0', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                Showing 25 of {driftRecords.length} drift issues.{' '}
+                <a href="/api/admin/lifecycle/drift" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+                  View full results (JSON)
+                </a>
+              </p>
+            ) : null}
           </div>
         )}
       </section>

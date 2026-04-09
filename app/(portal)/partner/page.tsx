@@ -150,6 +150,7 @@ export default async function PartnerDashboardPage() {
   return (
     <PortalEntryClient
       portal="partner"
+      tourStorageUserId={user.id}
       showOnboardingWizard={showPartnerOnboarding}
       showTour={showPartnerTour}
       isSuperAdmin={superAdmin}

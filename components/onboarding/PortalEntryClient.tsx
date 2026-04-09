@@ -18,6 +18,8 @@ type PartnerWizardProps = ComponentProps<typeof PartnerOnboardingWizard>;
 type PortalEntryClientProps =
   | {
       portal: 'member';
+      /** Scope localStorage/sessionStorage tour flags so shared devices do not suppress tours for the next signed-in user. */
+      tourStorageUserId: string;
       showOnboardingWizard: boolean;
       showTour: boolean;
       isSuperAdmin: boolean;
@@ -27,6 +29,7 @@ type PortalEntryClientProps =
     }
   | {
       portal: 'employer';
+      tourStorageUserId: string;
       showOnboardingWizard: boolean;
       showTour: boolean;
       isSuperAdmin: boolean;
@@ -36,6 +39,7 @@ type PortalEntryClientProps =
     }
   | {
       portal: 'partner';
+      tourStorageUserId: string;
       showOnboardingWizard: boolean;
       showTour: boolean;
       isSuperAdmin: boolean;
@@ -45,11 +49,11 @@ type PortalEntryClientProps =
     };
 
 export default function PortalEntryClient(props: PortalEntryClientProps) {
-  const { portal, showOnboardingWizard, showTour, isSuperAdmin, tourSteps, children } = props;
+  const { portal, tourStorageUserId, showOnboardingWizard, showTour, isSuperAdmin, tourSteps, children } = props;
   const [wizardOpen, setWizardOpen] = useState(showOnboardingWizard);
   const router = useRouter();
   const { startTour } = useTour();
-  const tourAutoStartKey = `wa:tour:auto-started:${portal}`;
+  const tourAutoStartKey = `wa:tour:auto-started:${portal}:${tourStorageUserId}`;
 
   useEffect(() => {
     setWizardOpen(showOnboardingWizard);

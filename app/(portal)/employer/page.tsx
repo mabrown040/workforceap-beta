@@ -171,6 +171,7 @@ export default async function EmployerDashboardPage() {
   return (
     <PortalEntryClient
       portal="employer"
+      tourStorageUserId={user.id}
       showOnboardingWizard={showEmployerOnboarding}
       showTour={showEmployerTour}
       isSuperAdmin={superAdmin}

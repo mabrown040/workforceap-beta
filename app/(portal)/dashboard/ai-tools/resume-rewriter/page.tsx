@@ -18,6 +18,11 @@ export default async function ResumeRewriterPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools/resume-rewriter');
 
+  const modePills = [
+    { key: 'voice', label: 'Voice coach' },
+    { key: 'text', label: 'Text rewrite' },
+  ] as const;
+
   return (
     <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
       <div style={{ paddingBottom: '6rem' }}>
@@ -99,20 +104,20 @@ export default async function ResumeRewriterPage() {
                   flexWrap: 'wrap',
                 }}
               >
-                {['Voice coach', 'Text rewrite'].map((workflow) => (
+                {modePills.map((pill) => (
                   <span
-                    key={workflow}
+                    key={pill.key}
                     style={{
                       fontSize: '0.73rem',
                       padding: '0.3rem 0.75rem',
                       borderRadius: 999,
-                      background: workflow === 'Voice coach' ? 'var(--color-accent)' : 'transparent',
-                      color: workflow === 'Voice coach' ? '#fff' : 'var(--color-on-surface-variant)',
+                      background: 'transparent',
+                      color: 'var(--color-on-surface-variant)',
                       fontWeight: 600,
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    {workflow}
+                    {pill.label}
                   </span>
                 ))}
               </div>

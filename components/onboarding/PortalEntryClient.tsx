@@ -60,10 +60,12 @@ export default function PortalEntryClient(props: PortalEntryClientProps) {
       // Delay tour start so the user can orient on the page first.
       // Without this, tooltips appear immediately on first load,
       // competing with the actual page content for attention.
-      const timer = setTimeout(() => startTour(tourSteps, portal), 1500);
-      if (typeof window !== 'undefined') {
-        window.sessionStorage.setItem(tourAutoStartKey, '1');
-      }
+      const timer = setTimeout(() => {
+        startTour(tourSteps, portal);
+        if (typeof window !== 'undefined') {
+          window.sessionStorage.setItem(tourAutoStartKey, '1');
+        }
+      }, 1500);
       return () => clearTimeout(timer);
     }
   }, [showOnboardingWizard, showTour, tourSteps, portal, startTour, tourAutoStartKey]);

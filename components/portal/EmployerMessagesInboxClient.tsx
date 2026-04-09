@@ -167,6 +167,7 @@ export default function EmployerMessagesInboxClient({
   const teamChat = (
     <PortalTeamChatClient
       surfaceVariant="employer"
+      decorated={false}
       apiPath="/api/employer/messages"
       initial={{
         thread: teamInitial.thread,

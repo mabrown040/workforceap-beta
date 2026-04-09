@@ -321,115 +321,195 @@ export default async function DashboardProfilePage() {
       </div>
 
       {/* ── Desktop profile view ── */}
-      <div className="wa-hidden md:wa-block">
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>My Profile</h1>
-      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
-        Manage your profile, resume, and settings in one place.
-      </p>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1.5rem' }}>
-        <a href="#profile" className="btn btn-outline">Profile</a>
-        <a href="#resume" className="btn btn-outline">Resume</a>
-        <a href="#settings" className="btn btn-outline">Settings</a>
-      </div>
+      <div className="wa-hidden md:wa-block" style={{ paddingBottom: '2rem' }}>
 
-      <div id="profile" className="dashboard-profile-section">
-        <h3>Contact info</h3>
-        <DashboardProfileForm
-          defaultFirstName={firstName}
-          defaultLastName={lastName}
-          defaultPhone={dbUser.profile?.profilePhone ?? dbUser.phone ?? ''}
-          defaultAddress={dbUser.profile?.profileAddress ?? ''}
-          defaultLinkedin={dbUser.profile?.profileLinkedin ?? ''}
-          defaultBio={dbUser.profile?.profileBio ?? ''}
-          defaultFinancialAidInterest={dbUser.profile?.financialAidInterest ?? null}
-        />
-      </div>
-
-      <div className="dashboard-profile-section">
-        <h3>Account</h3>
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-          <strong>Email:</strong> {dbUser.email} (tied to account, cannot be changed here)
-        </p>
-      </div>
-
-      {dbUser.assessmentCompleted && (
-        <div className="dashboard-profile-section">
-          <h3>Assessment</h3>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
-            <strong>Assessment Score:</strong> {dbUser.assessmentScore ?? 0}/90 ({dbUser.assessmentScorePct ?? 0}%) — completed{' '}
-            {dbUser.assessmentCompletedAt?.toLocaleDateString() ?? ''}
-          </p>
-          <details style={{ marginTop: '0.75rem', padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
-            <summary style={{ cursor: 'pointer', fontWeight: 600 }}>View My Answers</summary>
-            {assessmentAnswers && (
-              <ul style={{ marginTop: '1rem', paddingLeft: '1.25rem', fontSize: '0.9rem' }}>
-                {ASSESSMENT_QUESTIONS.map((q) => {
-                  const v = assessmentAnswers[String(q.id)] ?? assessmentAnswers[q.id as unknown as string];
-                  const text = v == null ? '—' : typeof v === 'string' ? v : JSON.stringify(v);
-                  return (
-                    <li key={q.id} style={{ marginBottom: '0.5rem' }}>
-                      Q{q.id}: {q.question} → {text}
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </details>
+        {/* Profile hero banner */}
+        <div className="portal-profile-hero">
+          <div className="portal-profile-avatar">{initials}</div>
+          <div style={{ minWidth: 0 }}>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--color-on-surface)', margin: '0 0 0.375rem' }}>
+              {dbUser.fullName ?? 'Your Profile'}
+            </h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+              {program && (
+                <span style={{ display: 'inline-flex', alignItems: 'center', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 700, background: 'rgba(255,187,0,0.1)', color: 'var(--color-gold)' }}>
+                  {program.title}
+                </span>
+              )}
+              <span style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
+                {dbUser.createdAt
+                  ? `Member since ${new Date(dbUser.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`
+                  : 'WorkforceAP Member'}
+              </span>
+            </div>
+            {/* Profile completeness bar */}
+            <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div className="portal-progress-bar" style={{ width: '180px' }}>
+                <div className="portal-progress-bar__fill" style={{ width: `${profilePct}%` }} />
+              </div>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
+                {profilePct}% complete
+              </span>
+            </div>
+          </div>
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem', flexShrink: 0, alignSelf: 'flex-start' }}>
+            <a href="#profile" className="btn btn-outline" style={{ fontSize: '0.8125rem' }}>Edit Profile</a>
+            <a href="#resume" className="btn btn-outline" style={{ fontSize: '0.8125rem' }}>Resume</a>
+            <a href="#settings" className="btn btn-outline" style={{ fontSize: '0.8125rem' }}>Settings</a>
+          </div>
         </div>
-      )}
 
-      {program && (
-        <div className="dashboard-profile-section">
-          <h3>Program</h3>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-            <strong>Current Program:</strong>{' '}
-            <Link href="/dashboard/program">{program.title}</Link>
-            {dbUser.enrolledAt && ` — Enrolled ${dbUser.enrolledAt.toLocaleDateString()}`}
-          </p>
-        </div>
-      )}
-
-      <div id="resume" className="dashboard-profile-section">
-        <h3>Resume tools</h3>
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
-          Upload, generate, and improve your resume without leaving your profile.
-        </p>
-        <ResumeClient
-          completeness={completeness}
-          witData={witData}
-          hasOriginal={hasOriginal}
-          hasEnhanced={hasEnhanced}
-        />
-
-        <ResumeCoachWorkspace />
-      </div>
-
-      <div id="settings" className="dashboard-profile-section">
-        <h3>Settings</h3>
-        <div style={{ display: 'grid', gap: '1.5rem' }}>
-          <section>
-            <h4 style={{ fontSize: '1rem', marginBottom: '0.75rem' }}>Password</h4>
-            <Link href={`/forgot-password?email=${encodeURIComponent(dbUser.email)}`} className="btn btn-outline">
-              Reset password
-            </Link>
-          </section>
-          <section>
-            <h4 style={{ fontSize: '1rem', marginBottom: '0.75rem' }}>Email notifications</h4>
-            <SettingsForm
-              defaultUpdates={dbUser.notificationsUpdates ?? true}
-              defaultReminders={dbUser.notificationsReminders ?? true}
+        {/* Contact info card */}
+        <div id="profile" className="portal-profile-section-card">
+          <div className="portal-profile-section-card__header">
+            <h2 className="portal-profile-section-card__title">Contact Information</h2>
+          </div>
+          <div className="portal-profile-section-card__body">
+            <DashboardProfileForm
+              defaultFirstName={firstName}
+              defaultLastName={lastName}
+              defaultPhone={dbUser.profile?.profilePhone ?? dbUser.phone ?? ''}
+              defaultAddress={dbUser.profile?.profileAddress ?? ''}
+              defaultLinkedin={dbUser.profile?.profileLinkedin ?? ''}
+              defaultBio={dbUser.profile?.profileBio ?? ''}
+              defaultFinancialAidInterest={dbUser.profile?.financialAidInterest ?? null}
             />
-          </section>
-          <section>
-            <h4 style={{ fontSize: '1rem', marginBottom: '0.75rem' }}>Portal tour</h4>
-            <StartTourButton />
-          </section>
-          <section>
-            <h4 style={{ fontSize: '1rem', marginBottom: '0.75rem', color: 'var(--color-error, #c00)' }}>Delete account</h4>
-            <DeleteAccountButton />
-          </section>
+          </div>
         </div>
-      </div>
+
+        {/* Account + Program cards side by side */}
+        <div style={{ display: 'grid', gridTemplateColumns: program ? '1fr 1fr' : '1fr', gap: '1rem', marginBottom: '1rem' }}>
+          <div className="portal-profile-section-card">
+            <div className="portal-profile-section-card__header">
+              <h2 className="portal-profile-section-card__title">Account</h2>
+            </div>
+            <div className="portal-profile-section-card__body">
+              <div style={{ display: 'grid', gap: '0.75rem' }}>
+                <div>
+                  <p style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Email</p>
+                  <p style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-on-surface)', margin: 0 }}>{dbUser.email}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>Cannot be changed here</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {program && (
+            <div className="portal-profile-section-card">
+              <div className="portal-profile-section-card__header">
+                <h2 className="portal-profile-section-card__title">Enrolled Program</h2>
+                <Link href="/dashboard/program" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', textDecoration: 'none' }}>View →</Link>
+              </div>
+              <div className="portal-profile-section-card__body">
+                <p style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.375rem' }}>{program.title}</p>
+                {dbUser.enrolledAt && (
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
+                    Enrolled {dbUser.enrolledAt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Assessment card */}
+        {dbUser.assessmentCompleted && (
+          <div className="portal-profile-section-card" style={{ marginBottom: '1rem' }}>
+            <div className="portal-profile-section-card__header">
+              <h2 className="portal-profile-section-card__title">Skills Assessment</h2>
+              <span style={{ display: 'inline-flex', alignItems: 'center', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.7rem', fontWeight: 700, background: 'rgba(74,155,79,0.1)', color: '#4ade80' }}>
+                Complete
+              </span>
+            </div>
+            <div className="portal-profile-section-card__body">
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1.5rem', flexWrap: 'wrap' }}>
+                <div>
+                  <p style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', marginBottom: '0.375rem' }}>Score</p>
+                  <p style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-accent)', letterSpacing: '-0.04em', margin: 0, lineHeight: 1 }}>
+                    {dbUser.assessmentScorePct ?? 0}<span style={{ fontSize: '1rem' }}>%</span>
+                  </p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>
+                    {dbUser.assessmentScore ?? 0}/90 points
+                  </p>
+                </div>
+                {dbUser.assessmentCompletedAt && (
+                  <div>
+                    <p style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', marginBottom: '0.375rem' }}>Completed</p>
+                    <p style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-on-surface)', margin: 0 }}>
+                      {dbUser.assessmentCompletedAt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                    </p>
+                  </div>
+                )}
+              </div>
+              <details style={{ marginTop: '1rem' }}>
+                <summary style={{ cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>View Assessment Answers</summary>
+                {assessmentAnswers && (
+                  <ul style={{ marginTop: '1rem', paddingLeft: '1.25rem', fontSize: '0.875rem' }}>
+                    {ASSESSMENT_QUESTIONS.map((q) => {
+                      const v = assessmentAnswers[String(q.id)] ?? assessmentAnswers[q.id as unknown as string];
+                      const text = v == null ? '—' : typeof v === 'string' ? v : JSON.stringify(v);
+                      return (
+                        <li key={q.id} style={{ marginBottom: '0.5rem', color: 'var(--color-on-surface-variant)' }}>
+                          <strong style={{ color: 'var(--color-on-surface)' }}>Q{q.id}:</strong> {q.question} → {text}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </details>
+            </div>
+          </div>
+        )}
+
+        {/* Resume tools card */}
+        <div id="resume" className="portal-profile-section-card" style={{ marginBottom: '1rem' }}>
+          <div className="portal-profile-section-card__header">
+            <h2 className="portal-profile-section-card__title">Resume &amp; Career Tools</h2>
+          </div>
+          <div className="portal-profile-section-card__body">
+            <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.6 }}>
+              Upload, generate, and improve your resume without leaving your profile.
+            </p>
+            <ResumeClient
+              completeness={completeness}
+              witData={witData}
+              hasOriginal={hasOriginal}
+              hasEnhanced={hasEnhanced}
+            />
+            <ResumeCoachWorkspace />
+          </div>
+        </div>
+
+        {/* Settings card */}
+        <div id="settings" className="portal-profile-section-card">
+          <div className="portal-profile-section-card__header">
+            <h2 className="portal-profile-section-card__title">Account Settings</h2>
+          </div>
+          <div className="portal-profile-section-card__body">
+            <div style={{ display: 'grid', gap: '1.5rem' }}>
+              <section>
+                <h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>Email Notifications</h3>
+                <SettingsForm
+                  defaultUpdates={dbUser.notificationsUpdates ?? true}
+                  defaultReminders={dbUser.notificationsReminders ?? true}
+                />
+              </section>
+              <section>
+                <h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>Password &amp; Security</h3>
+                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <Link href={`/forgot-password?email=${encodeURIComponent(dbUser.email)}`} className="btn btn-outline">
+                    Reset password
+                  </Link>
+                  <StartTourButton />
+                </div>
+              </section>
+              <section>
+                <h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-error, #c00)', marginBottom: '0.75rem' }}>Danger Zone</h3>
+                <DeleteAccountButton />
+              </section>
+            </div>
+          </div>
+        </div>
       </div> {/* end hidden md:block */}
 
       <MobileBottomNav variant="portal" />

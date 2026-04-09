@@ -253,7 +253,7 @@ File: update `app/(portal)/partner/guide/page.tsx`
 
 1. All guides share the same warm, clear design language
 2. Use `var(--color-accent)` for primary CTAs
-3. Use `portal-card` / `portal-card--flat` (and padding utilities) for card containers
+3. Use `stitch-card` class for card containers
 4. Mobile-first for member guide, desktop-first for employer/counselor
 5. Each guide links back to the portal dashboard via breadcrumb
 6. Add "Guide" / "How it works" link to each portal's nav/header

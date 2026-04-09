@@ -17,7 +17,7 @@ const MODE_KEY = 'resumeWorkMode';
 function ResumeModeSelector({ onSelect, onDismiss }: { onSelect: (mode: WorkMode) => void; onDismiss: () => void }) {
   return (
     <div
-      className="portal-card portal-card--flat"
+      className="stitch-card"
       style={{
         padding: '1.25rem',
         borderRadius: 16,
@@ -228,18 +228,15 @@ function ResumeRewriterWithPrefill() {
   );
 }
 
-export default function ResumeRewriterClient({ onModeChange }: { onModeChange?: (mode: WorkMode) => void }) {
-  const [mode, setMode] = useState<WorkMode>('text');
-  const [showSelector, setShowSelector] = useState(false);
+export default function ResumeRewriterClient() {
+  const [mode, setMode] = useState<WorkMode | null>(null);
+  const [selectorDismissed, setSelectorDismissed] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     const saved = window.localStorage.getItem(MODE_KEY);
     if (saved === 'voice' || saved === 'text') {
       setMode(saved);
-      setShowSelector(false);
-    } else {
-      setShowSelector(true);
     }
     setHydrated(true);
   }, []);
@@ -247,85 +244,44 @@ export default function ResumeRewriterClient({ onModeChange }: { onModeChange?: 
   const handleSelect = (nextMode: WorkMode) => {
     window.localStorage.setItem(MODE_KEY, nextMode);
     setMode(nextMode);
-    setShowSelector(false);
-    onModeChange?.(nextMode);
+    setSelectorDismissed(false);
   };
+
+  const handleResetMode = () => {
+    window.localStorage.removeItem(MODE_KEY);
+    setMode(null);
+    setSelectorDismissed(false);
+  };
+
+  const showSelector = hydrated && mode === null && !selectorDismissed;
+  const effectiveMode: WorkMode = mode ?? 'text';
 
   return (
     <div>
-      {hydrated ? (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-          <div
-            aria-label="Resume workflow mode"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.25rem',
-              padding: '0.25rem',
-              borderRadius: 999,
-              background: 'var(--surface-container-highest)',
-              border: '1px solid var(--outline-variant, rgba(0,0,0,0.08))',
-            }}
-          >
-            {([
-              { key: 'voice', label: 'Voice coach', icon: 'mic' },
-              { key: 'text', label: 'Text tool', icon: 'edit_note' },
-            ] as const).map((option) => {
-              const active = mode === option.key;
-              return (
-                <button
-                  key={option.key}
-                  type="button"
-                  onClick={() => handleSelect(option.key)}
-                  aria-pressed={active}
-                  style={{
-                    border: 'none',
-                    background: active ? 'var(--color-accent)' : 'transparent',
-                    color: active ? '#fff' : 'var(--color-on-surface-variant)',
-                    borderRadius: 999,
-                    padding: '0.55rem 0.95rem',
-                    fontWeight: 700,
-                    fontSize: '0.82rem',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.4rem',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                  }}
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden>
-                    {option.icon}
-                  </span>
-                  {option.label}
-                </button>
-              );
-            })}
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setShowSelector((prev) => !prev)}
-            style={{
-              border: 'none',
-              background: 'transparent',
-              color: 'var(--color-accent)',
-              fontWeight: 600,
-              fontSize: '0.85rem',
-              cursor: 'pointer',
-              textDecoration: 'underline',
-              padding: 0,
-            }}
-          >
-            {showSelector ? 'Hide workflow picker' : 'Compare workflows'}
-          </button>
-        </div>
-      ) : null}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.75rem' }}>
+        <button
+          type="button"
+          onClick={handleResetMode}
+          style={{
+            border: 'none',
+            background: 'transparent',
+            color: 'var(--color-accent)',
+            fontWeight: 600,
+            fontSize: '0.85rem',
+            cursor: 'pointer',
+            textDecoration: 'underline',
+            padding: 0,
+          }}
+        >
+          Switch mode
+        </button>
+      </div>
 
       {showSelector ? (
-        <ResumeModeSelector onSelect={handleSelect} onDismiss={() => setShowSelector(false)} />
+        <ResumeModeSelector onSelect={handleSelect} onDismiss={() => setSelectorDismissed(true)} />
       ) : null}
 
-      {mode === 'voice' ? <ResumeCoachWorkspace /> : <ResumeRewriterWithPrefill />}
+      {effectiveMode === 'voice' ? <ResumeCoachWorkspace /> : <ResumeRewriterWithPrefill />}
     </div>
   );
 }

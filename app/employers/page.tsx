@@ -158,7 +158,7 @@ export default function EmployersPage() {
               marginBottom: '1.5rem',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', verticalAlign: '-2px', marginRight: '0.35rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', verticalAlign: '-2px', marginRight: '0.35rem' }} aria-hidden="true">
               rocket_launch
             </span>
             Building Tomorrow&apos;s Workforce
@@ -208,7 +208,7 @@ export default function EmployersPage() {
               }}
             >
               Start Employer Intake
-              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_forward</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
             </Link>
             <Link
               href="#employer-contact-form"
@@ -265,13 +265,13 @@ export default function EmployersPage() {
 
       {/* ===== Employer Stats ===== */}
       <section style={{ padding: 'clamp(2rem, 4vw, 4rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1200px', margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 100%), 1fr))', gap: '2rem', textAlign: 'center' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem', textAlign: 'center' }}>
           {[
             { stat: '200+', label: 'Graduates Placed' },
             { stat: '90%', label: 'Retention Rate' },
             { stat: '$0', label: 'Upfront Cost to You' },
           ].map((item) => (
-            <div key={item.label} className="portal-card portal-card--flat" style={{ padding: '2rem' }}>
+            <div key={item.label} className="stitch-card" style={{ padding: '2rem' }}>
               <div style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-accent)', lineHeight: 1 }}>{item.stat}</div>
               <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>{item.label}</div>
             </div>
@@ -301,8 +301,8 @@ export default function EmployersPage() {
 
       {/* ===== Employer Testimonial ===== */}
       <section style={{ padding: 'clamp(2rem, 4vw, 4rem) clamp(1rem, 4vw, 2rem)', maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
-        <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', background: 'var(--surface-container-low)' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '1rem', display: 'block' }}>format_quote</span>
+        <div className="stitch-card" style={{ padding: '2.5rem', background: 'var(--surface-container-low)' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '1rem', display: 'block' }} aria-hidden="true">format_quote</span>
           <blockquote style={{ fontSize: '1.1rem', lineHeight: 1.7, fontStyle: 'italic', color: 'var(--color-on-surface)', marginBottom: '1rem' }}>
             &ldquo;WorkforceAP connected us with three candidates who were immediately productive. The quality of preparation was unlike anything we&apos;ve seen from traditional staffing.&rdquo;
           </blockquote>
@@ -358,7 +358,7 @@ export default function EmployersPage() {
                     gap: '0.75rem',
                   }}
                 >
-                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
                     psychology
                   </span>
                   <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.8rem', margin: 0, lineHeight: 1.5 }}>
@@ -391,7 +391,7 @@ export default function EmployersPage() {
                       color: 'var(--color-accent)',
                       fontVariationSettings: "'FILL' 1",
                     }}
-                  >
+                   aria-hidden="true">
                     {card.icon}
                   </span>
                   <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-on-surface)', letterSpacing: '-0.01em' }}>
@@ -460,7 +460,7 @@ export default function EmployersPage() {
                     color: c.accent ? 'rgba(255,255,255,0.9)' : 'var(--color-accent)',
                     fontVariationSettings: "'FILL' 1",
                   }}
-                >
+                 aria-hidden="true">
                   {c.icon}
                 </span>
                 <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: c.accent ? '#fff' : 'var(--color-on-surface)' }}>
@@ -492,7 +492,7 @@ export default function EmployersPage() {
         </div>
       </section>
 
-      {/* ── How Hiring Works — 4-step process ── */}
+      {/* ── A Streamlined Hiring Experience — 4-step process ── */}
       <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
@@ -505,7 +505,7 @@ export default function EmployersPage() {
                 marginBottom: '0.75rem',
               }}
             >
-              How Hiring{' '}
+              A Streamlined Hiring{' '}
               <span style={{ color: 'var(--color-accent)' }}>Experience</span>
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)' }}>Submit the employer intake and we will review it within 24–48 hours.</p>
@@ -564,7 +564,7 @@ export default function EmployersPage() {
                     display: 'block',
                     fontVariationSettings: "'FILL' 1",
                   }}
-                >
+                 aria-hidden="true">
                   {step.icon}
                 </span>
                 <h3 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>
@@ -654,7 +654,7 @@ export default function EmployersPage() {
                       <span
                         className="material-symbols-outlined"
                         style={{ fontSize: '1rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}
-                      >
+                       aria-hidden="true">
                         check_circle
                       </span>
                       {f}
@@ -720,7 +720,7 @@ export default function EmployersPage() {
                   letterSpacing: '-0.02em',
                 }}
               >
-                Ready to Hire Certified Talent?
+                Ready to Transform Your Hiring Process?
               </h2>
               <p style={{ color: 'rgba(255,203,209,0.9)', fontSize: '1.125rem', marginBottom: '1.5rem', lineHeight: 1.6 }}>
                 Tell us what roles you need, how many you are hiring, and when you need them filled.
@@ -728,19 +728,19 @@ export default function EmployersPage() {
               </p>
               <div style={{ display: 'grid', gap: '0.75rem', marginBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-                  <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '1.1rem', marginTop: '0.15rem' }}>schedule</span>
+                  <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '1.1rem', marginTop: '0.15rem' }} aria-hidden="true">schedule</span>
                   <p style={{ margin: 0, color: 'rgba(255,255,255,0.88)', fontSize: '0.95rem', lineHeight: 1.5 }}>
                     Response time: 24–48 hours after submission.
                   </p>
                 </div>
                 <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-                  <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '1.1rem', marginTop: '0.15rem' }}>groups</span>
+                  <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '1.1rem', marginTop: '0.15rem' }} aria-hidden="true">groups</span>
                   <p style={{ margin: 0, color: 'rgba(255,255,255,0.88)', fontSize: '0.95rem', lineHeight: 1.5 }}>
                     For employers hiring now, building a pipeline, or planning an upskill program.
                   </p>
                 </div>
                 <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-                  <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '1.1rem', marginTop: '0.15rem' }}>fact_check</span>
+                  <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '1.1rem', marginTop: '0.15rem' }} aria-hidden="true">fact_check</span>
                   <p style={{ margin: 0, color: 'rgba(255,255,255,0.88)', fontSize: '0.95rem', lineHeight: 1.5 }}>
                     We review your use case, hiring volume, timeline, and role requirements before the first follow-up.
                   </p>
@@ -859,7 +859,7 @@ export default function EmployersPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {VALUE_CARDS.map((card) => (
               <div key={card.title} style={{ display: 'flex', gap: '0.75rem', padding: '1rem', borderRadius: '0.75rem', background: 'white', boxShadow: '0 1px 4px rgba(28,27,27,0.05)' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '24px', color: '#8c0f37', flexShrink: 0, marginTop: '2px' }}>{card.icon}</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '24px', color: '#8c0f37', flexShrink: 0, marginTop: '2px' }} aria-hidden="true">{card.icon}</span>
                 <div>
                   <h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>{card.title}</h3>
                   <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, margin: 0 }}>{card.desc}</p>
@@ -890,7 +890,7 @@ export default function EmployersPage() {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '20px', opacity: c.accent ? 0.9 : 0.7 }}>{c.icon}</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '20px', opacity: c.accent ? 0.9 : 0.7 }} aria-hidden="true">{c.icon}</span>
                   <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: 0 }}>{c.title}</h3>
                 </div>
                 <p style={{ fontSize: '0.75rem', margin: '0 0 0.25rem', opacity: 0.8 }}>{c.cert}</p>
@@ -906,7 +906,7 @@ export default function EmployersPage() {
         {/* ── Hiring Process — 4 Steps ── */}
         <section style={{ padding: '2rem 1rem', background: 'var(--surface-container-low, #f5f2f1)' }}>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-on-surface)', letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>
-            How Hiring Works
+            A Streamlined Hiring Experience
           </h2>
           <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.5 }}>
             Submit your employer intake and we will follow up within 24–48 hours.
@@ -914,7 +914,7 @@ export default function EmployersPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
             {PROCESS_STEPS.map((step) => (
               <div key={step.num} style={{ padding: '1rem', borderRadius: '0.75rem', background: 'white', boxShadow: '0 1px 4px rgba(28,27,27,0.05)', textAlign: 'center' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#8c0f37', display: 'block', marginBottom: '0.5rem' }}>{step.icon}</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#8c0f37', display: 'block', marginBottom: '0.5rem' }} aria-hidden="true">{step.icon}</span>
                 <span style={{ display: 'block', fontSize: '0.65rem', fontWeight: 800, color: '#8c0f37', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.25rem' }}>Step {step.num}</span>
                 <h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>{step.title}</h3>
                 <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, margin: 0 }}>{step.desc}</p>
@@ -945,7 +945,7 @@ export default function EmployersPage() {
                 <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                   {tier.features.map((f) => (
                     <li key={f} style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem', opacity: 0.9 }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>check</span>
+                      <span className="material-symbols-outlined" style={{ fontSize: '16px' }} aria-hidden="true">check</span>
                       {f}
                     </li>
                   ))}
@@ -985,7 +985,7 @@ export default function EmployersPage() {
         {/* ── Employer Testimonial ── */}
         <section style={{ padding: '2rem 1rem', background: 'var(--surface-container-low, #f5f2f1)' }}>
           <div style={{ borderRadius: '0.75rem', padding: '1.5rem', background: 'white', boxShadow: '0 1px 4px rgba(28,27,27,0.05)', textAlign: 'center' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: '#8c0f37', marginBottom: '0.75rem', display: 'block' }}>format_quote</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: '#8c0f37', marginBottom: '0.75rem', display: 'block' }} aria-hidden="true">format_quote</span>
             <blockquote style={{ fontSize: '0.9rem', lineHeight: 1.6, fontStyle: 'italic', color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>
               &ldquo;WorkforceAP connected us with three candidates who were immediately productive. The quality of preparation was unlike anything we&apos;ve seen from traditional staffing.&rdquo;
             </blockquote>

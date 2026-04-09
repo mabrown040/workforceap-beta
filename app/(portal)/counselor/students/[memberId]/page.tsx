@@ -345,7 +345,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
             <section style={{ marginTop: '1.5rem' }}>
               <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 700 }}>Resumes</h2>
               <div
-                className="portal-card portal-card--flat"
+                className="stitch-card"
                 style={{ padding: '1.25rem', border: '1px solid var(--outline-variant)' }}
               >
                 <StaffMemberResumePanel memberId={member.id} />

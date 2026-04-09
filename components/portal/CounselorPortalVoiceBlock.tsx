@@ -2,7 +2,7 @@
 
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
-import { counselorStaffVoiceSurface } from '@/lib/portal/voice';
+import { counselorStaffVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
 
 /**
  * Staff counselor portal — voice uses the ConvAI agent’s configured TTS (no client `voice_id` override;

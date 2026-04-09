@@ -10,18 +10,13 @@ import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Resume Rewriter',
-  description: 'Rewrite your resume to match your target job.',
+  description: 'AI-powered resume improvement tailored to your target job.',
   path: '/dashboard/ai-tools/resume-rewriter',
 });
 
 export default async function ResumeRewriterPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools/resume-rewriter');
-
-  const modePills = [
-    { key: 'voice', label: 'Voice coach' },
-    { key: 'text', label: 'Text rewrite' },
-  ] as const;
 
   return (
     <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
@@ -104,20 +99,20 @@ export default async function ResumeRewriterPage() {
                   flexWrap: 'wrap',
                 }}
               >
-                {modePills.map((pill) => (
+                {['Voice coach', 'Text rewrite'].map((workflow) => (
                   <span
-                    key={pill.key}
+                    key={workflow}
                     style={{
                       fontSize: '0.73rem',
                       padding: '0.3rem 0.75rem',
                       borderRadius: 999,
-                      background: 'transparent',
-                      color: 'var(--color-on-surface-variant)',
+                      background: workflow === 'Voice coach' ? 'var(--color-accent)' : 'transparent',
+                      color: workflow === 'Voice coach' ? '#fff' : 'var(--color-on-surface-variant)',
                       fontWeight: 600,
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    {pill.label}
+                    {workflow}
                   </span>
                 ))}
               </div>
@@ -217,7 +212,7 @@ export default async function ResumeRewriterPage() {
         </div>
 
         <div style={{ maxWidth: 1120, margin: '0 auto', padding: '1rem 1rem 2rem' }}>
-          <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', borderRadius: 16, marginBottom: '1.25rem', background: 'var(--surface-container-low)' }}>
+          <div className="stitch-card" style={{ padding: '1.25rem', borderRadius: 16, marginBottom: '1.25rem', background: 'var(--surface-container-low)' }}>
             <p style={{ fontSize: '0.82rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>
               Paste your resume bullets. Our AI rewrites them with strong action verbs, quantifiable impact, and keyword
               density tuned for ATS and recruiters. Choose voice coach or text rewrite in the tool below.
@@ -225,7 +220,7 @@ export default async function ResumeRewriterPage() {
           </div>
 
           <div
-            className="portal-card portal-card--flat"
+            className="stitch-card"
             style={{
               padding: '1.75rem',
               borderRadius: 16,
@@ -242,7 +237,7 @@ export default async function ResumeRewriterPage() {
           />
 
           <div
-            className="portal-card portal-card--flat resume-rewriter-knowledge-card"
+            className="stitch-card resume-rewriter-knowledge-card"
             style={{
               borderRadius: 16,
               overflow: 'hidden',

@@ -57,7 +57,7 @@ export default async function AdminNewInvitePage({ searchParams }: InviteFormPag
         </div>
       ) : null}
 
-      <form method="post" action="/api/admin/invites" className="portal-card portal-card--flat" style={{ padding: '1.25rem', display: 'grid', gap: '1rem' }}>
+      <form method="post" action="/api/admin/invites" className="stitch-card" style={{ padding: '1.25rem', display: 'grid', gap: '1rem' }}>
         <label className="form-group" style={{ margin: 0 }}>
           <span>Email address</span>
           <input name="email" type="email" required placeholder="person@example.com" />

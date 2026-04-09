@@ -51,8 +51,16 @@ export default function MentorStatusButtons({
             type="button"
             disabled={busy}
             onClick={() => void run('approve')}
-            className="btn btn-primary btn-sm"
-            style={{ cursor: busy ? 'wait' : 'pointer', opacity: busy ? 0.7 : 1 }}
+            style={{
+              border: 0,
+              borderRadius: '0.45rem',
+              padding: '0.45rem 0.7rem',
+              background: 'var(--color-accent)',
+              color: '#fff',
+              fontWeight: 600,
+              cursor: busy ? 'wait' : 'pointer',
+              opacity: busy ? 0.7 : 1,
+            }}
           >
             Approve
           </button>
@@ -62,12 +70,15 @@ export default function MentorStatusButtons({
             type="button"
             disabled={busy}
             onClick={() => void run('deactivate')}
-            className="btn btn-outline btn-sm"
             style={{
+              border: 0,
+              borderRadius: '0.45rem',
+              padding: '0.45rem 0.7rem',
+              background: '#a91b3f',
+              color: '#fff',
+              fontWeight: 600,
               cursor: busy ? 'wait' : 'pointer',
               opacity: busy ? 0.7 : 1,
-              borderColor: 'color-mix(in srgb, var(--color-accent) 55%, var(--outline-variant))',
-              color: 'var(--color-accent)',
             }}
           >
             Deactivate
@@ -78,15 +89,23 @@ export default function MentorStatusButtons({
             type="button"
             disabled={busy}
             onClick={() => void run('activate')}
-            className="btn btn-outline btn-sm"
-            style={{ cursor: busy ? 'wait' : 'pointer', opacity: busy ? 0.7 : 1 }}
+            style={{
+              border: '1px solid var(--outline-variant)',
+              borderRadius: '0.45rem',
+              padding: '0.45rem 0.7rem',
+              background: 'var(--surface-container-highest)',
+              color: 'var(--color-on-surface)',
+              fontWeight: 600,
+              cursor: busy ? 'wait' : 'pointer',
+              opacity: busy ? 0.7 : 1,
+            }}
           >
             Activate
           </button>
         ) : null}
       </div>
       {error ? (
-        <span style={{ fontSize: '0.75rem', color: 'var(--color-error, #ba1a1a)' }} role="alert">
+        <span style={{ fontSize: '0.75rem', color: '#b91c1c' }} role="alert">
           {error}
         </span>
       ) : null}

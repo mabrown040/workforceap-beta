@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import PortalVoiceSession, { type VoiceSessionPhase } from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
-import { mockInterviewVoiceSurface } from '@/lib/portal/voice';
+import { mockInterviewVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
 import InterviewCoachingPanel from '@/components/portal/tools/InterviewCoachingPanel';
 import MockInterviewVideoRecorder from '@/components/portal/tools/MockInterviewVideoRecorder';
 
@@ -59,7 +59,7 @@ export default function VoiceInterviewScaffold() {
   return (
     <div>
       {!ready ? (
-        <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', marginBottom: '1.25rem', borderRadius: 12 }}>
+        <div className="stitch-card" style={{ padding: '1.25rem', marginBottom: '1.25rem', borderRadius: 12 }}>
           <div className="form-group">
             <label htmlFor="vi-role">Target role</label>
             <input
@@ -238,7 +238,7 @@ export default function VoiceInterviewScaffold() {
         </div>
       ) : (
         <div className="voice-interview-layout">
-          <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', borderRadius: 12 }}>
+          <div className="stitch-card" style={{ padding: '1.25rem', borderRadius: 12 }}>
             <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
               Mock interview for <strong>{role}</strong> ({interviewType}). Use a quiet space and allow{' '}
               <strong>microphone</strong> access to talk with the coach.

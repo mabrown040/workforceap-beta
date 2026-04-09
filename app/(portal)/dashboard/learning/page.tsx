@@ -65,16 +65,16 @@ export default async function LearningPage() {
     <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
       {/* Header */}
       <div style={{ padding: '1.5rem 1.5rem 0', marginBottom: '1.5rem' }}>
-        <p className="wa-text-[11px] wa-font-medium wa-tracking-[0.1em] wa-uppercase wa-text-[var(--color-accent)]" style={{ display: 'block', marginBottom: '0.5rem' }}>Your Learning</p>
-        <h2 className="wa-text-3xl wa-font-bold wa-tracking-tight wa-text-[var(--color-on-surface)] wa-leading-tight">The Learning Hub</h2>
+        <p className="wa-text-[11px] wa-font-medium wa-tracking-[0.1em] wa-uppercase wa-text-[#8c0f37]" style={{ display: 'block', marginBottom: '0.5rem' }}>Your Learning</p>
+        <h2 className="wa-text-3xl wa-font-bold wa-tracking-tight wa-text-[#1c1b1b] wa-leading-tight">The Learning Hub</h2>
       </div>
 
       {/* Progress overview card */}
-      <section className="wa-bg-[var(--surface-container-low)]" style={{ margin: '0 1.5rem 1.5rem', padding: '1.25rem', borderRadius: '0.75rem', position: 'relative', overflow: 'hidden', border: '1px solid color-mix(in srgb, var(--outline-variant) 35%, transparent)' }}>
+      <section className="wa-bg-[#f2eeed]" style={{ margin: '0 1.5rem 1.5rem', padding: '1.25rem', borderRadius: '0.75rem', position: 'relative', overflow: 'hidden' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
           <div style={{ zIndex: 10, width: '60%' }}>
-            <h3 className="wa-text-lg wa-font-bold wa-leading-tight wa-text-[var(--color-on-surface)]" style={{ marginBottom: '0.25rem' }}>{ACTIVE_PATHWAY.title}</h3>
-            <p className="wa-text-sm wa-text-[var(--color-on-surface-variant)] wa-font-medium">
+            <h3 className="wa-text-lg wa-font-bold wa-leading-tight wa-text-[#1c1b1b]" style={{ marginBottom: '0.25rem' }}>{ACTIVE_PATHWAY.title}</h3>
+            <p className="wa-text-sm wa-text-[#584144] wa-font-medium">
               {isEnrolled ? 'In Progress' : 'Not Started'} · {ACTIVE_PATHWAY.steps.length} modules
             </p>
           </div>
@@ -90,12 +90,12 @@ export default async function LearningPage() {
                 strokeLinecap="round"
               />
             </svg>
-            <span className="wa-text-base wa-font-bold wa-text-[var(--color-gold)]" style={{ position: 'absolute' }}>{overallPct}%</span>
+            <span className="wa-text-base wa-font-bold wa-text-[#7b5800]" style={{ position: 'absolute' }}>{overallPct}%</span>
           </div>
         </div>
         {/* Progress bar */}
-        <div style={{ marginTop: '1rem', height: '0.375rem', width: '100%', borderRadius: '9999px', overflow: 'hidden', background: 'color-mix(in srgb, var(--outline-variant) 45%, transparent)' }}>
-          <div className="wa-bg-[var(--color-accent)]" style={{ width: `${Math.min(100, overallPct)}%`, height: '100%', borderRadius: '9999px' }} />
+        <div className="wa-bg-[#debfc2]" style={{ marginTop: '1rem', height: '0.375rem', width: '100%', borderRadius: '9999px', overflow: 'hidden' }}>
+          <div className="wa-bg-[#8c0f37]" style={{ width: `${Math.min(100, overallPct)}%`, height: '100%', borderRadius: '9999px' }} />
         </div>
       </section>
 
@@ -111,7 +111,7 @@ export default async function LearningPage() {
 
       {/* Current module card */}
       <section style={{ margin: '0 1.5rem 1.5rem' }}>
-        <div className="wa-bg-gradient-to-br from-[var(--color-accent-dark)] to-[var(--color-accent)] wa-text-white" style={{ padding: '1.25rem', borderRadius: '0.75rem' }}>
+        <div className="wa-bg-gradient-to-br from-[#8c0f37] to-[#ad2c4d] wa-text-white" style={{ padding: '1.25rem', borderRadius: '0.75rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
             <span className="bg-white/20 wa-text-[10px] wa-font-bold wa-tracking-wider wa-uppercase" style={{ padding: '0.125rem 0.5rem', borderRadius: '0.25rem' }}>Active</span>
             <span className="material-symbols-outlined wa-text-sm" style={{ fontVariationSettings: "'FILL' 1" }} aria-hidden="true">timer</span>
@@ -121,7 +121,7 @@ export default async function LearningPage() {
           <p className="text-white/80 wa-text-sm" style={{ marginBottom: '1rem' }}>{ACTIVE_PATHWAY.description}</p>
           <Link
             href="/dashboard/training"
-            className="wa-bg-white wa-text-[var(--color-accent)] wa-font-bold active:wa-scale-95 wa-transition-transform"
+            className="wa-bg-white wa-text-[#8c0f37] wa-font-bold active:wa-scale-95 wa-transition-transform"
             style={{
               width: '100%',
               padding: '0.75rem 0',
@@ -141,7 +141,7 @@ export default async function LearningPage() {
 
       {/* Pathway steps — synced from your pathway progress */}
       <section style={{ margin: '0 1.5rem 1.5rem' }}>
-        <h5 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-on-surface-variant)]" style={{ marginBottom: '1rem' }}>Pathway steps</h5>
+        <h5 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest wa-text-[#584144]" style={{ marginBottom: '1rem' }}>Pathway steps</h5>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {pathwayMilestones.slice(0, 4).map((m) => {
             const isCompleted = m.status === 'complete';
@@ -150,7 +150,7 @@ export default async function LearningPage() {
             return (
               <div
                 key={m.stepIndex}
-                className={`${isCompleted ? 'wa-bg-[var(--surface-container)] wa-border-l-4 wa-border-[var(--color-gold)]' : isActive ? 'wa-bg-[var(--surface-container)] wa-border-l-4 wa-border-[var(--color-accent)]' : 'wa-bg-[var(--surface-container-highest)] wa-opacity-60'}`}
+                className={`${isCompleted ? 'wa-bg-white wa-border-l-4 wa-border-[#7b5800]' : isActive ? 'wa-bg-white wa-border-l-4 wa-border-[#8c0f37]' : 'wa-bg-[#f6f3f2] wa-opacity-60'}`}
                 style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderRadius: '0.75rem', padding: '0.75rem 1rem', boxShadow: isCompleted || isActive ? '0 1px 2px rgba(0,0,0,0.05)' : undefined }}
               >
                 <div
@@ -186,7 +186,7 @@ export default async function LearningPage() {
                   >
                     {m.detail}
                   </p>
-                  <p className="wa-text-sm wa-font-semibold wa-text-[var(--color-on-surface)] wa-truncate">{m.label}</p>
+                  <p className="wa-text-sm wa-font-semibold wa-text-[#1c1b1b] wa-truncate">{m.label}</p>
                 </div>
               </div>
             );
@@ -196,20 +196,20 @@ export default async function LearningPage() {
 
       {pathwayMilestones.some((m) => m.status === 'complete') && (
         <section style={{ margin: '0 1.5rem 1.5rem' }}>
-          <h5 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-on-surface-variant)]" style={{ marginBottom: '0.75rem' }}>Completed</h5>
+          <h5 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest wa-text-[#584144]" style={{ marginBottom: '0.75rem' }}>Completed</h5>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {pathwayMilestones
               .filter((m) => m.status === 'complete')
               .map((m) => (
-              <div key={m.stepIndex} className="wa-bg-[var(--surface-container)] wa-border-l-4 wa-border-[var(--color-gold)]" style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderRadius: '0.75rem', padding: '0.75rem 1rem', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+              <div key={m.stepIndex} className="wa-bg-white wa-border-l-4 wa-border-[#7b5800]" style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderRadius: '0.75rem', padding: '0.75rem 1rem', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
                 <div style={{ width: '2.25rem', height: '2.25rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'rgba(123,88,0,0.1)' }}>
                   <span className="material-symbols-outlined wa-text-base" style={{ color: 'var(--color-gold)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
                     check_circle
                   </span>
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-tight wa-text-[var(--color-gold)]" style={{ marginBottom: '0.125rem' }}>Completed</p>
-                  <p className="wa-text-sm wa-font-semibold wa-text-[var(--color-on-surface)] wa-truncate">{m.label}</p>
+                  <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-tight wa-text-[#7b5800]" style={{ marginBottom: '0.125rem' }}>Completed</p>
+                  <p className="wa-text-sm wa-font-semibold wa-text-[#1c1b1b] wa-truncate">{m.label}</p>
                 </div>
               </div>
             ))}

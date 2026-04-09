@@ -5,7 +5,7 @@ import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import type { ResumeSuggestion, VoiceSessionPhase } from '@/components/portal/PortalVoiceSession';
 import { extractResumeCoachSuggestionsFromText } from '@/lib/ai/resumeCoachHeuristic';
-import { resumeCoachVoiceSurface } from '@/lib/portal/voice';
+import { resumeCoachVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
 
 type LiveSuggestion = ResumeSuggestion & { id: string; source?: 'live' | 'post' };
 
@@ -308,7 +308,7 @@ export default function ResumeCoachWorkspace() {
       {/* Bottom/Right panel: Live resume draft (context textarea) */}
       <div style={{ flex: '1 1 300px', minWidth: 280 }}>
         <div
-          className="portal-card portal-card--flat"
+          className="stitch-card"
           style={{ padding: '1.5rem', border: '1px solid var(--outline-variant)' }}
         >
           <div

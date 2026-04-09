@@ -65,7 +65,7 @@ export default async function JobMatchScorerPage() {
 
         <div style={{ maxWidth: 1120, margin: '0 auto', padding: '1rem 1rem 2rem' }}>
           <div
-            className="portal-card portal-card--flat"
+            className="stitch-card"
             style={{ padding: '1rem', borderRadius: 12, marginBottom: '1rem', background: 'var(--surface-container-low)' }}
           >
             <p style={{ fontSize: '0.82rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>
@@ -74,7 +74,7 @@ export default async function JobMatchScorerPage() {
             </p>
           </div>
 
-          <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', borderRadius: 16, marginBottom: '2rem' }}>
+          <div className="stitch-card" style={{ padding: '1.25rem', borderRadius: 16, marginBottom: '2rem' }}>
             <h2 style={{ fontSize: '1.05rem', fontWeight: 700, margin: '0 0 1rem', color: 'var(--color-on-surface)' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', verticalAlign: 'middle', marginRight: '0.4rem', color: 'var(--color-accent)' }} aria-hidden>
                 compare
@@ -93,7 +93,7 @@ export default async function JobMatchScorerPage() {
               gap: '1.25rem',
             }}
           >
-            <div className="portal-card portal-card--flat" style={{ padding: '1.25rem 1.5rem', borderRadius: 14, background: 'var(--surface-container-low)' }}>
+            <div className="stitch-card" style={{ padding: '1.25rem 1.5rem', borderRadius: 14, background: 'var(--surface-container-low)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.6rem' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', color: 'var(--color-accent)' }} aria-hidden>
                   science
@@ -104,7 +104,7 @@ export default async function JobMatchScorerPage() {
                 Keyword overlap, semantic similarity, and role-relevant weighting produce an actionable compatibility score.
               </p>
             </div>
-            <div className="portal-card portal-card--flat" style={{ padding: '1.25rem 1.5rem', borderRadius: 14, background: 'var(--surface-container-low)' }}>
+            <div className="stitch-card" style={{ padding: '1.25rem 1.5rem', borderRadius: 14, background: 'var(--surface-container-low)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.6rem' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', color: 'var(--color-accent)' }} aria-hidden>
                   shield
@@ -116,7 +116,7 @@ export default async function JobMatchScorerPage() {
                 if you need to keep them.
               </p>
             </div>
-            <div className="portal-card portal-card--flat" style={{ padding: '1.25rem 1.5rem', borderRadius: 14, background: 'var(--surface-container-low)' }}>
+            <div className="stitch-card" style={{ padding: '1.25rem 1.5rem', borderRadius: 14, background: 'var(--surface-container-low)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.6rem' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', color: 'var(--color-accent)' }} aria-hidden>
                   info

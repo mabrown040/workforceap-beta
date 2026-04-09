@@ -41,85 +41,55 @@ export default async function AdminSubgroupsPage() {
           <Link href="/admin/subgroups/new" className="btn btn-primary">Create Subgroup</Link>
         </div>
       ) : (
-        <>
-          {/* Desktop table */}
-          <div className="admin-table-scroll admin-subgroup-desktop">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Type</th>
-                  <th>Leader</th>
-                  <th>Partner</th>
-                  <th>Members</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {subgroups.map((sg) => (
-                  <tr key={sg.id}>
-                    <td>
-                      <div style={{ fontWeight: 600 }}>{sg.name}</div>
-                      {sg.description && (
-                        <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', maxWidth: 200 }}>{sg.description}</div>
-                      )}
-                    </td>
-                    <td>
-                      <span style={{
-                        padding: '0.2rem 0.5rem',
-                        borderRadius: '4px',
-                        fontSize: '0.8rem',
-                        textTransform: 'capitalize',
-                        background: 'var(--color-light)',
-                      }}>
-                        {sg.type}
-                      </span>
-                    </td>
-                    <td style={{ fontSize: '0.9rem' }}>
-                      {sg.leader.fullName}
-                      <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{sg.leader.email}</div>
-                    </td>
-                    <td>{sg.partner?.name ?? '—'}</td>
-                    <td style={{ textAlign: 'center' }}>{sg._count.members}</td>
-                    <td>
-                      <Link
-                        href={`/admin/subgroups/${sg.id}`}
-                        style={{ color: 'var(--color-accent)', textDecoration: 'none', fontSize: '0.9rem' }}
-                      >
-                        Manage &rarr;
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mobile cards */}
-          <ul className="admin-portal-card-list admin-subgroup-cards" aria-label="Subgroups (mobile layout)">
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Leader</th>
+              <th>Partner</th>
+              <th>Members</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
             {subgroups.map((sg) => (
-              <li key={sg.id} className="admin-portal-card">
-                <div className="admin-portal-card__header">
-                  <div>
-                    <div style={{ fontWeight: 700 }}>{sg.name}</div>
-                    <div className="admin-portal-card__meta">{sg.leader.fullName}</div>
-                  </div>
-                  <span className="admin-portal-card__badge" style={{ background: 'var(--color-light)', color: 'var(--color-on-surface)' }}>
-                    {sg._count.members} members
+              <tr key={sg.id}>
+                <td>
+                  <div style={{ fontWeight: 600 }}>{sg.name}</div>
+                  {sg.description && (
+                    <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', maxWidth: 200 }}>{sg.description}</div>
+                  )}
+                </td>
+                <td>
+                  <span style={{
+                    padding: '0.2rem 0.5rem',
+                    borderRadius: '4px',
+                    fontSize: '0.8rem',
+                    textTransform: 'capitalize',
+                    background: 'var(--color-light)',
+                  }}>
+                    {sg.type}
                   </span>
-                </div>
-                {sg.description && <p className="admin-portal-card__meta">{sg.description}</p>}
-                <p className="admin-portal-card__meta">Type: <span style={{ textTransform: 'capitalize' }}>{sg.type}</span></p>
-                <p className="admin-portal-card__meta">Partner: {sg.partner?.name ?? '—'}</p>
-                <div className="admin-portal-card__actions">
-                  <Link href={`/admin/subgroups/${sg.id}`} style={{ color: 'var(--color-accent)', textDecoration: 'none', fontSize: '0.9rem' }}>
+                </td>
+                <td style={{ fontSize: '0.9rem' }}>
+                  {sg.leader.fullName}
+                  <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{sg.leader.email}</div>
+                </td>
+                <td>{sg.partner?.name ?? 'â€”'}</td>
+                <td style={{ textAlign: 'center' }}>{sg._count.members}</td>
+                <td>
+                  <Link
+                    href={`/admin/subgroups/${sg.id}`}
+                    style={{ color: 'var(--color-accent)', textDecoration: 'none', fontSize: '0.9rem' }}
+                  >
                     Manage &rarr;
                   </Link>
-                </div>
-              </li>
+                </td>
+              </tr>
             ))}
-          </ul>
-        </>
+          </tbody>
+        </table>
       )}
     </div>
   );

@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
-import { getSupabaseCookieOptions, SESSION_ONLY_COOKIE } from '@/lib/supabaseCookieOptions';
+import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
 
 const PORTAL_PATHS = [
   '/dashboard',
@@ -63,25 +63,16 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // If the user logged in with "session only" (no remember-me), preserve that
-  // preference on every token refresh so the session doesn't silently become persistent.
-  const sessionOnly = request.cookies.get(SESSION_ONLY_COOKIE)?.value === '1';
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookieOptions: getSupabaseCookieOptions(sessionOnly),
+    cookieOptions: getSupabaseCookieOptions(),
     cookies: {
       getAll() {
         return request.cookies.getAll();
       },
       setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
-        cookiesToSet.forEach(({ name, value, options }) => {
-          // Strip maxAge/expires for session-only users so the cookie stays ephemeral
-          if (sessionOnly) {
-            const { maxAge: _drop1, expires: _drop2, ...rest } = (options ?? {}) as Record<string, unknown>;
-            response.cookies.set(name, value, rest);
-          } else {
-            response.cookies.set(name, value, options ?? {});
-          }
-        });
+        cookiesToSet.forEach(({ name, value, options }) =>
+          response.cookies.set(name, value, options ?? {})
+        );
       },
     },
   });

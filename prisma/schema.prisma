@@ -915,12 +915,12 @@ model PlacementRecord {
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
   // ── WIOA / grant-reporting fields (all optional until reporting is live) ──
-  programSlug         String? @map("program_slug")
-  wageAtFollowUp      Int?    @map("wage_at_follow_up") // annual, 90/180-day follow-up
-  retentionStatus     String? @map("retention_status") // e.g. "retained_90d", "retained_180d", "separated"
-  startDateVerified   Boolean @default(false) @map("start_date_verified")
-  fundingSource       String? @map("funding_source") // e.g. "WIOA_Adult", "WIOA_Youth", "TAA"
-  grantReportingNotes String? @map("grant_reporting_notes") @db.Text
+  programSlug          String?  @map("program_slug")
+  wageAtFollowUp       Int?     @map("wage_at_follow_up") // annual, 90/180-day follow-up
+  retentionStatus      String?  @map("retention_status") // e.g. "retained_90d", "retained_180d", "separated"
+  startDateVerified    Boolean  @default(false) @map("start_date_verified")
+  fundingSource        String?  @map("funding_source") // e.g. "WIOA_Adult", "WIOA_Youth", "TAA"
+  grantReportingNotes  String?  @map("grant_reporting_notes") @db.Text
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

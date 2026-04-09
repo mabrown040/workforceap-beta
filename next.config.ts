@@ -1,18 +1,12 @@
 import { createRequire } from 'module';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { withSentryConfig } from '@sentry/nextjs';
 import type { NextConfig } from 'next';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Same POSTGRES_* defaults as scripts/prisma-env.js so `next build` can run Prisma without errors
 const require = createRequire(import.meta.url);
 require('./scripts/ensure-prisma-env.cjs');
 
 const nextConfig: NextConfig = {
-  // When a lockfile exists outside this repo (e.g. user home), Next may pick the wrong root — breaks tracing + route collection.
-  outputFileTracingRoot: path.join(__dirname),
   poweredByHeader: false,
   serverExternalPackages: ['pdf-parse', 'mammoth'],
   async headers() {

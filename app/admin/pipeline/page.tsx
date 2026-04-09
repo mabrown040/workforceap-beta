@@ -3,7 +3,6 @@ import { prisma } from '@/lib/db/prisma';
 import { getPipelineStage, type PipelineStage } from '@/lib/pipeline/stage';
 import Link from 'next/link';
 import PageHeader from '@/components/portal/PageHeader';
-import PortalKpiCard from '@/components/portal/PortalKpiCard';
 import AdminPipelineKanban, {
   type PipelineKanbanMember,
 } from '@/components/admin/AdminPipelineKanban';
@@ -49,6 +48,7 @@ function toKanbanMember(s: {
 }
 
 export default async function AdminPipelinePage() {
+  // Defense in depth: middleware also requires a session for /admin/*; this enforces admin role.
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/pipeline');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
@@ -122,21 +122,54 @@ export default async function AdminPipelinePage() {
         title="Student Pipeline"
         subtitle="Drag cards between columns like a Trello board. Positions are saved for all admins. With no manual column set, a student’s stage is derived from enrollment, courses, certifications, and placement."
         action={
-          <Link href="/admin/placements/new" className="btn btn-primary">
+          <Link
+            href="/admin/placements/new"
+            style={{
+              padding: '0.5rem 1rem',
+              background: 'var(--color-blue)',
+              color: 'white',
+              borderRadius: '6px',
+              textDecoration: 'none',
+              fontWeight: 600,
+            }}
+          >
             Record Placement
           </Link>
         }
       />
 
-      <div className="portal-grid-metrics" style={{ marginBottom: '1.5rem' }}>
-        <PortalKpiCard label="Total Active" value={totalActive} accent="neutral" />
-        <PortalKpiCard label="Placed" value={totalPlaced} accent="green" />
-        <PortalKpiCard
-          label="Placement Rate"
-          value={totalActive > 0 ? `${Math.round((totalPlaced / totalActive) * 100)}%` : '—'}
-          accent="blue"
-        />
-        <PortalKpiCard label="Avg Salary" value={avgSalary ? `$${avgSalary.toLocaleString()}` : '—'} accent="gold" />
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+        {[
+          { label: 'Total Active', value: totalActive },
+          { label: 'Placed', value: totalPlaced },
+          {
+            label: 'Placement Rate',
+            value: totalActive > 0 ? `${Math.round((totalPlaced / totalActive) * 100)}%` : '—',
+          },
+          { label: 'Avg Salary', value: avgSalary ? `$${avgSalary.toLocaleString()}` : '—' },
+        ].map((stat) => (
+          <div
+            key={stat.label}
+            style={{
+              padding: '1.5rem',
+              background: 'var(--surface-container)',
+              borderRadius: '8px',
+              minWidth: '120px',
+              textAlign: 'center',
+            }}
+          >
+            <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1.2 }}>{stat.value}</div>
+            <div
+              style={{
+                fontSize: '0.875rem',
+                color: 'var(--color-on-surface-variant)',
+                marginTop: '0.25rem',
+              }}
+            >
+              {stat.label}
+            </div>
+          </div>
+        ))}
       </div>
 
       <AdminPipelineKanban initialByStage={initialByStage} />

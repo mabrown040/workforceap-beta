@@ -186,6 +186,8 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
       return `${title} ${preview}`.toLowerCase().includes(q);
     };
     const showCounselor = rowMatches(counselorName ?? 'Counselor', displayLastMsg);
+    const showProgram = rowMatches('Program Team', 'Your certification for Digital Literacy is ready.');
+    const showCareer = rowMatches('Career Services', 'New job match found: Junior Web Developer.');
 
     return (
       <div className="portal-messages-shell">
@@ -193,7 +195,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
         <header className="portal-messages-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <Link href="/dashboard" className="portal-messages-header-btn" aria-label="Back to dashboard">
-              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '20px' }} aria-hidden="true">
                 arrow_back
               </span>
             </Link>
@@ -205,7 +207,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
             aria-label="Focus search"
             onClick={() => searchInputRef.current?.focus()}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '20px' }} aria-hidden="true">
               edit_square
             </span>
           </button>
@@ -214,7 +216,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
         {/* Search */}
         <div className="portal-messages-search">
           <div className="portal-messages-search-wrap">
-            <span className="material-symbols-outlined portal-messages-search-icon">search</span>
+            <span className="material-symbols-outlined portal-messages-search-icon" aria-hidden="true">search</span>
             <input
               ref={searchInputRef}
               type="search"
@@ -264,6 +266,40 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
             </div>
             )}
 
+            {/* Program team — link to resources */}
+            {showProgram && (
+            <div style={{ padding: '2px 8px' }}>
+              <Link href="/dashboard/resources" className="portal-messages-link-row">
+                <div className="portal-messages-avatar portal-messages-avatar--muted">PT</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <h3 style={{ fontWeight: 600, fontSize: '14px', color: 'var(--color-on-surface)', margin: 0 }}>Program Team</h3>
+                    <span style={{ fontSize: '11px', color: 'var(--color-on-surface-variant)' }}>Yesterday</span>
+                  </div>
+                  <p style={{ fontSize: '13px', color: 'var(--color-on-surface-variant)', margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Your certification for Digital Literacy is ready.</p>
+                </div>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.5, fontSize: '18px', flexShrink: 0 }} aria-hidden="true">chevron_right</span>
+              </Link>
+            </div>
+            )}
+
+            {/* Career Services — link to job board */}
+            {showCareer && (
+            <div style={{ padding: '2px 8px' }}>
+              <Link href="/dashboard/jobs" className="portal-messages-link-row">
+                <div className="portal-messages-avatar portal-messages-avatar--muted">CS</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <h3 style={{ fontWeight: 600, fontSize: '14px', color: 'var(--color-on-surface)', margin: 0 }}>Career Services</h3>
+                    <span style={{ fontSize: '11px', color: 'var(--color-on-surface-variant)' }}>Monday</span>
+                  </div>
+                  <p style={{ fontSize: '13px', color: 'var(--color-on-surface-variant)', margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>New job match found: Junior Web Developer.</p>
+                </div>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.5, fontSize: '18px', flexShrink: 0 }} aria-hidden="true">chevron_right</span>
+              </Link>
+            </div>
+            )}
+
             <CareerTipCard />
           </div>
         </main>
@@ -282,7 +318,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
           className="portal-messages-header-btn hover:wa-bg-[var(--surface-container)] active:wa-scale-95 wa-transition-transform"
           aria-label="Back to messages"
         >
-          <span className="material-symbols-outlined">arrow_back</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '20px' }} aria-hidden="true">arrow_back</span>
         </button>
         <div className="portal-messages-avatar wa-w-9 wa-h-9 wa-text-xs">{counselorInitials}</div>
         <div className="wa-flex-1 wa-min-w-0">
@@ -310,7 +346,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
               className="wa-w-16 wa-h-16 wa-rounded-full wa-flex wa-items-center wa-justify-center"
               style={{ background: 'var(--surface-container-high)' }}
             >
-              <span className="material-symbols-outlined wa-text-2xl" style={{ color: 'var(--color-accent)' }}>
+              <span className="material-symbols-outlined wa-text-2xl" style={{ color: 'var(--color-accent)' }} aria-hidden="true">
                 chat_bubble_outline
               </span>
             </div>
@@ -387,7 +423,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
           }}
           aria-label="Send message"
         >
-          <span className="material-symbols-outlined wa-text-[20px]">send</span>
+          <span className="material-symbols-outlined wa-text-[20px]" aria-hidden="true">send</span>
         </button>
       </form>
     </div>

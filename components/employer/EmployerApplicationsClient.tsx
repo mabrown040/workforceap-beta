@@ -126,20 +126,17 @@ export default function EmployerApplicationsClient({ initialRows }: { initialRow
                 <Fragment key={app.id}>
                   <tr id={app.id}>
                     <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div style={{ width: '2rem', height: '2rem', borderRadius: '9999px', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '0.75rem', flexShrink: 0 }}>
-                          {(studentName ?? '?').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
-                        </div>
-                        <div>
-                          <Link href={`/employer/candidates/${app.student.id}?jobId=${encodeURIComponent(app.jobId)}`} style={{ fontWeight: 700, color: 'var(--color-on-surface)', textDecoration: 'none' }}>
-                            {studentName}
-                          </Link>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{app.student.email}</div>
+                      <div>
+                        <Link href={`/employer/candidates/${app.student.id}?jobId=${encodeURIComponent(app.jobId)}`}>
+                          <strong>{studentName}</strong>
+                        </Link>
+                        <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                          {app.student.email}
                         </div>
                       </div>
                     </td>
                     <td>
-                      <Link href={`/employer/jobs/${app.job.id}`} style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
+                      <Link href={`/employer/jobs/${app.job.id}`} style={{ color: 'var(--color-accent)' }}>
                         {app.job.title}
                       </Link>
                     </td>
@@ -152,13 +149,13 @@ export default function EmployerApplicationsClient({ initialRows }: { initialRow
                         aria-label={`Status for ${studentName}`}
                       >
                         {STATUSES.map((s) => (
-                          <option key={s} value={s}>{s}</option>
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
                         ))}
                       </select>
                     </td>
-                    <td style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
-                      {new Date(app.appliedAt).toLocaleDateString()}
-                    </td>
+                    <td>{new Date(app.appliedAt).toLocaleDateString()}</td>
                     <td>
                       <button
                         type="button"
@@ -169,19 +166,18 @@ export default function EmployerApplicationsClient({ initialRows }: { initialRow
                         style={{
                           display: 'inline-flex',
                           alignItems: 'center',
-                          gap: '0.375rem',
-                          padding: '0.4rem 0.75rem',
+                          justifyContent: 'center',
+                          gap: '0.35rem',
+                          padding: '0.5rem 0.75rem',
                           borderRadius: '0.5rem',
-                          background: isChatOpen ? 'rgba(173,44,77,0.12)' : 'rgba(173,44,77,0.08)',
+                          background: isChatOpen ? '#f3e8ff' : '#fff1f2',
                           color: 'var(--color-accent)',
-                          fontWeight: 700,
-                          fontSize: '0.8125rem',
-                          border: 'none',
-                          cursor: isChatLoading ? 'default' : 'pointer',
-                          opacity: isChatLoading ? 0.6 : 1,
+                          fontWeight: 600,
+                          whiteSpace: 'nowrap',
+                          opacity: isChatLoading ? 0.7 : 1,
                         }}
                       >
-                        <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', fontVariationSettings: "'FILL' 1" }}>forum</span>
+                        <span aria-hidden="true">💬</span>
                         {isChatLoading ? 'Loading…' : isChatOpen ? 'Close' : 'Message'}
                       </button>
                     </td>

@@ -181,7 +181,7 @@ export default async function HomePage() {
             alignItems: 'start',
           }}>
             {/* For Members — first + elevated (primary audience) */}
-            <div className="portal-card portal-card--flat home-employer-elevated" style={{
+            <div className="stitch-card home-employer-elevated" style={{
               background: 'var(--surface-container-lowest)', padding: '2rem',
               border: '2px solid var(--color-accent)',
               transform: 'translateY(-1rem)',
@@ -215,7 +215,7 @@ export default async function HomePage() {
             </div>
 
             {/* For Partners */}
-            <div className="portal-card portal-card--flat" style={{ background: 'var(--surface-container-lowest)', padding: '2rem' }}>
+            <div className="stitch-card" style={{ background: 'var(--surface-container-lowest)', padding: '2rem' }}>
               <div style={{ width: '3rem', height: '3rem', background: 'rgba(200,198,197,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c8c6c5', marginBottom: '1.5rem' }}>
                 <span className="material-symbols-outlined" aria-hidden="true">handshake</span>
               </div>
@@ -240,7 +240,7 @@ export default async function HomePage() {
             </div>
 
             {/* For Employers */}
-            <div className="portal-card portal-card--flat" style={{ background: 'var(--surface-container-lowest)', padding: '2rem' }}>
+            <div className="stitch-card" style={{ background: 'var(--surface-container-lowest)', padding: '2rem' }}>
               <div style={{ width: '3rem', height: '3rem', background: 'rgba(255,187,0,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-gold)', marginBottom: '1.5rem' }}>
                 <span className="material-symbols-outlined" aria-hidden="true">business</span>
               </div>
@@ -290,14 +290,14 @@ export default async function HomePage() {
           <div style={{
             display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem',
           }}>
-            <div className="portal-card portal-card--flat" style={{
+            <div className="stitch-card" style={{
               background: 'var(--surface-container-high)', padding: '1.5rem',
               display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
             }}>
               <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--color-gold)', lineHeight: 1 }}>2,000+</span>
               <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Trained</span>
             </div>
-            <div className="portal-card portal-card--flat" style={{
+            <div className="stitch-card" style={{
               background: 'var(--surface-container-high)', padding: '1.5rem',
               display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
             }}>
@@ -305,7 +305,7 @@ export default async function HomePage() {
               <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Programs</span>
             </div>
             {/* Accent card spanning full width */}
-            <div className="portal-card portal-card--flat" style={{
+            <div className="stitch-card" style={{
               gridColumn: '1 / -1',
               background: 'var(--color-accent)', color: 'white', padding: '1.5rem',
               textAlign: 'center',
@@ -376,7 +376,7 @@ export default async function HomePage() {
             <Link
               key={p.slug}
               href={`/programs/${p.slug}`}
-              className="portal-card portal-card--flat"
+              className="stitch-card"
               style={{
                 background: 'var(--surface-container-high)',
                 color: 'var(--color-on-surface)',

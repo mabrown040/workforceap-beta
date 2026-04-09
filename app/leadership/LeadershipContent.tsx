@@ -53,7 +53,7 @@ export default function LeadershipContent() {
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
                 <article
-                  className="portal-card portal-card--flat"
+                  className="stitch-card"
                   style={{
                     background: 'var(--surface-container)',
                     borderRadius: 'var(--radius-xl, 1rem)',
@@ -351,7 +351,7 @@ export default function LeadershipContent() {
                   style={{ textDecoration: 'none', color: 'inherit' }}
                 >
                   <article
-                    className="portal-card portal-card--flat"
+                    className="stitch-card"
                     style={{
                       background: 'var(--surface-container-lowest)',
                       borderRadius: 'var(--radius-xl, 1rem)',

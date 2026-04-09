@@ -9,7 +9,7 @@ import ReadinessMobileScoreCard from '@/components/portal/ReadinessMobileScoreCa
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
-import { readinessVoiceSurface } from '@/lib/portal/voice';
+import { readinessVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
 import { getMemberReadinessSections } from '@/lib/readiness/memberReadinessSections';
 import '@/css/counselor.css';
 
@@ -99,35 +99,25 @@ export default async function DashboardReadinessPage() {
           </p>
         </div>
 
+        <div style={{ padding: '0 1rem 1rem' }}>
+          <VoiceAgentSurface {...readinessVoiceSurface}>
+            <PortalVoiceSession
+              sessionEndpoint="/api/member/readiness/voice-session"
+              title="Talk through your readiness plan"
+              description="Ask about interviews, certifications, LinkedIn, or your next milestone."
+              accent="#0d9488"
+              accentDark="#0f766e"
+              speakingLabel="Coach is speaking…"
+              listeningLabel="Listening — share where you are"
+            />
+          </VoiceAgentSurface>
+        </div>
+
         <ReadinessMobileScoreCard
           overallScore={overallScore}
           categories={categories}
           priorityAction={priorityAction}
         />
-
-        <div className="portal-pad-x" style={{ marginTop: '1rem' }}>
-          <details className="portal-card portal-card--flat" style={{ padding: '0.75rem 0.9rem' }}>
-            <summary style={{ cursor: 'pointer', fontWeight: 800, color: 'var(--color-on-surface)', listStyle: 'none' }}>
-              Readiness coach
-              <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
-                (tap to open)
-              </span>
-            </summary>
-            <div style={{ marginTop: '0.75rem' }}>
-              <VoiceAgentSurface {...readinessVoiceSurface}>
-                <PortalVoiceSession
-                  sessionEndpoint="/api/member/readiness/voice-session"
-                  title="Talk through your readiness plan"
-                  description="Ask about interviews, certifications, LinkedIn, or your next milestone."
-                  accent="#0d9488"
-                  accentDark="#0f766e"
-                  speakingLabel="Coach is speaking…"
-                  listeningLabel="Listening — share where you are"
-                />
-              </VoiceAgentSurface>
-            </div>
-          </details>
-        </div>
 
         <MobileBottomNav variant="portal" />
       </div>
@@ -140,57 +130,6 @@ export default async function DashboardReadinessPage() {
             subtitle="Track your progress from training to landing a job. Your counselor updates this as you hit milestones."
             breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Job Readiness' }]}
           />
-
-          {/* Score summary — desktop metric strip */}
-          <div style={{ marginBottom: '1.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-              {/* Overall score ring */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', padding: '1.25rem', background: 'var(--surface-container-low)', borderRadius: '1rem', border: '1px solid rgba(255,255,255,0.05)', flex: '0 0 auto' }}>
-                <div style={{ position: 'relative', width: '5rem', height: '5rem', flexShrink: 0 }}>
-                  <svg style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }} viewBox="0 0 80 80" aria-hidden>
-                    <circle cx="40" cy="40" r="34" fill="transparent" stroke="var(--surface-container-high)" strokeWidth="6" />
-                    <circle
-                      cx="40" cy="40" r="34" fill="transparent"
-                      stroke="var(--color-accent)" strokeWidth="6"
-                      strokeDasharray={213.6}
-                      strokeDashoffset={213.6 - (213.6 * overallScore) / 100}
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                    <span style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-accent)', lineHeight: 1 }}>{overallScore}</span>
-                    <span style={{ fontSize: '0.5rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>/ 100</span>
-                  </div>
-                </div>
-                <div>
-                  <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>Overall Score</p>
-                  <p style={{ fontSize: '1.375rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-on-surface)', margin: 0 }}>{overallScore}<span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}> / 100</span></p>
-                  {priorityAction && (
-                    <a href={priorityAction.href} style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', textDecoration: 'none', display: 'block', marginTop: '0.375rem' }}>
-                      Next: {priorityAction.label.slice(0, 50)}{priorityAction.label.length > 50 ? '…' : ''} →
-                    </a>
-                  )}
-                </div>
-              </div>
-
-              {/* Category mini-metrics */}
-              <div className="portal-metric-strip" style={{ flex: 1 }}>
-                {categories.map((cat) => (
-                  <div key={cat.label} className="portal-metric-card">
-                    <div style={{ width: '2rem', height: '2rem', borderRadius: '0.5rem', background: `${cat.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.25rem' }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: cat.color, fontVariationSettings: "'FILL' 1" }}>{cat.icon}</span>
-                    </div>
-                    <p className="portal-metric-card__value" style={{ fontSize: '1.375rem', color: cat.pct >= 60 ? cat.color : 'var(--color-on-surface)' }}>{cat.pct}%</p>
-                    <p className="portal-metric-card__label">{cat.label}</p>
-                    <div className="portal-progress-bar portal-progress-bar--thin" style={{ marginTop: '0.5rem' }}>
-                      <div className="portal-progress-bar__fill" style={{ width: `${cat.pct}%`, background: cat.color }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
           <div style={{ marginBottom: '1.5rem' }}>
             <VoiceAgentSurface {...readinessVoiceSurface}>
               <PortalVoiceSession

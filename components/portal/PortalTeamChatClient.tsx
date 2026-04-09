@@ -42,8 +42,6 @@ type PortalTeamChatClientProps = {
   emptyHint: string;
   /** Matches voice-agent surfaces — partner vs employer gradient. */
   surfaceVariant: 'partner' | 'employer';
-  /** Render without the outer voice-agent shell when embedded in another inbox shell. */
-  decorated?: boolean;
 };
 
 export default function PortalTeamChatClient({
@@ -52,7 +50,6 @@ export default function PortalTeamChatClient({
   subtitle,
   emptyHint,
   surfaceVariant,
-  decorated = true,
 }: PortalTeamChatClientProps) {
   const { portalUserId } = initial;
   const [thread, setThread] = useState(initial.thread);
@@ -165,8 +162,9 @@ export default function PortalTeamChatClient({
   const surface =
     surfaceVariant === 'employer' ? employerMessagingSurface : partnerMessagingSurface;
 
-  const inner = (
-    <div className="member-counselor-chat">
+  return (
+    <VoiceAgentSurface {...surface} subtext={hint}>
+      <div className="member-counselor-chat">
       {error ? (
         <p className="member-counselor-chat__error" role="alert">
           {error}
@@ -210,14 +208,7 @@ export default function PortalTeamChatClient({
           {sending ? 'Sending…' : 'Send'}
         </button>
       </form>
-    </div>
-  );
-
-  if (!decorated) return inner;
-
-  return (
-    <VoiceAgentSurface {...surface} subtext={hint}>
-      {inner}
+      </div>
     </VoiceAgentSurface>
   );
 }

@@ -4,8 +4,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import type { WioaBarrier, WioaEligibilitySignal, WioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 import { barrierLabel } from '@/lib/wioa/wioaQualification';
-import PortalCard from '@/components/portal/ui/PortalCard';
-import { PortalInput } from '@/components/portal/ui/PortalInput';
 
 const BARRIERS: WioaBarrier[] = [
   'none',
@@ -87,8 +85,10 @@ export default function WioaQualificationClient({ initialSnapshot }: { initialSn
 
   return (
     <div style={{ maxWidth: 720, margin: '0 auto', padding: '1.5rem 1rem 3rem' }}>
-      <nav className="portal-breadcrumb" aria-label="Breadcrumb" style={{ marginBottom: '1.25rem' }}>
-        <Link href="/dashboard/learning">Learning Hub</Link>
+      <nav aria-label="Breadcrumb" style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>
+        <Link href="/dashboard/learning" style={{ color: 'var(--color-accent)' }}>
+          Learning Hub
+        </Link>
         <span style={{ margin: '0 0.35rem' }}>/</span>
         <span>WIOA screening</span>
       </nav>
@@ -103,11 +103,13 @@ export default function WioaQualificationClient({ initialSnapshot }: { initialSn
       </p>
 
       {snapshot ? (
-        <PortalCard
-          title="Last saved"
-          subtitle={new Date(snapshot.submittedAt).toLocaleString()}
-          className="wa-mb-6"
-        >
+        <div className="stitch-card" style={{ padding: '1.25rem', borderRadius: 12, marginBottom: '1.5rem' }}>
+          <p style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-accent)', marginBottom: '0.35rem' }}>
+            Last saved
+          </p>
+          <p style={{ margin: '0 0 0.75rem', fontSize: '0.9rem' }}>
+            {new Date(snapshot.submittedAt).toLocaleString()}
+          </p>
           <p style={{ margin: 0, fontSize: '0.95rem', fontWeight: 600 }}>{SIGNAL_COPY[snapshot.signal].title}</p>
           <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
             {SIGNAL_COPY[snapshot.signal].body}
@@ -117,30 +119,27 @@ export default function WioaQualificationClient({ initialSnapshot }: { initialSn
               <li key={idx}>{r}</li>
             ))}
           </ul>
-        </PortalCard>
+        </div>
       ) : null}
 
-      <PortalCard title="Self-screening" subtitle="Answer a few questions; we’ll save your results for staff review.">
-        <form onSubmit={onSubmit}>
-          <div className="portal-field">
-            <label className="portal-field__label" htmlFor="wioa-age">
-              Age group
-            </label>
-            <select
-              id="wioa-age"
-              className="portal-input"
-              value={ageBracket}
-              onChange={(e) => setAgeBracket(e.target.value as typeof ageBracket)}
-            >
-              <option value="under18">Under 18</option>
-              <option value="18_24">18–24</option>
-              <option value="25_54">25–54</option>
-              <option value="55_plus">55+</option>
-            </select>
-          </div>
+      <form onSubmit={onSubmit} className="stitch-card" style={{ padding: '1.25rem', borderRadius: 12 }}>
+        <div className="form-group">
+          <label htmlFor="wioa-age">Age group</label>
+          <select
+            id="wioa-age"
+            value={ageBracket}
+            onChange={(e) => setAgeBracket(e.target.value as typeof ageBracket)}
+          >
+            <option value="under18">Under 18</option>
+            <option value="18_24">18–24</option>
+            <option value="25_54">25–54</option>
+            <option value="55_plus">55+</option>
+          </select>
+        </div>
 
-          <PortalInput
-            label="County or ZIP (optional)"
+        <div className="form-group">
+          <label htmlFor="wioa-zip">County or ZIP (optional)</label>
+          <input
             id="wioa-zip"
             type="text"
             maxLength={120}
@@ -149,68 +148,65 @@ export default function WioaQualificationClient({ initialSnapshot }: { initialSn
             placeholder="e.g. Travis County or 78701"
             autoComplete="postal-code"
           />
+        </div>
 
-          <div className="portal-field">
-            <label className="portal-field__label" htmlFor="wioa-barrier">
-              Primary barrier to work or training
-            </label>
-            <select
-              id="wioa-barrier"
-              className="portal-input"
-              value={primaryBarrier}
-              onChange={(e) => setPrimaryBarrier(e.target.value as WioaBarrier)}
-            >
-              {BARRIERS.map((b) => (
-                <option key={b} value={b}>
-                  {barrierLabel(b)}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div className="form-group">
+          <label htmlFor="wioa-barrier">Primary barrier to work or training</label>
+          <select
+            id="wioa-barrier"
+            value={primaryBarrier}
+            onChange={(e) => setPrimaryBarrier(e.target.value as WioaBarrier)}
+          >
+            {BARRIERS.map((b) => (
+              <option key={b} value={b}>
+                {barrierLabel(b)}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          <div className="portal-field">
-            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
-              <input type="checkbox" checked={dislocatedWorker} onChange={(e) => setDislocatedWorker(e.target.checked)} />
-              <span>I am unemployed or was laid off from my last job (dislocated worker)</span>
-            </label>
-          </div>
+        <div className="form-group">
+          <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
+            <input type="checkbox" checked={dislocatedWorker} onChange={(e) => setDislocatedWorker(e.target.checked)} />
+            <span>I am unemployed or was laid off from my last job (dislocated worker)</span>
+          </label>
+        </div>
 
-          <div className="portal-field">
-            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
-              <input type="checkbox" checked={lowIncomeSelfReport} onChange={(e) => setLowIncomeSelfReport(e.target.checked)} />
-              <span>My household income is limited or near self-sufficiency (self-reported)</span>
-            </label>
-          </div>
+        <div className="form-group">
+          <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
+            <input type="checkbox" checked={lowIncomeSelfReport} onChange={(e) => setLowIncomeSelfReport(e.target.checked)} />
+            <span>My household income is limited or near self-sufficiency (self-reported)</span>
+          </label>
+        </div>
 
-          <div className="portal-field">
-            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
-              <input type="checkbox" checked={trainingInterest} onChange={(e) => setTrainingInterest(e.target.checked)} />
-              <span>I am interested in training for an in-demand occupation</span>
-            </label>
-          </div>
+        <div className="form-group">
+          <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
+            <input type="checkbox" checked={trainingInterest} onChange={(e) => setTrainingInterest(e.target.checked)} />
+            <span>I am interested in training for an in-demand occupation</span>
+          </label>
+        </div>
 
-          <div className="portal-field">
-            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={completedIntakeSelfReport}
-                onChange={(e) => setCompletedIntakeSelfReport(e.target.checked)}
-              />
-              <span>I have completed WorkforceAP intake or orientation (self-reported)</span>
-            </label>
-          </div>
+        <div className="form-group">
+          <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={completedIntakeSelfReport}
+              onChange={(e) => setCompletedIntakeSelfReport(e.target.checked)}
+            />
+            <span>I have completed WorkforceAP intake or orientation (self-reported)</span>
+          </label>
+        </div>
 
-          {error ? (
-            <p role="alert" style={{ color: '#b91c1c', fontSize: '0.9rem' }}>
-              {error}
-            </p>
-          ) : null}
+        {error ? (
+          <p role="alert" style={{ color: '#b91c1c', fontSize: '0.9rem' }}>
+            {error}
+          </p>
+        ) : null}
 
-          <button type="submit" className="btn btn-primary" disabled={submitting}>
-            {submitting ? 'Saving…' : snapshot ? 'Update screening' : 'Save screening'}
-          </button>
-        </form>
-      </PortalCard>
+        <button type="submit" className="btn btn-primary" disabled={submitting}>
+          {submitting ? 'Saving…' : snapshot ? 'Update screening' : 'Save screening'}
+        </button>
+      </form>
 
       <section style={{ marginTop: '2rem' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Pre-test &amp; next steps</h2>

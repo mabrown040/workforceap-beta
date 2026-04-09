@@ -266,7 +266,7 @@ export default async function MemberGuidePage() {
         </h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem' }}>
           {BENEFITS.map((b) => (
-            <div key={b.title} className="portal-card portal-card--flat" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div key={b.title} className="stitch-card" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <div style={{
                 width: '2.5rem',
                 height: '2.5rem',
@@ -294,7 +294,7 @@ export default async function MemberGuidePage() {
         </h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {FAQS.map((faq) => (
-            <div key={faq.q} className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
+            <div key={faq.q} className="stitch-card" style={{ padding: '1.25rem' }}>
               <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem', letterSpacing: '-0.01em' }}>
                 {faq.q}
               </h3>

@@ -66,7 +66,7 @@ export default async function ResumeAnalysisPage() {
 
         <div style={{ padding: '1rem 1rem 2rem', maxWidth: 960, margin: '0 auto' }}>
           <div
-            className="portal-card portal-card--flat"
+            className="stitch-card"
             style={{ padding: '1rem', borderRadius: 12, marginBottom: '1rem', background: 'var(--surface-container-low)' }}
           >
             <p style={{ fontSize: '0.82rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>

@@ -177,7 +177,7 @@ export default function MobileApplicationsClient({
               >
                 {/* Card header — tap to expand */}
                 <button
-                  style={{ width: '100%', textAlign: 'left', padding: '1rem', display: 'flex', gap: '0.875rem', alignItems: 'flex-start', background: 'none', border: 'none', cursor: 'pointer' }}
+                  className="active:opacity-80" style={{ width: '100%', textAlign: 'left', padding: '1rem', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}
                   onClick={() => {
                     const nextExpanded = isExpanded ? null : app.id;
                     setExpandedId(nextExpanded);
@@ -187,7 +187,9 @@ export default function MobileApplicationsClient({
                   }}
                 >
                   {/* Avatar */}
-                  <div style={{ width: '3rem', height: '3rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', color: '#fff', fontWeight: 700, fontSize: '0.9375rem' }}>
+                  <div
+                    className="text-white font-bold text-base" style={{ width: '3.5rem', height: '3.5rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'var(--color-accent)' }}
+                  >
                     {initials(app.student.fullName)}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -230,23 +232,13 @@ export default function MobileApplicationsClient({
                         type="button"
                         disabled={isChatLoading}
                         onClick={() => void toggleChat(app.id)}
+                        className="py-2.5 px-4 rounded-xl font-bold text-sm active:scale-[0.98] transition-all disabled:opacity-50"
                         style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '0.375rem',
-                          padding: '0.625rem 1rem',
-                          borderRadius: '0.75rem',
-                          fontWeight: 700,
-                          fontSize: '0.875rem',
-                          border: 'none',
-                          cursor: isChatLoading ? 'default' : 'pointer',
-                          background: isChatOpen ? 'rgba(173,44,77,0.12)' : 'rgba(173,44,77,0.08)',
+                          background: isChatOpen ? '#f3e8ff' : '#fff1f2',
                           color: 'var(--color-accent)',
-                          opacity: isChatLoading ? 0.6 : 1,
                         }}
                       >
-                        <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>forum</span>
-                        {isChatLoading ? 'Loading…' : isChatOpen ? 'Close messages' : 'Message applicant'}
+                        {isChatLoading ? 'Loading chat…' : isChatOpen ? 'Close messages' : '💬 Message applicant'}
                       </button>
                     </div>
 

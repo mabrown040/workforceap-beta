@@ -2,12 +2,6 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  MEMBER_PORTAL_NAV_ITEMS,
-  NAV_TAB_META,
-  NAV_TAB_ORDER,
-  type NavTab,
-} from '@/lib/nav/portalNav';
 
 /**
  * Responsive breakpoint for mobile nav visibility
@@ -22,21 +16,12 @@ const MARKETING_TABS = [
   { href: '/apply', label: 'Apply', icon: 'assignment_turned_in' },
 ];
 
-function getMemberBottomTabs() {
-  // Align member mobile bottom tabs to the same tab model as the workspace shell.
-  // Link each tab to the first nav item in that tab.
-  return NAV_TAB_ORDER.map((tab) => {
-    const meta = NAV_TAB_META[tab];
-    const firstItem = MEMBER_PORTAL_NAV_ITEMS.find((i) => i.tab === tab);
-    return {
-      href: firstItem?.href ?? '/dashboard',
-      label: meta.label,
-      icon: meta.icon,
-      tourTarget: firstItem?.tourTarget,
-      tab,
-    };
-  });
-}
+const PORTAL_TABS = [
+  { href: '/dashboard', label: 'Journey', icon: 'map', tourTarget: 'tour-dashboard' },
+  { href: '/dashboard/ai-tools', label: 'AI Tools', icon: 'auto_awesome', tourTarget: 'tour-ai-tools' },
+  { href: '/dashboard/messages', label: 'Messages', icon: 'chat', tourTarget: 'tour-messages' },
+  { href: '/dashboard/profile', label: 'Profile', icon: 'person', tourTarget: 'tour-profile' },
+];
 
 const EMPLOYER_TABS = [
   { href: '/employer', label: 'Overview', icon: 'dashboard' },
@@ -74,7 +59,7 @@ interface MobileBottomNavProps {
 export default function MobileBottomNav({ variant = 'marketing' }: MobileBottomNavProps) {
   const pathname = usePathname();
   const tabs =
-    variant === 'portal' ? getMemberBottomTabs()
+    variant === 'portal' ? PORTAL_TABS
     : variant === 'employer' ? EMPLOYER_TABS
     : variant === 'counselor' ? COUNSELOR_TABS
     : variant === 'partner' ? PARTNER_TABS

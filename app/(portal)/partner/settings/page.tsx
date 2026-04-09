@@ -76,7 +76,7 @@ export default async function PartnerSettingsPage() {
         subtitle="Your organization profile and notification preferences."
       />
 
-      <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', maxWidth: 640, marginBottom: '1rem' }}>
+      <div className="stitch-card" style={{ padding: '1.25rem', maxWidth: 640, marginBottom: '1rem' }}>
         <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Organization</h2>
         {row('Name', partner.name)}
         {row('Slug', partner.slug, { mono: true })}
@@ -87,7 +87,7 @@ export default async function PartnerSettingsPage() {
         {row('Portal tour', partner.tourCompletedAt)}
       </div>
 
-      <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', maxWidth: 640, marginBottom: '1rem' }}>
+      <div className="stitch-card" style={{ padding: '1.25rem', maxWidth: 640, marginBottom: '1rem' }}>
         <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Primary contact</h2>
         {row('Contact name', partner.contactName)}
         {row('Email', partner.contactEmail)}

@@ -4,7 +4,7 @@ import { buildPageMetadata } from '@/app/seo';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import CareerCounselor from '@/components/portal/tools/CareerCounselor';
-import { studentCounselorVoiceSurface } from '@/lib/portal/voice';
+import { studentCounselorVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
 import { getUser } from '@/lib/auth/server';
 
 export const metadata: Metadata = buildPageMetadata({

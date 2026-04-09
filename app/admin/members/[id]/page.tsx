@@ -111,8 +111,7 @@ export default async function AdminMemberDetailPage({
     }),
     // Read from canonical PlacementRecord (includes WIOA fields).
     // PlacedOutcome is deprecated; PlacementRecord is the source of truth.
-    // Wrapped in catch so missing DB columns (pending migration) don't crash the page.
-    prisma.placementRecord.findUnique({ where: { userId: id } }).catch(() => null),
+    prisma.placementRecord.findUnique({ where: { userId: id } }),
     prisma.courseEnrollment.findUnique({
       where: { userId: id },
       select: {
@@ -121,7 +120,7 @@ export default async function AdminMemberDetailPage({
         workspaceEmail: true,
         workspaceEmailProvisioned: true,
       },
-    }).catch(() => null),
+    }),
   ]);
 
   if (!member || member.deletedAt) notFound();
@@ -335,13 +334,13 @@ export default async function AdminMemberDetailPage({
                     jobTitle: placedOutcomeRow.jobTitle,
                     startingSalary: placedOutcomeRow.salaryOffered,
                     placedAt: placedOutcomeRow.placedAt.toISOString(),
-                    programSlug: (placedOutcomeRow as { programSlug?: string | null }).programSlug ?? null,
+                    programSlug: placedOutcomeRow.programSlug,
                     notes: placedOutcomeRow.notes,
-                    wageAtFollowUp: (placedOutcomeRow as { wageAtFollowUp?: number | null }).wageAtFollowUp ?? null,
-                    retentionStatus: (placedOutcomeRow as { retentionStatus?: string | null }).retentionStatus ?? null,
-                    startDateVerified: (placedOutcomeRow as { startDateVerified?: boolean }).startDateVerified ?? false,
-                    fundingSource: (placedOutcomeRow as { fundingSource?: string | null }).fundingSource ?? null,
-                    grantReportingNotes: (placedOutcomeRow as { grantReportingNotes?: string | null }).grantReportingNotes ?? null,
+                    wageAtFollowUp: placedOutcomeRow.wageAtFollowUp,
+                    retentionStatus: placedOutcomeRow.retentionStatus,
+                    startDateVerified: placedOutcomeRow.startDateVerified,
+                    fundingSource: placedOutcomeRow.fundingSource,
+                    grantReportingNotes: placedOutcomeRow.grantReportingNotes,
                   }
                 : null
             }

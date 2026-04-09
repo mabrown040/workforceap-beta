@@ -101,7 +101,7 @@ export default async function AIHistoryPage({ searchParams }: Props) {
       <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem 1.5rem' }}>
         {withLabels.length === 0 ? (
           <div
-            className="portal-card portal-card--flat"
+            className="stitch-card"
             style={{
               padding: '3rem 2rem',
               textAlign: 'center',

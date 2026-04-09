@@ -89,7 +89,7 @@ export default async function HowItWorksPage() {
                 Member Experience
               </span>
               <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', marginBottom: '2rem', lineHeight: 0.95 }}>
-                Start your path{' '}
+                Your better future{' '}
                 <span style={{ color: 'var(--color-accent)' }}>starts here.</span>
               </h1>
               <p style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', maxWidth: '36rem', lineHeight: 1.7, marginBottom: '2.5rem' }}>
@@ -166,13 +166,13 @@ export default async function HowItWorksPage() {
                 <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{phase.title}</h3>
                 <span className="text-label-upper" style={{ color: 'var(--color-accent)' }}>{phase.label}</span>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(260px, 100%), 1fr))', gap: '1.5rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1.5rem' }}>
                 {phase.steps.map((step) => {
                   const isHighlight = step.num === 1 || step.num === 7 || step.num === 9 || step.num === 10;
                   return (
                     <div
                       key={step.num}
-                      className="portal-card portal-card--flat"
+                      className="stitch-card"
                       style={{
                         padding: '1.5rem',
                         ...(isHighlight ? { borderLeft: `4px solid var(--color-accent)` } : {}),
@@ -228,8 +228,8 @@ export default async function HowItWorksPage() {
           <div className="editorial-grid" style={{ gap: '1.5rem' }}>
             {/* Loaner Laptop */}
             <div style={{ gridColumn: 'span 12' }} className="hiw-benefit-wide">
-              <div className="portal-card portal-card--elevated" style={{ padding: '3rem', position: 'relative', overflow: 'hidden' }}>
-                <div style={{ maxWidth: 'min(42rem, 100%)' }}>
+              <div className="stitch-card-elevated" style={{ padding: '3rem', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ maxWidth: '60%' }}>
                   <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>Loaner Laptop Program</h2>
                   <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '2rem', lineHeight: 1.7 }}>
                     Access to technology shouldn&rsquo;t be a barrier to education. We provide high-performance laptops to members who need them for the duration of their training program.
@@ -275,11 +275,11 @@ export default async function HowItWorksPage() {
 
             {/* Career Training Benefits */}
             <div style={{ gridColumn: 'span 12' }}>
-              <div className="portal-card portal-card--flat" style={{ padding: '3rem' }}>
+              <div className="stitch-card" style={{ padding: '3rem' }}>
                 <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '2rem' }}>Career Training Benefits</h2>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '2rem' }}>
                   {[
-                    { icon: 'school', title: 'Tuition Coverage', desc: 'Full tuition coverage for approved certification tracks and technical bootcamps.' },
+                    { icon: 'school', title: 'Tuition Coverage', desc: 'Comprehensive financial support for approved certification tracks and technical bootcamps.' },
                     { icon: 'groups', title: 'Peer Networks', desc: 'Access to an exclusive community of members and alumni for mentorship and networking.' },
                     { icon: 'work', title: 'Direct Pipeline', desc: 'Immediate consideration for openings within our 50+ employer partner network.' },
                     { icon: 'psychology', title: 'Soft Skill Coaching', desc: 'Dedicated sessions on leadership, communication, and emotional intelligence.' },
@@ -399,7 +399,7 @@ export default async function HowItWorksPage() {
               color: 'var(--color-on-surface)',
             }}
           >
-            Start your path{' '}
+            Your better future{' '}
             <span style={{ color: '#ad2c4d' }}>starts here.</span>
           </h2>
           <p style={{ fontSize: '0.875rem', lineHeight: 1.6, color: '#584144' }}>

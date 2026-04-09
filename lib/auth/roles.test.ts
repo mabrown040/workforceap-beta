@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { requireAdmin, isAdmin } from './roles';
-import { prisma } from '../db/prisma';
+import { requireAdmin, isAdmin } from './roles.ts';
+import { prisma } from '../db/prisma.ts';
 
 test('requireAdmin throws error when user is not admin', async (t) => {
   const originalFindUnique = prisma.profile.findUnique;

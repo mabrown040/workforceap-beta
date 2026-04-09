@@ -45,7 +45,7 @@ export default async function AdminExportsPage() {
       <div style={{ padding: '0 1.5rem' }}>
         {/* Member Training Export */}
         <section style={{ marginBottom: '2.5rem' }}>
-          <div className="portal-card portal-card--flat" style={{ padding: '1.5rem' }}>
+          <div className="stitch-card" style={{ padding: '1.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
               <div style={{ padding: '0.5rem', background: 'rgba(173,44,77,0.1)', borderRadius: '0.5rem' }}>
                 <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }} aria-hidden="true">download</span>
@@ -66,7 +66,7 @@ export default async function AdminExportsPage() {
 
         {/* Program Catalog Export (existing TWC) */}
         <section style={{ marginBottom: '2.5rem' }}>
-          <div className="portal-card portal-card--flat" style={{ padding: '1.5rem' }}>
+          <div className="stitch-card" style={{ padding: '1.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
               <div style={{ padding: '0.5rem', background: 'rgba(59,130,246,0.1)', borderRadius: '0.5rem' }}>
                 <span className="material-symbols-outlined" style={{ color: '#3b82f6', fontSize: '1.25rem' }} aria-hidden="true">school</span>

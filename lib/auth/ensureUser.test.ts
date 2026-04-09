@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ensureUserInDb } from './ensureUser';
-import { prisma } from '../db/prisma';
+import { ensureUserInDb } from './ensureUser.ts';
+import { prisma } from '../db/prisma.ts';
 
 test('ensureUserInDb - happy path', async (t) => {
   const originalFindUnique = prisma.organization.findUnique;

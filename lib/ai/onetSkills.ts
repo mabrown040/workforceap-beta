@@ -92,11 +92,22 @@ export function mapSkillsToRadarAxes(
     {
       axis: 'Design',
       keywords: [
+        // Core design terms
         'design', 'creative', 'visualization', 'user', 'interface', 'fine arts', 'drafting', 'layout',
         'ux', 'graphic', 'visual', 'aesthetic', 'composition', 'typography', 'color', 'branding',
         'prototyping', 'wireframing', 'user experience', 'user interface', 'interaction design', 'product design',
         'artistic', 'imagination', 'innovation', 'conceptualization', 'spatial', '3d', 'illustration',
-        'multimedia', 'animation', 'motion', 'video', 'audio', 'photography'
+        'multimedia', 'animation', 'motion', 'video', 'audio', 'photography',
+        // O*NET ability/skill names that map to creative/design thinking
+        'originality', 'fluency of ideas', 'flexibility', 'thinking creatively', 'creative thinking',
+        'near vision', 'spatial orientation', 'visualization',
+        // Content & communication design
+        'content', 'presentation', 'exhibit', 'display', 'arrange', 'aesthetics', 'sketch',
+        'diagram', 'blueprint', 'mockup', 'storyboard', 'concept',
+        // Problem-solving that feeds design axis
+        'identify problems', 'generating solutions', 'evaluating solutions', 'developing solutions',
+        // Marketing / communications / media design
+        'marketing', 'advertising', 'copywriting', 'editing', 'format',
       ],
     },
     {

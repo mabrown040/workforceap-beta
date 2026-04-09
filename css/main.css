@@ -9136,6 +9136,14 @@ html.dark .workspace-sidebar {
     transform: translateX(0);
     box-shadow: var(--shadow-lg);
 }
+/* Top accent strip on open sidebar so it visually connects with the header bar */
+.workspace-sidebar.open::before {
+    content: '';
+    display: block;
+    height: 3px;
+    background: linear-gradient(90deg, var(--color-accent), var(--color-accent-dark, #6b0c29));
+    flex-shrink: 0;
+}
 .workspace-sidebar-inner {
     display: flex;
     flex-direction: column;

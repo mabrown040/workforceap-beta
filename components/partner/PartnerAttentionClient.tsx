@@ -188,6 +188,14 @@ export default function PartnerAttentionClient({ initialTier = 'all' as TierFilt
                   <button type="button" className="btn btn-outline btn-sm" onClick={() => setMemberId(m.memberId)}>
                     Log outreach
                   </button>
+                  <a
+                    href={`/partner/messages?memberId=${m.memberId}`}
+                    className="btn btn-outline btn-sm"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', fontVariationSettings: "'FILL' 1" }}>forum</span>
+                    Message
+                  </a>
                 </div>
               </li>
             ))}

@@ -1,9 +1,11 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import PortalTeamChatClient from '@/components/portal/PortalTeamChatClient';
 import EmployerApplicationChatClient from '@/components/portal/EmployerApplicationChatClient';
 import type { EmployerInboxCandidateRow, EmployerInboxTeamRow } from '@/lib/messages/employerInbox';
+import { employerMessagingSurface } from '@/lib/portal/messagingSurfaces';
 import {
   InboxEmpty,
   InboxHeader,
@@ -190,6 +192,7 @@ export default function EmployerMessagesInboxClient({
   );
 
   return (
+    <VoiceAgentSurface {...employerMessagingSurface} headline="Employer messages" subtext="Same portal feel, tuned for employers.">
     <>
       {/* Mobile master–detail */}
       <div className="wa-md:wa-hidden wa-flex wa-flex-col" style={{ flex: 1, minHeight: 0 }}>
@@ -240,5 +243,6 @@ export default function EmployerMessagesInboxClient({
         </InboxShell>
       </div>
     </>
+    </VoiceAgentSurface>
   );
 }

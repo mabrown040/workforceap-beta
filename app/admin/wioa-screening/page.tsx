@@ -118,42 +118,74 @@ export default async function AdminWioaScreeningQueuePage({ searchParams }: Page
           {reviewFilter ? 'No rows match this filter.' : 'No self-screenings submitted yet.'}
         </p>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table className="admin-table admin-table--sticky-first" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-            <thead>
-              <tr style={{ textAlign: 'left', borderBottom: '2px solid var(--outline-variant)' }}>
-                <th style={{ padding: '0.5rem', position: 'sticky', left: 0, background: 'var(--surface-container, #1e2022)', zIndex: 1 }}>
-                  Member
-                </th>
-                <th style={{ padding: '0.5rem' }}>Submitted</th>
-                <th style={{ padding: '0.5rem' }}>Signal</th>
-                <th style={{ padding: '0.5rem' }}>Review</th>
-                <th style={{ padding: '0.5rem' }}></th>
-              </tr>
-            </thead>
-            <tbody>
-              {enriched.map((r) => (
-                <tr key={r.id} style={{ borderBottom: '1px solid var(--outline-variant)' }}>
-                  <td style={{ padding: '0.5rem', position: 'sticky', left: 0, background: 'var(--surface-container-low, #1a1c1e)', zIndex: 1 }}>
-                    <strong>{r.fullName}</strong>
-                    <br />
-                    <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{r.email}</span>
-                  </td>
-                  <td style={{ padding: '0.5rem' }}>
-                    {r.snap ? new Date(r.snap.submittedAt).toLocaleString() : '—'}
-                  </td>
-                  <td style={{ padding: '0.5rem' }}>{r.signal}</td>
-                  <td style={{ padding: '0.5rem' }}>{wioaReviewLabel(r.wioaReviewStatus)}</td>
-                  <td style={{ padding: '0.5rem' }}>
-                    <Link href={`/admin/members/${r.id}`} className="btn btn-outline btn-sm">
-                      Open
-                    </Link>
-                  </td>
+        <>
+          {/* Desktop table */}
+          <div className="wa-hidden wa-md:wa-block" style={{ overflowX: 'auto' }}>
+            <table className="admin-table admin-table--sticky-first" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+              <thead>
+                <tr style={{ textAlign: 'left', borderBottom: '2px solid var(--outline-variant)' }}>
+                  <th style={{ padding: '0.5rem', position: 'sticky', left: 0, background: 'var(--surface-container, #1e2022)', zIndex: 1 }}>
+                    Member
+                  </th>
+                  <th style={{ padding: '0.5rem' }}>Submitted</th>
+                  <th style={{ padding: '0.5rem' }}>Signal</th>
+                  <th style={{ padding: '0.5rem' }}>Review</th>
+                  <th style={{ padding: '0.5rem' }}></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {enriched.map((r) => (
+                  <tr key={r.id} style={{ borderBottom: '1px solid var(--outline-variant)' }}>
+                    <td style={{ padding: '0.5rem', position: 'sticky', left: 0, background: 'var(--surface-container-low, #1a1c1e)', zIndex: 1 }}>
+                      <strong>{r.fullName}</strong>
+                      <br />
+                      <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{r.email}</span>
+                    </td>
+                    <td style={{ padding: '0.5rem' }}>
+                      {r.snap ? new Date(r.snap.submittedAt).toLocaleString() : '—'}
+                    </td>
+                    <td style={{ padding: '0.5rem' }}>{r.signal}</td>
+                    <td style={{ padding: '0.5rem' }}>{wioaReviewLabel(r.wioaReviewStatus)}</td>
+                    <td style={{ padding: '0.5rem' }}>
+                      <Link href={`/admin/members/${r.id}`} className="btn btn-outline btn-sm">
+                        Open
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile cards */}
+          <div className="wa-md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+            {enriched.map((r) => (
+              <div
+                key={r.id}
+                style={{
+                  background: 'var(--surface-container)',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: '0.875rem 1rem',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.25rem' }}>
+                  <div style={{ fontWeight: 600 }}>{r.fullName}</div>
+                  <Link href={`/admin/members/${r.id}`} className="btn btn-outline btn-sm">
+                    Open
+                  </Link>
+                </div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>{r.email}</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span>Signal: <strong style={{ color: 'var(--color-on-surface)' }}>{r.signal}</strong></span>
+                  <span>Review: <strong style={{ color: 'var(--color-on-surface)' }}>{wioaReviewLabel(r.wioaReviewStatus)}</strong></span>
+                </div>
+                <div style={{ marginTop: '0.25rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  Submitted: <strong style={{ color: 'var(--color-on-surface)' }}>{r.snap ? new Date(r.snap.submittedAt).toLocaleString() : '—'}</strong>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </PortalPageFrame>
   );

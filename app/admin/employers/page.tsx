@@ -47,44 +47,82 @@ export default async function AdminEmployersPage() {
         </p>
       )}
 
-      <div style={{ overflowX: 'auto' }}>
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Company</th>
-              <th>Contact</th>
-              <th>User</th>
-              <th>Jobs</th>
-              <th>Tier</th>
-              {superAdmin && <th>Help</th>}
-            </tr>
-          </thead>
-          <tbody>
+      {employers.length > 0 && (
+        <>
+          {/* Desktop table */}
+          <div className="wa-hidden wa-md:wa-block" style={{ overflowX: 'auto' }}>
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Company</th>
+                  <th>Contact</th>
+                  <th>User</th>
+                  <th>Jobs</th>
+                  <th>Tier</th>
+                  {superAdmin && <th>Help</th>}
+                </tr>
+              </thead>
+              <tbody>
+                {employers.map((e) => (
+                  <tr key={e.id}>
+                    <td>
+                      <strong>{e.companyName}</strong>
+                    </td>
+                    <td>
+                      {e.contactName} · {e.contactEmail}
+                    </td>
+                    <td>
+                      {e.user.fullName} · {e.user.email}
+                    </td>
+                    <td>{e._count.jobs}</td>
+                    <td>
+                      <AdminEmployerTierSelect employerId={e.id} initialTier={e.tier} />
+                    </td>
+                    {superAdmin && (
+                      <td>
+                        <OpenEmployerPortalButton employerId={e.id} />
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile cards */}
+          <div className="wa-md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
             {employers.map((e) => (
-              <tr key={e.id}>
-                <td>
-                  <strong>{e.companyName}</strong>
-                </td>
-                <td>
+              <div
+                key={e.id}
+                style={{
+                  background: 'var(--surface-container)',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: '0.875rem 1rem',
+                }}
+              >
+                <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{e.companyName}</div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>
                   {e.contactName} · {e.contactEmail}
-                </td>
-                <td>
+                </div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem' }}>
                   {e.user.fullName} · {e.user.email}
-                </td>
-                <td>{e._count.jobs}</td>
-                <td>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                    Jobs: <strong style={{ color: 'var(--color-on-surface)' }}>{e._count.jobs}</strong>
+                  </span>
                   <AdminEmployerTierSelect employerId={e.id} initialTier={e.tier} />
-                </td>
+                </div>
                 {superAdmin && (
-                  <td>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                     <OpenEmployerPortalButton employerId={e.id} />
-                  </td>
+                  </div>
                 )}
-              </tr>
+              </div>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </div>
+        </>
+      )}
 
       {employers.length === 0 && (
         <p style={{ color: 'var(--color-on-surface-variant)', marginTop: '1rem' }}>

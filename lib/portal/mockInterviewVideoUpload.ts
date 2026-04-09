@@ -52,7 +52,8 @@ export async function uploadMockInterviewVideo(
 
   const supabase = createBrowserClient(url, anon);
   const contentType = meta.mimeType || blob.type || 'video/webm';
-  const { error: upErr } = await supabase.storage.from(prep.bucket).uploadToSignedUrl(prep.path, prep.token, blob, {
+  const buffer = await blob.arrayBuffer();
+  const { error: upErr } = await supabase.storage.from(prep.bucket).uploadToSignedUrl(prep.path, prep.token, buffer, {
     contentType,
   });
   if (upErr) {

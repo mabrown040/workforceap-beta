@@ -8951,18 +8951,32 @@ html:not(.dark) .workspace-shell-header {
     gap: 0.5rem 0.75rem;
 }
 
-/* Member portal (mobile): bottom nav is primary — hide the top workspace header entirely.
-   This eliminates the duplicate nav (top tab bar + bottom nav) on mobile. */
+/* Member portal (mobile): bottom nav is primary navigation.
+   Keep a slim header bar with ONLY the hamburger menu button so the
+   full sidebar drawer (all pages) is still reachable. Hide all other
+   header chrome and the duplicate tab bar. */
 @media (max-width: 767px) {
+  /* Shrink header to a minimal strip — just enough for the menu button */
   html[data-portal-role="member"] .workspace-shell-header {
+    height: 3rem !important;
+    min-height: 3rem !important;
+    padding: 0 0.75rem !important;
+  }
+  /* Hide brand text, context chip, and actions — keep only the menu button */
+  html[data-portal-role="member"] .workspace-shell-brand-block,
+  html[data-portal-role="member"] .workspace-shell-header__meta {
     display: none !important;
   }
-  /* Compensate for the removed header height so content starts at the top */
-  html[data-portal-role="member"] .workspace-shell-body {
-    padding-top: 0 !important;
+  /* Menu button stays visible and gets a proper touch target */
+  html[data-portal-role="member"] .workspace-menu-btn {
+    display: flex !important;
+    min-width: 44px;
+    min-height: 44px;
   }
+  /* Sidebar anchors to top (below the slim 3rem header) */
   html[data-portal-role="member"] .workspace-sidebar {
-    top: 0;
+    top: 3rem;
+    height: calc(100vh - 3rem);
   }
 }
 .workspace-shell-context {

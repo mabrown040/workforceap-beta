@@ -8962,9 +8962,17 @@ html:not(.dark) .workspace-shell-header {
     min-height: 3rem !important;
     padding: 0 0.75rem !important;
   }
-  /* Hide brand text, context chip, and actions — keep only the menu button */
-  html[data-portal-role="member"] .workspace-shell-brand-block,
+  /* Hide brand text, context chip, and most actions — keep only the menu button
+     and the SuperAdminViewSwitcher so admins can still switch portals. */
+  html[data-portal-role="member"] .workspace-shell-brand-block {
+    display: none !important;
+  }
   html[data-portal-role="member"] .workspace-shell-header__meta {
+    /* Keep meta visible but strip its gap so only the switcher shows */
+    gap: 0 !important;
+  }
+  /* Hide everything inside meta EXCEPT the super-admin portal switcher */
+  html[data-portal-role="member"] .workspace-shell-header__meta > *:not(.super-admin-view-switcher) {
     display: none !important;
   }
   /* Menu button stays visible and gets a proper touch target */

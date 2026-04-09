@@ -601,6 +601,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         <PortalEntryErrorBoundary>
         <PortalEntryClient
           portal="member"
+          tourStorageUserId={user.id}
           showOnboardingWizard={showMemberOnboarding}
           showTour={showMemberTour}
           isSuperAdmin={superAdmin}

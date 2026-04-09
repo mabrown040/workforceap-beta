@@ -266,6 +266,9 @@ export default function WorkspaceShell({
               {headerBadge}
             </span>
           ) : null}
+          {/* SuperAdminViewSwitcher is a direct child so the mobile CSS
+              selector can keep it visible while hiding everything else */}
+          <SuperAdminViewSwitcher />
           <PortalHeaderActions />
         </div>
       </header>

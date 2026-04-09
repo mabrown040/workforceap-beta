@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { getUser } from '@/lib/auth/server';
 
 /**
@@ -7,51 +9,82 @@ import { getUser } from '@/lib/auth/server';
  * Body: { text: string, title?: string, toolName?: string }
  * Returns: PDF with WorkforceAP logo header on each page.
  *
- * Logo is drawn with pdf-lib vector commands (circle + lightning bolt) so
- * no external image fetch is required and it renders cleanly at any DPI.
+ * Embeds the actual /public/images/logo-tight.png in the header bar.
+ * Falls back to vector text if the image can't be loaded.
  */
 
 const ACCENT = rgb(173 / 255, 44 / 255, 77 / 255); // #ad2c4d
-const WHITE = rgb(1, 1, 1);
 const DARK_TEXT = rgb(0.13, 0.13, 0.13);
 const MUTED = rgb(0.52, 0.52, 0.52);
 const RULE = rgb(0.87, 0.87, 0.87);
 
-const HEADER_H = 52; // height of branded header bar
-const FOOTER_H = 20; // height reserved at bottom for footer text
+const HEADER_H = 56;
+const FOOTER_H = 20;
 const MARGIN = 50;
 const PAGE_W = 612;
 const PAGE_H = 792;
 
-/** Draw the WorkforceAP brand bar at the top of a page */
-function drawHeader(page: ReturnType<PDFDocument['getPage']>, boldFont: Awaited<ReturnType<typeof PDFDocument.prototype.embedFont>>, lightFont: Awaited<ReturnType<typeof PDFDocument.prototype.embedFont>>) {
+type EmbeddedLogo = Awaited<ReturnType<PDFDocument['embedPng']>> | null;
+
+async function loadLogo(pdfDoc: PDFDocument): Promise<EmbeddedLogo> {
+  try {
+    const logoPath = join(process.cwd(), 'public', 'images', 'logo-tight.png');
+    const logoBytes = await readFile(logoPath);
+    return await pdfDoc.embedPng(logoBytes);
+  } catch {
+    return null;
+  }
+}
+
+function drawHeader(
+  page: ReturnType<PDFDocument['getPage']>,
+  boldFont: Awaited<ReturnType<typeof PDFDocument.prototype.embedFont>>,
+  lightFont: Awaited<ReturnType<typeof PDFDocument.prototype.embedFont>>,
+  logo: EmbeddedLogo,
+) {
   // Accent background bar
   page.drawRectangle({ x: 0, y: PAGE_H - HEADER_H, width: PAGE_W, height: HEADER_H, color: ACCENT });
 
-  // Logo circle
-  const cx = 26;
-  const cy = PAGE_H - HEADER_H / 2;
-  const r = 14;
-  page.drawCircle({ x: cx, y: cy, size: r, color: WHITE });
-
-  // Lightning bolt inside circle — approximate with a thin line
-  // WAP lightning bolt: top-right to center-left to bottom-right
-  page.drawLine({ start: { x: cx + 3, y: cy + 9 }, end: { x: cx - 2, y: cy + 1 }, thickness: 2.5, color: ACCENT });
-  page.drawLine({ start: { x: cx - 2, y: cy + 1 }, end: { x: cx + 2, y: cy + 1 }, thickness: 2.5, color: ACCENT });
-  page.drawLine({ start: { x: cx + 2, y: cy + 1 }, end: { x: cx - 3, y: cy - 9 }, thickness: 2.5, color: ACCENT });
-
-  // Brand name
-  page.drawText('WorkforceAP', { x: 48, y: PAGE_H - HEADER_H / 2 + 5, font: boldFont, size: 13, color: WHITE });
-  page.drawText('Workforce Advancement Project', { x: 48, y: PAGE_H - HEADER_H / 2 - 7, font: lightFont, size: 8, color: rgb(1, 0.88, 0.90) });
-
-  // workforceap.org right-aligned
-  const urlText = 'workforceap.org';
-  const urlW = lightFont.widthOfTextAtSize(urlText, 8);
-  page.drawText(urlText, { x: PAGE_W - MARGIN - urlW + MARGIN - 4, y: PAGE_H - HEADER_H / 2 - 3, font: lightFont, size: 8, color: rgb(1, 0.88, 0.90) });
+  if (logo) {
+    // Draw the actual WAP logo image — proportionally scaled to fit header
+    const logoNative = logo.scale(1);
+    const logoH = HEADER_H - 14; // leave vertical padding
+    const logoW = (logoNative.width / logoNative.height) * logoH;
+    page.drawImage(logo, {
+      x: MARGIN - 4,
+      y: PAGE_H - HEADER_H + (HEADER_H - logoH) / 2,
+      width: logoW,
+      height: logoH,
+    });
+    // workforceap.org right-aligned
+    const urlText = 'workforceap.org';
+    const urlW = lightFont.widthOfTextAtSize(urlText, 8);
+    page.drawText(urlText, {
+      x: PAGE_W - MARGIN - urlW + MARGIN - 4,
+      y: PAGE_H - HEADER_H / 2 - 4,
+      font: lightFont,
+      size: 8,
+      color: rgb(1, 0.88, 0.9),
+    });
+  } else {
+    // Fallback: text-only header
+    const cx = 26;
+    const cy = PAGE_H - HEADER_H / 2;
+    page.drawCircle({ x: cx, y: cy, size: 14, color: rgb(1, 1, 1) });
+    page.drawLine({ start: { x: cx + 3, y: cy + 9 }, end: { x: cx - 2, y: cy + 1 }, thickness: 2.5, color: ACCENT });
+    page.drawLine({ start: { x: cx - 2, y: cy + 1 }, end: { x: cx + 2, y: cy + 1 }, thickness: 2.5, color: ACCENT });
+    page.drawLine({ start: { x: cx + 2, y: cy + 1 }, end: { x: cx - 3, y: cy - 9 }, thickness: 2.5, color: ACCENT });
+    page.drawText('WorkforceAP', { x: 48, y: PAGE_H - HEADER_H / 2 + 5, font: boldFont, size: 13, color: rgb(1, 1, 1) });
+    page.drawText('workforceap.org', { x: PAGE_W - MARGIN - lightFont.widthOfTextAtSize('workforceap.org', 8) + MARGIN - 4, y: PAGE_H - HEADER_H / 2 - 4, font: lightFont, size: 8, color: rgb(1, 0.88, 0.9) });
+  }
 }
 
-/** Draw page footer with page numbers */
-function drawFooter(page: ReturnType<PDFDocument['getPage']>, font: Awaited<ReturnType<typeof PDFDocument.prototype.embedFont>>, pageNum: number, pageCount: number) {
+function drawFooter(
+  page: ReturnType<PDFDocument['getPage']>,
+  font: Awaited<ReturnType<typeof PDFDocument.prototype.embedFont>>,
+  pageNum: number,
+  pageCount: number,
+) {
   page.drawLine({ start: { x: MARGIN, y: FOOTER_H + 8 }, end: { x: PAGE_W - MARGIN, y: FOOTER_H + 8 }, thickness: 0.5, color: RULE });
   const txt = `Workforce Advancement Project · workforceap.org · Page ${pageNum} of ${pageCount}`;
   page.drawText(txt, { x: MARGIN, y: FOOTER_H - 2, font, size: 7, color: MUTED });
@@ -73,7 +106,10 @@ export async function POST(req: NextRequest) {
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-    const BODY_TOP = PAGE_H - HEADER_H - 16; // where body text begins
+    // Load actual logo — non-blocking fallback if unavailable
+    const logo = await loadLogo(pdfDoc);
+
+    const BODY_TOP = PAGE_H - HEADER_H - 16;
     const BODY_BOTTOM = FOOTER_H + 16;
     const maxWidth = PAGE_W - MARGIN * 2;
     const bodyFontSize = 10;
@@ -97,9 +133,9 @@ export async function POST(req: NextRequest) {
 
     const bodyLines = wrapText(text.replace(/\*\*/g, ''), font, bodyFontSize, maxWidth);
 
-    // ── First page ──
+    // First page
     let page = pdfDoc.addPage([PAGE_W, PAGE_H]);
-    drawHeader(page, boldFont, font);
+    drawHeader(page, boldFont, font, logo);
     let y = BODY_TOP;
 
     // Document title
@@ -111,17 +147,19 @@ export async function POST(req: NextRequest) {
 
     // Meta line
     const genDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-    const meta = toolName ? `Generated by WorkforceAP ${toolName} · ${genDate}` : `Generated by Workforce Advancement Project · ${genDate}`;
+    const meta = toolName
+      ? `Generated by WorkforceAP ${toolName} · ${genDate}`
+      : `Generated by Workforce Advancement Project · ${genDate}`;
     page.drawText(meta, { x: MARGIN, y, font, size: 8, color: MUTED });
     y -= 6;
     page.drawLine({ start: { x: MARGIN, y }, end: { x: PAGE_W - MARGIN, y }, thickness: 0.5, color: RULE });
     y -= 14;
 
-    // ── Body ──
+    // Body
     for (const line of bodyLines) {
       if (y < BODY_BOTTOM) {
         page = pdfDoc.addPage([PAGE_W, PAGE_H]);
-        drawHeader(page, boldFont, font);
+        drawHeader(page, boldFont, font, logo);
         y = BODY_TOP;
       }
       if (!line.trim()) { y -= lineHeight * 0.6; continue; }
@@ -140,14 +178,15 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ── Footers on all pages ──
+    // Footers on all pages
     const count = pdfDoc.getPageCount();
     for (let i = 0; i < count; i++) {
       drawFooter(pdfDoc.getPage(i), font, i + 1, count);
     }
 
     const pdfBytes = await pdfDoc.save();
-    const safeTitle = (title ?? toolName ?? 'workforceap-export').replace(/[^a-zA-Z0-9-_ ]/g, '').slice(0, 60).trim() || 'workforceap-export';
+    const safeTitle = (title ?? toolName ?? 'workforceap-export')
+      .replace(/[^a-zA-Z0-9-_ ]/g, '').slice(0, 60).trim() || 'workforceap-export';
 
     return new NextResponse(Buffer.from(pdfBytes), {
       status: 200,

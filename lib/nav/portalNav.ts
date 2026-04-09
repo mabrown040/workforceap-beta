@@ -329,6 +329,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin/ai-tools', label: 'AI tools', group: 'insights', Icon: Sparkles },
   { href: '/admin/diagnostics', label: 'Diagnostics', group: 'insights', Icon: Activity },
   { href: '/admin/audit-logs', label: 'Audit logs', group: 'insights', Icon: Shield, requiresSuperAdminContext: true },
+  { href: '/admin/email-crons', label: 'Email & Crons', group: 'insights', Icon: MessageSquare },
 
   // ── Manage ──
   { href: '/admin/settings', label: 'Settings', group: 'manage', Icon: Settings },

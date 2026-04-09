@@ -54,15 +54,18 @@ export default function PortalEntryClient(props: PortalEntryClientProps) {
   useEffect(() => {
     setWizardOpen(showOnboardingWizard);
     if (!showOnboardingWizard && showTour) {
+      // Check both localStorage (persistent) and sessionStorage (legacy) so the
+      // tour never fires twice — even across new browser sessions when tourCompletedAt
+      // hasn't propagated from the DB yet.
       const alreadyAutoStarted =
-        typeof window !== 'undefined' && window.sessionStorage.getItem(tourAutoStartKey) === '1';
+        typeof window !== 'undefined' &&
+        (window.localStorage.getItem(tourAutoStartKey) === '1' ||
+          window.sessionStorage.getItem(tourAutoStartKey) === '1');
       if (alreadyAutoStarted) return;
-      // Delay tour start so the user can orient on the page first.
-      // Without this, tooltips appear immediately on first load,
-      // competing with the actual page content for attention.
       const timer = setTimeout(() => {
         startTour(tourSteps, portal);
         if (typeof window !== 'undefined') {
+          window.localStorage.setItem(tourAutoStartKey, '1');
           window.sessionStorage.setItem(tourAutoStartKey, '1');
         }
       }, 1500);

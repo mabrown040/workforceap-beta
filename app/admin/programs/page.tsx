@@ -47,16 +47,7 @@ export default async function AdminProgramsPage() {
         subtitle="Manage the program catalog (homepage, enrollment, employer filters). Enrollment stats below."
       />
 
-      <section style={{ marginBottom: '2.5rem' }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.75rem' }}>
-          <h2 style={{ fontSize: '1.15rem', margin: 0 }}>Program catalog</h2>
-          <a href="/api/admin/programs/export-twc" className="btn btn-outline btn-sm">
-            Export for TX state approval (CSV)
-          </a>
-        </div>
-        <AdminProgramCatalogClient />
-      </section>
-
+      {/* Enrollment stats shown FIRST so the stable server-rendered cards are immediately visible */}
       <h2 style={{ fontSize: '1.15rem', marginBottom: '0.75rem' }}>Enrollment stats</h2>
       {totalEnrollments === 0 ? (
         <div className="admin-empty-state">
@@ -160,6 +151,17 @@ export default async function AdminProgramsPage() {
           </div>
         </>
       )}
+
+      {/* Program catalog editor — below stats to avoid flash */}
+      <section style={{ marginTop: '2.5rem' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.75rem' }}>
+          <h2 style={{ fontSize: '1.15rem', margin: 0 }}>Program catalog settings</h2>
+          <a href="/api/admin/programs/export-twc" className="btn btn-outline btn-sm">
+            Export for TX state approval (CSV)
+          </a>
+        </div>
+        <AdminProgramCatalogClient />
+      </section>
     </div>
   );
 }

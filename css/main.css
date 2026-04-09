@@ -8951,14 +8951,18 @@ html:not(.dark) .workspace-shell-header {
     gap: 0.5rem 0.75rem;
 }
 
-/* Member portal (mobile): bottom nav is primary; minimize top chrome. */
+/* Member portal (mobile): bottom nav is primary — hide the top workspace header entirely.
+   This eliminates the duplicate nav (top tab bar + bottom nav) on mobile. */
 @media (max-width: 767px) {
-  html[data-portal-role="member"] .workspace-shell-header__brand .workspace-shell-brand-block {
-    display: none;
+  html[data-portal-role="member"] .workspace-shell-header {
+    display: none !important;
   }
-
-  html[data-portal-role="member"] .workspace-shell-header__meta .workspace-shell-context--chip {
-    display: none;
+  /* Compensate for the removed header height so content starts at the top */
+  html[data-portal-role="member"] .workspace-shell-body {
+    padding-top: 0 !important;
+  }
+  html[data-portal-role="member"] .workspace-sidebar {
+    top: 0;
   }
 }
 .workspace-shell-context {
@@ -8978,6 +8982,12 @@ html:not(.dark) .workspace-shell-header {
     z-index: 20;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+}
+/* On mobile, the MobileBottomNav is primary — hide the top tab bar to avoid duplication */
+@media (max-width: 767px) {
+    .workspace-tab-bar {
+        display: none !important;
+    }
 }
 html.dark .workspace-tab-bar {
     background: color-mix(in srgb, var(--surface-container-low) 92%, transparent 8%);

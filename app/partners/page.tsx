@@ -325,7 +325,7 @@ export default function PartnersPage() {
                   style={{
                     fontSize: '2rem',
                     color: 'var(--color-accent)',
-                    fontVariationSettings: "'FILL' 1",
+                    '--ms-fill': 1,
                   }}
                  aria-hidden="true">
                   {pt.icon}
@@ -411,7 +411,7 @@ export default function PartnersPage() {
                       style={{
                         fontSize: '1.75rem',
                         color: 'var(--color-accent)',
-                        fontVariationSettings: "'FILL' 1",
+                        '--ms-fill': 1,
                         flexShrink: 0,
                       }}
                      aria-hidden="true">

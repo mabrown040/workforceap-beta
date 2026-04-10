@@ -450,13 +450,11 @@ export default async function EmployerDashboardPage() {
                 { icon: 'history_edu', label: 'In Review', value: inReview, iconColor: 'var(--color-gold)' },
                 { icon: 'gavel', label: 'Filled / Closed', value: filledPositions, iconColor: 'var(--color-on-surface-variant)' },
               ].map((item) => (
-                <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
-                  <div style={{ width: '2.25rem', height: '2.25rem', borderRadius: '0.625rem', background: 'var(--surface-container)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <span className="material-symbols-outlined" style={{ color: item.iconColor, fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>{item.icon}</span>
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface)', margin: 0 }}>{item.label}</p>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.1rem 0 0' }}>{item.value} total</p>
+                <div key={item.label} className="portal-pipeline-item">
+                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', '--ms-fill': 1 }}>{item.icon}</span>
+                  <div style={{ flex: 1 }}>
+                    <p className="portal-pipeline-item__label">{item.label}</p>
+                    <p className="portal-pipeline-item__meta">{item.value} {item.status.toLowerCase()}</p>
                   </div>
                 </div>
               ))}

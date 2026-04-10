@@ -16,7 +16,7 @@ export default function AiToolsHubSection() {
                 style={{
                   fontSize: '1.75rem',
                   color: 'var(--color-accent)',
-                  fontVariationSettings: "'FILL' 1",
+                  '--ms-fill': 1,
                   flexShrink: 0,
                 }}
                 aria-hidden

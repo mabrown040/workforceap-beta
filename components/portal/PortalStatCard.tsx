@@ -23,8 +23,8 @@ export default function PortalStatCard({
       <div className="portal-stat-card__icon" style={{ background: iconBg }}>
         <span
           className="material-symbols-outlined"
-          style={{ fontSize: '1.5rem', color: iconColor, fontVariationSettings: "'FILL' 1" }}
-         aria-hidden="true">
+          style={{ fontSize: '1.5rem', color: iconColor, '--ms-fill': 1 }}
+        >
           {icon}
         </span>
       </div>

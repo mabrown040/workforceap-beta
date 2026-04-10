@@ -279,7 +279,7 @@ export default function DashboardHomeClient({
                       color: isCurrent ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
                     }}>
                       {item.done ? (
-                        <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', fontVariationSettings: "'FILL' 1", color: 'var(--color-accent)' }}>check_circle</span>
+                        <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', marginBottom: '0.5rem', '--ms-fill': 1 }}>check_circle</span>
                       ) : isCurrent ? (
                         <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--color-accent)', boxShadow: '0 0 0 4px color-mix(in srgb, var(--color-accent) 18%, transparent)', animation: 'portal-pulse 2s infinite' }} />
                       ) : (
@@ -660,8 +660,8 @@ export default function DashboardHomeClient({
                   { done: checklist.startFirstCourse, label: 'Start first course' },
                   { done: checklist.completeFirstCourse, label: 'Complete first course' },
                 ]).map(({ done, label }) => (
-                  <li key={label} className="portal-checklist-item" style={{ color: done ? 'var(--color-on-surface-variant)' : 'var(--color-accent)' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: done ? 'var(--color-green, #4a9b4f)' : 'var(--surface-container-highest)', fontVariationSettings: done ? "'FILL' 1" : "'FILL' 0" }}>
+                  <li key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.875rem', color: done ? 'var(--color-on-surface-variant)' : 'var(--color-accent)' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: done ? 'var(--color-green)' : 'var(--surface-container-highest)', '--ms-fill': done ? 1 : 0 }}>
                       {done ? 'check_circle' : 'circle'}
                     </span>
                     <span style={{ textDecoration: done ? 'line-through' : 'none' }}>{label}</span>

@@ -418,7 +418,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                       {applicationStatus.nextStep}
                     </h2>
                   </div>
-                  <span className="material-symbols-outlined" style={{ color: '#ffbb00', fontVariationSettings: "'FILL' 1", flexShrink: 0, marginLeft: '0.5rem' }} aria-hidden>bolt</span>
+                  <span className="material-symbols-outlined wa-text-xl" style={{ color:"#ffbb00", '--ms-fill': 1 }} aria-hidden>bolt</span>
                 </div>
                 <p style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.88)', margin: 0, lineHeight: 1.5 }}>
                   For {applicationStatus.programInterest ?? program?.title ?? 'your program'}.

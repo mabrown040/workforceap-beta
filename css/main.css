@@ -20,8 +20,11 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    -webkit-font-feature-settings: 'liga';
     font-feature-settings: 'liga';
-    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    /* Per-axis overrides via inline --ms-fill / --ms-wght — never use partial font-variation-settings
+       (breaks ligatures on WebKit). Chrome and Safari both honor the full tuple below. */
+    font-variation-settings: 'FILL' var(--ms-fill, 0), 'wght' var(--ms-wght, 400), 'GRAD' 0, 'opsz' 24;
     vertical-align: middle;
 }
 
@@ -12245,7 +12248,7 @@ html.dark .admin-super-messages-bubble.is-staff {
     font-size: 1.05rem;
     color: #16a34a;
     flex-shrink: 0;
-    font-variation-settings: 'FILL' 1;
+    --ms-fill: 1;
 }
 .dashboard-program-course-lock {
     font-size: 1rem;

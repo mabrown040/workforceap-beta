@@ -193,8 +193,8 @@ async function main() {
 
   await seedOnetCareerData(prisma);
 
-  // Seed admin users (mabrown040 is super_admin for testing all portal views)
-  const superAdminEmails = ['mabrown040@gmail.com'];
+  // Seed admin users (Michael's personal + workforceap.org accounts are super_admin for real admin access)
+  const superAdminEmails = ['mabrown040@gmail.com', 'michael.brown@workforceap.org'];
   for (const email of superAdminEmails) {
     const user = await prisma.user.findUnique({ where: { email }, include: { profile: true } });
     if (user?.profile) {

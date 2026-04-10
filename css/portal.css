@@ -2557,3 +2557,14 @@ html.dark .employer-applications-table.admin-table thead th {
   background: rgba(173, 44, 77, 0.08);
   color: var(--color-accent);
 }
+
+/* ── Icon button focus ring (notification bell, search trigger, etc.) ── */
+.portal-icon-btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ── Notification dropdown item hover ── */
+.portal-notification-item:hover {
+  background: var(--surface-container);
+}

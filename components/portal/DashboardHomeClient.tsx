@@ -215,7 +215,7 @@ export default function DashboardHomeClient({
         <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>
           Welcome back, {firstName}.
         </h2>
-        <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '42rem', lineHeight: 1.65, opacity: 0.75, fontSize: '0.9375rem' }}>
+        <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '42rem', lineHeight: 1.65, fontSize: '0.9375rem' }}>
           {state === 'A' && (isMinor && age ? "Let's explore career paths and build skills together." : "Let's build your career path — all programs are free.")}
           {state === 'B' && `You're enrolled in ${programTitle ?? 'your program'}. Complete your assessment to unlock training.`}
           {state === 'C' && `Your mastery of ${programTitle ?? 'training'} is ${progressPct}% complete. Keep going.`}
@@ -259,7 +259,7 @@ export default function DashboardHomeClient({
                     {completedCount} of {totalCourses} courses {state === 'D' ? 'completed' : 'done'}
                   </p>
                 </div>
-                <div style={{ textAlign: 'right', flexShrink: 0, background: 'rgba(173,44,77,0.08)', borderRadius: '0.75rem', padding: '0.75rem 1rem' }}>
+                <div style={{ textAlign: 'right', flexShrink: 0, background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)', borderRadius: '0.75rem', padding: '0.75rem 1rem' }}>
                   <span style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-accent)', letterSpacing: '-0.04em', display: 'block', lineHeight: 1 }}>
                     {progressPct}<span style={{ fontSize: '1rem' }}>%</span>
                   </span>
@@ -278,13 +278,13 @@ export default function DashboardHomeClient({
                   const isCurrent = !item.done && (i === 0 || checklistItems[i - 1].done);
                   return (
                     <div key={item.label} className="portal-milestone-step" style={{
-                      opacity: item.done ? 0.45 : isCurrent ? 1 : 0.22,
+                      opacity: item.done ? 0.5 : isCurrent ? 1 : 0.35,
                       color: isCurrent ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
                     }}>
                       {item.done ? (
                         <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', fontVariationSettings: "'FILL' 1", color: 'var(--color-accent)' }}>check_circle</span>
                       ) : isCurrent ? (
-                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--color-accent)', boxShadow: '0 0 0 4px rgba(173,44,77,0.18)', animation: 'portal-pulse 2s infinite' }} />
+                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--color-accent)', boxShadow: '0 0 0 4px color-mix(in srgb, var(--color-accent) 18%, transparent)', animation: 'portal-pulse 2s infinite' }} />
                       ) : (
                         <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--surface-container-highest)' }} />
                       )}
@@ -338,7 +338,7 @@ export default function DashboardHomeClient({
                       return (
                         <div key={stepLabel} className="portal-app-progress__step">
                           <div className={`portal-app-progress__bar portal-app-progress__bar--${done ? 'done' : current ? 'current' : 'locked'}`} />
-                          <span className="portal-app-progress__label" style={{ opacity: locked ? 0.4 : 0.85 }}>
+                          <span className="portal-app-progress__label" style={{ opacity: locked ? 0.55 : 0.9 }}>
                             {stepLabel}
                           </span>
                         </div>
@@ -352,7 +352,7 @@ export default function DashboardHomeClient({
                 </div>
                 <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{applicationStatus.nextStep}</p>
                 {applicationStatus.showResponseEstimate && (
-                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', opacity: 0.7, marginTop: '0.5rem', fontStyle: 'italic' }}>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontStyle: 'italic' }}>
                     We typically respond within 24–48 business hours.
                   </p>
                 )}
@@ -373,7 +373,7 @@ export default function DashboardHomeClient({
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                   {assessmentScorePct != null && (
-                    <span style={{ padding: '0.25rem 0.625rem', background: 'rgba(173,44,77,0.1)', color: 'var(--color-accent)', fontSize: '0.75rem', borderRadius: '9999px', fontWeight: 600 }}>
+                    <span style={{ padding: '0.25rem 0.625rem', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', color: 'var(--color-accent)', fontSize: '0.75rem', borderRadius: '9999px', fontWeight: 600 }}>
                       Assessment: {assessmentScorePct}%
                     </span>
                   )}
@@ -530,7 +530,7 @@ export default function DashboardHomeClient({
                   <p className="portal-quick-action-item__label">{item.label}</p>
                   <p className="portal-quick-action-item__desc">{item.desc}</p>
                 </div>
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.3, flexShrink: 0 }}>chevron_right</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.45, flexShrink: 0 }}>chevron_right</span>
               </Link>
             ))}
           </div>

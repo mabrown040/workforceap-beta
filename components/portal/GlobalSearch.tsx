@@ -77,6 +77,7 @@ export default function GlobalSearch() {
   if (!open) return (
     <button
       type="button"
+      className="portal-icon-btn"
       onClick={() => setOpen(true)}
       aria-label="Global search (⌘K)"
       title="Search (⌘K)"
@@ -124,7 +125,7 @@ export default function GlobalSearch() {
                 <a
                   href={r.href}
                   onClick={() => setOpen(false)}
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', textDecoration: 'none', color: 'inherit', background: i === selectedIndex ? 'var(--surface-container)' : 'transparent', transition: 'background 0.1s' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', textDecoration: 'none', color: 'inherit', background: i === selectedIndex ? 'var(--surface-container)' : 'transparent', transition: 'background 0.15s' }}
                   onMouseEnter={() => setSelectedIndex(i)}
                 >
                   <div style={{ width: '2rem', height: '2rem', borderRadius: '0.5rem', background: `color-mix(in srgb, ${TYPE_COLOR[r.type]} 12%, transparent)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -142,8 +143,11 @@ export default function GlobalSearch() {
             ))}
           </ul>
         ) : query.trim().length >= 2 && !loading ? (
-          <div style={{ padding: '1.5rem 1rem', textAlign: 'center', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
-            No results for &ldquo;{query}&rdquo;
+          <div style={{ padding: '2rem 1rem', textAlign: 'center' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.75rem', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.5rem', opacity: 0.6 }}>search_off</span>
+            <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
+              No results for &ldquo;{query}&rdquo;
+            </p>
           </div>
         ) : query.trim().length === 0 ? (
           <div style={{ padding: '1rem 1.25rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
@@ -154,9 +158,8 @@ export default function GlobalSearch() {
               { label: 'Jobs', href: '/admin/jobs', icon: 'work', desc: 'View all jobs' },
             ].map(s => (
               <a key={s.href} href={s.href} onClick={() => setOpen(false)}
-                style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.5rem 0.625rem', borderRadius: '0.5rem', textDecoration: 'none', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem', transition: 'background 0.1s' }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-container)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                className="portal-notification-item"
+                style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.5rem 0.625rem', borderRadius: '0.5rem', textDecoration: 'none', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem', transition: 'background 0.15s' }}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>{s.icon}</span>
                 <span style={{ fontWeight: 600 }}>{s.label}</span>

@@ -82,7 +82,7 @@ export default function WorkspaceShell({
   const hasTabs = navItems.some((i) => i.tab);
   const activeTab = hasTabs ? getActiveTab(pathname, navItems) : null;
   const desktopNavItems = hasTabs && activeTab ? navItems.filter((i) => i.tab === activeTab) : navItems;
-  const mobileDrawerNavItems = navItems;
+  const mobileDrawerNavItems = hasTabs && activeTab ? navItems.filter((i) => i.tab === activeTab) : navItems;
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [wide, setWide] = useState(false);
@@ -347,7 +347,7 @@ export default function WorkspaceShell({
         >
           <div className="workspace-sidebar-inner">
             <div className="workspace-sidebar-toolbar">
-              <div className="workspace-sidebar-label">{workspaceLabel}</div>
+              <div className="workspace-sidebar-label">{!wide && hasTabs && activeTab ? NAV_TAB_META[activeTab].label : workspaceLabel}</div>
               {wide ? (
                 <button
                   type="button"

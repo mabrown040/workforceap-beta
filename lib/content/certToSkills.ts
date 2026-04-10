@@ -1,56 +1,70 @@
+import { PROGRAMS, PROGRAM_AXIS_MAP, RADAR_AXES, type RadarAxis } from './programs';
+
 export interface CertSkillProfile {
   certName: string;
-  skills: { axis: string; value: number }[]; // axis matches radar axes, value 0-100
+  skills: { axis: RadarAxis; value: number }[]; // axis matches modern 6-axis radar, value 0-100
 }
 
-// Mapping: each cert boosts certain skill axes
+/**
+ * Cert → modern 6-axis skill mapping.
+ * Migrated from legacy 5-axis (Technical, Analytics, Communication, Leadership, Creative)
+ * to the 6 modern axes used everywhere else: Analytics, Engineering, Design, Strategy, Ethics, Research.
+ */
 export const CERT_SKILL_PROFILES: CertSkillProfile[] = [
   { certName: 'CompTIA A+', skills: [
-    { axis: 'Technical', value: 75 }, { axis: 'Analytics', value: 45 },
-    { axis: 'Communication', value: 35 }, { axis: 'Leadership', value: 20 }, { axis: 'Creative', value: 15 }
+    { axis: 'Analytics', value: 40 }, { axis: 'Engineering', value: 80 },
+    { axis: 'Design', value: 10 }, { axis: 'Strategy', value: 25 },
+    { axis: 'Ethics', value: 35 }, { axis: 'Research', value: 30 },
   ]},
   { certName: 'CompTIA Network+', skills: [
-    { axis: 'Technical', value: 80 }, { axis: 'Analytics', value: 55 },
-    { axis: 'Communication', value: 30 }, { axis: 'Leadership', value: 25 }, { axis: 'Creative', value: 15 }
+    { axis: 'Analytics', value: 45 }, { axis: 'Engineering', value: 85 },
+    { axis: 'Design', value: 10 }, { axis: 'Strategy', value: 25 },
+    { axis: 'Ethics', value: 30 }, { axis: 'Research', value: 30 },
   ]},
   { certName: 'CompTIA Security+', skills: [
-    { axis: 'Technical', value: 85 }, { axis: 'Analytics', value: 65 },
-    { axis: 'Communication', value: 35 }, { axis: 'Leadership', value: 30 }, { axis: 'Creative', value: 20 }
+    { axis: 'Analytics', value: 55 }, { axis: 'Engineering', value: 75 },
+    { axis: 'Design', value: 10 }, { axis: 'Strategy', value: 40 },
+    { axis: 'Ethics', value: 65 }, { axis: 'Research', value: 40 },
   ]},
   { certName: 'CNA Certification', skills: [
-    { axis: 'Technical', value: 50 }, { axis: 'Analytics', value: 35 },
-    { axis: 'Communication', value: 80 }, { axis: 'Leadership', value: 40 }, { axis: 'Creative', value: 25 }
+    { axis: 'Analytics', value: 25 }, { axis: 'Engineering', value: 20 },
+    { axis: 'Design', value: 10 }, { axis: 'Strategy', value: 30 },
+    { axis: 'Ethics', value: 80 }, { axis: 'Research', value: 35 },
   ]},
   { certName: 'CPR/First Aid', skills: [
-    { axis: 'Technical', value: 30 }, { axis: 'Analytics', value: 20 },
-    { axis: 'Communication', value: 55 }, { axis: 'Leadership', value: 45 }, { axis: 'Creative', value: 15 }
+    { axis: 'Analytics', value: 15 }, { axis: 'Engineering', value: 10 },
+    { axis: 'Design', value: 5 }, { axis: 'Strategy', value: 20 },
+    { axis: 'Ethics', value: 55 }, { axis: 'Research', value: 15 },
   ]},
   { certName: 'Medical Assistant Certificate', skills: [
-    { axis: 'Technical', value: 60 }, { axis: 'Analytics', value: 50 },
-    { axis: 'Communication', value: 75 }, { axis: 'Leadership', value: 35 }, { axis: 'Creative', value: 20 }
+    { axis: 'Analytics', value: 40 }, { axis: 'Engineering', value: 30 },
+    { axis: 'Design', value: 10 }, { axis: 'Strategy', value: 25 },
+    { axis: 'Ethics', value: 75 }, { axis: 'Research', value: 45 },
   ]},
   { certName: 'OSHA 10', skills: [
-    { axis: 'Technical', value: 40 }, { axis: 'Analytics', value: 35 },
-    { axis: 'Communication', value: 50 }, { axis: 'Leadership', value: 55 }, { axis: 'Creative', value: 20 }
+    { axis: 'Analytics', value: 25 }, { axis: 'Engineering', value: 40 },
+    { axis: 'Design', value: 10 }, { axis: 'Strategy', value: 25 },
+    { axis: 'Ethics', value: 60 }, { axis: 'Research', value: 20 },
   ]},
   { certName: 'OSHA 30', skills: [
-    { axis: 'Technical', value: 50 }, { axis: 'Analytics', value: 45 },
-    { axis: 'Communication', value: 60 }, { axis: 'Leadership', value: 65 }, { axis: 'Creative', value: 20 }
+    { axis: 'Analytics', value: 35 }, { axis: 'Engineering', value: 50 },
+    { axis: 'Design', value: 10 }, { axis: 'Strategy', value: 35 },
+    { axis: 'Ethics', value: 70 }, { axis: 'Research', value: 25 },
   ]},
   { certName: 'Trade-specific certification', skills: [
-    { axis: 'Technical', value: 70 }, { axis: 'Analytics', value: 40 },
-    { axis: 'Communication', value: 45 }, { axis: 'Leadership', value: 35 }, { axis: 'Creative', value: 30 }
+    { axis: 'Analytics', value: 30 }, { axis: 'Engineering', value: 70 },
+    { axis: 'Design', value: 15 }, { axis: 'Strategy', value: 25 },
+    { axis: 'Ethics', value: 40 }, { axis: 'Research', value: 25 },
   ]},
 ];
 
-// Given a list of earned cert names, compute aggregated skill profile (max per axis)
+/** Given a list of earned cert names, compute aggregated skill profile (max per axis). */
 export function computeMemberSkillProfile(earnedCertNames: string[]): { axis: string; value: number }[] {
-  const axes = ['Analytics', 'Technical', 'Communication', 'Leadership', 'Creative'];
   const maxByAxis: Record<string, number> = {};
-  axes.forEach(a => { maxByAxis[a] = 0; });
-  
+  RADAR_AXES.forEach((a) => { maxByAxis[a] = 0; });
+
   for (const certName of earnedCertNames) {
-    const profile = CERT_SKILL_PROFILES.find(p => p.certName === certName);
+    const profile = CERT_SKILL_PROFILES.find((p) => p.certName === certName);
     if (!profile) continue;
     for (const skill of profile.skills) {
       if (skill.axis in maxByAxis) {
@@ -58,51 +72,63 @@ export function computeMemberSkillProfile(earnedCertNames: string[]): { axis: st
       }
     }
   }
-  
-  return axes.map(axis => ({ axis, value: maxByAxis[axis] / 100 }));
+
+  return RADAR_AXES.map((axis) => ({ axis, value: maxByAxis[axis] / 100 }));
 }
 
-// Given member skill profile and target occupation radar, return recommended certs to fill gaps
+/**
+ * Given member skill profile and target occupation radar, return recommended
+ * WorkforceAP programs to fill skill gaps.
+ *
+ * @deprecated Prefer `recommendProgramsForGaps` from `./programs` for richer results.
+ * Kept for backward compat — internally delegates to the program-based engine now.
+ */
 export function recommendCertsForGaps(
   memberProfile: { axis: string; value: number }[],
   targetProfile: { axis: string; value: number }[],
-  allTracks: import('./certificationTracks').CertTrack[]
+  _allTracks: import('./certificationTracks').CertTrack[],
 ): { certName: string; track: string; reason: string; link: string }[] {
-  // Find axes where member is below target by 20+ points
+  // Find axes where member is below target by 15+ points
   const gaps: { axis: string; gap: number }[] = [];
   for (const target of targetProfile) {
-    const memberAxis = memberProfile.find(m => m.axis === target.axis);
+    const memberAxis = memberProfile.find((m) => m.axis === target.axis);
     const memberVal = (memberAxis?.value ?? 0) * 100;
     const targetVal = target.value * 100;
-    if (targetVal - memberVal >= 20) {
+    if (targetVal - memberVal >= 15) {
       gaps.push({ axis: target.axis, gap: targetVal - memberVal });
     }
   }
   gaps.sort((a, b) => b.gap - a.gap);
-  
+
+  // Map top gap axes to programs
   const recommendations: { certName: string; track: string; reason: string; link: string }[] = [];
   const seen = new Set<string>();
-  
-  for (const gap of gaps.slice(0, 2)) { // top 2 gap axes
-    for (const track of allTracks) {
-      for (const cert of track.certs) {
-        if (seen.has(cert.name)) continue;
-        const profile = CERT_SKILL_PROFILES.find(p => p.certName === cert.name);
-        if (!profile) continue;
-        const certBoost = profile.skills.find(s => s.axis === gap.axis);
-        if (certBoost && certBoost.value >= 50) {
-          seen.add(cert.name);
-          recommendations.push({
-            certName: cert.name,
-            track: track.name,
-            reason: `Builds ${gap.axis} skills (${Math.round(gap.gap)}pt gap)`,
-            link: cert.link,
-          });
-          break;
-        }
+
+  for (const gap of gaps.slice(0, 3)) {
+    // Find best program for this gap axis
+    let bestSlug = '';
+    let bestScore = 0;
+    for (const [slug, scores] of Object.entries(PROGRAM_AXIS_MAP)) {
+      if (seen.has(slug)) continue;
+      const axisScore = scores[gap.axis] ?? 0;
+      if (axisScore > bestScore) {
+        bestScore = axisScore;
+        bestSlug = slug;
+      }
+    }
+    if (bestSlug && bestScore >= 40) {
+      seen.add(bestSlug);
+      const program = PROGRAMS.find((p) => p.slug === bestSlug);
+      if (program) {
+        recommendations.push({
+          certName: program.title,
+          track: program.categoryLabel,
+          reason: `Builds ${gap.axis} skills (${Math.round(gap.gap)}pt gap)`,
+          link: `/programs/${program.slug}`,
+        });
       }
     }
   }
-  
+
   return recommendations.slice(0, 3);
 }

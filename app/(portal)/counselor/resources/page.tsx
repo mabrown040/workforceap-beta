@@ -25,7 +25,7 @@ function ResourceCard({ href, icon, label, desc }: { href: string; icon: string;
       <div className="portal-card portal-card--flat portal-card--padded-sm" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', transition: 'background-color 0.15s' }}>
         <span
           className="material-symbols-outlined"
-          style={{ fontSize: '1.25rem', color: 'var(--color-accent)', '--ms-fill': 1, flexShrink: 0 }}
+          style={{ fontSize: '1.25rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24", flexShrink: 0 }}
         >
           {icon}
         </span>

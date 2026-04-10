@@ -160,7 +160,7 @@ export default async function AdminAuditLogsPage({ searchParams }: Props) {
           >
             <span
               className="material-symbols-outlined"
-              style={{ fontSize: '1.5rem', color: s.color, '--ms-fill': 1 }}
+              style={{ fontSize: '1.5rem', color: s.color, fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
             >
               {s.icon}
             </span>

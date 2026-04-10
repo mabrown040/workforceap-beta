@@ -216,11 +216,11 @@ html.dark .marketing-bottom-nav {
   font-family: 'Material Symbols Outlined', sans-serif;
   -webkit-font-feature-settings: 'liga';
   font-feature-settings: 'liga';
-  font-variation-settings: 'FILL' var(--ms-fill, 0), 'wght' var(--ms-wght, 400), 'GRAD' 0, 'opsz' 24;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
 .marketing-bottom-nav__link--active .material-symbols-outlined {
-  --ms-fill: 1;
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
 .marketing-bottom-nav__link--active {

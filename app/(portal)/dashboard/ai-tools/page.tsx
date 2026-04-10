@@ -23,6 +23,7 @@ export default async function AIToolsPage() {
   const allTools = AI_TOOLS_HUB.flatMap((cat) =>
     cat.links.map((link) => ({ ...link, icon: cat.icon, category: cat.title }))
   );
+  const suggestedActions: { href: string; label: string }[] = [];
 
   return (
     <div style={{ background: 'var(--surface-container-lowest)', minHeight: '100vh' }}>
@@ -163,7 +164,7 @@ export default async function AIToolsPage() {
             </span>
             View my past results
           </Link>
-        </div>
+        </section>
       </div>
 
       {/* Voice coaches — compact at top */}
@@ -174,7 +175,7 @@ export default async function AIToolsPage() {
       {/* All tools in one dense grid — no scrolling required */}
       <div style={{ marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>grid_view</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>grid_view</span>
           <h2 style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: 0 }}>
             All Tools
           </h2>
@@ -188,7 +189,7 @@ export default async function AIToolsPage() {
               style={{ textDecoration: 'none' }}
             >
               <div className="portal-quick-action-item__icon">
-                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>{tool.icon}</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>{tool.icon}</span>
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p className="portal-quick-action-item__label">{tool.label}</p>
@@ -206,7 +207,7 @@ export default async function AIToolsPage() {
           href="/dashboard/ai-tools/voice-interview"
           style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-accent)', textDecoration: 'none' }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>mic</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>mic</span>
           Voice mock interview (ElevenLabs)
         </Link>
       </div>

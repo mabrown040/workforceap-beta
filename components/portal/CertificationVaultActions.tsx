@@ -190,7 +190,7 @@ export function CertificationEarnedRowMobile({
       >
         <span
           className="material-symbols-outlined"
-          style={{ fontSize: '1.375rem', color: 'var(--color-green)', '--ms-fill': 1 }}
+          style={{ fontSize: '1.375rem', color: 'var(--color-green)', fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
         >
           {icon}
         </span>

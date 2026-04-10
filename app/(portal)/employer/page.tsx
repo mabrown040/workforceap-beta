@@ -446,15 +446,15 @@ export default async function EmployerDashboardPage() {
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {[
-                { icon: 'verified', label: 'Active Postings', value: activeJobs, iconColor: '#4ade80' },
-                { icon: 'history_edu', label: 'In Review', value: inReview, iconColor: 'var(--color-gold)' },
-                { icon: 'gavel', label: 'Filled / Closed', value: filledPositions, iconColor: 'var(--color-on-surface-variant)' },
+                { icon: 'verified', label: 'Active Postings', value: activeJobs, iconColor: '#4ade80', status: 'live' },
+                { icon: 'history_edu', label: 'In Review', value: inReview, iconColor: 'var(--color-gold)', status: 'in review' },
+                { icon: 'gavel', label: 'Filled / Closed', value: filledPositions, iconColor: 'var(--color-on-surface-variant)', status: 'closed' },
               ].map((item) => (
                 <div key={item.label} className="portal-pipeline-item">
-                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', '--ms-fill': 1 }}>{item.icon}</span>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>{item.icon}</span>
                   <div style={{ flex: 1 }}>
                     <p className="portal-pipeline-item__label">{item.label}</p>
-                    <p className="portal-pipeline-item__meta">{item.value} {item.status.toLowerCase()}</p>
+                    <p className="portal-pipeline-item__meta">{item.value} {item.status}</p>
                   </div>
                 </div>
               ))}
@@ -509,7 +509,7 @@ export default async function EmployerDashboardPage() {
                     {app.appliedAt.toLocaleDateString()}
                   </p>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         )}

@@ -329,8 +329,7 @@ export default function ProgramsPage() {
                       color: 'var(--color-accent)',
                       fontSize: '1.75rem',
                       marginBottom: '0.75rem',
-                      display: 'block',
-                      '--ms-fill': 1,
+                      display: 'block', fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24",
                     }}
                    aria-hidden="true">
                     {step.icon}

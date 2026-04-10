@@ -44,7 +44,7 @@ export default function ProgramsDecisionJourneyNav({
               >
                 <span
                   className="material-symbols-outlined pdj-nav__icon"
-                  style={{ '--ms-fill': isHere ? 1 : 0 }}
+                  style={{ fontVariationSettings: isHere ? "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" : "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
                   aria-hidden
                 >
                   {s.icon}

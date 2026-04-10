@@ -406,8 +406,7 @@ export default function WhatWeDoPage() {
                     className="material-symbols-outlined"
                     style={{
                       fontSize: '2.5rem',
-                      color: i === 0 ? 'rgba(255,255,255,0.9)' : 'var(--color-accent)',
-                      '--ms-fill': 1,
+                      color: i === 0 ? 'rgba(255,255,255,0.9)' : 'var(--color-accent)', fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24",
                     }}
                    aria-hidden="true">
                     {item.icon}

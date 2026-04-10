@@ -324,8 +324,7 @@ export default function PartnersPage() {
                   className="material-symbols-outlined"
                   style={{
                     fontSize: '2rem',
-                    color: 'var(--color-accent)',
-                    '--ms-fill': 1,
+                    color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24",
                   }}
                  aria-hidden="true">
                   {pt.icon}
@@ -410,8 +409,7 @@ export default function PartnersPage() {
                       className="material-symbols-outlined"
                       style={{
                         fontSize: '1.75rem',
-                        color: 'var(--color-accent)',
-                        '--ms-fill': 1,
+                        color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24",
                         flexShrink: 0,
                       }}
                      aria-hidden="true">

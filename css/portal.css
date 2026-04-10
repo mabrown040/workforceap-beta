@@ -3,7 +3,7 @@
  * Surface-container tonal layering, glassmorphic nav, no hard borders
  */
 
-/* Material Symbols: axis tuple lives in css/main.css (CSS vars --ms-fill / --ms-wght). */
+/* Material Symbols: base + modifiers in css/main.css */
 .material-symbols-outlined {
     vertical-align: middle;
 }

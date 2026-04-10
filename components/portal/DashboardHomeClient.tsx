@@ -279,7 +279,7 @@ export default function DashboardHomeClient({
                       color: isCurrent ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
                     }}>
                       {item.done ? (
-                        <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', marginBottom: '0.5rem', '--ms-fill': 1 }}>check_circle</span>
+                        <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', marginBottom: '0.5rem', fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>check_circle</span>
                       ) : isCurrent ? (
                         <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--color-accent)', boxShadow: '0 0 0 4px color-mix(in srgb, var(--color-accent) 18%, transparent)', animation: 'portal-pulse 2s infinite' }} />
                       ) : (
@@ -370,14 +370,16 @@ export default function DashboardHomeClient({
               </div>
               <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>{applicationStatus.nextStep}</p>
               {applicationStatus.showResponseEstimate && (
-                <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', opacity: 0.8, marginTop: '0.5rem' }}>
-                  We typically respond within 24-48 hours on business days.
-                </p>
-                <Link href="/apply" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', display: 'flex' }}
-                  onClick={() => handleDashboardAction('start_application_clicked')}>
-                  Start application
-                </Link>
-              </div>
+                <>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', opacity: 0.8, marginTop: '0.5rem' }}>
+                    We typically respond within 24-48 hours on business days.
+                  </p>
+                  <Link href="/apply" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', display: 'flex' }}
+                    onClick={() => handleDashboardAction('start_application_clicked')}>
+                    Start application
+                  </Link>
+                </>
+              )}
               <div className="portal-card portal-card--flat portal-card--padded-sm">
                 <p style={{ fontSize: '0.875rem', fontStyle: 'italic', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
                   {state === 'A' && "Choose a program to get started on your career path. All programs are offered at no cost."}
@@ -411,7 +413,7 @@ export default function DashboardHomeClient({
                 )}
               </div>
             </div>
-          )}
+          ) : null}
           </div>
         </aside>
 
@@ -661,7 +663,7 @@ export default function DashboardHomeClient({
                   { done: checklist.completeFirstCourse, label: 'Complete first course' },
                 ]).map(({ done, label }) => (
                   <li key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.875rem', color: done ? 'var(--color-on-surface-variant)' : 'var(--color-accent)' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: done ? 'var(--color-green)' : 'var(--surface-container-highest)', '--ms-fill': done ? 1 : 0 }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: done ? 'var(--color-green)' : 'var(--surface-container-highest)', fontVariationSettings: done ? "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" : "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
                       {done ? 'check_circle' : 'circle'}
                     </span>
                     <span style={{ textDecoration: done ? 'line-through' : 'none' }}>{label}</span>

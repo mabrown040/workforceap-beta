@@ -388,7 +388,7 @@ export default async function CounselorPortalPage() {
                       width: '2.75rem', minWidth: '2.75rem', height: '2.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
                       background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', borderRadius: '0.625rem',
                     }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>{link.icon}</span>
+                      <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>{link.icon}</span>
                     </div>
                     <div>
                       <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{link.title}</p>

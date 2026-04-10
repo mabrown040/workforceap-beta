@@ -66,7 +66,7 @@ export default function ApplyConfirmationMobile({ steps }: { steps: Confirmation
               boxShadow: '0 20px 40px -12px rgba(140,15,55,0.35)',
             }}
           >
-            <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '3rem', '--ms-wght': 600 }}>
+            <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '3rem', fontVariationSettings: "'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 24" }}>
               check
             </span>
           </div>
@@ -148,7 +148,7 @@ export default function ApplyConfirmationMobile({ steps }: { steps: Confirmation
                 gap: '0.5rem',
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#7b5800', '--ms-fill': 1 }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#7b5800', fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
                 stars
               </span>
               Join 2,000+ people who trained with us.

@@ -237,7 +237,7 @@ export default async function HowItWorksPage() {
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     {['Pre-configured with all necessary software', 'Technical support included', 'Zero upfront cost for qualifying members'].map((item) => (
                       <li key={item} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>
-                        <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', '--ms-fill': 1 }}>check_circle</span>
+                        <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>check_circle</span>
                         {item}
                       </li>
                     ))}
@@ -251,7 +251,7 @@ export default async function HowItWorksPage() {
               <div style={{ background: 'var(--color-accent)', borderRadius: 'var(--radius-xl)', padding: '3rem', color: '#fff', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 <div>
                   <div style={{ width: '4rem', height: '4rem', background: 'rgba(255,255,255,0.2)', borderRadius: 'var(--radius-xl)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '2rem', '--ms-fill': 1 }}>calendar_today</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '2rem', fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>calendar_today</span>
                   </div>
                   <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>150-Day Post-Hire Support</h2>
                   <p style={{ color: 'rgba(255,203,209,0.9)', lineHeight: 1.7, maxWidth: '36rem' }}>
@@ -287,7 +287,7 @@ export default async function HowItWorksPage() {
                     <div key={b.title} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <div style={{ padding: '0.5rem', background: 'var(--color-gold)', borderRadius: 'var(--radius-lg)' }}>
-                          <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface)', fontSize: '1.25rem', '--ms-fill': 1 }}>{b.icon}</span>
+                          <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface)', fontSize: '1.25rem', fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>{b.icon}</span>
                         </div>
                         <h4 style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{b.title}</h4>
                       </div>

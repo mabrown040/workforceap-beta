@@ -358,7 +358,7 @@ export default function EmployersPage() {
                     gap: '0.75rem',
                   }}
                 >
-                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', '--ms-fill': 1 }}>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
                     psychology
                   </span>
                   <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.8rem', margin: 0, lineHeight: 1.5 }}>
@@ -388,8 +388,7 @@ export default function EmployersPage() {
                     className="material-symbols-outlined"
                     style={{
                       fontSize: '2rem',
-                      color: 'var(--color-accent)',
-                      '--ms-fill': 1,
+                      color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24",
                     }}
                   >
                     {card.icon}
@@ -457,8 +456,7 @@ export default function EmployersPage() {
                   className="material-symbols-outlined"
                   style={{
                     fontSize: '2.25rem',
-                    color: c.accent ? 'rgba(255,255,255,0.9)' : 'var(--color-accent)',
-                    '--ms-fill': 1,
+                    color: c.accent ? 'rgba(255,255,255,0.9)' : 'var(--color-accent)', fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24",
                   }}
                 >
                   {c.icon}
@@ -561,8 +559,7 @@ export default function EmployersPage() {
                     fontSize: '2rem',
                     color: 'var(--color-accent)',
                     marginBottom: '0.75rem',
-                    display: 'block',
-                    '--ms-fill': 1,
+                    display: 'block', fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24",
                   }}
                 >
                   {step.icon}
@@ -653,7 +650,7 @@ export default function EmployersPage() {
                     >
                       <span
                         className="material-symbols-outlined"
-                        style={{ fontSize: '1rem', color: 'var(--color-accent)', '--ms-fill': 1 }}
+                        style={{ fontSize: '1rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
                       >
                         check_circle
                       </span>

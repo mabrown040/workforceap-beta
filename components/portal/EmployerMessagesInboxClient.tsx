@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
+import { employerMessagingSurface } from '@/lib/portal/messagingSurfaces';
 import PortalTeamChatClient from '@/components/portal/PortalTeamChatClient';
 import EmployerApplicationChatClient from '@/components/portal/EmployerApplicationChatClient';
 import type { EmployerInboxCandidateRow, EmployerInboxTeamRow } from '@/lib/messages/employerInbox';

@@ -601,14 +601,6 @@ export default function AdminSuperMessagesClient() {
                     </div>
                   </div>
 
-    if (!detail) {
-      return (
-        <div className="wa-flex wa-items-center wa-justify-center wa-h-full">
-          <p className="wa-text-sm" style={{ color: 'var(--color-on-surface-variant)' }}>Could not load thread</p>
-        </div>
-      );
-    }
-
                   <Link
                     href={`/admin/members/${detail.member.id}`}
                     className="btn btn-outline btn-sm"

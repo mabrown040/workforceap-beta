@@ -32,6 +32,10 @@ function InfoRow({ label, value, mono }: { label: string; value: string | null |
   );
 }
 
+function row(label: string, value: string | null | boolean | Date | undefined, opts?: { mono?: boolean }) {
+  return <InfoRow label={label} value={value ?? null} mono={opts?.mono} />;
+}
+
 export default async function PartnerSettingsPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/partner/settings');
@@ -75,7 +79,7 @@ export default async function PartnerSettingsPage() {
         {row('Slug', partner.slug, { mono: true })}
         {row('Referral code', partner.referralCode, { mono: true })}
         {row('Type', partner.organizationType)}
-        {row('Status', partner.active, { bool: true })}
+        {row('Status', partner.active)}
         {row('Onboarding done', partner.onboardingCompletedAt)}
         {row('Portal tour', partner.tourCompletedAt)}
       </div>
@@ -104,6 +108,10 @@ export default async function PartnerSettingsPage() {
         </Link>
         .
       </p>
-    </div>
+      </div>
+      <div className="wa-block wa-md:wa-hidden">
+        <MobileBottomNav variant="partner" />
+      </div>
+    </>
   );
 }

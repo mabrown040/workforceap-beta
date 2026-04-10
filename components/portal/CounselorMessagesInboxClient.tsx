@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
+import { counselorStaffMessagingSurface } from '@/lib/portal/messagingSurfaces';
 import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounselorChatClient';
 import type { CounselorInboxRow } from '@/lib/messages/counselorInbox';
 import {

@@ -373,11 +373,7 @@ export default function DashboardHomeClient({
                 <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', opacity: 0.8, marginTop: '0.5rem' }}>
                   We typically respond within 24-48 hours on business days.
                 </p>
-                <Link href="/apply" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', display: 'flex' }}
-                  onClick={() => handleDashboardAction('start_application_clicked')}>
-                  Start application
-                </Link>
-              </div>
+              )}
               <div className="portal-card portal-card--flat portal-card--padded-sm">
                 <p style={{ fontSize: '0.875rem', fontStyle: 'italic', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
                   {state === 'A' && "Choose a program to get started on your career path. All programs are offered at no cost."}
@@ -411,7 +407,7 @@ export default function DashboardHomeClient({
                 )}
               </div>
             </div>
-          )}
+          ) : null}
           </div>
         </aside>
 

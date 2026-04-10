@@ -5,6 +5,7 @@ import Link from 'next/link';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounselorChatClient';
 import type { CounselorInboxRow } from '@/lib/messages/counselorInbox';
+import { counselorStaffMessagingSurface } from '@/lib/portal/messagingSurfaces';
 import {
   InboxEmpty,
   InboxHeader,

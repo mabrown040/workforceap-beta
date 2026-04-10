@@ -13,11 +13,11 @@
 export type BadgeVariant = 'success' | 'warning' | 'error' | 'neutral' | 'info' | 'accent';
 
 const VARIANT_STYLES: Record<BadgeVariant, { background: string; color: string }> = {
-  success: { background: '#dcfce7', color: '#166534' },
-  warning: { background: '#fef3c7', color: '#92400e' },
-  error:   { background: '#fee2e2', color: '#991b1b' },
-  neutral: { background: '#f3f4f6', color: '#6b7280' },
-  info:    { background: '#dbeafe', color: '#1e40af' },
+  success: { background: 'color-mix(in srgb, var(--color-green) 15%, transparent)', color: 'var(--color-green)' },
+  warning: { background: 'color-mix(in srgb, var(--color-gold) 18%, transparent)', color: 'var(--color-gold)' },
+  error:   { background: 'color-mix(in srgb, var(--color-accent) 15%, transparent)', color: 'var(--color-accent)' },
+  neutral: { background: 'var(--surface-container-high)', color: 'var(--color-on-surface-variant)' },
+  info:    { background: 'color-mix(in srgb, var(--color-blue) 15%, transparent)', color: 'var(--color-blue)' },
   accent:  { background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', color: 'var(--color-accent)' },
 };
 

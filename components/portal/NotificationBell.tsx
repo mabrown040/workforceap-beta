@@ -123,16 +123,17 @@ export default function NotificationBell() {
     <div ref={dropRef} style={{ position: 'relative', flexShrink: 0 }}>
       <button
         type="button"
+        className="portal-icon-btn"
         onClick={() => { setOpen(o => !o); if (!open && Date.now() - lastFetch > 10_000) void fetchBadges(); }}
         aria-label={total > 0 ? `${total} notification${total !== 1 ? 's' : ''}` : 'Notifications'}
         aria-expanded={open}
-        style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '2.25rem', height: '2.25rem', borderRadius: '0.5rem', background: open ? 'rgba(173,44,77,0.1)' : 'transparent', border: 'none', cursor: 'pointer', color: total > 0 ? 'var(--color-accent)' : 'var(--color-on-surface-variant)', transition: 'background 0.15s' }}
+        style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '2.25rem', height: '2.25rem', borderRadius: '0.5rem', background: open ? 'color-mix(in srgb, var(--color-accent) 10%, transparent)' : 'transparent', border: 'none', cursor: 'pointer', color: total > 0 ? 'var(--color-accent)' : 'var(--color-on-surface-variant)', transition: 'background 0.15s' }}
       >
         <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', fontVariationSettings: total > 0 ? "'FILL' 1" : "'FILL' 0" }}>
           notifications
         </span>
         {total > 0 && (
-          <span style={{ position: 'absolute', top: 0, right: 0, minWidth: '1rem', height: '1rem', borderRadius: '9999px', background: 'var(--color-accent)', color: '#fff', fontSize: '0.6rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0.2rem', lineHeight: 1, border: '1.5px solid var(--color-white, #fff)' }}>
+          <span style={{ position: 'absolute', top: '-2px', right: '-2px', minWidth: '1.125rem', height: '1.125rem', borderRadius: '9999px', background: 'var(--color-accent)', color: '#fff', fontSize: '0.65rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0.25rem', lineHeight: 1, border: '2px solid var(--surface-container-low, #1a1c1e)' }}>
             {total > 9 ? '9+' : total}
           </span>
         )}
@@ -143,7 +144,7 @@ export default function NotificationBell() {
           <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <p style={{ fontWeight: 800, fontSize: '0.8125rem', color: 'var(--color-on-surface)', margin: 0 }}>Notifications</p>
             {total > 0 && (
-              <span style={{ fontSize: '0.625rem', fontWeight: 800, padding: '0.1rem 0.4rem', borderRadius: '9999px', background: 'rgba(173,44,77,0.1)', color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              <span style={{ fontSize: '0.625rem', fontWeight: 800, padding: '0.1rem 0.4rem', borderRadius: '9999px', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 {total} new
               </span>
             )}
@@ -161,11 +162,10 @@ export default function NotificationBell() {
                   key={n.key}
                   href={n.href}
                   onClick={() => setOpen(false)}
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', padding: '0.875rem 1rem', textDecoration: 'none', color: 'inherit', transition: 'background 0.12s', borderBottom: '1px solid rgba(255,255,255,0.04)' }}
-                  onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-container)')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                  className="portal-notification-item"
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', padding: '0.875rem 1rem', textDecoration: 'none', color: 'inherit', transition: 'background 0.15s', borderBottom: '1px solid rgba(255,255,255,0.04)' }}
                 >
-                  <div style={{ width: '2rem', height: '2rem', borderRadius: '0.5rem', background: 'rgba(173,44,77,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <div style={{ width: '2rem', height: '2rem', borderRadius: '0.5rem', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>{n.icon}</span>
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>

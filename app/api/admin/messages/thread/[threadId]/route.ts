@@ -104,7 +104,7 @@ export async function GET(_request: NextRequest, { params }: Props) {
           }
         : null,
       readOnlyNote:
-        'View all messages and assign counselors. Counselors can reply from the member detail page.',
+        'Reply below or assign a counselor. Messages sync to the member portal in real time.',
     });
   }
 

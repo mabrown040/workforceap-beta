@@ -49,7 +49,11 @@ self.addEventListener('fetch', (event) => {
       caches.open(FONT_CACHE).then((cache) =>
         cache.match(event.request).then((cached) => {
           const networkFetch = fetch(event.request).then((res) => {
-            if (res.status === 200) cache.put(event.request, res.clone());
+            // Cache both normal (200) and opaque (0) responses — font CSS
+            // from <link> tags can be opaque cross-origin responses
+            if (res.status === 200 || res.type === 'opaque') {
+              cache.put(event.request, res.clone());
+            }
             return res;
           }).catch(() => cached); // Offline fallback to cache
           // If we have a cached version, serve it but update in background

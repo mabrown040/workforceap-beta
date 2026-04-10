@@ -276,9 +276,8 @@ export default function SkillMapperClient() {
     try {
       const res = await fetch('/api/ai/extract-resume-skills', { method: 'POST' });
       if (res.ok) {
-        // Reload profile to incorporate AI extraction
+        // Reload profile to incorporate AI extraction — useEffect handles the refetch
         setProfileLoaded(false);
-        loadProfile();
       }
     } catch { /* non-fatal */ }
     finally { setExtractingResume(false); }

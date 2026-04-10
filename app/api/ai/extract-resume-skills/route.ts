@@ -4,6 +4,7 @@ import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { checkAIToolRateLimit } from '@/lib/rate-limit';
 
 /**
  * POST /api/ai/extract-resume-skills
@@ -46,6 +47,9 @@ export async function POST() {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!isAIConfigured()) return NextResponse.json({ error: 'AI service not configured' }, { status: 503 });
+
+  const { success } = await checkAIToolRateLimit(user.id);
+  if (!success) return NextResponse.json({ error: 'Rate limit exceeded. Try again in an hour.' }, { status: 429 });
 
   try {
     // Get resume text

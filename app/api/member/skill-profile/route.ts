@@ -309,10 +309,15 @@ export async function GET() {
     finalProfile = effectiveBase;
   }
 
+  // When AI extraction exists, return it as resumeSkills so the client renders evidence
+  const effectiveResumeSkills = aiResumeProfile
+    ? aiResumeProfile
+    : (resumeSkillsAvailable ? resumeProfile : []);
+
   return NextResponse.json({
     skillProfile: finalProfile,
     certNames,
-    resumeSkills: resumeSkillsAvailable ? resumeProfile : [],
+    resumeSkills: effectiveResumeSkills,
     resumeMatchedKeywords: hasAiResumeExtraction ? aiResumeEvidence : (resumeSkillsAvailable ? resumeMatchedKeywords : {}),
     hasCerts: certNames.length > 0,
     hasResumeSkills: resumeSkillsAvailable || hasAiResumeExtraction,

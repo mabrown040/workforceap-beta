@@ -897,3 +897,39 @@ export async function sendPartnerWeeklyDigestEmail(params: {
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
 }
+
+/** Notify staff when a member resets their skills assessment to retake */
+export async function sendAssessmentResetNotificationEmail(params: {
+  memberName: string;
+  memberEmail: string;
+  previousScore: number;
+  programInterest: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) return { ok: false, error: 'Email not configured' };
+  const html = brandedEmailLayout({
+    title: 'Skills Assessment Reset',
+    bodyHtml: `
+      <p>A member has requested to retake their skills assessment.</p>
+      <table style="font-size:0.9rem;border-collapse:collapse;width:100%">
+        <tr><td style="padding:6px 12px 6px 0;font-weight:600;color:#584144">Member</td><td>${escapeHtml(params.memberName)}</td></tr>
+        <tr><td style="padding:6px 12px 6px 0;font-weight:600;color:#584144">Email</td><td>${escapeHtml(params.memberEmail)}</td></tr>
+        <tr><td style="padding:6px 12px 6px 0;font-weight:600;color:#584144">Previous Score</td><td>${params.previousScore}%</td></tr>
+        <tr><td style="padding:6px 12px 6px 0;font-weight:600;color:#584144">Program</td><td>${escapeHtml(params.programInterest)}</td></tr>
+      </table>
+      <p style="margin-top:1rem">The previous score has been archived in the system. The member can now retake from their dashboard.</p>
+    `,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: ['info@workforceap.org', ADMIN_EMAIL],
+      subject: `Assessment Reset — ${params.memberName}`,
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendAssessmentResetNotificationEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}

@@ -8,21 +8,23 @@ export async function POST(req: NextRequest) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  let body: { role?: string; interviewType?: string } = {};
+  let body: { role?: string; interviewType?: string; experienceLevel?: string } = {};
   try {
-    body = (await req.json()) as { role?: string; interviewType?: string };
+    body = (await req.json()) as { role?: string; interviewType?: string; experienceLevel?: string };
   } catch {
     /* empty body */
   }
 
   const role = body.role?.trim() || 'the candidate';
   const interviewType = body.interviewType?.trim() || 'Behavioral';
+  const experienceLevel = body.experienceLevel?.trim() || 'entry';
 
   const member = await fetchMemberPortalDynamicVariables(user.id);
   const dynamicVariables = {
     ...member,
     target_role: role,
     interview_type: interviewType,
+    experience_level: experienceLevel,
   };
 
   try {

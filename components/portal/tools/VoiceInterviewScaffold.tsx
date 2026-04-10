@@ -8,6 +8,11 @@ import InterviewCoachingPanel from '@/components/portal/tools/InterviewCoachingP
 import MockInterviewVideoRecorder from '@/components/portal/tools/MockInterviewVideoRecorder';
 
 const INTERVIEW_TYPES = ['Behavioral', 'Technical', 'General'] as const;
+const EXPERIENCE_LEVELS = [
+  { value: 'entry', label: 'Entry-level (0–2 years)' },
+  { value: 'mid', label: 'Mid-level (3–7 years)' },
+  { value: 'senior', label: 'Senior / Lead (8+ years)' },
+] as const;
 
 /**
  * Dedicated voice mock-interview entry: role + style, ElevenLabs session, live coaching panel.
@@ -15,6 +20,7 @@ const INTERVIEW_TYPES = ['Behavioral', 'Technical', 'General'] as const;
  */
 export default function VoiceInterviewScaffold() {
   const [role, setRole] = useState('');
+  const [experienceLevel, setExperienceLevel] = useState<'entry' | 'mid' | 'senior'>('entry');
   const [interviewType, setInterviewType] = useState<(typeof INTERVIEW_TYPES)[number]>('Behavioral');
   const [ready, setReady] = useState(false);
   const [lastUserText, setLastUserText] = useState('');
@@ -70,6 +76,18 @@ export default function VoiceInterviewScaffold() {
               placeholder="e.g. IT Support Specialist"
               required
             />
+          </div>
+          <div className="form-group">
+            <label htmlFor="vi-level">Experience level</label>
+            <select
+              id="vi-level"
+              value={experienceLevel}
+              onChange={(e) => setExperienceLevel(e.target.value as 'entry' | 'mid' | 'senior')}
+            >
+              {EXPERIENCE_LEVELS.map((l) => (
+                <option key={l.value} value={l.value}>{l.label}</option>
+              ))}
+            </select>
           </div>
           <div className="form-group">
             <label htmlFor="vi-type">Interview style</label>
@@ -268,7 +286,7 @@ export default function VoiceInterviewScaffold() {
               <PortalVoiceSession
                 key={voiceSessionKey}
                 sessionEndpoint="/api/member/voice-interview/session"
-                sessionPayload={{ role: role.trim(), interviewType }}
+                sessionPayload={{ role: role.trim(), interviewType, experienceLevel }}
                 title="Voice mock interview"
                 description="Answer out loud. The coach will listen and respond like a real interviewer."
                 accent="#7c3aed"

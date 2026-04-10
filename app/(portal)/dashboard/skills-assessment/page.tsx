@@ -5,6 +5,7 @@ import { CheckCircle, FileQuestion, ArrowRight, Lock } from 'lucide-react';
 
 import { buildPageMetadata } from '@/app/seo';
 import SkillAssessmentForm from '@/components/portal/tools/SkillAssessmentForm';
+import AssessmentRetakeButton from '@/components/portal/AssessmentRetakeButton';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
@@ -90,13 +91,14 @@ export default async function SkillsAssessmentPage() {
                 </li>
               )}
             </ul>
-            <div className="assessments-card__actions">
+              <div className="assessments-card__actions">
               <Link href="/dashboard/readiness" className="btn btn-primary">
                 View Career Readiness <ArrowRight size={16} />
               </Link>
               <Link href="/dashboard/training" className="btn btn-outline">
                 Go to Training
               </Link>
+              <AssessmentRetakeButton />
             </div>
           </>
         ) : (

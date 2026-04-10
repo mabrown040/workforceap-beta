@@ -51,6 +51,21 @@ export default async function VoiceInterviewPage() {
       {/* Single scaffold — duplicate mobile/desktop mounts caused two independent button states */}
       <div style={{ paddingBottom: '6rem' }}>
         <div style={{ maxWidth: 980, margin: '0 auto', padding: '1rem 1rem 2rem' }}>
+          {/* WIOA alternative option */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.875rem', padding: '0.875rem 1rem', background: 'rgba(43,123,185,0.07)', border: '1px solid rgba(43,123,185,0.15)', borderRadius: '0.75rem', marginBottom: '1.25rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-blue, #2b7bb9)', flexShrink: 0, fontVariationSettings: "'FILL' 1" }}>policy</span>
+            <div>
+              <p style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)', margin: '0 0 0.25rem' }}>Prefer a written questionnaire?</p>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.625rem', lineHeight: 1.5 }}>
+                Complete the WIOA self-screening questionnaire instead — your responses are sent to your counselor.
+              </p>
+              <Link href="/dashboard/learning/wioa-qualification" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-blue, #2b7bb9)', textDecoration: 'none' }}>
+                Open WIOA Questionnaire
+                <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>arrow_forward</span>
+              </Link>
+            </div>
+          </div>
+
           <VoiceInterviewScaffold />
           <ToolHistoryPanel
             userId={user.id}

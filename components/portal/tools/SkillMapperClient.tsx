@@ -1,9 +1,74 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Loader2, Search } from 'lucide-react';
 import { CERTIFICATION_TRACKS } from '@/lib/content/certificationTracks';
 import { recommendCertsForGaps } from '@/lib/content/certToSkills';
+
+/** Render a self-contained radar chart SVG string with hardcoded colors (no CSS vars). */
+function renderRadarSvgString(data: { axis: string; value: number }[], size = 320): string {
+  const cx = size / 2, cy = size / 2, r = size * 0.34;
+  const n = data.length;
+  if (n < 3) return '';
+  const angle = (i: number) => (Math.PI * 2 * i) / n - Math.PI / 2;
+  const pt = (i: number, v: number) => ({
+    x: cx + r * v * Math.cos(angle(i)),
+    y: cy + r * v * Math.sin(angle(i)),
+  });
+  const gridLevels = [0.25, 0.5, 0.75, 1];
+  const gridColor = '#333537';
+  const accentColor = '#ad2c4d';
+  const labelColor = '#a3a3a3';
+
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="background:#1e2022;border-radius:12px">`;
+  // Grid polygons
+  for (const level of gridLevels) {
+    const pts = data.map((_, i) => { const p = pt(i, level); return `${p.x},${p.y}`; }).join(' ');
+    svg += `<polygon points="${pts}" fill="none" stroke="${gridColor}" stroke-width="1"/>`;
+  }
+  // Radial lines
+  for (let i = 0; i < n; i++) {
+    const p = pt(i, 1);
+    svg += `<line x1="${cx}" y1="${cy}" x2="${p.x}" y2="${p.y}" stroke="${gridColor}" stroke-width="1"/>`;
+  }
+  // Data polygon
+  const dataPts = data.map((d, i) => { const p = pt(i, d.value); return `${p.x},${p.y}`; }).join(' ');
+  svg += `<polygon points="${dataPts}" fill="${accentColor}" fill-opacity="0.2" stroke="${accentColor}" stroke-width="2"/>`;
+  // Data dots
+  for (let i = 0; i < n; i++) {
+    const p = pt(i, data[i].value);
+    svg += `<circle cx="${p.x}" cy="${p.y}" r="3" fill="${accentColor}"/>`;
+  }
+  // Axis labels
+  for (let i = 0; i < n; i++) {
+    const p = pt(i, 1.22);
+    svg += `<text x="${p.x}" y="${p.y}" text-anchor="middle" dominant-baseline="middle" font-size="12" font-family="Inter,sans-serif" fill="${labelColor}">${data[i].axis}</text>`;
+  }
+  svg += '</svg>';
+  return svg;
+}
+
+/** Convert an SVG string to a PNG data URL via canvas. */
+async function svgToPngDataUrl(svgString: string, size = 320): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    img.onload = () => {
+      const scale = 2; // 2x for crisp export
+      const canvas = document.createElement('canvas');
+      canvas.width = size * scale;
+      canvas.height = size * scale;
+      const ctx = canvas.getContext('2d')!;
+      ctx.scale(scale, scale);
+      ctx.drawImage(img, 0, 0, size, size);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL('image/png'));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('SVG render failed')); };
+    img.src = url;
+  });
+}
 
 const DEMO_RADAR = [
   { axis: 'Technical', value: 0.85 },
@@ -131,17 +196,29 @@ export default function SkillMapperClient() {
         `Occupation: ${selectedTitle}`,
         selectedCode ? `O*NET Code: ${selectedCode}` : '',
         '',
-        '## Skill Profile (Radar Axes)',
+        '## Skill Profile',
         ...radarData.map(r => `${r.axis}: ${Math.round(r.value * 100)}%`),
         '',
         '## Top Skills',
-        ...skills.slice(0, 15).map(s => `${s.name}: ${s.score}% (${s.importance})`),
+        ...skills.slice(0, 15).map(s => `${s.name}: ${s.score}%`),
       ].filter(Boolean).join('\n');
+
+      // Render the radar chart as a PNG for the PDF
+      let chartImage: string | undefined;
+      try {
+        const svgStr = renderRadarSvgString(radarData, 320);
+        if (svgStr) chartImage = await svgToPngDataUrl(svgStr, 320);
+      } catch { /* non-fatal — PDF will still have text */ }
 
       const res = await fetch('/api/ai/export-pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: lines, title: `Skill Map — ${selectedTitle}`, toolName: 'Skill Mapper' }),
+        body: JSON.stringify({
+          text: lines,
+          title: `Skill Mapper`,
+          toolName: 'Skill Mapper',
+          chartImage,
+        }),
       });
       if (!res.ok) return;
       const blob = await res.blob();

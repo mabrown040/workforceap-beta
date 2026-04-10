@@ -3,16 +3,17 @@ import { prisma } from '@/lib/db/prisma';
 import { sendCourseCompletedEmail } from '@/lib/email';
 
 /**
- * POST /api/cron/milestone-celebration
+ * GET /api/cron/milestone-celebration
  *
  * Sends a celebration email when a member completes all courses in their program.
  * Runs daily to catch completions from the previous day. Secured by CRON_SECRET.
  *
  * Deploy with Vercel Cron: schedule "0 11 * * *" (daily 11AM UTC)
  */
-export async function POST(req: NextRequest) {
-  const secret = req.headers.get('x-cron-secret') ?? req.headers.get('authorization')?.replace('Bearer ', '');
-  if (secret !== process.env.CRON_SECRET) {
+export async function GET(req: NextRequest) {
+  const authHeader = req.headers.get('authorization');
+  const cronSecret = process.env.CRON_SECRET;
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

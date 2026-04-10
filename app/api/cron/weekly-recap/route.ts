@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { sendWeeklyRecapEmail } from '@/lib/email';
 import { generateWeeklyRecap } from '@/lib/recap/generate';
 
 /**
- * POST /api/cron/weekly-recap
+ * GET /api/cron/weekly-recap
  *
  * Sends weekly recap emails to all active members who have not
  * received one this week. Secured by CRON_SECRET header.
@@ -13,9 +13,10 @@ import { generateWeeklyRecap } from '@/lib/recap/generate';
  *
  * Or trigger manually from admin at /admin/weekly-recap.
  */
-export async function POST(req: NextRequest) {
-  const secret = req.headers.get('x-cron-secret') ?? req.headers.get('authorization')?.replace('Bearer ', '');
-  if (secret !== process.env.CRON_SECRET) {
+export async function GET(request: Request) {
+  const authHeader = request.headers.get('authorization');
+  const cronSecret = process.env.CRON_SECRET;
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

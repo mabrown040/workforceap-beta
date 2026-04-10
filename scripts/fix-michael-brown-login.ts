@@ -51,6 +51,22 @@ async function ensureRole(name: string) {
   });
 }
 
+async function findAuthUserByEmail(supabase: Awaited<ReturnType<typeof getSupabaseAdmin>>) {
+  const normalized = EMAIL.toLowerCase().trim();
+  let page = 1;
+  const perPage = 200;
+  for (let i = 0; i < 25; i++) {
+    const { data, error } = await supabase.auth.admin.listUsers({ page, perPage });
+    if (error) throw new Error(`Could not list auth users: ${error.message}`);
+    if (!data?.users?.length) return undefined;
+    const found = data.users.find((u) => u.email?.toLowerCase() === normalized);
+    if (found) return found;
+    if (data.users.length < perPage) return undefined;
+    page++;
+  }
+  return undefined;
+}
+
 async function ensureAuthUser() {
   const supabase = await getSupabaseAdmin();
 
@@ -72,12 +88,9 @@ async function ensureAuthUser() {
       (createError as { code?: string }).code === 'email_exists' ||
       (createError as { code?: string }).code === 'user_already_exists')
   ) {
-    const { data: list, error: listError } = await supabase.auth.admin.listUsers({ perPage: 200 });
-    if (listError) throw new Error(`Could not list auth users: ${listError.message}`);
-
-    const existing = list.users.find((u) => u.email?.toLowerCase() === EMAIL.toLowerCase());
+    const existing = await findAuthUserByEmail(supabase);
     if (!existing) {
-      throw new Error(`Auth says ${EMAIL} exists, but it was not returned by listUsers`);
+      throw new Error(`Auth says ${EMAIL} exists, but it was not found when paging listUsers`);
     }
 
     const { error: updateError } = await supabase.auth.admin.updateUserById(existing.id, {
@@ -115,10 +128,10 @@ async function main() {
   });
 
   if (existingByEmail && existingByEmail.id !== userId) {
-    throw new Error(
-      `DB row for ${EMAIL} uses id ${existingByEmail.id}, but auth user id is ${userId}. ` +
-        'This needs a one-time data repair before login will work cleanly.'
+    console.log(
+      `Removing stale users row id ${existingByEmail.id} for ${EMAIL} (auth id is ${userId}); related portal rows cascade-delete.`
     );
+    await prisma.user.delete({ where: { id: existingByEmail.id } });
   }
 
   await prisma.user.upsert({

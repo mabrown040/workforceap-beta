@@ -61,14 +61,14 @@ export const LEADERS: Leader[] = [
     founder: true,
     linkedin: 'https://www.linkedin.com/in/michaelabrownpmp/',
     cardBio:
-      "PMP, nonprofit executive. Former owner of Consulting Solutions.Net; key leader at Goodwill Career & Technical Academy, Austin Area Urban League. Active with Workforce Solutions, State of Texas, Texas Workforce Commission, City of Austin initiatives. 100 Black Men of Austin, Alpha Phi Alpha, Elder at Celebration Church.",
+      "PMP, nonprofit executive. Former owner of Consulting Solutions.Net; key leader at ReWork America Alliance, State of Texas Career Schools, Goodwill Central Texas, and Austin Urban League. Active with Workforce Solutions, Texas Workforce Commission, City of Austin. 100 Black Men of Austin, Alpha Phi Alpha, Elder at Celebration Church.",
     missionRelevance:
-      "25+ years delivering workforce training through partnerships with Workforce Solutions, State of Texas, Texas Workforce Commission, City of Austin, Goodwill, and Urban League — the barrier-breaking experience that built WorkforceAP.",
+      "25+ years delivering workforce training through partnerships with the ReWork America Alliance, Workforce Solutions, State of Texas, Texas Workforce Commission, City of Austin, Goodwill, and Urban League — the barrier-breaking experience that built WorkforceAP.",
     bioBlocks: [
       {
         type: 'paragraph',
         text:
-          'Michael Brown, PMP, is a highly accomplished business executive with a distinguished career spanning several decades. He brings a wealth of expertise in business development, project management, and education, consistently driving organizational excellence across the public and private sectors. As the former owner of Consulting Solutions.Net and a key leader at the State of Texas Career Schools, Goodwill Central Texas, and the Austin Urban League, Michael has repeatedly demonstrated his ability to propel business growth through thoughtful strategic planning, operational innovation, and continuous improvement.',
+          'Michael Brown, PMP, is a highly accomplished business executive with a distinguished career spanning several decades. He brings a wealth of expertise in business development, project management, and education, consistently driving organizational excellence across the public and private sectors. As the former owner of Consulting Solutions.Net and a key leader at the State of Texas Career Schools, ReWork America Alliance, Goodwill Central Texas, and the Austin Urban League, Michael has repeatedly demonstrated his ability to propel business growth through thoughtful strategic planning, operational innovation, and continuous improvement.',
       },
       {
         type: 'paragraph',

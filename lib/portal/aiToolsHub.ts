@@ -25,6 +25,15 @@ export const AI_TOOLS_HUB: AiToolsHubCategory[] = [
     ],
   },
   {
+    id: 'elevator-pitch',
+    title: 'Elevator Pitch',
+    icon: 'record_voice_over',
+    description: 'AI writes your 10-20 second elevator statement — then rehearse it on camera.',
+    links: [
+      { label: 'Build elevator pitch', href: '/dashboard/ai-tools/elevator-pitch' },
+    ],
+  },
+  {
     id: 'interview',
     title: 'Interview',
     icon: 'forum',

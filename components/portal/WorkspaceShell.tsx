@@ -24,6 +24,7 @@ import SuperAdminViewSwitcher from '@/components/super-admin-view-switcher';
 import PortalHeaderActions from './PortalHeaderActions';
 import { SignOutButton } from './SignOutButton';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import GlobalSearch from './GlobalSearch';
 
 // Map portal roles to MobileBottomNav variants
 const ROLE_TO_NAV_VARIANT: Partial<Record<PortalRole, 'employer' | 'partner' | 'counselor' | 'portal'>> = {
@@ -278,6 +279,12 @@ export default function WorkspaceShell({
           {/* SuperAdminViewSwitcher is a direct child so the mobile CSS
               selector can keep it visible while hiding everything else */}
           <SuperAdminViewSwitcher />
+          {/* Global search — admin only, hidden on mobile */}
+          {portalRole === 'admin' && (
+            <div className="wa-hidden wa-md:wa-block">
+              <GlobalSearch />
+            </div>
+          )}
           <PortalHeaderActions />
         </div>
       </header>

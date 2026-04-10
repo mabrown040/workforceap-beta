@@ -8993,10 +8993,13 @@ html:not(.dark) .workspace-shell-header {
     min-width: 44px;
     min-height: 44px;
   }
-  /* Sidebar starts below the slim header */
+  /* Sidebar starts below the slim header — no ::before needed since real header is above */
   html[data-portal-role="member"] .workspace-sidebar {
     top: 3.25rem;
     height: calc(100vh - 3.25rem);
+  }
+  html[data-portal-role="member"] .workspace-sidebar.open::before {
+    display: none;
   }
   /* Add top buffer so content doesn't hug the header */
   html[data-portal-role="member"] .workspace-shell-main-inner {
@@ -9119,30 +9122,53 @@ body:has(.workspace-drawer-overlay.open) {
     top: 0;
     left: 0;
     bottom: 0;
-    width: min(280px, 88vw);
+    width: min(300px, 90vw);
     z-index: 80;
-    background: var(--color-white);
-    border-right: 1px solid var(--color-border);
+    /* Match the header glass surface exactly — same blur, same bg token */
+    background: var(--glass-bg, rgba(255, 255, 255, 0.92));
+    backdrop-filter: var(--glass-blur-xl, blur(20px));
+    -webkit-backdrop-filter: var(--glass-blur-xl, blur(20px));
+    border-right: 1px solid rgba(255, 255, 255, 0.12);
     transform: translateX(-100%);
-    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     overflow-y: auto;
     box-shadow: none;
 }
 html.dark .workspace-sidebar {
-    background: var(--surface-container-low);
-    border-right-color: rgba(255, 255, 255, 0.06);
+    background: color-mix(in srgb, var(--surface-container-low) 88%, transparent 12%);
+    border-right-color: rgba(255, 255, 255, 0.07);
+}
+html:not(.dark) .workspace-sidebar {
+    background: rgba(255, 255, 255, 0.96);
+    border-right-color: rgba(0, 0, 0, 0.08);
 }
 .workspace-sidebar.open {
     transform: translateX(0);
-    box-shadow: var(--shadow-lg);
+    /* Elevation matches the header */
+    box-shadow: 4px 0 32px rgba(0, 0, 0, 0.18);
 }
-/* Top accent strip on open sidebar so it visually connects with the header bar */
+/* Accent header bar at top of open sidebar — same height as workspace-shell-header.
+   This makes the sidebar feel like a natural extension of the top bar rather than
+   a floating panel. */
 .workspace-sidebar.open::before {
     content: '';
     display: block;
-    height: 3px;
-    background: linear-gradient(90deg, var(--color-accent), var(--color-accent-dark, #6b0c29));
+    height: var(--workspace-header-h, 3.25rem);
+    background: var(--glass-bg, rgba(255, 255, 255, 0.92));
+    backdrop-filter: var(--glass-blur-xl, blur(20px));
+    -webkit-backdrop-filter: var(--glass-blur-xl, blur(20px));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     flex-shrink: 0;
+    /* Accent left bar matches the header brand mark */
+    border-left: 3px solid var(--color-accent);
+}
+html.dark .workspace-sidebar.open::before {
+    background: color-mix(in srgb, var(--surface-container-low) 88%, transparent 12%);
+    border-bottom-color: rgba(255, 255, 255, 0.07);
+}
+html:not(.dark) .workspace-sidebar.open::before {
+    background: rgba(255, 255, 255, 0.96);
+    border-bottom-color: rgba(0, 0, 0, 0.07);
 }
 .workspace-sidebar-inner {
     display: flex;

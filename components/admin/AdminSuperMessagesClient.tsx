@@ -189,7 +189,13 @@ export default function AdminSuperMessagesClient() {
   const [staffErr, setStaffErr] = useState<string | null>(null);
   const [mobileView, setMobileView] = useState<'list' | 'thread'>('list');
   const [showAdminControls, setShowAdminControls] = useState(false);
+  const [showCompose, setShowCompose] = useState(false);
+  const [composeQuery, setComposeQuery] = useState('');
+  const [composeResults, setComposeResults] = useState<Array<{ id: string; fullName: string; email: string }>>([]);
+  const [composeLoading, setComposeLoading] = useState(false);
+  const [composeCreating, setComposeCreating] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const composeInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search.trim()), 300);
@@ -199,6 +205,50 @@ export default function AdminSuperMessagesClient() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [detail?.messages.length]);
+
+  // Compose: search members
+  useEffect(() => {
+    if (!showCompose) return;
+    const q = composeQuery.trim();
+    if (q.length < 2) { setComposeResults([]); return; }
+    const timer = setTimeout(async () => {
+      setComposeLoading(true);
+      try {
+        const r = await fetch(`/api/admin/members?q=${encodeURIComponent(q)}&limit=10`, { credentials: 'include' });
+        if (r.ok) setComposeResults(await r.json());
+      } catch { /* ignore */ }
+      finally { setComposeLoading(false); }
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [composeQuery, showCompose]);
+
+  useEffect(() => {
+    if (showCompose) {
+      setTimeout(() => composeInputRef.current?.focus(), 100);
+    } else {
+      setComposeQuery('');
+      setComposeResults([]);
+    }
+  }, [showCompose]);
+
+  const startConversation = async (memberId: string) => {
+    setComposeCreating(true);
+    try {
+      const r = await fetch('/api/admin/messages/threads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ memberId }),
+        credentials: 'include',
+      });
+      if (!r.ok) return;
+      const data = (await r.json()) as { threadId: string };
+      setShowCompose(false);
+      setSelectedId(data.threadId);
+      setMobileView('thread');
+      refreshList();
+    } catch { /* ignore */ }
+    finally { setComposeCreating(false); }
+  };
 
   const loadThreads = useCallback(
     async (opts: { reset: boolean; appendCursor?: string | null }) => {
@@ -762,8 +812,117 @@ export default function AdminSuperMessagesClient() {
 
   // ── Render ──
 
+  // ── Compose overlay (member search) ──
+
+  const composeOverlay = showCompose ? (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 100,
+        display: 'flex',
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        paddingTop: '10vh',
+        background: 'rgba(0,0,0,0.45)',
+      }}
+      onClick={(e) => { if (e.target === e.currentTarget) setShowCompose(false); }}
+    >
+      <div
+        style={{
+          background: 'var(--surface-container-lowest, #fff)',
+          borderRadius: '1rem',
+          width: '90%',
+          maxWidth: 440,
+          maxHeight: '70vh',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          boxShadow: '0 24px 48px rgba(0,0,0,0.2)',
+        }}
+      >
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem 1rem 0.75rem' }}>
+          <button
+            type="button"
+            className="portal-messages-header-btn"
+            onClick={() => setShowCompose(false)}
+            aria-label="Close"
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>close</span>
+          </button>
+          <h2 style={{ fontWeight: 700, fontSize: '1rem', margin: 0, color: 'var(--color-on-surface)' }}>
+            New message
+          </h2>
+        </div>
+
+        {/* Search input */}
+        <div style={{ padding: '0 1rem 0.75rem' }}>
+          <div className="portal-messages-search-wrap">
+            <span className="material-symbols-outlined portal-messages-search-icon">search</span>
+            <input
+              ref={composeInputRef}
+              type="search"
+              value={composeQuery}
+              onChange={(e) => setComposeQuery(e.target.value)}
+              placeholder="Search members by name or email…"
+              className="portal-messages-search-input"
+              autoComplete="off"
+            />
+          </div>
+        </div>
+
+        {/* Results */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '0 0.5rem 0.75rem' }}>
+          {composeLoading ? (
+            <p style={{ padding: '1rem', textAlign: 'center', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+              Searching…
+            </p>
+          ) : composeQuery.trim().length < 2 ? (
+            <p style={{ padding: '1rem', textAlign: 'center', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+              Type at least 2 characters to search
+            </p>
+          ) : composeResults.length === 0 ? (
+            <p style={{ padding: '1rem', textAlign: 'center', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+              No members found
+            </p>
+          ) : (
+            composeResults.map((m) => (
+              <div key={m.id} style={{ padding: '2px 0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => void startConversation(m.id)}
+                  disabled={composeCreating}
+                  className="portal-messages-thread-btn"
+                  style={{ width: '100%' }}
+                >
+                  <div className="portal-messages-avatar">{getInitials(m.fullName)}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontWeight: 600, fontSize: '14px', margin: 0, color: 'var(--color-on-surface)' }}>
+                      {m.fullName}
+                    </p>
+                    <p style={{ fontSize: '12px', margin: 0, color: 'var(--color-on-surface-variant)' }}>
+                      {m.email}
+                    </p>
+                  </div>
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--color-on-surface-variant)' }}>
+                    chevron_right
+                  </span>
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  ) : null;
+
+  // ── Render ──
+
   return (
     <div className="admin-main-content">
+      {composeOverlay}
+
       {/* ── Mobile view (≤md) ── */}
       <div className="wa-md:wa-hidden" style={{ minHeight: 0 }}>
         {mobileView === 'list' ? (
@@ -775,14 +934,24 @@ export default function AdminSuperMessagesClient() {
                 </Link>
                 <h1 className="portal-messages-title">Messages</h1>
               </div>
-              <button
-                type="button"
-                className="portal-messages-header-btn"
-                onClick={refreshList}
-                aria-label="Refresh"
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>refresh</span>
-              </button>
+              <div style={{ display: 'flex', gap: '0.25rem' }}>
+                <button
+                  type="button"
+                  className="portal-messages-header-btn"
+                  onClick={() => setShowCompose(true)}
+                  aria-label="New message"
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>edit_square</span>
+                </button>
+                <button
+                  type="button"
+                  className="portal-messages-header-btn"
+                  onClick={refreshList}
+                  aria-label="Refresh"
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>refresh</span>
+                </button>
+              </div>
             </header>
             {listContent({ mobile: true })}
           </div>
@@ -809,15 +978,26 @@ export default function AdminSuperMessagesClient() {
             <InboxHeader
               title="Threads"
               right={
-                <button
-                  type="button"
-                  className="portal-messages-header-btn"
-                  onClick={refreshList}
-                  aria-label="Refresh"
-                  title="Refresh list"
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>refresh</span>
-                </button>
+                <div style={{ display: 'flex', gap: '0.25rem' }}>
+                  <button
+                    type="button"
+                    className="portal-messages-header-btn"
+                    onClick={() => setShowCompose(true)}
+                    aria-label="New message"
+                    title="New message"
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>edit_square</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="portal-messages-header-btn"
+                    onClick={refreshList}
+                    aria-label="Refresh"
+                    title="Refresh list"
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>refresh</span>
+                  </button>
+                </div>
               }
             />
             {listContent({ mobile: false })}

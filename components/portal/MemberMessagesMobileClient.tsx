@@ -186,8 +186,6 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
       return `${title} ${preview}`.toLowerCase().includes(q);
     };
     const showCounselor = rowMatches(counselorName ?? 'Counselor', displayLastMsg);
-    const showProgram = rowMatches('Program Team', 'Your certification for Digital Literacy is ready.');
-    const showCareer = rowMatches('Career Services', 'New job match found: Junior Web Developer.');
 
     return (
       <div className="portal-messages-shell">
@@ -263,40 +261,6 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
                   </div>
                 </div>
               </button>
-            </div>
-            )}
-
-            {/* Program team — link to resources */}
-            {showProgram && (
-            <div style={{ padding: '2px 8px' }}>
-              <Link href="/dashboard/resources" className="portal-messages-link-row">
-                <div className="portal-messages-avatar portal-messages-avatar--muted">PT</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <h3 style={{ fontWeight: 600, fontSize: '14px', color: 'var(--color-on-surface)', margin: 0 }}>Program Team</h3>
-                    <span style={{ fontSize: '11px', color: 'var(--color-on-surface-variant)' }}>Yesterday</span>
-                  </div>
-                  <p style={{ fontSize: '13px', color: 'var(--color-on-surface-variant)', margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Your certification for Digital Literacy is ready.</p>
-                </div>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.5, fontSize: '18px', flexShrink: 0 }}>chevron_right</span>
-              </Link>
-            </div>
-            )}
-
-            {/* Career Services — link to job board */}
-            {showCareer && (
-            <div style={{ padding: '2px 8px' }}>
-              <Link href="/dashboard/jobs" className="portal-messages-link-row">
-                <div className="portal-messages-avatar portal-messages-avatar--muted">CS</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <h3 style={{ fontWeight: 600, fontSize: '14px', color: 'var(--color-on-surface)', margin: 0 }}>Career Services</h3>
-                    <span style={{ fontSize: '11px', color: 'var(--color-on-surface-variant)' }}>Monday</span>
-                  </div>
-                  <p style={{ fontSize: '13px', color: 'var(--color-on-surface-variant)', margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>New job match found: Junior Web Developer.</p>
-                </div>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.5, fontSize: '18px', flexShrink: 0 }}>chevron_right</span>
-              </Link>
             </div>
             )}
 

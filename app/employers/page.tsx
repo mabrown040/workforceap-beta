@@ -265,13 +265,13 @@ export default function EmployersPage() {
 
       {/* ===== Employer Stats ===== */}
       <section style={{ padding: 'clamp(2rem, 4vw, 4rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1200px', margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem', textAlign: 'center' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 100%), 1fr))', gap: '2rem', textAlign: 'center' }}>
           {[
             { stat: '200+', label: 'Graduates Placed' },
             { stat: '90%', label: 'Retention Rate' },
             { stat: '$0', label: 'Upfront Cost to You' },
           ].map((item) => (
-            <div key={item.label} className="stitch-card" style={{ padding: '2rem' }}>
+            <div key={item.label} className="portal-card portal-card--flat" style={{ padding: '2rem' }}>
               <div style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-accent)', lineHeight: 1 }}>{item.stat}</div>
               <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>{item.label}</div>
             </div>
@@ -301,7 +301,7 @@ export default function EmployersPage() {
 
       {/* ===== Employer Testimonial ===== */}
       <section style={{ padding: 'clamp(2rem, 4vw, 4rem) clamp(1rem, 4vw, 2rem)', maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
-        <div className="stitch-card" style={{ padding: '2.5rem', background: 'var(--surface-container-low)' }}>
+        <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', background: 'var(--surface-container-low)' }}>
           <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '1rem', display: 'block' }}>format_quote</span>
           <blockquote style={{ fontSize: '1.1rem', lineHeight: 1.7, fontStyle: 'italic', color: 'var(--color-on-surface)', marginBottom: '1rem' }}>
             &ldquo;WorkforceAP connected us with three candidates who were immediately productive. The quality of preparation was unlike anything we&apos;ve seen from traditional staffing.&rdquo;
@@ -358,7 +358,7 @@ export default function EmployersPage() {
                     gap: '0.75rem',
                   }}
                 >
-                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', '--ms-fill': 1 }}>
                     psychology
                   </span>
                   <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.8rem', margin: 0, lineHeight: 1.5 }}>
@@ -389,7 +389,7 @@ export default function EmployersPage() {
                     style={{
                       fontSize: '2rem',
                       color: 'var(--color-accent)',
-                      fontVariationSettings: "'FILL' 1",
+                      '--ms-fill': 1,
                     }}
                   >
                     {card.icon}
@@ -458,7 +458,7 @@ export default function EmployersPage() {
                   style={{
                     fontSize: '2.25rem',
                     color: c.accent ? 'rgba(255,255,255,0.9)' : 'var(--color-accent)',
-                    fontVariationSettings: "'FILL' 1",
+                    '--ms-fill': 1,
                   }}
                 >
                   {c.icon}
@@ -492,7 +492,7 @@ export default function EmployersPage() {
         </div>
       </section>
 
-      {/* ── A Streamlined Hiring Experience — 4-step process ── */}
+      {/* ── How Hiring Works — 4-step process ── */}
       <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
@@ -505,7 +505,7 @@ export default function EmployersPage() {
                 marginBottom: '0.75rem',
               }}
             >
-              A Streamlined Hiring{' '}
+              How Hiring{' '}
               <span style={{ color: 'var(--color-accent)' }}>Experience</span>
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)' }}>Submit the employer intake and we will review it within 24–48 hours.</p>
@@ -562,7 +562,7 @@ export default function EmployersPage() {
                     color: 'var(--color-accent)',
                     marginBottom: '0.75rem',
                     display: 'block',
-                    fontVariationSettings: "'FILL' 1",
+                    '--ms-fill': 1,
                   }}
                 >
                   {step.icon}
@@ -653,7 +653,7 @@ export default function EmployersPage() {
                     >
                       <span
                         className="material-symbols-outlined"
-                        style={{ fontSize: '1rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}
+                        style={{ fontSize: '1rem', color: 'var(--color-accent)', '--ms-fill': 1 }}
                       >
                         check_circle
                       </span>
@@ -720,7 +720,7 @@ export default function EmployersPage() {
                   letterSpacing: '-0.02em',
                 }}
               >
-                Ready to Transform Your Hiring Process?
+                Ready to Hire Certified Talent?
               </h2>
               <p style={{ color: 'rgba(255,203,209,0.9)', fontSize: '1.125rem', marginBottom: '1.5rem', lineHeight: 1.6 }}>
                 Tell us what roles you need, how many you are hiring, and when you need them filled.
@@ -906,7 +906,7 @@ export default function EmployersPage() {
         {/* ── Hiring Process — 4 Steps ── */}
         <section style={{ padding: '2rem 1rem', background: 'var(--surface-container-low, #f5f2f1)' }}>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-on-surface)', letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>
-            A Streamlined Hiring Experience
+            How Hiring Works
           </h2>
           <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.5 }}>
             Submit your employer intake and we will follow up within 24–48 hours.

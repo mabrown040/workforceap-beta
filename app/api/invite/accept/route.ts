@@ -168,6 +168,7 @@ async function ensureAppUserForInvite(
         enrolledProgram: data.enrolledProgram ?? undefined,
         enrolledAt: data.enrolledAt ?? undefined,
       },
+      select: { id: true },
     });
     return;
   }
@@ -191,6 +192,35 @@ async function ensureAppUserForInvite(
       phone: data.phone,
       enrolledProgram: data.enrolledProgram,
       enrolledAt: data.enrolledAt,
+    },
+    select: { id: true },
+  });
+}
+
+/**
+ * INVARIANT: CourseEnrollment must stay in sync with User.enrolledProgram.
+ * Called inside invite-accept transactions when the invitation assigns a program.
+ */
+async function ensureCourseEnrollmentForInvite(
+  tx: InviteTx,
+  userId: string,
+  organizationId: string,
+  programSlug: string,
+  adminId?: string | null
+) {
+  await tx.courseEnrollment.upsert({
+    where: { userId },
+    create: {
+      organizationId,
+      userId,
+      programSlug,
+      enrolledAt: new Date(),
+      enrolledByAdminId: adminId ?? null,
+    },
+    update: {
+      programSlug,
+      enrolledAt: new Date(),
+      enrolledByAdminId: adminId ?? null,
     },
   });
 }
@@ -328,14 +358,19 @@ async function acceptExistingUser(
   fullName: string,
   _request: NextRequest
 ) {
+  const invitationId = invitation.id;
+  let txStep = 'start';
   try {
     await prisma.$transaction(async (tx) => {
+      txStep = 'update_existing_user';
       await tx.user.update({
         where: { id: user.id },
         data: { fullName: fullName || user.fullName, deletedAt: null },
+        select: { id: true },
       });
 
       // Ensure the user has a profile row (may be missing for older/imported accounts)
+      txStep = 'ensure_existing_profile';
       await ensureProfileRow(tx, user.id, {
         role: profileRoleForInvitation(invitation.role),
         consentTerms: false,
@@ -343,8 +378,10 @@ async function acceptExistingUser(
       });
 
       if (invitation.role === 'admin') {
+        txStep = 'find_admin_role_existing';
         const adminRole = await findRoleByName(tx, 'admin');
         if (adminRole) {
+          txStep = 'ensure_admin_role_existing';
           await tx.userRole.upsert({
             where: { userId_roleId: { userId: user.id, roleId: adminRole.id } },
             create: { userId: user.id, roleId: adminRole.id },
@@ -354,17 +391,21 @@ async function acceptExistingUser(
       }
 
       if (invitation.role === 'partner' && invitation.subgroupId) {
+        txStep = 'load_partner_subgroup_existing';
         const partner = await tx.subgroup.findUnique({
           where: { id: invitation.subgroupId },
           select: { partnerId: true },
         });
         if (partner?.partnerId) {
+          txStep = 'ensure_partner_user_existing';
           await ensurePartnerUserLink(tx, user.id, partner.partnerId);
         }
+        txStep = 'ensure_member_subgroup_existing';
         await ensureMemberSubgroupLink(tx, user.id, invitation.subgroupId, invitation.invitedById);
       }
 
       if (invitation.role === 'member' && invitation.programSlug) {
+        txStep = 'update_member_program_existing';
         await tx.user.update({
           where: { id: user.id },
           data: {
@@ -372,21 +413,36 @@ async function acceptExistingUser(
             enrolledAt: new Date(),
             programChangedAt: new Date(),
           },
+          select: { id: true },
         });
+        txStep = 'sync_course_enrollment_existing';
+        const existingUserOrg = await tx.user.findUnique({
+          where: { id: user.id },
+          select: { organizationId: true },
+        });
+        if (existingUserOrg) {
+          await ensureCourseEnrollmentForInvite(
+            tx, user.id, existingUserOrg.organizationId, invitation.programSlug, invitation.invitedById
+          );
+        }
       }
 
       if (invitation.role === 'counselor') {
+        txStep = 'find_counselor_role_existing';
         const counselorRoleRow = await findRoleByName(tx, 'counselor');
         if (counselorRoleRow) {
+          txStep = 'ensure_counselor_role_existing';
           await tx.userRole.upsert({
             where: { userId_roleId: { userId: user.id, roleId: counselorRoleRow.id } },
             create: { userId: user.id, roleId: counselorRoleRow.id },
             update: {},
           });
         }
+        txStep = 'ensure_counselor_row_existing';
         await ensureCounselorRow(tx, user.id, invitation.partnerId ?? null);
       }
 
+      txStep = 'accept_invitation_existing';
       await tx.invitation.update({
         where: { id: invitation.id },
         data: {
@@ -398,8 +454,16 @@ async function acceptExistingUser(
     });
   } catch (dbError) {
     console.error('[acceptExistingUser] transaction failed:', dbError);
+    const prismaCode =
+      dbError && typeof dbError === 'object' && 'code' in dbError
+        ? ((dbError as { code?: string }).code ?? null)
+        : null;
     return NextResponse.json(
-      { error: 'Failed to update your account with the new role. Please try again.' },
+      {
+        error: 'Failed to update your account with the new role. Please try again.',
+        debugTxStep: txStep,
+        prismaCode,
+      },
       { status: 500 }
     );
   }
@@ -472,6 +536,7 @@ async function createNewUserAndAccept(
       // Check if a DB record exists for this email
       const existing = await prisma.user.findFirst({
         where: { email: inviteEmail },
+        select: { id: true, fullName: true, email: true },
       });
       if (existing) {
         return acceptExistingUser(existing, invitation, fullName, request);
@@ -551,6 +616,13 @@ async function finishNewUserDbSetup(
         enrolledProgram: invitation.role === 'member' ? invitation.programSlug : null,
         enrolledAt: invitation.role === 'member' ? new Date() : null,
       });
+
+      if (invitation.role === 'member' && invitation.programSlug) {
+        txStep = 'sync_course_enrollment_new';
+        await ensureCourseEnrollmentForInvite(
+          tx, authUserId, organizationId, invitation.programSlug, invitation.invitedById
+        );
+      }
 
       if (invitation.role !== 'counselor') {
         txStep = 'ensure_member_role';

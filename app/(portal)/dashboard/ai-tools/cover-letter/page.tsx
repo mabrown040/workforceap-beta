@@ -48,7 +48,7 @@ export default async function CoverLetterPage() {
                 flexShrink: 0,
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.2rem', color: 'var(--color-accent)' }}>description</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.2rem', color: 'var(--color-accent)' }} aria-hidden="true">description</span>
             </div>
             <div>
               <h1 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>
@@ -62,14 +62,14 @@ export default async function CoverLetterPage() {
         </div>
 
         <div style={{ maxWidth: 720, margin: '0 auto', padding: '1rem 1rem 2rem' }}>
-          <div className="stitch-card" style={{ padding: '1rem', borderRadius: 12, marginBottom: '1rem', background: 'var(--surface-container-low)' }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: 12, marginBottom: '1rem', background: 'var(--surface-container-low)' }}>
             <p style={{ fontSize: '0.82rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>
               Create a compelling, tailored cover letter in minutes. Our AI connects your experience
               directly to the job requirements, highlighting why you&apos;re the right fit.
             </p>
           </div>
 
-          <div className="stitch-card" style={{ padding: '1rem', borderRadius: 12 }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: 12 }}>
             <CoverLetterForm />
           </div>
 

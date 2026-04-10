@@ -37,17 +37,44 @@ export default async function AdminMembersPage() {
     prisma.user.findMany({
       where: { deletedAt: null },
       orderBy: { createdAt: 'desc' },
-      include: {
-        profile: true,
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        phone: true,
+        enrolledProgram: true,
+        enrolledAt: true,
+        assessmentScorePct: true,
+        assessmentCompleted: true,
+        programInterest: true,
+        coursesCompleted: true,
+        updatedAt: true,
+        createdAt: true,
+        profile: {
+          select: {
+            profilePhone: true,
+            profileAddress: true,
+            city: true,
+            state: true,
+            zip: true,
+            address: true,
+            employmentStatus: true,
+            educationLevel: true,
+            financialAidInterest: true,
+          },
+        },
         partnerReferrals: {
           take: 1,
           orderBy: { referredAt: 'desc' },
-          include: { partner: { select: { id: true, name: true } } },
+          select: { partner: { select: { id: true, name: true } } },
         },
       },
     }),
+    // PERF: Bound last-event scan to 30 days. Users absent from this map
+    // are treated as inactive by calculateHealthStatus (correct behavior).
     prisma.memberEvent.groupBy({
       by: ['userId'],
+      where: { createdAt: { gte: thirtyDaysAgo } },
       _max: { createdAt: true },
     }),
     prisma.memberEvent.groupBy({
@@ -86,6 +113,10 @@ export default async function AdminMembersPage() {
     console.error('[admin/members] recent-event aggregate failed', recentEventsResult.reason);
   }
 
+  /** Health needs both aggregates; one failure + zeros mislabels members as inactive/at-risk. */
+  const eventAggregatesOk =
+    lastEventsResult.status === 'fulfilled' && recentEventsResult.status === 'fulfilled';
+
   const membersWithProgram = members.map((m) => {
     const fitScore = calculateFitScore({
       enrolledProgram: m.enrolledProgram,
@@ -97,11 +128,13 @@ export default async function AdminMembersPage() {
       phone: m.phone,
     });
 
-    const healthStatus = calculateHealthStatus({
-      lastEventAt: lastEventMap.get(m.id) ?? null,
-      recentEventCount: recentEventMap.get(m.id) ?? 0,
-      enrolledAt: m.enrolledAt,
-    });
+    const healthStatus = eventAggregatesOk
+      ? calculateHealthStatus({
+          lastEventAt: lastEventMap.get(m.id) ?? null,
+          recentEventCount: recentEventMap.get(m.id) ?? 0,
+          enrolledAt: m.enrolledAt,
+        })
+      : undefined;
 
     return {
       ...m,

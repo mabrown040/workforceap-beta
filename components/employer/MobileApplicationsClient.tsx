@@ -158,7 +158,7 @@ export default function MobileApplicationsClient({
       <div style={{ padding: '0 1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {visible.length === 0 ? (
           <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', textAlign: 'center' }}>
-            <span className="material-symbols-outlined text-3xl block mb-2" style={{ color: 'var(--outline-variant)' }}>inbox</span>
+            <span className="material-symbols-outlined text-3xl block mb-2" style={{ color: 'var(--outline-variant)' }} aria-hidden="true">inbox</span>
             <p className="text-sm" style={{ color: 'var(--color-on-surface-variant)' }}>No applications found.</p>
           </div>
         ) : (
@@ -177,7 +177,7 @@ export default function MobileApplicationsClient({
               >
                 {/* Card header — tap to expand */}
                 <button
-                  className="active:opacity-80" style={{ width: '100%', textAlign: 'left', padding: '1rem', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}
+                  style={{ width: '100%', textAlign: 'left', padding: '1rem', display: 'flex', gap: '0.875rem', alignItems: 'flex-start', background: 'none', border: 'none', cursor: 'pointer' }}
                   onClick={() => {
                     const nextExpanded = isExpanded ? null : app.id;
                     setExpandedId(nextExpanded);
@@ -187,9 +187,7 @@ export default function MobileApplicationsClient({
                   }}
                 >
                   {/* Avatar */}
-                  <div
-                    className="text-white font-bold text-base" style={{ width: '3.5rem', height: '3.5rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'var(--color-accent)' }}
-                  >
+                  <div style={{ width: '3rem', height: '3rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', color: '#fff', fontWeight: 700, fontSize: '0.9375rem' }}>
                     {initials(app.student.fullName)}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -214,7 +212,7 @@ export default function MobileApplicationsClient({
                   <span
                     className="material-symbols-outlined text-[18px] flex-shrink-0 mt-1 transition-transform"
                     style={{ color: 'var(--color-accent)', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
-                  >
+                   aria-hidden="true">
                     expand_more
                   </span>
                 </button>
@@ -232,13 +230,23 @@ export default function MobileApplicationsClient({
                         type="button"
                         disabled={isChatLoading}
                         onClick={() => void toggleChat(app.id)}
-                        className="py-2.5 px-4 rounded-xl font-bold text-sm active:scale-[0.98] transition-all disabled:opacity-50"
                         style={{
-                          background: isChatOpen ? '#f3e8ff' : '#fff1f2',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.375rem',
+                          padding: '0.625rem 1rem',
+                          borderRadius: '0.75rem',
+                          fontWeight: 700,
+                          fontSize: '0.875rem',
+                          border: 'none',
+                          cursor: isChatLoading ? 'default' : 'pointer',
+                          background: isChatOpen ? 'rgba(173,44,77,0.12)' : 'rgba(173,44,77,0.08)',
                           color: 'var(--color-accent)',
+                          opacity: isChatLoading ? 0.6 : 1,
                         }}
                       >
-                        {isChatLoading ? 'Loading chat…' : isChatOpen ? 'Close messages' : '💬 Message applicant'}
+                        <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>forum</span>
+                        {isChatLoading ? 'Loading…' : isChatOpen ? 'Close messages' : 'Message applicant'}
                       </button>
                     </div>
 

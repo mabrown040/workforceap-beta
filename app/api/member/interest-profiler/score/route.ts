@@ -6,6 +6,8 @@ import { isOnetConfigured } from '@/lib/onet/client';
 import { getInterestProfilerCareers, getInterestProfilerResults } from '@/lib/onet/interestProfiler';
 import { riasecFromResultRows } from '@/lib/content/quizIpMerge';
 import { mapIpCareerRowsToProgramSlugs } from '@/lib/onet/ipMapToPrograms';
+import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { ensureUserInDb } from '@/lib/auth/ensureUser';
 
 const bodySchema = z.object({
   answers: z
@@ -56,6 +58,27 @@ export async function POST(request: NextRequest) {
     const programSlugs = await mapIpCareerRowsToProgramSlugs(
       careerRows.map((c) => ({ code: c.code, fit: c.fit }))
     );
+
+    // Persist to AIToolResult so /api/member/skill-profile can read it
+    // and blend RIASEC scores into the member's radar skill profile.
+    try {
+      await ensureUserInDb(user);
+      await saveAIToolResult(
+        user.id,
+        'skill_assessment',
+        'Interest Profiler (30 questions)',
+        JSON.stringify({
+          source: 'interest_profiler',
+          answers,
+          riasec,
+          topCareers: careerRows.slice(0, 10).map((c) => ({ code: c.code, title: c.title, fit: c.fit })),
+          programSlugs,
+          completedAt: new Date().toISOString(),
+        })
+      );
+    } catch (saveErr) {
+      console.error('[interest-profiler/score] failed to save result', saveErr);
+    }
 
     return NextResponse.json({
       result: results.result ?? [],

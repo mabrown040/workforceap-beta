@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { getOrCreateMemberCounselorThread } from '@/lib/messages/counselorThread';
 import { getSlaStatusForThreads, getThreadIdsBreachingSla } from '@/lib/messages/superAdminMessageQueries';
 import type { MessageThreadKind, Prisma } from '@prisma/client';
 
@@ -290,4 +291,39 @@ function mapThreadRow(
       breached72h: false,
     },
   };
+}
+
+/**
+ * POST /api/admin/messages/threads
+ * Body: { memberId: string }
+ * Creates or retrieves the member's counselor thread so admin can message them.
+ */
+export async function POST(request: NextRequest) {
+  const user = await getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!(await isSuperAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  let body: unknown;
+  try { body = await request.json(); } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+  }
+
+  const memberId = typeof (body as { memberId?: unknown }).memberId === 'string'
+    ? (body as { memberId: string }).memberId
+    : '';
+  if (!memberId) return NextResponse.json({ error: 'memberId is required' }, { status: 400 });
+
+  const member = await prisma.user.findFirst({
+    where: {
+      id: memberId,
+      deletedAt: null,
+      profile: { role: 'member' },
+    },
+    select: { id: true, fullName: true },
+  });
+  if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+
+  const thread = await getOrCreateMemberCounselorThread(memberId);
+
+  return NextResponse.json({ threadId: thread.id, memberName: member.fullName });
 }

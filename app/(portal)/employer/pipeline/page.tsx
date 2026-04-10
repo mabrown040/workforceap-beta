@@ -7,10 +7,13 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
 import { prisma } from '@/lib/db/prisma';
 import EmployerPipelineClient from '@/components/employer/EmployerPipelineClient';
+import EmployerKanban from '@/components/employer/EmployerKanban';
 import EmployerMatchStatusSelect from '@/components/employer/EmployerMatchStatusSelect';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
+import StatusBadge from '@/components/portal/StatusBadge';
+import { employerAiMatchStatusBadgeVariant, employerMatchPipelineLabel } from '@/lib/employer/aiMatchPipelineLabels';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Candidate pipeline',
@@ -72,7 +75,6 @@ export default async function EmployerPipelinePage() {
 
   return (
     <>
-      <h1 className="wa-sr-only">Candidate Pipeline</h1>
       {/* ── Mobile section ── */}
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <PageHeader
@@ -85,7 +87,7 @@ export default async function EmployerPipelinePage() {
           {PIPELINE_STRIP.map((stage) => (
             <div
               key={stage.label}
-              className="stitch-card"
+              className="portal-card portal-card--flat"
               style={{ flexShrink: 0, textAlign: 'center', padding: '0.625rem 1rem', minWidth: '80px' }}
             >
               <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-accent)' }}>{stage.count}</div>
@@ -97,7 +99,7 @@ export default async function EmployerPipelinePage() {
         {/* Cards by job */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '0 1rem' }}>
           {jobs.length === 0 ? (
-            <div className="stitch-card" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
+            <div className="portal-card portal-card--flat" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>account_tree</span>
               <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>No pipeline yet</p>
               <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Post a job to receive AI-matched candidates.</p>
@@ -106,7 +108,7 @@ export default async function EmployerPipelinePage() {
               </Link>
             </div>
           ) : allMatches.length === 0 ? (
-            <div className="stitch-card" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
+            <div className="portal-card portal-card--flat" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>psychology</span>
               <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>No matches yet</p>
               <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>AI matches will appear once your jobs are live.</p>
@@ -125,7 +127,7 @@ export default async function EmployerPipelinePage() {
                     {matches.map((m) => (
                       <div
                         key={m.id}
-                        className="stitch-card"
+                        className="portal-card portal-card--flat"
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                           <div style={{ width: '2.25rem', height: '2.25rem', borderRadius: '9999px', background: 'var(--surface-container-low)', color: 'var(--color-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, flexShrink: 0 }}>
@@ -135,9 +137,15 @@ export default async function EmployerPipelinePage() {
                             <div className="wa-truncate" style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{m.student.fullName}</div>
                             <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{m.student.enrolledProgram ?? 'No program'}</div>
                           </div>
-                          <div style={{ flexShrink: 0, textAlign: 'right' }}>
+                          <div style={{ flexShrink: 0, textAlign: 'right', minWidth: 0, maxWidth: '42%' }}>
                             <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)' }}>{matchScoreAsPercent(m.matchScore)}%</div>
-                            <div style={{ fontSize: '0.65rem', color: 'var(--color-on-surface-variant)', textTransform: 'capitalize' }}>{m.status.replace(/_/g, ' ')}</div>
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.25rem' }}>
+                              <StatusBadge
+                                className="wa-truncate max-w-full"
+                                label={employerMatchPipelineLabel(m.status)}
+                                variant={employerAiMatchStatusBadgeVariant(m.status)}
+                              />
+                            </div>
                           </div>
                         </div>
                         <EmployerMatchStatusSelect jobId={job.id} studentId={m.student.id} initialStatus={m.status} compact />
@@ -174,7 +182,7 @@ export default async function EmployerPipelinePage() {
           />
 
           {jobs.length === 0 ? (
-            <div className="stitch-card" style={{ padding: '2.5rem', textAlign: 'center' }}>
+            <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>account_tree</span>
               <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>No pipeline yet</h3>
               <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
@@ -193,7 +201,7 @@ export default async function EmployerPipelinePage() {
               </Link>
             </div>
           ) : allMatches.length === 0 ? (
-            <div className="stitch-card" style={{ padding: '2.5rem', textAlign: 'center' }}>
+            <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>psychology</span>
               <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>No AI-suggested matches yet</h3>
               <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
@@ -212,27 +220,18 @@ export default async function EmployerPipelinePage() {
               </Link>
             </div>
           ) : (
-            <div className="employer-pipeline-jobs">
-              {jobs.map((job) => {
-                const matches = byJob.get(job.id) ?? [];
-                if (matches.length === 0) return null;
-                const initialMatches = matches.map((m) => ({
-                  id: m.id,
-                  matchScore: m.matchScore,
-                  matchReasons: m.matchReasons,
-                  status: m.status,
-                  student: m.student,
-                }));
-                return (
-                  <EmployerPipelineClient
-                    key={job.id}
-                    jobId={job.id}
-                    jobTitle={job.title}
-                    initialMatches={initialMatches}
-                  />
-                );
-              })}
-            </div>
+            /* Kanban view — all jobs flattened into unified drag-and-drop columns */
+            <EmployerKanban
+              initialMatches={allMatches.map(m => ({
+                id: m.id,
+                jobId: m.jobId,
+                jobTitle: jobs.find(j => j.id === m.jobId)?.title ?? 'Job',
+                matchScore: m.matchScore,
+                matchReasons: m.matchReasons,
+                status: m.status,
+                student: m.student,
+              }))}
+            />
           )}
         </PortalPageFrame>
       </div>

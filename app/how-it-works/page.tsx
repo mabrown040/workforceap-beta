@@ -89,7 +89,7 @@ export default async function HowItWorksPage() {
                 Member Experience
               </span>
               <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', marginBottom: '2rem', lineHeight: 0.95 }}>
-                Your better future{' '}
+                Start your path{' '}
                 <span style={{ color: 'var(--color-accent)' }}>starts here.</span>
               </h1>
               <p style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', maxWidth: '36rem', lineHeight: 1.7, marginBottom: '2.5rem' }}>
@@ -166,13 +166,13 @@ export default async function HowItWorksPage() {
                 <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{phase.title}</h3>
                 <span className="text-label-upper" style={{ color: 'var(--color-accent)' }}>{phase.label}</span>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1.5rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(260px, 100%), 1fr))', gap: '1.5rem' }}>
                 {phase.steps.map((step) => {
                   const isHighlight = step.num === 1 || step.num === 7 || step.num === 9 || step.num === 10;
                   return (
                     <div
                       key={step.num}
-                      className="stitch-card"
+                      className="portal-card portal-card--flat"
                       style={{
                         padding: '1.5rem',
                         ...(isHighlight ? { borderLeft: `4px solid var(--color-accent)` } : {}),
@@ -228,8 +228,8 @@ export default async function HowItWorksPage() {
           <div className="editorial-grid" style={{ gap: '1.5rem' }}>
             {/* Loaner Laptop */}
             <div style={{ gridColumn: 'span 12' }} className="hiw-benefit-wide">
-              <div className="stitch-card-elevated" style={{ padding: '3rem', position: 'relative', overflow: 'hidden' }}>
-                <div style={{ maxWidth: '60%' }}>
+              <div className="portal-card portal-card--elevated" style={{ padding: '3rem', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ maxWidth: 'min(42rem, 100%)' }}>
                   <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>Loaner Laptop Program</h2>
                   <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '2rem', lineHeight: 1.7 }}>
                     Access to technology shouldn&rsquo;t be a barrier to education. We provide high-performance laptops to members who need them for the duration of their training program.
@@ -237,7 +237,7 @@ export default async function HowItWorksPage() {
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     {['Pre-configured with all necessary software', 'Technical support included', 'Zero upfront cost for qualifying members'].map((item) => (
                       <li key={item} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>
-                        <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                        <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', '--ms-fill': 1 }}>check_circle</span>
                         {item}
                       </li>
                     ))}
@@ -251,7 +251,7 @@ export default async function HowItWorksPage() {
               <div style={{ background: 'var(--color-accent)', borderRadius: 'var(--radius-xl)', padding: '3rem', color: '#fff', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 <div>
                   <div style={{ width: '4rem', height: '4rem', background: 'rgba(255,255,255,0.2)', borderRadius: 'var(--radius-xl)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '2rem', fontVariationSettings: "'FILL' 1" }}>calendar_today</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '2rem', '--ms-fill': 1 }}>calendar_today</span>
                   </div>
                   <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>150-Day Post-Hire Support</h2>
                   <p style={{ color: 'rgba(255,203,209,0.9)', lineHeight: 1.7, maxWidth: '36rem' }}>
@@ -275,11 +275,11 @@ export default async function HowItWorksPage() {
 
             {/* Career Training Benefits */}
             <div style={{ gridColumn: 'span 12' }}>
-              <div className="stitch-card" style={{ padding: '3rem' }}>
+              <div className="portal-card portal-card--flat" style={{ padding: '3rem' }}>
                 <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '2rem' }}>Career Training Benefits</h2>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '2rem' }}>
                   {[
-                    { icon: 'school', title: 'Tuition Coverage', desc: 'Comprehensive financial support for approved certification tracks and technical bootcamps.' },
+                    { icon: 'school', title: 'Tuition Coverage', desc: 'Full tuition coverage for approved certification tracks and technical bootcamps.' },
                     { icon: 'groups', title: 'Peer Networks', desc: 'Access to an exclusive community of members and alumni for mentorship and networking.' },
                     { icon: 'work', title: 'Direct Pipeline', desc: 'Immediate consideration for openings within our 50+ employer partner network.' },
                     { icon: 'psychology', title: 'Soft Skill Coaching', desc: 'Dedicated sessions on leadership, communication, and emotional intelligence.' },
@@ -287,7 +287,7 @@ export default async function HowItWorksPage() {
                     <div key={b.title} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <div style={{ padding: '0.5rem', background: 'var(--color-gold)', borderRadius: 'var(--radius-lg)' }}>
-                          <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface)', fontSize: '1.25rem', fontVariationSettings: "'FILL' 1" }}>{b.icon}</span>
+                          <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface)', fontSize: '1.25rem', '--ms-fill': 1 }}>{b.icon}</span>
                         </div>
                         <h4 style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{b.title}</h4>
                       </div>
@@ -399,7 +399,7 @@ export default async function HowItWorksPage() {
               color: 'var(--color-on-surface)',
             }}
           >
-            Your better future{' '}
+            Start your path{' '}
             <span style={{ color: '#ad2c4d' }}>starts here.</span>
           </h2>
           <p style={{ fontSize: '0.875rem', lineHeight: 1.6, color: '#584144' }}>

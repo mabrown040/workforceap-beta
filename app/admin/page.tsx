@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { Prisma } from '@prisma/client';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
-import RecentSignupsTable from '@/components/admin/RecentSignupsTable';
 import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
@@ -17,6 +17,27 @@ export const metadata: Metadata = buildPageMetadata({
   path: '/admin',
 });
 
+type RecentSignupRow = Prisma.UserGetPayload<{
+  select: {
+    id: true;
+    fullName: true;
+    email: true;
+    enrolledProgram: true;
+    enrolledAt: true;
+    assessmentScorePct: true;
+    assessmentCompleted: true;
+    createdAt: true;
+  };
+}>;
+
+type PlacementWithUser = Prisma.PlacementRecordGetPayload<{
+  include: {
+    user: {
+      select: { id: true; fullName: true; enrolledProgram: true; enrolledAt: true };
+    };
+  };
+}>;
+
 export default async function AdminPage() {
   const user = await getUser();
   if (!user) redirect('/login');
@@ -26,14 +47,29 @@ export default async function AdminPage() {
 
   let totalMembers: number;
   let assessmentsCompleted: number;
-  let recentUsers;
-  let recentPlacements;
+  let recentUsers: RecentSignupRow[];
+  let recentPlacements: PlacementWithUser[];
   let pendingApplications: number;
   let activeInTraining: number;
+  let programsEnrolled: number;
   let programsCompleted: number;
 
+  function logPrismaReason(label: string, reason: unknown) {
+    const msg = reason instanceof Error ? reason.message : String(reason);
+    const code = reason instanceof Prisma.PrismaClientKnownRequestError ? reason.code : undefined;
+    console.error(`[admin/page] ${label} failed`, code ?? '(no code)', msg);
+  }
+
   try {
-    [totalMembers, assessmentsCompleted, recentUsers, recentPlacements, pendingApplications] = await Promise.all([
+    // Match /admin/members: do not fail the whole dashboard when optional slices fail
+    // (e.g. RLS/role differences on applications or placement_records vs users).
+    const [
+      totalMembersResult,
+      assessmentsCompletedResult,
+      recentUsersResult,
+      recentPlacementsResult,
+      pendingApplicationsResult,
+    ] = await Promise.allSettled([
       prisma.user.count({ where: { deletedAt: null } }),
       prisma.user.count({ where: { assessmentCompleted: true, deletedAt: null } }),
       prisma.user.findMany({
@@ -63,23 +99,78 @@ export default async function AdminPage() {
       prisma.application.count({ where: { status: 'PENDING' } }),
     ]);
 
-    activeInTraining = await prisma.user.count({
-      where: {
-        deletedAt: null,
-        assessmentCompleted: true,
-        enrolledProgram: { not: null },
-      },
-    });
+    if (totalMembersResult.status === 'rejected') {
+      logPrismaReason('totalMembers', totalMembersResult.reason);
+      throw totalMembersResult.reason;
+    }
+    if (assessmentsCompletedResult.status === 'rejected') {
+      logPrismaReason('assessmentsCompleted', assessmentsCompletedResult.reason);
+      throw assessmentsCompletedResult.reason;
+    }
+    if (recentUsersResult.status === 'rejected') {
+      logPrismaReason('recentUsers', recentUsersResult.reason);
+      throw recentUsersResult.reason;
+    }
 
-    programsCompleted = await prisma.user.count({
-      where: {
-        deletedAt: null,
-        assessmentCompleted: true,
-        enrolledProgram: { not: null },
-      },
-    });
+    totalMembers = totalMembersResult.value;
+    assessmentsCompleted = assessmentsCompletedResult.value;
+    recentUsers = recentUsersResult.value;
+
+    if (recentPlacementsResult.status === 'rejected') {
+      logPrismaReason('placementRecord.findMany', recentPlacementsResult.reason);
+      recentPlacements = [];
+    } else {
+      recentPlacements = recentPlacementsResult.value;
+    }
+
+    if (pendingApplicationsResult.status === 'rejected') {
+      logPrismaReason('application.count', pendingApplicationsResult.reason);
+      pendingApplications = 0;
+    } else {
+      pendingApplications = pendingApplicationsResult.value;
+    }
+
+    const [enrolledResult, programsResult] = await Promise.allSettled([
+      prisma.user.count({
+        where: {
+          deletedAt: null,
+          enrolledProgram: { not: null },
+        },
+      }),
+      // Count members who completed ALL courses in their enrolled program.
+      // Can't filter JSON array length in Prisma, so fetch and count in JS.
+      prisma.user.findMany({
+        where: {
+          deletedAt: null,
+          enrolledProgram: { not: null },
+        },
+        select: { enrolledProgram: true, coursesCompleted: true },
+      }),
+    ]);
+
+    if (enrolledResult.status === 'rejected') {
+      logPrismaReason('programsEnrolled', enrolledResult.reason);
+      programsEnrolled = 0;
+    } else {
+      programsEnrolled = enrolledResult.value;
+    }
+
+    if (programsResult.status === 'rejected') {
+      logPrismaReason('programsCompleted', programsResult.reason);
+      programsCompleted = 0;
+    } else {
+      // Count members whose coursesCompleted covers all courses in their program.
+      programsCompleted = programsResult.value.filter((u) => {
+        const program = u.enrolledProgram ? getProgramBySlug(u.enrolledProgram) : null;
+        if (!program || program.courses.length === 0) return false;
+        const completed = (u.coursesCompleted as string[] | null) ?? [];
+        return program.courses.every((c) => completed.includes(c.slug));
+      }).length;
+    }
+
+    activeInTraining = Math.max(0, programsEnrolled - programsCompleted);
   } catch (e) {
-    console.error('[admin/page] load failed', e);
+    logPrismaReason('critical block', e);
     return (
       <PortalPageFrame>
         <AdminDataLoadError title="Admin overview unavailable" />
@@ -97,7 +188,8 @@ export default async function AdminPage() {
     { icon: 'groups', label: 'Total Members', value: totalMembers.toLocaleString(), accent: 'var(--color-accent)', href: '/admin/members' },
     { icon: 'task_alt', label: 'Assessments Completed', value: assessmentsCompleted.toLocaleString(), accent: '#3b82f6', href: '/admin/assessments' },
     { icon: 'model_training', label: 'Active in Training', value: activeInTraining.toLocaleString(), accent: '#80d99f', href: '/admin/members' },
-    { icon: 'school', label: 'Programs Enrolled', value: programsCompleted.toLocaleString(), accent: '#fbbf24', href: '/admin/programs' },
+    { icon: 'school', label: 'Programs Enrolled', value: programsEnrolled.toLocaleString(), accent: '#fbbf24', href: '/admin/programs' },
+    { icon: 'workspace_premium', label: 'Programs Completed', value: programsCompleted.toLocaleString(), accent: '#fbbf24', href: '/admin/programs' },
   ];
 
   function timeAgo(date: Date) {
@@ -134,11 +226,11 @@ export default async function AdminPage() {
           action={
             <div style={{ display: 'flex', gap: '0.75rem' }}>
               <Link href="/admin/pipeline" className="btn btn-outline">
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>account_tree</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">account_tree</span>
                 Pipeline
               </Link>
               <Link href="/admin/members" className="btn btn-primary">
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>groups</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">groups</span>
                 All Members
               </Link>
             </div>
@@ -175,7 +267,7 @@ export default async function AdminPage() {
             <Link
               key={card.label}
               href={card.href}
-              className="stitch-card admin-metric-card"
+              className="portal-card portal-card--flat admin-metric-card"
               style={{
                 padding: '1.25rem',
                 transition: 'transform 0.15s, box-shadow 0.2s',
@@ -188,7 +280,7 @@ export default async function AdminPage() {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
                 <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '0.5rem', background: `${card.accent}1a`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span className="material-symbols-outlined" style={{ color: card.accent }}>{card.icon}</span>
+                  <span className="material-symbols-outlined" style={{ color: card.accent }} aria-hidden="true">{card.icon}</span>
                 </div>
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.5 }} aria-hidden>
                   arrow_forward
@@ -209,17 +301,17 @@ export default async function AdminPage() {
           {/* Recent Signups Table with initials avatars */}
           <div style={{ background: 'var(--surface-container-low)', borderRadius: '0.75rem', overflow: 'hidden', boxShadow: '0 4px 32px rgba(0,0,0,0.2)' }}>
             <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(226,226,229,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--surface-container)' }}>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--color-on-surface)' }}>Recent Signups</h3>
+              <h3 className="portal-section-heading" style={{ margin: 0 }}>Recent Signups</h3>
               <Link href="/admin/members" style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-accent)', textDecoration: 'none' }}>
                 View all &rarr;
               </Link>
             </div>
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+              <table className="dashboard-table">
                 <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(226,226,229,0.05)' }}>
+                  <tr>
                     {['Member', 'Track', 'Joined'].map((h) => (
-                      <th key={h} style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', fontWeight: 600 }}>{h}</th>
+                      <th key={h}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -230,8 +322,8 @@ export default async function AdminPage() {
                       ? (getProgramBySlug(u.enrolledProgram)?.title ?? u.enrolledProgram)
                       : 'Pending enrollment';
                     return (
-                      <tr key={u.id} style={{ borderBottom: '1px solid rgba(226,226,229,0.05)' }}>
-                        <td style={{ padding: '1rem 1.5rem' }}>
+                      <tr key={u.id}>
+                        <td>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                             <div style={{
                               width: '2.25rem', height: '2.25rem', borderRadius: '50%',
@@ -249,8 +341,8 @@ export default async function AdminPage() {
                             </div>
                           </div>
                         </td>
-                        <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>{track}</td>
-                        <td style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{timeAgo(u.createdAt)}</td>
+                        <td>{track}</td>
+                        <td style={{ fontSize: '0.75rem' }}>{timeAgo(u.createdAt)}</td>
                       </tr>
                     );
                   })}
@@ -263,14 +355,14 @@ export default async function AdminPage() {
           {recentPlacements.length > 0 && (
             <div style={{ background: 'var(--surface-container-low)', borderRadius: '0.75rem', overflow: 'hidden', boxShadow: '0 4px 32px rgba(0,0,0,0.2)' }}>
               <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(226,226,229,0.05)', background: 'var(--surface-container)' }}>
-                <h3 style={{ fontSize: '1.125rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--color-on-surface)' }}>Recent Placements</h3>
+                <h3 className="portal-section-heading" style={{ margin: 0 }}>Recent Placements</h3>
               </div>
               <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+                <table className="dashboard-table">
                   <thead>
-                    <tr style={{ borderBottom: '1px solid rgba(226,226,229,0.05)' }}>
+                    <tr>
                       {['Student', 'Employer', 'Role', 'Program', 'Days', 'Salary', 'Date'].map((h) => (
-                        <th key={h} style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', fontWeight: 600 }}>{h}</th>
+                        <th key={h}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -283,25 +375,25 @@ export default async function AdminPage() {
                         ? Math.floor((p.placedAt.getTime() - p.user.enrolledAt.getTime()) / (1000 * 60 * 60 * 24))
                         : null;
                       return (
-                        <tr key={p.id} style={{ borderBottom: '1px solid rgba(226,226,229,0.05)', transition: 'background-color 0.15s' }}>
-                          <td style={{ padding: '1rem 1.5rem' }}>
+                        <tr key={p.id}>
+                          <td>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                               <div style={{ width: '2rem', height: '2rem', borderRadius: '0.25rem', background: 'var(--surface-container-highest)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)' }}>
                                 {(p.user.fullName ?? '?').split(' ').map((n) => n[0]).join('').slice(0, 2)}
                               </div>
-                              <Link href={`/admin/members/${p.user.id}`} style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-on-surface)', textDecoration: 'none' }}>
+                              <Link href={`/admin/members/${p.user.id}`} style={{ fontWeight: 500, color: 'var(--color-on-surface)', textDecoration: 'none' }}>
                                 {p.user.fullName}
                               </Link>
                             </div>
                           </td>
-                          <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem' }}>{p.employerName}</td>
-                          <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem' }}>{p.jobTitle}</td>
-                          <td style={{ padding: '1rem 1.5rem', fontSize: '0.85rem' }}>{programTitle}</td>
-                          <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem' }}>{daysToPlacement != null ? `${daysToPlacement}d` : '\u2014'}</td>
-                          <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: '#80d99f', fontWeight: 600 }}>
+                          <td>{p.employerName}</td>
+                          <td>{p.jobTitle}</td>
+                          <td>{programTitle}</td>
+                          <td>{daysToPlacement != null ? `${daysToPlacement}d` : '\u2014'}</td>
+                          <td style={{ color: '#80d99f', fontWeight: 600 }}>
                             {p.salaryOffered ? `$${p.salaryOffered.toLocaleString()}` : '\u2014'}
                           </td>
-                          <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem' }}>{p.placedAt.toLocaleDateString()}</td>
+                          <td>{p.placedAt.toLocaleDateString()}</td>
                         </tr>
                       );
                     })}
@@ -313,9 +405,10 @@ export default async function AdminPage() {
 
           {/* Quick Links */}
           <section>
-            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, letterSpacing: '-0.02em', marginBottom: '1.25rem', color: 'var(--color-on-surface)' }}>Quick Links</h3>
+            <h3 className="portal-section-heading">Quick Links</h3>
             <div className="portal-grid-3col">
               {[
+                { icon: 'mark_email_unread', label: 'Messages', desc: 'Portal threads and staff replies', href: '/admin/messages' },
                 { icon: 'handshake', label: 'Partners', desc: 'Community organizations', href: '/admin/partners' },
                 { icon: 'task_alt', label: 'Assessments', desc: 'Skills assessments and scores', href: '/admin/assessments' },
                 { icon: 'school', label: 'Programs', desc: 'Training tracks and courses', href: '/admin/programs' },
@@ -323,7 +416,7 @@ export default async function AdminPage() {
                 <Link key={item.label} href={item.href} className="portal-action-row" style={{ gap: '1rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <div style={{ padding: '0.625rem', background: 'rgba(173,44,77,0.1)', borderRadius: '0.5rem' }}>
-                      <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem' }}>{item.icon}</span>
+                      <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem' }} aria-hidden="true">{item.icon}</span>
                     </div>
                     <div>
                       <h4 className="portal-action-row__title">{item.label}</h4>
@@ -340,8 +433,8 @@ export default async function AdminPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
           {/* At a Glance */}
-          <div className="stitch-card" style={{ padding: '1.5rem' }}>
-            <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1.5rem' }}>
+            <h3 className="portal-section-title" style={{ marginBottom: '1.5rem' }}>
               At a Glance
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -355,7 +448,7 @@ export default async function AdminPage() {
               <Link href="/admin/pipeline" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', textDecoration: 'none' }}>
                 <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-on-surface)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#80d99f' }} aria-hidden>model_training</span>
-                  In Training
+                  Active in Training
                 </span>
                 <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#80d99f' }}>{activeInTraining}</span>
               </Link>
@@ -379,14 +472,14 @@ export default async function AdminPage() {
           </div>
 
           {/* Recent Activity */}
-          <div className="stitch-card-elevated" style={{ padding: '1.5rem' }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1.5rem', color: 'var(--color-on-surface)' }}>Recent Activity</h3>
+          <div className="portal-card portal-card--elevated" style={{ padding: '1.5rem' }}>
+            <h3 className="portal-section-heading" style={{ marginBottom: '1.5rem' }}>Recent Activity</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative', paddingLeft: '2.5rem' }}>
               <div style={{ position: 'absolute', left: '0.75rem', top: '2.5rem', bottom: 0, width: '1px', background: 'rgba(226,226,229,0.1)' }} />
               {recentUsers.slice(0, 4).map((u, i) => (
                 <div key={u.id} style={{ position: 'relative' }}>
                   <div style={{ position: 'absolute', left: '-2.5rem', top: '0.125rem', width: '1.5rem', height: '1.5rem', borderRadius: '50%', background: 'var(--surface-container)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${i === 0 ? 'rgba(173,44,77,0.2)' : 'rgba(226,226,229,0.1)'}` }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.75rem', color: i === 0 ? 'var(--color-accent)' : 'var(--color-on-surface-variant)' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.75rem', color: i === 0 ? 'var(--color-accent)' : 'var(--color-on-surface-variant)' }} aria-hidden="true">
                       {i === 0 ? 'person_add' : 'verified'}
                     </span>
                   </div>
@@ -399,9 +492,11 @@ export default async function AdminPage() {
                 </div>
               ))}
             </div>
-            <Link href="/admin/members" style={{ display: 'block', width: '100%', marginTop: '2rem', padding: '0.5rem', textAlign: 'center', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>
-              View All Members
-            </Link>
+            <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+              <Link href="/admin/members" className="portal-section-action">
+                View all members
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -453,7 +548,7 @@ export default async function AdminPage() {
           ].map((action) => (
             <a key={action.label} href={action.href}
               className="active:scale-[0.97] wa-transition-transform" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1rem', borderRadius: '0.75rem', textDecoration: 'none', background: 'var(--surface-container-lowest)', border: '1px solid var(--outline-variant)' }}>
-              <span className="material-symbols-outlined" style={{ marginBottom: '0.5rem', color: 'var(--color-accent)' }}>{action.icon}</span>
+              <span className="material-symbols-outlined" style={{ marginBottom: '0.5rem', color: 'var(--color-accent)' }} aria-hidden="true">{action.icon}</span>
               <span className="wa-text-[11px] wa-font-bold wa-text-[var(--color-on-surface)] wa-tracking-tight">{action.label}</span>
             </a>
           ))}

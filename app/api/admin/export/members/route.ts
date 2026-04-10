@@ -230,7 +230,7 @@ export async function GET(req: NextRequest) {
     ];
   });
 
-  const csv = buildCsv(headers, csvRows);
+  const csv = buildCsv(headers, csvRows, { reportTitle: 'Member Training Export', notes: 'Workforce training qualification reporting — Workforce Advancement Project' });
   const filename = `workforceap-members-export-${new Date().toISOString().slice(0, 10)}.csv`;
 
   return new NextResponse(csv, {

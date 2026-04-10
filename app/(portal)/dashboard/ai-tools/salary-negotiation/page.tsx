@@ -48,7 +48,7 @@ export default async function SalaryNegotiationPage() {
               justifyContent: 'center',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.35rem', color: 'var(--color-accent)' }}>payments</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.35rem', color: 'var(--color-accent)' }} aria-hidden="true">payments</span>
           </div>
           <div>
             <h1 style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>Salary Negotiation Script</h1>
@@ -61,7 +61,7 @@ export default async function SalaryNegotiationPage() {
 
       {/* Main content */}
       <div style={{ maxWidth: '720px', margin: '0 auto', padding: '2rem 1.5rem' }}>
-        <div className="stitch-card" style={{ padding: '1.5rem' }}>
+        <div className="portal-card portal-card--flat" style={{ padding: '1.5rem' }}>
           <SalaryNegotiationForm />
         </div>
         <ToolHistoryPanel userId={user.id} toolType="salary_negotiation" />

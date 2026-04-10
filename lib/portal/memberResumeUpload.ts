@@ -37,9 +37,10 @@ export async function uploadMemberResumeFile(
   }
 
   const supabase = createBrowserClient(url, anon);
+  const buffer = await file.arrayBuffer();
   const { error: upErr } = await supabase.storage
     .from(prep.bucket)
-    .uploadToSignedUrl(prep.path, prep.token, file, {
+    .uploadToSignedUrl(prep.path, prep.token, buffer, {
       contentType: file.type || 'application/pdf',
     });
   if (upErr) {

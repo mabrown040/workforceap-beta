@@ -1,12 +1,18 @@
 import { createRequire } from 'module';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { withSentryConfig } from '@sentry/nextjs';
 import type { NextConfig } from 'next';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Same POSTGRES_* defaults as scripts/prisma-env.js so `next build` can run Prisma without errors
 const require = createRequire(import.meta.url);
 require('./scripts/ensure-prisma-env.cjs');
 
 const nextConfig: NextConfig = {
+  // When a lockfile exists outside this repo (e.g. user home), Next may pick the wrong root — breaks tracing + route collection.
+  outputFileTracingRoot: path.join(__dirname),
   poweredByHeader: false,
   serverExternalPackages: ['pdf-parse', 'mammoth'],
   async headers() {
@@ -28,7 +34,7 @@ const nextConfig: NextConfig = {
             value: [
               "default-src 'self'",
               `script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://www.googletagmanager.com https://va.vercel-insights.com https://challenges.cloudflare.com`,
-              "connect-src 'self' https://*.supabase.co https://api.zippopotam.us https://www.google-analytics.com https://www.googletagmanager.com https://va.vercel-insights.com https://vitals.vercel-insights.com https://challenges.cloudflare.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io https://api.elevenlabs.io wss://api.elevenlabs.io https://livekit.rtc.elevenlabs.io wss://livekit.rtc.elevenlabs.io wss://*.livekit.cloud wss://*.elevenlabs.io https://*.elevenlabs.io",
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.zippopotam.us https://www.google-analytics.com https://www.googletagmanager.com https://va.vercel-insights.com https://vitals.vercel-insights.com https://challenges.cloudflare.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io https://api.elevenlabs.io wss://api.elevenlabs.io https://livekit.rtc.elevenlabs.io wss://livekit.rtc.elevenlabs.io wss://*.livekit.cloud wss://*.elevenlabs.io https://*.elevenlabs.io",
               "img-src 'self' data: https: blob:",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
@@ -55,6 +61,7 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
+    qualities: [70, 85],
     remotePatterns: [
       {
         protocol: 'https',
@@ -128,6 +135,10 @@ const nextConfig: NextConfig = {
       { source: '/career-brief/:path*', destination: '/dashboard/career-brief/:path*', permanent: true },
       { source: '/learning', destination: '/dashboard/learning', permanent: true },
       { source: '/weekly-recap', destination: '/dashboard/weekly-recap', permanent: true },
+
+      // Member portal legacy route fixes (QA-ISSUE-001)
+      { source: '/dashboard/plan', destination: '/dashboard/career-brief', permanent: true },
+      { source: '/dashboard/weekly-focus', destination: '/dashboard/weekly-recap', permanent: true },
     ];
   },
 };

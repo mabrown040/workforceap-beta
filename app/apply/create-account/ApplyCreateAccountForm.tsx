@@ -276,7 +276,7 @@ export default function ApplyCreateAccountForm() {
   if (verifyEmailMode) {
     return (
       <div className="apply-form" style={{ textAlign: 'center', padding: '2rem 1rem' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: 56, color: '#ad2c4d', display: 'block', marginBottom: '1rem' }}>mark_email_unread</span>
+        <span className="material-symbols-outlined" style={{ fontSize: 56, color: '#ad2c4d', display: 'block', marginBottom: '1rem' }} aria-hidden="true">mark_email_unread</span>
         <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.75rem', color: '#1c1b1b' }}>Check your email</h2>
         <p style={{ fontSize: '1rem', color: '#584144', lineHeight: 1.6, marginBottom: '0.5rem' }}>
           We sent a verification link to:
@@ -515,7 +515,7 @@ export default function ApplyCreateAccountForm() {
             aria-label={showPassword ? 'Hide password' : 'Show password'}
             style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: '0.25rem', lineHeight: 1 }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">
               {showPassword ? 'visibility_off' : 'visibility'}
             </span>
           </button>
@@ -544,7 +544,7 @@ export default function ApplyCreateAccountForm() {
             aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
             style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: '0.25rem', lineHeight: 1 }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">
               {showConfirmPassword ? 'visibility_off' : 'visibility'}
             </span>
           </button>

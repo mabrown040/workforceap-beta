@@ -216,7 +216,7 @@ export default function InterviewPracticeForm() {
                 transition: 'all 0.15s ease',
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>{opt.icon}</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">{opt.icon}</span>
               {opt.label}
             </button>
           ))}

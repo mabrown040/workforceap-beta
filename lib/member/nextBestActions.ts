@@ -113,7 +113,7 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
     out.push({
       id: 'complete_profile',
       title: 'Strengthen your profile',
-      body: `Your profile is about ${ctx.profileCompletenessPct}% complete — add a few details for better matches and AI tools.`,
+      body: `Profile completeness: ${ctx.profileCompletenessPct}% — add a few details for better matches and AI tools.`,
       href: '/dashboard/profile',
       cta: 'Complete profile',
       variant: 'default',

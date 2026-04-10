@@ -44,7 +44,7 @@ export default async function InterviewCoachPage() {
           >
             AI Tools
           </Link>
-          <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }} aria-hidden="true">
             chevron_right
           </span>
           <span style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>AI Interview Coach</span>

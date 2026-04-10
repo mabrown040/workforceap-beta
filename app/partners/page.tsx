@@ -135,7 +135,7 @@ export default function PartnersPage() {
               marginBottom: '1.5rem',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', verticalAlign: '-2px', marginRight: '0.35rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', verticalAlign: '-2px', marginRight: '0.35rem' }} aria-hidden="true">
               handshake
             </span>
             A Legacy of Opportunity
@@ -152,7 +152,7 @@ export default function PartnersPage() {
               marginBottom: '2rem',
             }}
           >
-            Elevate Your Community&rsquo;s{' '}
+            Build Your Community&rsquo;s{' '}
             <span
               style={{
                 background: 'linear-gradient(135deg, var(--color-accent-light), var(--color-gold))',
@@ -193,7 +193,7 @@ export default function PartnersPage() {
             }}
           >
             Find Your Role
-            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_downward</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_downward</span>
           </Link>
         </div>
       </section>
@@ -308,7 +308,7 @@ export default function PartnersPage() {
             {PARTNER_TYPES.map((pt) => (
               <div
                 key={pt.type}
-                className="stitch-card"
+                className="portal-card portal-card--flat"
                 style={{
                   gridColumn: `span ${pt.colSpan}`,
                   padding: '2.5rem',
@@ -325,9 +325,9 @@ export default function PartnersPage() {
                   style={{
                     fontSize: '2rem',
                     color: 'var(--color-accent)',
-                    fontVariationSettings: "'FILL' 1",
+                    '--ms-fill': 1,
                   }}
-                >
+                 aria-hidden="true">
                   {pt.icon}
                 </span>
                 <h3
@@ -360,7 +360,7 @@ export default function PartnersPage() {
                   }}
                 >
                   {pt.nextStep.text}
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_forward</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
                 </Link>
               </div>
             ))}
@@ -411,10 +411,10 @@ export default function PartnersPage() {
                       style={{
                         fontSize: '1.75rem',
                         color: 'var(--color-accent)',
-                        fontVariationSettings: "'FILL' 1",
+                        '--ms-fill': 1,
                         flexShrink: 0,
                       }}
-                    >
+                     aria-hidden="true">
                       {f.icon}
                     </span>
                     <div>
@@ -472,7 +472,7 @@ export default function PartnersPage() {
       <section style={{ padding: '6rem 0' }}>
         <div className="container" style={{ maxWidth: '720px' }}>
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.5rem', display: 'block' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.5rem', display: 'block' }} aria-hidden="true">
               help
             </span>
             <h2
@@ -559,7 +559,7 @@ export default function PartnersPage() {
                 }}
               >
                 Become a Partner
-                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_forward</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
               </Link>
               <Link
                 href="/employers"
@@ -589,7 +589,7 @@ export default function PartnersPage() {
           .partners-narrative-text { grid-column: span 12 !important; }
           .partners-platform-text { grid-column: span 12 !important; }
           .partners-platform-img { grid-column: span 12 !important; }
-          #partner-types .stitch-card { grid-column: span 12 !important; }
+          #partner-types .portal-card.portal-card--flat { grid-column: span 12 !important; }
         }
       `}</style>
 

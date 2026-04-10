@@ -28,7 +28,7 @@ export default class VoiceSectionErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         <section
-          className="stitch-card"
+          className="portal-card portal-card--flat"
           style={{
             padding: '1rem 1.25rem',
             borderRadius: 12,

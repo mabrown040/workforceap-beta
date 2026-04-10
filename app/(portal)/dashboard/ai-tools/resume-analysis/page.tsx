@@ -48,7 +48,7 @@ export default async function ResumeAnalysisPage() {
                 flexShrink: 0,
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.2rem', color: 'var(--color-accent)' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.2rem', color: 'var(--color-accent)' }} aria-hidden="true">
                 analytics
               </span>
             </div>
@@ -66,7 +66,7 @@ export default async function ResumeAnalysisPage() {
 
         <div style={{ padding: '1rem 1rem 2rem', maxWidth: 960, margin: '0 auto' }}>
           <div
-            className="stitch-card"
+            className="portal-card portal-card--flat"
             style={{ padding: '1rem', borderRadius: 12, marginBottom: '1rem', background: 'var(--surface-container-low)' }}
           >
             <p style={{ fontSize: '0.82rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>

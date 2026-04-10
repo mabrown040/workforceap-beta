@@ -25,7 +25,7 @@ export const MARKETING_JOURNEY_STEPS: MarketingJourneyStep[] = [
   },
   {
     num: 2,
-    title: 'Overview & eligibility review',
+    title: 'Overview & Eligibility Review',
     shortDesc:
       'Meet with a counselor to review programs, timelines, and eligibility. Know what to expect before you commit.',
     longDesc:
@@ -34,7 +34,7 @@ export const MARKETING_JOURNEY_STEPS: MarketingJourneyStep[] = [
   },
   {
     num: 3,
-    title: 'Membership enrollment',
+    title: 'Membership Enrollment',
     shortDesc:
       'Join at no cost. Get access to your member portal, resources, and support — no hidden fees.',
     longDesc:
@@ -43,7 +43,7 @@ export const MARKETING_JOURNEY_STEPS: MarketingJourneyStep[] = [
   },
   {
     num: 4,
-    title: 'Skills assessment',
+    title: 'Skills Assessment',
     shortDesc:
       'Discover your strengths and growth areas so we can personalize your pathway — not a pass/fail test.',
     longDesc:
@@ -79,7 +79,7 @@ export const MARKETING_JOURNEY_STEPS: MarketingJourneyStep[] = [
   },
   {
     num: 8,
-    title: 'Certificate completion',
+    title: 'Certificate Completion',
     shortDesc:
       'Earn credentials employers recognize — CompTIA, AWS, Google, Microsoft, and more.',
     longDesc:
@@ -88,7 +88,7 @@ export const MARKETING_JOURNEY_STEPS: MarketingJourneyStep[] = [
   },
   {
     num: 9,
-    title: 'Job readiness & placement assistance',
+    title: 'Job Readiness & Placement Assistance',
     shortDesc:
       'Resume review, interview prep, employer connections, and job search support until you land.',
     longDesc:
@@ -97,7 +97,7 @@ export const MARKETING_JOURNEY_STEPS: MarketingJourneyStep[] = [
   },
   {
     num: 10,
-    title: 'Career opportunities & growth',
+    title: 'Career Opportunities & Growth',
     shortDesc:
       'Land your role with ongoing support — and build toward raises, promotions, and long-term career growth.',
     longDesc:

@@ -35,7 +35,7 @@ export default function FindYourPathPage() {
             color: 'var(--color-accent)', fontSize: '0.7rem', fontWeight: 700,
             letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '1rem',
           }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>explore</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">explore</span>
             Academic Navigator
           </span>
           <h1 className="text-display-lg" style={{ marginBottom: '1rem' }}>Find Your Path</h1>
@@ -79,7 +79,7 @@ export default function FindYourPathPage() {
               padding: '1.5rem', border: '1px solid var(--surface-container-highest)',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-gold)' }}>tips_and_updates</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-gold)' }} aria-hidden="true">tips_and_updates</span>
                 <span style={{ fontWeight: 700, fontSize: '0.875rem' }}>Why this matters</span>
               </div>
               <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
@@ -127,7 +127,7 @@ export default function FindYourPathPage() {
             fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.06em',
             textTransform: 'uppercase', marginBottom: '0.5rem',
           }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '0.75rem' }}>explore</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '0.75rem' }} aria-hidden="true">explore</span>
             Academic Navigator
           </span>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--color-on-surface)', marginBottom: '0.375rem' }}>Find Your Path</h1>

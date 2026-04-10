@@ -57,24 +57,18 @@ export default async function WeeklyRecapPage() {
 
   return (
     <>
-    <div className="inner-page">
-      <PageHeader
-        title="Your Weekly Recap"
-        subtitle="Your personalized summary and recommended next actions."
-        breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Weekly Recap' }]}
-      />
-
-      <section className="content-section">
-        <div className="container">
-          <WeeklyRecapClient
-            recap={recap}
-            recapData={recapData}
-            weekStart={weekStart.toISOString()}
-          />
-        </div>
-      </section>
-
-    </div>
+      <div style={{ paddingBottom: '5rem' }}>
+        <PageHeader
+          title="Weekly Recap"
+          subtitle="Your activity summary and recommended next actions."
+          breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Weekly Recap' }]}
+        />
+        <WeeklyRecapClient
+          recap={recap}
+          recapData={recapData}
+          weekStart={weekStart.toISOString()}
+        />
+      </div>
       <MobileBottomNav variant="portal" />
     </>
   );

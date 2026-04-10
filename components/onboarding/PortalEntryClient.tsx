@@ -18,6 +18,8 @@ type PartnerWizardProps = ComponentProps<typeof PartnerOnboardingWizard>;
 type PortalEntryClientProps =
   | {
       portal: 'member';
+      /** Scope localStorage/sessionStorage tour flags so shared devices do not suppress tours for the next signed-in user. */
+      tourStorageUserId: string;
       showOnboardingWizard: boolean;
       showTour: boolean;
       isSuperAdmin: boolean;
@@ -27,6 +29,7 @@ type PortalEntryClientProps =
     }
   | {
       portal: 'employer';
+      tourStorageUserId: string;
       showOnboardingWizard: boolean;
       showTour: boolean;
       isSuperAdmin: boolean;
@@ -36,6 +39,7 @@ type PortalEntryClientProps =
     }
   | {
       portal: 'partner';
+      tourStorageUserId: string;
       showOnboardingWizard: boolean;
       showTour: boolean;
       isSuperAdmin: boolean;
@@ -45,17 +49,33 @@ type PortalEntryClientProps =
     };
 
 export default function PortalEntryClient(props: PortalEntryClientProps) {
-  const { portal, showOnboardingWizard, showTour, isSuperAdmin, tourSteps, children } = props;
+  const { portal, tourStorageUserId, showOnboardingWizard, showTour, isSuperAdmin, tourSteps, children } = props;
   const [wizardOpen, setWizardOpen] = useState(showOnboardingWizard);
   const router = useRouter();
   const { startTour } = useTour();
+  const tourAutoStartKey = `wa:tour:auto-started:${portal}:${tourStorageUserId}`;
 
   useEffect(() => {
     setWizardOpen(showOnboardingWizard);
     if (!showOnboardingWizard && showTour) {
-      startTour(tourSteps, portal);
+      // Check both localStorage (persistent) and sessionStorage (legacy) so the
+      // tour never fires twice — even across new browser sessions when tourCompletedAt
+      // hasn't propagated from the DB yet.
+      const alreadyAutoStarted =
+        typeof window !== 'undefined' &&
+        (window.localStorage.getItem(tourAutoStartKey) === '1' ||
+          window.sessionStorage.getItem(tourAutoStartKey) === '1');
+      if (alreadyAutoStarted) return;
+      const timer = setTimeout(() => {
+        startTour(tourSteps, portal);
+        if (typeof window !== 'undefined') {
+          window.localStorage.setItem(tourAutoStartKey, '1');
+          window.sessionStorage.setItem(tourAutoStartKey, '1');
+        }
+      }, 1500);
+      return () => clearTimeout(timer);
     }
-  }, [showOnboardingWizard, showTour, tourSteps, portal, startTour]);
+  }, [showOnboardingWizard, showTour, tourSteps, portal, startTour, tourAutoStartKey]);
 
   const onWizardDone = () => {
     setWizardOpen(false);

@@ -2,15 +2,19 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 
 /* ─── portal destination data (unchanged business logic) ─── */
 const PORTAL_DESTINATIONS: { redirectTo: string; title: string; desc: string }[] = [
   {
-    redirectTo: '/dashboard',
-    title: 'Member (student) portal',
-    desc: 'Training progress, learning hub, applications, and career tools after you enroll or apply.',
+    redirectTo: '/admin',
+    title: 'Admin portal',
+    desc: 'Operations, member oversight, and back-office tools for workforce staff.',
+  },
+  {
+    redirectTo: '/counselor',
+    title: 'Counselor portal',
+    desc: 'Student roster, messaging, and resources for counseling partners.',
   },
   {
     redirectTo: '/partner',
@@ -21,6 +25,11 @@ const PORTAL_DESTINATIONS: { redirectTo: string; title: string; desc: string }[]
     redirectTo: '/employer',
     title: 'Employer portal',
     desc: 'Job postings, Workforce AP applicants, and hiring workflows for your company.',
+  },
+  {
+    redirectTo: '/dashboard',
+    title: 'Member portal',
+    desc: 'Training progress, learning hub, applications, and career tools after you enroll or apply.',
   },
 ];
 
@@ -271,11 +280,14 @@ const s = {
   } as React.CSSProperties,
 } as const;
 
-export default function LoginForm() {
+type LoginFormProps = {
+  initialRedirectTo?: string;
+};
+
+export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFormProps) {
   /* ─── business logic (preserved exactly) ─── */
-  const searchParams = useSearchParams();
-  const redirectParam = searchParams.get('redirectTo');
-  const redirectTo = sanitizeRedirectPath(redirectParam, '/dashboard');
+  const redirectTo = sanitizeRedirectPath(initialRedirectTo, '/dashboard');
+  const redirectParam = initialRedirectTo;
 
   const destinationActive = (target: string) => {
     if (target === '/dashboard') {
@@ -287,7 +299,7 @@ export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -300,7 +312,7 @@ export default function LoginForm() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, redirectTo }),
+        body: JSON.stringify({ email, password, redirectTo, rememberMe }),
         credentials: 'include',
         redirect: 'manual',
       });
@@ -345,7 +357,7 @@ export default function LoginForm() {
         <div style={s.brandBgOverlay} />
         <div style={s.brandContent}>
           <div style={s.brandBadge}>
-            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>verified_user</span>
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">verified_user</span>
             Enterprise Trust
           </div>
           <h1 style={{ ...s.brandHeading, marginTop: 'var(--space-6)' }}>
@@ -439,7 +451,7 @@ export default function LoginForm() {
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                   aria-pressed={showPassword}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 20 }} aria-hidden="true">
                     {showPassword ? 'visibility_off' : 'visibility'}
                   </span>
                 </button>
@@ -456,7 +468,7 @@ export default function LoginForm() {
                 style={{ accentColor: 'var(--color-accent)' }}
               />
               <label htmlFor="remember" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', cursor: 'pointer' }}>
-                Maintain session
+                Stay signed in for 7 days
               </label>
             </div>
 
@@ -487,11 +499,11 @@ export default function LoginForm() {
           {/* Social buttons */}
           <div style={s.socialRow}>
             <button type="button" style={s.socialBtn}>
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>domain</span>
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">domain</span>
               Institutional
             </button>
             <button type="button" style={s.socialBtn}>
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>fingerprint</span>
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">fingerprint</span>
               Biometric
             </button>
           </div>

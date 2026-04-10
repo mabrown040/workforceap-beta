@@ -107,7 +107,7 @@ export default function LeadershipPage() {
                   alignSelf: 'flex-start',
                 }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden="true">
                   verified
                 </span>
                 <span

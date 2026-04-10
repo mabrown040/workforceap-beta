@@ -48,7 +48,7 @@ export default function ExportPdfButton({
       {loading ? (
         <Loader2 size={14} className="ai-tool-submit-spinner" />
       ) : (
-        <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>picture_as_pdf</span>
+        <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">picture_as_pdf</span>
       )}
       {label}
     </button>

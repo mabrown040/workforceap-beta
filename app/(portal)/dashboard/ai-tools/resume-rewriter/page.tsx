@@ -10,13 +10,18 @@ import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Resume Rewriter',
-  description: 'AI-powered resume improvement tailored to your target job.',
+  description: 'Rewrite your resume to match your target job.',
   path: '/dashboard/ai-tools/resume-rewriter',
 });
 
 export default async function ResumeRewriterPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools/resume-rewriter');
+
+  const modePills = [
+    { key: 'voice', label: 'Voice coach' },
+    { key: 'text', label: 'Text rewrite' },
+  ] as const;
 
   return (
     <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
@@ -64,7 +69,7 @@ export default async function ResumeRewriterPage() {
           </div>
         </div>
 
-        {/* ── Decorative controls (visual only — real options live in ResumeRewriterClient) ── */}
+        {/* ── Workflow summary — the actual mode picker lives in ResumeRewriterClient ── */}
         <div
           style={{
             borderBottom: '1px solid var(--surface-container-high)',
@@ -82,12 +87,12 @@ export default async function ResumeRewriterPage() {
               flexWrap: 'wrap',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', color: 'var(--color-on-surface-variant)' }} aria-hidden>
                 record_voice_over
               </span>
               <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', whiteSpace: 'nowrap' }}>
-                Voice &amp; Tone
+                Available workflows
               </span>
               <div
                 style={{
@@ -96,28 +101,29 @@ export default async function ResumeRewriterPage() {
                   background: 'var(--surface-container-highest)',
                   padding: 3,
                   gap: 2,
+                  flexWrap: 'wrap',
                 }}
               >
-                {['Analytical', 'Leadership', 'Creative'].map((tone) => (
+                {modePills.map((pill) => (
                   <span
-                    key={tone}
+                    key={pill.key}
                     style={{
                       fontSize: '0.73rem',
                       padding: '0.3rem 0.75rem',
                       borderRadius: 999,
-                      background: tone === 'Leadership' ? 'var(--color-accent)' : 'transparent',
-                      color: tone === 'Leadership' ? '#fff' : 'var(--color-on-surface-variant)',
+                      background: 'transparent',
+                      color: 'var(--color-on-surface-variant)',
                       fontWeight: 600,
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    {tone}
+                    {pill.label}
                   </span>
                 ))}
               </div>
             </div>
 
-            <label
+            <div
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -131,7 +137,7 @@ export default async function ResumeRewriterPage() {
                 check_box
               </span>
               ATS Optimized
-            </label>
+            </div>
 
             <div style={{ flex: 1, minWidth: 8 }} />
 
@@ -153,7 +159,7 @@ export default async function ResumeRewriterPage() {
               <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden>
                 auto_fix_high
               </span>
-              Optimize Bullets
+              Guided bullet rewrite
             </span>
           </div>
         </div>
@@ -211,15 +217,15 @@ export default async function ResumeRewriterPage() {
         </div>
 
         <div style={{ maxWidth: 1120, margin: '0 auto', padding: '1rem 1rem 2rem' }}>
-          <div className="stitch-card" style={{ padding: '1.25rem', borderRadius: 16, marginBottom: '1.25rem', background: 'var(--surface-container-low)' }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', borderRadius: 16, marginBottom: '1.25rem', background: 'var(--surface-container-low)' }}>
             <p style={{ fontSize: '0.82rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>
               Paste your resume bullets. Our AI rewrites them with strong action verbs, quantifiable impact, and keyword
-              density tuned for ATS and recruiters. Use voice or text mode inside the tool.
+              density tuned for ATS and recruiters. Choose voice coach or text rewrite in the tool below.
             </p>
           </div>
 
           <div
-            className="stitch-card"
+            className="portal-card portal-card--flat"
             style={{
               padding: '1.75rem',
               borderRadius: 16,
@@ -236,7 +242,7 @@ export default async function ResumeRewriterPage() {
           />
 
           <div
-            className="stitch-card resume-rewriter-knowledge-card"
+            className="portal-card portal-card--flat resume-rewriter-knowledge-card"
             style={{
               borderRadius: 16,
               overflow: 'hidden',

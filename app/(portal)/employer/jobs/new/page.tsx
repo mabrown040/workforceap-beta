@@ -63,7 +63,7 @@ export default async function NewJobPage() {
         </div>
 
         <div style={{ padding: '1rem', overflowY: 'auto' }}>
-          <div className="stitch-card" style={{ padding: '1rem', borderRadius: 12 }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: 12 }}>
             <JobForm companyName={employer?.companyName ?? ''} programSlugs={programSlugs} />
           </div>
         </div>

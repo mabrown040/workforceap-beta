@@ -7,6 +7,7 @@ import Link from 'next/link';
 export default function ResumeMobileQuickActions() {
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
   const [enhancedUrl, setEnhancedUrl] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetch('/api/member/resume')
@@ -27,7 +28,8 @@ export default function ResumeMobileQuickActions() {
         await navigator.share({ title: 'My resume', url: downloadUrl });
       } else {
         await navigator.clipboard.writeText(downloadUrl);
-        alert('Resume link copied to clipboard.');
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
       }
     } catch {
       /* user cancelled share or clipboard failed */
@@ -53,7 +55,7 @@ export default function ResumeMobileQuickActions() {
           color: 'inherit',
         }}
       >
-        <span className="material-symbols-outlined" style={{ fontSize: '1.375rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+        <span className="material-symbols-outlined" style={{ fontSize: '1.375rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>
           auto_fix_high
         </span>
         <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>AI Rewrite</span>
@@ -62,6 +64,7 @@ export default function ResumeMobileQuickActions() {
         type="button"
         onClick={shareResume}
         disabled={!downloadUrl}
+        aria-label="Share resume"
         style={{
           flex: 1,
           display: 'flex',
@@ -76,10 +79,10 @@ export default function ResumeMobileQuickActions() {
           opacity: downloadUrl ? 1 : 0.5,
         }}
       >
-        <span className="material-symbols-outlined" style={{ fontSize: '1.375rem', color: 'var(--color-blue)' }}>
-          share
+        <span className="material-symbols-outlined" style={{ fontSize: '1.375rem', color: 'var(--color-blue)' }} aria-hidden="true">
+          {copied ? 'check' : 'share'}
         </span>
-        <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Share</span>
+        <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>{copied ? 'Copied!' : 'Share'}</span>
       </button>
       {downloadUrl ? (
         <a
@@ -101,7 +104,7 @@ export default function ResumeMobileQuickActions() {
             color: 'inherit',
           }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: '1.375rem', color: 'var(--color-green)' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.375rem', color: 'var(--color-green)' }} aria-hidden="true">
             picture_as_pdf
           </span>
           <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Download</span>
@@ -121,7 +124,7 @@ export default function ResumeMobileQuickActions() {
             opacity: 0.5,
           }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: '1.375rem', color: 'var(--color-green)' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.375rem', color: 'var(--color-green)' }} aria-hidden="true">
             picture_as_pdf
           </span>
           <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Download</span>

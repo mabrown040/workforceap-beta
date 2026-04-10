@@ -1,8 +1,7 @@
-const LOOPBACK_DB_HOST_PATTERN = /@(localhost|127\.0\.0\.1)(:\d+)?\//i;
-
 /**
- * During `npm run build`, some optional marketing/admin data fetches should not hard-fail
- * when local loopback DB URLs are configured but no local Postgres is running.
+ * During `npm run build`, optional DB reads should stay off unless explicitly enabled.
+ * This keeps build-time data collection from hitting a real database and failing on
+ * missing tenants, credentials, or preview-only environments.
  */
 export function shouldSkipOptionalDbQueriesAtBuild(): boolean {
   if (process.env.WORKFORCEAP_FORCE_DB_BUILD === '1') return false;
@@ -13,6 +12,5 @@ export function shouldSkipOptionalDbQueriesAtBuild(): boolean {
 
   if (!isBuildLifecycle) return false;
 
-  const dbUrl = process.env.POSTGRES_PRISMA_URL ?? process.env.DATABASE_URL ?? '';
-  return LOOPBACK_DB_HOST_PATTERN.test(dbUrl);
+  return true;
 }

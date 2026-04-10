@@ -19,11 +19,11 @@ export default function PortalStatCard({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="stitch-card portal-stat-card">
+    <div className="portal-card portal-card--flat portal-stat-card">
       <div className="portal-stat-card__icon" style={{ background: iconBg }}>
         <span
           className="material-symbols-outlined"
-          style={{ fontSize: '1.5rem', color: iconColor, fontVariationSettings: "'FILL' 1" }}
+          style={{ fontSize: '1.5rem', color: iconColor, '--ms-fill': 1 }}
         >
           {icon}
         </span>

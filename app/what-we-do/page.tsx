@@ -27,7 +27,7 @@ const BENTO_ITEMS = [
   {
     icon: 'verified',
     title: 'Validated Outcomes',
-    desc: 'Industry-recognized certificates. Skills assessments. Job placement support. We measure what matters — jobs landed. Empower you today for the future workforce.',
+    desc: 'Industry-recognized certificates. Skills assessments. Job placement support. We measure what matters — jobs landed.',
     span: 'small',
   },
   {
@@ -385,7 +385,7 @@ export default function WhatWeDoPage() {
               return (
                 <div
                   key={item.title}
-                  className="stitch-card"
+                  className="portal-card portal-card--flat"
                   style={{
                     ...spanStyles[item.span],
                     padding: '2.5rem',
@@ -407,9 +407,9 @@ export default function WhatWeDoPage() {
                     style={{
                       fontSize: '2.5rem',
                       color: i === 0 ? 'rgba(255,255,255,0.9)' : 'var(--color-accent)',
-                      fontVariationSettings: "'FILL' 1",
+                      '--ms-fill': 1,
                     }}
-                  >
+                   aria-hidden="true">
                     {item.icon}
                   </span>
                   <h3
@@ -564,7 +564,7 @@ export default function WhatWeDoPage() {
                 position: 'relative',
               }}
             >
-              Join individuals who are transforming their careers through employer-aligned training and certifications.
+              Join individuals who are launching new careers through employer-aligned training and certifications.
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem', position: 'relative' }}>
               <Link
@@ -582,7 +582,7 @@ export default function WhatWeDoPage() {
                 }}
               >
                 Apply Now
-                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_forward</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
               </Link>
               <Link
                 href="/programs"
@@ -791,7 +791,7 @@ export default function WhatWeDoPage() {
                     color: index === 1 ? '#fff' : 'var(--color-accent)',
                   }}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'inherit' }}>{item.icon}</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'inherit' }} aria-hidden="true">{item.icon}</span>
                 </div>
                 <div style={{ minWidth: 0 }}>
                   <h3 style={{ fontSize: '1.125rem', fontWeight: 800, marginBottom: '0.5rem', color: index === 1 ? '#fff' : 'var(--color-on-surface)', overflowWrap: 'anywhere' }}>{item.title}</h3>
@@ -881,7 +881,7 @@ export default function WhatWeDoPage() {
             Ready to build the future?
           </h2>
           <p style={{ fontSize: '0.95rem', lineHeight: 1.7, marginBottom: '1.5rem', color: 'rgba(255,255,255,0.86)' }}>
-            Join individuals who are transforming their careers through employer-aligned training and certifications.
+            Join individuals who are launching new careers through employer-aligned training and certifications.
           </p>
           <div style={{ display: 'flex', width: '100%', flexDirection: 'column', gap: '0.75rem' }}>
             <Link

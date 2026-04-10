@@ -11,6 +11,8 @@ import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { trackEvent } from '@/lib/events/track';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { prisma } from '@/lib/db/prisma';
+import { getProgramBySlug } from '@/lib/content/programs';
 
 /**
  * GET /api/ai/skill-mapper?occupation=software+developer
@@ -28,6 +30,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const occupation = searchParams.get('occupation')?.trim() ?? '';
   const code = searchParams.get('code')?.trim() ?? '';
+  const occupationTitle = searchParams.get('title')?.trim() ?? null;
 
   const { success } = await checkAIToolRateLimit(user.id);
   if (!success) {
@@ -54,9 +57,11 @@ export async function GET(req: NextRequest) {
           'skill_assessment',
           `Skill mapper lookup (${code})`,
           JSON.stringify({
+            occupationTitle: occupationTitle ?? code,
             occupationCode: code,
             radarAxes: radarData,
             skills: skills.slice(0, 20),
+            gaps: [], // populated by client from profile comparison
           })
         );
       } catch (saveErr) {
@@ -71,11 +76,53 @@ export async function GET(req: NextRequest) {
         sourcePage: '/dashboard/skills-assessment',
       });
 
+      // Look up WorkforceAP programs mapped to this occupation
+      let matchedPrograms: {
+        programSlug: string;
+        programTitle: string;
+        categoryLabel: string;
+        categoryColor: string;
+        icon: string;
+        duration: string;
+        partner: string;
+        priority: number;
+        experienceBand: string;
+        recommendationType: string;
+        whyRecommended: string | null;
+      }[] = [];
+      try {
+        const programMappings = await prisma.careerProgramMapping.findMany({
+          where: { onetCode: code, isActive: true },
+          orderBy: [{ priority: 'asc' }],
+          take: 6,
+        });
+        matchedPrograms = programMappings.map((m) => {
+          const p = getProgramBySlug(m.programSlug);
+          return {
+            programSlug: m.programSlug,
+            programTitle: p?.title ?? m.programSlug,
+            categoryLabel: p?.categoryLabel ?? '',
+            categoryColor: p?.categoryColor ?? '#666',
+            icon: p?.icon ?? '',
+            duration: p?.duration ?? '',
+            partner: p?.partner ?? '',
+            priority: m.priority,
+            experienceBand: m.experienceBand,
+            recommendationType: m.recommendationType,
+            whyRecommended: m.whyRecommended,
+          };
+        });
+      } catch {
+        /* non-fatal — programs still render from radar-axis-based recs */
+      }
+
       return NextResponse.json({
+        occupationTitle: occupationTitle ?? code,
         occupationCode: code,
         skills: skills.slice(0, 20), // Top 20 skills
         radarAxes: radarData,
         totalSkills: skills.length,
+        matchedPrograms,
         ...(process.env.NODE_ENV === 'development' ? {
           unmatchedAxes: radarData.filter(a => !a.hasData).map(a => a.axis),
         } : {}),

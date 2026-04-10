@@ -15,6 +15,7 @@ import ResumeClient from '@/app/(portal)/dashboard/resume/ResumeClient';
 import ResumeCoachWorkspace from '@/components/portal/ResumeCoachWorkspace';
 import { getProfileCompleteness } from '@/lib/resume/profileCompleteness';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import PortalCard from '@/components/portal/ui/PortalCard';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'My Profile',
@@ -138,15 +139,29 @@ export default async function DashboardProfilePage() {
         <section className="wa-pt-6 wa-pb-4 wa-text-center wa-px-6">
           <div className="wa-flex wa-flex-col wa-items-center">
             {/* Avatar */}
-            <div className="wa-w-24 wa-h-24 wa-rounded-full wa-bg-[#ad2c4d] wa-flex wa-items-center wa-justify-center wa-text-white wa-text-3xl wa-font-bold wa-mb-4 wa-shadow-sm">
+            <div
+              className="wa-w-24 wa-h-24 wa-rounded-full wa-flex wa-items-center wa-justify-center wa-text-3xl wa-font-bold wa-mb-4 wa-shadow-sm"
+              style={{ background: 'var(--color-accent)', color: 'var(--color-white)' }}
+            >
               {initials}
             </div>
             {/* Identity */}
-            <h2 className="wa-text-2xl wa-font-extrabold wa-tracking-tight wa-text-[#1c1b1b] wa-mb-1">{dbUser.fullName ?? 'Your Name'}</h2>
-            <div className="wa-inline-flex wa-items-center wa-px-3 wa-py-1 wa-rounded-full bg-[#ffbb00]/20 wa-text-[#7b5800] wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-wider wa-mb-2">
+            <h2
+              className="wa-text-2xl wa-font-extrabold wa-tracking-tight wa-mb-1"
+              style={{ color: 'var(--color-on-surface)' }}
+            >
+              {dbUser.fullName ?? 'Your Name'}
+            </h2>
+            <div
+              className="wa-inline-flex wa-items-center wa-px-3 wa-py-1 wa-rounded-full wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-wider wa-mb-2"
+              style={{
+                background: 'color-mix(in srgb, var(--color-gold) 20%, transparent)',
+                color: 'color-mix(in srgb, var(--color-gold) 55%, var(--color-on-surface))',
+              }}
+            >
               {program?.title ?? 'WorkforceAP Member'}
             </div>
-            <p className="wa-text-[#584144] wa-text-sm wa-font-medium">
+            <p className="wa-text-sm wa-font-medium" style={{ color: 'var(--color-on-surface-variant)' }}>
               {dbUser.createdAt
                 ? `Member since ${new Date(dbUser.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`
                 : 'WorkforceAP Member'}
@@ -155,22 +170,30 @@ export default async function DashboardProfilePage() {
         </section>
 
         {/* Completion meter */}
-        <section className="wa-mx-6 wa-mb-5 wa-bg-[#f2eeed] wa-p-5 wa-rounded-xl">
-          <div className="wa-flex wa-justify-between wa-items-end wa-mb-2">
-            <p className="wa-text-[#1c1b1b] wa-font-semibold wa-text-sm wa-tracking-tight">Profile {profilePct}% complete</p>
-            <span className="wa-text-[#8c0f37] wa-text-xs wa-font-bold">Fill in missing info</span>
-          </div>
-          <div className="wa-h-1.5 wa-w-full wa-bg-[#debfc2] wa-rounded-full wa-overflow-hidden">
-            <div className="wa-h-full wa-bg-[#8c0f37] wa-rounded-full wa-transition-all" style={{ width: `${profilePct}%` }} />
-          </div>
-        </section>
+        <div className="wa-mx-6 wa-mb-5">
+          <PortalCard
+            className="portal-card--flat"
+            title={`Profile ${profilePct}% complete`}
+            action={<span className="wa-text-xs wa-font-bold" style={{ color: 'var(--color-accent)' }}>Fill in missing info</span>}
+          >
+            <div
+              className="wa-h-1.5 wa-w-full wa-rounded-full wa-overflow-hidden"
+              style={{ background: 'color-mix(in srgb, var(--outline-variant) 55%, transparent)' }}
+            >
+              <div
+                className="wa-h-full wa-rounded-full wa-transition-all"
+                style={{ width: `${profilePct}%`, background: 'var(--color-accent-dark)' }}
+              />
+            </div>
+          </PortalCard>
+        </div>
 
         {/* Personal info card */}
         <div className="wa-mx-6 wa-mb-4 wa-bg-[#fcf9f8] wa-p-5 wa-rounded-xl wa-border border-[#debfc2]/30">
           <div className="wa-flex wa-justify-between wa-items-start wa-mb-4">
             <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#584144]">Personal Info</h3>
             <Link href="/dashboard/settings" className="wa-text-[#8c0f37] wa-p-1 active:wa-scale-90 wa-duration-200" aria-label="Edit personal info">
-              <span className="material-symbols-outlined wa-text-[20px]">edit</span>
+              <span className="material-symbols-outlined wa-text-[20px]" aria-hidden="true">edit</span>
             </Link>
           </div>
           <div className="wa-space-y-3">
@@ -212,7 +235,7 @@ export default async function DashboardProfilePage() {
             <div className="wa-flex wa-justify-between wa-items-start wa-mb-4">
               <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#584144]">Skills</h3>
               <Link href="/dashboard/skills-assessment" className="wa-text-[#8c0f37] wa-p-1 active:wa-scale-90 wa-duration-200" aria-label="Edit skills">
-                <span className="material-symbols-outlined wa-text-[20px]">edit</span>
+                <span className="material-symbols-outlined wa-text-[20px]" aria-hidden="true">edit</span>
               </Link>
             </div>
             <div className="wa-flex wa-flex-wrap wa-gap-2">
@@ -247,7 +270,7 @@ export default async function DashboardProfilePage() {
               textDecoration: 'none',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>description</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden="true">description</span>
             Manage My Resume →
           </a>
         </div>
@@ -298,115 +321,195 @@ export default async function DashboardProfilePage() {
       </div>
 
       {/* ── Desktop profile view ── */}
-      <div className="wa-hidden md:wa-block">
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>My Profile</h1>
-      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
-        Manage your profile, resume, and settings in one place.
-      </p>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1.5rem' }}>
-        <a href="#profile" className="btn btn-outline">Profile</a>
-        <a href="#resume" className="btn btn-outline">Resume</a>
-        <a href="#settings" className="btn btn-outline">Settings</a>
-      </div>
+      <div className="wa-hidden md:wa-block" style={{ paddingBottom: '2rem' }}>
 
-      <div id="profile" className="dashboard-profile-section">
-        <h3>Contact info</h3>
-        <DashboardProfileForm
-          defaultFirstName={firstName}
-          defaultLastName={lastName}
-          defaultPhone={dbUser.profile?.profilePhone ?? dbUser.phone ?? ''}
-          defaultAddress={dbUser.profile?.profileAddress ?? ''}
-          defaultLinkedin={dbUser.profile?.profileLinkedin ?? ''}
-          defaultBio={dbUser.profile?.profileBio ?? ''}
-          defaultFinancialAidInterest={dbUser.profile?.financialAidInterest ?? null}
-        />
-      </div>
-
-      <div className="dashboard-profile-section">
-        <h3>Account</h3>
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-          <strong>Email:</strong> {dbUser.email} (tied to account, cannot be changed here)
-        </p>
-      </div>
-
-      {dbUser.assessmentCompleted && (
-        <div className="dashboard-profile-section">
-          <h3>Assessment</h3>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
-            <strong>Assessment Score:</strong> {dbUser.assessmentScore ?? 0}/90 ({dbUser.assessmentScorePct ?? 0}%) — completed{' '}
-            {dbUser.assessmentCompletedAt?.toLocaleDateString() ?? ''}
-          </p>
-          <details style={{ marginTop: '0.75rem', padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
-            <summary style={{ cursor: 'pointer', fontWeight: 600 }}>View My Answers</summary>
-            {assessmentAnswers && (
-              <ul style={{ marginTop: '1rem', paddingLeft: '1.25rem', fontSize: '0.9rem' }}>
-                {ASSESSMENT_QUESTIONS.map((q) => {
-                  const v = assessmentAnswers[String(q.id)] ?? assessmentAnswers[q.id as unknown as string];
-                  const text = v == null ? '—' : typeof v === 'string' ? v : JSON.stringify(v);
-                  return (
-                    <li key={q.id} style={{ marginBottom: '0.5rem' }}>
-                      Q{q.id}: {q.question} → {text}
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </details>
+        {/* Profile hero banner */}
+        <div className="portal-profile-hero">
+          <div className="portal-profile-avatar">{initials}</div>
+          <div style={{ minWidth: 0 }}>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--color-on-surface)', margin: '0 0 0.375rem' }}>
+              {dbUser.fullName ?? 'Your Profile'}
+            </h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+              {program && (
+                <span style={{ display: 'inline-flex', alignItems: 'center', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 700, background: 'rgba(255,187,0,0.1)', color: 'var(--color-gold)' }}>
+                  {program.title}
+                </span>
+              )}
+              <span style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
+                {dbUser.createdAt
+                  ? `Member since ${new Date(dbUser.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`
+                  : 'WorkforceAP Member'}
+              </span>
+            </div>
+            {/* Profile completeness bar */}
+            <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div className="portal-progress-bar" style={{ width: '180px' }}>
+                <div className="portal-progress-bar__fill" style={{ width: `${profilePct}%` }} />
+              </div>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
+                {profilePct}% complete
+              </span>
+            </div>
+          </div>
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem', flexShrink: 0, alignSelf: 'flex-start' }}>
+            <a href="#profile" className="btn btn-outline" style={{ fontSize: '0.8125rem' }}>Edit Profile</a>
+            <a href="#resume" className="btn btn-outline" style={{ fontSize: '0.8125rem' }}>Resume</a>
+            <a href="#settings" className="btn btn-outline" style={{ fontSize: '0.8125rem' }}>Settings</a>
+          </div>
         </div>
-      )}
 
-      {program && (
-        <div className="dashboard-profile-section">
-          <h3>Program</h3>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-            <strong>Current Program:</strong>{' '}
-            <Link href="/dashboard/program">{program.title}</Link>
-            {dbUser.enrolledAt && ` — Enrolled ${dbUser.enrolledAt.toLocaleDateString()}`}
-          </p>
-        </div>
-      )}
-
-      <div id="resume" className="dashboard-profile-section">
-        <h3>Resume tools</h3>
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
-          Upload, generate, and improve your resume without leaving your profile.
-        </p>
-        <ResumeClient
-          completeness={completeness}
-          witData={witData}
-          hasOriginal={hasOriginal}
-          hasEnhanced={hasEnhanced}
-        />
-
-        <ResumeCoachWorkspace />
-      </div>
-
-      <div id="settings" className="dashboard-profile-section">
-        <h3>Settings</h3>
-        <div style={{ display: 'grid', gap: '1.5rem' }}>
-          <section>
-            <h4 style={{ fontSize: '1rem', marginBottom: '0.75rem' }}>Password</h4>
-            <Link href={`/forgot-password?email=${encodeURIComponent(dbUser.email)}`} className="btn btn-outline">
-              Reset password
-            </Link>
-          </section>
-          <section>
-            <h4 style={{ fontSize: '1rem', marginBottom: '0.75rem' }}>Email notifications</h4>
-            <SettingsForm
-              defaultUpdates={dbUser.notificationsUpdates ?? true}
-              defaultReminders={dbUser.notificationsReminders ?? true}
+        {/* Contact info card */}
+        <div id="profile" className="portal-profile-section-card">
+          <div className="portal-profile-section-card__header">
+            <h2 className="portal-profile-section-card__title">Contact Information</h2>
+          </div>
+          <div className="portal-profile-section-card__body">
+            <DashboardProfileForm
+              defaultFirstName={firstName}
+              defaultLastName={lastName}
+              defaultPhone={dbUser.profile?.profilePhone ?? dbUser.phone ?? ''}
+              defaultAddress={dbUser.profile?.profileAddress ?? ''}
+              defaultLinkedin={dbUser.profile?.profileLinkedin ?? ''}
+              defaultBio={dbUser.profile?.profileBio ?? ''}
+              defaultFinancialAidInterest={dbUser.profile?.financialAidInterest ?? null}
             />
-          </section>
-          <section>
-            <h4 style={{ fontSize: '1rem', marginBottom: '0.75rem' }}>Portal tour</h4>
-            <StartTourButton />
-          </section>
-          <section>
-            <h4 style={{ fontSize: '1rem', marginBottom: '0.75rem', color: 'var(--color-error, #c00)' }}>Delete account</h4>
-            <DeleteAccountButton />
-          </section>
+          </div>
         </div>
-      </div>
+
+        {/* Account + Program cards side by side */}
+        <div style={{ display: 'grid', gridTemplateColumns: program ? '1fr 1fr' : '1fr', gap: '1rem', marginBottom: '1rem' }}>
+          <div className="portal-profile-section-card">
+            <div className="portal-profile-section-card__header">
+              <h2 className="portal-profile-section-card__title">Account</h2>
+            </div>
+            <div className="portal-profile-section-card__body">
+              <div style={{ display: 'grid', gap: '0.75rem' }}>
+                <div>
+                  <p style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Email</p>
+                  <p style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-on-surface)', margin: 0 }}>{dbUser.email}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>Cannot be changed here</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {program && (
+            <div className="portal-profile-section-card">
+              <div className="portal-profile-section-card__header">
+                <h2 className="portal-profile-section-card__title">Enrolled Program</h2>
+                <Link href="/dashboard/program" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', textDecoration: 'none' }}>View →</Link>
+              </div>
+              <div className="portal-profile-section-card__body">
+                <p style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.375rem' }}>{program.title}</p>
+                {dbUser.enrolledAt && (
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
+                    Enrolled {dbUser.enrolledAt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Assessment card */}
+        {dbUser.assessmentCompleted && (
+          <div className="portal-profile-section-card" style={{ marginBottom: '1rem' }}>
+            <div className="portal-profile-section-card__header">
+              <h2 className="portal-profile-section-card__title">Skills Assessment</h2>
+              <span style={{ display: 'inline-flex', alignItems: 'center', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.7rem', fontWeight: 700, background: 'rgba(74,155,79,0.1)', color: '#4ade80' }}>
+                Complete
+              </span>
+            </div>
+            <div className="portal-profile-section-card__body">
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1.5rem', flexWrap: 'wrap' }}>
+                <div>
+                  <p style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', marginBottom: '0.375rem' }}>Score</p>
+                  <p style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-accent)', letterSpacing: '-0.04em', margin: 0, lineHeight: 1 }}>
+                    {dbUser.assessmentScorePct ?? 0}<span style={{ fontSize: '1rem' }}>%</span>
+                  </p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>
+                    {dbUser.assessmentScore ?? 0}/90 points
+                  </p>
+                </div>
+                {dbUser.assessmentCompletedAt && (
+                  <div>
+                    <p style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', marginBottom: '0.375rem' }}>Completed</p>
+                    <p style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-on-surface)', margin: 0 }}>
+                      {dbUser.assessmentCompletedAt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                    </p>
+                  </div>
+                )}
+              </div>
+              <details style={{ marginTop: '1rem' }}>
+                <summary style={{ cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>View Assessment Answers</summary>
+                {assessmentAnswers && (
+                  <ul style={{ marginTop: '1rem', paddingLeft: '1.25rem', fontSize: '0.875rem' }}>
+                    {ASSESSMENT_QUESTIONS.map((q) => {
+                      const v = assessmentAnswers[String(q.id)] ?? assessmentAnswers[q.id as unknown as string];
+                      const text = v == null ? '—' : typeof v === 'string' ? v : JSON.stringify(v);
+                      return (
+                        <li key={q.id} style={{ marginBottom: '0.5rem', color: 'var(--color-on-surface-variant)' }}>
+                          <strong style={{ color: 'var(--color-on-surface)' }}>Q{q.id}:</strong> {q.question} → {text}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </details>
+            </div>
+          </div>
+        )}
+
+        {/* Resume tools card */}
+        <div id="resume" className="portal-profile-section-card" style={{ marginBottom: '1rem' }}>
+          <div className="portal-profile-section-card__header">
+            <h2 className="portal-profile-section-card__title">Resume &amp; Career Tools</h2>
+          </div>
+          <div className="portal-profile-section-card__body">
+            <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.6 }}>
+              Upload, generate, and improve your resume without leaving your profile.
+            </p>
+            <ResumeClient
+              completeness={completeness}
+              witData={witData}
+              hasOriginal={hasOriginal}
+              hasEnhanced={hasEnhanced}
+            />
+            <ResumeCoachWorkspace />
+          </div>
+        </div>
+
+        {/* Settings card */}
+        <div id="settings" className="portal-profile-section-card">
+          <div className="portal-profile-section-card__header">
+            <h2 className="portal-profile-section-card__title">Account Settings</h2>
+          </div>
+          <div className="portal-profile-section-card__body">
+            <div style={{ display: 'grid', gap: '1.5rem' }}>
+              <section>
+                <h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>Email Notifications</h3>
+                <SettingsForm
+                  defaultUpdates={dbUser.notificationsUpdates ?? true}
+                  defaultReminders={dbUser.notificationsReminders ?? true}
+                />
+              </section>
+              <section>
+                <h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>Password &amp; Security</h3>
+                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <Link href={`/forgot-password?email=${encodeURIComponent(dbUser.email)}`} className="btn btn-outline">
+                    Reset password
+                  </Link>
+                  <StartTourButton />
+                </div>
+              </section>
+              <section>
+                <h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-error, #c00)', marginBottom: '0.75rem' }}>Danger Zone</h3>
+                <DeleteAccountButton />
+              </section>
+            </div>
+          </div>
+        </div>
       </div> {/* end hidden md:block */}
 
       <MobileBottomNav variant="portal" />

@@ -12,6 +12,7 @@ import { memberTrainingProfileComplete } from '@/lib/platform/trainingEnrollment
 import StaffMemberResumePanel from '@/components/counselor/StaffMemberResumePanel';
 import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
 import MemberDetailActions from '@/components/admin/MemberDetailActions';
+import AdminMemberDbActions from '@/components/admin/AdminMemberDbActions';
 import MemberPartnerSection from '@/components/admin/MemberPartnerSection';
 import MemberSubgroupSection from '@/components/admin/MemberSubgroupSection';
 import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounselorChatClient';
@@ -109,7 +110,10 @@ export default async function AdminMemberDetailPage({
       where: { memberId: id, active: true },
       include: { counselor: { select: { userId: true, user: { select: { fullName: true } } } } },
     }),
-    prisma.placedOutcome.findUnique({ where: { userId: id } }),
+    // Read from canonical PlacementRecord (includes WIOA fields).
+    // PlacedOutcome is deprecated; PlacementRecord is the source of truth.
+    // Wrapped in catch so missing DB columns (pending migration) don't crash the page.
+    prisma.placementRecord.findUnique({ where: { userId: id } }).catch(() => null),
     prisma.courseEnrollment.findUnique({
       where: { userId: id },
       select: {
@@ -118,7 +122,7 @@ export default async function AdminMemberDetailPage({
         workspaceEmail: true,
         workspaceEmailProvisioned: true,
       },
-    }),
+    }).catch(() => null),
   ]);
 
   if (!member || member.deletedAt) notFound();
@@ -203,6 +207,10 @@ export default async function AdminMemberDetailPage({
         subtitle={member.email}
         action={
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <Link href={`/admin/members/${id}/lifecycle`} className="btn btn-outline">
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', marginRight: '0.25rem', verticalAlign: 'middle' }} aria-hidden="true">timeline</span>
+              Lifecycle
+            </Link>
             <Link href={`/admin/members/${id}/readiness`} className="btn btn-outline">
               <ClipboardList size={18} style={{ marginRight: '0.35rem', verticalAlign: 'middle' }} />
               Readiness
@@ -213,6 +221,27 @@ export default async function AdminMemberDetailPage({
       />
 
       <div style={{ display: 'grid', gap: '1.5rem', maxWidth: '800px' }}>
+        {/* Admin DB actions — password reset, profile edit */}
+        <section className="portal-profile-section-card">
+          <div className="portal-profile-section-card__header">
+            <h2 className="portal-profile-section-card__title">Admin Actions</h2>
+            <span style={{ fontSize: '0.625rem', fontWeight: 800, padding: '0.15rem 0.4rem', borderRadius: '9999px', background: 'rgba(173,44,77,0.1)', color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Super admin</span>
+          </div>
+          <div className="portal-profile-section-card__body">
+            <AdminMemberDbActions
+              memberId={id}
+              memberName={member.fullName}
+              memberEmail={member.email}
+              currentFullName={member.fullName}
+              currentPhone={member.phone}
+              currentProfilePhone={member.profile?.profilePhone ?? null}
+              currentProfileAddress={member.profile?.profileAddress ?? null}
+              currentProfileBio={member.profile?.profileBio ?? null}
+              currentProfileLinkedin={member.profile?.profileLinkedin ?? null}
+            />
+          </div>
+        </section>
+
         <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
           <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Profile</h2>
           <p><strong>Phone:</strong> {formatPhone(member.phone ?? member.profile?.profilePhone)}</p>
@@ -318,7 +347,7 @@ export default async function AdminMemberDetailPage({
         </section>
 
         <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
-          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>WorkforceAP placement (grants)</h2>
+          <h2 className="portal-section-heading">Placement record</h2>
           <AdminMemberPlacedOutcomeForm
             memberId={member.id}
             initial={
@@ -326,10 +355,15 @@ export default async function AdminMemberDetailPage({
                 ? {
                     employerName: placedOutcomeRow.employerName,
                     jobTitle: placedOutcomeRow.jobTitle,
-                    startingSalary: placedOutcomeRow.startingSalary,
+                    startingSalary: placedOutcomeRow.salaryOffered,
                     placedAt: placedOutcomeRow.placedAt.toISOString(),
-                    programSlug: placedOutcomeRow.programSlug,
+                    programSlug: (placedOutcomeRow as { programSlug?: string | null }).programSlug ?? null,
                     notes: placedOutcomeRow.notes,
+                    wageAtFollowUp: (placedOutcomeRow as { wageAtFollowUp?: number | null }).wageAtFollowUp ?? null,
+                    retentionStatus: (placedOutcomeRow as { retentionStatus?: string | null }).retentionStatus ?? null,
+                    startDateVerified: (placedOutcomeRow as { startDateVerified?: boolean }).startDateVerified ?? false,
+                    fundingSource: (placedOutcomeRow as { fundingSource?: string | null }).fundingSource ?? null,
+                    grantReportingNotes: (placedOutcomeRow as { grantReportingNotes?: string | null }).grantReportingNotes ?? null,
                   }
                 : null
             }

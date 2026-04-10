@@ -3,11 +3,16 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import PortalVoiceSession, { type VoiceSessionPhase } from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
-import { mockInterviewVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
+import { mockInterviewVoiceSurface } from '@/lib/portal/voice';
 import InterviewCoachingPanel from '@/components/portal/tools/InterviewCoachingPanel';
 import MockInterviewVideoRecorder from '@/components/portal/tools/MockInterviewVideoRecorder';
 
 const INTERVIEW_TYPES = ['Behavioral', 'Technical', 'General'] as const;
+const EXPERIENCE_LEVELS = [
+  { value: 'entry', label: 'Entry-level (0–2 years)' },
+  { value: 'mid', label: 'Mid-level (3–7 years)' },
+  { value: 'senior', label: 'Senior / Lead (8+ years)' },
+] as const;
 
 /**
  * Dedicated voice mock-interview entry: role + style, ElevenLabs session, live coaching panel.
@@ -15,6 +20,7 @@ const INTERVIEW_TYPES = ['Behavioral', 'Technical', 'General'] as const;
  */
 export default function VoiceInterviewScaffold() {
   const [role, setRole] = useState('');
+  const [experienceLevel, setExperienceLevel] = useState<'entry' | 'mid' | 'senior'>('entry');
   const [interviewType, setInterviewType] = useState<(typeof INTERVIEW_TYPES)[number]>('Behavioral');
   const [ready, setReady] = useState(false);
   const [lastUserText, setLastUserText] = useState('');
@@ -59,7 +65,7 @@ export default function VoiceInterviewScaffold() {
   return (
     <div>
       {!ready ? (
-        <div className="stitch-card" style={{ padding: '1.25rem', marginBottom: '1.25rem', borderRadius: 12 }}>
+        <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', marginBottom: '1.25rem', borderRadius: 12 }}>
           <div className="form-group">
             <label htmlFor="vi-role">Target role</label>
             <input
@@ -70,6 +76,18 @@ export default function VoiceInterviewScaffold() {
               placeholder="e.g. IT Support Specialist"
               required
             />
+          </div>
+          <div className="form-group">
+            <label htmlFor="vi-level">Experience level</label>
+            <select
+              id="vi-level"
+              value={experienceLevel}
+              onChange={(e) => setExperienceLevel(e.target.value as 'entry' | 'mid' | 'senior')}
+            >
+              {EXPERIENCE_LEVELS.map((l) => (
+                <option key={l.value} value={l.value}>{l.label}</option>
+              ))}
+            </select>
           </div>
           <div className="form-group">
             <label htmlFor="vi-type">Interview style</label>
@@ -238,7 +256,7 @@ export default function VoiceInterviewScaffold() {
         </div>
       ) : (
         <div className="voice-interview-layout">
-          <div className="stitch-card" style={{ padding: '1.25rem', borderRadius: 12 }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', borderRadius: 12 }}>
             <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
               Mock interview for <strong>{role}</strong> ({interviewType}). Use a quiet space and allow{' '}
               <strong>microphone</strong> access to talk with the coach.
@@ -268,7 +286,7 @@ export default function VoiceInterviewScaffold() {
               <PortalVoiceSession
                 key={voiceSessionKey}
                 sessionEndpoint="/api/member/voice-interview/session"
-                sessionPayload={{ role: role.trim(), interviewType }}
+                sessionPayload={{ role: role.trim(), interviewType, experienceLevel }}
                 title="Voice mock interview"
                 description="Answer out loud. The coach will listen and respond like a real interviewer."
                 accent="#7c3aed"

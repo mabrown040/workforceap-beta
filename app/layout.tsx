@@ -50,8 +50,18 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en">
       <head>
         <ThemeInitScript />
+        {/* PWA manifest */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="WorkforceAP" />
+        <meta name="theme-color" content="#ad2c4d" />
+        <link rel="apple-touch-icon" href="/images/logo-tight.png" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         {/* Material Symbols Outlined is self-hosted via @font-face in main.css */}
+        {/* Register service worker — updateViaCache:'none' ensures browser always fetches fresh sw.js */}
+        <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js',{updateViaCache:'none'}).then(function(r){r.update()}).catch(function(){})}` }} />
       </head>
       <body>
         <OrgBrandingStyle branding={orgBranding} />

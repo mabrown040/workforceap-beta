@@ -92,11 +92,27 @@ export function mapSkillsToRadarAxes(
     {
       axis: 'Design',
       keywords: [
-        'design', 'creative', 'visualization', 'user', 'interface', 'fine arts', 'drafting', 'layout',
-        'ux', 'graphic', 'visual', 'aesthetic', 'composition', 'typography', 'color', 'branding',
-        'prototyping', 'wireframing', 'user experience', 'user interface', 'interaction design', 'product design',
-        'artistic', 'imagination', 'innovation', 'conceptualization', 'spatial', '3d', 'illustration',
-        'multimedia', 'animation', 'motion', 'video', 'audio', 'photography'
+        // ── Exact O*NET ability names (from /abilities endpoint) ──
+        'originality', 'fluency of ideas', 'flexibility of closure', 'speed of closure',
+        'spatial orientation', 'visualization', 'perceptual speed', 'selective attention',
+        'time sharing', 'near vision', 'far vision', 'visual color discrimination',
+        'depth perception', 'glare sensitivity',
+        // ── Exact O*NET knowledge names (from /knowledge endpoint) ──
+        'fine arts', 'design', 'communications and media', 'history and archeology',
+        'philosophy and theology', 'sociology and anthropology', 'foreign language',
+        // ── Exact O*NET skill names related to design/creative ──
+        'active listening', 'speaking', 'writing', 'reading comprehension',
+        'thinking creatively', 'updating and using relevant knowledge',
+        // ── Core design terms (substring match) ──
+        'ux', 'ui', 'graphic', 'visual', 'aesthetic', 'typography', 'color', 'branding',
+        'prototyping', 'wireframing', 'user experience', 'user interface', 'interaction',
+        'artistic', 'illustration', 'multimedia', 'animation', 'video production',
+        'photography', 'layout', 'drafting', 'blueprint', 'sketch', 'storyboard',
+        'copywriting', 'content creation', 'editing', 'publishing', 'media',
+        'advertising', 'marketing communications', 'creative direction', 'art direction',
+        // ── Broad creative problem-solving (catches "innovation" type skills) ──
+        'idea generation', 'concept development', 'creative problem', 'design thinking',
+        'imagining', 'inventing', 'innovating', 'brainstorming',
       ],
     },
     {

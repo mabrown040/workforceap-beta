@@ -37,7 +37,7 @@ export default function VoiceAgentSurface({
       }}
     >
       <div
-        className="stitch-card"
+        className="portal-card portal-card--flat"
         style={{
           borderRadius: '0.94rem',
           border: 'none',

@@ -249,7 +249,7 @@ export default function JobMatchScorerForm() {
               </>
             ) : (
               <>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>analytics</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">analytics</span>
                 Analyze Match
               </>
             )}

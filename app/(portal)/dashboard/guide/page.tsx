@@ -5,6 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import StatusBadge from '@/components/portal/StatusBadge';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Member guide',
@@ -177,9 +178,9 @@ export default async function MemberGuidePage() {
                     transition: 'all 0.2s',
                   }}>
                     {isDone ? (
-                      <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '1.125rem' }}>check</span>
+                      <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '1.125rem' }} aria-hidden="true">check</span>
                     ) : (
-                      <span className="material-symbols-outlined" style={{ color: isActive ? '#fff' : 'var(--color-on-surface-variant)', fontSize: '1.125rem' }}>{step.icon}</span>
+                      <span className="material-symbols-outlined" style={{ color: isActive ? '#fff' : 'var(--color-on-surface-variant)', fontSize: '1.125rem' }} aria-hidden="true">{step.icon}</span>
                     )}
                   </div>
                 </div>
@@ -203,30 +204,8 @@ export default async function MemberGuidePage() {
                     }}>
                       Step {step.num}
                     </span>
-                    {isDone && (
-                      <span style={{
-                        fontSize: '0.625rem',
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
-                        color: 'var(--color-green)',
-                        background: 'color-mix(in srgb, var(--color-green) 12%, transparent)',
-                        padding: '0.125rem 0.5rem',
-                        borderRadius: '9999px',
-                      }}>Done</span>
-                    )}
-                    {isActive && (
-                      <span style={{
-                        fontSize: '0.625rem',
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
-                        color: 'var(--color-accent)',
-                        background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
-                        padding: '0.125rem 0.5rem',
-                        borderRadius: '9999px',
-                      }}>Up next</span>
-                    )}
+                    {isDone && <StatusBadge label="Done" variant="success" />}
+                    {isActive && <StatusBadge label="Up next" variant="accent" />}
                   </div>
                   <h3 style={{
                     fontSize: '1rem',
@@ -255,7 +234,7 @@ export default async function MemberGuidePage() {
                       letterSpacing: '-0.01em',
                     }}>
                       {step.cta}
-                      <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_forward</span>
+                      <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
                     </Link>
                   )}
                   {!isActive && !isDone && (
@@ -270,7 +249,7 @@ export default async function MemberGuidePage() {
                       marginTop: '0.375rem',
                     }}>
                       {step.cta}
-                      <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>arrow_forward</span>
+                      <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">arrow_forward</span>
                     </Link>
                   )}
                 </div>
@@ -287,7 +266,7 @@ export default async function MemberGuidePage() {
         </h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem' }}>
           {BENEFITS.map((b) => (
-            <div key={b.title} className="stitch-card" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div key={b.title} className="portal-card portal-card--flat" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <div style={{
                 width: '2.5rem',
                 height: '2.5rem',
@@ -297,7 +276,7 @@ export default async function MemberGuidePage() {
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }}>{b.icon}</span>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }} aria-hidden="true">{b.icon}</span>
               </div>
               <div>
                 <h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>{b.title}</h3>
@@ -315,7 +294,7 @@ export default async function MemberGuidePage() {
         </h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {FAQS.map((faq) => (
-            <div key={faq.q} className="stitch-card" style={{ padding: '1.25rem' }}>
+            <div key={faq.q} className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
               <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem', letterSpacing: '-0.01em' }}>
                 {faq.q}
               </h3>

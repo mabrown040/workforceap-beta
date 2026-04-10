@@ -118,8 +118,8 @@ export default async function DashboardCertificationsPage() {
             >
               <span
                 className="material-symbols-outlined"
-                style={{ fontSize: '1rem', color: chip.color, fontVariationSettings: "'FILL' 1" }}
-               aria-hidden="true">
+                style={{ fontSize: '1rem', color: chip.color, '--ms-fill': 1 }}
+              >
                 {chip.icon}
               </span>
               <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: chip.color }}>{chip.label}</span>
@@ -176,8 +176,8 @@ export default async function DashboardCertificationsPage() {
               >
                 <span
                   className="material-symbols-outlined"
-                  style={{ fontSize: '1.375rem', color: 'var(--color-blue)', fontVariationSettings: "'FILL' 1" }}
-                 aria-hidden="true">
+                  style={{ fontSize: '1.375rem', color: 'var(--color-blue)', '--ms-fill': 1 }}
+                >
                   {mobileProgressIcon}
                 </span>
               </div>
@@ -217,8 +217,8 @@ export default async function DashboardCertificationsPage() {
           >
             <span
               className="material-symbols-outlined"
-              style={{ fontSize: '2rem', color: '#fff', fontVariationSettings: "'FILL' 1" }}
-             aria-hidden="true">
+              style={{ fontSize: '2rem', color: '#fff', '--ms-fill': 1 }}
+            >
               emoji_events
             </span>
             <div style={{ flex: 1 }}>
@@ -284,7 +284,7 @@ export default async function DashboardCertificationsPage() {
                   background: 'rgba(173,44,77,0.12)',
                   borderRadius: 'var(--radius-lg)',
                   padding: 'var(--space-3)',
-                  fontVariationSettings: "'FILL' 1",
+                  '--ms-fill': 1,
                 }}
                aria-hidden="true">
                 workspace_premium
@@ -312,7 +312,7 @@ export default async function DashboardCertificationsPage() {
                     background: 'rgba(43,123,185,0.12)',
                     borderRadius: 'var(--radius-lg)',
                     padding: 'var(--space-3)',
-                    fontVariationSettings: "'FILL' 1",
+                    '--ms-fill': 1,
                   }}
                  aria-hidden="true">
                   trending_up
@@ -354,7 +354,7 @@ export default async function DashboardCertificationsPage() {
                   background: 'rgba(74,155,79,0.12)',
                   borderRadius: 'var(--radius-lg)',
                   padding: 'var(--space-3)',
-                  fontVariationSettings: "'FILL' 1",
+                  '--ms-fill': 1,
                 }}
                aria-hidden="true">
                 verified
@@ -395,8 +395,8 @@ export default async function DashboardCertificationsPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-6)' }}>
                 <span
                   className="material-symbols-outlined"
-                  style={{ fontSize: '1.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}
-                 aria-hidden="true">
+                  style={{ fontSize: '1.5rem', color: 'var(--color-accent)', '--ms-fill': 1 }}
+                >
                   route
                 </span>
                 <h2 style={{ fontSize: 'var(--font-size-h3)', fontWeight: 'var(--font-weight-bold)', margin: 0 }}>Active Pathway</h2>
@@ -432,7 +432,7 @@ export default async function DashboardCertificationsPage() {
                           : milestone.status === 'current'
                             ? 'var(--color-accent)'
                             : 'var(--color-on-surface-variant)',
-                        fontVariationSettings: milestone.status === 'complete' ? "'FILL' 1" : "'FILL' 0",
+                        '--ms-fill': milestone.status === 'complete' ? 1 : 0,
                       }}
                      aria-hidden="true">
                       {milestone.status === 'complete' ? 'check_circle' : milestone.status === 'locked' ? 'lock' : milestone.icon}
@@ -460,7 +460,7 @@ export default async function DashboardCertificationsPage() {
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
+                <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>
                   download
                 </span>
                 <h3 style={{ fontSize: 'var(--font-size-h4)', fontWeight: 'var(--font-weight-medium)', margin: 0 }}>Ready for Download</h3>
@@ -551,7 +551,7 @@ export default async function DashboardCertificationsPage() {
           {/* Certificate Roadmap section */}
           <section style={{ marginBottom: 'var(--space-12)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-2)' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
+              <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>
                 timeline
               </span>
               <h2 style={{ fontSize: 'var(--font-size-h2)', fontWeight: 'var(--font-weight-bold)', margin: 0 }}>Certificate Roadmap</h2>

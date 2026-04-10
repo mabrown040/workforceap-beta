@@ -330,7 +330,7 @@ export default function ProgramsPage() {
                       fontSize: '1.75rem',
                       marginBottom: '0.75rem',
                       display: 'block',
-                      fontVariationSettings: "'FILL' 1",
+                      '--ms-fill': 1,
                     }}
                    aria-hidden="true">
                     {step.icon}

@@ -6,11 +6,6 @@ import type { WioaBarrier, WioaEligibilitySignal, WioaQualificationSnapshot } fr
 import { barrierLabel } from '@/lib/wioa/wioaQualification';
 import PortalCard from '@/components/portal/ui/PortalCard';
 import { PortalInput } from '@/components/portal/ui/PortalInput';
-import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
-import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
-import { getCounselorTtsVoiceId } from '@/lib/portal/counselorVoice';
-
-const WIOA_FRIENDLY_VOICE_ID = getCounselorTtsVoiceId();
 
 const BARRIERS: WioaBarrier[] = [
   'none',
@@ -126,154 +121,96 @@ export default function WioaQualificationClient({ initialSnapshot }: { initialSn
         </PortalCard>
       ) : null}
 
-      <PortalCard title="Start with voice or switch to the form" subtitle="Voice is the default guided pre-check, and you can switch to the form any time.">
-        <div
-          role="tablist"
-          aria-label="WIOA screening mode"
-          style={{
-            display: 'inline-flex',
-            padding: '0.25rem',
-            borderRadius: '999px',
-            background: 'var(--color-surface-2, rgba(0,0,0,0.04))',
-            gap: '0.25rem',
-            marginBottom: '1rem',
-          }}
-        >
-          <button
-            type="button"
-            role="tab"
-            aria-selected={entryMode === 'voice'}
-            onClick={() => setEntryMode('voice')}
-            className={entryMode === 'voice' ? 'btn btn-primary' : 'btn btn-secondary'}
-          >
-            Voice pre-check
+      <PortalCard title="Self-screening" subtitle="Answer a few questions; we’ll save your results for staff review.">
+        <form onSubmit={onSubmit}>
+          <div className="portal-field">
+            <label className="portal-field__label" htmlFor="wioa-age">
+              Age group
+            </label>
+            <select
+              id="wioa-age"
+              className="portal-input"
+              value={ageBracket}
+              onChange={(e) => setAgeBracket(e.target.value as typeof ageBracket)}
+            >
+              <option value="under18">Under 18</option>
+              <option value="18_24">18–24</option>
+              <option value="25_54">25–54</option>
+              <option value="55_plus">55+</option>
+            </select>
+          </div>
+
+          <PortalInput
+            label="County or ZIP (optional)"
+            id="wioa-zip"
+            type="text"
+            maxLength={120}
+            value={countyOrZip}
+            onChange={(e) => setCountyOrZip(e.target.value)}
+            placeholder="e.g. Travis County or 78701"
+            autoComplete="postal-code"
+          />
+
+          <div className="portal-field">
+            <label className="portal-field__label" htmlFor="wioa-barrier">
+              Primary barrier to work or training
+            </label>
+            <select
+              id="wioa-barrier"
+              className="portal-input"
+              value={primaryBarrier}
+              onChange={(e) => setPrimaryBarrier(e.target.value as WioaBarrier)}
+            >
+              {BARRIERS.map((b) => (
+                <option key={b} value={b}>
+                  {barrierLabel(b)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="portal-field">
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
+              <input type="checkbox" checked={dislocatedWorker} onChange={(e) => setDislocatedWorker(e.target.checked)} />
+              <span>I am unemployed or was laid off from my last job (dislocated worker)</span>
+            </label>
+          </div>
+
+          <div className="portal-field">
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
+              <input type="checkbox" checked={lowIncomeSelfReport} onChange={(e) => setLowIncomeSelfReport(e.target.checked)} />
+              <span>My household income is limited or near self-sufficiency (self-reported)</span>
+            </label>
+          </div>
+
+          <div className="portal-field">
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
+              <input type="checkbox" checked={trainingInterest} onChange={(e) => setTrainingInterest(e.target.checked)} />
+              <span>I am interested in training for an in-demand occupation</span>
+            </label>
+          </div>
+
+          <div className="portal-field">
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={completedIntakeSelfReport}
+                onChange={(e) => setCompletedIntakeSelfReport(e.target.checked)}
+              />
+              <span>I have completed WorkforceAP intake or orientation (self-reported)</span>
+            </label>
+          </div>
+
+          {error ? (
+            <p role="alert" style={{ color: '#b91c1c', fontSize: '0.9rem' }}>
+              {error}
+            </p>
+          ) : null}
+
+          <button type="submit" className="btn btn-primary" disabled={submitting}>
+            {submitting ? 'Saving…' : snapshot ? 'Update screening' : 'Save screening'}
           </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={entryMode === 'form'}
-            onClick={() => setEntryMode('form')}
-            className={entryMode === 'form' ? 'btn btn-primary' : 'btn btn-secondary'}
-          >
-            Fill out the form instead
-          </button>
-        </div>
-
-        <p style={{ margin: '0 0 1rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55, fontSize: '0.93rem' }}>
-          The voice option is meant to feel like a quick guided intake. If you would rather type, switch to the form and we will save the same kind of pre-screening details for staff review.
-        </p>
-
-        {entryMode === 'voice' ? (
-          <VoiceAgentSurface
-            badge="Voice pre-check"
-            headline="WIOA pre-qualification guide"
-            subtext="Talk through a quick pre-check before staff reviews your eligibility."
-            icon="🎙️"
-            glowColor="#0d9488"
-            gradient="linear-gradient(135deg, #99f6e4 0%, #14b8a6 45%, #0f766e 100%)"
-          >
-            <PortalVoiceSession
-              sessionEndpoint="/api/member/wioa-qualification/voice-session"
-              title="WIOA pre-check"
-              description="Talk through your work goals, barriers, and likely eligibility before the formal review."
-              accent="#0d9488"
-              accentDark="#0f766e"
-              speakingLabel="Guide is speaking…"
-              listeningLabel="Listening…"
-              conversationOverrides={{ tts: { voiceId: WIOA_FRIENDLY_VOICE_ID } }}
-            />
-          </VoiceAgentSurface>
-        ) : (
-          <form onSubmit={onSubmit}>
-            <div className="portal-field">
-              <label className="portal-field__label" htmlFor="wioa-age">
-                Age group
-              </label>
-              <select
-                id="wioa-age"
-                className="portal-input"
-                value={ageBracket}
-                onChange={(e) => setAgeBracket(e.target.value as typeof ageBracket)}
-              >
-                <option value="under18">Under 18</option>
-                <option value="18_24">18–24</option>
-                <option value="25_54">25–54</option>
-                <option value="55_plus">55+</option>
-              </select>
-            </div>
-
-            <PortalInput
-              label="County or ZIP (optional)"
-              id="wioa-zip"
-              type="text"
-              maxLength={120}
-              value={countyOrZip}
-              onChange={(e) => setCountyOrZip(e.target.value)}
-              placeholder="e.g. Travis County or 78701"
-              autoComplete="postal-code"
-            />
-
-            <div className="portal-field">
-              <label className="portal-field__label" htmlFor="wioa-barrier">
-                Primary barrier to work or training
-              </label>
-              <select
-                id="wioa-barrier"
-                className="portal-input"
-                value={primaryBarrier}
-                onChange={(e) => setPrimaryBarrier(e.target.value as WioaBarrier)}
-              >
-                {BARRIERS.map((b) => (
-                  <option key={b} value={b}>
-                    {barrierLabel(b)}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="portal-field">
-              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
-                <input type="checkbox" checked={dislocatedWorker} onChange={(e) => setDislocatedWorker(e.target.checked)} />
-                <span>I am unemployed or was laid off from my last job (dislocated worker)</span>
-              </label>
-            </div>
-
-            <div className="portal-field">
-              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
-                <input type="checkbox" checked={lowIncomeSelfReport} onChange={(e) => setLowIncomeSelfReport(e.target.checked)} />
-                <span>My household income is limited or near self-sufficiency (self-reported)</span>
-              </label>
-            </div>
-
-            <div className="portal-field">
-              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
-                <input type="checkbox" checked={trainingInterest} onChange={(e) => setTrainingInterest(e.target.checked)} />
-                <span>I am interested in training for an in-demand occupation</span>
-              </label>
-            </div>
-
-            <div className="portal-field">
-              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  checked={completedIntakeSelfReport}
-                  onChange={(e) => setCompletedIntakeSelfReport(e.target.checked)}
-                />
-                <span>I have completed WorkforceAP intake or orientation (self-reported)</span>
-              </label>
-            </div>
-
-            {error ? (
-              <p role="alert" style={{ color: '#b91c1c', fontSize: '0.9rem' }}>
-                {error}
-              </p>
-            ) : null}
-
-            <button type="submit" className="btn btn-primary" disabled={submitting}>
-              {submitting ? 'Saving…' : snapshot ? 'Update screening' : 'Save screening'}
-            </button>
-          </form>
-        )}
+        </form>
       </PortalCard>
 
       <section style={{ marginTop: '2rem' }}>

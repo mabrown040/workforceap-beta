@@ -30,7 +30,7 @@ export default function LearningCivicBotPanel() {
           gap: 'var(--space-3)',
         }}
       >
-        <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
+        <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', '--ms-fill': 1 }}>
           smart_toy
         </span>
         <div style={{ flex: 1, minWidth: 0 }}>

@@ -20,8 +20,11 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    -webkit-font-feature-settings: 'liga';
     font-feature-settings: 'liga';
-    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    /* Per-axis overrides via inline --ms-fill / --ms-wght — never use partial font-variation-settings
+       (breaks ligatures on WebKit). Chrome and Safari both honor the full tuple below. */
+    font-variation-settings: 'FILL' var(--ms-fill, 0), 'wght' var(--ms-wght, 400), 'GRAD' 0, 'opsz' 24;
     vertical-align: middle;
 }
 
@@ -223,12 +226,6 @@
     }
 }
 
-.stitch-card-elevated {
-    background: var(--surface-container-high);
-    border-radius: var(--radius-xl);
-    padding: var(--space-6);
-}
-
 /* 12-Column Editorial Grid */
 .editorial-grid {
     display: grid;
@@ -344,13 +341,6 @@ html.dark .portal-kpi-card {
 .portal-card--padded-lg {
     padding: 2rem;
 }
-.portal-card--compact .portal-card__body,
-.portal-card--compact .portal-card__inner {
-    padding: 0.875rem 1rem;
-}
-.portal-card--compact .portal-card__header {
-    margin-bottom: 0.65rem;
-}
 .portal-card__inner {
     padding: 1.5rem;
 }
@@ -441,8 +431,6 @@ textarea.portal-input,
     overflow: auto;
     border-right: 1px solid color-mix(in srgb, var(--outline-variant) 70%, transparent);
     background: var(--surface-container-lowest);
-    gap: 0.75rem;
-    padding: 0.75rem;
 }
 .portal-inbox__thread {
     display: flex;
@@ -459,83 +447,36 @@ textarea.portal-input,
 .portal-inbox-row {
     width: 100%;
     text-align: left;
-    padding: 0;
+    padding: 1rem 1.25rem;
     cursor: pointer;
-    border: 1px solid color-mix(in srgb, var(--outline-variant) 55%, transparent);
-    border-radius: 1rem;
-    background: var(--surface-container-low);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-    overflow: hidden;
-    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease,
-      background-color 0.15s ease;
-    display: block;
-}
-.portal-inbox-row:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
-    border-color: color-mix(in srgb, var(--color-accent) 25%, var(--outline-variant));
-}
-.portal-inbox-row:focus-visible {
-    outline: 2px solid color-mix(in srgb, var(--color-accent) 55%, transparent);
-    outline-offset: 2px;
+    border: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--outline-variant) 35%, transparent);
+    background: transparent;
 }
 .portal-inbox-row--active {
-    background: color-mix(in srgb, var(--color-accent) 10%, var(--surface-container-low));
-    border-color: color-mix(in srgb, var(--color-accent) 35%, var(--outline-variant));
-    box-shadow: 0 12px 28px rgba(173, 44, 77, 0.12);
+    background: color-mix(in srgb, var(--color-accent) 10%, var(--surface-container-lowest));
+    border-left: 3px solid var(--color-accent);
 }
 .portal-inbox-row--unread {
     background: color-mix(in srgb, var(--color-accent) 6%, transparent);
 }
-.portal-inbox-row__inner {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 0.875rem;
-    padding: 1rem 1rem 0.95rem;
-}
-.portal-inbox-row__main {
-    min-width: 0;
-    flex: 1;
-}
-.portal-inbox-row__top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 0.5rem;
-}
 .portal-inbox-row__title {
     font-weight: 800;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     margin: 0;
     color: var(--color-on-surface);
 }
 .portal-inbox-row__meta {
     font-size: 0.75rem;
     color: var(--color-on-surface-variant);
-    white-space: nowrap;
 }
 .portal-inbox-row__preview {
     margin: 0.35rem 0 0;
     font-size: 0.85rem;
     color: var(--color-on-surface-variant);
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    white-space: nowrap;
     overflow: hidden;
-}
-.portal-inbox-row__badge {
-    flex-shrink: 0;
-    align-self: center;
-}
-@media (max-width: 768px) {
-    .portal-inbox__list {
-        padding: 0.625rem;
-        gap: 0.625rem;
-    }
-    .portal-inbox-row__inner {
-        padding: 0.9rem;
-    }
+    text-overflow: ellipsis;
 }
 
 /* Reset & Base */
@@ -8951,59 +8892,14 @@ html:not(.dark) .workspace-shell-header {
     gap: 0.5rem 0.75rem;
 }
 
-/* Member portal (mobile): bottom nav is primary navigation.
-   Keep a slim header bar with hamburger + WAP logo so the user knows
-   where they are. The full sidebar drawer (all pages) opens from the
-   hamburger. Hide the text brand block and most header chrome. */
+/* Member portal (mobile): bottom nav is primary; minimize top chrome. */
 @media (max-width: 767px) {
-  /* Slim header — just enough for menu button + logo */
-  html[data-portal-role="member"] .workspace-shell-header {
-    height: 3.25rem !important;
-    min-height: 3.25rem !important;
-    padding: 0 0.75rem !important;
-  }
-  /* Hide text-based brand block — logo image replaces it via ::after pseudo */
-  html[data-portal-role="member"] .workspace-shell-brand-block {
-    display: none !important;
-  }
-  /* Inject WAP logo image next to the hamburger button */
-  html[data-portal-role="member"] .workspace-shell-header__brand::after {
-    content: '';
-    display: block;
-    width: 5.5rem;
-    height: 1.5rem;
-    background-image: url('/images/logo-tight.png');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: left center;
-    margin-left: 0.25rem;
-    opacity: 0.92;
-  }
-  /* Keep meta visible but strip gap — only show super-admin switcher */
-  html[data-portal-role="member"] .workspace-shell-header__meta {
-    gap: 0 !important;
-  }
-  /* Hide everything in meta EXCEPT the super-admin portal switcher */
-  html[data-portal-role="member"] .workspace-shell-header__meta > *:not(.super-admin-view-switcher) {
-    display: none !important;
-  }
-  /* Menu button: proper 44px touch target */
-  html[data-portal-role="member"] .workspace-menu-btn {
-    display: flex !important;
-    min-width: 44px;
-    min-height: 44px;
-  }
-  /* Sidebar starts below the slim header — no ::before needed since real header is above */
-  html[data-portal-role="member"] .workspace-sidebar {
-    top: 3.25rem;
-    height: calc(100vh - 3.25rem);
-  }
-  html[data-portal-role="member"] .workspace-sidebar.open::before {
+  html[data-portal-role="member"] .workspace-shell-header__brand .workspace-shell-brand-block {
     display: none;
   }
-  /* Add top buffer so content doesn't hug the header */
-  html[data-portal-role="member"] .workspace-shell-main-inner {
-    padding-top: 1rem;
+
+  html[data-portal-role="member"] .workspace-shell-header__meta .workspace-shell-context--chip {
+    display: none;
   }
 }
 .workspace-shell-context {
@@ -12352,7 +12248,7 @@ html.dark .admin-super-messages-bubble.is-staff {
     font-size: 1.05rem;
     color: #16a34a;
     flex-shrink: 0;
-    font-variation-settings: 'FILL' 1;
+    --ms-fill: 1;
 }
 .dashboard-program-course-lock {
     font-size: 1rem;

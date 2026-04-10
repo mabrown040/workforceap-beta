@@ -19,7 +19,7 @@ export function InboxShell({
         maxWidth: '1000px',
         margin: '0 auto',
         height: 'min(85vh, 900px)',
-        border: '1px solid color-mix(in srgb, var(--outline-variant, #e8e0dd) 70%, transparent)',
+        border: '1px solid color-mix(in srgb, var(--outline-variant) 70%, transparent)',
         borderRadius: '0.75rem',
         overflow: 'hidden',
         display: 'flex',

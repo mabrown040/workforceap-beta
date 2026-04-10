@@ -98,20 +98,29 @@ export default async function CounselorPortalPage() {
       {/* ── Mobile Counselor View (≤640px) ── */}
       <div className="wa-block wa-md:wa-hidden portal-mobile-content">
         {/* Hero */}
-        <div style={{ padding: '1.5rem 1.25rem 0.75rem' }}>
-          <p style={{ fontSize: '0.6875rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--color-accent)', marginBottom: '0.35rem' }}>Counselor Dashboard</p>
-          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '-0.025em', color: 'var(--color-on-surface)', lineHeight: 1.15, margin: 0 }}>
-            {greeting}, <span style={{ color: 'var(--color-accent)' }}>{firstName}</span>
+        <div className="portal-pad-x" style={{ paddingTop:"1.5rem", paddingBottom:"0.5rem" }}>
+          <p className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold" style={{ color: 'var(--color-accent)', marginBottom:"0.5rem" }}>Counselor Dashboard</p>
+          <h2 className="wa-text-3xl wa-font-extrabold wa-tracking-tight text-on-surface wa-leading-tight">
+            {greeting},<br /><span style={{ color: 'var(--color-accent)' }}>{firstName}</span>
           </h2>
         </div>
-
-        {/* Hero stats: students full-width + 2x mini */}
-        <div style={{ padding: '0 1.25rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
-          <div style={{ gridColumn: 'span 2', borderRadius: '1rem', padding: '1.25rem', position: 'relative', overflow: 'hidden', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', boxShadow: '0 4px 20px rgba(173,44,77,0.3)' }}>
-            <div style={{ position: 'relative', zIndex: 1 }}>
-              <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.82)', marginBottom: '0.25rem' }}>Your Students</p>
-              <p style={{ fontSize: '2.75rem', fontWeight: 800, letterSpacing: '-0.04em', color: '#fff', lineHeight: 1, margin: 0 }}>{assignments.length}</p>
-              <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.75)', marginTop: '0.375rem' }}>assigned to you</p>
+        <div className="portal-pad-x" style={{ marginBottom: '1rem' }}>
+          <details className="portal-card portal-card--compact">
+            <summary className="portal-card__summary">
+              Counselor assistant
+              <span className="portal-card__summary-hint">(tap to open)</span>
+            </summary>
+            <div className="portal-card__body">
+              <CounselorPortalVoiceBlock />
+            </div>
+          </details>
+        </div>
+        {/* Stats grid */}
+        <div className="portal-pad-x" style={{ marginTop:"1rem", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"1rem", marginBottom:"1.5rem" }}>
+          <div className="wa-text-white" style={{gridColumn:"span 2", borderRadius:"0.75rem", padding:"1.25rem", position:"relative", overflow:"hidden", background: 'var(--color-accent)'}}>
+            <div style={{ position:"relative", zIndex:10 }}>
+              <p className="wa-text-[11px] wa-uppercase wa-tracking-widest" style={{ opacity:0.85, marginBottom:"0.25rem" }}>Your Students</p>
+              <p className="wa-text-4xl wa-font-bold wa-tracking-tighter">{assignments.length}</p>
             </div>
             <span className="material-symbols-outlined" style={{ position: 'absolute', bottom: '-1rem', right: '-1rem', fontSize: '8rem', opacity: 0.07, color: '#fff', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">group</span>
           </div>
@@ -129,14 +138,6 @@ export default async function CounselorPortalPage() {
             <p className="portal-metric-card__value" style={{ fontSize: '1.5rem', color: messagesNeedingReply > 0 ? 'var(--color-accent)' : undefined }}>{messagesNeedingReply}</p>
             <p className="portal-metric-card__label">Awaiting Reply</p>
           </div>
-        </div>
-        {/* Filter chips */}
-        <div className="portal-pad-x" style={{ display:"flex", gap:"0.5rem", overflowX:"auto", scrollbarWidth:"none", paddingBottom:"0.75rem" }}>
-          {['All', 'At Risk', 'Upcoming Session', 'New'].map((f, i) => (
-            <span key={f} className="wa-text-xs wa-font-semibold" style={Object.assign({ flexShrink:0, paddingLeft:"1rem", paddingRight:"1rem", paddingTop:"0.5rem", paddingBottom:"0.5rem", borderRadius:"9999px", cursor:"pointer" }, i === 0 ? { background: 'var(--color-accent)', color: '#fff' } : { background: 'var(--surface-container-highest)', color: 'var(--on-surface)' })}>
-              {f}
-            </span>
-          ))}
         </div>
         {/* Student roster */}
         <div className="portal-pad-x">
@@ -282,8 +283,8 @@ export default async function CounselorPortalPage() {
                       href={`/counselor/students/${assignment.member.id}`}
                       style={{ textDecoration: 'none', color: 'inherit' }}
                     >
-                      <div className="portal-activity-item" style={{ justifyContent: 'space-between', transition: 'background 0.15s' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', flex: 1, minWidth: 0 }}>
+                      <div className="portal-card portal-card--flat portal-card--padded-sm" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background-color 0.15s' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                           <div style={{
                             width: '2.75rem', height: '2.75rem', borderRadius: '0.75rem',
                             background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
@@ -381,9 +382,18 @@ export default async function CounselorPortalPage() {
                 { href: '/counselor/messages', icon: 'forum', title: 'Messages', desc: 'Reply to student threads', accent: 'blue' },
                 { href: '/counselor/resources', icon: 'menu_book', title: 'Resources', desc: 'Guides and reference links', accent: 'gold' },
               ].map((link) => (
-                <Link key={link.href} href={link.href} className="portal-quick-action-item" style={{ textDecoration: 'none' }}>
-                  <div className={`portal-quick-action-item__icon portal-metric-card__icon-wrap--${link.accent}`} style={{ width: '2.25rem', height: '2.25rem', borderRadius: '0.625rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">{link.icon}</span>
+                <Link key={link.href} href={link.href} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <div className="portal-card portal-card--flat portal-card--padded-sm" style={{ display: 'flex', alignItems: 'center', gap: '1rem', transition: 'background-color 0.15s' }}>
+                    <div style={{
+                      width: '2.75rem', minWidth: '2.75rem', height: '2.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', borderRadius: '0.625rem',
+                    }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>{link.icon}</span>
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{link.title}</p>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{link.desc}</p>
+                    </div>
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p className="portal-quick-action-item__label">{link.title}</p>

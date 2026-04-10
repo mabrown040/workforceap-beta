@@ -203,17 +203,15 @@ export default async function AdminDiagnosticsPage() {
           </h2>
         </div>
         {driftRecords.length === 0 ? (
-          <div className="portal-activity-item">
-            <div className="portal-activity-item__icon" style={{ background: 'rgba(74,155,79,0.1)', color: 'var(--color-green, #4a9b4f)' }}>
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-            </div>
-            <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>
-              No drift — <code style={{ fontSize: '0.8rem' }}>User.enrolledProgram</code> and <code style={{ fontSize: '0.8rem' }}>CourseEnrollment</code> in sync for all {enrolledUsersForDrift.length} enrolled members.
-            </p>
+          <div className="portal-card portal-card--flat portal-card--padded" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-green)', fontSize: '1.25rem' }}>check_circle</span>
+            <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>
+              No enrollment drift detected. User.enrolledProgram and CourseEnrollment are in sync for all {enrolledUsersForDrift.length} enrolled members.
+            </span>
           </div>
         ) : (
-          <div className="employer-applications-shell" style={{ overflowX: 'auto' }}>
-            <table className="admin-table employer-applications-table">
+          <div className="portal-card portal-card--flat" style={{ overflow: 'auto' }}>
+            <table className="dashboard-table">
               <thead>
                 <tr>
                   <th>Member</th>

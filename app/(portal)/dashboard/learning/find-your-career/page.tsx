@@ -81,8 +81,8 @@ export default async function FindYourCareerPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
                   <span
                     className="material-symbols-outlined"
-                    style={{ color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}
-                   aria-hidden="true">
+                    style={{ color: 'var(--color-accent)', '--ms-fill': 1 }}
+                  >
                     {tool.icon}
                   </span>
                   <strong style={{ fontSize: '1.05rem' }}>{tool.title}</strong>
@@ -135,8 +135,8 @@ export default async function FindYourCareerPage() {
               >
                 <span
                   className="material-symbols-outlined"
-                  style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}
-                 aria-hidden="true">
+                  style={{ fontSize: '1.125rem', color: 'var(--color-accent)', '--ms-fill': 1 }}
+                >
                   {link.icon}
                 </span>
                 <div>

@@ -55,9 +55,25 @@ export default async function ToolHistoryPanel({
 
   return (
     <section className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: 12, marginTop: '1rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.875rem' }}>
-        <h3 style={{ margin: 0, fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)' }}>{title}</h3>
-        <Link href={`/dashboard/ai-tools/history?tool=${historyHrefTool}`} style={{ fontSize: '0.8rem', color: 'var(--color-accent)', textDecoration: 'none', fontWeight: 700 }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '0.75rem',
+          marginBottom: '0.75rem',
+        }}
+      >
+        <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{title}</h3>
+        <Link
+          href={`/dashboard/ai-tools/history?tool=${historyHrefTool}`}
+          style={{
+            fontSize: '0.8rem',
+            color: 'var(--color-accent)',
+            textDecoration: 'none',
+            fontWeight: 600,
+          }}
+        >
           View all
         </Link>
       </div>

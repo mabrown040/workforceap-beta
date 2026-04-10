@@ -407,7 +407,7 @@ export default function WhatWeDoPage() {
                     style={{
                       fontSize: '2.5rem',
                       color: i === 0 ? 'rgba(255,255,255,0.9)' : 'var(--color-accent)',
-                      fontVariationSettings: "'FILL' 1",
+                      '--ms-fill': 1,
                     }}
                    aria-hidden="true">
                     {item.icon}

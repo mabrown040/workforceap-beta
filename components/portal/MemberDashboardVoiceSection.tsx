@@ -50,8 +50,8 @@ export default function MemberDashboardVoiceSection() {
             sessionEndpoint="/api/member/voice-interview/session"
             title="Voice Interviewer"
             description="Practice interview answers out loud with a live mock interviewer."
-            accent="#7c3aed"
-            accentDark="#5b21b6"
+            accent="#ad2c4d"
+            accentDark="#8b1f38"
             speakingLabel="Interviewer is speaking…"
             listeningLabel="Listening — answer the question"
           />

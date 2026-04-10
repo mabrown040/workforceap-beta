@@ -1,9 +1,7 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
-import Footer from '@/components/Footer';
 import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import { buildSalaryGuideRows, salaryGuideSummaryStats } from '@/lib/content/programSalaryOutcomes';
 import SalaryTableWrapper from '@/components/portal/SalaryTableWrapper';
 
@@ -216,8 +214,6 @@ export default function SalaryGuidePage() {
           </footer>
         </div>
 
-        <Footer />
-        <MobileBottomNav />
       </div>
 
       {/* ===== DESKTOP VIEW (>640px) ===== */}
@@ -459,7 +455,6 @@ export default function SalaryGuidePage() {
           </div>
         </section>
 
-        <Footer />
       </div>
     </div>
   );

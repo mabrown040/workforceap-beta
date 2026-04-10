@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { buildPageMetadata, SITE_URL } from '@/app/seo';
 import Link from 'next/link';
-import Footer from '@/components/Footer';
 import { getProgramComparisonTracks } from '@/lib/content/programComparisonTracks';
 import ProgramComparisonClient from './ProgramComparisonClient';
 import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
@@ -154,7 +153,6 @@ export default function ProgramComparisonPage() {
           </Link>
         </section>
 
-        <Footer />
       </div>
     </div>
   );

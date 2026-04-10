@@ -2,8 +2,6 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { buildPageMetadata } from '@/app/seo';
-import Footer from '@/components/Footer';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import ProgramsContent from './ProgramsContent';
 import ProgramsPageClient from './ProgramsPageClient';
 import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
@@ -441,8 +439,6 @@ export default function ProgramsPage() {
 
       </div>{/* end desktop wrapper */}
 
-      <MobileBottomNav />
-      <Footer />
     </div>
   );
 }

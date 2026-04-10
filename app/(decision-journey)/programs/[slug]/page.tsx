@@ -7,8 +7,6 @@ import { PROGRAM_COMPARISON_FEATURED } from '@/lib/content/programComparisonTrac
 import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
 import { getProgramDescription } from '@/lib/content/programDescriptions';
 import { getProgramExtra } from '@/lib/content/programExtras';
-import Footer from '@/components/Footer';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import ProgramDetailClient from './ProgramDetailClient';
 import ProgramRelatedSection from '@/components/programs/ProgramRelatedSection';
 import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
@@ -371,8 +369,6 @@ export default async function ProgramPage({ params }: Props) {
         </div>
       </section>
 
-      <MobileBottomNav />
-      <Footer />
     </div>
   );
 }

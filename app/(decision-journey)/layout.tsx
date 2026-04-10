@@ -1,6 +1,7 @@
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
+import ScrollToTopButton from '@/components/ScrollToTopButton';
 
 /**
  * Shared layout for the career decision journey pages:
@@ -15,6 +16,7 @@ export default function DecisionJourneyLayout({ children }: { children: React.Re
     <>
       <ProgramsDecisionJourneyNav />
       {children}
+      <ScrollToTopButton />
       <Footer />
       <MobileBottomNav variant="marketing" />
     </>

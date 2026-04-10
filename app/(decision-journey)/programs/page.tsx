@@ -261,13 +261,7 @@ export default function ProgramsPage() {
         </div>
       </section>
 
-      {/* ── Decision Journey Nav ── */}
-      <section className="content-section" style={{ paddingTop: '0.5rem', paddingBottom: 0 }}>
-        <div className="container">
-        </div>
-      </section>
-
-      </div>{/* end desktop: hero + journey nav */}
+      </div>{/* end desktop: hero */}
 
       {/* Full catalog — one anchor `#program-catalog` for mobile + desktop + deep links */}
       <div id="program-catalog" className="programs-page-catalog-anchor" style={{ scrollMarginTop: '0.75rem' }}>

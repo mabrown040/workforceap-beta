@@ -22,6 +22,9 @@ type CronWithStatus = CronDef & {
 type Props = {
   crons: CronWithStatus[];
   categoryColors: Record<string, string>;
+  initialTotalRuns: number;
+  initialErrorRuns: number;
+  initialEnabledCount: number;
 };
 
 const STATUS_COLOR: Record<string, string> = {
@@ -53,8 +56,17 @@ function timeAgo(isoString: string): string {
   return `${days}d ago`;
 }
 
-export default function EmailCronsClient({ crons: initialCrons, categoryColors }: Props) {
+export default function EmailCronsClient({
+  crons: initialCrons,
+  categoryColors,
+  initialTotalRuns,
+  initialErrorRuns,
+  initialEnabledCount,
+}: Props) {
   const [crons, setCrons] = useState(initialCrons);
+  const [totalRuns, setTotalRuns] = useState(initialTotalRuns);
+  const [errorRuns, setErrorRuns] = useState(initialErrorRuns);
+  const [enabledCount, setEnabledCount] = useState(initialEnabledCount);
   const [triggeringIds, setTriggeringIds] = useState<Set<string>>(() => new Set());
   const [togglingIds, setTogglingIds] = useState<Set<string>>(() => new Set());
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -72,25 +84,33 @@ export default function EmailCronsClient({ crons: initialCrons, categoryColors }
       const data = await res.json() as { ok: boolean; result: unknown; error?: string; durationMs?: number };
       setTriggerResults(prev => ({ ...prev, [cron.id]: data }));
 
-      // Optimistically add a run record to local state
-      if (data.ok) {
-        setCrons(prev => prev.map(c => c.id === cron.id ? {
-          ...c,
-          lastRunAt: new Date().toISOString(),
-          lastRunStatus: 'ok',
-          lastRunSummary: `Manual trigger: ${JSON.stringify(data.result).slice(0, 150)}`,
-          recentRuns: [
-            {
-              id: `local-${Date.now()}`,
-              status: 'ok',
-              summary: `Manual trigger: ${JSON.stringify(data.result).slice(0, 150)}`,
-              createdAt: new Date().toISOString(),
-              meta: data.result as Record<string, unknown> | null,
-            },
-            ...c.recentRuns.slice(0, 7),
-          ],
-        } : c));
-      }
+      const now = new Date().toISOString();
+      const runStatus = data.ok ? 'ok' : 'error';
+      const runSummary = data.ok
+        ? `Manual trigger: ${JSON.stringify(data.result).slice(0, 150)}`
+        : `Manual trigger failed: ${data.error ?? 'Unknown error'}`;
+      const runMeta = data.ok
+        ? (data.result as Record<string, unknown> | null)
+        : ({ error: data.error ?? 'Unknown error', manual: true } as Record<string, unknown>);
+
+      setCrons(prev => prev.map(c => c.id === cron.id ? {
+        ...c,
+        lastRunAt: now,
+        lastRunStatus: runStatus,
+        lastRunSummary: runSummary,
+        recentRuns: [
+          {
+            id: `local-${Date.now()}`,
+            status: runStatus,
+            summary: runSummary,
+            createdAt: now,
+            meta: runMeta,
+          },
+          ...c.recentRuns.slice(0, 7),
+        ],
+      } : c));
+      setTotalRuns(prev => prev + 1);
+      if (!data.ok) setErrorRuns(prev => prev + 1);
     } catch (e) {
       setTriggerResults(prev => ({ ...prev, [cron.id]: { ok: false, result: null, error: e instanceof Error ? e.message : 'Network error' } }));
     } finally {
@@ -113,7 +133,27 @@ export default function EmailCronsClient({ crons: initialCrons, categoryColors }
         body: JSON.stringify({ enabled: newEnabled }),
       });
       if (res.ok) {
-        setCrons(prev => prev.map(c => c.id === cron.id ? { ...c, enabled: newEnabled } : c));
+        const now = new Date().toISOString();
+        const toggleSummary = `Cron ${newEnabled ? 'enabled' : 'disabled'} by admin`;
+        setCrons(prev => prev.map(c => c.id === cron.id ? {
+          ...c,
+          enabled: newEnabled,
+          lastRunAt: now,
+          lastRunStatus: 'inspection',
+          lastRunSummary: toggleSummary,
+          recentRuns: [
+            {
+              id: `local-toggle-${Date.now()}`,
+              status: 'inspection',
+              summary: toggleSummary,
+              createdAt: now,
+              meta: { enabled: newEnabled, manual: false, toggledLocally: true },
+            },
+            ...c.recentRuns.slice(0, 7),
+          ],
+        } : c));
+        setEnabledCount(prev => prev + (newEnabled ? 1 : -1));
+        setTotalRuns(prev => prev + 1);
       }
     } finally {
       setTogglingIds(prev => {
@@ -129,6 +169,39 @@ export default function EmailCronsClient({ crons: initialCrons, categoryColors }
 
   return (
     <div>
+      <div className="portal-metric-strip" style={{ marginBottom: '1.5rem' }}>
+        <div className="portal-metric-card">
+          <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--accent">
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>schedule</span>
+          </div>
+          <p className="portal-metric-card__value">{crons.length}</p>
+          <p className="portal-metric-card__label">Scheduled Jobs</p>
+        </div>
+        <div className="portal-metric-card">
+          <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--green">
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+          </div>
+          <p className="portal-metric-card__value">{enabledCount}</p>
+          <p className="portal-metric-card__label">Enabled</p>
+        </div>
+        <div className="portal-metric-card">
+          <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--blue">
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>history</span>
+          </div>
+          <p className="portal-metric-card__value">{totalRuns}</p>
+          <p className="portal-metric-card__label">Total Runs</p>
+        </div>
+        <div className="portal-metric-card">
+          <div className="portal-metric-card__icon-wrap" style={{ background: errorRuns > 0 ? 'rgba(173,44,77,0.1)' : 'rgba(74,155,79,0.1)' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: errorRuns > 0 ? 'var(--color-accent)' : 'var(--color-green, #4a9b4f)', fontVariationSettings: "'FILL' 1" }}>
+              {errorRuns > 0 ? 'error' : 'verified'}
+            </span>
+          </div>
+          <p className="portal-metric-card__value" style={{ color: errorRuns > 0 ? 'var(--color-accent)' : undefined }}>{errorRuns}</p>
+          <p className="portal-metric-card__label">Recent Errors</p>
+        </div>
+      </div>
+
       {/* Category filter */}
       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
         {categories.map(cat => (

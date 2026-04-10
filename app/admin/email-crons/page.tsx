@@ -76,40 +76,6 @@ export default async function AdminEmailCronsPage() {
         subtitle="Review, trigger, enable, or disable all automated email and workflow jobs."
       />
 
-      {/* Summary strip */}
-      <div className="portal-metric-strip" style={{ marginBottom: '1.5rem' }}>
-        <div className="portal-metric-card">
-          <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--accent">
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>schedule</span>
-          </div>
-          <p className="portal-metric-card__value">{CRON_REGISTRY.length}</p>
-          <p className="portal-metric-card__label">Scheduled Jobs</p>
-        </div>
-        <div className="portal-metric-card">
-          <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--green">
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-          </div>
-          <p className="portal-metric-card__value">{enabledCount}</p>
-          <p className="portal-metric-card__label">Enabled</p>
-        </div>
-        <div className="portal-metric-card">
-          <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--blue">
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>history</span>
-          </div>
-          <p className="portal-metric-card__value">{totalRuns}</p>
-          <p className="portal-metric-card__label">Total Runs</p>
-        </div>
-        <div className="portal-metric-card">
-          <div className="portal-metric-card__icon-wrap" style={{ background: errorRuns > 0 ? 'rgba(173,44,77,0.1)' : 'rgba(74,155,79,0.1)' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: errorRuns > 0 ? 'var(--color-accent)' : 'var(--color-green, #4a9b4f)', fontVariationSettings: "'FILL' 1" }}>
-              {errorRuns > 0 ? 'error' : 'verified'}
-            </span>
-          </div>
-          <p className="portal-metric-card__value" style={{ color: errorRuns > 0 ? 'var(--color-accent)' : undefined }}>{errorRuns}</p>
-          <p className="portal-metric-card__label">Recent Errors</p>
-        </div>
-      </div>
-
       {/* Notice about enable/disable */}
       <div style={{ padding: '0.875rem 1rem', background: 'rgba(43,123,185,0.07)', border: '1px solid rgba(43,123,185,0.15)', borderRadius: '0.75rem', marginBottom: '1.5rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
         <strong style={{ color: 'var(--color-blue, #2b7bb9)' }}>How toggling works:</strong> Enabling/disabling a job records a soft flag in the run history.
@@ -121,6 +87,9 @@ export default async function AdminEmailCronsPage() {
       <EmailCronsClient
         crons={cronData}
         categoryColors={CRON_CATEGORY_COLOR}
+        initialTotalRuns={totalRuns}
+        initialErrorRuns={errorRuns}
+        initialEnabledCount={enabledCount}
       />
     </div>
   );

@@ -37,6 +37,7 @@ export default function ProgramsDecisionJourneyNav({
             <li key={s.id}>
               <Link
                 href={s.href}
+                scroll={false}
                 className={`pdj-nav__tab${isHere ? ' pdj-nav__tab--active' : ''}`}
                 aria-current={
                   current !== 'detail' && (isQuizInProgress ? s.id === 'quiz' : current === s.id) ? 'step' : undefined

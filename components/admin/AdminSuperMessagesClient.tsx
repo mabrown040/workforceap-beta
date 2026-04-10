@@ -214,7 +214,7 @@ export default function AdminSuperMessagesClient() {
     const timer = setTimeout(async () => {
       setComposeLoading(true);
       try {
-        const r = await fetch(`/api/admin/members?q=${encodeURIComponent(q)}&limit=10`, { credentials: 'include' });
+        const r = await fetch(`/api/admin/members?q=${encodeURIComponent(q)}&limit=10&role=member`, { credentials: 'include' });
         if (r.ok) setComposeResults(await r.json());
       } catch { /* ignore */ }
       finally { setComposeLoading(false); }

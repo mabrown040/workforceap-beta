@@ -1099,12 +1099,14 @@
   background: var(--color-accent-dark, #6b0c29);
   color: #fff;
   border-radius: 18px 18px 4px 18px;
+  white-space: pre-wrap;
 }
 
 .portal-messages-bubble--them {
   background: var(--surface-container-high);
   color: var(--color-on-surface);
   border-radius: 18px 18px 18px 4px;
+  white-space: pre-wrap;
 }
 
 .portal-messages-compose {

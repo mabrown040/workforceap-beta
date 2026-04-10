@@ -314,7 +314,11 @@ export async function POST(request: NextRequest) {
   if (!memberId) return NextResponse.json({ error: 'memberId is required' }, { status: 400 });
 
   const member = await prisma.user.findFirst({
-    where: { id: memberId, deletedAt: null },
+    where: {
+      id: memberId,
+      deletedAt: null,
+      profile: { role: 'member' },
+    },
     select: { id: true, fullName: true },
   });
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });

@@ -178,12 +178,29 @@ export default function SkillMapperClient() {
   const [error, setError] = useState('');
   const [usingDemo, setUsingDemo] = useState(false);
 
+  // Matched programs from occupation → program mapping (from DB seed)
+  const [matchedPrograms, setMatchedPrograms] = useState<{
+    programSlug: string;
+    programTitle: string;
+    categoryLabel: string;
+    categoryColor: string;
+    icon: string;
+    duration: string;
+    partner: string;
+    priority: number;
+    experienceBand: string;
+    recommendationType: string;
+    whyRecommended: string | null;
+  }[]>([]);
+
   // Profile tab state
   const [memberProfile, setMemberProfile] = useState<{ axis: string; value: number }[]>([]);
   const [memberCerts, setMemberCerts] = useState<string[]>([]);
   const [resumeSkills, setResumeSkills] = useState<{ axis: string; value: number }[]>([]);
   const [resumeMatchedKeywords, setResumeMatchedKeywords] = useState<Record<string, string[]>>({});
   const [hasInterestProfiler, setHasInterestProfiler] = useState(false);
+  const [hasAiResumeExtraction, setHasAiResumeExtraction] = useState(false);
+  const [extractingResume, setExtractingResume] = useState(false);
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [profileLoaded, setProfileLoaded] = useState(false);
 
@@ -233,23 +250,39 @@ export default function SkillMapperClient() {
     }
   };
 
+  const loadProfile = () => {
+    setLoadingProfile(true);
+    fetch('/api/member/skill-profile')
+      .then(r => r.json())
+      .then(data => {
+        if (data.skillProfile) setMemberProfile(data.skillProfile);
+        if (data.certNames) setMemberCerts(data.certNames);
+        if (data.resumeSkills) setResumeSkills(data.resumeSkills);
+        if (data.resumeMatchedKeywords) setResumeMatchedKeywords(data.resumeMatchedKeywords);
+        if (typeof data.hasInterestProfiler === 'boolean') setHasInterestProfiler(data.hasInterestProfiler);
+        if (typeof data.hasAiResumeExtraction === 'boolean') setHasAiResumeExtraction(data.hasAiResumeExtraction);
+        setProfileLoaded(true);
+      })
+      .catch(() => setProfileLoaded(true))
+      .finally(() => setLoadingProfile(false));
+  };
+
   useEffect(() => {
-    if (activeTab === 'profile' && !profileLoaded) {
-      setLoadingProfile(true);
-      fetch('/api/member/skill-profile')
-        .then(r => r.json())
-        .then(data => {
-          if (data.skillProfile) setMemberProfile(data.skillProfile);
-          if (data.certNames) setMemberCerts(data.certNames);
-          if (data.resumeSkills) setResumeSkills(data.resumeSkills);
-          if (data.resumeMatchedKeywords) setResumeMatchedKeywords(data.resumeMatchedKeywords);
-          if (typeof data.hasInterestProfiler === 'boolean') setHasInterestProfiler(data.hasInterestProfiler);
-          setProfileLoaded(true);
-        })
-        .catch(() => setProfileLoaded(true))
-        .finally(() => setLoadingProfile(false));
-    }
-  }, [activeTab, profileLoaded]);
+    if (activeTab === 'profile' && !profileLoaded) loadProfile();
+  }, [activeTab, profileLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleAiExtract = async () => {
+    setExtractingResume(true);
+    try {
+      const res = await fetch('/api/ai/extract-resume-skills', { method: 'POST' });
+      if (res.ok) {
+        // Reload profile to incorporate AI extraction
+        setProfileLoaded(false);
+        loadProfile();
+      }
+    } catch { /* non-fatal */ }
+    finally { setExtractingResume(false); }
+  };
 
   const handleSearch = async () => {
     if (!query.trim()) return;
@@ -271,7 +304,7 @@ export default function SkillMapperClient() {
   };
 
   const handleSelect = async (code: string, title: string) => {
-    setSelectedTitle(title); setSelectedCode(code); setLoadingSkills(true); setError(''); setUsingDemo(false);
+    setSelectedTitle(title); setSelectedCode(code); setLoadingSkills(true); setError(''); setUsingDemo(false); setMatchedPrograms([]);
     try {
       const res = await fetch(`/api/ai/skill-mapper?code=${encodeURIComponent(code)}&title=${encodeURIComponent(title)}`);
       const data = await res.json();
@@ -281,6 +314,7 @@ export default function SkillMapperClient() {
       } else {
         setRadarData(DEMO_RADAR); setSkills(DEMO_SKILLS); setUsingDemo(true);
       }
+      if (data.matchedPrograms?.length) setMatchedPrograms(data.matchedPrograms);
     } catch {
       setRadarData(DEMO_RADAR); setSkills(DEMO_SKILLS); setUsingDemo(true);
     }
@@ -413,6 +447,72 @@ export default function SkillMapperClient() {
                   </button>
                 )}
               </div>
+
+              {/* Programs that lead to this occupation (from DB career mappings) */}
+              {matchedPrograms.length > 0 && (
+                <div style={{ marginTop: '1.25rem' }}>
+                  <h4 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+                    Programs for this career
+                  </h4>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
+                    WorkforceAP programs that prepare you for <strong>{selectedTitle}</strong>
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {matchedPrograms.map((mp) => (
+                      <div key={`${mp.programSlug}-${mp.experienceBand}`} style={{
+                        background: 'var(--surface-container)', borderRadius: '0.75rem',
+                        padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem',
+                      }}>
+                        <div style={{
+                          width: '2.25rem', height: '2.25rem', borderRadius: '0.5rem', flexShrink: 0,
+                          background: `color-mix(in srgb, ${mp.categoryColor} 12%, transparent)`,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.125rem',
+                        }}>
+                          {mp.icon}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontWeight: 600, fontSize: '0.85rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {mp.programTitle}
+                          </div>
+                          <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center', marginTop: '0.2rem', flexWrap: 'wrap' }}>
+                            <span style={{
+                              background: `color-mix(in srgb, ${mp.categoryColor} 12%, transparent)`,
+                              color: mp.categoryColor,
+                              borderRadius: '999px', padding: '0.1rem 0.4rem', fontSize: '0.65rem', fontWeight: 600,
+                            }}>{mp.categoryLabel}</span>
+                            <span style={{
+                              background: mp.recommendationType === 'primary'
+                                ? 'color-mix(in srgb, var(--color-green) 12%, transparent)'
+                                : mp.recommendationType === 'bridge'
+                                ? 'color-mix(in srgb, var(--color-blue) 12%, transparent)'
+                                : 'color-mix(in srgb, var(--color-gold) 12%, transparent)',
+                              color: mp.recommendationType === 'primary'
+                                ? 'var(--color-green, #4a9b4f)'
+                                : mp.recommendationType === 'bridge'
+                                ? 'var(--color-blue, #2b7bb9)'
+                                : 'var(--color-gold, #a47f38)',
+                              borderRadius: '999px', padding: '0.1rem 0.4rem', fontSize: '0.65rem', fontWeight: 600, textTransform: 'capitalize',
+                            }}>{mp.recommendationType}</span>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>
+                              {mp.experienceBand.replace(/_/g, ' ')}
+                            </span>
+                          </div>
+                          {mp.whyRecommended && (
+                            <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem', lineHeight: 1.4 }}>
+                              {mp.whyRecommended}
+                            </div>
+                          )}
+                        </div>
+                        <a href={`/programs/${mp.programSlug}`} style={{
+                          background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem',
+                          padding: '0.35rem 0.625rem', fontSize: '0.75rem', fontWeight: 600,
+                          textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0,
+                        }}>View →</a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </>
           )}
         </div>
@@ -615,8 +715,10 @@ export default function SkillMapperClient() {
           {!loadingProfile && resumeSkills.length > 0 && resumeSkills.some(r => r.value > 0) && (
             <div style={{ marginTop: '0.875rem', padding: '0.875rem 1rem', background: 'rgba(43,123,185,0.06)', border: '1px solid rgba(43,123,185,0.15)', borderRadius: '0.75rem' }}>
               <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-blue, #2b7bb9)', margin: '0 0 0.5rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>description</span>
-                Resume skills detected
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>
+                  {hasAiResumeExtraction ? 'auto_awesome' : 'description'}
+                </span>
+                {hasAiResumeExtraction ? 'AI-extracted resume skills' : 'Resume skills detected'}
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 {resumeSkills.filter(r => r.value > 0).map(r => {
@@ -625,15 +727,66 @@ export default function SkillMapperClient() {
                     <div key={r.axis} style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
                       <span style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{r.axis}:</span>{' '}
                       {keywords.length > 0
-                        ? keywords.slice(0, 4).join(', ') + (keywords.length > 4 ? ` +${keywords.length - 4} more` : '')
+                        ? keywords.slice(0, 5).join(', ') + (keywords.length > 5 ? ` +${keywords.length - 5} more` : '')
                         : 'detected'}
                     </div>
                   );
                 })}
               </div>
-              <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0' }}>
-                <a href="/dashboard/ai-tools/resume-rewriter" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Re-run Resume Rewriter</a> after updates to refresh.
-              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                {!hasAiResumeExtraction && (
+                  <button
+                    type="button"
+                    onClick={handleAiExtract}
+                    disabled={extractingResume}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+                      padding: '0.35rem 0.75rem', borderRadius: '0.5rem',
+                      background: 'var(--color-accent)', color: '#fff',
+                      fontWeight: 700, fontSize: '0.75rem', border: 'none',
+                      cursor: extractingResume ? 'default' : 'pointer',
+                      opacity: extractingResume ? 0.6 : 1,
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.85rem', fontVariationSettings: "'FILL' 1" }}>
+                      {extractingResume ? 'progress_activity' : 'auto_awesome'}
+                    </span>
+                    {extractingResume ? 'Analyzing…' : 'Enhance with AI'}
+                  </button>
+                )}
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
+                  {hasAiResumeExtraction
+                    ? <><button type="button" onClick={handleAiExtract} disabled={extractingResume} style={{ background: 'none', border: 'none', color: 'var(--color-accent)', fontWeight: 600, cursor: 'pointer', padding: 0, fontSize: '0.75rem' }}>{extractingResume ? 'Re-analyzing…' : 'Re-analyze'}</button> · </>
+                    : null}
+                  <a href="/dashboard/ai-tools/resume-rewriter" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Update resume</a>
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Show AI extraction CTA when no resume skills at all but profile exists */}
+          {!loadingProfile && profileLoaded && memberProfile.some(p => p.value > 0) && !hasAiResumeExtraction && resumeSkills.every(r => r.value === 0) && (
+            <div style={{ marginTop: '0.875rem', padding: '0.875rem 1rem', background: 'rgba(43,123,185,0.06)', border: '1px solid rgba(43,123,185,0.15)', borderRadius: '0.75rem', display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+              <span className="material-symbols-outlined" style={{ color: 'var(--color-blue, #2b7bb9)', fontSize: '1.25rem', flexShrink: 0, fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
+              <div>
+                <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)', margin: '0 0 0.25rem' }}>
+                  Enhance your profile with AI
+                </p>
+                <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem', lineHeight: 1.4 }}>
+                  Upload a resume and let AI analyze it to extract detailed skills across all 6 axes — much more accurate than keyword matching.
+                </p>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <a href="/dashboard/resume" style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+                    padding: '0.35rem 0.75rem', borderRadius: '0.5rem',
+                    background: 'var(--color-accent)', color: '#fff',
+                    fontWeight: 700, fontSize: '0.75rem', textDecoration: 'none',
+                  }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.85rem' }}>upload_file</span>
+                    Upload resume
+                  </a>
+                </div>
+              </div>
             </div>
           )}
         </div>

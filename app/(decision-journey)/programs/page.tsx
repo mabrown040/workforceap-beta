@@ -2,11 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { buildPageMetadata } from '@/app/seo';
-import Footer from '@/components/Footer';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import ProgramsContent from './ProgramsContent';
 import ProgramsPageClient from './ProgramsPageClient';
-import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import { PROGRAM_SUBGROUPS, orderedSubgroupIdsWithPrograms } from '@/lib/content/programSubgroup';
@@ -264,14 +261,7 @@ export default function ProgramsPage() {
         </div>
       </section>
 
-      {/* ── Decision Journey Nav ── */}
-      <section className="content-section" style={{ paddingTop: '0.5rem', paddingBottom: 0 }}>
-        <div className="container">
-          <ProgramsDecisionJourneyNav current="programs" />
-        </div>
-      </section>
-
-      </div>{/* end desktop: hero + journey nav */}
+      </div>{/* end desktop: hero */}
 
       {/* Full catalog — one anchor `#program-catalog` for mobile + desktop + deep links */}
       <div id="program-catalog" className="programs-page-catalog-anchor" style={{ scrollMarginTop: '0.75rem' }}>
@@ -441,8 +431,6 @@ export default function ProgramsPage() {
 
       </div>{/* end desktop wrapper */}
 
-      <MobileBottomNav />
-      <Footer />
     </div>
   );
 }

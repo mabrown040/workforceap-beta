@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
-import Footer from '@/components/Footer';
 import FindYourPathClient from './FindYourPathClient';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -93,8 +91,8 @@ export default function FindYourPathPage() {
               position: 'relative', height: '200px',
             }}>
               <img
-                src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=600&q=70"
-                alt="Students collaborating"
+                src="/images/hero-people.jpg"
+                alt="Students collaborating on career training"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
               <div style={{
@@ -141,8 +139,6 @@ export default function FindYourPathPage() {
         </div>
       </div>
 
-      <MobileBottomNav />
-      <Footer />
     </div>
   );
 }

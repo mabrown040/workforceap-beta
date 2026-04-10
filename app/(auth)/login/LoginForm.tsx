@@ -379,7 +379,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
 
           {/* Portal routing (collapsed) */}
           <nav aria-label="Choose portal destination after sign-in" style={{ marginBottom: 'var(--space-6)' }}>
-            <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 'var(--space-2)' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
               {PORTAL_DESTINATIONS.map((o) => {
                 const href = `/login?redirectTo=${encodeURIComponent(o.redirectTo)}`;
                 const active = destinationActive(o.redirectTo);
@@ -389,7 +389,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                     href={href}
                     aria-current={active || undefined}
                     style={{
-                      padding: 'var(--space-2) var(--space-3)',
+                      padding: '6px 10px',
                       fontSize: 'var(--font-size-sm)',
                       fontWeight: 600,
                       borderRadius: 'var(--radius-sm)',

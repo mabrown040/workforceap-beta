@@ -16,7 +16,6 @@ import {
 } from '@/lib/content/quizIpMerge';
 import { getProgramExtra } from '@/lib/content/programExtras';
 import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
-import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
 
 const QUIZ_STORAGE_KEY = 'find_your_path_results';
 const QUIZ_STORAGE_VERSION = 1;
@@ -554,7 +553,6 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
   if (finishingQuiz) {
     return (
       <>
-        <ProgramsDecisionJourneyNav current="quiz" quizPhase="in_progress" />
         <div className="quiz-flow" style={{ padding: '3rem 1.5rem', textAlign: 'center' }}>
           <p style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Building your career match…</p>
           <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.95rem' }}>
@@ -568,7 +566,6 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
   if (storedResults && step === QUESTIONS.length - 1 && currentAnswer) {
     return (
       <>
-        <ProgramsDecisionJourneyNav current="quiz" quizPhase="results" />
         <QuizResultsView
           programs={storedResults}
           answers={answers as QuizAnswers}
@@ -581,7 +578,6 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
   if (storedResults && step === 0 && Object.keys(answers).length === 0) {
     return (
       <>
-        <ProgramsDecisionJourneyNav current="quiz" quizPhase="results" />
         <QuizResultsView
           programs={storedResults}
           isPrevious
@@ -605,7 +601,6 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
 
   return (
     <>
-      <ProgramsDecisionJourneyNav current="quiz" quizPhase="in_progress" />
 
       <div className={`quiz-flow ${direction === 'prev' ? 'quiz-slide-prev' : 'quiz-slide-next'}`}>
         {/* Step + progress indicator */}

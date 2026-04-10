@@ -9,7 +9,6 @@ import { getProgramDescription } from '@/lib/content/programDescriptions';
 import { getProgramExtra } from '@/lib/content/programExtras';
 import ProgramDetailClient from './ProgramDetailClient';
 import ProgramRelatedSection from '@/components/programs/ProgramRelatedSection';
-import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
 import { getRelatedPrograms } from '@/lib/content/relatedPrograms';
 import { ArrowRight } from 'lucide-react';
 
@@ -229,7 +228,6 @@ export default async function ProgramPage({ params }: Props) {
 
       <section className="content-section program-detail-shared">
         <div className="container">
-          <ProgramsDecisionJourneyNav current="detail" />
         </div>
         <div className="container program-detail-grid">
           <div className="program-detail-main">

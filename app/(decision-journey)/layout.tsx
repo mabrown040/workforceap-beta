@@ -1,17 +1,19 @@
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
 
 /**
  * Shared layout for the career decision journey pages:
  * /find-your-path, /programs, /program-comparison, /salary-guide.
  *
- * Next.js preserves this layout across sibling route transitions,
- * so the tab nav stays visually stable during soft navigation —
- * no full reload, no scroll-to-top.
+ * The ProgramsDecisionJourneyNav lives here so it NEVER unmounts —
+ * it stays frozen in place during soft navigation between sibling routes.
+ * Only {children} swaps when the user clicks a tab.
  */
 export default function DecisionJourneyLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
+      <ProgramsDecisionJourneyNav />
       {children}
       <Footer />
       <MobileBottomNav variant="marketing" />

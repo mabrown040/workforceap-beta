@@ -4,7 +4,6 @@ import Image from 'next/image';
 import { buildPageMetadata } from '@/app/seo';
 import ProgramsContent from './ProgramsContent';
 import ProgramsPageClient from './ProgramsPageClient';
-import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import { PROGRAM_SUBGROUPS, orderedSubgroupIdsWithPrograms } from '@/lib/content/programSubgroup';
@@ -265,7 +264,6 @@ export default function ProgramsPage() {
       {/* ── Decision Journey Nav ── */}
       <section className="content-section" style={{ paddingTop: '0.5rem', paddingBottom: 0 }}>
         <div className="container">
-          <ProgramsDecisionJourneyNav current="programs" />
         </div>
       </section>
 

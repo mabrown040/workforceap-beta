@@ -3,8 +3,14 @@
  * Surface-container tonal layering, glassmorphic nav, no hard borders
  */
 
-/* Material Symbols: axis tuple lives in css/main.css (CSS vars --ms-fill / --ms-wght). */
+/* Material Symbols: reinforce full axis tuple for portal context.
+   WebKit (iOS) can drop ligatures if font-variation-settings references
+   axes missing from the served font or is partially overridden inline. */
 .material-symbols-outlined {
+    font-family: 'Material Symbols Outlined', sans-serif;
+    -webkit-font-feature-settings: 'liga';
+    font-feature-settings: 'liga';
+    font-variation-settings: 'FILL' var(--ms-fill, 0), 'wght' var(--ms-wght, 400), 'GRAD' 0, 'opsz' 24;
     vertical-align: middle;
 }
 

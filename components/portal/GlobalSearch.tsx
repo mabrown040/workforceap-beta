@@ -120,7 +120,7 @@ export default function GlobalSearch() {
         {results.length > 0 ? (
           <ul style={{ listStyle: 'none', margin: 0, padding: '0.375rem 0', maxHeight: '360px', overflowY: 'auto' }}>
             {results.map((r, i) => (
-              <li key={r.id}>
+              <li key={`${r.type}-${r.id}`}>
                 <a
                   href={r.href}
                   onClick={() => setOpen(false)}

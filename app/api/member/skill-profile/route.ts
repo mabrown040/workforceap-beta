@@ -312,7 +312,12 @@ export async function GET() {
   return NextResponse.json({
     skillProfile: finalProfile,
     certNames,
-    resumeSkills: resumeSkillsAvailable ? resumeProfile : [],
+    resumeSkills:
+      hasAiResumeExtraction && aiResumeProfile
+        ? aiResumeProfile
+        : resumeSkillsAvailable
+          ? resumeProfile
+          : [],
     resumeMatchedKeywords: hasAiResumeExtraction ? aiResumeEvidence : (resumeSkillsAvailable ? resumeMatchedKeywords : {}),
     hasCerts: certNames.length > 0,
     hasResumeSkills: resumeSkillsAvailable || hasAiResumeExtraction,

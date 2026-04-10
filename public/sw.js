@@ -1,19 +1,21 @@
 /**
- * WorkforceAP Service Worker — PWA offline support + push notifications.
+ * WorkforceAP Service Worker v3 — PWA offline support + push notifications.
  * Caches shell assets and Google Fonts; push events show branded notifications.
+ *
+ * v3: aggressive cache cleanup, network-first for fonts on first load,
+ *     no caching of navigation requests to avoid stale HTML.
  */
 
-const CACHE_NAME = 'workforceap-v2';
-const FONT_CACHE = 'workforceap-fonts-v1';
+const CACHE_NAME = 'workforceap-v3';
+const FONT_CACHE = 'workforceap-fonts-v2';
 const STATIC_ASSETS = [
-  '/dashboard',
   '/images/logo-tight.png',
 ];
 
 // Google Fonts origins that should be cached for offline icon support
 const FONT_ORIGINS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 
-// Install: pre-cache key pages
+// Install: pre-cache key assets, skip waiting immediately
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
@@ -21,23 +23,27 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate: remove old caches (keep current + font cache)
+// Activate: remove ALL old caches, claim all clients
 self.addEventListener('activate', (event) => {
   const keep = new Set([CACHE_NAME, FONT_CACHE]);
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(keys.filter((k) => !keep.has(k)).map((k) => caches.delete(k)))
-    )
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-// Fetch: network-first for API; stale-while-revalidate for fonts; network-first for the rest
+// Fetch handler
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
-  if (url.pathname.startsWith('/api/')) return; // Always network for API
 
-  // Google Fonts: cache-first so icons always render in PWA
+  // API: always go to network, never intercept
+  if (url.pathname.startsWith('/api/')) return;
+
+  // Navigation requests (HTML pages): always network, never serve stale HTML
+  if (event.request.mode === 'navigate') return;
+
+  // Google Fonts: stale-while-revalidate — serve cached if available but always refresh
   if (FONT_ORIGINS.includes(url.hostname)) {
     event.respondWith(
       caches.open(FONT_CACHE).then((cache) =>
@@ -45,26 +51,35 @@ self.addEventListener('fetch', (event) => {
           const networkFetch = fetch(event.request).then((res) => {
             if (res.status === 200) cache.put(event.request, res.clone());
             return res;
-          });
-          return cached || networkFetch;
+          }).catch(() => cached); // Offline fallback to cache
+          // If we have a cached version, serve it but update in background
+          if (cached) {
+            // Fire-and-forget update
+            networkFetch.catch(() => {});
+            return cached;
+          }
+          // No cache yet — wait for network
+          return networkFetch;
         })
       )
     );
     return;
   }
 
-  event.respondWith(
-    fetch(event.request)
-      .then((res) => {
-        // Cache successful GET responses for static assets
-        if (event.request.method === 'GET' && res.status === 200) {
-          const resClone = res.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, resClone));
-        }
-        return res;
-      })
-      .catch(() => caches.match(event.request))
-  );
+  // Static assets (images, CSS, JS): network-first with cache fallback
+  if (event.request.method === 'GET') {
+    event.respondWith(
+      fetch(event.request)
+        .then((res) => {
+          if (res.status === 200) {
+            const resClone = res.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, resClone));
+          }
+          return res;
+        })
+        .catch(() => caches.match(event.request))
+    );
+  }
 });
 
 // Push: show branded notification

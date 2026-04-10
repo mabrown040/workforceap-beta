@@ -12,7 +12,8 @@ export type ElevenLabsPortalAgentKey =
   | 'employer'
   | 'readiness'
   | 'resume_coach'
-  | 'partner';
+  | 'partner'
+  | 'wioa_prequal';
 
 const ENV_KEYS: Record<ElevenLabsPortalAgentKey, string> = {
   interview: 'ELEVENLABS_INTERVIEW_AGENT_ID',
@@ -21,6 +22,7 @@ const ENV_KEYS: Record<ElevenLabsPortalAgentKey, string> = {
   readiness: 'ELEVENLABS_READINESS_AGENT_ID',
   resume_coach: 'ELEVENLABS_RESUME_COACH_AGENT_ID',
   partner: 'ELEVENLABS_PARTNER_AGENT_ID',
+  wioa_prequal: 'ELEVENLABS_WIOA_PREQUAL_AGENT_ID',
 };
 
 /**
@@ -35,6 +37,8 @@ const FALLBACK_AGENT_IDS: Partial<Record<ElevenLabsPortalAgentKey, string>> = {
   partner: 'agent_7601kntxhqx3e0mvznpwk9bqj5yw',
   readiness: 'agent_5801kmznwny0e8gtmb726aaeevnt',
   resume_coach: 'agent_6601kmznw90ffxkbk7mpbym73vh9',
+  /** Dedicated WIOA pre-qualification / signup guide. */
+  wioa_prequal: 'agent_6801knv07nb2ftj9p54nm6xem0xj',
 };
 
 export function getElevenLabsAgentId(key: ElevenLabsPortalAgentKey): string | undefined {

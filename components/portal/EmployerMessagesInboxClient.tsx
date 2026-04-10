@@ -5,6 +5,7 @@ import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import PortalTeamChatClient from '@/components/portal/PortalTeamChatClient';
 import EmployerApplicationChatClient from '@/components/portal/EmployerApplicationChatClient';
 import type { EmployerInboxCandidateRow, EmployerInboxTeamRow } from '@/lib/messages/employerInbox';
+import { employerMessagingSurface } from '@/lib/portal/messagingSurfaces';
 import {
   InboxEmpty,
   InboxHeader,

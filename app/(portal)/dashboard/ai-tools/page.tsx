@@ -137,23 +137,6 @@ export default async function AIToolsPage() {
             </PortalCard>
           </div>
 
-          {suggestedActions.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center', marginBottom: '1rem' }}>
-              {suggestedActions.map((a) => (
-                <Link
-                  key={a.href + a.label}
-                  href={a.href}
-                  className="btn btn-primary"
-                >
-                  {a.label}
-                  <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>
-                    arrow_forward
-                  </span>
-                </Link>
-              ))}
-            </div>
-          )}
-
           <Link
             href="/dashboard/ai-tools/history"
             className="btn btn-outline"
@@ -163,7 +146,7 @@ export default async function AIToolsPage() {
             </span>
             View my past results
           </Link>
-        </div>
+        </section>
       </div>
 
       {/* Voice coaches — compact at top */}

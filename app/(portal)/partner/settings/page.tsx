@@ -7,7 +7,6 @@ import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import PartnerNotificationPrefs from '@/components/partner/PartnerNotificationPrefs';
-import PartnerSettingsEditRequest from '@/components/partner/PartnerSettingsEditRequest';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -71,20 +70,20 @@ export default async function PartnerSettingsPage() {
 
       <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', maxWidth: 640, marginBottom: '1rem' }}>
         <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Organization</h2>
-        {row('Name', partner.name)}
-        {row('Slug', partner.slug, { mono: true })}
-        {row('Referral code', partner.referralCode, { mono: true })}
-        {row('Type', partner.organizationType)}
-        {row('Status', partner.active, { bool: true })}
-        {row('Onboarding done', partner.onboardingCompletedAt)}
-        {row('Portal tour', partner.tourCompletedAt)}
+        <InfoRow label="Name" value={partner.name} />
+        <InfoRow label="Slug" value={partner.slug} mono />
+        <InfoRow label="Referral code" value={partner.referralCode} mono />
+        <InfoRow label="Type" value={partner.organizationType} />
+        <InfoRow label="Status" value={partner.active} />
+        <InfoRow label="Onboarding done" value={partner.onboardingCompletedAt} />
+        <InfoRow label="Portal tour" value={partner.tourCompletedAt} />
       </div>
 
       <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', maxWidth: 640, marginBottom: '1rem' }}>
         <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Primary contact</h2>
-        {row('Contact name', partner.contactName)}
-        {row('Email', partner.contactEmail)}
-        {row('Phone', partner.contactPhone)}
+        <InfoRow label="Contact name" value={partner.contactName} />
+        <InfoRow label="Email" value={partner.contactEmail} />
+        <InfoRow label="Phone" value={partner.contactPhone} />
       </div>
 
       <PartnerNotificationPrefs
@@ -104,6 +103,8 @@ export default async function PartnerSettingsPage() {
         </Link>
         .
       </p>
-    </div>
+      </div>
+      <MobileBottomNav variant="partner" />
+    </>
   );
 }

@@ -454,7 +454,7 @@ export default async function EmployerDashboardPage() {
                   <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', '--ms-fill': 1 }}>{item.icon}</span>
                   <div style={{ flex: 1 }}>
                     <p className="portal-pipeline-item__label">{item.label}</p>
-                    <p className="portal-pipeline-item__meta">{item.value} {item.status.toLowerCase()}</p>
+                    <p className="portal-pipeline-item__meta">{item.value} {item.label.toLowerCase()}</p>
                   </div>
                 </div>
               ))}
@@ -509,7 +509,7 @@ export default async function EmployerDashboardPage() {
                     {app.appliedAt.toLocaleDateString()}
                   </p>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         )}

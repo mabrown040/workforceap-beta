@@ -3,8 +3,15 @@
    Complete Design System
    ============================================= */
 
-/* Material Symbols Outlined — explicit font-family as fallback
-   in case the Google Fonts <link> stylesheet fails to load. */
+/* Material Symbols Outlined — self-hosted to avoid Google Fonts CDN outages (503s).
+   The woff2 is served from /fonts/ so icons never degrade to plain text. */
+@font-face {
+    font-family: 'Material Symbols Outlined';
+    font-style: normal;
+    font-display: swap;
+    font-weight: 100 700;
+    src: url('/fonts/material-symbols-outlined.woff2') format('woff2');
+}
 .material-symbols-outlined {
     font-family: 'Material Symbols Outlined', sans-serif;
     font-weight: normal;

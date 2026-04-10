@@ -51,6 +51,7 @@ export async function POST() {
   const { success } = await checkAIToolRateLimit(user.id);
   if (!success) return NextResponse.json({ error: 'Rate limit exceeded. Try again in an hour.' }, { status: 429 });
 
+
   try {
     // Get resume text
     const resumeText = await getMemberResumePlainText(user.id, 6000);

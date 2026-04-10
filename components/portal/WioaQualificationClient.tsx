@@ -126,7 +126,7 @@ export default function WioaQualificationClient({ initialSnapshot }: { initialSn
         </PortalCard>
       ) : null}
 
-      <PortalCard title="Choose how to complete it" subtitle="Use voice for a guided pre-check, or switch to the form any time.">
+      <PortalCard title="Start with voice or switch to the form" subtitle="Voice is the default guided pre-check, and you can switch to the form any time.">
         <div
           role="tablist"
           aria-label="WIOA screening mode"

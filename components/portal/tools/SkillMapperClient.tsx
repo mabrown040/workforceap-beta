@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Loader2, Search } from 'lucide-react';
-import { CERTIFICATION_TRACKS } from '@/lib/content/certificationTracks';
-import { recommendCertsForGaps } from '@/lib/content/certToSkills';
+import { recommendProgramsForGaps, type ProgramRecommendation } from '@/lib/content/programs';
 
 /** Render a self-contained radar chart SVG string with hardcoded colors (no CSS vars). */
 function renderRadarSvgString(data: { axis: string; value: number }[], size = 320): string {
@@ -71,11 +70,12 @@ async function svgToPngDataUrl(svgString: string, size = 320): Promise<string> {
 }
 
 const DEMO_RADAR = [
-  { axis: 'Technical', value: 0.85 },
   { axis: 'Analytics', value: 0.72 },
-  { axis: 'Communication', value: 0.61 },
-  { axis: 'Leadership', value: 0.44 },
-  { axis: 'Creative', value: 0.38 },
+  { axis: 'Engineering', value: 0.85 },
+  { axis: 'Design', value: 0.38 },
+  { axis: 'Strategy', value: 0.44 },
+  { axis: 'Ethics', value: 0.55 },
+  { axis: 'Research', value: 0.61 },
 ];
 const DEMO_SKILLS = [
   { name: 'Programming', score: 85, importance: 'High' },
@@ -287,8 +287,12 @@ export default function SkillMapperClient() {
     setLoadingSkills(false);
   };
 
-  const recommendations = memberProfile.length > 0 && radarData.length > 0
-    ? recommendCertsForGaps(memberProfile, radarData, CERTIFICATION_TRACKS)
+  const programRecs: ProgramRecommendation[] = memberProfile.length > 0
+    ? recommendProgramsForGaps(
+        memberProfile,
+        radarData.length > 0 ? radarData : undefined,
+        4,
+      )
     : [];
 
   const gaps = memberProfile.length > 0 && radarData.length > 0
@@ -495,31 +499,52 @@ export default function SkillMapperClient() {
                 </div>
               )}
 
-              {/* Cert recommendations */}
-              {recommendations.length > 0 && (
+              {/* Program recommendations based on skill gaps */}
+              {programRecs.length > 0 && (
                 <div>
-                  <h4 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.75rem' }}>Recommended Certifications</h4>
+                  <h4 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+                    Recommended Programs
+                  </h4>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
+                    WorkforceAP programs that close your biggest skill gaps
+                  </p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
-                    {recommendations.map(rec => (
-                      <div key={rec.certName} style={{
+                    {programRecs.map((rec) => (
+                      <div key={rec.program.slug} style={{
                         background: 'var(--surface-container)', borderRadius: '0.75rem',
                         padding: '0.875rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem',
                       }}>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontWeight: 600, fontSize: '0.9375rem' }}>{rec.certName}</div>
+                        <div style={{
+                          width: '2.5rem', height: '2.5rem', borderRadius: '0.625rem', flexShrink: 0,
+                          background: `color-mix(in srgb, ${rec.program.categoryColor} 12%, transparent)`,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem',
+                        }}>
+                          {rec.program.icon}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontWeight: 600, fontSize: '0.9rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {rec.program.title}
+                          </div>
                           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.25rem', flexWrap: 'wrap' }}>
                             <span style={{
-                              background: 'rgba(173,44,77,0.1)', color: 'var(--color-accent)',
-                              borderRadius: '999px', padding: '0.125rem 0.5rem', fontSize: '0.75rem', fontWeight: 500,
-                            }}>{rec.track}</span>
-                            <span style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>{rec.reason}</span>
+                              background: `color-mix(in srgb, ${rec.program.categoryColor} 12%, transparent)`,
+                              color: rec.program.categoryColor,
+                              borderRadius: '999px', padding: '0.125rem 0.5rem', fontSize: '0.7rem', fontWeight: 600,
+                            }}>{rec.program.categoryLabel}</span>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
+                              {rec.reason}
+                            </span>
+                          </div>
+                          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.375rem', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
+                            <span>{rec.program.duration}</span>
+                            <span>{rec.program.partner}</span>
                           </div>
                         </div>
-                        <a href={rec.link} target="_blank" rel="noopener noreferrer" style={{
+                        <a href={`/programs/${rec.program.slug}`} style={{
                           background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem',
                           padding: '0.375rem 0.75rem', fontSize: '0.8125rem', fontWeight: 600,
                           textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0,
-                        }}>Learn →</a>
+                        }}>Enroll →</a>
                       </div>
                     ))}
                   </div>

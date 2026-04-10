@@ -75,7 +75,6 @@ export default async function EmployerPipelinePage() {
 
   return (
     <>
-      <h1 className="wa-sr-only">Candidate Pipeline</h1>
       {/* ── Mobile section ── */}
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <PageHeader

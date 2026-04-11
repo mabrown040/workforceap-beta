@@ -7,7 +7,7 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 export const metadata: Metadata = buildPageMetadata({
   title: 'Workforce Development Training & Industry Certificates',
   description:
-    'How WorkforceAP works: employer-aligned training, no-cost to participants, job placement support. Operating model that scales beyond one market.',
+    'WorkforceAP: 25+ years of workforce development. Employer-aligned training, no cost to members, job placement support — a proven model that scales.',
   path: '/what-we-do',
 });
 
@@ -21,7 +21,7 @@ const BENTO_ITEMS = [
   {
     icon: 'lock_open',
     title: 'Zero-Barrier Access',
-    desc: 'No tuition for members. No prerequisites. Funding comes from grants and partnerships — participants are not charged for access.',
+    desc: 'No tuition for members. No prerequisites. Funding comes from grants and partnerships — members are never charged for access.',
     span: 'large',
   },
   {
@@ -52,7 +52,7 @@ const VALUES = [
   {
     num: '03',
     title: 'Key Partnerships',
-    desc: 'Government, Employers, Non-profit & Community Organizations, and Churches — we leverage collective strength so participants don\'t carry the load alone.',
+    desc: 'Government, Employers, Non-profit & Community Organizations, and Churches — we leverage collective strength so members don\'t carry the load alone.',
   },
 ];
 
@@ -159,7 +159,7 @@ export default function WhatWeDoPage() {
               textShadow: '0 1px 18px rgba(0,0,0,0.5)',
             }}
           >
-            Employer-aligned training. No cost to participants. Job placement built in.
+            Employer-aligned training. No cost to members. Job placement built in.
             A model that works — and scales.
           </p>
 
@@ -298,7 +298,7 @@ export default function WhatWeDoPage() {
               >
                 Built on 25+ years of workforce development — Goodwill, Austin Area Urban League,
                 state and local initiatives. We know what works. Employers fund talent pipelines.
-                Grants fund access. We don&rsquo;t charge participants.
+                Grants fund access. We don&rsquo;t charge members.
               </blockquote>
 
               <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '2rem' }}>
@@ -668,7 +668,7 @@ export default function WhatWeDoPage() {
               Creating Opportunity
             </h1>
             <p style={{ fontSize: '0.98rem', lineHeight: '1.75rem', marginBottom: '1.25rem', color: 'rgba(255,255,255,0.9)' }}>
-              Employer-aligned training. No cost to participants. Job placement built in.
+              Employer-aligned training. No cost to members. Job placement built in.
               A model that works — and scales.
             </p>
 
@@ -762,7 +762,7 @@ export default function WhatWeDoPage() {
           >
             Built on 25+ years of workforce development — Goodwill, Austin Area Urban League,
             state and local initiatives. We know what works. Employers fund talent pipelines.
-            Grants fund access. We don’t charge participants.
+            Grants fund access. We don’t charge members.
           </blockquote>
         </div>
       </section>
@@ -829,18 +829,18 @@ export default function WhatWeDoPage() {
 
       <section style={{ padding: '2rem 1rem', background: 'var(--color-surface)' }}>
         <div style={{ marginBottom: '1.25rem' }}>
-          <span style={{ display: 'block', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', marginBottom: '0.5rem', color: 'var(--color-accent)' }}>The Journey</span>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 900, letterSpacing: '-0.025em', color: 'var(--color-on-surface)' }}>From application to placement</h2>
+          <span style={{ display: 'block', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', marginBottom: '0.5rem', color: 'var(--color-accent)' }}>Our Commitments</span>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 900, letterSpacing: '-0.025em', color: 'var(--color-on-surface)' }}>What we promise every member</h2>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {[
-            { step: '01', title: 'Application', desc: '10-minute online form to start your journey and share your potential.' },
-            { step: '02', title: 'Training', desc: 'Industry-aligned curriculum from global leaders in tech and business.' },
-            { step: '03', title: 'Certification', desc: 'Earn credentials recognized by top employers as a mark of excellence.' },
-            { step: '04', title: 'Placement', desc: 'Direct pipeline to hiring partners with 150-day post-placement support.' },
+            { num: '01', title: 'No-Cost Access', desc: 'Training is fully funded through grants and employer partnerships. Members are never charged.' },
+            { num: '02', title: 'Employer-Aligned Credentials', desc: 'Curricula built with Google, IBM, AWS, Microsoft, and CompTIA — so your certificate means something to hiring managers.' },
+            { num: '03', title: 'Real Job Outcomes', desc: 'We measure success by jobs landed, not seats filled. Placement support is part of every program.' },
+            { num: '04', title: 'Community Grounded', desc: 'We partner with local organizations, government programs, and employers in your region — not just a national platform.' },
           ].map((s) => (
-            <div key={s.step} style={{ borderRadius: '1.25rem', padding: '1.25rem', background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)' }}>
-              <span style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.5rem', color: 'var(--color-accent)' }}>Step {s.step}</span>
+            <div key={s.num} style={{ borderRadius: '1.25rem', padding: '1.25rem', background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)' }}>
+              <span style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.5rem', color: 'var(--color-accent)' }}>{s.num}</span>
               <h3 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>{s.title}</h3>
               <p style={{ fontSize: '0.875rem', lineHeight: '1.75rem', color: 'var(--color-on-surface-variant)' }}>{s.desc}</p>
             </div>

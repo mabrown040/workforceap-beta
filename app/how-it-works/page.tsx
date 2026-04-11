@@ -89,11 +89,11 @@ export default async function HowItWorksPage() {
                 Member Experience
               </span>
               <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', marginBottom: '2rem', lineHeight: 0.95 }}>
-                Start your path{' '}
+                Your path{' '}
                 <span style={{ color: 'var(--color-accent)' }}>starts here.</span>
               </h1>
               <p style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', maxWidth: '36rem', lineHeight: 1.7, marginBottom: '2.5rem' }}>
-                We provide the tools, training, and long-term support needed to bridge the gap between where you are and where you want to be.
+                No gatekeeping. No cost. Just a clear, guided process — from your first conversation with us to your first day on the job (and beyond).
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
                 <Link
@@ -153,10 +153,10 @@ export default async function HowItWorksPage() {
         <div className="container" style={{ maxWidth: 1200 }}>
           <div style={{ marginBottom: '4rem' }}>
             <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '1rem' }}>
-              Your Journey With Us
+              What Happens After You Apply
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '42rem' }}>
-              A structured, 10-step roadmap — the same journey you see on our homepage — from applicant to career growth.
+              Ten steps, three phases. Every step has a purpose — and a person supporting you through it.
             </p>
           </div>
 
@@ -314,10 +314,10 @@ export default async function HowItWorksPage() {
           overflow: 'hidden',
         }}>
           <h2 className="text-display-sm" style={{ color: '#fff', marginBottom: '1.5rem', position: 'relative', zIndex: 1 }}>
-            Ready to bridge the gap?
+            Ready to take the first step?
           </h2>
           <p style={{ color: 'rgba(255,203,209,0.9)', fontSize: '1.125rem', maxWidth: '36rem', margin: '0 auto 2.5rem', position: 'relative', zIndex: 1 }}>
-            Join hundreds of successful members who have launched their careers through Workforce Advancement Project.
+            The application takes about ten minutes. It&rsquo;s a conversation, not an exam — and it&rsquo;s completely free to apply.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
             <Link
@@ -399,11 +399,11 @@ export default async function HowItWorksPage() {
               color: 'var(--color-on-surface)',
             }}
           >
-            Start your path{' '}
+            Your path{' '}
             <span style={{ color: '#ad2c4d' }}>starts here.</span>
           </h2>
           <p style={{ fontSize: '0.875rem', lineHeight: 1.6, color: '#584144' }}>
-            10 steps from application to career growth.
+            Ten steps, three phases — no cost, no gatekeeping, full support.
           </p>
         </div>
 

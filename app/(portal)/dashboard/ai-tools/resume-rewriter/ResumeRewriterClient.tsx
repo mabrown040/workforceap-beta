@@ -2,102 +2,57 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import ResumeCoachWorkspace from '@/components/portal/ResumeCoachWorkspace';
 import ResumeRewriterForm from '@/components/portal/tools/ResumeRewriterForm';
-
-type WorkMode = 'voice' | 'text';
 
 type ResumeResponse = {
   hasOriginal?: boolean;
   resumePlainText?: string | null;
 };
 
-const MODE_KEY = 'resumeWorkMode';
-
-function ResumeModeSelector({ onSelect, onDismiss }: { onSelect: (mode: WorkMode) => void; onDismiss: () => void }) {
+function ResumeCoachRedirectCard() {
   return (
     <div
       className="portal-card portal-card--flat"
       style={{
-        padding: '1.25rem',
+        padding: '1rem 1.1rem',
         borderRadius: 16,
         marginBottom: '1rem',
-        border: '1px solid var(--outline-variant, rgba(0,0,0,0.08))',
-        background: 'linear-gradient(180deg, rgba(173,44,77,0.08), rgba(173,44,77,0.02))',
+        border: '1px solid rgba(37, 99, 235, 0.16)',
+        background: 'linear-gradient(180deg, rgba(37, 99, 235, 0.08), rgba(37, 99, 235, 0.02))',
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'flex-start', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
         <div>
-          <p style={{ margin: '0 0 0.35rem', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-accent)' }}>
-            Choose your workflow
+          <p style={{ margin: '0 0 0.35rem', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#1d4ed8' }}>
+            Dedicated voice flow
           </p>
-          <h2 style={{ margin: 0, fontSize: '1.15rem', color: 'var(--color-on-surface)' }}>How would you like to work on your resume?</h2>
-          <p style={{ margin: '0.5rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', lineHeight: 1.5 }}>
-            Pick the experience that fits how you want to improve your resume right now.
+          <h2 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--color-on-surface)' }}>Want voice coaching instead?</h2>
+          <p style={{ margin: '0.45rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.88rem', lineHeight: 1.5, maxWidth: 560 }}>
+            Resume Coach now runs in its own full-screen flow so you can talk through your experience, approve better phrasing inline, and keep your live draft synced without the text tool crowding it.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={onDismiss}
+        <Link
+          href="/dashboard/ai-tools/resume-coach"
           style={{
-            border: 'none',
-            background: 'transparent',
-            color: 'var(--color-on-surface-variant)',
-            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.45rem',
+            minHeight: '2.7rem',
+            borderRadius: 999,
+            textDecoration: 'none',
+            padding: '0.65rem 1rem',
             fontSize: '0.85rem',
-            textDecoration: 'underline',
-            padding: 0,
+            fontWeight: 700,
+            color: '#fff',
+            background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
           }}
         >
-          Maybe later
-        </button>
-      </div>
-
-      <div style={{ display: 'grid', gap: '0.9rem', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
-        <button
-          type="button"
-          onClick={() => onSelect('voice')}
-          style={{
-            textAlign: 'left',
-            borderRadius: 14,
-            border: '1px solid rgba(37, 99, 235, 0.18)',
-            background: 'rgba(37, 99, 235, 0.08)',
-            padding: '1rem',
-            cursor: 'pointer',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', marginBottom: '0.55rem' }}>
-            <span style={{ fontSize: '1.25rem' }} aria-hidden>🎙</span>
-            <strong style={{ color: 'var(--color-on-surface)', fontSize: '0.98rem' }}>Voice Coach</strong>
-            <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#1d4ed8', background: 'rgba(255,255,255,0.7)', borderRadius: 999, padding: '0.15rem 0.45rem' }}>
-              Recommended
-            </span>
-          </div>
-          <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.5, fontSize: '0.86rem' }}>
-            Talk through your resume with an AI coach and apply suggestions as you go.
-          </p>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => onSelect('text')}
-          style={{
-            textAlign: 'left',
-            borderRadius: 14,
-            border: '1px solid var(--outline-variant, rgba(0,0,0,0.08))',
-            background: 'var(--surface-container-low)',
-            padding: '1rem',
-            cursor: 'pointer',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', marginBottom: '0.55rem' }}>
-            <span style={{ fontSize: '1.25rem' }} aria-hidden>✏️</span>
-            <strong style={{ color: 'var(--color-on-surface)', fontSize: '0.98rem' }}>Text Tool</strong>
-          </div>
-          <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.5, fontSize: '0.86rem' }}>
-            Rewrite and edit your resume manually with the existing AI tool.
-          </p>
-        </button>
+          Open Resume Coach
+          <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden>
+            arrow_forward
+          </span>
+        </Link>
       </div>
     </div>
   );
@@ -228,104 +183,17 @@ function ResumeRewriterWithPrefill() {
   );
 }
 
-export default function ResumeRewriterClient({ onModeChange }: { onModeChange?: (mode: WorkMode) => void }) {
-  const [mode, setMode] = useState<WorkMode>('text');
-  const [showSelector, setShowSelector] = useState(false);
+export default function ResumeRewriterClient() {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem(MODE_KEY);
-    if (saved === 'voice' || saved === 'text') {
-      setMode(saved);
-      setShowSelector(false);
-    } else {
-      setShowSelector(true);
-    }
     setHydrated(true);
   }, []);
 
-  const handleSelect = (nextMode: WorkMode) => {
-    window.localStorage.setItem(MODE_KEY, nextMode);
-    setMode(nextMode);
-    setShowSelector(false);
-    onModeChange?.(nextMode);
-  };
-
   return (
     <div>
-      {hydrated ? (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-          <div
-            aria-label="Resume workflow mode"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.25rem',
-              padding: '0.25rem',
-              borderRadius: 999,
-              background: 'var(--surface-container-highest)',
-              border: '1px solid var(--outline-variant, rgba(0,0,0,0.08))',
-            }}
-          >
-            {([
-              { key: 'voice', label: 'Voice coach', icon: 'mic' },
-              { key: 'text', label: 'Text tool', icon: 'edit_note' },
-            ] as const).map((option) => {
-              const active = mode === option.key;
-              return (
-                <button
-                  key={option.key}
-                  type="button"
-                  onClick={() => handleSelect(option.key)}
-                  aria-pressed={active}
-                  style={{
-                    border: 'none',
-                    background: active ? 'var(--color-accent)' : 'transparent',
-                    color: active ? '#fff' : 'var(--color-on-surface-variant)',
-                    borderRadius: 999,
-                    padding: '0.55rem 0.95rem',
-                    fontWeight: 700,
-                    fontSize: '0.82rem',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.4rem',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                  }}
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden>
-                    {option.icon}
-                  </span>
-                  {option.label}
-                </button>
-              );
-            })}
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setShowSelector((prev) => !prev)}
-            style={{
-              border: 'none',
-              background: 'transparent',
-              color: 'var(--color-accent)',
-              fontWeight: 600,
-              fontSize: '0.85rem',
-              cursor: 'pointer',
-              textDecoration: 'underline',
-              padding: 0,
-            }}
-          >
-            {showSelector ? 'Hide workflow picker' : 'Compare workflows'}
-          </button>
-        </div>
-      ) : null}
-
-      {showSelector ? (
-        <ResumeModeSelector onSelect={handleSelect} onDismiss={() => setShowSelector(false)} />
-      ) : null}
-
-      {mode === 'voice' ? <ResumeCoachWorkspace /> : <ResumeRewriterWithPrefill />}
+      {hydrated ? <ResumeCoachRedirectCard /> : null}
+      <ResumeRewriterWithPrefill />
     </div>
   );
 }

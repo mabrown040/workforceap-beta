@@ -19,6 +19,7 @@ export const AI_TOOLS_HUB: AiToolsHubCategory[] = [
     description: 'Upload, analyze, rewrite, and tailor your resume.',
     links: [
       { label: 'Upload resume', href: '/dashboard/resume' },
+      { label: 'Resume coach', href: '/dashboard/ai-tools/resume-coach' },
       { label: 'Resume AI analysis', href: '/dashboard/ai-tools/resume-analysis' },
       { label: 'AI resume rewriter', href: '/dashboard/ai-tools/resume-rewriter' },
       { label: 'AI cover letter', href: '/dashboard/ai-tools/cover-letter' },
@@ -39,6 +40,7 @@ export const AI_TOOLS_HUB: AiToolsHubCategory[] = [
     icon: 'forum',
     description: 'Practice questions and live voice mock interviews.',
     links: [
+      { label: 'Voice interviewer', href: '/dashboard/ai-tools/voice-interview' },
       { label: 'AI interview coach', href: '/dashboard/ai-tools/interview-coach' },
       { label: 'Interview practice worksheet', href: '/dashboard/ai-tools/interview-practice' },
     ],

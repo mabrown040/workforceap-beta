@@ -48,6 +48,30 @@ export default async function AdminMetricsPage() {
         ))}
       </div>
 
+      {/* Career OS funnel */}
+      <div style={{ marginBottom: '1.5rem' }}>
+        <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem' }}>
+          Career OS — Completion Loop
+        </p>
+        <div className="portal-metric-strip">
+          {[
+            { label: 'Completions Triggered', value: data.careerOsMetrics.completionsTriggered, icon: 'school', accent: 'accent' as const },
+            { label: 'Actions Generated', value: data.careerOsMetrics.actionsGenerated, icon: 'auto_awesome', accent: 'blue' as const },
+            { label: 'Actions Pending', value: data.careerOsMetrics.actionsPending, icon: 'pending', accent: 'gold' as const },
+            { label: 'Member Follow-Through', value: data.careerOsMetrics.actionsCompleted, icon: 'task_alt', accent: 'green' as const },
+            { label: 'Follow-Through Rate', value: `${data.careerOsMetrics.followThroughRate}%`, icon: 'trending_up', accent: 'green' as const },
+          ].map(m => (
+            <div key={m.label} className="portal-metric-card">
+              <div className={`portal-metric-card__icon-wrap portal-metric-card__icon-wrap--${m.accent}`}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>{m.icon}</span>
+              </div>
+              <p className="portal-metric-card__value">{m.value}</p>
+              <p className="portal-metric-card__label">{m.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Charts */}
       <AdminAnalyticsCharts
         dailyActivity={data.dailyActivity}

@@ -34,14 +34,18 @@ export default function FindYourPathPage() {
             letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '1rem',
           }}>
             <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">explore</span>
-            Academic Navigator
+            Career Path Quiz
           </span>
           <h1 className="text-display-lg" style={{ marginBottom: '1rem' }}>Find Your Path</h1>
           <p style={{
-            color: 'var(--color-on-surface-variant)', fontSize: '1.125rem', lineHeight: 1.7, marginBottom: '1.5rem',
+            color: 'var(--color-on-surface-variant)', fontSize: '1.125rem', lineHeight: 1.7, marginBottom: '0.75rem',
           }}>
-            Five questions, three ranked matches, plain-English why — tied to the same salary bands and program pages you will see
-            elsewhere. If computers feel intimidating, we prioritize the Digital Literacy track first so you build confidence before heavier tech programs. Programs are available nationwide.
+            Not sure where to start? Answer a few quick questions and get program recommendations matched to your interests, experience, and goals — no guesswork required.
+          </p>
+          <p style={{
+            color: 'var(--color-on-surface-variant)', fontSize: '1rem', lineHeight: 1.65, marginBottom: '1.5rem', fontStyle: 'italic',
+          }}>
+            You don&apos;t need to have it all figured out — that&apos;s what this is for. Just answer honestly and we&apos;ll point you toward the right first step.
           </p>
           <ExperimentedCtaLink
             experiment="find_path_apply_cta"
@@ -92,7 +96,7 @@ export default function FindYourPathPage() {
             }}>
               <img
                 src="/images/hero-people.jpg"
-                alt="Students collaborating on career training"
+                alt="Members collaborating on career training"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
               <div style={{
@@ -126,11 +130,14 @@ export default function FindYourPathPage() {
             textTransform: 'uppercase', marginBottom: '0.5rem',
           }}>
             <span className="material-symbols-outlined" style={{ fontSize: '0.75rem' }} aria-hidden="true">explore</span>
-            Academic Navigator
+            Career Path Quiz
           </span>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--color-on-surface)', marginBottom: '0.375rem' }}>Find Your Path</h1>
-          <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: 0 }}>
-            Five questions, three ranked matches — takes about 2 minutes.
+          <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: '0.375rem' }}>
+            Not sure where to start? Answer a few quick questions and get recommended paths based on your interests and goals.
+          </p>
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: 0, fontStyle: 'italic' }}>
+            You can always come back and explore different paths — just answer honestly.
           </p>
         </div>
         {/* Quiz */}

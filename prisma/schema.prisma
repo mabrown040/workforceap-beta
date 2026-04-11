@@ -10,9 +10,8 @@ generator client {
 // To promote a user to admin: INSERT INTO user_roles (user_id, role_id) SELECT '<user_id>', id FROM roles WHERE name = 'admin';
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("POSTGRES_PRISMA_URL")
-  directUrl = env("POSTGRES_URL_NON_POOLING")
+  provider = "postgresql"
+  url      = env("POSTGRES_PRISMA_URL")
 }
 
 // --- Core tables ---
@@ -119,6 +118,7 @@ model User {
 
   jobPostingApplications   JobPostingApplication[]
   aiJobMatches             AIJobMatch[]
+  nextBestActions          MemberNextBestAction[]
   jobsApproved             Job[]                   @relation("JobApprover")
   programChangeRequests    ProgramChangeRequest[]
   programChangeReviews     ProgramChangeRequest[]  @relation("ProgramChangeReviewer")
@@ -1563,3 +1563,23 @@ model CareerQuizRule {
 
   @@map("career_quiz_rules")
 }
+
+model MemberNextBestAction {
+  id          String   @id @default(uuid())
+  memberId    String   @map("member_id")
+  title       String
+  description String   @db.Text
+  ctaLabel    String   @map("cta_label")
+  ctaHref     String   @map("cta_href")
+  icon        String?
+  priority    Int      @default(0)
+  status      String   @default("PENDING") // PENDING, COMPLETED, DISMISSED
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  member      User     @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([memberId, status, priority])
+  @@map("member_next_best_actions")
+}
+

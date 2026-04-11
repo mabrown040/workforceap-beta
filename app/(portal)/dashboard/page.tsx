@@ -24,6 +24,8 @@ import { buildNextBestActions } from '@/lib/member/nextBestActions';
 import { getProfileCompleteness } from '@/lib/resume/profileCompleteness';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
+import LogCertificationModal from './LogCertificationModal';
+import PlacementConfirmationStrip from './PlacementConfirmationStrip';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Member overview',
@@ -134,7 +136,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
   const careerMatchFromProfile = intakeExtra?.careerRecommendationJson as CareerMatchResult | null;
 
-  const [toolsResult, applicationResult] = await Promise.allSettled([
+  const [toolsResult, applicationResult, dynamicActionsResult, jobApplicationsResult] = await Promise.allSettled([
     prisma.aIToolResult.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
@@ -151,6 +153,14 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         createdAt: true,
       },
     }),
+    prisma.memberNextBestAction.findMany({
+      where: { memberId: user.id, status: 'PENDING' },
+      orderBy: { priority: 'desc' },
+      take: 2,
+    }),
+    prisma.jobApplication.findMany({
+      where: { userId: user.id, status: 'OFFER' },
+    }),
   ]);
 
   const recentTools = toolsResult.status === 'fulfilled' ? toolsResult.value : [];
@@ -162,6 +172,13 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   if (applicationResult.status === 'rejected') {
     console.error('[dashboard] latest application query failed', applicationResult.reason);
   }
+
+  const dynamicNextActions = dynamicActionsResult.status === 'fulfilled' ? dynamicActionsResult.value : [];
+  if (dynamicActionsResult.status === 'rejected') {
+    console.error('[dashboard] dynamic actions query failed', dynamicActionsResult.reason);
+  }
+
+  const jobOffers = jobApplicationsResult.status === 'fulfilled' ? jobApplicationsResult.value : [];
 
   const showMemberOnboarding = intakeExtra?.onboardingCompletedAt == null;
   const showMemberTour =
@@ -219,7 +236,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     email: dbUser.email,
   });
 
-  const nextBestActions = buildNextBestActions({
+  let nextBestActions = buildNextBestActions({
     state: dashboardState,
     noApplicationOnFile,
     enrolledProgram,
@@ -230,6 +247,19 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     counselorUnreadCount: engagementSignals.counselorUnreadCount,
     weeklyRecapUnopened: engagementSignals.weeklyRecapUnopened,
   });
+
+  for (const dbAction of dynamicNextActions.reverse()) {
+    nextBestActions.unshift({
+      id: dbAction.id,
+      title: dbAction.title,
+      body: dbAction.description,
+      href: dbAction.ctaHref,
+      cta: dbAction.ctaLabel,
+      variant: 'urgent',
+      weight: dbAction.priority + 100,
+    });
+  }
+  nextBestActions = nextBestActions.slice(0, 4);
 
   const checklist = {
     createAccount: true,
@@ -407,6 +437,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         )}
 
         {/* ── Priority next-step card ── */}
+        <PlacementConfirmationStrip offers={jobOffers} />
         {applicationStatus?.nextStep && (
           <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
             <div style={{ borderRadius: '1rem', overflow: 'hidden', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', boxShadow: '0 6px 24px rgba(173,44,77,0.3)' }}>
@@ -437,6 +468,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         {/* ── Career path ── */}
         <div style={{ padding: '0 1.25rem', marginBottom: '0.75rem' }}>
           <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
+          <LogCertificationModal />
         </div>
 
         {/* ── Application journey timeline ── */}
@@ -642,6 +674,9 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </div>
           <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 2rem' }}>
             <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
+            <div style={{ maxWidth: '300px' }}>
+              <LogCertificationModal />
+            </div>
           </div>
           <DashboardHomeClient
             recommendedActions={recommendedActions}
@@ -668,6 +703,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
             age={userAge}
             isMinor={isMinor}
           />
+          <PlacementConfirmationStrip offers={jobOffers} />
           {showMatchedRoles && userAge !== null && userAge < 14 ? null : <MatchedRoles />}
           {recentTools.length > 0 && (
             <section style={{ padding: '1.5rem 2rem 2rem', maxWidth: '900px', margin: '0 auto' }}>

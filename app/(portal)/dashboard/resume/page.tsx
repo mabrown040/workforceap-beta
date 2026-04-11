@@ -119,12 +119,13 @@ export default async function DashboardResumePage() {
           />
         </div>
 
-        <div style={{ maxWidth: 900, margin: '0 auto', padding: '2rem' }}>
+        <div style={{ padding: '2rem' }}>
           <ResumeClient
             completeness={completeness}
             witData={{ name: fields.name, email: fields.email, phone: fields.phone, recentEmployer: '', targetJob: '', skills: '' }}
             hasOriginal={!!profile?.resumeOriginalPath}
             hasEnhanced={!!profile?.resumeEnhancedPath}
+            layout="side-by-side"
           />
         </div>
       </div>

@@ -33,7 +33,7 @@ const JOURNEY_STEPS = [
   {
     num: 3,
     title: 'Build your materials',
-    desc: 'Use our AI tools to rewrite your resume, write a cover letter, and sharpen your LinkedIn profile.',
+    desc: 'Use our AI tools to rewrite your resume, write a cover letter, and practice your interview skills.',
     href: '/dashboard/ai-tools',
     cta: 'Open AI tools',
     icon: 'auto_awesome',
@@ -57,10 +57,10 @@ const JOURNEY_STEPS = [
 ];
 
 const BENEFITS = [
-  { icon: 'workspace_premium', title: 'LinkedIn Premium', desc: 'Request free access through your dashboard.' },
-  { icon: 'school', title: 'Coursera Access', desc: 'Earn free professional certificates.' },
-  { icon: 'auto_awesome', title: 'AI Career Tools', desc: '7 tools: resume, cover letter, LinkedIn, interview coach, and more.' },
+  { icon: 'school', title: 'Coursera Access', desc: 'Earn free professional certificates from top institutions.' },
+  { icon: 'auto_awesome', title: 'AI Career Tools', desc: '7 tools: resume, cover letter, interview coach, job matching, and more.' },
   { icon: 'person_pin', title: 'Your Counselor', desc: 'A human counselor is assigned to you — they want to hear from you.' },
+  { icon: 'work', title: 'Job Board', desc: 'Browse openings from employers actively hiring WorkforceAP graduates.' },
 ];
 
 const FAQS = [

@@ -155,8 +155,8 @@ export default async function DashboardProfilePage() {
             <div
               className="wa-inline-flex wa-items-center wa-px-3 wa-py-1 wa-rounded-full wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-wider wa-mb-2"
               style={{
-                background: 'color-mix(in srgb, var(--color-gold) 20%, transparent)',
-                color: 'color-mix(in srgb, var(--color-gold) 55%, var(--color-on-surface))',
+                background: 'color-mix(in srgb, var(--color-accent) 12%, transparent)',
+                color: 'var(--color-accent)',
               }}
             >
               {program?.title ?? 'WorkforceAP Member'}
@@ -332,7 +332,7 @@ export default async function DashboardProfilePage() {
             </h1>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
               {program && (
-                <span style={{ display: 'inline-flex', alignItems: 'center', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 700, background: 'rgba(255,187,0,0.1)', color: 'var(--color-gold)' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 700, background: 'color-mix(in srgb, var(--color-accent) 12%, transparent)', color: 'var(--color-accent)' }}>
                   {program.title}
                 </span>
               )}

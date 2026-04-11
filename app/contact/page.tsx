@@ -27,13 +27,13 @@ export default function ContactPage() {
         <div className="container" style={{ maxWidth: 1400 }}>
           <div style={{ marginBottom: '4rem' }}>
             <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'block' }}>
-              Connect with Authority
+              Get in Touch
             </span>
             <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', maxWidth: '48rem', marginBottom: '1.5rem' }}>
-              The bridge between <span style={{ color: 'var(--color-accent)' }}>ambition</span> and institutional impact.
+              We&rsquo;re here for <span style={{ color: 'var(--color-accent)' }}>members, employers, and partners</span> alike.
             </h1>
             <p style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', maxWidth: '42rem', lineHeight: 1.7 }}>
-              Whether you&rsquo;re an applicant, employer partner, or community supporter, our team responds within 24&ndash;48 hours. We&rsquo;re here to help you move forward.
+              Whether you&rsquo;re a current or prospective member with program questions, an employer looking to hire or build a pipeline, a community partner exploring a referral relationship, or a donor or funder interested in supporting our work &mdash; reach out and a member of our team will respond within 24&ndash;48 business hours.
             </p>
           </div>
         </div>

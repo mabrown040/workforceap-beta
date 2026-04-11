@@ -49,7 +49,7 @@ const PLATFORM_FEATURES = [
   {
     icon: 'smart_toy',
     title: 'Smart Intake',
-    desc: 'AI-assisted enrollment and eligibility screening reduces onboarding time by 60%, letting counselors focus on high-touch support.',
+    desc: 'Structured enrollment and eligibility screening reduces onboarding time by 60%, letting counselors focus on high-touch support.',
   },
   {
     icon: 'dashboard',

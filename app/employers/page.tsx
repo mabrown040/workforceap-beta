@@ -310,14 +310,6 @@ export default function EmployersPage() {
         </div>
       </section>
 
-      {/* Find Your Career CTA */}
-      <section style={{ textAlign: 'center', padding: '2.5rem 1rem', background: 'var(--color-light)' }}>
-        <p style={{ fontSize: '1.1rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>Not sure where to start?</p>
-        <a href="/find-your-path" className="btn btn-accent btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
-          Find Your Career
-        </a>
-      </section>
-
       {/* ── The WorkforceAP Difference — Sticky sidebar + value cards ── */}
       <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
@@ -362,8 +354,8 @@ export default function EmployersPage() {
                     psychology
                   </span>
                   <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.8rem', margin: 0, lineHeight: 1.5 }}>
-                    <strong>AI-powered career support:</strong> Members use guided AI tools for resumes,
-                    interviews, and applications while a counselor keeps the human layer.
+                    <strong>Guided career tools and counselor support:</strong> Members work through resumes,
+                    interview prep, and applications with structured tools and one-on-one counselor guidance.
                   </p>
                 </div>
               </div>

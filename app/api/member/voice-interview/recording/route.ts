@@ -111,8 +111,10 @@ export async function POST(request: Request) {
         recordedAt: new Date().toISOString(),
       });
 
+      let savedResult = false;
       try {
         await saveAIToolResult(user.id, 'voice_interview_video', inputSummary, recordingPayload);
+        savedResult = true;
       } catch (error) {
         if (!isMissingPrismaEnumValue(error, 'voice_interview_video')) throw error;
         console.warn(
@@ -120,13 +122,15 @@ export async function POST(request: Request) {
         );
       }
 
-      void trackEvent({
-        userId: user.id,
-        eventName: 'ai_tool_run_completed',
-        entityType: 'ai_tool',
-        metadata: { tool: 'voice_interview_video', durationMs, byteSize },
-        sourcePage: '/dashboard/ai-tools/voice-interview',
-      }).catch(() => {});
+      if (!savedResult) {
+        void trackEvent({
+          userId: user.id,
+          eventName: 'ai_tool_run_completed',
+          entityType: 'ai_tool',
+          metadata: { tool: 'voice_interview_video', durationMs, byteSize },
+          sourcePage: '/dashboard/ai-tools/voice-interview',
+        }).catch(() => {});
+      }
 
       const supabase = getSupabaseAdmin();
       const { data: signed } = await supabase.storage.from(BUCKET).createSignedUrl(path, 3600);

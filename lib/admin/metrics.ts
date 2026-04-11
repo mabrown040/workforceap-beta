@@ -1,28 +1,26 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 
-const EVENT_ONLY_AI_TOOLS = new Set([
+const EVENT_ONLY_AI_TOOLS = [
   'readiness_voice_session',
   'wioa_prequalification_voice_session',
   'employer_voice_session',
   'partner_voice_session',
-]);
+] as const;
 
 async function countEventOnlyAiRunsBetween(start: Date, end: Date): Promise<number> {
-  const events = await prisma.memberEvent.findMany({
-    where: {
-      createdAt: { gte: start, lte: end },
-      eventName: 'ai_tool_run_started',
-      entityType: 'ai_tool',
-    },
-    select: { metadata: true },
-  });
+  const rows = await prisma.$queryRaw<Array<{ count: bigint | number }>>`
+    SELECT COUNT(*)::bigint AS count
+    FROM "MemberEvent"
+    WHERE "createdAt" >= ${start}
+      AND "createdAt" <= ${end}
+      AND "eventName" = 'ai_tool_run_started'
+      AND "entityType" = 'ai_tool'
+      AND COALESCE(metadata->>'tool', '') IN (${Prisma.join(EVENT_ONLY_AI_TOOLS)})
+  `;
 
-  return events.reduce((count, event) => {
-    const tool = typeof event.metadata === 'object' && event.metadata && 'tool' in event.metadata
-      ? (event.metadata as { tool?: unknown }).tool
-      : null;
-    return typeof tool === 'string' && EVENT_ONLY_AI_TOOLS.has(tool) ? count + 1 : count;
-  }, 0);
+  const count = rows[0]?.count ?? 0;
+  return typeof count === 'bigint' ? Number(count) : count;
 }
 
 async function countAiToolRunsBetween(start: Date, end: Date): Promise<number> {

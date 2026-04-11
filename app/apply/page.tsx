@@ -198,7 +198,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           <strong> No prior experience required. For qualifying members, WorkforceAP programs are no-cost.</strong>
         </p>
         <div style={sPage.heroFallback}>
-          <p style={sPage.heroFallbackTitle}>Need help or no JavaScript?</p>
+          <p style={sPage.heroFallbackTitle}>Need help getting started?</p>
           <p style={sPage.heroFallbackText}>
             You can still reach us directly. Call a counselor or send a message, and we&apos;ll help you start the application manually.
           </p>

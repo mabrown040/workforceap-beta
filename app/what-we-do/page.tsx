@@ -226,6 +226,7 @@ export default function WhatWeDoPage() {
       <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div
+            className="wwd-legacy-grid"
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(12, 1fr)',
@@ -623,6 +624,7 @@ export default function WhatWeDoPage() {
 
       <style>{`
         @media (max-width: 1023px) {
+          .wwd-legacy-grid { gap: 2rem !important; }
           .wwd-legacy-portrait { grid-column: span 12 !important; max-width: 400px; margin: 0 auto; }
           .wwd-legacy-text { grid-column: span 12 !important; }
           .wwd-values-grid { grid-template-columns: 1fr !important; }

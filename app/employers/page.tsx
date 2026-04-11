@@ -313,6 +313,7 @@ export default function EmployersPage() {
       <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div
+            className="emp-diff-grid"
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(12, 1fr)',
@@ -782,6 +783,7 @@ export default function EmployersPage() {
 
       <style>{`
         @media (max-width: 1023px) {
+          .emp-diff-grid { gap: 2rem !important; }
           .emp-diff-sidebar { grid-column: span 12 !important; }
           .emp-diff-cards { grid-column: span 12 !important; }
           .emp-tiers-grid { grid-template-columns: 1fr !important; max-width: 480px; margin: 0 auto; }

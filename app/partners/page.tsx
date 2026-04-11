@@ -210,6 +210,7 @@ export default function PartnersPage() {
       <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div
+            className="partners-narrative-grid"
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(12, 1fr)',
@@ -372,6 +373,7 @@ export default function PartnersPage() {
       <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div
+            className="partners-platform-grid"
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(12, 1fr)',
@@ -585,6 +587,8 @@ export default function PartnersPage() {
 
       <style>{`
         @media (max-width: 1023px) {
+          .partners-narrative-grid { gap: 2rem !important; }
+          .partners-platform-grid { gap: 2rem !important; }
           .partners-narrative-portrait { grid-column: span 12 !important; max-width: 400px; margin: 0 auto; }
           .partners-narrative-text { grid-column: span 12 !important; }
           .partners-platform-text { grid-column: span 12 !important; }

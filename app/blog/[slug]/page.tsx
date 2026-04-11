@@ -226,10 +226,11 @@ export default async function BlogPostPage({ params }: Props) {
 
         <section className="blog-cta-section">
           <div className="blog-cta-card">
-            <h3>Ready to start your career?</h3>
-            <p>No-cost training for members. Industry certifications from Google, IBM, Microsoft, and more.</p>
+            <h3>Ready to take the next step?</h3>
+            <p>WorkforceAP offers no-cost career training paths for qualifying members — with guided tools, counselor support, and employer-aligned credentials.</p>
             <div className="blog-cta-buttons">
-              <Link href="/find-your-path" className="btn btn-accent">Find Your Path</Link>
+              <Link href="/find-your-path" className="btn btn-accent">Find Your Career Path</Link>
+              <Link href="/programs" className="btn btn-ghost">Explore Programs</Link>
               <Link href="/apply" className="btn btn-ghost">Apply Now</Link>
             </div>
           </div>

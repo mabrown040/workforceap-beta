@@ -31,20 +31,48 @@ type RecentSignupRow = Prisma.UserGetPayload<{
 }>;
 
 type PlacementWithUser = Prisma.PlacementRecordGetPayload<{
-  include: {
+  select: {
+    id: true;
+    employerName: true;
+    jobTitle: true;
+    startDate: true;
+    salaryOffered: true;
+    placedAt: true;
     user: {
-      select: { id: true; fullName: true; enrolledProgram: true; enrolledAt: true };
+      select: { id: true; fullName: true; email: true; enrolledProgram: true; enrolledAt: true };
     };
   };
 }>;
 
 type PendingPlacementWithUser = Prisma.PlacementRecordGetPayload<{
-  include: {
+  select: {
+    id: true;
+    employerName: true;
+    jobTitle: true;
+    placedAt: true;
     user: {
       select: { id: true; fullName: true; email: true; enrolledProgram: true };
     };
   };
 }>;
+
+const placementRecordBaseSelect = {
+  id: true,
+  employerName: true,
+  jobTitle: true,
+  startDate: true,
+  salaryOffered: true,
+  placedAt: true,
+  user: {
+    select: {
+      id: true,
+      fullName: true,
+      email: true,
+      enrolledProgram: true,
+      enrolledAt: true,
+    },
+  },
+} satisfies Prisma.PlacementRecordSelect;
 
 export default async function AdminPage() {
   const user = await getUser();
@@ -100,23 +128,10 @@ export default async function AdminPage() {
       prisma.placementRecord.findMany({
         orderBy: { placedAt: 'desc' },
         take: 10,
-        include: {
-          user: {
-            select: { id: true, fullName: true, enrolledProgram: true, enrolledAt: true },
-          },
-        },
+        select: placementRecordBaseSelect,
       }),
       prisma.application.count({ where: { status: 'PENDING' } }),
-      prisma.placementRecord.findMany({
-        where: { startDateVerified: false },
-        orderBy: { placedAt: 'desc' },
-        take: 8,
-        include: {
-          user: {
-            select: { id: true, fullName: true, email: true, enrolledProgram: true },
-          },
-        },
-      }),
+      Promise.resolve([] as PendingPlacementWithUser[]),
     ]);
 
     if (totalMembersResult.status === 'rejected') {

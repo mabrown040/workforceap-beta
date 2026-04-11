@@ -157,15 +157,11 @@ export default async function AdminPage() {
       pendingPlacements = pendingPlacementsResult.value;
     }
 
-    const [activeInTrainingResult, programsResult] = await Promise.allSettled([
-      prisma.user.count({
-        where: {
-          deletedAt: null,
-          enrolledProgram: { not: null },
-        },
-      }),
-      // Derive unique program counts in JS so the dashboard reflects distinct
-      // programs, not duplicate member enrollments in the same program.
+    // Derive unique program counts in JS so the dashboard reflects distinct
+    // programs, not duplicate member enrollments in the same program.
+    // "Active in Training" counts enrolled members who have not finished every
+    // course in their known program.
+    const [programsResult] = await Promise.allSettled([
       prisma.user.findMany({
         where: {
           deletedAt: null,
@@ -175,34 +171,35 @@ export default async function AdminPage() {
       }),
     ]);
 
-    if (activeInTrainingResult.status === 'rejected') {
-      logPrismaReason('activeInTraining', activeInTrainingResult.reason);
-      activeInTraining = 0;
-    } else {
-      activeInTraining = activeInTrainingResult.value;
-    }
-
     if (programsResult.status === 'rejected') {
       logPrismaReason('programMetrics', programsResult.reason);
+      activeInTraining = 0;
       programsEnrolled = 0;
       programsCompleted = 0;
     } else {
       const enrolledPrograms = new Set<string>();
       const completedPrograms = new Set<string>();
+      let activeInTrainingCount = 0;
 
       for (const u of programsResult.value) {
         if (!u.enrolledProgram) continue;
         enrolledPrograms.add(u.enrolledProgram);
 
         const program = getProgramBySlug(u.enrolledProgram);
-        if (!program || program.courses.length === 0) continue;
-
         const completed = (u.coursesCompleted as string[] | null) ?? [];
-        if (program.courses.every((c) => completed.includes(c.slug))) {
+        const fullyDone =
+          program != null &&
+          program.courses.length > 0 &&
+          program.courses.every((c) => completed.includes(c.slug));
+
+        if (fullyDone) {
           completedPrograms.add(u.enrolledProgram);
+        } else {
+          activeInTrainingCount += 1;
         }
       }
 
+      activeInTraining = activeInTrainingCount;
       programsEnrolled = enrolledPrograms.size;
       programsCompleted = completedPrograms.size;
     }

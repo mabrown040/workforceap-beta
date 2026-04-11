@@ -17,7 +17,7 @@ function formatHotQueueTime(date: Date): string {
   const diffMs = Date.now() - date.getTime();
   const diffHours = Math.max(1, Math.round(diffMs / (1000 * 60 * 60)));
   if (diffHours < 24) return `${diffHours}h ago`;
-  const diffDays = Math.max(1, Math.round(diffHours / 24));
+  const diffDays = Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24)));
   return `${diffDays}d ago`;
 }
 
@@ -76,7 +76,6 @@ export default async function CounselorStudentsPage() {
           createdAt: { gte: hotQueueCutoff },
         },
         orderBy: [{ priority: 'desc' }, { createdAt: 'desc' }],
-        take: 6,
         select: {
           id: true,
           memberId: true,
@@ -172,7 +171,7 @@ export default async function CounselorStudentsPage() {
                 <span className="material-symbols-outlined" style={{ color: '#c2410c', fontSize: 24 }} aria-hidden="true">local_fire_department</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
-                {hotQueue.slice(0, 3).map((action) => (
+                {hotQueue.map((action) => (
                   <Link
                     key={action.id}
                     href={`/counselor/students/${action.memberId}`}

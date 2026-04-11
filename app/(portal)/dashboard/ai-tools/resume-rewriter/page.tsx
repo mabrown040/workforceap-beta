@@ -19,7 +19,7 @@ export default async function ResumeRewriterPage() {
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools/resume-rewriter');
 
   const modePills = [
-    { key: 'voice', label: 'Voice coach' },
+    { key: 'resume-coach', label: 'Resume coach' },
     { key: 'text', label: 'Text rewrite' },
   ] as const;
 
@@ -220,7 +220,7 @@ export default async function ResumeRewriterPage() {
           <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', borderRadius: 16, marginBottom: '1.25rem', background: 'var(--surface-container-low)' }}>
             <p style={{ fontSize: '0.82rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>
               Paste your resume bullets. Our AI rewrites them with strong action verbs, quantifiable impact, and keyword
-              density tuned for ATS and recruiters. Choose voice coach or text rewrite in the tool below.
+              density tuned for ATS and recruiters. Use the text workflow below, or open Resume Coach for the dedicated voice experience.
             </p>
           </div>
 

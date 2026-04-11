@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { prisma } from '@/lib/db/prisma';
 import { isMissingPrismaEnumValue } from '@/lib/db/prismaEnumFallback';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { trackEvent } from '@/lib/events/track';
 
 /** Same private bucket as resumes; path prefix isolates mock interview videos. */
 const BUCKET = 'member-resumes';
@@ -100,28 +101,35 @@ export async function POST(request: Request) {
 
       const inputSummary = [role || 'Role n/a', interviewType || 'General'].join(' · ').slice(0, 500);
 
+      const recordingPayload = JSON.stringify({
+        storagePath: path,
+        durationMs,
+        mimeType,
+        role: role || undefined,
+        interviewType: interviewType || undefined,
+        byteSize,
+        recordedAt: new Date().toISOString(),
+      });
+
+      let savedResult = false;
       try {
-        await prisma.aIToolResult.create({
-          data: {
-            userId: user.id,
-            toolType: 'voice_interview_video',
-            inputSummary,
-            output: JSON.stringify({
-              storagePath: path,
-              durationMs,
-              mimeType,
-              role: role || undefined,
-              interviewType: interviewType || undefined,
-              byteSize,
-              recordedAt: new Date().toISOString(),
-            }),
-          },
-        });
+        await saveAIToolResult(user.id, 'voice_interview_video', inputSummary, recordingPayload);
+        savedResult = true;
       } catch (error) {
         if (!isMissingPrismaEnumValue(error, 'voice_interview_video')) throw error;
         console.warn(
           '[voice-interview/recording] skipping AI history save because database is missing enum value voice_interview_video'
         );
+      }
+
+      if (!savedResult) {
+        void trackEvent({
+          userId: user.id,
+          eventName: 'ai_tool_run_completed',
+          entityType: 'ai_tool',
+          metadata: { tool: 'voice_interview_video', durationMs, byteSize },
+          sourcePage: '/dashboard/ai-tools/voice-interview',
+        }).catch(() => {});
       }
 
       const supabase = getSupabaseAdmin();

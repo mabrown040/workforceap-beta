@@ -183,17 +183,6 @@ export default async function AIToolsPage() {
         </div>
       </div>
 
-      {/* Voice interview */}
-      <div style={{ paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'center' }}>
-        <Link
-          href="/dashboard/ai-tools/voice-interview"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-accent)', textDecoration: 'none' }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>mic</span>
-          Voice mock interview (ElevenLabs)
-        </Link>
-      </div>
-
       <div className="wa-block wa-md:wa-hidden">
         <MobileBottomNav variant="portal" />
       </div>

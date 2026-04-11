@@ -132,17 +132,17 @@ export default async function EmployerMatchesPage() {
                     <div style={{ fontSize: '0.6rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>match</div>
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '0.5rem' }}>
                   <Link
                     href={`/employer/candidates/${row.studentId}?jobId=${encodeURIComponent(row.jobId)}`}
-                    style={{ flex: 1, textAlign: 'center', padding: '0.5rem', background: 'var(--surface-container)', color: 'var(--color-on-surface)', borderRadius: '0.375rem', fontSize: '0.775rem', fontWeight: 600, textDecoration: 'none' }}
+                    style={{ textAlign: 'center', padding: '0.625rem 0.5rem', background: 'var(--surface-container)', color: 'var(--color-on-surface)', borderRadius: '0.5rem', fontSize: '0.775rem', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}
                     className="active:wa-scale-95 wa-transition-transform"
                   >
                     View Profile
                   </Link>
                   <Link
                     href={`/employer/messages`}
-                    style={{ flex: 1, textAlign: 'center', padding: '0.5rem', background: 'var(--surface-container-low)', color: 'var(--color-accent)', borderRadius: '0.375rem', fontSize: '0.775rem', fontWeight: 600, textDecoration: 'none' }}
+                    style={{ textAlign: 'center', padding: '0.625rem 0.5rem', background: 'var(--surface-container-low)', color: 'var(--color-accent)', borderRadius: '0.5rem', fontSize: '0.775rem', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}
                     className="active:wa-scale-95 wa-transition-transform"
                   >
                     Contact

@@ -13,6 +13,13 @@ type LearningCompletionResult = {
 
 const DUPLICATE_LOOKBACK_MS = 1000 * 60 * 60 * 24 * 7;
 
+class MemberNotFoundError extends Error {
+  constructor(memberId: string) {
+    super(`Member not found: ${memberId}`);
+    this.name = 'MemberNotFoundError';
+  }
+}
+
 function normalizeCourseName(courseName: string) {
   return courseName.trim().replace(/\s+/g, ' ');
 }
@@ -48,35 +55,24 @@ export async function handleLearningCompletion(memberId: string, courseName: str
         failureReason: 'member_not_found',
         metadata: { courseName: normalizedCourseName },
       });
-      throw new Error(`Member not found: ${memberId}`);
+      throw new MemberNotFoundError(memberId);
     }
 
     const duplicateCutoff = new Date(Date.now() - DUPLICATE_LOOKBACK_MS);
+    const courseSentencePrefix = `You finished ${normalizedCourseName}.`;
     const existingRecentAction = await prisma.memberNextBestAction.findFirst({
       where: {
         memberId,
         status: 'PENDING',
-        description: { contains: normalizedCourseName },
         createdAt: { gte: duplicateCutoff },
+        OR: [
+          { description: { startsWith: `${courseSentencePrefix} We drafted` } },
+          { description: { startsWith: `${courseSentencePrefix} We matched` } },
+        ],
       },
       orderBy: { createdAt: 'desc' },
       select: { id: true, ctaHref: true },
     });
-
-    const bullet = await generateResumeBullet(normalizedCourseName);
-    const jobMatch = await findBestEmployerMatch(memberId, normalizedCourseName);
-
-    let title = 'Update your Resume';
-    let desc = `You finished ${normalizedCourseName}. We drafted a new resume bullet for you.`;
-    let ctaLabel = 'Review Resume';
-    let ctaHref = '/dashboard/resume';
-
-    if (jobMatch) {
-      title = `New Skill Match: ${jobMatch.title}`;
-      desc = `You finished ${normalizedCourseName}. We matched that skill to ${jobMatch.title}. Practice a 3-minute mock interview now.`;
-      ctaLabel = 'Practice Interview';
-      ctaHref = `/dashboard/ai-tools/interview-practice?jobId=${jobMatch.id}`;
-    }
 
     if (existingRecentAction) {
       await prisma.memberEvent.create({
@@ -88,8 +84,8 @@ export async function handleLearningCompletion(memberId: string, courseName: str
           sourcePage: '/api/webhooks/learning-completion',
           metadata: {
             courseName: normalizedCourseName,
-            resumeBullet: bullet,
-            matchedJobId: jobMatch?.id ?? null,
+            resumeBullet: null,
+            matchedJobId: null,
           },
         },
       });
@@ -104,7 +100,7 @@ export async function handleLearningCompletion(memberId: string, courseName: str
         metadata: {
           memberId,
           courseName: normalizedCourseName,
-          matchedJobId: jobMatch?.id ?? null,
+          matchedJobId: null,
         },
       });
 
@@ -112,9 +108,24 @@ export async function handleLearningCompletion(memberId: string, courseName: str
         actionId: existingRecentAction.id,
         created: false,
         duplicatedRecentAction: true,
-        matchedJobId: jobMatch?.id ?? null,
-        resumeBullet: bullet,
+        matchedJobId: null,
+        resumeBullet: '',
       };
+    }
+
+    const bullet = await generateResumeBullet(normalizedCourseName);
+    const jobMatch = await findBestEmployerMatch(memberId, normalizedCourseName);
+
+    let title = 'Update your Resume';
+    let desc = `You finished ${normalizedCourseName}. We drafted a new resume bullet for you.`;
+    let ctaLabel = 'Review Resume';
+    let ctaHref = '/dashboard/resume';
+
+    if (jobMatch) {
+      title = `New Skill Match: ${jobMatch.title}`;
+      desc = `You finished ${normalizedCourseName}. We matched that skill to ${jobMatch.title}. Practice a 3-minute mock interview now.`;
+      ctaLabel = 'Practice Interview';
+      ctaHref = `/dashboard/ai-tools/interview-practice?jobId=${jobMatch.id}`;
     }
 
     const action = await prisma.$transaction(async (tx) => {
@@ -186,16 +197,18 @@ export async function handleLearningCompletion(memberId: string, courseName: str
       resumeBullet: bullet,
     };
   } catch (error) {
-    await recordWorkflowDiagnostic({
-      workflow: 'career_os_learning_completion',
-      status: 'error',
-      entityType: 'user',
-      entityId: memberId,
-      summary: 'Learning completion workflow failed',
-      method: 'webhook',
-      failureReason: error instanceof Error ? error.message : 'unknown_error',
-      metadata: { courseName: normalizedCourseName },
-    });
+    if (!(error instanceof MemberNotFoundError)) {
+      await recordWorkflowDiagnostic({
+        workflow: 'career_os_learning_completion',
+        status: 'error',
+        entityType: 'user',
+        entityId: memberId,
+        summary: 'Learning completion workflow failed',
+        method: 'webhook',
+        failureReason: error instanceof Error ? error.message : 'unknown_error',
+        metadata: { courseName: normalizedCourseName },
+      });
+    }
     throw error;
   }
 }

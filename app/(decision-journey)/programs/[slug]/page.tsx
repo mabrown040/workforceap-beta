@@ -231,7 +231,7 @@ export default async function ProgramPage({ params }: Props) {
         </div>
         <div className="container program-detail-grid">
           <div className="program-detail-main">
-            <p className="program-detail-description">{getProgramDescription(program.category)}</p>
+            <p className="program-detail-description">{getProgramDescription(program.category, program.slug)}</p>
             <ProgramDetailClient program={program} />
             
             {/* Bottom CTA Banner */}
@@ -246,16 +246,30 @@ export default async function ProgramPage({ params }: Props) {
                 Ready to start your career in {program.categoryLabel}?
               </h3>
               <p style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', maxWidth: '500px', margin: '0 auto 1.5rem' }}>
-                Applications take about 10 minutes. No cost for qualifying individuals.
+                Applications take about 10 minutes. No cost for qualifying members.
                 We respond within 3–5 business days.
               </p>
-              <Link 
-                href={`/apply?program=${program.slug}`} 
+              <Link
+                href={`/apply?program=${program.slug}`}
                 className="btn btn-primary btn-large"
                 style={{ display: 'inline-block' }}
               >
                 Apply for This Program
               </Link>
+              <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
+                <Link
+                  href="/find-your-path"
+                  style={{ fontSize: '0.9rem', color: 'var(--color-accent)', textDecoration: 'underline' }}
+                >
+                  Not sure this is right? Take the pathfinder quiz
+                </Link>
+                <Link
+                  href="/program-comparison"
+                  style={{ fontSize: '0.9rem', color: 'var(--color-accent)', textDecoration: 'underline' }}
+                >
+                  Compare programs side-by-side
+                </Link>
+              </div>
             </div>
 
             <ProgramRelatedSection programs={relatedPrograms} />

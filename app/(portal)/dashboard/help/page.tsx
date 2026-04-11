@@ -29,7 +29,6 @@ export default async function DashboardHelpPage() {
             <div>
               <div style={{ marginBottom: '0.75rem' }}>
                 <PortalBreadcrumb
-                  variant="on-dark"
                   items={[
                     { href: '/dashboard', label: 'Dashboard' },
                     { label: 'Help & Support' },
@@ -40,7 +39,7 @@ export default async function DashboardHelpPage() {
               <p>Request access to member benefits or get assistance.</p>
             </div>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-              <Link href="/dashboard" className="btn" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.4)' }}>
+              <Link href="/dashboard" className="btn btn-outline">
                 Dashboard
               </Link>
               <SignOutButton />

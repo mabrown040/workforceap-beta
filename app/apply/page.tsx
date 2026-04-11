@@ -190,12 +190,12 @@ export default async function ApplyPage({ searchParams }: PageProps) {
       <section style={sPage.hero}>
         <div style={sPage.heroLabel}>
           <span className="material-symbols-outlined" style={{ fontSize: 16 }} aria-hidden="true">assured_workload</span>
-          Institutional Portal
+          Member Application
         </div>
-        <h1 style={sPage.heroHeading}>Program Admission</h1>
+        <h1 style={sPage.heroHeading}>Start Your Application</h1>
         <p style={sPage.heroDesc}>
-          Answer a few quick questions, choose a program, then create your account so we can follow up with your next steps.
-          <strong> No experience required. No cost to qualifying participants.</strong>
+          This is your first step toward a WorkforceAP program. Share a little about yourself, pick a program that interests you — or tell us you&apos;re not sure yet — and a member advisor will follow up within 24–48 hours to walk you through your options.
+          <strong> No prior experience required. For qualifying members, WorkforceAP programs are no-cost.</strong>
         </p>
         <div style={sPage.heroFallback}>
           <p style={sPage.heroFallbackTitle}>Need help or no JavaScript?</p>
@@ -311,9 +311,9 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         <div style={sPage.suppCard}>
           <span className="material-symbols-outlined" style={{ fontSize: 28, color: 'var(--color-blue)', flexShrink: 0, marginTop: 2 }} aria-hidden="true">bolt</span>
           <div>
-            <h4 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>Rapid Processing</h4>
+            <h4 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>Someone Will Follow Up</h4>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)', margin: 0 }}>
-              Applications are reviewed within 24-48 hours. A counselor will contact you to discuss your best-fit program.
+              A member advisor reviews every application within 24–48 hours and reaches out to help you find the right program fit.
             </p>
           </div>
         </div>

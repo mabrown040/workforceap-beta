@@ -3,7 +3,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { buildPageMetadata } from '@/app/seo';
 import ProgramsContent from './ProgramsContent';
-import ProgramsPageClient from './ProgramsPageClient';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import { PROGRAM_SUBGROUPS, orderedSubgroupIdsWithPrograms } from '@/lib/content/programSubgroup';
@@ -15,13 +14,6 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 export default function ProgramsPage() {
-  const programs = PROGRAMS.map((p) => ({
-    cat: p.categoryLabel,
-    title: p.title,
-    dur: p.duration,
-    slug: p.slug,
-  }));
-
   const mobileBrowseChips = [
     { href: '#program-catalog', label: 'All' },
     ...orderedSubgroupIdsWithPrograms(PROGRAMS).map((id) => ({
@@ -124,8 +116,6 @@ export default function ProgramsPage() {
               </div>
             </div>
           </section>
-
-          <ProgramsPageClient programs={programs} />
 
           <div style={{ textAlign: 'center', marginTop: '1rem', marginBottom: '0.5rem' }}>
             <a href="#program-catalog" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-accent-dark)', textDecoration: 'none' }}>

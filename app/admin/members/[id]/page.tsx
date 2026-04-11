@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import { Prisma } from '@prisma/client';
 import { notFound, redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
@@ -49,50 +50,71 @@ export default async function AdminMemberDetailPage({
 
   const { id } = await params;
 
-  const [member, partners, partnerReferral, subgroups, memberSubgroups, counselorRows, activeCounselorAssign, placedOutcomeRow, courseEnrollment] =
-    await Promise.all([
-    prisma.user.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        email: true,
-        fullName: true,
-        phone: true,
-        deletedAt: true,
-        enrolledProgram: true,
-        enrolledAt: true,
-        programChangedAt: true,
-        coursesCompleted: true,
-        assessmentCompleted: true,
-        assessmentCompletedAt: true,
-        assessmentScore: true,
-        assessmentScorePct: true,
-        programInterest: true,
-        assessmentAnswers: true,
-        interviewEligible: true,
-        interviewRequestedAt: true,
-        interviewCompletedAt: true,
-        workspaceEmail: true,
-        workspaceEmailProvisioned: true,
-        wioaQualificationJson: true,
-        wioaReviewStatus: true,
-        wioaReviewedAt: true,
-        wioaReviewedByUserId: true,
-        wioaReviewNotes: true,
-        profile: true,
-        learningProgress: true,
-        userCertifications: true,
-        aiJobMatches: {
+  const fullMemberSelect = {
+    id: true,
+    email: true,
+    fullName: true,
+    phone: true,
+    deletedAt: true,
+    enrolledProgram: true,
+    enrolledAt: true,
+    programChangedAt: true,
+    coursesCompleted: true,
+    assessmentCompleted: true,
+    assessmentCompletedAt: true,
+    assessmentScore: true,
+    assessmentScorePct: true,
+    programInterest: true,
+    assessmentAnswers: true,
+    interviewEligible: true,
+    interviewRequestedAt: true,
+    interviewCompletedAt: true,
+    workspaceEmail: true,
+    workspaceEmailProvisioned: true,
+    wioaQualificationJson: true,
+    wioaReviewStatus: true,
+    wioaReviewedAt: true,
+    wioaReviewedByUserId: true,
+    wioaReviewNotes: true,
+    profile: true,
+    learningProgress: true,
+    userCertifications: true,
+    aiJobMatches: {
+      include: {
+        job: {
           include: {
-            job: {
-              include: {
-                employer: true,
-              },
-            },
+            employer: true,
           },
         },
       },
-    }),
+    },
+  } as const;
+
+  const fallbackMemberSelect = {
+    id: true,
+    email: true,
+    fullName: true,
+    phone: true,
+    deletedAt: true,
+    enrolledProgram: true,
+    enrolledAt: true,
+    programChangedAt: true,
+    coursesCompleted: true,
+    assessmentCompleted: true,
+    assessmentCompletedAt: true,
+    assessmentScore: true,
+    assessmentScorePct: true,
+    programInterest: true,
+    assessmentAnswers: true,
+    interviewEligible: true,
+    interviewRequestedAt: true,
+    interviewCompletedAt: true,
+    workspaceEmail: true,
+    workspaceEmailProvisioned: true,
+    profile: true,
+  } as const;
+
+  const sharedQueries = () => [
     prisma.partner.findMany({
       where: { active: true },
       orderBy: { name: 'asc' },
@@ -122,9 +144,6 @@ export default async function AdminMemberDetailPage({
       where: { memberId: id, active: true },
       include: { counselor: { select: { userId: true, user: { select: { fullName: true } } } } },
     }),
-    // Read from canonical PlacementRecord (includes WIOA fields).
-    // PlacedOutcome is deprecated; PlacementRecord is the source of truth.
-    // Wrapped in catch so missing DB columns (pending migration) don't crash the page.
     prisma.placementRecord.findUnique({ where: { userId: id } }).catch(() => null),
     prisma.courseEnrollment.findUnique({
       where: { userId: id },
@@ -135,7 +154,55 @@ export default async function AdminMemberDetailPage({
         workspaceEmailProvisioned: true,
       },
     }).catch(() => null),
-  ]);
+  ] as const;
+
+  let member: any;
+  let partners: any;
+  let partnerReferral: any;
+  let subgroups: any;
+  let memberSubgroups: any;
+  let counselorRows: any;
+  let activeCounselorAssign: any;
+  let placedOutcomeRow: any;
+  let courseEnrollment: any;
+
+  try {
+    [member, partners, partnerReferral, subgroups, memberSubgroups, counselorRows, activeCounselorAssign, placedOutcomeRow, courseEnrollment] =
+      await Promise.all([
+        prisma.user.findUnique({ where: { id }, select: fullMemberSelect }),
+        ...sharedQueries(),
+      ]);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error ?? '');
+    const looksLikeSchemaDrift =
+      error instanceof Prisma.PrismaClientKnownRequestError ||
+      error instanceof Prisma.PrismaClientUnknownRequestError ||
+      /wioa_|learning_progress|user_certifications|ai_job_matches|a_i_job_matches|organization_program_catalog/i.test(message);
+
+    if (!looksLikeSchemaDrift) throw error;
+
+    console.error('[admin/member-detail] falling back after optional data query failed', error);
+
+    [member, partners, partnerReferral, subgroups, memberSubgroups, counselorRows, activeCounselorAssign, placedOutcomeRow, courseEnrollment] =
+      await Promise.all([
+        prisma.user.findUnique({ where: { id }, select: fallbackMemberSelect }),
+        ...sharedQueries(),
+      ]);
+
+    if (member) {
+      member = {
+        ...member,
+        learningProgress: [],
+        userCertifications: [],
+        aiJobMatches: [],
+        wioaQualificationJson: null,
+        wioaReviewStatus: null,
+        wioaReviewedAt: null,
+        wioaReviewedByUserId: null,
+        wioaReviewNotes: null,
+      };
+    }
+  }
 
   if (!member || member.deletedAt) notFound();
 
@@ -310,7 +377,7 @@ export default async function AdminMemberDetailPage({
           {member.learningProgress && member.learningProgress.length > 0 && (
             <div style={{ marginTop: '1rem', background: 'var(--surface-container-low)', padding: '1rem', borderRadius: '0.5rem' }}>
               <h3 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.5rem' }}>Active Training Data (External)</h3>
-              {member.learningProgress.map((lp) => (
+              {member.learningProgress.map((lp: any) => (
                 <div key={lp.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                   <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{lp.pathwayId}</span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -337,7 +404,7 @@ export default async function AdminMemberDetailPage({
             <div style={{ marginTop: '1.5rem', background: '#fff3cd', border: '1px solid #ffeeba', padding: '1rem', borderRadius: '0.5rem' }}>
               <h3 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.5rem', color: '#856404' }}>⚠️ Unverified External Certifications</h3>
               <ul style={{ margin: 0, paddingLeft: '1.25rem', color: '#856404' }}>
-                {member.userCertifications.map(cert => (
+                {member.userCertifications.map((cert: any) => (
                   <li key={cert.id}>
                     <strong>{cert.certName}</strong> (Earned: {new Date(cert.earnedAt).toLocaleDateString()})
                   </li>
@@ -365,7 +432,7 @@ export default async function AdminMemberDetailPage({
         <MemberSubgroupSection
           memberId={member.id}
           subgroups={subgroups}
-          currentSubgroupIds={memberSubgroups.map((ms) => ms.subgroupId)}
+          currentSubgroupIds={memberSubgroups.map((ms: any) => ms.subgroupId)}
         />
 
         <AdminMemberAiMatches memberId={member.id} matches={member.aiJobMatches} />
@@ -383,7 +450,7 @@ export default async function AdminMemberDetailPage({
           )}
           <AdminMemberCounselorAssign
             memberId={member.id}
-            counselors={counselorRows.map((c) => ({
+            counselors={counselorRows.map((c: any) => ({
               userId: c.userId,
               fullName: c.user.fullName,
               partnerName: c.partner?.name ?? 'WorkforceAP',

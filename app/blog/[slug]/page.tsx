@@ -13,6 +13,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import { PROGRAMS } from '@/lib/content/programs';
 import { ArrowRight } from 'lucide-react';
 import { getDefaultImage } from '@/lib/blog/defaultImages';
+import { resolveBlogHeroImage } from '@/lib/blog/blogHeroImage';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -114,10 +115,7 @@ export default async function BlogPostPage({ params }: Props) {
           ← Back to Blog
         </Link>
         {(() => {
-          const cover = post.coverImage?.trim();
-          const fallback = getDefaultImage(post.category, post.slug);
-          const src = cover || fallback.url;
-          const alt = cover ? `Cover image for ${post.title}` : fallback.alt;
+          const hero = resolveBlogHeroImage(post.coverImage, post.category, post.slug);
           return (
             <div
               style={{
@@ -128,8 +126,8 @@ export default async function BlogPostPage({ params }: Props) {
               }}
             >
               <Image
-                src={src}
-                alt={alt}
+                src={hero.src}
+                alt={hero.alt}
                 width={680}
                 height={383}
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}

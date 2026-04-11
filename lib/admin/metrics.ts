@@ -1,5 +1,39 @@
 import { prisma } from '@/lib/db/prisma';
 
+const EVENT_ONLY_AI_TOOLS = new Set([
+  'readiness_voice_session',
+  'wioa_prequalification_voice_session',
+  'employer_voice_session',
+  'partner_voice_session',
+]);
+
+async function countEventOnlyAiRunsBetween(start: Date, end: Date): Promise<number> {
+  const events = await prisma.memberEvent.findMany({
+    where: {
+      createdAt: { gte: start, lte: end },
+      eventName: 'ai_tool_run_started',
+      entityType: 'ai_tool',
+    },
+    select: { metadata: true },
+  });
+
+  return events.reduce((count, event) => {
+    const tool = typeof event.metadata === 'object' && event.metadata && 'tool' in event.metadata
+      ? (event.metadata as { tool?: unknown }).tool
+      : null;
+    return typeof tool === 'string' && EVENT_ONLY_AI_TOOLS.has(tool) ? count + 1 : count;
+  }, 0);
+}
+
+async function countAiToolRunsBetween(start: Date, end: Date): Promise<number> {
+  const [savedResults, eventOnlyRuns] = await Promise.all([
+    prisma.aIToolResult.count({ where: { createdAt: { gte: start, lte: end } } }),
+    countEventOnlyAiRunsBetween(start, end),
+  ]);
+
+  return savedResults + eventOnlyRuns;
+}
+
 /** Generate daily activity for the last N days */
 async function getDailyActivity(days: number): Promise<{ date: string; events: number; aiTools: number; applications: number }[]> {
   const result: { date: string; events: number; aiTools: number; applications: number }[] = [];
@@ -12,7 +46,7 @@ async function getDailyActivity(days: number): Promise<{ date: string; events: n
     end.setHours(23, 59, 59, 999);
     const [events, aiTools, applications] = await Promise.all([
       prisma.memberEvent.count({ where: { createdAt: { gte: start, lte: end } } }),
-      prisma.aIToolResult.count({ where: { createdAt: { gte: start, lte: end } } }),
+      countAiToolRunsBetween(start, end),
       prisma.jobApplication.count({ where: { createdAt: { gte: start, lte: end }, status: { not: 'SAVED' } } }),
     ]);
     result.push({ date: start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), events, aiTools, applications });
@@ -47,6 +81,7 @@ export async function getAdminMetrics() {
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
   const fourteenDaysAgo = new Date();
   fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+  const aiToolUsagePromise = countAiToolRunsBetween(new Date(0), new Date());
 
   const [
     totalMembers,
@@ -72,7 +107,7 @@ export async function getAdminMetrics() {
     prisma.goal.count({ where: { status: 'ACTIVE' } }),
     prisma.jobApplication.count({ where: { status: { not: 'SAVED' } } }),
     prisma.resourceProgress.count({ where: { completedAt: { not: null } } }),
-    prisma.aIToolResult.count(),
+    aiToolUsagePromise,
     prisma.learningProgress.count(),
   ]);
 

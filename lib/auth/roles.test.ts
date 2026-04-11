@@ -5,17 +5,19 @@ import { requireAdmin, isAdmin } from './roles';
 import { prisma } from '../db/prisma';
 
 test('requireAdmin throws error when user is not admin', async (t) => {
-  const originalFindUnique = prisma.profile.findUnique;
-  const originalFindMany = prisma.userRole.findMany;
+  const profileDelegate = prisma.profile as any;
+  const userRoleDelegate = prisma.userRole as any;
+  const originalFindUnique = profileDelegate.findUnique;
+  const originalFindMany = userRoleDelegate.findMany;
 
   t.after(() => {
-    prisma.profile.findUnique = originalFindUnique;
-    prisma.userRole.findMany = originalFindMany;
+    profileDelegate.findUnique = originalFindUnique;
+    userRoleDelegate.findMany = originalFindMany;
   });
 
   // Mock Prisma responses so user is not an admin
-  prisma.profile.findUnique = async () => ({ role: 'member' } as any);
-  prisma.userRole.findMany = async () => ([] as any[]);
+  profileDelegate.findUnique = async () => ({ role: 'member' } as any);
+  userRoleDelegate.findMany = async () => ([] as any[]);
 
   // verify isAdmin returns false first
   const isAdm = await isAdmin('user-1');
@@ -29,17 +31,19 @@ test('requireAdmin throws error when user is not admin', async (t) => {
 });
 
 test('requireAdmin succeeds when user is admin', async (t) => {
-  const originalFindUnique = prisma.profile.findUnique;
-  const originalFindMany = prisma.userRole.findMany;
+  const profileDelegate = prisma.profile as any;
+  const userRoleDelegate = prisma.userRole as any;
+  const originalFindUnique = profileDelegate.findUnique;
+  const originalFindMany = userRoleDelegate.findMany;
 
   t.after(() => {
-    prisma.profile.findUnique = originalFindUnique;
-    prisma.userRole.findMany = originalFindMany;
+    profileDelegate.findUnique = originalFindUnique;
+    userRoleDelegate.findMany = originalFindMany;
   });
 
   // Mock Prisma responses so user is an admin
-  prisma.profile.findUnique = async () => ({ role: 'admin' } as any);
-  prisma.userRole.findMany = async () => ([] as any[]);
+  profileDelegate.findUnique = async () => ({ role: 'admin' } as any);
+  userRoleDelegate.findMany = async () => ([] as any[]);
 
   const isAdm = await isAdmin('user-1');
   assert.equal(isAdm, true);

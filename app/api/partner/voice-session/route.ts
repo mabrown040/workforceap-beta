@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
 import { fetchPartnerPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
+import { trackEvent } from '@/lib/events/track';
 
 /** POST — signed URL for partner-facing voice assistant. Requires `ELEVENLABS_PARTNER_AGENT_ID`. */
 export async function POST() {
@@ -15,6 +16,14 @@ export async function POST() {
   }
 
   try {
+    void trackEvent({
+      userId: user.id,
+      eventName: 'ai_tool_run_started',
+      entityType: 'ai_tool',
+      metadata: { tool: 'partner_voice_session', provider: 'elevenlabs' },
+      sourcePage: '/partner',
+    }).catch(() => {});
+
     const dynamicVariables = await fetchPartnerPortalDynamicVariables(user.id);
     const { signedUrl, expiresAt, dynamicVariables: returned } = await startElevenLabsPortalSession('partner', {
       dynamicVariables,

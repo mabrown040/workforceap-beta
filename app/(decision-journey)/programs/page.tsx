@@ -352,7 +352,7 @@ export default function ProgramsPage() {
               }}
             >
               {[
-                { icon: 'interests', label: 'Your interests', desc: 'What topics genuinely curious you — tech, healthcare, business, or something else.' },
+                { icon: 'interests', label: 'Your interests', desc: 'What genuinely interests you — tech, healthcare, business, or something else.' },
                 { icon: 'devices', label: 'Comfort with technology', desc: 'Some programs assume no prior tech experience; others move faster from day one.' },
                 { icon: 'schedule', label: 'Your timeline', desc: 'How quickly you need to be working. Programs range from 4 weeks to several months.' },
                 { icon: 'work', label: 'Job direction', desc: 'The specific roles you\'re aiming for — knowing the title helps narrow the track.' },

@@ -9,9 +9,24 @@ const CATEGORY_CHIPS = ['All', 'Programs', 'Cost', 'Eligibility', 'Process', 'Em
 
 const FAQ_ITEMS = [
   {
-    q: 'What is the cost?',
-    a: 'Our programs are 100% free for eligible candidates. We believe in removing financial barriers to high-quality technical education and workforce development. No hidden fees, no textbook costs, no application charges.',
+    q: 'Is it really free?',
+    a: 'Yes — completely. No tuition, no application fee, no hidden costs, no textbooks to buy, and no certification exam fees. Our programs are funded through federal workforce grants, employer partnerships, and community support. You will never receive a bill from us.',
     category: 'Cost',
+  },
+  {
+    q: 'Who qualifies?',
+    a: "Most people who apply do qualify. You need to be 16 or older, a U.S. citizen or permanent resident, and have (or be working toward) a high school diploma or GED. We prioritize people who are unemployed, underemployed, or looking to change careers. If you're unsure, apply anyway — we'll let you know within 24–48 hours.",
+    category: 'Eligibility',
+  },
+  {
+    q: 'What if I\'m not technical?',
+    a: "That's exactly who we built this for. Our programs start from zero — no coding background, no IT history required. We've helped career-changers and adults who've never worked in tech land roles in IT, cybersecurity, and data analytics. What matters most is your commitment to finishing.",
+    category: 'Eligibility',
+  },
+  {
+    q: "What if I'm starting over?",
+    a: "Starting over is one of the most common reasons people come to us. Whether you left a job, got laid off, or are just ready for a different path — we work with you from where you are now. Your counselor will help you pick the right program and stay on track.",
+    category: 'Eligibility',
   },
   {
     q: 'How long are programs?',
@@ -19,29 +34,34 @@ const FAQ_ITEMS = [
     category: 'Programs',
   },
   {
-    q: 'Do I need tech experience?',
-    a: 'No. Our programs are built for beginners. We\'ve trained career-changers, unemployed workers, and people with zero tech experience. We start with fundamentals.',
-    category: 'Eligibility',
+    q: 'Do you help members find jobs?',
+    a: "Yes — job placement is a core part of what we do. We provide resume building, interview prep, LinkedIn coaching, and direct connections to employers hiring for your role. Most graduates secure employment within 3–6 months of certification.",
+    category: 'Process',
   },
   {
-    q: 'Is there a laptop program?',
-    a: 'Access to a computer and internet is required to participate. Upon successful program completion, you may earn a refurbished laptop through our Loaner Laptop Program.',
+    q: 'Is this online?',
+    a: "Yes. All training is delivered virtually — you can participate from home or anywhere with a reliable internet connection. No commute, no relocation required. Some programs include optional in-person events if you want them.",
     category: 'Programs',
+  },
+  {
+    q: 'What happens after I apply?',
+    a: 'Here\'s what to expect: (1) You submit our online application — takes about 10 minutes. (2) We review and follow up within 48 hours. (3) We schedule a brief call to understand your goals. (4) If it\'s a good fit, you get a start date and onboarding instructions. No test, no gatekeeping.',
+    category: 'Process',
+  },
+  {
+    q: 'Do I need a laptop?',
+    a: "You need access to a computer and reliable internet to participate. If you don't have a laptop, apply anyway — members who complete a program may qualify for a refurbished laptop through our Loaner Laptop Program. We won't turn away a committed member over equipment.",
+    category: 'Programs',
+  },
+  {
+    q: 'Can I talk to someone first?',
+    a: "Absolutely. If you have questions or want to talk through whether this is a good fit before committing, reach out. Our team responds within 24–48 hours and is happy to have a real conversation.",
+    category: 'Process',
   },
   {
     q: 'Are these industry certifications?',
-    a: 'Yes. You\'ll earn industry-recognized certificates from partners like Google, IBM, Microsoft, Amazon, and CompTIA. These are the same credentials employers hire against.',
+    a: "Yes. You'll earn industry-recognized certificates from partners like Google, IBM, Microsoft, Amazon, and CompTIA. These are the same credentials employers hire against.",
     category: 'Programs',
-  },
-  {
-    q: 'What are the eligibility requirements?',
-    a: 'To apply: (1) 16 years or older, (2) U.S. citizen or permanent resident, (3) high school diploma or GED (or in process), (4) committed to program completion, (5) willing to participate in job placement.',
-    category: 'Eligibility',
-  },
-  {
-    q: 'What is the application process?',
-    a: 'Simple: (1) Fill out our online form, (2) We review within 48 hours, (3) We schedule a brief call to discuss your goals, (4) You get your start date and onboarding. No test, no gatekeeping.',
-    category: 'Process',
   },
   {
     q: 'How do employer partnerships work?',

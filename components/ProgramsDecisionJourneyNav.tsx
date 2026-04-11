@@ -177,13 +177,14 @@ export default function ProgramsDecisionJourneyNav({
 
         @media (max-width: 639px) {
           .pdj-nav {
+            position: relative;
+            top: auto;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
-            top: 4rem;
             border-radius: var(--radius-lg);
-            margin-left: 0.5rem;
-            margin-right: 0.5rem;
+            margin: 0.75rem 0.5rem 1rem;
+            max-width: none;
           }
           .pdj-nav::-webkit-scrollbar { display: none; }
 

@@ -7,36 +7,42 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 
 const CATEGORY_CHIPS = ['All', 'Programs', 'Cost', 'Eligibility', 'Process', 'Employers'];
 
-const FAQ_ITEMS = [
+const FAQ_ITEMS: { q: string; a: string; category: string; link?: { text: string; href: string } }[] = [
   {
     q: 'Is it really free?',
     a: 'Yes — completely. No tuition, no application fee, no hidden costs, no textbooks to buy, and no certification exam fees. Our programs are funded through federal workforce grants, employer partnerships, and community support. You will never receive a bill from us.',
     category: 'Cost',
+    link: { text: 'View Programs', href: '/programs' },
   },
   {
     q: 'Who qualifies?',
     a: "Most people who apply do qualify. You need to be 16 or older, a U.S. citizen or permanent resident, and have (or be working toward) a high school diploma or GED. We prioritize people who are unemployed, underemployed, or looking to change careers. If you're unsure, apply anyway — we'll let you know within 24–48 hours.",
     category: 'Eligibility',
+    link: { text: 'Start Your Application', href: '/apply' },
   },
   {
     q: 'What if I\'m not technical?',
     a: "That's exactly who we built this for. Our programs start from zero — no coding background, no IT history required. We've helped career-changers and adults who've never worked in tech land roles in IT, cybersecurity, and data analytics. What matters most is your commitment to finishing.",
     category: 'Eligibility',
+    link: { text: 'Take the Career Quiz', href: '/find-your-path' },
   },
   {
     q: "What if I'm starting over?",
     a: "Starting over is one of the most common reasons people come to us. Whether you left a job, got laid off, or are just ready for a different path — we work with you from where you are now. Your counselor will help you pick the right program and stay on track.",
     category: 'Eligibility',
+    link: { text: 'Find Your Path', href: '/find-your-path' },
   },
   {
-    q: 'How long are programs?',
+    q: 'How long do programs take?',
     a: 'Most programs take 3–5 months at 10 hours per week. Digital Literacy is shorter at 6–7 weeks. Programs are designed to be completed while working part-time or managing family responsibilities.',
     category: 'Programs',
+    link: { text: 'Explore Programs', href: '/programs' },
   },
   {
     q: 'Do you help members find jobs?',
     a: "Yes — job placement is a core part of what we do. We provide resume building, interview prep, LinkedIn coaching, and direct connections to employers hiring for your role. Most graduates secure employment within 3–6 months of certification.",
     category: 'Process',
+    link: { text: 'Apply Now', href: '/apply' },
   },
   {
     q: 'Is this online?',
@@ -47,6 +53,7 @@ const FAQ_ITEMS = [
     q: 'What happens after I apply?',
     a: 'Here\'s what to expect: (1) You submit our online application — takes about 10 minutes. (2) We review and follow up within 48 hours. (3) We schedule a brief call to understand your goals. (4) If it\'s a good fit, you get a start date and onboarding instructions. No test, no gatekeeping.',
     category: 'Process',
+    link: { text: 'Start Your Application', href: '/apply' },
   },
   {
     q: 'Do I need a laptop?',
@@ -57,6 +64,7 @@ const FAQ_ITEMS = [
     q: 'Can I talk to someone first?',
     a: "Absolutely. If you have questions or want to talk through whether this is a good fit before committing, reach out. Our team responds within 24–48 hours and is happy to have a real conversation.",
     category: 'Process',
+    link: { text: 'Contact Us', href: '/contact' },
   },
   {
     q: 'Are these industry certifications?',
@@ -186,6 +194,15 @@ export default function FAQMobileSection() {
                   {isOpen && (
                     <div style={{ paddingLeft: '1.25rem', paddingRight: '1.25rem', paddingBottom: '1.25rem' }}>
                       <p className="text-[#584144] text-sm leading-relaxed">{item.a}</p>
+                      {item.link && (
+                        <Link
+                          href={item.link.href}
+                          className="inline-flex items-center gap-1 text-[#8c0f37] font-semibold text-sm hover:underline mt-3"
+                        >
+                          {item.link.text}
+                          <span className="material-symbols-outlined text-sm" aria-hidden="true">arrow_forward</span>
+                        </Link>
+                      )}
                     </div>
                   )}
                 </div>

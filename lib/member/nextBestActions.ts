@@ -21,6 +21,7 @@ export type NextBestActionsContext = {
   assessmentCompleted: boolean;
   hasResume: boolean;
   profileCompletenessPct: number;
+  profileMissingFields?: string[];
   jobApplicationCount: number;
   counselorUnreadCount: number;
   weeklyRecapUnopened: boolean;
@@ -110,10 +111,12 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
   }
 
   if (ctx.profileCompletenessPct < 55 && ctx.enrolledProgram) {
+    const missing = ctx.profileMissingFields?.slice(0, 3) ?? [];
+    const missingNote = missing.length > 0 ? ` Missing: ${missing.join(', ')}.` : '';
     out.push({
       id: 'complete_profile',
       title: 'Strengthen your profile',
-      body: `Profile completeness: ${ctx.profileCompletenessPct}% — add a few details for better matches and AI tools.`,
+      body: `Profile ${ctx.profileCompletenessPct}% complete — employers and AI tools use this data.${missingNote}`,
       href: '/dashboard/profile',
       cta: 'Complete profile',
       variant: 'default',

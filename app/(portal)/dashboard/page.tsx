@@ -21,7 +21,7 @@ import MemberNextStepsStrip from '@/components/portal/MemberNextStepsStrip';
 import PortalEntryErrorBoundary from '@/components/portal/PortalEntryErrorBoundary';
 import { getMemberEngagementSignals } from '@/lib/member/memberEngagementSignals';
 import { buildNextBestActions } from '@/lib/member/nextBestActions';
-import { getProfileCompleteness } from '@/lib/resume/profileCompleteness';
+import { getProfileCompleteness, getProfileMissingFields } from '@/lib/resume/profileCompleteness';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
 import LogCertificationModal from './LogCertificationModal';
@@ -235,6 +235,10 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     fullName: dbUser.fullName,
     email: dbUser.email,
   });
+  const profileMissingFields = getProfileMissingFields(profileForCompleteness, {
+    fullName: dbUser.fullName,
+    email: dbUser.email,
+  });
 
   let nextBestActions = buildNextBestActions({
     state: dashboardState,
@@ -243,6 +247,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     assessmentCompleted,
     hasResume: engagementSignals.hasResume,
     profileCompletenessPct,
+    profileMissingFields,
     jobApplicationCount: engagementSignals.jobApplicationCount,
     counselorUnreadCount: engagementSignals.counselorUnreadCount,
     weeklyRecapUnopened: engagementSignals.weeklyRecapUnopened,
@@ -452,7 +457,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                   <span className="material-symbols-outlined wa-text-xl" style={{ color:"#ffbb00", '--ms-fill': 1 }} aria-hidden>bolt</span>
                 </div>
                 <p style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.88)', margin: 0, lineHeight: 1.5 }}>
-                  For {applicationStatus.programInterest ?? program?.title ?? 'your program'}.
+                  For {program?.title ?? applicationStatus.programInterest ?? 'your program'}.
                 </p>
                 <Link
                   href={applicationStatus.nextStepHref}
@@ -720,25 +725,6 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                     <span className="material-symbols-outlined" style={{ fontSize:'1.25rem', color:'var(--color-accent)', flexShrink:0 }}>smart_toy</span>
                     <div style={{ flex:1, minWidth:0 }}>
                       <p style={{ fontSize:'0.875rem', fontWeight:600, margin:0, color:'var(--color-on-surface)' }}>{AI_TOOL_LABELS[r.toolType] ?? r.toolType}</p>
-                      {r.inputSummary && (
-                      <p
-                        style={{
-                          fontSize: '0.8rem',
-                          color: 'var(--color-on-surface-variant)',
-                          margin: '0.1rem 0 0',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {stripMarkdownForPreview(r.inputSummary)}
-                      </p>
-                    )}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: '0.875rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>
-                        {AI_TOOL_LABELS[r.toolType] ?? r.toolType}
-                      </p>
                       {r.inputSummary && (
                         <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0.1rem 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {stripMarkdownForPreview(r.inputSummary)}

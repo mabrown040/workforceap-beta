@@ -35,6 +35,18 @@ export default async function JobsPage() {
     }
   }
 
+  // SSR: fetch applied job IDs so job cards can show "Applied" badge
+  let appliedJobIds: string[] = [];
+  if (user) {
+    try {
+      const apps = await prisma.jobApplication.findMany({
+        where: { userId: user.id, status: { not: 'SAVED' }, curatedJobId: { not: null } },
+        select: { curatedJobId: true },
+      });
+      appliedJobIds = apps.map((a) => a.curatedJobId).filter((id): id is string => id !== null);
+    } catch { /* non-critical — badge just won't show */ }
+  }
+
   // SSR: Prefetch first 20 jobs for SEO and faster initial load
   let initialJobs: Array<{
     id: string;
@@ -132,21 +144,23 @@ export default async function JobsPage() {
                 </p>
               </div>
               <Suspense fallback={<JobsBoardSkeleton />}>
-                <JobsListingClient 
-                  isAuthenticated={!!user} 
-                  ageGroup={ageGroup} 
+                <JobsListingClient
+                  isAuthenticated={!!user}
+                  ageGroup={ageGroup}
                   initialJobs={initialJobs}
                   initialTotal={initialTotal}
+                  appliedJobIds={appliedJobIds}
                 />
               </Suspense>
             </>
           ) : (
             <Suspense fallback={<JobsBoardSkeleton />}>
-              <JobsListingClient 
-                isAuthenticated={!!user} 
+              <JobsListingClient
+                isAuthenticated={!!user}
                 ageGroup={ageGroup}
                 initialJobs={initialJobs}
                 initialTotal={initialTotal}
+                appliedJobIds={appliedJobIds}
               />
             </Suspense>
           )}

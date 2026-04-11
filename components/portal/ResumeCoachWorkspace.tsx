@@ -9,6 +9,32 @@ import { resumeCoachVoiceSurface } from '@/lib/portal/voice';
 
 type LiveSuggestion = ResumeSuggestion & { id: string; source?: 'live' | 'post' };
 
+function CopyDraftButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        navigator.clipboard.writeText(text).then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        }).catch(() => {});
+      }}
+      style={{
+        fontSize: '0.72rem',
+        fontWeight: 600,
+        color: copied ? '#16a34a' : 'var(--color-on-surface-variant)',
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        padding: 0,
+      }}
+    >
+      {copied ? '✓ Copied' : 'Copy'}
+    </button>
+  );
+}
+
 function newSuggestionId(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
   return `s-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
@@ -322,7 +348,11 @@ export default function ResumeCoachWorkspace() {
             }}
           >
             <h4 style={{ fontSize: '0.95rem', margin: 0 }}>Live Resume Draft</h4>
-            {hydrated && saveStatus !== 'idle' ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              {hydrated && resumeText.trim() && (
+                <CopyDraftButton text={resumeText} />
+              )}
+              {hydrated && saveStatus !== 'idle' ? (
               <span
                 style={{
                   fontSize: '0.72rem',
@@ -339,7 +369,8 @@ export default function ResumeCoachWorkspace() {
                 {saveStatus === 'saved' && 'Saved to profile'}
                 {saveStatus === 'error' && 'Could not save — try again'}
               </span>
-            ) : null}
+              ) : null}
+            </div>
           </div>
           <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem', marginBottom: '1rem' }}>
             {hydrated

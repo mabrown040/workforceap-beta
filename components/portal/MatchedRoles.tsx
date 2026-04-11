@@ -17,13 +17,24 @@ export default function MatchedRoles() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/member/matched-jobs')
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+
+    fetch('/api/member/matched-jobs', { signal: controller.signal })
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data.jobs)) setJobs(data.jobs);
       })
       .catch(() => {})
-      .finally(() => setLoading(false));
+      .finally(() => {
+        clearTimeout(timeout);
+        setLoading(false);
+      });
+
+    return () => {
+      clearTimeout(timeout);
+      controller.abort();
+    };
   }, []);
 
   if (loading) {

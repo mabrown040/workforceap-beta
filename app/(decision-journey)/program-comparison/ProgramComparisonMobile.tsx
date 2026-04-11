@@ -34,7 +34,7 @@ export default function ProgramComparisonMobile({ rows }: { rows: ComparisonRow[
             Compare Programs
           </h2>
           <p style={{ color: '#584144', fontSize: '1rem', lineHeight: 1.6, margin: 0 }}>
-            Find the right fit for your goals and timeline through our curated workforce paths.
+            See how programs differ on time commitment, difficulty, and salary potential — so you can pick the one that fits your life and goals.
           </p>
         </section>
 
@@ -264,8 +264,46 @@ export default function ProgramComparisonMobile({ rows }: { rows: ComparisonRow[
             fontSize: '0.9375rem',
           }}
         >
-          Apply to Best Match
+          Apply Now
         </Link>
+        <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
+          <Link
+            href="/programs"
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '3rem',
+              borderRadius: '0.75rem',
+              fontWeight: 600,
+              color: '#8c0f37',
+              textDecoration: 'none',
+              background: '#ebe7e7',
+              fontSize: '0.875rem',
+            }}
+          >
+            Explore Programs
+          </Link>
+          <Link
+            href="/find-your-path"
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '3rem',
+              borderRadius: '0.75rem',
+              fontWeight: 600,
+              color: '#8c0f37',
+              textDecoration: 'none',
+              background: '#ebe7e7',
+              fontSize: '0.875rem',
+            }}
+          >
+            Find Your Path
+          </Link>
+        </div>
       </div>
 
       <Footer />

@@ -51,13 +51,13 @@ export default function ProgramComparisonPage() {
               letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '1rem',
             }}>
               <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">compare_arrows</span>
-              Curator Comparison
+              Program Comparison
             </span>
             <h1 className="text-display-lg" style={{ marginBottom: '1rem' }}>
-              Architect Your Civic Future
+              Which program fits your goals?
             </h1>
             <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.125rem', lineHeight: 1.7, marginBottom: '1.5rem' }}>
-              One decision journey: narrow your options, then put 2-4 tracks side-by-side to see tradeoffs - time, difficulty, salary band, and best-fit.
+              Compare programs side-by-side on the factors that matter: time commitment, difficulty, skill area, job direction, and salary potential. Pick 2–4 tracks to see tradeoffs at a glance.
             </p>
             <ExperimentedCtaLink
               experiment="program_compare_quiz_cta"
@@ -143,8 +143,11 @@ export default function ProgramComparisonPage() {
 
         {/* Bottom CTAs */}
         <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 2rem 4rem', textAlign: 'center' }}>
+          <Link href="/programs" className="btn btn-outline" style={{ marginRight: '1rem' }}>
+            Explore Programs
+          </Link>
           <Link href="/salary-guide" className="btn btn-outline" style={{ marginRight: '1rem' }}>
-            View Full Salary Guide
+            View Salary Guide
           </Link>
           <Link href="/apply" className="btn btn-primary">
             Apply Now

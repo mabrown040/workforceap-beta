@@ -4,9 +4,9 @@ import { handleLearningCompletion } from '@/lib/workflows/careerOS';
 export async function POST(req: Request) {
   try {
     const { memberId, courseName, secret } = await req.json();
-    
-    // Basic auth check
-    if (secret !== process.env.WEBHOOK_SECRET) {
+
+    const expectedSecret = process.env.WEBHOOK_SECRET;
+    if (!expectedSecret || secret !== expectedSecret) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

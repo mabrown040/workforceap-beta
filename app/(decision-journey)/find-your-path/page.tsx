@@ -16,12 +16,9 @@ export default function FindYourPathPage() {
       className="inner-page marketing-stack marketing-stack--enter"
       style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}
     >
-      {/* Desktop layout — hidden on mobile */}
-      <div className="marketing-desktop">
-
       {/* Hero */}
       <section style={{
-        padding: '5rem 2rem 3rem',
+        padding: 'clamp(2rem, 6vw, 5rem) 1.25rem 2rem',
         maxWidth: '1400px',
         margin: '0 auto',
       }}>
@@ -58,8 +55,8 @@ export default function FindYourPathPage() {
       </section>
 
       {/* Decision Path Tabs + Quiz */}
-      <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 2rem 4rem' }}>
-        <div style={{
+      <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 1.25rem 4rem' }}>
+        <div className="find-path-layout" style={{
           display: 'grid',
           gridTemplateColumns: '1fr 300px',
           gap: '2.5rem',
@@ -114,38 +111,13 @@ export default function FindYourPathPage() {
         </div>
       </section>
 
-      </div>{/* end hidden md:block desktop wrapper */}
-
-      {/* ══════════════════════════════════════════════
-          MOBILE LAYOUT ≤640px — interactive quiz
-          ══════════════════════════════════════════════ */}
-      <div className="marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
-        {/* Mobile Hero */}
-        <div style={{ padding: '4.5rem 1.25rem 1rem' }}>
-          <span style={{
-            display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
-            padding: '0.25rem 0.6rem', borderRadius: '9999px',
-            background: 'rgba(173,44,77,0.12)', color: '#ad2c4d',
-            fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.06em',
-            textTransform: 'uppercase', marginBottom: '0.5rem',
-          }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '0.75rem' }} aria-hidden="true">explore</span>
-            Career Path Quiz
-          </span>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--color-on-surface)', marginBottom: '0.375rem' }}>Find Your Path</h1>
-          <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: '0.375rem' }}>
-            Not sure where to start? Answer a few quick questions and get recommended paths based on your interests and goals.
-          </p>
-          <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: 0, fontStyle: 'italic' }}>
-            You can always come back and explore different paths — just answer honestly.
-          </p>
-        </div>
-        {/* Quiz */}
-        <div style={{ padding: '0 1.25rem 2rem' }}>
-          <FindYourPathClient idPrefix="fyp-mobile" />
-        </div>
-      </div>
-
+      <style>{`
+        @media (max-width: 900px) {
+          .find-path-layout {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

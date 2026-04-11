@@ -12,3 +12,6 @@
 ## 2024-03-24 - Accessibility for inline instructional text in custom forms
 **Learning:** When building custom forms without standard UI component libraries like Radix, inline instructional or helper text placed adjacent to inputs is not automatically read by screen readers, leading to confusing or incomplete experiences.
 **Action:** Always map helper or hint text directly to the associated `<input>` using the `aria-describedby` attribute pointing to the ID of the helper text container.
+## 2025-04-11 - Accessibility for confirmation input fields
+**Learning:** For confirmation inputs like "Type DELETE to confirm", placeholder text is often insufficient as an accessible label. While there may be instructional text adjacent to the field, screen readers will only announce it if it's explicitly linked via `aria-describedby` or if the input itself has an `aria-label`.
+**Action:** Always provide an explicit `aria-label` or link nearby instructional text with `aria-describedby` for confirmation input fields to ensure the instruction is announced to screen reader users when the input receives focus.

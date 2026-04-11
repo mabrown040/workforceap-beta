@@ -77,6 +77,7 @@ export default function DeleteAccountButton() {
               value={confirmText}
               onChange={(e) => setConfirmText(e.target.value)}
               placeholder="Type DELETE to confirm"
+              aria-label="Type DELETE to confirm"
               autoComplete="off"
               style={{ width: '100%', marginBottom: '1rem', padding: '0.5rem' }}
             />

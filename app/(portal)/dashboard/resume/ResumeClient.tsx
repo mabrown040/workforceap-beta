@@ -21,6 +21,7 @@ type ResumeClientProps = {
   witData: WitData;
   hasOriginal: boolean;
   hasEnhanced: boolean;
+  layout?: 'side-by-side';
 };
 
 export default function ResumeClient({
@@ -28,6 +29,7 @@ export default function ResumeClient({
   witData,
   hasOriginal: initialHasOriginal,
   hasEnhanced: initialHasEnhanced,
+  layout,
 }: ResumeClientProps) {
   const recommendedProfileCompleteness = 50;
   const [resumeData, setResumeData] = useState<{
@@ -196,304 +198,361 @@ export default function ResumeClient({
   const hasOriginal = resumeData?.hasOriginal ?? initialHasOriginal;
   const hasEnhanced = resumeData?.hasEnhanced ?? initialHasEnhanced;
 
-  return (
-    <div>
-      <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Upload</h2>
+  // ── Section elements ──────────────────────────────────────────────────────
+
+  const uploadSection = (
+    <section style={{ marginBottom: '1.5rem' }}>
+      <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.75rem' }}>Upload</h2>
+      <div
+        className={`counselor-resume-upload ${dragover ? 'dragover' : ''}`}
+        onDragOver={(e) => { e.preventDefault(); setDragover(true); }}
+        onDragLeave={() => setDragover(false)}
+        onDrop={handleDrop}
+        onClick={() => document.getElementById('resume-file-input')?.click()}
+      >
+        <input
+          id="resume-file-input"
+          type="file"
+          accept=".pdf,.doc,.docx,.txt"
+          onChange={handleFileInput}
+          style={{ display: 'none' }}
+        />
+        <p style={{ margin: 0, color: 'var(--color-on-surface-variant)' }}>
+          {uploading ? 'Uploading…' : 'Drag and drop your resume here, or click to browse'}
+        </p>
+        <p style={{ margin: '0.5rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+          PDF, DOC, DOCX, TXT — max 5MB
+        </p>
+      </div>
+      {uploadError && <p style={{ color: '#c00', marginTop: '0.5rem' }}>{uploadError}</p>}
+    </section>
+  );
+
+  const aiGeneratorSection = (
+    <section id="resume-ai-generator" style={{ marginBottom: '1.5rem' }}>
+      <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.75rem' }}>AI Generator</h2>
+      <div style={{ marginBottom: '0.5rem' }}>
+        <span>Profile completeness: {completeness}%</span>
+        <div className="counselor-profile-bar">
+          <div className="counselor-profile-bar-fill" style={{ width: `${completeness}%` }} />
+        </div>
+      </div>
+      {completeness < recommendedProfileCompleteness && (
+        <p style={{ marginBottom: '0.75rem' }}>
+          <Link href="/dashboard/profile" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+            Complete My Profile
+          </Link>
+          {' '}for a better resume. You can still generate now.
+        </p>
+      )}
+      <button
+        type="button"
+        className="btn btn-primary"
+        onClick={handleGenerate}
+        disabled={generating}
+      >
+        {generating ? 'Generating…' : hasEnhanced ? 'Re-enhance with AI' : 'Generate Resume'}
+      </button>
+      {generateError && <p style={{ color: '#c00', marginTop: '0.5rem' }}>{generateError}</p>}
+    </section>
+  );
+
+  const resumePreviewSection = (hasOriginal || hasEnhanced) ? (
+    <section style={{ marginBottom: '1.5rem' }}>
+      <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.75rem' }}>Your Resume</h2>
+
+      {/* Original resume */}
+      {hasOriginal && (
         <div
-          className={`counselor-resume-upload ${dragover ? 'dragover' : ''}`}
-          onDragOver={(e) => { e.preventDefault(); setDragover(true); }}
-          onDragLeave={() => setDragover(false)}
-          onDrop={handleDrop}
-          onClick={() => document.getElementById('resume-file-input')?.click()}
+          style={{
+            marginBottom: '1.25rem',
+            border: '1px solid var(--outline-variant)',
+            borderRadius: 'var(--radius-md)',
+            overflow: 'hidden',
+          }}
         >
-          <input
-            id="resume-file-input"
-            type="file"
-            accept=".pdf,.doc,.docx,.txt"
-            onChange={handleFileInput}
-            style={{ display: 'none' }}
-          />
-          <p style={{ margin: 0, color: 'var(--color-on-surface-variant)' }}>
-            {uploading ? 'Uploading…' : 'Drag and drop your resume here, or click to browse'}
-          </p>
-          <p style={{ margin: '0.5rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-            PDF, DOC, DOCX, TXT — max 5MB
-          </p>
-        </div>
-        {uploadError && <p style={{ color: '#c00', marginTop: '0.5rem' }}>{uploadError}</p>}
-      </section>
-
-      <section id="resume-ai-generator" style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>AI Generator</h2>
-        <div style={{ marginBottom: '0.5rem' }}>
-          <span>Profile completeness: {completeness}%</span>
-          <div className="counselor-profile-bar">
-            <div className="counselor-profile-bar-fill" style={{ width: `${completeness}%` }} />
-          </div>
-        </div>
-        {completeness < recommendedProfileCompleteness && (
-          <p style={{ marginBottom: '0.75rem' }}>
-            <Link href="/dashboard/profile" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-              Complete My Profile
-            </Link>
-            {' '}for a better resume. You can still generate now.
-          </p>
-        )}
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={handleGenerate}
-          disabled={generating}
-        >
-          {generating ? 'Generating…' : hasEnhanced ? 'Re-enhance with AI' : 'Generate Resume'}
-        </button>
-        {generateError && <p style={{ color: '#c00', marginTop: '0.5rem' }}>{generateError}</p>}
-      </section>
-
-      {(hasOriginal || hasEnhanced) && (
-        <section style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Your Resume</h2>
-
-          {/* Original resume — same-origin PDF / Word HTML preview (avoids cross-origin iframe issues) */}
-          {hasOriginal && (
-            <div
-              style={{
-                marginBottom: '1.25rem',
-                border: '1px solid var(--outline-variant)',
-                borderRadius: 'var(--radius-md)',
-                overflow: 'hidden',
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '0.6rem 0.9rem',
-                  background: 'var(--surface-container)',
-                  borderBottom: '1px solid var(--outline-variant)',
-                  fontSize: '0.85rem',
-                }}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '0.6rem 0.9rem',
+              background: 'var(--surface-container)',
+              borderBottom: '1px solid var(--outline-variant)',
+              fontSize: '0.85rem',
+            }}
+          >
+            <span style={{ fontWeight: 600 }}>📄 Original Resume</span>
+            {resumeData?.originalUrl ? (
+              <a
+                href={resumeData.originalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}
               >
-                <span style={{ fontWeight: 600 }}>📄 Original Resume</span>
-                {resumeData?.originalUrl ? (
-                  <a
-                    href={resumeData.originalUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}
-                  >
-                    Download ↗
-                  </a>
-                ) : (
-                  <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.8rem' }}>Generating link…</span>
-                )}
-              </div>
-              {resumeData?.previewOriginalPath && resumeData.originalExt === 'pdf' && (
+                Download ↗
+              </a>
+            ) : (
+              <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.8rem' }}>Generating link…</span>
+            )}
+          </div>
+          {resumeData?.previewOriginalPath && resumeData.originalExt === 'pdf' && (
+            <iframe
+              title="Original resume preview"
+              src={resumeData.previewOriginalPath}
+              style={{ width: '100%', minHeight: '480px', border: 'none', display: 'block', background: '#525659' }}
+            />
+          )}
+          {['doc', 'docx'].includes(resumeData?.originalExt ?? '') && (
+            <div style={{ background: 'var(--surface-container)' }}>
+              {originalDocHtml ? (
                 <iframe
                   title="Original resume preview"
-                  src={resumeData.previewOriginalPath}
-                  style={{ width: '100%', minHeight: '480px', border: 'none', display: 'block', background: '#525659' }}
+                  srcDoc={`<!DOCTYPE html><html><head><meta charset="utf-8"/><style>body{font-family:system-ui,sans-serif;padding:1rem;margin:0;line-height:1.45;color:#111;}.mammoth-doc img{max-width:100%;height:auto;}</style></head><body>${originalDocHtml}</body></html>`}
+                  sandbox="allow-same-origin"
+                  style={{ width: '100%', minHeight: '480px', border: 'none', display: 'block' }}
                 />
+              ) : (
+                <p style={{ padding: '1rem', margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                  Loading preview…
+                </p>
               )}
-              {['doc', 'docx'].includes(resumeData?.originalExt ?? '') && (
-                <div style={{ background: 'var(--surface-container)' }}>
-                  {originalDocHtml ? (
-                    <iframe
-                      title="Original resume preview"
-                      srcDoc={`<!DOCTYPE html><html><head><meta charset="utf-8"/><style>body{font-family:system-ui,sans-serif;padding:1rem;margin:0;line-height:1.45;color:#111;}.mammoth-doc img{max-width:100%;height:auto;}</style></head><body>${originalDocHtml}</body></html>`}
-                      sandbox="allow-same-origin"
-                      style={{ width: '100%', minHeight: '480px', border: 'none', display: 'block' }}
-                    />
-                  ) : (
-                    <p style={{ padding: '1rem', margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-                      Loading preview…
-                    </p>
-                  )}
-                </div>
-              )}
-              {resumeData?.originalExt &&
-                !['pdf', 'doc', 'docx'].includes(resumeData.originalExt) &&
-                resumeData?.originalUrl && (
-                  <div style={{ padding: '1rem', textAlign: 'center', background: 'var(--surface-container)' }}>
-                    <a
-                      href={resumeData.originalUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn btn-primary"
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}
-                    >
-                      Open resume
-                    </a>
-                  </div>
-                )}
             </div>
           )}
-
-          {/* Enhanced resume */}
-          {hasEnhanced && (
-            <div
-              style={{
-                marginBottom: '1.25rem',
-                border: '1px solid var(--outline-variant)',
-                borderRadius: 'var(--radius-md)',
-                overflow: 'hidden',
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '0.6rem 0.9rem',
-                  background: 'var(--surface-container)',
-                  borderBottom: '1px solid var(--outline-variant)',
-                  fontSize: '0.85rem',
-                }}
-              >
-                <span style={{ fontWeight: 600 }}>✨ AI-Enhanced Resume</span>
-                {resumeData?.enhancedUrl ? (
-                  <a
-                    href={resumeData.enhancedUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}
-                  >
-                    Download ↗
-                  </a>
-                ) : null}
-              </div>
-              {resumeData?.previewEnhancedPath && resumeData.enhancedExt === 'pdf' && (
-                <iframe
-                  title="Enhanced resume preview"
-                  src={resumeData.previewEnhancedPath}
-                  style={{ width: '100%', minHeight: '480px', border: 'none', display: 'block', background: '#525659' }}
-                />
-              )}
-              {['doc', 'docx'].includes(resumeData?.enhancedExt ?? '') && (
-                <div style={{ background: 'var(--surface-container)' }}>
-                  {enhancedDocHtml ? (
-                    <iframe
-                      title="Enhanced resume preview"
-                      srcDoc={`<!DOCTYPE html><html><head><meta charset="utf-8"/><style>body{font-family:system-ui,sans-serif;padding:1rem;margin:0;line-height:1.45;color:#111;}.mammoth-doc img{max-width:100%;height:auto;}</style></head><body>${enhancedDocHtml}</body></html>`}
-                      sandbox="allow-same-origin"
-                      style={{ width: '100%', minHeight: '480px', border: 'none', display: 'block' }}
-                    />
-                  ) : (
-                    <p style={{ padding: '1rem', margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-                      Loading preview…
-                    </p>
-                  )}
-                </div>
-              )}
-              {resumeData?.enhancedUrl &&
-                resumeData.enhancedExt &&
-                !['pdf', 'doc', 'docx'].includes(resumeData.enhancedExt) &&
-                !resumeData.enhancedText && (
-                  <div style={{ padding: '1rem', textAlign: 'center', background: 'var(--surface-container)' }}>
-                    <a
-                      href={resumeData.enhancedUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn btn-primary"
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}
-                    >
-                      Open enhanced resume
-                    </a>
-                  </div>
-                )}
-              {resumeData?.enhancedText &&
-                !['pdf', 'doc', 'docx'].includes(resumeData?.enhancedExt ?? '') && (
-                <article
-                  key={resumeData.enhancedText.slice(0, 120)}
-                  className="markdown-body"
-                  style={{
-                    padding: '1.25rem',
-                    background: 'var(--color-surface)',
-                    fontSize: '0.9375rem',
-                    lineHeight: 1.65,
-                    maxHeight: 'min(70vh, 720px)',
-                    overflowY: 'auto',
-                    color: 'var(--color-on-surface)',
-                  }}
+          {resumeData?.originalExt &&
+            !['pdf', 'doc', 'docx'].includes(resumeData.originalExt) &&
+            resumeData?.originalUrl && (
+              <div style={{ padding: '1rem', textAlign: 'center', background: 'var(--surface-container)' }}>
+                <a
+                  href={resumeData.originalUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}
                 >
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      a: ({ href, children }) => (
-                        <a href={href} target="_blank" rel="noopener noreferrer">
-                          {children}
-                        </a>
-                      ),
-                    }}
-                  >
-                    {resumeData.enhancedText}
-                  </ReactMarkdown>
-                </article>
-              )}
-            </div>
-          )}
-        </section>
+                  Open resume
+                </a>
+              </div>
+            )}
+        </div>
       )}
 
-      <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>AI Tools for Your Resume</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem' }}>
-          {[
-            { icon: '🔄', title: 'Resume Rewriter', desc: 'Rewrite and polish your resume with AI assistance.', href: '/dashboard/ai-tools/resume-rewriter' },
-            { icon: '🎯', title: 'Job Match Scorer', desc: 'See how well your resume matches a job posting.', href: '/dashboard/ai-tools/job-match-scorer' },
-            { icon: '📊', title: 'Resume Analysis', desc: 'Get a detailed AI breakdown of your resume strength.', href: '/dashboard/ai-tools/resume-analysis' },
-          ].map(({ icon, title, desc, href }) => (
-            <div
-              key={href}
+      {/* Enhanced resume */}
+      {hasEnhanced && (
+        <div
+          style={{
+            marginBottom: '1.25rem',
+            border: '1px solid var(--outline-variant)',
+            borderRadius: 'var(--radius-md)',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '0.6rem 0.9rem',
+              background: 'var(--surface-container)',
+              borderBottom: '1px solid var(--outline-variant)',
+              fontSize: '0.85rem',
+            }}
+          >
+            <span style={{ fontWeight: 600 }}>✨ AI-Enhanced Resume</span>
+            {resumeData?.enhancedUrl ? (
+              <a
+                href={resumeData.enhancedUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}
+              >
+                Download ↗
+              </a>
+            ) : null}
+          </div>
+          {resumeData?.previewEnhancedPath && resumeData.enhancedExt === 'pdf' && (
+            <iframe
+              title="Enhanced resume preview"
+              src={resumeData.previewEnhancedPath}
+              style={{ width: '100%', minHeight: '480px', border: 'none', display: 'block', background: '#525659' }}
+            />
+          )}
+          {['doc', 'docx'].includes(resumeData?.enhancedExt ?? '') && (
+            <div style={{ background: 'var(--surface-container)' }}>
+              {enhancedDocHtml ? (
+                <iframe
+                  title="Enhanced resume preview"
+                  srcDoc={`<!DOCTYPE html><html><head><meta charset="utf-8"/><style>body{font-family:system-ui,sans-serif;padding:1rem;margin:0;line-height:1.45;color:#111;}.mammoth-doc img{max-width:100%;height:auto;}</style></head><body>${enhancedDocHtml}</body></html>`}
+                  sandbox="allow-same-origin"
+                  style={{ width: '100%', minHeight: '480px', border: 'none', display: 'block' }}
+                />
+              ) : (
+                <p style={{ padding: '1rem', margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                  Loading preview…
+                </p>
+              )}
+            </div>
+          )}
+          {resumeData?.enhancedUrl &&
+            resumeData.enhancedExt &&
+            !['pdf', 'doc', 'docx'].includes(resumeData.enhancedExt) &&
+            !resumeData.enhancedText && (
+              <div style={{ padding: '1rem', textAlign: 'center', background: 'var(--surface-container)' }}>
+                <a
+                  href={resumeData.enhancedUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}
+                >
+                  Open enhanced resume
+                </a>
+              </div>
+            )}
+          {resumeData?.enhancedText &&
+            !['pdf', 'doc', 'docx'].includes(resumeData?.enhancedExt ?? '') && (
+            <article
+              key={resumeData.enhancedText.slice(0, 120)}
+              className="markdown-body"
               style={{
-                background: 'var(--surface-container)',
-                borderRadius: '0.75rem',
-                padding: '1rem 1.1rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.4rem',
-                border: '1px solid var(--outline-variant)',
+                padding: '1.25rem',
+                background: 'var(--color-surface)',
+                fontSize: '0.9375rem',
+                lineHeight: 1.65,
+                maxHeight: 'min(70vh, 720px)',
+                overflowY: 'auto',
+                color: 'var(--color-on-surface)',
               }}
             >
-              <span style={{ fontSize: '1.5rem' }}>{icon}</span>
-              <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>{title}</span>
-              <span style={{ fontSize: '0.82rem', color: 'var(--color-on-surface-variant)', flexGrow: 1 }}>{desc}</span>
-              <Link
-                href={href}
-                style={{ color: 'var(--color-accent)', fontWeight: 600, fontSize: '0.875rem', textDecoration: 'none', marginTop: '0.25rem' }}
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  a: ({ href, children }) => (
+                    <a href={href} target="_blank" rel="noopener noreferrer">
+                      {children}
+                    </a>
+                  ),
+                }}
               >
-                Open →
-              </Link>
-            </div>
-          ))}
+                {resumeData.enhancedText}
+              </ReactMarkdown>
+            </article>
+          )}
         </div>
-      </section>
+      )}
+    </section>
+  ) : null;
 
-      <section className="counselor-wit-guide">
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>WorkInTexas Guide</h2>
-        <p style={{ marginBottom: '1rem', color: 'var(--color-on-surface-variant)' }}>
-          Pre-filled with your data. Use these steps when creating your WorkInTexas profile.
-        </p>
-        <ol>
-          <li><strong>Create account</strong> at workintexas.com</li>
-          <li><strong>Contact info</strong> → {witData.name}, {witData.email}, {witData.phone}</li>
-          <li><strong>Work history</strong> → {witData.recentEmployer}</li>
-          <li><strong>Target job</strong> → {witData.targetJob}</li>
-          <li><strong>Upload resume</strong> → Download from above</li>
-          <li><strong>Skills</strong> → {witData.skills}</li>
-        </ol>
-        <a
-          href="https://www.workintexas.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn btn-primary"
-          style={{ marginTop: '1rem' }}
-        >
-          Open WorkInTexas →
-        </a>
-      </section>
+  const aiToolsSection = (
+    <section style={{ marginBottom: '1.5rem' }}>
+      <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '1rem' }}>AI Tools for Your Resume</h2>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem' }}>
+        {[
+          { icon: '🔄', title: 'Resume Rewriter', desc: 'Rewrite and polish your resume with AI assistance.', href: '/dashboard/ai-tools/resume-rewriter' },
+          { icon: '🎯', title: 'Job Match Scorer', desc: 'See how well your resume matches a job posting.', href: '/dashboard/ai-tools/job-match-scorer' },
+          { icon: '📊', title: 'Resume Analysis', desc: 'Get a detailed AI breakdown of your resume strength.', href: '/dashboard/ai-tools/resume-analysis' },
+        ].map(({ icon, title, desc, href }) => (
+          <div
+            key={href}
+            style={{
+              background: 'var(--surface-container)',
+              borderRadius: '0.75rem',
+              padding: '1rem 1.1rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.4rem',
+              border: '1px solid var(--outline-variant)',
+            }}
+          >
+            <span style={{ fontSize: '1.5rem' }}>{icon}</span>
+            <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>{title}</span>
+            <span style={{ fontSize: '0.82rem', color: 'var(--color-on-surface-variant)', flexGrow: 1 }}>{desc}</span>
+            <Link
+              href={href}
+              style={{ color: 'var(--color-accent)', fontWeight: 600, fontSize: '0.875rem', textDecoration: 'none', marginTop: '0.25rem' }}
+            >
+              Open →
+            </Link>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+
+  const witGuideSection = (
+    <section className="counselor-wit-guide">
+      <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.75rem' }}>WorkInTexas Guide</h2>
+      <p style={{ marginBottom: '1rem', color: 'var(--color-on-surface-variant)' }}>
+        Pre-filled with your data. Use these steps when creating your WorkInTexas profile.
+      </p>
+      <ol>
+        <li><strong>Create account</strong> at workintexas.com</li>
+        <li><strong>Contact info</strong> → {witData.name}, {witData.email}, {witData.phone}</li>
+        <li><strong>Work history</strong> → {witData.recentEmployer}</li>
+        <li><strong>Target job</strong> → {witData.targetJob}</li>
+        <li><strong>Upload resume</strong> → Download from above</li>
+        <li><strong>Skills</strong> → {witData.skills}</li>
+      </ol>
+      <a
+        href="https://www.workintexas.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="btn btn-primary"
+        style={{ marginTop: '1rem' }}
+      >
+        Open WorkInTexas →
+      </a>
+    </section>
+  );
+
+  // ── Layouts ───────────────────────────────────────────────────────────────
+
+  if (layout === 'side-by-side') {
+    return (
+      <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '2rem', alignItems: 'start' }}>
+        {/* Left: controls */}
+        <div>
+          {uploadSection}
+          {aiGeneratorSection}
+          {aiToolsSection}
+          {witGuideSection}
+        </div>
+        {/* Right: preview */}
+        <div>
+          {resumePreviewSection ?? (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: '420px',
+                background: 'var(--surface-container)',
+                borderRadius: '0.875rem',
+                border: '2px dashed var(--outline-variant)',
+                color: 'var(--color-on-surface-variant)',
+                textAlign: 'center',
+                padding: '2.5rem',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', marginBottom: '0.75rem', opacity: 0.35 }} aria-hidden="true">description</span>
+              <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: 1.55 }}>
+                Upload a resume or use <strong>AI Generator</strong> to create one — your preview will appear here.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {uploadSection}
+      {aiGeneratorSection}
+      {resumePreviewSection}
+      {aiToolsSection}
+      {witGuideSection}
     </div>
   );
 }

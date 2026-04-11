@@ -35,7 +35,7 @@ export default async function FindYourCareerPage() {
 
   return (
     <>
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '1.5rem 1rem 3rem' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '1.5rem 1.5rem 3rem' }}>
         <PageHeader
           title="Find your career"
           subtitle="Not sure where to start? Pick the path that fits right now."

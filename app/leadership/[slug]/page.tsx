@@ -107,7 +107,7 @@ export default async function LeaderBioPage({ params }: Props) {
           {/* Left: text (5 col) */}
           <div className="ld-hero-text">
             <span className="ld-hero-badge">
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden>verified</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem', '--ms-fill': 1 }} aria-hidden>verified</span>
               {heroBadgeFor(leader)}
             </span>
 
@@ -227,7 +227,7 @@ export default async function LeaderBioPage({ params }: Props) {
                 <div key={p.name} className="ld-partner-card">
                   <span
                     className="material-symbols-outlined ld-partner-icon"
-                    style={{ fontVariationSettings: "'FILL' 1" }}
+                    style={{ '--ms-fill': 1 }}
                     aria-hidden
                   >
                     {p.icon}
@@ -253,7 +253,7 @@ export default async function LeaderBioPage({ params }: Props) {
                 <div key={a.title} className="ld-achievement-card">
                   <span
                     className="material-symbols-outlined ld-achievement-icon"
-                    style={{ fontVariationSettings: "'FILL' 1" }}
+                    style={{ '--ms-fill': 1 }}
                     aria-hidden
                   >
                     {a.icon}

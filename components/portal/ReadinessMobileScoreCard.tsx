@@ -54,8 +54,8 @@ export default function ReadinessMobileScoreCard({ overallScore, categories, pri
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <span
                   className="material-symbols-outlined"
-                  style={{ fontSize: '1rem', color: cat.color, fontVariationSettings: "'FILL' 1" }}
-                 aria-hidden="true">
+                  style={{ fontSize: '1rem', color: cat.color, '--ms-fill': 1 }}
+                >
                   {cat.icon}
                 </span>
                 <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>{cat.label}</span>
@@ -76,8 +76,8 @@ export default function ReadinessMobileScoreCard({ overallScore, categories, pri
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
               <span
                 className="material-symbols-outlined"
-                style={{ fontSize: '1.375rem', color: 'var(--color-gold, #f59e0b)', fontVariationSettings: "'FILL' 1", flexShrink: 0 }}
-               aria-hidden="true">
+                style={{ fontSize: '1.375rem', color: 'var(--color-gold, #f59e0b)', '--ms-fill': 1, flexShrink: 0 }}
+              >
                 priority_high
               </span>
               <div style={{ flex: 1 }}>

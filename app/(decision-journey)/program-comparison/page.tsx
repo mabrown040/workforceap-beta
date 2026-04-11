@@ -2,10 +2,8 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { buildPageMetadata, SITE_URL } from '@/app/seo';
 import Link from 'next/link';
-import Footer from '@/components/Footer';
 import { getProgramComparisonTracks } from '@/lib/content/programComparisonTracks';
 import ProgramComparisonClient from './ProgramComparisonClient';
-import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 import ProgramComparisonMobile from './ProgramComparisonMobile';
 
@@ -73,7 +71,6 @@ export default function ProgramComparisonPage() {
 
         {/* Decision Path Tabs + Comparison Content */}
         <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 2rem 3rem' }}>
-          <ProgramsDecisionJourneyNav current="compare" />
           <Suspense
             fallback={
               <p style={{ padding: '2rem 0', color: 'var(--color-on-surface-variant)' }}>
@@ -154,7 +151,6 @@ export default function ProgramComparisonPage() {
           </Link>
         </section>
 
-        <Footer />
       </div>
     </div>
   );

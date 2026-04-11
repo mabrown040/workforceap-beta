@@ -114,7 +114,7 @@ export default async function LearningPage() {
         <div className="wa-bg-gradient-to-br from-[var(--color-accent-dark)] to-[var(--color-accent)] wa-text-white" style={{ padding: '1.25rem', borderRadius: '0.75rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
             <span className="bg-white/20 wa-text-[10px] wa-font-bold wa-tracking-wider wa-uppercase" style={{ padding: '0.125rem 0.5rem', borderRadius: '0.25rem' }}>Active</span>
-            <span className="material-symbols-outlined wa-text-sm" style={{ fontVariationSettings: "'FILL' 1" }} aria-hidden="true">timer</span>
+            <span className="material-symbols-outlined wa-text-sm" style={{ '--ms-fill': 1 }}>timer</span>
             <span className="wa-text-xs wa-font-medium">~{ACTIVE_PATHWAY.estimatedWeeks} weeks</span>
           </div>
           <h4 className="wa-text-xl wa-font-bold wa-leading-snug" style={{ marginBottom: '1.25rem' }}>{ACTIVE_PATHWAY.title}</h4>
@@ -173,7 +173,7 @@ export default async function LearningPage() {
                     className="material-symbols-outlined wa-text-base"
                     style={{
                       color: isCompleted ? 'var(--color-gold)' : isActive ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
-                      fontVariationSettings: isCompleted ? "'FILL' 1" : "'FILL' 0",
+                      '--ms-fill': isCompleted ? 1 : 0,
                     }}
                    aria-hidden="true">
                     {isCompleted ? 'check_circle' : isLocked ? 'lock' : (MODULE_ICONS[ACTIVE_PATHWAY.category] ?? 'school')}
@@ -203,7 +203,7 @@ export default async function LearningPage() {
               .map((m) => (
               <div key={m.stepIndex} className="wa-bg-[var(--surface-container)] wa-border-l-4 wa-border-[var(--color-gold)]" style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderRadius: '0.75rem', padding: '0.75rem 1rem', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
                 <div style={{ width: '2.25rem', height: '2.25rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'rgba(123,88,0,0.1)' }}>
-                  <span className="material-symbols-outlined wa-text-base" style={{ color: 'var(--color-gold)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
+                  <span className="material-symbols-outlined wa-text-base" style={{ color: 'var(--color-gold)', '--ms-fill': 1 }}>
                     check_circle
                   </span>
                 </div>
@@ -300,7 +300,7 @@ export default async function LearningPage() {
                 marginBottom: 'var(--space-4)',
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">play_circle</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem', '--ms-fill': 1 }}>play_circle</span>
               Currently Active
             </div>
             <h2 style={{ fontSize: 'var(--font-size-h2)', fontWeight: 'var(--font-weight-bold)', lineHeight: 'var(--line-height-tight)', marginBottom: 'var(--space-2)' }}>
@@ -382,8 +382,8 @@ export default async function LearningPage() {
                       <span className="material-symbols-outlined" style={{
                         fontSize: '0.875rem',
                         color: status === 'locked' ? 'var(--color-on-surface-variant)' : 'var(--color-white)',
-                        fontVariationSettings: "'FILL' 1",
-                      }} aria-hidden="true">
+                        '--ms-fill': 1,
+                      }}>
                         {status === 'completed' ? 'check' : status === 'current' ? 'arrow_forward' : 'lock'}
                       </span>
                     </div>
@@ -423,7 +423,7 @@ export default async function LearningPage() {
       {/* Upcoming Modules grid */}
       <section style={{ marginBottom: 'var(--space-8)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-2)' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
+          <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>
             view_module
           </span>
           <h2 style={{ fontSize: 'var(--font-size-h3)', fontWeight: 'var(--font-weight-bold)', margin: 0 }}>Upcoming Modules</h2>
@@ -457,7 +457,7 @@ export default async function LearningPage() {
                       background: isLocked ? 'var(--surface-container-highest)' : 'rgba(173,44,77,0.12)',
                       borderRadius: 'var(--radius-lg)',
                       padding: 'var(--space-2)',
-                      fontVariationSettings: "'FILL' 1",
+                      '--ms-fill': 1,
                     }}
                    aria-hidden="true">
                     {icon}
@@ -493,7 +493,7 @@ export default async function LearningPage() {
       {/* Structured pathways (existing cards with interactive progress) */}
       <section style={{ marginBottom: 'var(--space-8)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-2)' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
+          <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>
             school
           </span>
           <h2 style={{ fontSize: 'var(--font-size-h3)', fontWeight: 'var(--font-weight-bold)', margin: 0 }}>Structured Pathways</h2>

@@ -124,7 +124,7 @@ export default function ContactPage() {
       {/* Editorial Quote Section */}
       <section className="content-section" style={{ textAlign: 'center', maxWidth: '56rem', margin: '0 auto', paddingTop: '4rem', borderTop: '1px solid rgba(88,65,68,0.1)' }}>
         <div className="container">
-          <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '2.5rem', marginBottom: '1.5rem', display: 'block', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">format_quote</span>
+          <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '2.5rem', marginBottom: '1.5rem', display: 'block', '--ms-fill': 1 }}>format_quote</span>
           <p style={{ fontSize: '1.5rem', fontWeight: 300, fontStyle: 'italic', color: 'var(--color-on-surface-variant)', lineHeight: 1.6, maxWidth: '40rem', margin: '0 auto' }}>
             &ldquo;We believe everyone deserves a clear path to a meaningful career. That starts with being available and responsive to the people we serve.&rdquo;
           </p>

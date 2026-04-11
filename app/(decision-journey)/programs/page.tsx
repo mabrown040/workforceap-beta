@@ -2,11 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { buildPageMetadata } from '@/app/seo';
-import Footer from '@/components/Footer';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import ProgramsContent from './ProgramsContent';
-import ProgramsPageClient from './ProgramsPageClient';
-import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import { PROGRAM_SUBGROUPS, orderedSubgroupIdsWithPrograms } from '@/lib/content/programSubgroup';
@@ -18,13 +14,6 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 export default function ProgramsPage() {
-  const programs = PROGRAMS.map((p) => ({
-    cat: p.categoryLabel,
-    title: p.title,
-    dur: p.duration,
-    slug: p.slug,
-  }));
-
   const mobileBrowseChips = [
     { href: '#program-catalog', label: 'All' },
     ...orderedSubgroupIdsWithPrograms(PROGRAMS).map((id) => ({
@@ -127,8 +116,6 @@ export default function ProgramsPage() {
               </div>
             </div>
           </section>
-
-          <ProgramsPageClient programs={programs} />
 
           <div style={{ textAlign: 'center', marginTop: '1rem', marginBottom: '0.5rem' }}>
             <a href="#program-catalog" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-accent-dark)', textDecoration: 'none' }}>
@@ -264,14 +251,7 @@ export default function ProgramsPage() {
         </div>
       </section>
 
-      {/* ── Decision Journey Nav ── */}
-      <section className="content-section" style={{ paddingTop: '0.5rem', paddingBottom: 0 }}>
-        <div className="container">
-          <ProgramsDecisionJourneyNav current="programs" />
-        </div>
-      </section>
-
-      </div>{/* end desktop: hero + journey nav */}
+      </div>{/* end desktop: hero */}
 
       {/* Full catalog — one anchor `#program-catalog` for mobile + desktop + deep links */}
       <div id="program-catalog" className="programs-page-catalog-anchor" style={{ scrollMarginTop: '0.75rem' }}>
@@ -330,7 +310,7 @@ export default function ProgramsPage() {
                       fontSize: '1.75rem',
                       marginBottom: '0.75rem',
                       display: 'block',
-                      fontVariationSettings: "'FILL' 1",
+                      '--ms-fill': 1,
                     }}
                    aria-hidden="true">
                     {step.icon}
@@ -441,8 +421,6 @@ export default function ProgramsPage() {
 
       </div>{/* end desktop wrapper */}
 
-      <MobileBottomNav />
-      <Footer />
     </div>
   );
 }

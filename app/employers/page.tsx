@@ -358,7 +358,7 @@ export default function EmployersPage() {
                     gap: '0.75rem',
                   }}
                 >
-                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', '--ms-fill': 1 }}>
                     psychology
                   </span>
                   <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.8rem', margin: 0, lineHeight: 1.5 }}>
@@ -389,7 +389,7 @@ export default function EmployersPage() {
                     style={{
                       fontSize: '2rem',
                       color: 'var(--color-accent)',
-                      fontVariationSettings: "'FILL' 1",
+                      '--ms-fill': 1,
                     }}
                   >
                     {card.icon}
@@ -458,7 +458,7 @@ export default function EmployersPage() {
                   style={{
                     fontSize: '2.25rem',
                     color: c.accent ? 'rgba(255,255,255,0.9)' : 'var(--color-accent)',
-                    fontVariationSettings: "'FILL' 1",
+                    '--ms-fill': 1,
                   }}
                 >
                   {c.icon}
@@ -562,7 +562,7 @@ export default function EmployersPage() {
                     color: 'var(--color-accent)',
                     marginBottom: '0.75rem',
                     display: 'block',
-                    fontVariationSettings: "'FILL' 1",
+                    '--ms-fill': 1,
                   }}
                 >
                   {step.icon}
@@ -653,7 +653,7 @@ export default function EmployersPage() {
                     >
                       <span
                         className="material-symbols-outlined"
-                        style={{ fontSize: '1rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}
+                        style={{ fontSize: '1rem', color: 'var(--color-accent)', '--ms-fill': 1 }}
                       >
                         check_circle
                       </span>

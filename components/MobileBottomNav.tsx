@@ -134,7 +134,6 @@ export default function MobileBottomNav({ variant = 'marketing' }: MobileBottomN
               style={{
                 fontSize: '22px',
                 lineHeight: 1,
-                fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0",
               }}
              aria-hidden="true">
               {icon}

@@ -208,6 +208,21 @@ html.dark .marketing-bottom-nav {
   color: var(--mbn-inactive-fg);
 }
 
+/*
+ * Mobile bottom bar: never use partial font-variation-settings inline — WebKit (iOS) can drop
+ * other axes and ligatures fail, so icon names render as plain text. Keep full axis tuple in CSS.
+ */
+.marketing-bottom-nav .material-symbols-outlined {
+  font-family: 'Material Symbols Outlined', sans-serif;
+  -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
+  font-variation-settings: 'FILL' var(--ms-fill, 0), 'wght' var(--ms-wght, 400), 'GRAD' 0, 'opsz' 24;
+}
+
+.marketing-bottom-nav__link--active .material-symbols-outlined {
+  --ms-fill: 1;
+}
+
 .marketing-bottom-nav__link--active {
   background: linear-gradient(135deg, var(--color-accent-dark), var(--color-accent));
   color: var(--color-white);

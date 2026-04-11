@@ -1,9 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
-import { adminMessagingSurface } from '@/lib/portal/messagingSurfaces';
 import {
   InboxEmpty,
   InboxHeader,
@@ -13,6 +11,7 @@ import {
   InboxRowLayout,
   InboxSearch,
   InboxShell,
+  InboxUnreadBadge,
 } from '@/components/portal/ui/inbox/InboxPrimitives';
 
 type SlaInfo = {
@@ -147,10 +146,31 @@ function threadListTitle(t: ThreadRow): string {
   return t.partnerName;
 }
 
-function threadListSubtitle(t: ThreadRow): string {
-  if (t.kind === 'member') return t.counselorName ?? 'No counselor on thread';
-  if (t.kind === 'employer') return t.employerContactEmail;
+function getInitials(name: string): string {
+  return name.split(' ').filter(Boolean).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+}
+
+function detailTitle(d: ThreadDetail): string {
+  if (d.kind === 'member') return d.member.fullName;
+  if (d.kind === 'employer') return d.employer.companyName;
+  return d.partner.name;
+}
+
+function detailSubtitle(d: ThreadDetail): string {
+  if (d.kind === 'member') return d.member.email;
+  if (d.kind === 'employer') return d.employer.contactEmail;
+  return 'Partner organization';
+}
+
+function kindLabel(kind: string): string {
+  if (kind === 'member') return 'Member';
+  if (kind === 'employer') return 'Employer';
   return 'Partner';
+}
+
+function isFromPortalUser(d: ThreadDetail, m: ThreadDetail['messages'][number]): boolean {
+  if (d.kind === 'member') return (m as ThreadDetailMember['messages'][number]).isFromMember;
+  return (m as ThreadDetailEmployer['messages'][number]).isFromPortalUser;
 }
 
 export default function AdminSuperMessagesClient() {
@@ -173,11 +193,68 @@ export default function AdminSuperMessagesClient() {
   const [staffDraft, setStaffDraft] = useState('');
   const [staffSending, setStaffSending] = useState(false);
   const [staffErr, setStaffErr] = useState<string | null>(null);
+  const [mobileView, setMobileView] = useState<'list' | 'thread'>('list');
+  const [showAdminControls, setShowAdminControls] = useState(false);
+  const [showCompose, setShowCompose] = useState(false);
+  const [composeQuery, setComposeQuery] = useState('');
+  const [composeResults, setComposeResults] = useState<Array<{ id: string; fullName: string; email: string }>>([]);
+  const [composeLoading, setComposeLoading] = useState(false);
+  const [composeCreating, setComposeCreating] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const composeInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search.trim()), 300);
     return () => clearTimeout(t);
   }, [search]);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [detail?.messages.length]);
+
+  // Compose: search members
+  useEffect(() => {
+    if (!showCompose) return;
+    const q = composeQuery.trim();
+    if (q.length < 2) { setComposeResults([]); return; }
+    const timer = setTimeout(async () => {
+      setComposeLoading(true);
+      try {
+        const r = await fetch(`/api/admin/members?q=${encodeURIComponent(q)}&limit=10&role=member`, { credentials: 'include' });
+        if (r.ok) setComposeResults(await r.json());
+      } catch { /* ignore */ }
+      finally { setComposeLoading(false); }
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [composeQuery, showCompose]);
+
+  useEffect(() => {
+    if (showCompose) {
+      setTimeout(() => composeInputRef.current?.focus(), 100);
+    } else {
+      setComposeQuery('');
+      setComposeResults([]);
+    }
+  }, [showCompose]);
+
+  const startConversation = async (memberId: string) => {
+    setComposeCreating(true);
+    try {
+      const r = await fetch('/api/admin/messages/threads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ memberId }),
+        credentials: 'include',
+      });
+      if (!r.ok) return;
+      const data = (await r.json()) as { threadId: string };
+      setShowCompose(false);
+      setSelectedId(data.threadId);
+      setMobileView('thread');
+      refreshList();
+    } catch { /* ignore */ }
+    finally { setComposeCreating(false); }
+  };
 
   const loadThreads = useCallback(
     async (opts: { reset: boolean; appendCursor?: string | null }) => {
@@ -230,6 +307,7 @@ export default function AdminSuperMessagesClient() {
       setDetail(null);
       setStaffDraft('');
       setStaffErr(null);
+      setShowAdminControls(false);
       return;
     }
     let cancelled = false;
@@ -267,6 +345,11 @@ export default function AdminSuperMessagesClient() {
     }
   };
 
+  const selectThread = (id: string) => {
+    setSelectedId(id);
+    setMobileView('thread');
+  };
+
   const assignCounselor = async (counselorUserId: string) => {
     if (!detail || detail.kind !== 'member') return;
     setAssigningCounselor(true);
@@ -283,7 +366,7 @@ export default function AdminSuperMessagesClient() {
         setAssignmentMsg({ type: 'err', text: typeof data.error === 'string' ? data.error : 'Assignment failed' });
         return;
       }
-      setAssignmentMsg({ type: 'ok', text: 'Counselor assigned. Member was notified via email.' });
+      setAssignmentMsg({ type: 'ok', text: 'Counselor assigned.' });
       setTimeout(() => setAssignmentMsg(null), 5000);
       if (selectedId) {
         const detailRes = await fetch(`/api/admin/messages/thread/${selectedId}`, { credentials: 'include' });
@@ -332,8 +415,7 @@ export default function AdminSuperMessagesClient() {
 
   return (
     <div className="admin-main-content admin-super-messages">
-      <VoiceAgentSurface {...adminMessagingSurface} headline="Portal messages" subtext="Admin view, styled like the member portal.">
-        <InboxShell>
+      <InboxShell>
         <InboxPane
           variant="list"
           style={{
@@ -430,7 +512,11 @@ export default function AdminSuperMessagesClient() {
                       title={threadListTitle(t)}
                       meta={kindLabel}
                       preview={t.lastMessagePreview}
-                      badge={alertBadge ? <span className="portal-inbox-unread">{alertBadge}</span> : undefined}
+                      badge={
+                        alertBadge ? (
+                          <span className="portal-inbox-unread">{alertBadge}</span>
+                        ) : undefined
+                      }
                     />
                   </InboxRowButton>
                 );
@@ -514,12 +600,6 @@ export default function AdminSuperMessagesClient() {
                       </select>
                     </div>
                   </div>
-
-                  {detail.counselors.length === 0 ? (
-                    <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-                      Add counselors under Admin → Counselors (WorkforceAP or a partner).
-                    </p>
-                  ) : null}
 
                   <Link
                     href={`/admin/members/${detail.member.id}`}
@@ -636,7 +716,6 @@ export default function AdminSuperMessagesClient() {
           )}
         </InboxPane>
       </InboxShell>
-      </VoiceAgentSurface>
     </div>
   );
 }

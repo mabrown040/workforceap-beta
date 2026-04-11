@@ -6,11 +6,12 @@ import { getUser } from '@/lib/auth/server';
 
 /**
  * POST /api/ai/export-pdf
- * Body: { text: string, title?: string, toolName?: string }
+ * Body: { text: string, title?: string, toolName?: string, chartImage?: string }
  * Returns: PDF with WorkforceAP logo header on each page.
  *
  * Embeds the actual /public/images/logo-tight.png in the header bar.
  * Falls back to vector text if the image can't be loaded.
+ * When chartImage (base64 data-URL PNG) is provided, it is embedded below the title.
  */
 
 const ACCENT = rgb(173 / 255, 44 / 255, 77 / 255); // #ad2c4d
@@ -96,7 +97,12 @@ export async function POST(req: NextRequest) {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json();
-    const { text, title, toolName } = body as { text?: string; title?: string; toolName?: string };
+    const { text, title, toolName, chartImage } = body as {
+      text?: string;
+      title?: string;
+      toolName?: string;
+      chartImage?: string;
+    };
 
     if (!text || typeof text !== 'string') {
       return NextResponse.json({ error: 'text is required' }, { status: 400 });
@@ -108,6 +114,18 @@ export async function POST(req: NextRequest) {
 
     // Load actual logo — non-blocking fallback if unavailable
     const logo = await loadLogo(pdfDoc);
+
+    // Optionally embed a chart PNG (sent as base64 data URL)
+    let chartPng: Awaited<ReturnType<typeof pdfDoc.embedPng>> | null = null;
+    if (chartImage && typeof chartImage === 'string' && chartImage.startsWith('data:image/png')) {
+      try {
+        const b64 = chartImage.split(',')[1];
+        const bytes = Buffer.from(b64, 'base64');
+        chartPng = await pdfDoc.embedPng(bytes);
+      } catch {
+        /* non-fatal — skip chart */
+      }
+    }
 
     const BODY_TOP = PAGE_H - HEADER_H - 16;
     const BODY_BOTTOM = FOOTER_H + 16;
@@ -154,6 +172,25 @@ export async function POST(req: NextRequest) {
     y -= 6;
     page.drawLine({ start: { x: MARGIN, y }, end: { x: PAGE_W - MARGIN, y }, thickness: 0.5, color: RULE });
     y -= 14;
+
+    // Embed chart image if provided (centered, 220px wide)
+    if (chartPng) {
+      const chartW = 220;
+      const chartH = 220;
+      if (y - chartH < BODY_BOTTOM) {
+        page = pdfDoc.addPage([PAGE_W, PAGE_H]);
+        drawHeader(page, boldFont, font, logo);
+        y = BODY_TOP;
+      }
+      y -= chartH;
+      page.drawImage(chartPng, {
+        x: (PAGE_W - chartW) / 2,
+        y,
+        width: chartW,
+        height: chartH,
+      });
+      y -= 16;
+    }
 
     // Body
     for (const line of bodyLines) {

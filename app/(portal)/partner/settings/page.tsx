@@ -7,7 +7,6 @@ import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import PartnerNotificationPrefs from '@/components/partner/PartnerNotificationPrefs';
-import PartnerSettingsEditRequest from '@/components/partner/PartnerSettingsEditRequest';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -69,70 +68,41 @@ export default async function PartnerSettingsPage() {
           breadcrumbs={[{ label: 'Partner Portal', href: '/partner' }, { label: 'Settings' }]}
         />
 
-        {/* Organization profile card */}
-        <div className="portal-profile-section-card" style={{ marginBottom: '1rem' }}>
-          <div className="portal-profile-section-card__header">
-            <h2 className="portal-profile-section-card__title">Organization</h2>
-            <span style={{ fontSize: '0.625rem', fontWeight: 800, padding: '0.15rem 0.4rem', borderRadius: '9999px', background: partner.active ? 'rgba(74,155,79,0.12)' : 'rgba(173,44,77,0.1)', color: partner.active ? 'var(--color-green, #4a9b4f)' : 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              {partner.active ? 'Active' : 'Inactive'}
-            </span>
-          </div>
-          <div className="portal-profile-section-card__body">
-            <InfoRow label="Organization name" value={partner.name} />
-            <InfoRow label="Type" value={partner.organizationType} />
-            <InfoRow label="Slug" value={partner.slug} mono />
-            <InfoRow label="Referral code" value={partner.referralCode} mono />
-            <InfoRow label="Onboarding" value={partner.onboardingCompletedAt} />
-          </div>
-        </div>
+      <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', maxWidth: 640, marginBottom: '1rem' }}>
+        <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Organization</h2>
+        <InfoRow label="Name" value={partner.name} />
+        <InfoRow label="Slug" value={partner.slug} mono />
+        <InfoRow label="Referral code" value={partner.referralCode} mono />
+        <InfoRow label="Type" value={partner.organizationType} />
+        <InfoRow label="Status" value={partner.active} />
+        <InfoRow label="Onboarding done" value={partner.onboardingCompletedAt} />
+        <InfoRow label="Portal tour" value={partner.tourCompletedAt} />
+      </div>
 
-        {/* Primary contact card */}
-        <div className="portal-profile-section-card" style={{ marginBottom: '1rem' }}>
-          <div className="portal-profile-section-card__header">
-            <h2 className="portal-profile-section-card__title">Primary Contact</h2>
-          </div>
-          <div className="portal-profile-section-card__body">
-            <InfoRow label="Name" value={partner.contactName} />
-            <InfoRow label="Email" value={partner.contactEmail} />
-            <InfoRow label="Phone" value={partner.contactPhone} />
-          </div>
-        </div>
+      <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', maxWidth: 640, marginBottom: '1rem' }}>
+        <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Primary contact</h2>
+        <InfoRow label="Contact name" value={partner.contactName} />
+        <InfoRow label="Email" value={partner.contactEmail} />
+        <InfoRow label="Phone" value={partner.contactPhone} />
+      </div>
 
-        {/* Edit request — partners can request one set of changes */}
-        <div className="portal-profile-section-card" style={{ marginBottom: '1rem' }}>
-          <div className="portal-profile-section-card__header">
-            <h2 className="portal-profile-section-card__title">Request Changes</h2>
-          </div>
-          <div className="portal-profile-section-card__body">
-            <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem', lineHeight: 1.6 }}>
-              Need to update your contact info or organization name? Submit a change request and our team will apply it within one business day.
-            </p>
-            <PartnerSettingsEditRequest
-              currentName={partner.name}
-            currentContactName={partner.contactName ?? ''}
-            currentContactEmail={partner.contactEmail ?? ''}
-              currentContactPhone={partner.contactPhone ?? ''}
-              currentOrgType={partner.organizationType ?? ''}
-            />
-          </div>
-        </div>
+      <PartnerNotificationPrefs
+        initial={{
+          notifyOnEnrollment: partner.notifyOnEnrollment,
+          notifyOnCourse: partner.notifyOnCourse,
+          notifyOnCertified: partner.notifyOnCertified,
+          notifyOnPlaced: partner.notifyOnPlaced,
+        }}
+      />
 
-        {/* Notifications */}
-        <div className="portal-profile-section-card" style={{ marginBottom: '1rem' }}>
-          <div className="portal-profile-section-card__header">
-            <h2 className="portal-profile-section-card__title">Notifications</h2>
-          </div>
-          <div className="portal-profile-section-card__body">
-            <PartnerNotificationPrefs
-              initial={{
-                notifyOnEnrollment: partner.notifyOnEnrollment,
-                notifyOnCourse: partner.notifyOnCourse,
-                notifyOnCertified: partner.notifyOnCertified,
-                notifyOnPlaced: partner.notifyOnPlaced,
-              }}
-            />
-          </div>
-        </div>
+      <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: 640, lineHeight: 1.6, marginBottom: '1rem' }}>
+        To change contact details or branding, email{' '}
+        <a href="mailto:info@workforceap.org">info@workforceap.org</a> or use the{' '}
+        <Link href="/contact" style={{ color: 'var(--color-accent)' }}>
+          contact form
+        </Link>
+        .
+      </p>
       </div>
       <MobileBottomNav variant="partner" />
     </>

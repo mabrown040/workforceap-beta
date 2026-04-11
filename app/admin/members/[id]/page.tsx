@@ -27,6 +27,7 @@ import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 import type { WioaReviewStatus } from '@/lib/wioa/wioaReview';
 import AdminMemberWioaReviewPanel from '@/components/admin/AdminMemberWioaReviewPanel';
 import PageHeader from '@/components/portal/PageHeader';
+import AdminMemberAiMatches from './AdminMemberAiMatches';
 import '@/css/counselor.css';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -79,6 +80,17 @@ export default async function AdminMemberDetailPage({
         wioaReviewedByUserId: true,
         wioaReviewNotes: true,
         profile: true,
+        learningProgress: true,
+        userCertifications: true,
+        aiJobMatches: {
+          include: {
+            job: {
+              include: {
+                employer: true,
+              },
+            },
+          },
+        },
       },
     }),
     prisma.partner.findMany({
@@ -294,7 +306,25 @@ export default async function AdminMemberDetailPage({
           <p><strong>Enrolled:</strong> {program?.title ?? member.enrolledProgram ?? '—'}</p>
           <p><strong>Enrolled date:</strong> {member.enrolledAt?.toLocaleDateString() ?? '—'}</p>
           <p><strong>Course progress:</strong> {completedCount} of {program?.courses.length ?? 0} complete</p>
-          <ul style={{ marginTop: '0.5rem', paddingLeft: '1.25rem', listStyle: 'none' }}>
+          
+          {member.learningProgress && member.learningProgress.length > 0 && (
+            <div style={{ marginTop: '1rem', background: 'var(--surface-container-low)', padding: '1rem', borderRadius: '0.5rem' }}>
+              <h3 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.5rem' }}>Active Training Data (External)</h3>
+              {member.learningProgress.map((lp) => (
+                <div key={lp.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{lp.pathwayId}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{ width: '100px', height: '6px', background: 'var(--surface-container-highest)', borderRadius: '3px', overflow: 'hidden' }}>
+                      <div style={{ width: `${lp.progress}%`, height: '100%', background: lp.completed ? 'var(--color-green)' : 'var(--color-accent)' }} />
+                    </div>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{lp.progress}%</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <ul style={{ marginTop: '1rem', paddingLeft: '1.25rem', listStyle: 'none' }}>
             {program?.courses.map((c) => (
               <li key={c.slug} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
                 {coursesCompleted.includes(c.slug) ? <CheckCircle size={18} style={{ color: 'var(--color-green)', flexShrink: 0 }} /> : <span style={{ display: 'inline-block', width: 18, height: 18, border: '2px solid var(--outline-variant)', borderRadius: 4, flexShrink: 0 }} />}
@@ -302,6 +332,20 @@ export default async function AdminMemberDetailPage({
               </li>
             ))}
           </ul>
+
+          {member.userCertifications && member.userCertifications.length > 0 && (
+            <div style={{ marginTop: '1.5rem', background: '#fff3cd', border: '1px solid #ffeeba', padding: '1rem', borderRadius: '0.5rem' }}>
+              <h3 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.5rem', color: '#856404' }}>⚠️ Unverified External Certifications</h3>
+              <ul style={{ margin: 0, paddingLeft: '1.25rem', color: '#856404' }}>
+                {member.userCertifications.map(cert => (
+                  <li key={cert.id}>
+                    <strong>{cert.certName}</strong> (Earned: {new Date(cert.earnedAt).toLocaleDateString()})
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           <MemberDetailActions
             userId={member.id}
             memberName={member.fullName}
@@ -323,6 +367,8 @@ export default async function AdminMemberDetailPage({
           subgroups={subgroups}
           currentSubgroupIds={memberSubgroups.map((ms) => ms.subgroupId)}
         />
+
+        <AdminMemberAiMatches memberId={member.id} matches={member.aiJobMatches} />
 
         <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
           <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Counselor assignment</h2>

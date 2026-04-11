@@ -38,6 +38,14 @@ type PlacementWithUser = Prisma.PlacementRecordGetPayload<{
   };
 }>;
 
+type PendingPlacementWithUser = Prisma.PlacementRecordGetPayload<{
+  include: {
+    user: {
+      select: { id: true; fullName: true; email: true; enrolledProgram: true };
+    };
+  };
+}>;
+
 export default async function AdminPage() {
   const user = await getUser();
   if (!user) redirect('/login');
@@ -53,6 +61,7 @@ export default async function AdminPage() {
   let activeInTraining: number;
   let programsEnrolled: number;
   let programsCompleted: number;
+  let pendingPlacements: PendingPlacementWithUser[];
 
   function logPrismaReason(label: string, reason: unknown) {
     const msg = reason instanceof Error ? reason.message : String(reason);
@@ -69,6 +78,7 @@ export default async function AdminPage() {
       recentUsersResult,
       recentPlacementsResult,
       pendingApplicationsResult,
+      pendingPlacementsResult,
     ] = await Promise.allSettled([
       prisma.user.count({ where: { deletedAt: null } }),
       prisma.user.count({ where: { assessmentCompleted: true, deletedAt: null } }),
@@ -97,6 +107,16 @@ export default async function AdminPage() {
         },
       }),
       prisma.application.count({ where: { status: 'PENDING' } }),
+      prisma.placementRecord.findMany({
+        where: { startDateVerified: false },
+        orderBy: { placedAt: 'desc' },
+        take: 8,
+        include: {
+          user: {
+            select: { id: true, fullName: true, email: true, enrolledProgram: true },
+          },
+        },
+      }),
     ]);
 
     if (totalMembersResult.status === 'rejected') {
@@ -128,6 +148,13 @@ export default async function AdminPage() {
       pendingApplications = 0;
     } else {
       pendingApplications = pendingApplicationsResult.value;
+    }
+
+    if (pendingPlacementsResult.status === 'rejected') {
+      logPrismaReason('placementRecord.pendingReview', pendingPlacementsResult.reason);
+      pendingPlacements = [];
+    } else {
+      pendingPlacements = pendingPlacementsResult.value;
     }
 
     const [enrolledResult, programsResult] = await Promise.allSettled([
@@ -256,6 +283,16 @@ export default async function AdminPage() {
           </span>
           <Link href="/admin/members" className="portal-alert__action">
             Review &rarr;
+          </Link>
+        </div>
+      )}
+      {pendingPlacements.length > 0 && (
+        <div className="wa-hidden wa-md:wa-block portal-alert" style={{ marginBottom: '1.5rem', borderColor: 'rgba(128,217,159,0.35)' }}>
+          <span className="portal-alert__label">
+            {pendingPlacements.length} placement{pendingPlacements.length === 1 ? '' : 's'} waiting for counselor review
+          </span>
+          <Link href="/admin/members" className="portal-alert__action">
+            Finalize &rarr;
           </Link>
         </div>
       )}
@@ -399,6 +436,46 @@ export default async function AdminPage() {
                     })}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+
+          {pendingPlacements.length > 0 && (
+            <div style={{ background: 'var(--surface-container-low)', borderRadius: '0.75rem', overflow: 'hidden', boxShadow: '0 4px 32px rgba(0,0,0,0.2)' }}>
+              <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(226,226,229,0.05)', background: 'var(--surface-container)' }}>
+                <h3 className="portal-section-heading" style={{ margin: 0 }}>Pending Placements</h3>
+                <p style={{ margin: '0.35rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>
+                  Member-confirmed placements waiting for counselor verification.
+                </p>
+              </div>
+              <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {pendingPlacements.map((placement) => (
+                  <div
+                    key={placement.id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '1rem',
+                      padding: '0.9rem 1rem',
+                      borderRadius: '0.75rem',
+                      background: 'var(--surface-container)',
+                    }}
+                  >
+                    <div>
+                      <Link href={`/admin/members/${placement.user.id}`} style={{ fontWeight: 600, color: 'var(--color-on-surface)', textDecoration: 'none' }}>
+                        {placement.user.fullName}
+                      </Link>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginTop: '0.2rem' }}>
+                        {placement.employerName} · {placement.jobTitle}
+                        {placement.user.enrolledProgram ? ` · ${getProgramBySlug(placement.user.enrolledProgram)?.title ?? placement.user.enrolledProgram}` : ''}
+                      </div>
+                    </div>
+                    <Link href={`/admin/members/${placement.user.id}`} className="btn btn-outline">
+                      Review record
+                    </Link>
+                  </div>
+                ))}
               </div>
             </div>
           )}

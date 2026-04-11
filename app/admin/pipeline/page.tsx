@@ -10,6 +10,8 @@ import AdminPipelineKanban, {
 import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
+import { getStaleApplications } from '@/lib/data/applications';
+import StaleApplicationsBanner from './StaleApplicationsBanner';
 
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
@@ -115,6 +117,7 @@ export default async function AdminPipelinePage() {
       : null;
 
   const initialByStage = JSON.parse(JSON.stringify(byStage)) as Record<PipelineStage, PipelineKanbanMember[]>;
+  const staleApps = await getStaleApplications();
 
   return (
     <div style={{ paddingTop: '1.5rem' }}>
@@ -138,6 +141,8 @@ export default async function AdminPipelinePage() {
         />
         <PortalKpiCard label="Avg Salary" value={avgSalary ? `$${avgSalary.toLocaleString()}` : '—'} accent="gold" />
       </div>
+
+      <StaleApplicationsBanner staleApps={staleApps} />
 
       <AdminPipelineKanban initialByStage={initialByStage} />
     </div>

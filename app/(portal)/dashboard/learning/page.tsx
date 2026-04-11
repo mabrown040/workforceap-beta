@@ -420,91 +420,19 @@ export default async function LearningPage() {
       {/* Destination cards (existing component — career library, program resources) */}
       <LearningHubDestinationCards />
 
-      {/* Upcoming Modules grid */}
-      <section style={{ marginBottom: 'var(--space-8)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-2)' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>
-            view_module
-          </span>
-          <h2 style={{ fontSize: 'var(--font-size-h3)', fontWeight: 'var(--font-weight-bold)', margin: 0 }}>Upcoming Modules</h2>
-        </div>
-        <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-6)' }}>
-          Step-by-step tracks toward job-ready skills. Your progress syncs as you complete steps.
-        </p>
-
-        <div className="portal-grid-metrics">
-          {PATHWAYS.map((pathway, idx) => {
-            const isLocked = idx > 1;
-            const icon = MODULE_ICONS[pathway.category] ?? 'school';
-            return (
-              <div
-                key={pathway.id}
-                style={{
-                  background: 'var(--surface-container)',
-                  borderRadius: 'var(--radius-xl)',
-                  padding: 'var(--space-6)',
-                  opacity: isLocked ? 0.55 : 1,
-                  position: 'relative',
-                  border: idx === 0 ? '1px solid var(--color-accent)' : '1px solid transparent',
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-3)' }}>
-                  <span
-                    className="material-symbols-outlined"
-                    style={{
-                      fontSize: '1.75rem',
-                      color: isLocked ? 'var(--color-on-surface-variant)' : 'var(--color-accent)',
-                      background: isLocked ? 'var(--surface-container-highest)' : 'rgba(173,44,77,0.12)',
-                      borderRadius: 'var(--radius-lg)',
-                      padding: 'var(--space-2)',
-                      '--ms-fill': 1,
-                    }}
-                   aria-hidden="true">
-                    {icon}
-                  </span>
-                  {isLocked && (
-                    <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-on-surface-variant)' }} aria-hidden="true">
-                      lock
-                    </span>
-                  )}
-                </div>
-                <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-1)' }}>
-                  {pathway.category}
-                </div>
-                <h3 style={{ fontSize: 'var(--font-size-base)', fontWeight: 'var(--font-weight-medium)', marginBottom: 'var(--space-2)' }}>
-                  {pathway.title}
-                </h3>
-                <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-3)' }}>
-                  {pathway.description}
-                </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1)' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">menu_book</span>
-                    {pathway.steps.length} lessons
-                  </span>
-                  <span>~{pathway.estimatedWeeks} wks</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Structured pathways (existing cards with interactive progress) */}
+      {/* Your learning pathway — enrolled pathway only, with real DB-backed progress */}
       <section style={{ marginBottom: 'var(--space-8)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-2)' }}>
           <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>
             school
           </span>
-          <h2 style={{ fontSize: 'var(--font-size-h3)', fontWeight: 'var(--font-weight-bold)', margin: 0 }}>Structured Pathways</h2>
+          <h2 style={{ fontSize: 'var(--font-size-h3)', fontWeight: 'var(--font-weight-bold)', margin: 0 }}>Your Learning Pathway</h2>
         </div>
         <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-6)' }}>
-          Step-by-step tracks toward job-ready skills. Your progress syncs as you complete steps.
+          Track and mark each step as you complete it. Progress saves to your profile.
         </p>
-        <div className="learning-pathways-grid">
-          {PATHWAYS.map((pathway) => (
-            <LearningPathCard key={pathway.id} pathway={pathway} />
-          ))}
+        <div style={{ maxWidth: '560px' }}>
+          <LearningPathCard pathway={ACTIVE_PATHWAY} />
         </div>
       </section>
 

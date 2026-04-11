@@ -1,5 +1,10 @@
+'use client';
+
+import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import type { NextBestAction } from '@/lib/member/nextBestActions';
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export default function MemberNextStepsStrip({
   actions,
@@ -11,7 +16,17 @@ export default function MemberNextStepsStrip({
   /** When one card: stretch to full width so the grid does not look half-empty */
   fillRow?: boolean;
 }) {
-  if (actions.length === 0) return null;
+  const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+
+  const dismiss = useCallback((id: string) => {
+    setDismissed((prev) => new Set([...prev, id]));
+    if (UUID_RE.test(id)) {
+      fetch(`/api/member/nba/${id}`, { method: 'PATCH' }).catch(() => {});
+    }
+  }, []);
+
+  const visible = actions.filter((a) => !dismissed.has(a.id));
+  if (visible.length === 0) return null;
 
   return (
     <section
@@ -51,7 +66,7 @@ export default function MemberNextStepsStrip({
         style={{
           display: 'grid',
           gridTemplateColumns:
-            fillRow && actions.length === 1
+            fillRow && visible.length === 1
               ? '1fr'
               : compact
                 ? 'repeat(auto-fill, minmax(240px, 1fr))'
@@ -59,7 +74,7 @@ export default function MemberNextStepsStrip({
           gap: compact ? '0.65rem' : '1rem',
         }}
       >
-        {actions.map((a) => (
+        {visible.map((a) => (
           <div
             key={a.id}
             className="portal-card portal-card--flat"
@@ -71,8 +86,30 @@ export default function MemberNextStepsStrip({
               flexDirection: 'column',
               gap: '0.5rem',
               minHeight: compact ? 'auto' : undefined,
+              position: 'relative',
             }}
           >
+            <button
+              type="button"
+              aria-label={`Dismiss "${a.title}"`}
+              onClick={() => dismiss(a.id)}
+              style={{
+                position: 'absolute',
+                top: compact ? '0.5rem' : '0.65rem',
+                right: compact ? '0.5rem' : '0.65rem',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'var(--color-on-surface-variant)',
+                fontSize: '1rem',
+                lineHeight: 1,
+                padding: '0.15rem',
+                borderRadius: '4px',
+                opacity: 0.6,
+              }}
+            >
+              ✕
+            </button>
             <h4
               style={{
                 fontWeight: 700,
@@ -80,6 +117,7 @@ export default function MemberNextStepsStrip({
                 margin: 0,
                 color: 'var(--color-on-surface)',
                 lineHeight: 1.3,
+                paddingRight: '1.5rem',
               }}
             >
               {a.title}

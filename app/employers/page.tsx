@@ -298,17 +298,6 @@ export default function EmployersPage() {
         </div>
       </section>
 
-      {/* ===== Employer Testimonial ===== */}
-      <section style={{ padding: 'clamp(2rem, 4vw, 4rem) clamp(1rem, 4vw, 2rem)', maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
-        <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', background: 'var(--surface-container-low)' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '1rem', display: 'block' }}>format_quote</span>
-          <blockquote style={{ fontSize: '1.1rem', lineHeight: 1.7, fontStyle: 'italic', color: 'var(--color-on-surface)', marginBottom: '1rem' }}>
-            &ldquo;WorkforceAP connected us with three candidates who were immediately productive. The quality of preparation was unlike anything we&apos;ve seen from traditional staffing.&rdquo;
-          </blockquote>
-          <cite style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', fontStyle: 'normal' }}>— Hiring Manager, Regional Healthcare System</cite>
-        </div>
-      </section>
-
       {/* ── The WorkforceAP Difference — Sticky sidebar + value cards ── */}
       <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>

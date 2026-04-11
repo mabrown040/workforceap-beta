@@ -134,7 +134,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
   const careerMatchFromProfile = intakeExtra?.careerRecommendationJson as CareerMatchResult | null;
 
-  const [toolsResult, applicationResult] = await Promise.allSettled([
+  const [toolsResult, applicationResult, dynamicActionsResult] = await Promise.allSettled([
     prisma.aIToolResult.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
@@ -151,6 +151,11 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         createdAt: true,
       },
     }),
+    prisma.memberNextBestAction.findMany({
+      where: { memberId: user.id, status: 'PENDING' },
+      orderBy: { priority: 'desc' },
+      take: 2,
+    }),
   ]);
 
   const recentTools = toolsResult.status === 'fulfilled' ? toolsResult.value : [];
@@ -161,6 +166,11 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   const latestApplication = applicationResult.status === 'fulfilled' ? applicationResult.value : null;
   if (applicationResult.status === 'rejected') {
     console.error('[dashboard] latest application query failed', applicationResult.reason);
+  }
+
+  const dynamicNextActions = dynamicActionsResult.status === 'fulfilled' ? dynamicActionsResult.value : [];
+  if (dynamicActionsResult.status === 'rejected') {
+    console.error('[dashboard] dynamic actions query failed', dynamicActionsResult.reason);
   }
 
   const showMemberOnboarding = intakeExtra?.onboardingCompletedAt == null;
@@ -219,7 +229,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     email: dbUser.email,
   });
 
-  const nextBestActions = buildNextBestActions({
+  let nextBestActions = buildNextBestActions({
     state: dashboardState,
     noApplicationOnFile,
     enrolledProgram,
@@ -230,6 +240,19 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     counselorUnreadCount: engagementSignals.counselorUnreadCount,
     weeklyRecapUnopened: engagementSignals.weeklyRecapUnopened,
   });
+
+  for (const dbAction of dynamicNextActions.reverse()) {
+    nextBestActions.unshift({
+      id: dbAction.id,
+      title: dbAction.title,
+      body: dbAction.description,
+      href: dbAction.ctaHref,
+      cta: dbAction.ctaLabel,
+      variant: 'urgent',
+      weight: dbAction.priority + 100,
+    });
+  }
+  nextBestActions = nextBestActions.slice(0, 4);
 
   const checklist = {
     createAccount: true,

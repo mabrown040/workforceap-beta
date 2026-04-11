@@ -141,7 +141,10 @@ export async function getAdminMetrics() {
   ]);
 
   const active14dSet = new Set(activeUserIds14d.map((x) => x.userId));
-  const allUsers = await prisma.user.findMany({ select: { id: true } });
+  const allUsers = await prisma.user.findMany({
+    where: { deletedAt: null },
+    select: { id: true },
+  });
   const inactiveUserIds = allUsers.filter((u) => !active14dSet.has(u.id)).map((u) => u.id);
 
   // Parallel fetch for charts + Career OS funnel

@@ -60,17 +60,21 @@ Return ONLY the pitch text — no labels, no quotes, no explanation.`;
 
     if (!pitch) return NextResponse.json({ error: 'Could not generate pitch. Try again.' }, { status: 500 });
 
-    await ensureUserInDb(user);
-    await saveAIToolResult(
-      user.id,
-      'career_counselor',
-      `Elevator pitch for ${targetRole.trim()}`,
-      JSON.stringify({ type: 'elevator_pitch', name: name.trim(), targetRole: targetRole.trim(), strengths, certifications, industry, pitch })
-    );
+    try {
+      await ensureUserInDb(user);
+      await saveAIToolResult(
+        user.id,
+        'career_counselor',
+        `Elevator pitch for ${targetRole.trim()}`,
+        JSON.stringify({ type: 'elevator_pitch', name: name.trim(), targetRole: targetRole.trim(), strengths, certifications, industry, pitch })
+      );
+    } catch (persistError) {
+      console.error('[elevator-pitch] failed to persist result', persistError);
+    }
 
     return NextResponse.json({ pitch: pitch.trim() });
   } catch (e) {
-    console.error('[elevator-pitch]', e);
+    console.error('[elevator-pitch] generation failed', e);
     return NextResponse.json({ error: 'Failed to generate pitch' }, { status: 500 });
   }
 }

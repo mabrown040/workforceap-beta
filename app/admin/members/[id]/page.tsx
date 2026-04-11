@@ -114,6 +114,20 @@ export default async function AdminMemberDetailPage({
     profile: true,
   } as const;
 
+  const placementRecordSafeSelect = {
+    id: true,
+    userId: true,
+    employerName: true,
+    jobTitle: true,
+    startDate: true,
+    salaryOffered: true,
+    placedAt: true,
+    placedBy: true,
+    notes: true,
+    createdAt: true,
+    updatedAt: true,
+  } as const;
+
   const sharedQueries = () => [
     prisma.partner.findMany({
       where: { active: true },
@@ -144,7 +158,7 @@ export default async function AdminMemberDetailPage({
       where: { memberId: id, active: true },
       include: { counselor: { select: { userId: true, user: { select: { fullName: true } } } } },
     }),
-    prisma.placementRecord.findUnique({ where: { userId: id } }).catch(() => null),
+    prisma.placementRecord.findUnique({ where: { userId: id }, select: placementRecordSafeSelect }).catch(() => null),
     prisma.courseEnrollment.findUnique({
       where: { userId: id },
       select: {

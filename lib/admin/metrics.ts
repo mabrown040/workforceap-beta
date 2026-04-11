@@ -11,11 +11,11 @@ const EVENT_ONLY_AI_TOOLS = [
 async function countEventOnlyAiRunsBetween(start: Date, end: Date): Promise<number> {
   const rows = await prisma.$queryRaw<Array<{ count: bigint | number }>>`
     SELECT COUNT(*)::bigint AS count
-    FROM "MemberEvent"
-    WHERE "createdAt" >= ${start}
-      AND "createdAt" <= ${end}
-      AND "eventName" = 'ai_tool_run_started'
-      AND "entityType" = 'ai_tool'
+    FROM "member_events"
+    WHERE "created_at" >= ${start}
+      AND "created_at" <= ${end}
+      AND "event_name" = 'ai_tool_run_started'
+      AND "entity_type" = 'ai_tool'
       AND COALESCE(metadata->>'tool', '') IN (${Prisma.join(EVENT_ONLY_AI_TOOLS)})
   `;
 

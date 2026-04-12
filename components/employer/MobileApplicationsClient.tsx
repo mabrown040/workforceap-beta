@@ -27,7 +27,7 @@ function statusColor(status: string): { bg: string; color: string } {
   if (status === 'hired') return { bg: '#dcfce7', color: '#166534' };
   if (status === 'rejected') return { bg: '#fee2e2', color: '#991b1b' };
   if (status === 'pending') return { bg: '#fff1f2', color: 'var(--color-accent)' };
-  if (status === 'reviewing') return { bg: '#fef3c7', color: 'var(--color-gold)' };
+  if (status === 'reviewing') return { bg: '#fef3c7', color: '#92400e' };
   if (status === 'interview') return { bg: '#dbeafe', color: '#1e3a8a' };
   if (status === 'offered') return { bg: '#f3e8ff', color: '#6b21a8' };
   return { bg: 'var(--surface-container)', color: 'var(--color-on-surface-variant)' };

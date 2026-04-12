@@ -30,37 +30,12 @@ export default async function JobMatchScorerPage() {
         >
           <PageHeader
             title="Job Match Scorer"
+            subtitle="Paste a job description and your resume. Get a match score and specific gaps to address."
             breadcrumbs={[
               { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
               { label: 'Job Match Scorer' },
             ]}
           />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <div
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 10,
-                background: 'var(--surface-container-highest)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.2rem', color: 'var(--color-accent)' }} aria-hidden="true">
-                target
-              </span>
-            </div>
-            <div>
-              <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>
-                Job Match Scorer
-              </h1>
-              <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0.15rem 0 0' }}>
-                Paste a job description and your resume. Get a match score and specific gaps to address.
-              </p>
-            </div>
-          </div>
         </div>
 
         <div style={{ maxWidth: 1120, margin: '0 auto', padding: '1rem 1rem 2rem' }}>

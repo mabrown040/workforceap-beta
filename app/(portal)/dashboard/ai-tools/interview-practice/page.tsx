@@ -28,7 +28,6 @@ export default async function InterviewPracticePage() {
 
   return (
     <>
-      <h1 className="wa-sr-only">Interview Practice</h1>
       <div style={{ paddingBottom: '6rem' }}>
         <div
           style={{

@@ -30,35 +30,12 @@ export default async function CoverLetterPage() {
         >
           <PageHeader
             title="Cover Letter Builder"
+            subtitle="Tailored cover letters that connect your experience to the job."
             breadcrumbs={[
               { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
               { label: 'Cover Letter' },
             ]}
           />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <div
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 10,
-                background: 'var(--surface-container-highest)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.2rem', color: 'var(--color-accent)' }} aria-hidden="true">description</span>
-            </div>
-            <div>
-              <h1 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>
-                Cover Letter Builder
-              </h1>
-              <p style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-variant)', margin: '0.1rem 0 0' }}>
-                Tailored cover letters that connect your experience to the job.
-              </p>
-            </div>
-          </div>
         </div>
 
         <div style={{ maxWidth: 720, margin: '0 auto', padding: '1rem 1rem 2rem' }}>

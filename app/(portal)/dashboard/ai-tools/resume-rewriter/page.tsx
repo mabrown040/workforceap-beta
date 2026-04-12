@@ -36,37 +36,12 @@ export default async function ResumeRewriterPage() {
         >
           <PageHeader
             title="Resume Rewriter"
+            subtitle="AI-powered resume optimization that passes ATS and impresses recruiters."
             breadcrumbs={[
               { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
               { label: 'Resume Rewriter' },
             ]}
           />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <div
-              style={{
-                width: 44,
-                height: 44,
-                borderRadius: 12,
-                background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-dark, #8b1a3a))',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.35rem', color: '#fff' }} aria-hidden>
-                edit_note
-              </span>
-            </div>
-            <div>
-              <h1 style={{ fontSize: 'clamp(1.15rem, 2.5vw, 1.4rem)', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>
-                Refine Your Professional Impact
-              </h1>
-              <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0.15rem 0 0' }}>
-                AI-powered resume optimization that passes ATS and impresses recruiters.
-              </p>
-            </div>
-          </div>
         </div>
 
         {/* ── Workflow summary — the actual mode picker lives in ResumeRewriterClient ── */}

@@ -111,7 +111,7 @@ export default function CertificationAddForm() {
         onClick={() => setOpen(true)}
         style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.5rem 1rem', borderRadius: '0.625rem', border: '2px dashed rgba(173,44,77,0.3)', background: 'rgba(173,44,77,0.04)', color: 'var(--color-accent)', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer', width: '100%', justifyContent: 'center' }}
       >
-        <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>add_circle</span>
+        <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">add_circle</span>
         Add a Certificate
       </button>
     );
@@ -120,7 +120,7 @@ export default function CertificationAddForm() {
   if (success) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem', background: 'rgba(74,155,79,0.08)', border: '1px solid rgba(74,155,79,0.2)', borderRadius: '0.875rem' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '1.375rem', color: 'var(--color-green, #4a9b4f)', fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+        <span className="material-symbols-outlined" style={{ fontSize: '1.375rem', color: 'var(--color-green, #4a9b4f)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">check_circle</span>
         <p style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0 }}>
           {finalName} added{uploading ? ' (uploading file…)' : ''}!
         </p>
@@ -132,8 +132,8 @@ export default function CertificationAddForm() {
     <form onSubmit={handleSubmit} style={{ padding: '1.125rem', background: 'var(--surface-container-low)', border: '1px solid rgba(173,44,77,0.15)', borderRadius: '0.875rem', display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
         <h3 style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0 }}>Add Certificate</h3>
-        <button type="button" onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-on-surface-variant)', display: 'flex' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>close</span>
+        <button type="button" aria-label="Close" onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-on-surface-variant)', display: 'flex' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">close</span>
         </button>
       </div>
 

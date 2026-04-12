@@ -77,7 +77,7 @@ const COHORTS = [
 const PROCESS_STEPS = [
   { num: 1, title: 'Post Your Opening', desc: 'Add your job to our employer portal. We match it to our pipeline.', icon: 'description' },
   { num: 2, title: 'Review Matched Candidates', desc: 'Receive pre-screened applicants who hold relevant certifications.', icon: 'person_search' },
-  { num: 3, title: 'Interview & Hire', desc: 'You conduct interviews and make the hire. No placement fees.', icon: 'how_to_reg' },
+  { num: 3, title: 'Interview & Hire', desc: 'You conduct interviews and make the hire on your timeline.', icon: 'how_to_reg' },
   { num: 4, title: '150-Day Support', desc: 'We support your new hire\u2019s onboarding for long-term success.', icon: 'handshake' },
 ];
 
@@ -286,7 +286,7 @@ export default function EmployersPage() {
           {[
             { step: '1', icon: 'work', title: 'Post a Role or Browse', desc: 'Tell us what you need — or browse our pipeline of trained, job-ready candidates.' },
             { step: '2', icon: 'groups', title: 'We Match You', desc: 'Our team connects you with vetted graduates whose skills align with your requirements.' },
-            { step: '3', icon: 'handshake', title: 'Hire When Ready', desc: 'Interview on your timeline. No pressure, no placement fees, no strings attached.' },
+            { step: '3', icon: 'handshake', title: 'Hire When Ready', desc: 'Interview on your timeline with support from our team when you need it.' },
           ].map((item) => (
             <div key={item.step} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
               <div style={{ width: '3rem', height: '3rem', borderRadius: '50%', background: 'var(--color-accent)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '1.25rem', flexShrink: 0 }}>{item.step}</div>

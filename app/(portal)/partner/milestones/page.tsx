@@ -24,20 +24,23 @@ export default async function PartnerMilestonesPage() {
 
   return (
     <PortalPageFrame>
+      <PageHeader
+        title="Milestones"
+        subtitle={
+          <>
+            <span className="wa-block wa-md:wa-hidden">Review member certificates, placements, and progress events.</span>
+            <span className="wa-hidden wa-md:wa-block">Recent certificates, placements, and milestone events across your referrals.</span>
+          </>
+        }
+      />
       {/* ── MOBILE SECTION ── */}
       <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        <PageHeader title="Milestones" subtitle="Review member certificates, placements, and progress events." />
-
         <PartnerMilestonesMobile />
         <MobileBottomNav variant="partner" />
       </div>
 
       {/* ── DESKTOP SECTION ── */}
       <div className="wa-hidden wa-md:wa-block">
-        <PageHeader
-          title="Milestones"
-          subtitle="Recent certificates, placements, and milestone events across your referrals."
-        />
         <PartnerMilestonesView />
       </div>
     </PortalPageFrame>

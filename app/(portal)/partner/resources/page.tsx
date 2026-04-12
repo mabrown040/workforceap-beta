@@ -36,13 +36,12 @@ export default async function PartnerResourcesPage() {
 
   return (
     <PortalPageFrame>
+      <PageHeader
+        title="Partner resources"
+        subtitle={`Quick links for ${ctx.partner.name} and your internal team.`}
+      />
       {/* Mobile View */}
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        <PageHeader
-          title="Partner resources"
-          subtitle={`Quick links for ${ctx.partner.name} and your internal team.`}
-        />
-
       {(partner?.contactEmail || partner?.contactPhone || partner?.contactName) && (
         <section
           style={{
@@ -106,11 +105,6 @@ export default async function PartnerResourcesPage() {
 
     {/* Desktop View */}
     <div className="wa-hidden wa-md:wa-block">
-      <PageHeader
-        title="Partner resources"
-        subtitle={`Quick links for ${ctx.partner.name} and your internal team.`}
-      />
-
       {(partner?.contactEmail || partner?.contactPhone || partner?.contactName) && (
         <section
           style={{

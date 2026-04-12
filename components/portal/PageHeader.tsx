@@ -8,7 +8,7 @@ export default function PageHeader({
   breadcrumbs,
 }: {
   title: string;
-  subtitle?: string;
+  subtitle?: React.ReactNode;
   action?: React.ReactNode;
   breadcrumbs?: PortalBreadcrumbItem[];
 }) {

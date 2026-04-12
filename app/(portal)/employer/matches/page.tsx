@@ -74,16 +74,17 @@ export default async function EmployerMatchesPage() {
   };
 
   return (
-    <>
-      <h1 className="wa-sr-only">Match History</h1>
-      {/* ── Mobile section ── */}
+    <PortalPageFrame>
+      <PageHeader
+        title="Match History"
+        subtitle={
+          <>
+            <span className="wa-block wa-md:wa-hidden">AI-suggested candidates for your roles</span>
+            <span className="wa-hidden wa-md:wa-block">Track suggested members and update your pipeline status as you move from outreach to hire.</span>
+          </>
+        }
+      />
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        <PageHeader
-          title="Match History"
-          subtitle="AI-suggested candidates for your roles"
-        />
-
-        {/* Filter chips by job role */}
         {uniqueJobs.length > 1 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', padding: '0 1rem 0.75rem' }}>
             <span className="stitch-badge stitch-badge--accent">All Roles</span>
@@ -92,8 +93,6 @@ export default async function EmployerMatchesPage() {
             ))}
           </div>
         )}
-
-        {/* Match cards */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem', padding: '0 1rem' }}>
           {initialRows.length === 0 ? (
             <div className="portal-card portal-card--flat" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
@@ -108,86 +107,43 @@ export default async function EmployerMatchesPage() {
             initialRows.map((row) => {
               const pct = matchScoreAsPercent(row.matchScore);
               return (
-              <div key={row.id} className="portal-card portal-card--flat employer-match-card">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.625rem' }}>
-                  <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '9999px', background: 'var(--surface-container-low)', color: 'var(--color-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 700, flexShrink: 0 }}>
-                    {getInitials(row.student.fullName ?? '?')}
+                <div key={row.id} className="portal-card portal-card--flat employer-match-card">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.625rem' }}>
+                    <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '9999px', background: 'var(--surface-container-low)', color: 'var(--color-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 700, flexShrink: 0 }}>
+                      {getInitials(row.student.fullName ?? '?')}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div className="wa-truncate" style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)' }}>{row.student.fullName}</div>
+                      <div className="wa-truncate" style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{row.job.title}</div>
+                    </div>
+                    <div style={{ flexShrink: 0, textAlign: 'right', minWidth: '3.25rem', padding: '0.35rem 0.5rem', borderRadius: '0.5rem', background: 'color-mix(in srgb, var(--color-accent) 12%, transparent)', border: '1px solid color-mix(in srgb, var(--color-accent) 22%, transparent)' }}>
+                      <div style={{ fontSize: '1rem', fontWeight: 800, color: matchScoreColor(pct), lineHeight: 1.2 }}>{pct}%</div>
+                      <div style={{ fontSize: '0.6rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>match</div>
+                    </div>
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className="wa-truncate" style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)' }}>{row.student.fullName}</div>
-                    <div className="wa-truncate" style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{row.job.title}</div>
-                  </div>
-                  <div
-                    style={{
-                      flexShrink: 0,
-                      textAlign: 'right',
-                      minWidth: '3.25rem',
-                      padding: '0.35rem 0.5rem',
-                      borderRadius: '0.5rem',
-                      background: 'color-mix(in srgb, var(--color-accent) 12%, transparent)',
-                      border: '1px solid color-mix(in srgb, var(--color-accent) 22%, transparent)',
-                    }}
-                  >
-                    <div style={{ fontSize: '1rem', fontWeight: 800, color: matchScoreColor(pct), lineHeight: 1.2 }}>{pct}%</div>
-                    <div style={{ fontSize: '0.6rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>match</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '0.5rem' }}>
+                    <Link href={`/employer/candidates/${row.studentId}?jobId=${encodeURIComponent(row.jobId)}`} style={{ textAlign: 'center', padding: '0.625rem 0.5rem', background: 'var(--surface-container)', color: 'var(--color-on-surface)', borderRadius: '0.5rem', fontSize: '0.775rem', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }} className="active:wa-scale-95 wa-transition-transform">View Profile</Link>
+                    <Link href="/employer/messages" style={{ textAlign: 'center', padding: '0.625rem 0.5rem', background: 'var(--surface-container-low)', color: 'var(--color-accent)', borderRadius: '0.5rem', fontSize: '0.775rem', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }} className="active:wa-scale-95 wa-transition-transform">Contact</Link>
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '0.5rem' }}>
-                  <Link
-                    href={`/employer/candidates/${row.studentId}?jobId=${encodeURIComponent(row.jobId)}`}
-                    style={{ textAlign: 'center', padding: '0.625rem 0.5rem', background: 'var(--surface-container)', color: 'var(--color-on-surface)', borderRadius: '0.5rem', fontSize: '0.775rem', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}
-                    className="active:wa-scale-95 wa-transition-transform"
-                  >
-                    View Profile
-                  </Link>
-                  <Link
-                    href={`/employer/messages`}
-                    style={{ textAlign: 'center', padding: '0.625rem 0.5rem', background: 'var(--surface-container-low)', color: 'var(--color-accent)', borderRadius: '0.5rem', fontSize: '0.775rem', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}
-                    className="active:wa-scale-95 wa-transition-transform"
-                  >
-                    Contact
-                  </Link>
-                </div>
-              </div>
-            );
+              );
             })
           )}
         </div>
         <MobileBottomNav variant="employer" />
       </div>
-
-      {/* ── Desktop section ── */}
       <div className="wa-hidden wa-md:wa-block">
-        <PortalPageFrame>
-          <PageHeader
-            title="Match History"
-            subtitle="Track suggested members and update your pipeline status as you move from outreach to hire."
-          />
-
-          {initialRows.length === 0 ? (
-            <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>auto_awesome</span>
-              <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>No matches yet</h3>
-              <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
-                AI candidate matches will appear here once your jobs are live.
-              </p>
-              <Link href="/employer/jobs/new" style={{
-                padding: '0.625rem 1.25rem',
-                background: 'var(--color-accent)',
-                color: '#fff',
-                borderRadius: '0.5rem',
-                fontSize: '0.875rem',
-                fontWeight: 600,
-                textDecoration: 'none',
-              }}>
-                Post your first job
-              </Link>
-            </div>
-          ) : (
-            <EmployerMatchHistoryClient initialRows={initialRows} />
-          )}
-        </PortalPageFrame>
+        {initialRows.length === 0 ? (
+          <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>auto_awesome</span>
+            <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>No matches yet</h3>
+            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>AI candidate matches will appear here once your jobs are live.</p>
+            <Link href="/employer/jobs/new" style={{ padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>Post your first job</Link>
+          </div>
+        ) : (
+          <EmployerMatchHistoryClient initialRows={initialRows} />
+        )}
       </div>
-    </>
+    </PortalPageFrame>
   );
 }

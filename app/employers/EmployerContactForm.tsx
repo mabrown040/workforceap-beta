@@ -116,38 +116,53 @@ export default function EmployerContactForm() {
     return (
       <div
         style={{
+          background: 'var(--surface-container)',
+          borderRadius: 'var(--radius-xl)',
           padding: '2rem',
-          background: 'rgba(74, 155, 79, 0.1)',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid rgba(74, 155, 79, 0.3)',
-          textAlign: 'center',
         }}
       >
-        <p style={{ fontWeight: 600, color: 'var(--color-accent)', marginBottom: '0.5rem' }}>
-          Thank you — we received your inquiry
-        </p>
-        <p style={{ color: 'var(--color-on-surface-variant)' }}>
-          We&rsquo;ll reach out within 24–48 hours.
-        </p>
+        <div
+          style={{
+            padding: '2rem',
+            background: 'rgba(74, 155, 79, 0.1)',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid rgba(74, 155, 79, 0.3)',
+            textAlign: 'center',
+          }}
+        >
+          <p style={{ fontWeight: 600, color: 'var(--color-accent)', marginBottom: '0.5rem' }}>
+            Thank you — we received your inquiry
+          </p>
+          <p style={{ color: 'var(--color-on-surface-variant)' }}>
+            We&rsquo;ll reach out within 24–48 hours.
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
+    <div
+      style={{
+        background: 'var(--surface-container)',
+        borderRadius: 'var(--radius-xl)',
+        padding: '2rem',
+      }}
+    >
     <form className="contact-form employer-contact-form" onSubmit={handleSubmit} id="employer-contact-form">
       <div
         style={{
           marginBottom: '1.25rem',
           padding: '1rem 1.1rem',
           borderRadius: 'var(--radius-md)',
-          background: 'rgba(255,255,255,0.08)',
-          border: '1px solid rgba(255,255,255,0.14)',
+          background: 'var(--surface-container-high)',
+          border: '1px solid var(--outline-variant)',
         }}
       >
-        <p style={{ margin: 0, color: '#fff', fontSize: '0.95rem', fontWeight: 700, lineHeight: 1.5 }}>
+        <p style={{ margin: 0, color: 'var(--color-on-surface)', fontSize: '0.95rem', fontWeight: 700, lineHeight: 1.5 }}>
           Employer intake for hiring managers, talent leaders, and program owners.
         </p>
-        <p style={{ margin: '0.5rem 0 0', color: 'rgba(255,255,255,0.88)', fontSize: '0.85rem', lineHeight: 1.5 }}>
+        <p style={{ margin: '0.5rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.85rem', lineHeight: 1.5 }}>
           Share your hiring intent, role needs, expected volume, and timeline. We review submissions within 24–48 hours and route you to the right partnership path.
         </p>
       </div>
@@ -250,5 +265,6 @@ export default function EmployerContactForm() {
         We respond within 24–48 hours.
       </p>
     </form>
+    </div>
   );
 }

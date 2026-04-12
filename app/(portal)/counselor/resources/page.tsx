@@ -48,13 +48,12 @@ export default async function CounselorResourcesPage() {
 
   return (
     <PortalPageFrame>
+      <PageHeader
+        title="Resources"
+        subtitle="Program context, member-facing pages, and tools you use most often in sessions."
+      />
       {/* Mobile View */}
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        <PageHeader
-          title="Resources"
-          subtitle="Program context, member-facing pages, and tools you use most often in sessions."
-        />
-
         <section style={{ marginBottom: '1.75rem' }}>
           <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>
             Counseling workflow
@@ -97,11 +96,6 @@ export default async function CounselorResourcesPage() {
 
       {/* Desktop View */}
       <div className="wa-hidden wa-md:wa-block">
-        <PageHeader
-          title="Resources"
-          subtitle="Program context, member-facing pages, and tools you use most often in sessions."
-        />
-
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
           <section>
             <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>

@@ -101,7 +101,7 @@ export default async function CounselorPortalPage() {
         <div className="portal-pad-x" style={{ paddingTop:"1.5rem", paddingBottom:"0.5rem" }}>
           <p className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold" style={{ color: 'var(--color-accent)', marginBottom:"0.5rem" }}>Counselor Dashboard</p>
           <h2 className="wa-text-3xl wa-font-extrabold wa-tracking-tight text-on-surface wa-leading-tight">
-            {greeting},<br /><span style={{ color: 'var(--color-accent)' }}>{firstName}</span>
+            {greeting}, <br /><span style={{ color: 'var(--color-accent)' }}>{firstName}</span>
           </h2>
         </div>
         <div className="portal-pad-x" style={{ marginBottom: '1rem' }}>

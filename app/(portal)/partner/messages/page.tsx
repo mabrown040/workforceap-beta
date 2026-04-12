@@ -39,9 +39,16 @@ export default async function PartnerMessagesPage() {
   return (
     <PortalPageFrame>
       <>
+        <PageHeader
+          title="Messages"
+          subtitle={
+            <>
+              <span className="wa-block wa-md:wa-hidden">Direct line to your WorkforceAP partnership team</span>
+              <span className="wa-hidden wa-md:wa-block">Direct line to your WorkforceAP partnership team — referrals, milestones, and resources.</span>
+            </>
+          }
+        />
         <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem', maxWidth: '100%', overflowX: 'hidden' }}>
-          <PageHeader title="Messages" subtitle="Direct line to your WorkforceAP partnership team" />
-
           <div className="portal-pad-x wa-mb-4">
             <PortalCard>
               <div className="portal-inbox-row__inner" style={{ padding: '0.25rem 0' }}>
@@ -74,10 +81,6 @@ export default async function PartnerMessagesPage() {
         </div>
 
         <div className="wa-hidden wa-md:wa-block">
-          <PageHeader
-            title="Messages"
-            subtitle="Direct line to your WorkforceAP partnership team — referrals, milestones, and resources."
-          />
           <PortalTeamChatClient
             surfaceVariant="partner"
             apiPath="/api/partner/messages"

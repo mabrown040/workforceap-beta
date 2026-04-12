@@ -74,29 +74,26 @@ export default async function EmployerPipelinePage() {
       .toUpperCase();
 
   return (
-    <>
-      {/* ── Mobile section ── */}
+    <PortalPageFrame>
+      <PageHeader
+        title="Candidate Pipeline"
+        subtitle={
+          <>
+            <span className="wa-block wa-md:wa-hidden">AI-matched candidates across your open roles</span>
+            <span className="wa-hidden wa-md:wa-block">Suggested matches from WorkforceAP. Update status as you progress intros and decisions.</span>
+          </>
+        }
+        action={<Link href="/employer/jobs" style={{ padding: '0.625rem 1.25rem', background: 'var(--surface-container-high)', color: 'var(--color-accent)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>Back to jobs</Link>}
+      />
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        <PageHeader
-          title="Candidate Pipeline"
-          subtitle="AI-matched candidates across your open roles"
-        />
-
-        {/* Stage scroll */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', padding: '0 1rem 0.875rem' }}>
           {PIPELINE_STRIP.map((stage) => (
-            <div
-              key={stage.label}
-              className="portal-card portal-card--flat"
-              style={{ flexShrink: 0, textAlign: 'center', padding: '0.625rem 1rem', minWidth: '80px' }}
-            >
+            <div key={stage.label} className="portal-card portal-card--flat" style={{ flexShrink: 0, textAlign: 'center', padding: '0.625rem 1rem', minWidth: '80px' }}>
               <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-accent)' }}>{stage.count}</div>
               <div style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', marginTop: '0.125rem' }}>{stage.label}</div>
             </div>
           ))}
         </div>
-
-        {/* Cards by job */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '0 1rem' }}>
           {jobs.length === 0 ? (
             <div className="portal-card portal-card--flat" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
@@ -125,10 +122,7 @@ export default async function EmployerPipelinePage() {
                   <h2 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>{job.title}</h2>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     {matches.map((m) => (
-                      <div
-                        key={m.id}
-                        className="portal-card portal-card--flat"
-                      >
+                      <div key={m.id} className="portal-card portal-card--flat">
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                           <div style={{ width: '2.25rem', height: '2.25rem', borderRadius: '9999px', background: 'var(--surface-container-low)', color: 'var(--color-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, flexShrink: 0 }}>
                             {getInitials(m.student.fullName ?? '?')}
@@ -140,11 +134,7 @@ export default async function EmployerPipelinePage() {
                           <div style={{ flexShrink: 0, textAlign: 'right', minWidth: 0, maxWidth: '42%' }}>
                             <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)' }}>{matchScoreAsPercent(m.matchScore)}%</div>
                             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.25rem' }}>
-                              <StatusBadge
-                                className="wa-truncate max-w-full"
-                                label={employerMatchPipelineLabel(m.status)}
-                                variant={employerAiMatchStatusBadgeVariant(m.status)}
-                              />
+                              <StatusBadge className="wa-truncate max-w-full" label={employerMatchPipelineLabel(m.status)} variant={employerAiMatchStatusBadgeVariant(m.status)} />
                             </div>
                           </div>
                         </div>
@@ -159,82 +149,25 @@ export default async function EmployerPipelinePage() {
         </div>
         <MobileBottomNav variant="employer" />
       </div>
-
-      {/* ── Desktop section ── */}
       <div className="wa-hidden wa-md:wa-block">
-        <PortalPageFrame>
-          <PageHeader
-            title="Candidate Pipeline"
-            subtitle="Suggested matches from WorkforceAP. Update status as you progress intros and decisions."
-            action={
-              <Link href="/employer/jobs" style={{
-                padding: '0.625rem 1.25rem',
-                background: 'var(--surface-container-high)',
-                color: 'var(--color-accent)',
-                borderRadius: '0.5rem',
-                fontSize: '0.875rem',
-                fontWeight: 600,
-                textDecoration: 'none',
-              }}>
-                Back to jobs
-              </Link>
-            }
-          />
-
-          {jobs.length === 0 ? (
-            <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>account_tree</span>
-              <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>No pipeline yet</h3>
-              <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
-                Post a job to receive AI-matched candidates here.
-              </p>
-              <Link href="/employer/jobs/new" style={{
-                padding: '0.625rem 1.25rem',
-                background: 'var(--color-accent)',
-                color: '#fff',
-                borderRadius: '0.5rem',
-                fontSize: '0.875rem',
-                fontWeight: 600,
-                textDecoration: 'none',
-              }}>
-                Post your first job
-              </Link>
-            </div>
-          ) : allMatches.length === 0 ? (
-            <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>psychology</span>
-              <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>No AI-suggested matches yet</h3>
-              <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
-                Matches appear here after admin runs job–candidate matching.
-              </p>
-              <Link href="/employer/jobs" style={{
-                padding: '0.625rem 1.25rem',
-                background: 'var(--surface-container-high)',
-                color: 'var(--color-on-surface)',
-                borderRadius: '0.5rem',
-                fontSize: '0.875rem',
-                fontWeight: 600,
-                textDecoration: 'none',
-              }}>
-                View Your Jobs
-              </Link>
-            </div>
-          ) : (
-            /* Kanban view — all jobs flattened into unified drag-and-drop columns */
-            <EmployerKanban
-              initialMatches={allMatches.map(m => ({
-                id: m.id,
-                jobId: m.jobId,
-                jobTitle: jobs.find(j => j.id === m.jobId)?.title ?? 'Job',
-                matchScore: m.matchScore,
-                matchReasons: m.matchReasons,
-                status: m.status,
-                student: m.student,
-              }))}
-            />
-          )}
-        </PortalPageFrame>
+        {jobs.length === 0 ? (
+          <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>account_tree</span>
+            <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>No pipeline yet</h3>
+            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>Post a job to receive AI-matched candidates here.</p>
+            <Link href="/employer/jobs/new" style={{ padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>Post your first job</Link>
+          </div>
+        ) : allMatches.length === 0 ? (
+          <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>psychology</span>
+            <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>No AI-suggested matches yet</h3>
+            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>Matches appear here after admin runs job–candidate matching.</p>
+            <Link href="/employer/jobs" style={{ padding: '0.625rem 1.25rem', background: 'var(--surface-container-high)', color: 'var(--color-on-surface)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>View Your Jobs</Link>
+          </div>
+        ) : (
+          <EmployerKanban initialMatches={allMatches.map(m => ({ id: m.id, jobId: m.jobId, jobTitle: jobs.find(j => j.id === m.jobId)?.title ?? 'Job', matchScore: m.matchScore, matchReasons: m.matchReasons, status: m.status, student: m.student }))} />
+        )}
       </div>
-    </>
+    </PortalPageFrame>
   );
 }

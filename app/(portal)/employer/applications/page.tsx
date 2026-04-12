@@ -63,10 +63,19 @@ export default async function EmployerApplicationsPage({
   }));
 
   return (
-    <>
+    <PortalPageFrame>
+      <PageHeader
+        title={`Applicants (${totalCount})`}
+        subtitle={
+          <>
+            <span className="wa-block wa-md:wa-hidden">Review candidates and update their status.</span>
+            <span className="wa-hidden wa-md:wa-block">Review candidates and update their status as you move them through your hiring process.</span>
+          </>
+        }
+        breadcrumbs={[{ label: 'Employer Portal', href: '/employer' }, { label: 'Applicants' }]}
+      />
       {/* ── Mobile Applications View (≤640px) ── */}
       <div className="wa-block wa-md:wa-hidden wa-pb-24">
-        <PageHeader title={`Applicants (${totalCount})`} subtitle="Review candidates and update their status." />
         <MobileApplicationsClient initialRows={initialRows} />
         <div className="wa-px-4">
           <EmployerApplicationsPager page={page} totalPages={totalPages} />
@@ -75,16 +84,9 @@ export default async function EmployerApplicationsPage({
       </div>
       {/* ── Desktop View ── */}
       <div className="wa-hidden wa-md:wa-block">
-        <PortalPageFrame>
-          <PageHeader
-            title={`Applicants (${totalCount})`}
-            subtitle="Review candidates and update their status as you move them through your hiring process."
-            breadcrumbs={[{ label: 'Employer Portal', href: '/employer' }, { label: 'Applicants' }]}
-          />
-          <EmployerApplicationsClient initialRows={initialRows} />
-          <EmployerApplicationsPager page={page} totalPages={totalPages} />
-        </PortalPageFrame>
+        <EmployerApplicationsClient initialRows={initialRows} />
+        <EmployerApplicationsPager page={page} totalPages={totalPages} />
       </div>
-    </>
+    </PortalPageFrame>
   );
 }

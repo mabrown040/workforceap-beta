@@ -87,18 +87,17 @@ export default async function DashboardReadinessPage() {
 
   return (
     <>
-      {/* ── MOBILE ── */}
+      <PageHeader
+        title="Career Readiness"
+        subtitle={
+          <>
+            <span className="wa-block wa-md:wa-hidden">Your readiness score across 4 key categories.</span>
+            <span className="wa-hidden wa-md:wa-block">Track your progress from training to landing a job. Your counselor updates this as you hit milestones.</span>
+          </>
+        }
+        breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Job Readiness' }]}
+      />
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        {/* Header */}
-        <div style={{ padding: '1.25rem 1rem 0.75rem' }}>
-          <h1 style={{ fontSize: '1.375rem', fontWeight: 700, lineHeight: 1.25, marginBottom: '0.25rem' }}>
-            Career Readiness
-          </h1>
-          <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-            Your readiness score across 4 key categories.
-          </p>
-        </div>
-
         <ReadinessMobileScoreCard
           overallScore={overallScore}
           categories={categories}
@@ -135,12 +134,6 @@ export default async function DashboardReadinessPage() {
       {/* ── DESKTOP ── */}
       <div className="wa-hidden wa-md:wa-block">
         <div>
-          <PageHeader
-            title="Job Readiness Checklist"
-            subtitle="Track your progress from training to landing a job. Your counselor updates this as you hit milestones."
-            breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Job Readiness' }]}
-          />
-
           {/* Score summary — desktop metric strip */}
           <div style={{ marginBottom: '1.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>

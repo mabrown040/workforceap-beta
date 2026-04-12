@@ -192,7 +192,7 @@ export default async function DashboardProfilePage() {
         <div className="wa-mx-6 wa-mb-4 wa-bg-[#fcf9f8] wa-p-5 wa-rounded-xl wa-border border-[#debfc2]/30">
           <div className="wa-flex wa-justify-between wa-items-start wa-mb-4">
             <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#584144]">Personal Info</h3>
-            <Link href="/dashboard/settings" className="wa-text-[#8c0f37] wa-p-1 active:wa-scale-90 wa-duration-200" aria-label="Edit personal info">
+            <Link href="/dashboard/profile#settings" className="wa-text-[#8c0f37] wa-p-1 active:wa-scale-90 wa-duration-200" aria-label="Edit personal info">
               <span className="material-symbols-outlined wa-text-[20px]" aria-hidden="true">edit</span>
             </Link>
           </div>

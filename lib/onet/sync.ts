@@ -10,6 +10,10 @@ import {
   isOnetConfigured,
 } from '@/lib/onet/client';
 
+function looksLikeOnetCode(value: string | null | undefined): boolean {
+  return /^\d{2}-\d{4}\.\d{2}$/.test((value ?? '').trim());
+}
+
 export async function syncOccupation(onetCode: string): Promise<{ ok: boolean; error?: string }> {
   if (!isOnetConfigured()) {
     return { ok: false, error: 'ONET_API_KEY not configured' };
@@ -144,4 +148,25 @@ export async function syncTopMappedOccupations(): Promise<{ synced: number; erro
     else if (r.error) errors.push(`${onetCode}: ${r.error}`);
   }
   return { synced, errors };
+}
+
+export async function repairBrokenOccupationTitles(): Promise<{ checked: number; synced: number; errors: string[] }> {
+  const rows = await prisma.onetOccupation.findMany({
+    select: { onetCode: true, title: true },
+  });
+
+  const brokenCodes = rows
+    .filter((row) => !row.title?.trim() || row.title.trim() === row.onetCode || looksLikeOnetCode(row.title))
+    .map((row) => row.onetCode);
+
+  const errors: string[] = [];
+  let synced = 0;
+
+  for (const onetCode of brokenCodes) {
+    const r = await syncOccupation(onetCode);
+    if (r.ok) synced++;
+    else if (r.error) errors.push(`${onetCode}: ${r.error}`);
+  }
+
+  return { checked: brokenCodes.length, synced, errors };
 }

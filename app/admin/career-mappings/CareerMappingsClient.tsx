@@ -53,6 +53,7 @@ export default function CareerMappingsClient() {
   const [loadingAuto, setLoadingAuto] = useState(false);
   const [loading, setLoading] = useState(false);
   const [syncLoading, setSyncLoading] = useState(false);
+  const [repairLoading, setRepairLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
   const [approvingSlug, setApprovingSlug] = useState<string | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -176,18 +177,52 @@ export default function CareerMappingsClient() {
     }
   };
 
+  const repairBrokenTitles = async () => {
+    setRepairLoading(true);
+    setMessage(null);
+    try {
+      const res = await fetch('/api/admin/onet/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ repairBrokenTitles: true }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'Repair failed');
+      const note = data.errors?.length ? ` Notes: ${data.errors.join('; ')}` : '';
+      setMessage({ type: 'ok', text: `Checked ${data.checked ?? 0} occupations and re-synced ${data.synced ?? 0}.${note}` });
+      if (selectedOcc) {
+        void loadAutoMatches(selectedOcc.code);
+      }
+    } catch (e) {
+      setMessage({ type: 'err', text: e instanceof Error ? e.message : 'Error' });
+    } finally {
+      setRepairLoading(false);
+    }
+  };
+
   const alreadyMapped = new Set(mappings.map((m) => m.programSlug));
 
   return (
     <div style={{ maxWidth: 1100, margin: '0 auto', padding: '1.5rem 1rem' }}>
       {/* Page header */}
-      <div style={{ marginBottom: '1.5rem' }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--color-on-surface)', margin: '0 0 0.5rem' }}>
-          Career Mappings
-        </h1>
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.6 }}>
-          Search an O*NET occupation, review AI-suggested program matches, then approve or manually add. Approved mappings drive career recommendations for members.
-        </p>
+      <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+        <div>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--color-on-surface)', margin: '0 0 0.5rem' }}>
+            Career Mappings
+          </h1>
+          <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.6, maxWidth: '48rem' }}>
+            Search an O*NET occupation, review AI-suggested program matches, then approve or manually add. Approved mappings drive career recommendations for members.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => void repairBrokenTitles()}
+          disabled={repairLoading || syncLoading}
+          className="btn btn-outline btn-sm"
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>build</span>
+          {repairLoading ? 'Repairing titles…' : 'Repair broken O*NET titles'}
+        </button>
       </div>
 
       {/* Search */}

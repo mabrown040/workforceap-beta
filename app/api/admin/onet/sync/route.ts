@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
-import { syncOccupation, syncTopMappedOccupations } from '@/lib/onet/sync';
+import { repairBrokenOccupationTitles, syncOccupation, syncTopMappedOccupations } from '@/lib/onet/sync';
 
 const bodySchema = z.object({
   onetCodes: z.array(z.string().min(1)).optional(),
   allMapped: z.boolean().optional(),
+  repairBrokenTitles: z.boolean().optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -30,11 +31,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid body' }, { status: 400 });
   }
 
-  const { onetCodes, allMapped } = parsed.data;
+  const { onetCodes, allMapped, repairBrokenTitles } = parsed.data;
 
   if (allMapped) {
     const { synced, errors } = await syncTopMappedOccupations();
     return NextResponse.json({ ok: true, synced, errors });
+  }
+
+  if (repairBrokenTitles) {
+    const { checked, synced, errors } = await repairBrokenOccupationTitles();
+    return NextResponse.json({ ok: true, checked, synced, errors });
   }
 
   if (onetCodes?.length) {
@@ -48,5 +54,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true, synced: ok, errors });
   }
 
-  return NextResponse.json({ error: 'Provide onetCodes or allMapped: true' }, { status: 400 });
+  return NextResponse.json({ error: 'Provide onetCodes, allMapped: true, or repairBrokenTitles: true' }, { status: 400 });
 }

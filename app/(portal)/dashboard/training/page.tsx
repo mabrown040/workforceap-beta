@@ -66,14 +66,29 @@ export default async function TrainingPage() {
           </div>
 
           {/* Compact KPI strip */}
-          <div style={{ display: 'flex', gap: '0.75rem', overflowX: 'auto', paddingBottom: '0.25rem' }}>
-            <div style={{ minWidth: 220, flexShrink: 0 }}>
-              <PortalKpiCard accent="accent" label="Current program" value={program.title} hint="Coursera partner" />
+          <div style={{ display: 'grid', gap: '0.75rem', paddingBottom: '0.25rem' }}>
+            <div
+              className="portal-kpi-card"
+              style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.375rem' }}
+            >
+              <p className="portal-kpi-card__label">Current program</p>
+              <p
+                style={{
+                  fontSize: '1.375rem',
+                  fontWeight: 800,
+                  letterSpacing: '-0.03em',
+                  lineHeight: 1.15,
+                  margin: 0,
+                  color: 'var(--color-accent)',
+                  overflowWrap: 'anywhere',
+                }}
+              >
+                {program.title}
+              </p>
+              <p className="portal-kpi-card__hint">Coursera partner</p>
             </div>
-            <div style={{ minWidth: 140, flexShrink: 0 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.75rem' }}>
               <PortalKpiCard accent="neutral" label="Courses" value={`${completedCount}/${program.courses.length}`} hint="Completed" />
-            </div>
-            <div style={{ minWidth: 140, flexShrink: 0 }}>
               <PortalKpiCard accent="accent" label="Progress" value={`${progressPct}%`} hint="Overall" />
             </div>
           </div>

@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/db/prisma';
-import { getEmployerForUser, getPartnerForUser, isSuperAdmin } from '@/lib/auth/roles';
-import { countThreadsWithSlaBreach } from '@/lib/messages/superAdminMessageQueries';
+import { getCounselorForUser, getEmployerForUser, getPartnerForUser, isSuperAdmin } from '@/lib/auth/roles';
+import { countThreadsWithSlaBreach, getSlaStatusForThreads } from '@/lib/messages/superAdminMessageQueries';
 import { countEmployerQueueBadges } from '@/lib/employer/workQueue';
 import { buildPartnerAttentionQueue, countActionablePartnerAttention } from '@/lib/partner/attentionQueue';
 import type { NavBadgeKey } from '@/lib/nav/portalNav';
@@ -39,6 +39,18 @@ export async function getNavBadgeCountsForUser(
     const ctx = await getPartnerForUser(userId, { isSuperAdminHint: sa });
     if (!ctx) return {};
     return getPartnerBadgeCounts(ctx.partnerId);
+  }
+
+  if (role === 'counselor') {
+    const [sa, ctx] = await Promise.all([isSuperAdmin(userId), getCounselorForUser(userId)]);
+    if (ctx) {
+      return getCounselorBadgeCounts(ctx.counselorId);
+    }
+    if (sa) {
+      const counselor_sla_breach_48h = await countThreadsWithSlaBreach(48);
+      return { counselor_sla_breach_48h };
+    }
+    return {};
   }
 
   return {};
@@ -119,6 +131,58 @@ async function getEmployerBadgeCounts(employerId: string): Promise<NavBadgeCount
   };
 }
 
+async function getCounselorBadgeCounts(counselorId: string): Promise<NavBadgeCounts> {
+  const assignments = await prisma.counselorAssignment.findMany({
+    where: {
+      counselorId,
+      active: true,
+      member: { deletedAt: null },
+    },
+    select: { memberId: true },
+  });
+
+  const memberIds = assignments.map((assignment) => assignment.memberId);
+  if (memberIds.length === 0) return {};
+
+  const threads = await prisma.messageThread.findMany({
+    where: {
+      kind: 'member',
+      memberId: { in: memberIds },
+    },
+    select: {
+      id: true,
+      memberId: true,
+      counselorLastReadAt: true,
+    },
+  });
+
+  if (threads.length === 0) return {};
+
+  const unreadCounts = await Promise.all(
+    threads.map(async (thread) => {
+      if (!thread.memberId) return 0;
+      return prisma.message.count({
+        where: {
+          threadId: thread.id,
+          authorId: thread.memberId,
+          ...(thread.counselorLastReadAt ? { createdAt: { gt: thread.counselorLastReadAt } } : {}),
+        },
+      });
+    })
+  );
+
+  const slaRows = await getSlaStatusForThreads(threads.map((thread) => thread.id));
+  let counselor_sla_breach_48h = 0;
+  for (const thread of threads) {
+    if (slaRows.get(thread.id)?.breached48h) counselor_sla_breach_48h += 1;
+  }
+
+  return {
+    counselor_messages_unread: unreadCounts.reduce((sum, count) => sum + count, 0),
+    counselor_sla_breach_48h,
+  };
+}
+
 async function getPartnerBadgeCounts(partnerId: string): Promise<NavBadgeCounts> {
   const since = new Date();
   since.setDate(since.getDate() - MILESTONE_LOOKBACK_DAYS);
@@ -170,5 +234,5 @@ async function getPartnerBadgeCounts(partnerId: string): Promise<NavBadgeCounts>
 }
 
 export function isValidPortalBadgeRole(r: string): r is PortalRole {
-  return ['member', 'employer', 'partner', 'admin', 'group'].includes(r);
+  return ['member', 'employer', 'partner', 'admin', 'group', 'counselor'].includes(r);
 }

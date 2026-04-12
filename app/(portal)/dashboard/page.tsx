@@ -323,6 +323,8 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   const interviewRequested = !!intakeExtra?.interviewRequestedAt;
   const interviewEligibleFlag = intakeExtra?.interviewEligible ?? false;
 
+  const mobileCarouselCardWidth = 'min(240px, calc(100vw - 3rem))';
+
   /* Journey timeline — complete / active (next) / locked (future) */
   const journeySteps = [
     {
@@ -391,8 +393,8 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       <div className="wa-md:wa-hidden portal-mobile-content">
 
         {/* ── Hero: greeting + progress ring ── */}
-        <section style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '1.5rem 1.25rem 1rem' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', maxWidth: '62%' }}>
+        <section style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem', padding: '1.5rem 1.25rem 1rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1, minWidth: 0, paddingRight: '0.25rem' }}>
             <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', margin: 0 }}>
               {formatPortalDate(new Date())}
             </p>
@@ -400,7 +402,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
               Hi, {firstName}
             </h2>
             {program && (
-              <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0', lineHeight: 1.35 }}>
                 {program.title}
               </p>
             )}
@@ -517,7 +519,8 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                   key={i}
                   className="portal-card portal-card--flat"
                   style={{
-                    minWidth:"220px",
+                    width: mobileCarouselCardWidth,
+                    minWidth: mobileCarouselCardWidth,
                     overflow:"hidden",
                     flexShrink:0,
                     background:"var(--surface-container-lowest)",
@@ -571,7 +574,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                   key={card.href}
                   href={card.href}
                   className="wa-no-underline active:scale-[0.98] wa-transition-transform"
-                  style={{ minWidth:"240px", flexShrink:0 }}
+                  style={{ width: mobileCarouselCardWidth, minWidth: mobileCarouselCardWidth, flexShrink:0 }}
                 >
                   <div className="portal-card portal-card--flat" style={{ borderRadius:"0.75rem" }}>
                     <div className="portal-card__body" style={{ padding:"1rem" }}>

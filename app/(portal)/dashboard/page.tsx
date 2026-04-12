@@ -422,7 +422,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
             </svg>
             <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
               <span className="wa-text-base wa-font-bold wa-text-[var(--color-accent-dark)]">{mobilePct}%</span>
-              <span className="wa-text-[8px] wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-gold)]">Training progress</span>
+              <span className="wa-text-[8px] wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-on-surface-variant)]">Training progress</span>
             </div>
           </div>
         </section>

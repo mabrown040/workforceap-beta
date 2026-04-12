@@ -14,6 +14,12 @@ import {
   employerJobPostingApplicationStatusBadgeVariant,
   employerJobPostingApplicationStatusLabel,
 } from '@/lib/employer/jobPostingApplicationStatus';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
+
+type Props = {
+  params: Promise<{ studentId: string }>;
+  searchParams?: Promise<{ jobId?: string }>;
+};
 
 export async function generateMetadata({
   params,
@@ -28,13 +34,21 @@ export async function generateMetadata({
   });
 }
 
+function formatDateTime(value: Date | null | undefined) {
+  if (!value) return '—';
+  return value.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
+
 export default async function EmployerCandidateProfilePage({
   params,
   searchParams,
-}: {
-  params: Promise<{ studentId: string }>;
-  searchParams?: Promise<{ jobId?: string }>;
-}) {
+}: Props) {
   const user = await getUser();
   if (!user) redirect('/login');
 
@@ -85,167 +99,382 @@ export default async function EmployerCandidateProfilePage({
 
   if (!student) notFound();
 
+  const selectedMatch = (highlightJobId ? matches.find((match) => match.jobId === highlightJobId) : null) ?? matches[0] ?? null;
+  const topMatchPct = selectedMatch ? matchScoreAsPercent(selectedMatch.matchScore) : null;
+  const latestApplication = applications[0] ?? null;
+  const activeRoles = new Map([...matches, ...applications].map((item) => [item.jobId, item.job.title]));
+  const summaryStats = [
+    { label: 'Roles in pipeline', value: activeRoles.size },
+    { label: 'AI matches', value: matches.length },
+    { label: 'Applications', value: applications.length },
+  ];
+
   return (
     <>
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        <div style={{ padding: '1rem 1rem 0.75rem' }}>
-          <Link
-            href="/employer/matches"
-            style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', textDecoration: 'none' }}
-          >
-            ← Match history
-          </Link>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '0.75rem 0 0.25rem' }}>{student.fullName}</h1>
-          <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>{student.email}</p>
-        </div>
-        <div style={{ padding: '0 1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <div style={{ background: '#fff', borderRadius: '0.75rem', padding: '1rem', border: '1px solid #ebe7e7' }}>
-            <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem' }}>Program</p>
-            <p style={{ margin: 0, fontWeight: 600 }}>{student.enrolledProgram ?? '—'}</p>
-          </div>
-          {matches.length > 0 ? (
-            <div style={{ background: '#fff', borderRadius: '0.75rem', padding: '1rem', border: '1px solid #ebe7e7' }}>
-              <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem' }}>AI matches</p>
-              <ul style={{ margin: 0, paddingLeft: '1.1rem' }}>
-                {matches.map((m) => (
-                  <li key={m.id} style={{ marginBottom: '0.35rem' }}>
-                    <span style={{ fontWeight: 600 }}>{m.job.title}</span>
-                    {' · '}
-                    <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.35rem' }}>
-                      <span>{matchScoreAsPercent(m.matchScore)}% match</span>
-                      <StatusBadge
-                        label={employerMatchPipelineLabel(m.status)}
-                        variant={employerAiMatchStatusBadgeVariant(m.status)}
-                      />
-                    </span>
-                    {highlightJobId === m.jobId ? (
-                      <span style={{ marginLeft: '0.35rem', fontSize: '0.7rem', color: 'var(--color-accent)', fontWeight: 700 }}>(selected)</span>
-                    ) : null}
-                  </li>
+        <PageHeader
+          title={student.fullName ?? 'Candidate'}
+          subtitle="Shared because this member matched or applied to one of your roles."
+          action={(
+            <Link
+              href="/employer/matches"
+              style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', textDecoration: 'none' }}
+            >
+              Back to matches
+            </Link>
+          )}
+        />
+
+        <div style={{ padding: '0 1rem', display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+          <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div>
+                <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
+                  Candidate snapshot
+                </p>
+                <h1 style={{ fontSize: '1.2rem', fontWeight: 800, margin: '0.35rem 0 0.2rem' }}>{student.fullName}</h1>
+                <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', fontSize: '0.875rem', overflowWrap: 'anywhere' }}>{student.email}</p>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '0.5rem' }}>
+                {summaryStats.map((stat) => (
+                  <div key={stat.label} style={{ padding: '0.75rem', borderRadius: '0.75rem', background: 'var(--surface-container-low)' }}>
+                    <div style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-on-surface)' }}>{stat.value}</div>
+                    <div style={{ fontSize: '0.65rem', lineHeight: 1.25, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{stat.label}</div>
+                  </div>
                 ))}
-              </ul>
-            </div>
-          ) : null}
-          {applications.length > 0 ? (
-            <div style={{ background: '#fff', borderRadius: '0.75rem', padding: '1rem', border: '1px solid #ebe7e7' }}>
-              <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem' }}>Applications</p>
-              <ul style={{ margin: 0, paddingLeft: '1.1rem' }}>
-                {applications.map((a) => (
-                  <li key={a.id} style={{ marginBottom: '0.35rem' }}>
-                    <Link href={`/employer/jobs/${a.jobId}`} style={{ fontWeight: 600, color: 'var(--color-accent)' }}>
-                      {a.job.title}
-                    </Link>
-                    {' · '}
+              </div>
+              {selectedMatch ? (
+                <div style={{ padding: '0.85rem', borderRadius: '0.75rem', background: 'color-mix(in srgb, var(--color-accent) 8%, white)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.75rem', alignItems: 'flex-start' }}>
+                    <div style={{ minWidth: 0 }}>
+                      <p style={{ margin: 0, fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
+                        Highlighted role
+                      </p>
+                      <p style={{ margin: '0.35rem 0 0', fontWeight: 700, color: 'var(--color-on-surface)' }}>{selectedMatch.job.title}</p>
+                    </div>
+                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                      <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-accent)' }}>{topMatchPct}%</div>
+                      <div style={{ fontSize: '0.65rem', color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>match</div>
+                    </div>
+                  </div>
+                  <div style={{ marginTop: '0.6rem' }}>
                     <StatusBadge
-                      label={employerJobPostingApplicationStatusLabel(a.status)}
-                      variant={employerJobPostingApplicationStatusBadgeVariant(a.status)}
+                      label={employerMatchPipelineLabel(selectedMatch.status)}
+                      variant={employerAiMatchStatusBadgeVariant(selectedMatch.status)}
                     />
-                  </li>
-                ))}
-              </ul>
+                  </div>
+                </div>
+              ) : null}
             </div>
+          </section>
+
+          <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
+            <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
+              Readiness
+            </p>
+            <div style={{ display: 'grid', gap: '0.6rem', marginTop: '0.75rem' }}>
+              <div>
+                <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Program</p>
+                <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>{student.enrolledProgram ?? '—'}</p>
+              </div>
+              <div>
+                <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Assessment</p>
+                <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>{student.assessmentCompleted ? 'Completed' : 'Not completed'}</p>
+              </div>
+              <div>
+                <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Employment status</p>
+                <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>{student.profile?.employmentStatus ?? '—'}</p>
+              </div>
+              {student.profile?.profileLinkedin ? (
+                <a href={student.profile.profileLinkedin} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'none' }}>
+                  Open LinkedIn profile →
+                </a>
+              ) : null}
+            </div>
+          </section>
+
+          {student.profile?.profileBio ? (
+            <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
+              <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
+                Candidate summary
+              </p>
+              <p style={{ margin: '0.75rem 0 0', lineHeight: 1.55, color: 'var(--color-on-surface-variant)' }}>{student.profile.profileBio}</p>
+            </section>
           ) : null}
-          <Link
-            href="/employer/pipeline"
-            style={{
-              display: 'block',
-              textAlign: 'center',
-              padding: '0.75rem',
-              background: 'var(--color-accent)',
-              color: '#fff',
-              borderRadius: '0.5rem',
-              fontWeight: 700,
-              textDecoration: 'none',
-            }}
-          >
-            Open pipeline
-          </Link>
+
+          {matches.length > 0 ? (
+            <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
+              <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
+                AI match history
+              </p>
+              <div style={{ display: 'grid', gap: '0.75rem', marginTop: '0.75rem' }}>
+                {matches.map((match) => (
+                  <div key={match.id} style={{ padding: '0.85rem', borderRadius: '0.75rem', background: 'var(--surface-container-low)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.75rem', alignItems: 'flex-start' }}>
+                      <div style={{ minWidth: 0 }}>
+                        <Link href={`/employer/jobs/${match.jobId}`} style={{ fontWeight: 700, color: 'var(--color-on-surface)', textDecoration: 'none' }}>
+                          {match.job.title}
+                        </Link>
+                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
+                          Added {formatDateTime(match.createdAt)}
+                        </p>
+                      </div>
+                      <div style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-accent)', flexShrink: 0 }}>
+                        {matchScoreAsPercent(match.matchScore)}%
+                      </div>
+                    </div>
+                    <div style={{ marginTop: '0.55rem', display: 'flex', flexWrap: 'wrap', gap: '0.4rem', alignItems: 'center' }}>
+                      <StatusBadge
+                        label={employerMatchPipelineLabel(match.status)}
+                        variant={employerAiMatchStatusBadgeVariant(match.status)}
+                      />
+                      {highlightJobId === match.jobId ? (
+                        <span style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--color-accent)' }}>Current focus</span>
+                      ) : null}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          {applications.length > 0 ? (
+            <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
+              <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
+                Applications
+              </p>
+              <div style={{ display: 'grid', gap: '0.75rem', marginTop: '0.75rem' }}>
+                {applications.map((application) => (
+                  <div key={application.id} style={{ padding: '0.85rem', borderRadius: '0.75rem', background: 'var(--surface-container-low)' }}>
+                    <Link href={`/employer/jobs/${application.jobId}`} style={{ fontWeight: 700, color: 'var(--color-on-surface)', textDecoration: 'none' }}>
+                      {application.job.title}
+                    </Link>
+                    <div style={{ marginTop: '0.35rem' }}>
+                      <StatusBadge
+                        label={employerJobPostingApplicationStatusLabel(application.status)}
+                        variant={employerJobPostingApplicationStatusBadgeVariant(application.status)}
+                      />
+                    </div>
+                    <p style={{ margin: '0.45rem 0 0', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
+                      Applied {formatDateTime(application.appliedAt)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.65rem' }}>
+            <Link
+              href="/employer/pipeline"
+              style={{
+                display: 'block',
+                textAlign: 'center',
+                padding: '0.8rem',
+                background: 'var(--color-accent)',
+                color: '#fff',
+                borderRadius: '0.75rem',
+                fontWeight: 700,
+                textDecoration: 'none',
+              }}
+            >
+              Open pipeline
+            </Link>
+            <Link
+              href="/employer/messages"
+              style={{
+                display: 'block',
+                textAlign: 'center',
+                padding: '0.8rem',
+                background: 'var(--surface-container)',
+                color: 'var(--color-on-surface)',
+                borderRadius: '0.75rem',
+                fontWeight: 700,
+                textDecoration: 'none',
+              }}
+            >
+              Contact member
+            </Link>
+          </div>
         </div>
+
         <MobileBottomNav variant="employer" />
       </div>
 
       <div className="wa-hidden wa-md:wa-block">
-        <PageHeader
-          title={student.fullName ?? 'Candidate'}
-          subtitle="Profile shared because this member matched or applied to your roles."
-          action={
-            <Link href="/employer/matches" className="btn btn-outline btn-sm">
-              Back to matches
-            </Link>
-          }
-        />
-        <div style={{ display: 'grid', gap: '1rem', maxWidth: '720px' }}>
-          <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
-            <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>Contact</h2>
-            <p style={{ margin: 0 }}>
-              <strong>Email:</strong> {student.email}
-            </p>
-            {student.profile?.profileLinkedin ? (
-              <p style={{ margin: '0.5rem 0 0' }}>
-                <strong>LinkedIn:</strong>{' '}
-                <a href={student.profile.profileLinkedin} target="_blank" rel="noopener noreferrer">
-                  Profile
-                </a>
-              </p>
-            ) : null}
-          </div>
-          <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
-            <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>Program & readiness</h2>
-            <p style={{ margin: 0 }}>
-              <strong>Enrolled program:</strong> {student.enrolledProgram ?? '—'}
-            </p>
-            <p style={{ margin: '0.5rem 0 0' }}>
-              <strong>Assessment:</strong> {student.assessmentCompleted ? 'Completed' : 'Not completed'}
-            </p>
-            {student.profile?.employmentStatus ? (
-              <p style={{ margin: '0.5rem 0 0' }}>
-                <strong>Employment status:</strong> {student.profile.employmentStatus}
-              </p>
-            ) : null}
-            {student.profile?.profileBio ? (
-              <p style={{ margin: '0.75rem 0 0', lineHeight: 1.5, color: 'var(--color-on-surface-variant)' }}>{student.profile.profileBio}</p>
-            ) : null}
-          </div>
-          {matches.length > 0 ? (
-            <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
-              <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>AI matches</h2>
-              <ul style={{ margin: 0, paddingLeft: '1.2rem' }}>
-                {matches.map((m) => (
-                  <li key={m.id} style={{ marginBottom: '0.5rem' }}>
-                    <Link href={`/employer/jobs/${m.jobId}`} style={{ fontWeight: 600 }}>
-                      {m.job.title}
-                    </Link>
-                    {' — '}
-                    {matchScoreAsPercent(m.matchScore)}% ·{' '}
-                    <StatusBadge
-                      label={employerMatchPipelineLabel(m.status)}
-                      variant={employerAiMatchStatusBadgeVariant(m.status)}
-                    />
-                  </li>
-                ))}
-              </ul>
+        <PortalPageFrame>
+          <PageHeader
+            title={student.fullName ?? 'Candidate'}
+            subtitle="Shared because this member matched or applied to your roles."
+            action={
+              <Link href="/employer/matches" className="btn btn-outline btn-sm">
+                Back to matches
+              </Link>
+            }
+          />
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.3fr) minmax(320px, 0.7fr)', gap: '1rem', alignItems: 'start' }}>
+            <div style={{ display: 'grid', gap: '1rem' }}>
+              <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'flex-start' }}>
+                  <div style={{ minWidth: 0 }}>
+                    <p style={{ margin: 0, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>Candidate snapshot</p>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: '0.35rem 0 0.2rem' }}>{student.fullName}</h2>
+                    <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', overflowWrap: 'anywhere' }}>{student.email}</p>
+                  </div>
+                  {selectedMatch ? (
+                    <div style={{ minWidth: '8.5rem', padding: '0.9rem 1rem', borderRadius: '0.9rem', background: 'color-mix(in srgb, var(--color-accent) 10%, white)' }}>
+                      <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--color-accent)' }}>{topMatchPct}%</div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>top match</div>
+                    </div>
+                  ) : null}
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '0.75rem', marginTop: '1rem' }}>
+                  {summaryStats.map((stat) => (
+                    <div key={stat.label} style={{ padding: '0.9rem', borderRadius: '0.9rem', background: 'var(--surface-container-low)' }}>
+                      <div style={{ fontSize: '1.2rem', fontWeight: 800 }}>{stat.value}</div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{stat.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
+                <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.9rem' }}>Program and readiness</h2>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.9rem' }}>
+                  <div>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Program</p>
+                    <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{student.enrolledProgram ?? '—'}</p>
+                  </div>
+                  <div>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Assessment</p>
+                    <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{student.assessmentCompleted ? 'Completed' : 'Not completed'}</p>
+                  </div>
+                  <div>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Employment status</p>
+                    <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{student.profile?.employmentStatus ?? '—'}</p>
+                  </div>
+                  <div>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>LinkedIn</p>
+                    {student.profile?.profileLinkedin ? (
+                      <a href={student.profile.profileLinkedin} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', marginTop: '0.3rem', fontWeight: 700 }}>
+                        Open profile
+                      </a>
+                    ) : (
+                      <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>—</p>
+                    )}
+                  </div>
+                </div>
+                {student.profile?.profileBio ? (
+                  <p style={{ margin: '1rem 0 0', lineHeight: 1.6, color: 'var(--color-on-surface-variant)' }}>{student.profile.profileBio}</p>
+                ) : null}
+              </div>
+
+              {matches.length > 0 ? (
+                <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
+                  <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.9rem' }}>AI match history</h2>
+                  <div style={{ display: 'grid', gap: '0.75rem' }}>
+                    {matches.map((match) => (
+                      <div key={match.id} style={{ padding: '0.95rem 1rem', borderRadius: '0.9rem', background: 'var(--surface-container-low)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'flex-start' }}>
+                          <div style={{ minWidth: 0 }}>
+                            <Link href={`/employer/jobs/${match.jobId}`} style={{ fontWeight: 700 }}>{match.job.title}</Link>
+                            <p style={{ margin: '0.3rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>
+                              Added {formatDateTime(match.createdAt)}
+                            </p>
+                          </div>
+                          <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                            <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-accent)' }}>{matchScoreAsPercent(match.matchScore)}%</div>
+                            <div style={{ fontSize: '0.68rem', color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>match</div>
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center', marginTop: '0.65rem' }}>
+                          <StatusBadge
+                            label={employerMatchPipelineLabel(match.status)}
+                            variant={employerAiMatchStatusBadgeVariant(match.status)}
+                          />
+                          {highlightJobId === match.jobId ? <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)' }}>Current focus</span> : null}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {applications.length > 0 ? (
+                <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
+                  <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.9rem' }}>Applications</h2>
+                  <div style={{ display: 'grid', gap: '0.75rem' }}>
+                    {applications.map((application) => (
+                      <div key={application.id} style={{ padding: '0.95rem 1rem', borderRadius: '0.9rem', background: 'var(--surface-container-low)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'flex-start' }}>
+                          <div style={{ minWidth: 0 }}>
+                            <Link href={`/employer/jobs/${application.jobId}`} style={{ fontWeight: 700 }}>{application.job.title}</Link>
+                            <p style={{ margin: '0.3rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>
+                              Applied {formatDateTime(application.appliedAt)}
+                            </p>
+                          </div>
+                          <StatusBadge
+                            label={employerJobPostingApplicationStatusLabel(application.status)}
+                            variant={employerJobPostingApplicationStatusBadgeVariant(application.status)}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </div>
-          ) : null}
-          {applications.length > 0 ? (
-            <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
-              <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>Applications</h2>
-              <ul style={{ margin: 0, paddingLeft: '1.2rem' }}>
-                {applications.map((a) => (
-                  <li key={a.id} style={{ marginBottom: '0.5rem' }}>
-                    <Link href={`/employer/jobs/${a.jobId}`} style={{ fontWeight: 600 }}>
-                      {a.job.title}
-                    </Link>
-                    {' — '}
-                    <StatusBadge
-                      label={employerJobPostingApplicationStatusLabel(a.status)}
-                      variant={employerJobPostingApplicationStatusBadgeVariant(a.status)}
-                    />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-        </div>
+
+            <aside style={{ display: 'grid', gap: '1rem' }}>
+              <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
+                <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.9rem' }}>Next best action</h2>
+                {selectedMatch ? (
+                  <>
+                    <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                      Review the {selectedMatch.job.title} match first, then decide whether to move this candidate forward in your pipeline.
+                    </p>
+                    <div style={{ display: 'grid', gap: '0.65rem', marginTop: '1rem' }}>
+                      <Link href={`/employer/jobs/${selectedMatch.jobId}`} className="btn btn-primary">Open role</Link>
+                      <Link href="/employer/messages" className="btn btn-outline">Message candidate</Link>
+                    </div>
+                  </>
+                ) : latestApplication ? (
+                  <>
+                    <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                      This member has already applied. Review the application status and keep outreach moving.
+                    </p>
+                    <div style={{ display: 'grid', gap: '0.65rem', marginTop: '1rem' }}>
+                      <Link href={`/employer/jobs/${latestApplication.jobId}`} className="btn btn-primary">Open latest application</Link>
+                      <Link href="/employer/pipeline" className="btn btn-outline">Open pipeline</Link>
+                    </div>
+                  </>
+                ) : null}
+              </div>
+
+              <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
+                <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.9rem' }}>Pipeline notes</h2>
+                <div style={{ display: 'grid', gap: '0.85rem' }}>
+                  <div>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Highlighted role</p>
+                    <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{selectedMatch?.job.title ?? latestApplication?.job.title ?? '—'}</p>
+                  </div>
+                  <div>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Latest application</p>
+                    <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{latestApplication ? formatDateTime(latestApplication.appliedAt) : 'No application yet'}</p>
+                  </div>
+                  <div>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Profile completeness</p>
+                    <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>
+                      {student.profile?.profileBio || student.profile?.profileLinkedin ? 'Strong enough to review' : 'Light profile, verify details in outreach'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </PortalPageFrame>
       </div>
     </>
   );

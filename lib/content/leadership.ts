@@ -92,7 +92,7 @@ export const LEADERS: Leader[] = [
       },
     ],
     stats: [
-      { label: 'Family', value: '33 years married' },
+      { label: 'Family', value: '35 years married' },
       { label: 'Community', value: '100 Black Men of Austin' },
       { label: 'Fraternity', value: 'Alpha Phi Alpha Fraternity' },
       { label: 'Faith', value: 'Elder at Celebration Church' },

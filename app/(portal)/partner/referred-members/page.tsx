@@ -35,7 +35,7 @@ export default async function PartnerReferredMembersPage() {
         subtitle="Search and filter everyone your organization has referred to WorkforceAP."
         action={
           <>
-            <div className="wa-block wa-md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'stretch' }}>
+            <div className="wa-flex wa-flex-col wa-items-stretch wa-gap-2 wa-md:wa-hidden">
               <PartnerInviteMemberButton compact />
               <a
                 href="/partner/exports"

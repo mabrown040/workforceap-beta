@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import PageHeader from '@/components/portal/PageHeader';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
@@ -23,8 +24,10 @@ export default async function MentorDashboardPage() {
 
   return (
     <>
-      <h1 style={{ fontSize: '1.5rem', fontWeight: 700, padding: '1rem 1rem 0' }} className="wa-md:wa-hidden">Mentor Dashboard</h1>
-      <h1 style={{ fontSize: '2rem', fontWeight: 700, padding: '1.5rem 1.5rem 0', maxWidth: '64rem' }} className="wa-hidden wa-md:wa-block">Mentor Dashboard</h1>
+      <PageHeader
+        title="Mentor Dashboard"
+        titleClassName="!wa-text-2xl !wa-font-bold !wa-p-[1rem_1rem_0] wa-md:!wa-text-[2rem] wa-md:!wa-p-[1.5rem_1.5rem_0] wa-md:!wa-max-w-[64rem]"
+      />
       {/* Mobile */}
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem', padding: '1rem' }}>
         <div style={{ marginTop: '0.75rem', border: '1px solid var(--border-subtle)', borderRadius: '0.75rem', padding: '0.9rem' }}>

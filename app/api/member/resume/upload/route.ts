@@ -56,7 +56,7 @@ export async function POST(request: Request) {
       const path = resumePathForUser(user.id, ext);
       const { data, error } = await supabase.storage
         .from(BUCKET)
-        .createSignedUploadUrl(path, { upsert: true });
+        .createSignedUploadUrl(path);
 
       if (error || !data) {
         console.error('Resume prepare error:', error);

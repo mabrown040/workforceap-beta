@@ -68,7 +68,7 @@ export async function POST(request: Request) {
       const supabase = getSupabaseAdmin();
       const id = crypto.randomUUID();
       const path = `${user.id}/voice-interview-recordings/${id}.${ext}`;
-      const { data, error } = await supabase.storage.from(BUCKET).createSignedUploadUrl(path, { upsert: true });
+      const { data, error } = await supabase.storage.from(BUCKET).createSignedUploadUrl(path);
 
       if (error || !data) {
         console.error('Mock interview video prepare:', error);

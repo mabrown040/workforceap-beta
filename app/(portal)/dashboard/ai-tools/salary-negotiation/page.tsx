@@ -31,32 +31,12 @@ export default async function SalaryNegotiationPage() {
       >
         <PageHeader
           title="Salary Negotiation Script"
+          subtitle="You got an offer -- now negotiate. Enter your numbers and get an exact script for a phone call or email."
           breadcrumbs={[
             { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
             { label: 'Salary Negotiation' },
           ]}
         />
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div
-            style={{
-              width: '44px',
-              height: '44px',
-              borderRadius: '12px',
-              background: 'var(--surface-container-highest)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.35rem', color: 'var(--color-accent)' }} aria-hidden="true">payments</span>
-          </div>
-          <div>
-            <h1 style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>Salary Negotiation Script</h1>
-            <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0.15rem 0 0' }}>
-              You got an offer -- now negotiate. Enter your numbers and get an exact script for a phone call or email.
-            </p>
-          </div>
-        </div>
       </div>
 
       {/* Main content */}

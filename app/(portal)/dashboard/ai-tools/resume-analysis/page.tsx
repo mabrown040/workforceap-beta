@@ -30,38 +30,12 @@ export default async function ResumeAnalysisPage() {
         >
           <PageHeader
             title="Resume Analysis"
+            subtitle="Get an ATS-aware review of your resume: score, strengths, priority fixes, and quick wins. Your uploaded resume pre-fills when available."
             breadcrumbs={[
               { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
               { label: 'Resume Analysis' },
             ]}
           />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <div
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 10,
-                background: 'var(--surface-container-highest)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.2rem', color: 'var(--color-accent)' }} aria-hidden="true">
-                analytics
-              </span>
-            </div>
-            <div>
-              <h1 className="text-display-sm" style={{ margin: '0 0 0.35rem', fontSize: '1.25rem' }}>
-                Resume Analysis
-              </h1>
-              <p style={{ color: 'var(--color-on-surface-variant)', margin: 0, fontSize: '0.85rem', maxWidth: '560px' }}>
-                Get an ATS-aware review of your resume: score, strengths, priority fixes, and quick wins. Your uploaded resume
-                pre-fills when available.
-              </p>
-            </div>
-          </div>
         </div>
 
         <div style={{ padding: '1rem 1rem 2rem', maxWidth: 960, margin: '0 auto' }}>

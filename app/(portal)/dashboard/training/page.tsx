@@ -48,23 +48,21 @@ export default async function TrainingPage() {
   return (
     <>
       <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto' }}>
+        <PageHeader
+          title="My Training"
+          subtitle={
+            <>
+              <span className="wa-block wa-md:wa-hidden">Complete your {program.title} courses on Coursera and mark each course done as you finish.</span>
+              <span className="wa-hidden wa-md:wa-block">Complete your {program.title} courses on Coursera (our online learning partner). Track your progress and mark courses done as you finish them.</span>
+            </>
+          }
+          breadcrumbs={[
+            { label: 'Member Portal', href: '/dashboard' },
+            { label: 'My Training' },
+          ]}
+        />
         {/* Mobile */}
         <div className="wa-md:wa-hidden" style={{ padding: '0.75rem 1rem 6rem' }}>
-          <div style={{ marginBottom: '0.75rem' }}>
-            <p
-              className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold"
-              style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.35rem' }}
-            >
-              Member Portal / My Training
-            </p>
-            <h1 className="wa-text-2xl wa-font-extrabold wa-tracking-tight" style={{ color: 'var(--color-on-surface)', lineHeight: 1.1 }}>
-              My Training
-            </h1>
-            <p style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.35rem', lineHeight: 1.5, fontSize: '0.9rem' }}>
-              Complete your {program.title} courses on Coursera and mark each course done as you finish.
-            </p>
-          </div>
-
           {/* Compact KPI strip */}
           <div style={{ display: 'grid', gap: '0.75rem', paddingBottom: '0.25rem' }}>
             <div
@@ -145,15 +143,6 @@ export default async function TrainingPage() {
 
         {/* Desktop */}
         <div className="wa-hidden wa-md:wa-block">
-          <PageHeader
-            title="My Training"
-            subtitle={`Complete your ${program.title} courses on Coursera (our online learning partner). Track your progress and mark courses done as you finish them.`}
-            breadcrumbs={[
-              { label: 'Member Portal', href: '/dashboard' },
-              { label: 'My Training' },
-            ]}
-          />
-
           {/* Stats row */}
           <div className="portal-grid-metrics" style={{ marginBottom: 'var(--space-8)' }}>
             <PortalStatCard

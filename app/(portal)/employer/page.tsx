@@ -201,7 +201,7 @@ export default async function EmployerDashboardPage() {
         {/* Stats row - horizontal scroll */}
         <div style={{ display:"flex", gap:"0.75rem", overflowX:"auto", scrollbarWidth:"none", paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingBottom:"0.5rem" }}>
           {[
-            { label: 'Open Roles', value: activeJobs, color: 'var(--color-accent)' },
+            { label: 'Open Roles', value: activeJobs, color: 'var(--color-on-surface)' },
             { label: 'Candidates', value: totalApplications, color: 'var(--on-surface)' },
             { label: 'In Review', value: inReview, color: 'var(--secondary)' },
           ].map((s) => (
@@ -318,7 +318,7 @@ export default async function EmployerDashboardPage() {
                     </div>
                     <p
                       className="wa-text-xs wa-font-semibold wa-uppercase wa-tracking-wider wa-truncate"
-                      style={{ marginBottom:"0.25rem", color: 'var(--color-gold)' }}
+                      style={{ marginBottom:"0.25rem", color: 'var(--color-on-surface-variant)' }}
                     >
                       {app.job.title}
                     </p>

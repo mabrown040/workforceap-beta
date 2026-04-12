@@ -75,8 +75,7 @@ export default function WhatWeDoPage() {
           style={{
             position: 'absolute',
             inset: 0,
-            backgroundImage:
-              'url(https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1600&q=80)',
+            backgroundImage: 'url(/images/austin-skyline.jpg)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
@@ -245,7 +244,7 @@ export default function WhatWeDoPage() {
                 }}
               >
                 <img
-                  src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80"
+                  src="/images/hero-people.jpg"
                   alt="Diverse team collaborating on workforce development"
                   style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
                 />

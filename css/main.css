@@ -4421,13 +4421,13 @@ html.dark .program-skill-tag {
 .blog-page-hero::before {
     opacity: 0.35;
 }
-.blog-page-hero h1,
-.blog-page-hero p {
+.blog-page-hero .page-hero-content h1,
+.blog-page-hero .page-hero-content p {
     color: #f2f2f5;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
-html.dark .blog-page-hero h1,
-html.dark .blog-page-hero p {
+html.dark .blog-page-hero .page-hero-content h1,
+html.dark .blog-page-hero .page-hero-content p {
     color: #f2f2f5;
 }
 .page-hero h1 {

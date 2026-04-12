@@ -23,9 +23,10 @@ export default async function MentorDashboardPage() {
 
   return (
     <>
+      <h1 style={{ fontSize: '1.5rem', fontWeight: 700, padding: '1rem 1rem 0' }} className="wa-md:wa-hidden">Mentor Dashboard</h1>
+      <h1 style={{ fontSize: '2rem', fontWeight: 700, padding: '1.5rem 1.5rem 0', maxWidth: '64rem' }} className="wa-hidden wa-md:wa-block">Mentor Dashboard</h1>
       {/* Mobile */}
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem', padding: '1rem' }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Mentor Dashboard</h1>
         <div style={{ marginTop: '0.75rem', border: '1px solid var(--border-subtle)', borderRadius: '0.75rem', padding: '0.9rem' }}>
           <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Total Hours Donated</div>
           <div style={{ fontSize: '1.9rem', fontWeight: 700 }}>{mentor.totalHoursDonated.toFixed(1)}</div>
@@ -47,7 +48,6 @@ export default async function MentorDashboardPage() {
 
       {/* Desktop */}
       <div className="wa-hidden wa-md:wa-block" style={{ padding: '1.5rem', maxWidth: '64rem' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 700 }}>Mentor Dashboard</h1>
         <div style={{ marginTop: '1rem', border: '1px solid var(--border-subtle)', borderRadius: '0.75rem', padding: '1rem', maxWidth: '16rem' }}>
           <div style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>Total Hours Donated</div>
           <div style={{ fontSize: '2.2rem', fontWeight: 700 }}>{mentor.totalHoursDonated.toFixed(1)}</div>

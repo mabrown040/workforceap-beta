@@ -108,9 +108,9 @@ const PARTNERSHIP_TIERS = [
 const PARTNER_LOGOS = ['Google', 'IBM', 'AWS', 'CompTIA', 'Microsoft'];
 
 const EMPLOYER_VALUE_CARDS = [
-  { stat: '0', label: 'Placement fees charged to employers' },
   { stat: '19', label: 'Career tracks aligned to employer demand' },
   { stat: '1:1', label: 'WorkforceAP matching and support' },
+  { stat: 'Ready', label: 'Support from intake through hiring' },
 ];
 
 export default function EmployersPage() {

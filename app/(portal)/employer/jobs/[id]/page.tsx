@@ -11,6 +11,7 @@ import JobReadinessIssueList from '@/components/employer/JobReadinessIssueList';
 import { assessJobPostingReadiness, readinessLabel } from '@/lib/employer/jobReadiness';
 import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -25,6 +26,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: 'Edit job posting.',
     path: `/employer/jobs/${id}`,
   });
+}
+
+function formatSalary(salaryMin: number | null, salaryMax: number | null) {
+  if (salaryMin == null && salaryMax == null) return 'Add a pay range';
+  if (salaryMin != null && salaryMax != null) {
+    return `$${salaryMin.toLocaleString()} to $${salaryMax.toLocaleString()}`;
+  }
+  if (salaryMin != null) return `From $${salaryMin.toLocaleString()}`;
+  return `Up to $${salaryMax!.toLocaleString()}`;
 }
 
 export default async function EmployerJobDetailPage({ params }: Props) {
@@ -58,49 +68,164 @@ export default async function EmployerJobDetailPage({ params }: Props) {
     suggestedProgramsCount: job.suggestedPrograms?.length ?? 0,
   });
 
+  const summaryStats = [
+    { label: 'Applications', value: job.applicationsCount },
+    { label: 'Requirements', value: job.requirements?.length ?? 0 },
+    { label: 'Program matches', value: job.suggestedPrograms?.length ?? 0 },
+  ];
+
+  const readinessTone =
+    editReadiness.level === 'solid'
+      ? { bg: 'rgba(74, 155, 79, 0.12)', color: '#2d7a32' }
+      : editReadiness.level === 'usable'
+        ? { bg: 'rgba(180, 129, 51, 0.14)', color: '#9a6400' }
+        : { bg: 'rgba(140, 15, 55, 0.1)', color: 'var(--color-accent)' };
+
   return (
     <>
-    <article className="employer-job-edit wa-pb-24 wa-md:wa-pb-0">
-      <PageHeader
-        title="Job Details"
-        breadcrumbs={[
-          { label: 'Job Postings', href: '/employer/jobs' },
-          { label: 'Job Details' },
-        ]}
-      />
-      <div className="employer-job-edit__back">
-        <Link href="/employer/jobs">← My Jobs</Link>
-      </div>
-      <header className="employer-job-edit__header">
-        <h1>{job.title}</h1>
-        <span className="employer-job-edit__meta">
-          {job.status}
-          {job.applicationsCount > 0 && ` · ${job.applicationsCount} application${job.applicationsCount === 1 ? '' : 's'}`}
-        </span>
-      </header>
-      <JobForm
-        job={{
-          id: job.id,
-          title: job.title,
-          location: job.location,
-          locationType: job.locationType,
-          jobType: job.jobType,
-          salaryMin: job.salaryMin,
-          salaryMax: job.salaryMax,
-          description: job.description,
-          requirements: job.requirements,
-          preferredCertifications: job.preferredCertifications,
-          suggestedPrograms: job.suggestedPrograms,
-          status: job.status,
-          sourceUrl: job.sourceUrl,
-          importProvider: job.importProvider,
-          importMethod: job.importMethod,
-        }}
-        companyName={employer?.companyName ?? ''}
-        programSlugs={programSlugs}
-      />
-    </article>
-    <MobileBottomNav variant="employer" />
+      <article className="employer-job-edit wa-pb-24 wa-md:wa-pb-0">
+        <PortalPageFrame>
+          <PageHeader
+            title="Job Details"
+            subtitle="Tighten the posting, fix thin sections, and keep the hiring pipeline moving."
+            action={
+              <Link href="/employer/jobs" className="btn btn-outline btn-sm">
+                Back to jobs
+              </Link>
+            }
+          />
+
+          <div className="employer-job-edit__back">
+            <Link href="/employer/jobs">← My Jobs</Link>
+          </div>
+
+          <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'minmax(0, 1.25fr) minmax(320px, 0.75fr)', alignItems: 'start' }}>
+            <div style={{ display: 'grid', gap: '1rem' }}>
+              <section className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
+                <header className="employer-job-edit__header" style={{ marginBottom: '1rem' }}>
+                  <div>
+                    <h1>{job.title}</h1>
+                    <span className="employer-job-edit__meta">
+                      {job.status}
+                      {job.applicationsCount > 0 && ` · ${job.applicationsCount} application${job.applicationsCount === 1 ? '' : 's'}`}
+                    </span>
+                  </div>
+                  <div
+                    style={{
+                      padding: '0.55rem 0.75rem',
+                      borderRadius: '999px',
+                      background: readinessTone.bg,
+                      color: readinessTone.color,
+                      fontSize: '0.74rem',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.08em',
+                    }}
+                  >
+                    {readinessLabel(editReadiness.level)}
+                  </div>
+                </header>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '0.75rem' }}>
+                  {summaryStats.map((stat) => (
+                    <div key={stat.label} style={{ padding: '0.9rem', borderRadius: '0.9rem', background: 'var(--surface-container-low)' }}>
+                      <div style={{ fontSize: '1.15rem', fontWeight: 800 }}>{stat.value}</div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{stat.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.85rem', marginTop: '1rem' }}>
+                  <div style={{ padding: '0.95rem', borderRadius: '0.9rem', background: 'var(--surface-container-low)' }}>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Company</p>
+                    <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{employer?.companyName ?? '—'}</p>
+                  </div>
+                  <div style={{ padding: '0.95rem', borderRadius: '0.9rem', background: 'var(--surface-container-low)' }}>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Location</p>
+                    <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{job.location?.trim() || 'Add job location'}</p>
+                  </div>
+                  <div style={{ padding: '0.95rem', borderRadius: '0.9rem', background: 'var(--surface-container-low)' }}>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Compensation</p>
+                    <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{formatSalary(job.salaryMin, job.salaryMax)}</p>
+                  </div>
+                  <div style={{ padding: '0.95rem', borderRadius: '0.9rem', background: 'var(--surface-container-low)' }}>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Source</p>
+                    <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{job.importProvider ?? job.importMethod ?? 'Created in portal'}</p>
+                  </div>
+                </div>
+              </section>
+
+              <section className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
+                <h2 style={{ fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.85rem' }}>Edit posting</h2>
+                <JobForm
+                  job={{
+                    id: job.id,
+                    title: job.title,
+                    location: job.location,
+                    locationType: job.locationType,
+                    jobType: job.jobType,
+                    salaryMin: job.salaryMin,
+                    salaryMax: job.salaryMax,
+                    description: job.description,
+                    requirements: job.requirements,
+                    preferredCertifications: job.preferredCertifications,
+                    suggestedPrograms: job.suggestedPrograms,
+                    status: job.status,
+                    sourceUrl: job.sourceUrl,
+                    importProvider: job.importProvider,
+                    importMethod: job.importMethod,
+                  }}
+                  companyName={employer?.companyName ?? ''}
+                  programSlugs={programSlugs}
+                />
+              </section>
+            </div>
+
+            <aside style={{ display: 'grid', gap: '1rem' }}>
+              <section className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
+                <h2 style={{ fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.85rem' }}>Readiness check</h2>
+                <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                  {editReadiness.issues.length === 0
+                    ? 'This posting has the core details candidates need. You can still fine-tune the copy below.'
+                    : 'A few gaps are making the role feel thinner than it should. Fix these first.'}
+                </p>
+                {editReadiness.issues.length > 0 ? (
+                  <div style={{ marginTop: '0.9rem' }}>
+                    <JobReadinessIssueList issues={editReadiness.issues} />
+                  </div>
+                ) : null}
+              </section>
+
+              <section className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
+                <h2 style={{ fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.85rem' }}>Hiring context</h2>
+                <div style={{ display: 'grid', gap: '0.85rem' }}>
+                  <div>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Role type</p>
+                    <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{job.jobType ?? '—'}</p>
+                  </div>
+                  <div>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Work style</p>
+                    <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{job.locationType ?? '—'}</p>
+                  </div>
+                  <div>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Description health</p>
+                    <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>
+                      {job.description?.trim() && job.description.trim().length >= 140 ? 'Detailed enough to review' : 'Needs more day-to-day detail'}
+                    </p>
+                  </div>
+                  <div>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Training alignment</p>
+                    <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>
+                      {job.suggestedPrograms?.length ? `${job.suggestedPrograms.length} program match${job.suggestedPrograms.length === 1 ? '' : 'es'} selected` : 'No program matches yet'}
+                    </p>
+                  </div>
+                </div>
+              </section>
+            </aside>
+          </div>
+        </PortalPageFrame>
+      </article>
+      <MobileBottomNav variant="employer" />
     </>
   );
 }

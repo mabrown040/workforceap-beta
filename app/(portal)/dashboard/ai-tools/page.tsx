@@ -168,13 +168,24 @@ export default async function AIToolsPage() {
               key={tool.href + tool.label}
               href={tool.href}
               className="portal-quick-action-item"
-              style={{ textDecoration: 'none' }}
+              style={{ textDecoration: 'none', minHeight: '92px', height: '100%' }}
             >
               <div className="portal-quick-action-item__icon">
                 <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>{tool.icon}</span>
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p className="portal-quick-action-item__label">{tool.label}</p>
+                <p
+                  className="portal-quick-action-item__label"
+                  style={{
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                    minHeight: '2.1rem',
+                  }}
+                >
+                  {tool.label}
+                </p>
                 <p className="portal-quick-action-item__desc">{tool.category}</p>
               </div>
               <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.3, flexShrink: 0 }}>chevron_right</span>

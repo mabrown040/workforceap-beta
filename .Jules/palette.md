@@ -12,3 +12,6 @@
 ## 2024-03-24 - Accessibility for inline instructional text in custom forms
 **Learning:** When building custom forms without standard UI component libraries like Radix, inline instructional or helper text placed adjacent to inputs is not automatically read by screen readers, leading to confusing or incomplete experiences.
 **Action:** Always map helper or hint text directly to the associated `<input>` using the `aria-describedby` attribute pointing to the ID of the helper text container.
+## 2026-04-12 - Prevent screen readers from reading Material Symbols ligature text
+**Learning:** Found that many decorative `material-symbols-outlined` icons were missing `aria-hidden="true"`. Screen readers will read the raw text of the ligature (e.g. 'add_circle' or 'check_circle') instead of treating them as icons, leading to poor accessibility. In icon-only buttons, the button needs an `aria-label` and the icon inside needs `aria-hidden="true"`.
+**Action:** Always add `aria-hidden="true"` to ligature-based icons (like Material Symbols). If the icon acts as a button on its own, ensure the wrapper `<button>` has an `aria-label`.

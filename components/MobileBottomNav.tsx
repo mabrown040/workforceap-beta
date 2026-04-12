@@ -103,7 +103,7 @@ export default function MobileBottomNav({ variant = 'marketing' }: MobileBottomN
         bottom: 0,
         left: 0,
         width: '100%',
-        zIndex: 50,
+        zIndex: 60,
         display: 'flex',
         justifyContent: 'space-around',
         alignItems: 'center',

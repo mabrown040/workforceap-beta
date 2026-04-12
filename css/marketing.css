@@ -273,14 +273,16 @@ html.has-marketing-main-nav {
 
 /*
  * Fixed `MobileBottomNav` (~56px row + vertical padding) plus device safe area.
- * Use on mobile marketing roots so content is not covered; match sticky CTAs with sticky-above class.
+ * Only apply on mobile where the bottom nav is actually rendered.
  */
-.marketing-mobile-pb-for-bottom-nav {
-  padding-bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
-}
+@media (max-width: 767px) {
+  .marketing-mobile-pb-for-bottom-nav {
+    padding-bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
+  }
 
-.marketing-mobile-sticky-above-bottom-nav {
-  bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
+  .marketing-mobile-sticky-above-bottom-nav {
+    bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 /* /programs: mobile sticky quiz CTA clears last catalog rows */

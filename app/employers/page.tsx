@@ -107,6 +107,12 @@ const PARTNERSHIP_TIERS = [
 
 const PARTNER_LOGOS = ['Google', 'IBM', 'AWS', 'CompTIA', 'Microsoft'];
 
+const EMPLOYER_VALUE_CARDS = [
+  { stat: '0', label: 'Placement fees charged to employers' },
+  { stat: '19', label: 'Career tracks aligned to employer demand' },
+  { stat: '1:1', label: 'WorkforceAP matching and support' },
+];
+
 export default function EmployersPage() {
   return (
     <div className="inner-page">
@@ -125,8 +131,7 @@ export default function EmployersPage() {
           style={{
             position: 'absolute',
             inset: 0,
-            backgroundImage:
-              'url(https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1600&q=82)',
+            backgroundImage: 'url(/images/hero-people.jpg)',
             backgroundSize: 'cover',
             backgroundPosition: 'center 35%',
           }}
@@ -265,11 +270,7 @@ export default function EmployersPage() {
       {/* ===== Employer Stats ===== */}
       <section style={{ padding: 'clamp(2rem, 4vw, 4rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1200px', margin: '0 auto' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 100%), 1fr))', gap: '2rem', textAlign: 'center' }}>
-          {[
-            { stat: '200+', label: 'Graduates Placed' },
-            { stat: '90%', label: 'Retention Rate' },
-            { stat: '$0', label: 'Upfront Cost to You' },
-          ].map((item) => (
+          {EMPLOYER_VALUE_CARDS.map((item) => (
             <div key={item.label} className="portal-card portal-card--flat" style={{ padding: '2rem' }}>
               <div style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-accent)', lineHeight: 1 }}>{item.stat}</div>
               <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>{item.label}</div>

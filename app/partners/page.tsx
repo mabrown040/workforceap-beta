@@ -227,8 +227,8 @@ export default function PartnersPage() {
                 }}
               >
                 <img
-                  src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&q=80"
-                  alt="Community leader"
+                  src="/images/hero-people.jpg"
+                  alt="Community partners collaborating"
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               </div>

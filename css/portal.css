@@ -2577,3 +2577,59 @@ html.dark .employer-applications-table.admin-table thead th {
 .portal-notification-item:hover {
   background: var(--surface-container);
 }
+
+/* ── Inbox primitives (missing styles) ── */
+.portal-inbox__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--outline-variant, #e8e0dd) 55%, transparent);
+  background: color-mix(in srgb, var(--surface-container) 42%, transparent);
+}
+
+@media (max-width: 640px) {
+  .portal-inbox__header {
+    flex-wrap: wrap;
+  }
+  .portal-inbox__header > div:first-child {
+    min-width: 100%;
+  }
+  .portal-inbox__header > div:last-child {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+.portal-inbox__title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-on-surface);
+  margin: 0;
+}
+
+.portal-inbox__subtitle {
+  font-size: 0.8rem;
+  color: var(--color-on-surface-variant);
+  margin: 0.2rem 0 0;
+}
+
+.portal-inbox-unread {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-on-surface);
+  background: var(--surface-container-high);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.portal-inbox-row__badge {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}

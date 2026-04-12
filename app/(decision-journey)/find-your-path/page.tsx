@@ -16,12 +16,9 @@ export default function FindYourPathPage() {
       className="inner-page marketing-stack marketing-stack--enter"
       style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}
     >
-      {/* Desktop layout — hidden on mobile */}
-      <div className="marketing-desktop">
-
       {/* Hero */}
       <section style={{
-        padding: '5rem 2rem 3rem',
+        padding: 'clamp(2rem, 6vw, 5rem) 1.25rem 2rem',
         maxWidth: '1400px',
         margin: '0 auto',
       }}>
@@ -34,14 +31,18 @@ export default function FindYourPathPage() {
             letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '1rem',
           }}>
             <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">explore</span>
-            Academic Navigator
+            Career Path Quiz
           </span>
           <h1 className="text-display-lg" style={{ marginBottom: '1rem' }}>Find Your Path</h1>
           <p style={{
-            color: 'var(--color-on-surface-variant)', fontSize: '1.125rem', lineHeight: 1.7, marginBottom: '1.5rem',
+            color: 'var(--color-on-surface-variant)', fontSize: '1.125rem', lineHeight: 1.7, marginBottom: '0.75rem',
           }}>
-            Five questions, three ranked matches, plain-English why — tied to the same salary bands and program pages you will see
-            elsewhere. If computers feel intimidating, we prioritize the Digital Literacy track first so you build confidence before heavier tech programs. Programs are available nationwide.
+            Not sure where to start? Answer a few quick questions and get program recommendations matched to your interests, experience, and goals — no guesswork required.
+          </p>
+          <p style={{
+            color: 'var(--color-on-surface-variant)', fontSize: '1rem', lineHeight: 1.65, marginBottom: '1.5rem', fontStyle: 'italic',
+          }}>
+            You don&apos;t need to have it all figured out — that&apos;s what this is for. Just answer honestly and we&apos;ll point you toward the right first step.
           </p>
           <ExperimentedCtaLink
             experiment="find_path_apply_cta"
@@ -54,8 +55,8 @@ export default function FindYourPathPage() {
       </section>
 
       {/* Decision Path Tabs + Quiz */}
-      <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 2rem 4rem' }}>
-        <div style={{
+      <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 1.25rem 4rem' }}>
+        <div className="find-path-layout" style={{
           display: 'grid',
           gridTemplateColumns: '1fr 300px',
           gap: '2.5rem',
@@ -92,7 +93,7 @@ export default function FindYourPathPage() {
             }}>
               <img
                 src="/images/hero-people.jpg"
-                alt="Students collaborating on career training"
+                alt="Members collaborating on career training"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
               <div style={{
@@ -110,35 +111,13 @@ export default function FindYourPathPage() {
         </div>
       </section>
 
-      </div>{/* end hidden md:block desktop wrapper */}
-
-      {/* ══════════════════════════════════════════════
-          MOBILE LAYOUT ≤640px — interactive quiz
-          ══════════════════════════════════════════════ */}
-      <div className="marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
-        {/* Mobile Hero */}
-        <div style={{ padding: '4.5rem 1.25rem 1rem' }}>
-          <span style={{
-            display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
-            padding: '0.25rem 0.6rem', borderRadius: '9999px',
-            background: 'rgba(173,44,77,0.12)', color: '#ad2c4d',
-            fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.06em',
-            textTransform: 'uppercase', marginBottom: '0.5rem',
-          }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '0.75rem' }} aria-hidden="true">explore</span>
-            Academic Navigator
-          </span>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--color-on-surface)', marginBottom: '0.375rem' }}>Find Your Path</h1>
-          <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: 0 }}>
-            Five questions, three ranked matches — takes about 2 minutes.
-          </p>
-        </div>
-        {/* Quiz */}
-        <div style={{ padding: '0 1.25rem 2rem' }}>
-          <FindYourPathClient idPrefix="fyp-mobile" />
-        </div>
-      </div>
-
+      <style>{`
+        @media (max-width: 900px) {
+          .find-path-layout {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

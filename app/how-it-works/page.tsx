@@ -69,7 +69,6 @@ export default async function HowItWorksPage() {
 
   return (
     <div className="inner-page">
-      <div className="marketing-desktop">
       {/* Hero Section */}
       <section className="content-section" style={{ paddingBottom: 0 }}>
         <div className="container" style={{ maxWidth: 1200 }}>
@@ -89,11 +88,11 @@ export default async function HowItWorksPage() {
                 Member Experience
               </span>
               <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', marginBottom: '2rem', lineHeight: 0.95 }}>
-                Start your path{' '}
+                Your path{' '}
                 <span style={{ color: 'var(--color-accent)' }}>starts here.</span>
               </h1>
               <p style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', maxWidth: '36rem', lineHeight: 1.7, marginBottom: '2.5rem' }}>
-                We provide the tools, training, and long-term support needed to bridge the gap between where you are and where you want to be.
+                No gatekeeping. No cost. Just a clear, guided process — from your first conversation with us to your first day on the job (and beyond).
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
                 <Link
@@ -153,10 +152,10 @@ export default async function HowItWorksPage() {
         <div className="container" style={{ maxWidth: 1200 }}>
           <div style={{ marginBottom: '4rem' }}>
             <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '1rem' }}>
-              Your Journey With Us
+              What Happens After You Apply
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '42rem' }}>
-              A structured, 10-step roadmap — the same journey you see on our homepage — from applicant to career growth.
+              Ten steps, three phases. Every step has a purpose — and a person supporting you through it.
             </p>
           </div>
 
@@ -314,10 +313,10 @@ export default async function HowItWorksPage() {
           overflow: 'hidden',
         }}>
           <h2 className="text-display-sm" style={{ color: '#fff', marginBottom: '1.5rem', position: 'relative', zIndex: 1 }}>
-            Ready to bridge the gap?
+            Ready to take the first step?
           </h2>
           <p style={{ color: 'rgba(255,203,209,0.9)', fontSize: '1.125rem', maxWidth: '36rem', margin: '0 auto 2.5rem', position: 'relative', zIndex: 1 }}>
-            Join hundreds of successful members who have launched their careers through Workforce Advancement Project.
+            The application takes about ten minutes. It&rsquo;s a conversation, not an exam — and it&rsquo;s completely free to apply.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
             <Link
@@ -359,156 +358,6 @@ export default async function HowItWorksPage() {
           .hiw-benefit-accent { grid-column: 9 / 13 !important; }
         }
       `}</style>
-
-      </div>{/* end hidden md:block desktop wrapper */}
-
-      {/* ── Mobile Journey View (≤640px) — inline styles only (Tailwind wa- prefix) ── */}
-      <section
-        className="marketing-mobile marketing-mobile-pb-for-bottom-nav"
-        style={{
-          background: 'var(--color-surface)',
-          paddingLeft: '1rem',
-          paddingRight: '1rem',
-          paddingTop: '2rem',
-        }}
-      >
-        <div style={{ marginBottom: '1.5rem' }}>
-          <span
-            style={{
-              display: 'inline-block',
-              fontSize: '10px',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.12em',
-              padding: '0.25rem 0.75rem',
-              borderRadius: '9999px',
-              marginBottom: '0.75rem',
-              background: '#ffbb00',
-              color: 'var(--color-on-surface)',
-            }}
-          >
-            Member Experience
-          </span>
-          <h2
-            style={{
-              fontSize: '1.875rem',
-              fontWeight: 800,
-              letterSpacing: '-0.025em',
-              lineHeight: 1.1,
-              marginBottom: '0.75rem',
-              color: 'var(--color-on-surface)',
-            }}
-          >
-            Start your path{' '}
-            <span style={{ color: '#ad2c4d' }}>starts here.</span>
-          </h2>
-          <p style={{ fontSize: '0.875rem', lineHeight: 1.6, color: '#584144' }}>
-            10 steps from application to career growth.
-          </p>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          {PHASES.flatMap((phase) =>
-            phase.steps.map((step) => {
-              const isIntensive = step.num >= 5 && step.num <= 9;
-              return (
-                <div
-                  key={step.num}
-                  style={{
-                    position: 'relative',
-                    overflow: 'hidden',
-                    borderRadius: '0.75rem',
-                    padding: '1rem',
-                    background: isIntensive ? 'rgba(173, 44, 77, 0.06)' : '#fff',
-                    border: isIntensive ? '1px solid rgba(173,44,77,0.15)' : 'none',
-                    boxShadow: isIntensive ? 'none' : '0 1px 4px rgba(28,27,27,0.06)',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                    <span
-                      style={{
-                        width: '2.5rem',
-                        height: '2.5rem',
-                        flexShrink: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        borderRadius: '50%',
-                        fontSize: '0.875rem',
-                        fontWeight: 700,
-                        background: '#ad2c4d',
-                        color: '#fff',
-                        lineHeight: 1,
-                      }}
-                    >
-                      {String(step.num).padStart(2, '0')}
-                    </span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                    {isIntensive && step.num === 5 && (
-                      <span
-                        style={{
-                          fontSize: '9px',
-                          fontWeight: 700,
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.1em',
-                          padding: '0.125rem 0.5rem',
-                          borderRadius: '9999px',
-                          marginBottom: '0.5rem',
-                          display: 'inline-block',
-                          background: '#ad2c4d',
-                          color: '#fff',
-                        }}
-                      >
-                        Intensive Learning Phase
-                      </span>
-                    )}
-                    <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{step.title}</p>
-                    <p style={{ fontSize: '0.75rem', marginTop: '0.125rem', lineHeight: 1.55, color: '#584144' }}>{step.desc}</p>
-                  </div>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
-
-        <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <Link
-            href="/apply"
-            style={{
-              display: 'block',
-              width: '100%',
-              textAlign: 'center',
-              fontWeight: 700,
-              padding: '1rem',
-              borderRadius: '0.5rem',
-              fontSize: '0.875rem',
-              background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)',
-              color: '#fff',
-              textDecoration: 'none',
-            }}
-          >
-            Start Your Application
-          </Link>
-          <Link
-            href="/programs"
-            style={{
-              display: 'block',
-              width: '100%',
-              textAlign: 'center',
-              fontWeight: 700,
-              padding: '1rem',
-              borderRadius: '0.5rem',
-              fontSize: '0.875rem',
-              background: '#ebe7e7',
-              color: 'var(--color-on-surface)',
-              textDecoration: 'none',
-            }}
-          >
-            View Programs
-          </Link>
-        </div>
-      </section>
 
       <MobileBottomNav />
       <Footer />

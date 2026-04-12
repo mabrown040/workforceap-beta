@@ -110,7 +110,6 @@ const PARTNER_LOGOS = ['Google', 'IBM', 'AWS', 'CompTIA', 'Microsoft'];
 export default function EmployersPage() {
   return (
     <div className="inner-page">
-      <div className="marketing-desktop">
       {/* ── Hero ── */}
       <section
         style={{
@@ -299,29 +298,11 @@ export default function EmployersPage() {
         </div>
       </section>
 
-      {/* ===== Employer Testimonial ===== */}
-      <section style={{ padding: 'clamp(2rem, 4vw, 4rem) clamp(1rem, 4vw, 2rem)', maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
-        <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', background: 'var(--surface-container-low)' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '1rem', display: 'block' }}>format_quote</span>
-          <blockquote style={{ fontSize: '1.1rem', lineHeight: 1.7, fontStyle: 'italic', color: 'var(--color-on-surface)', marginBottom: '1rem' }}>
-            &ldquo;WorkforceAP connected us with three candidates who were immediately productive. The quality of preparation was unlike anything we&apos;ve seen from traditional staffing.&rdquo;
-          </blockquote>
-          <cite style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', fontStyle: 'normal' }}>— Hiring Manager, Regional Healthcare System</cite>
-        </div>
-      </section>
-
-      {/* Find Your Career CTA */}
-      <section style={{ textAlign: 'center', padding: '2.5rem 1rem', background: 'var(--color-light)' }}>
-        <p style={{ fontSize: '1.1rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>Not sure where to start?</p>
-        <a href="/find-your-path" className="btn btn-accent btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
-          Find Your Career
-        </a>
-      </section>
-
       {/* ── The WorkforceAP Difference — Sticky sidebar + value cards ── */}
       <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div
+            className="emp-diff-grid"
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(12, 1fr)',
@@ -362,8 +343,8 @@ export default function EmployersPage() {
                     psychology
                   </span>
                   <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.8rem', margin: 0, lineHeight: 1.5 }}>
-                    <strong>AI-powered career support:</strong> Members use guided AI tools for resumes,
-                    interviews, and applications while a counselor keeps the human layer.
+                    <strong>Guided career tools and counselor support:</strong> Members work through resumes,
+                    interview prep, and applications with structured tools and one-on-one counselor guidance.
                   </p>
                 </div>
               </div>
@@ -788,228 +769,10 @@ export default function EmployersPage() {
           Start Employer Intake
         </a>
       </section>
-      </div>{/* end employers desktop */}
-
-      <div className="marketing-mobile marketing-mobile-pb-for-bottom-nav">
-        {/* ── Mobile Hero ── */}
-        <section
-          style={{
-            position: 'relative',
-            padding: '3rem 1.25rem 2rem',
-            overflow: 'hidden',
-            minHeight: '280px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'flex-end',
-          }}
-        >
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1000&q=78)', backgroundSize: 'cover', backgroundPosition: 'center 35%' }} />
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(18,20,22,0.5) 0%, rgba(18,20,22,0.88) 100%)' }} />
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <span style={{ display: 'inline-block', padding: '0.25rem 0.75rem', borderRadius: '9999px', background: 'rgba(255,255,255,0.12)', color: 'var(--color-gold, #ffbb00)', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
-              Building Tomorrow&apos;s Workforce
-            </span>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 800, lineHeight: 1.05, letterSpacing: '-0.02em', color: '#fff', marginBottom: '0.5rem' }}>
-              Hire Certified,{' '}<span style={{ color: 'var(--color-accent, #ad2c4d)' }}>Job-Ready Talent</span>
-            </h1>
-            <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5, maxWidth: '26rem' }}>
-              Tell us what roles you need, how many openings you have, and when you need them filled.
-            </p>
-            <Link href="#employer-contact-form" style={{ display: 'inline-block', marginTop: '1rem', padding: '0.75rem 1.5rem', borderRadius: '0.75rem', background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)', color: '#fff', fontWeight: 700, fontSize: '0.875rem', textDecoration: 'none' }}>
-              Start Employer Intake
-            </Link>
-          </div>
-        </section>
-
-        {/* ── Partner Logos ── */}
-        <section style={{ padding: '1rem', background: 'var(--color-surface)', overflowX: 'auto', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', whiteSpace: 'nowrap', flexShrink: 0 }}>Certification Partners:</span>
-            <div style={{ display: 'flex', gap: '0.75rem', flexShrink: 0 }}>
-              {PARTNER_LOGOS.map((logo) => (
-                <span key={logo} style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface)', opacity: 0.6, whiteSpace: 'nowrap' }}>{logo}</span>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── Stats ── */}
-        <section style={{ padding: '1.5rem 1rem', background: 'var(--color-surface)' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
-            {[
-              { val: '$0', label: 'Cost to Hire', accent: '#8c0f37' },
-              { val: 'Cert-ready', label: 'Candidates', accent: '#ad2c4d' },
-            ].map((m) => (
-              <div key={m.label} style={{ borderRadius: '0.75rem', padding: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', background: 'white', borderLeft: `3px solid ${m.accent}`, boxShadow: '0 1px 4px rgba(28,27,27,0.06)' }}>
-                <span style={{ fontSize: '1.25rem', fontWeight: 900, lineHeight: 1, color: m.accent }}>{m.val}</span>
-                <span style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)' }}>{m.label}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── Why Partner — Value Cards ── */}
-        <section style={{ padding: '2rem 1rem', background: 'var(--surface-container-low, #f5f2f1)' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-on-surface)', letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>
-            Why Employers Partner With Us
-          </h2>
-          <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.5 }}>
-            Tell us your use case, hiring volume, and timeline so we can route you to the right intake path.
-          </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {VALUE_CARDS.map((card) => (
-              <div key={card.title} style={{ display: 'flex', gap: '0.75rem', padding: '1rem', borderRadius: '0.75rem', background: 'white', boxShadow: '0 1px 4px rgba(28,27,27,0.05)' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '24px', color: '#8c0f37', flexShrink: 0, marginTop: '2px' }}>{card.icon}</span>
-                <div>
-                  <h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>{card.title}</h3>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, margin: 0 }}>{card.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── Talent Cohorts ── */}
-        <section style={{ padding: '2rem 1rem', background: 'var(--color-surface)' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-on-surface)', letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>
-            Talent Cohorts
-          </h2>
-          <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.5 }}>
-            Our members graduate into these high-demand career tracks.
-          </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {COHORTS.map((c) => (
-              <div
-                key={c.title}
-                style={{
-                  borderRadius: '0.75rem',
-                  padding: '1rem',
-                  background: c.accent ? 'linear-gradient(135deg, #8c0f37, #ad2c4d)' : 'white',
-                  color: c.accent ? '#fff' : 'var(--color-on-surface)',
-                  boxShadow: c.accent ? 'none' : '0 1px 4px rgba(28,27,27,0.05)',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '20px', opacity: c.accent ? 0.9 : 0.7 }}>{c.icon}</span>
-                  <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: 0 }}>{c.title}</h3>
-                </div>
-                <p style={{ fontSize: '0.75rem', margin: '0 0 0.25rem', opacity: 0.8 }}>{c.cert}</p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', opacity: 0.7 }}>
-                  <span>{c.level}</span>
-                  <span style={{ fontWeight: 700 }}>{c.salary}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── Hiring Process — 4 Steps ── */}
-        <section style={{ padding: '2rem 1rem', background: 'var(--surface-container-low, #f5f2f1)' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-on-surface)', letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>
-            How Hiring Works
-          </h2>
-          <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.5 }}>
-            Submit your employer intake and we will follow up within 24–48 hours.
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-            {PROCESS_STEPS.map((step) => (
-              <div key={step.num} style={{ padding: '1rem', borderRadius: '0.75rem', background: 'white', boxShadow: '0 1px 4px rgba(28,27,27,0.05)', textAlign: 'center' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#8c0f37', display: 'block', marginBottom: '0.5rem' }}>{step.icon}</span>
-                <span style={{ display: 'block', fontSize: '0.65rem', fontWeight: 800, color: '#8c0f37', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.25rem' }}>Step {step.num}</span>
-                <h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>{step.title}</h3>
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, margin: 0 }}>{step.desc}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── Partnership Tiers ── */}
-        <section style={{ padding: '2rem 1rem', background: 'var(--color-surface)' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-on-surface)', letterSpacing: '-0.02em', marginBottom: '1.25rem', textAlign: 'center' }}>
-            Partnership Tiers
-          </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {PARTNERSHIP_TIERS.map((tier) => (
-              <div
-                key={tier.title}
-                style={{
-                  borderRadius: '0.75rem',
-                  padding: '1.25rem',
-                  background: tier.featured ? 'linear-gradient(135deg, #8c0f37, #ad2c4d)' : 'white',
-                  color: tier.featured ? '#fff' : 'var(--color-on-surface)',
-                  boxShadow: tier.featured ? '0 4px 20px rgba(140,15,55,0.25)' : '0 1px 4px rgba(28,27,27,0.05)',
-                  border: tier.featured ? 'none' : '1px solid rgba(222,191,194,0.15)',
-                }}
-              >
-                <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.75rem' }}>{tier.title}</h3>
-                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                  {tier.features.map((f) => (
-                    <li key={f} style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem', opacity: 0.9 }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>check</span>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href={tier.href}
-                  style={{
-                    display: 'block',
-                    textAlign: 'center',
-                    padding: '0.75rem',
-                    borderRadius: '0.5rem',
-                    fontWeight: 700,
-                    fontSize: '0.875rem',
-                    textDecoration: 'none',
-                    background: tier.featured ? '#fff' : 'linear-gradient(135deg, #8c0f37, #ad2c4d)',
-                    color: tier.featured ? '#8c0f37' : '#fff',
-                  }}
-                >
-                  {tier.cta}
-                </Link>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── Skill Chips ── */}
-        <section style={{ padding: '1rem 0', overflowX: 'auto', background: 'var(--color-surface)', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
-          <div style={{ display: 'flex', gap: '0.5rem', paddingLeft: '1rem', paddingRight: '1rem', width: 'max-content' }}>
-            {['IT & Cyber', 'AI & Software', 'Cloud', 'Business', 'Healthcare'].map((cat, i) => (
-              <Link key={cat} href="/programs#program-catalog" style={{ flexShrink: 0, padding: '0.5rem 1rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 700, background: i === 0 ? '#8c0f37' : '#e5e2e1', color: i === 0 ? '#fff' : '#1c1b1b', textDecoration: 'none' }}>
-                {cat}
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        {/* ── Employer Testimonial ── */}
-        <section style={{ padding: '2rem 1rem', background: 'var(--surface-container-low, #f5f2f1)' }}>
-          <div style={{ borderRadius: '0.75rem', padding: '1.5rem', background: 'white', boxShadow: '0 1px 4px rgba(28,27,27,0.05)', textAlign: 'center' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: '#8c0f37', marginBottom: '0.75rem', display: 'block' }}>format_quote</span>
-            <blockquote style={{ fontSize: '0.9rem', lineHeight: 1.6, fontStyle: 'italic', color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>
-              &ldquo;WorkforceAP connected us with three candidates who were immediately productive. The quality of preparation was unlike anything we&apos;ve seen from traditional staffing.&rdquo;
-            </blockquote>
-            <cite style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', fontStyle: 'normal' }}>— Hiring Manager, Regional Healthcare System</cite>
-          </div>
-        </section>
-
-        {/* ── CTA + Contact Form ── */}
-        <section id="employer-contact" style={{ padding: '2.5rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#8c0f37' }}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>Ready to Hire?</h2>
-          <p style={{ fontSize: '0.875rem', marginBottom: '1.5rem', color: 'rgba(255,203,209,0.9)', maxWidth: '22rem' }}>
-            Start the employer intake and tell us what roles, volume, and timeline you need so we can route you quickly.
-          </p>
-          <Link
-            href="#employer-contact-form"
-            style={{ display: 'block', width: '100%', maxWidth: '24rem', fontWeight: 700, padding: '1rem', borderRadius: '0.75rem', textAlign: 'center', fontSize: '0.875rem', background: '#fff', color: '#8c0f37', textDecoration: 'none' }}
-          >
-            Start Employer Intake
-          </Link>
-        </section>
-      </div>{/* end employers mobile */}
 
       <style>{`
         @media (max-width: 1023px) {
+          .emp-diff-grid { gap: 2rem !important; }
           .emp-diff-sidebar { grid-column: span 12 !important; }
           .emp-diff-cards { grid-column: span 12 !important; }
           .emp-tiers-grid { grid-template-columns: 1fr !important; max-width: 480px; margin: 0 auto; }

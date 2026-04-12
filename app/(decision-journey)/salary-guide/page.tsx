@@ -95,128 +95,6 @@ export default function SalaryGuidePage() {
       className="inner-page salary-guide-page marketing-stack marketing-stack--enter"
       style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}
     >
-
-      {/* ===== MOBILE VIEW (≤640px) ===== */}
-      <div className="marketing-mobile marketing-mobile-pb-for-bottom-nav" style={{ background: 'var(--color-surface)', color: 'var(--color-on-surface)', minHeight: '100vh' }}>
-        <div style={{ paddingTop: '1.5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', maxWidth: '390px', margin: '0 auto' }}>
-          {/* Hero */}
-          <section style={{ marginTop: '2rem', marginBottom: '2.5rem' }}>
-            <h2 style={{ fontSize: '2.25rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-on-surface)', lineHeight: 1.1, marginBottom: '1rem' }}>Your Earning Potential.</h2>
-            <p style={{ color: '#584144', fontSize: '1rem', lineHeight: 1.6 }}>
-              Salary bands from Lightcast/BLS data for graduates of our programs.
-            </p>
-          </section>
-
-          {/* Category Filter Chips */}
-          <section style={{ marginBottom: '2rem', marginLeft: '-1.5rem', marginRight: '-1.5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem' } as React.CSSProperties}>
-            {(
-              [
-                { label: 'All', primary: true },
-                { label: 'IT and Cyber', primary: false },
-                { label: 'AI and Software', primary: false },
-                { label: 'Cloud', primary: false },
-                { label: 'Business', primary: false },
-                { label: 'Healthcare', primary: false },
-              ] as const
-            ).map(({ label, primary }) => (
-              <Link
-                key={label}
-                href="/programs#program-catalog"
-                style={{
-                  flexShrink: 0,
-                  padding: '0.625rem 1.25rem',
-                  borderRadius: '9999px',
-                  background: primary ? '#ad2c4d' : '#ebe7e7',
-                  color: primary ? 'white' : '#584144',
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  textDecoration: 'none',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  maxWidth: '100%',
-                }}
-              >
-                {label}
-              </Link>
-            ))}
-          </section>
-
-          {/* Salary Card List */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            {MOBILE_SALARY_CARDS.slice(0, 3).map((card) => (
-              <div key={card.program} style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', borderLeft: `4px solid ${card.borderColor}` }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
-                  <span style={{ display: 'inline-block', padding: '0.25rem 0.5rem', background: 'rgba(255,187,0,0.10)', color: '#6c4d00', fontSize: '0.625rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', width: 'fit-content', borderRadius: '0.25rem' }}>{card.category}</span>
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-on-surface)', letterSpacing: '-0.02em', lineHeight: 1.3, margin: 0 }}>{card.program}</h3>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.25rem' }}>
-                  <div style={{ background: '#f6f3f2', padding: '0.75rem', borderRadius: '0.5rem' }}>
-                    <span style={{ display: 'block', fontSize: '0.625rem', textTransform: 'uppercase', fontWeight: 700, color: '#584144', letterSpacing: '0.07em', marginBottom: '0.25rem' }}>Entry Level</span>
-                    <p style={{ color: '#8c0f37', fontWeight: 700, fontSize: '1.125rem', lineHeight: 1, margin: 0 }}>{card.entry}</p>
-                  </div>
-                  <div style={{ background: 'rgba(140,15,55,0.05)', padding: '0.75rem', borderRadius: '0.5rem' }}>
-                    <span style={{ display: 'block', fontSize: '0.625rem', textTransform: 'uppercase', fontWeight: 700, color: '#8c0f37', letterSpacing: '0.07em', marginBottom: '0.25rem' }}>Mid Level</span>
-                    <p style={{ color: '#8c0f37', fontWeight: 900, fontSize: '1.125rem', lineHeight: 1, margin: 0 }}>{card.mid}</p>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  {card.certs.map((cert) => (
-                    <span key={cert} style={{ background: '#e5e2e1', padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 500, color: '#584144' }}>{cert}</span>
-                  ))}
-                </div>
-              </div>
-            ))}
-
-            {/* Advisor CTA Card — placed after 3rd data card per Stitch design */}
-            <div style={{ position: 'relative', overflow: 'hidden', background: '#8c0f37', color: 'white', borderRadius: '0.75rem', padding: '2rem', marginBottom: '1rem' }}>
-              <div style={{ position: 'absolute', right: '-3rem', top: '-3rem', width: '12rem', height: '12rem', background: '#ad2c4d', borderRadius: '9999px', opacity: 0.3 }}></div>
-              <h4 style={{ fontSize: '1.5rem', fontWeight: 900, letterSpacing: '-0.02em', marginBottom: '0.5rem', position: 'relative', zIndex: 1 }}>Maximize Your Growth.</h4>
-              <p style={{ color: '#ffd9dd', fontSize: '0.875rem', marginBottom: '1.5rem', position: 'relative', zIndex: 1 }}>Free career coaching for every member. Our advisors help you negotiate offers and land the role that fits your goals — at $0 cost to you.</p>
-              <Link href="/apply" style={{ background: 'white', color: '#8c0f37', fontWeight: 700, padding: '0.75rem 1.5rem', borderRadius: '0.375rem', fontSize: '0.75rem', letterSpacing: '0.1em', textTransform: 'uppercase', position: 'relative', zIndex: 1, display: 'inline-block', textDecoration: 'none' }}>
-                Speak to an Advisor
-              </Link>
-            </div>
-
-            {MOBILE_SALARY_CARDS.slice(3).map((card) => (
-              <div key={card.program} style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', borderLeft: `4px solid ${card.borderColor}` }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
-                  <span style={{ display: 'inline-block', padding: '0.25rem 0.5rem', background: 'rgba(255,187,0,0.10)', color: '#6c4d00', fontSize: '0.625rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', width: 'fit-content', borderRadius: '0.25rem' }}>{card.category}</span>
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-on-surface)', letterSpacing: '-0.02em', lineHeight: 1.3, margin: 0 }}>{card.program}</h3>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.25rem' }}>
-                  <div style={{ background: '#f6f3f2', padding: '0.75rem', borderRadius: '0.5rem' }}>
-                    <span style={{ display: 'block', fontSize: '0.625rem', textTransform: 'uppercase', fontWeight: 700, color: '#584144', letterSpacing: '0.07em', marginBottom: '0.25rem' }}>Entry Level</span>
-                    <p style={{ color: '#8c0f37', fontWeight: 700, fontSize: '1.125rem', lineHeight: 1, margin: 0 }}>{card.entry}</p>
-                  </div>
-                  <div style={{ background: 'rgba(140,15,55,0.05)', padding: '0.75rem', borderRadius: '0.5rem' }}>
-                    <span style={{ display: 'block', fontSize: '0.625rem', textTransform: 'uppercase', fontWeight: 700, color: '#8c0f37', letterSpacing: '0.07em', marginBottom: '0.25rem' }}>Mid Level</span>
-                    <p style={{ color: '#8c0f37', fontWeight: 900, fontSize: '1.125rem', lineHeight: 1, margin: 0 }}>{card.mid}</p>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  {card.certs.map((cert) => (
-                    <span key={cert} style={{ background: '#e5e2e1', padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 500, color: '#584144' }}>{cert}</span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Disclaimer */}
-          <footer style={{ marginTop: '3rem', marginBottom: '5rem', textAlign: 'center' }}>
-            <p style={{ fontSize: '0.625rem', fontWeight: 500, color: 'rgba(88,65,68,0.60)', textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1.6 }}>
-              Data provided by Lightcast and Bureau of Labor Statistics. Figures represent national averages and vary by geographic location and individual experience.
-            </p>
-          </footer>
-        </div>
-
-      </div>
-
-      {/* ===== DESKTOP VIEW (>640px) ===== */}
-      <div className="marketing-desktop">
         {/* ===== Hero ===== */}
         <section style={{ padding: '5rem 2rem 3rem', maxWidth: '1400px', margin: '0 auto' }}>
           <span style={{
@@ -229,9 +107,9 @@ export default function SalaryGuidePage() {
             <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">analytics</span>
             Salary Intelligence
           </span>
-          <h1 className="text-display-lg" style={{ marginBottom: '1rem' }}>2025 Salary Intelligence</h1>
+          <h1 className="text-display-lg" style={{ marginBottom: '1rem' }}>Program Salary Guide</h1>
           <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.125rem', lineHeight: 1.7, maxWidth: '640px' }}>
-            Starting salary ranges by program — same numbers you see on /programs. Use this with fit, timeline, and ramp to find your best path forward.
+            Starting salary ranges for all 19 programs — the same numbers shown on each program page. Salary matters, but so does fit, time commitment, support available, and how steep the skill ramp is. Use this guide to weigh all of it.
           </p>
         </section>
 
@@ -428,12 +306,12 @@ export default function SalaryGuidePage() {
             border: '1px solid var(--surface-container-highest)',
           }}>
             <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'block' }} aria-hidden="true">download</span>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>Start Your Career Track</h3>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>Ready to take the next step?</h3>
             <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', marginBottom: '1.5rem', maxWidth: '480px', marginLeft: 'auto', marginRight: 'auto' }}>
-              Apply for free to unlock your personalized salary roadmap, counselor support, and employer connections.
+              Apply for free — every member gets a career advisor, resume support, interview prep, and employer introductions. No cost, no obligation.
             </p>
             <Link href="/apply" className="btn btn-primary">
-              Apply for Free
+              Apply Now
             </Link>
           </div>
 
@@ -443,17 +321,17 @@ export default function SalaryGuidePage() {
 
           {/* Bottom CTAs */}
           <div className="salary-guide-ctas">
-            <h3 className="salary-guide-cta-title">Your Next Step</h3>
-            <p className="salary-guide-cta-desc">You now have the numbers. Use the pathfinder to find your fit, or compare programs. When you&rsquo;re ready — apply.</p>
+            <h3 className="salary-guide-cta-title">What to do next</h3>
+            <p className="salary-guide-cta-desc">Now that you have the numbers, bring in the other factors. Take the quiz to find programs that fit your timeline and experience level, or browse all programs and compare side-by-side. When you are ready — apply.</p>
             <div className="salary-guide-cta-buttons">
-              <Link href="/find-your-path" className="btn btn-outline salary-guide-cta-btn">Find your fit (2-min quiz)</Link>
-              <Link href="/program-comparison" className="btn btn-outline salary-guide-cta-btn">Compare programs</Link>
+              <Link href="/find-your-path" className="btn btn-outline salary-guide-cta-btn">Find Your Career Path</Link>
+              <Link href="/programs" className="btn btn-outline salary-guide-cta-btn">Explore Programs</Link>
+              <Link href="/program-comparison" className="btn btn-outline salary-guide-cta-btn">Compare Programs</Link>
               <Link href="/apply" className="btn btn-primary btn-large salary-guide-cta-btn">Apply Now</Link>
             </div>
           </div>
         </section>
 
-      </div>
     </div>
   );
 }

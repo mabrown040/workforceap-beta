@@ -22,21 +22,8 @@ html.dark .partner-logos-small span {
 }
 
 /*
- * Marketing mobile vs desktop (768px) — pairs with `wa-hidden md:wa-block` / `md:wa-hidden`.
- * Use `.marketing-desktop` on desktop-only trees and `.marketing-mobile` on Stitch/mobile-only trees
- * so a single breakpoint stays consistent even if utility classes fail to load.
+ * Marketing mobile vs desktop (768px) — REMOVED — site is now fully responsive.
  */
-@media (max-width: 767px) {
-  .marketing-desktop {
-    display: none !important;
-  }
-}
-
-@media (min-width: 768px) {
-  .marketing-mobile {
-    display: none !important;
-  }
-}
 
 /* Center public “decision stack” pages (/programs, etc.) for consistent horizontal rhythm */
 .marketing-stack {

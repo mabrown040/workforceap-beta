@@ -1646,11 +1646,11 @@ html.dark .employer-applications-table.admin-table thead th {
   border: 1px solid rgba(255, 255, 255, 0.04);
   text-decoration: none;
   color: inherit;
-  transition: background 0.15s ease, box-shadow 0.15s ease;
 }
 .portal-quick-action-item:hover {
   background: var(--surface-container);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  border-color: var(--color-accent);
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .portal-quick-action-item__icon {

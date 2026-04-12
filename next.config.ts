@@ -61,11 +61,17 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
-    qualities: [70, 85],
+    localPatterns: [
+      {
+        pathname: '/images/**',
+        search: '',
+      },
+    ],
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
+        pathname: '/**',
       },
       {
         protocol: 'https',
@@ -84,6 +90,16 @@ const nextConfig: NextConfig = {
     return [
       // Legacy .html redirects
       { source: '/index.html', destination: '/', permanent: true },
+
+      // Public marketing route aliases restored after responsive merge
+      { source: '/about', destination: '/what-we-do', permanent: true },
+      { source: '/about/', destination: '/what-we-do', permanent: true },
+      { source: '/services', destination: '/what-we-do', permanent: true },
+      { source: '/services/', destination: '/what-we-do', permanent: true },
+      { source: '/careers', destination: '/find-your-path', permanent: true },
+      { source: '/careers/', destination: '/find-your-path', permanent: true },
+      { source: '/confirmation', destination: '/apply/confirmation', permanent: false },
+      { source: '/confirmation/', destination: '/apply/confirmation', permanent: false },
       { source: '/apply.html', destination: '/apply', permanent: true },
       { source: '/programs.html', destination: '/programs', permanent: true },
       { source: '/what-we-do.html', destination: '/what-we-do', permanent: true },

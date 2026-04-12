@@ -70,7 +70,7 @@ const contactCards = [
 
 export default function ContactPage() {
   return (
-    <div className="inner-page contact-page">
+    <div className="inner-page contact-page marketing-mobile-pb-for-bottom-nav">
       <section className="content-section" style={{ paddingBottom: '2rem' }}>
         <div className="container" style={{ maxWidth: 1400 }}>
           <div style={{ marginBottom: '2.5rem' }}>

@@ -20,11 +20,13 @@ export async function GET(request: Request) {
   const threeDaysAgo = new Date(now);
   threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
 
-  // Find applications submitted 3+ days ago that are still pending
+  // Find applications submitted 3+ days ago that are still pending.
+  // Filter: skip deleted users and users who opted out of reminders.
   const staleApplications = await prisma.application.findMany({
     where: {
       status: 'PENDING',
       submittedAt: { lte: threeDaysAgo },
+      user: { deletedAt: null, notificationsReminders: true },
     },
     include: {
       user: {
@@ -47,7 +49,7 @@ export async function GET(request: Request) {
 
   let applicantEmailsSent = 0;
 
-  // Send follow-up to each applicant (deduplicate by user)
+  // Send follow-up to each unique applicant
   const seenUsers = new Set<string>();
   for (const app of staleApplications) {
     if (seenUsers.has(app.user.id)) continue;
@@ -87,6 +89,7 @@ export async function GET(request: Request) {
     ok: true,
     checkedAt: now.toISOString(),
     staleApplications: staleApplications.length,
+    uniqueApplicants: seenUsers.size,
     applicantEmailsSent,
     adminEmailSent,
   });

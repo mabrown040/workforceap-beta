@@ -21,7 +21,7 @@ export default function PortalRouteFallback({ title, description, children }: Po
         <Link href="/employer" className="btn btn-outline btn-sm">
           Employer portal
         </Link>
-        <Link href="/help" className="btn btn-outline btn-sm">
+        <Link href="/dashboard/help" className="btn btn-outline btn-sm">
           Help
         </Link>
         <a href="mailto:info@workforceap.org" className="btn btn-ghost btn-sm">

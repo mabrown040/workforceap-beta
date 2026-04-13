@@ -2,44 +2,28 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { Resend } from 'resend';
+import { runMentorStatusUpdate } from '@/lib/admin/mentorStatusUpdate';
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const { id } = await params;
-  const body = await req.json().catch(() => ({}));
-  const action = body?.action as 'approve' | 'deactivate' | 'activate';
+    const { id } = await params;
+    const body = await req.json().catch(() => ({}));
+    const action = body?.action as 'approve' | 'deactivate' | 'activate';
 
-  const mentor = await prisma.mentor.findUnique({ where: { id }, include: { user: { select: { email: true } } } });
-  if (!mentor) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-
-  if (action === 'approve') {
-    const updated = await prisma.mentor.update({ where: { id }, data: { isActive: true, approvedAt: new Date() } });
-    const key = process.env.RESEND_API_KEY;
-    if (key) {
-      const resend = new Resend(key);
-      await resend.emails.send({
-        from: process.env.EMAIL_FROM || 'noreply@workforceap.org',
-        to: mentor.user.email,
-        subject: 'WorkforceAP — You are approved as a mentor',
-        html: `<p>Hi ${mentor.fullName},</p><p>You are approved as a WorkforceAP mentor. Thank you for volunteering your expertise.</p><p>Open your mentor dashboard: <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org'}/dashboard/mentor">Mentor Portal</a></p>`,
-      });
+    const result = await runMentorStatusUpdate(id, action);
+    if (!result.ok) {
+      if (result.error === 'Not found') return NextResponse.json({ error: 'Not found' }, { status: 404 });
+      return NextResponse.json({ error: result.error }, { status: 400 });
     }
-    return NextResponse.json({ mentor: updated });
-  }
 
-  if (action === 'deactivate') {
-    const updated = await prisma.mentor.update({ where: { id }, data: { isActive: false } });
-    return NextResponse.json({ mentor: updated });
+    const mentor = await prisma.mentor.findUnique({ where: { id } });
+    return NextResponse.json({ mentor });
+  } catch (error) {
+    console.error('[admin/mentors/[id] PATCH] error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  if (action === 'activate') {
-    const updated = await prisma.mentor.update({ where: { id }, data: { isActive: true } });
-    return NextResponse.json({ mentor: updated });
-  }
-
-  return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
 }

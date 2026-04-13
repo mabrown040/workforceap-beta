@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Mail, Send, Users, Clock, CheckCircle } from 'lucide-react';
 import InviteForm from '@/components/admin/InviteForm';
 import InvitesTable from '@/components/admin/InvitesTable';
@@ -28,6 +29,7 @@ type Program = { slug: string; title: string };
 type Partner = { id: string; name: string };
 
 export default function AdminInvitesPage() {
+  const searchParams = useSearchParams();
   const [invites, setInvites] = useState<Invite[]>([]);
   const [subgroups, setSubgroups] = useState<Subgroup[]>([]);
   const [partners, setPartners] = useState<Partner[]>([]);
@@ -40,6 +42,8 @@ export default function AdminInvitesPage() {
   });
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const inviteSent = searchParams.get('invite') === 'sent';
+  const inviteSavedNoEmail = searchParams.get('invite') === 'saved_no_email';
 
   useEffect(() => {
     async function fetchData() {
@@ -114,17 +118,34 @@ export default function AdminInvitesPage() {
         title="Invitations"
         subtitle="Invite admins, partners, students, or counselors to the platform."
         action={
-          <button
-            type="button"
-            onClick={() => setModalOpen(true)}
-            className="btn btn-primary"
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-          >
-            <Send size={18} />
-            Send New Invite
-          </button>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              onClick={() => setModalOpen(true)}
+              className="btn btn-primary"
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+            >
+              <Send size={18} />
+              Send New Invite
+            </button>
+            <Link href="/admin/invites/new" className="btn btn-outline">
+              Open Full Form
+            </Link>
+          </div>
         }
       />
+      {inviteSent ? (
+        <div className="admin-inline-feedback" role="status" style={{ marginBottom: '1rem' }}>
+          <p>Invitation sent successfully.</p>
+        </div>
+      ) : null}
+      {inviteSavedNoEmail ? (
+        <div className="admin-inline-feedback admin-inline-feedback--error" role="status" style={{ marginBottom: '1rem' }}>
+          <p>
+            Invitation was saved, but email delivery is not configured. Share the invite link manually or resend after email is configured.
+          </p>
+        </div>
+      ) : null}
 
       <div className="admin-stat-cards" style={{ marginBottom: '0.5rem' }}>
         <div className="admin-stat-card">

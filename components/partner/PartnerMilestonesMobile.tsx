@@ -49,7 +49,7 @@ export default function PartnerMilestonesMobile() {
   if (milestones.length === 0) {
     return (
       <div style={{ padding: '2rem 1.5rem', textAlign: 'center' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>flag</span>
+        <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }} aria-hidden="true">flag</span>
         <p className="text-sm font-semibold" style={{ color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>No milestones yet</p>
         <p className="text-xs" style={{ color: 'var(--color-on-surface-variant)' }}>Milestones will appear here as your members progress through training.</p>
       </div>
@@ -79,7 +79,7 @@ export default function PartnerMilestonesMobile() {
               <div key={m.id} style={{ background: '#fff', borderRadius: '0.875rem', padding: '1rem', border: '1px solid #ebe7e7', borderLeft: '3px solid #8c0f37' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                   <div style={{ flex: 1 }}>
-                    <Link href={`/partner/members/${m.memberId}`} style={{ textDecoration: 'none' }}>
+                    <Link href={`/partner/referred-members/${m.memberId}`} style={{ textDecoration: 'none' }}>
                       <p className="text-sm font-semibold" style={{ color: 'var(--color-on-surface)', margin: '0 0 0.125rem' }}>{m.memberName}</p>
                     </Link>
                     <p className="text-xs font-medium" style={{ color: 'var(--color-accent)', margin: '0 0 0.125rem' }}>{m.label}</p>
@@ -162,7 +162,7 @@ export default function PartnerMilestonesMobile() {
             <p className="text-sm font-bold" style={{ color: 'var(--color-on-surface)', margin: 0 }}>
               Completed ({completed.length})
             </p>
-            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', transition: 'transform 0.2s', transform: completedOpen ? 'rotate(180deg)' : 'none' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', transition: 'transform 0.2s', transform: completedOpen ? 'rotate(180deg)' : 'none' }} aria-hidden="true">
               expand_more
             </span>
           </button>

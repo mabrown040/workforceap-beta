@@ -1,100 +1,88 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { ensureUserInDb } from '@/lib/auth/ensureUser';
-import {
-  createConversationalSession,
-  generateInterviewFeedback,
-  type InterviewType,
-  type TranscriptTurn,
-} from '@/lib/ai/elevenlabs';
+import { chatCompletion } from '@/lib/ai/groq';
+import { getElevenLabsAgentId, startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
+import { fetchMemberPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 
-interface CreateSessionBody {
-  role: string;
-  interviewType: InterviewType;
-}
+const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
 
-interface FeedbackBody {
-  action: 'feedback';
-  role: string;
-  interviewType: InterviewType;
-  transcript: TranscriptTurn[];
-}
-
-export async function POST(request: Request) {
+/**
+ * POST /api/interview/session
+ *
+ * Two modes:
+ * 1. ElevenLabs voice: returns a signed conversation URL when ELEVENLABS_API_KEY is set
+ * 2. Groq text fallback: returns the first AI question as plain text
+ */
+export async function POST(req: NextRequest) {
   const user = await getUser();
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const body = await req.json() as {
+    role: string;
+    interviewType: string;
+    transcript?: { question: string; answer: string }[];
+    nextQuestion?: boolean;
+    forceText?: boolean;
+  };
+  const { role, interviewType, transcript, nextQuestion, forceText } = body;
+
+  if (!role || !interviewType) {
+    return NextResponse.json({ error: 'role and interviewType are required' }, { status: 400 });
   }
 
-  await ensureUserInDb(user);
-
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
-  }
-
-  if (
-    typeof body === 'object' &&
-    body !== null &&
-    'action' in body &&
-    (body as { action?: string }).action === 'feedback'
-  ) {
-    const payload = body as FeedbackBody;
-    if (!payload.role || typeof payload.role !== 'string') {
-      return NextResponse.json({ error: 'Role is required' }, { status: 400 });
+  // ── Mode 1: ElevenLabs Conversational AI ──────────────────────────────────
+  if (ELEVENLABS_API_KEY && !nextQuestion && !forceText) {
+    try {
+      const member = await fetchMemberPortalDynamicVariables(user.id);
+      const dynamicVariables = {
+        ...member,
+        target_role: role,
+        interview_type: interviewType,
+      };
+      const { signedUrl, dynamicVariables: returnedVars } = await startElevenLabsPortalSession('interview', {
+        dynamicVariables,
+      });
+      const agentId = getElevenLabsAgentId('interview') ?? '';
+      return NextResponse.json({
+        mode: 'voice',
+        signedUrl,
+        agentId,
+        role,
+        interviewType,
+        dynamicVariables: returnedVars ?? dynamicVariables,
+        sessionId: `${user.id}-${Date.now()}`,
+      });
+    } catch (err) {
+      console.error('ElevenLabs signed URL error:', err);
+      // Fall through to text mode
     }
-    if (!['technical', 'behavioral', 'general'].includes(payload.interviewType)) {
-      return NextResponse.json({ error: 'Invalid interview type' }, { status: 400 });
+  }
+
+  // ── Mode 2: Groq text fallback ────────────────────────────────────────────
+  const systemPrompt = `You are a professional job interviewer conducting a ${interviewType} interview for a ${role} position. Ask one realistic interview question at a time. Be concise and direct. Do not add preamble or commentary — just the question.`;
+
+  const messages: { role: 'system' | 'user' | 'assistant'; content: string }[] = [
+    { role: 'system', content: systemPrompt },
+  ];
+
+  if (nextQuestion && transcript?.length) {
+    for (const entry of transcript) {
+      messages.push({ role: 'assistant', content: entry.question });
+      messages.push({ role: 'user', content: entry.answer });
     }
-    if (!Array.isArray(payload.transcript)) {
-      return NextResponse.json({ error: 'Transcript is required' }, { status: 400 });
-    }
-
-    const feedback = await generateInterviewFeedback({
-      role: payload.role,
-      interviewType: payload.interviewType,
-      transcript: payload.transcript,
-    });
-
-    return NextResponse.json({ feedback });
+    messages.push({ role: 'user', content: 'Next question please.' });
+  } else {
+    messages.push({ role: 'user', content: 'Please ask your first interview question.' });
   }
 
-  const payload = body as CreateSessionBody;
-  if (!payload.role || typeof payload.role !== 'string') {
-    return NextResponse.json({ error: 'Role is required' }, { status: 400 });
-  }
-  if (!['technical', 'behavioral', 'general'].includes(payload.interviewType)) {
-    return NextResponse.json({ error: 'Invalid interview type' }, { status: 400 });
-  }
+  const question = await chatCompletion(messages, { maxTokens: 200 });
+  const firstQuestion = question ?? `Tell me about yourself and why you are interested in the ${role} role.`;
 
-  const agentId = process.env.ELEVENLABS_AGENT_ID;
-  if (!process.env.ELEVENLABS_API_KEY || !agentId) {
-    return NextResponse.json({
-      mode: 'text-fallback',
-      sessionId: crypto.randomUUID(),
-      token: null,
-      message:
-        'ElevenLabs conversational AI is not configured. Running in transcript + AI feedback mode.',
-    });
-  }
-
-  try {
-    const { signedUrl, expiresAt } = await createConversationalSession(agentId);
-    return NextResponse.json({
-      mode: 'elevenlabs',
-      sessionId: crypto.randomUUID(),
-      token: signedUrl,
-      expiresAt,
-    });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to create conversation session';
-    return NextResponse.json({
-      mode: 'text-fallback',
-      sessionId: crypto.randomUUID(),
-      token: null,
-      message,
-    });
-  }
+  return NextResponse.json({
+    mode: 'text',
+    firstQuestion,
+    role,
+    interviewType,
+    sessionId: `${user.id}-${Date.now()}`,
+  });
 }

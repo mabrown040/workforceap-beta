@@ -11,11 +11,11 @@ export async function getDefaultOrganizationId(): Promise<string> {
     where: { slug: DEFAULT_ORG_SLUG },
     select: { id: true },
   });
-  if (!row) {
-    throw new Error(
-      `Default organization missing (slug=${DEFAULT_ORG_SLUG}). Run migrations and seed.`
-    );
+  if (row) {
+    cachedDefaultOrgId = row.id;
+    return row.id;
   }
-  cachedDefaultOrgId = row.id;
-  return row.id;
+  throw new Error(
+    `Default organization missing (slug=${DEFAULT_ORG_SLUG}). Run migrations and seed the default org — do not guess another tenant.`
+  );
 }

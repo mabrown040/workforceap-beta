@@ -1,26 +1,13 @@
 'use client';
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useTour } from './TourContext';
 
 export interface TourStep {
   targetId: string;
   title: string;
   body: string;
   placement?: 'top' | 'bottom' | 'left' | 'right';
-}
-
-export interface PortalTourProps {
-  steps: TourStep[];
-  portal: 'member' | 'employer' | 'partner';
-  onComplete: () => void;
-}
-
-function postTourComplete(portal: PortalTourProps['portal']) {
-  return fetch('/api/onboarding/tour-complete', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ portal }),
-  });
 }
 
 type PopoverLayout = { top: number; left: number; width: number };
@@ -31,12 +18,28 @@ function layoutPopover(
   popW: number,
   popH: number
 ): PopoverLayout {
-  const margin = 12;
+  const margin = 16;
   const vw = window.innerWidth;
   const vh = window.innerHeight;
   const place = placement ?? 'right';
   let top = rect.bottom + margin;
   let left = rect.left;
+
+  // On narrow screens, prefer bottom-center to avoid clipping
+  const narrow = vw < 640;
+
+  if (narrow) {
+    top = rect.bottom + margin;
+    left = Math.min(Math.max(margin, rect.left + rect.width / 2 - popW / 2), vw - popW - margin);
+    if (top + popH > vh - margin) {
+      top = rect.top - popH - margin;
+    }
+    if (top < margin) {
+      top = margin;
+      left = Math.min(Math.max(margin, vw / 2 - popW / 2), vw - popW - margin);
+    }
+    return { top, left, width: popW };
+  }
 
   if (place === 'right') {
     left = rect.right + margin;
@@ -74,73 +77,59 @@ function layoutPopover(
   return { top, left, width: popW };
 }
 
-export default function PortalTour({ steps, portal, onComplete }: PortalTourProps) {
-  const [index, setIndex] = useState(0);
-  const [done, setDone] = useState(false);
+export default function PortalTour() {
+  const { isOpen, currentStep, steps, endTour, completeTour, nextStep, prevStep, goToStep } = useTour();
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [popover, setPopover] = useState<PopoverLayout | null>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
-  const step = steps[index];
   const total = steps.length;
-
-  const finishAll = useCallback(async () => {
-    try {
-      await postTourComplete(portal);
-    } catch {
-      /* */
-    }
-    onComplete();
-  }, [onComplete, portal]);
-
-  const dismiss = useCallback(() => {
-    setDone(true);
-    setTargetRect(null);
-    void finishAll();
-  }, [finishAll]);
+  const step = steps[currentStep];
 
   useLayoutEffect(() => {
-    if (done) return;
-    if (steps.length === 0) {
-      setDone(true);
-      void finishAll();
+    if (!isOpen) {
+      setTargetRect(null);
       return;
     }
-    let resolved = index;
+    if (steps.length === 0) {
+      void completeTour();
+      return;
+    }
+    let resolved = currentStep;
     while (resolved < steps.length) {
       const el = document.querySelector<HTMLElement>(`[data-tour="${steps[resolved].targetId}"]`);
       if (el) break;
       resolved++;
     }
     if (resolved >= steps.length) {
-      setDone(true);
-      void finishAll();
+      void completeTour();
       return;
     }
-    if (resolved !== index) {
-      setIndex(resolved);
+    if (resolved !== currentStep) {
+      queueMicrotask(() => goToStep(resolved));
       return;
     }
+
     const current = steps[resolved];
     const el = document.querySelector<HTMLElement>(`[data-tour="${current.targetId}"]`);
     if (!el) return;
     el.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
     const rect = el.getBoundingClientRect();
     setTargetRect(rect);
-    const popW = Math.min(320, window.innerWidth - 24);
-    const popH = popoverRef.current?.offsetHeight ?? 220;
+    const popW = Math.min(340, window.innerWidth - 24);
+    const popH = popoverRef.current?.offsetHeight ?? 240;
     setPopover(layoutPopover(rect, current.placement, popW, popH));
-  }, [steps, index, finishAll, done]);
+  }, [isOpen, steps, currentStep, completeTour, goToStep]);
 
   useEffect(() => {
-    if (done) return;
+    if (!isOpen) return;
     const onResize = () => {
       if (!step) return;
       const el = document.querySelector<HTMLElement>(`[data-tour="${step.targetId}"]`);
       if (!el) return;
       const rect = el.getBoundingClientRect();
       setTargetRect(rect);
-      const popW = Math.min(320, window.innerWidth - 24);
-      const popH = popoverRef.current?.offsetHeight ?? 220;
+      const popW = Math.min(340, window.innerWidth - 24);
+      const popH = popoverRef.current?.offsetHeight ?? 240;
       setPopover(layoutPopover(rect, step.placement, popW, popH));
     };
     window.addEventListener('scroll', onResize, true);
@@ -149,32 +138,20 @@ export default function PortalTour({ steps, portal, onComplete }: PortalTourProp
       window.removeEventListener('scroll', onResize, true);
       window.removeEventListener('resize', onResize);
     };
-  }, [step, done]);
+  }, [step, isOpen]);
 
   useEffect(() => {
-    if (done) return;
+    if (!isOpen) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') dismiss();
+      if (e.key === 'Escape') endTour();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [dismiss, done]);
+  }, [endTour, isOpen]);
 
-  if (done || !step || total === 0) return null;
+  if (!isOpen || !step || total === 0) return null;
 
-  const goNext = async () => {
-    if (index >= total - 1) {
-      setDone(true);
-      setTargetRect(null);
-      await finishAll();
-      return;
-    }
-    setIndex((i) => i + 1);
-  };
-
-  const goBack = () => setIndex((i) => Math.max(0, i - 1));
-
-  const pad = 6;
+  const pad = 8;
   const hl = targetRect
     ? {
         top: targetRect.top - pad,
@@ -184,80 +161,136 @@ export default function PortalTour({ steps, portal, onComplete }: PortalTourProp
       }
     : null;
 
+  const isLastStep = currentStep >= total - 1;
+
   return (
-    <>
+    <div className="wa-pointer-events-auto">
+      {/* Dimmed overlay */}
       <button
         type="button"
-        className="wa-fixed wa-inset-0 wa-z-[90] wa-cursor-default wa-border-0 wa-bg-slate-900/50 wa-p-0"
+        className="wa-fixed wa-inset-0 wa-z-[90] wa-cursor-default wa-border-0 wa-p-0"
         aria-label="Close tour"
-        onClick={() => dismiss()}
+        onClick={() => endTour()}
+        style={{
+          background: 'rgba(18, 20, 22, 0.65)',
+          backdropFilter: 'blur(2px)',
+        }}
       />
+
+      {/* Spotlight ring */}
       {hl ? (
         <div
-          className="wa-pointer-events-none wa-fixed wa-z-[95] wa-rounded-md wa-ring-2 wa-ring-brand-accent wa-ring-offset-2 wa-ring-offset-white dark:wa-ring-offset-slate-900"
+          className="wa-pointer-events-none wa-fixed wa-z-[95] wa-rounded-lg"
           style={{
             top: hl.top,
             left: hl.left,
             width: hl.width,
             height: hl.height,
-            transition: 'top 0.15s ease, left 0.15s ease, width 0.15s ease, height 0.15s ease',
+            boxShadow: '0 0 0 9999px rgba(18, 20, 22, 0.65), 0 0 0 4px var(--color-accent)',
+            transition: 'top 0.2s ease, left 0.2s ease, width 0.2s ease, height 0.2s ease',
           }}
           aria-hidden
         />
       ) : null}
+
+      {/* Popover */}
       <div
         ref={popoverRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="wa-portal-tour-title"
-        className="wa-fixed wa-z-[100] wa-rounded-xl wa-border wa-border-slate-200 wa-bg-white wa-shadow-xl wa-outline-none dark:wa-border-slate-600 dark:wa-bg-slate-900"
-        style={
-          popover
-            ? { top: popover.top, left: popover.left, width: popover.width, maxWidth: 'calc(100vw - 24px)' }
-            : { top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 'min(320px, 92vw)' }
-        }
+        className="wa-fixed wa-z-[100] wa-rounded-xl wa-outline-none"
+        style={{
+          top: popover?.top ?? '50%',
+          left: popover?.left ?? '50%',
+          transform: popover ? undefined : 'translate(-50%, -50%)',
+          width: popover?.width ?? 'min(340px, 92vw)',
+          maxWidth: 'calc(100vw - 24px)',
+          background: 'var(--surface-container-lowest)',
+          border: '1px solid var(--surface-container-high)',
+          boxShadow: '0 24px 64px rgba(0,0,0,0.45)',
+          color: 'var(--color-on-surface)',
+        }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="wa-rounded-t-xl wa-bg-brand-primary wa-px-4 wa-py-3">
-          <h2 id="wa-portal-tour-title" className="wa-text-base wa-font-semibold wa-text-white">
+        {/* Header */}
+        <div
+          className="wa-rounded-t-xl wa-px-4 wa-py-3"
+          style={{
+            background: 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%)',
+          }}
+        >
+          <h2 id="wa-portal-tour-title" className="wa-text-base wa-font-semibold" style={{ color: '#fff' }}>
             {step.title}
           </h2>
-          <p className="wa-mt-1 wa-text-xs wa-font-medium wa-text-white/90">
-            {index + 1} of {total}
+          <p className="wa-mt-1 wa-text-xs wa-font-medium" style={{ color: 'rgba(255,255,255,0.85)' }}>
+            Step {currentStep + 1} of {total}
           </p>
         </div>
-        <div className="wa-px-4 wa-py-3 wa-text-sm wa-leading-relaxed wa-text-slate-800 dark:wa-text-slate-100">
+
+        {/* Body */}
+        <div className="wa-px-4 wa-py-4 wa-text-sm wa-leading-relaxed" style={{ color: 'var(--color-on-surface-variant)' }}>
           {step.body}
         </div>
-        <div className="wa-border-t wa-border-slate-100 wa-px-4 wa-py-3 dark:wa-border-slate-700">
+
+        {/* Footer */}
+        <div
+          className="wa-px-4 wa-py-3"
+          style={{ borderTop: '1px solid var(--surface-container-high)' }}
+        >
           <div className="wa-flex wa-flex-col wa-gap-3 sm:wa-flex-row sm:wa-items-center sm:wa-justify-between">
             <button
               type="button"
-              onClick={goBack}
-              disabled={index === 0}
-              className="wa-order-1 wa-rounded-lg wa-border wa-border-slate-200 wa-bg-white wa-px-3 wa-py-2 wa-text-sm wa-font-medium wa-text-slate-800 disabled:wa-opacity-40 dark:wa-border-slate-600 dark:wa-bg-slate-800 dark:wa-text-slate-100 sm:wa-order-none"
+              onClick={prevStep}
+              disabled={currentStep === 0}
+              className="wa-order-1 wa-rounded-lg wa-border wa-px-3 wa-py-2 wa-text-sm wa-font-medium disabled:wa-opacity-40 sm:wa-order-none"
+              style={{
+                background: 'var(--surface-container-low)',
+                borderColor: 'var(--surface-container-high)',
+                color: 'var(--color-on-surface)',
+              }}
             >
               Back
             </button>
             <div className="wa-order-3 wa-flex wa-w-full wa-flex-wrap wa-items-center wa-justify-stretch wa-gap-2 sm:wa-order-2 sm:wa-w-auto sm:wa-justify-end">
               <button
                 type="button"
-                onClick={() => dismiss()}
-                className="wa-min-h-[40px] wa-flex-1 wa-rounded-lg wa-border wa-border-slate-200 wa-bg-slate-50 wa-px-3 wa-py-2 wa-text-sm wa-font-medium wa-text-slate-600 wa-transition-colors hover:wa-bg-slate-100 hover:wa-text-slate-800 dark:wa-border-slate-600 dark:wa-bg-slate-800/80 dark:wa-text-slate-300 dark:hover:wa-bg-slate-800 dark:hover:wa-text-slate-100 sm:wa-flex-initial"
+                onClick={() => endTour()}
+                className="wa-min-h-[40px] wa-flex-1 wa-rounded-lg wa-border wa-px-3 wa-py-2 wa-text-sm wa-font-medium wa-transition-colors sm:wa-flex-initial"
+                style={{
+                  background: 'transparent',
+                  borderColor: 'var(--surface-container-high)',
+                  color: 'var(--color-on-surface-variant)',
+                }}
               >
                 Skip tour
               </button>
               <button
                 type="button"
-                onClick={() => void goNext()}
-                className="wa-min-h-[40px] wa-flex-1 wa-rounded-lg wa-bg-brand-accent wa-px-4 wa-py-2 wa-text-sm wa-font-semibold wa-text-white hover:wa-bg-brand-accent-dark sm:wa-flex-initial"
+                onClick={() => {
+                  if (isLastStep) {
+                    void completeTour();
+                  } else {
+                    nextStep();
+                  }
+                }}
+                className="wa-min-h-[40px] wa-flex-1 wa-rounded-lg wa-px-4 wa-py-2 wa-text-sm wa-font-semibold wa-text-white wa-transition-colors sm:wa-flex-initial"
+                style={{
+                  background: 'var(--color-accent)',
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background = 'var(--color-accent-dark)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background = 'var(--color-accent)';
+                }}
               >
-                {index >= total - 1 ? 'Done' : 'Next'}
+                {isLastStep ? 'Done' : 'Next'}
               </button>
             </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

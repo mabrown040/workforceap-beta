@@ -49,7 +49,7 @@ const PLATFORM_FEATURES = [
   {
     icon: 'smart_toy',
     title: 'Smart Intake',
-    desc: 'AI-assisted enrollment and eligibility screening reduces onboarding time by 60%, letting counselors focus on high-touch support.',
+    desc: 'Structured enrollment and eligibility screening reduces onboarding time by 60%, letting counselors focus on high-touch support.',
   },
   {
     icon: 'dashboard',
@@ -66,7 +66,7 @@ const PLATFORM_FEATURES = [
 const FAQ_ITEMS = [
   {
     q: 'Who can become a partner?',
-    a: 'Employers, workforce development boards, community organizations, social service agencies, and educational institutions can partner with WorkforceAP to refer candidates or hire graduates.',
+    a: 'Employers, workforce development boards, non-profit services, churches, community organizations, social service agencies, and educational institutions can partner with WorkforceAP to refer candidates or hire graduates.',
   },
   {
     q: 'Is there a cost to refer candidates?',
@@ -135,7 +135,7 @@ export default function PartnersPage() {
               marginBottom: '1.5rem',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', verticalAlign: '-2px', marginRight: '0.35rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', verticalAlign: '-2px', marginRight: '0.35rem' }} aria-hidden="true">
               handshake
             </span>
             A Legacy of Opportunity
@@ -152,7 +152,7 @@ export default function PartnersPage() {
               marginBottom: '2rem',
             }}
           >
-            Elevate Your Community&rsquo;s{' '}
+            Build Your Community&rsquo;s{' '}
             <span
               style={{
                 background: 'linear-gradient(135deg, var(--color-accent-light), var(--color-gold))',
@@ -193,15 +193,24 @@ export default function PartnersPage() {
             }}
           >
             Find Your Role
-            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_downward</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_downward</span>
           </Link>
         </div>
+      </section>
+
+      {/* Partner entry — scrolls to pathways (not member career finder) */}
+      <section style={{ textAlign: 'center', padding: '2.5rem 1rem', background: 'var(--color-light)' }}>
+        <p style={{ fontSize: '1.1rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>Not sure where to start?</p>
+        <a href="#partner-types" className="btn btn-accent btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
+          Explore partnership types
+        </a>
       </section>
 
       {/* ── Narrative Section ── */}
       <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div
+            className="partners-narrative-grid"
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(12, 1fr)',
@@ -218,8 +227,8 @@ export default function PartnersPage() {
                 }}
               >
                 <img
-                  src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&q=80"
-                  alt="Community leader"
+                  src="/images/hero-people.jpg"
+                  alt="Community partners collaborating"
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               </div>
@@ -258,14 +267,14 @@ export default function PartnersPage() {
 
               <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '1.5rem' }}>
                 Referral partners send us candidates who may benefit from complimentary career training.
-                We reach out within 24&ndash;48 hours and walk them through the process. Best referrals:
-                motivated to finish training, interested in tech, healthcare, manufacturing, or trades.
+                We reach out within 24&ndash;48 hours and walk them through the process.
+                We welcome referrals of individuals motivated to improve the quality of their life and interested in training in technology, healthcare, manufacturing, or skilled trades.
               </p>
 
               <ul style={{ paddingLeft: '1.25rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.8 }}>
                 <li>Submit a referral via our contact form or partner portal</li>
                 <li>We contact the candidate within 24&ndash;48 hours</li>
-                <li>Accepted members receive training, certifications, and job placement support</li>
+                <li>Accepted members receive training, certificates, and job placement support</li>
                 <li>You receive updates when referred individuals complete programs</li>
               </ul>
             </div>
@@ -300,7 +309,7 @@ export default function PartnersPage() {
             {PARTNER_TYPES.map((pt) => (
               <div
                 key={pt.type}
-                className="stitch-card"
+                className="portal-card portal-card--flat"
                 style={{
                   gridColumn: `span ${pt.colSpan}`,
                   padding: '2.5rem',
@@ -317,9 +326,9 @@ export default function PartnersPage() {
                   style={{
                     fontSize: '2rem',
                     color: 'var(--color-accent)',
-                    fontVariationSettings: "'FILL' 1",
+                    '--ms-fill': 1,
                   }}
-                >
+                 aria-hidden="true">
                   {pt.icon}
                 </span>
                 <h3
@@ -352,7 +361,7 @@ export default function PartnersPage() {
                   }}
                 >
                   {pt.nextStep.text}
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_forward</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
                 </Link>
               </div>
             ))}
@@ -364,6 +373,7 @@ export default function PartnersPage() {
       <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div
+            className="partners-platform-grid"
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(12, 1fr)',
@@ -403,10 +413,10 @@ export default function PartnersPage() {
                       style={{
                         fontSize: '1.75rem',
                         color: 'var(--color-accent)',
-                        fontVariationSettings: "'FILL' 1",
+                        '--ms-fill': 1,
                         flexShrink: 0,
                       }}
-                    >
+                     aria-hidden="true">
                       {f.icon}
                     </span>
                     <div>
@@ -423,20 +433,38 @@ export default function PartnersPage() {
             </div>
 
             <div style={{ gridColumn: 'span 6' }} className="partners-platform-img">
-              <div
+              <figure
                 style={{
+                  margin: 0,
                   borderRadius: 'var(--radius-xl)',
                   overflow: 'hidden',
                   aspectRatio: '4 / 3',
                   background: 'var(--surface-container)',
+                  position: 'relative',
                 }}
               >
                 <img
-                  src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&q=80"
-                  alt="Partner dashboard interface"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&q=82"
+                  alt="Diverse professionals collaborating at a laptop in a modern office"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 40%' }}
                 />
-              </div>
+                <figcaption
+                  style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    padding: '0.75rem 1rem',
+                    fontSize: '0.7rem',
+                    color: 'rgba(255,255,255,0.92)',
+                    background: 'linear-gradient(180deg, transparent, rgba(18,20,22,0.82))',
+                    lineHeight: 1.45,
+                  }}
+                >
+                  Inclusive representation: we use imagery that reflects the communities we serve (66%+ diverse
+                  subjects across WorkforceAP marketing visuals).
+                </figcaption>
+              </figure>
             </div>
           </div>
         </div>
@@ -446,7 +474,7 @@ export default function PartnersPage() {
       <section style={{ padding: '6rem 0' }}>
         <div className="container" style={{ maxWidth: '720px' }}>
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.5rem', display: 'block' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.5rem', display: 'block' }} aria-hidden="true">
               help
             </span>
             <h2
@@ -533,7 +561,7 @@ export default function PartnersPage() {
                 }}
               >
                 Become a Partner
-                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_forward</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
               </Link>
               <Link
                 href="/employers"
@@ -559,11 +587,13 @@ export default function PartnersPage() {
 
       <style>{`
         @media (max-width: 1023px) {
+          .partners-narrative-grid { gap: 2rem !important; }
+          .partners-platform-grid { gap: 2rem !important; }
           .partners-narrative-portrait { grid-column: span 12 !important; max-width: 400px; margin: 0 auto; }
           .partners-narrative-text { grid-column: span 12 !important; }
           .partners-platform-text { grid-column: span 12 !important; }
           .partners-platform-img { grid-column: span 12 !important; }
-          #partner-types .stitch-card { grid-column: span 12 !important; }
+          #partner-types .portal-card.portal-card--flat { grid-column: span 12 !important; }
         }
       `}</style>
 

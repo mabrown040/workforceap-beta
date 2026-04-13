@@ -4,6 +4,8 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { sendCourseCompletedEmail } from '@/lib/email';
+import { trackEvent } from '@/lib/events/track';
+import { handleLearningCompletion } from '@/lib/workflows/careerOS';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -57,6 +59,15 @@ export async function POST(request: Request) {
   const courseMeta = program.courses.find((c) => c.slug === courseSlug);
   const courseName = courseMeta?.name ?? courseSlug;
 
+  // Lifecycle event: course_completed
+  trackEvent({
+    userId: user.id,
+    eventName: 'course_completed',
+    entityType: 'Course',
+    entityId: courseSlug,
+    metadata: { courseName, programSlug: dbUser.enrolledProgram, completedCount: updated.length },
+  }).catch(() => {});
+
   sendPartnerMilestoneEmail(user.id, 'Course completed', {
     Course: courseName,
   }).catch((err) => console.error('Partner milestone email failed:', err));
@@ -66,6 +77,11 @@ export async function POST(request: Request) {
     fullName: dbUser.fullName,
     courseName,
   }).catch((err) => console.error('Course completed email failed:', err));
+
+  // Trigger CareerOS: generate resume bullet + next best action (fire-and-forget)
+  handleLearningCompletion(user.id, courseName).catch((err) =>
+    console.error('[career-os] self-reported completion workflow failed:', err)
+  );
 
   return NextResponse.json({ ok: true });
 }

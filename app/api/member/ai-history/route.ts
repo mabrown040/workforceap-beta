@@ -5,13 +5,18 @@ import { prisma } from '@/lib/db/prisma';
 
 const TOOL_LABELS: Record<string, string> = {
   job_match_scorer: 'Job Match Scorer',
+  resume_analysis: 'Resume Analysis',
   resume_rewriter: 'Resume Rewriter',
   cover_letter: 'Cover Letter',
   interview_practice: 'Interview Practice',
+  interview_coach: 'Interview Coach',
+  voice_interview_video: 'Mock Interview Video',
   linkedin_headline: 'LinkedIn Headline',
   linkedin_about: 'LinkedIn About',
   salary_negotiation: 'Salary Negotiation',
   gap_analyzer: 'Gap Analyzer',
+  career_counselor: 'Career Counselor',
+  skill_assessment: 'Skill Mapper / Skill Assessment',
 };
 
 export async function GET(request: Request) {

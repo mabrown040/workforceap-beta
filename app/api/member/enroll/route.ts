@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { sendCourseEnrolledEmail } from '@/lib/email';
+import { trackEvent } from '@/lib/events/track';
 import { getActivePrograms, isProgramSlugActiveInCatalog } from '@/lib/platform/programCatalog';
 import { memberTrainingProfileComplete } from '@/lib/platform/trainingEnrollmentGate';
 
@@ -91,6 +92,15 @@ export async function POST(request: Request) {
     });
     return u;
   });
+
+  // Lifecycle event: program_enrolled
+  trackEvent({
+    userId: user.id,
+    eventName: 'program_enrolled',
+    entityType: 'Program',
+    entityId: slug,
+    metadata: { programTitle },
+  }).catch(() => {});
 
   sendPartnerMilestoneEmail(user.id, 'Program enrollment', {
     Program: programTitle,

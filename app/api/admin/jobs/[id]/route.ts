@@ -7,21 +7,26 @@ export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const { id } = await params;
-  const job = await prisma.job.findUnique({
-    where: { id },
-    include: {
-      employer: { select: { id: true, companyName: true, contactEmail: true, contactName: true } },
-      applications: {
-        include: { student: { select: { id: true, fullName: true, email: true } } },
+    const { id } = await params;
+    const job = await prisma.job.findUnique({
+      where: { id },
+      include: {
+        employer: { select: { id: true, companyName: true, contactEmail: true, contactName: true } },
+        applications: {
+          include: { student: { select: { id: true, fullName: true, email: true } } },
+        },
       },
-    },
-  });
+    });
 
-  if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
-  return NextResponse.json(job);
+    if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
+    return NextResponse.json(job);
+  } catch (error) {
+    console.error('[admin/jobs/[id] GET] error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

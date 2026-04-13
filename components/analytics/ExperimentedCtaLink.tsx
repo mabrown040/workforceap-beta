@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import type { CSSProperties } from 'react';
 import { useMemo, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import CtaExperimentExposure from '@/components/analytics/CtaExperimentExposure';
@@ -11,6 +12,7 @@ type Variant = {
   label: string;
   className: string;
   href: string;
+  style?: CSSProperties;
 };
 
 export default function ExperimentedCtaLink({
@@ -37,6 +39,7 @@ export default function ExperimentedCtaLink({
       <Link
         href={selected.href}
         className={selected.className}
+        style={selected.style}
         onClick={() => trackCtaExperimentClick(experiment, selected.id, pathname, selected.href)}
       >
         {selected.label}

@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, type ReactNode } from 'react';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import ExportPdfButton from './ExportPdfButton';
 
 const SALARY_RANGES = [
   '',
@@ -15,8 +16,54 @@ const SALARY_RANGES = [
   '$130,000+',
 ];
 
-export default function ResumeRewriterForm() {
-  const [resume, setResume] = useState('');
+type ResumeRewriterFormProps = {
+  initialResume?: string;
+  /** When set with onResumeChange, the resume field is controlled (e.g. profile coach Accept → append). */
+  resumeControlled?: string;
+  onResumeChange?: (value: string) => void;
+  resumeBanner?: ReactNode;
+};
+
+export default function ResumeRewriterForm({
+  initialResume,
+  resumeControlled,
+  onResumeChange,
+  resumeBanner,
+}: ResumeRewriterFormProps = {}) {
+  const [internalResume, setInternalResume] = useState(initialResume ?? '');
+  const isControlled = onResumeChange != null;
+  const resume = isControlled ? (resumeControlled ?? '') : internalResume;
+
+  const setResume = (value: string) => {
+    if (isControlled) onResumeChange(value);
+    else setInternalResume(value);
+  };
+
+  const onResumeChangeRef = useRef(onResumeChange);
+  const resumeControlledRef = useRef(resumeControlled);
+  onResumeChangeRef.current = onResumeChange;
+  resumeControlledRef.current = resumeControlled;
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/member/resume?includePlainText=1')
+      .then((r) => r.json())
+      .then((d: { resumePlainText?: string | null }) => {
+        if (cancelled) return;
+        const t = d.resumePlainText?.trim();
+        if (!t) return;
+        if (onResumeChangeRef.current) {
+          if (!(resumeControlledRef.current ?? '').trim()) onResumeChangeRef.current(t);
+        } else {
+          setInternalResume((prev) => (prev.trim() ? prev : t));
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const [jobTarget, setJobTarget] = useState('');
   const [targetSalary, setTargetSalary] = useState('');
   const [targetLocation, setTargetLocation] = useState('');
@@ -24,6 +71,8 @@ export default function ResumeRewriterForm() {
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [error, setError] = useState('');
+  const [tone, setTone] = useState<'professional' | 'conversational' | 'executive'>('professional');
+  const [atsOptimize, setAtsOptimize] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { copy, copied } = useCopyToClipboard();
 
@@ -38,7 +87,7 @@ export default function ResumeRewriterForm() {
       const res = await fetch('/api/ai/resume-rewriter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resume, jobTarget, targetSalary: targetSalary || undefined, targetLocation: targetLocation.trim() || undefined }),
+        body: JSON.stringify({ resume, jobTarget, targetSalary: targetSalary || undefined, targetLocation: targetLocation.trim() || undefined, tone, atsOptimize }),
       });
 
       const data = await res.json();
@@ -94,6 +143,36 @@ export default function ResumeRewriterForm() {
         </p>
       </div>
 
+      {/* Controls bar */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1.5rem', padding: '0.875rem 1rem', background: 'var(--surface-container)', borderRadius: '0.75rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: '1 1 auto' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)' }} aria-hidden="true">tune</span>
+          <label htmlFor="tone-select" style={{ fontSize: '0.8125rem', fontWeight: 600, whiteSpace: 'nowrap' }}>Tone</label>
+          <select
+            id="tone-select"
+            value={tone}
+            onChange={(e) => setTone(e.target.value as typeof tone)}
+            disabled={loading}
+            style={{ fontSize: '0.8125rem', padding: '0.375rem 0.625rem', borderRadius: '0.375rem', border: '1px solid var(--outline-variant)', background: 'var(--color-white, #fff)', color: 'var(--color-on-surface)', minHeight: '36px' }}
+          >
+            <option value="professional">Professional</option>
+            <option value="conversational">Conversational</option>
+            <option value="executive">Executive</option>
+          </select>
+        </div>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
+          <input
+            type="checkbox"
+            checked={atsOptimize}
+            onChange={(e) => setAtsOptimize(e.target.checked)}
+            disabled={loading}
+            style={{ width: '18px', height: '18px', accentColor: 'var(--color-accent)' }}
+          />
+          <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: atsOptimize ? 'var(--color-green)' : 'var(--color-on-surface-variant)' }} aria-hidden="true">verified</span>
+          ATS Optimized
+        </label>
+      </div>
+
       <fieldset style={{ border: 'none', padding: 0, margin: '0 0 1.5rem' }}>
         <legend style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '1rem', display: 'block' }}>Your Career Goal</legend>
         <div style={{ display: 'grid', gap: '1rem' }}>
@@ -142,6 +221,7 @@ export default function ResumeRewriterForm() {
 
       <div className="form-group">
         <label htmlFor="resume">Your resume (paste or upload PDF/DOCX) *</label>
+        {resumeBanner}
         <div className="resume-upload-row">
           <input
             ref={fileInputRef}
@@ -186,6 +266,7 @@ export default function ResumeRewriterForm() {
             <button type="button" className="btn btn-outline btn-sm" onClick={handleCopy}>
               {copied ? 'Copied!' : 'Copy to clipboard'}
             </button>
+            <ExportPdfButton text={output} title="Resume" toolName="Resume Rewriter" />
           </div>
           <pre className="resume-rewriter-output-content">{output}</pre>
           <p className="ai-result-saved">
@@ -193,6 +274,19 @@ export default function ResumeRewriterForm() {
           </p>
         </div>
       )}
+      {/* Knowledge card */}
+      <div style={{ marginTop: '1.5rem', padding: '1rem 1.25rem', background: 'var(--surface-container-low)', borderRadius: '0.75rem', border: '1px solid var(--outline-variant, rgba(0,0,0,0.08))' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-gold)' }} aria-hidden="true">lightbulb</span>
+          <span style={{ fontWeight: 700, fontSize: '0.875rem' }}>Resume tips</span>
+        </div>
+        <ul style={{ margin: 0, paddingLeft: '1.25rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.7 }}>
+          <li>Use quantifiable achievements (&ldquo;Reduced ticket response time by 40%&rdquo;)</li>
+          <li>Mirror keywords from the job posting for ATS compatibility</li>
+          <li>Keep to 1 page for &lt;10 years experience, 2 pages max</li>
+          <li>Lead each bullet with a strong action verb</li>
+        </ul>
+      </div>
     </form>
   );
 }

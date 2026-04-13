@@ -23,14 +23,19 @@ export type LeaderSpotlightCard = {
 export type LeaderPartnerTile = { icon: string; name: string; desc: string };
 export type LeaderAchievementTile = { icon: string; title: string; desc: string };
 
+export type LeaderSection = 'executive' | 'board' | 'consultant';
+
 export type Leader = {
   slug: string;
   name: string;
   role: string;
   title: string;
+  /** Public path to headshot, or empty string if none yet */
   image: string;
   founder: boolean;
   linkedin: string;
+  /** Optional grouping for /leadership layout (defaults inferred from role when omitted). */
+  section?: LeaderSection;
   /** Short scannable excerpt for the card */
   cardBio: string;
   /** One line: why this leader makes WorkforceAP credible (mission, employer trust, community, outcomes) */
@@ -56,14 +61,14 @@ export const LEADERS: Leader[] = [
     founder: true,
     linkedin: 'https://www.linkedin.com/in/michaelabrownpmp/',
     cardBio:
-      "Texas A&M Chemical Engineer. Former owner of Consulting Solutions.Net; key leader at Goodwill Career & Technical Academy, Austin Area Urban League, Universal Tech Movement, African American Youth Harvest Foundation. 100 Black Men of Austin, Alpha Phi Alpha, Elder at Celebration Church.",
+      "PMP, nonprofit executive. Former owner of Consulting Solutions.Net; key leader at ReWork America Alliance, State of Texas Career Schools, Goodwill Central Texas, and Austin Urban League. Active with Workforce Solutions, Texas Workforce Commission, City of Austin. 100 Black Men of Austin, Alpha Phi Alpha, Elder at Celebration Church.",
     missionRelevance:
-      "25+ years delivering workforce training. Thousands trained through Goodwill, Urban League, and community orgs — the barrier-breaking experience that built WorkforceAP.",
+      "25+ years delivering workforce training through partnerships with the ReWork America Alliance, Workforce Solutions, State of Texas, Texas Workforce Commission, City of Austin, Goodwill, and Urban League — the barrier-breaking experience that built WorkforceAP.",
     bioBlocks: [
       {
         type: 'paragraph',
         text:
-          'Michael Brown, PMP, is a highly accomplished business executive with a distinguished career spanning several decades. He brings a wealth of expertise in business development, project management, and education, consistently driving organizational excellence across the public and private sectors. As the former owner of Consulting Solutions.Net and a key leader at the State of Texas Career Schools, Goodwill Central Texas, and the Austin Urban League, Michael has repeatedly demonstrated his ability to propel business growth through thoughtful strategic planning, operational innovation, and continuous improvement.',
+          'Michael Brown, PMP, is a highly accomplished business executive with a distinguished career spanning several decades. He brings a wealth of expertise in business development, project management, and education, consistently driving organizational excellence across the public and private sectors. As the former owner of Consulting Solutions.Net and a key leader at the State of Texas Career Schools, ReWork America Alliance, Goodwill Central Texas, and the Austin Urban League, Michael has repeatedly demonstrated his ability to propel business growth through thoughtful strategic planning, operational innovation, and continuous improvement.',
       },
       {
         type: 'paragraph',
@@ -87,7 +92,7 @@ export const LEADERS: Leader[] = [
       },
     ],
     stats: [
-      { label: 'Family', value: '33 years married' },
+      { label: 'Family', value: '35 years married' },
       { label: 'Community', value: '100 Black Men of Austin' },
       { label: 'Fraternity', value: 'Alpha Phi Alpha Fraternity' },
       { label: 'Faith', value: 'Elder at Celebration Church' },
@@ -211,7 +216,7 @@ export const LEADERS: Leader[] = [
     cardBio:
       "CTO, Global Partner Solutions at Microsoft. 25 years in tech. SUCCESS Magazine Women of Influence 2023. MS Electrical Engineering, Georgia Tech. Board Director, IDEX Corporation.",
     missionRelevance:
-      "Employer-side credibility. The tech pathways our graduates walk into — Microsoft, enterprise partners — are the same rooms she helps shape.",
+      "Employer-side credibility. Our employer partners are the rooms she helps shape — Microsoft, enterprise partners, and the tech pathways our graduates walk into.",
     bioBlocks: [
       {
         type: 'paragraph',
@@ -289,7 +294,7 @@ export const LEADERS: Leader[] = [
     cardBio:
       'Co-founded Interstate Connections — Austin Business Journal "Fastest Growing Private Company." CFO, The Business Bible. Texas Alliance for Life board. Former Chairman, Concordia High School.',
     missionRelevance:
-      "Entrepreneur who built a Fastest Growing Company. Board leadership that strengthens community pipelines and employer connections.",
+      "Highly respected entrepreneur that influences direction and resources. Built a Fastest Growing Company; board leadership strengthens community pipelines and employer connections.",
     bioBlocks: [
       {
         type: 'paragraph',
@@ -442,6 +447,40 @@ export const LEADERS: Leader[] = [
         desc: 'Operation Enduring Freedom and mission-critical leadership in contested environments.',
       },
     ],
+  },
+  {
+    slug: 'michael-brown-ii',
+    name: 'Michael Brown II',
+    role: 'Lead Consultant',
+    title: 'Lead Consultant',
+    /** Empty until a real headshot is available — listing and bio pages omit the placeholder */
+    image: '',
+    founder: false,
+    linkedin: '',
+    section: 'consultant',
+    cardBio:
+      'Consultant to Workforce Advancement Project on program design, employer alignment, and scaling high-touch career services for underserved communities.',
+    missionRelevance:
+      'Bridges strategy and delivery — helping WorkforceAP turn training partnerships into measurable placement and retention outcomes.',
+    bioBlocks: [
+      {
+        type: 'paragraph',
+        text:
+          'Michael Brown II serves as Lead Consultant to Workforce Advancement Project, advising on curriculum alignment, partner engagement, and how we scale personalized support without losing accountability to members and employers.',
+      },
+      {
+        type: 'paragraph',
+        text:
+          'His work focuses on connecting program operations to labor-market demand — so certificates and credentials translate into interviews, offers, and careers that last.',
+      },
+    ],
+    stats: [
+      { label: 'Focus', value: 'Program & partner alignment' },
+      { label: 'Outcome', value: 'Placement-ready talent pipelines' },
+    ],
+    heroBadge: 'Lead Consultant',
+    heroQuote:
+      'Strategy only matters when it shows up in a member’s next opportunity.',
   },
 ];
 

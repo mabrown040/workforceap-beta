@@ -10,38 +10,43 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const { id: memberId } = await params;
+    const { id: memberId } = await params;
 
-  const profile = await prisma.profile.findUnique({
-    where: { userId: memberId },
-  });
+    const profile = await prisma.profile.findUnique({
+      where: { userId: memberId },
+    });
 
-  const originalPath = profile?.resumeOriginalPath;
-  const enhancedPath = profile?.resumeEnhancedPath;
+    const originalPath = profile?.resumeOriginalPath;
+    const enhancedPath = profile?.resumeEnhancedPath;
 
-  const supabase = getSupabaseAdmin();
-  let originalUrl: string | null = null;
-  let enhancedUrl: string | null = null;
+    const supabase = getSupabaseAdmin();
+    let originalUrl: string | null = null;
+    let enhancedUrl: string | null = null;
 
-  if (originalPath) {
-    const { data } = await supabase.storage.from(BUCKET).createSignedUrl(originalPath, 3600);
-    originalUrl = data?.signedUrl ?? null;
+    if (originalPath) {
+      const { data } = await supabase.storage.from(BUCKET).createSignedUrl(originalPath, 3600);
+      originalUrl = data?.signedUrl ?? null;
+    }
+    if (enhancedPath) {
+      const { data } = await supabase.storage.from(BUCKET).createSignedUrl(enhancedPath, 3600);
+      enhancedUrl = data?.signedUrl ?? null;
+    }
+
+    return NextResponse.json({
+      hasOriginal: !!originalPath,
+      hasEnhanced: !!enhancedPath,
+      originalUrl,
+      enhancedUrl,
+      originalPath,
+      enhancedPath,
+    });
+  } catch (error) {
+    console.error('[admin/members/[id]/resume-urls GET] error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-  if (enhancedPath) {
-    const { data } = await supabase.storage.from(BUCKET).createSignedUrl(enhancedPath, 3600);
-    enhancedUrl = data?.signedUrl ?? null;
-  }
-
-  return NextResponse.json({
-    hasOriginal: !!originalPath,
-    hasEnhanced: !!enhancedPath,
-    originalUrl,
-    enhancedUrl,
-    originalPath,
-    enhancedPath,
-  });
 }

@@ -7,6 +7,11 @@ import { sendInactiveNudgeEmail } from '@/lib/email';
  * Run daily (e.g. via Vercel Cron: "0 10 * * *" for 10 AM).
  * Sends to members inactive for 7+ days who have notificationsReminders enabled.
  * Protected with CRON_SECRET header.
+ *
+ * PERF: Instead of scanning the entire member_events table with an unfiltered
+ * groupBy, we query only events from the last 7 days to find ACTIVE users,
+ * then find eligible members NOT in that set. This bounds the scan to a 7-day
+ * window regardless of table size.
  */
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization');
@@ -18,34 +23,19 @@ export async function GET(request: Request) {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-  const lastEvents = await prisma.memberEvent.groupBy({
+  // Find users who HAVE had activity in the last 7 days (bounded scan).
+  const recentlyActive = await prisma.memberEvent.groupBy({
     by: ['userId'],
-    _max: { createdAt: true },
+    where: { createdAt: { gte: sevenDaysAgo } },
   });
+  const activeUserIds = new Set(recentlyActive.map((r) => r.userId));
 
-  const inactiveUserIds: string[] = [];
-  for (const row of lastEvents) {
-    const lastAt = row._max.createdAt;
-    if (lastAt && lastAt < sevenDaysAgo) {
-      inactiveUserIds.push(row.userId);
-    }
-  }
-
-  const usersWithNoEvents = await prisma.user.findMany({
-    where: { deletedAt: null, notificationsReminders: true },
-    select: { id: true },
-  }).then((users) => {
-    const eventUserIds = new Set(lastEvents.map((r) => r.userId));
-    return users.filter((u) => !eventUserIds.has(u.id)).map((u) => u.id);
-  });
-
-  const allInactive = [...new Set([...inactiveUserIds, ...usersWithNoEvents])];
-
+  // Find eligible members who are NOT in the active set.
   const members = await prisma.user.findMany({
     where: {
-      id: { in: allInactive },
       deletedAt: null,
       notificationsReminders: true,
+      id: { notIn: [...activeUserIds] },
     },
     select: { id: true, email: true, fullName: true },
   });
@@ -66,7 +56,7 @@ export async function GET(request: Request) {
   return NextResponse.json({
     ok: true,
     checkedAt: new Date().toISOString(),
-    inactive7DaysCount: allInactive.length,
-    emailsSent: sent,
+    recentlyActiveCount: activeUserIds.size,
+    inactiveEmailsSent: sent,
   });
 }

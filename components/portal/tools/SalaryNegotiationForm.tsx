@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import ExportPdfButton from './ExportPdfButton';
 
 export default function SalaryNegotiationForm() {
   const [currentOffer, setCurrentOffer] = useState('');
@@ -141,6 +142,7 @@ export default function SalaryNegotiationForm() {
             <button type="button" className="btn btn-outline btn-sm" onClick={handleCopy}>
               {copied ? 'Copied!' : 'Copy to clipboard'}
             </button>
+            <ExportPdfButton text={output} title="Salary Negotiation Script" toolName="Salary Negotiation" />
           </div>
           <pre className="resume-rewriter-output-content">{output}</pre>
           <p className="ai-result-saved">

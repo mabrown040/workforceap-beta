@@ -47,7 +47,7 @@ export function buildApplyPageMetadata(programParam: string | undefined): Metada
 
   if (!program) {
     return buildPageMetadata({
-      title: 'Apply for Free Career Training',
+      title: 'Apply for Career Training',
       description:
         'Apply for no-cost career certification training. CompTIA, Google, IBM, AWS, and more. Serving communities nationwide. We respond within 24–48 hours.',
       path: '/apply',

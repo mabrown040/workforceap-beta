@@ -28,6 +28,7 @@ import {
   enrollmentConfirmationHtml,
   partnerWeeklyDigestHtml,
   counselorAssignedHtml,
+  partnerReferralInviteHtml,
 } from '@/emails';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
@@ -41,6 +42,77 @@ function getResend(): Resend | null {
 
 function getFrom(): string {
   return process.env.EMAIL_FROM || 'noreply@workforceap.org';
+}
+
+export async function sendVoiceInterviewTranscriptEmail(params: {
+  to: string[];
+  memberName: string;
+  memberEmail?: string | null;
+  role: string;
+  interviewType: string;
+  transcriptTurns: { role: 'agent' | 'user'; text: string }[];
+  feedback?: string;
+  sessionId: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendVoiceInterviewTranscriptEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+
+  const recipients = Array.from(
+    new Set(
+      params.to
+        .map((email) => email.trim().toLowerCase())
+        .filter(Boolean)
+    )
+  );
+  if (recipients.length === 0) {
+    return { ok: false, error: 'No recipients configured' };
+  }
+
+  const transcriptHtml = params.transcriptTurns.length
+    ? params.transcriptTurns
+        .map((turn) => {
+          const speaker = turn.role === 'agent' ? 'Interviewer' : 'Candidate';
+          return `<p style="margin:0 0 0.75rem;"><strong>${speaker}:</strong> ${escapeHtml(turn.text)}</p>`;
+        })
+        .join('')
+    : '<p style="margin:0;">No transcript turns were captured.</p>';
+
+  const bodyHtml = `
+    <p>A voice interview transcript was saved and emailed automatically.</p>
+    <ul>
+      <li><strong>Member:</strong> ${escapeHtml(params.memberName)}</li>
+      ${params.memberEmail ? `<li><strong>Member email:</strong> ${escapeHtml(params.memberEmail)}</li>` : ''}
+      <li><strong>Target role:</strong> ${escapeHtml(params.role)}</li>
+      <li><strong>Interview type:</strong> ${escapeHtml(params.interviewType)}</li>
+      <li><strong>Session ID:</strong> ${escapeHtml(params.sessionId)}</li>
+    </ul>
+    ${params.feedback ? `<p><strong>Coaching feedback</strong></p><p style="white-space:pre-wrap;">${escapeHtml(params.feedback)}</p>` : ''}
+    <p><strong>Transcript</strong></p>
+    <div style="padding:16px;border-radius:12px;background:#f8f5f3;border:1px solid #eadfdb;">${transcriptHtml}</div>
+  `;
+
+  const html = brandedEmailLayout({
+    title: 'Voice interview transcript',
+    bodyHtml,
+    ctaText: 'Open admin',
+    ctaUrl: `${SITE_URL}/admin`,
+  });
+
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: recipients,
+      subject: sanitizeEmailSubjectLine(`Voice interview transcript — ${params.memberName} — ${params.role}`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendVoiceInterviewTranscriptEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
 }
 
 /** Notify member when a counselor is assigned (member portal Messages) */
@@ -384,6 +456,44 @@ export async function sendInvitationEmail(params: {
     return { ok: true };
   } catch (err) {
     console.error('sendInvitationEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+export async function sendPartnerReferralInviteEmail(params: {
+  to: string;
+  inviterName: string;
+  partnerName: string;
+  personalMessage?: string | null;
+  inviteUrl: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendPartnerReferralInviteEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+
+  const html = brandedEmailLayout({
+    title: `${params.inviterName} invited you to connect with WorkforceAP`,
+    bodyHtml: partnerReferralInviteHtml({
+      inviterName: params.inviterName,
+      partnerName: params.partnerName,
+      personalMessage: params.personalMessage,
+    }),
+    ctaText: 'Start Application',
+    ctaUrl: params.inviteUrl,
+  });
+
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(`${params.inviterName} invited you to WorkforceAP`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendPartnerReferralInviteEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
 }
@@ -784,6 +894,42 @@ export async function sendPartnerWeeklyDigestEmail(params: {
     return { ok: true };
   } catch (err) {
     console.error('sendPartnerWeeklyDigestEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Notify staff when a member resets their skills assessment to retake */
+export async function sendAssessmentResetNotificationEmail(params: {
+  memberName: string;
+  memberEmail: string;
+  previousScore: number;
+  programInterest: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) return { ok: false, error: 'Email not configured' };
+  const html = brandedEmailLayout({
+    title: 'Skills Assessment Reset',
+    bodyHtml: `
+      <p>A member has requested to retake their skills assessment.</p>
+      <table style="font-size:0.9rem;border-collapse:collapse;width:100%">
+        <tr><td style="padding:6px 12px 6px 0;font-weight:600;color:#584144">Member</td><td>${escapeHtml(params.memberName)}</td></tr>
+        <tr><td style="padding:6px 12px 6px 0;font-weight:600;color:#584144">Email</td><td>${escapeHtml(params.memberEmail)}</td></tr>
+        <tr><td style="padding:6px 12px 6px 0;font-weight:600;color:#584144">Previous Score</td><td>${params.previousScore}%</td></tr>
+        <tr><td style="padding:6px 12px 6px 0;font-weight:600;color:#584144">Program</td><td>${escapeHtml(params.programInterest)}</td></tr>
+      </table>
+      <p style="margin-top:1rem">The previous score has been archived in the system. The member can now retake from their dashboard.</p>
+    `,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: ['info@workforceap.org', ADMIN_EMAIL],
+      subject: `Assessment Reset — ${params.memberName}`,
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendAssessmentResetNotificationEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
 }

@@ -1,0 +1,127 @@
+'use client';
+
+import type { ReactNode } from 'react';
+
+export type VoiceAgentSurfaceProps = {
+  badge: string;
+  headline?: string;
+  subtext?: string;
+  icon: string;
+  /** CSS color used for icon tile border and ambient glow */
+  glowColor: string;
+  /** Full CSS gradient for outer ring */
+  gradient: string;
+  children: ReactNode;
+};
+
+/**
+ * Visual chrome for ElevenLabs voice panels: gradient ring, soft glow, icon tile.
+ */
+export default function VoiceAgentSurface({
+  badge,
+  headline,
+  subtext,
+  icon,
+  glowColor,
+  gradient,
+  children,
+}: VoiceAgentSurfaceProps) {
+  return (
+    <div
+      style={{
+        position: 'relative',
+        borderRadius: '1rem',
+        padding: '1px',
+        background: gradient,
+        boxShadow: `0 16px 48px ${glowColor}28`,
+      }}
+    >
+      <div
+        className="portal-card portal-card--flat"
+        style={{
+          borderRadius: '0.94rem',
+          border: 'none',
+          padding: '1.25rem',
+          background: 'var(--surface-container-lowest)',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: '-25%',
+            right: '-8%',
+            width: '160px',
+            height: '160px',
+            background: gradient,
+            opacity: 0.1,
+            borderRadius: '50%',
+            filter: 'blur(48px)',
+          }}
+        />
+        <div
+          style={{
+            position: 'relative',
+            display: 'flex',
+            gap: '0.875rem',
+            marginBottom: '1rem',
+            alignItems: 'flex-start',
+          }}
+        >
+          <div
+            style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '14px',
+              background: `linear-gradient(145deg, ${glowColor}26, transparent)`,
+              border: `1px solid ${glowColor}40`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.45rem',
+              flexShrink: 0,
+            }}
+          >
+            {icon}
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <p
+              className="wa-text-[10px] wa-uppercase wa-tracking-[0.14em] wa-font-semibold"
+              style={{ color: 'var(--color-accent)', marginBottom: '0.35rem' }}
+            >
+              {badge}
+            </p>
+            {headline ? (
+              <h3
+                style={{
+                  margin: 0,
+                  fontSize: '1.05rem',
+                  fontWeight: 700,
+                  color: 'var(--color-on-surface)',
+                  lineHeight: 1.3,
+                }}
+              >
+                {headline}
+              </h3>
+            ) : null}
+            {subtext ? (
+              <p
+                style={{
+                  margin: '0.35rem 0 0',
+                  fontSize: '0.82rem',
+                  color: 'var(--color-on-surface-variant)',
+                  lineHeight: 1.45,
+                }}
+              >
+                {subtext}
+              </p>
+            ) : null}
+          </div>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}

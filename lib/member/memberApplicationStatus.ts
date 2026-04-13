@@ -22,6 +22,7 @@ export type MemberApplicationStatusView = {
   submittedAt: Date | null;
   programInterest: string | null;
   nextStep: string;
+  nextStepHref: string;
   showResponseEstimate: boolean;
   /** 1–5 = index in MEMBER_APPLICATION_PROGRESS_STEPS; null when not on linear path (e.g. rejected) */
   progressIndex: number | null;
@@ -69,13 +70,22 @@ export function buildMemberApplicationStatusView(
     under_review:
       'We may need a bit more information. Check your email for any requests from our team.',
     accepted:
-      'Log in to your member portal, choose your program if you have not already, and complete your profile so we can finalize enrollment.',
+      'Choose your program and complete your profile so we can finalize enrollment.',
     enrolled:
       'Complete your skills assessment and start training when your counselor clears you to begin.',
     active:
       'Keep progressing in training and job search support. Your dashboard shows the next milestones.',
     rejected:
       'If you have questions about this decision, contact us at info@workforceap.org.',
+  };
+
+  const nextStepHrefs: Record<MemberApplicationStage, string> = {
+    applied: '/dashboard/messages',
+    under_review: '/dashboard/messages',
+    accepted: '/dashboard/profile',
+    enrolled: '/dashboard/training',
+    active: '/dashboard/ai-tools',
+    rejected: 'mailto:info@workforceap.org',
   };
 
   const progressIndex: number | null =
@@ -97,6 +107,7 @@ export function buildMemberApplicationStatusView(
     submittedAt,
     programInterest,
     nextStep: nextSteps[stage],
+    nextStepHref: nextStepHrefs[stage],
     showResponseEstimate,
     progressIndex,
   };

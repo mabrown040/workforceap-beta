@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumePlainText';
+import ExportPdfButton from './ExportPdfButton';
 
 export default function CoverLetterForm() {
   const [resume, setResume] = useState('');
@@ -15,6 +17,8 @@ export default function CoverLetterForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { copy, copied } = useCopyToClipboard();
+
+  useHydrateMemberResumePlainText(setResume);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,6 +124,7 @@ export default function CoverLetterForm() {
             <button type="button" className="btn btn-outline btn-sm" onClick={handleCopy}>
               {copied ? 'Copied!' : 'Copy to clipboard'}
             </button>
+            <ExportPdfButton text={output} title="Cover Letter" toolName="Cover Letter Builder" />
           </div>
           <pre className="resume-rewriter-output-content">{output}</pre>
           <p className="ai-result-saved">

@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import { ExternalLink } from 'lucide-react';
 import { buildPageMetadata } from '@/app/seo';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Coursera courses',
@@ -25,6 +26,7 @@ export default async function CourseraIntegrationPage() {
   const enrolledProgram = dbUser?.enrolledProgram;
 
   return (
+    <>
     <div className="portal-main-content">
       <PageHeader
         title="Coursera & course access"
@@ -85,5 +87,7 @@ export default async function CourseraIntegrationPage() {
         <Link href="/dashboard/messages">Messages</Link>.
       </p>
     </div>
+      <MobileBottomNav variant="portal" />
+    </>
   );
 }

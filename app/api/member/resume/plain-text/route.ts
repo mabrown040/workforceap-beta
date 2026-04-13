@@ -1,0 +1,45 @@
+import { NextResponse } from 'next/server';
+import { getUser } from '@/lib/auth/server';
+import { prisma } from '@/lib/db/prisma';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
+
+const BUCKET = 'member-resumes';
+const MAX_CHARS = 120_000;
+
+/**
+ * Persists the member's live resume draft as plain text (coach workspace, tooling).
+ * Stored alongside generated resumes as `resume-enhanced.txt` so `getMemberResumePlainText` picks it up.
+ */
+export async function POST(request: Request) {
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const body = (await request.json()) as { plainText?: unknown };
+    const raw = typeof body.plainText === 'string' ? body.plainText : '';
+    const plainText = raw.length > MAX_CHARS ? raw.slice(0, MAX_CHARS) : raw;
+
+    const supabase = getSupabaseAdmin();
+    const path = `${user.id}/resume-enhanced.txt`;
+    const { error } = await supabase.storage.from(BUCKET).upload(path, plainText, {
+      upsert: true,
+      contentType: 'text/plain; charset=utf-8',
+    });
+
+    if (error) {
+      console.error('[member/resume/plain-text] upload error:', error);
+      return NextResponse.json({ error: 'Failed to save resume text' }, { status: 500 });
+    }
+
+    await prisma.profile.upsert({
+      where: { userId: user.id },
+      create: { userId: user.id, resumeEnhancedPath: path, role: 'member' },
+      update: { resumeEnhancedPath: path },
+    });
+
+    return NextResponse.json({ ok: true, path });
+  } catch (e) {
+    console.error('[member/resume/plain-text] error:', e);
+    return NextResponse.json({ error: 'Failed to save resume text' }, { status: 500 });
+  }
+}

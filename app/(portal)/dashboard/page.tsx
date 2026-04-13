@@ -397,73 +397,110 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       <div className="wa-md:wa-hidden portal-mobile-content">
 
         {/* ── Hero: greeting + progress ring ── */}
-        <section style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem', padding: '1.5rem 1.25rem 1rem' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1, minWidth: 0, paddingRight: '0.25rem' }}>
-            <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', margin: 0 }}>
-              {formatPortalDate(new Date())}
-            </p>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.2 }}>
-              Hi, {firstName}
-            </h2>
-            {program && (
-              <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0', lineHeight: 1.35 }}>
-                {program.title}
-              </p>
-            )}
-          </div>
-
-          {/* Progress ring */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.45rem', flexShrink: 0, minWidth: '7rem' }}>
+        <section style={{ padding: '1.25rem 1.25rem 1rem' }}>
+          <div
+            style={{
+              borderRadius: '1.5rem',
+              padding: '1rem',
+              background: 'linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 7%, white) 0%, white 52%)',
+              border: '1px solid color-mix(in srgb, var(--color-accent) 14%, var(--outline-variant))',
+              boxShadow: '0 16px 40px rgba(17, 24, 39, 0.08)',
+              overflow: 'hidden',
+              position: 'relative',
+            }}
+          >
             <div
-              className="portal-progress-ring"
+              aria-hidden
               style={{
-                width: '5.75rem',
-                height: '5.75rem',
-                flexShrink: 0,
+                position: 'absolute',
+                top: '-2.5rem',
+                right: '-2rem',
+                width: '8rem',
+                height: '8rem',
                 borderRadius: '999px',
-                background: 'radial-gradient(circle at center, color-mix(in srgb, var(--color-accent) 8%, white) 0%, white 62%)',
-                boxShadow: '0 10px 24px rgba(173,44,77,0.12)',
+                background: 'radial-gradient(circle, color-mix(in srgb, var(--color-accent) 18%, transparent) 0%, transparent 68%)',
+                pointerEvents: 'none',
               }}
-            >
-              <svg style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }} viewBox="0 0 96 96" aria-hidden>
-                <circle cx="48" cy="48" r="40" fill="transparent" stroke="var(--surface-container-high)" strokeWidth="7" />
-                <circle
-                  cx="48" cy="48" r="40" fill="transparent"
-                  stroke="var(--color-accent)" strokeWidth="7"
-                  strokeDasharray={orbCircumference}
-                  strokeDashoffset={orbDashoffset}
-                  strokeLinecap="round"
-                />
-              </svg>
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.12rem' }}>
-                <span className="wa-text-lg wa-font-extrabold wa-text-[var(--color-accent-dark)]" style={{ lineHeight: 1 }}>{mobilePct}%</span>
-                <span className="wa-text-[9px] wa-font-semibold wa-uppercase wa-tracking-[0.12em] wa-text-[var(--color-on-surface-variant)]" style={{ lineHeight: 1 }}>
-                  {mobileProgressTone}
-                </span>
+            />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.9rem', position: 'relative' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', flex: 1, minWidth: 0, paddingRight: '0.25rem' }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', alignSelf: 'flex-start', padding: '0.35rem 0.55rem', borderRadius: '999px', background: 'rgba(255,255,255,0.8)', border: '1px solid var(--outline-variant)' }}>
+                  <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.625rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', margin: 0 }}>
+                    {formatPortalDate(new Date())}
+                  </p>
+                </div>
+                <div>
+                  <p style={{ margin: 0, fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--color-accent-dark)' }}>
+                    Member dashboard
+                  </p>
+                  <h2 style={{ fontSize: '1.625rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-on-surface)', margin: '0.2rem 0 0', lineHeight: 1.1 }}>
+                    Hi, {firstName}
+                  </h2>
+                </div>
+                {program && (
+                  <div style={{ display: 'inline-flex', alignSelf: 'flex-start', maxWidth: '100%', padding: '0.5rem 0.7rem', borderRadius: '0.9rem', background: 'rgba(255,255,255,0.9)', border: '1px solid color-mix(in srgb, var(--color-accent) 10%, var(--outline-variant))' }}>
+                    <p style={{ fontSize: '0.76rem', color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.35, fontWeight: 600 }}>
+                      {program.title}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Progress ring */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.45rem', flexShrink: 0, minWidth: '7rem' }}>
+                <div
+                  className="portal-progress-ring"
+                  style={{
+                    width: '6rem',
+                    height: '6rem',
+                    flexShrink: 0,
+                    borderRadius: '999px',
+                    background: 'radial-gradient(circle at center, color-mix(in srgb, var(--color-accent) 10%, white) 0%, white 60%)',
+                    boxShadow: '0 14px 32px rgba(173,44,77,0.14)',
+                    border: '1px solid color-mix(in srgb, var(--color-accent) 12%, white)',
+                  }}
+                >
+                  <svg style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }} viewBox="0 0 96 96" aria-hidden>
+                    <circle cx="48" cy="48" r="40" fill="transparent" stroke="var(--surface-container-high)" strokeWidth="7" />
+                    <circle
+                      cx="48" cy="48" r="40" fill="transparent"
+                      stroke="var(--color-accent)" strokeWidth="7"
+                      strokeDasharray={orbCircumference}
+                      strokeDashoffset={orbDashoffset}
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.12rem' }}>
+                    <span className="wa-text-xl wa-font-extrabold wa-text-[var(--color-accent-dark)]" style={{ lineHeight: 1 }}>{mobilePct}%</span>
+                    <span className="wa-text-[9px] wa-font-semibold wa-uppercase wa-tracking-[0.12em] wa-text-[var(--color-on-surface-variant)]" style={{ lineHeight: 1 }}>
+                      {mobileProgressTone}
+                    </span>
+                  </div>
+                </div>
+                <div
+                  style={{
+                    padding: '0.38rem 0.72rem',
+                    borderRadius: '999px',
+                    background: 'color-mix(in srgb, var(--color-accent) 10%, white)',
+                    border: '1px solid color-mix(in srgb, var(--color-accent) 20%, white)',
+                  }}
+                >
+                  <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-[0.14em] wa-text-[var(--color-accent-dark)]">
+                    Training progress
+                  </span>
+                </div>
+                <p style={{ margin: 0, fontSize: '0.68rem', lineHeight: 1.35, color: 'var(--color-on-surface-variant)', textAlign: 'center', maxWidth: '7rem' }}>
+                  {mobileProgressSummary}
+                </p>
               </div>
             </div>
-            <div
-              style={{
-                padding: '0.35rem 0.65rem',
-                borderRadius: '999px',
-                background: 'color-mix(in srgb, var(--color-accent) 10%, white)',
-                border: '1px solid color-mix(in srgb, var(--color-accent) 18%, white)',
-              }}
-            >
-              <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-[0.14em] wa-text-[var(--color-accent-dark)]">
-                Training progress
-              </span>
-            </div>
-            <p style={{ margin: 0, fontSize: '0.68rem', lineHeight: 1.35, color: 'var(--color-on-surface-variant)', textAlign: 'center', maxWidth: '7rem' }}>
-              {mobileProgressSummary}
-            </p>
-          </div>
-        </section>
 
-        <section style={{ padding: '0 1.5rem 0.75rem' }}>
-          <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)]" style={{ margin: 0, lineHeight: 1.5 }}>
-            Training progress is based on completed courses. Your application steps are shown below.
-          </p>
+            <div style={{ marginTop: '0.9rem', paddingTop: '0.9rem', borderTop: '1px solid color-mix(in srgb, var(--outline-variant) 78%, white)' }}>
+              <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)]" style={{ margin: 0, lineHeight: 1.5 }}>
+                Training progress is based on completed courses. Your application steps are shown below.
+              </p>
+            </div>
+          </div>
         </section>
 
         <section style={{ padding: '0 1.5rem 1.25rem' }}>

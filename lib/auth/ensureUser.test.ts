@@ -4,18 +4,20 @@ import { ensureUserInDb } from './ensureUser';
 import { prisma } from '../db/prisma';
 
 test('ensureUserInDb - happy path', async (t) => {
-  const originalFindUnique = prisma.organization.findUnique;
-  const originalUpsert = prisma.user.upsert;
+  const organizationDelegate = prisma.organization as any;
+  const userDelegate = prisma.user as any;
+  const originalFindUnique = organizationDelegate.findUnique;
+  const originalUpsert = userDelegate.upsert;
 
   t.after(() => {
-    prisma.organization.findUnique = originalFindUnique;
-    prisma.user.upsert = originalUpsert;
+    organizationDelegate.findUnique = originalFindUnique;
+    userDelegate.upsert = originalUpsert;
   });
 
-  prisma.organization.findUnique = async () => ({ id: 'org-1' } as any);
+  organizationDelegate.findUnique = async () => ({ id: 'org-1' } as any);
 
   let upsertCalled = 0;
-  prisma.user.upsert = async (args) => {
+  userDelegate.upsert = async (_args: any) => {
     upsertCalled++;
     return {} as any;
   };
@@ -25,18 +27,20 @@ test('ensureUserInDb - happy path', async (t) => {
 });
 
 test('ensureUserInDb - handles P2002 unique constraint error by updating with email', async (t) => {
-  const originalFindUnique = prisma.organization.findUnique;
-  const originalUpsert = prisma.user.upsert;
+  const organizationDelegate = prisma.organization as any;
+  const userDelegate = prisma.user as any;
+  const originalFindUnique = organizationDelegate.findUnique;
+  const originalUpsert = userDelegate.upsert;
 
   t.after(() => {
-    prisma.organization.findUnique = originalFindUnique;
-    prisma.user.upsert = originalUpsert;
+    organizationDelegate.findUnique = originalFindUnique;
+    userDelegate.upsert = originalUpsert;
   });
 
-  prisma.organization.findUnique = async () => ({ id: 'org-1' } as any);
+  organizationDelegate.findUnique = async () => ({ id: 'org-1' } as any);
 
   let upsertCalls: any[] = [];
-  prisma.user.upsert = async (args: any) => {
+  userDelegate.upsert = async (args: any) => {
     upsertCalls.push(args);
     if (upsertCalls.length === 1) {
       throw { code: 'P2002' };
@@ -53,18 +57,20 @@ test('ensureUserInDb - handles P2002 unique constraint error by updating with em
 });
 
 test('ensureUserInDb - rethrows non-P2002 errors', async (t) => {
-  const originalFindUnique = prisma.organization.findUnique;
-  const originalUpsert = prisma.user.upsert;
+  const organizationDelegate = prisma.organization as any;
+  const userDelegate = prisma.user as any;
+  const originalFindUnique = organizationDelegate.findUnique;
+  const originalUpsert = userDelegate.upsert;
 
   t.after(() => {
-    prisma.organization.findUnique = originalFindUnique;
-    prisma.user.upsert = originalUpsert;
+    organizationDelegate.findUnique = originalFindUnique;
+    userDelegate.upsert = originalUpsert;
   });
 
-  prisma.organization.findUnique = async () => ({ id: 'org-1' } as any);
+  organizationDelegate.findUnique = async () => ({ id: 'org-1' } as any);
 
   const testError = new Error('Database connection failed');
-  prisma.user.upsert = async () => {
+  userDelegate.upsert = async () => {
     throw testError;
   };
 

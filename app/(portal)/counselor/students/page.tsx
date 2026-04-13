@@ -11,6 +11,16 @@ import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import StatusBadge from '@/components/portal/StatusBadge';
 
+const HOT_QUEUE_LOOKBACK_DAYS = 7;
+
+function formatHotQueueTime(date: Date): string {
+  const diffMs = Date.now() - date.getTime();
+  const diffHours = Math.max(1, Math.round(diffMs / (1000 * 60 * 60)));
+  if (diffHours < 24) return `${diffHours}h ago`;
+  const diffDays = Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24)));
+  return `${diffDays}d ago`;
+}
+
 function getInitials(name: string): string {
   return name
     .split(' ')
@@ -54,6 +64,37 @@ export default async function CounselorStudentsPage() {
 
   const activeCount = assignments.length;
   const enrolledCount = assignments.filter((a) => a.member.enrolledProgram).length;
+  const memberIds = assignments.map((a) => a.memberId);
+  const hotQueueCutoff = new Date(Date.now() - HOT_QUEUE_LOOKBACK_DAYS * 24 * 60 * 60 * 1000);
+
+  const hotQueue = memberIds.length
+    ? await prisma.memberNextBestAction.findMany({
+        where: {
+          memberId: { in: memberIds },
+          status: 'PENDING',
+          icon: 'auto_awesome',
+          createdAt: { gte: hotQueueCutoff },
+        },
+        orderBy: [{ priority: 'desc' }, { createdAt: 'desc' }],
+        select: {
+          id: true,
+          memberId: true,
+          title: true,
+          description: true,
+          ctaLabel: true,
+          ctaHref: true,
+          createdAt: true,
+          member: {
+            select: {
+              id: true,
+              fullName: true,
+              enrolledProgram: true,
+              programInterest: true,
+            },
+          },
+        },
+      })
+    : [];
 
   return (
     <PortalPageFrame>
@@ -74,7 +115,7 @@ export default async function CounselorStudentsPage() {
           {[
             { label: 'Active Students', value: activeCount, accent: 'var(--color-accent)' },
             { label: 'Enrolled', value: enrolledCount, accent: 'var(--color-gold)' },
-            { label: 'Messages', value: 0, accent: 'var(--color-accent)' },
+            { label: 'Hot Queue', value: hotQueue.length, accent: '#b45309' },
           ].map(({ label, value, accent }) => (
             <div
               key={label}
@@ -107,6 +148,60 @@ export default async function CounselorStudentsPage() {
         {/* TODO: Add real filter chips (At Risk, Upcoming Session) when
              student list is converted to a client component with filter state.
              Removed non-functional decorative chips that looked clickable. */}
+
+        {hotQueue.length > 0 ? (
+          <div style={{ padding: '1rem 1rem 0' }}>
+            <div
+              style={{
+                background: '#fff7ed',
+                border: '1px solid #fdba74',
+                borderRadius: '1rem',
+                padding: '1rem',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                <div>
+                  <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#9a3412' }}>
+                    Hot member queue
+                  </p>
+                  <h2 style={{ margin: '0.2rem 0 0', fontSize: '1rem', fontWeight: 800, color: '#7c2d12' }}>
+                    Fresh completions that need counselor follow-up
+                  </h2>
+                </div>
+                <span className="material-symbols-outlined" style={{ color: '#c2410c', fontSize: 24 }} aria-hidden="true">local_fire_department</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+                {hotQueue.map((action) => (
+                  <Link
+                    key={action.id}
+                    href={`/counselor/students/${action.memberId}`}
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <div
+                      style={{
+                        background: 'rgba(255,255,255,0.9)',
+                        borderRadius: '0.875rem',
+                        border: '1px solid rgba(194,65,12,0.15)',
+                        padding: '0.875rem',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.5rem', marginBottom: '0.35rem' }}>
+                        <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
+                          {action.member.fullName ?? 'Member'}
+                        </p>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#9a3412', whiteSpace: 'nowrap' }}>
+                          {formatHotQueueTime(action.createdAt)}
+                        </span>
+                      </div>
+                      <p style={{ margin: '0 0 0.25rem', fontSize: '0.8rem', fontWeight: 700, color: '#7c2d12' }}>{action.title}</p>
+                      <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>{action.description}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         {/* Header */}
         <div
@@ -258,6 +353,65 @@ export default async function CounselorStudentsPage() {
       {/* ── Desktop ─────────────────────────────────────────── */}
       <div className="wa-hidden wa-md:wa-block">
         <PageHeader title="My students" subtitle="Members assigned to you for coaching and messaging." />
+
+        {hotQueue.length > 0 ? (
+          <section style={{ marginBottom: '1.5rem' }}>
+            <div
+              className="portal-card portal-card--flat"
+              style={{
+                padding: '1.25rem',
+                border: '1px solid #fdba74',
+                background: 'linear-gradient(180deg, #fff7ed 0%, #ffffff 100%)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '0.875rem' }}>
+                <div>
+                  <p style={{ margin: 0, fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#9a3412' }}>
+                    Hot member queue
+                  </p>
+                  <h2 style={{ margin: '0.25rem 0 0', fontSize: '1.1rem', fontWeight: 800, color: '#7c2d12' }}>
+                    Members who just became actionable
+                  </h2>
+                </div>
+                <span className="material-symbols-outlined" style={{ color: '#c2410c', fontSize: 28 }} aria-hidden="true">local_fire_department</span>
+              </div>
+
+              <div style={{ display: 'grid', gap: '0.75rem' }}>
+                {hotQueue.map((action) => (
+                  <Link
+                    key={action.id}
+                    href={`/counselor/students/${action.memberId}`}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'minmax(0, 1fr) auto',
+                      gap: '1rem',
+                      alignItems: 'center',
+                      textDecoration: 'none',
+                      border: '1px solid rgba(194,65,12,0.15)',
+                      borderRadius: '0.9rem',
+                      padding: '0.9rem 1rem',
+                      background: '#fff',
+                    }}
+                  >
+                    <div style={{ minWidth: 0 }}>
+                      <p style={{ margin: '0 0 0.2rem', fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-on-surface)' }}>
+                        {action.member.fullName ?? 'Member'}
+                      </p>
+                      <p style={{ margin: '0 0 0.25rem', fontSize: '0.82rem', fontWeight: 700, color: '#7c2d12' }}>{action.title}</p>
+                      <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-on-surface-variant)' }}>{action.description}</p>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <p style={{ margin: '0 0 0.25rem', fontSize: '0.75rem', fontWeight: 700, color: '#9a3412' }}>
+                        {formatHotQueueTime(action.createdAt)}
+                      </p>
+                      <span className="btn btn-primary btn-sm">Open member</span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        ) : null}
 
         {assignments.length === 0 ? (
           <PortalEmptyState

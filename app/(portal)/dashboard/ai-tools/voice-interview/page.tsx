@@ -44,8 +44,35 @@ export default async function VoiceInterviewPage() {
         </nav>
         <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>Voice Interview</h1>
         <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', maxWidth: 640 }}>
-          Live mock interview with your microphone. Optionally record camera + mic for your own review (encrypted storage). Coaching updates as you speak (local heuristics — not a test score).
+          Open a dedicated mock interview flow, answer questions out loud, and get live coaching feedback in a setup built specifically for practice.
         </p>
+      </div>
+
+      <div style={{ maxWidth: 980, margin: '0 auto', padding: '1rem 1rem 0' }}>
+        <div
+          className="portal-card portal-card--flat"
+          style={{
+            padding: '1rem 1.1rem',
+            borderRadius: 16,
+            marginBottom: '1rem',
+            background: 'var(--surface-container-low)',
+          }}
+        >
+          <div style={{ display: 'flex', gap: '0.9rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+            {[
+              'Microphone required, camera optional',
+              'Live prompts and coaching as you answer',
+              'Save recordings for your own review',
+            ].map((item) => (
+              <div key={item} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', color: 'var(--color-on-surface-variant)', fontSize: '0.82rem', fontWeight: 600 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden>
+                  check_circle
+                </span>
+                {item}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Single scaffold — duplicate mobile/desktop mounts caused two independent button states */}

@@ -131,7 +131,7 @@ export default function MobileApplicationsClient({
   return (
     <div>
       {/* Filter chips */}
-      <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', padding: '0 1rem 0.75rem', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
+      <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', padding: '0 1rem 0.75rem', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', whiteSpace: 'nowrap' }}>
         {STATUS_CHIP_FILTERS.map((f) => {
           const active = filter === f.value;
           return (
@@ -191,13 +191,13 @@ export default function MobileApplicationsClient({
                     {initials(app.student.fullName)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem', flexWrap: 'wrap' }}>
                       <h4 className="font-bold text-sm truncate" style={{ color: 'var(--color-on-surface)' }}>
                         {studentName}
                       </h4>
                       <span
                         className="px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-tighter flex-shrink-0"
-                        style={{ background: sc.bg, color: sc.color }}
+                        style={{ background: sc.bg, color: sc.color, whiteSpace: 'nowrap' }}
                       >
                         {statusLabel(app.status)}
                       </span>

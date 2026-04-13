@@ -6620,11 +6620,17 @@ img.img-fade.loaded { opacity: 1; }
 
     .program-filters {
         gap: 0.375rem;
-        padding-bottom: 0.5rem;
+        padding: 0 3rem 0.5rem 1rem;
+        margin-left: -1rem;
+        margin-right: -1rem;
         overflow-x: auto;
         flex-wrap: nowrap;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
+        scroll-padding-left: 1rem;
+    }
+    .program-filters::after {
+        width: 3rem;
     }
     .program-filters::-webkit-scrollbar { display: none; }
     .filter-chip {

@@ -1,7 +1,6 @@
 'use client';
 
-import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
-import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
+import VoiceCoachLauncherCard from '@/components/portal/VoiceCoachLauncherCard';
 import { mockInterviewVoiceSurface, readinessVoiceSurface, resumeCoachVoiceSurface } from '@/lib/portal/voice';
 
 /**
@@ -28,42 +27,29 @@ export default function VoiceCoachesPromo() {
 
       {/* 3-column compact grid on desktop, 1-column on mobile */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.75rem' }}>
-        <VoiceAgentSurface {...readinessVoiceSurface}>
-          <PortalVoiceSession
-            sessionEndpoint="/api/member/readiness/voice-session"
-            title="Career Readiness"
-            description="Talk through interviews, certifications, and next steps."
-            accent="#0d9488"
-            accentDark="#0f766e"
-            speakingLabel="Coach is speaking…"
-            listeningLabel="Listening…"
-          />
-        </VoiceAgentSurface>
+        <VoiceCoachLauncherCard
+          {...readinessVoiceSurface}
+          title="Career Readiness"
+          description="Open your dedicated readiness flow to talk through interviews, certifications, and next steps with more room to focus."
+          href="/dashboard/readiness"
+          ctaLabel="Open readiness coach"
+        />
 
-        <VoiceAgentSurface {...resumeCoachVoiceSurface}>
-          <PortalVoiceSession
-            sessionEndpoint="/api/member/resume-coach/session"
-            retryWithoutDynamicVariables={false}
-            title="Resume & Experience"
-            description="Practice how you describe your background out loud."
-            accent="#2563eb"
-            accentDark="#1d4ed8"
-            speakingLabel="Coach is speaking…"
-            listeningLabel="Listening…"
-          />
-        </VoiceAgentSurface>
+        <VoiceCoachLauncherCard
+          {...resumeCoachVoiceSurface}
+          title="Resume & Experience"
+          description="Open the full resume coach flow to practice your story out loud and approve edits inside a synced live draft."
+          href="/dashboard/ai-tools/resume-coach"
+          ctaLabel="Open resume coach"
+        />
 
-        <VoiceAgentSurface {...mockInterviewVoiceSurface}>
-          <PortalVoiceSession
-            sessionEndpoint="/api/member/voice-interview/session"
-            title="Voice Interviewer"
-            description="Practice interview answers with a live mock interviewer."
-            accent="#ad2c4d"
-            accentDark="#8b1f38"
-            speakingLabel="Interviewer is speaking…"
-            listeningLabel="Listening…"
-          />
-        </VoiceAgentSurface>
+        <VoiceCoachLauncherCard
+          {...mockInterviewVoiceSurface}
+          title="Voice Interviewer"
+          description="Launch the dedicated mock interview flow with setup guidance, optional recording, and live coaching feedback."
+          href="/dashboard/ai-tools/voice-interview"
+          ctaLabel="Start mock interview"
+        />
       </div>
     </section>
   );

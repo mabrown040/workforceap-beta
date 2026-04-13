@@ -157,15 +157,11 @@ export default async function AdminPage() {
       pendingPlacements = pendingPlacementsResult.value;
     }
 
-    const [enrolledResult, programsResult] = await Promise.allSettled([
-      prisma.user.count({
-        where: {
-          deletedAt: null,
-          enrolledProgram: { not: null },
-        },
-      }),
-      // Count members who completed ALL courses in their enrolled program.
-      // Can't filter JSON array length in Prisma, so fetch and count in JS.
+    // Derive unique program counts in JS so the dashboard reflects distinct
+    // programs, not duplicate member enrollments in the same program.
+    // "Active in Training" counts enrolled members who have not finished every
+    // course in their known program.
+    const [programsResult] = await Promise.allSettled([
       prisma.user.findMany({
         where: {
           deletedAt: null,
@@ -175,27 +171,38 @@ export default async function AdminPage() {
       }),
     ]);
 
-    if (enrolledResult.status === 'rejected') {
-      logPrismaReason('programsEnrolled', enrolledResult.reason);
-      programsEnrolled = 0;
-    } else {
-      programsEnrolled = enrolledResult.value;
-    }
-
     if (programsResult.status === 'rejected') {
-      logPrismaReason('programsCompleted', programsResult.reason);
+      logPrismaReason('programMetrics', programsResult.reason);
+      activeInTraining = 0;
+      programsEnrolled = 0;
       programsCompleted = 0;
     } else {
-      // Count members whose coursesCompleted covers all courses in their program.
-      programsCompleted = programsResult.value.filter((u) => {
-        const program = u.enrolledProgram ? getProgramBySlug(u.enrolledProgram) : null;
-        if (!program || program.courses.length === 0) return false;
-        const completed = (u.coursesCompleted as string[] | null) ?? [];
-        return program.courses.every((c) => completed.includes(c.slug));
-      }).length;
-    }
+      const enrolledPrograms = new Set<string>();
+      const completedPrograms = new Set<string>();
+      let activeInTrainingCount = 0;
 
-    activeInTraining = Math.max(0, programsEnrolled - programsCompleted);
+      for (const u of programsResult.value) {
+        if (!u.enrolledProgram) continue;
+        enrolledPrograms.add(u.enrolledProgram);
+
+        const program = getProgramBySlug(u.enrolledProgram);
+        const completed = (u.coursesCompleted as string[] | null) ?? [];
+        const fullyDone =
+          program != null &&
+          program.courses.length > 0 &&
+          program.courses.every((c) => completed.includes(c.slug));
+
+        if (fullyDone) {
+          completedPrograms.add(u.enrolledProgram);
+        } else {
+          activeInTrainingCount += 1;
+        }
+      }
+
+      activeInTraining = activeInTrainingCount;
+      programsEnrolled = enrolledPrograms.size;
+      programsCompleted = completedPrograms.size;
+    }
   } catch (e) {
     logPrismaReason('critical block', e);
     return (

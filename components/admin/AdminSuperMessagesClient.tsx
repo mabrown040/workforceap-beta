@@ -203,6 +203,8 @@ export default function AdminSuperMessagesClient() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const composeInputRef = useRef<HTMLInputElement>(null);
 
+  const isMobileThreadView = mobileView === 'thread' && Boolean(selectedId);
+
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search.trim()), 300);
     return () => clearTimeout(t);
@@ -415,11 +417,20 @@ export default function AdminSuperMessagesClient() {
 
   return (
     <div className="admin-main-content admin-super-messages">
-      <InboxShell>
+      <InboxShell
+        className="wa-flex-col wa-lg:wa-flex-row"
+        style={{
+          maxWidth: '100%',
+          height: 'auto',
+          minHeight: '70vh',
+        }}
+      >
         <InboxPane
           variant="list"
+          className={isMobileThreadView ? 'wa-hidden wa-lg:wa-flex' : 'wa-flex'}
           style={{
-            width: 360,
+            width: '100%',
+            maxWidth: 360,
             flexShrink: 0,
             borderRight: '1px solid color-mix(in srgb, var(--outline-variant, #e8e0dd) 70%, transparent)',
             overflowY: 'auto',
@@ -506,7 +517,7 @@ export default function AdminSuperMessagesClient() {
                     key={t.id}
                     active={selectedId === t.id}
                     unread={Boolean(alertBadge)}
-                    onClick={() => setSelectedId(t.id)}
+                    onClick={() => selectThread(t.id)}
                   >
                     <InboxRowLayout
                       title={threadListTitle(t)}
@@ -539,7 +550,20 @@ export default function AdminSuperMessagesClient() {
           ) : null}
         </InboxPane>
 
-        <InboxPane variant="thread" style={{ flex: 1, overflow: 'auto', padding: '1rem' }}>
+        <InboxPane
+          variant="thread"
+          className={isMobileThreadView ? 'wa-flex' : 'wa-hidden wa-lg:wa-flex'}
+          style={{ flex: 1, overflow: 'auto', padding: '1rem', minWidth: 0 }}
+        >
+          <div className="wa-flex wa-lg:wa-hidden" style={{ marginBottom: '0.75rem' }}>
+            <button
+              type="button"
+              className="btn btn-outline btn-sm"
+              onClick={() => setMobileView('list')}
+            >
+              ← Back to threads
+            </button>
+          </div>
           {!selectedId ? (
             <InboxEmpty title="Select a thread" description="Pick a conversation from the left to view the full history." />
           ) : detailLoading ? (

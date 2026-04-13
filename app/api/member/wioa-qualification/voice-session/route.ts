@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
 import { fetchWioaPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
+import { trackEvent } from '@/lib/events/track';
 
 /** POST — signed URL for WIOA pre-qualification voice guide. */
 export async function POST() {
@@ -9,6 +10,14 @@ export async function POST() {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
+    void trackEvent({
+      userId: user.id,
+      eventName: 'ai_tool_run_started',
+      entityType: 'ai_tool',
+      metadata: { tool: 'wioa_prequalification_voice_session', provider: 'elevenlabs' },
+      sourcePage: '/dashboard/learning/wioa-qualification',
+    }).catch(() => {});
+
     const dynamicVariables = await fetchWioaPortalDynamicVariables(user.id);
     const { signedUrl, expiresAt, dynamicVariables: returned } = await startElevenLabsPortalSession('wioa_prequal', {
       dynamicVariables,

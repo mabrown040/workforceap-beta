@@ -409,20 +409,44 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </div>
 
           {/* Progress ring */}
-          <div className="portal-progress-ring" style={{ width: '5.25rem', height: '5.25rem', flexShrink: 0 }}>
-            <svg style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }} viewBox="0 0 96 96" aria-hidden>
-              <circle cx="48" cy="48" r="40" fill="transparent" stroke="var(--surface-container-high)" strokeWidth="7" />
-              <circle
-                cx="48" cy="48" r="40" fill="transparent"
-                stroke="var(--color-accent)" strokeWidth="7"
-                strokeDasharray={orbCircumference}
-                strokeDashoffset={orbDashoffset}
-                strokeLinecap="round"
-              />
-            </svg>
-            <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
-              <span className="wa-text-base wa-font-bold wa-text-[var(--color-accent-dark)]">{mobilePct}%</span>
-              <span className="wa-text-[8px] wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-on-surface-variant)]">Training progress</span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.45rem', flexShrink: 0 }}>
+            <div
+              className="portal-progress-ring"
+              style={{
+                width: '5.75rem',
+                height: '5.75rem',
+                flexShrink: 0,
+                borderRadius: '999px',
+                background: 'radial-gradient(circle at center, color-mix(in srgb, var(--color-accent) 8%, white) 0%, white 62%)',
+                boxShadow: '0 10px 24px rgba(173,44,77,0.12)',
+              }}
+            >
+              <svg style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }} viewBox="0 0 96 96" aria-hidden>
+                <circle cx="48" cy="48" r="40" fill="transparent" stroke="var(--surface-container-high)" strokeWidth="7" />
+                <circle
+                  cx="48" cy="48" r="40" fill="transparent"
+                  stroke="var(--color-accent)" strokeWidth="7"
+                  strokeDasharray={orbCircumference}
+                  strokeDashoffset={orbDashoffset}
+                  strokeLinecap="round"
+                />
+              </svg>
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.1rem' }}>
+                <span className="wa-text-lg wa-font-extrabold wa-text-[var(--color-accent-dark)]" style={{ lineHeight: 1 }}>{mobilePct}%</span>
+                <span className="wa-text-[10px] wa-font-semibold wa-uppercase wa-tracking-[0.14em] wa-text-[var(--color-on-surface-variant)]" style={{ lineHeight: 1 }}>Complete</span>
+              </div>
+            </div>
+            <div
+              style={{
+                padding: '0.35rem 0.65rem',
+                borderRadius: '999px',
+                background: 'color-mix(in srgb, var(--color-accent) 10%, white)',
+                border: '1px solid color-mix(in srgb, var(--color-accent) 18%, white)',
+              }}
+            >
+              <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-[0.14em] wa-text-[var(--color-accent-dark)]">
+                Training progress
+              </span>
             </div>
           </div>
         </section>

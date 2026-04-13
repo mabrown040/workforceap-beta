@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import PortalNav from './PortalNav';
+import PortalRoleSwitcher from './PortalRoleSwitcher';
+import type { PortalRole } from '@/lib/nav/portalNav';
 
 const MEMBER_PORTAL_PREFIXES = ['/dashboard', '/programs', '/apply', '/certifications', '/profile'];
 const DEDICATED_SHELL_PREFIXES = ['/employer', '/partner', '/counselor'];
@@ -21,20 +23,54 @@ export default function PortalShell({ children }: { children: React.ReactNode })
   const isPartnerPortal = pathname.startsWith('/partner');
   const isDedicatedShell = hasDedicatedShell(pathname);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [userRoles, setUserRoles] = useState<{ role: PortalRole; roleLabel: string; homeHref: string }[]>([]);
+  const [currentRole, setCurrentRole] = useState<PortalRole>('member');
 
-  // Redirect partner users away from member portal
+  // Fetch user roles and determine current portal
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
         const res = await fetch('/api/auth/me');
-        const data = (await res.json()) as { partner?: { partnerId: string } | null; superAdmin?: boolean };
-        if (cancelled || !data.partner) return;
-        if (data.superAdmin) return;
-        if (pathname.startsWith('/partner')) return;
-        if (isMemberPortalPath(pathname)) {
-          window.location.replace('/partner');
+        const data = await res.json() as {
+          partner?: { partnerId: string } | null;
+          employer?: { employerId: string } | null;
+          counselor?: { counselorId: string } | null;
+          superAdmin?: boolean;
+        };
+        
+        if (cancelled) return;
+        
+        const roles: { role: PortalRole; roleLabel: string; homeHref: string }[] = [];
+        
+        // Determine current portal based on pathname
+        let current: PortalRole = 'member';
+        if (pathname.startsWith('/employer')) current = 'employer';
+        else if (pathname.startsWith('/partner')) current = 'partner';
+        else if (pathname.startsWith('/counselor')) current = 'counselor';
+        else if (pathname.startsWith('/admin')) current = 'admin';
+        
+        // Build available roles list
+        if (data.employer) {
+          roles.push({ role: 'employer', roleLabel: 'Employer', homeHref: '/employer' });
         }
+        if (data.partner) {
+          roles.push({ role: 'partner', roleLabel: 'Partner', homeHref: '/partner' });
+        }
+        if (data.counselor) {
+          roles.push({ role: 'counselor', roleLabel: 'Counselor', homeHref: '/counselor' });
+        }
+        if (data.superAdmin) {
+          roles.push({ role: 'admin', roleLabel: 'Admin', homeHref: '/admin' });
+        }
+        
+        // Always include member portal so multi-role users can switch back.
+        if (!roles.some((r) => r.role === 'member')) {
+          roles.unshift({ role: 'member', roleLabel: 'Member', homeHref: '/dashboard' });
+        }
+
+        setUserRoles(roles);
+        setCurrentRole(current);
       } catch {
         /* ignore */
       }
@@ -79,11 +115,15 @@ export default function PortalShell({ children }: { children: React.ReactNode })
   }, [pathname]);
 
   const showNav = !isDashboard && !isPartnerPortal && !isDedicatedShell;
+  const showRoleSwitcher = userRoles.length > 1;
 
   return (
     <>
       {showNav && (
         <>
+          {showRoleSwitcher && (
+            <PortalRoleSwitcher userRoles={userRoles} currentRole={currentRole} />
+          )}
           <button
             type="button"
             className="portal-hamburger md:wa-hidden"
@@ -100,7 +140,11 @@ export default function PortalShell({ children }: { children: React.ReactNode })
               onClick={() => setSidebarOpen(false)}
             />
           )}
-          <PortalNav className={sidebarOpen ? 'open' : ''} />
+          <PortalNav 
+            className={sidebarOpen ? 'open' : ''} 
+            currentRole={currentRole}
+            currentPath={pathname}
+          />
         </>
       )}
       {children}

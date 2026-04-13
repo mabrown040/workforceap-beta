@@ -1,0 +1,128 @@
+/* Portal Role Switcher */
+.portal-role-switcher {
+  position: relative;
+  margin-left: auto;
+  margin-right: 1rem;
+}
+
+.portal-role-switcher-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--outline-variant);
+  border-radius: 0.5rem;
+  background: var(--surface-container);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-on-surface);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.portal-role-switcher-trigger:hover {
+  background: var(--surface-container-high);
+  border-color: var(--outline);
+}
+
+.portal-role-switcher-chevron {
+  transition: transform 0.2s ease;
+}
+
+.open {
+  transform: rotate(180deg);
+}
+
+.portal-role-switcher-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.25rem;
+  background: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.15);
+  min-width: 12rem;
+  z-index: 50;
+  animation: dropdownFadeIn 0.15s ease-out;
+}
+
+.portal-role-switcher-header {
+  padding: 0.75rem 1rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+.portal-role-switcher-option {
+  display: block;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: var(--color-on-surface);
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+  position: relative;
+}
+
+.portal-role-switcher-option:hover {
+  background: var(--surface-container-high);
+}
+
+.portal-role-switcher-option.current {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-weight: 600;
+}
+
+.portal-role-switcher-option:first-of-type {
+  border-top-left-radius: 0.75rem;
+  border-top-right-radius: 0.75rem;
+}
+
+.portal-role-switcher-option:last-of-type {
+  border-bottom-left-radius: 0.75rem;
+  border-bottom-right-radius: 0.75rem;
+}
+
+.portal-role-switcher-check {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: 700;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .portal-role-switcher {
+    margin-right: 0.5rem;
+  }
+  
+  .portal-role-switcher-trigger {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+  
+  .portal-role-switcher-dropdown {
+    position: fixed;
+    top: 4rem;
+    right: 1rem;
+    left: 1rem;
+    min-width: auto;
+    max-width: calc(100vw - 2rem);
+  }
+}

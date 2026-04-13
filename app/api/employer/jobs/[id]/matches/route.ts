@@ -13,7 +13,7 @@ export async function GET(_request: Request, ctx: { params: Promise<{ id: string
   const { id: jobId } = await ctx.params;
 
   const job = await prisma.job.findFirst({
-    where: { id: jobId, employerId: employerCtx.employerId },
+    where: { id: jobId, employerId: employerCtx.employerId, status: 'live' },
     select: { id: true, title: true },
   });
   if (!job) return NextResponse.json({ error: 'Not found' }, { status: 404 });

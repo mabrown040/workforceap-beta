@@ -65,6 +65,9 @@ export async function POST(
   });
 
   if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
+  if (job.status !== 'live') {
+    return NextResponse.json({ error: 'Match suggestions can only be sent for live jobs' }, { status: 400 });
+  }
   if (job.aiMatches.length === 0) {
     await recordSuggestAudit({
       actorUserId: user.id,
